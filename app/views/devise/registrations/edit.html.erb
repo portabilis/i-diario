@@ -1,0 +1,27 @@
+<h2>Editar <%= resource_name.to_s.humanize %></h2>
+
+<%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
+  <%= f.error_notification %>
+
+  <div class="form-inputs">
+    <%= f.input :email, required: true, autofocus: true %>
+
+    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+      <p>Atualmente aguarda a confirmação para: <%= resource.unconfirmed_email %></p>
+    <% end %>
+
+    <%= f.input :password, autocomplete: "off", hint: "deixe em branco se você não quiser mudá-lo", required: false %>
+    <%= f.input :password_confirmation, required: false %>
+    <%= f.input :current_password, hint: "precisamos de sua senha atual para confirmar as alterações", required: true %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.button :submit, "Alterar" %>
+  </div>
+<% end %>
+
+<h3>Cancelar minha conta</h3>
+
+<p>Unhappy? <%= link_to "Cancelar minha conta", registration_path(resource_name), data: { confirm: "Você tem certeza?" }, method: :delete %></p>
+
+<%= link_to "Back", :back %>

@@ -1,0 +1,263 @@
+pt-BR:
+  boolean:
+    "yes": "Sim"
+    "no": "Não"
+    "true": "Sim"
+    "false": "Não"
+
+  date:
+    formats:
+      default: ! "%d/%m/%Y"
+      long: ! "%d de %B de %Y"
+      short: ! "%d de %B"
+
+    abbr_day_names:
+    - "Dom"
+    - "Seg"
+    - "Ter"
+    - "Qua"
+    - "Qui"
+    - "Sex"
+    - "Sáb"
+
+    abbr_month_names:
+    -
+    - "Jan"
+    - "Fev"
+    - "Mar"
+    - "Abr"
+    - "Mai"
+    - "Jun"
+    - "Jul"
+    - "Ago"
+    - "Set"
+    - "Out"
+    - "Nov"
+    - "Dez"
+
+    day_names:
+    - "Domingo"
+    - "Segunda"
+    - "Terça"
+    - "Quarta"
+    - "Quinta"
+    - "Sexta"
+    - "Sábado"
+
+    month_names:
+    -
+    - "Janeiro "
+    - "Fevereiro"
+    - "Março"
+    - "Abril"
+    - "Maio"
+    - "Junho"
+    - "Julho"
+    - "Agosto"
+    - "Setembro"
+    - "Outubro"
+    - "Novembro"
+    - "Dezembro"
+
+    order:
+    - :day
+    - :month
+    - :year
+
+  datetime:
+    distance_in_words:
+      about_x_years:
+        one: "aproximadamente 1 ano"
+        other: "aproximadamente %{count} anos"
+      about_x_months:
+        one: "aproximadamente 1 mês"
+        other: "aproximadamente %{count} meses"
+      about_x_weeks:
+        one: "aproximadamente 1 semana"
+        other: "aproximadamente %{count} semanas"
+      about_x_days:
+        one: "aproximadamente 1 dia"
+        other: "aproximadamente %{count} dias"
+      about_x_hours:
+        one: "aproximadamente 1 hora"
+        other: "aproximadamente %{count} horas"
+      about_x_minutes:
+        one: "aproximadamente 1 minuto"
+        other: "aproximadamente %{count} minutos"
+      about_x_seconds:
+        one: "aproximadamente 1 segundo"
+        other: "aproximadamente %{count} segundos"
+      almost_x_years:
+        one: "quase 1 ano"
+        other: "quase %{count} anos"
+      almost_x_months:
+        one: "quase 1 mês"
+        other: "quase %{count} meses"
+      almost_x_weeks:
+        one: "quase 1 semana"
+        other: "quase %{count} semanas"
+      almost_x_days:
+        one: "quase 1 dia"
+        other: "quase %{count} dias"
+      almost_x_hours:
+        one: "quase 1 hora"
+        other: "quase %{count} horas"
+      almost_x_minutes:
+        one: "quase 1 minuto"
+        other: "quase %{count} minutos"
+      almost_x_seconds:
+        one: "quase 1 segundo"
+        other: "quase %{count} segundos"
+      half_a_minute: "meio minuto"
+      less_than_x_years:
+        one: "menos de 1 ano"
+        other: "menos de %{count} anos"
+      less_than_x_months:
+        one: "menos de 1 mês"
+        other: "menos de %{count} meses"
+      less_than_x_weeks:
+        one: "menos de 1 semana"
+        other: "menos de %{count} semanas"
+      less_than_x_days:
+        one: "menos de 1 dia"
+        other: "menos de %{count} dias"
+      less_than_x_hours:
+        one: "menos de 1 hora"
+        other: "menos de %{count} horas"
+      less_than_x_minutes:
+        one: "menos de 1 minuto"
+        other: "menos de %{count} minutos"
+      less_than_x_seconds:
+        one: "menos de 1 segundo"
+        other: "menos de %{count} segundos"
+      over_x_years:
+        one: "mais de 1 ano"
+        other: "mais de %{count} anos"
+      over_x_months:
+        one: "mais de 1 mês"
+        other: "mais de %{count} meses"
+      over_x_weeks:
+        one: "mais de 1 semana"
+        other: "mais de %{count} semanas"
+      over_x_days:
+        one: "mais de 1 dia"
+        other: "mais de %{count} dias"
+      over_x_hours:
+        one: "mais de 1 hora"
+        other: "mais de %{count} horas"
+      over_x_minutes:
+        one: "mais de 1 minuto"
+        other: "mais de %{count} minutos"
+      over_x_seconds:
+        one: "mais de 1 segundo"
+        other: "mais de %{count} segundos"
+      x_years:
+        one: "1 ano"
+        other: ! "%{count} anos"
+      x_months:
+        one: "1 mês"
+        other: ! "%{count} meses"
+      x_weeks:
+        one: "1 semana"
+        other: ! "%{count} semanas"
+      x_days:
+        one: "1 dia"
+        other: ! "%{count} dias"
+      x_hours:
+        one: "1 hora"
+        other: ! "%{count} horas"
+      x_minutes:
+        one: "1 minuto"
+        other: ! "%{count} minutos"
+      x_seconds:
+        one: "1 segundo"
+        other: ! "%{count} segundos"
+
+    prompts:
+      year: "Ano"
+      month: "Mês"
+      week: "Semana"
+      day: "Dia"
+      hour: "Hora"
+      minute: "Minuto"
+      second: "Segundo"
+
+  number:
+    currency:
+      format:
+        delimiter: "."
+        format: ! "%u %n"
+        precision: 2
+        separator: ! ","
+        significant: false
+        strip_insignificant_zeros: false
+        unit: "R$ "
+
+    format:
+      delimiter: "."
+      precision: 3
+      separator: ! ","
+      significant: false
+      strip_insignificant_zeros: false
+
+    human:
+      decimal_units:
+        format: ! "%n %u"
+        units:
+          billion:
+            one: "bilhão"
+            other: "bilhões"
+          million:
+            one: "milhão"
+            other: "milhões"
+          quadrillion:
+            one: "quatrilhão"
+            other: "quatrilhões"
+          thousand: "mil"
+          trillion:
+            one: "trilhão"
+            other: "trilhões"
+          unit: ""
+
+      format:
+        delimiter: "."
+        precision: 2
+        significant: true
+        strip_insignificant_zeros: true
+
+      storage_units:
+        format: ! "%n %u"
+        units:
+          byte:
+            one: "Byte"
+            other: "Bytes"
+          gb: "GB"
+          kb: "KB"
+          mb: "MB"
+          tb: "TB"
+
+    percentage:
+      format:
+        delimiter: "."
+
+    precision:
+      format:
+        delimiter: "."
+
+  time:
+    am: ""
+    pm: ""
+    formats:
+      default: ! "%a, %d de %B de %Y, %H:%M:%S %z"
+      long: ! "%d de %B de %Y, %H:%M"
+      short: ! "%d de %B, %H:%M"
+
+  helpers:
+    select:
+      prompt: "Por favor selecione"
+
+  support:
+    array:
+      last_word_connector: ! " e "
+      two_words_connector: ! " e "
+      words_connector: ! ", "

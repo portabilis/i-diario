@@ -1,0 +1,60 @@
+# Additional translations at https://github.com/plataformatec/devise/wiki/I18n
+
+pt-BR:
+  devise:
+    confirmations:
+      confirmed: "Sua conta foi confirmada com sucesso."
+      send_instructions: "Dentro de minutos você receberá um e-mail com instruções para confirmar a sua conta."
+      send_paranoid_instructions: "Caso seu e-mail exista em nossa base, você receberá um e-mail em poucos minutos com instruções sobre como confirmar sua conta."
+    failure:
+      already_authenticated: "Você já está logado."
+      inactive: "A sua conta não foi ativada ainda."
+      inactivated: "A sua conta foi desativada. Por favor entre em contado com o Administrador do sistema."
+      invalid: "Email ou senha inválidos."
+      locked: "Sua conta está bloqueada."
+      last_attempt: "Você tem somente mais uma tentativa antes de sua conta será bloqueada."
+      not_found_in_database: "Email ou senha inválidos."
+      timeout: "A sua sessão expirou, por favor faça login novamente para continuar."
+      unauthenticated: "Você precisa registrar-se ou fazer login para continuar."
+      unconfirmed: "Você deve confirmar sua conta antes de continuar."
+    mailer:
+      confirmation_instructions:
+        subject: "Instruções para confirmação de conta"
+      reset_password_instructions:
+        subject: "Instruções para redefinição de senha"
+      unlock_instructions:
+        subject: "Instruções para desbloqueio de conta"
+    omniauth_callbacks:
+      failure: "Não foi possível autorizar você através do %{kind} porque \"%{reason}\"."
+      success: "Autorizado com sucesso pela conta %{kind}."
+    passwords:
+      no_token: "Você não pode acessar esta página sem que seja a partir de um e-mail de redefinição de senha. Se você chegou aqui através de um e-mail de redefinição de senha, por favor verifique se você usou a URL completa que foi informada."
+      send_instructions: "Você receberá um e-mail com instruções sobre como redefinir sua senha em poucos minutos."
+      send_paranoid_instructions: "Caso seu e-mail esteja cadastrado, você receberá um link para redefinição de senha no seu e-mail em poucos minutos."
+      updated: "Sua senha foi alterada com sucesso. Você está logado agora."
+      updated_not_active: "Sua senha foi alterada com sucesso."
+    registrations:
+      destroyed: "Até mais! Sua conta foi cancelada com sucesso. Esperamos vê-lo novamente em breve."
+      signed_up: "Bem-vindo! Você se registrou com sucesso."
+      signed_up_but_inactive: "Você se cadastrou com sucesso. Porém, sua conta ainda não está ativada."
+      signed_up_but_locked: "Você se cadastrou com sucesso. Porém, sua conta está bloqueada."
+      signed_up_but_unconfirmed: "Uma mensagem com um link de confirmação foi enviado para o seu e-mail. Por favor, abra o link para ativar sua conta."
+      update_needs_confirmation: "Você atualizou sua conta com sucesso, mas nós precisamos verificar seu endereço de e-mail. Por favor, verifique seus e-mails e clique no link de confirmação para finalizar a criação da sua conta."
+      updated: "Você atualizou sua conta com sucesso."
+    sessions:
+      signed_in: "Login realizado com sucesso."
+      signed_out: "Logout realizado com sucesso."
+    unlocks:
+      send_instructions: "Você receberá um e-mail em poucos minutos com instruções sobre como desbloquear sua conta."
+      send_paranoid_instructions: "Caso sua e-mail exista em nossa base, você receberá um e-mail em poucos minutos com instruções sobre como desbloqueá-la."
+      unlocked: "Sua conta foi desbloqueada com sucesso. Por favor, faça login para continuar."
+  errors:
+    messages:
+      already_confirmed: "já foi confirmado, por favor tente fazer login"
+      confirmation_period_expired: "precisa ser confirmado em %{period}, solicite novamente por favor"
+      expired: "expirou, por favor solicite um novo"
+      not_found: "não encontrado"
+      not_locked: "não estava bloqueado"
+      not_saved:
+        one: "1 erro impediu que %{resource} fosse salvo:"
+        other: "%{count} erros impediram que %{resource} fosse salvo:"

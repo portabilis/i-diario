@@ -1,0 +1,30 @@
+pt-BR:
+  flash:
+    female: &female
+      create:
+        notice: '%{resource_name} foi criado com sucesso.'
+        alert: '%{resource_name} não pode ser criado.'
+
+      update:
+        notice: '%{resource_name} foi alterado com sucesso.'
+        alert: '%{resource_name} não pode ser alterado.'
+
+      destroy:
+        notice: '%{resource_name} foi apagado com sucesso.'
+        alert: '%{resource_name} não pode ser apagado.'
+
+    male: &male
+      create:
+        notice: '%{resource_name} foi criada com sucesso.'
+        alert: '%{resource_name} não pode ser criada.'
+
+      update:
+        notice: '%{resource_name} foi alterada com sucesso.'
+        alert: '%{resource_name} não pode ser alterada.'
+
+      destroy:
+        notice: '%{resource_name} foi apagada com sucesso.'
+        alert: '%{resource_name} não pode ser apagada.'
+
+    actions:
+      <<: *male

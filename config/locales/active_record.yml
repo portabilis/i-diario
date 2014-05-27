@@ -1,0 +1,46 @@
+pt-BR:
+  errors: &errors
+    format: ! '%{attribute} %{message}'
+
+    messages:
+      accepted: "deve ser aceito"
+      blank: "não pode ficar em branco"
+      present: "deve ficar em branco"
+      confirmation: "não está de acordo com a confirmação"
+      empty: "não pode ficar vazio"
+      equal_to: "deve ser igual a %{count}"
+      even: "deve ser par"
+      exclusion: "não está disponível"
+      greater_than: "deve ser maior que %{count}"
+      greater_than_or_equal_to: "deve ser maior ou igual a %{count}"
+      inclusion: "não está incluído na lista"
+      invalid: "não é válido"
+      less_than: "deve ser menor que %{count}"
+      less_than_or_equal_to: "deve ser menor ou igual a %{count}"
+      not_a_number: "não é um número"
+      not_an_integer: "não é um número inteiro"
+      odd: "deve ser ímpar"
+      record_invalid: ! "A validação falhou: %{errors}"
+      restrict_dependent_destroy:
+        one: "Não é possível excluir o registro pois existe um %{record} dependente"
+        many: "Não é possível excluir o registro pois existem %{record} dependentes"
+
+      taken: "já está em uso"
+      too_long: ! "é muito longo (máximo: %{count} caracteres)"
+      too_short: ! "é muito curto (mínimo: %{count} caracteres)"
+      wrong_length: "não possui o tamanho esperado (%{count} caracteres)"
+
+    template:
+      body: ! "Por favor, verifique o(s) seguinte(s) campo(s):"
+      header:
+        one: ! "Não foi possível gravar %{model}: 1 erro"
+        other: ! "Não foi possível gravar %{model}: %{count} erros."
+
+  # remove these aliases after 'activemodel' and 'activerecord' namespaces are removed from Rails repository
+  activemodel:
+    errors:
+      <<: *errors
+
+  activerecord:
+    errors:
+      <<: *errors
