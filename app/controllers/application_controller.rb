@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Pundit
+  around_action :handle_customer
 
   respond_to :html, :json
 
@@ -14,4 +15,9 @@ class ApplicationController < ActionController::Base
     Pundit::PolicyFinder.new(record).policy!.new(current_user, record)
   end
   helper_method :policy
+
+  def handle_customer(&block)
+    entity = Entity.find_by(subdomain: request.host)
+    entity.using_connection(&block)
+  end
 end

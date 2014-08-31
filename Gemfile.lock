@@ -5,6 +5,14 @@ GIT
     backbone-nested-attributes (0.3.0)
       rails (>= 3.2.8)
 
+GIT
+  remote: https://github.com/ricardohsd/activerecord-connections.git
+  revision: b2a704ff10c447f37635eaa0a447ffb4747b1694
+  specs:
+    activerecord-connections (0.0.3)
+      activerecord (>= 4.1.0)
+      activesupport (>= 4.1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -183,6 +191,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  activerecord-connections!
   backbone-nested-attributes!
   capybara (= 2.2.1)
   devise (= 3.3.0)

@@ -25,6 +25,8 @@ gem 'twitter-bootstrap-rails', '2.2.8'
 gem 'backbone-nested-attributes', :git => 'git://github.com/samuelsimoes/backbone-nested-attributes.git'
 gem 'handlebars_assets', '0.17.1'
 
+gem 'activerecord-connections', :git => "https://github.com/ricardohsd/activerecord-connections.git"
+
 # Test
 gem 'rspec-rails', '3.0.2', :group => [:development, :test]
 
