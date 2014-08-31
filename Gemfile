@@ -23,6 +23,7 @@ gem 'therubyracer', '0.12.1'
 gem 'less-rails', '2.5.0'
 gem 'twitter-bootstrap-rails', '2.2.8'
 gem 'backbone-nested-attributes', :git => 'git://github.com/samuelsimoes/backbone-nested-attributes.git'
+gem 'handlebars_assets', '0.17.1'
 
 # Test
 gem 'rspec-rails', '3.0.2', :group => [:development, :test]

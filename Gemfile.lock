@@ -60,6 +60,11 @@ GEM
       activesupport (>= 3.0.0)
     foreigner (1.6.1)
       activerecord (>= 3.0.0)
+    handlebars_assets (0.17.1)
+      execjs (>= 1.2.9)
+      multi_json
+      sprockets (>= 2.0.3)
+      tilt
     has_scope (0.5.1)
     hike (1.2.3)
     i18n (0.6.11)
@@ -184,6 +189,7 @@ DEPENDENCIES
   enumerate_it (= 1.2.3)
   factory_girl (= 4.4.0)
   foreigner (= 1.6.1)
+  handlebars_assets (= 0.17.1)
   has_scope (= 0.5.1)
   i18n_alchemy (= 0.2.1)
   less-rails (= 2.5.0)
