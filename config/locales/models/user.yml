@@ -1,0 +1,25 @@
+pt-BR:
+  activerecord:
+    attributes:
+      user:
+        name: "Nome"
+        email: "E-mail"
+        password: "Senha"
+        password_confirmation: "Confirme a senha"
+        remember_me: "Lembrar senha"
+        first_name: "Nome"
+        last_name: "Sobrenome"
+        login: "Nome de usuário"
+        phone: "Celular"
+        cpf: "CPF"
+        authorize_email_and_sms: "Autorizar envio de e-mails e mensagens sms"
+        current_password: "Senha atual"
+        credentials: "Informe o Nome de usuário, E-mail, Celular ou CPF"
+    errors:
+      models:
+        user:
+          attributes:
+            phone:
+              incorrect_format: "formato incorreto"
+            cpf:
+              incorrect_format: "formato incorreto"

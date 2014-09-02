@@ -1,11 +1,14 @@
 require 'spec_helper'
 
-describe DashboardController do
-
+RSpec.describe DashboardController, :type => :controller do
   describe "GET 'index'" do
-    it "returns http success" do
-      get 'index'
-      response.should be_success
+    fixtures :entities
+    fixtures :users
+
+    it "redirects to sign in path" do
+      get :index
+
+      expect(response).to redirect_to(new_user_session_path)
     end
   end
 

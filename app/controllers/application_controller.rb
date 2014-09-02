@@ -8,8 +8,10 @@ class ApplicationController < ActionController::Base
   # For APIs, you may want to use :null_session instead.
   protect_from_forgery with: :exception
 
+  before_action :authenticate_user!
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
   protected
-  attr_reader :current_user # up to configure devise
 
   def policy(record)
     Pundit::PolicyFinder.new(record).policy!.new(current_user, record)
@@ -19,5 +21,19 @@ class ApplicationController < ActionController::Base
   def handle_customer(&block)
     entity = Entity.find_by(domain: request.host)
     entity.using_connection(&block)
+  end
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.for(:sign_in) do |u|
+      u.permit(:credentials, :password, :remember_me)
+    end
+
+    devise_parameter_sanitizer.for(:account_update) do |u|
+      u.permit(:email, :first_name, :last_name, :login, :phone, :cpf, :current_password, :authorize_email_and_sms)
+    end
+
+    devise_parameter_sanitizer.for(:sign_up) do |u|
+      u.permit(:email, :password, :password_confirmation)
+    end
   end
 end

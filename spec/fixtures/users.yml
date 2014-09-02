@@ -1,0 +1,9 @@
+john_doe:
+  email: "john_doe@example.com"
+  encrypted_password: "$2a$10$IdZhH1cdBnINeubvhvNSueUnlGhFXqGtZ5XCFivmATENfM44lW/3u"
+  first_name: 'John'
+  last_name: 'Doe'
+  login: 'john_doe'
+  phone: '(11) 9988-7766'
+  cpf: '639.290.118-32'
+  authorize_email_and_sms: false

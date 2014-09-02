@@ -53,6 +53,8 @@ GEM
       xpath (~> 2.0)
     cliver (0.3.2)
     commonjs (0.2.7)
+    cpf_validator (0.2.0)
+      activemodel (>= 3.0)
     devise (3.3.0)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -89,6 +91,9 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    mask_validator (0.2.1)
+      activemodel (>= 3.0)
+      activerecord (>= 3.0)
     mime-types (1.25.1)
     mina (0.3.0)
       open4
@@ -198,6 +203,7 @@ DEPENDENCIES
   activerecord-connections!
   backbone-nested-attributes!
   capybara (= 2.2.1)
+  cpf_validator (= 0.2.0)
   devise (= 3.3.0)
   enumerate_it (= 1.2.3)
   factory_girl (= 4.4.0)
@@ -206,6 +212,7 @@ DEPENDENCIES
   has_scope (= 0.5.1)
   i18n_alchemy (= 0.2.1)
   less-rails (= 2.5.0)
+  mask_validator (= 0.2.1)
   mina (= 0.3.0)
   pg (= 0.17.1)
   poltergeist (= 1.5.0)
