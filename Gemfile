@@ -21,7 +21,7 @@ gem 'i18n_alchemy', '0.2.1'
 # Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.1'
 gem 'less-rails', '2.5.0'
-gem 'twitter-bootstrap-rails', '2.2.8'
+gem 'twitter-bootstrap-rails', '3.2.0'
 gem 'backbone-nested-attributes', :git => 'git://github.com/samuelsimoes/backbone-nested-attributes.git'
 gem 'handlebars_assets', '0.17.1'
 
