@@ -17,7 +17,7 @@ class ApplicationController < ActionController::Base
   helper_method :policy
 
   def handle_customer(&block)
-    entity = Entity.find_by(subdomain: request.host)
+    entity = Entity.find_by(domain: request.host)
     entity.using_connection(&block)
   end
 end
