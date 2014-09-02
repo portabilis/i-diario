@@ -30,6 +30,10 @@ gem 'activerecord-connections', :git => "https://github.com/ricardohsd/activerec
 # Test
 gem 'rspec-rails', '3.0.2', :group => [:development, :test]
 
+group :development do
+  gem 'mina', '0.3.0'
+end
+
 group :test do
   gem 'capybara', '2.2.1'
   gem 'factory_girl', '4.4.0'
