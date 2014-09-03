@@ -1,0 +1,5 @@
+pt-BR:
+  services:
+    entity_creator:
+      success: "\nSetup realizado com sucesso."
+      error: "\nNao foi possivel criar a Entidade. Por favor, utilize o seguinte formato:\nNAME=\"name\" DOMAIN=\"domain\" DATABASE=\"database\" rake entity:setup\nOu verifique se a Entidade ja nao foi criada"
