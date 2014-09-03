@@ -1,0 +1,72 @@
+# encoding: utf-8
+module Turnip
+  module SignInAndSignOutSteps
+    step "que acesso a página de login" do
+      visit root_path
+    end
+
+    step "informo dados inválidos para login" do
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: 'john_doe@example.com'
+      fill_in 'Senha', with: 'wrong_password'
+
+      click_button 'Acessar'
+    end
+
+    step "não conseguirei acessar o sistema" do
+      expect(page).to have_content 'Email ou senha inválidos.'
+    end
+
+    step "informo o email para login" do
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: 'john_doe@example.com'
+      fill_in 'Senha', with: '12345678'
+
+      click_button 'Acessar'
+    end
+
+    step "serei logado no sistema" do
+      expect(page).to have_content 'Login realizado com sucesso.'
+    end
+
+    step "informo o usuário para login" do
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: 'john_doe'
+      fill_in 'Senha', with: '12345678'
+
+      click_button 'Acessar'
+    end
+
+    step "informo o telefone para login" do
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: '(11) 9988-7766'
+      fill_in 'Senha', with: '12345678'
+
+      click_button 'Acessar'
+    end
+
+    step "informo o cpf para login" do
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: '639.290.118-32'
+      fill_in 'Senha', with: '12345678'
+
+      click_button 'Acessar'
+    end
+
+    step "que estou logado" do
+      visit root_path
+
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: 'john_doe@example.com'
+      fill_in 'Senha', with: '12345678'
+
+      click_button 'Acessar'
+
+      expect(page).to have_content 'Login realizado com sucesso.'
+    end
+
+    step "poderei sair do sistema" do
+      click_link 'Sair'
+
+      expect(page).to have_content 'Você precisa registrar-se ou fazer login para continuar.'
+    end
+  end
+end
+
+RSpec.configure do |config|
+  config.include Turnip::SignInAndSignOutSteps
+end

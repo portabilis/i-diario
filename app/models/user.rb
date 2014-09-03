@@ -7,7 +7,6 @@ class User < ActiveRecord::Base
   has_many :logins, class_name: "UserLogin", dependent: :destroy
 
   validates :phone, mask: { with: "(99) 9999-9999", message: :incorrect_format }, allow_blank: true
-
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :email, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }, presence: true
 

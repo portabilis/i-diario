@@ -14,5 +14,11 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
-end
 
+  config.before(:each, type: :feature) do
+    fixture_path = "#{Rails.root}/spec/fixtures"
+    fixtures = Dir["#{fixture_path}/**/*.yml"].map { |f| File.basename(f, '.yml') }
+
+    ActiveRecord::FixtureSet.create_fixtures(fixture_path, fixtures)
+  end
+end

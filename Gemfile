@@ -38,8 +38,8 @@ group :development do
 end
 
 group :test do
+  gem 'turnip', '1.2.2'
   gem 'capybara', '2.2.1'
-  gem 'factory_girl', '4.4.0'
   gem 'poltergeist', '1.5.0'
   gem 'shoulda-matchers', '2.6.2'
 end
