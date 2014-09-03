@@ -74,7 +74,7 @@ module Turnip
     end
 
     step "poderei sair do sistema" do
-      click_link 'Sair'
+      click_link 'sign_out'
 
       expect(page).to have_content 'Você precisa registrar-se ou fazer login para continuar.'
     end

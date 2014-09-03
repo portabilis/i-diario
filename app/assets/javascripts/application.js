@@ -1,8 +1,9 @@
 //= require jquery
 //= require jquery-ui
 //= require jquery_ujs
-//= require twitter/bootstrap
-//= require bootstrap
+//= require smart_admin/app.config
+//= require smart_admin/bootstrap.min
+//= require smart_admin/msie-fix/jquery.mb.browser.min
 //= require underscore
 //= require backbone
 //= require backbone.marionette

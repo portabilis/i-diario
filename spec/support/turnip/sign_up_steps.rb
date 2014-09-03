@@ -17,7 +17,6 @@ module Turnip
 
     step "deverei ser logado ao sistema" do
       expect(page).to have_text 'Bem-vindo! Você se registrou com sucesso.'
-      expect(page).to have_text 'Educação Logado como jane_doe@example.com'
     end
   end
 end

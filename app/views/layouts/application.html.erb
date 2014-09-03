@@ -17,64 +17,113 @@
     <!-- For third-generation iPad with high-resolution Retina display: -->
     <!-- Size should be 144 x 144 pixels -->
     <%= favicon_link_tag 'apple-touch-icon-144x144-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '144x144' %>
-
-    <!-- For iPhone with high-resolution Retina display: -->
-    <!-- Size should be 114 x 114 pixels -->
-    <%= favicon_link_tag 'apple-touch-icon-114x114-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '114x114' %>
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
 
     <!-- For first- and second-generation iPad: -->
     <!-- Size should be 72 x 72 pixels -->
     <%= favicon_link_tag 'apple-touch-icon-72x72-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '72x72' %>
 
-    <!-- For non-Retina iPhone, iPod Touch, and Android 2.1+ devices: -->
-    <!-- Size should be 57 x 57 pixels -->
-    <%= favicon_link_tag 'apple-touch-icon-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png' %>
-
-    <!-- For all other devices -->
-    <!-- Size should be 32 x 32 pixels -->
-    <%= favicon_link_tag 'favicon.ico', :rel => 'shortcut icon' %>
+    <!-- For iPhone with high-resolution Retina display: -->
+    <!-- Size should be 114 x 114 pixels -->
+    <%= favicon_link_tag 'apple-touch-icon-114x114-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '114x114' %>
   </head>
-  <body>
 
-    <div class="navbar navbar-fixed-top">
-      <div class="navbar-inner">
-        <div class="container">
-          <a class="btn btn-navbar" data-target=".nav-collapse" data-toggle="collapse">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a>
-          <a class="brand" href="#">Educação</a>
-          <div class="container nav-collapse">
-            <ul class="nav">
-            </ul>
-            <p class="navbar-text pull-right">
-            <% if user_signed_in? %>
-              Logado como <strong><%= current_user.email %></strong> |
-              <%= link_to "Sair", destroy_user_session_path, method: :delete, :class => 'navbar-link'  %> |
-              <%= link_to 'Editar Perfil', edit_user_registration_path, :class => 'navbar-link' %> |
-            <% else %>
-              <%= link_to "Cadastrar", new_user_registration_path, :class => 'navbar-link'  %> |
-              <%= link_to "Acessar", new_user_session_path, :class => 'navbar-link'  %>
-            <% end %>
-          </div><!--/.nav-collapse -->
+  <body class="">
+    <header id="header">
+      <div id="logo-group">
+        <span id="logo">Educação</span>
+      </div>
+
+      <div class="pull-right">
+        <!-- logout button -->
+        <% if user_signed_in? %>
+          <div id="logout" class="btn-header transparent pull-right">
+            <span>
+              <%= link_to content_tag(:i, '', class: 'fa fa-sign-out'), destroy_user_session_path, method: :delete, id: "sign_out"  %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    </header>
+
+    <aside id="left-panel">
+      <div class="login-info">
+        <span>
+          <% if user_signed_in? %>
+            <%= link_to content_tag(:i, '', class: "fa fa-lg fa-fw fa-user") +
+                  content_tag(:span, current_user.login),
+                  edit_user_registration_path
+            %>
+          <% end %>
+        </span>
+      </div>
+
+      <nav>
+        <ul>
+          <li>
+            <a href="/" title="Dashboard">
+              <i class="fa fa-lg fa-fw fa-home"></i>
+              <span class="***REMOVED***-item-parent">Dashboard</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </aside>
+
+    <div id="main" role="main">
+      <div id="ribbon">
+        <ol class="breadcrumb">
+          <li>Inicio</li><li>Dashboard</li>
+        </ol>
+      </div>
+
+      <div id="content">
+        <div class="row">
+          <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+            <h1 class="page-title txt-color-blueDark">
+              <i class="fa-fw fa fa-home"></i>
+                Dashboard
+            </h1>
+          </div>
         </div>
+
+        <section id="widget-grid" class="">
+          <div class="row">
+            <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <div class="jarviswidget" id="wid-id-0">
+                <header>
+                  <h2>Dashboard</h2>
+                </header>
+
+                <div>
+                    <%= bootstrap_flash %>
+
+                    <p>
+                      <% if user_signed_in? %>
+                        <%= link_to "Editar Perfil", edit_user_registration_path, :class => 'navbar-link'  %>
+                      <% else %>
+                        <%= link_to "Cadastrar", new_user_registration_path, :class => 'navbar-link'  %> |
+                        <%= link_to "Acessar", new_user_session_path, :class => 'navbar-link'  %>
+                      <% end %>
+                    </p>
+
+                    <%= yield %>
+                  </div>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
       </div>
     </div>
 
-    <div class="container">
-        <div class="row">
-          <div class="span12">
-            <%= bootstrap_flash %>
-            <%= yield %>
-          </div>
-        </div><!--/row-->
-
-      <footer>
-        <p>&copy; Portabilis 2014</p>
-      </footer>
-
-    </div> <!-- /container -->
+    <div class="page-footer">
+      <div class="row">
+        <div class="col-xs-12 col-sm-6">
+          <span class="txt-color-white">&copy; Portabilis 2014</span>
+        </div>
+      </div>
+    </div>
 
     <%= javascript_include_tag "application" %>
   </body>
