@@ -22,9 +22,19 @@ Funcionalidade: Login e logout
     Quando informo o telefone para login
     Então serei logado no sistema
 
+  Cenário: Login usando o telefone sem caracteres não numéricos
+    Dado que acesso a página de login
+    Quando informo o telefone sem caracteres não numéricos para login
+    Então serei logado no sistema
+
   Cenário: Login usando o cpf
     Dado que acesso a página de login
     Quando informo o cpf para login
+    Então serei logado no sistema
+
+  Cenário: Login usando o cpf sem caracteres não numéricos
+    Dado que acesso a página de login
+    Quando informo o cpf sem caracteres não numéricos para login
     Então serei logado no sistema
 
   Cenário: Logout

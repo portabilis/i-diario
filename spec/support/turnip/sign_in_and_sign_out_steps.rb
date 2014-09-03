@@ -41,8 +41,22 @@ module Turnip
       click_button 'Acessar'
     end
 
+    step "informo o telefone sem caracteres não numéricos para login" do
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: '1199887766'
+      fill_in 'Senha', with: '12345678'
+
+      click_button 'Acessar'
+    end
+
     step "informo o cpf para login" do
       fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: '639.290.118-32'
+      fill_in 'Senha', with: '12345678'
+
+      click_button 'Acessar'
+    end
+
+    step "informo o cpf sem caracteres não numéricos para login" do
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: '63929011832'
       fill_in 'Senha', with: '12345678'
 
       click_button 'Acessar'
