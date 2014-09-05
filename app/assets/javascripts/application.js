@@ -13,5 +13,6 @@
 //= require backbone-validation-bootstrap
 //= require handlebars.runtime
 //= require jquery.inputmask
+//= require jNotify.jquery.min
 //= require educacao
 //= require_tree .

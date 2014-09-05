@@ -1,0 +1,4 @@
+pt-BR:
+  services:
+    profiles_creator:
+      success: "\nPerfis de usuário criados com sucesso."

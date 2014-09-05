@@ -1,0 +1,35 @@
+<div class="widget-body">
+  <div class="smart-form">
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Permissões</th>
+            <% @profiles.each do |profile| %>
+              <th><%= profile.role_humanize %></th>
+            <% end %>
+          </tr>
+        </thead>
+        <tbody>
+          <% Profile.permissions_list.each do |permission| %>
+            <tr>
+              <td><%= Profile.human_attribute_name(permission) %></td>
+              <% @profiles.each do |profile| %>
+                <td>
+                  <label class="checkbox">
+                    <input type="checkbox"
+                           id ="<%= profile.id %>_<%= permission %>"
+                           data-id="<%= profile.id %>"
+                           data-permission="<%= permission %>"
+                           <%= "checked='checked'" if profile.send(permission) %>>
+                    <i></i>
+                  </label>
+                </td>
+              <% end %>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

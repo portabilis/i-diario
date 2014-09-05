@@ -1,0 +1,14 @@
+admin:
+  role: "admin"
+  manage_profiles: true
+  manage_users: true
+
+servant:
+  role: "servant"
+  manage_profiles: false
+  manage_users: true
+
+student:
+  role: "student"
+  manage_profiles: false
+  manage_users: false

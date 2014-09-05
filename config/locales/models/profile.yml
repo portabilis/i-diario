@@ -1,0 +1,7 @@
+pt-BR:
+  activerecord:
+    attributes:
+      profile:
+        role: "Função"
+        manage_users: "Gerenciar Usuários"
+        manage_profiles: "Gerenciar Perfis"

@@ -28,7 +28,7 @@
     <%= favicon_link_tag 'apple-touch-icon-114x114-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '114x114' %>
   </head>
 
-  <body class="">
+  <body class="smart-style-2 <%= controller_name %>">
     <header id="header">
       <div id="logo-group">
         <span id="logo">Educação</span>
@@ -66,6 +66,12 @@
               <span class="***REMOVED***-item-parent">Dashboard</span>
             </a>
           </li>
+          <li>
+            <a href="/profiles" title="Profiles">
+              <i class="fa fa-lg fa-fw fa-eye"></i>
+              <span class="***REMOVED***-item-parent">Perfis de acesso</span>
+            </a>
+          </li>
         </ul>
       </nav>
     </aside>
@@ -73,7 +79,7 @@
     <div id="main" role="main">
       <div id="ribbon">
         <ol class="breadcrumb">
-          <li>Inicio</li><li>Dashboard</li>
+          <li>Inicio</li><li>Perfis de acesso</li>
         </ol>
       </div>
 
@@ -81,8 +87,11 @@
         <div class="row">
           <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
             <h1 class="page-title txt-color-blueDark">
-              <i class="fa-fw fa fa-home"></i>
-                Dashboard
+              <i class="fa fa-eye fa-fw "></i>
+              Perfis de acesso
+              <span>&gt;
+                Configurar
+              </span>
             </h1>
           </div>
         </div>
@@ -92,23 +101,12 @@
             <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
               <div class="jarviswidget" id="wid-id-0">
                 <header>
-                  <h2>Dashboard</h2>
+                  <h2>Geral</h2>
                 </header>
-
                 <div>
                     <%= bootstrap_flash %>
 
-                    <p>
-                      <% if user_signed_in? %>
-                        <%= link_to "Editar Perfil", edit_user_registration_path, :class => 'navbar-link'  %>
-                      <% else %>
-                        <%= link_to "Cadastrar", new_user_registration_path, :class => 'navbar-link'  %> |
-                        <%= link_to "Acessar", new_user_session_path, :class => 'navbar-link'  %>
-                      <% end %>
-                    </p>
-
                     <%= yield %>
-                  </div>
                 </div>
               </div>
             </article>
