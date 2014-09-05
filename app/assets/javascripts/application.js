@@ -18,3 +18,4 @@
 //= require flash_messages
 //= require server-errors-presenter
 //= require educacao
+//= require_tree ./resources
