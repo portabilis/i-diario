@@ -5,7 +5,9 @@
 #   branch       - Branch name to deploy. (needed by mina/git)
 
 if ENV['to'] == "staging"
+  set :rails_env, "staging"
   set :branch, "development"
+  set :user, "deploy"
   set :domain, 'ncloudtest1.portabilis.com.br'
   set :deploy_to, '/var/www/novo-educacao'
 end
