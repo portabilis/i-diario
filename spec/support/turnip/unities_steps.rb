@@ -12,16 +12,24 @@ module Turnip
     step 'poderei cadastrar uma nova unidade' do
       fill_in "Nome", with: "Escola X"
 
+      fill_mask "Cep", with: "32672-124"
+      fill_in "Rua", with: "Rua Goiania"
+      fill_in "Número", with: "54"
+      fill_in "Bairro", with: "Centro"
+      fill_in "Cidade", with: "Betim"
+      select "Minas Gerais", from: "Estado"
+      fill_in "País", with: "Brasil"
+
       click_on "Salvar"
 
-      expect(page).to have_content "Unidade criada com sucesso"
+      expect(page).to have_content "Unidade foi criada com sucesso."
     end
 
     step 'que existe uma unidade cadastrada' do
       click_link 'Unidades'
 
       within :xpath, '//table/tbody/tr[position()=1]' do
-        expect(page).to have_content 'Escola Y'
+        expect(page).to have_content 'Escola A'
       end
     end
 
@@ -34,28 +42,44 @@ module Turnip
     step 'poderei alterar seus dados' do
       fill_in 'Nome', with: 'Unidade Z'
 
+      expect(page).to have_field "Cep", with: "32672-124"
+      expect(page).to have_field "Rua", with: "Rua Goiania"
+      expect(page).to have_field "Número", with: "54"
+      expect(page).to have_field "Bairro", with: "Centro"
+      expect(page).to have_field "Cidade", with: "Betim"
+      expect(page).to have_select "Estado", selected: "Minas Gerais"
+      expect(page).to have_field "País", with: "Brasil"
+
       click_on 'Salvar'
 
-      expect(page).to have_content 'Unidade editada com sucesso'
+      expect(page).to have_content 'Unidade foi alterada com sucesso.'
 
       within "footer" do
         click_on 'Voltar'
       end
 
-      within :xpath, '//table/tbody/tr[position()=1]' do
+      within :xpath, '//table/tbody/tr[position()=2]' do
         expect(page).to have_content 'Unidade Z'
       end
     end
 
-    step "poderei excluir esta unidade" do
-      within :xpath, '//table/tbody/tr[position()=1]' do
-        expect(page).to have_content 'Escola Y'
+    step "que existem unidades cadastradas" do
+      click_link 'Unidades'
+
+      within :xpath, '//table/tbody/tr[position()=2]' do
+        expect(page).to have_content 'Unidade Z'
+      end
+    end
+
+    step "poderei excluir uma unidade" do
+      within :xpath, '//table/tbody/tr[position()=2]' do
+        expect(page).to have_content 'Unidade Z'
         click_on 'Excluir'
       end
 
       expect(page).to have_content "Unidade foi apagada com sucesso"
 
-      expect(page).to have_no_content 'Escola Y'
+      expect(page).to have_no_content 'Unidade Z'
     end
   end
 end

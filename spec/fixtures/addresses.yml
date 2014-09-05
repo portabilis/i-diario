@@ -1,0 +1,9 @@
+rua_goiania:
+  source: escola_y (Unity)
+  zip_code: "32672-124"
+  street: "Rua Goiania"
+  number: "54"
+  neighborhood: "Centro"
+  city: "Betim"
+  state: "mg"
+  country: "Brasil"

@@ -11,5 +11,9 @@ pt-BR:
         phone: "Telefone"
         email: "E-mail"
         responsible: "Responsável"
-        api_code: "Código iEducar"
+        api_code: "Código da escola no i-Educar"
         author: "Autor"
+
+  unity:
+    help:
+      api_code: "Usaremos este código para vincular uma unidade deste sistema a uma unidade escolar do sistema i-Educar."

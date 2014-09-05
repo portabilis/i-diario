@@ -1,0 +1,12 @@
+.smart-form fieldset {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
+.smart-form .control-group {
+  margin-bottom: 15px;
+}
+
+#map-address {
+  height: 300px;
+}

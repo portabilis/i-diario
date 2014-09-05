@@ -14,8 +14,10 @@
 //= require backbone-validation
 //= require backbone-validation-bootstrap
 //= require jquery.inputmask
+//= require jquery.singlemask
 //= require jNotify.jquery.min
 //= require flash_messages
 //= require server-errors-presenter
+//= require masks
 //= require educacao
 //= require_tree ./resources

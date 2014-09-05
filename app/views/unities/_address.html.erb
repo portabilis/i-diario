@@ -1,0 +1,52 @@
+<fieldset>
+  <legend>Endereço</legend>
+
+  <%= f.input_field :id, class: 'hidden' %>
+
+  <div class="row">
+    <div class="col col-sm-3">
+      <%= f.input :zip_code, input_html: { class: "zip_code" } %>
+    </div>
+
+    <div class="col col-sm-7">
+      <%= f.input :street %>
+    </div>
+
+    <div class="col col-sm-2">
+      <%= f.input :number %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :complement %>
+    </div>
+
+    <div class="col col-sm-8">
+      <%= f.input :neighborhood %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-6">
+      <%= f.input :city %>
+    </div>
+
+    <div class="col col-sm-3">
+      <%= f.input :state do %>
+        <%= f.input_field :state, collection: States %>
+        <i></i>
+      <% end %>
+    </div>
+
+    <div class="col col-sm-3">
+      <%= f.input :country, as: :string %>
+    </div>
+  </div>
+
+  <%= f.input_field :latitude, as: :hidden %>
+  <%= f.input_field :longitude, as: :hidden %>
+
+  <div id="map-address" data-lat="<%= f.object.latitude %>" data-lng="<%= f.object.longitude %>">
+  </div>
+</fieldset>

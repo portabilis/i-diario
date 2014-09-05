@@ -16,5 +16,5 @@ Funcionalidade: Gerenciamento de unidades
     Então poderei alterar seus dados
 
   Cenário: Excluir uma unidade
-    Dado que existe uma unidade cadastrada
-    Então poderei excluir esta unidade
+    Dado que existem unidades cadastradas
+    Então poderei excluir uma unidade

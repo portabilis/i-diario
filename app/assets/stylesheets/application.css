@@ -16,6 +16,6 @@
  *= require smart_admin/smartadmin-production
  *= require smart_admin/smartadmin-skins
  *= require jNotify.jquery.css
- *= require_tree .
+ *= require educacao
  *= require_self
  */

@@ -1,6 +1,10 @@
 class Unity < ActiveRecord::Base
   belongs_to :author, class_name: "User"
 
+  has_one :address, as: :source, inverse_of: :source
+
+  accepts_nested_attributes_for :address
+
   validates :author, :name, presence: true
   validates :name, uniqueness: { case_sensitive: false }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{4}-[0-9]{4,5}\z/i }, allow_blank: true
