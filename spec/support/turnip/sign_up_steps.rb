@@ -4,7 +4,7 @@ module Turnip
     step "que acesso a página de signup" do
       visit root_path
 
-      click_link 'Cadastro'
+      click_link 'Criar conta'
     end
 
     step "realizo o cadastro de um novo usuário" do

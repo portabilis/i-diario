@@ -1,15 +1,33 @@
-<h2>Acessar o sistema</h2>
+<div class="well no-padding">
+  <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "smart-form client-form" }) do |f| %>
+    <header>Acessar o sistema</header>
 
-<%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
-  <div class="form-inputs">
-    <%= f.input :credentials, required: false, autofocus: true %>
-    <%= f.input :password, required: false %>
-    <%= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
-  </div>
+    <fieldset>
+      <section>
+        <%= f.label :credentials, class: "label" %>
+        <label class="input">
+          <i class="icon-append fa fa-user"></i>
+          <%= f.input_field :credentials, required: false, autofocus: true %>
+        </label>
+      </section>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Acessar" %>
-  </div>
-<% end %>
+      <section>
+        <%= f.label :password, class: "label" %>
+        <label class="input">
+          <i class="icon-append fa fa-lock"></i>
+          <%= f.input_field :password, required: false %>
+        </label>
 
-<%= render "devise/shared/links" %>
+        <div class="note">
+          <%= render "devise/shared/links" %>
+        </div>
+      </section>
+
+      <%#= f.input :remember_me, as: :boolean if devise_mapping.rememberable? %>
+    </fieldset>
+
+    <footer>
+      <%= f.button :submit, "Acessar", class: "btn btn-primary" %>
+    </footer>
+  <% end %>
+</div>
