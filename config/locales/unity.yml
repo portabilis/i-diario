@@ -1,0 +1,15 @@
+pt-BR:
+  activerecord:
+    models:
+      unity:
+        one: "Unidade"
+        other: "Unidades"
+
+    attributes:
+      unity:
+        name: "Nome"
+        phone: "Telefone"
+        email: "E-mail"
+        responsible: "Responsável"
+        api_code: "Código iEducar"
+        author: "Autor"

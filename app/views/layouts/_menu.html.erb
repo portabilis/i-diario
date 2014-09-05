@@ -1,0 +1,36 @@
+<aside id="left-panel">
+  <div class="login-info">
+    <span>
+      <% if user_signed_in? %>
+        <%= link_to edit_user_registration_path do %>
+          <%= content_tag(:i, '', class: "fa fa-lg fa-fw fa-user") + content_tag(:span, current_user.login) %>
+        <% end %>
+      <% end %>
+    </span>
+  </div>
+
+  <nav>
+    <ul>
+      <li>
+        <a href="/" title="Dashboard">
+          <i class="fa fa-lg fa-fw fa-home"></i>
+          <span class="***REMOVED***-item-parent">Dashboard</span>
+        </a>
+      </li>
+
+      <li>
+        <a href="/profiles" title="Profiles">
+          <i class="fa fa-lg fa-fw fa-eye"></i>
+          <span class="***REMOVED***-item-parent">Perfis de acesso</span>
+        </a>
+      </li>
+
+      <li>
+        <%= link_to unities_path, title: t('***REMOVED***.unities') do %>
+          <i class="fa fa-lg fa-fw fa-reorder"></i>
+          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.unities') %></span>
+        <% end %>
+      </li>
+    </ul>
+  </nav>
+</aside>

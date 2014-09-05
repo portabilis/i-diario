@@ -46,35 +46,7 @@
       </div>
     </header>
 
-    <aside id="left-panel">
-      <div class="login-info">
-        <span>
-          <% if user_signed_in? %>
-            <%= link_to content_tag(:i, '', class: "fa fa-lg fa-fw fa-user") +
-                  content_tag(:span, current_user.login),
-                  edit_user_registration_path
-            %>
-          <% end %>
-        </span>
-      </div>
-
-      <nav>
-        <ul>
-          <li>
-            <a href="/" title="Dashboard">
-              <i class="fa fa-lg fa-fw fa-home"></i>
-              <span class="***REMOVED***-item-parent">Dashboard</span>
-            </a>
-          </li>
-          <li>
-            <a href="/profiles" title="Profiles">
-              <i class="fa fa-lg fa-fw fa-eye"></i>
-              <span class="***REMOVED***-item-parent">Perfis de acesso</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-    </aside>
+    <%= render 'layouts/***REMOVED***' %>
 
     <div id="main" role="main">
       <div id="ribbon">
