@@ -19,17 +19,20 @@
       </li>
 
       <li>
-        <a href="/profiles" title="Profiles">
-          <i class="fa fa-lg fa-fw fa-eye"></i>
-          <span class="***REMOVED***-item-parent">Perfis de acesso</span>
+        <a href="#">
+          <i class="fa fa-lg fa-fw fa-cog"></i>
+          <span class="***REMOVED***-item-parent">Configurações</span>
         </a>
-      </li>
 
-      <li>
-        <%= link_to unities_path, title: t('***REMOVED***.unities') do %>
-          <i class="fa fa-lg fa-fw fa-reorder"></i>
-          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.unities') %></span>
-        <% end %>
+        <ul>
+          <li>
+            <%= link_to t('***REMOVED***.profiles'), profiles_path %>
+          </li>
+
+          <li>
+            <%= link_to t('***REMOVED***.unities'), unities_path %>
+          </li>
+        </ul>
       </li>
     </ul>
   </nav>

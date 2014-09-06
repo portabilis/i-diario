@@ -2,7 +2,7 @@
 module Turnip
   module ProfileSteps
     step "acesso a página de perfis" do
-      click_link 'Perfis de acesso'
+      click_***REMOVED*** 'Configurações > Perfis de acesso'
     end
 
     step 'concedo uma permissão' do

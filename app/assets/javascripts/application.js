@@ -4,6 +4,7 @@
 //= require smart_admin/app.config
 //= require smart_admin/bootstrap.min
 //= require smart_admin/msie-fix/jquery.mb.browser.min
+//= require smart_admin/jarvis.***REMOVED***
 //= require underscore
 //= require handlebars.runtime
 //= require cocktail
