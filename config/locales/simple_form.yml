@@ -4,8 +4,8 @@ pt-BR:
     "no": 'Não'
 
     required:
-      text: 'obrigatório'
-      mark: '*'
+      text: ''
+      mark: ''
 
     error_notification:
       default_message: "Please review the problems below:"
