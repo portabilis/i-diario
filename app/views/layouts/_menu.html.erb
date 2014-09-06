@@ -3,7 +3,8 @@
     <span>
       <% if user_signed_in? %>
         <%= link_to edit_user_registration_path do %>
-          <%= content_tag(:i, '', class: "fa fa-lg fa-fw fa-user") + content_tag(:span, current_user.login) %>
+          <%= gravatar_image_tag current_user.email %>
+          <%= content_tag :span, current_user.login %>
         <% end %>
       <% end %>
     </span>
