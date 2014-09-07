@@ -11,13 +11,22 @@ RSpec.describe EntityCreator, :type => :service do
     end
 
     it 'create an Entity' do
+      allow(EntityDatabaseCreator).to receive(:create).and_return(true)
+
       creator = EntityCreator.new(options)
+
+      expect(EntityDatabaseCreator).to receive(:create).with(options["DATABASE"])
 
       expect{ creator.setup }.to change{Entity.count}.by(1)
     end
 
     it 'set success message' do
+      allow(EntityDatabaseCreator).to receive(:create).and_return(true)
+
       creator = EntityCreator.new(options)
+
+      expect(EntityDatabaseCreator).to receive(:create).with(options["DATABASE"])
+
       creator.setup
 
       expect(creator.status).to eq "\nSetup realizado com sucesso."
@@ -34,6 +43,9 @@ RSpec.describe EntityCreator, :type => :service do
 
     it 'set error message' do
       creator = EntityCreator.new(options)
+
+      expect(EntityDatabaseCreator).to_not receive(:create)
+
       creator.setup
 
       expect(creator.status).to eq "\nNao foi possivel criar a Entidade. Por favor, utilize o seguinte formato:" +

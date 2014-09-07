@@ -8,7 +8,13 @@ class EntityCreator
   end
 
   def setup
-    (has_params? && create_entity) ? success : error
+    if (has_params? && create_entity)
+      EntityDatabaseCreator.create(@database)
+
+      success
+    else
+      error
+    end
   end
 
   protected
