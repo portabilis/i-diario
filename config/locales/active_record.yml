@@ -31,6 +31,7 @@ pt-BR:
       wrong_length: "não possui o tamanho esperado (%{count} caracteres)"
       incorrect_format: "formato incorreto"
       invalid_email: "use apenas letras (a-z), números e pontos."
+      invalid_url: "formato de url inválido"
 
     template:
       body: ! "Por favor, verifique o(s) seguinte(s) campo(s):"

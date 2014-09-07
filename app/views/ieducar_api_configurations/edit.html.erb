@@ -1,0 +1,29 @@
+<%= simple_form_for @ieducar_api_configuration,
+  url: ieducar_api_configurations_path, method: :patch, html: { class: "smart-form" } do |f| %>
+
+  <div class="row">
+    <div class="col col-sm-6">
+      <%= f.input :url %>
+    </div>
+
+    <div class="col col-sm-6">
+      <%= f.input :token %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-6">
+      <%= f.input :secret_token %>
+    </div>
+
+    <div class="col col-sm-6">
+      <%= f.input :unity_code %>
+    </div>
+  </div>
+
+  <footer>
+    <button type="submit" class="btn btn-primary">
+      Salvar
+    </button>
+  </footer>
+<% end %>

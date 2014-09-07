@@ -20,6 +20,7 @@ gem 'i18n_alchemy', '0.2.1'
 
 gem 'cpf_validator', '0.2.0'
 gem 'mask_validator', '0.2.1'
+gem 'uri_validator'
 
 # Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.1'
