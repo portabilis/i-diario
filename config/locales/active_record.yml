@@ -30,6 +30,7 @@ pt-BR:
       too_short: ! "é muito curto (mínimo: %{count} caracteres)"
       wrong_length: "não possui o tamanho esperado (%{count} caracteres)"
       incorrect_format: "formato incorreto"
+      invalid_email: "use apenas letras (a-z), números e pontos."
 
     template:
       body: ! "Por favor, verifique o(s) seguinte(s) campo(s):"

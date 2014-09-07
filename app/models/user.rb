@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
 
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{4}-[0-9]{4,5}\z/i }, allow_blank: true
-  validates :email, format: { with: /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i }, presence: true
+  validates :email, email: true, presence: true
 
   def self.find_for_authentication(conditions)
     credential = conditions.fetch(:credentials)

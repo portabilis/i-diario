@@ -1,3 +1,4 @@
+# encoding: utf-8
 require 'rails_helper'
 
 RSpec.describe User, :type => :model do
@@ -16,8 +17,8 @@ RSpec.describe User, :type => :model do
     it { should_not allow_value('531.880.033-587').for(:cpf) }
 
     it { should allow_value('admin@example.com').for(:email) }
-    it { should_not allow_value('admin@examplecom').for(:email) }
-    it { should_not allow_value('adminexample.com').for(:email) }
+    it { should_not allow_value('admin@examplecom', 'adminexample.com').for(:email).
+         with_message("use apenas letras (a-z), números e pontos.") }
   end
 
   describe "#authorize_email_and_sms" do
