@@ -40,7 +40,7 @@
         <% if user_signed_in? %>
           <div id="logout" class="btn-header transparent pull-right">
             <span>
-              <%= link_to content_tag(:i, '', class: 'fa fa-sign-out'), destroy_user_session_path, method: :delete, id: "sign_out"  %>
+              <%= link_to content_tag(:i, '', class: 'fa fa-sign-out'), destroy_user_session_path, id: "sign_out"  %>
             </span>
           </div>
         <% end %>

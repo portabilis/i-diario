@@ -8,7 +8,7 @@ pt-BR:
       mark: ''
 
     error_notification:
-      default_message: "Please review the problems below:"
+      default_message: "Favor revise as informações abaixo:"
 
     # Labels and hints examples
     # labels:

@@ -22,7 +22,6 @@ module Turnip
       fill_in 'Nome de usuário', with: 'jane_austen'
       #fill_in 'Celular', with: '(21) 1122-3344'
       #fill_in 'CPF', with: '123.456.789-10'
-      check 'Autorizar envio de e-mails e mensagens sms'
       fill_in 'Senha atual', with: '12345678'
 
       click_button 'Alterar'
@@ -36,7 +35,6 @@ module Turnip
       expect(page).to have_field 'Nome de usuário', with: 'jane_austen'
       #expect(page).to have_field 'Celular', with: '(21) 1122-3344'
       #expect(page).to have_field 'CPF', with: '123.456.789-10'
-      expect(page).to have_checked_field 'Autorizar envio de e-mails e mensagens sms'
     end
   end
 end

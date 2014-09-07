@@ -1,5 +1,9 @@
 pt-BR:
   activerecord:
+    models:
+      user:
+        one: "Usuário"
+        other: "Usuários"
     attributes:
       user:
         name: "Nome"

@@ -1,6 +1,6 @@
 pt-BR:
   flash:
-    female: &female
+    male: &male
       create:
         notice: '%{resource_name} foi criado com sucesso.'
         alert: '%{resource_name} não pode ser criado.'
@@ -13,7 +13,7 @@ pt-BR:
         notice: '%{resource_name} foi apagado com sucesso.'
         alert: '%{resource_name} não pode ser apagado.'
 
-    male: &male
+    female: &female
       create:
         notice: '%{resource_name} foi criada com sucesso.'
         alert: '%{resource_name} não pode ser criada.'
@@ -27,4 +27,7 @@ pt-BR:
         alert: '%{resource_name} não pode ser apagada.'
 
     actions:
+      <<: *female
+
+    users:
       <<: *male
