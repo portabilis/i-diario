@@ -9,7 +9,7 @@ module Portabilis
 
       def input_html_options
         super.tap do |options|
-          options[:'data-mask'] ||= "(99) 9{4}-9{4,5}"
+          options[:'data-mask'] ||= "(99) 9{4,5}-9{4}"
         end
       end
     end
