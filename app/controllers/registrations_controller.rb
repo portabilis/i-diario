@@ -1,3 +1,13 @@
 class RegistrationsController < Devise::RegistrationsController
-  layout 'application'
+  layout :set_layout
+
+  protected
+
+  def set_layout
+    if action_name == "edit"
+      'application'
+    else
+      'devise'
+    end
+  end
 end
