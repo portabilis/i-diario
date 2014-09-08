@@ -12,14 +12,6 @@ module Turnip
     step 'poderei cadastrar uma nova unidade' do
       fill_in "Nome", with: "Escola X"
 
-      fill_mask "Cep", with: "32672-124"
-      fill_in "Rua", with: "Rua Goiania"
-      fill_in "Número", with: "54"
-      fill_in "Bairro", with: "Centro"
-      fill_in "Cidade", with: "Betim"
-      select "Minas Gerais", from: "Estado"
-      fill_in "País", with: "Brasil"
-
       click_on "Salvar"
 
       expect(page).to have_content "Unidade foi criada com sucesso."
