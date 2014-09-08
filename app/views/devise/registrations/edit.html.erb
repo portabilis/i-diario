@@ -1,58 +1,62 @@
-<%= simple_form_for(resource,
-  as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "smart-form" }) do |f| %>
-  <%= f.error_notification %>
+<div class="widget-body no-padding">
+  <%= simple_form_for(resource,
+    as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "smart-form" }) do |f| %>
+    <%= f.error_notification %>
 
-  <div class="row">
-    <div class="col col-sm-3">
-      <%= f.input :first_name %>
-    </div>
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-3">
+          <%= f.input :first_name %>
+        </div>
 
-    <div class="col col-sm-3">
-      <%= f.input :last_name %>
-    </div>
+        <div class="col col-sm-3">
+          <%= f.input :last_name %>
+        </div>
 
-    <div class="col col-sm-6">
-      <%= f.input :email, required: true, autofocus: true %>
-    </div>
-  </div>
+        <div class="col col-sm-6">
+          <%= f.input :email, required: true, autofocus: true %>
+        </div>
+      </div>
 
-  <div class="row">
-    <div class="col col-sm-3">
-      <%= f.input :login %>
-    </div>
+      <div class="row">
+        <div class="col col-sm-3">
+          <%= f.input :login %>
+        </div>
 
-    <div class="col col-sm-3">
-      <%= f.input :phone, as: :tel %>
-    </div>
+        <div class="col col-sm-3">
+          <%= f.input :phone, as: :tel %>
+        </div>
 
-    <div class="col col-sm-2">
-      <%= f.input :cpf %>
-    </div>
+        <div class="col col-sm-2">
+          <%= f.input :cpf %>
+        </div>
 
-    <div class="col col-sm-4">
-      <%= f.input :authorize_email_and_sms %>
-    </div>
-  </div>
+        <div class="col col-sm-4">
+          <%= f.input :authorize_email_and_sms %>
+        </div>
+      </div>
 
-  <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-    <p>Atualmente aguarda a confirmação para: <%= resource.unconfirmed_email %></p>
+      <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+        <p>Atualmente aguarda a confirmação para: <%= resource.unconfirmed_email %></p>
+      <% end %>
+
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :password, autocomplete: "off", hint: "deixe em branco se você não quiser mudá-lo", required: false %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :password_confirmation, required: false %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :current_password, hint: "precisamos de sua senha atual para confirmar as alterações", required: true %>
+        </div>
+      </div>
+    </fieldset>
+
+    <footer>
+      <%= f.button :submit, "Alterar", class: "btn btn-primary" %>
+    </footer>
   <% end %>
-
-  <div class="row">
-    <div class="col col-sm-4">
-      <%= f.input :password, autocomplete: "off", hint: "deixe em branco se você não quiser mudá-lo", required: false %>
-    </div>
-
-    <div class="col col-sm-4">
-      <%= f.input :password_confirmation, required: false %>
-    </div>
-
-    <div class="col col-sm-4">
-      <%= f.input :current_password, hint: "precisamos de sua senha atual para confirmar as alterações", required: true %>
-    </div>
-  </div>
-
-  <footer>
-    <%= f.button :submit, "Alterar", class: "btn btn-primary" %>
-  </footer>
-<% end %>
+</div>

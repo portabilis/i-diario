@@ -69,17 +69,17 @@
           </div>
         </div>
 
+        <%= bootstrap_flash %>
+
         <section id="widget-grid" class="">
           <div class="row">
             <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-              <div class="jarviswidget" id="wid-id-0">
+              <div class="jarviswidget">
                 <header>
                   <h2>Geral</h2>
                 </header>
 
-                <div>
-                  <%= bootstrap_flash %>
-
+                <div role="content">
                   <%= yield %>
                 </div>
               </div>
