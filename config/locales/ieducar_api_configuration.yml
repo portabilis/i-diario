@@ -2,12 +2,12 @@ pt-BR:
   activerecord:
     models:
       ieducar_api_configuration:
-        one: "Configuração da API"
-        other: "Configurações da API"
+        one: "API de integração"
+        other: "API de integração"
 
     attributes:
       ieducar_api_configuration:
         url: "URL do i-Educar"
-        token: "API token"
-        secret_token: "API secret token"
+        token: "Chave de acesso"
+        secret_token: "Chave secreta"
         unity_code: "Código da instituição"
