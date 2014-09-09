@@ -28,7 +28,7 @@ class UnitiesController < ApplicationController
     @unity = Unity.find(params[:id])
 
     if @unity.update(unity_params)
-      respond_with @unity, location: edit_unity_path(@unity)
+      respond_with @unity, location: unities_path
     else
       render :edit
     end

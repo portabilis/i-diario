@@ -15,7 +15,11 @@
     <tbody>
       <% @unities.each do |unity| %>
         <tr>
-          <td><%= link_to unity, edit_unity_path(unity) %></td>
+          <td>
+            <%= link_to edit_unity_path(unity) do %>
+              <%= truncate unity.to_s, length: 40 %>
+            <% end %>
+          </td>
           <td><%= unity.phone %></td>
           <td><%= unity.email %></td>
           <td><%= unity.responsible %></td>

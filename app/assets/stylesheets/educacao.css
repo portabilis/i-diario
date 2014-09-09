@@ -5,3 +5,7 @@
 #map-address {
   height: 300px;
 }
+
+.popover-content {
+  padding: 9px 14px;
+}

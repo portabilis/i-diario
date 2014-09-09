@@ -19,4 +19,8 @@ $(function () {
   });
 
   $('#map-address').gmapAddress();
+
+  $('[data-toggle=popover]').popover({
+    trigger: 'focus'
+  });
 });

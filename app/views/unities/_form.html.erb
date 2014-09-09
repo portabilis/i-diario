@@ -22,11 +22,9 @@
       <div class="col col-sm-3">
         <%= f.input :api_code do %>
           <i class="icon-append fa fa-question-circle"></i>
-          <%= f.input_field :api_code %>
-          <b class="tooltip tooltip-bottom-right">
-            <i class="fa fa-warning txt-color-teal"></i>
-            <%= t('unity.help.api_code') %>
-          </b>
+          <%= f.input_field :api_code, rel: 'popover-hover',
+            :'data-placement' => 'top',
+            :'data-content' => t('unity.help.api_code'), :'data-toggle'=> 'popover' %>
         <% end %>
       </div>
     </div>

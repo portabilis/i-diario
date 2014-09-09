@@ -12,7 +12,12 @@ $(function () {
         $street = $('input[id$=_street]'),
         $city = $('input[id$=_city]'),
         $state = $('select[id$=_state]'),
-        $country = $('input[id$=_country]');
+        $country = $('input[id$=_country]'),
+        $latitude = $('input[id$=_latitude]'),
+        $longitude = $('input[id$=_longitude]');
+
+    $latitude.val('');
+    $longitude.val('');
 
     $.getJSON('http://cep.correiocontrol.com.br/'+ zipCode +'.json').always(function (address) {
       if (typeof(address['uf']) == 'undefined') {
