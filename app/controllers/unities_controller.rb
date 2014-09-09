@@ -49,7 +49,7 @@ class UnitiesController < ApplicationController
       :name, :phone, :email, :responsible, :api_code,
       :address_attributes => [
         :id, :zip_code, :street, :number, :complement, :neighborhood, :city,
-        :state, :country, :latitude, :longitude
+        :state, :country, :latitude, :longitude, :_destroy
       ]
     )
   end

@@ -3,7 +3,7 @@ class Unity < ActiveRecord::Base
 
   has_one :address, as: :source, inverse_of: :source
 
-  accepts_nested_attributes_for :address, reject_if: :all_blank
+  accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
 
   validates :author, :name, presence: true
   validates :name, uniqueness: { case_sensitive: false }, allow_blank: true
