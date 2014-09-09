@@ -1,18 +1,15 @@
 var FlashMessages = function () {
-  this.notifyOptions = {
-    autoHide : true,
-    clickOverlay : false,
-    MinWidth : 250,
-    TimeShown : 1000,
-    ShowTimeEffect : 200,
-    HideTimeEffect : 200,
-    LongTrip :20,
-    HorizontalPosition : 'center',
-    VerticalPosition : 'top',
-    ShowOverlay : false,
-  }
+  this.$container = $('#flash-messages');
 };
 
 FlashMessages.prototype.pop = function (message) {
-  jNotify(message, this.notifyOptions);
+  this.$container.html(message);
+};
+
+FlashMessages.prototype.success = function (message) {
+  this.pop("<div class='alert alert-success'><i class='fa-fw fa fa-check'></i><strong>"+message+"</strong></div>");
+};
+
+FlashMessages.prototype.error = function (message) {
+  this.pop("<div class='alert alert-danger'><i class='fa-fw fa fa-times'></i><strong>"+message+"</strong></div>");
 };

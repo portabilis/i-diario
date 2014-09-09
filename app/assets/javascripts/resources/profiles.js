@@ -8,31 +8,14 @@ $(document).ready(function(){
           id = $(this).data('id'),
           params = { permission: permission, authenticity_token: authenticityToken, value: value }
 
-      var notifyOptions = {
-        autoHide : true,
-        clickOverlay : false,
-        MinWidth : 250,
-        TimeShown : 1000,
-        ShowTimeEffect : 200,
-        HideTimeEffect : 200,
-        LongTrip :20,
-        HorizontalPosition : 'center',
-        VerticalPosition : 'top',
-        ShowOverlay : false,
-      }
+      var flashMessages = new FlashMessages();
 
       var success = function(){
-        jNotify(
-          'Perfil salvo com sucesso.',
-          notifyOptions
-        );
+        flashMessages.success('Perfil salvo com sucesso.');
       }
 
       var error = function(){
-        jError(
-          'Não foi possível salvar o perfil.',
-          notifyOptions
-        );
+        flashMessages.error('Não foi possível salvar o perfil.');
       }
 
       $.ajax({
