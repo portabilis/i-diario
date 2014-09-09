@@ -23,4 +23,19 @@ $(function () {
   $('[data-toggle=popover]').popover({
     trigger: 'focus'
   });
+
+  $('#widget-grid').jarvisWidgets({
+    grid : 'article',
+    widgets : '.jarviswidget',
+    sortable: false,
+    toggleButton: false,
+    deleteButton: false,
+    editButton : false,
+    colorButton : false,
+    fullscreenButton : true,
+    fullscreenClass : 'fa fa-expand | fa fa-compress',
+    fullscreenDiff : 3,
+    onFullscreen : function() {
+    }
+  });
 });

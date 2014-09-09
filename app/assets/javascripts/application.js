@@ -5,6 +5,7 @@
 //= require smart_admin/bootstrap.min
 //= require smart_admin/msie-fix/jquery.mb.browser.min
 //= require smart_admin/jarvis.***REMOVED***
+//= require smart_admin/jarvis.widget
 //= require underscore
 //= require handlebars.runtime
 //= require cocktail
@@ -16,7 +17,6 @@
 //= require backbone-validation-bootstrap
 //= require jquery.inputmask
 //= require jquery.singlemask
-//= require jNotify.jquery.min
 //= require flash_messages
 //= require server-errors-presenter
 //= require masks
