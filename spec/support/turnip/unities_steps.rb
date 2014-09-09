@@ -46,10 +46,6 @@ module Turnip
 
       expect(page).to have_content 'Unidade foi alterada com sucesso.'
 
-      within "footer" do
-        click_on 'Voltar'
-      end
-
       within :xpath, '//table/tbody/tr[position()=2]' do
         expect(page).to have_content 'Unidade Z'
       end
