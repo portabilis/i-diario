@@ -16,8 +16,14 @@ class User < ActiveRecord::Base
     where(%Q(
       users.login = :credential OR
       users.email = :credential OR
-      REGEXP_REPLACE(users.cpf, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g') OR
-      REGEXP_REPLACE(users.phone, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
+      (
+        users.cpf != '' AND
+        REGEXP_REPLACE(users.cpf, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
+      ) OR
+      (
+        users.phone != '' AND
+        REGEXP_REPLACE(users.phone, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
+      )
     ), credential: credential).first
   end
 
