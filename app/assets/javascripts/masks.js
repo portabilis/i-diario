@@ -5,6 +5,14 @@ $(function () {
     input.inputmask(input.data('mask'));
   });
 
+  $('input.tel').on('focusout', function () {
+    var tel = $(this).val().replace(/[^\d+]/g, '');
+
+    if (tel.length == 10) {
+      $(this).val(tel.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3"));
+    }
+  });
+
   $('input.zip_code').on('blur', function () {
     var zipCode = $(this).val().replace(/[^\d]/g, ''),
         $number = $('input[id$=_number]'),
