@@ -13,7 +13,9 @@ module Turnip
     end
 
     step "acesso a página do meu perfil" do
-      click_link 'Editar Perfil'
+      within "#left-panel" do
+        click_on 'Editar meus dados'
+      end
     end
 
     step "poderei editar minhas informações" do
@@ -26,9 +28,11 @@ module Turnip
 
       click_button 'Alterar'
 
-      expect(page).to have_content 'Você atualizou sua conta com sucesso.'
+      expect(page).to have_content 'Conta atualizada com sucesso.'
 
-      click_link 'Editar Perfil'
+      within "#left-panel" do
+        click_on 'Editar meus dados'
+      end
 
       expect(page).to have_field 'Nome', with: 'Jane'
       expect(page).to have_field 'Sobrenome', with: 'Austen'

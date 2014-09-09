@@ -1,6 +1,12 @@
 class RegistrationsController < Devise::RegistrationsController
   layout :set_layout
 
+  def edit
+  end
+
+  def update
+  end
+
   protected
 
   def set_layout

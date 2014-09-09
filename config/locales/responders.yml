@@ -31,3 +31,9 @@ pt-BR:
 
     users:
       <<: *male
+
+    accounts:
+      <<: *male
+      update:
+        notice: 'Conta atualizada com sucesso. '
+        alert: 'Conta não pode ser atualizada. '

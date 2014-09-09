@@ -3,6 +3,8 @@ Rails.application.routes.draw do
 
   root 'dashboard#index'
 
+  resource :account, only: [:edit, :update]
+
   get '/sandbox', to: 'dashboard#sandbox'
 
   resources :profiles, only: [:index, :update]
