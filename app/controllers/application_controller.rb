@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   respond_to :html
 
   include Pundit
+  skip_around_filter :set_locale_from_url
   around_action :handle_customer
 
   respond_to :html, :json

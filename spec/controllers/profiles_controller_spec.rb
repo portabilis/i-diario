@@ -7,7 +7,7 @@ RSpec.describe ProfilesController, :type => :controller do
     end
 
     it "load all the profiles" do
-      get :index
+      get :index, locale: 'pt-BR'
 
       expect(assigns(:profiles)).to eq Profile.all.order(:id)
     end
@@ -22,7 +22,7 @@ RSpec.describe ProfilesController, :type => :controller do
 
     it "calls the ProfileUpdater service" do
       params = {"permission"=>"manage_users", "value"=>true, "id"=>"135138680",
-                "controller"=>"profiles", "action"=>"update"}
+                "controller"=>"profiles", "action"=>"update", "locale"=>"pt-BR"}
 
       updater = double(:updater, status: 201)
 
@@ -30,7 +30,7 @@ RSpec.describe ProfilesController, :type => :controller do
 
       updater.should_receive(:update)
 
-      put :update, params
+      put :update, params.merge(locale: 'pt-BR')
     end
   end
 end

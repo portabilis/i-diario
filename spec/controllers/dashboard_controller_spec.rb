@@ -6,10 +6,9 @@ RSpec.describe DashboardController, :type => :controller do
     fixtures :users
 
     it "redirects to sign in path" do
-      get :index
+      get :index, locale: 'pt-BR'
 
       expect(response).to redirect_to(new_user_session_path)
     end
   end
-
 end

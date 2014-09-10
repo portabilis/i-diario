@@ -22,6 +22,8 @@ gem 'cpf_validator', '0.2.0'
 gem 'mask_validator', '0.2.1'
 gem 'uri_validator'
 
+gem 'route_translator'
+
 # Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.1'
 gem 'less-rails', '2.5.0'

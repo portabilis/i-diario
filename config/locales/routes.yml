@@ -1,0 +1,15 @@
+pt-BR:
+  routes:
+    profiles: 'perfis'
+    ieducar_api_configurations: 'api-de-integracao'
+    unities: 'unidades'
+    account: 'conta'
+    users: 'usuarios'
+    edit: 'editar'
+    new: 'novo'
+    sign_in: 'logar'
+    sign_out: 'sair'
+    sign_up: 'cadastrar'
+    unlock: 'desbloquear'
+    password: 'senha'
+    cancel: 'cancelar'
