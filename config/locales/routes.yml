@@ -5,6 +5,7 @@ pt-BR:
     unities: 'unidades'
     account: 'conta'
     users: 'usuarios'
+    # actions
     edit: 'editar'
     new: 'novo'
     sign_in: 'logar'

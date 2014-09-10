@@ -33,4 +33,23 @@ RSpec.describe ProfilesController, :type => :controller do
       put :update, params.merge(locale: 'pt-BR')
     end
   end
+
+  context "pt-BR routes" do
+    it "routes to index" do
+      expect(get: "perfis").to route_to(
+        controller: "profiles",
+        action: "index",
+        locale: "pt-BR"
+      )
+    end
+
+    it "routes to show" do
+      expect(put: "perfis/1").to route_to(
+        controller: "profiles",
+        action: "update",
+        id: "1",
+        locale: "pt-BR"
+      )
+    end
+  end
 end
