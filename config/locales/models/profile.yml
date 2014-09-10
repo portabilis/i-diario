@@ -3,5 +3,5 @@ pt-BR:
     attributes:
       profile:
         role: "Função"
-        manage_users: "Gerenciar Usuários"
-        manage_profiles: "Gerenciar Perfis"
+        manage_users: "Gerenciar usuários"
+        manage_profiles: "Gerenciar perfis"

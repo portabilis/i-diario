@@ -1,7 +1,7 @@
 pt-BR:
   enumerations:
     profile_roles:
-      admin: "Administrador"
+      admin: "Administradores"
       parent: "Pais ou responsáveis"
       servant: "Servidores"
       student: "Alunos"
