@@ -8,7 +8,9 @@ Rails.application.routes.draw do
 
     resource :account, only: [:edit, :update]
     resources :profiles, only: [:index, :update]
-    resource :ieducar_api_configurations, only: [:edit, :update]
+    resource :ieducar_api_configurations, only: [:edit, :update] do
+      resources :syncronizations, only: [:index, :create]
+    end
     resources :unities
   end
 end

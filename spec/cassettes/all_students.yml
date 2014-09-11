@@ -1,0 +1,97 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=todos-alunos&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*; q=0.5, application/xml'
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 11 Sep 2014 20:19:05 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=1kui3plof34to94ahghe0kb982; expires=Fri, 12-Sep-2014 20:19:05 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '5847'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: US-ASCII
+      string: ! '{"alunos":[{"aluno_id":"8930","nome_aluno":" GUSTAVO DE SOUZA BAIRRO"},{"aluno_id":"7588","nome_aluno":"
+        JAIR COSTA MOREIRA"},{"aluno_id":"8931","nome_aluno":" MATHEUS DELFE DE PAULA
+        CARNEIRO"},{"aluno_id":"7221","nome_aluno":" NATALY DE OLIVEIRA DE SOUZA"},{"aluno_id":"7241","nome_aluno":"
+        RYAN GUSTAVO DUMAS MEDEIROS"},{"aluno_id":"7703","nome_aluno":null},{"aluno_id":"7617","nome_aluno":"
+        WALDIR RAFAEL MOREIRA ALVES"},{"aluno_id":"4669","nome_aluno":"ABEL ALVES
+        DA SILVA"},{"aluno_id":"5425","nome_aluno":"ABRAO RIBEIRO"},{"aluno_id":"5377","nome_aluno":"ACHAIANE
+        DOS SANTOS DOS ANJOS"},{"aluno_id":"4077","nome_aluno":"ACIR ALVES DE MEDEIROS"},{"aluno_id":"8185","nome_aluno":"ACIR
+        DE OLIVERA"},{"aluno_id":"4633","nome_aluno":"ADA BELLI DE LIMA"},{"aluno_id":"2554","nome_aluno":"ADAILSON
+        FERREIRA RITA"},{"aluno_id":"4522","nome_aluno":"ADAIR ALMEIDA FERNANDES"},{"aluno_id":"6367","nome_aluno":"ADAIR
+        DA SILVA XAVIER"},{"aluno_id":"7720","nome_aluno":null},{"aluno_id":"6530","nome_aluno":"ADAIR
+        PALHANO DE SOUZA"},{"aluno_id":"5642","nome_aluno":"ADALBERTO DIAS FERNANDES"},{"aluno_id":"4310","nome_aluno":"ADAO
+        COLACO"},{"aluno_id":"6513","nome_aluno":"ADAO CORREA DE SOUZA"},{"aluno_id":"825","nome_aluno":"ADEGILSON
+        PEREIRA DE SOUZA"},{"aluno_id":"3323","nome_aluno":"ADEIRDO SCHEFFMACHER"},{"aluno_id":"6118","nome_aluno":"ADELAR
+        COSTA DUARTE"},{"aluno_id":"8371","nome_aluno":"ADELAR DOS SANTOS TEODORO"},{"aluno_id":"5255","nome_aluno":"ADELAR
+        MEIRELES CRUZ"},{"aluno_id":"7420","nome_aluno":"ADELCIO ROSA FARIAS"},{"aluno_id":"5657","nome_aluno":"ADELIA
+        FATIMA BALTAZAR OLIVEIRA"},{"aluno_id":"4726","nome_aluno":"ADELIA RODRIGUES
+        MAIBERG"},{"aluno_id":"4731","nome_aluno":"ADELSON SCHULTZ"},{"aluno_id":"400","nome_aluno":"ADELY
+        DAMIANY RIBEIRO DE MELLO"},{"aluno_id":"675","nome_aluno":"ADEMAR DA CONCEICAO"},{"aluno_id":"4354","nome_aluno":"ADEMAR
+        DA SILVA"},{"aluno_id":"3171","nome_aluno":"ADEMAR NUNES DE MORAES"},{"aluno_id":"3342","nome_aluno":"ADEMAR
+        SOARES"},{"aluno_id":"2070","nome_aluno":"ADEMILSON JUNIOR RIBEIRO GOES"},{"aluno_id":"6398","nome_aluno":"ADEMILSON
+        RIBEIRO DA SILVA"},{"aluno_id":"4937","nome_aluno":"ADEMIR ALEXANDRINO"},{"aluno_id":"494","nome_aluno":"ADEMIR
+        ALVES MIRANDA"},{"aluno_id":"4856","nome_aluno":"ADEMIR DA CHAVES ROSA"},{"aluno_id":"8764","nome_aluno":"ADEMIR
+        DE JESUS OLIVEIRA JUNIOR"},{"aluno_id":"6476","nome_aluno":"ADEMIR DE JESUS
+        ROSA"},{"aluno_id":"5380","nome_aluno":"ADEMIR GARCIA DA SILVA"},{"aluno_id":"4862","nome_aluno":"ADEMIR
+        JOSE HAGMANN"},{"aluno_id":"4143","nome_aluno":"ADEMIR MENDES CORREIA"},{"aluno_id":"586","nome_aluno":"ADEMIR
+        PADILHA"},{"aluno_id":"5118","nome_aluno":"ADENEIDE DE QUADRA"},{"aluno_id":"3979","nome_aluno":"ADENILSON
+        BECHER DE SOUZA"},{"aluno_id":"5392","nome_aluno":"ADENILSON CAMPOS"},{"aluno_id":"2949","nome_aluno":"ADENILSON
+        DE JESUS DA ROSA"},{"aluno_id":"5772","nome_aluno":"ADENILSON FERREIRA DA
+        SILVA"},{"aluno_id":"5903","nome_aluno":"ADENILSON GUEDES DOS SANTOS"},{"aluno_id":"6968","nome_aluno":"ADENILSON
+        GUEDES DOS SANTOS JUNIOR"},{"aluno_id":"7828","nome_aluno":"ADENILSON GUEDES
+        DOS SANTOS JUNIOR"},{"aluno_id":"982","nome_aluno":"ADENILSON JOSE UHLIK"},{"aluno_id":"1529","nome_aluno":"ADENILSON
+        RIBEIRO DE SOUZA"},{"aluno_id":"3380","nome_aluno":"ADENILSON RITA CAMPOS"},{"aluno_id":"1821","nome_aluno":"ADENILSON
+        RODRIGUES FURTADO"},{"aluno_id":"6512","nome_aluno":"ADENILSON SOUZA FURTADO"},{"aluno_id":"5455","nome_aluno":"ADENIR
+        BATISTA"},{"aluno_id":"6060","nome_aluno":"ADENIR JOSE ALVES CASEMIRO"},{"aluno_id":"3706","nome_aluno":"ADENIR
+        PADILHA"},{"aluno_id":"5117","nome_aluno":"ADENIZE ALVES DE QUADRA"},{"aluno_id":"5410","nome_aluno":"ADILIO
+        MARCOS RIBEIRO"},{"aluno_id":"4814","nome_aluno":"ADILSO BATISTA DA ROSA PADILHA"},{"aluno_id":"4684","nome_aluno":"ADILSON
+        ALVES DOS SANTOS"},{"aluno_id":"6126","nome_aluno":"ADILSON COSTA DUARTE"},{"aluno_id":"7162","nome_aluno":"ADILSON
+        DA ROSA"},{"aluno_id":"3559","nome_aluno":"ADILSON DA ROSA"},{"aluno_id":"8234","nome_aluno":"ADILSON
+        DA SILVA"},{"aluno_id":"2287","nome_aluno":"ADILSON DA SILVA BARBOSA"},{"aluno_id":"6487","nome_aluno":"ADILSON
+        FURTADO RODRIGUES"},{"aluno_id":"1123","nome_aluno":"ADILSON GOIS DOS SANTOS"},{"aluno_id":"5060","nome_aluno":"ADILSON
+        GUIMARAES"},{"aluno_id":"4460","nome_aluno":"ADILSON MOREIRA DO ROSARIO"},{"aluno_id":"7692","nome_aluno":"ADILSON
+        PASSOS"},{"aluno_id":"1891","nome_aluno":"ADILSON SCHUETZ DE MARAFIGO"},{"aluno_id":"3988","nome_aluno":"ADILSON
+        SCHULTZ"},{"aluno_id":"1642","nome_aluno":"ADILSON XAVIER"},{"aluno_id":"5537","nome_aluno":"ADILSON
+        ZACARIAS PINHEIRO"},{"aluno_id":"627","nome_aluno":"ADIR CAMARGO GRANEMANN"},{"aluno_id":"4911","nome_aluno":"ADOLFO
+        PADILHA FERNANDES"},{"aluno_id":"6295","nome_aluno":"ADRIA FERNANDA VIEIRA"},{"aluno_id":"3957","nome_aluno":"ADRIAN
+        DE JESUS SALDANHA"},{"aluno_id":"4570","nome_aluno":"ADRIAN DE OLIVEIRA FERNANDES"},{"aluno_id":"3730","nome_aluno":"ADRIAN
+        DOS SANTOS FRANCA"},{"aluno_id":"3828","nome_aluno":"ADRIAN GUILHERME DOS
+        SANTOS VIDAL"},{"aluno_id":"6780","nome_aluno":"ADRIAN LINHARES NUNES"},{"aluno_id":"74","nome_aluno":"ADRIAN
+        MARIAN"},{"aluno_id":"5088","nome_aluno":"ADRIANA ALVES MAIBERG"},{"aluno_id":"5806","nome_aluno":"ADRIANA
+        APARECIDA DOS SANTOS"},{"aluno_id":"2426","nome_aluno":"ADRIANA ARAUJO FURTADO"},{"aluno_id":"5189","nome_aluno":"ADRIANA
+        BEKER DE SOUZA"},{"aluno_id":"5074","nome_aluno":"ADRIANA BUENO DA SILVA"},{"aluno_id":"8430","nome_aluno":"ADRIANA
+        CASTILHO GUSI"},{"aluno_id":"8295","nome_aluno":"ADRIANA CASTILHO GUZI"},{"aluno_id":"5209","nome_aluno":"ADRIANA
+        CECHIN"},{"aluno_id":"6040","nome_aluno":"ADRIANA CORDEIRO DOS SANTOS"},{"aluno_id":"602","nome_aluno":"ADRIANA
+        DAS CHAVES ROSA"},{"aluno_id":"4778","nome_aluno":"ADRIANA DAS GRACAS JESUS
+        MACIEL"}],"oper":"get","resource":"todos-alunos","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Thu, 11 Sep 2014 20:19:05 GMT
+recorded_with: VCR 2.9.3

@@ -1,0 +1,44 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=invalid&instituicao_id=1&oper=get&resource=todos-alunos&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*; q=0.5, application/xml'
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 11 Sep 2014 20:32:36 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=tdmgdha76caphtlmhvoss29om7; expires=Fri, 12-Sep-2014 20:32:36 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '126'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: US-ASCII
+      string: ! '{"oper":"get","resource":"todos-alunos","msgs":[{"msg":"Chave de
+        acesso inv\u00e1lida!","type":"error"}],"any_error_msg":true}'
+    http_version: 
+  recorded_at: Thu, 11 Sep 2014 20:32:36 GMT
+recorded_with: VCR 2.9.3

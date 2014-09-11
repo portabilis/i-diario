@@ -5,6 +5,7 @@ class User < ActiveRecord::Base
   attr_accessor :credentials
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
+  has_many :syncronizations, class_name: "IeducarApiSyncronization", foreign_key: :author_id
 
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{4,5}-[0-9]{4}\z/i }, allow_blank: true

@@ -16,6 +16,7 @@ class ApplicationController < ActionController::Base
 
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :check_for_***REMOVED***
 
   protected
 
@@ -40,6 +41,18 @@ class ApplicationController < ActionController::Base
 
     devise_parameter_sanitizer.for(:sign_up) do |u|
       u.permit(:email, :password, :password_confirmation)
+    end
+  end
+
+  def check_for_***REMOVED***
+    return unless current_user
+
+    if syncronization = current_user.syncronizations.completed_unnotified
+      flash.now[:notice] = t("ieducar_api_syncronization.completed")
+      syncronization.notified!
+    elsif syncronization = current_user.syncronizations.last_error
+      flash.now[:alert] = t("ieducar_api_syncronization.error", errror: syncronization.error_message)
+      syncronization.notified!
     end
   end
 end

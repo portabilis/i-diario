@@ -24,6 +24,9 @@ gem 'uri_validator'
 
 gem 'route_translator'
 
+gem 'rest_client', '1.7.3'
+gem 'sidekiq', '2.17.7'
+
 # Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.1'
 gem 'less-rails', '2.5.0'
@@ -45,4 +48,6 @@ group :test do
   gem 'capybara', '2.2.1'
   gem 'poltergeist', '1.5.0'
   gem 'shoulda-matchers', '2.6.2'
+  gem 'webmock', '1.9.3'
+  gem 'vcr'
 end

@@ -37,3 +37,8 @@ pt-BR:
       update:
         notice: 'Conta atualizada com sucesso. '
         alert: 'Conta não pode ser atualizada. '
+
+    syncronizations:
+      create:
+        notice: "Integração de alunos do i-Educar está sendo processada."
+        alert: "Integração de alunos do i-Educar não pode ser processada."

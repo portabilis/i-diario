@@ -14,6 +14,8 @@ module Educacao
 
     config.autoload_paths += %W(
       #{config.root}/lib
+      #{config.root}/app/workers
+      #{config.root}/app/services
     )
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.

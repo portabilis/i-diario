@@ -2,6 +2,10 @@
 require 'rails_helper'
 
 RSpec.describe User, :type => :model do
+  context "Associations" do
+    it { should have_many :syncronizations }
+  end
+
   context "Validations" do
     it { should validate_presence_of(:email) }
 

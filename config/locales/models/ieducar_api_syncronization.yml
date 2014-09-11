@@ -1,0 +1,10 @@
+pt-BR:
+  activerecord:
+    models:
+      ieducar_api_syncronization:
+        one: "Sincronização com a API"
+        other: "Sincronizações com a API"
+
+  ieducar_api_syncronization:
+    completed: "Integração de alunos do i-Educar realizada com sucesso!"
+    error: "Integração de alunos do i-Educar não pode ser realizada. Erro retornado: %{error}"

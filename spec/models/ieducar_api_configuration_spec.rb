@@ -2,6 +2,10 @@
 require 'rails_helper'
 
 RSpec.describe IeducarApiConfiguration, :type => :model do
+  context "Associations" do
+    it { should have_many :syncronizations }
+  end
+
   context "Validations" do
     it { should validate_presence_of :url }
     it { should validate_presence_of :token }
@@ -36,6 +40,42 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
 
         expect(IeducarApiConfiguration.current).to eq subject
       end
+    end
+  end
+
+  describe "#start_syncronization!" do
+    it "starts a syncronization with a given user" do
+      user = double
+      syncronizations = double
+
+      expect(subject).to receive(:syncronizations).and_return(syncronizations)
+      expect(syncronizations).to receive(:create!).with(
+        status: ApiSyncronizationStatus::STARTED,
+        author: user
+      )
+
+      subject.start_syncronization!(user)
+    end
+  end
+
+  describe "#to_api" do
+    it "returns config to be used in the api" do
+      url = "http://teste.com.br"
+      token = "123abc"
+      secret_token = "abc123"
+      unity_code = "123"
+
+      subject.url = url
+      subject.token = token
+      subject.secret_token = secret_token
+      subject.unity_code = unity_code
+
+      expect(subject.to_api).to eq({
+        url: url,
+        access_key: token,
+        secret_token: secret_token,
+        unity_id: unity_code
+      })
     end
   end
 end

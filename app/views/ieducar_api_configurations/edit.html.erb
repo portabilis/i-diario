@@ -25,6 +25,16 @@
     </fieldset>
 
     <footer>
+      <% if @ieducar_api_configuration.persisted? %>
+        <% if @ieducar_api_configuration.syncronization_in_progress? %>
+          <%= link_to "Sincronizando alunos", "#",
+            class: 'btn bg-color-magenta txt-color-white' %>
+        <% else %>
+          <%= link_to "Sincronizar alunos", ieducar_api_configurations_syncronizations_path, method: 'post',
+            class: 'btn bg-color-blue txt-color-white' %>
+        <% end %>
+      <% end %>
+
       <button type="submit" class="btn btn-primary">
         Salvar
       </button>

@@ -5,6 +5,7 @@ pt-BR:
     unities: 'unidades'
     account: 'conta'
     users: 'usuarios'
+    syncronizations: 'sincronizacoes'
     # actions
     edit: 'editar'
     new: 'novo'
