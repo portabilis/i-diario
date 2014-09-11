@@ -7,7 +7,7 @@ pt-BR:
 
     attributes:
       address:
-        zip_code: "Cep"
+        zip_code: "CEP"
         street: "Rua"
         number: "Número"
         neighborhood: "Bairro"

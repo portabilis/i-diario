@@ -34,7 +34,7 @@ module Turnip
     step 'poderei alterar seus dados' do
       fill_in 'Nome', with: 'Unidade Z'
 
-      expect(page).to have_field "Cep", with: "32672-124"
+      expect(page).to have_field "CEP", with: "32672-124"
       expect(page).to have_field "Rua", with: "Rua Goiania"
       expect(page).to have_field "Número", with: "54"
       expect(page).to have_field "Bairro", with: "Centro"
