@@ -1,4 +1,10 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
+  authenticate :user do
+    mount Sidekiq::Web => '/sidekiq'
+  end
+
   localized do
     devise_for :users, controllers: { registrations: "registrations" }
 

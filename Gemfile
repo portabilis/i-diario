@@ -25,6 +25,8 @@ gem 'uri_validator'
 gem 'route_translator'
 
 gem 'rest_client', '1.7.3'
+
+gem 'sinatra', '>= 1.3.0', :require => nil
 gem 'sidekiq', '2.17.7'
 
 # Assets + Twitter Bootstrap
