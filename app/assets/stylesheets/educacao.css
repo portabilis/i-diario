@@ -9,3 +9,7 @@
 .popover-content {
   padding: 9px 14px;
 }
+
+form.smart-form fieldset {
+  border-top: 0px;
+}
