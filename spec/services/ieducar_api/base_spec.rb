@@ -84,6 +84,26 @@ RSpec.describe IeducarApi::Base, :type => :service do
       end
     end
 
+    it "returns an error when providing an invalid url" do
+      subject = IeducarApi::Base.new(url: "http://botucat.ieduca.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+
+      VCR.use_cassette("wrong_endpoint_url") do
+        expect {
+          subject.fetch(path: path, resource: resource)
+        }.to raise_error("URL do i-Educar informada não é válida.")
+      end
+    end
+
+    it "returns an error when providing an invalid client url" do
+      subject = IeducarApi::Base.new(url: "http://botucat.ieducar.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+
+      VCR.use_cassette("wrong_client_url") do
+        expect {
+          subject.fetch(path: path, resource: resource)
+        }.to raise_error("URL do i-Educar informada não é válida.")
+      end
+    end
+
     it "returns an error when providing an invalid resource" do
       subject = IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
 

@@ -25,16 +25,22 @@ module IeducarApi
 
       endpoint = [url, params[:path]].join("/")
 
-      result = RestClient.get endpoint, {
-        params: {
-          access_key: access_key,
-          secret_key: secret_key,
-          instituicao_id: unity_id,
-          oper: params[:oper],
-          resource: params[:resource]
+      begin
+        result = RestClient.get endpoint, {
+          params: {
+            access_key: access_key,
+            secret_key: secret_key,
+            instituicao_id: unity_id,
+            oper: params[:oper],
+            resource: params[:resource]
+          }
         }
-      }
-      result = JSON.parse(result)
+        result = JSON.parse(result)
+      rescue SocketError, RestClient::ResourceNotFound
+        raise ApiError.new("URL do i-Educar informada não é válida.")
+      rescue => e
+        raise ApiError.new(e.message)
+      end
 
       if result["any_error_msg"]
         raise ApiError.new(result["msgs"].map { |r| r["msg"] }.join(", "))
