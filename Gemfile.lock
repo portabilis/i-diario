@@ -6,6 +6,12 @@ GIT
       rails (>= 3.2.8)
 
 GIT
+  remote: https://github.com/enriclluelles/route_translator.git
+  revision: a179fb6b2c5a25120b3475bcb769a0ea6db26697
+  specs:
+    route_translator (3.2.4)
+
+GIT
   remote: https://github.com/ricardohsd/activerecord-connections.git
   revision: b2a704ff10c447f37635eaa0a447ffb4747b1694
   specs:
@@ -153,7 +159,6 @@ GEM
       railties (>= 3.2, < 5)
     rest_client (1.7.3)
       netrc (~> 0.7.7)
-    route_translator (3.2.4)
     rspec (3.0.0)
       rspec-core (~> 3.0.0)
       rspec-expectations (~> 3.0.0)
@@ -261,7 +266,7 @@ DEPENDENCIES
   rails (= 4.1.5)
   responders (= 1.1.0)
   rest_client (= 1.7.3)
-  route_translator
+  route_translator!
   rspec-rails (= 3.0.2)
   sdoc (~> 0.4.0)
   shoulda-matchers (= 2.6.2)

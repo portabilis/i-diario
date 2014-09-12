@@ -22,7 +22,7 @@ gem 'cpf_validator', '0.2.0'
 gem 'mask_validator', '0.2.1'
 gem 'uri_validator'
 
-gem 'route_translator'
+gem 'route_translator', :git => "https://github.com/enriclluelles/route_translator.git"
 
 gem 'rest_client', '1.7.3'
 

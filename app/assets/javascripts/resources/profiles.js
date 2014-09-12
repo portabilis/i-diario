@@ -20,7 +20,7 @@ $(document).ready(function(){
 
       $.ajax({
         type: "PUT",
-        url: '/profiles/' + id,
+        url: '/perfis/' + id,
         data: params,
         success: success,
         error: error
