@@ -7,4 +7,4 @@ pt-BR:
 
   ieducar_api_syncronization:
     completed: "Integração de alunos do i-Educar realizada com sucesso!"
-    error: "Integração de alunos do i-Educar não pode ser realizada. Erro retornado: %{error}"
+    error: "Integração de alunos do i-Educar não pode ser realizada: %{error}"

@@ -73,7 +73,7 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
       expect(subject.to_api).to eq({
         url: url,
         access_key: token,
-        secret_token: secret_token,
+        secret_key: secret_token,
         unity_id: unity_code
       })
     end

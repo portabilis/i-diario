@@ -20,7 +20,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
     {
       url: url,
       access_key: token,
-      secret_token: secret_token,
+      secret_key: secret_token,
       unity_id: unity_code
     }
   end
