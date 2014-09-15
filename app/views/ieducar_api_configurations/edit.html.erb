@@ -27,11 +27,14 @@
     <footer>
       <% if @ieducar_api_configuration.persisted? %>
         <% if @ieducar_api_configuration.syncronization_in_progress? %>
-          <%= link_to "Sincronizando alunos", "#",
-            class: 'btn bg-color-magenta txt-color-white' %>
+          <%= link_to "#",
+            class: 'btn bg-color-red txt-color-white' do %>
+            <i class="fa fa-cog fa-spin"></i>
+            Sincronizando alunos
+          <% end %>
         <% else %>
           <%= link_to "Sincronizar alunos", ieducar_api_configurations_syncronizations_path, method: 'post',
-            class: 'btn bg-color-blue txt-color-white' %>
+            class: 'btn bg-color-red txt-color-white' %>
         <% end %>
       <% end %>
 
