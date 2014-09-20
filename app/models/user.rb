@@ -1,12 +1,14 @@
 class User < ActiveRecord::Base
-  devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :trackable, :validatable, :lockable
+  devise :database_authenticatable, :recoverable, :rememberable,
+    :trackable, :validatable, :lockable
 
   attr_accessor :credentials
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :syncronizations, class_name: "IeducarApiSyncronization", foreign_key: :author_id
   has_many :***REMOVED***, dependent: :destroy
+
+  has_and_belongs_to_many :students
 
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{4,5}-[0-9]{4}\z/i }, allow_blank: true

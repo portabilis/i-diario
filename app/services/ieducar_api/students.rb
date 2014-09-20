@@ -18,5 +18,13 @@ module IeducarApi
 
       fetch(params)
     end
+
+    def fetch_by_cpf(document, student_code)
+      fetch(
+        resource: "alunos_by_guardian_cpf",
+        cpf: document,
+        aluno_id: student_code
+      )
+    end
   end
 end

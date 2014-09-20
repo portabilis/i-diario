@@ -6,7 +6,19 @@ Rails.application.routes.draw do
   end
 
   localized do
-    devise_for :users, controllers: { registrations: "registrations" }
+    devise_for :users
+
+    resources :registrations do
+      collection do
+        get :parents
+      end
+    end
+
+    resources :students do
+      collection do
+        get :search_api
+      end
+    end
 
     root 'dashboard#index'
 

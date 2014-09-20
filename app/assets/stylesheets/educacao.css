@@ -13,3 +13,13 @@
 form.smart-form fieldset {
   border-top: 0px;
 }
+
+.login-box .price-features a {
+  margin-top: 30px;
+}
+
+.login-divisor {
+  margin: 10px 0px;
+  display: block;
+  text-align: center;
+}

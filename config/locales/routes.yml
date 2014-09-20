@@ -13,6 +13,8 @@ pt-BR:
     ***REMOVED***: 'unidades-de-medida'
     ***REMOVED***: 'publicacoes'
     ***REMOVED***: 'fornecedores'
+    registrations: 'registro'
+    students: 'alunos'
     # actions
     edit: 'editar'
     new: 'novo'
@@ -22,3 +24,5 @@ pt-BR:
     unlock: 'desbloquear'
     password: 'senha'
     cancel: 'cancelar'
+    parents: 'pais'
+    search_api: 'api'

@@ -42,17 +42,9 @@
     <div id="main" role="main">
       <div id="content" class="container">
         <div class="row">
-          <%#= render 'layouts/mockup_login' %>
-          <%#= render 'layouts/novo_pais' %>
+          <%= bootstrap_flash %>
 
-          <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8 hidden-xs hidden-sm">
-          </div>
-
-          <div class="col-xs-12 col-sm-12 col-md-5 col-lg-4">
-            <%= bootstrap_flash %>
-
-            <%= yield %>
-          </div>
+          <%= yield %>
         </div>
       </div>
     </div>
