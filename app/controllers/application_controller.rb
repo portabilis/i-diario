@@ -55,4 +55,9 @@ class ApplicationController < ActionController::Base
       syncronization.notified!
     end
   end
+
+  def current_configuration
+    @configuration ||= IeducarApiConfiguration.current
+  end
+  helper_method :current_configuration
 end

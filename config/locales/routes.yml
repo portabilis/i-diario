@@ -6,6 +6,7 @@ pt-BR:
     account: 'conta'
     users: 'usuarios'
     syncronizations: 'sincronizacoes'
+    disciplinary_incidents: 'ocorrencias-disciplinares'
     # actions
     edit: 'editar'
     new: 'novo'

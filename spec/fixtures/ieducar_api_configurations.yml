@@ -1,0 +1,5 @@
+api_configuration:
+  url: "http://test.ieducar.com.br"
+  token: "***REMOVED***"
+  secret_token: "***REMOVED***"
+  unity_code: "1"
