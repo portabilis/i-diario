@@ -19,6 +19,14 @@ GIT
       activerecord (>= 4.1.0)
       activesupport (>= 4.1.0)
 
+GIT
+  remote: https://github.com/ricardohsd/rest-client.git
+  revision: ccdf1e81be7e5556ba6014b21de87cbefe057c23
+  specs:
+    rest-client (1.7.2)
+      mime-types (>= 1.16, < 3.0)
+      netrc (~> 0.7)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -157,8 +165,6 @@ GEM
     ref (1.0.5)
     responders (1.1.0)
       railties (>= 3.2, < 5)
-    rest_client (1.7.3)
-      netrc (~> 0.7.7)
     rspec (3.0.0)
       rspec-core (~> 3.0.0)
       rspec-expectations (~> 3.0.0)
@@ -265,7 +271,7 @@ DEPENDENCIES
   pundit (= 0.3.0)
   rails (= 4.1.5)
   responders (= 1.1.0)
-  rest_client (= 1.7.3)
+  rest-client!
   route_translator!
   rspec-rails (= 3.0.2)
   sdoc (~> 0.4.0)

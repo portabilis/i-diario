@@ -1,0 +1,9 @@
+bary_allen:
+  api_code: "8930"
+  name: "Bary Allen"
+  api: true
+
+bruce_wayne:
+  api_code: "7588"
+  name: "Bruce Wayne"
+  api: true

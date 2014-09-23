@@ -24,10 +24,9 @@ gem 'uri_validator'
 
 gem 'route_translator', :git => "https://github.com/enriclluelles/route_translator.git"
 
-gem 'rest_client', '1.7.3'
-
 gem 'sinatra', '>= 1.3.0', :require => nil
 gem 'sidekiq', '2.17.7'
+gem 'rest-client', :git => "https://github.com/ricardohsd/rest-client.git"
 
 # Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.1'
