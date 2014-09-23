@@ -18,5 +18,6 @@ Rails.application.routes.draw do
       resources :syncronizations, only: [:index, :create]
     end
     resources :unities
+    resources :***REMOVED***
   end
 end

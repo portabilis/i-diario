@@ -6,6 +6,8 @@ pt-BR:
     account: 'conta'
     users: 'usuarios'
     syncronizations: 'sincronizacoes'
+    ***REMOVED***: 'grupos'
+
     # actions
     edit: 'editar'
     new: 'novo'
