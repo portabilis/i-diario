@@ -15,6 +15,7 @@ Rails.application.routes.draw do
     resource :account, only: [:edit, :update]
     resources :profiles, only: [:index, :update]
     resources :disciplinary_incidents, only: [:index]
+    resources :***REMOVED***, only: [:index, :show]
     resource :ieducar_api_configurations, only: [:edit, :update] do
       resources :syncronizations, only: [:index, :create]
     end

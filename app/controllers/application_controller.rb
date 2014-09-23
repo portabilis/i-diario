@@ -60,4 +60,8 @@ class ApplicationController < ActionController::Base
     @configuration ||= IeducarApiConfiguration.current
   end
   helper_method :current_configuration
+
+  def api
+    @api ||= IeducarApi::StudentRegistrations.new(current_configuration.to_api)
+  end
 end

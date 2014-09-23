@@ -8,6 +8,7 @@ pt-BR:
     syncronizations: 'sincronizacoes'
     ***REMOVED***: 'grupos'
     disciplinary_incidents: 'ocorrencias-disciplinares'
+    ***REMOVED***: 'boletins-escolares'
     # actions
     edit: 'editar'
     new: 'novo'
