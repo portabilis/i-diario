@@ -1,0 +1,13 @@
+$(document).ready(function(){
+  if ($('body.***REMOVED***_classes form').length > 0) {
+    $('input.select2').select2({
+      formatResult: function(el) {
+        return "<div class='select2-user-result'>" + el.name + "</div>";
+      },
+      formatSelection: function(el) {
+        return el.name;
+      },
+      data: $('input.select2').data('elements')
+    });
+  }
+});

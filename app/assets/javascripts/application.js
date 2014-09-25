@@ -6,6 +6,8 @@
 //= require smart_admin/msie-fix/jquery.mb.browser.min
 //= require smart_admin/jarvis.***REMOVED***
 //= require smart_admin/jarvis.widget
+//= require smart_admin/select2/select2
+//= require smart_admin/select2/select2_locale_pt-BR
 //= require underscore
 //= require handlebars.runtime
 //= require cocktail

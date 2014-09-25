@@ -9,6 +9,7 @@ pt-BR:
     ***REMOVED***: 'grupos'
     disciplinary_incidents: 'ocorrencias-disciplinares'
     ***REMOVED***: 'boletins-escolares'
+    ***REMOVED***_classes: 'classes'
     # actions
     edit: 'editar'
     new: 'novo'

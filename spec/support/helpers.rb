@@ -19,6 +19,12 @@ module Helpers
     page.execute_script %{document.getElementById('#{field[:id]}').value = '#{options[:with]}'}
     field.trigger('blur')
   end
+
+  def fill_in_select2(selector, options={})
+    page.execute_script("$('##{selector}').select2('val', #{options[:with]});")
+    page.save_screenshot('teste.png')
+    sleep 2
+  end
 end
 
 RSpec.configure do |config|
