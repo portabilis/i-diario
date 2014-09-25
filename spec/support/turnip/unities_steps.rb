@@ -46,7 +46,7 @@ module Turnip
 
       expect(page).to have_content 'Unidade foi alterada com sucesso.'
 
-      within :xpath, '//table/tbody/tr[position()=2]' do
+      within :xpath, '//table/tbody/tr[position()=1]' do
         expect(page).to have_content 'Unidade Z'
       end
     end
@@ -54,20 +54,20 @@ module Turnip
     step "que existem unidades cadastradas" do
       click_***REMOVED*** 'Configurações > Unidades'
 
-      within :xpath, '//table/tbody/tr[position()=2]' do
-        expect(page).to have_content 'Unidade Z'
+      within :xpath, '//table/tbody/tr[position()=1]' do
+        expect(page).to have_content 'Escola A'
       end
     end
 
     step "poderei excluir uma unidade" do
-      within :xpath, '//table/tbody/tr[position()=2]' do
-        expect(page).to have_content 'Unidade Z'
+      within :xpath, '//table/tbody/tr[position()=1]' do
+        expect(page).to have_content 'Escola A'
         click_on 'Excluir'
       end
 
       expect(page).to have_content "Unidade foi apagada com sucesso"
 
-      expect(page).to have_no_content 'Unidade Z'
+      expect(page).to have_no_content 'Escola A'
     end
   end
 end

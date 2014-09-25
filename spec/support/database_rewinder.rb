@@ -15,7 +15,7 @@ RSpec.configure do |config|
     DatabaseRewinder.truncate
   end
 
-  config.after :each do
+  config.after :example do
     DatabaseRewinder.truncate
   end
 end
