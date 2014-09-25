@@ -10,6 +10,7 @@ pt-BR:
     disciplinary_incidents: 'ocorrencias-disciplinares'
     ***REMOVED***: 'boletins-escolares'
     ***REMOVED***_classes: 'classes'
+    ***REMOVED***: 'unidades-de-medida'
     # actions
     edit: 'editar'
     new: 'novo'

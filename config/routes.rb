@@ -22,5 +22,6 @@ Rails.application.routes.draw do
     resources :unities
     resources :***REMOVED***
     resources :***REMOVED***_classes
+    resources :***REMOVED***
   end
 end
