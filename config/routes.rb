@@ -24,5 +24,6 @@ Rails.application.routes.draw do
     resources :***REMOVED***_classes
     resources :***REMOVED***
     resources :***REMOVED***
+    resources :***REMOVED***
   end
 end

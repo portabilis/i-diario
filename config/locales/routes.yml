@@ -12,6 +12,7 @@ pt-BR:
     ***REMOVED***_classes: 'classes'
     ***REMOVED***: 'unidades-de-medida'
     ***REMOVED***: 'publicacoes'
+    ***REMOVED***: 'fornecedores'
     # actions
     edit: 'editar'
     new: 'novo'
