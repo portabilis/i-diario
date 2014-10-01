@@ -23,4 +23,12 @@
 //= require server-errors-presenter
 //= require masks
 //= require educacao
+//= require jquery-file-upload/vendor/jquery.ui.widget
+//= require jquery-file-upload/vendor/load-image.all.min
+//= require jquery-file-upload/vendor/canvas-to-blob.min
+//= require jquery-file-upload/jquery.iframe-transport
+//= require jquery-file-upload/jquery.fileupload
+//= require jquery-file-upload/jquery.fileupload-process
+//= require jquery-file-upload/jquery.fileupload-image
+//= require jquery-file-upload/jquery.fileupload-validate
 //= require_tree ./resources

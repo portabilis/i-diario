@@ -64,6 +64,9 @@ pt-BR:
     - :month
     - :year
 
+    today: "Hoje"
+    yesterday: "Ontem"
+
   datetime:
     distance_in_words:
       about_x_years:

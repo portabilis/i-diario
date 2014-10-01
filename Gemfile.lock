@@ -66,6 +66,11 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
+    carrierwave (0.10.0)
+      activemodel (>= 3.2.0)
+      activesupport (>= 3.2.0)
+      json (>= 1.7)
+      mime-types (>= 1.16)
     celluloid (0.16.0)
       timers (~> 4.0.0)
     cliver (0.3.2)
@@ -256,6 +261,7 @@ DEPENDENCIES
   activerecord-connections!
   backbone-nested-attributes!
   capybara (= 2.2.1)
+  carrierwave
   cpf_validator (= 0.2.0)
   devise (= 3.3.0)
   enumerate_it (= 1.2.3)

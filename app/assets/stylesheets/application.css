@@ -17,5 +17,7 @@
  *= require smart_admin/smartadmin-skins
  *= require jNotify.jquery.css
  *= require educacao
+ *= require jquery-file-upload/jquery.fileupload
+ *= require_tree ./resources
  *= require_self
  */

@@ -11,6 +11,7 @@ pt-BR:
     ***REMOVED***: 'boletins-escolares'
     ***REMOVED***_classes: 'classes'
     ***REMOVED***: 'unidades-de-medida'
+    ***REMOVED***: 'publicacoes'
     # actions
     edit: 'editar'
     new: 'novo'

@@ -37,6 +37,8 @@ gem 'handlebars_assets', '0.17.1'
 
 gem 'activerecord-connections', :git => "https://github.com/ricardohsd/activerecord-connections.git"
 
+gem 'carrierwave'
+
 # Test
 gem 'rspec-rails', '3.0.2', :group => [:development, :test]
 
