@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    kinds:
+      person: "Pessoa física"
+      company: "Pessoa jurídica"
