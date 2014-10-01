@@ -44,6 +44,7 @@ gem 'rspec-rails', '3.0.2', :group => [:development, :test]
 
 group :development do
   gem 'mina', '0.3.0'
+  gem 'better_errors', '~> 1.1.0'
 end
 
 group :test do
