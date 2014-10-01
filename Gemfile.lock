@@ -62,6 +62,8 @@ GEM
     better_errors (1.1.0)
       coderay (>= 1.0.0)
       erubis (>= 2.6.6)
+    binding_of_caller (0.7.2)
+      debug_inspector (>= 0.0.1)
     builder (3.2.2)
     capybara (2.2.1)
       mime-types (>= 1.16)
@@ -84,6 +86,7 @@ GEM
       activemodel (>= 3.0)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
+    debug_inspector (0.0.2)
     devise (3.3.0)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -265,6 +268,7 @@ DEPENDENCIES
   activerecord-connections!
   backbone-nested-attributes!
   better_errors (~> 1.1.0)
+  binding_of_caller (~> 0.7.2)
   capybara (= 2.2.1)
   carrierwave
   cpf_validator (= 0.2.0)
