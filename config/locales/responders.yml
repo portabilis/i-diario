@@ -44,3 +44,6 @@ pt-BR:
         alert: "Integração de alunos do i-Educar não pode ser processada."
     ***REMOVED***:
       <<: *male
+
+    ***REMOVED***:
+      <<: *male
