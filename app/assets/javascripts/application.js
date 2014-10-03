@@ -24,6 +24,8 @@
 //= require flash_messages
 //= require server-errors-presenter
 //= require masks
+//= require educacao
+//= require select2
 //= require jquery-file-upload/vendor/jquery.ui.widget
 //= require jquery-file-upload/vendor/load-image.all.min
 //= require jquery-file-upload/vendor/canvas-to-blob.min
