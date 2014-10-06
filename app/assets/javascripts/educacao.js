@@ -3,6 +3,15 @@
 //= require_self
 
 $(function () {
+  $.ajaxSetup({
+    beforeSend: function () {
+      $('body').append('<div id="page-loading"><i class="fa fa-cog fa-spin"></i></div>');
+    },
+    complete: function () {
+      $('#page-loading').remove();
+    }
+  });
+
   $('nav ul').jarvis***REMOVED***({
     accordion : true,
     speed : 235,
