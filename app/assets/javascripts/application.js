@@ -21,9 +21,11 @@
 //= require_tree ./templates
 //= require jquery.inputmask
 //= require jquery.singlemask
+//= require jquery.price_format.2.0
 //= require flash_messages
 //= require server-errors-presenter
 //= require masks
+//= require decimals
 //= require educacao
 //= require select2
 //= require jquery-file-upload/vendor/jquery.ui.widget
