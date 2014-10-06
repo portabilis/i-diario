@@ -46,6 +46,7 @@ group :development do
   gem 'mina', '0.3.0'
   gem 'better_errors', '~> 1.1.0'
   gem 'binding_of_caller', '~> 0.7.2'
+  gem 'bullet', '~> 4.14.0'
 end
 
 group :test do
