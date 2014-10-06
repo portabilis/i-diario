@@ -2,7 +2,7 @@ $(function () {
   $('input[data-mask]').on('focus', function () {
     var input = $(this);
 
-    input.inputmask(input.data('mask'));
+    input.inputmask(input.attr('data-mask'));
   });
 
   $('input.tel').on('focusout', function () {
