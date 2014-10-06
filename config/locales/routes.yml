@@ -15,6 +15,7 @@ pt-BR:
     ***REMOVED***: 'fornecedores'
     registrations: 'registro'
     students: 'alunos'
+    ***REMOVED***: 'materiais'
     # actions
     edit: 'editar'
     new: 'novo'
