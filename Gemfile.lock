@@ -12,6 +12,13 @@ GIT
     route_translator (3.2.4)
 
 GIT
+  remote: https://github.com/matiasleidemer/decore
+  revision: ff017a022a623302d7ea823fc4af2b6bec461c7b
+  specs:
+    decore (0.1.0)
+      activesupport (>= 3.2.0)
+
+GIT
   remote: https://github.com/ricardohsd/activerecord-connections.git
   revision: b2a704ff10c447f37635eaa0a447ffb4747b1694
   specs:
@@ -277,6 +284,7 @@ DEPENDENCIES
   capybara (= 2.2.1)
   carrierwave
   cpf_validator (= 0.2.0)
+  decore!
   devise (= 3.3.0)
   enumerate_it (= 1.2.3)
   foreigner (= 1.6.1)
