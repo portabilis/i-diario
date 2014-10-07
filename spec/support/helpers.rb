@@ -21,13 +21,10 @@ module Helpers
   end
 
   def fill_in_select2(selector, options={})
-    page.execute_script("$('##{selector}').select2('val', #{options[:with]});")
-    page.save_screenshot('teste.png')
-    sleep 2
+    page.execute_script("$('##{selector}').select2('val', '#{options[:with]}');")
   end
 end
 
 RSpec.configure do |config|
   config.include Helpers, type: :feature
 end
-
