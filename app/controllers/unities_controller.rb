@@ -4,7 +4,7 @@ class UnitiesController < ApplicationController
   end
 
   def new
-    @unity = Unity.new
+    @unity = Unity.new unit_type: 'school_unit'
     @unity.build_address unless @unity.address
   end
 

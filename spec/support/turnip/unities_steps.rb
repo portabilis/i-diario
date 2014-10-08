@@ -10,6 +10,8 @@ module Turnip
     end
 
     step 'poderei cadastrar uma nova unidade' do
+      expect(page).to have_select2_filled 'Tipo de unidade', with: 'Unidade escolar'
+
       fill_in "Nome", with: "Escola X"
       fill_in_select2 "unity_unit_type", with: "school_unit"
 
