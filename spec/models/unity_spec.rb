@@ -12,5 +12,9 @@ RSpec.describe Unity, :type => :model do
     it { should allow_value('admin@example.com').for(:email) }
     it { should_not allow_value('admin@examplecom', 'adminexample.com').for(:email).
          with_message("use apenas letras (a-z), números e pontos.") }
+
+    it { should validate_presence_of :author }
+    it { should validate_presence_of :name }
+    it { should validate_presence_of :unit_type }
   end
 end

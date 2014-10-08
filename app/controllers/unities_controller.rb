@@ -46,7 +46,7 @@ class UnitiesController < ApplicationController
 
   def unity_params
     params.require(:unity).permit(
-      :name, :phone, :email, :responsible, :api_code,
+      :name, :phone, :email, :responsible, :api_code, :unit_type,
       :address_attributes => [
         :id, :zip_code, :street, :number, :complement, :neighborhood, :city,
         :state, :country, :latitude, :longitude, :_destroy

@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    unit_types:
+      school_unit: "Unidade escolar"
+      cost_center: "Centro de custo"

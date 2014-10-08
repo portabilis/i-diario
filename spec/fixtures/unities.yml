@@ -1,3 +1,4 @@
 escola_y:
   name: "Escola A"
   author: john_doe
+  unit_type: "school_unit"

@@ -11,6 +11,7 @@ module Turnip
 
     step 'poderei cadastrar uma nova unidade' do
       fill_in "Nome", with: "Escola X"
+      fill_in_select2 "unity_unit_type", with: "school_unit"
 
       click_on "Salvar"
 
@@ -21,7 +22,7 @@ module Turnip
       click_***REMOVED*** 'Configurações > Unidades'
 
       within :xpath, '//table/tbody/tr[position()=1]' do
-        expect(page).to have_content 'Escola A'
+        expect(page).to have_content 'Escola A Unidade escolar'
       end
     end
 

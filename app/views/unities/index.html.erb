@@ -5,6 +5,7 @@
     <thead>
       <tr>
         <th><%= Unity.human_attribute_name :name %></th>
+        <th><%= Unity.human_attribute_name :unit_type %></th>
         <th><%= Unity.human_attribute_name :phone %></th>
         <th><%= Unity.human_attribute_name :email %></th>
         <th><%= Unity.human_attribute_name :responsible %></th>
@@ -20,6 +21,7 @@
               <%= truncate unity.to_s, length: 40 %>
             <% end %>
           </td>
+          <td><%= unity.unit_type_humanize %></td>
           <td><%= unity.phone %></td>
           <td><%= unity.email %></td>
           <td><%= unity.responsible %></td>

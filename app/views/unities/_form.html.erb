@@ -2,6 +2,12 @@
   <fieldset>
     <div class="row">
       <div class="col col-sm-6">
+        <%= f.input :unit_type, as: :select2, elements: UnitTypes.to_select.to_json %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-6">
         <%= f.input :name %>
       </div>
 

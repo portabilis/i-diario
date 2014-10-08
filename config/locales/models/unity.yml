@@ -13,6 +13,7 @@ pt-BR:
         responsible: "Responsável"
         api_code: "Código da escola no i-Educar"
         author: "Autor"
+        unit_type: "Tipo de unidade"
 
   unity:
     help:
