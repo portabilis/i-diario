@@ -3,7 +3,11 @@ require 'rails_helper'
 
 RSpec.describe User, :type => :model do
   context "Associations" do
+    it { should have_many :logins }
     it { should have_many :syncronizations }
+    it { should have_many :***REMOVED*** }
+    it { should have_many :requested_***REMOVED*** }
+    it { should have_and_belong_to_many :students }
   end
 
   context "Validations" do

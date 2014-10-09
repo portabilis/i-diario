@@ -2,6 +2,13 @@
 require 'rails_helper'
 
 RSpec.describe Unity, :type => :model do
+  context "associations" do
+    it { should belong_to :author }
+    it { should have_one :address }
+    it { should have_many :origin_***REMOVED*** }
+    it { should have_many :destination_***REMOVED*** }
+  end
+
   context "Validations" do
     it { should allow_value('').for(:phone) }
     it { should allow_value('(33) 3344-5566').for(:phone) }

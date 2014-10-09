@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :syncronizations, class_name: "IeducarApiSyncronization", foreign_key: :author_id
   has_many :***REMOVED***, dependent: :destroy
+  has_many :requested_***REMOVED***, class_name: "***REMOVED***Request", foreign_key: :requestor_id
 
   has_and_belongs_to_many :students
 
