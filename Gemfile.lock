@@ -89,6 +89,7 @@ GEM
     celluloid (0.16.0)
       timers (~> 4.0.0)
     cliver (0.3.2)
+    cocoon (1.2.6)
     coderay (1.1.0)
     commonjs (0.2.7)
     connection_pool (2.0.0)
@@ -283,6 +284,7 @@ DEPENDENCIES
   bullet (~> 4.14.0)
   capybara (= 2.2.1)
   carrierwave
+  cocoon (~> 1.2.6)
   cpf_validator (= 0.2.0)
   decore!
   devise (= 3.3.0)
