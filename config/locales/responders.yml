@@ -50,3 +50,6 @@ pt-BR:
 
     ***REMOVED***:
       <<: *male
+
+    ***REMOVED***:
+      <<: *female
