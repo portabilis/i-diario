@@ -29,7 +29,6 @@ module RSpec
 end
 
 RSpec.configure do |config|
-  config.include RSpec::Decorator::DecoratorExample***REMOVED***, :type => :decorator, :example_group => {
+  config.include RSpec::Decorator::DecoratorExample***REMOVED***, :type => :decorator,
     :file_path => /spec[\\\/]decorators/
-  }
 end
