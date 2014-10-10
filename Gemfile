@@ -42,7 +42,10 @@ gem 'activerecord-connections', :git => "https://github.com/ricardohsd/activerec
 gem 'carrierwave'
 
 # Test
-gem 'rspec-rails', '3.0.2', :group => [:development, :test]
+group :development, :test do
+  gem 'rspec-rails', '3.0.2'
+  gem 'pry', '~> 0.10.1'
+end
 
 group :development do
   gem 'mina', '0.3.0'
