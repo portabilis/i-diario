@@ -13,7 +13,7 @@ module Turnip
       expect(page).to have_select2_filled 'Tipo de unidade', with: 'Unidade escolar'
 
       fill_in "Nome", with: "Escola X"
-      fill_in_select2 "unity_unit_type", with: "school_unit"
+      fill_in_select2 "Tipo de unidade", with: "school_unit"
 
       click_on "Salvar"
 

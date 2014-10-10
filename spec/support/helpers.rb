@@ -21,7 +21,7 @@ module Helpers
   end
 
   def fill_in_select2(selector, options={})
-    page.execute_script("$('##{selector}').select2('val', '#{options[:with]}');")
+    page.execute_script %{ $('input[title$="#{selector}"]').select2('val', '#{options[:with]}'); }
   end
 end
 
