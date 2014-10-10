@@ -1,36 +1,38 @@
 <div class="widget-body">
   <%= link_to 'Novo', new_unity_path, class: "btn btn-success" %>
 
-  <table class="table table-bordered" id="resources">
-    <thead>
-      <tr>
-        <th><%= Unity.human_attribute_name :name %></th>
-        <th><%= Unity.human_attribute_name :unit_type %></th>
-        <th><%= Unity.human_attribute_name :phone %></th>
-        <th><%= Unity.human_attribute_name :email %></th>
-        <th><%= Unity.human_attribute_name :responsible %></th>
-        <th></th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <% @unities.each do |unity| %>
+  <div class="table-responsive">
+    <table class="table table-bordered" id="resources">
+      <thead>
         <tr>
-          <td>
-            <%= link_to edit_unity_path(unity) do %>
-              <%= truncate unity.to_s, length: 40 %>
-            <% end %>
-          </td>
-          <td><%= unity.unit_type_humanize %></td>
-          <td><%= unity.phone %></td>
-          <td><%= unity.email %></td>
-          <td><%= unity.responsible %></td>
-          <td>
-            <%= link_to 'Editar', edit_unity_path(unity), class: "btn btn-success" %>
-            <%= link_to 'Excluir', unity_path(unity), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
-          </td>
+          <th><%= Unity.human_attribute_name :name %></th>
+          <th><%= Unity.human_attribute_name :unit_type %></th>
+          <th><%= Unity.human_attribute_name :phone %></th>
+          <th><%= Unity.human_attribute_name :email %></th>
+          <th><%= Unity.human_attribute_name :responsible %></th>
+          <th></th>
         </tr>
-      <% end %>
-    </tbody>
-  </table>
+      </thead>
+
+      <tbody>
+        <% @unities.each do |unity| %>
+          <tr>
+            <td>
+              <%= link_to edit_unity_path(unity) do %>
+                <%= truncate unity.to_s, length: 40 %>
+              <% end %>
+            </td>
+            <td><%= unity.unit_type_humanize %></td>
+            <td><%= unity.phone %></td>
+            <td><%= unity.email %></td>
+            <td><%= unity.responsible %></td>
+            <td>
+              <%= link_to 'Editar', edit_unity_path(unity), class: "btn btn-success" %>
+              <%= link_to 'Excluir', unity_path(unity), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>  
 </div>
