@@ -12,6 +12,14 @@ $(function () {
     }
   });
 
+  $.extend($.validator.messages, {
+    required: "não pode ficar em branco",
+    email: "não é um email válido",
+    date: "não é uma data válida",
+    number: "não é um número válido",
+    digits: "deve conter somente dígitos"
+  });
+
   $('nav ul').jarvis***REMOVED***({
     accordion : true,
     speed : 235,
@@ -46,5 +54,12 @@ $(function () {
     fullscreenDiff : 3,
     onFullscreen : function() {
     }
+  });
+
+  $('#students').on('click', 'tbody tr', function () {
+    var $el = $(this),
+        $input = $el.find('input[type=checkbox]');
+
+    $input.trigger('click');
   });
 });

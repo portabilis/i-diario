@@ -2,6 +2,24 @@
 //= require_tree ./signup/views
 
 $(function () {
+  var $validator = $("#signup-parent").validate({
+    highlight: function (element) {
+      $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
+    },
+    unhighlight: function (element) {
+      $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
+    },
+    errorElement: 'span',
+    errorClass: 'help-block',
+    errorPlacement: function (error, element) {
+      if (element.parent('.input-group').length) {
+        error.insertAfter(element.parent());
+      } else {
+        error.insertAfter(element);
+      }
+    }
+  });
+
   $('form#signup-parent').on('change', '#signup_document, #signup_student_code', function () {
     var $document = $('#signup_document').val().replace(/[^0-9+]/g, ''),
         $studentCode = $('#signup_student_code').val();
@@ -31,6 +49,17 @@ $(function () {
   });
 
   $('#signup-wizard').bootstrapWizard({
-    'tabClass': 'form-wizard'
+    'tabClass': 'form-wizard',
+    'onNext': function (tab, navigation, index) {
+      var $valid = $("#signup-parent").valid();
+      if (!$valid) {
+        $validator.focusInvalid();
+        return false;
+      } else {
+        $('#signup-wizard').find('.form-wizard').children('li').eq(index - 1).addClass('complete');
+        $('#signup-wizard').find('.form-wizard').children('li').eq(index - 1).find('.step')
+        .html('<i class="fa fa-check"></i>');
+      }
+    }
   });
 });

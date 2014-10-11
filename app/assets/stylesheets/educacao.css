@@ -37,3 +37,7 @@ form.smart-form fieldset {
   opacity: 0.2;
   filter: alpha(opacity=20)
 }
+
+table.selectable tbody tr {
+  cursor: pointer;
+}
