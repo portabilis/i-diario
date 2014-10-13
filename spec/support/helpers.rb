@@ -21,7 +21,11 @@ module Helpers
   end
 
   def fill_in_select2(selector, options={})
-    page.execute_script %{ $('input[title$="#{selector}"]').select2('val', '#{options[:with]}'); }
+    expect(page).to have_field selector
+
+    field = page.find_field selector
+
+    page.execute_script %{ $('##{field[:id]}').parent().next().select2('val', '#{options[:with]}'); }
   end
 end
 

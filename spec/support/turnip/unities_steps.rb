@@ -12,7 +12,7 @@ module Turnip
     step 'poderei cadastrar uma nova unidade' do
       expect(page).to have_select2_filled 'Tipo de unidade', with: 'Unidade escolar'
 
-      fill_in "Nome", with: "Escola X"
+      fill_in "Nome", with: "Escola Y"
       fill_in_select2 "Tipo de unidade", with: "school_unit"
 
       click_on "Salvar"
@@ -49,7 +49,7 @@ module Turnip
 
       expect(page).to have_content 'Unidade foi alterada com sucesso.'
 
-      within :xpath, '//table/tbody/tr[position()=1]' do
+      within :xpath, '//table/tbody/tr[position()=2]' do
         expect(page).to have_content 'Unidade Z'
       end
     end
@@ -63,6 +63,8 @@ module Turnip
     end
 
     step "poderei excluir uma unidade" do
+      ***REMOVED***Request.destroy_all
+
       within :xpath, '//table/tbody/tr[position()=1]' do
         expect(page).to have_content 'Escola A'
         click_on 'Excluir'
