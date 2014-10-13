@@ -7,3 +7,4 @@ john_doe:
   phone: '(11) 9988-7766'
   cpf: '639.290.118-32'
   authorize_email_and_sms: false
+  students: bary_allen, bruce_wayne
