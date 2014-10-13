@@ -8,6 +8,8 @@ class User < ActiveRecord::Base
   has_many :syncronizations, class_name: "IeducarApiSyncronization", foreign_key: :author_id
   has_many :***REMOVED***, dependent: :destroy
   has_many :requested_***REMOVED***, class_name: "***REMOVED***Request", foreign_key: :requestor_id
+  has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
+    foreign_key: :responsible_id
 
   has_and_belongs_to_many :students
 
