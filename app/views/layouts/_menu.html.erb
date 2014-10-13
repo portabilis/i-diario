@@ -13,21 +13,21 @@
   <nav>
     <ul>
       <li>
-        <a href="/" title="Dashboard">
+        <a href="/">
           <i class="fa fa-lg fa-fw fa-home"></i>
-          <span class="***REMOVED***-item-parent">Dashboard</span>
+          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.dashboard') %></span>
         </a>
       </li>
 
       <li>
-        <%= link_to disciplinary_incidents_path, title: t('***REMOVED***.disciplinary_incidents') do %>
+        <%= link_to disciplinary_incidents_path do %>
           <i class="fa fa-lg fa-fw fa-bar-chart-o"></i>
           <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.disciplinary_incidents') %></span>
         <% end %>
       </li>
 
       <li>
-        <%= link_to ***REMOVED***_path, title: t('***REMOVED***.***REMOVED***') do %>
+        <%= link_to ***REMOVED***_path do %>
           <i class="fa fa-lg fa-fw fa-graduation-cap"></i>
           <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
         <% end %>
@@ -36,7 +36,7 @@
       <li>
         <a href="#">
           <i class="fa fa-lg fa-fw fa-cog"></i>
-          <span class="***REMOVED***-item-parent">Configurações</span>
+          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.configurations') %></span>
         </a>
 
         <ul>
@@ -56,51 +56,54 @@
 
       <li>
         <%= link_to ***REMOVED***_path do %>
-          <i class="fa fa-lg fa-fw"></i>
-          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
-        <% end %>
-      </li>
-
-      <li>
-        <%= link_to ***REMOVED***_classes_path do %>
-          <i class="fa fa-lg fa-fw"></i>
-          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***_classes') %></span>
-        <% end %>
-      </li>
-
-      <li>
-        <%= link_to ***REMOVED***_path do %>
-          <i class="fa fa-lg fa-fw"></i>
-          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
-        <% end %>
-      </li>
-
-      <li>
-        <%= link_to ***REMOVED***_path do %>
           <i class="fa fa-lg fa-fw fa-bullhorn"></i>
           <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
         <% end %>
-      </li>
+      </li>      
 
       <li>
-        <%= link_to ***REMOVED***_path do %>
-          <i class="fa fa-lg fa-fw"></i>
-          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
-        <% end %>
-      </li>
+        <a href="#">
+          <i class="fa fa-lg fa-fw fa-exchange"></i>
+          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***')%></span>
+        </a>
 
-      <li>
-        <%= link_to ***REMOVED***_path do %>
-          <i class="fa fa-lg fa-fw"></i>
-          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
-        <% end %>
-      </li>
+        <ul>
+          <li>
+            <%= link_to ***REMOVED***_path do %>
+              <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
+            <% end %>
+          </li>
 
-      <li>
-        <%= link_to ***REMOVED***_path do %>
-          <i class="fa fa-lg fa-fw"></i>
-          <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
-        <% end %>
+          <li>
+            <%= link_to ***REMOVED***_classes_path do %>
+              <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***_classes') %></span>
+            <% end %>
+          </li>
+
+          <li>
+            <%= link_to ***REMOVED***_path do %>
+              <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
+            <% end %>
+          </li>
+
+          <li>
+            <%= link_to ***REMOVED***_path do %>
+              <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
+            <% end %>
+          </li>
+
+          <li>
+            <%= link_to ***REMOVED***_path do %>
+              <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
+            <% end %>
+          </li>
+
+          <li>
+            <%= link_to ***REMOVED***_path do %>
+              <span class="***REMOVED***-item-parent"><%= t('***REMOVED***.***REMOVED***') %></span>
+            <% end %>
+          </li>
+        </ul>
       </li>
     </ul>
   </nav>
