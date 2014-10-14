@@ -16,7 +16,8 @@ pt-BR:
     registrations: 'registro'
     students: 'alunos'
     ***REMOVED***: 'materiais'
-    ***REMOVED***: 'requisicao-de-materiais'
+    ***REMOVED***: 'requisicoes-de-materiais'
+    ***REMOVED***: 'autorizacoes-de-requisicoes-de-materiais'
     # actions
     edit: 'editar'
     new: 'novo'
