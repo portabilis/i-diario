@@ -25,7 +25,9 @@ module Helpers
 
     field = page.find_field selector
 
-    page.execute_script %{ $('##{field[:id]}').parent().next().select2('val', '#{options[:with]}'); }
+    page.execute_script %{
+      $('##{field[:id]}').parent().next().select2('val', '#{options[:with]}', true);
+    }
   end
 end
 
