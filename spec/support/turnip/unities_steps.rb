@@ -63,6 +63,7 @@ module Turnip
     end
 
     step "poderei excluir uma unidade" do
+      ***REMOVED***RequestAuthorization.destroy_all
       ***REMOVED***Request.destroy_all
 
       within :xpath, '//table/tbody/tr[position()=1]' do

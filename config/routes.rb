@@ -41,5 +41,6 @@ Rails.application.routes.draw do
     resources :***REMOVED*** do
       resources :material_request_items, only: [:index]
     end
+    resources :***REMOVED***
   end
 end
