@@ -17,6 +17,7 @@ pt-BR:
     students: 'alunos'
     ***REMOVED***: 'materiais'
     ***REMOVED***: 'requisicoes-de-materiais'
+    material_request_items: 'items-de-requisicoes-de-materiais'
     ***REMOVED***: 'autorizacoes-de-requisicoes-de-materiais'
     # actions
     edit: 'editar'

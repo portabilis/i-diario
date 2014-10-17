@@ -7,7 +7,7 @@ $(function() {
       itemTemplate = HandlebarsTemplates["***REMOVED***/item"],
       flashMessages = new FlashMessages();
 
-  toggleReason($status.val() !== 'granted');
+  toggleReason($status.val() === 'partially_granted' || $status.val() === 'dismissed');
   toggleItems($status.val() === 'partially_granted');
 
   $status.on('change', function(e) {
@@ -25,7 +25,7 @@ $(function() {
 
   function fetch***REMOVED***RequestItems(materialId) {
     $.ajax({
-      url: '/***REMOVED***/' + materialId + '/material_request_items.json',
+      url: '/requisicoes-de-materiais/' + materialId + '/items-de-requisicoes-de-materiais.json',
       success: renderItems,
       error: handleError
     });
