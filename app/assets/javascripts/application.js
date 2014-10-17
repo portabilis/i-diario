@@ -30,6 +30,7 @@
 //= require educacao
 //= require select2
 //= require cocoon
+//= require cocoon-nested-inputs
 //= require jquery-file-upload/vendor/jquery.ui.widget
 //= require jquery-file-upload/vendor/load-image.all.min
 //= require jquery-file-upload/vendor/canvas-to-blob.min
