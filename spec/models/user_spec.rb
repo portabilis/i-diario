@@ -8,6 +8,7 @@ RSpec.describe User, :type => :model do
     it { should have_many :***REMOVED*** }
     it { should have_many :requested_***REMOVED*** }
     it { should have_many :responsible_requested_***REMOVED*** }
+    it { should have_many :responsible_***REMOVED*** }
     it { should have_and_belong_to_many :students }
   end
 
