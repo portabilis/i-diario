@@ -19,6 +19,7 @@ pt-BR:
     ***REMOVED***: 'requisicoes-de-materiais'
     material_request_items: 'items-de-requisicoes-de-materiais'
     ***REMOVED***: 'autorizacoes-de-requisicoes-de-materiais'
+    material_request_authorization_items: 'items-de-autorizacoes-de-requisicoes-de-materiais'
     ***REMOVED***: 'saidas-de-materiais'
     # actions
     edit: 'editar'

@@ -63,6 +63,7 @@ module Turnip
     end
 
     step "poderei excluir uma unidade" do
+      ***REMOVED***.destroy_all
       ***REMOVED***RequestAuthorization.destroy_all
       ***REMOVED***Request.destroy_all
 
