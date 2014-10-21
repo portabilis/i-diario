@@ -12,6 +12,8 @@ class Unity < ActiveRecord::Base
     class_name: "***REMOVED***"
   has_many :destination_***REMOVED***, foreign_key: :destination_unity_id,
     class_name: "***REMOVED***"
+  has_many :destination_***REMOVED***, foreign_key: :destination_unity_id,
+    class_name: "***REMOVED***"
 
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
 

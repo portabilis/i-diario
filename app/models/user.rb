@@ -11,6 +11,8 @@ class User < ActiveRecord::Base
     foreign_key: :requestor_id
   has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
     foreign_key: :responsible_id
+  has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
+    foreign_key: :responsible_id
   has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
     foreign_key: :responsible_id
 
