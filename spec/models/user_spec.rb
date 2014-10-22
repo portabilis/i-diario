@@ -16,10 +16,11 @@ RSpec.describe User, :type => :model do
     it { should validate_presence_of(:email) }
 
     it { should allow_value('').for(:phone) }
-    it { should allow_value('(33) 3344-5566').for(:phone) }
-    it { should allow_value('(33) 33444-5556').for(:phone) }
-    it { should_not allow_value('(33) 33445565').for(:phone) }
+    it { should allow_value('(33) 33445566').for(:phone) }
+    it { should allow_value('(33) 334445556').for(:phone) }
+    it { should_not allow_value('(33) 3344-5565').for(:phone) }
     it { should_not allow_value('(33) 3344-556').for(:phone) }
+    it { should_not allow_value('(33) 3344556').for(:phone) }
 
     it { should allow_value('').for(:cpf) }
     it { should allow_value('531.880.033-58').for(:cpf) }
