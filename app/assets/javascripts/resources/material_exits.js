@@ -1,20 +1,20 @@
 $(function() {
-  var $returnReasonDiv = $("[data-material-exit-return-reason]"),
-      $requestAuthorizationDiv = $("[data-material-exit-request-authorization]"),
-      $destinationUnityDiv = $("[data-material-exit-destination-unity]"),
+  var $returnReasonContainer = $("[data-material-exit-return-reason]"),
+      $requestAuthorizationContainer = $("[data-material-exit-request-authorization]"),
+      $destinationUnityContainer = $("[data-material-exit-destination-unity]"),
+      $materialItemsContainer = $("[data-material-exit-items-container]"),
       $returnReason = $("#material_exit_return_reason"),
-      $materialExitKind = $("#material_exit_kind"),
+      $kind = $("#material_exit_kind"),
       $requestAuthorization = $("#material_exit_material_request_authorization_id"),
       $destinationUnity = $("#material_exit_destination_unity_id"),
-      $materialItems = $("fieldset#material_exit_items div"),
-      flashMessages = new FlashMessages(),
       itemTemplate = $("#material_exit_items a.add_fields").attr("data-association-insertion-template");
+      flashMessages = new FlashMessages(),
 
-  toggleReturnReason($materialExitKind.val() === 'return');
-  toggleRequestAuthorization($materialExitKind.val() === 'transfer');
-  toggleDestinationUnity($materialExitKind.val() !== 'consumption');
+  toggleReturnReason($kind.val() === 'return');
+  toggleRequestAuthorization($kind.val() === 'transfer');
+  toggleDestinationUnity($kind.val() !== 'consumption');
 
-  $materialExitKind.on('change', function(e) {
+  $kind.on('change', function(e) {
     toggleReturnReason(e.val === 'return');
     toggleRequestAuthorization(e.val === 'transfer');
     toggleDestinationUnity(e.val !== 'consumption');
@@ -36,15 +36,17 @@ $(function() {
   function renderAuthorizationItems(items) {
     var output = [];
 
-    $materialItems.html('');
+    $materialItemsContainer.hide();
+    $materialItemsContainer.find("a.remove_fields").trigger("click");
 
     _.each(items, function(item) {
       item.quantity = parseFloat(item.quantity).toFixed(2);
       output.push(updateTemplate(item));
     });
 
-    $materialItems.html(output);
+    $materialItemsContainer.append(output);
     $('form').trigger('cocoon:after-insert');
+    $materialItemsContainer.show();
   }
 
   function handleError() {
@@ -63,27 +65,27 @@ $(function() {
 
   function toggleReturnReason(show) {
     if (show) {
-      $returnReasonDiv.show();
+      $returnReasonContainer.show();
     } else {
-      $returnReasonDiv.hide();
+      $returnReasonContainer.hide();
       $returnReason.val('');
     }
   }
 
   function toggleRequestAuthorization(show) {
     if (show) {
-      $requestAuthorizationDiv.show();
+      $requestAuthorizationContainer.show();
     } else {
-      $requestAuthorizationDiv.hide();
+      $requestAuthorizationContainer.hide();
       $requestAuthorization.select2('val', '');
     }
   }
 
   function toggleDestinationUnity(show) {
     if (show) {
-      $destinationUnityDiv.show();
+      $destinationUnityContainer.show();
     } else {
-      $destinationUnityDiv.hide();
+      $destinationUnityContainer.hide();
       $destinationUnity.select2('val', '');
     }
   }

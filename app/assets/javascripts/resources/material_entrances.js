@@ -1,11 +1,11 @@
 $(function() {
   var $supplier = $("[data-material-entrance-supplier]"),
       $materialExitFields = $("[data-material-entrance-material-exit]"),
-      $kind = $("#material_entrance_kind"),
       $materialItems = $("[data-material-entrance-items-container]"),
+      $kind = $("#material_entrance_kind"),
       $materialExit = $("#material_entrance_material_exit_id"),
-      flashMessages = new FlashMessages(),
-      itemTemplate = $("#material_entrance_items a.add_fields").attr("data-association-insertion-template");
+      itemTemplate = $("#material_entrance_items a.add_fields").attr("data-association-insertion-template"),
+      flashMessages = new FlashMessages();
 
   toggle***REMOVED***($kind.val() === 'supplier');
   toggle***REMOVED***($kind.val() === 'return' || $kind.val() === 'transfer');
@@ -18,11 +18,6 @@ $(function() {
   $materialExit.on('change', function(e) {
     fetchExitItems(e.val);
   });
-
-  $("fieldset#material_entrance_items a.add_fields").
-    data("association-insertion-method", 'append').
-    data("association-insertion-traversal", 'closest').
-    data("association-insertion-node", 'fieldset#material_entrance_items');
 
   function fetchExitItems(exitId) {
     $.ajax({
