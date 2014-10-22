@@ -49,4 +49,28 @@ RSpec.describe User, :type => :model do
       subject.update_tracked_fields!(request)
     end
   end
+
+  describe "#to_s" do
+    context "without name" do
+      before do
+        subject.first_name = ""
+        subject.email = 'foo@bar.com'
+      end
+
+      it "returns the email" do
+        expect(subject.to_s).to eql "foo@bar.com"
+      end
+    end
+
+    context "with name" do
+      before do
+        subject.first_name = "Foo"
+        subject.last_name = "Bar"
+      end
+
+      it "returns the name" do
+        expect(subject.to_s).to eql "Foo Bar"
+      end
+    end
+  end
 end

@@ -50,6 +50,8 @@ class User < ActiveRecord::Base
   end
 
   def to_s
-    "#{first_name} #{last_name}"
+    return email unless first_name.present?
+
+    "#{first_name} #{last_name}".strip
   end
 end
