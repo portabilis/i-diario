@@ -7,6 +7,11 @@ $(function() {
     item.fadeIn();
   });
 
+  $("[data-nested-fields-container] a.add_fields").
+    data("association-insertion-method", 'append').
+    data("association-insertion-traversal", 'closest').
+    data("association-insertion-node", '[data-nested-fields-container]');
+
   function loadSelect2Inputs() {
     _.each($('.nested-fields input.select2'), function(element) {
       $(element).select2({
