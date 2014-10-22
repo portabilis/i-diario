@@ -6,7 +6,8 @@ module Signup
       :password_confirmation, :students_attributes
 
     validates :document, :student_code, :celphone, :email, :password, :password_confirmation, presence: true
-    validates :password, confirmation: true, allow_blank: true
+    validates :celphone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
+    validates :password, confirmation: true, length: { minimum: 8 }, allow_blank: true
     validates :email, email: true, allow_blank: true
     validate :uniqueness_of_document
     validate :uniqueness_of_email
