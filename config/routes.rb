@@ -48,5 +48,6 @@ Rails.application.routes.draw do
       resources :material_exit_items, only: [:index]
     end
     resources :***REMOVED***
+    resources :***REMOVED***
   end
 end
