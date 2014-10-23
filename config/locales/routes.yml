@@ -23,7 +23,7 @@ pt-BR:
     ***REMOVED***: 'saidas-de-materiais'
     material_exit_items: 'items-de-saidas-de-materiais'
     ***REMOVED***: 'entradas-de-materiais'
-    ***REMOVED***: 'tipos-de-***REMOVED***s'
+    ***REMOVED***: 'tipos-de-***REMOVED***'
     # actions
     edit: 'editar'
     new: 'novo'
