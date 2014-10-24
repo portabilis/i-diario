@@ -19,6 +19,7 @@ gem 'pundit', '0.3.0'
 gem 'i18n_alchemy', '0.2.1'
 gem 'cocoon', '~> 1.2.6'
 gem 'jbuilder', '~> 2.2.2'
+gem 'kaminari', '~> 0.16.1'
 
 gem 'cpf_validator', '0.2.0'
 gem 'mask_validator', '0.2.1'
