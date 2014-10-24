@@ -24,4 +24,8 @@ RSpec.configure do |config|
 
     ActiveRecord::FixtureSet.create_fixtures(fixture_path, fixtures)
   end
+
+  config.after(:all) do
+    FileUtils.rm_rf(Dir["#{Rails.root}/public/uploads/test"])
+  end
 end
