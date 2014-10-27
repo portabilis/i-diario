@@ -41,3 +41,7 @@ form.smart-form fieldset {
 table.selectable tbody tr {
   cursor: pointer;
 }
+
+div.load-more {
+  padding: 15px 0 15px;
+}

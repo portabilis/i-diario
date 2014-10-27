@@ -20,6 +20,14 @@ class ApplicationController < ActionController::Base
 
   protected
 
+  def page
+    params[:page] || 1
+  end
+
+  def per
+    params[:per] || 10
+  end
+
   def policy(record)
     Pundit::PolicyFinder.new(record).policy!.new(current_user, record)
   end
