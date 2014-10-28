@@ -38,3 +38,7 @@ end
 ***REMOVED***.create(description: '***REMOVED*** preparados')
 ***REMOVED***.create(description: 'Leguminosas e derivados')
 ***REMOVED***.create(description: 'Nozes e sementes')
+
+if ***REMOVED***.count < 1
+  ActiveRecord::Base.connection.execute File.read("#{Rails.root}/db/seeds/***REMOVED***.sql")
+end
