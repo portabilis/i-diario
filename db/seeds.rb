@@ -1,3 +1,4 @@
+#encoding: utf-8
 unless Entity.exists?
   Entity.create!(
     name: "Prefeitura",
@@ -21,3 +22,19 @@ unless User.exists?
     authorize_email_and_sms: false
   )
 end
+
+***REMOVED***.create(description: 'Cereais e derivados')
+***REMOVED***.create(description: 'Verduras, hortaliças e derivados')
+***REMOVED***.create(description: 'Frutas e derivados')
+***REMOVED***.create(description: 'Gorduras e óleos')
+***REMOVED***.create(description: 'Pescados e frutos do mar')
+***REMOVED***.create(description: 'Carnes e derivados')
+***REMOVED***.create(description: 'Leite e derivados')
+***REMOVED***.create(description: 'Bebidas (alcoólicas e não alcoólicas)')
+***REMOVED***.create(description: 'Ovos e derivados')
+***REMOVED***.create(description: 'Produtos açucarados')
+***REMOVED***.create(description: 'Miscelâneas')
+***REMOVED***.create(description: 'Outros ***REMOVED*** industrializados')
+***REMOVED***.create(description: '***REMOVED*** preparados')
+***REMOVED***.create(description: 'Leguminosas e derivados')
+***REMOVED***.create(description: 'Nozes e sementes')
