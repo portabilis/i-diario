@@ -1,0 +1,11 @@
+pt-BR:
+  activerecord:
+    models:
+      food_***REMOVED***:
+        one: "Alimento de cardápio"
+        other: "***REMOVED*** de cardápios"
+
+    attributes:
+      food_***REMOVED***:
+        food_id: "Alimento"
+        ***REMOVED***_id: "Cardápio"
