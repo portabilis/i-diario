@@ -45,3 +45,20 @@ table.selectable tbody tr {
 div.load-more {
   padding: 15px 0 15px;
 }
+
+span.check-box {
+  padding-right: 20px;
+}
+
+input.check-box {
+  margin-right: 4px;
+}
+
+div.weekdays-checkboxes {
+  margin-top: 7px;
+  margin-bottom: 7px;
+}
+
+span.weekday-list {
+  margin-right: 10px;
+}
