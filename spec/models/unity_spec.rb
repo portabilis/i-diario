@@ -10,6 +10,8 @@ RSpec.describe Unity, :type => :model do
     it { should have_many :origin_***REMOVED*** }
     it { should have_many :destination_***REMOVED*** }
     it { should have_many :destination_***REMOVED*** }
+    it { should have_many :***REMOVED***_distribution_unities }
+    it { should have_many(:***REMOVED***).through :***REMOVED***_distribution_unities }
   end
 
   context "Validations" do
