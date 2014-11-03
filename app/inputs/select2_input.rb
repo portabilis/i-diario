@@ -3,11 +3,16 @@ class Select2Input < SimpleForm::Inputs::StringInput
     input_html_options[:type] = "hidden"
     input_html_options[:style] = "width: 100%;" + (input_html_options[:style] || "")
     input_html_options[:data] = (input_html_options[:data] || {}).merge({ elements: parse_collection })
+    input_html_options[:data] = (input_html_options[:data] || {}).merge({ multiple: fetch_multiple })
 
     @builder.text_field(attribute_name, input_html_options)
   end
 
   private
+
+  def fetch_multiple
+    options.fetch :multiple, false
+  end
 
   def parse_collection
     return options[:elements] if options[:elements].is_a? String

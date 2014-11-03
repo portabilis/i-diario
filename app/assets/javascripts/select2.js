@@ -7,7 +7,12 @@ $(document).ready(function(){
       formatSelection: function(el) {
         return el.name;
       },
-      data: $(element).data('elements')
+      data: $(element).data('elements'),
+      multiple: $(element).data('multiple')
     });
+
+    if ($(element).data('multiple')) {
+      $(element).select2("val", JSON.parse($(element).val()));
+    }
   });
 });
