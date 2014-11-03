@@ -51,5 +51,7 @@ Rails.application.routes.draw do
     resources :***REMOVED***
     resources :***REMOVED***s
     resources :***REMOVED***
+    resources :lectures, only: [:index]
+    resources :grades, only: [:index]
   end
 end
