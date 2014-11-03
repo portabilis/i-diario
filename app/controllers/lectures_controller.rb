@@ -2,7 +2,7 @@ class LecturesController < ApplicationController
   respond_to :json
 
   def index
-    respond_with result["cursos"]
+    @lectures = Lecture.all(result["cursos"])
   end
 
   protected
