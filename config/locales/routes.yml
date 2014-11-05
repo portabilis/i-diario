@@ -2,6 +2,7 @@ pt-BR:
   routes:
     profiles: 'perfis'
     ieducar_api_configurations: 'api-de-integracao'
+    general_configurations: 'configuracoes-gerais'
     unities: 'unidades'
     account: 'conta'
     users: 'usuarios'

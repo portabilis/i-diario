@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    security_levels:
+      basic: "Básico"
+      advanced: "Avançado"

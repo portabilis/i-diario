@@ -1,0 +1,8 @@
+pt-BR:
+  activerecord:
+    models:
+      general_configuration: "Configurações gerais"
+
+    attributes:
+      general_configuration:
+        security_level: "Nível de segurança"

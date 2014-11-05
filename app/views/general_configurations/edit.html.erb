@@ -1,0 +1,21 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for @general_configuration,
+  url: general_configurations_path, method: :patch, html: { class: "smart-form" } do |f| %>
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :security_level do %>
+            <%= f.input_field :security_level, collection: SecurityLevels %>
+            <i></i>
+          <% end %>
+        </div>
+      </div>
+    </fieldset>
+
+    <footer>
+      <button type="submit" class="btn btn-primary">
+        Salvar
+      </button>
+    </footer>
+  <% end %>
+</div>
