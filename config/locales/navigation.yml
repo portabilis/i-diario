@@ -1,0 +1,29 @@
+pt-BR:
+  navigation: &***REMOVED***
+    begin: "Início"
+    configurations: "Configurações"
+    dashboard: "Dashboard"
+    disciplinary_incidents: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    ieducar_api_configurations: "API de integração"
+    general_configurations: "Configurações gerais"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "Unidades de Medida"
+    ***REMOVED***: "Tipos de cardápios"
+    ***REMOVED***s: "***REMOVED***"
+    ***REMOVED***: "Distribuições de ***REMOVED***"
+    profiles: "Perfis de acesso"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***_classes: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    unities: "Unidades"
+
+  ***REMOVED***:
+    <<: ****REMOVED***
