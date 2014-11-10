@@ -67,11 +67,11 @@ navigation:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
         - ***REMOVED***:
-            type: "***REMOVED***_authorizations"
-            path: "***REMOVED***_authorizations_path"
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
         - ***REMOVED***:
-            type: "material_exists"
-            path: "material_exists_path"
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
         - ***REMOVED***:
             type: "***REMOVED***"
             path: "***REMOVED***_path"

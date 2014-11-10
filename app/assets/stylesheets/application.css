@@ -11,10 +11,7 @@
  * file per style scope.
  *
  *= require bootstrap_and_overrides
- *= require smart_admin/bootstrap
- *= require smart_admin/font-awesome
- *= require smart_admin/smartadmin-production
- *= require smart_admin/smartadmin-skins
+ *= require smartadmin_and_overrides
  *= require jNotify.jquery.css
  *= require educacao
  *= require jquery-file-upload/jquery.fileupload

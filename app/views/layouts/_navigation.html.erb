@@ -1,0 +1,16 @@
+<aside id="left-panel">
+  <div class="login-info">
+    <span>
+      <% if user_signed_in? %>
+        <%= link_to edit_account_path, title: 'Editar meus dados' do %>
+          <%= gravatar_image_tag current_user.email %>
+          <%= content_tag :span, current_user.login %>
+        <% end %>
+      <% end %>
+    </span>
+  </div>
+
+  <nav>
+    <%= ***REMOVED***s %>
+  </nav>
+</aside>

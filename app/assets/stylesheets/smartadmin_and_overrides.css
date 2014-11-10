@@ -1,0 +1,11 @@
+/*
+ *= require smart_admin/bootstrap
+ *= require smart_admin/font-awesome
+ *= require smart_admin/smartadmin-production
+ *= require smart_admin/smartadmin-skins
+ *= require_self
+ */
+
+nav ul li li.current a {
+  font-weight: bold;
+}

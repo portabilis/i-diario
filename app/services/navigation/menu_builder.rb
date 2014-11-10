@@ -18,8 +18,10 @@ module Navigation
     end
 
     def amount_nodes(nodes, parent_***REMOVED*** = nil)
+      nodes ||= []
+
       nodes.each do |node|
-        ***REMOVED***s << node_values(node["***REMOVED***"], parent_***REMOVED***)
+        yield node_values(node["***REMOVED***"], parent_***REMOVED***)
       end
     end
 
@@ -31,19 +33,20 @@ module Navigation
         ***REMOVED***[:css_class] = []
         ***REMOVED***[:subnodes]  = []
 
-        if hash[:type] == item
-          hash[:css_class] << :current
+        if ***REMOVED***[:type] == item
+          ***REMOVED***[:css_class] << :current
           parent_***REMOVED***[:css_class] << :open if parent_***REMOVED***
         end
 
-        amount_nodes node["***REMOVED***"]["sub***REMOVED***s"], ***REMOVED*** do |subnode|
+        node["sub***REMOVED***s"] ||= []
+        amount_nodes node["sub***REMOVED***s"], ***REMOVED*** do |subnode|
           ***REMOVED***[:subnodes] << subnode
         end
       end
     end
 
     def render
-      navigation_render.render(***REMOVED***)
+      navigation_render.render(***REMOVED***s)
     end
   end
 end
