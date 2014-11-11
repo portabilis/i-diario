@@ -19,7 +19,7 @@ module Navigation
     def render_***REMOVED***(***REMOVED***)
       has_sub***REMOVED***s = ***REMOVED***[:subnodes].any?
 
-      content_tag :li, :class => ***REMOVED***[:css_class].join(' ') do
+      content_tag :li, :class => ***REMOVED***[:css_class].join(" ") do
         li = []
         ***REMOVED***_path = path_method ***REMOVED***[:path]
 
@@ -28,14 +28,14 @@ module Navigation
           link_content = I18n.t(***REMOVED***[:type], :scope => :navigation)
 
           if ***REMOVED***[:icon]
-            link << content_tag(:i, "", :class => "fa fa-lg fa-fw  #{***REMOVED***[:icon]}")
+            link << content_tag(:i, "", :class => "fa fa-lg fa-fw #{***REMOVED***[:icon]}")
           end
 
-          link << content_tag(:span, link_content, :class => '***REMOVED***-item-parent')
+          link << content_tag(:span, link_content, :class => "***REMOVED***-item-parent")
 
           if has_sub***REMOVED***s
-            link << content_tag(:b, :class => 'collapse-sign') do
-              raw content_tag(:em, '', :class => 'fa fa-plus-square-o')
+            link << content_tag(:b, :class => "collapse-sign") do
+              raw content_tag(:em, "", :class => "fa fa-plus-square-o")
             end
           end
 
@@ -50,7 +50,7 @@ module Navigation
           li << render_***REMOVED***s(***REMOVED***[:subnodes], options)
         end
 
-        raw li.join(' ')
+        raw li.join(" ")
       end
     end
   end

@@ -1,5 +1,5 @@
 pt-BR:
-  navigation: &***REMOVED***
+  navigation:
     begin: "Início"
     configurations: "Configurações"
     dashboard: "Dashboard"
@@ -12,10 +12,10 @@ pt-BR:
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
-    ***REMOVED***: "Unidades de Medida"
+    ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "Tipos de cardápios"
     ***REMOVED***s: "***REMOVED***"
-    ***REMOVED***: "Distribuições de ***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
     profiles: "Perfis de acesso"
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
@@ -24,6 +24,3 @@ pt-BR:
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
     unities: "Unidades"
-
-  ***REMOVED***:
-    <<: ****REMOVED***

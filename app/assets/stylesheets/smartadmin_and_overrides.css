@@ -6,6 +6,6 @@
  *= require_self
  */
 
-nav ul li li.current a {
+nav ul li.current a {
   font-weight: bold;
 }

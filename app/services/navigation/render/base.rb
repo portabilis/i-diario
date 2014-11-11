@@ -7,7 +7,8 @@ module Navigation
 
       def path_method(method)
         return "#" unless method
-        context.send(method)
+
+        context.send(method) # context.send('root_path')
       end
 
       protected

@@ -21,4 +21,12 @@ describe Navigation, :type => :service do
       subject.draw_***REMOVED***s(item, context)
     end
   end
+
+  describe ".draw_title" do
+    it "calls Navigation::TitleBuilder.build" do
+      expect(Navigation::TitleBuilder).to receive(:build).with(item, true, context)
+
+      subject.draw_title(item, true, context)
+    end
+  end
 end

@@ -2,12 +2,8 @@ module Navigation
   class BreadcrumbsRender < Navigation::Render::Base
     def render(***REMOVED***s)
       content_tag :ol, :class => 'breadcrumb' do
-        items = []
-
-        items << render_item(begin_***REMOVED***_item)
-
-        ***REMOVED***s.each do |***REMOVED***_item|
-          items << render_item(***REMOVED***_item)
+        items = ***REMOVED***s.map do |***REMOVED***_item|
+          render_item(***REMOVED***_item)
         end
 
         raw items.join(" ")
@@ -15,10 +11,6 @@ module Navigation
     end
 
     protected
-
-    def begin_***REMOVED***_item
-      { :type => :begin, :path => "root_path" }
-    end
 
     def render_item(params)
       content_tag(:li) do
