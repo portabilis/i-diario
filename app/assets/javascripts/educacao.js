@@ -3,12 +3,15 @@
 //= require_self
 
 $(function () {
+  // removendo o loading quando a página estiver carregada
+  $('#page-loading').addClass('hidden');
+
   $.ajaxSetup({
     beforeSend: function () {
-      $('body').append('<div id="page-loading"><i class="fa fa-cog fa-spin"></i></div>');
+      $('#page-loading').removeClass('hidden');
     },
     complete: function () {
-      $('#page-loading').remove();
+      $('#page-loading').addClass('hidden');
     }
   });
 
