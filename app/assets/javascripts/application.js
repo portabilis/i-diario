@@ -41,4 +41,8 @@
 //= require jquery-file-upload/jquery.fileupload-validate
 //= require educacao
 //= require signup
+//= require summernote
+//= require summernote/pt-BR
+//= require add_tags
+//= require strip_value
 //= require_tree ./resources

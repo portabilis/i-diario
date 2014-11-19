@@ -1,6 +1,8 @@
 class DisciplinaryIncident
   attr_accessor :attributes
 
+  delegate :name, to: :student, allow_nil: true, prefix: true
+
   def self.all(collection)
     collection.map do |record|
       new(record)
@@ -25,5 +27,9 @@ class DisciplinaryIncident
 
   def description
     attributes["descricao"]
+  end
+
+  def self.columns
+    [:student_name, :date, :kind, :description]
   end
 end

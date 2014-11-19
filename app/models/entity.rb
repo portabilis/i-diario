@@ -1,4 +1,6 @@
 class Entity < ActiveRecord::Base
+  has_one :notification
+
   validates :name, :domain, :config, presence: true
   validates :domain, uniqueness: { case_sensitive: false }, allow_blank: true
 

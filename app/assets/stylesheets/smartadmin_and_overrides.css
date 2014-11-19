@@ -9,3 +9,124 @@
 nav ul li.current a {
   font-weight: bold;
 }
+
+.smart-form .modal-open {
+    overflow: hidden;
+}
+
+.smart-form .modal {
+    bottom: 0;
+    box-sizing: none;
+    display: none;
+    left: 0;
+    outline: 0 none;
+    overflow: hidden;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1050;
+}
+
+.smart-form .modal.fade .smart-form .modal-dialog {
+    transform: translate3d(0px, -25%, 0px);
+    transition: transform 0.3s ease-out 0s;
+}
+
+.smart-form .modal.in .smart-form .modal-dialog {
+    transform: translate3d(0px, 0px, 0px);
+}
+
+.smart-form .modal-open .smart-form .modal {
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.smart-form .modal-dialog {
+    margin: 10px;
+    position: relative;
+    width: auto;
+}
+
+.smart-form .modal-dialog {
+    margin: 30px auto;
+    width: 600px;
+}
+
+.smart-form .modal-content {
+    background-clip: padding-box;
+    background-color: #ffffff;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+    outline: 0 none;
+    position: relative;
+}
+
+.smart-form .modal-backdrop {
+    background-color: #000000;
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1040;
+}
+
+.smart-form .modal-backdrop.fade {
+    opacity: 0;
+}
+
+.smart-form .modal-backdrop.in {
+    opacity: 0.5;
+}
+
+.smart-form .modal-header {
+    border-bottom: 1px solid #e5e5e5;
+    min-height: 16.4286px;
+    padding: 15px;
+}
+
+.smart-form .modal-header .close {
+    margin-top: -2px;
+}
+
+.smart-form .modal-title {
+    line-height: 1.42857;
+    margin: 0;
+}
+
+.smart-form .modal-body {
+    padding: 15px;
+    position: relative;
+}
+
+.smart-form .modal-footer {
+    border-top: 1px solid #e5e5e5;
+    padding: 15px;
+    text-align: right;
+}
+
+.smart-form .modal-footer .btn + .btn {
+    margin-bottom: 0;
+    margin-left: 5px;
+}
+
+.smart-form .modal-footer .btn {
+    padding: 6px 12px;
+}
+
+.smart-form .modal-footer .btn-group .btn + .btn {
+    margin-left: -1px;
+}
+
+.smart-form .modal-footer .btn-block + .btn-block {
+    margin-left: 0;
+}
+
+.smart-form .modal-scrollbar-measure {
+    height: 50px;
+    overflow: scroll;
+    position: absolute;
+    top: -9999px;
+    width: 50px;
+}

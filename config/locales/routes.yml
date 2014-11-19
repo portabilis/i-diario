@@ -3,6 +3,7 @@ pt-BR:
     profiles: 'perfis'
     ieducar_api_configurations: 'api-de-integracao'
     general_configurations: 'configuracoes-gerais'
+    notification: 'notificacao'
     unities: 'unidades'
     account: 'conta'
     users: 'usuarios'

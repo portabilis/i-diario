@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     resource :ieducar_api_configurations, only: [:edit, :update] do
       resources :syncronizations, only: [:index, :create]
     end
+    resource :notification, only: [:edit, :update]
     resource :general_configurations, only: [:edit, :update]
     resources :unities
     resources :***REMOVED***

@@ -40,6 +40,9 @@ navigation:
         - ***REMOVED***:
             type: "ieducar_api_configurations"
             path: "edit_ieducar_api_configurations_path"
+        - ***REMOVED***:
+           type: "***REMOVED***"
+           path: "edit_notification_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-bullhorn"

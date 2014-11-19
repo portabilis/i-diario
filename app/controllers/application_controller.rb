@@ -34,8 +34,7 @@ class ApplicationController < ActionController::Base
   helper_method :policy
 
   def handle_customer(&block)
-    entity = Entity.find_by(domain: request.host)
-    entity.using_connection(&block)
+    current_entity.using_connection(&block)
   end
 
   def configure_permitted_parameters
@@ -63,6 +62,11 @@ class ApplicationController < ActionController::Base
       syncronization.notified!
     end
   end
+
+  def current_entity
+    @current_entity ||= Entity.find_by(domain: request.host)
+  end
+  helper_method :current_entity
 
   def current_configuration
     @configuration ||= IeducarApiConfiguration.current
