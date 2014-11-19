@@ -39,6 +39,10 @@ $(function () {
 
           window.studentsRegion.show(new Educacao.Views.Students({ collection: students }));
 
+          if (students.length < 1) {
+            $('#students-quantity').hide();
+          }
+
           $('a[href=#tab2]').click();
         },
         error: function (model, response) {
