@@ -1,0 +1,8 @@
+/*
+ *= require summernote
+ *= require_self
+ */
+
+.note-editor .note-editable {
+  border: 1px solid #eee;
+}
