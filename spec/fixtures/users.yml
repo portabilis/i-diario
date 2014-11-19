@@ -8,3 +8,13 @@ john_doe:
   cpf: '639.290.118-32'
   authorize_email_and_sms: false
   students: bary_allen, bruce_wayne
+
+mary_jane:
+  email: "mary_jane@example.com"
+  encrypted_password: "$2a$10$IdZhH1cdBnINeubvhvNSueUnlGhFXqGtZ5XCFivmATENfM44lW/3u"
+  first_name: 'Mary'
+  last_name: 'Jane'
+  login: 'mary_jane'
+  phone: '(11) 99887766'
+  cpf: '270.565.341-47'
+  authorize_email_and_sms: false
