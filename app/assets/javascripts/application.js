@@ -10,6 +10,7 @@
 //= require smart_admin/select2/select2_locale_pt-BR
 //= require smart_admin/jquery.bootstrap.wizard.min.js
 //= require smart_admin/jquery.validate
+//= require smart_admin/app
 //= require underscore
 //= require cocktail
 //= require backbone

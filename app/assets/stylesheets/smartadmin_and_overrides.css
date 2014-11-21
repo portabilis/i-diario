@@ -10,6 +10,18 @@ nav ul li.current a {
   font-weight: bold;
 }
 
+nav ul li b.collapse-sign {
+  margin-right: -5px;
+}
+
+nav ul li.open b.collapse-sign em:before {
+  content: "\f147" !important;
+}
+
+nav ul li b.collapse-sign em:before {
+  content: "\f196" !important;
+}
+
 .smart-form .modal-open {
     overflow: hidden;
 }

@@ -40,6 +40,16 @@
       </div>
 
       <div class="pull-right">
+        <!-- collapse ***REMOVED*** button -->
+        <div id="hide-***REMOVED***" class="btn-header pull-right">
+          <span>
+            <a href="javascript:void(0);" data-action="toggleMenu" title="Exibir/Esconder o Menu">
+              <i class="fa fa-reorder"></i>
+            </a>
+          </span>
+        </div>
+        <!-- end collapse ***REMOVED*** -->
+
         <!-- logout button -->
         <% if user_signed_in? %>
           <div id="logout" class="btn-header transparent pull-right">
@@ -48,6 +58,7 @@
             </span>
           </div>
         <% end %>
+        <!-- logout button -->
       </div>
     </header>
 

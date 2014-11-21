@@ -33,12 +33,6 @@ module Navigation
 
           link << content_tag(:span, link_content, :class => "***REMOVED***-item-parent")
 
-          if has_sub***REMOVED***s
-            link << content_tag(:b, :class => "collapse-sign") do
-              raw content_tag(:em, "", :class => "fa fa-plus-square-o")
-            end
-          end
-
           raw link.join(" ")
         end
 

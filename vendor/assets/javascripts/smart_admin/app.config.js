@@ -26,7 +26,15 @@
  * email: info@myorange.ca
  * =======================================================================
  *
- * APP CONFIGURATION (HTML/AJAX/PHP Versions ONLY)
+ * GLOBAL ROOT (DO NOT CHANGE)
+ *
+ */
+
+  $.root_ = $('body');
+  window.***REMOVED***_accordion = null;
+  window.debugState = null;
+
+/* APP CONFIGURATION (HTML/AJAX/PHP Versions ONLY)
  * Description: Enable / disable certain theme features here
  * GLOBAL: Your left nav in your app will no longer fire ajax calls, set 
  * it to false for HTML version
