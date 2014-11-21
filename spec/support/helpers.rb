@@ -11,6 +11,12 @@ module Helpers
     end
   end
 
+  def close_modal
+    page.execute_script %{
+      $('.modal').modal('hide')
+    }
+  end
+
   def fill_mask(locator, options = {})
     msg = "cannot fill in, no text field with id, name, or label '#{locator}' found"
     raise "Must pass a hash containing 'with'" if not options.is_a?(Hash) or not options.has_key?(:with)
