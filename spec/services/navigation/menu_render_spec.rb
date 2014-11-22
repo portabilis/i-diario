@@ -74,8 +74,8 @@ describe Navigation::MenuRender, :type => :service do
           ]
         end
 
-        it "returns this ***REMOVED*** with links and sublinks" do 
-          expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cutlery\"></i> <span class=\"***REMOVED***-item-parent\">***REMOVED***</span> <b class=\"collapse-sign\"><em class=\"fa fa-plus-square-o\"></em></b></a> <ul><li class=\"\"><a href=\"/***REMOVED***\"><span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a></li> <li class=\"\"><a href=\"/tipos-de-***REMOVED***\"><span class=\"***REMOVED***-item-parent\">Tipos de cardápios</span></a></li></ul></li></ul>"
+        it "returns this ***REMOVED*** with links and sublinks" do
+          expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cutlery\"></i> <span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a> <ul><li class=\"\"><a href=\"/***REMOVED***\"><span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a></li> <li class=\"\"><a href=\"/tipos-de-***REMOVED***\"><span class=\"***REMOVED***-item-parent\">Tipos de cardápios</span></a></li></ul></li></ul>"
         end
       end
     end
@@ -114,7 +114,7 @@ describe Navigation::MenuRender, :type => :service do
     end
 
     it "returns the ***REMOVED*** with all links" do
-      expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"/\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span class=\"***REMOVED***-item-parent\">Dashboard</span></a></li> <li class=\"open\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cutlery\"></i> <span class=\"***REMOVED***-item-parent\">***REMOVED***</span> <b class=\"collapse-sign\"><em class=\"fa fa-plus-square-o\"></em></b></a> <ul><li class=\"current\"><a href=\"/***REMOVED***\"><span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a></li> <li class=\"\"><a href=\"/tipos-de-***REMOVED***\"><span class=\"***REMOVED***-item-parent\">Tipos de cardápios</span></a></li></ul></li></ul>"
+      expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"/\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span class=\"***REMOVED***-item-parent\">Dashboard</span></a></li> <li class=\"open\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cutlery\"></i> <span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a> <ul><li class=\"current\"><a href=\"/***REMOVED***\"><span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a></li> <li class=\"\"><a href=\"/tipos-de-***REMOVED***\"><span class=\"***REMOVED***-item-parent\">Tipos de cardápios</span></a></li></ul></li></ul>"
     end
   end
 end
