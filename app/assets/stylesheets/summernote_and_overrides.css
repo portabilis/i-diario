@@ -6,3 +6,7 @@
 .note-editor .note-editable {
   border: 1px solid #eee;
 }
+
+.no-padding .note-editor {
+  border: 1px solid #ddd;
+}
