@@ -1,6 +1,7 @@
 pt-BR:
   navigation:
     begin: "Início"
+    accounts: "Meu perfil"
     configurations: "Configurações"
     dashboard: "Dashboard"
     disciplinary_incidents: "***REMOVED***"

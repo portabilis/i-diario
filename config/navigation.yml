@@ -4,6 +4,10 @@ navigation:
       icon: "fa-home"
       path: "root_path"
   - ***REMOVED***:
+      type: "accounts"
+      icon: "fa-user"
+      path: "edit_account_path"
+  - ***REMOVED***:
       type: "disciplinary_incidents"
       icon: "fa-bar-chart-o"
       path: "disciplinary_incidents_path"
