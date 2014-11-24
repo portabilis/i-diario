@@ -1,4 +1,8 @@
 class Unity < ActiveRecord::Base
+  audited
+
+  include Audit
+
   has_enumeration_for :unit_type, with: UnitTypes, create_helpers: true
 
   belongs_to :author, class_name: "User"

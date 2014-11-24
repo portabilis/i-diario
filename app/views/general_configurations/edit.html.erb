@@ -13,6 +13,10 @@
     </fieldset>
 
     <footer>
+      <% if @general_configuration.persisted? %>
+        <%= link_to 'Histórico', history_general_configurations_path, class: 'btn btn-info' %>
+      <% end %>
+
       <button type="submit" class="btn btn-primary">
         Salvar
       </button>

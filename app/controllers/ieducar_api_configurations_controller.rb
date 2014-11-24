@@ -14,6 +14,12 @@ class IeducarApiConfigurationsController < ApplicationController
     end
   end
 
+  def history
+    @ieducar_api_configuration = IeducarApiConfiguration.current
+
+    respond_with @ieducar_api_configuration
+  end
+
   protected
 
   def permitted_attributes

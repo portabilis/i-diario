@@ -1,0 +1,6 @@
+'pt-BR':
+  enumerations:
+    audited_action:
+      create: 'Criação'
+      update: 'Edição'
+      destroy: 'Exclusão'

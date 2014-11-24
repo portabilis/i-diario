@@ -14,6 +14,12 @@ class GeneralConfigurationsController < ApplicationController
     end
   end
 
+  def history
+    @general_configuration = GeneralConfiguration.current
+
+    respond_with @general_configuration
+  end
+
   protected
 
   def permitted_attributes

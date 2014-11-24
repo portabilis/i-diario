@@ -8,6 +8,12 @@ Rails.application.routes.draw do
   localized do
     devise_for :users
 
+    concern :history do
+      member do
+        get :history
+      end
+    end
+
     resources :registrations do
       collection do
         get :parents
@@ -28,31 +34,31 @@ Rails.application.routes.draw do
     resources :profiles, only: [:index, :update]
     resources :disciplinary_incidents, only: [:index]
     resources :***REMOVED***, only: [:index, :show]
-    resource :ieducar_api_configurations, only: [:edit, :update] do
+    resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
       resources :syncronizations, only: [:index, :create]
     end
-    resource :notification, only: [:edit, :update]
-    resource :general_configurations, only: [:edit, :update]
-    resources :unities
-    resources :***REMOVED***
-    resources :***REMOVED***_classes
-    resources :***REMOVED***
-    resources :***REMOVED***
-    resources :***REMOVED***
-    resources :***REMOVED***
-    resources :***REMOVED*** do
+    resource :notification, only: [:edit, :update], concerns: :history
+    resource :general_configurations, only: [:edit, :update], concerns: :history
+    resources :unities, concerns: :history
+    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***_classes, concerns: :history
+    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history do
       resources :material_request_items, only: [:index]
     end
-    resources :***REMOVED*** do
+    resources :***REMOVED***, concerns: :history do
       resources :material_request_authorization_items, only: [:index]
     end
-    resources :***REMOVED*** do
+    resources :***REMOVED***, concerns: :history do
       resources :material_exit_items, only: [:index]
     end
-    resources :***REMOVED***
-    resources :***REMOVED***
-    resources :***REMOVED***s
-    resources :***REMOVED***
+    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***s, concerns: :history
+    resources :***REMOVED***, concerns: :history
     resources :lectures, only: [:index]
     resources :grades, only: [:index]
   end

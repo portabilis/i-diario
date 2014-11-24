@@ -1,4 +1,6 @@
 class Menu***REMOVED*** < ActiveRecord::Base
+  audited associated_with: :***REMOVED***
+
   belongs_to :***REMOVED***
   belongs_to :material
 

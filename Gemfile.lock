@@ -1,4 +1,14 @@
 GIT
+  remote: git://github.com/ricardohsd/audited.git
+  revision: af01b051d1ae46de1d06abd8c4abfac5b018c8c2
+  specs:
+    audited (4.0.0.rc1)
+      rails-observers (~> 0.1.2)
+    audited-activerecord (4.0.0.rc1)
+      activerecord (~> 4.0)
+      audited (= 4.0.0.rc1)
+
+GIT
   remote: git://github.com/samuelsimoes/backbone-nested-attributes.git
   revision: 77799673a842de59690970517a970665b7760cc6
   specs:
@@ -187,6 +197,8 @@ GEM
       bundler (>= 1.3.0, < 2.0)
       railties (= 4.1.5)
       sprockets-rails (~> 2.0)
+    rails-observers (0.1.2)
+      activemodel (~> 4.0)
     railties (4.1.5)
       actionpack (= 4.1.5)
       activesupport (= 4.1.5)
@@ -292,6 +304,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord-connections!
+  audited-activerecord!
   backbone-nested-attributes!
   better_errors (~> 1.1.0)
   binding_of_caller (~> 0.7.2)

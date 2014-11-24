@@ -42,6 +42,12 @@ class UnitiesController < ApplicationController
     respond_with @unity, location: unities_path
   end
 
+  def history
+    @unity = Unity.find params[:id]
+
+    respond_with @unity
+  end
+
   private
 
   def unity_params

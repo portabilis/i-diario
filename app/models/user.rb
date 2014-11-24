@@ -1,4 +1,10 @@
 class User < ActiveRecord::Base
+  audited allow_mass_assignment: true,
+    only: [:email, :first_name, :last_name, :phone, :cpf, :login, :authorize_email_and_sms]
+  has_associated_audits
+
+  include Audit
+
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
 

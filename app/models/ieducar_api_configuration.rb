@@ -1,4 +1,8 @@
 class IeducarApiConfiguration < ActiveRecord::Base
+  audited
+
+  include Audit
+
   has_many :syncronizations, class_name: "IeducarApiSyncronization"
 
   validates :url, :token, :secret_token, :unity_code, presence: true

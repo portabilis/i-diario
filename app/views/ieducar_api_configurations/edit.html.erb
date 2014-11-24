@@ -36,6 +36,8 @@
           <%= link_to "Sincronizar alunos", ieducar_api_configurations_syncronizations_path, method: 'post',
             class: 'btn bg-color-red txt-color-white' %>
         <% end %>
+
+        <%= link_to 'Histórico', history_ieducar_api_configurations_path, class: 'btn btn-info' %>
       <% end %>
 
       <button type="submit" class="btn btn-primary">

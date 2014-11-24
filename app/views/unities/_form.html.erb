@@ -45,6 +45,10 @@
       Voltar
     <% end %>
 
+    <% if @unity.persisted? %>
+      <%= link_to 'Histórico', history_unity_path(@unity), class: 'btn btn-info' %>
+    <% end %>
+
     <button type="submit" class="btn btn-primary">
       Salvar
     </button>
