@@ -17,6 +17,8 @@ Rails.application.routes.draw do
     resources :registrations do
       collection do
         get :parents
+        get :students
+        post :students
       end
     end
 

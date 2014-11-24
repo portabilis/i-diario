@@ -10,6 +10,8 @@ class User < ActiveRecord::Base
 
   attr_accessor :credentials
 
+  has_enumeration_for :status, with: UserStatus, create_helpers: true
+
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :syncronizations, class_name: "IeducarApiSyncronization", foreign_key: :author_id
   has_many :***REMOVED***, dependent: :destroy
@@ -53,6 +55,10 @@ class User < ActiveRecord::Base
     )
 
     super
+  end
+
+  def active_for_authentication?
+    super && actived?
   end
 
   def to_s

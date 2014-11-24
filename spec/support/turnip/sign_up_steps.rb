@@ -60,6 +60,39 @@ module Turnip
     step "deverei ser logado ao sistema" do
       expect(page).to have_text 'Bem-vindo! Você se registrou com sucesso.'
     end
+
+    step "que acesso a página de signup de alunos" do
+      visit root_path
+
+      click_link 'Criar conta'
+
+      expect(page).to have_content "Escolha seu perfil"
+
+      click_on "Acesso alunos"
+    end
+
+    step "informo os dados para o acesso do aluno" do
+      expect(page).to have_content "Novo acesso"
+
+      fill_in 'E-mail', with: 'mary@mary.com'
+      fill_in 'Senha', with: '11223344'
+      fill_in 'Confirme a senha', with: '11223344'
+
+      click_button "Solicitar acesso"
+    end
+
+    step "deverei ver a mensagem de acesso solicitado" do
+      expect(page).to have_content "Notificamos o responsável da sua unidade escolar sobre sua solicitação. Em breve você receberá um e-mail com o seu acesso."
+    end
+
+    step "o login não poderá ser realizado enquanto o acesso estiver pendente" do
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: 'mary@mary.com'
+      fill_in 'Senha', with: '11223344'
+
+      click_on 'Acessar'
+
+      expect(page).to have_content 'A sua conta não foi ativada ainda.'
+    end
   end
 end
 

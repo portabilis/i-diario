@@ -73,4 +73,18 @@ RSpec.describe User, :type => :model do
       end
     end
   end
+
+  describe "#active_for_authentication?" do
+    it "can't authenticate if status is pending" do
+      subject.status = UserStatus::PENDING
+
+      expect(subject).to_not be_active_for_authentication
+    end
+
+    it "can authenticate if status is actived" do
+      subject.status = UserStatus::ACTIVED
+
+      expect(subject).to be_active_for_authentication
+    end
+  end
 end

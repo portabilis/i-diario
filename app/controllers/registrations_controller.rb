@@ -26,6 +26,16 @@ class RegistrationsController < ApplicationController
     @signup = Signup::Parents.new
   end
 
+  def students
+    @signup = Signup::Students.new(params[:signup])
+
+    if params[:signup].present? && @user = @signup.save
+      redirect_to new_user_session_path, notice: I18n.t('registrations.students')
+    else
+      render 'students'
+    end
+  end
+
   protected
 
   def set_layout

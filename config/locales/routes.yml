@@ -38,5 +38,6 @@ pt-BR:
     password: 'senha'
     cancel: 'cancelar'
     parents: 'pais'
+    students: 'alunos'
     search_api: 'api'
     history: 'historico'
