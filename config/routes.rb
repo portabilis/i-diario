@@ -35,7 +35,11 @@ Rails.application.routes.draw do
     get '/sandbox', to: 'dashboard#sandbox'
 
     resource :account, only: [:edit, :update]
-    resources :profiles, only: [:index, :update]
+    resources :profiles, only: [:index, :update] do
+      collection do
+        get :history
+      end
+    end
     resources :disciplinary_incidents, only: [:index]
     resources :***REMOVED***, only: [:index, :show]
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do

@@ -1,5 +1,5 @@
-<div class="widget-body">
-  <div class="smart-form">
+<div class="widget-body smart-form no-padding">
+  <fieldset>
     <div class="table-responsive">
       <table class="table table-bordered">
         <thead>
@@ -31,5 +31,9 @@
         </tbody>
       </table>
     </div>
-  </div>
+  </fieldset>
+
+  <footer>
+    <%= link_to 'Histórico', history_profiles_path, class: 'btn btn-info' %>
+  </footer>
 </div>

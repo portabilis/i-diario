@@ -12,8 +12,8 @@
         <td>
           <%= record.human_attribute_name key %>
         </td>
-        <td><%= record.parse key.to_sym, values, :first %></td>
-        <td><%= record.parse key.to_sym, values, :last %></td>
+        <td><%= raw record.parse(key.to_sym, values, :first) %></td>
+        <td><%= raw record.parse(key.to_sym, values, :last) %></td>
       </tr>
     <% end %>
   </tbody>

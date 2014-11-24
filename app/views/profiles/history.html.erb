@@ -12,7 +12,7 @@
         </thead>
         <tbody>
           <% resource.all_audits.each do |audit| %>
-            <%= render 'history/history', record: AuditDecorator.new(audit) %>
+            <%= render 'history', record: AuditDecorator.new(audit) %>
           <% end %>
         </tbody>
       </table>

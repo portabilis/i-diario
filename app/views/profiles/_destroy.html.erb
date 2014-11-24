@@ -1,6 +1,7 @@
 <table class="table table-striped records">
   <thead>
     <tr>
+      <th>Permissão</th>
       <th>Campo</th>
       <th>Valor</th>
     </tr>
@@ -9,9 +10,12 @@
     <tbody>
       <tr>
         <td>
+          <%= record.auditable.role_humanize %>
+        </td>
+        <td>
           <%= record.human_attribute_name key %>
         </td>
-        <td><%= raw record.parse(key.to_sym, values, :first) %></td>
+        <td><%= record.parse key.to_sym, values, :first %></td>
       </tr>
     <% end %>
   </tbody>

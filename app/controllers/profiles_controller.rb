@@ -10,4 +10,8 @@ class ProfilesController < ApplicationController
 
     head updater.status, :content_type => 'text/html'
   end
+
+  def history
+    @profile = Profile
+  end
 end
