@@ -12,3 +12,9 @@ Funcionalidade: Cadastro de usuário
     Quando informo os dados para o acesso do aluno
     Então deverei ver a mensagem de acesso solicitado
     E o login não poderá ser realizado enquanto o acesso estiver pendente
+
+  Cenário: Solicitar acesso de servidor
+    Dado que acesso a página de signup de servidores
+    Quando informo os dados para o acesso do servidor
+    Então deverei ver a mensagem de acesso solicitado
+    E o servidor não poderá logar enquanto o acesso estiver pendente

@@ -1,0 +1,47 @@
+<div class="widget-body">
+  <div class="row">
+    <%= simple_form_for @signup, as: :signup, url: students_registrations_path, html: { id: "signup-student" } do |f| %>
+      <%= f.error_notification(class: "alert-danger").to_s %>
+
+      <h3>Novo acesso</h3>
+
+      <div class="row">
+        <div class="col-sm-4">
+          <div class="form-group">
+            <%= f.input :email, label: false, wrapper: 'input_group' do %>
+              <span class="input-group-addon"><i class="fa fa-envelope-o fa-lg fa-fw"></i></span>
+              <%= f.input_field :email, as: :string, placeholder: "E-mail", class: "form-control input-lg",
+                data: { :"rule-email" => true } %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div class="form-group">
+            <%= f.input :password, label: false, wrapper: 'input_group' do %>
+              <span class="input-group-addon"><i class="fa fa-key fa-lg fa-fw"></i></span>
+              <%= f.input_field :password, as: :password, placeholder: "Senha", class: "form-control input-lg" %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="col-sm-4">
+          <div class="form-group">
+            <%= f.input :password_confirmation, label: false, wrapper: 'input_group' do %>
+              <span class="input-group-addon"><i class="fa fa-key fa-lg fa-fw"></i></span>
+              <%= f.input_field :password_confirmation, as: :password, placeholder: "Confirme a senha", class: "form-control input-lg" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <div class="row">
+          <div class="col-sm-12">
+            <button class="btn btn-success btn-lg">Solicitar acesso</button>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

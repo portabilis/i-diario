@@ -39,5 +39,6 @@ pt-BR:
     cancel: 'cancelar'
     parents: 'pais'
     students: 'alunos'
+    employees: 'servidores'
     search_api: 'api'
     history: 'historico'

@@ -19,6 +19,8 @@ Rails.application.routes.draw do
         get :parents
         get :students
         post :students
+        get :employees
+        post :employees
       end
     end
 

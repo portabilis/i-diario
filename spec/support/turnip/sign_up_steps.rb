@@ -93,6 +93,35 @@ module Turnip
 
       expect(page).to have_content 'A sua conta não foi ativada ainda.'
     end
+
+    step "que acesso a página de signup de servidores" do
+      visit root_path
+
+      click_link 'Criar conta'
+
+      expect(page).to have_content "Escolha seu perfil"
+
+      click_on "Acesso servidores"
+    end
+
+    step "informo os dados para o acesso do servidor" do
+      expect(page).to have_content "Novo acesso"
+
+      fill_in 'E-mail', with: 'tony@stark.com'
+      fill_in 'Senha', with: '11223344'
+      fill_in 'Confirme a senha', with: '11223344'
+
+      click_button "Solicitar acesso"
+    end
+
+    step "o servidor não poderá logar enquanto o acesso estiver pendente" do
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: 'tony@stark.com'
+      fill_in 'Senha', with: '11223344'
+
+      click_on 'Acessar'
+
+      expect(page).to have_content 'A sua conta não foi ativada ainda.'
+    end
   end
 end
 
