@@ -1,4 +1,6 @@
-class GeneralConfiguration < Portabilis::Model
+class GeneralConfiguration < ActiveRecord::Base
+  acts_as_copy_target
+
   audited
 
   include Audit

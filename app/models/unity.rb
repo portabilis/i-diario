@@ -1,4 +1,6 @@
-class Unity < Portabilis::Model
+class Unity < ActiveRecord::Base
+  acts_as_copy_target
+
   audited
 
   include Audit

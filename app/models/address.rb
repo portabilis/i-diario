@@ -1,4 +1,6 @@
-class Address < Portabilis::Model
+class Address < ActiveRecord::Base
+  acts_as_copy_target
+
   audited associated_with: :source
 
   has_enumeration_for :state, with: States

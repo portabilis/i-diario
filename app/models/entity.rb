@@ -1,4 +1,6 @@
-class Entity < Portabilis::Model
+class Entity < ActiveRecord::Base
+  acts_as_copy_target
+
   has_one :notification
 
   validates :name, :domain, :config, presence: true

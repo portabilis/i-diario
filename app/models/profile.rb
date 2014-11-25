@@ -1,4 +1,6 @@
-class Profile < Portabilis::Model
+class Profile < ActiveRecord::Base
+  acts_as_copy_target
+
   audited
 
   has_enumeration_for :role, :with => ProfileRoles

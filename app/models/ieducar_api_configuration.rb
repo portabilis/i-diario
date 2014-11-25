@@ -1,4 +1,6 @@
-class IeducarApiConfiguration < Portabilis::Model
+class IeducarApiConfiguration < ActiveRecord::Base
+  acts_as_copy_target
+
   audited
 
   include Audit

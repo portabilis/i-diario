@@ -1,4 +1,6 @@
-class Student < Portabilis::Model
+class Student < ActiveRecord::Base
+  acts_as_copy_target
+
   has_and_belongs_to_many :users
 
   validates :name, presence: true

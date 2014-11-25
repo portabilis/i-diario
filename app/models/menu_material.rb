@@ -1,4 +1,6 @@
-class Menu***REMOVED*** < Portabilis::Model
+class Menu***REMOVED*** < ActiveRecord::Base
+  acts_as_copy_target
+
   audited associated_with: :***REMOVED***
 
   belongs_to :***REMOVED***
