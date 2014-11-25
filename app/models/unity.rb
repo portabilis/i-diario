@@ -29,6 +29,9 @@ class Unity < Portabilis::Model
   validates :email, email: true, allow_blank: true
 
   scope :ordered, -> { order(arel_table[:name].asc) }
+  scope :by_api_codes, lambda { |codes|
+    where(arel_table[:api_code].in(codes))
+  }
 
   def to_s
     name

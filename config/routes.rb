@@ -45,6 +45,7 @@ Rails.application.routes.draw do
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
       resources :syncronizations, only: [:index, :create]
     end
+    resource :contact_school, only: [:new, :create]
     resource :notification, only: [:edit, :update], concerns: :history
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resources :backup_files, only: [:index, :create]

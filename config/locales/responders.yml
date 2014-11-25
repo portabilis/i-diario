@@ -48,6 +48,11 @@ pt-BR:
         alert: "Integração de alunos do i-Educar não pode ser processada."
 
     ***REMOVED***:
+      create:
+        notice: "Mensagem enviada com sucesso!"
+        alert: "Mensagem não pode ser enviada."
+
+    ***REMOVED***:
       <<: *male
 
     ***REMOVED***:

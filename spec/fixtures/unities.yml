@@ -2,6 +2,9 @@ escola_y:
   name: "Escola A"
   author: john_doe
   unit_type: "school_unit"
+  api_code: "121909"
+  email: "escola_a@email.com"
+
 escola_x:
   name: "Escola X"
   author: john_doe

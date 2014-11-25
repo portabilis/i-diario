@@ -2,7 +2,7 @@
 module Turnip
   module DisciplinaryIncidentsSteps
     step "que possuo alunos vinculados" do
-      expect(Student.count).to eq 2
+      expect(Student.count).to eq 3
     end
 
     step "acesso a página de ocorrências disciplinares" do

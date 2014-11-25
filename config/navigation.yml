@@ -8,6 +8,10 @@ navigation:
       icon: "fa-user"
       path: "edit_account_path"
   - ***REMOVED***:
+      type: "***REMOVED***"
+      icon: "fa-envelope-o"
+      path: "new_contact_school_path"
+  - ***REMOVED***:
       type: "disciplinary_incidents"
       icon: "fa-bar-chart-o"
       path: "disciplinary_incidents_path"
