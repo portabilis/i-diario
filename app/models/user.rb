@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < Portabilis::Model
   audited allow_mass_assignment: true,
     only: [:email, :first_name, :last_name, :phone, :cpf, :login, :authorize_email_and_sms]
   has_associated_audits

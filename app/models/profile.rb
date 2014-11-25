@@ -1,4 +1,4 @@
-class Profile < ActiveRecord::Base
+class Profile < Portabilis::Model
   audited
 
   has_enumeration_for :role, :with => ProfileRoles

@@ -1,4 +1,4 @@
-class Address < ActiveRecord::Base
+class Address < Portabilis::Model
   audited associated_with: :source
 
   has_enumeration_for :state, with: States

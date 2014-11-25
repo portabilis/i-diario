@@ -38,10 +38,15 @@ pt-BR:
         notice: 'Conta atualizada com sucesso. '
         alert: 'Conta não pode ser atualizada. '
 
+    backup_files:
+      create:
+        notice: "O backup está sendo gerado."
+
     syncronizations:
       create:
         notice: "Integração de alunos do i-Educar está sendo processada."
         alert: "Integração de alunos do i-Educar não pode ser processada."
+
     ***REMOVED***:
       <<: *male
 

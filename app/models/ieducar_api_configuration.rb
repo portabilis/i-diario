@@ -1,4 +1,4 @@
-class IeducarApiConfiguration < ActiveRecord::Base
+class IeducarApiConfiguration < Portabilis::Model
   audited
 
   include Audit

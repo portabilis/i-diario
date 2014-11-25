@@ -9,11 +9,30 @@
             <i></i>
           <% end %>
         </div>
+
+        <div class="col col-sm-6">
+          <%= f.input :backup_file do %>
+            <% if f.object.backup_file.present? %>
+              <%= link_to 'Fazer download', f.object.backup_file_url %>
+            <% end %>
+          <% end %>
+        </div>
       </div>
     </fieldset>
 
     <footer>
       <% if @general_configuration.persisted? %>
+        <% if @general_configuration.started? %>
+          <%= link_to "#",
+            class: 'btn bg-color-red txt-color-white' do %>
+            <i class="fa fa-cog fa-spin"></i>
+            Exportando dados
+          <% end %>
+        <% else %>
+          <%= link_to "Exportar dados", backup_files_path, method: 'post',
+            class: 'btn bg-color-red txt-color-white' %>
+        <% end %>
+
         <%= link_to 'Histórico', history_general_configurations_path, class: 'btn btn-info' %>
       <% end %>
 

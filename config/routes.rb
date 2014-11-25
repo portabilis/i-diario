@@ -47,6 +47,7 @@ Rails.application.routes.draw do
     end
     resource :notification, only: [:edit, :update], concerns: :history
     resource :general_configurations, only: [:edit, :update], concerns: :history
+    resources :backup_files, only: [:index, :create]
     resources :unities, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***_classes, concerns: :history

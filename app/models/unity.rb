@@ -1,4 +1,4 @@
-class Unity < ActiveRecord::Base
+class Unity < Portabilis::Model
   audited
 
   include Audit

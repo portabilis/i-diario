@@ -1,4 +1,4 @@
-class IeducarApiSyncronization < ActiveRecord::Base
+class IeducarApiSyncronization < Portabilis::Model
   has_enumeration_for :status, with: ApiSyncronizationStatus, create_helpers: true,
     create_scopes: true
 

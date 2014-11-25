@@ -1,4 +1,4 @@
-class Entity < ActiveRecord::Base
+class Entity < Portabilis::Model
   has_one :notification
 
   validates :name, :domain, :config, presence: true

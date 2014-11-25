@@ -1,4 +1,4 @@
-class Menu***REMOVED*** < ActiveRecord::Base
+class Menu***REMOVED*** < Portabilis::Model
   audited associated_with: :***REMOVED***
 
   belongs_to :***REMOVED***

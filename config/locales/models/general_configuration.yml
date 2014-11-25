@@ -6,3 +6,8 @@ pt-BR:
     attributes:
       general_configuration:
         security_level: "Nível de segurança"
+        backup_file: "Último backup"
+
+  backup:
+    completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
+    error: "Exportação de dados não pode ser realizada. Favor tentar novamente."

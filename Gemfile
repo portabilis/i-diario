@@ -31,6 +31,8 @@ gem 'route_translator', :git => "https://github.com/enriclluelles/route_translat
 gem 'sinatra', '>= 1.3.0', :require => nil
 gem 'sidekiq', '2.17.7'
 gem 'rest-client', :git => "https://github.com/ricardohsd/rest-client.git"
+gem 'rubyzip', '1.1.0', require: 'zip'
+gem 'postgres-copy'
 
 # Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.1'
