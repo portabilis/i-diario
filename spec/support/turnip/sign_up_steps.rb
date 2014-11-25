@@ -45,7 +45,7 @@ module Turnip
         expect(page).to have_content "Passo 3 - Cadastro do usuário"
 
         fill_mask "Celular", with: "(31) 94361177"
-        fill_in 'E-mail', with: 'jane_doe@example.com'
+        fill_in 'E-mail', with: 'clark@example.com'
         fill_in 'Senha', with: '11223344'
         fill_in 'Confirme a senha', with: '11223344'
       end

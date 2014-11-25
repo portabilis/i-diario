@@ -21,7 +21,7 @@ module Signup
         if student = Student.find_by(api_code: attribute["api_code"])
           students << student
         else
-          students << Student.new(
+          students << Student.create!(
             name: attribute["name"],
             api_code: attribute["api_code"],
             api: true
@@ -45,7 +45,6 @@ module Signup
         )
 
         students.each do |student|
-          student.save!
           user.students << student
         end
 
