@@ -61,6 +61,8 @@ StripValue.prototype.stripValue = function(value) {
            .replace(/[óòôõö]/g, 'o')
            .replace(/[ÚÙÛÜ]/g,  'U')
            .replace(/[úùûü]/g,  'u')
+           .replace(/[Ñ]/g,     'N')
+           .replace(/[ñ]/g,     'n')
            .replace(/[Ç]/g,     'C')
            .replace(/[ç]/g,     'c');
 };

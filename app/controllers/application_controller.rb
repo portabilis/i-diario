@@ -73,6 +73,11 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_configuration
 
+  def current_notification
+    @configuration ||= Notification.current
+  end
+  helper_method :current_notification
+
   def api
     @api ||= IeducarApi::StudentRegistrations.new(current_configuration.to_api)
   end
