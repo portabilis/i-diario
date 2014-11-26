@@ -1,0 +1,45 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://botucat.ieduca.com.br/module/Api/Aluno?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=todos-alunos&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*; q=0.5, application/xml'
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.0.15
+      Date:
+      - Wed, 26 Nov 2014 15:16:21 GMT
+      Content-Type:
+      - text/html; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - close
+      Cache-Control:
+      - no-cache, no-store
+      Expires:
+      - Thu, 01 Jan 1970 00:00:00 GMT
+      Pragma:
+      - no-cache
+    body:
+      encoding: US-ASCII
+      string: <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head><meta
+        http-equiv="refresh" content="0;url=http://dnserros.oi.com.br/main?InterceptSource=0&ClientLocation=br&ParticipantID=ln9ax8zglhs3lmc5wonrlcomvi6lvzb4&FailureMode=1&SearchQuery=&FailedURI=http%3A%2F%2Fbotucat.ieduca.com.br%2Fmodule%2FApi%2FAluno%3Fresource%3Dtodos-alunos%26oper%3Dget%26access_key%3D***REMOVED***%26secret_key%3D***REMOVED***%26instituicao_id%3D1&AddInType=4&Version=2.1.8-1.90base&Referer=&Implementation=0&method=GET"/><script
+        type="text/javascript">url="http://dnserros.oi.com.br/main?InterceptSource=0&ClientLocation=br&ParticipantID=ln9ax8zglhs3lmc5wonrlcomvi6lvzb4&FailureMode=1&SearchQuery=&FailedURI=http%3A%2F%2Fbotucat.ieduca.com.br%2Fmodule%2FApi%2FAluno%3Fresource%3Dtodos-alunos%26oper%3Dget%26access_key%3D***REMOVED***%26secret_key%3D***REMOVED***%26instituicao_id%3D1&AddInType=4&Version=2.1.8-1.90base&Referer=&Implementation=0&method=GET";if(top.location!=location){var
+        w=window,d=document,e=d.documentElement,b=d.body,x=w.innerWidth||e.clientWidth||b.clientWidth,y=w.innerHeight||e.clientHeight||b.clientHeight;url+="&w="+x+"&h="+y;}window.location.replace(url);</script></head><body></body></html>
+    http_version: 
+  recorded_at: Wed, 26 Nov 2014 15:16:21 GMT
+recorded_with: VCR 2.9.3

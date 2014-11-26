@@ -11,7 +11,7 @@ nav ul li.current a {
 }
 
 nav ul li b.collapse-sign {
-  margin-right: -5px;
+  margin-right: -10px;
 }
 
 nav ul li.open b.collapse-sign em:before {

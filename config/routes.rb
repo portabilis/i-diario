@@ -71,5 +71,6 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :lectures, only: [:index]
     resources :grades, only: [:index]
+    resources :***REMOVED***, concerns: :history
   end
 end

@@ -78,3 +78,6 @@ pt-BR:
 
     ***REMOVED***:
       <<: *female
+
+    ***REMOVED***:
+      <<: *male
