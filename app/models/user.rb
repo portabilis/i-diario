@@ -28,6 +28,8 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :students
 
+  has_many :***REMOVED***
+
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, presence: true

@@ -23,6 +23,8 @@ class Unity < ActiveRecord::Base
   has_many :***REMOVED***_distribution_unities
   has_many :***REMOVED***, through: :***REMOVED***_distribution_unities
 
+  has_many :***REMOVED***
+
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
 
   validates :author, :name, :unit_type, presence: true
