@@ -1,5 +1,5 @@
 module Navigation
-  class BreadcrumbsBuilder < Builder::Base
+  class BreadcrumbsBuilder < Base
     def initialize(item, context, render = BreadcrumbsRender)
       super(item,context, render)
       ***REMOVED***s << { :type => :begin, :path => "root_path" }

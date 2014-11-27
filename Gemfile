@@ -45,6 +45,7 @@ gem 'decore', :git => 'https://github.com/matiasleidemer/decore'
 gem 'activerecord-connections', :git => "https://github.com/ricardohsd/activerecord-connections.git"
 
 gem 'carrierwave'
+gem 'fog'
 
 # Test
 group :development, :test do

@@ -1,5 +1,5 @@
 module Navigation
-  class MenuBuilder < Builder::Base
+  class MenuBuilder < Base
     def initialize(item, context, render = MenuRender)
       super(item, context, render)
     end

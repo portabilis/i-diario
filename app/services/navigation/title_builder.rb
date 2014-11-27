@@ -1,5 +1,5 @@
 module Navigation
-  class TitleBuilder < Builder::Base
+  class TitleBuilder < Base
     def initialize(item, show_icon, context, render = TitleRender)
       super(item, context, render)
       @show_icon = show_icon

@@ -15,4 +15,8 @@ class GeneralConfiguration < ActiveRecord::Base
   def self.current
     self.first.presence || new
   end
+
+  def mark_with_error!
+    update_column :backup_status, ApiSyncronizationStatus::ERROR
+  end
 end
