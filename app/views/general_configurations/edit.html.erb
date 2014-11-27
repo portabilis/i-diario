@@ -12,8 +12,16 @@
 
         <div class="col col-sm-6">
           <%= f.input :backup_file do %>
-            <% if f.object.backup_file.present? %>
+            <% if f.object.completed? %>
               <%= link_to 'Fazer download', f.object.backup_file_url %>
+            <% elsif f.object.started? %>
+              <span class="label label-info">
+                Backup está sendo gerado.
+              </span>
+            <% elsif f.object.error? %>
+              <span class="label label-danger">
+                Erro ao processar o backup.
+              </span>
             <% end %>
           <% end %>
         </div>

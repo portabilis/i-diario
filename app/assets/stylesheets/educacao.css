@@ -66,3 +66,10 @@ span.label-list {
 table#history tbody td.history-changes {
   max-width: 600px !important;
 }
+
+.smart-form .label.label-info,
+.smart-form .label.label-danger {
+  color: #fff;
+  display: inline;
+  padding: .2em .6em .3em;
+}
