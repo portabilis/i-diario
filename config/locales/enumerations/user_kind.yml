@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    user_kind:
+      employee: "Servidor"
+      parent: "Pais"
+      student: "Aluno"

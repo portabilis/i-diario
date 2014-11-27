@@ -41,7 +41,8 @@ module Signup
           cpf: document,
           phone: celphone,
           password: password,
-          password_confirmation: password_confirmation
+          password_confirmation: password_confirmation,
+          kind: UserKind::PARENT
         )
 
         students.each do |student|

@@ -34,6 +34,7 @@ Rails.application.routes.draw do
 
     get '/sandbox', to: 'dashboard#sandbox'
 
+    resources :users, concerns: :history
     resource :account, only: [:edit, :update]
     resources :profiles, only: [:index, :update] do
       collection do

@@ -2,6 +2,7 @@ pt-BR:
   navigation:
     begin: "Início"
     accounts: "Meu perfil"
+    users: "Usuários"
     configurations: "Configurações"
     dashboard: "Dashboard"
     disciplinary_incidents: "***REMOVED***"

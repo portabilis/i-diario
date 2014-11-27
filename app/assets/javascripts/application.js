@@ -26,6 +26,8 @@
 //= require jquery.price_format.2.0
 //= require flash_messages
 //= require server-errors-presenter
+//= require bootstrap-typeahead
+//= require typeajax
 //= require masks
 //= require decimals
 //= require educacao
@@ -40,7 +42,6 @@
 //= require jquery-file-upload/jquery.fileupload-process
 //= require jquery-file-upload/jquery.fileupload-image
 //= require jquery-file-upload/jquery.fileupload-validate
-//= require educacao
 //= require signup
 //= require summernote
 //= require summernote/pt-BR

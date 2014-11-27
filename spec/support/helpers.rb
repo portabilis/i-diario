@@ -17,6 +17,17 @@ module Helpers
     }
   end
 
+  def fill_autocomplete(field, options)
+    fill_in field, with: options[:with]
+
+    field_id = page.find_field(field)[:id]
+
+    page.execute_script %Q{ $('##{field_id}').trigger('keyup'); }
+
+    sleep 1
+    page.execute_script %Q{ $("ul.typeahead a:contains(#{options.fetch(:with)})").trigger('mouseenter').click(); }
+  end
+
   def fill_mask(locator, options = {})
     msg = "cannot fill in, no text field with id, name, or label '#{locator}' found"
     raise "Must pass a hash containing 'with'" if not options.is_a?(Hash) or not options.has_key?(:with)

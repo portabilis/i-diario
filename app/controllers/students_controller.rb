@@ -1,6 +1,12 @@
 class StudentsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:search_api]
 
+  def index
+    @students = apply_scopes(Student)
+
+    respond_with @students
+  end
+
   def search_api
     begin
       api = IeducarApi::Students.new(configuration.to_api)

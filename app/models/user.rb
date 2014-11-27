@@ -2,7 +2,8 @@ class User < ActiveRecord::Base
   acts_as_copy_target
 
   audited allow_mass_assignment: true,
-    only: [:email, :first_name, :last_name, :phone, :cpf, :login, :authorize_email_and_sms]
+    only: [:email, :first_name, :last_name, :phone, :cpf, :login,
+           :authorize_email_and_sms, :student_id, :status]
   has_associated_audits
 
   include Audit
@@ -13,6 +14,9 @@ class User < ActiveRecord::Base
   attr_accessor :credentials
 
   has_enumeration_for :status, with: UserStatus, create_helpers: true
+  has_enumeration_for :kind, with: UserKind, create_helpers: true
+
+  belongs_to :student
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :syncronizations, class_name: "IeducarApiSyncronization", foreign_key: :author_id
@@ -35,6 +39,7 @@ class User < ActiveRecord::Base
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, presence: true
+  validates :student, presence: true, if: :actived_student?
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
@@ -69,9 +74,27 @@ class User < ActiveRecord::Base
     super && actived?
   end
 
+  def logged_as
+    login.presence || email
+  end
+
+  def name
+    "#{first_name} #{last_name}".strip
+  end
+
+  def actived!
+    update_column :actived_at, DateTime.current
+  end
+
   def to_s
     return email unless first_name.present?
 
-    "#{first_name} #{last_name}".strip
+    name
+  end
+
+  protected
+
+  def actived_student?
+    actived? && student?
   end
 end

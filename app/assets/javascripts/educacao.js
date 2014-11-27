@@ -3,6 +3,8 @@
 //= require_self
 
 $(function () {
+  $('input[data-typeahead-url]').typeajax();
+
   // removendo o loading quando a página estiver carregada
   $('#page-loading').addClass('hidden');
 

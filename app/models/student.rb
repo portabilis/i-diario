@@ -6,6 +6,20 @@ class Student < ActiveRecord::Base
   validates :name, presence: true
   validates :api_code, presence: true, if: :api?
 
+  scope :api, -> { where(arel_table[:api].eq(true)) }
+
+  def self.search(value)
+    relation = all
+
+    if value.present?
+      relation = relation.where(%Q(
+        name ILIKE :text OR api_code = :code
+      ), text: "%#{value}%", code: value)
+    end
+
+    relation
+  end
+
   def to_s
     name
   end

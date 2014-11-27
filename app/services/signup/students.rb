@@ -17,7 +17,8 @@ module Signup
           email: email,
           password: password,
           password_confirmation: password_confirmation,
-          status: UserStatus::PENDING
+          status: UserStatus::PENDING,
+          kind: UserKind::STUDENT
         )
 
         user

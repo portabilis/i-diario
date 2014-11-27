@@ -1,0 +1,11 @@
+<p>
+  Olá <%= @user %>,
+</p>
+
+<p>
+  Sua conta de acesso com o acesso de "<%= @user.logged_as %>" foi ativada com sucesso. Para acessar o sistema, <%= link_to 'clique aqui', root_url(host: @entity.domain) %>.
+</p>
+
+<p>
+Este email enviado automaticamente, favor não responder.
+</p>

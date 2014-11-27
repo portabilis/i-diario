@@ -1,0 +1,67 @@
+<%= simple_form_for @user, html: { class: "smart-form" } do |f| %>
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-3">
+        <%= f.input :first_name %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :last_name %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :email %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :kind do %>
+          <%= f.object.kind_humanize %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-6">
+        <%= f.input :login %>
+      </div>
+
+      <div class="col col-sm-2">
+        <%= f.input :cpf %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :authorize_email_and_sms %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-3">
+        <%= f.input :phone, as: :tel %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :status, as: :select2, elements: UserStatus.to_select.to_json %>
+      </div>
+
+      <% if f.object.student? %>
+        <div class="col col-sm-6">
+          <%= f.input :student, as: :autocomplete, required: true %>
+        </div>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <footer>
+    <%= link_to users_path, class: "btn btn-default" do %>
+      Voltar
+    <% end %>
+
+    <% if @user.persisted? %>
+      <%= link_to 'Histórico', history_user_path(@user), class: 'btn btn-info' %>
+    <% end %>
+
+    <button type="submit" class="btn btn-primary">
+      Salvar
+    </button>
+  </footer>
+<% end %>

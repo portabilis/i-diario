@@ -41,7 +41,12 @@ class AuditDecorator
     elsif value.is_a?(Date) || value.is_a?(Time)
       I18n.l value
     elsif field.match(/_id/) && klass.reflect_on_association(relation).present?
-      record.auditable.send relation
+      # Sometimes the record used in the relation doesn't exist anymore
+      begin
+        relation.capitalize.to_s.constantize.find(value)
+      rescue
+        value
+      end
     else
       value
     end

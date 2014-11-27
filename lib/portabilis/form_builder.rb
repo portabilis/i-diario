@@ -1,5 +1,6 @@
 module Portabilis
   class FormBuilder < SimpleForm::FormBuilder
+    map_type :autocomplete,                      :to => Portabilis::Inputs::AutocompleteInput
     map_type :decimal, :float,                   :to => Portabilis::Inputs::DecimalInput
     map_type :date,                              :to => Portabilis::Inputs::DateInput
     map_type :boolean,                           :to => Portabilis::Inputs::BooleanInput

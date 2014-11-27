@@ -19,6 +19,10 @@ pt-BR:
         authorize_email_and_sms: "Autorizar envio de e-mails e mensagens sms"
         current_password: "Senha atual"
         credentials: "Informe o Nome de usuário, E-mail, Celular ou CPF"
+        kind: "Tipo"
+        student: "Aluno"
+        student_id: "Aluno"
+
     errors:
       models:
         user:

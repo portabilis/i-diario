@@ -18,6 +18,10 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :check_for_***REMOVED***
 
+  has_scope :q do |controller, scope, value|
+    scope.search(value).limit(10)
+  end
+
   protected
 
   def page

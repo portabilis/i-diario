@@ -7,6 +7,8 @@ john_doe:
   phone: '(11) 99887766'
   cpf: '639.290.118-32'
   authorize_email_and_sms: false
+  status: 'actived'
+  kind: 'employee'
   students: bary_allen, bruce_wayne, miss_marvel
 
 mary_jane:
@@ -17,4 +19,7 @@ mary_jane:
   login: 'mary_jane'
   phone: '(11) 99887766'
   cpf: '270.565.341-47'
+  status: 'pending'
+  kind: 'student'
+  student: bary_allen
   authorize_email_and_sms: false

@@ -46,6 +46,9 @@ navigation:
             type: "unities"
             path: "unities_path"
         - ***REMOVED***:
+            type: "users"
+            path: "users_path"
+        - ***REMOVED***:
             type: "general_configurations"
             path: "edit_general_configurations_path"
         - ***REMOVED***:
