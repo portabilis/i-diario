@@ -96,3 +96,6 @@ navigation:
         - ***REMOVED***:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
+        - ***REMOVED***:
+            type: "authorization_***REMOVED***"
+            path: "authorization_***REMOVED***_path"

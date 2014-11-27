@@ -84,3 +84,6 @@ pt-BR:
 
     ***REMOVED***:
       <<: *female
+
+    authorization_***REMOVED***:
+      <<: *female
