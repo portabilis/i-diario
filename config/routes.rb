@@ -74,5 +74,6 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :authorization_***REMOVED***, concerns: :history
+    resources :moved_***REMOVED***, only: [:index]
   end
 end

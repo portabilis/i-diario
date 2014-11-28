@@ -46,3 +46,4 @@ pt-BR:
     ***REMOVED***: 'tipos-de-servicos'
     ***REMOVED***: 'requisicoes-de-servicos'
     authorization_***REMOVED***: 'autorizacoes-de-requisicao-de-servico'
+    moved_***REMOVED***: 'saldo-de-materiais-por-unidade'
