@@ -45,3 +45,4 @@ pt-BR:
     history: 'historico'
     ***REMOVED***: 'tipos-de-servicos'
     ***REMOVED***: 'requisicoes-de-servicos'
+    authorization_***REMOVED***: 'autorizacoes-de-requisicao-de-servico'

@@ -19,3 +19,8 @@
  *= require_tree ./resources
  *= require_self
  */
+
+textarea.form-control.text {
+  padding-top: 5px;
+  padding-left: 10px;
+}
