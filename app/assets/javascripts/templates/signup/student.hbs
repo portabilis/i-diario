@@ -1,7 +1,8 @@
 <td>
   <input type="hidden" name="signup[students_attributes][{{cid}}][name]" value="{{name}}">
   <input type="hidden" name="signup[students_attributes][{{cid}}][api_code]" value="{{api_code}}">
-  <input type="checkbox" name="signup[students_attributes][{{cid}}][selected]" class="select-student" value={{selected}}>
+  <input type="hidden" name="signup[students_attributes][{{cid}}][selected]" class="select-student" value="0">
+  <input type="checkbox" name="signup[students_attributes][{{cid}}][selected]" class="select-student" value="1">
 </td>
 <td>
   {{name}}

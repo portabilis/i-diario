@@ -79,10 +79,10 @@
                     <% (f.object.students_attributes || []).each do |index, student| %>
                       <tr>
                         <td>
-                          <input type="hidden" name="signup[students_attributes][<%= index %>][name]" value="<%= student["name"] %>">
-                          <input type="hidden" name="signup[students_attributes][<%= index %>][api_code]" value="<%= student["api_code"] %>">
-                          <input type="checkbox" name="signup[students_attributes][<%= index %>][selected]"
-                            value=true <%= 'checked=checked' if student["selected"].present? %>>
+                          <%= hidden_field_tag "signup[students_attributes][#{index}][name]", student["name"] %>
+                          <%= hidden_field_tag "signup[students_attributes][#{index}][api_code]", student["api_code"] %>
+                          <%= hidden_field_tag "signup[students_attributes][#{index}][selected]", 0 %>
+                          <%= check_box_tag "signup[students_attributes][#{index}][selected]", 1, %w(true t 1).include?(student["selected"]) %>
                         </td>
                         <td>
                           <%= student["name"] %>

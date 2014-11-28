@@ -16,7 +16,7 @@ module Signup
       students = []
 
       (students_attributes || []).each do |_, attribute|
-        next if attribute["selected"].blank?
+        next if %w(false f 0).include?( attribute["selected"] )
 
         if student = Student.find_by(api_code: attribute["api_code"])
           students << student
