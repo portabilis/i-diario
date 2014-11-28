@@ -2,6 +2,8 @@ class Lecture
   attr_accessor :attributes
 
   def self.all(collection)
+    return [] unless collection
+
     collection.map do |record|
       new(record)
     end
@@ -12,6 +14,10 @@ class Lecture
   end
 
   def id
+    "#{raw_id}\\#{name}"
+  end
+
+  def raw_id
     attributes["id"]
   end
 
@@ -19,7 +25,15 @@ class Lecture
     attributes["nome"]
   end
 
-  def id_and_name
-    "#{id} - #{name}"
+  def grades
+    Grade.all(attributes["series"])
+  end
+
+  def label
+    "#{raw_id} - #{name}"
+  end
+
+  def to_s
+    name
   end
 end

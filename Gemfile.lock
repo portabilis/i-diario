@@ -255,6 +255,8 @@ GEM
       rack (>= 1.1, < 2.0)
     pundit (0.3.0)
       activesupport (>= 3.0.0)
+    quiet_assets (1.0.3)
+      railties (>= 3.1, < 5.0)
     rack (1.5.2)
     rack-protection (1.5.2)
       rack
@@ -411,6 +413,7 @@ DEPENDENCIES
   pry (~> 0.10.1)
   puma (= 2.9.2)
   pundit (= 0.3.0)
+  quiet_assets
   rails (= 4.1.5)
   responders (= 1.1.0)
   rest-client!

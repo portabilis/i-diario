@@ -36,6 +36,7 @@ class Unity < ActiveRecord::Base
   scope :by_api_codes, lambda { |codes|
     where(arel_table[:api_code].in(codes))
   }
+  scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }
 
   def to_s
     name

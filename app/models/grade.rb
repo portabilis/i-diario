@@ -12,6 +12,10 @@ class Grade
   end
 
   def id
+    "#{raw_id}\\#{name}"
+  end
+
+  def raw_id
     attributes["id"]
   end
 
@@ -19,7 +23,11 @@ class Grade
     attributes["nome"]
   end
 
-  def id_and_name
-    "#{id} - #{name}"
+  def label
+    "#{raw_id} - #{name}"
+  end
+
+  def to_s
+    name
   end
 end
