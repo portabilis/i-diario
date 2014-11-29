@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    move_types:
+      entrance: "Entrada"
+      exit: "Saída"
