@@ -30,4 +30,12 @@ class Grade
   def to_s
     name
   end
+
+  def to_json
+    {
+      label: label,
+      id: id,
+      name: name
+    }
+  end
 end
