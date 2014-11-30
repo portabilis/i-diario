@@ -23,7 +23,7 @@ class Unity < ActiveRecord::Base
   has_many :***REMOVED***_distribution_unities
   has_many :***REMOVED***, through: :***REMOVED***_distribution_unities
   has_many :moved_***REMOVED***
-
+  has_many :***REMOVED***
   has_many :***REMOVED***
 
   has_and_belongs_to_many :***REMOVED***

@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    periods:
+      matutinal: "Matutino"
+      vespertine: "Vespertino"
+      nightly: "Noturno"
