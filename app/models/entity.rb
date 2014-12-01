@@ -1,8 +1,6 @@
 class Entity < ActiveRecord::Base
   acts_as_copy_target
 
-  has_one :notification
-
   validates :name, :domain, :config, presence: true
   validates :domain, uniqueness: { case_sensitive: false }, allow_blank: true
 
