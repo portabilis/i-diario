@@ -22,6 +22,7 @@ navigation:
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-cutlery"
+      access: "only_admin"
       sub***REMOVED***s:
         - ***REMOVED***:
             type: "***REMOVED***"
@@ -38,6 +39,7 @@ navigation:
   - ***REMOVED***:
       type: "configurations"
       icon: "fa-cog"
+      access: "only_admin"
       sub***REMOVED***s:
         - ***REMOVED***:
             type: "profiles"
@@ -61,6 +63,7 @@ navigation:
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-exchange"
+      access: "only_admin"
       sub***REMOVED***s:
         - ***REMOVED***:
             type: "***REMOVED***"
@@ -95,6 +98,7 @@ navigation:
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-retweet"
+      access: "only_admin"
       sub***REMOVED***s:
         - ***REMOVED***:
             type: "***REMOVED***"

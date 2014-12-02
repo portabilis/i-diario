@@ -4,10 +4,11 @@ module Navigation
       new(*args).build
     end
 
-    def initialize(item, context, render = Navigation::Render::Base)
+    def initialize(item, context, render = Navigation::Render::Base, user = nil)
       @item = item.to_s
       @navigation_render = render.new(context)
       @navigation = YAML.load(File.open("#{Rails.root}/config/navigation.yml"))["navigation"]
+      @user = user
     end
 
     def build
