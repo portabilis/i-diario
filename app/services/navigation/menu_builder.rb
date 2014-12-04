@@ -1,7 +1,7 @@
 module Navigation
   class MenuBuilder < Base
-    def initialize(item, context, user = nil, render = MenuRender)
-      super(item, context, render, user)
+    def initialize(item, context, render = MenuRender)
+      super(item, context, render)
     end
 
     def build
@@ -13,7 +13,7 @@ module Navigation
 
     def amount_***REMOVED***s
       amount_nodes navigation do |***REMOVED***|
-        ***REMOVED***s << ***REMOVED*** if ***REMOVED***[:access].blank? || !@user.student_or_parent?
+        ***REMOVED***s << ***REMOVED***
       end
     end
 
@@ -30,7 +30,6 @@ module Navigation
         ***REMOVED***[:type]      = node["type"]
         ***REMOVED***[:icon]      = node["icon"]
         ***REMOVED***[:path]      = node["path"]
-        ***REMOVED***[:access]      = node["access"]
         ***REMOVED***[:css_class] = []
         ***REMOVED***[:subnodes]  = []
 

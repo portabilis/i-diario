@@ -74,8 +74,4 @@ class User < ActiveRecord::Base
 
     "#{first_name} #{last_name}".strip
   end
-
-  def student_or_parent?
-    self.students.present?
-  end
 end
