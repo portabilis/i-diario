@@ -1,0 +1,6 @@
+pt-BR:
+  activerecord:
+    attributes:
+      role_permission:
+        feature: "Funcionalidade"
+        permission: "Permissão"

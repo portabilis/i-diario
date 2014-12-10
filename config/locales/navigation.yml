@@ -1,5 +1,5 @@
 pt-BR:
-  navigation:
+  navigation: &navigation
     begin: "Início"
     accounts: "Meu perfil"
     users: "Usuários"
@@ -19,7 +19,6 @@ pt-BR:
     ***REMOVED***: "Tipos de cardápios"
     ***REMOVED***s: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
-    profiles: "Perfis de acesso"
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
@@ -34,3 +33,8 @@ pt-BR:
     authorization_***REMOVED***: "Autorizações de solicitação de serviço"
     moved_***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
+    roles: "Permissões"
+
+  enumerations:
+    features:
+      <<: *navigation

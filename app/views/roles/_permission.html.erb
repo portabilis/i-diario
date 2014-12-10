@@ -1,0 +1,14 @@
+<tr class="nested-fields" id="role-<%= f.object.feature %>">
+  <td>
+    <%= f.object.feature_humanize %>
+    <%= f.input_field :feature, as: :hidden %>
+  </td>
+
+  <td>
+    <%= f.input :permission, as: :select2, elements: Permissions.to_select.to_json, label_html: { class: "hidden" } %>
+  </td>
+
+  <td>
+    <%= f.input :id, as: :hidden %>
+  </td>
+</tr>

@@ -1,0 +1,11 @@
+pt-BR:
+  activerecord:
+    models:
+      role:
+        one: "Permissão"
+        other: "Permissões"
+    attributes:
+      role:
+        name: "Nome"
+        author: "Autor"
+        author_id: "Autor"

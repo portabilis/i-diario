@@ -1,0 +1,14 @@
+users_permission:
+  role: admin
+  feature: "users"
+  permission: "change"
+
+unities_permission:
+  role: admin
+  feature: "unities"
+  permission: "change"
+
+***REMOVED***_permission:
+  role: admin
+  feature: "***REMOVED***"
+  permission: "change"

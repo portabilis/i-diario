@@ -1,6 +1,6 @@
 pt-BR:
   routes:
-    profiles: 'perfis'
+    roles: 'permissoes'
     ieducar_api_configurations: 'api-de-integracao'
     general_configurations: 'configuracoes-gerais'
     notification: 'notificacao'

@@ -36,8 +36,8 @@ Rails.application.routes.draw do
 
     resources :users, concerns: :history
     resource :account, only: [:edit, :update]
-    resources :profiles, only: [:index, :update] do
-      collection do
+    resources :roles do
+      member do
         get :history
       end
     end

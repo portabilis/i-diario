@@ -33,6 +33,7 @@ class AuditDecorator
             end
 
     relation = field.to_s.gsub(/_id/, '').to_sym
+    association = klass.reflect_on_association(relation)
 
     if enumeration?(field)
       enumeration_t field, value
@@ -40,10 +41,16 @@ class AuditDecorator
       I18n.t "boolean.#{value}"
     elsif value.is_a?(Date) || value.is_a?(Time)
       I18n.l value
-    elsif field.match(/_id/) && klass.reflect_on_association(relation).present?
+    elsif field.match(/_id/) && association.present?
       # Sometimes the record used in the relation doesn't exist anymore
       begin
-        relation.capitalize.to_s.constantize.find(value)
+        class_name = if association.try(:class_name)
+          association.class_name
+        else
+          relation
+        end
+
+        class_name.capitalize.to_s.constantize.find(value)
       rescue
         value
       end

@@ -40,8 +40,8 @@ navigation:
       icon: "fa-cog"
       sub***REMOVED***s:
         - ***REMOVED***:
-            type: "profiles"
-            path: "profiles_path"
+            type: "roles"
+            path: "roles_path"
         - ***REMOVED***:
             type: "unities"
             path: "unities_path"

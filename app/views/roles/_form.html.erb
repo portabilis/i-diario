@@ -1,0 +1,43 @@
+<%= simple_form_for @role, html: { class: "smart-form" } do |f| %>
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-6">
+        <%= f.input :name %>
+      </div>
+
+      <div class="col col-sm-6">
+        <%= f.input :author, disabled: true %>
+      </div>
+    </div>
+
+    <table class="table table-striped records">
+      <thead>
+        <tr>
+          <th>Funcionalidade</th>
+          <th>Acesso</th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <%= f.association :permissions do |p| %>
+          <%= render 'permission', f: p %>
+        <% end %>
+      </tbody>
+    </table>
+  </fieldset>
+
+  <footer>
+    <%= link_to roles_path, class: "btn btn-default" do %>
+      Voltar
+    <% end %>
+
+    <% if @role.persisted? %>
+      <%= link_to 'Histórico', history_role_path(@role), class: 'btn btn-info' %>
+    <% end %>
+
+    <button type="submit" class="btn btn-primary">
+      Salvar
+    </button>
+  </footer>
+<% end %>

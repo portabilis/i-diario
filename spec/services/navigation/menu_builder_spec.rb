@@ -23,8 +23,8 @@ describe Navigation::MenuBuilder, :type => :service do
         expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
 
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+Configurações.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+Configurações.+<ul><li class="">.+Perfis de acesso.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+Configurações.+<ul>.+Perfis de acesso.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul><li class="">.+Permissões.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul>.+Permissões.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+Configurações gerais.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Configurações gerais.+<li class="">.+API de integração.+<\/li><\/ul>.+<\/ul>/
 
@@ -61,8 +61,8 @@ describe Navigation::MenuBuilder, :type => :service do
         expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
 
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+Configurações.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+Configurações.+<ul><li class="">.+Perfis de acesso.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+Configurações.+<ul>.+Perfis de acesso.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul><li class="">.+Permissões.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul>.+Permissões.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+Configurações gerais.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Configurações gerais.+<li class="">.+API de integração.+<\/li><\/ul>.+<\/ul>/
 
@@ -99,8 +99,8 @@ describe Navigation::MenuBuilder, :type => :service do
         expect(html).to match /<ul>.+***REMOVED***.+<ul style="display: block;">.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
 
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+Configurações.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+Configurações.+<ul><li class="">.+Perfis de acesso.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+Configurações.+<ul>.+Perfis de acesso.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul><li class="">.+Permissões.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul>.+Permissões.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+Configurações gerais.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Configurações gerais.+<li class="">.+API de integração.+<\/li><\/ul>.+<\/ul>/
 

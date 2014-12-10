@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    permissions:
+      read: "Leitura"
+      change: "Leitura/Escrita"
+      denied: "Sem acesso"
