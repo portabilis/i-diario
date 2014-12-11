@@ -57,6 +57,9 @@ navigation:
         - ***REMOVED***:
            type: "***REMOVED***"
            path: "edit_notification_path"
+        - ***REMOVED***:
+            type: "***REMOVED***s"
+            path: "edit_***REMOVED***s_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-bullhorn"

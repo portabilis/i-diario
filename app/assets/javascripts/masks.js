@@ -1,9 +1,17 @@
 $(function () {
-  $('input[data-mask]').on('focus', function () {
-    var input = $(this);
+  var applyMasks = function () {
+    $('input[data-mask]').on('focus', function () {
+      var input = $(this);
 
-    input.inputmask(input.attr('data-mask'));
+      input.inputmask(input.attr('data-mask'));
+    });
+  };
+
+  $('body').on('cocoon:after-insert', function(e) {
+    applyMasks();
   });
+
+  applyMasks();
 
   $('input.zip_code').on('blur', function () {
     var zipCode = $(this).val().replace(/[^\d]/g, ''),
