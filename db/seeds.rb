@@ -19,7 +19,8 @@ unless User.exists?
     login: 'admin',
     phone: '(11) 99887766',
     cpf: '639.290.118-32',
-    authorize_email_and_sms: false
+    authorize_email_and_sms: false,
+    admin: true
   )
 end
 

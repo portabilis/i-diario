@@ -1,7 +1,7 @@
 module Navigation
   class MenuBuilder < Base
-    def initialize(item, context, render = MenuRender)
-      super(item, context, render)
+    def initialize(item, user, render = MenuRender)
+      super(item, user, render)
     end
 
     def build
@@ -30,6 +30,7 @@ module Navigation
         ***REMOVED***[:type]      = node["type"]
         ***REMOVED***[:icon]      = node["icon"]
         ***REMOVED***[:path]      = node["path"]
+        ***REMOVED***[:visible]   = node["visible"]
         ***REMOVED***[:css_class] = []
         ***REMOVED***[:subnodes]  = []
 

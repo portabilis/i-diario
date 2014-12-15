@@ -26,6 +26,14 @@ class Role < ActiveRecord::Base
     end
   end
 
+  def can_show?(feature)
+    permissions.can_show?(feature)
+  end
+
+  def can_change?(feature)
+    permissions.can_change?(feature)
+  end
+
   def to_s
     name
   end

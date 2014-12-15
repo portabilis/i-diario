@@ -17,6 +17,7 @@ class User < ActiveRecord::Base
   has_enumeration_for :kind, with: UserKind, create_helpers: true
 
   belongs_to :student
+  belongs_to :role
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :syncronizations, class_name: "IeducarApiSyncronization", foreign_key: :author_id
@@ -60,6 +61,20 @@ class User < ActiveRecord::Base
         REGEXP_REPLACE(users.phone, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
       )
     ), credential: credential).first
+  end
+
+  def can_show?(feature)
+    return true if admin?
+    return unless role
+
+    role.can_show?(feature)
+  end
+
+  def can_change?(feature)
+    return true if admin?
+    return unless role
+
+    role.can_change?(feature)
   end
 
   def update_tracked_fields!(request)

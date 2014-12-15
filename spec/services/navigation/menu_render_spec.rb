@@ -2,7 +2,11 @@
 require "rails_helper"
 
 describe Navigation::MenuRender, :type => :service do
-  subject { described_class.new(context) }
+  let :current_user do
+    User.new(admin: true)
+  end
+
+  subject { described_class.new current_user }
 
   describe "#render" do
     context "when no ***REMOVED*** structure is informed" do
@@ -15,8 +19,8 @@ describe Navigation::MenuRender, :type => :service do
 
     context "when a ***REMOVED*** structure is informed" do
       context "and this structure no have sub***REMOVED***s" do
-        context "and no have icon, path and css style informed" do 
-          let(:***REMOVED***s) { [ { :type => 'dashboard', :css_class => [], :subnodes => [] } ] }
+        context "and no have icon, path and css style informed" do
+          let(:***REMOVED***s) { [ { :type => 'dashboard', :css_class => [], :subnodes => [], :visible => true } ] }
 
           it "returns this ***REMOVED*** with link but without icon, path and css style" do
             expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"#\"><span class=\"***REMOVED***-item-parent\">Dashboard</span></a></li></ul>"
@@ -24,7 +28,7 @@ describe Navigation::MenuRender, :type => :service do
         end
 
         context "and have only icon informed" do
-          let(:***REMOVED***s) { [ { :type => 'dashboard', :icon => 'fa-home', :css_class => [], :subnodes => [] } ] }
+          let(:***REMOVED***s) { [ { :type => 'dashboard', :icon => 'fa-home', :css_class => [], :subnodes => [], :visible => true } ] }
 
           it "returns this ***REMOVED*** with link but without path and css style" do
             expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span class=\"***REMOVED***-item-parent\">Dashboard</span></a></li></ul>"
@@ -32,7 +36,7 @@ describe Navigation::MenuRender, :type => :service do
         end
 
         context "and have only path informed" do
-          let(:***REMOVED***s) { [ { :type => 'dashboard', :path => 'root_path', :css_class => [], :subnodes => [] } ] }
+          let(:***REMOVED***s) { [ { :type => 'dashboard', :path => 'root_path', :css_class => [], :subnodes => [], :visible => true } ] }
 
           it "returns this ***REMOVED*** with link but without icon and css style" do
             expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"/\"><span class=\"***REMOVED***-item-parent\">Dashboard</span></a></li></ul>"
@@ -41,7 +45,7 @@ describe Navigation::MenuRender, :type => :service do
         end
 
         context "and have only css style informed" do
-          let(:***REMOVED***s) { [ { :type => 'dashboard', :css_class => ["open"], :subnodes => [] } ] }
+          let(:***REMOVED***s) { [ { :type => 'dashboard', :css_class => ["open"], :subnodes => [], :visible => true } ] }
 
           it "returns this ***REMOVED*** with link but without icon and path" do
             expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"open\"><a href=\"#\"><span class=\"***REMOVED***-item-parent\">Dashboard</span></a></li></ul>"
@@ -89,7 +93,8 @@ describe Navigation::MenuRender, :type => :service do
           :icon => 'fa-home',
           :path => 'root_path',
           :css_class => [],
-          :subnodes => []
+          :subnodes => [],
+          :visible => true
         },
         {
           :type => '***REMOVED***',

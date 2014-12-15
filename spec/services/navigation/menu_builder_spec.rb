@@ -2,7 +2,11 @@
 require "rails_helper"
 
 describe Navigation::MenuBuilder, :type => :service do
-  subject { described_class.new feature, context }
+  let :current_user do
+    User.new(admin: true)
+  end
+
+  subject { described_class.new feature, current_user }
 
   describe "#build" do
     context "when informed feature no refers to a ***REMOVED*** or a sub***REMOVED***" do
@@ -116,6 +120,31 @@ describe Navigation::MenuBuilder, :type => :service do
         expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
+      end
+    end
+
+    context "when current user has limited access" do
+      let(:feature) { "dashboard" }
+
+      let :current_user do
+        users(:mary_jane)
+      end
+
+      it "returns all permitted ***REMOVED***s" do
+        html = subject.build
+
+        expect(html).to_not match /<ul>.+Dashboard.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
+        expect(html).to_not match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
+        expect(html).to_not match /<ul>.+***REMOVED***.+<li class="">/
+        expect(html).to_not match /<ul>.+***REMOVED***.+<ul>/
+        expect(html).to_not match /<ul>.+Configurações.+<ul>.+Permissões.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to_not match /<ul>.+Configurações.+<ul>.+Configurações gerais.+<li class="">.+API de integração.+<\/li><\/ul>.+<\/ul>/
+        expect(html).to_not match /<ul>.+Configurações.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
+        expect(html).to_not match /<ul>.+***REMOVED***.+<li class="">/
+
+        expect(html).to match /<ul><li class="current">.+Dashboard.+<\/li>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+Usuários.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<\/ul>.+<\/ul>/
       end
     end
   end

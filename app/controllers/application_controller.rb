@@ -22,6 +22,8 @@ class ApplicationController < ActionController::Base
     scope.search(value).limit(10)
   end
 
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
   protected
 
   def page
@@ -33,7 +35,11 @@ class ApplicationController < ActionController::Base
   end
 
   def policy(record)
-    Pundit::PolicyFinder.new(record).policy!.new(current_user, record)
+    begin
+      Pundit::PolicyFinder.new(record).policy!.new(current_user, record)
+    rescue
+      ApplicationPolicy.new(current_user, record)
+    end
   end
   helper_method :policy
 
@@ -84,5 +90,12 @@ class ApplicationController < ActionController::Base
 
   def api
     @api ||= IeducarApi::StudentRegistrations.new(current_configuration.to_api)
+  end
+
+  def user_not_authorized(exception)
+    policy_name = exception.policy.class.to_s.underscore
+
+    flash[:error] = t "#{policy_name}.#{exception.query}", scope: "pundit", default: :default
+    redirect_to(request.referrer || root_path)
   end
 end

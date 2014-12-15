@@ -5,15 +5,19 @@ class ApplicationPolicy
   end
 
   def index?
-    false
+    @user.can_show?(feature_name)
   end
 
   def show?
-    false
+    index?
+  end
+
+  def history?
+    show?
   end
 
   def create?
-    false
+    @user.can_change?(feature_name)
   end
 
   def new?
@@ -21,7 +25,7 @@ class ApplicationPolicy
   end
 
   def update?
-    false
+    @user.can_change?(feature_name)
   end
 
   def edit?
@@ -29,7 +33,7 @@ class ApplicationPolicy
   end
 
   def destroy?
-    false
+    update?
   end
 
   def permitted_attributes
@@ -39,5 +43,16 @@ class ApplicationPolicy
   protected
 
   attr_reader :user, :record
+
+  # Overwrite when necessary
+  def feature_name
+    klass = if record.respond_to?(:model_name)
+      record.model_name
+    elsif record.class.respond_to?(:model_name)
+      record.class.model_name
+    end
+
+    klass.to_s.underscore.pluralize
+  end
 end
 

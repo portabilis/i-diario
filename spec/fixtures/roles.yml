@@ -1,3 +1,7 @@
 admin:
   name: "Administrador"
   author: john_doe
+
+secretary:
+  name: "Secretária"
+  author: john_doe

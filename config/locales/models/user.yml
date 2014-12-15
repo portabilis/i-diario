@@ -22,6 +22,9 @@ pt-BR:
         kind: "Tipo"
         student: "Aluno"
         student_id: "Aluno"
+        role_id: "Permissão"
+        role: "Permissão"
+        admin: "Admin?"
 
     errors:
       models:

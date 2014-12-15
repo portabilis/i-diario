@@ -40,9 +40,15 @@
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :status, as: :select2, elements: UserStatus.to_select.to_json %>
+        <%= f.association :role, as: :select2, elements: Role.ordered %>
       </div>
 
+      <div class="col col-sm-3">
+        <%= f.input :status, as: :select2, elements: UserStatus.to_select.to_json %>
+      </div>
+    </div>
+
+    <div class="row">
       <% if f.object.student? %>
         <div class="col col-sm-6">
           <%= f.input :student, as: :autocomplete, required: true %>

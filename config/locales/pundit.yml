@@ -1,0 +1,3 @@
+pt-BR:
+ pundit:
+    default: 'Você não possui permissão para realizar esta ação.'

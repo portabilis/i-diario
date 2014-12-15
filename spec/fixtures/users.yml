@@ -10,6 +10,7 @@ john_doe:
   status: 'actived'
   kind: 'employee'
   students: bary_allen, bruce_wayne, miss_marvel
+  admin: true
 
 mary_jane:
   email: "mary_jane@example.com"
@@ -23,3 +24,5 @@ mary_jane:
   kind: 'student'
   student: bary_allen
   authorize_email_and_sms: false
+  admin: false
+  role: admin

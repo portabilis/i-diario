@@ -3,10 +3,12 @@ navigation:
       type: "dashboard"
       icon: "fa-home"
       path: "root_path"
+      visible: true
   - ***REMOVED***:
       type: "accounts"
       icon: "fa-user"
       path: "edit_account_path"
+      visible: true
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-envelope-o"
