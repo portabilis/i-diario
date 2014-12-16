@@ -1,13 +1,25 @@
-class StudentsSyncronizer
-  def self.syncronize!(collection)
-    new(collection).syncronize!
+class StudentsSynchronizer
+  def self.synchronize!(synchronization)
+    new(synchronization).synchronize!
   end
 
-  def initialize(collection)
-    self.collection = collection
+  def initialize(synchronization)
+    self.synchronization = synchronization
   end
 
-  def syncronize!
+  def synchronize!
+    update_records api.fetch["alunos"]
+  end
+
+  protected
+
+  attr_accessor :synchronization
+
+  def api
+    IeducarApi::Students.new(synchronization.to_api)
+  end
+
+  def update_records(collection)
     ActiveRecord::Base.transaction do
       collection.each do |record|
         if student = students.find_by(api_code: record["aluno_id"])
@@ -22,10 +34,6 @@ class StudentsSyncronizer
       end
     end
   end
-
-  protected
-
-  attr_accessor :collection
 
   def students(klass = Student)
     klass
