@@ -257,6 +257,7 @@ pt-BR:
       compressed: ! "%d/%m/%Y - %H:%M"
 
   helpers:
+    remove: "Remover"
     select:
       prompt: "Por favor selecione"
 
