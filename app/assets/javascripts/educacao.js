@@ -5,6 +5,11 @@
 $(function () {
   $('input[data-typeahead-url]').typeajax();
 
+  $('.tagsinput').tagsinput({
+    confirmKeys: [13, 188],
+    trimValue: true
+  });
+
   // removendo o loading quando a página estiver carregada
   $('#page-loading').addClass('hidden');
 
