@@ -16,7 +16,7 @@ pt-BR:
     ***REMOVED***: 'unidades-de-medida'
     ***REMOVED***: 'publicacoes'
     ***REMOVED***: 'fornecedores'
-    ***REMOVED***s: 'pre-matricula'
+    ***REMOVED***_configs: 'pre-matricula'
     registrations: 'registro'
     students: 'alunos'
     ***REMOVED***: 'materiais'

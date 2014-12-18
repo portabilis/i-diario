@@ -60,8 +60,8 @@ navigation:
            type: "***REMOVED***"
            path: "edit_notification_path"
         - ***REMOVED***:
-            type: "***REMOVED***s"
-            path: "edit_***REMOVED***s_path"
+            type: "***REMOVED***_configs"
+            path: "edit_***REMOVED***_configs_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-bullhorn"

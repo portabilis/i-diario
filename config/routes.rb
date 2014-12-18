@@ -43,7 +43,7 @@ Rails.application.routes.draw do
     end
     resources :disciplinary_incidents, only: [:index]
     resources :***REMOVED***, only: [:index, :show]
-    resource :***REMOVED***s, only: [:edit, :update], concerns: :history
+    resource :***REMOVED***_configs, only: [:edit, :update], concerns: :history
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
       resources :syncronizations, only: [:index, :create]
     end
