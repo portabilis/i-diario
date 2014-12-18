@@ -48,6 +48,8 @@
   <%= f.input_field :longitude, as: :hidden %>
   <%= f.input_field :_destroy, as: :hidden %>
 
-  <div id="map-address" data-lat="<%= f.object.latitude %>" data-lng="<%= f.object.longitude %>">
-  </div>
+  <% if show_map %>
+    <div id="map-address" data-lat="<%= f.object.latitude %>" data-lng="<%= f.object.longitude %>">
+    </div>
+  <% end %>
 </fieldset>

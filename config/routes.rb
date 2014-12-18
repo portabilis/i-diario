@@ -44,6 +44,7 @@ Rails.application.routes.draw do
     resources :disciplinary_incidents, only: [:index]
     resources :***REMOVED***, only: [:index, :show]
     resource :***REMOVED***_configs, only: [:edit, :update], concerns: :history
+    resources :***REMOVED***s, concerns: :history
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
       resources :syncronizations, only: [:index, :create]
     end
@@ -73,6 +74,7 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :lectures, only: [:index]
     resources :grades, only: [:index]
+    resources :schools, only: [:index]
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :authorization_***REMOVED***, concerns: :history

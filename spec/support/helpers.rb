@@ -5,8 +5,10 @@ module Helpers
     within "#left-panel" do
       click_on ***REMOVED***[0]
 
-      within "li.open" do
-        click_link ***REMOVED***[1]
+      if ***REMOVED***[1]
+        within "li.open" do
+          click_link ***REMOVED***[1]
+        end
       end
     end
   end
@@ -38,13 +40,19 @@ module Helpers
   end
 
   def fill_in_select2(selector, options={})
-    expect(page).to have_field selector
+    if options[:new]
+      page.execute_script %{
+        $('##{selector}').select2('val', '#{options[:with]}', true);
+      }
+    else
+      expect(page).to have_field selector
 
-    field = page.find_field selector
+      field = page.find_field selector
 
-    page.execute_script %{
-      $('##{field[:id]}').parent().next().select2('val', '#{options[:with]}', true);
-    }
+      page.execute_script %{
+        $('##{field[:id]}').parent().next().select2('val', '#{options[:with]}', true);
+      }
+    end
   end
 end
 

@@ -14,6 +14,7 @@ pt-BR:
         api_code: "Código da escola no i-Educar"
         author: "Autor"
         unit_type: "Tipo de unidade"
+        address: "Endereço"
 
   unity:
     help:

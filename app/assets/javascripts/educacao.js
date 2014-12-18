@@ -72,4 +72,17 @@ $(function () {
 
     $input.trigger('click');
   });
+
+  $('table.selectable').on('click', 'tbody tr', function (e) {
+    if ($(e.target).attr('type') != "radio" && $(e.target).attr('type') != "checkbox") {
+      var $el = $(this),
+          $input = $el.find('input.select-target');
+
+      if ($input.prop('checked')) {
+        $input.prop('checked', false);
+      } else {
+        $input.prop('checked', 'checked');
+      }
+    }
+  });
 });

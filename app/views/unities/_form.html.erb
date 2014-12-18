@@ -37,7 +37,7 @@
   </fieldset>
 
   <%= f.association :address do |a| %>
-    <%= render 'address/shared_form', f: a %>
+    <%= render 'address/shared_form', f: a, show_map: true %>
   <% end %>
 
   <footer>

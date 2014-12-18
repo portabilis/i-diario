@@ -26,6 +26,11 @@ pt-BR:
         notice: '%{resource_name} foi apagada com sucesso.'
         alert: '%{resource_name} não pode ser apagada.'
 
+    ***REMOVED***s:
+      <<: *female
+      destroy:
+        notice: '%{resource_name} foi cancelada com sucesso.'
+
     actions:
       <<: *female
 

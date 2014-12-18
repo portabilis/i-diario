@@ -42,7 +42,7 @@ class Lecture
       label: label,
       id: id,
       name: name,
-      series: grades
+      series: grades.map(&:to_json)
     }
   end
 end
