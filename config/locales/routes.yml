@@ -18,6 +18,7 @@ pt-BR:
     ***REMOVED***: 'fornecedores'
     ***REMOVED***_configs: 'pre-matricula'
     ***REMOVED***s: 'pre-matriculas'
+    ***REMOVED***_confirmations: 'homologacao-de-pre-matriculas'
     registrations: 'registro'
     students: 'alunos'
     ***REMOVED***: 'materiais'
@@ -31,6 +32,12 @@ pt-BR:
     ***REMOVED***: 'tipos-de-***REMOVED***'
     ***REMOVED***s: '***REMOVED***'
     ***REMOVED***: 'distribuicoes-de-***REMOVED***'
+    ***REMOVED***: 'tipos-de-servicos'
+    ***REMOVED***: 'requisicoes-de-servicos'
+    authorization_***REMOVED***: 'autorizacoes-de-requisicao-de-servico'
+    moved_***REMOVED***: 'saldo-de-materiais-por-unidade'
+    ***REMOVED***: '***REMOVED***'
+
     # actions
     edit: 'editar'
     new: 'novo'
@@ -45,8 +52,5 @@ pt-BR:
     employees: 'servidores'
     search_api: 'api'
     history: 'historico'
-    ***REMOVED***: 'tipos-de-servicos'
-    ***REMOVED***: 'requisicoes-de-servicos'
-    authorization_***REMOVED***: 'autorizacoes-de-requisicao-de-servico'
-    moved_***REMOVED***: 'saldo-de-materiais-por-unidade'
-    ***REMOVED***: '***REMOVED***'
+    confirm: "confirmar"
+    preview: "pre-visualizar"

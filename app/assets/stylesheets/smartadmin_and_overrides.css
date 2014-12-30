@@ -142,3 +142,7 @@ nav ul li b.collapse-sign em:before {
     top: -9999px;
     width: 50px;
 }
+
+.smart-form input[disabled] {
+  background-color: #eee;
+}

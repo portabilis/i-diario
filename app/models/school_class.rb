@@ -1,4 +1,4 @@
-class Grade
+class SchoolClass
   attr_accessor :attributes
 
   def self.all(collection)
@@ -16,19 +16,15 @@ class Grade
   end
 
   def raw_id
-    attributes["id"]
+    attributes["cod_turma"]
   end
 
   def name
-    attributes["nome"]
+    attributes["nm_turma"]
   end
 
   def label
     "#{raw_id} - #{name}"
-  end
-
-  def school_classes
-    SchoolClass.all(attributes["turmas"])
   end
 
   def to_s
@@ -39,8 +35,7 @@ class Grade
     {
       label: label,
       id: id,
-      name: name,
-      school_classes: school_classes.map(&:to_json)
+      name: name
     }
   end
 end

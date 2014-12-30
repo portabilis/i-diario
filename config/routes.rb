@@ -43,6 +43,13 @@ Rails.application.routes.draw do
     end
     resources :disciplinary_incidents, only: [:index]
     resources :***REMOVED***, only: [:index, :show]
+    resources :***REMOVED***_confirmations, except: [:new, :create] do
+      member do
+        patch :cancel
+        patch :preview
+        patch :confirm
+      end
+    end
     resource :***REMOVED***_configs, only: [:edit, :update], concerns: :history
     resources :***REMOVED***s, concerns: :history
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do

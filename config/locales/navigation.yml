@@ -34,8 +34,10 @@ pt-BR:
     moved_***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
     roles: "Permissões"
+    ***REMOVED***: "***REMOVED***"
     ***REMOVED***_configs: "***REMOVED***"
     ***REMOVED***s: "***REMOVED***"
+    ***REMOVED***_confirmations: "***REMOVED***"
 
   enumerations:
     features:

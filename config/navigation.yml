@@ -14,9 +14,15 @@ navigation:
       icon: "fa-envelope-o"
       path: "new_contact_school_path"
   - ***REMOVED***:
-      type: "***REMOVED***s"
+      type: "***REMOVED***"
       icon: "fa-ticket"
-      path: "***REMOVED***s_path"
+      sub***REMOVED***s:
+          - ***REMOVED***:
+              type: "***REMOVED***s"
+              path: "***REMOVED***s_path"
+          - ***REMOVED***:
+              type: "***REMOVED***_confirmations"
+              path: "***REMOVED***_confirmations_path"
   - ***REMOVED***:
       type: "disciplinary_incidents"
       icon: "fa-bar-chart-o"

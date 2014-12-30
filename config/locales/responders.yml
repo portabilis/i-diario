@@ -31,6 +31,15 @@ pt-BR:
       destroy:
         notice: '%{resource_name} foi cancelada com sucesso.'
 
+    ***REMOVED***_confirmations:
+      <<: *female
+      update:
+        notice: 'Candidatura foi alterada com sucesso.'
+      cancel:
+        notice: 'Candidatura cancelada com sucesso.'
+      confirm:
+        notice: 'Candidatura confirmada com sucesso.'
+
     actions:
       <<: *female
 

@@ -5,7 +5,8 @@ class Features < EnumerateIt::Base
     :***REMOVED***, :***REMOVED***, :***REMOVED***_classes, :***REMOVED***, :***REMOVED***,
     :***REMOVED***, :***REMOVED***, :***REMOVED***,
     :***REMOVED***, :***REMOVED***, :moved_***REMOVED***, :***REMOVED***,
-    :***REMOVED***, :authorization_***REMOVED***, :***REMOVED***_configs
+    :***REMOVED***, :authorization_***REMOVED***, :***REMOVED***_configs,
+    :***REMOVED***s, :***REMOVED***_confirmations
 
   sort_by :translation
 end
