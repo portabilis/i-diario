@@ -2,7 +2,7 @@ class SchoolClass
   attr_accessor :attributes
 
   def self.all(collection)
-    collection.map do |record|
+    (collection || []).map do |record|
       new(record)
     end
   end
