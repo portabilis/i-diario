@@ -146,3 +146,11 @@ nav ul li b.collapse-sign em:before {
 .smart-form input[disabled] {
   background-color: #eee;
 }
+
+#extr-page .hero{
+  height: 295px;
+}
+
+#extr-page .login-app-icons{
+  margin-top: 87px;
+}

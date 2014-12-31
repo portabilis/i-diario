@@ -29,15 +29,7 @@
   </head>
 
 	<body class="animated fadeInDown">
-    <header id="header">
-      <div id="logo-group">
-        Novo educacao
-      </div>
-      <span id="extr-page-header-space">
-        <span class="hidden-mobile">Precisa de uma conta?</span>
-        <%= link_to "Criar conta", new_registration_path, class: "btn btn-danger"%>
-      </span>
-    </header>
+    <%= render '/layouts/not_logged_header' %>
 
     <div id="main" role="main">
       <div id="content" class="container">
@@ -45,10 +37,39 @@
           <%#= render 'layouts/mockup_login' %>
           <%#= render 'layouts/novo_pais' %>
 
-          <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8 hidden-xs hidden-sm">
+          <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8 hidden-xs hidden-sm hidden-md">
+            <h1 class="login-header-big txt-color-portabilis">Serviços eletrônicos para Comunidade escolar</h1>
+            <div class="hero">
+
+              <div class="pull-left login-desc-box-l">
+                <h4 class="paragraph-header">Estamos ajudando a conectar pais, alunos e professores. Crie sua conta e confira. Ensinar e aprender nunca foi tão morderno!</h4>
+                <div class="login-app-icons">
+                  <%= link_to 'Saiba mais', 'http://portabilis.com.br', class: 'btn btn-portabilis btn-sm' %>                  
+                </div>
+              </div>
+              
+              <%= image_tag 'tablet_boletim.png', height: '220px' %>
+
+            </div>
+
+            <div class="row">
+              <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <h5 class="about-heading">Quais recursos estão disponíveis?</h5>
+                <p>
+                  Este serviço disponibiliza recursos e informações para pais, alunos e professores. A disponibilidade destes depende exclusivamente da instituição.
+                </p>
+              </div>
+              <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+                <h5 class="about-heading">Como obter ajuda?</h5>
+                <p>
+                  Se você precisar de ajuda, poderá contatar por e-mail ou telefone a instituição que você está tentando obter acesso.
+                </p>
+              </div>
+            </div>
+
           </div>
 
-          <div class="col-xs-12 col-sm-12 col-md-5 col-lg-4">
+          <div class="col-xs-12 col-sm-12 col-md-12 col-lg-4">
             <%= bootstrap_flash %>
 
             <%= yield %>
