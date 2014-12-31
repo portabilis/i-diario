@@ -149,6 +149,7 @@ nav ul li b.collapse-sign em:before {
 
 #extr-page .hero{
   height: 295px;
+  background-image: none;
 }
 
 #extr-page .login-app-icons{
