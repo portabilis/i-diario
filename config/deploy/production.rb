@@ -6,6 +6,6 @@
 
 if ENV['to'] == "production"
   set :branch, "master"
-  set :domain, 'ncloud1.portabilis.com.br'
+  set :domain, 'portabilis-cloud1.portabilis.com.br'
   set :deploy_to, '/home/portabilis/public_www/novo-educacao'
 end
