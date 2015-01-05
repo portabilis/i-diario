@@ -5,7 +5,9 @@
 #   branch       - Branch name to deploy. (needed by mina/git)
 
 if ENV['to'] == "production"
+	set :rails_env, "production"
   set :branch, "master"
+  set :user, "deploy"
   set :domain, 'portabilis-cloud1.portabilis.com.br'
-  set :deploy_to, '/home/portabilis/public_www/novo-educacao'
+  set :deploy_to, '/var/www/novo-educacao'
 end
