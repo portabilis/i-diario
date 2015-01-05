@@ -25,6 +25,17 @@
             <% end %>
           <% end %>
         </div>
+      </div>        
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.association :students_default_role, as: :select2, elements: Role.ordered %>
+        </div>
+        <div class="col col-sm-4">
+          <%= f.association :employees_default_role, as: :select2, elements: Role.ordered %>
+        </div>
+        <div class="col col-sm-4">
+          <%= f.association :parents_default_role, as: :select2, elements: Role.ordered %>
+        </div>
       </div>
     </fieldset>
 

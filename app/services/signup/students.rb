@@ -18,7 +18,8 @@ module Signup
           password: password,
           password_confirmation: password_confirmation,
           status: UserStatus::PENDING,
-          kind: UserKind::STUDENT
+          kind: UserKind::STUDENT,
+          role: GeneralConfiguration.first.try(:students_default_role)
         )
 
         user
