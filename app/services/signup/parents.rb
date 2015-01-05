@@ -42,7 +42,8 @@ module Signup
           phone: celphone,
           password: password,
           password_confirmation: password_confirmation,
-          kind: UserKind::PARENT
+          kind: UserKind::PARENT,
+          role: GeneralConfiguration.first.try(:parents_default_role)
         )
 
         students.each do |student|

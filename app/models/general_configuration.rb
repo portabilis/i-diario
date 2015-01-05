@@ -12,6 +12,10 @@ class GeneralConfiguration < ActiveRecord::Base
 
   validates :security_level, presence: true
 
+  belongs_to :students_default_role, class_name: 'Role', foreign_key: 'students_default_role_id'
+  belongs_to :employees_default_role, class_name: 'Role', foreign_key: 'employees_default_role_id'
+  belongs_to :parents_default_role, class_name: 'Role', foreign_key: 'parents_default_role_id'
+
   def self.current
     self.first.presence || new
   end

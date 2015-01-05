@@ -7,6 +7,12 @@ pt-BR:
       general_configuration:
         security_level: "Nível de segurança"
         backup_file: "Último backup"
+        students_default_role: "Permissão padrão para alunos"
+        employees_default_role: "Permissão padrão para servidores"
+        parents_default_role: "Permissão padrão para pais"
+        students_default_role_id: "Permissão padrão para alunos"
+        employees_default_role_id: "Permissão padrão para servidores"
+        parents_default_role_id: "Permissão padrão para pais"
 
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"

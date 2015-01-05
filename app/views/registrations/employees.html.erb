@@ -1,6 +1,6 @@
 <div class="widget-body">
   <div class="row">
-    <%= simple_form_for @signup, as: :signup, url: students_registrations_path, html: { id: "signup-student" } do |f| %>
+    <%= simple_form_for @signup, as: :signup, url: employees_registrations_path, html: { id: "signup-student" } do |f| %>
       <%= f.error_notification(class: "alert-danger").to_s %>
 
       <h3>Novo acesso</h3>

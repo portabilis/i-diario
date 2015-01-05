@@ -8,6 +8,10 @@ class Role < ActiveRecord::Base
 
   has_many :permissions, class_name: "RolePermission", dependent: :destroy
 
+  has_many :student_default_roles, class_name: 'GeneralConfiguration', foreign_key: 'students_default_role_id'
+  has_many :employees_default_roles, class_name: 'GeneralConfiguration', foreign_key: 'employees_default_role_id'
+  has_many :parents_default_roles, class_name: 'GeneralConfiguration', foreign_key: 'parents_default_role_id'
+
   accepts_nested_attributes_for :permissions
 
   validates :author, :name, presence: true
