@@ -1,19 +1,23 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
-  def perform(synchronization_id)
-    synchronization = IeducarApiSyncronization.find(synchronization_id)
+  def perform(entity_id, synchronization_id)
+    entity = Entity.find(entity_id)
 
-    begin
-      # synchronize Students
-      StudentsSynchronizer.synchronize!(synchronization)
+    entity.using_connection do
+      synchronization = IeducarApiSyncronization.find(synchronization_id)
 
-      # synchronize Deficiencies
-      DeficienciesSynchronizer.synchronize!(synchronization)
+      begin
+        # synchronize Students
+        StudentsSynchronizer.synchronize!(synchronization)
 
-      synchronization.mark_as_completed!
-    rescue IeducarApi::Base::ApiError => e
-      synchronization.mark_as_error!(e.message)
+        # synchronize Deficiencies
+        DeficienciesSynchronizer.synchronize!(synchronization)
+
+        synchronization.mark_as_completed!
+      rescue IeducarApi::Base::ApiError => e
+        synchronization.mark_as_error!(e.message)
+      end
     end
   end
 end
