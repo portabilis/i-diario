@@ -24,7 +24,8 @@ gem 'validates_timeliness', '3.0.14'
 gem 'cpf_validator', '0.2.0'
 gem 'mask_validator', '0.2.1'
 gem 'uri_validator'
-
+gem 'prawn', '1.3.0'
+gem 'prawn-table', '0.2.1'
 gem 'audited-activerecord', :git => 'git://github.com/ricardohsd/audited.git'
 gem 'route_translator', :git => "https://github.com/enriclluelles/route_translator.git"
 
