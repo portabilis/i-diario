@@ -30,6 +30,7 @@ class User < ActiveRecord::Base
     foreign_key: :responsible_id
   has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
     foreign_key: :responsible_id
+  has_many :***REMOVED***s, foreign_key: :author_id
 
   has_and_belongs_to_many :students
 

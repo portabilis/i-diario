@@ -42,3 +42,6 @@ pt-BR:
   enumerations:
     features:
       <<: *navigation
+      ***REMOVED***s: "***REMOVED*** da pré-matrícula"
+      ***REMOVED***_confirmations: "***REMOVED*** da pré-matrícula"
+      ***REMOVED***_configs: "Configuração da pré-matrícula"
