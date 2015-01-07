@@ -8,7 +8,7 @@ pt-BR:
       mark: ''
 
     error_notification:
-      default_message: "Favor revise as informações abaixo:"
+      default_message: "Por favor, revise as informações abaixo."
 
     # Labels and hints examples
     # labels:
