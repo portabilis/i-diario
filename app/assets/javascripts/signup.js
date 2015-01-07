@@ -2,22 +2,23 @@
 //= require_tree ./signup/views
 
 $(function () {
-  var $validator = $("#signup-parent").validate({
-    highlight: function (element) {
-      $(element).closest('.form-group').removeClass('has-success').addClass('has-error');
-    },
-    unhighlight: function (element) {
-      $(element).closest('.form-group').removeClass('has-error').addClass('has-success');
-    },
-    errorElement: 'span',
-    errorClass: 'help-block',
-    errorPlacement: function (error, element) {
-      if (element.parent('.input-group').length) {
-        error.insertAfter(element.parent());
-      } else {
-        error.insertAfter(element);
-      }
+  var userWithoutStudents = function () {
+    var $studentCode = $('#signup_student_code'),
+        $studentsContainer = $('#students-container');
+
+    if ($('#signup_without_student').prop('checked')) {
+      $studentCode.val('').prop('disabled', 'disabled');
+      $studentsContainer.hide();
+    } else {
+      $studentCode.prop('disabled', false);
+      $studentsContainer.show();
     }
+  };
+
+  userWithoutStudents();
+
+  $('#signup_without_student').on('click', function () {
+    userWithoutStudents();
   });
 
   if ($("table#students tbody tr").length <= 1) {
@@ -36,6 +37,11 @@ $(function () {
       var students = new Educacao.Collections.Students();
       var apiErrors = $('#api-errors');
       var $studentsQuantity = $('#students-quantity');
+      var withoutStudent = $('#signup_without_student').prop('checked');
+
+      if (withoutStudent) {
+        return true;
+      }
 
       apiErrors.addClass("hide");
 
@@ -60,21 +66,6 @@ $(function () {
           apiErrors.find("span").html(response.responseText);
         }
       });
-    }
-  });
-
-  $('#signup-wizard').bootstrapWizard({
-    'tabClass': 'form-wizard',
-    'onNext': function (tab, navigation, index) {
-      var $valid = $("#signup-parent").valid();
-      if (!$valid) {
-        $validator.focusInvalid();
-        return false;
-      } else {
-        $('#signup-wizard').find('.form-wizard').children('li').eq(index - 1).addClass('complete');
-        $('#signup-wizard').find('.form-wizard').children('li').eq(index - 1).find('.step')
-        .html('<i class="fa fa-check"></i>');
-      }
     }
   });
 });
