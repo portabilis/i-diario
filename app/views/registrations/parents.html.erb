@@ -4,173 +4,147 @@
       <%= f.error_notification(class: "alert-danger").to_s %>
 
       <div id="signup-wizard" class="col-sm-12">
-        <div class="form-bootstrapWizard">
-          <ul class="bootstrapWizard form-wizard">
-            <li class="active" data-target="#step1">
-            <a href="#tab1" data-toggle="tab"> <span class="step">1</span> <span class="title">Informações básicas</span> </a>
-            </li>
-            <li data-target="#step2" class="">
-            <a href="#tab2" data-toggle="tab"> <span class="step">2</span> <span class="title">Alunos</span> </a>
-            </li>
-            <li data-target="#step3" class="">
-            <a href="#tab3" data-toggle="tab"> <span class="step">3</span> <span class="title">Cadastro do usuário</span> </a>
-            </li>
-            <li data-target="#step4" class="">
-            <a href="#tab4" data-toggle="tab"> <span class="step">4</span> <span class="title">Finalizar</span> </a>
-            </li>
-          </ul>
-          <div class="clearfix"></div>
-        </div>
+        <fieldset>
+          <legend>Informações básicas</legend>
 
-        <div class="tab-content">
-
-          <div class="tab-pane active" id="tab1">
-            <br>
-            <h3><strong>Passo 1 </strong> - Informações básicas</h3>
-
-            <div class="row">
-              <div class="col-sm-6">
-                <div class="form-group">
-                  <%= f.input :document, label: false, wrapper: 'input_group' do %>
-                    <span class="input-group-addon"><i class="fa fa-file-text-o fa-lg fa-fw"></i></span>
-                    <%= f.input_field :document, as: :string,
-                      placeholder: "CPF", class: "form-control input-lg", data: { mask: "999.999.999-99" } %>
-                  <% end %>
-                </div>
-              </div>
-
-              <div class="col-sm-6">
-                <div class="form-group">
-                  <%= f.input :student_code, label: false, wrapper: 'input_group' do %>
-                    <span class="input-group-addon"><i class="fa fa-mortar-board fa-lg fa-fw"></i></span>
-                    <%= f.input_field :student_code, as: :string, placeholder: "Código do aluno", class: "form-control input-lg" %>
-                  <% end %>
-                </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :document, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-file-text-o fa-lg fa-fw"></i></span>
+                  <%= f.input_field :document, as: :string,
+                    placeholder: "CPF", class: "form-control input-lg", data: { mask: "999.999.999-99" } %>
+                <% end %>
               </div>
             </div>
 
-            <div class="alert alert-danger fade in hide" id="api-errors">
-              <i class="fa-fw fa fa-times"></i>
-              <span class="error-content"></span>
+            <div class="col-sm-3">
+              <div class="form-group">
+                <%= f.input :student_code, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-mortar-board fa-lg fa-fw"></i></span>
+                  <%= f.input_field :student_code, as: :string,
+                    placeholder: "Código do aluno",
+                    class: "form-control input-lg",
+                    rel: 'popover-hover',
+                    :'data-placement' => 'bottom',
+                    :'data-content' => t('registrations.tooltip.student_code'),
+                    :'data-toggle'=> 'popover' %>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-sm-3">
+              <div class="form-group">
+                <%= f.input :without_student, label: "Nenhum aluno matriculado", wrapper: 'input_group' do %>
+                  <%= f.input_field :without_student, as: :boolean, boolean_style: :inline %>
+                <% end %>
+              </div>
             </div>
           </div>
 
-          <div class="tab-pane" id="tab2">
-            <br>
-            <h3><strong>Passo 2 </strong> - Alunos</h3>
+          <div class="alert alert-danger fade in hide" id="api-errors">
+            <i class="fa-fw fa fa-times"></i>
+            <span class="error-content"></span>
+          </div>
+        </fieldset>
 
-            <div class="alert alert-info no-margin fade in" id="students-quantity">
-              <i class="fa-fw fa fa-info"></i>
-              Encontramos mais os seguintes alunos vinculados ao seu CPF, desejar vincular?
-            </div>
+        <fieldset id="students-container">
+          <legend>Alunos</legend>
 
-            <div class="row">
-              <div class="col-sm-12" id="students">
-                <table class="table table-bordered table-hover selectable">
-                  <thead>
+          <div class="alert alert-info no-margin fade in" id="students-quantity">
+            <i class="fa-fw fa fa-info"></i>
+            Encontramos mais os seguintes alunos vinculados ao seu CPF, desejar vincular?
+          </div>
+
+          <div class="row">
+            <div class="col-sm-12" id="students">
+              <table class="table table-bordered table-hover selectable">
+                <thead>
+                  <tr>
+                    <th style="width:50px;"></th>
+                    <th>Aluno</th>
+                    <th>Matrícula</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <% (f.object.students_attributes || []).each do |index, student| %>
                     <tr>
-                      <th style="width:50px;"></th>
-                      <th>Aluno</th>
-                      <th>Matrícula</th>
+                      <td>
+                        <%= hidden_field_tag "signup[students_attributes][#{index}][name]", student["name"] %>
+                        <%= hidden_field_tag "signup[students_attributes][#{index}][api_code]", student["api_code"] %>
+                        <%= hidden_field_tag "signup[students_attributes][#{index}][selected]", 0 %>
+                        <%= check_box_tag "signup[students_attributes][#{index}][selected]", 1, %w(true t 1).include?(student["selected"]) %>
+                      </td>
+                      <td>
+                        <%= student["name"] %>
+                      </td>
+                      <td>
+                        <%= student["api_code"] %>
+                      </td>
                     </tr>
-                  </thead>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </fieldset>
 
-                  <tbody>
-                    <% (f.object.students_attributes || []).each do |index, student| %>
-                      <tr>
-                        <td>
-                          <%= hidden_field_tag "signup[students_attributes][#{index}][name]", student["name"] %>
-                          <%= hidden_field_tag "signup[students_attributes][#{index}][api_code]", student["api_code"] %>
-                          <%= hidden_field_tag "signup[students_attributes][#{index}][selected]", 0 %>
-                          <%= check_box_tag "signup[students_attributes][#{index}][selected]", 1, %w(true t 1).include?(student["selected"]) %>
-                        </td>
-                        <td>
-                          <%= student["name"] %>
-                        </td>
-                        <td>
-                          <%= student["api_code"] %>
-                        </td>
-                      </tr>
-                    <% end %>
-                  </tbody>
-                </table>
+        <fieldset>
+          <legend>Cadastro do usuário de acesso</legend>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :celphone, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-mobile fa-lg fa-fw"></i></span>
+                  <%= f.input_field :celphone, as: :tel, placeholder: "Celular", class: "form-control input-lg" %>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :email, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-envelope-o fa-lg fa-fw"></i></span>
+                  <%= f.input_field :email, as: :string, placeholder: "E-mail", class: "form-control input-lg",
+                    data: { :"rule-email" => true } %>
+                <% end %>
               </div>
             </div>
           </div>
 
-          <div class="tab-pane" id="tab3">
-            <br>
-            <h3><strong>Passo 3 </strong> - Cadastro do usuário</h3>
-
-            <div class="row">
-              <div class="col-sm-6">
-                <div class="form-group">
-                  <%= f.input :celphone, label: false, wrapper: 'input_group' do %>
-                    <span class="input-group-addon"><i class="fa fa-mobile fa-lg fa-fw"></i></span>
-                    <%= f.input_field :celphone, as: :tel, placeholder: "Celular", class: "form-control input-lg" %>
-                  <% end %>
-                </div>
-              </div>
-
-              <div class="col-sm-6">
-                <div class="form-group">
-                  <%= f.input :email, label: false, wrapper: 'input_group' do %>
-                    <span class="input-group-addon"><i class="fa fa-envelope-o fa-lg fa-fw"></i></span>
-                    <%= f.input_field :email, as: :string, placeholder: "E-mail", class: "form-control input-lg",
-                      data: { :"rule-email" => true } %>
-                  <% end %>
-                </div>
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :password, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-key fa-lg fa-fw"></i></span>
+                  <%= f.input_field :password, as: :password, placeholder: "Senha", class: "form-control input-lg" %>
+                <% end %>
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-sm-6">
-                <div class="form-group">
-                  <%= f.input :password, label: false, wrapper: 'input_group' do %>
-                    <span class="input-group-addon"><i class="fa fa-key fa-lg fa-fw"></i></span>
-                    <%= f.input_field :password, as: :password, placeholder: "Senha", class: "form-control input-lg" %>
-                  <% end %>
-                </div>
-              </div>
-
-              <div class="col-sm-6">
-                <div class="form-group">
-                  <%= f.input :password_confirmation, label: false, wrapper: 'input_group' do %>
-                    <span class="input-group-addon"><i class="fa fa-key fa-lg fa-fw"></i></span>
-                    <%= f.input_field :password_confirmation, as: :password, placeholder: "Confirme a senha", class: "form-control input-lg" %>
-                  <% end %>
-                </div>
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :password_confirmation, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-key fa-lg fa-fw"></i></span>
+                  <%= f.input_field :password_confirmation, as: :password, placeholder: "Confirme a senha", class: "form-control input-lg" %>
+                <% end %>
               </div>
             </div>
           </div>
+        </fieldset>
 
-
-          <div class="tab-pane" id="tab4">
-            <br>
-            <h3><strong>Passo 4 </strong> - Finalizar</h3>
-
-            <div class="text-center">
+        <div class="form-actions">
+          <div class="row">
+            <div class="col-sm-12">
+              <%= link_to 'Voltar', new_registration_path, class: "btn btn-lg btn-info" %>
               <button class="btn btn-success btn-lg">Confirmar e acessar o sistema</button>
-            </div>
-          </div>
 
-          <div class="form-actions">
-            <div class="row">
-              <div class="col-sm-12">
-                <ul class="pager wizard no-margin">
-                  <li class="previous">
-                    <%= link_to 'Voltar', new_registration_path, class: "btn btn-lg" %>
-                  </li>
-
-                  <li class="next">
-                    <a href="javascript:void(0);" class="btn btn-lg txt-color-darken"> Próximo </a>
-                  </li>
-                </ul>
-              </div>
             </div>
           </div>
         </div>
       </div>
-    <% end %>
-  </div>
+    </div>
+  <% end %>
 </div>

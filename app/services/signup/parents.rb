@@ -3,14 +3,19 @@ module Signup
     include ActiveModel::Model
 
     attr_accessor :document, :student_code, :celphone, :email, :password,
-      :password_confirmation, :students_attributes
+      :password_confirmation, :students_attributes, :without_student
 
-    validates :document, :student_code, :celphone, :email, :password, :password_confirmation, presence: true
+    validates :document, :celphone, :email, :password, :password_confirmation, presence: true
+    validates :student_code, presence: true, unless: :without_student?
     validates :celphone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
     validates :password, confirmation: true, length: { minimum: 8 }, allow_blank: true
     validates :email, email: true, allow_blank: true
     validate :uniqueness_of_document
     validate :uniqueness_of_email
+
+    def without_student?
+      without_student == "1"
+    end
 
     def students
       students = []
