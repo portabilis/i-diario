@@ -1,4 +1,6 @@
 class Grade
+  extend ActiveModel::Naming
+
   attr_accessor :attributes
 
   def self.all(collection)

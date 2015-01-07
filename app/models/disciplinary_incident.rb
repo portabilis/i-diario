@@ -1,4 +1,6 @@
 class DisciplinaryIncident
+  extend ActiveModel::Naming
+
   attr_accessor :attributes
 
   delegate :name, to: :student, allow_nil: true, prefix: true
