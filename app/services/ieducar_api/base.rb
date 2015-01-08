@@ -48,5 +48,37 @@ module IeducarApi
 
       result
     end
+
+    def post(params = {})
+      params.reverse_merge!(:oper => "post")
+
+      path = params.delete(:path)
+
+      raise ApiError.new("É necessário informar o caminho de acesso: path") if path.blank?
+      raise ApiError.new("É necessário informar o recurso de acesso: resource") if params[:resource].blank?
+
+      endpoint = [url, path].join("/")
+
+      request_params = {
+        access_key: access_key,
+        secret_key: secret_key,
+        instituicao_id: unity_id
+      }.reverse_merge(params)
+
+      begin
+        result = RestClient.get endpoint, { params: request_params }
+        result = JSON.parse(result)
+      rescue SocketError, RestClient::ResourceNotFound
+        raise ApiError.new("URL do i-Educar informada não é válida.")
+      rescue => e
+        raise ApiError.new(e.message)
+      end
+
+      if result["any_error_msg"]
+        raise ApiError.new(result["msgs"].map { |r| r["msg"] }.join(", "))
+      end
+
+      result
+    end
   end
 end

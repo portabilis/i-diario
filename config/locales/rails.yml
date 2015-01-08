@@ -1,4 +1,9 @@
 pt-BR:
+  ieducar_api:
+    error:
+      messages:
+        invalid_post: "Requisição com iEducar não pode ser realizada, é necessário informar o %{field}."
+
   boolean:
     "yes": "Sim"
     "no": "Não"
