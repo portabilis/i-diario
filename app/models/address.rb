@@ -11,6 +11,11 @@ class Address < ActiveRecord::Base
     :state, :country, presence: true
   validates :zip_code, mask: { with: "99999-999", message: :incorrect_format }, allow_blank: true
 
+  # TODO: Precisamos adicionar este vinculo
+  def country
+    "Brasil"
+  end
+
   def to_s
     address = []
 
