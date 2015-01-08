@@ -6,7 +6,7 @@ class DisciplinaryIncidentsController < ApplicationController
 
       @disciplinary_incidents = DisciplinaryIncident.all(result["ocorrencias_disciplinares"])
 
-      authorize @disciplinary_incidents
+      authorize DisciplinaryIncident, :index?
     rescue IeducarApi::Base::ApiError => e
       redirect_to root_path, alert: e.message
     end
