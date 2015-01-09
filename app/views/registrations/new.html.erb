@@ -1,9 +1,3 @@
-<style type="text/css">
-  .portabilis-registration-link{text-decoration: none !important; color: #000 !important }
-  .portabilis-registration-link-hover:hover{text-decoration: underline!important }
-
-</style>
-
 <div class="widget-body">
   <div class="row">
     <form>
@@ -29,10 +23,12 @@
                   <i class="fa fa-group fa-2x"></i><br/>
                   <strong>Acesso pais</strong>
                 <% end %>
-                <%= link_to(parents_registrations_path, class: 'portabilis-registration-link') do %>
+                
+                <%= link_to parents_registrations_path, class: 'registration-link' do %>
                 <div class="well well-lg">
+                    <p>
                     Selecione esta opção se você é um pai ou responsável por aluno e deseja cadastrar-se para acessar recursos como pré-matrícula, consulta de notas, faltas, ocorrências disciplinares e outros.
-                    <br><br>
+                    </p>
                     <div class=" btn btn-success btn-block text-center">Prosseguir como pais</div>
                 </div>
                 <% end %>
@@ -43,10 +39,12 @@
                   <i class="fa fa-mortar-board fa-2x"></i><br/>
                   <strong>Acesso alunos</strong>
                 <% end %>
-                <%= link_to(students_registrations_path, class: "portabilis-registration-link") do %>
+
+                <%= link_to students_registrations_path, class: "registration-link" do %>
                 <div class="well well-lg portabilis-registration-link">
+                    <p>
                     Selecione esta opção se você é um aluno já matriculado na rede de ensino e deseja cadastrar-se para acessar recursos como consulta de notas, faltas e outras informações exclusivas para alunos.
-                    <br><br>
+                    </p>
                     <div class="btn btn-success btn-block text-center">Prosseguir como aluno</div>
                 </div>
                 <% end %>
@@ -57,10 +55,12 @@
                   <i class="fa fa-male fa-2x"></i><br/>
                   <strong>Acesso servidores</strong>
                 <% end %>
-                <%= link_to(employees_registrations_path, class: "portabilis-registration-link") do %>
+
+                <%= link_to employees_registrations_path, class: "registration-link" do %>
                 <div class="well well-lg portabilis-registration-link">
+                    <p>
                     Selecione esta opção se você é um servidor da rede de ensino e deseja cadastrar-se para acessar recursos como diário eletrônico e outras ferramentas administrativas exclusivas para servidores.
-                    <br><br>
+                    </p>
                     <div class=" btn btn-success btn-block">Prosseguir como servidor</div>
                 </div>
                 <% end %>

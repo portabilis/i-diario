@@ -28,3 +28,12 @@ textarea.form-control.text {
 .txt-color-portabilis{
 	color: #005495;
 }
+
+.registration-link{
+  text-decoration: none !important;
+  color: #000 !important 
+}
+
+.registration-link-hover:hover{
+  text-decoration: underline!important 
+}
