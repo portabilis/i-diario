@@ -34,6 +34,10 @@ textarea.form-control.text {
   color: #000 !important 
 }
 
+.registration-paragraph{
+  width: 101%;  
+}
+
 .registration-link-hover:hover{
   text-decoration: underline!important 
 }
