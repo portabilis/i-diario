@@ -5,7 +5,7 @@
         <div class="form-bootstrapWizard">
           <ul class="bootstrapWizard form-wizard">
             <li class="active" data-target="#step1">
-            <a href="#tab1" data-toggle="tab"> <span class="step">1</span> <span class="title">Escolha seu perfil</span> </a>
+              <a href="#tab1" data-toggle="tab"> <span class="step">1</span> <span class="title">Escolha seu perfil</span> </a>
             </li>
             <li >
               <span class="step">2</span> <span class="title">Aguardando escolha de perfil</span>
@@ -13,37 +13,63 @@
           </ul>
           <div class="clearfix"></div>
         </div>
-
         <div class="tab-content">
           <div class="tab-pane active" id="tab1">
             <br>
             <h3><strong>Passo 1 </strong> - Escolha seu perfil</h3>
-
             <div class="row">
               <div class="col-sm-4 text-center">
                 <%= link_to parents_registrations_path, class: "btn btn-primary btn-block" do %>
-                  <i class="fa fa-group fa-2x"></i><br/>
-                  Acesso pais
+                <i class="fa fa-group fa-2x"></i><br/>
+                <strong>Acesso pais</strong>
+                <% end %>
+                
+                <%= link_to parents_registrations_path, class: 'registration-link' do %>
+                <div class="well well-lg">
+                  <p class="registration-paragraph">
+                    Selecione esta opção se você é um pai ou responsável por aluno e deseja cadastrar-se para acessar recursos como pré-matrícula, consulta de notas, faltas, ocorrências disciplinares e outros.
+                  </p>
+                  <div class=" btn btn-success btn-block text-center">Prosseguir como pais</div>
+                </div>
                 <% end %>
               </div>
 
               <div class="col-sm-4 text-center">
                 <%= link_to students_registrations_path, class: "btn btn-primary btn-block" do %>
-                  <i class="fa fa-mortar-board fa-2x"></i><br/>
-                  Acesso alunos
+                <i class="fa fa-mortar-board fa-2x"></i><br/>
+                <strong>Acesso alunos</strong>
+                <% end %>
+
+                <%= link_to students_registrations_path, class: "registration-link" do %>
+                <div class="well well-lg">
+                  <p class="registration-paragraph">
+                    Selecione esta opção se você é um aluno já matriculado na rede de ensino e deseja cadastrar-se para acessar recursos como consulta de notas, faltas e outras informações exclusivas para alunos.
+                  </p>
+                  <div class="btn btn-success btn-block text-center">Prosseguir como aluno</div>
+                </div>
                 <% end %>
               </div>
 
               <div class="col-sm-4 text-center">
                 <%= link_to employees_registrations_path, class: "btn btn-primary btn-block" do %>
-                  <i class="fa fa-male fa-2x"></i><br/>
-                  Acesso servidores
+                <i class="fa fa-male fa-2x"></i><br/>
+                <strong>Acesso servidores</strong>
+                <% end %>
+
+                <%= link_to employees_registrations_path, class: "registration-link" do %>
+                <div class="well well-lg">
+                  <p class="registration-paragraph">
+                    Selecione esta opção se você é um servidor da rede de ensino e deseja cadastrar-se para acessar recursos como diário eletrônico e outras ferramentas administrativas exclusivas para servidores.
+                  </p>
+                  <div class=" btn btn-success btn-block">Prosseguir como servidor</div>
+                </div>
                 <% end %>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
+</div>
 </div>
