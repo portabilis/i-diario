@@ -2,4 +2,6 @@
 
 <p>Você pode confirmar sua conta através do link abaixo:</p>
 
-<p><%= link_to 'Confirmo minha conta', confirmation_url(@resource, confirmation_token: @token) %></p>
+<p><%= link_to 'Confirmo minha conta', confirmation_url(@resource,
+                                                        host: Entity.current_domain,
+                                                        confirmation_token: @token) %></p>
