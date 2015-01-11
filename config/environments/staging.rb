@@ -15,4 +15,6 @@ Rails.application.configure do
   config.log_level = :debug
 
   config.active_support.deprecation = :log
+
+  config.action_mailer.default_url_options = { :host => 'clientetest.portabilis.com.br' }
 end

@@ -33,6 +33,8 @@ module IeducarApi
         instituicao_id: unity_id
       }.reverse_merge(params)
 
+      Rails.logger.info "GET #{endpoint}?#{request_params.to_query}"
+
       begin
         result = RestClient.get endpoint, { params: request_params }
         result = JSON.parse(result)
@@ -64,6 +66,8 @@ module IeducarApi
         secret_key: secret_key,
         instituicao_id: unity_id
       }.reverse_merge(params)
+
+      Rails.logger.info "POST #{endpoint}?#{request_params.to_query}"
 
       begin
         result = RestClient.get endpoint, { params: request_params }

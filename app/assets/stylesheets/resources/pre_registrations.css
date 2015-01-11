@@ -1,0 +1,15 @@
+form.pre-registration-styles .control-group.error input,
+form.pre-registration-styles .control-group.error select,
+form.pre-registration-styles .control-group.error .select2-container{
+	border: 1px solid #b94a48;
+}
+
+form.pre-registration-styles .control-group.error .select2-container a.select2-choice{
+	border: none;
+}
+
+form.pre-registration-styles .control-group.error span.help-inline,
+form.pre-registration-styles .help-inline.error,
+form.pre-registration-styles .control-group.error label{
+	color: #b94a48;
+}
