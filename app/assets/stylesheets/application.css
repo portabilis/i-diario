@@ -31,13 +31,17 @@ textarea.form-control.text {
 
 .registration-link{
   text-decoration: none !important;
-  color: #000 !important 
+  color: #000 !important
 }
 
 .registration-paragraph{
-  width: 101%;  
+  width: 101%;
 }
 
 .registration-link-hover:hover{
-  text-decoration: underline!important 
+  text-decoration: underline!important
+}
+
+.center {
+  text-align: center;
 }
