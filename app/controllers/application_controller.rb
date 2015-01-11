@@ -75,6 +75,7 @@ class ApplicationController < ActionController::Base
 
   def current_entity
     @current_entity ||= Entity.find_by(domain: request.host)
+    Entity.current = @current_entity
   end
   helper_method :current_entity
 
