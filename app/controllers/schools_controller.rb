@@ -2,9 +2,13 @@ class SchoolsController < ApplicationController
   respond_to :json
 
   def index
-    codes = result["escolas"].map { |r| r["cod_escola"] }
+    begin
+      codes = result["escolas"].map { |r| r["cod_escola"] }
 
-    @unities = Unity.where(api_code: codes)
+      @unities = Unity.where(api_code: codes)
+    rescue Exception => e
+      render json: { error: e.message }, status: :not_found
+    end
   end
 
   protected
