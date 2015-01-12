@@ -71,3 +71,5 @@ group :test do
   gem 'webmock', '1.9.3'
   gem 'vcr'
 end
+
+gem 'newrelic_rpm'
