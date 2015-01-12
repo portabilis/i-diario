@@ -51,7 +51,7 @@ module IeducarApi
       result
     end
 
-    def post(params = {})
+    def send_post(params = {})
       params.reverse_merge!(:oper => "post")
 
       path = params.delete(:path)
