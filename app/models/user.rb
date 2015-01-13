@@ -102,6 +102,10 @@ class User < ActiveRecord::Base
     update_column :actived_at, DateTime.current
   end
 
+  def raw_phone
+    phone.gsub(/[^\d]/, '')
+  end
+
   def to_s
     return email unless first_name.present?
 
