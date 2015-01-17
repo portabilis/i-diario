@@ -1,17 +1,24 @@
 class RolesController < ApplicationController
   def index
     @roles = Role.ordered
+
+    authorize @roles
   end
 
   def new
     @role = Role.new
     @role.author = current_user
+    
+    authorize @role
+
     @role.build_permissions!
   end
 
   def create
     @role = Role.new(role_params)
     @role.author = current_user
+
+    authorize @role
 
     if @role.save
       respond_with @role, location: roles_path
@@ -22,11 +29,16 @@ class RolesController < ApplicationController
 
   def edit
     @role = Role.find(params[:id])
-    @role.build_permissions!
+
+    authorize @role
+
+    @role.build_permissions!    
   end
 
   def update
     @role = Role.find(params[:id])
+
+    authorize @role
 
     if @role.update(role_params)
       respond_with @role, location: roles_path
@@ -38,6 +50,8 @@ class RolesController < ApplicationController
   def destroy
     @role = Role.find(params[:id])
 
+    authorize @role    
+
     @role.destroy
 
     respond_with @role, location: roles_path
@@ -45,6 +59,8 @@ class RolesController < ApplicationController
 
   def history
     @role = Role.find params[:id]
+
+    authorize @role
 
     respond_with @role
   end
