@@ -6,7 +6,7 @@ class Features < EnumerateIt::Base
     :***REMOVED***, :***REMOVED***, :***REMOVED***,
     :***REMOVED***, :***REMOVED***, :moved_***REMOVED***, :***REMOVED***,
     :***REMOVED***, :authorization_***REMOVED***, :***REMOVED***_configs,
-    :***REMOVED***s, :***REMOVED***_confirmations
+    :***REMOVED***s, :***REMOVED***_confirmations, :roles
 
   sort_by :translation
 end

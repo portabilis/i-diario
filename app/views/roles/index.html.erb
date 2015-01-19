@@ -7,7 +7,9 @@
         <tr>
           <th><%= Role.human_attribute_name :name %></th>
           <th><%= Role.human_attribute_name :author %></th>
-          <th></th>
+          <% if policy(@roles).update? %>
+            <th></th>
+          <% end %>
         </tr>
       </thead>
 
@@ -15,13 +17,19 @@
         <% @roles.each do |role| %>
           <tr>
             <td>
-              <%= link_to role, edit_role_path(role) %>
+              <% if policy(role).update? %>
+                <%= link_to role, edit_role_path(role) %>
+              <% else %>
+                <%= role %>
+              <% end %>
             </td>
             <td><%= role.author %></td>
-            <td>
-              <%= link_to 'Editar', edit_role_path(role), class: "btn btn-success" %>
-              <%= link_to 'Excluir', role_path(role), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
-            </td>
+            <% if policy(role).update? %>
+              <td>
+                <%= link_to 'Editar', edit_role_path(role), class: "btn btn-success" %>
+                <%= link_to 'Excluir', role_path(role), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+              </td>
+            <% end %>
           </tr>
         <% end %>
       </tbody>
