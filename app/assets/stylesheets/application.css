@@ -45,3 +45,8 @@ textarea.form-control.text {
 .center {
   text-align: center;
 }
+
+#paginator ul.pagination{
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
