@@ -25,7 +25,7 @@
             </td>
             <td><%= role.author %></td>
             <% if policy(role).update? %>
-              <td>              
+              <td>
                 <%= link_to 'Editar', edit_role_path(role), class: "btn btn-success" %>
                 <%= link_to 'Excluir', role_path(role), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
               </td>

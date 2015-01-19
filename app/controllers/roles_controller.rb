@@ -8,7 +8,7 @@ class RolesController < ApplicationController
   def new
     @role = Role.new
     @role.author = current_user
-    
+
     authorize @role
 
     @role.build_permissions!
@@ -32,7 +32,7 @@ class RolesController < ApplicationController
 
     authorize @role
 
-    @role.build_permissions!    
+    @role.build_permissions!
   end
 
   def update
@@ -50,7 +50,7 @@ class RolesController < ApplicationController
   def destroy
     @role = Role.find(params[:id])
 
-    authorize @role    
+    authorize @role
 
     @role.destroy
 
