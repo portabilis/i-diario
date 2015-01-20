@@ -22,5 +22,5 @@
 job_type :bundle,  "cd :path && :environment_variable=:environment bundle exec rails runner ':task' :output"
 
 every 1.day, at: "2:30 am" do
-  bundle "EntityPreRegistrationExpirationWorker.perform_async"
+  bundle "PreRegistrationExpiration.expire_all!"
 end
