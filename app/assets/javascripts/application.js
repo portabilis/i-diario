@@ -38,4 +38,5 @@
 //= require summernote/pt-BR
 //= require add_tags
 //= require strip_value
+//= require index
 //= require_tree ./resources

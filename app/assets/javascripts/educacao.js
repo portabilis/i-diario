@@ -86,5 +86,5 @@ $(function () {
     }
   });
 
-  $('.jarviswidget-fullscreen-btn').attr('data-original-title', 'Tela cheia');
+  $('.jarviswidget-fullscreen-btn').attr('data-original-title', 'Tela cheia').attr('data-placement', 'left');
 });
