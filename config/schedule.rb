@@ -19,6 +19,8 @@
 
 # Learn more: http://github.com/javan/whenever
 
+job_type :bundle,  "cd :path && :environment_variable=:environment :bundle_command runner ':task' :output"
+
 every 1.day, at: "2:30 am" do
-  runner "EntityPreRegistrationExpirationWorker.perform_async"
+  bundle "EntityPreRegistrationExpirationWorker.perform_async"
 end
