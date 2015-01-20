@@ -9,9 +9,11 @@ class UserUpdater
   end
 
   def update!
-    if user.actived? && user.actived_at.blank?
-      UserMailer.notify_actived(user, entity).deliver
-      user.actived!
+    if user.actived? && !user.activation_sent?
+      user.transaction do
+        UserMailer.notify_actived(user, entity).deliver
+        user.activation_sent!
+      end
     end
   end
 

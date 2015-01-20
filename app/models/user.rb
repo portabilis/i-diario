@@ -98,12 +98,22 @@ class User < ActiveRecord::Base
     "#{first_name} #{last_name}".strip
   end
 
-  def actived!
-    update_column :actived_at, DateTime.current
+  def activation_sent!
+    update_column :activation_sent_at, DateTime.current
+  end
+
+  def activation_sent?
+    self.activation_sent_at.present?
   end
 
   def raw_phone
     phone.gsub(/[^\d]/, '')
+  end
+
+  def student_api_codes
+    codes = [students.pluck(:api_code)]
+    codes.push(student.api_code) if student
+    codes.flatten
   end
 
   def to_s

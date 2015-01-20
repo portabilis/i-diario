@@ -14,9 +14,7 @@
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :kind do %>
-          <%= f.object.kind_humanize %>
-        <% end %>
+        <%= f.input :kind, as: :string, input_html: { value: f.object.kind_humanize, disabled: true } %>
       </div>
     </div>
 

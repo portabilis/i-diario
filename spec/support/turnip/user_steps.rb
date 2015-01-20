@@ -22,6 +22,7 @@ module Turnip
     step "poderei liberar o acesso deste usuário" do
       expect(page).to have_field 'Nome', with: 'Mary'
       expect(page).to have_field 'Sobrenome', with: 'Jane'
+      expect(page).to have_field 'E-mail', with: 'mary_jane@example.com'
 
       fill_in_select2 'Status', with: 'Ativado'
 

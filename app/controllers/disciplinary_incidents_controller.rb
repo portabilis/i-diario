@@ -19,6 +19,6 @@ class DisciplinaryIncidentsController < ApplicationController
   end
 
   def students_code
-    current_user.students.pluck(:api_code)
+    current_user.student_api_codes
   end
 end
