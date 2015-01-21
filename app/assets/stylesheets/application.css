@@ -47,6 +47,26 @@ textarea.form-control.text {
 }
 
 #paginator ul.pagination{
-	margin-top: 0px;
-	margin-bottom: 0px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+form.smart-form .control-group.error input {
+  background-color: #fff0f0;
+}
+
+form.smart-form .control-group.error input,
+form.smart-form .control-group.error select,
+form.smart-form .control-group.error .select2-container{
+  border: 1px solid #b94a48;
+}
+
+form.smart-form .control-group.error .select2-container a.select2-choice{
+  border: none;
+}
+
+form.smart-form .control-group.error span.help-inline,
+form.smart-form .help-inline.error,
+form.smart-form .control-group.error label{
+  color: #b94a48;
 }

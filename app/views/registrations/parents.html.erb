@@ -1,7 +1,7 @@
 <div class="widget-body">
   <div class="row">
     <%= simple_form_for @signup, as: :signup, url: registrations_path(mod: 'parents'), html: { id: "signup-parent" } do |f| %>
-      <%= f.error_notification(class: "alert-danger").to_s %>
+      <%= f.error_notification %>
 
       <div id="signup-wizard" class="col-sm-12">
         <fieldset>
