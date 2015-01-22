@@ -4,8 +4,8 @@ pt-BR:
     "no": 'Não'
 
     required:
-      text: ''
-      mark: ''
+      text: 'obrigatório'
+      mark: '*'
 
     error_notification:
       default_message: "Por favor, verifique os campos obrigatórios e tente novamente."

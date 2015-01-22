@@ -51,6 +51,10 @@ textarea.form-control.text {
   margin-bottom: 0px;
 }
 
+form.smart-form label abbr {
+  color: #953b39;
+}
+
 form.smart-form .control-group.error input {
   background-color: #fff0f0;
 }

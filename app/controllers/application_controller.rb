@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
   self.responder = ApplicationResponder
   respond_to :html
 
+  include BootstrapFlashHelper
   include Pundit
   skip_around_filter :set_locale_from_url
   around_action :handle_customer
