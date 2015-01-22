@@ -155,3 +155,7 @@ nav ul li b.collapse-sign em:before {
 #extr-page .login-app-icons{
   margin-top: 87px;
 }
+
+.icon-addon .fa{
+    z-index: 1;
+}

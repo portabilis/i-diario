@@ -39,4 +39,6 @@
 //= require add_tags
 //= require strip_value
 //= require index
+//= require datepicker.pt-BR
+//= require datepicker-custom
 //= require_tree ./resources

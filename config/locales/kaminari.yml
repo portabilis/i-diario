@@ -14,4 +14,4 @@ pt-BR:
           one: "Exibindo <b>1</b> %{entry_name}"
           other: "Exibindo <b>todos %{count}</b> %{entry_name}"
       more_pages:
-        display_entries: "<i>Exibindo <b>%{first}&nbsp;-&nbsp;%{last}</b> de <b>%{total}</b> no total</i>"
+        display_entries: "Exibindo <span style='color: #393939;'>%{first}</span> de <span style='color: #393939;'>%{last}</span> de <span style='color: #57889c;'>%{total}</span> no total"

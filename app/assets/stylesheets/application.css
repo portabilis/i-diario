@@ -74,3 +74,9 @@ form.smart-form .help-inline.error,
 form.smart-form .control-group.error label{
   color: #b94a48;
 }
+
+#page_entries_info{
+  font-weight: bold;
+  font-style: italic;
+  color: #808080;
+}

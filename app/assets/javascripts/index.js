@@ -29,6 +29,6 @@ $(function(){
       clearTimeout(typingTimer);
   });
 
-  $('form.filterable_search_form select').on('change', filterableSearch);
+  $('form.filterable_search_form select, form.filterable_search_form input.datepicker').on('change', filterableSearch);
 
 })
