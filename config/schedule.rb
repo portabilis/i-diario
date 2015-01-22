@@ -19,8 +19,8 @@
 
 # Learn more: http://github.com/javan/whenever
 
-job_type :bundle,  "cd :path && :environment_variable=:environment bundle exec rails runner ':task' :output"
+set :output, "/var/www/novo-educacao/current/logs/cron.log"
 
-every 1.day, at: "2:30 am" do
-  bundle "PreRegistrationExpiration.expire_all!"
+every "40 2 * * *" do
+  rake "***REMOVED***s:expire"
 end
