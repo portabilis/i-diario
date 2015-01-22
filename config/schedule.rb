@@ -21,6 +21,8 @@
 
 set :output, "/var/www/novo-educacao/current/logs/cron.log"
 
+job_type :custom_rake, "cd :path && :environment_variable=:environment /usr/local/bin/bundle exec rake :task :output"
+
 every "40 2 * * *" do
-  rake "***REMOVED***s:expire"
+  custom_rake "***REMOVED***s:expire"
 end
