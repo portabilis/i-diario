@@ -46,6 +46,7 @@ class User < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
   scope :with_phone, -> { where(arel_table[:phone].not_eq(nil)).where(arel_table[:phone].not_eq("")) }
+  scope :admin, -> { where(arel_table[:admin].eq(true)) }
 
   def self.find_for_authentication(conditions)
     credential = conditions.fetch(:credentials)

@@ -14,7 +14,7 @@ class SchoolsController < ApplicationController
   protected
 
   def result
-    api.fetch(
+    api.fetch_with_vacancy(
       ano: params[:year],
       curso_id: params[:lecture_id],
       serie_id: params[:grade_id],
