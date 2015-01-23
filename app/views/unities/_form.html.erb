@@ -36,6 +36,12 @@
         <% end %>
       </div>
     </div>
+
+    <div class="row">
+      <div class="col col-sm-3">
+        <%= f.input :active, as: :boolean %>
+      </div>
+    </div>
   </fieldset>
 
   <%= f.association :address do |a| %>

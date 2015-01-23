@@ -1,4 +1,5 @@
 //= require setup
+//= require batch-actions
 //= require educacao-gmap
 //= require_self
 
@@ -87,4 +88,10 @@ $(function () {
   });
 
   $('.jarviswidget-fullscreen-btn').attr('data-original-title', 'Tela cheia').attr('data-placement', 'left');
+
+  $('#select-all').on("click", function () {
+    var checkboxes = $(this).closest("table").find("tbody tr td > input[type=checkbox]");
+
+    checkboxes.prop("checked", $(this).prop('checked'));
+  });
 });

@@ -54,6 +54,26 @@ class UnitiesController < ApplicationController
     respond_with @unity, location: unities_path
   end
 
+  def destroy_batch
+    @unities = Unity.where(id: params[:ids])
+
+    if @unities.destroy_all
+      render json: {}, status: :ok
+    else
+      render json: {}, status: 500
+    end
+  end
+
+  def activate_batch
+    @unities = Unity.where(id: params[:ids])
+
+    if @unities.activate_all!
+      render json: {}, status: :ok
+    else
+      render json: {}, status: 500
+    end
+  end
+
   def history
     @unity = Unity.find params[:id]
 
@@ -66,7 +86,7 @@ class UnitiesController < ApplicationController
 
   def unity_params
     params.require(:unity).permit(
-      :name, :phone, :email, :responsible, :api_code, :unit_type,
+      :name, :phone, :email, :responsible, :api_code, :unit_type, :active,
       :address_attributes => [
         :id, :zip_code, :street, :number, :complement, :neighborhood, :city,
         :state, :country, :latitude, :longitude, :_destroy
