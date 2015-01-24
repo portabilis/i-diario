@@ -123,6 +123,18 @@ class User < ActiveRecord::Base
     name
   end
 
+  def navigation_display
+    if first_name.present? && last_name.present?
+      "#{first_name}.#{last_name.split(' ').last}"
+    elsif first_name.present?
+      "#{first_name}"
+    elsif login.present?
+      "#{login}"
+    else
+      ''
+    end      
+  end
+
   protected
 
   def actived_student?
