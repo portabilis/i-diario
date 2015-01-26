@@ -39,7 +39,7 @@ Rails.application.routes.draw do
         get :history
       end
     end
-    resources :disciplinary_incidents, only: [:index]
+    resources :***REMOVED***, only: [:index]
     resources :***REMOVED***, only: [:index, :show]
     resources :***REMOVED***_confirmations, except: [:new, :create] do
       member do

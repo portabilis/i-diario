@@ -17,6 +17,9 @@ class IeducarSynchronizerWorker
         # synchronize Unities
         UnitiesSynchronizer.synchronize!(synchronization)
 
+        # synchronize Disciplinary Occurrences
+        ***REMOVED***sSynchronizer.synchronize!(synchronization)
+
         synchronization.mark_as_completed!
       rescue IeducarApi::Base::ApiError => e
         synchronization.mark_as_error!(e.message)

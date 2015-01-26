@@ -24,9 +24,9 @@ navigation:
               type: "***REMOVED***_confirmations"
               path: "***REMOVED***_confirmations_path"
   - ***REMOVED***:
-      type: "disciplinary_incidents"
+      type: "***REMOVED***"
       icon: "fa-bar-chart-o"
-      path: "disciplinary_incidents_path"
+      path: "***REMOVED***_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-graduation-cap"

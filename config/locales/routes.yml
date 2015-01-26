@@ -9,7 +9,7 @@ pt-BR:
     users: 'usuarios'
     syncronizations: 'sincronizacoes'
     ***REMOVED***: 'grupos'
-    disciplinary_incidents: 'ocorrencias-disciplinares'
+    ***REMOVED***: 'ocorrencias-disciplinares'
     ***REMOVED***: 'boletins-escolares'
     ***REMOVED***_classes: 'classes'
     contact_school: 'contatar-escola'
