@@ -19,7 +19,7 @@
 
 # Learn more: http://github.com/javan/whenever
 
-set :output, "/var/www/novo-educacao/current/logs/cron.log"
+set :output, "/var/www/novo-educacao/current/log/cron.log"
 
 job_type :custom_rake, "cd :path && :environment_variable=:environment /usr/local/bin/bundle exec rake :task :output"
 
