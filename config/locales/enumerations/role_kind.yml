@@ -1,6 +1,6 @@
 pt-BR:
   enumerations:
-    user_kind:
+    role_kind:
       employee: "Servidor"
       parent: "Pais"
       student: "Aluno"

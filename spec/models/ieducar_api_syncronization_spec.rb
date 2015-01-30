@@ -8,7 +8,6 @@ RSpec.describe IeducarApiSyncronization, :type => :model do
 
   context "Validations" do
     it { should validate_presence_of :ieducar_api_configuration }
-    it { should validate_presence_of :author }
   end
 
   describe "#mark_as_error!" do

@@ -1,0 +1,19 @@
+<tr class="nested-fields">
+  <td>
+    <%= f.input :role_id, collection: Role.ordered, label_html: { class: "hidden" }, input_html: { class: "user-role" } %>
+  </td>
+
+  <td>
+    <div class="user-unity <%= 'hidden' unless f.object.role_employee? %>">
+      <%= f.input :unity_id, as: :select2, elements: Unity.ordered, label_html: { class: "hidden" } %>
+    </div>
+  </td>
+
+  <td>
+    <%= f.input_field :id, as: :hidden %>
+    <%= f.input_field :_destroy, as: :hidden %>
+
+    <%= link_to_remove_association t('helpers.remove'), f,
+      class: 'btn btn-danger btn-sm' %>
+  </td>
+</tr>

@@ -7,6 +7,7 @@
         <tr>
           <th><%= Role.human_attribute_name :name %></th>
           <th><%= Role.human_attribute_name :author %></th>
+          <th><%= Role.human_attribute_name :kind %></th>
           <% if policy(@roles).update? %>
             <th></th>
           <% end %>
@@ -18,12 +19,13 @@
           <tr>
             <td>
               <% if policy(role).update? %>
-                <%= link_to role, edit_role_path(role) %>
+                <%= link_to role.name, edit_role_path(role) %>
               <% else %>
-                <%= role %>
+                <%= role.name %>
               <% end %>
             </td>
             <td><%= role.author %></td>
+            <td><%= role.kind_humanize %></td>
             <% if policy(role).update? %>
               <td>
                 <%= link_to 'Editar', edit_role_path(role), class: "btn btn-success" %>

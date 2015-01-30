@@ -47,7 +47,7 @@ module Signup
           phone: celphone,
           password: password,
           password_confirmation: password_confirmation,
-          kind: UserKind::PARENT,
+          kind: RoleKind::PARENT,
           role: GeneralConfiguration.first.try(:parents_default_role)
         )
 

@@ -80,3 +80,11 @@ form.smart-form .control-group.error label{
   font-style: italic;
   color: #808080;
 }
+
+#change-permission {
+  padding-top: 14px;
+}
+
+#change-permission > a {
+  color: #FFF;
+}

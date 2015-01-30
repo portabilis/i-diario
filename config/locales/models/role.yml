@@ -9,3 +9,4 @@ pt-BR:
         name: "Nome"
         author: "Autor"
         author_id: "Autor"
+        kind: "Tipo"

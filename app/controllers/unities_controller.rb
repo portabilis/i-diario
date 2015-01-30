@@ -1,6 +1,9 @@
 class UnitiesController < ApplicationController
+  has_scope :page, default: 1
+  has_scope :per, default: 10
+
   def index
-    @unities = Unity.ordered
+    @unities = apply_scopes(Unity).ordered
 
     authorize @unities
   end

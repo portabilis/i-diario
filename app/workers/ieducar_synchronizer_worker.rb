@@ -8,14 +8,14 @@ class IeducarSynchronizerWorker
       synchronization = IeducarApiSyncronization.find(synchronization_id)
 
       begin
+        # synchronize Unities
+        UnitiesSynchronizer.synchronize!(synchronization)
+
         # synchronize Students
         StudentsSynchronizer.synchronize!(synchronization)
 
         # synchronize Deficiencies
         DeficienciesSynchronizer.synchronize!(synchronization)
-
-        # synchronize Unities
-        UnitiesSynchronizer.synchronize!(synchronization)
 
         # synchronize Disciplinary Occurrences
         ***REMOVED***sSynchronizer.synchronize!(synchronization)

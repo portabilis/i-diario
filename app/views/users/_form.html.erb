@@ -1,4 +1,4 @@
-<%= simple_form_for @user, html: { class: "smart-form" } do |f| %>
+<%= simple_form_for @user, html: { class: "smart-form user-form" } do |f| %>
   <%= f.error_notification %>
 
   <fieldset>
@@ -16,7 +16,7 @@
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :kind, as: :string, input_html: { value: f.object.kind_humanize, disabled: true } %>
+        <%= f.input :kind, disabled: true, input_html: { value: f.object.kind_humanize } %>
       </div>
     </div>
 
@@ -40,20 +40,39 @@
       </div>
 
       <div class="col col-sm-3">
-        <%= f.association :role, as: :select2, elements: Role.ordered %>
-      </div>
-
-      <div class="col col-sm-3">
         <%= f.input :status, as: :select2, elements: UserStatus.to_select.to_json %>
       </div>
-    </div>
 
-    <div class="row">
-      <% if f.object.student? %>
-        <div class="col col-sm-6">
-          <%= f.input :student, as: :autocomplete, required: true %>
-        </div>
-      <% end %>
+      <div class="col col-sm-6">
+        <%= f.input :student, as: :autocomplete %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Permissões</legend>
+
+    <table class="table table-striped records">
+      <thead>
+        <tr>
+          <th><%= UserRole.human_attribute_name :role %></th>
+          <th><%= UserRole.human_attribute_name :unity %></th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody id="user-roles">
+        <%= f.association :user_roles do |p| %>
+          <%= render 'user_role_fields', f: p %>
+        <% end %>
+      </tbody>
+    </table>
+
+    <div class="links">
+      <%= link_to_add_association 'Adicionar', f, :user_roles,
+        class: 'btn btn-success btn-sm',
+        :"data-association-insertion-method" => "append",
+        :"data-association-insertion-node" => "#user-roles" %>
     </div>
   </fieldset>
 
@@ -71,3 +90,7 @@
     </button>
   </footer>
 <% end %>
+
+<script>
+  window.roles = <%= raw Role.ordered.to_json %>;
+</script>

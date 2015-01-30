@@ -1,33 +1,25 @@
 <%= simple_form_for @role, html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
 
-  <fieldset>
-    <div class="row">
-      <div class="col col-sm-6">
-        <%= f.input :name %>
-      </div>
+  <ul class="nav nav-tabs bordered">
+    <li class="active"><a href="#general" data-toggle="tab">Dados gerais</a></li>
 
-      <div class="col col-sm-6">
-        <%= f.input :author, disabled: true %>
-      </div>
+    <% if @role.employee? %>
+      <li><a href="#employees" data-toggle="tab">Servidores</a></li>
+    <% end %>
+  </ul>
+
+  <div class="tab-content">
+    <div class="tab-pane active" id="general">
+      <%= render 'general', f: f %>
     </div>
 
-    <table class="table table-striped records">
-      <thead>
-        <tr>
-          <th>Funcionalidade</th>
-          <th>Acesso</th>
-          <th></th>
-        </tr>
-      </thead>
-
-      <tbody>
-        <%= f.association :permissions do |p| %>
-          <%= render 'permission', f: p %>
-        <% end %>
-      </tbody>
-    </table>
-  </fieldset>
+    <% if @role.employee? %>
+      <div class="tab-pane" id="employees">
+        <%= render 'employees', f: f %>
+      </div>
+    <% end %>
+  </div>
 
   <footer>
     <%= link_to roles_path, class: "btn btn-default" do %>

@@ -1,0 +1,27 @@
+<div class="widget-body">
+  <div class="table-responsive">
+    <table class="table table-bordered selectable" id="resources">
+      <thead>
+        <tr>
+          <th><%= Role.human_attribute_name :name %></th>
+          <th><%= Role.human_attribute_name :kind %></th>
+          <th><%= UserRole.human_attribute_name :unity %></th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <% @user_roles.each do |user_role| %>
+          <tr>
+            <td><%= user_role.role_name %></td>
+            <td><%= user_role.role_kind_humanize %></td>
+            <td><%= user_role.unity_name %></td>
+            <td>
+              <%= link_to 'Usar este perfil', set_current_role_path(user_role.role_id), class: "btn btn-primary" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

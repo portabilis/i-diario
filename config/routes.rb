@@ -37,6 +37,8 @@ Rails.application.routes.draw do
     root 'dashboard#index'
 
     get '/sandbox', to: 'dashboard#sandbox'
+    get '/current_role/:id', to: 'current_role#set', as: :set_current_role
+    get '/current_role', to: 'current_role#index', as: :current_roles
 
     resources :users, concerns: :history
     resource :account, only: [:edit, :update]

@@ -14,12 +14,6 @@ RSpec.describe IeducarApi::Lectures, type: :service do
     end
 
     context "all lectures" do
-      it "necessary to inform escola_id" do
-        expect {
-          subject.fetch
-        }.to raise_error("É necessário informar pelo menos uma escola: escola_id")
-      end
-
       it "returns all lectures" do
         VCR.use_cassette('lectures') do
           result = subject.fetch(escola_id: [121908,  76910])

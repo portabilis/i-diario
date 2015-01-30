@@ -1,0 +1,21 @@
+pt-BR:
+  activerecord:
+    model:
+      user_role:
+        one: "Permissão do usuário"
+        other: "Permissões do usuário"
+    attributes:
+      user_role:
+        role: "Permissão"
+        role_id: "Permissão"
+        user: "Usuário"
+        user_id: "Usuário"
+        unity: "Unidade"
+        unity_id: "Unidade"
+    errors:
+      models:
+        user_role:
+          attributes:
+            role_id:
+              parent_role_taken: "permissão de pais já foi informada"
+              student_role_taken: "permissão de alunos já foi informada"

@@ -19,6 +19,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :check_for_***REMOVED***
+  before_action :check_for_current_role
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -72,6 +73,15 @@ class ApplicationController < ActionController::Base
     elsif syncronization = current_user.syncronizations.last_error
       flash.now[:alert] = t("ieducar_api_syncronization.error", error: syncronization.error_message)
       syncronization.notified!
+    end
+  end
+
+  def check_for_current_role
+    return unless current_user
+    return if current_user.admin?
+
+    if current_user.role.blank? && controller_name != "current_role"
+      redirect_to current_roles_path
     end
   end
 

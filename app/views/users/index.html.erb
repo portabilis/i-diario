@@ -6,7 +6,6 @@
           <th><%= User.human_attribute_name :name %></th>
           <th><%= User.human_attribute_name :email %></th>
           <th><%= User.human_attribute_name :login %></th>
-          <th><%= User.human_attribute_name :kind %></th>
           <th><%= User.human_attribute_name :status %></th>
           <th></th>
         </tr>
@@ -20,7 +19,6 @@
             </td>
             <td><%= user.email %></td>
             <td><%= user.login %></td>
-            <td><%= user.kind_humanize %></td>
             <td><%= user.status_humanize %></td>
             <td>
               <%= link_to 'Editar', edit_user_path(user), class: "btn btn-success" %>

@@ -13,8 +13,8 @@ class User < ActiveRecord::Base
 
   attr_accessor :credentials
 
+  has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
-  has_enumeration_for :kind, with: UserKind, create_helpers: true
 
   belongs_to :student
   belongs_to :role
@@ -37,11 +37,17 @@ class User < ActiveRecord::Base
   has_many :***REMOVED***
   has_many :authorization_***REMOVED***
   has_many :***REMOVED***
+  has_many :user_roles
+  has_many :roles, through: :user_roles
+
+  accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, presence: true
-  validates :student, presence: true, if: :actived_student?
+  validate :uniqueness_of_student_parent_role
+
+  delegate :name, to: :role, prefix: true, allow_nil: true
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
@@ -117,8 +123,16 @@ class User < ActiveRecord::Base
     codes.flatten
   end
 
+  def set_role!(role_id)
+    role = self.roles.find(role_id)
+
+    return false unless role
+
+    update_column :role_id, role_id
+  end
+
   def to_s
-    return email unless first_name.present?
+    return email unless name.strip.present?
 
     name
   end
@@ -132,12 +146,38 @@ class User < ActiveRecord::Base
       "#{login}"
     else
       ''
-    end      
+    end
   end
 
   protected
 
-  def actived_student?
-    actived? && student?
+  def uniqueness_of_student_parent_role
+    return unless user_roles
+
+    parent_roles = []
+    student_roles = []
+
+    user_roles.reject(&:marked_for_destruction?).each do |user_role|
+      _role = Role.find(user_role.role_id)
+
+      next if _role.employee?
+
+      case _role.kind.to_s
+      when RoleKind::PARENT
+        if parent_roles.include?(_role)
+          errors.add(:user_roles, :invalid)
+          user_role.errors.add(:role_id, :parent_role_taken)
+        else
+          parent_roles.push(_role)
+        end
+      when RoleKind::STUDENT
+        if student_roles.include?(_role)
+          errors.add(:user_roles, :invalid)
+          user_role.errors.add(:role_id, :student_role_taken)
+        else
+          student_roles.push(_role)
+        end
+      end
+    end
   end
 end

@@ -1,0 +1,24 @@
+<fieldset>
+  <table class="table table-striped records">
+    <thead>
+      <tr>
+        <th><%= UserRole.human_attribute_name :user %></th>
+        <th><%= UserRole.human_attribute_name :unity %></th>
+        <th></th>
+      </tr>
+    </thead>
+
+    <tbody id="user-roles">
+      <%= f.association :user_roles do |p| %>
+        <%= render 'user_role_fields', f: p %>
+      <% end %>
+    </tbody>
+  </table>
+
+  <div class="links">
+    <%= link_to_add_association 'Adicionar', f, :user_roles,
+      class: 'btn btn-success btn-sm',
+      :"data-association-insertion-method" => "append",
+      :"data-association-insertion-node" => "#user-roles" %>
+  </div>
+</fieldset>

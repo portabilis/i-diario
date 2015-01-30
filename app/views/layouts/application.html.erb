@@ -50,15 +50,31 @@
         </div>
         <!-- end collapse ***REMOVED*** -->
 
-        <!-- logout button -->
         <% if user_signed_in? %>
+          <!-- logout button -->
           <div id="logout" class="btn-header transparent pull-right">
             <span>
               <%= link_to content_tag(:i, '', class: 'fa fa-sign-out'), destroy_user_session_path, id: "sign_out"  %>
             </span>
           </div>
+          <!-- logout button -->
+
+          <% if current_user.roles.exists? %>
+            <div id="change-permission" class="btn-group btn-header transparent pull-right">
+              <a class=" dropdown-toggle" data-toggle="dropdown">
+                Perfil atual: <%= current_user.role_name %>
+                <i class="fa fa-sort-desc"></i>
+              </a>
+              <ul class="dropdown-***REMOVED***">
+                <% current_user.user_roles.each do |user_role| %>
+                  <li>
+                    <%= link_to user_role, set_current_role_path(user_role.role_id) %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
         <% end %>
-        <!-- logout button -->
       </div>
     </header>
 

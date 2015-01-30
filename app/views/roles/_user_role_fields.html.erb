@@ -1,0 +1,17 @@
+<tr class="nested-fields">
+  <td>
+    <%= f.input :user_id, as: :select2, elements: User.ordered, label_html: { class: "hidden" } %>
+  </td>
+
+  <td>
+    <%= f.input :unity_id, as: :select2, elements: Unity.ordered, label_html: { class: "hidden" } %>
+  </td>
+
+  <td>
+    <%= f.input_field :id, as: :hidden %>
+    <%= f.input_field :_destroy, as: :hidden %>
+
+    <%= link_to_remove_association t('helpers.remove'), f,
+      class: 'btn btn-danger btn-sm' %>
+  </td>
+</tr>
