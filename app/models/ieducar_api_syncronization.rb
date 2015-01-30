@@ -7,7 +7,7 @@ class IeducarApiSyncronization < ActiveRecord::Base
   belongs_to :ieducar_api_configuration
   belongs_to :author, class_name: "User"
 
-  validates :ieducar_api_configuration, :author, presence: true
+  validates :ieducar_api_configuration, presence: true
 
   delegate :to_api, to: :ieducar_api_configuration
 

@@ -6,6 +6,12 @@ Rails.application.routes.draw do
   localized do
     devise_for :users
 
+    namespace :api do
+      namespace :v1 do
+        resources :***REMOVED***, only: [:create]
+      end
+    end
+
     concern :history do
       member do
         get :history
