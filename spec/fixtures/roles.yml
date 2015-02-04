@@ -1,7 +1,9 @@
 admin:
   name: "Administrador"
+  kind: "employee"
   author: john_doe
 
 secretary:
   name: "Secretária"
+  kind: "employee"
   author: john_doe

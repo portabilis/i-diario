@@ -34,7 +34,7 @@ module Turnip
       end
     end
 
-    step 'poderei alterar seus dados' do
+    step 'poderei alterar os dados da unidade' do
       fill_in 'Nome', with: 'Unidade Z'
 
       expect(page).to have_field "CEP", with: "32672-124"
@@ -49,7 +49,7 @@ module Turnip
 
       expect(page).to have_content 'Unidade foi alterada com sucesso.'
 
-      within :xpath, '//table/tbody/tr[position()=2]' do
+      within :xpath, '//table/tbody/tr[position()=3]' do
         expect(page).to have_content 'Unidade Z'
       end
     end
@@ -57,9 +57,7 @@ module Turnip
     step "que existem unidades cadastradas" do
       click_***REMOVED*** 'Configurações > Unidades'
 
-      within :xpath, '//table/tbody/tr[position()=1]' do
-        expect(page).to have_content 'Escola A'
-      end
+      expect(page).to have_content 'Escola Z'
     end
 
     step "poderei excluir uma unidade" do
@@ -67,14 +65,12 @@ module Turnip
       ***REMOVED***RequestAuthorization.destroy_all
       ***REMOVED***Request.destroy_all
 
-      within :xpath, '//table/tbody/tr[position()=1]' do
-        expect(page).to have_content 'Escola A'
-        click_on 'Excluir'
-      end
+      expect(page).to have_content 'Escola Z'
+      click_on 'Excluir Escola Z'
 
       expect(page).to have_content "Unidade foi apagada com sucesso"
 
-      expect(page).to have_no_content 'Escola A'
+      expect(page).to have_no_content 'Escola Z'
     end
   end
 end

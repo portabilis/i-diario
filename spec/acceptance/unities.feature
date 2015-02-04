@@ -13,7 +13,7 @@ Funcionalidade: Gerenciamento de unidades
   Cenário: Editar uma unidade
     Dado que existe uma unidade cadastrada
     Quando entro na tela de edição desta unidade
-    Então poderei alterar seus dados
+    Então poderei alterar os dados da unidade
 
   Cenário: Excluir uma unidade
     Dado que existem unidades cadastradas

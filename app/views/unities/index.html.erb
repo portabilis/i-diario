@@ -50,7 +50,9 @@
             <td><%= I18n.t "boolean.#{unity.active}" %></td>
             <td>
               <%= link_to 'Editar', edit_unity_path(unity), class: "btn btn-success" %>
-              <%= link_to 'Excluir', unity_path(unity), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+              <%= link_to 'Excluir', unity_path(unity), class: "btn btn-danger",
+                title: "Excluir #{unity.to_s}",
+                method: "delete", data: { confirm: "Tem certeza?" } %>
             </td>
           </tr>
         <% end %>

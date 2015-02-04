@@ -9,3 +9,9 @@ escola_x:
   name: "Escola X"
   author: john_doe
   unit_type: "school_unit"
+
+escola_z:
+  name: "Escola Z"
+  author: john_doe
+  unit_type: "school_unit"
+  email: "escola_a@email.com"

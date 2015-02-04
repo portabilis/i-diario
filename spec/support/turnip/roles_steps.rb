@@ -11,6 +11,7 @@ module Turnip
 
     step 'poderei cadastrar uma nova permissão' do
       fill_in "Nome", with: "Secretaria"
+      fill_in_select2 "Tipo", with: "employee"
 
       click_on "Salvar"
 
