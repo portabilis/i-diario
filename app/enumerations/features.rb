@@ -1,5 +1,5 @@
 class Features < EnumerateIt::Base
-  associate_values :***REMOVED***, :disciplinary_incidents, :***REMOVED***,
+  associate_values :***REMOVED***, :***REMOVED***, :***REMOVED***,
     :***REMOVED***, :***REMOVED***s, :***REMOVED***, :***REMOVED***, :unities, :users,
     :general_configurations, :ieducar_api_configurations, :***REMOVED***,
     :***REMOVED***, :***REMOVED***, :***REMOVED***_classes, :***REMOVED***, :***REMOVED***,
