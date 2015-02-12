@@ -575,7 +575,7 @@
                     if (self.o.fullscreenButton === true && tWidget.data('widget-fullscreenbutton') ===
                         undefined) {
                         fullscreenBtn =
-                            '<a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip" title="Fullscreen" data-placement="bottom"><i class="' +
+                            '<a href="javascript:void(0);" class="button-icon jarviswidget-fullscreen-btn" rel="tooltip" title="Fullscreen" data-placement="left"><i class="' +
                             self.fullscreenClass[0] + '"></i></a>';
                     } else {
                         fullscreenBtn = '';

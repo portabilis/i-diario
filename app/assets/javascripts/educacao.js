@@ -87,7 +87,7 @@ $(function () {
     }
   });
 
-  $('.jarviswidget-fullscreen-btn').attr('data-original-title', 'Tela cheia').attr('data-placement', 'left');
+  $('.jarviswidget-fullscreen-btn').attr('data-original-title', 'Tela cheia');
 
   $('#select-all').on("click", function () {
     var checkboxes = $(this).closest("table").find("tbody tr td > input[type=checkbox]");
