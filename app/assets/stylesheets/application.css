@@ -46,6 +46,10 @@ textarea.form-control.text {
   text-align: center;
 }
 
+#paginator tr td{
+  background-color: rgb(250,250,250);
+}
+
 #paginator ul.pagination{
   margin-top: 0px;
   margin-bottom: 0px;
@@ -78,7 +82,8 @@ form.smart-form .control-group.error label{
 #page_entries_info{
   font-weight: bold;
   font-style: italic;
-  color: #808080;
+  color: #969696;
+  margin-top: 10px;
 }
 
 #change-permission {
@@ -87,4 +92,11 @@ form.smart-form .control-group.error label{
 
 #change-permission > a {
   color: #FFF;
+}
+
+table.table-condensed.table-bordered > tbody > tr > td.no_record_found{
+  text-align: center;
+  padding-top: 15px !important;
+  padding-bottom: 15px !important;
+  color: #969696;
 }
