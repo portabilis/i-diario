@@ -1,0 +1,61 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for @entity_configuration,
+  url: entity_configurations_path, method: :patch, html: { class: "smart-form" } do |f| %>
+    <%= f.error_notification %>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :entity_name %>
+        </div>
+        <div class="col col-sm-6">
+          <%= f.input :cnpj, input_html: { class: 'cnpj'} %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :organ_name %>
+        </div>
+        <div class="col col-sm-6">
+          <%= f.input :phone, as: :tel %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :website %>
+        </div>
+        <div class="col col-sm-6">
+          <%= f.input :email, as: :email %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :logo, input_html: { onchange: 'readURL(this);' } %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <% if @entity_configuration.logo && @entity_configuration.logo.url %> 
+            <%= image_tag @entity_configuration.logo_url, id: 'img-prev'%>
+          <% else %>
+            <img id='img-prev' />
+          <% end %>
+        </div>
+      </div>
+    </fieldset>      
+    <%= f.association :address do |a| %>
+      <%= render 'address/shared_form', f: a, show_map: true %>
+    <% end %>                        
+
+
+    <footer>
+      <% if @entity_configuration.persisted? %>
+        <%= link_to 'Histórico', history_entity_configurations_path, class: 'btn btn-info' %>
+      <% end %>
+
+      <button type="submit" class="btn btn-primary">
+        Salvar
+      </button>
+    </footer>
+  <% end %>
+</div>

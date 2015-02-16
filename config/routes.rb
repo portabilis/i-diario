@@ -64,6 +64,7 @@ Rails.application.routes.draw do
     resource :contact_school, only: [:new, :create]
     resource :notification, only: [:edit, :update], concerns: :history
     resource :general_configurations, only: [:edit, :update], concerns: :history
+    resource :entity_configurations, only: [:edit, :update], concerns: :history
     resources :backup_files, only: [:index, :create]
     resources :unities, concerns: :history do
       collection do

@@ -77,6 +77,9 @@ navigation:
         - ***REMOVED***:
             type: "***REMOVED***_configs"
             path: "edit_***REMOVED***_configs_path"
+        - ***REMOVED***:
+            type: "entity_configurations"
+            path: "edit_entity_configurations_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-bullhorn"

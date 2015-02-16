@@ -1,10 +1,10 @@
 # language: pt
 
-Funcionalidade: Configurações Gerais
+Funcionalidade: Configurações da entidade
 
   Contexto:
     Dado que estou logado
 
-  Cenário: Nível de segurança
-    Quando acesso as configurações gerais
-    Então poderei informar o nível de segurança da entidade
+  Cenário: Configurações da entidade
+    Quando acesso as configurações da entidade
+    Então poderei alterar informações da entidade

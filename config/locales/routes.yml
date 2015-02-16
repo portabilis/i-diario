@@ -37,6 +37,7 @@ pt-BR:
     authorization_***REMOVED***: 'autorizacoes-de-requisicao-de-servico'
     moved_***REMOVED***: 'saldo-de-materiais-por-unidade'
     ***REMOVED***: '***REMOVED***'
+    entity_configurations: 'configuracoes-da-entidade'
 
     # actions
     edit: 'editar'

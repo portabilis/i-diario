@@ -100,3 +100,9 @@ table.table-condensed.table-bordered > tbody > tr > td.no_record_found{
   padding-bottom: 15px !important;
   color: #969696;
 }
+
+#img-prev{
+  width: 150px;
+  height: 200px;
+  border: 1px solid #ccc;
+}

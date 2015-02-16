@@ -41,4 +41,5 @@
 //= require index
 //= require datepicker.pt-BR
 //= require datepicker-custom
+//= require readurl
 //= require_tree ./resources

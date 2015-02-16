@@ -39,6 +39,7 @@ pt-BR:
     ***REMOVED***s: "***REMOVED***"
     ***REMOVED***_confirmations: "***REMOVED***"
     current_role: "Seleção de perfil"
+    entity_configurations: "Entidade"
 
   enumerations:
     features:

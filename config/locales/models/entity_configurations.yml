@@ -1,0 +1,14 @@
+pt-BR:
+  activerecord:
+    models:
+      entity_configuration: "Configurações da entidade"
+
+    attributes:
+      entity_configuration:
+        entity_name: "Nome da entidade"
+        cnpj: "CNPJ"
+        organ_name: "Nome do órgão/secretaria"
+        phone: "Telefone"
+        website: "Site"
+        email: "E-mail"
+        logo: "Brasão"
