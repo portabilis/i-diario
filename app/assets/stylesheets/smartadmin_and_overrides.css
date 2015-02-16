@@ -159,3 +159,17 @@ nav ul li b.collapse-sign em:before {
 .icon-addon .fa{
     z-index: 1;
 }
+
+.widget-body table.table.table-bordered{
+    border: 0;
+}
+
+.widget-body table.table.table-bordered tfoot tr td{
+    border-left: 0;
+    border-bottom: 0;    
+}
+
+.widget-body table.table.table-bordered thead tr td,
+.widget-body table.table.table-bordered thead tr th{
+    border-left: 0;
+}

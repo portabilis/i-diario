@@ -10,8 +10,8 @@ pt-BR:
     page_entries_info:
       one_page:
         display_entries:
-          zero: "Exibindo <span style='color: #393939;'>0</span> à <span style='color: #393939;'>0</span> de <span style='color: #57889c;'>0</span> no total"
-          one: "Exibindo <b>1</b> %{entry_name}"
-          other: "Exibindo <b>todos %{count}</b> %{entry_name}"
+          zero: "<span class='text-danger'>Exibindo 0 à 0 de 0 no total</span>"
+          one: "Exibindo <span style='color: #393939;'>1</span> à <span style='color: #393939;'>1</span> de <span style='color: #57889c;'>1</span> no total"
+          other: "Exibindo <span style='color: #393939;'>%{count}</span> à <span style='color: #393939;'>%{count}</span> de <span style='color: #57889c;'>%{count}</span> no total"
       more_pages:
         display_entries: "Exibindo <span style='color: #393939;'>%{first}</span> à <span style='color: #393939;'>%{last}</span> de <span style='color: #57889c;'>%{total}</span> no total"
