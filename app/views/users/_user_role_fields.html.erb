@@ -5,7 +5,7 @@
 
   <td>
     <div class="user-unity <%= 'hidden' unless f.object.role_employee? %>">
-      <%= f.input :unity_id, as: :select2, elements: Unity.ordered, label_html: { class: "hidden" } %>
+      <%= f.association :unity, as: :select2, elements: Unity.ordered, label_html: { class: "hidden" } %>
     </div>
   </td>
 

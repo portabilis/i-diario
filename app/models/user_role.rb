@@ -1,4 +1,6 @@
 class UserRole < ActiveRecord::Base
+  audited associated_with: :user, only: [:role_id, :unity_id]
+
   belongs_to :user
   belongs_to :role
   belongs_to :unity
