@@ -14,7 +14,10 @@
       </ul>
     </div>
 
-    <%= link_to 'Novo', new_unity_path, class: "btn btn-success" %>
+    <% if policy(Unity).new? %>
+      <%= link_to 'Novo', new_unity_path, class: "btn btn-success" %>
+      <%= link_to 'Sincronizar', synchronizations_unities_path, class: "btn btn-success" %>
+    <% end %>
   </div>
 
   <div class="table-responsive">

@@ -70,6 +70,8 @@ Rails.application.routes.draw do
       collection do
         delete :destroy_batch
         post :activate_batch
+        get :synchronizations
+        post :create_batch
       end
     end
     resources :***REMOVED***, concerns: :history

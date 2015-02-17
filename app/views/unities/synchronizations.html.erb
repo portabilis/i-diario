@@ -1,0 +1,70 @@
+<div class="widget-body">
+  <div class="widget-buttons">
+  </div>
+
+  <% if @unities.present? %>
+    <p>
+      Selecione as unidades que deseja sincronizar.
+    </p>
+
+    <%= form_tag create_batch_unities_path do %>
+      <div class="table-responsive">
+        <table class="table table-bordered selectable" id="resources">
+          <thead>
+            <tr>
+              <th><input type="checkbox" id="select-all"></th>
+              <th><%= Unity.human_attribute_name :name %></th>
+              <th><%= Unity.human_attribute_name :unit_type %></th>
+              <th><%= Unity.human_attribute_name :phone %></th>
+              <th><%= Unity.human_attribute_name :email %></th>
+              <th><%= Unity.human_attribute_name :responsible %></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% @unities.each do |unity| %>
+              <tr id="unity_<%= unity.api_code %>">
+                <td>
+                  <input type="hidden" name="unities[][api_code]" value="">
+                  <input type="checkbox" name="unities[][api_code]" value="<%= unity.api_code %>" class="select-target">
+                  <%= fields_for "unities[]", unity do |f| %>
+                    <%= f.hidden_field :name %>
+                    <%= f.hidden_field :phone %>
+                    <%= f.hidden_field :email %>
+                    <%= f.hidden_field :responsible %>
+                    <%= f.hidden_field :unit_type %>
+                    <%= fields_for "unities[][address_attributes]", unity.address do |a| %>
+                      <%= a.hidden_field :street %>
+                      <%= a.hidden_field :zip_code %>
+                      <%= a.hidden_field :number %>
+                      <%= a.hidden_field :neighborhood %>
+                      <%= a.hidden_field :city %>
+                      <%= a.hidden_field :state %>
+                      <%= a.hidden_field :country %>
+                    <% end %>
+                  <% end %>
+                </td>
+                <td>
+                  <%= truncate unity.to_s, length: 40 %>
+                </td>
+                <td><%= unity.unit_type_humanize %></td>
+                <td><%= unity.phone %></td>
+                <td><%= unity.email %></td>
+                <td><%= unity.responsible %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <%= button_tag "Sincronizar", class: "btn btn-success" %>
+      <%= link_to "Voltar", unities_path, class: "btn btn-info" %>
+    <% end %>
+  <% else %>
+    <div class="alert alert-info">
+      Não existem unidades para serem sincronizadas.
+    </div>
+
+    <%= link_to "Voltar", unities_path, class: "btn btn-info" %>
+  <% end %>
+</div>

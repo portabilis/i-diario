@@ -26,6 +26,11 @@ pt-BR:
         notice: '%{resource_name} foi apagada com sucesso.'
         alert: '%{resource_name} não pode ser apagada.'
 
+    unities:
+      create_batch:
+        notice: "Unidades sincronizadas com sucesso."
+        alert: "Ocorreu erro ao salvar as unidades. Favor tentar novamente."
+
     ***REMOVED***s:
       <<: *female
       destroy:

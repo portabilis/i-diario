@@ -85,6 +85,20 @@ class UnitiesController < ApplicationController
     respond_with @unity
   end
 
+  def synchronizations
+    @unities = UnitiesParser.parse!(IeducarApiConfiguration.current)
+
+    authorize Unity, :create?
+  end
+
+  def create_batch
+    if UnitiesCreator.create!(params[:unities])
+      redirect_to unities_path, notice: t('flash.unities.create_batch.notice')
+    else
+      redirect_to synchroniation_unities_path, alert: t('flash.unities.create_batch.alert')
+    end
+  end
+
   private
 
   def unity_params

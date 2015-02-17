@@ -7,7 +7,7 @@ pt-BR:
     unities: 'unidades'
     account: 'conta'
     users: 'usuarios'
-    syncronizations: 'sincronizacoes'
+    synchronizations: 'sincronizacoes'
     ***REMOVED***: 'grupos'
     ***REMOVED***: 'ocorrencias-disciplinares'
     ***REMOVED***: 'boletins-escolares'
@@ -55,3 +55,4 @@ pt-BR:
     history: 'historico'
     confirm: "confirmar"
     preview: "pre-visualizar"
+    syncronizations: 'sincronizacoes'
