@@ -67,16 +67,6 @@ class UnitiesController < ApplicationController
     end
   end
 
-  def activate_batch
-    @unities = Unity.where(id: params[:ids])
-
-    if @unities.activate_all!
-      render json: {}, status: :ok
-    else
-      render json: {}, status: 500
-    end
-  end
-
   def history
     @unity = Unity.find params[:id]
 

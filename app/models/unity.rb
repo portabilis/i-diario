@@ -40,11 +40,6 @@ class Unity < ActiveRecord::Base
     where(arel_table[:api_code].in(codes))
   }
   scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }
-  scope :active, -> { order(arel_table[:active].eq(true)) }
-
-  def self.activate_all!
-    all.update_all active: true
-  end
 
   def to_s
     name

@@ -6,9 +6,6 @@
       </button>
       <ul class="dropdown-***REMOVED***">
         <li>
-          <%= link_to 'Ativar', activate_batch_unities_path, id: 'activate-batch' %>
-        </li>
-        <li>
           <%= link_to 'Excluir', destroy_batch_unities_path, id: 'destroy-batch' %>
         </li>
       </ul>
@@ -30,7 +27,6 @@
           <th><%= Unity.human_attribute_name :phone %></th>
           <th><%= Unity.human_attribute_name :email %></th>
           <th><%= Unity.human_attribute_name :responsible %></th>
-          <th><%= Unity.human_attribute_name :active %></th>
           <th></th>
         </tr>
       </thead>
@@ -50,7 +46,6 @@
             <td><%= unity.phone %></td>
             <td><%= unity.email %></td>
             <td><%= unity.responsible %></td>
-            <td><%= I18n.t "boolean.#{unity.active}" %></td>
             <td>
               <%= link_to 'Editar', edit_unity_path(unity), class: "btn btn-success" %>
               <%= link_to 'Excluir', unity_path(unity), class: "btn btn-danger",

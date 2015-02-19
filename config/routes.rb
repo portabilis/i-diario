@@ -69,7 +69,6 @@ Rails.application.routes.draw do
     resources :unities, concerns: :history do
       collection do
         delete :destroy_batch
-        post :activate_batch
         get :synchronizations
         post :create_batch
       end
