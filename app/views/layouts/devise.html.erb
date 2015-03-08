@@ -38,13 +38,13 @@
           <%#= render 'layouts/novo_pais' %>
 
           <div class="col-xs-12 col-sm-12 col-md-7 col-lg-8 hidden-xs hidden-sm hidden-md">
-            <h1 class="login-header-big txt-color-portabilis">Serviços eletrônicos para a Comunidade escolar</h1>
+            <h1 class="login-header-big txt-color-portabilis">Serviços eletrônico : s para a Comunidade escolar</h1>
             <div class="hero">
 
               <div class="pull-left login-desc-box-l">
                 <h4 class="paragraph-header">Estamos ajudando a conectar pais, alunos e professores. Crie sua conta e confira. Ensinar e aprender nunca foi tão morderno!</h4>
                 <div class="login-app-icons">
-                  <%= link_to 'Saiba mais', 'http://portabilis.com.br', target: '_blank', class: 'btn btn-portabilis btn-sm' %>                  
+                  <%= link_to 'Saiba mais', (current_entity.name == '***REMOVED***' ? 'http://www.***REMOVED***.com.br' : 'http://portabilis.com.br'), target: '_blank', class: 'btn btn-portabilis btn-sm' %>                  
                 </div>
               </div>
               

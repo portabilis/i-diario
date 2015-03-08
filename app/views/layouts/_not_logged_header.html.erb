@@ -1,6 +1,6 @@
 <header id="header">
 	<div id="logo-group">
-	<%= link_to image_tag('portabilis_logo.png', height: '60px'), root_path %>
+	<%= current_entity.name == '***REMOVED***' ? link_to(image_tag('https://s3.amazonaws.com/apps-ieducar-images/***REMOVED***/bandeira-prefeitura', height: '60px'), root_path) : link_to(image_tag('portabilis_logo.png', height: '60px'), root_path) %>
 	</div>
 	<span id="extr-page-header-space">
 		<span class="hidden-mobile">Não possui uma conta?</span>
