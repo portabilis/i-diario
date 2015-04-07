@@ -63,7 +63,11 @@ class UnitiesParser
   def format_cep(value)
     return nil if value.blank? || value.strip.blank?
 
-    pre, suf = value.strip.gsub(/[^\d+]/, '').match(/([0-9]{5})([0-9]{3})/).captures
+    value = value.strip.gsub(/[^\d+]/, '')
+
+    return nil if value.length != 8
+
+    pre, suf = value.match(/([0-9]{5})([0-9]{3})/).captures
 
     "#{pre}-#{suf}"
   end
