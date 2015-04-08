@@ -10,15 +10,9 @@ RSpec.describe GeneralConfiguration, :type => :model do
   end
 
   describe ".current" do
-    context "when it doesn't have a existent configuration" do
-      it "returns a new configuration" do
-        expect(GeneralConfiguration.current).to be_new_record
-      end
-    end
-
     context "when it has a persited configuration" do
       it "return the first persited configuration" do
-        general_configuration = GeneralConfiguration.create
+        general_configuration = general_configurations(:general_configuration)
         expect(GeneralConfiguration.current).to eq general_configuration
       end
     end

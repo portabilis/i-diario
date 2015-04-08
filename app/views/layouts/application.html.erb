@@ -59,7 +59,7 @@
           </div>
           <!-- logout button -->
 
-          <% if current_user.roles.exists? %>
+          <% if current_user.roles.present? %>
             <div id="change-permission" class="btn-group btn-header transparent pull-right">
               <a class=" dropdown-toggle" data-toggle="dropdown">
                 Perfil atual: <%= current_user.role_name %>

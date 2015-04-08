@@ -1,19 +1,24 @@
 # encoding: utf-8
 module Turnip
   module SignUpSteps
-    step "que acesso a página de signup de pais" do
+    step "que acesso a página de signup" do
       visit root_path
 
       click_link 'Criar conta'
 
-      expect(page).to have_content "Escolha seu perfil"
-
-      click_on "Acesso pais"
+      expect(page).to have_content 'Crie sua conta'
     end
 
     step "informo os dados para o cadastro de pais" do
       VCR.use_cassette('signup_parent') do
-        expect(page).to have_content "Informações básicas"
+        expect(page).to have_content "Dados pessoais"
+
+        fill_in 'E-mail', with: 'clark@example.com'
+        fill_in 'Senha', with: '11223344'
+        fill_in 'Confirme a senha', with: '11223344'
+        fill_mask "Celular", with: "(31) 94361177"
+
+        check "Pais"
 
         fill_mask "CPF", with: "729.785.662-21"
         fill_in "Código do aluno", with: "1931"
@@ -35,13 +40,6 @@ module Turnip
         end
       end
 
-      expect(page).to have_content "Cadastro do usuário"
-
-      fill_mask "Celular", with: "(31) 94361177"
-      fill_in 'E-mail', with: 'clark@example.com'
-      fill_in 'Senha', with: '11223344'
-      fill_in 'Confirme a senha', with: '11223344'
-
       click_button 'Confirmar e acessar o sistema'
     end
 
@@ -49,27 +47,20 @@ module Turnip
       expect(page).to have_text 'Bem-vindo! Você se registrou com sucesso.'
     end
 
-    step "que acesso a página de signup de alunos" do
-      visit root_path
-
-      click_link 'Criar conta'
-
-      expect(page).to have_content "Escolha seu perfil"
-
-      click_on "Acesso alunos"
-    end
-
     step "informo os dados para o acesso do aluno" do
-      expect(page).to have_content "Novo acesso"
+      expect(page).to have_content "Dados pessoais"
 
       fill_in 'E-mail', with: 'mary@mary.com'
       fill_in 'Senha', with: '11223344'
       fill_in 'Confirme a senha', with: '11223344'
 
-      click_button "Solicitar acesso"
+      check "Aluno"
+
+      click_on "Confirmar e acessar o sistema"
     end
 
     step "deverei ver a mensagem de acesso solicitado" do
+      sleep 3
       expect(page).to have_content "Notificamos o responsável da sua unidade escolar sobre sua solicitação. Em breve você receberá um e-mail com o seu acesso."
     end
 
@@ -82,24 +73,14 @@ module Turnip
       expect(page).to have_content 'A sua conta não foi ativada ainda.'
     end
 
-    step "que acesso a página de signup de servidores" do
-      visit root_path
-
-      click_link 'Criar conta'
-
-      expect(page).to have_content "Escolha seu perfil"
-
-      click_on "Acesso servidores"
-    end
-
     step "informo os dados para o acesso do servidor" do
-      expect(page).to have_content "Novo acesso"
-
       fill_in 'E-mail', with: 'tony@stark.com'
       fill_in 'Senha', with: '11223344'
       fill_in 'Confirme a senha', with: '11223344'
 
-      click_button "Solicitar acesso"
+      check "Servidor"
+
+      click_on "Confirmar e acessar o sistema"
     end
 
     step "o servidor não poderá logar enquanto o acesso estiver pendente" do

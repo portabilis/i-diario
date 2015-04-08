@@ -1,0 +1,4 @@
+general_configuration:
+  students_default_role: student
+  employees_default_role: secretary
+  parents_default_role: parent

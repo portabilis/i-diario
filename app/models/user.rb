@@ -38,7 +38,7 @@ class User < ActiveRecord::Base
   has_many :authorization_***REMOVED***
   has_many :***REMOVED***
   has_many :user_roles
-  has_many :roles, through: :user_roles
+  #has_many :roles, through: :user_roles
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
@@ -123,10 +123,12 @@ class User < ActiveRecord::Base
     codes.flatten
   end
 
-  def set_role!(role_id)
-    role = self.roles.find(role_id)
+  def roles
+    user_roles.map(&:role)
+  end
 
-    return false unless role
+  def set_role!(role_id)
+    return false unless user_roles.exists?(role_id: role_id)
 
     update_column :role_id, role_id
   end
@@ -152,7 +154,7 @@ class User < ActiveRecord::Base
   protected
 
   def uniqueness_of_student_parent_role
-    return unless user_roles
+    return if user_roles.blank?
 
     parent_roles = []
     student_roles = []

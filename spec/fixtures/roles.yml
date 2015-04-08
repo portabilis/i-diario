@@ -7,3 +7,13 @@ secretary:
   name: "Secretária"
   kind: "employee"
   author: john_doe
+
+parent:
+  name: "Pais"
+  kind: "parent"
+  author: john_doe
+
+student:
+  name: "Aluno"
+  kind: "student"
+  author: john_doe
