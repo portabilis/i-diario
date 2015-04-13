@@ -6,7 +6,7 @@ module Turnip
     end
 
     step 'eu entrar no formulário de nova permissão' do
-      click_on "Novo"
+      click_on "Nova permissão"
     end
 
     step 'poderei cadastrar uma nova permissão' do
