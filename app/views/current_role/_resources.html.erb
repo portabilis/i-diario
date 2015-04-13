@@ -1,0 +1,18 @@
+<tbody id="resources-tbody">
+  <% if @user_roles.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="4"> <%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @user_roles.each do |user_role| %>
+      <tr>
+        <td><%= user_role.role_name %></td>
+        <td><%= user_role.role_kind_humanize %></td>
+        <td><%= user_role.unity_name %></td>
+        <td>
+          <%= link_to 'Usar este perfil', set_current_role_path(user_role.role_id), class: "btn btn-primary" %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

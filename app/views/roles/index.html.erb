@@ -1,40 +1,28 @@
-<div class="widget-body">
-  <%= link_to 'Novo', new_role_path, class: "btn btn-success" %>
-
+<div class="widget-body no-padding">
   <div class="table-responsive">
-    <table class="table table-bordered" id="resources">
+    <table class="table table-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
           <th><%= Role.human_attribute_name :name %></th>
           <th><%= Role.human_attribute_name :author %></th>
           <th><%= Role.human_attribute_name :kind %></th>
           <% if policy(@roles).update? %>
-            <th></th>
+            <td style="text-align: right; width: 150px;"><%= link_to t('.new_html'), new_role_path, class: "btn btn-primary" %></td>
           <% end %>
         </tr>
       </thead>
 
-      <tbody>
-        <% @roles.each do |role| %>
-          <tr>
-            <td>
-              <% if policy(role).update? %>
-                <%= link_to role.name, edit_role_path(role) %>
-              <% else %>
-                <%= role.name %>
-              <% end %>
-            </td>
-            <td><%= role.author %></td>
-            <td><%= role.kind_humanize %></td>
-            <% if policy(role).update? %>
-              <td>
-                <%= link_to 'Editar', edit_role_path(role), class: "btn btn-success" %>
-                <%= link_to 'Excluir', role_path(role), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
-              </td>
-            <% end %>
-          </tr>
-        <% end %>
-      </tbody>
+      <%= render 'resources' %>
+      <tfoot id="paginator" class="remote">
+        <td colspan="<%= policy(@roles).update? ? '4' : '3' %>">
+          <div id="page_entries_info" class="pull-left hidden-xs">
+            <%= page_entries_info @roles %>
+          </div>
+          <div class="pull-right">
+            <%= paginate @roles %>
+          </div>
+        </td>
+      </tfoot>
     </table>
   </div>
 </div>

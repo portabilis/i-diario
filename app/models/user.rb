@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
   has_associated_audits
 
   include Audit
+  include Filterable
 
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
@@ -53,6 +54,12 @@ class User < ActiveRecord::Base
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
   scope :with_phone, -> { where(arel_table[:phone].not_eq(nil)).where(arel_table[:phone].not_eq("")) }
   scope :admin, -> { where(arel_table[:admin].eq(true)) }
+
+  #search scopes
+  scope :full_name, lambda { |full_name| where("first_name || ' ' || last_name ILIKE ?", "%#{full_name}%")}
+  scope :email, lambda { |email| where("email ILIKE ?", "%#{email}%")}
+  scope :login, lambda { |login| where("login ILIKE ?", "%#{login}%")}
+  scope :status, lambda { |status| where status: status }
 
   def self.find_for_authentication(conditions)
     credential = conditions.fetch(:credentials)

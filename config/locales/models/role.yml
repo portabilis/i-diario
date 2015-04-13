@@ -10,3 +10,6 @@ pt-BR:
         author: "Autor"
         author_id: "Autor"
         kind: "Tipo"
+  roles:
+    index:
+      new_html: "<i class='fa fa-plus'></i> Nova permissão"

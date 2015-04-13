@@ -13,7 +13,7 @@ $(function(){
 
   $('form.filterable_search_form').submit(filterableSearch);
 
-  $('form.filterable_search_form .pagination a').on('click',
+  $('.remote .pagination a').on('click',
     function () {
       $.getScript(this.href);
       return false;
