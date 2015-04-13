@@ -21,7 +21,7 @@
                 Backup está sendo gerado.
               </span>
             <% elsif f.object.error? %>
-              <span class="label label-danger">
+              <span class="label label-danger" title="<%= f.object.error_message %>">
                 Erro ao processar o backup.
               </span>
             <% end %>
