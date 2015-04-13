@@ -106,3 +106,7 @@ table.table-condensed.table-bordered > tbody > tr > td.no_record_found{
   height: 200px;
   border: 1px solid #ccc;
 }
+
+.pagination{
+  font-size: 12px;
+}
