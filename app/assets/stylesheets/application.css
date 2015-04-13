@@ -110,3 +110,7 @@ table.table-condensed.table-bordered > tbody > tr > td.no_record_found{
 .pagination{
   font-size: 12px;
 }
+
+td.actions{
+  text-align: right;
+}

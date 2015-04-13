@@ -1,25 +1,36 @@
-<div class="widget-body">
-  <div class="widget-buttons">
-    <div class="btn-group">
-      <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-        Ações <span class="caret"></span>
-      </button>
-      <ul class="dropdown-***REMOVED***">
-        <li>
-          <%= link_to 'Excluir', destroy_batch_unities_path, id: 'destroy-batch' %>
-        </li>
-      </ul>
-    </div>
-
-    <% if policy(Unity).new? %>
-      <%= link_to 'Novo', new_unity_path, class: "btn btn-success" %>
-      <%= link_to 'Sincronizar', synchronizations_unities_path, class: "btn btn-success" %>
-    <% end %>
-  </div>
-
+<div class="widget-body no-padding">
   <div class="table-responsive">
-    <table class="table table-bordered selectable" id="resources">
+  <%= simple_form_for :search, {url: unities_path, method: :get,
+                                html: {class: 'filterable_search_form'}} do |f| %>
+    <table class="table table-bordered table-striped table-condensed table-hover selectable" id="resources">
       <thead>
+        <tr>
+          <td>
+            <div class="btn-group">
+              <button class="btn btn-warning dropdown-toggle" data-toggle="dropdown">
+                Ações <span class="caret"></span>
+              </button>
+              <ul class="dropdown-***REMOVED***">
+                <li>
+                  <%= link_to 'Excluir', destroy_batch_unities_path, id: 'destroy-batch' %>
+                </li>
+              </ul>
+            </div>
+          </td>
+
+          <td><%= f.input :search_name, label: false, placeholder: "Filtrar nome" %></td>
+          <td><%= f.input :unit_type, as: :select, label: false,
+                                   prompt: "Filtrar tipo de unidade", collection: UnitTypes %></td>
+          <td><%= f.input :phone, as: :tel, label: false, placeholder: "Filtrar telefone" %></td>
+          <td><%= f.input :email, label: false, placeholder: "Filtrar e-mail" %></td>
+          <td><%= f.input :responsible, label: false, placeholder: "Filtrar responsável" %></td>
+
+          <td class="actions">
+            <% if policy(Unity).new? %>
+              <%= link_to t('.synchronize_html'), synchronizations_unities_path, class: "btn btn-info" %>
+            <% end %>
+          </td>
+        </tr>
         <tr>
           <th><input type="checkbox" id="select-all"></th>
           <th><%= Unity.human_attribute_name :name %></th>
@@ -27,36 +38,26 @@
           <th><%= Unity.human_attribute_name :phone %></th>
           <th><%= Unity.human_attribute_name :email %></th>
           <th><%= Unity.human_attribute_name :responsible %></th>
-          <th></th>
+          <td class="actions" style="width: 160px;">
+            <% if policy(Unity).new? %>
+                <%= link_to t('.new_html'), new_unity_path, class: "btn btn-primary" %>
+            <% end %>
+          </td>
         </tr>
       </thead>
 
-      <tbody>
-        <% @unities.each do |unity| %>
-          <tr id="unity_<%= unity.id %>">
-            <td>
-              <input type="checkbox" name="ids[]" value="<%= unity.id %>" class="select-target">
-            </td>
-            <td>
-              <%= link_to edit_unity_path(unity) do %>
-                <%= truncate unity.to_s, length: 40 %>
-              <% end %>
-            </td>
-            <td><%= unity.unit_type_humanize %></td>
-            <td><%= unity.phone %></td>
-            <td><%= unity.email %></td>
-            <td><%= unity.responsible %></td>
-            <td>
-              <%= link_to 'Editar', edit_unity_path(unity), class: "btn btn-success" %>
-              <%= link_to 'Excluir', unity_path(unity), class: "btn btn-danger",
-                title: "Excluir #{unity.to_s}",
-                method: "delete", data: { confirm: "Tem certeza?" } %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
+      <%= render 'resources' %>
+      <tfoot id="paginator" class="remote">
+        <td colspan="7">
+          <div id="page_entries_info" class="pull-left hidden-xs">
+            <%= page_entries_info @unities %>
+          </div>
+          <div class="pull-right">
+            <%= paginate @unities %>
+          </div>
+        </td>
+      </tfoot>
     </table>
-
-    <%= paginate @unities %>
+  <% end %>
   </div>
 </div>

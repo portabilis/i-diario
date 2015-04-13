@@ -11,7 +11,11 @@
         </td>
         <td><%= user.email %></td>
         <td><%= user.login %></td>
-        <td><%= user.status_humanize %></td>
+        <td>
+          <span class="<%= user_status_label user.status %>">
+            <%= user.status_humanize %>
+          </span>
+        </td>
         <td>
           <%= link_to 'Editar', edit_user_path(user), class: "btn btn-success" %>
           <%= link_to 'Excluir', user_path(user), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
