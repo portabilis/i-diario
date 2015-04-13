@@ -17,4 +17,17 @@ RSpec.describe GeneralConfiguration, :type => :model do
       end
     end
   end
+
+  describe "#mark_with_error" do
+    it "sets configuration backup's error message" do
+      error = ""
+
+      expect(subject).to receive(:update_columns).with(
+        backup_status: ApiSyncronizationStatus::ERROR,
+        error_message: error
+      )
+
+      subject.mark_with_error!(error)
+    end
+  end
 end

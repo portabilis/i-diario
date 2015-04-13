@@ -16,8 +16,8 @@ class BackupFileWorker
 
         backup.close
         backup.unlink
-      rescue
-        configuration.mark_with_error!
+      rescue Exception => e
+        configuration.mark_with_error!(e.message)
       end
     end
   end

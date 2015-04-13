@@ -20,7 +20,10 @@ class GeneralConfiguration < ActiveRecord::Base
     self.first.presence || new
   end
 
-  def mark_with_error!
-    update_column :backup_status, ApiSyncronizationStatus::ERROR
+  def mark_with_error!(message)
+    update_columns(
+      backup_status: ApiSyncronizationStatus::ERROR,
+      error_message: message
+    )
   end
 end
