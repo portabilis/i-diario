@@ -110,3 +110,6 @@ pt-BR:
       <<: *female
     test_settings:
       <<: *female
+
+    school_calendars:
+      <<: *male

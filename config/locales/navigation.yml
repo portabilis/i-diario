@@ -41,6 +41,7 @@ pt-BR:
     current_role: "Seleção de perfil"
     entity_configurations: "Entidade"
     test_settings: "Avaliação"
+    school_calendars: "Calendário letivo"
 
   enumerations:
     features:

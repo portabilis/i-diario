@@ -1,6 +1,6 @@
 # language: pt
 
-Funcionalidade: ***REMOVED***
+Funcionalidade: Configurações de avaliação
 
   Contexto:
     Dado que estou logado

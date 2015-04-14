@@ -39,6 +39,7 @@ pt-BR:
     ***REMOVED***: '***REMOVED***'
     entity_configurations: 'configuracoes-da-entidade'
     test_settings: 'configuracoes-de-avaliacao'
+    school_calendars: 'calendários-letivo'
 
     # actions
     edit: 'editar'

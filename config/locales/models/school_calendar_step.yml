@@ -1,0 +1,11 @@
+pt-BR:
+  activerecord:
+    models:
+      school_calendar_step:
+        one: "Etapa de calendário letivo"
+        other: "Etapas de calendário letivo"
+
+    attributes:
+      school_calendar_step:
+        start_at: "Data inicial"
+        end_at: "Data final"

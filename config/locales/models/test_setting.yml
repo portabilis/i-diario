@@ -22,5 +22,7 @@ pt-BR:
   test_settings:
     form:
       add_test: Adicionar avaliação
+    test_fields:
+      remove: Remover
     index:
       new_html: "<i class='fa fa-plus'></i> Nova configuração"
