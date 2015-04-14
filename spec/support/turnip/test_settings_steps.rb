@@ -32,7 +32,7 @@ module Turnip
     end
 
     step 'poderei alterar os dados desta configuração de avaliação' do
-      fill 'Ano', with: '2020'
+      fill_in 'Ano', with: '2020'
 
       click_on 'Salvar'
 
