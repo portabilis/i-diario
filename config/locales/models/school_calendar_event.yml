@@ -1,0 +1,16 @@
+pt-BR:
+  activerecord:
+    models:
+      school_calendar_event:
+        one: "Evento do calendário letivo"
+        other: "Eventos do calendário letivo"
+
+    attributes:
+      school_calendar_event:
+        event_date: "Data"
+        description: "Descrição"
+        event_type: "Tipo"
+
+  school_calendar_events:
+    index:
+      new_html: "<i class='fa fa-plus'></i> Novo evento"

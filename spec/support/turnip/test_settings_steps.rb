@@ -33,7 +33,6 @@ module Turnip
 
     step 'poderei alterar os dados desta configuração de avaliação' do
       fill_in 'Ano', with: '2020'
-      uncheck 'Fixar avaliações'
 
       click_on 'Salvar'
 

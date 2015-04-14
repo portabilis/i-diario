@@ -42,6 +42,7 @@ pt-BR:
     entity_configurations: "Entidade"
     test_settings: "Avaliação"
     school_calendars: "Calendário letivo"
+    school_calendar_events: "Eventos"
 
   enumerations:
     features:

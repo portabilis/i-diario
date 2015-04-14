@@ -7,6 +7,7 @@ class SchoolCalendar < ActiveRecord::Base
   include Audit
 
   has_many :steps, class_name: "SchoolCalendarStep", dependent: :destroy
+  has_many :events, class_name: "SchoolCalendarEvent", dependent: :destroy
 
   validates :year, uniqueness: true
   validates :year, :number_of_classes, presence: true

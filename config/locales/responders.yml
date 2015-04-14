@@ -113,3 +113,6 @@ pt-BR:
 
     school_calendars:
       <<: *male
+
+    school_calendar_events:
+      <<: *male

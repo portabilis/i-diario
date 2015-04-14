@@ -1,0 +1,30 @@
+<%= simple_form_for [@school_calendar, @school_calendar_event], html: { class: "smart-form" } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :event_date %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :description %>
+      </div>
+      <div class="col col-sm-4">
+        <%= f.input :event_type, collection: EventTypes %>
+      </div>
+    </div>
+
+  </fieldset>
+
+  <footer>
+    <%= link_to "Voltar", school_calendar_school_calendar_events_path, class: "btn btn-default" %>
+
+    <% if @school_calendar_event.persisted? %>
+      <%= link_to 'Histórico', history_school_calendar_school_calendar_event_path(id: @school_calendar_event, school_calendar: @school_calendar), class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+
+  </footer>
+<% end %>

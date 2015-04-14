@@ -107,6 +107,7 @@ Rails.application.routes.draw do
 
     resources :school_calendars, concerns: :history do
       resources :school_calendar_steps, only: [:index]
+      resources :school_calendar_events, concerns: :history
     end
   end
 end
