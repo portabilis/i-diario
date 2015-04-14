@@ -11,6 +11,9 @@ class IeducarSynchronizerWorker
         # synchronize Classrooms
         ClassroomsSynchronizer.synchronize!(synchronization)
 
+        # synchronize Disciplines
+        DisciplinesSynchronizer.synchronize!(synchronization)
+
         # synchronize Students
         StudentsSynchronizer.synchronize!(synchronization)
 
