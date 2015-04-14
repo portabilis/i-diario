@@ -1,0 +1,12 @@
+pt-BR:
+  activerecord:
+    models:
+      test_setting_test:
+        one: "Avaliação de configuração de avaliação"
+        other: "Avaliações de configuração de avaliação"
+
+    attributes:
+      test_setting_test:
+        description: "Avaliação"
+        weight: "Peso"
+        test_type: "Tipo de avaliação"

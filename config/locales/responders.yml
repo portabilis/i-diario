@@ -108,3 +108,5 @@ pt-BR:
       <<: *female
     execution_***REMOVED***s:
       <<: *female
+    test_settings:
+      <<: *female

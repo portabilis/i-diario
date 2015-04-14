@@ -80,6 +80,9 @@ navigation:
         - ***REMOVED***:
             type: "entity_configurations"
             path: "edit_entity_configurations_path"
+        - ***REMOVED***:
+            type: "test_settings"
+            path: "test_settings_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-bullhorn"

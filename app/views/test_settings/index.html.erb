@@ -1,0 +1,25 @@
+<div class="widget-body no-padding">
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped table-condensed table-hover" id="resources">
+      <thead>
+        <tr>
+          <th><%= TestSetting.human_attribute_name :year %></th>
+          <th><%= TestSetting.human_attribute_name :fix_tests %></th>
+          <td class="actions" style="width: 160px;"><%= link_to t('.new_html'), new_test_setting_path, class: "btn btn-primary" %></td>
+        </tr>
+      </thead>
+
+      <%= render 'resources' %>
+      <tfoot id="paginator" class="remote">
+        <td colspan="3">
+          <div id="page_entries_info" class="pull-left hidden-xs">
+            <%= page_entries_info @test_settings %>
+          </div>
+          <div class="pull-right">
+            <%= paginate @test_settings %>
+          </div>
+        </td>
+      </tfoot>
+    </table>
+  </div>
+</div>

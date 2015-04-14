@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    test_types:
+      regular: "Normal"
+      recovery: "Recuperação"

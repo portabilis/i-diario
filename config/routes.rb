@@ -100,5 +100,9 @@ Rails.application.routes.draw do
     resources :authorization_***REMOVED***, concerns: :history
     resources :moved_***REMOVED***, only: [:index]
     resources :***REMOVED***, concerns: :history
+
+    resources :test_settings, concerns: :history do
+      resources :test_setting_tests, only: [:index]
+    end
   end
 end

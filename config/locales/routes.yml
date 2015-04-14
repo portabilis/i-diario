@@ -38,6 +38,7 @@ pt-BR:
     moved_***REMOVED***: 'saldo-de-materiais-por-unidade'
     ***REMOVED***: '***REMOVED***'
     entity_configurations: 'configuracoes-da-entidade'
+    test_settings: 'configuracoes-de-avaliacao'
 
     # actions
     edit: 'editar'

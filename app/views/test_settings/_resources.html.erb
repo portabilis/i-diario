@@ -1,0 +1,20 @@
+<tbody id="resources-tbody">
+  <% if @test_settings.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="3"> <%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @test_settings.each do |test_setting| %>
+      <tr>
+        <td><%= test_setting.year %></td>
+        <td><%= t_boolean test_setting.fix_tests %></td>
+        <td class="actions">
+          <%= link_to 'Editar', edit_test_setting_path(test_setting),
+            class: "btn btn-success" %>
+          <%= link_to 'Excluir', test_setting_path(test_setting),
+            class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

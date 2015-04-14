@@ -1,0 +1,46 @@
+<%= simple_form_for @test_setting, html: { class: "smart-form" } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :year, input_html: { max_length: 4 } %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :fix_tests %>
+      </div>
+    </div>
+
+  </fieldset>
+
+  <fieldset id="item_setting_tests" data-nested-fields-container>
+    <legend>Avaliações</legend>
+
+    <%= link_to_add_association t('.add_test'), f, :tests,
+      class: 'btn btn-default btn-sm btn-add-item' %>
+
+    <div>
+      <span class="help-inline">
+        <%= f.object.errors[:tests].join "<br />" %>
+      </span>
+    </div>
+
+    <div data-item-setting-tests-container>
+      <%= f.simple_fields_for :tests do |test| %>
+        <%= render 'test_fields', f: test %>
+      <% end %>
+    </div>
+  </fieldset>
+
+  <footer>
+    <%= link_to "Voltar", test_settings_path, class: "btn btn-default" %>
+
+    <% if @test_setting.persisted? %>
+      <%= link_to 'Histórico', history_test_setting_path(@test_setting), class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+
+  </footer>
+<% end %>
