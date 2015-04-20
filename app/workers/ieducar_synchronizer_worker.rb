@@ -14,6 +14,9 @@ class IeducarSynchronizerWorker
         # synchronize Disciplines
         DisciplinesSynchronizer.synchronize!(synchronization)
 
+        # synchronize Teachers and relations
+        TeachersSynchronizer.synchronize!(synchronization)
+
         # synchronize Students
         StudentsSynchronizer.synchronize!(synchronization)
 
@@ -26,6 +29,10 @@ class IeducarSynchronizerWorker
         synchronization.mark_as_completed!
       rescue IeducarApi::Base::ApiError => e
         synchronization.mark_as_error!(e.message)
+      rescue Exception => e
+        # mark with error in any exception
+        synchronization.mark_as_error!("Ocorreu um erro desconhecido.")
+        raise e
       end
     end
   end
