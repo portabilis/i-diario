@@ -34,6 +34,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :teachers, only: :index
+
     root 'dashboard#index'
 
     get '/sandbox', to: 'dashboard#sandbox'

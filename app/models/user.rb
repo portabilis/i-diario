@@ -18,6 +18,7 @@ class User < ActiveRecord::Base
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
   belongs_to :student
+  belongs_to :teacher
   belongs_to :role
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy

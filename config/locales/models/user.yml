@@ -25,6 +25,8 @@ pt-BR:
         role_id: "Permissão"
         role: "Permissão"
         admin: "Admin?"
+        teacher: "Professor"
+        teacher_id: "Professor"
 
     errors:
       models:
