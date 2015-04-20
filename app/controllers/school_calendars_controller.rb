@@ -19,6 +19,8 @@ class SchoolCalendarsController < ApplicationController
     authorize resource
 
     if resource.save
+      events_seeder = SchoolCalendarEventsSeeder.new(school_calendar: resource)
+      events_seeder.seed
       respond_with resource, location: school_calendars_path
     else
       render :new
