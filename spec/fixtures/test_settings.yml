@@ -1,3 +1,6 @@
 test_setting_a:
   year: 2015
   fix_tests: true
+test_setting_b:
+  year: 2014
+  fix_tests: false
