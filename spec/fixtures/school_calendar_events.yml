@@ -1,0 +1,5 @@
+school_calendar_event_a:
+  school_calendar: school_calendar_a
+  event_date: "2015-01-01"
+  description: Ano Novo
+  event_type: no_school

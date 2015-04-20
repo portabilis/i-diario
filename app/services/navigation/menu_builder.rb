@@ -20,7 +20,8 @@ module Navigation
     def amount_nodes(nodes, parent_***REMOVED*** = nil)
       nodes ||= []
 
-      nodes.each do |node|
+      nodes.select do |node|
+        return false if !node["***REMOVED***"]["visible"].nil? && node["***REMOVED***"]["visible"] == false
         yield node_values(node["***REMOVED***"], parent_***REMOVED***)
       end
     end
@@ -43,6 +44,7 @@ module Navigation
         amount_nodes node["sub***REMOVED***s"], ***REMOVED*** do |subnode|
           ***REMOVED***[:subnodes] << subnode
         end
+        true
       end
     end
 
