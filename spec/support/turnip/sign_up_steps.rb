@@ -21,7 +21,7 @@ module Turnip
         check "Pais"
 
         fill_mask "CPF", with: "729.785.662-21"
-        fill_in "Código do aluno", with: "1931"
+        fill_in "Código do aluno", with: "1932"
 
         sleep 2
       end
@@ -30,13 +30,15 @@ module Turnip
 
       within "table" do
         within "tbody tr:nth-child(1)" do
+          click_on "ADRIANO ROQUE"
           expect(page).to have_content "ADRIANO ROQUE"
           expect(page).to have_content "544"
         end
 
         within "tbody tr:nth-child(2)" do
+          click_on "ABNER ROCHA"
           expect(page).to have_content "ABNER ROCHA"
-          expect(page).to have_content "1931"
+          expect(page).to have_content "1932"
         end
       end
 
@@ -45,6 +47,11 @@ module Turnip
 
     step "deverei ser logado ao sistema" do
       expect(page).to have_text 'Bem-vindo! Você se registrou com sucesso.'
+
+      user = User.last
+
+      expect(user.email).to eq "clark@example.com"
+      expect(user.students.pluck(:name)).to eq(["ADRIANO ROQUE", "ABNER ROCHA"])
     end
 
     step "informo os dados para o acesso do aluno" do

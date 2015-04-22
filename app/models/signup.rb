@@ -11,6 +11,9 @@ class Signup
   validates :celphone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :password, confirmation: true, length: { minimum: 8 }, allow_blank: true
   validates :email, email: true, allow_blank: true
+
+  validate :presence_of_default_roles
+  validate :presence_of_role
   validate :uniqueness_of_document
   validate :uniqueness_of_email
 
@@ -31,7 +34,6 @@ class Signup
   end
 
   def students
-    return []
     students = []
 
     (students_attributes || []).each do |_, attribute|
@@ -71,19 +73,19 @@ class Signup
         end
 
         user.user_roles << UserRole.new(
-          role: general_configuration.try(:parents_default_role)
+          role: parents_default_role
         )
       end
 
       if employee_role?
         user.user_roles << UserRole.new(
-          role: general_configuration.try(:employees_default_role)
+          role: employees_default_role
         )
       end
 
       if student_role?
         user.user_roles << UserRole.new(
-          role: general_configuration.try(:students_default_role)
+          role: students_default_role
         )
       end
 
@@ -129,6 +131,34 @@ class Signup
     if User.exists?(email: email)
       errors.add(:email, :taken)
     end
+  end
+
+  def presence_of_role
+    unless parent_role? || student_role? || employee_role?
+      errors.add(:parent_role, :must_choose_one_role)
+    end
+  end
+
+  def presence_of_default_roles
+    if parents_default_role.blank?
+      errors.add(:parent_role, :default_role_not_found, role: "pais")
+    elsif employees_default_role.blank?
+      errors.add(:employee_role, :default_role_not_found, role: "servidores")
+    elsif students_default_role.blank?
+      errors.add(:student_role, :default_role_not_found, role: "alunos")
+    end
+  end
+
+  def parents_default_role
+    @parents_default_role ||= general_configuration.try(:parents_default_role)
+  end
+
+  def employees_default_role
+    @employees_default_role ||= general_configuration.try(:employees_default_role)
+  end
+
+  def students_default_role
+    @students_defaulr_role ||= general_configuration.try(:students_default_role)
   end
 
   def general_configuration

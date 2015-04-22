@@ -67,15 +67,12 @@ $(function () {
     }
   });
 
-  $('#students').on('click', 'tbody tr', function () {
-    var $el = $(this),
-        $input = $el.find('input[type=checkbox]');
-
-    $input.trigger('click');
+  $('#students').on('click', 'a', function (e) {
+    e.preventDefault();
   });
 
-  $('table.selectable').on('click', 'tbody tr', function (e) {
-    if ($(e.target).attr('type') != "radio" && $(e.target).attr('type') != "checkbox") {
+  $('body').on('click', 'table.selectable tbody tr', function (e) {
+    if (!_.include(["radio", "checkbox", "label"], $(e.target).attr('type'))) {
       var $el = $(this),
           $input = $el.find('input.select-target');
 

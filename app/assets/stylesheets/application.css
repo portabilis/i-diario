@@ -59,10 +59,13 @@ form.smart-form label abbr {
   color: #953b39;
 }
 
-form.smart-form .control-group.error input {
+form.smart-form .control-group.error input,
+form.signup .control-group.error input {
   background-color: #fff0f0;
 }
 
+form.signup .control-group.error input,
+form.signup .control-group.error select,
 form.smart-form .control-group.error input,
 form.smart-form .control-group.error select,
 form.smart-form .control-group.error .select2-container{
@@ -75,6 +78,7 @@ form.smart-form .control-group.error .select2-container a.select2-choice{
 
 form.smart-form .control-group.error span.help-inline,
 form.smart-form .help-inline.error,
+form.signup .error .help-inline,
 form.smart-form .control-group.error label{
   color: #b94a48;
 }

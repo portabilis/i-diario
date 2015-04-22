@@ -2,7 +2,7 @@
   <h2>Crie sua conta</h2>
 
   <div class="row">
-    <%= simple_form_for @signup, as: :signup, url: registrations_path, html: { id: "signup-parent" } do |f| %>
+    <%= simple_form_for @signup, as: :signup, url: registrations_path, html: { class: "signup" } do |f| %>
       <%= f.error_notification %>
 
       <div id="signup-wizard" class="col-sm-12">
@@ -92,7 +92,7 @@
 
             <div class="alert alert-info">
               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-              Informe o CPF do pai, mãe ou responsável e código do aluno e iremos tentar localizar a matrícula para vinculação. Este processo também poderá ser feito posteriormente.
+              Informe o código do aluno que consta no boletim escolar ao lado do nome do aluno. Se ainda não existir nenhum aluno matriculado ou não souber o código, clique na opção ao lado.
             </div>
 
             <div class="row">
@@ -123,7 +123,7 @@
 
               <div class="col-sm-3">
                 <div class="form-group">
-                  <%= f.input :without_student, label: "Nenhum aluno matriculado", wrapper: 'input_group' do %>
+                  <%= f.input :without_student, label: "Nenhum aluno matriculado ou não sei o código", wrapper: 'input_group' do %>
                     <%= f.input_field :without_student, as: :boolean, boolean_style: :inline %>
                   <% end %>
                 </div>
@@ -162,7 +162,7 @@
                           <%= hidden_field_tag "signup[students_attributes][#{index}][name]", student["name"] %>
                           <%= hidden_field_tag "signup[students_attributes][#{index}][api_code]", student["api_code"] %>
                           <%= hidden_field_tag "signup[students_attributes][#{index}][selected]", 0 %>
-                          <%= check_box_tag "signup[students_attributes][#{index}][selected]", 1, %w(true t 1).include?(student["selected"]) %>
+                          <%= check_box_tag "signup[students_attributes][#{index}][selected]", 1, %w(true t 1).include?(student["selected"]), class: "select-target" %>
                         </td>
                         <td>
                           <%= student["name"] %>

@@ -42,7 +42,7 @@ $(function () {
     displayParentFields($(this));
   });
 
-  $('form#signup-parent').on('change', '#signup_document, #signup_student_code', function () {
+  $('form.signup').on('change', '#signup_document, #signup_student_code', function () {
     var $document = $('#signup_document').val().replace(/[^0-9+]/g, ''),
         $studentCode = $('#signup_student_code').val();
 
