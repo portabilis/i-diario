@@ -146,3 +146,10 @@ navigation:
       type: "contents"
       icon: "fa-pencil"
       path: "contents_path"
+  - ***REMOVED***:
+      type: "tests_***REMOVED***"
+      icon: "fa-file-text-o"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "tests"
+            path: "tests_path"

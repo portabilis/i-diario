@@ -115,5 +115,6 @@ Rails.application.routes.draw do
     resources :contents, concerns: :history
     resources :classrooms, only: [:index]
     resources :disciplines, only: [:index]
+    resources :tests, concerns: :history
   end
 end

@@ -1,0 +1,37 @@
+pt-BR:
+  activerecord:
+    models:
+      test:
+        one: "Cadastro de avaliação"
+        other: "Cadastro de avaliações"
+
+    attributes:
+      test:
+        school_calendar: "Calendário letivo"
+        school_calendar_id: "Calendário letivo"
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        test_setting: "Configuração de avaliação"
+        test_setting_id: "Configuração de avaliação"
+        test_date: "Data"
+        class_number: "Aula"
+        description: "Avaliação"
+        test_setting_test_id: "Avaliação"
+        test_setting_test: "Avaliação"
+
+    errors:
+      models:
+        test:
+          attributes:
+              test_date:
+                must_be_school_day: "deve ser um dia letivo"
+              test_setting_test:
+                unique_per_step: "deve ser única por etapa"
+
+  errors:
+    tests:
+      require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"

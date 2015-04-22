@@ -28,6 +28,10 @@ class SchoolCalendar < ActiveRecord::Base
     ![0, 6].include? date.wday
   end
 
+  def step date
+    steps.where(SchoolCalendarStep.arel_table[:start_at].lteq(date)).where(SchoolCalendarStep.arel_table[:end_at].gteq(date)).first
+  end
+
   private
 
   def at_least_one_assigned_step

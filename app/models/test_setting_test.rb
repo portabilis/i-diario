@@ -9,4 +9,8 @@ class TestSettingTest < ActiveRecord::Base
 
   validates :description, :weight, :test_type, presence: true
   validates :weight, numericality: true
+
+  def to_s
+    description
+  end
 end

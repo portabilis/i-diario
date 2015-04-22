@@ -42,6 +42,7 @@ pt-BR:
     school_calendars: 'calendarios-letivo'
     school_calendar_events: 'eventos'
     contents: 'registro-de-conteudos'
+    tests: 'cadastro-de-avaliacoes'
 
     # actions
     edit: 'editar'
