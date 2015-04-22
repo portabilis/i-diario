@@ -2,6 +2,7 @@ class ContentsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
   before_action :require_teacher, only: [:new, :create, :edit, :update]
+  before_action :require_current_school_calendar
 
   def index
     @contents = apply_scopes(Content.includes(:unity, :classroom, :discipline).ordered)
@@ -11,6 +12,7 @@ class ContentsController < ApplicationController
 
   def new
     @content = resource
+    @content.school_calendar = current_school_calendar
 
     authorize resource
 
@@ -19,6 +21,7 @@ class ContentsController < ApplicationController
 
   def create
     resource.assign_attributes resource_params
+    resource.school_calendar = current_school_calendar
 
     authorize resource
 
