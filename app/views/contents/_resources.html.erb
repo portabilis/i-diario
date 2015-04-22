@@ -1,0 +1,23 @@
+<tbody id="resources-tbody">
+  <% if @contents.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="6"> <%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @contents.each do |content| %>
+      <tr>
+        <td><%= content.unity %></td>
+        <td><%= content.classroom %></td>
+        <td><%= content.discipline %></td>
+        <td><%= l content.content_date %></td>
+        <td><%= content.class_number %></td>
+        <td class="actions">
+          <%= link_to 'Editar', edit_content_path(content),
+            class: "btn btn-success" %>
+          <%= link_to 'Excluir', content_path(content),
+            class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

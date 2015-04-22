@@ -116,3 +116,6 @@ pt-BR:
 
     school_calendar_events:
       <<: *male
+
+    contents:
+      <<: *male

@@ -41,6 +41,7 @@ pt-BR:
     test_settings: 'configuracoes-de-avaliacao'
     school_calendars: 'calendarios-letivo'
     school_calendar_events: 'eventos'
+    contents: 'registro-de-conteudos'
 
     # actions
     edit: 'editar'

@@ -142,3 +142,7 @@ navigation:
       type: "school_calendar_events"
       icon: "fa-calendar"
       visible: false
+  - ***REMOVED***:
+      type: "contents"
+      icon: "fa-pencil"
+      path: "contents_path"

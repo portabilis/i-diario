@@ -21,6 +21,13 @@ class SchoolCalendar < ActiveRecord::Base
     year
   end
 
+  def school_day? date
+    return false if events.where(event_date: date, event_type: EventTypes::NO_SCHOOL).any?
+    return true if events.where(event_date: date, event_type: EventTypes::EXTRA_SCHOOL).any?
+    return false if steps.where(SchoolCalendarStep.arel_table[:start_at].lteq(date)).where(SchoolCalendarStep.arel_table[:end_at].gteq(date)).empty?
+    ![0, 6].include? date.wday
+  end
+
   private
 
   def at_least_one_assigned_step

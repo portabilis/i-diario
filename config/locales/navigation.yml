@@ -43,6 +43,7 @@ pt-BR:
     test_settings: "Avaliação"
     school_calendars: "Calendário letivo"
     school_calendar_events: "Eventos"
+    contents: "Registro de conteúdos"
 
   enumerations:
     features:
