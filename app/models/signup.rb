@@ -78,9 +78,12 @@ class Signup
       end
 
       if employee_role?
-        user.user_roles << UserRole.new(
-          role: employees_default_role
+        user_role = UserRole.new(
+          role: employees_default_role,
+          user: user
         )
+
+        user_role.save(validate: false)
       end
 
       if student_role?
