@@ -59,6 +59,12 @@
         <fieldset class="signup-roles">
           <legend>Tipo de conta</legend>
 
+          <% if @signup.errors[:parent_role].present? %>
+            <div class="alert alert-danger">
+              <%= @signup.errors[:parent_role].to_sentence %>
+            </div>
+          <% end %>
+
           <div class="row">
             <div class="col-sm-4 text-center">
               <div class="form-group">
