@@ -56,31 +56,49 @@
           </div>
         </fieldset>
 
-        <fieldset>
+        <fieldset class="signup-roles">
           <legend>Tipo de conta</legend>
 
           <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-4 text-center">
               <div class="form-group">
-                <%= f.input :parent_role, label: RoleKind.t(RoleKind::PARENT), wrapper: 'input_group' do %>
-                  <%= f.input_field :parent_role, as: :boolean, boolean_style: :inline %>
-                <% end %>
+                <div class="well well-lg">
+                  <i class="fa fa-group fa-2x"></i><br/>
+                  <strong>Acesso pais</strong>
+
+                  <label class="checkbox">
+                    <%= f.input_field :parent_role, as: :boolean, boolean_style: :inline %>
+                    Selecione esta opção se você é um pai ou responsável por aluno e deseja cadastrar-se para acessar recursos como pré-matrícula, consulta de notas, faltas, ocorrências disciplinares e outros.
+                  </label>
+                </div>
               </div>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-4 text-center">
               <div class="form-group">
-                <%= f.input :student_role, label: RoleKind.t(RoleKind::STUDENT), wrapper: 'input_group' do %>
-                  <%= f.input_field :student_role, as: :boolean, boolean_style: :inline %>
-                <% end %>
+                <div class="well well-lg">
+                  <i class="fa fa-mortar-board fa-2x"></i><br/>
+                  <strong>Acesso alunos</strong>
+
+                  <label class="checkbox">
+                    <%= f.input_field :student_role, as: :boolean, boolean_style: :inline %>
+                    Selecione esta opção se você é um aluno já matriculado na rede de ensino e deseja cadastrar-se para acessar recursos como consulta de notas, faltas e outras informações exclusivas para alunos.
+                  </label>
+                </div>
               </div>
             </div>
 
-            <div class="col-sm-4">
+            <div class="col-sm-4 text-center">
               <div class="form-group">
-                <%= f.input :employee_role, label: RoleKind.t(RoleKind::EMPLOYEE), wrapper: 'input_group' do %>
-                  <%= f.input_field :employee_role, as: :boolean, boolean_style: :inline %>
-                <% end %>
+                <div class="well well-lg">
+                  <i class="fa fa-male fa-2x"></i><br/>
+                  <strong>Acesso servidores</strong>
+
+                  <label class="checkbox">
+                    <%= f.input_field :employee_role, as: :boolean, boolean_style: :inline %>
+                    Selecione esta opção se você é um servidor da rede de ensino e deseja cadastrar-se para acessar recursos como diário eletrônico e outras ferramentas administrativas exclusivas para servidores.
+                  </label>
+                </div>
               </div>
             </div>
           </div>
