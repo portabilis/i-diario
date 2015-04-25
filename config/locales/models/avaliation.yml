@@ -1,12 +1,12 @@
 pt-BR:
   activerecord:
     models:
-      test:
+      avaliation:
         one: "Cadastro de avaliação"
         other: "Cadastro de avaliações"
 
     attributes:
-      test:
+      avaliation:
         school_calendar: "Calendário letivo"
         school_calendar_id: "Calendário letivo"
         unity: "Escola"
@@ -25,7 +25,7 @@ pt-BR:
 
     errors:
       models:
-        test:
+        avaliation:
           attributes:
               test_date:
                 must_be_school_day: "deve ser um dia letivo"
@@ -33,5 +33,5 @@ pt-BR:
                 unique_per_step: "deve ser única por etapa"
 
   errors:
-    tests:
+    avaliations:
       require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"

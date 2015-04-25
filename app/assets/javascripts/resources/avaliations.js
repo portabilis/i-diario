@@ -24,8 +24,8 @@ $(function () {
     }
   };
 
-  $('#test_unity_id').on('change', function (e) {
-    var $classroom = $('#test_classroom_id'),
+  $('#avaliation_unity_id').on('change', function (e) {
+    var $classroom = $('#avaliation_classroom_id'),
         params = {
           unity_id: e.val
         };
@@ -51,8 +51,8 @@ $(function () {
     }
   });
 
-  $('#test_classroom_id').on('change', function (e) {
-    var $discipline = $('#test_discipline_id'),
+  $('#avaliation_classroom_id').on('change', function (e) {
+    var $discipline = $('#avaliation_discipline_id'),
         params = {
           classroom_id: e.val
         };

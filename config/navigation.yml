@@ -147,9 +147,9 @@ navigation:
       icon: "fa-pencil"
       path: "contents_path"
   - ***REMOVED***:
-      type: "tests_***REMOVED***"
+      type: "avaliations_***REMOVED***"
       icon: "fa-file-text-o"
       sub***REMOVED***s:
         - ***REMOVED***:
-            type: "tests"
-            path: "tests_path"
+            type: "avaliations"
+            path: "avaliations_path"

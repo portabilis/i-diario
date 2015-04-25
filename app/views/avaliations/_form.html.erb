@@ -1,10 +1,10 @@
-<%= simple_form_for @test, html: { class: "smart-form" } do |f| %>
+<%= simple_form_for @avaliation, html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
 
   <fieldset>
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.association :unity, as: :select2, elements: Unity.ordered %>
+        <%= f.association :unity, as: :select2, elements: @unities %>
       </div>
 
       <div class="col col-sm-4">
@@ -26,8 +26,8 @@
       </div>
 
       <div class="col col-sm-4">
-        <% if @test.test_setting.fix_tests? %>
-          <%= f.association :test_setting_test, as: :select2, elements: @test.test_setting.tests %>
+        <% if @avaliation.test_setting.fix_tests? %>
+          <%= f.association :test_setting_test, as: :select2, elements: @avaliation.test_setting.tests %>
         <% else %>
             <%= f.input :description %>
         <% end %>
@@ -37,10 +37,10 @@
   </fieldset>
 
   <footer>
-    <%= link_to "Voltar", tests_path, class: "btn btn-default" %>
+    <%= link_to "Voltar", avaliations_path, class: "btn btn-default" %>
 
-    <% if @test.persisted? %>
-      <%= link_to 'Histórico', history_test_path(@test), class: 'btn btn-info' %>
+    <% if @avaliation.persisted? %>
+      <%= link_to 'Histórico', history_avaliation_path(@avaliation), class: 'btn btn-info' %>
     <% end %>
 
     <%= f.submit 'Salvar', class: 'btn btn-primary' %>

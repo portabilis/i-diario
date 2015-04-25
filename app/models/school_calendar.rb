@@ -1,6 +1,8 @@
 class SchoolCalendar < ActiveRecord::Base
   acts_as_copy_target
 
+  after_create :seed_events
+
   audited
   has_associated_audits
 
@@ -24,17 +26,22 @@ class SchoolCalendar < ActiveRecord::Base
   def school_day? date
     return false if events.where(event_date: date, event_type: EventTypes::NO_SCHOOL).any?
     return true if events.where(event_date: date, event_type: EventTypes::EXTRA_SCHOOL).any?
-    return false if steps.where(SchoolCalendarStep.arel_table[:start_at].lteq(date)).where(SchoolCalendarStep.arel_table[:end_at].gteq(date)).empty?
+    return false if step(date).nil?
     ![0, 6].include? date.wday
   end
 
   def step date
-    steps.where(SchoolCalendarStep.arel_table[:start_at].lteq(date)).where(SchoolCalendarStep.arel_table[:end_at].gteq(date)).first
+    steps.all.started_after_and_before(date).first
   end
 
   private
 
   def at_least_one_assigned_step
     errors.add(:steps, :at_least_one_step) if steps.empty?
+  end
+
+  def seed_events
+    events_seeder = SchoolCalendarEventsSeeder.new(school_calendar: self)
+    events_seeder.seed
   end
 end

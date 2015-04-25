@@ -75,23 +75,11 @@ class ContentsController < ApplicationController
   private
 
   def fetch_classrooms
-    if @content.unity_id
-      @classrooms = Classroom.joins(:teacher_discipline_classrooms)
-                              .where(unity_id: @content.unity_id, teacher_discipline_classrooms: { teacher_id: current_teacher.id})
-                              .ordered
-                              .uniq
-    else
-      @classrooms = {}
-    end
-
-    if @content.classroom_id
-      @disciplines = Discipline.joins(:teacher_discipline_classrooms)
-                               .where(teacher_discipline_classrooms: { teacher_id: current_teacher.id, classroom_id: @content.classroom_id})
-                               .ordered
-                               .uniq
-    else
-      @disciplines = {}
-    end
+    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @content.unity_id, @content.classroom_id)
+    fetcher.fetch!
+    @unities = fetcher.unities
+    @classrooms = fetcher.classrooms
+    @disciplines = fetcher.disciplines
   end
 
   def resource

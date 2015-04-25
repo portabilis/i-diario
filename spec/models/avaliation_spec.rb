@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Test, :type => :model do
+RSpec.describe Avaliation, :type => :model do
   describe "associations" do
     it { should belong_to :unity }
     it { should belong_to :classroom }
@@ -20,13 +20,13 @@ RSpec.describe Test, :type => :model do
     it { should validate_presence_of :class_number }
 
     context "when configuration fix tests" do
-      before { subject.test_setting = TestSetting.new(fix_tests: true) }
+      before { subject.test_setting = TestSetting.new(fix_tests: true, school_calendar: SchoolCalendar.first) }
 
       it { should validate_presence_of :test_setting_test }
     end
 
     context "when configuration not fix tests" do
-      before { subject.test_setting = TestSetting.new(fix_tests: false) }
+      before { subject.test_setting = TestSetting.new(fix_tests: false, school_calendar: SchoolCalendar.first) }
 
       it { should validate_presence_of :description }
     end

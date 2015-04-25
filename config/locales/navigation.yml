@@ -44,8 +44,8 @@ pt-BR:
     school_calendars: "Calendário letivo"
     school_calendar_events: "Eventos"
     contents: "Registro de conteúdos"
-    tests_***REMOVED***: "Avaliações"
-    tests: "Cadastro"
+    avaliations_***REMOVED***: "Avaliações"
+    avaliations: "Cadastro"
 
   enumerations:
     features:

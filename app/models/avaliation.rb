@@ -1,4 +1,4 @@
-class Test < ActiveRecord::Base
+class Avaliation < ActiveRecord::Base
   acts_as_copy_target
 
   audited
@@ -14,7 +14,8 @@ class Test < ActiveRecord::Base
   delegate :fix_tests?, to: :test_setting
   belongs_to :test_setting_test
 
-  validates :unity, :classroom, :discipline, :test_date, :class_number, :test_setting, :school_calendar, presence: true
+  validates :unity, :classroom, :discipline, :test_date, :class_number, :test_setting,
+              :school_calendar, presence: true
   validates :test_setting_test, presence: true, if: :fix_tests?
   validates :description, presence: true, unless: :fix_tests?
   validate :unique_test_setting_test_per_step
@@ -41,15 +42,15 @@ class Test < ActiveRecord::Base
   def unique_test_setting_test_per_step
     return unless step
 
-    relation = Test
+    relation = Avaliation
     if persisted?
-      relation = relation.where(Test.arel_table[:id].not_eq(id))
+      relation = relation.where(Avaliation.arel_table[:id].not_eq(id))
     end
-    relation = relation.where(Test.arel_table[:test_setting_test_id].eq(test_setting_test_id))
-    relation = relation.where(Test.arel_table[:classroom_id].eq(classroom_id))
-    relation = relation.where(Test.arel_table[:discipline_id].eq(discipline_id))
-    relation = relation.where(Test.arel_table[:test_date].gteq(step.start_at))
-    relation = relation.where(Test.arel_table[:test_date].lteq(step.end_at))
+    relation = relation.where(Avaliation.arel_table[:test_setting_test_id].eq(test_setting_test_id))
+    relation = relation.where(Avaliation.arel_table[:classroom_id].eq(classroom_id))
+    relation = relation.where(Avaliation.arel_table[:discipline_id].eq(discipline_id))
+    relation = relation.where(Avaliation.arel_table[:test_date].gteq(step.start_at))
+    relation = relation.where(Avaliation.arel_table[:test_date].lteq(step.end_at))
 
     errors.add(:test_setting_test, :unique_per_step) if relation.any?
   end
