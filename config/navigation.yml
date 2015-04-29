@@ -138,10 +138,11 @@ navigation:
       type: "school_calendars"
       icon: "fa-calendar"
       path: "school_calendars_path"
-  - ***REMOVED***:
-      type: "school_calendar_events"
-      icon: "fa-calendar"
-      visible: false
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "school_calendar_events"
+            icon: "fa-calendar"
+            visible: false
   - ***REMOVED***:
       type: "contents"
       icon: "fa-pencil"

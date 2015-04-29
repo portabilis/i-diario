@@ -1,7 +1,7 @@
 class SchoolCalendarStep < ActiveRecord::Base
   acts_as_copy_target
 
-  audited associated_with: :school_calendar
+  audited associated_with: :school_calendar, except: :school_calendar_id
 
   belongs_to :school_calendar
 

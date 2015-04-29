@@ -7,5 +7,6 @@ pt-BR:
 
     attributes:
       school_calendar_step:
+        school_calendar_id: "Calendário letivo"
         start_at: "Data inicial"
         end_at: "Data final"
