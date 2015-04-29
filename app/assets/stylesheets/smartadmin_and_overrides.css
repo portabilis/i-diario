@@ -177,3 +177,7 @@ nav ul li b.collapse-sign em:before {
 aside#left-panel{
   width: 225px;
 }
+
+.label{
+  font-size: 80%;
+}
