@@ -116,5 +116,7 @@ Rails.application.routes.draw do
     resources :classrooms, only: [:index]
     resources :disciplines, only: [:index]
     resources :avaliations, concerns: :history
+    resources :teacher_avaliations, only: :index
+    resources :daily_notes, only: [:new, :create, :edit, :update], concerns: :history
   end
 end

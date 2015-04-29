@@ -13,6 +13,7 @@ class Avaliation < ActiveRecord::Base
   belongs_to :test_setting
   delegate :fix_tests?, to: :test_setting
   belongs_to :test_setting_test
+  has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
 
   validates :unity, :classroom, :discipline, :test_date, :class_number, :test_setting,
               :school_calendar, presence: true
@@ -22,9 +23,24 @@ class Avaliation < ActiveRecord::Base
   validate :is_school_day?
 
   scope :ordered, -> { order(arel_table[:test_date]) }
+  scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
 
   def to_s
     test_setting_test || description
+  end
+
+  def description_to_teacher
+    I18n.l(test_date) + ' - ' + (fix_tests? ? test_setting_test.to_s : description)
+  end
+
+  def self.data_for_select2
+    where(nil).map do |avaliation|
+      {
+        id: avaliation.id,
+        name: avaliation.description_to_teacher,
+        text: avaliation.description_to_teacher
+      }
+    end.to_json
   end
 
   private

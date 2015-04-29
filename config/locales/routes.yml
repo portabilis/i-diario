@@ -43,6 +43,7 @@ pt-BR:
     school_calendar_events: 'eventos'
     contents: 'registro-de-conteudos'
     avaliations: 'cadastro-de-avaliacoes'
+    daily_notes: 'diario-de-notas'
 
     # actions
     edit: 'editar'

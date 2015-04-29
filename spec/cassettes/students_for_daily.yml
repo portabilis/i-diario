@@ -1,0 +1,43 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=***REMOVED***&disciplina_id=3192&instituicao_id=1&oper=get&resource=alunos-matriculados-turma&secret_key=***REMOVED***&turma_id=4202
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*; q=0.5, application/xml'
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 29 Apr 2015 21:21:48 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=tkg0afq8fp5jpvmpp7sk875c61; expires=Thu, 30-Apr-2015 21:21:48 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '351'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: US-ASCII
+      string: ! '{"alunos":[{"id":"22362"},{"id":"25075"},{"id":"11467"},{"id":"25085"},{"id":"25077"},{"id":"25083"},{"id":"25016"},{"id":"11706"},{"id":"25055"},{"id":"28182"},{"id":"25088"},{"id":"25186"},{"id":"21515"},{"id":"24849"},{"id":"25210"},{"id":"24956"},{"id":"24963"}],"oper":"get","resource":"alunos-matriculados-turma","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Wed, 29 Apr 2015 21:21:48 GMT
+recorded_with: VCR 2.9.3

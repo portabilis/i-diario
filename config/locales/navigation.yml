@@ -46,6 +46,7 @@ pt-BR:
     contents: "Registro de conteúdos"
     avaliations_***REMOVED***: "Avaliações"
     avaliations: "Cadastro"
+    daily_notes: "Diário"
 
   enumerations:
     features:

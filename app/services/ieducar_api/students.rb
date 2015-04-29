@@ -26,5 +26,20 @@ module IeducarApi
         aluno_id: student_code
       )
     end
+
+    def fetch_for_daily(params = {})
+
+      params.merge!(
+        path: 'module/Api/Turma',
+        resource: "alunos-matriculados-turma"
+      )
+
+      raise ApiError.new("É necessário informar a turma: classroom_id!") if params[:classroom_api_code].blank?
+
+      params["turma_id"] = params.delete(:classroom_api_code)
+      params["disciplina_id"] = params.delete(:discipline_api_code)
+
+      fetch(params)
+    end
   end
 end

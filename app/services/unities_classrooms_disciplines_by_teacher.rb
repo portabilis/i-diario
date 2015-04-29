@@ -1,8 +1,9 @@
 class UnitiesClassroomsDisciplinesByTeacher
-  def initialize(teacher_id, unity_id, classroom_id)
+  def initialize(teacher_id, unity_id, classroom_id, discipline_id = nil)
     self.teacher_id = teacher_id
     self.unity_id = unity_id
     self.classroom_id = classroom_id
+    self.discipline_id = discipline_id
   end
 
   def fetch!
@@ -27,13 +28,21 @@ class UnitiesClassroomsDisciplinesByTeacher
     else
       @disciplines = {}
     end
+
+    if discipline_id
+      @avaliations = Avaliation.teacher_avaliations(teacher_id, classroom_id, discipline_id)
+                               .ordered
+                               .uniq
+    else
+      @avaliations = {}
+    end
     true
   end
 
-  attr_reader :unities, :classrooms, :disciplines
+  attr_reader :unities, :classrooms, :disciplines, :avaliations
 
   protected
 
-  attr_accessor :teacher_id, :unity_id, :classroom_id
-  attr_writer :unities, :classrooms, :disciplines
+  attr_accessor :teacher_id, :unity_id, :classroom_id, :discipline_id
+  attr_writer :unities, :classrooms, :disciplines, :avaliations
 end

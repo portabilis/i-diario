@@ -1,0 +1,10 @@
+<tr class="nested-fields">
+    <td>
+      <%= f.input :student_id, as: :hidden %>
+      <%= f.object.student.api_code + ' - ' + f.object.student.to_s %>
+    </td>
+
+    <td>
+      <%= f.input :note, as: :string, label: false, input_html: { maxlength: 3} %>
+    </td>
+</tr>

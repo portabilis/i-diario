@@ -153,3 +153,6 @@ navigation:
         - ***REMOVED***:
             type: "avaliations"
             path: "avaliations_path"
+        - ***REMOVED***:
+            type: "daily_notes"
+            path: "new_daily_note_path"
