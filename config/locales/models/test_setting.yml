@@ -7,6 +7,7 @@ pt-BR:
 
     attributes:
       test_setting:
+        id: Código
         year: "Ano"
         fix_tests: "Fixar avaliações"
         responsible_id: "Responsável"
@@ -17,7 +18,7 @@ pt-BR:
           attributes:
             tests:
               at_least_one_test: "É necessário pelo menos uma avaliação"
-              weight_must_be_ten: "A soma dos pesos das avaliações devem fechar em 10 para cada tipo"
+              weight_must_be_ten: "A soma dos pesos das avaliações deve resultar em 10 para cada tipo"
 
   test_settings:
     form:
