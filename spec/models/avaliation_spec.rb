@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Avaliation, :type => :model do
+#  fixtures :school_calendars, :school_calendar_steps
+
   describe "associations" do
     it { should belong_to :unity }
     it { should belong_to :classroom }
@@ -11,6 +13,7 @@ RSpec.describe Avaliation, :type => :model do
   end
 
   describe "validations" do
+
     it { should validate_presence_of :unity }
     it { should validate_presence_of :classroom }
     it { should validate_presence_of :discipline }
@@ -20,13 +23,13 @@ RSpec.describe Avaliation, :type => :model do
     it { should validate_presence_of :class_number }
 
     context "when configuration fix tests" do
-      before { subject.test_setting = TestSetting.new(fix_tests: true, school_calendar: SchoolCalendar.first) }
+      before { subject.test_setting = TestSetting.new(fix_tests: true); subject.school_calendar = SchoolCalendar.first }
 
       it { should validate_presence_of :test_setting_test }
     end
 
     context "when configuration not fix tests" do
-      before { subject.test_setting = TestSetting.new(fix_tests: false, school_calendar: SchoolCalendar.first) }
+      before { subject.test_setting = TestSetting.new(fix_tests: false); subject.school_calendar = SchoolCalendar.first }
 
       it { should validate_presence_of :description }
     end

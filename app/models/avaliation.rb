@@ -11,7 +11,6 @@ class Avaliation < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :school_calendar
   belongs_to :test_setting
-  delegate :fix_tests?, to: :test_setting
   belongs_to :test_setting_test
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
 
@@ -43,6 +42,11 @@ class Avaliation < ActiveRecord::Base
     end.to_json
   end
 
+  def fix_tests?
+    return false if test_setting.nil?
+    test_setting.fix_tests?
+  end
+
   private
 
   def is_school_day?
@@ -52,6 +56,7 @@ class Avaliation < ActiveRecord::Base
   end
 
   def step
+    return unless school_calendar
     school_calendar.step(test_date)
   end
 
