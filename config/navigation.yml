@@ -141,8 +141,7 @@ navigation:
       sub***REMOVED***s:
         - ***REMOVED***:
             type: "school_calendar_events"
-            icon: "fa-calendar"
-            visible: false
+            visible: "only-when-active"
   - ***REMOVED***:
       type: "contents"
       icon: "fa-pencil"

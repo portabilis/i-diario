@@ -21,7 +21,8 @@ module Navigation
       nodes ||= []
 
       nodes.select do |node|
-        next if !node["***REMOVED***"]["visible"].nil? && node["***REMOVED***"]["visible"] == false
+        visible = node["***REMOVED***"]["visible"]
+        next if (!visible.nil? && visible == false) || (visible == 'only-when-active' && node["***REMOVED***"]["type"] != item)
         yield node_values(node["***REMOVED***"], parent_***REMOVED***)
       end
     end
