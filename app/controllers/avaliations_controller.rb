@@ -68,7 +68,7 @@ class AvaliationsController < ApplicationController
   end
 
   def history
-    @avaliation = avaliation.find(params[:id])
+    @avaliation = Avaliation.find(params[:id])
 
     authorize @avaliation
 
