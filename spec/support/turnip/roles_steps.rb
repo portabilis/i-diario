@@ -6,7 +6,7 @@ module Turnip
     end
 
     step 'eu entrar no formulário de nova permissão' do
-      click_on "Novo"
+      click_on "Nova permissão"
     end
 
     step 'poderei cadastrar uma nova permissão' do
@@ -69,13 +69,13 @@ module Turnip
     step "que existem permissões cadastradas" do
       click_***REMOVED*** 'Configurações > Permissões'
 
-      within :xpath, '//table/tbody/tr[position()=2]' do
+      within :xpath, '//table/tbody/tr[position()=4]' do
         expect(page).to have_content 'Secretária'
       end
     end
 
     step "poderei excluir uma permissão" do
-      within :xpath, '//table/tbody/tr[position()=2]' do
+      within :xpath, '//table/tbody/tr[position()=4]' do
         expect(page).to have_content 'Secretária'
 
         click_on 'Excluir'

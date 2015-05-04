@@ -20,3 +20,8 @@ pt-BR:
   unity:
     help:
       api_code: "Usaremos este código para vincular uma unidade deste sistema a uma unidade escolar do sistema i-Educar."
+
+  unities:
+    index:
+      new_html: <i class="fa fa-plus"></i> Nova unidade
+      synchronize_html: <i class="fa fa-refresh"></i> Sincronizar

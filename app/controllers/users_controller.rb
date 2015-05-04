@@ -1,6 +1,9 @@
 class UsersController < ApplicationController
+  has_scope :page, default: 1
+  has_scope :per, default: 10
+
   def index
-    @users = User.ordered
+    @users = apply_scopes(User.filter(filtering_params params[:search]).ordered)
 
     authorize @users
   end
@@ -48,10 +51,18 @@ class UsersController < ApplicationController
   def user_params
     params.require(:user).permit(
       :first_name, :last_name, :phone, :email, :cpf, :login, :status,
-      :authorize_email_and_sms, :student_id,
+      :authorize_email_and_sms, :student_id, :teacher_id,
       :user_roles_attributes => [
         :id, :role_id, :unity_id, :_destroy
       ]
     )
+  end
+
+  def filtering_params(params)
+    if params
+      params.slice(:full_name, :email, :login, :status)
+    else
+      {}
+    end
   end
 end

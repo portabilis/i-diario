@@ -1,0 +1,26 @@
+pt-BR:
+  activerecord:
+    models:
+      school_calendar:
+        one: "Calendário letivo"
+        other: "Calendários letivos"
+
+    attributes:
+      school_calendar:
+        year: "Ano"
+        number_of_classes: "Número de aulas por turno"
+
+    errors:
+      models:
+        school_calendar:
+          attributes:
+            steps:
+              at_least_one_step: "É necessário adicionar pelo menos uma etapa"
+
+  school_calendars:
+    form:
+      add_step: Adicionar etapa
+    step_fields:
+      remove: Remover
+    index:
+      new_html: "<i class='fa fa-plus'></i> Novo calendário"

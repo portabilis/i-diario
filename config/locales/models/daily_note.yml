@@ -1,0 +1,21 @@
+pt-BR:
+  activerecord:
+    models:
+      daily_note:
+        one: "Registro diário de notas"
+        other: "Registros diários de notas"
+
+    attributes:
+      daily_note:
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        avaliation: "Avaliação"
+        avaliation_id: "Avaliação"
+
+  errors:
+    daily_notes:
+      require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"

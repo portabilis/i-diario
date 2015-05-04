@@ -8,7 +8,7 @@ pt-BR:
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
     ieducar_api_configurations: "API de integração"
-    ***REMOVED***: "Notificação"
+    ***REMOVED***: "***REMOVED***"
     general_configurations: "Configurações gerais"
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
@@ -30,7 +30,7 @@ pt-BR:
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
-    authorization_***REMOVED***: "Autorizações de solicitação de serviço"
+    authorization_***REMOVED***: "***REMOVED***"
     moved_***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
     roles: "Permissões"
@@ -40,6 +40,13 @@ pt-BR:
     ***REMOVED***_confirmations: "***REMOVED***"
     current_role: "Seleção de perfil"
     entity_configurations: "Entidade"
+    test_settings: "Avaliação"
+    school_calendars: "Calendário letivo"
+    school_calendar_events: "Eventos"
+    contents: "Registro de conteúdos"
+    avaliations_***REMOVED***: "Avaliações"
+    avaliations: "Cadastro"
+    daily_notes: "Diário"
 
   enumerations:
     features:

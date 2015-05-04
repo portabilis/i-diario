@@ -1,0 +1,10 @@
+test_setting_test_a:
+  test_setting: test_setting_a
+  description: 'Avaliação 1'
+  weight: 5
+  test_type: regular
+test_setting_test_a:
+  test_setting: test_setting_a
+  description: 'Avaliação 2'
+  weight: 5
+  test_type: 'regular'

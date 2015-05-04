@@ -1,4 +1,8 @@
 pt-BR:
+  errors:
+    general:
+      require_current_school_calendar: "É necessário o cadastro de um calendário letivo no ano atual para acessar esse cadastro"
+      require_current_test_setting: "É necessário o cadastro de uma configuração de avaliação no ano atual para acessar esse cadastro"
   ieducar_api:
     error:
       messages:

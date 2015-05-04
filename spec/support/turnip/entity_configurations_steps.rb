@@ -12,6 +12,7 @@ module Turnip
 
       click_button 'Salvar'
 
+      sleep 0.2
       expect(page).to have_content "Configurações da entidade foi alterada com sucesso."
     end
   end

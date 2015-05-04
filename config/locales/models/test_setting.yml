@@ -1,0 +1,29 @@
+pt-BR:
+  activerecord:
+    models:
+      test_setting:
+        one: "Configuração de avaliação"
+        other: "Configurações de avaliação"
+
+    attributes:
+      test_setting:
+        id: Código
+        year: "Ano"
+        fix_tests: "Fixar avaliações"
+        responsible_id: "Responsável"
+
+    errors:
+      models:
+        test_setting:
+          attributes:
+            tests:
+              at_least_one_test: "É necessário pelo menos uma avaliação"
+              weight_must_be_ten: "A soma dos pesos das avaliações deve resultar em 10 para cada tipo"
+
+  test_settings:
+    form:
+      add_test: Adicionar avaliação
+    test_fields:
+      remove: Remover
+    index:
+      new_html: "<i class='fa fa-plus'></i> Nova configuração"

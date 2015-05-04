@@ -6,7 +6,7 @@ module Turnip
     end
 
     step 'eu entrar no formulário de nova unidade' do
-      click_on "Novo"
+      click_on "Nova unidade"
     end
 
     step 'poderei cadastrar uma nova unidade' do

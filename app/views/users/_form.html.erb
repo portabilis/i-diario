@@ -11,12 +11,8 @@
         <%= f.input :last_name %>
       </div>
 
-      <div class="col col-sm-3">
+      <div class="col col-sm-6">
         <%= f.input :email %>
-      </div>
-
-      <div class="col col-sm-3">
-        <%= f.input :kind, disabled: true, input_html: { value: f.object.kind_humanize } %>
       </div>
     </div>
 
@@ -45,6 +41,11 @@
 
       <div class="col col-sm-6">
         <%= f.input :student, as: :autocomplete %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col col-sm-6">
+        <%= f.input :teacher, as: :autocomplete %>
       </div>
     </div>
   </fieldset>

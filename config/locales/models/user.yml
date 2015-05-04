@@ -16,7 +16,7 @@ pt-BR:
         login: "Nome de usuário"
         phone: "Celular"
         cpf: "CPF"
-        authorize_email_and_sms: "Autorizar envio de e-mails e mensagens sms"
+        authorize_email_and_sms: "Autorizar envio de e-mails e mensagens SMS"
         current_password: "Senha atual"
         credentials: "Informe o Nome de usuário, E-mail, Celular ou CPF"
         kind: "Tipo"
@@ -25,6 +25,8 @@ pt-BR:
         role_id: "Permissão"
         role: "Permissão"
         admin: "Admin?"
+        teacher: "Professor"
+        teacher_id: "Professor"
 
     errors:
       models:

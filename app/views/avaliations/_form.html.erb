@@ -1,0 +1,49 @@
+<%= simple_form_for @avaliation, html: { class: "smart-form" } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.association :unity, as: :select2, elements: @unities %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :classroom, as: :select2, elements: @classrooms %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :discipline, as: :select2, elements: @disciplines %>
+      </div>
+    </div>
+    <div class="row">
+
+      <div class="col col-sm-4">
+        <%= f.input :test_date %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :class_number %>
+      </div>
+
+      <div class="col col-sm-4">
+        <% if @avaliation.test_setting.fix_tests? %>
+          <%= f.association :test_setting_test, as: :select2, elements: @avaliation.test_setting.tests %>
+        <% else %>
+            <%= f.input :description %>
+        <% end %>
+      </div>
+    </div>
+
+  </fieldset>
+
+  <footer>
+    <%= link_to "Voltar", avaliations_path, class: "btn btn-default" %>
+
+    <% if @avaliation.persisted? %>
+      <%= link_to 'Histórico', history_avaliation_path(@avaliation), class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+
+  </footer>
+<% end %>

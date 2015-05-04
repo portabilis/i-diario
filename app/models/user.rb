@@ -7,6 +7,7 @@ class User < ActiveRecord::Base
   has_associated_audits
 
   include Audit
+  include Filterable
 
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
@@ -17,6 +18,7 @@ class User < ActiveRecord::Base
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
   belongs_to :student
+  belongs_to :teacher
   belongs_to :role
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
@@ -38,7 +40,7 @@ class User < ActiveRecord::Base
   has_many :authorization_***REMOVED***
   has_many :***REMOVED***
   has_many :user_roles
-  has_many :roles, through: :user_roles
+  #has_many :roles, through: :user_roles
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
@@ -53,6 +55,12 @@ class User < ActiveRecord::Base
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
   scope :with_phone, -> { where(arel_table[:phone].not_eq(nil)).where(arel_table[:phone].not_eq("")) }
   scope :admin, -> { where(arel_table[:admin].eq(true)) }
+
+  #search scopes
+  scope :full_name, lambda { |full_name| where("first_name || ' ' || last_name ILIKE ?", "%#{full_name}%")}
+  scope :email, lambda { |email| where("email ILIKE ?", "%#{email}%")}
+  scope :login, lambda { |login| where("login ILIKE ?", "%#{login}%")}
+  scope :status, lambda { |status| where status: status }
 
   def self.find_for_authentication(conditions)
     credential = conditions.fetch(:credentials)
@@ -123,10 +131,12 @@ class User < ActiveRecord::Base
     codes.flatten
   end
 
-  def set_role!(role_id)
-    role = self.roles.find(role_id)
+  def roles
+    user_roles.map(&:role)
+  end
 
-    return false unless role
+  def set_role!(role_id)
+    return false unless user_roles.exists?(role_id: role_id)
 
     update_column :role_id, role_id
   end
@@ -152,7 +162,7 @@ class User < ActiveRecord::Base
   protected
 
   def uniqueness_of_student_parent_role
-    return unless user_roles
+    return if user_roles.blank?
 
     parent_roles = []
     student_roles = []

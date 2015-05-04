@@ -15,18 +15,9 @@
     <script src="https://maps.google.com/maps/api/js?sensor=true" type="text/javascript" charset="utf-8"></script>
     <%= stylesheet_link_tag "application", :media => "all" %>
 
-    <!-- For third-generation iPad with high-resolution Retina display: -->
-    <!-- Size should be 144 x 144 pixels -->
-    <%= favicon_link_tag 'apple-touch-icon-144x144-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '144x144' %>
     <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
 
-    <!-- For first- and second-generation iPad: -->
-    <!-- Size should be 72 x 72 pixels -->
-    <%= favicon_link_tag 'apple-touch-icon-72x72-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '72x72' %>
-
-    <!-- For iPhone with high-resolution Retina display: -->
-    <!-- Size should be 114 x 114 pixels -->
-    <%= favicon_link_tag 'apple-touch-icon-114x114-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '114x114' %>
+    <%= favicon_link_tag  %>
   </head>
 
   <body class="smart-style-2 <%= controller_name %>">
@@ -59,7 +50,7 @@
           </div>
           <!-- logout button -->
 
-          <% if current_user.roles.exists? %>
+          <% if current_user.roles.present? %>
             <div id="change-permission" class="btn-group btn-header transparent pull-right">
               <a class=" dropdown-toggle" data-toggle="dropdown">
                 Perfil atual: <%= current_user.role_name %>
@@ -109,7 +100,7 @@
     </div>
 
     <div class="page-footer">
-      <div class="row"> 
+      <div class="row">
         <div class="col-xs-12 col-sm-6">
           <span class="txt-color-white">&copy; <%= current_entity.name == '***REMOVED***' ? '***REMOVED***' : 'Portabilis' %> <%= Date.today.year %></span>
         </div>

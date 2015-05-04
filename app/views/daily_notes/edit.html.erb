@@ -1,0 +1,41 @@
+<div class="widget-body no-padding">
+  <table class="table table-bordered">
+    <thead>
+      <th><%= DailyNote.human_attribute_name :unity %></th>
+      <th><%= DailyNote.human_attribute_name :classroom %></th>
+      <th><%= DailyNote.human_attribute_name :discipline %></th>
+      <th><%= DailyNote.human_attribute_name :avaliation %></th>
+    </thead>
+    <tbody style="border-bottom: 1px solid #ccc;">
+      <td><%= @daily_note.classroom.unity %></td>
+      <td><%= @daily_note.classroom %></td>
+      <td><%= @daily_note.discipline %></td>
+      <td><%= @daily_note.avaliation.description_to_teacher %></td>
+    </tbody>
+  </table>
+
+  <%= simple_form_for @daily_note, html: { class: "smart-form" } do |f| %>
+    <%= f.error_notification %>
+
+    <table class="table table-bordered table-striped table-hover">
+      <colgroup>
+        <col />
+        <col style="width: 200px;" />
+      </colgroup>
+      <thead>
+        <th><%= DailyNoteStudent.human_attribute_name :student %></th>
+        <th><%= DailyNoteStudent.human_attribute_name :note %></th>
+      </thead>
+      <tbody>
+        <%= f.fields_for :students do |student| %>
+          <%= render 'student_fields', f: student %>
+        <% end %>
+      </tbody>
+    </table>
+
+
+    <footer>
+      <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>

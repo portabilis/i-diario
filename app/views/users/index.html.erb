@@ -1,7 +1,17 @@
-<div class="widget-body">
+<div class="widget-body no-padding">
   <div class="table-responsive">
-    <table class="table table-bordered" id="resources">
+  <%= simple_form_for :search, {url: users_path, method: :get,
+                                html: {class: 'filterable_search_form'}} do |f| %>
+    <table class="table table-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
+        <tr>
+          <td><%= f.input :full_name, label: false, placeholder: "Filtrar nome" %></td>
+          <td><%= f.input :email, label: false, placeholder: "Filtrar e-mail" %></td>
+          <td><%= f.input :login, label: false, placeholder: "Filtrar nome de usuário" %></td>
+          <td><%= f.input :status, as: :select, label: false,
+                                   prompt: "Filtrar status", collection: UserStatus %></td>
+          <td></td>
+        </tr>
         <tr>
           <th><%= User.human_attribute_name :name %></th>
           <th><%= User.human_attribute_name :email %></th>
@@ -11,22 +21,18 @@
         </tr>
       </thead>
 
-      <tbody>
-        <% @users.each do |user| %>
-          <tr>
-            <td>
-              <%= link_to user, edit_user_path(user) %>
-            </td>
-            <td><%= user.email %></td>
-            <td><%= user.login %></td>
-            <td><%= user.status_humanize %></td>
-            <td>
-              <%= link_to 'Editar', edit_user_path(user), class: "btn btn-success" %>
-              <%= link_to 'Excluir', user_path(user), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
-            </td>
-          </tr>
-        <% end %>
-      </tbody>
+      <%= render 'resources' %>
+      <tfoot id="paginator" class="remote">
+        <td colspan="5">
+          <div id="page_entries_info" class="pull-left hidden-xs">
+            <%= page_entries_info @users %>
+          </div>
+          <div class="pull-right">
+            <%= paginate @users %>
+          </div>
+        </td>
+      </tfoot>
     </table>
+  <% end %>
   </div>
 </div>

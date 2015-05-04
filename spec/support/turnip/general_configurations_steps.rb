@@ -1,12 +1,12 @@
 # encoding: utf-8
 module Turnip
-  module GeneralConfigurationSteps 
+  module GeneralConfigurationSteps
     step 'acesso as configurações gerais' do
       click_***REMOVED*** 'Configurações > Configurações gerais'
     end
 
     step 'poderei informar o nível de segurança da entidade' do
-      select 'Avançado', :from => 'Nível de segurança'
+      select 'Avançado', from: 'Nível de segurança'
 
       click_button 'Salvar'
 

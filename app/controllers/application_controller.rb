@@ -116,4 +116,31 @@ class ApplicationController < ActionController::Base
     flash[:error] = t "#{policy_name}.#{exception.query}", scope: "pundit", default: :default
     redirect_to(request.referrer || root_path)
   end
+
+  def current_teacher
+    current_user.try(:teacher)
+  end
+  helper_method :current_teacher
+
+  def current_school_calendar
+    SchoolCalendar.find_by(year: Date.today.year)
+  end
+
+  def current_test_setting
+    TestSetting.find_by(year: Date.today.year)
+  end
+
+  def require_current_school_calendar
+    unless current_school_calendar
+      flash[:alert] = t('errors.general.require_current_school_calendar')
+      redirect_to root_path
+    end
+  end
+
+  def require_current_test_setting
+    unless current_test_setting
+      flash[:alert] = t('errors.general.require_current_test_setting')
+      redirect_to root_path
+    end
+  end
 end

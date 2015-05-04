@@ -12,7 +12,6 @@ RSpec.describe User, :type => :model do
     it { should have_many :responsible_***REMOVED*** }
     it { should have_many :***REMOVED***s }
     it { should have_many :user_roles }
-    it { should have_many :roles }
 
     it { should have_and_belong_to_many :students }
   end
@@ -36,6 +35,53 @@ RSpec.describe User, :type => :model do
     it { should allow_value('admin@example.com').for(:email) }
     it { should_not allow_value('admin@examplecom', 'adminexample.com').for(:email).
          with_message("use apenas letras (a-z), números e pontos.") }
+
+    describe "#user_roles" do
+      it "validates uniqueness of student role" do
+        subject = User.new
+
+        subject.user_roles << UserRole.new(
+          role: roles(:student)
+        )
+        subject.user_roles << UserRole.new(
+          role: roles(:student)
+        )
+
+        subject.valid?
+
+        expect(subject.errors["user_roles"]).to eq(["não é válido"])
+      end
+
+      it "validates uniqueness of parent role" do
+        subject = User.new
+
+        subject.user_roles << UserRole.new(
+          role: roles(:parent)
+        )
+        subject.user_roles << UserRole.new(
+          role: roles(:parent)
+        )
+
+        subject.valid?
+
+        expect(subject.errors["user_roles"]).to eq(["não é válido"])
+      end
+
+      it "accepts diferent roles" do
+        subject = User.new
+
+        subject.user_roles << UserRole.new(
+          role: roles(:parent)
+        )
+        subject.user_roles << UserRole.new(
+          role: roles(:student)
+        )
+
+        subject.valid?
+
+        expect(subject.errors["user_roles"]).to be_blank
+      end
+    end
   end
 
   describe "#authorize_email_and_sms" do

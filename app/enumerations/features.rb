@@ -6,7 +6,8 @@ class Features < EnumerateIt::Base
     :***REMOVED***, :***REMOVED***, :***REMOVED***,
     :***REMOVED***, :***REMOVED***, :moved_***REMOVED***, :***REMOVED***,
     :***REMOVED***, :authorization_***REMOVED***, :***REMOVED***_configs,
-    :***REMOVED***s, :***REMOVED***_confirmations, :roles, :entity_configurations
+    :***REMOVED***s, :***REMOVED***_confirmations, :roles, :entity_configurations,
+    :test_settings, :school_calendars, :school_calendar_events, :contents, :tests, :daily_notes
 
   sort_by :translation
 end

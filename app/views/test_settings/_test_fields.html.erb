@@ -1,0 +1,23 @@
+<div class="nested-fields">
+  <hr class="nested-fields-separator">
+
+  <div class="row" data-nested-fields>
+
+    <div class="col col-sm-4">
+      <%= f.input :description %>
+    </div>
+
+    <div class="col col-sm-2">
+      <%= f.input :weight %>
+    </div>
+
+    <div class="col col-sm-3">
+      <%= f.input :test_type, collection: TestTypes %>
+    </div>
+
+    <div class="col col-sm-3">
+      <%= link_to_remove_association t('.remove'), f,
+        class: 'btn btn-danger btn-sm btn-rm-item' %>
+    </div>
+  </div>
+</div>

@@ -1,75 +1,218 @@
 <div class="widget-body">
+  <h2>Crie sua conta</h2>
+
   <div class="row">
-    <form>
-      <div id="bootstrap-wizard-1" class="col-sm-12">
-        <div class="form-bootstrapWizard">
-          <ul class="bootstrapWizard form-wizard">
-            <li class="active" data-target="#step1">
-              <a href="#tab1" data-toggle="tab"> <span class="step">1</span> <span class="title">Escolha seu perfil</span> </a>
-            </li>
-            <li >
-              <span class="step">2</span> <span class="title">Aguardando escolha de perfil</span>
-            </li>
-          </ul>
-          <div class="clearfix"></div>
-        </div>
-        <div class="tab-content">
-          <div class="tab-pane active" id="tab1">
-            <br>
-            <h3><strong>Passo 1 </strong> - Escolha seu perfil</h3>
-            <div class="row">
-              <div class="col-sm-4 text-center">
-                <%= link_to parents_registrations_path, class: "btn btn-primary btn-block" do %>
-                <i class="fa fa-group fa-2x"></i><br/>
-                <strong>Acesso pais</strong>
+    <%= simple_form_for @signup, as: :signup, url: registrations_path, html: { class: "signup" } do |f| %>
+      <%= f.error_notification %>
+
+      <div id="signup-wizard" class="col-sm-12">
+        <fieldset>
+          <legend>Dados pessoais</legend>
+
+          <div class="alert alert-info">
+            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+            De posse da senha de acesso, você poderá acessar usando seu e-mail, celular ou CPF.
+          </div>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :email, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-envelope-o fa-lg fa-fw"></i></span>
+                  <%= f.input_field :email, as: :string, placeholder: "E-mail", class: "form-control input-lg",
+                    data: { :"rule-email" => true } %>
                 <% end %>
-                
-                <%= link_to parents_registrations_path, class: 'registration-link' do %>
+              </div>
+            </div>
+
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :celphone, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-mobile fa-lg fa-fw"></i></span>
+                  <%= f.input_field :celphone, as: :tel, placeholder: "Celular", class: "form-control input-lg" %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :password, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-key fa-lg fa-fw"></i></span>
+                  <%= f.input_field :password, as: :password, placeholder: "Senha", class: "form-control input-lg" %>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :password_confirmation, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-key fa-lg fa-fw"></i></span>
+                  <%= f.input_field :password_confirmation, as: :password, placeholder: "Confirme a senha", class: "form-control input-lg" %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="signup-roles">
+          <legend>Tipo de conta</legend>
+
+          <% if @signup.errors[:parent_role].present? %>
+            <div class="alert alert-danger">
+              <%= @signup.errors[:parent_role].to_sentence %>
+            </div>
+          <% end %>
+
+          <div class="row">
+            <div class="col-sm-4 text-center">
+              <div class="form-group">
                 <div class="well well-lg">
-                  <p class="registration-paragraph">
+                  <i class="fa fa-group fa-2x"></i><br/>
+                  <strong>Acesso pais</strong>
+
+                  <label class="checkbox">
+                    <%= f.input_field :parent_role, as: :boolean, boolean_style: :inline %>
                     Selecione esta opção se você é um pai ou responsável por aluno e deseja cadastrar-se para acessar recursos como pré-matrícula, consulta de notas, faltas, ocorrências disciplinares e outros.
-                  </p>
-                  <div class=" btn btn-success btn-block text-center">Prosseguir como pais</div>
+                  </label>
                 </div>
-                <% end %>
               </div>
+            </div>
 
-              <div class="col-sm-4 text-center">
-                <%= link_to students_registrations_path, class: "btn btn-primary btn-block" do %>
-                <i class="fa fa-mortar-board fa-2x"></i><br/>
-                <strong>Acesso alunos</strong>
-                <% end %>
-
-                <%= link_to students_registrations_path, class: "registration-link" do %>
+            <div class="col-sm-4 text-center">
+              <div class="form-group">
                 <div class="well well-lg">
-                  <p class="registration-paragraph">
+                  <i class="fa fa-mortar-board fa-2x"></i><br/>
+                  <strong>Acesso alunos</strong>
+
+                  <label class="checkbox">
+                    <%= f.input_field :student_role, as: :boolean, boolean_style: :inline %>
                     Selecione esta opção se você é um aluno já matriculado na rede de ensino e deseja cadastrar-se para acessar recursos como consulta de notas, faltas e outras informações exclusivas para alunos.
-                  </p>
-                  <div class="btn btn-success btn-block text-center">Prosseguir como aluno</div>
+                  </label>
                 </div>
-                <% end %>
               </div>
+            </div>
 
-              <div class="col-sm-4 text-center">
-                <%= link_to employees_registrations_path, class: "btn btn-primary btn-block" do %>
-                <i class="fa fa-male fa-2x"></i><br/>
-                <strong>Acesso servidores</strong>
-                <% end %>
-
-                <%= link_to employees_registrations_path, class: "registration-link" do %>
+            <div class="col-sm-4 text-center">
+              <div class="form-group">
                 <div class="well well-lg">
-                  <p class="registration-paragraph">
+                  <i class="fa fa-male fa-2x"></i><br/>
+                  <strong>Acesso servidores</strong>
+
+                  <label class="checkbox">
+                    <%= f.input_field :employee_role, as: :boolean, boolean_style: :inline %>
                     Selecione esta opção se você é um servidor da rede de ensino e deseja cadastrar-se para acessar recursos como diário eletrônico e outras ferramentas administrativas exclusivas para servidores.
-                  </p>
-                  <div class=" btn btn-success btn-block">Prosseguir como servidor</div>
+                  </label>
                 </div>
-                <% end %>
               </div>
+            </div>
+          </div>
+        </fieldset>
+
+        <div id="parents-fields">
+          <fieldset>
+            <legend>Vínculo exclusivo para pais</legend>
+
+            <div class="alert alert-info">
+              <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+              Informe o CPF do pai, mãe ou responsável e código do aluno e iremos tentar localizar a matrícula para vinculação. Este processo também poderá ser feito posteriormente.
+            </div>
+
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="form-group">
+                  <%= f.input :document, label: false, wrapper: 'input_group' do %>
+                    <span class="input-group-addon"><i class="fa fa-file-text-o fa-lg fa-fw"></i></span>
+                    <%= f.input_field :document, as: :string,
+                      placeholder: "CPF", class: "form-control input-lg", data: { mask: "999.999.999-99" } %>
+                  <% end %>
+                </div>
+              </div>
+
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <%= f.input :student_code, label: false, wrapper: 'input_group' do %>
+                    <span class="input-group-addon"><i class="fa fa-mortar-board fa-lg fa-fw"></i></span>
+                    <%= f.input_field :student_code, as: :string,
+                      placeholder: "Código do aluno",
+                      class: "form-control input-lg",
+                      rel: 'popover-hover',
+                      :'data-placement' => 'bottom',
+                      :'data-content' => t('registrations.tooltip.student_code'),
+                      :'data-toggle'=> 'popover' %>
+                  <% end %>
+                </div>
+              </div>
+
+              <div class="col-sm-3">
+                <div class="form-group">
+                  <%= f.input :without_student, label: "Nenhum aluno matriculado ou não sei o código", wrapper: 'input_group' do %>
+                    <%= f.input_field :without_student, as: :boolean, boolean_style: :inline %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-danger fade in hide" id="api-errors">
+              <i class="fa-fw fa fa-times"></i>
+              <span class="error-content"></span>
+            </div>
+          </fieldset>
+
+          <fieldset id="students-container">
+            <legend>Alunos</legend>
+
+            <div class="alert alert-info no-margin fade in" id="students-quantity">
+              <i class="fa-fw fa fa-info"></i>
+              Encontramos os seguintes alunos vinculados ao seu CPF. Marque quais deseja vincular.
+            </div>
+
+            <div class="row">
+              <div class="col-sm-12" id="students">
+                <table class="table table-bordered table-hover selectable">
+                  <thead>
+                    <tr>
+                      <th style="width:50px;"></th>
+                      <th>Aluno</th>
+                      <th>Matrícula</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <% (f.object.students_attributes || []).each do |index, student| %>
+                      <tr>
+                        <td>
+                          <%= hidden_field_tag "signup[students_attributes][#{index}][name]", student["name"] %>
+                          <%= hidden_field_tag "signup[students_attributes][#{index}][api_code]", student["api_code"] %>
+                          <%= hidden_field_tag "signup[students_attributes][#{index}][selected]", 0 %>
+                          <%= check_box_tag "signup[students_attributes][#{index}][selected]", 1, %w(true t 1).include?(student["selected"]), class: "select-target" %>
+                        </td>
+                        <td>
+                          <%= student["name"] %>
+                        </td>
+                        <td>
+                          <%= student["api_code"] %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="form-actions">
+          <div class="row">
+            <div class="col-sm-12">
+              <%= link_to 'Voltar', root_path, class: "btn btn-lg btn-info" %>
+              <button class="btn btn-success btn-lg">Confirmar e acessar o sistema</button>
+
             </div>
           </div>
         </div>
       </div>
     </div>
-  </form>
-</div>
+  <% end %>
 </div>

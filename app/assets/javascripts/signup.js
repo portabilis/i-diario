@@ -25,7 +25,24 @@ $(function () {
     $('#students-quantity').hide();
   }
 
-  $('form#signup-parent').on('change', '#signup_document, #signup_student_code', function () {
+  // Oculta/exibe os campos adicionais do signup de pais
+  var displayParentFields = function (el) {
+    var parentsFields = $('#registration-page #parents-fields');
+
+    if (el.prop('checked')) {
+      parentsFields.show();
+    } else {
+      parentsFields.hide();
+    }
+  }
+
+  displayParentFields($('#registration-page #signup_parent_role'));
+
+  $('#registration-page #signup_parent_role').on('click', function () {
+    displayParentFields($(this));
+  });
+
+  $('form.signup').on('change', '#signup_document, #signup_student_code', function () {
     var $document = $('#signup_document').val().replace(/[^0-9+]/g, ''),
         $studentCode = $('#signup_student_code').val();
 

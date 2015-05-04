@@ -1,0 +1,24 @@
+<tbody id="resources-tbody">
+  <% if @avaliations.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="7"> <%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @avaliations.each do |avaliation| %>
+      <tr>
+        <td><%= avaliation.unity %></td>
+        <td><%= avaliation.classroom %></td>
+        <td><%= avaliation.discipline %></td>
+        <td><%= l avaliation.test_date %></td>
+        <td><%= avaliation.class_number %></td>
+        <td><%= avaliation %></td>
+        <td class="actions">
+          <%= link_to 'Editar', edit_avaliation_path(avaliation),
+            class: "btn btn-success" %>
+          <%= link_to 'Excluir', avaliation_path(avaliation),
+            class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

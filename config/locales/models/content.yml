@@ -1,0 +1,31 @@
+pt-BR:
+  activerecord:
+    models:
+      content:
+        one: "Registro de conteúdo"
+        other: "Registro de conteúdos"
+
+    attributes:
+      content:
+        school_calendar: "Calendário letivo"
+        school_calendar_id: "Calendário letivo"
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        content_date: "Data"
+        class_number: "Aula"
+        description: "Conteúdo ministrado"
+
+    errors:
+      models:
+        content:
+          attributes:
+              content_date:
+                must_be_school_day: "deve ser um dia letivo"
+
+  errors:
+    contents:
+      require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"

@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    event_types:
+      no_school: "Não letivo"
+      extra_school: "Extra-letivo"

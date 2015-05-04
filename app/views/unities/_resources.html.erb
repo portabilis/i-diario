@@ -1,0 +1,30 @@
+<tbody id="resources-tbody">
+  <% if @unities.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="7"> <%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @unities.each do |unity| %>
+      <tr id="unity_<%= unity.id %>">
+        <td>
+          <input type="checkbox" name="ids[]" value="<%= unity.id %>" class="select-target">
+        </td>
+        <td>
+          <%= link_to edit_unity_path(unity) do %>
+            <%= truncate unity.to_s, length: 40 %>
+          <% end %>
+        </td>
+        <td><%= unity.unit_type_humanize %></td>
+        <td><%= unity.phone %></td>
+        <td><%= unity.email %></td>
+        <td><%= unity.responsible %></td>
+        <td class="actions">
+          <%= link_to 'Editar', edit_unity_path(unity), class: "btn btn-success" %>
+          <%= link_to 'Excluir', unity_path(unity), class: "btn btn-danger",
+            title: "Excluir #{unity.to_s}",
+            method: "delete", data: { confirm: "Tem certeza?" } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

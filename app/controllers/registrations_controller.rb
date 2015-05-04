@@ -3,46 +3,21 @@ class RegistrationsController < ApplicationController
   layout "registration"
 
   def new
+    @signup = Signup.new(params[:signup])
   end
 
   def create
-    @signup = signup.new(params[:signup])
+    @signup = Signup.new(params[:signup])
 
     if @user = @signup.save
-      flash[:notice] = I18n.t('devise.registrations.signed_up')
-      sign_in_and_redirect @user
+      if @user.actived?
+        flash[:notice] = I18n.t('devise.registrations.signed_up')
+        sign_in_and_redirect @user
+      else
+        respond_with @signup, location: new_user_session_path, notice: I18n.t('registrations.students')
+      end
     else
-      render params[:mod]
-    end
-  end
-
-  def edit
-  end
-
-  def update
-  end
-
-  def parents
-    @signup = Signup::Parents.new
-  end
-
-  def students
-    @signup = Signup::Students.new(params[:signup])
-
-    if params[:signup].present? && @user = @signup.save
-      redirect_to new_user_session_path, notice: I18n.t('registrations.students')
-    else
-      render 'students'
-    end
-  end
-
-  def employees
-    @signup = Signup::Employees.new(params[:signup])
-
-    if params[:signup].present? && @user = @signup.save
-      redirect_to new_user_session_path, notice: I18n.t('registrations.students')
-    else
-      render 'employees'
+      render :new
     end
   end
 
@@ -50,9 +25,5 @@ class RegistrationsController < ApplicationController
 
   def set_layout
     'devise'
-  end
-
-  def signup
-    Signup.factory(params[:mod])
   end
 end

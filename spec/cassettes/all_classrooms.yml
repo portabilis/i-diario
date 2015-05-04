@@ -1,0 +1,324 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=***REMOVED***&ano=2015&instituicao_id=1&oper=get&resource=turmas-por-escola&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*; q=0.5, application/xml'
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 14 Apr 2015 18:23:37 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=fcotfs999h8069fb39rcats8t5; expires=Wed, 15-Apr-2015 18:23:37 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: US-ASCII
+      string: ! '{"turmas":[{"id":"4230","nome":"Ber\u00e7\u00e1rio I","escola_id":"1"},{"id":"4229","nome":"Ber\u00e7\u00e1rio
+        II","escola_id":"1"},{"id":"4227","nome":"Ber\u00e7\u00e1rio III","escola_id":"1"},{"id":"4228","nome":"Maternal
+        I","escola_id":"1"},{"id":"4224","nome":"Maternal II","escola_id":"1"},{"id":"4225","nome":"N\u00edvel
+        I-1","escola_id":"1"},{"id":"4226","nome":"N\u00edvel I-2","escola_id":"1"},{"id":"4223","nome":"N\u00edvel
+        II-1","escola_id":"1"},{"id":"4222","nome":"N\u00edvel II-2","escola_id":"1"},{"id":"4050","nome":"1\u00ba
+        Ano 1","escola_id":"98370"},{"id":"4051","nome":"1\u00ba Ano 2","escola_id":"98370"},{"id":"4052","nome":"2\u00ba
+        Ano 1","escola_id":"98370"},{"id":"4053","nome":"2\u00ba Ano 2","escola_id":"98370"},{"id":"4046","nome":"2\u00ba
+        Ano 3","escola_id":"98370"},{"id":"4054","nome":"3\u00ba Ano 1","escola_id":"98370"},{"id":"4055","nome":"3\u00ba
+        Ano 2","escola_id":"98370"},{"id":"4047","nome":"3\u00ba Ano 3","escola_id":"98370"},{"id":"4056","nome":"4\u00ba
+        Ano 1","escola_id":"98370"},{"id":"4058","nome":"4\u00ba Ano 2","escola_id":"98370"},{"id":"4057","nome":"4\u00ba
+        ano 3","escola_id":"98370"},{"id":"4059","nome":"5\u00ba ano 1","escola_id":"98370"},{"id":"4061","nome":"5\u00ba
+        ano 2","escola_id":"98370"},{"id":"4060","nome":"5\u00ba ano 3","escola_id":"98370"},{"id":"4274","nome":"Nivel
+        III","escola_id":"98370"},{"id":"4049","nome":"Pr\u00e9-escolar I","escola_id":"98370"},{"id":"4048","nome":"Pr\u00e9-escolar
+        II","escola_id":"98370"},{"id":"4032","nome":"1\u00ba Ano 1","escola_id":"98450"},{"id":"4033","nome":"2\u00ba
+        Ano 1","escola_id":"98450"},{"id":"4034","nome":"3\u00ba Ano 1","escola_id":"98450"},{"id":"4035","nome":"4\u00ba
+        Ano 1","escola_id":"98450"},{"id":"4036","nome":"5\u00ba Ano 1","escola_id":"98450"},{"id":"4037","nome":"PR\u00c9","escola_id":"98450"},{"id":"4194","nome":"1\u00ba
+        Ano 1","escola_id":"98647"},{"id":"4190","nome":"1\u00ba Ano 2","escola_id":"98647"},{"id":"4191","nome":"2\u00ba
+        Ano 1","escola_id":"98647"},{"id":"4195","nome":"2\u00ba Ano 2","escola_id":"98647"},{"id":"4196","nome":"3\u00ba
+        Ano 1","escola_id":"98647"},{"id":"4197","nome":"3\u00ba Ano 2","escola_id":"98647"},{"id":"4199","nome":"4\u00ba
+        Ano 2","escola_id":"98647"},{"id":"4200","nome":"5\u00ba Ano 1","escola_id":"98647"},{"id":"4201","nome":"5\u00ba
+        Ano 2","escola_id":"98647"},{"id":"4202","nome":"6\u00ba Ano 1","escola_id":"98647"},{"id":"4203","nome":"6\u00ba
+        Ano 2","escola_id":"98647"},{"id":"4373","nome":"6\u00ba Ano 3","escola_id":"98647"},{"id":"4192","nome":"7\u00ba
+        Ano 1","escola_id":"98647"},{"id":"4193","nome":"7\u00ba Ano 2","escola_id":"98647"},{"id":"4204","nome":"8\u00ba
+        Ano 1","escola_id":"98647"},{"id":"4189","nome":"8\u00ba Ano 2","escola_id":"98647"},{"id":"4205","nome":"9\u00ba
+        Ano 1","escola_id":"98647"},{"id":"4207","nome":"9\u00ba Ano 2","escola_id":"98647"},{"id":"4342","nome":"N\u00edvel
+        III - Integral","escola_id":"98647"},{"id":"4343","nome":"Pr\u00e9 - Integral","escola_id":"98647"},{"id":"4378","nome":"6\u00ba
+        Ano 1","escola_id":"98671"},{"id":"4379","nome":"6\u00ba Ano 2","escola_id":"98671"},{"id":"4380","nome":"6\u00ba
+        Ano 3","escola_id":"98671"},{"id":"4381","nome":"6\u00ba Ano 4","escola_id":"98671"},{"id":"4382","nome":"7\u00ba
+        Ano 1","escola_id":"98671"},{"id":"4383","nome":"7\u00ba Ano 2","escola_id":"98671"},{"id":"4384","nome":"7\u00ba
+        Ano 3","escola_id":"98671"},{"id":"4385","nome":"7\u00ba Ano 4","escola_id":"98671"},{"id":"4386","nome":"8\u00ba
+        Ano 1","escola_id":"98671"},{"id":"4387","nome":"8\u00ba Ano 2","escola_id":"98671"},{"id":"4388","nome":"8\u00ba
+        Ano 3","escola_id":"98671"},{"id":"4389","nome":"8\u00ba Ano 4","escola_id":"98671"},{"id":"4374","nome":"9\u00ba
+        Ano 1","escola_id":"98671"},{"id":"4375","nome":"9\u00ba Ano 2","escola_id":"98671"},{"id":"4376","nome":"9\u00ba
+        Ano 3","escola_id":"98671"},{"id":"4391","nome":"9\u00b0Ano 5","escola_id":"98671"},{"id":"4173","nome":"1\u00ba
+        Ano 1","escola_id":"98680"},{"id":"4166","nome":"1\u00ba Ano 2","escola_id":"98680"},{"id":"4174","nome":"1\u00ba
+        Ano 3","escola_id":"98680"},{"id":"4175","nome":"1\u00ba Ano 4","escola_id":"98680"},{"id":"4186","nome":"2\u00ba
+        Ano 1","escola_id":"98680"},{"id":"4187","nome":"2\u00ba Ano 2","escola_id":"98680"},{"id":"4176","nome":"2\u00ba
+        Ano 3","escola_id":"98680"},{"id":"4156","nome":"2\u00ba Ano 4","escola_id":"98680"},{"id":"4158","nome":"3\u00ba
+        Ano 1","escola_id":"98680"},{"id":"4188","nome":"3\u00ba Ano 2","escola_id":"98680"},{"id":"4184","nome":"3\u00ba
+        Ano 3","escola_id":"98680"},{"id":"4185","nome":"3\u00ba Ano 4","escola_id":"98680"},{"id":"4159","nome":"4\u00ba
+        Ano 1","escola_id":"98680"},{"id":"4160","nome":"4\u00ba Ano 2","escola_id":"98680"},{"id":"4149","nome":"4\u00ba
+        Ano 3","escola_id":"98680"},{"id":"4151","nome":"4\u00ba ano 4","escola_id":"98680"},{"id":"4161","nome":"5\u00ba
+        Ano 1","escola_id":"98680"},{"id":"4162","nome":"5\u00ba Ano 2","escola_id":"98680"},{"id":"4157","nome":"5\u00ba
+        Ano 3","escola_id":"98680"},{"id":"4153","nome":"5\u00ba ano 4","escola_id":"98680"},{"id":"4172","nome":"6\u00ba
+        Ano 1","escola_id":"98680"},{"id":"4163","nome":"6\u00ba Ano 2","escola_id":"98680"},{"id":"4177","nome":"6\u00ba
+        Ano 3","escola_id":"98680"},{"id":"4257","nome":"6\u00ba ANO 4","escola_id":"98680"},{"id":"4164","nome":"7\u00ba
+        Ano 1","escola_id":"98680"},{"id":"4170","nome":"7\u00ba Ano 2","escola_id":"98680"},{"id":"4178","nome":"7\u00ba
+        Ano 3","escola_id":"98680"},{"id":"4165","nome":"8\u00ba Ano 1","escola_id":"98680"},{"id":"4171","nome":"8\u00ba
+        Ano 2","escola_id":"98680"},{"id":"4181","nome":"8\u00ba Ano 3","escola_id":"98680"},{"id":"4180","nome":"8\u00ba
+        Ano 4","escola_id":"98680"},{"id":"4167","nome":"9\u00ba Ano 1","escola_id":"98680"},{"id":"4168","nome":"9\u00ba
+        Ano 2","escola_id":"98680"},{"id":"4169","nome":"9\u00ba Ano 3","escola_id":"98680"},{"id":"4182","nome":"9\u00ba
+        Ano 4","escola_id":"98680"},{"id":"4306","nome":"1\u00ba Ano 1","escola_id":"98698"},{"id":"4308","nome":"2\u00ba
+        Ano 1","escola_id":"98698"},{"id":"4307","nome":"3\u00ba Ano 1","escola_id":"98698"},{"id":"4304","nome":"4\u00ba
+        Ano 1","escola_id":"98698"},{"id":"4305","nome":"5\u00ba Ano 1","escola_id":"98698"},{"id":"4111","nome":"1\u00ba
+        Ano 1","escola_id":"98701"},{"id":"4110","nome":"1\u00ba Ano 2","escola_id":"98701"},{"id":"4120","nome":"1\u00ba
+        Ano 3","escola_id":"98701"},{"id":"4118","nome":"2\u00ba Ano 1","escola_id":"98701"},{"id":"4112","nome":"2\u00ba
+        Ano 2","escola_id":"98701"},{"id":"4125","nome":"2\u00ba ano 3","escola_id":"98701"},{"id":"4124","nome":"3\u00ba
+        Ano 1","escola_id":"98701"},{"id":"4122","nome":"3\u00ba Ano 2","escola_id":"98701"},{"id":"4282","nome":"3
+        ano 3","escola_id":"98701"},{"id":"4123","nome":"4\u00ba Ano 1","escola_id":"98701"},{"id":"4119","nome":"4\u00ba
+        Ano 2","escola_id":"98701"},{"id":"4392","nome":"4 ano 3","escola_id":"98701"},{"id":"4121","nome":"5\u00ba
+        Ano 1","escola_id":"98701"},{"id":"4113","nome":"5\u00ba Ano 2","escola_id":"98701"},{"id":"4126","nome":"6\u00ba
+        Ano 1","escola_id":"98701"},{"id":"4127","nome":"6\u00ba Ano 2","escola_id":"98701"},{"id":"4129","nome":"6\u00ba
+        Ano 3","escola_id":"98701"},{"id":"4114","nome":"7\u00ba Ano 1","escola_id":"98701"},{"id":"4115","nome":"7\u00ba
+        Ano 2","escola_id":"98701"},{"id":"4133","nome":"7\u00ba Ano 3","escola_id":"98701"},{"id":"4135","nome":"8\u00ba
+        Ano 1","escola_id":"98701"},{"id":"4132","nome":"8\u00ba Ano 2","escola_id":"98701"},{"id":"4117","nome":"9\u00ba
+        Ano 1","escola_id":"98701"},{"id":"4116","nome":"9\u00ba Ano 2","escola_id":"98701"},{"id":"4134","nome":"9\u00ba
+        Ano 3","escola_id":"98701"},{"id":"4130","nome":"Pr\u00e9 Escolar I","escola_id":"98701"},{"id":"4131","nome":"Pr\u00e9
+        Escolar II","escola_id":"98701"},{"id":"4088","nome":"1\u00ba Ano 1","escola_id":"98710"},{"id":"4099","nome":"1\u00ba
+        Ano 2","escola_id":"98710"},{"id":"4089","nome":"2\u00ba Ano 1","escola_id":"98710"},{"id":"4100","nome":"2\u00ba
+        Ano 2","escola_id":"98710"},{"id":"4090","nome":"3\u00ba Ano 1","escola_id":"98710"},{"id":"4098","nome":"3\u00ba
+        Ano 2","escola_id":"98710"},{"id":"4097","nome":"3\u00ba Ano 3","escola_id":"98710"},{"id":"4091","nome":"4\u00ba
+        Ano 1","escola_id":"98710"},{"id":"4101","nome":"4\u00ba Ano 2","escola_id":"98710"},{"id":"4092","nome":"5\u00ba
+        Ano 1","escola_id":"98710"},{"id":"4102","nome":"5\u00ba Ano 2","escola_id":"98710"},{"id":"4093","nome":"6\u00ba
+        Ano 1","escola_id":"98710"},{"id":"4103","nome":"6\u00ba Ano 2","escola_id":"98710"},{"id":"4094","nome":"7\u00ba
+        Ano 1","escola_id":"98710"},{"id":"4095","nome":"8\u00ba Ano 1","escola_id":"98710"},{"id":"4104","nome":"8\u00ba
+        Ano 2","escola_id":"98710"},{"id":"4096","nome":"9\u00ba Ano 1","escola_id":"98710"},{"id":"4105","nome":"9\u00ba
+        Ano 2","escola_id":"98710"},{"id":"4106","nome":"N\u00edvel 3 Mat.","escola_id":"98710"},{"id":"4107","nome":"N\u00edvel
+        3 Vesp","escola_id":"98710"},{"id":"4109","nome":"Pr\u00e9  2","escola_id":"98710"},{"id":"4108","nome":"Pr\u00e9
+        1","escola_id":"98710"},{"id":"4142","nome":"1\u00ba Ano 1","escola_id":"105392"},{"id":"4147","nome":"2\u00ba
+        Ano 1","escola_id":"105392"},{"id":"4148","nome":"3\u00ba Ano 1","escola_id":"105392"},{"id":"4143","nome":"4\u00ba
+        Ano 1","escola_id":"105392"},{"id":"4144","nome":"5\u00ba Ano 1","escola_id":"105392"},{"id":"4145","nome":"N\u00edvel
+        III","escola_id":"105392"},{"id":"4146","nome":"Pr\u00e9-escola","escola_id":"105392"},{"id":"4327","nome":"1\u00ba
+        Ano 1","escola_id":"109894"},{"id":"4332","nome":"2\u00ba Ano 1","escola_id":"109894"},{"id":"4338","nome":"3\u00ba
+        Ano 1","escola_id":"109894"},{"id":"4339","nome":"4\u00ba Ano 1","escola_id":"109894"},{"id":"4334","nome":"5\u00ba
+        Ano 1","escola_id":"109894"},{"id":"4328","nome":"5\u00ba Ano 2","escola_id":"109894"},{"id":"4335","nome":"6\u00ba
+        Ano 1","escola_id":"109894"},{"id":"4336","nome":"7\u00ba Ano 1","escola_id":"109894"},{"id":"4337","nome":"8\u00ba
+        Ano 1","escola_id":"109894"},{"id":"4330","nome":"8\u00ba Ano 2","escola_id":"109894"},{"id":"4331","nome":"9\u00ba
+        Ano 1","escola_id":"109894"},{"id":"4341","nome":"9\u00ba Ano 2","escola_id":"109894"},{"id":"4340","nome":"Pr\u00e9
+        ","escola_id":"109894"},{"id":"4017","nome":"1\u00ba  ano 1","escola_id":"115770"},{"id":"4018","nome":"1\u00ba
+        Ano 1","escola_id":"115770"},{"id":"4027","nome":"1\u00ba Ano 2","escola_id":"115770"},{"id":"4019","nome":"2\u00ba
+        Ano 1","escola_id":"115770"},{"id":"4020","nome":"2\u00ba Ano 2","escola_id":"115770"},{"id":"4021","nome":"3\u00ba
+        Ano 1","escola_id":"115770"},{"id":"4022","nome":"3\u00ba Ano 2","escola_id":"115770"},{"id":"4023","nome":"4\u00ba
+        Ano 1","escola_id":"115770"},{"id":"4024","nome":"4\u00ba Ano 2","escola_id":"115770"},{"id":"4026","nome":"5\u00ba
+        Ano 1","escola_id":"115770"},{"id":"4025","nome":"5\u00ba ano 2","escola_id":"115770"},{"id":"4016","nome":"5\u00aa
+        S\u00e9rie 1","escola_id":"115770"},{"id":"4030","nome":"AEE","escola_id":"115770"},{"id":"4028","nome":"Pr\u00e9
+        1","escola_id":"115770"},{"id":"4029","nome":"Pr\u00e9 2","escola_id":"115770"},{"id":"4279","nome":"1\u00ba
+        Ano 1","escola_id":"115789"},{"id":"4277","nome":"2\u00ba Ano 1","escola_id":"115789"},{"id":"4278","nome":"3\u00ba
+        Ano 1","escola_id":"115789"},{"id":"4280","nome":"4\u00ba Ano 1","escola_id":"115789"},{"id":"4281","nome":"5\u00ba
+        Ano 1","escola_id":"115789"},{"id":"4275","nome":"N\u00edvel III","escola_id":"115789"},{"id":"4276","nome":"Pr\u00e9-escolar","escola_id":"115789"},{"id":"4252","nome":"1\u00ba
+        Ano 1","escola_id":"124370"},{"id":"4231","nome":"1\u00ba ano 2","escola_id":"124370"},{"id":"4256","nome":"2\u00ba
+        Ano 1","escola_id":"124370"},{"id":"4250","nome":"2\u00ba Ano 2","escola_id":"124370"},{"id":"4251","nome":"3\u00ba
+        Ano 1","escola_id":"124370"},{"id":"4232","nome":"3\u00ba Ano 2","escola_id":"124370"},{"id":"4233","nome":"4\u00ba
+        Ano 1","escola_id":"124370"},{"id":"4234","nome":"4\u00ba Ano 2","escola_id":"124370"},{"id":"4235","nome":"5\u00ba
+        Ano 1","escola_id":"124370"},{"id":"4236","nome":"5\u00ba Ano 2","escola_id":"124370"},{"id":"4244","nome":"6\u00ba
+        Ano 1","escola_id":"124370"},{"id":"4245","nome":"6\u00ba Ano 2","escola_id":"124370"},{"id":"4258","nome":"6\u00baano3","escola_id":"124370"},{"id":"4243","nome":"7\u00ba
+        Ano 1","escola_id":"124370"},{"id":"4237","nome":"7\u00ba Ano 2","escola_id":"124370"},{"id":"4239","nome":"8\u00ba
+        Ano 1","escola_id":"124370"},{"id":"4240","nome":"8\u00ba Ano 2","escola_id":"124370"},{"id":"4246","nome":"9\u00ba
+        Ano 1","escola_id":"124370"},{"id":"4247","nome":"9\u00ba Ano 2","escola_id":"124370"},{"id":"4248","nome":"N\u00edvel
+        III- Integral","escola_id":"124370"},{"id":"4393","nome":"n\u00edvel III-vesp.","escola_id":"124370"},{"id":"4254","nome":"Pr\u00e9
+        1","escola_id":"124370"},{"id":"4255","nome":"Pr\u00e9 int.","escola_id":"124370"},{"id":"4071","nome":"1\u00ba
+        Ano 1","escola_id":"126969"},{"id":"4082","nome":"1\u00ba Ano 2","escola_id":"126969"},{"id":"4365","nome":"1\u00ba
+        Ano 3","escola_id":"126969"},{"id":"4072","nome":"2\u00ba Ano 1","escola_id":"126969"},{"id":"4080","nome":"2\u00ba
+        Ano 2","escola_id":"126969"},{"id":"4081","nome":"2\u00ba Ano 3","escola_id":"126969"},{"id":"4073","nome":"3\u00ba
+        Ano 1","escola_id":"126969"},{"id":"4078","nome":"3\u00ba Ano 2","escola_id":"126969"},{"id":"4364","nome":"3\u00ba
+        Ano 3","escola_id":"126969"},{"id":"4070","nome":"4\u00ba Ano 1","escola_id":"126969"},{"id":"4079","nome":"4\u00ba
+        Ano 2","escola_id":"126969"},{"id":"4077","nome":"4\u00ba Ano 3","escola_id":"126969"},{"id":"4074","nome":"5\u00ba
+        Ano 1","escola_id":"126969"},{"id":"4075","nome":"5\u00ba Ano 2","escola_id":"126969"},{"id":"4076","nome":"5\u00ba
+        Ano 3","escola_id":"126969"},{"id":"4086","nome":"NIVEL III 1","escola_id":"126969"},{"id":"4083","nome":"NIVEL
+        III 2","escola_id":"126969"},{"id":"4084","nome":"PR\u00c9 \"1\"","escola_id":"126969"},{"id":"4085","nome":"PR\u00c9
+        \"2\"","escola_id":"126969"},{"id":"4087","nome":"PR\u00c9 \"3\"","escola_id":"126969"},{"id":"4288","nome":"1
+        \u00ba ANO MATUTINO","escola_id":"139637"},{"id":"4289","nome":"1 \u00ba ANO
+        VESPERTINO","escola_id":"139637"},{"id":"4267","nome":"1\u00ba Ano 1","escola_id":"139637"},{"id":"4264","nome":"1\u00ba
+        Ano 2","escola_id":"139637"},{"id":"4290","nome":"2 \u00ba ANO MATUTINO","escola_id":"139637"},{"id":"4291","nome":"2
+        \u00ba ANO VESPERTINO","escola_id":"139637"},{"id":"4268","nome":"2\u00ba
+        Ano 1","escola_id":"139637"},{"id":"4263","nome":"2\u00ba Ano 2","escola_id":"139637"},{"id":"4292","nome":"3
+        \u00ba ANO MATUTINO","escola_id":"139637"},{"id":"4293","nome":"3 \u00ba ANO
+        VESPERTINO","escola_id":"139637"},{"id":"4269","nome":"3\u00ba Ano 1","escola_id":"139637"},{"id":"4262","nome":"3\u00ba
+        Ano 2","escola_id":"139637"},{"id":"4294","nome":"4 \u00ba ANO MATUTINO","escola_id":"139637"},{"id":"4295","nome":"4
+        \u00ba ANO VESPERTINO","escola_id":"139637"},{"id":"4270","nome":"4\u00ba
+        Ano 1","escola_id":"139637"},{"id":"4265","nome":"4\u00ba Ano 2","escola_id":"139637"},{"id":"4296","nome":"5
+        \u00ba ANO MATUTINO","escola_id":"139637"},{"id":"4297","nome":"5 \u00ba ANO
+        VESPERTINO","escola_id":"139637"},{"id":"4259","nome":"5\u00b0 Ano 1","escola_id":"139637"},{"id":"4271","nome":"5\u00ba
+        Ano 1","escola_id":"139637"},{"id":"4273","nome":"5\u00b0 Ano 2","escola_id":"139637"},{"id":"4266","nome":"5\u00ba
+        Ano 2","escola_id":"139637"},{"id":"4272","nome":"5\u00b0 Ano 3","escola_id":"139637"},{"id":"4261","nome":"6\u00b0
+        Ano 1","escola_id":"139637"},{"id":"4260","nome":"6\u00b0 Ano 2","escola_id":"139637"},{"id":"4283","nome":"N\u00cdVEL
+        III INTEGRAL","escola_id":"139637"},{"id":"4284","nome":"N\u00cdVEL III VESPERTINO","escola_id":"139637"},{"id":"4285","nome":"PR\u00c9
+        ESCOLA INTEGRAL","escola_id":"139637"},{"id":"4286","nome":"PR\u00c9 ESCOLA
+        MATUTINO","escola_id":"139637"},{"id":"4287","nome":"PR\u00c9 ESCOLA VESPERTINO","escola_id":"139637"},{"id":"4502","nome":"Alfabetiza\u00e7\u00e3o
+        - Stella - 2015","escola_id":"703010"},{"id":"4482","nome":"Artes - Dilma
+        1 - 2015","escola_id":"703010"},{"id":"4485","nome":"Artes - Dilma 2 - 2015","escola_id":"703010"},{"id":"4486","nome":"Ci\u00eancias
+        - Rosane 1 - 2015","escola_id":"703010"},{"id":"4489","nome":"Ci\u00eancias
+        - Rosane 2 - 2015","escola_id":"703010"},{"id":"4492","nome":"Ci\u00eancias
+        - Rosane 3 - 2015","escola_id":"703010"},{"id":"4493","nome":"Ci\u00eancias
+        - Rosane 4 - 2015","escola_id":"703010"},{"id":"4494","nome":"Ci\u00eancias
+        - Rosane 5 - 2015","escola_id":"703010"},{"id":"4460","nome":"Cremilda - Portugu\u00eas
+        2","escola_id":"703010"},{"id":"4431","nome":"Cremilda - Portugu\u00eas 4","escola_id":"703010"},{"id":"4427","nome":"Cremilda
+        3 - Portugu\u00eas","escola_id":"703010"},{"id":"4400","nome":"Cremilda II
+        - Portugu\u00eas","escola_id":"703010"},{"id":"4401","nome":"Cremilda II -
+        Portugu\u00eas","escola_id":"703010"},{"id":"4462","nome":"Dilma - Artes","escola_id":"703010"},{"id":"4424","nome":"Dilma
+        - Artes 3","escola_id":"703010"},{"id":"4470","nome":"Dilma - Artes 4","escola_id":"703010"},{"id":"4408","nome":"Dilma
+        - Artes I","escola_id":"703010"},{"id":"4429","nome":"Dilma - Artes2","escola_id":"703010"},{"id":"4515","nome":"Domingos
+        de Carvalho - Matem\u00e1tica - Solange - 2015","escola_id":"703010"},{"id":"4407","nome":"Elvis
+        (INGL\u00caS)","escola_id":"703010"},{"id":"4405","nome":"Elvys - Ingl\u00eas","escola_id":"703010"},{"id":"4446","nome":"Elvys
+        - Ingl\u00eas 2","escola_id":"703010"},{"id":"4432","nome":"Elvys - Ingl\u00eas
+        2","escola_id":"703010"},{"id":"4500","nome":"Frederico Lampe - Portugu\u00eas
+        - Cremilda 2015","escola_id":"703010"},{"id":"4487","nome":"Geografia - Raquel
+        1 - 2015","escola_id":"703010"},{"id":"4475","nome":"Geografia - Raquel 2","escola_id":"703010"},{"id":"4490","nome":"Geografia
+        - Raquel 2 - 2015","escola_id":"703010"},{"id":"4474","nome":"Hist\u00f3ria
+        - Tamiln 2","escola_id":"703010"},{"id":"4497","nome":"Hist\u00f3ria 1 - Marli
+        - 2015","escola_id":"703010"},{"id":"4506","nome":"Hist\u00f3ria 2 - Marli
+        - 2015","escola_id":"703010"},{"id":"4479","nome":"Ingl\u00eas - Cremilda
+        I","escola_id":"703010"},{"id":"4472","nome":"Ingl\u00eas - Elvys 2","escola_id":"703010"},{"id":"4473","nome":"Ingl\u00eas
+        - Elvys 3","escola_id":"703010"},{"id":"4484","nome":"Ingl\u00eas - Josiane
+        1 - 2015","escola_id":"703010"},{"id":"4476","nome":"Ingl\u00eas - Leci 2","escola_id":"703010"},{"id":"4412","nome":"Ingl\u00eas
+        - Vera - Polo Frederico Lampe","escola_id":"703010"},{"id":"4421","nome":"Ingl\u00eas
+        - Vera - Rio Feio","escola_id":"703010"},{"id":"4495","nome":"Ingl\u00eas-
+        Josiane 2 - 2015","escola_id":"703010"},{"id":"4450","nome":"Leci - Ingl\u00eas
+        2","escola_id":"703010"},{"id":"4441","nome":"Leci - Portugu\u00eas","escola_id":"703010"},{"id":"4455","nome":"Leci
+        - Portugu\u00eas 2","escola_id":"703010"},{"id":"4433","nome":"Marcelino -
+        Ci\u00eancias","escola_id":"703010"},{"id":"4402","nome":"Marcelino - Ci\u00eancias","escola_id":"703010"},{"id":"4399","nome":"Marcelino
+        - Ci\u00eancias","escola_id":"703010"},{"id":"4471","nome":"Marcelino - Ci\u00eancias","escola_id":"703010"},{"id":"4449","nome":"Marcelino
+        - Ci\u00eancias II","escola_id":"703010"},{"id":"4398","nome":"Marli - Hist\u00f3ria","escola_id":"703010"},{"id":"4411","nome":"Marli
+        - Hist\u00f3ria","escola_id":"703010"},{"id":"4468","nome":"Matem\u00e1tica
+        - Solange - Patrim\u00f4nio do Salto","escola_id":"703010"},{"id":"4425","nome":"Nevinha
+        - Matem\u00e1tica","escola_id":"703010"},{"id":"4459","nome":"Nevinha - Matem\u00e1tica
+        2","escola_id":"703010"},{"id":"4503","nome":"Nivelamento - Stella - 2015","escola_id":"703010"},{"id":"4504","nome":"Patrim\u00f4nio
+        do Salto - Hist\u00f3ria - Marli - 2015","escola_id":"703010"},{"id":"4501","nome":"Patrim\u00f4nio
+        do Salto - Ingl\u00eas - Leci 2015","escola_id":"703010"},{"id":"4514","nome":"Patrim\u00f4nio
+        do Salto - Leci 2 - Ingl\u00eas - 2015","escola_id":"703010"},{"id":"4505","nome":"Patrim\u00f4nio
+        do Salto 2 - Hist\u00f3ria - Marli - 2015","escola_id":"703010"},{"id":"4488","nome":"Portugu\u00eas
+        - Cremilda 1 - 2015","escola_id":"703010"},{"id":"4483","nome":"Portugu\u00eas
+        - Leci 1 - 2015","escola_id":"703010"},{"id":"4491","nome":"Portugu\u00eas
+        - Leci 2 - 2015","escola_id":"703010"},{"id":"4451","nome":"Raquel - Geografia","escola_id":"703010"},{"id":"4406","nome":"Raquel
+        - Geografia","escola_id":"703010"},{"id":"4416","nome":"Raquel - Geografia
+        - Ass Norilda","escola_id":"703010"},{"id":"4440","nome":"Raquel - Geografia
+        - Ass Norilda","escola_id":"703010"},{"id":"4467","nome":"Raquel - Geografia
+        - Assentamento Norilda da Cruz","escola_id":"703010"},{"id":"4439","nome":"Raquel
+        - Geografia - Serro Azul","escola_id":"703010"},{"id":"4438","nome":"Raquel
+        - Geografia - Serro Azul","escola_id":"703010"},{"id":"4469","nome":"Raquel
+        - Geografia - Serro Azul","escola_id":"703010"},{"id":"4452","nome":"Raquel
+        - Geografia 2","escola_id":"703010"},{"id":"4418","nome":"Rosane - Ci\u00eancias
+        - Domingos de Carvalho","escola_id":"703010"},{"id":"4435","nome":"Rosane
+        - Ci\u00eancias - Domingos de Carvalho","escola_id":"703010"},{"id":"4434","nome":"Rosane
+        - Ci\u00eancias - frederico lampe","escola_id":"703010"},{"id":"4417","nome":"Rosane
+        - Ci\u00eancias - Frederico Lampe","escola_id":"703010"},{"id":"4454","nome":"Rosane
+        - Ci\u00eancias - Patrim\u00f4nio do Salto","escola_id":"703010"},{"id":"4445","nome":"Rosane
+        - Ci\u00eancias - Patrim\u00f4nio do Salto","escola_id":"703010"},{"id":"4465","nome":"Rosane
+        - Ci\u00eancias - Patrim\u00f4nio do Salto","escola_id":"703010"},{"id":"4464","nome":"Rosane
+        - Ci\u00eancias - Patrim\u00f4nio do Salto","escola_id":"703010"},{"id":"4397","nome":"Rosane
+        - Ci\u00eancias - Volta Grande","escola_id":"703010"},{"id":"4461","nome":"Rosane
+        - Ci\u00eancias - Volta Grande","escola_id":"703010"},{"id":"4436","nome":"Rosane
+        - Ci\u00eancias - Volta Grande","escola_id":"703010"},{"id":"4463","nome":"Rosane-
+        Ci\u00eancias - Frederico Lampre","escola_id":"703010"},{"id":"4410","nome":"Samuel
+        - Hist\u00f3ria","escola_id":"703010"},{"id":"4409","nome":"Samuel - Hist\u00f3ria","escola_id":"703010"},{"id":"4499","nome":"Serro
+        Azul - Geografia - Raquel 2015","escola_id":"703010"},{"id":"4498","nome":"Serro
+        Azul - Matem\u00e1tica - Solange 2015","escola_id":"703010"},{"id":"4443","nome":"Solange
+        - Artes - Domingos de Carvalho","escola_id":"703010"},{"id":"4444","nome":"Solange
+        - Artes - Patrim\u00f4nio do Salto","escola_id":"703010"},{"id":"4437","nome":"Solange
+        - Matem\u00e1tica","escola_id":"703010"},{"id":"4419","nome":"Solange - Matem\u00e1tica","escola_id":"703010"},{"id":"4414","nome":"Solange
+        - Matem\u00e1tica - Pat Salto","escola_id":"703010"},{"id":"4442","nome":"Solange
+        - Matem\u00e1tica - Patrim\u00f4nio do Salto","escola_id":"703010"},{"id":"4415","nome":"Solange
+        - Matem\u00e1tica - Volta Grande","escola_id":"703010"},{"id":"4456","nome":"Solange
+        - Matem\u00e1tica 2","escola_id":"703010"},{"id":"4403","nome":"Stella (2\u00ba
+        e 3\u00ba alfabetiza\u00e7\u00e3o)","escola_id":"703010"},{"id":"4404","nome":"Stella
+        (4\u00ba e 5\u00ba Nivelamento)","escola_id":"703010"},{"id":"4430","nome":"Tamilin
+        - Hist\u00f3ria","escola_id":"703010"},{"id":"4428","nome":"Tamilin - Hist\u00f3ria","escola_id":"703010"},{"id":"4477","nome":"Tamilin
+        - Hist\u00f3ria 2","escola_id":"703010"},{"id":"4457","nome":"Teste 1","escola_id":"703010"},{"id":"4420","nome":"Valdir
+        - Geografia","escola_id":"703010"},{"id":"4447","nome":"VALDIR - GEOGRAFIA","escola_id":"703010"},{"id":"4396","nome":"Valdir
+        - Geografia - Frederico Lampe","escola_id":"703010"},{"id":"4466","nome":"Valdir
+        - Geografia - Frederico Lampe","escola_id":"703010"},{"id":"4448","nome":"Valdir
+        - Geografia - Frederico Lampe","escola_id":"703010"},{"id":"4458","nome":"Valdir
+        - Geografia 2","escola_id":"703010"},{"id":"4422","nome":"Vera - Ingl\u00eas
+        - Frederico Lampe","escola_id":"703010"},{"id":"4413","nome":"Vera - Ingl\u00eas
+        - Serro Azul","escola_id":"703010"},{"id":"4423","nome":"Vera - Ingl\u00eas
+        - Serro Azul","escola_id":"703010"},{"id":"4478","nome":"Vera - Portugu\u00eas
+        - Frederico Lampe","escola_id":"703010"},{"id":"4453","nome":"Vera - Portugu\u00eas
+        - Frederico Lampe ","escola_id":"703010"},{"id":"4426","nome":"Vera - Portugu\u00eas
+        - Volta Grande","escola_id":"703010"},{"id":"4220","nome":"Ber\u00e7\u00e1rio
+        ","escola_id":"703011"},{"id":"4219","nome":"Maternal I ","escola_id":"703011"},{"id":"4221","nome":"Maternal
+        II ","escola_id":"703011"},{"id":"4217","nome":"N\u00edvel III (Matutino)","escola_id":"703011"},{"id":"4218","nome":"N\u00edvel
+        III (Vespertino)","escola_id":"703011"},{"id":"4209","nome":"N\u00edvel III
+        1","escola_id":"703012"},{"id":"4210","nome":"N\u00edvel III 2","escola_id":"703012"},{"id":"4366","nome":"N\u00edvel
+        III 3","escola_id":"703012"},{"id":"4211","nome":"Pr\u00e9-escola 1","escola_id":"703012"},{"id":"4212","nome":"Pr\u00e9-escola
+        2","escola_id":"703012"},{"id":"4215","nome":"N\u00edvel I A","escola_id":"703013"},{"id":"4216","nome":"N\u00edvel
+        I B","escola_id":"703013"},{"id":"4213","nome":"N\u00edvel II A ","escola_id":"703013"},{"id":"4214","nome":"N\u00edvel
+        II B ","escola_id":"703013"},{"id":"4298","nome":"MATERNAL I","escola_id":"703014"},{"id":"4299","nome":"MATERNAL
+        II","escola_id":"703014"},{"id":"4300","nome":"NIVEL I- 1","escola_id":"703014"},{"id":"4303","nome":"NIVEL
+        I- 2","escola_id":"703014"},{"id":"4301","nome":"NIVEL II- 1","escola_id":"703014"},{"id":"4302","nome":"NIVEL
+        II- 2","escola_id":"703014"},{"id":"4011","nome":"Ber\u00e7\u00e1rio","escola_id":"703015"},{"id":"4012","nome":"Maternal
+        1","escola_id":"703015"},{"id":"4013","nome":"Maternal 2","escola_id":"703015"},{"id":"4014","nome":"N\u00edvel
+        I - 1","escola_id":"703015"},{"id":"4015","nome":"N\u00edvel I - 2","escola_id":"703015"},{"id":"4318","nome":"Ber\u00e7\u00e1rio
+        1","escola_id":"703016"},{"id":"4313","nome":"Ber\u00e7\u00e1rio 2","escola_id":"703016"},{"id":"4314","nome":"Maternal
+        1","escola_id":"703016"},{"id":"4315","nome":"Maternal 2","escola_id":"703016"},{"id":"4324","nome":"Maternal
+        3","escola_id":"703016"},{"id":"4316","nome":"N\u00edvel I 1","escola_id":"703016"},{"id":"4319","nome":"N\u00edvel
+        I 2","escola_id":"703016"},{"id":"4320","nome":"N\u00edvel II 1","escola_id":"703016"},{"id":"4321","nome":"N\u00edvel
+        II 2","escola_id":"703016"},{"id":"4325","nome":"N\u00edvel II 3","escola_id":"703016"},{"id":"4507","nome":"2\u00aa
+        S\u00e9rie 1","escola_id":"703017"},{"id":"4508","nome":"2\u00aa S\u00e9rie
+        2","escola_id":"703017"},{"id":"4509","nome":"2\u00aa S\u00e9rie 3","escola_id":"703017"},{"id":"4513","nome":"BER\u00c7\u00c1RIO","escola_id":"703017"},{"id":"4512","nome":"Ber\u00e7\u00e1rio
+        I","escola_id":"703017"},{"id":"4510","nome":"Ber\u00e7\u00e1rio II","escola_id":"703017"},{"id":"4511","nome":"Ber\u00e7\u00e1rio
+        III","escola_id":"703017"},{"id":"4006","nome":"Maternal","escola_id":"703018"},{"id":"4005","nome":"N\u00edvel
+        I - 1","escola_id":"703018"},{"id":"4010","nome":"N\u00edvel I - 2","escola_id":"703018"},{"id":"4007","nome":"N\u00edvel
+        II - 1","escola_id":"703018"},{"id":"4363","nome":"BER\u00c7\u00c1RIO","escola_id":"703019"},{"id":"4360","nome":"MATERNAL
+        2015","escola_id":"703019"},{"id":"4362","nome":"N\u00cdVEL I 2015","escola_id":"703019"},{"id":"4361","nome":"N\u00cdVEL
+        II 2015","escola_id":"703019"},{"id":"4358","nome":"N\u00edvel III","escola_id":"703019"},{"id":"4359","nome":"PRE","escola_id":"703019"},{"id":"4367","nome":"Ber\u00e7\u00e1rio-A","escola_id":"703020"},{"id":"4368","nome":"Ber\u00e7\u00e1rio-B","escola_id":"703020"},{"id":"4372","nome":"Maternal-A","escola_id":"703020"},{"id":"4369","nome":"Maternal-B","escola_id":"703020"},{"id":"4370","nome":"N\u00edvel
+        I-A","escola_id":"703020"},{"id":"4371","nome":"N\u00edvel I-B","escola_id":"703020"},{"id":"4354","nome":"
+        N\u00edvel II-2","escola_id":"703021"},{"id":"4348","nome":"Maternal-1","escola_id":"703021"},{"id":"4346","nome":"Maternal-2","escola_id":"703021"},{"id":"4349","nome":"N\u00edvel
+        I-1","escola_id":"703021"},{"id":"4350","nome":"N\u00edvel I-2","escola_id":"703021"},{"id":"4351","nome":"N\u00edvel
+        I-3","escola_id":"703021"},{"id":"4352","nome":"N\u00edvel I-4","escola_id":"703021"},{"id":"4347","nome":"N\u00edvel
+        I-5","escola_id":"703021"},{"id":"4353","nome":"N\u00edvel II-1","escola_id":"703021"},{"id":"4356","nome":"N\u00edvel
+        II-3","escola_id":"703021"},{"id":"4355","nome":"N\u00edvel II-4","escola_id":"703021"},{"id":"4357","nome":"N\u00edvel
+        II-5","escola_id":"703021"},{"id":"4345","nome":"N\u00edvel III-2","escola_id":"703021"},{"id":"4045","nome":"4\u00aa
+        S\u00e9rie 1","escola_id":"703022"},{"id":"4038","nome":"4\u00aa S\u00e9rie
+        2","escola_id":"703022"},{"id":"4042","nome":"4\u00aa S\u00e9rie 3","escola_id":"703022"},{"id":"4039","nome":"5\u00aa
+        S\u00e9rie 1","escola_id":"703022"},{"id":"4040","nome":"5\u00aa S\u00e9rie
+        2","escola_id":"703022"},{"id":"4041","nome":"6\u00aa S\u00e9rie 1","escola_id":"703022"},{"id":"4043","nome":"6\u00aa
+        S\u00e9rie 2","escola_id":"703022"},{"id":"4062","nome":"N\u00edvel II - 1","escola_id":"703022"},{"id":"4063","nome":"N\u00edvel
+        II - 2","escola_id":"703022"},{"id":"4064","nome":"N\u00edvel II - 3","escola_id":"703022"},{"id":"4065","nome":"N\u00edvel
+        III - 1","escola_id":"703022"},{"id":"4066","nome":"N\u00edvel III - 2","escola_id":"703022"},{"id":"4067","nome":"N\u00edvel
+        III - 3","escola_id":"703022"},{"id":"4068","nome":"Pr\u00e9 escola matutino","escola_id":"703022"},{"id":"4069","nome":"Pr\u00e9
+        escola vespertino","escola_id":"703022"},{"id":"4044","nome":"Pr\u00e9-escola
+        extens\u00e3o Marta Tavares","escola_id":"703022"},{"id":"4001","nome":"N\u00edvel
+        III - 1","escola_id":"703023"},{"id":"3999","nome":"N\u00edvel III - 2","escola_id":"703023"},{"id":"3996","nome":"N\u00edvel
+        III - 3","escola_id":"703023"},{"id":"4002","nome":"Pr\u00e9 1 ","escola_id":"703023"},{"id":"3995","nome":"Pr\u00e9
+        2","escola_id":"703023"},{"id":"3998","nome":"Pr\u00e9 3","escola_id":"703023"},{"id":"3997","nome":"Pr\u00e9
+        4","escola_id":"703023"},{"id":"4000","nome":"Pr\u00e9 5","escola_id":"703023"},{"id":"4009","nome":"Pr\u00e9-Escola
+        1","escola_id":"703023"},{"id":"4309","nome":"Turma - 1","escola_id":"703025"},{"id":"4310","nome":"Turma
+        - 2","escola_id":"703025"},{"id":"4311","nome":"Turma - 3","escola_id":"703025"},{"id":"4312","nome":"Turma
+        - 4","escola_id":"703025"},{"id":"4136","nome":"BER\u00c7\u00c1RIO 2014","escola_id":"703028"},{"id":"4137","nome":"MATERNAL
+        2014","escola_id":"703028"},{"id":"4138","nome":"N\u00cdVEL I 2014","escola_id":"703028"},{"id":"4139","nome":"N\u00cdVEL
+        II 2014","escola_id":"703028"},{"id":"4140","nome":"N\u00cdVEL III MATUTINO
+        2014","escola_id":"703028"},{"id":"4141","nome":"N\u00cdVEL III VESPERTINO
+        2014","escola_id":"703028"}],"oper":"get","resource":"turmas-por-escola","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Tue, 14 Apr 2015 18:23:38 GMT
+recorded_with: VCR 2.9.3

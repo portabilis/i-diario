@@ -1,0 +1,4 @@
+pt-BR:
+  avaliations:
+    index:
+      new_html: "<i class='fa fa-plus'></i> Novo cadastro de avaliação"

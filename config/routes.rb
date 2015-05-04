@@ -34,6 +34,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :teachers, only: :index
+
     root 'dashboard#index'
 
     get '/sandbox', to: 'dashboard#sandbox'
@@ -100,5 +102,21 @@ Rails.application.routes.draw do
     resources :authorization_***REMOVED***, concerns: :history
     resources :moved_***REMOVED***, only: [:index]
     resources :***REMOVED***, concerns: :history
+
+    resources :test_settings, concerns: :history do
+      resources :test_setting_tests, only: [:index]
+    end
+
+    resources :school_calendars, concerns: :history do
+      resources :school_calendar_steps, only: [:index]
+      resources :school_calendar_events, concerns: :history
+    end
+
+    resources :contents, concerns: :history
+    resources :classrooms, only: [:index]
+    resources :disciplines, only: [:index]
+    resources :avaliations, concerns: :history
+    resources :teacher_avaliations, only: :index
+    resources :daily_notes, only: [:new, :create, :edit, :update], concerns: :history
   end
 end

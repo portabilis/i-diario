@@ -108,3 +108,20 @@ pt-BR:
       <<: *female
     execution_***REMOVED***s:
       <<: *female
+    test_settings:
+      <<: *female
+
+    school_calendars:
+      <<: *male
+
+    school_calendar_events:
+      <<: *male
+
+    contents:
+      <<: *male
+
+    avaliations:
+      <<: *male
+
+    daily_notes:
+      <<: *male

@@ -1,6 +1,9 @@
 class RolesController < ApplicationController
+  has_scope :page, default: 1
+  has_scope :per, default: 10
+
   def index
-    @roles = Role.ordered
+    @roles = apply_scopes(Role.ordered)
 
     authorize @roles
   end
