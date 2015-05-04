@@ -85,6 +85,11 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def current_entity_configuration
+    @current_entity_configuration ||= EntityConfiguration.first
+  end
+  helper_method :current_entity_configuration
+
   def current_entity
     @current_entity ||= Entity.find_by(domain: request.host)
     Entity.current = @current_entity
