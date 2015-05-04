@@ -1,0 +1,41 @@
+<div class="widget-body no-padding">
+  <table class="table table-bordered">
+    <thead>
+      <th><%= DailyFrequency.human_attribute_name :unity %></th>
+      <th><%= DailyFrequency.human_attribute_name :classroom %></th>
+      <th><%= DailyFrequency.human_attribute_name :discipline %></th>
+      <th><%= DailyFrequency.human_attribute_name :frequency_date %></th>
+    </thead>
+    <tbody style="border-bottom: 1px solid #ccc;">
+      <td><%= @daily_frequencies.first.classroom.unity %></td>
+      <td><%= @daily_frequencies.first.classroom %></td>
+      <td><%= @daily_frequencies.first.discipline %></td>
+      <td><%= l @daily_frequencies.first.frequency_date %></td>
+    </tbody>
+  </table>
+
+  <%= simple_form_for :daily_frequency, html: { class: "smart-form" } do |f| %>
+    <%= f.error_notification %>
+
+    <table class="table table-bordered table-striped table-hover">
+      <colgroup>
+        <col />
+        <col style="width: 200px;" />
+      </colgroup>
+      <thead>
+        <th><%= DailyFrequencyStudent.human_attribute_name :student %></th>
+        <th><%= DailyFrequencyStudent.human_attribute_name :present %></th>
+      </thead>
+      <tbody>
+        <%= f.fields_for :students do |student| %>
+          <%= render 'student_fields', f: student %>
+        <% end %>
+      </tbody>
+    </table>
+
+
+    <footer>
+      <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>

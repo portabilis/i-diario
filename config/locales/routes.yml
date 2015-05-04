@@ -44,9 +44,11 @@ pt-BR:
     contents: 'registro-de-conteudos'
     avaliations: 'cadastro-de-avaliacoes'
     daily_notes: 'diario-de-notas'
+    daily_frequencies: 'diario-de-frequencia'
 
     # actions
     edit: 'editar'
+    edit_multiples: 'editar-diversos'
     new: 'novo'
     sign_in: 'logar'
     sign_out: 'sair'

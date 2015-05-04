@@ -47,6 +47,8 @@ pt-BR:
     avaliations_***REMOVED***: "Avaliações"
     avaliations: "Cadastro"
     daily_notes: "Diário"
+    frequencies_***REMOVED***: "Frequência"
+    daily_frequencies: "Diário"
 
   enumerations:
     features:

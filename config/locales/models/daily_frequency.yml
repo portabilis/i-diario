@@ -1,0 +1,19 @@
+pt-BR:
+  activerecord:
+    models:
+      daily_frequency: "Registro diário de frequência"
+    attributes:
+      daily_frequency:
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        global_absence: "Falta global"
+        frequency_date: "Data"
+        class_number: "Aula"
+
+  errors:
+    daily_frequencies:
+      require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
