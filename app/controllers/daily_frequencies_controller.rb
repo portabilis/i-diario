@@ -14,6 +14,7 @@ class DailyFrequenciesController < ApplicationController
 
   def create
     @daily_frequency = DailyFrequency.new(resource_params)
+    @daily_frequency.school_calendar = current_school_calendar
     class_numbers = params[:class_numbers]
 
     if(@daily_frequency.valid?)
@@ -26,18 +27,20 @@ class DailyFrequenciesController < ApplicationController
             DailyFrequency.find_or_create_by(unity_id: resource_params[:unity_id],
                                               classroom_id: resource_params[:classroom_id],
                                               frequency_date: resource_params[:frequency_date],
-                                              global_absence: true)
+                                              global_absence: true,
+                                              school_calendar: current_school_calendar)
       else
         class_numbers.split(',').each do |class_number|
           params = resource_params
           params[:class_number] = class_number
+          params[:school_calendar_id] = current_school_calendar.id
           @daily_frequencies << @daily_frequency = DailyFrequency.find_or_create_by(params)
         end
       end
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
     else
       if !@daily_frequency.global_absence? && (class_numbers.nil? || class_numbers.empty?)
-        flash[:alert] = 'É necessário informar as aulas quando Falta global não estiver preenchido!'
+        flash[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
       end
       fetch_unities
       render :new
