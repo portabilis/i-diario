@@ -17,3 +17,6 @@ pt-BR:
   errors:
     daily_frequencies:
       require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
+
+  daily_frequencies:
+    success: 'Frequência lançada com sucesso!'

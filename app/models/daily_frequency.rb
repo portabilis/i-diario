@@ -21,6 +21,6 @@ class DailyFrequency < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:class_number].asc) }
 
   def build_or_find_by_student student
-    students.where(student_id: student.id).first || students.build(student_id: student.id)
+    students.where(student_id: student.id).first || students.build(student_id: student.id, present: 1)
   end
 end

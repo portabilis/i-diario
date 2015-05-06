@@ -7,5 +7,4 @@ class DailyFrequencyStudent < ActiveRecord::Base
   belongs_to :student
 
   validates :student, :daily_frequency, presence: true
-  validates :global_absence, inclusion: [true, false]
 end

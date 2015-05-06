@@ -18,10 +18,21 @@ class DailyFrequenciesController < ApplicationController
 
     if(@daily_frequency.valid?)
       @daily_frequencies = []
-      class_numbers.split(',').each do |class_number|
+
+      if @daily_frequency.global_absence?
         params = resource_params
-        params[:class_number] = class_number
-        @daily_frequencies << @daily_frequency = DailyFrequency.find_or_create_by(params)
+        params[:discipline_id] = nil
+        @daily_frequencies << @daily_frequency =
+            DailyFrequency.find_or_create_by(unity_id: resource_params[:unity_id],
+                                              classroom_id: resource_params[:classroom_id],
+                                              frequency_date: resource_params[:frequency_date],
+                                              global_absence: true)
+      else
+        class_numbers.split(',').each do |class_number|
+          params = resource_params
+          params[:class_number] = class_number
+          @daily_frequencies << @daily_frequency = DailyFrequency.find_or_create_by(params)
+        end
       end
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
     else
@@ -54,7 +65,14 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def update_multiple
-    # implementar
+    authorize DailyFrequency.new
+
+    builder = DailyFrequencyStudentsBuilder.new(frequency_student_params[:daily_frequency_student])
+    builder.build_all
+
+    flash[:success] = t 'daily_frequencies.success'
+
+    redirect_to new_daily_frequency_path
   end
 
   def history
@@ -71,7 +89,7 @@ class DailyFrequenciesController < ApplicationController
     begin
       api = IeducarApi::Students.new(configuration.to_api)
       Rails.logger.debug @daily_frequency.inspect
-      result = api.fetch_for_daily({ classroom_api_code: @daily_frequency.classroom.api_code, discipline_api_code: @daily_frequency.discipline.api_code})
+      result = api.fetch_for_daily({ classroom_api_code: @daily_frequency.classroom.api_code, discipline_api_code: @daily_frequency.discipline.try(:api_code) })
 
       @api_students = result["alunos"]
     rescue IeducarApi::Base::ApiError => e
@@ -100,6 +118,12 @@ class DailyFrequenciesController < ApplicationController
       students_attributes: [
         :id, :student_id, :note
       ]
+    )
+  end
+
+  def frequency_student_params
+    params.permit(
+      daily_frequency_student: [:daily_frequency_id, :student_id, :present]
     )
   end
 

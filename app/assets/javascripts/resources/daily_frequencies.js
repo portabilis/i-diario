@@ -128,5 +128,7 @@ $(function () {
     }
   }
 
+  // fix to checkboxes work correctly
+  $('[name="daily_frequency_student[][present]"][type=hidden]').remove();
 
 });

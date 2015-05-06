@@ -9,29 +9,29 @@
     <tbody style="border-bottom: 1px solid #ccc;">
       <td><%= @daily_frequencies.first.classroom.unity %></td>
       <td><%= @daily_frequencies.first.classroom %></td>
-      <td><%= @daily_frequencies.first.discipline %></td>
+      <td><%= @daily_frequencies.first.global_absence? ? 'Todas' : @daily_frequencies.first.discipline %></td>
       <td><%= l @daily_frequencies.first.frequency_date %></td>
     </tbody>
   </table>
 
   <%= form_tag update_multiple_daily_frequencies_path, method: :put, class: 'smart-form' do %>
     <table class="table table-bordered table-striped table-hover">
-      <colgroup>
-        <col />
-        <col style="width: 200px;" />
-      </colgroup>
       <thead>
-        <th><%= DailyFrequencyStudent.human_attribute_name :student %></th>
+        <th style="width: 65px;">Sequencial</th>
+        <th style="min-width: 200px;"><%= DailyFrequencyStudent.human_attribute_name :student %></th>
         <% @daily_frequencies.each do |daily_frequency| %>
             <th>
-              <%= daily_frequency.class_number.to_s + 'ª Aula - ' + DailyFrequencyStudent.human_attribute_name(:present) %>
+              <% if !daily_frequency.global_absence? %>
+                <%= daily_frequency.class_number.to_s + 'ª Aula - '%>
+              <% end %>
+              <%= DailyFrequencyStudent.human_attribute_name(:present) %>
             </th>
         <% end %>
       </thead>
       <tbody>
-        <% @students.each do |student| %>
+        <% @students.each_with_index do |student, sequence| %>
 
-          <%= render 'student_fields', student: student %>
+          <%= render 'student_fields', student: student, sequence: sequence %>
         <% end %>
       </tbody>
     </table>
