@@ -128,3 +128,6 @@ pt-BR:
 
     daily_frequencies:
       <<: *male
+
+    absence_justifications:
+      <<: *female

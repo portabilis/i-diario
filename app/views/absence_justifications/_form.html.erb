@@ -1,0 +1,32 @@
+<%= simple_form_for @absence_justification, html: { class: "smart-form" } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :student, as: :autocomplete %>
+      </div>
+      <div class="col col-sm-4">
+        <%= f.input :absence_date %>
+      </div>
+    </div>
+    <div class="row">
+
+      <div class="col col-sm-8">
+        <%= f.input :justification %>
+      </div>
+    </div>
+
+  </fieldset>
+
+  <footer>
+    <%= link_to "Voltar", absence_justifications_path, class: "btn btn-default" %>
+
+    <% if @absence_justification.persisted? %>
+      <%= link_to 'Histórico', history_absence_justification_path(@absence_justification), class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+
+  </footer>
+<% end %>

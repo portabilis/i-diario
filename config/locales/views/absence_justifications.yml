@@ -1,0 +1,4 @@
+pt-BR:
+  absence_justifications:
+    index:
+      new_html: "<i class='fa fa-plus'></i> Nova justificativa de falta"

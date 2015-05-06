@@ -124,5 +124,6 @@ Rails.application.routes.draw do
         put :update_multiple
       end
     end
+    resources :absence_justifications, concerns: :history
   end
 end

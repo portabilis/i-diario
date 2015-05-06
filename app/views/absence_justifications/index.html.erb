@@ -1,0 +1,25 @@
+<div class="widget-body no-padding">
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped table-condensed table-hover" id="resources">
+      <thead>
+        <tr>
+          <th><%= AbsenceJustification.human_attribute_name :absence_date %></th>
+          <th><%= AbsenceJustification.human_attribute_name :student %></th>
+          <td class="actions" style="width: 18px;"><%= link_to t('.new_html'), new_absence_justification_path, class: "btn btn-primary" %></td>
+        </tr>
+      </thead>
+
+      <%= render 'resources' %>
+      <tfoot id="paginator" class="remote">
+        <td colspan="3">
+          <div id="page_entries_info" class="pull-left hidden-xs">
+            <%= page_entries_info @absence_justifications %>
+          </div>
+          <div class="pull-right">
+            <%= paginate @absence_justifications %>
+          </div>
+        </td>
+      </tfoot>
+    </table>
+  </div>
+</div>

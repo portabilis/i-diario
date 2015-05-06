@@ -163,3 +163,6 @@ navigation:
         - ***REMOVED***:
             type: "daily_frequencies"
             path: "new_daily_frequency_path"
+        - ***REMOVED***:
+            type: "absence_justifications"
+            path: "absence_justifications_path"

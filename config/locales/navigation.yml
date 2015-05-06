@@ -49,6 +49,7 @@ pt-BR:
     daily_notes: "Diário"
     frequencies_***REMOVED***: "Frequência"
     daily_frequencies: "Diário"
+    absence_justifications: "Justificativas de falta"
 
   enumerations:
     features:
