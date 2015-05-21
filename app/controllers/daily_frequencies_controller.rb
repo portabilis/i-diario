@@ -34,6 +34,7 @@ class DailyFrequenciesController < ApplicationController
           params = resource_params
           params[:class_number] = class_number
           params[:school_calendar_id] = current_school_calendar.id
+          params[:frequency_date] = params[:frequency_date].to_date
           @daily_frequencies << @daily_frequency = DailyFrequency.find_or_create_by(params)
         end
       end
