@@ -156,3 +156,13 @@ navigation:
         - ***REMOVED***:
             type: "daily_notes"
             path: "new_daily_note_path"
+  - ***REMOVED***:
+      type: "frequencies_***REMOVED***"
+      icon: "fa-check-square-o"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "daily_frequencies"
+            path: "new_daily_frequency_path"
+        - ***REMOVED***:
+            type: "absence_justifications"
+            path: "absence_justifications_path"

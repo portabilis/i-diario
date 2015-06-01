@@ -1,0 +1,13 @@
+pt-BR:
+  activerecord:
+    models:
+      absence_justification:
+        one: "Justificativa de falta"
+        other: "Justificativas de falta"
+
+    attributes:
+      absence_justification:
+        justification: "Justificativa"
+        absence_date: "Data"
+        student_id: "Aluno"
+        student: "Aluno"

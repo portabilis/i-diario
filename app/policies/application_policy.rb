@@ -32,6 +32,14 @@ class ApplicationPolicy
     update?
   end
 
+  def edit_multiple?
+    update?
+  end
+
+  def update_multiple?
+    update?
+  end
+
   def destroy?
     update?
   end

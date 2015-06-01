@@ -118,3 +118,12 @@ table.table-condensed.table-bordered > tbody > tr > td.no_record_found{
 td.actions{
   text-align: right;
 }
+
+/*
+Considerar remover quando corrigido problema:
+https://github.com/select2/select2/issues/2412
+*/
+.select2-hidden-accessible {
+    display: none !important;
+    visibility: hidden !important;
+}

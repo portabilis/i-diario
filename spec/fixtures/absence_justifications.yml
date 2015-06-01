@@ -1,0 +1,9 @@
+absence_justification_a:
+  student: bary_allen
+  absence_date: '2015-01-02'
+  justification: 'Consulta médica'
+
+absence_justification_b:
+  student: bruce_wayne
+  absence_date: '2015-01-01'
+  justification: 'Problema com transporte público'

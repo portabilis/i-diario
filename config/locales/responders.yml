@@ -125,3 +125,9 @@ pt-BR:
 
     daily_notes:
       <<: *male
+
+    daily_frequencies:
+      <<: *male
+
+    absence_justifications:
+      <<: *female

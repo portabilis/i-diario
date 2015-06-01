@@ -1,0 +1,18 @@
+<tr class="nested-fields">
+  <td>
+    <%= sequence + 1 %>
+  </td>
+  <td>
+    <%= student.api_code + ' - ' + student.to_s %>
+  </td>
+
+  <% @daily_frequencies.each do |daily_frequency| %>
+    <%= fields_for 'daily_frequency_student[]', item = daily_frequency.build_or_find_by_student(student), index: nil do |f| %>
+      <td>
+        <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
+        <%= f.hidden_field :student_id, value: student.id %>
+        <%= f.check_box :present %>
+      </td>
+    <% end %>
+  <% end %>
+</tr>

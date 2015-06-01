@@ -118,5 +118,12 @@ Rails.application.routes.draw do
     resources :avaliations, concerns: :history
     resources :teacher_avaliations, only: :index
     resources :daily_notes, only: [:new, :create, :edit, :update], concerns: :history
+    resources :daily_frequencies, only: [:new, :create], concerns: :history do
+      collection do
+        get :edit_multiple
+        put :update_multiple
+      end
+    end
+    resources :absence_justifications, concerns: :history
   end
 end
