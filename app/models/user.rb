@@ -33,6 +33,7 @@ class User < ActiveRecord::Base
   has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
     foreign_key: :responsible_id
   has_many :***REMOVED***s, foreign_key: :author_id
+  has_many :system_notification_targets
 
   has_and_belongs_to_many :students
 
@@ -139,6 +140,18 @@ class User < ActiveRecord::Base
     return false unless user_roles.exists?(role_id: role_id)
 
     update_column :role_id, role_id
+  end
+
+  def system_***REMOVED***
+    SystemNotification.where(id: system_notification_targets.pluck(:system_notification_id))
+  end
+
+  def unread_***REMOVED***
+    @unread_***REMOVED*** ||= system_***REMOVED***.not_in(system_notification_targets.read.pluck(:system_notification_id)).ordered
+  end
+
+  def read_***REMOVED***!
+    system_notification_targets.read!
   end
 
   def to_s

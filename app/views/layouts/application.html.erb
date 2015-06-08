@@ -25,6 +25,7 @@
       <i class="fa fa-cog fa-spin"></i>
       Carregando ...
     </div>
+
     <header id="header">
       <div id="logo-group">
         <span id="logo">Educação</span>
@@ -42,6 +43,10 @@
         <!-- end collapse ***REMOVED*** -->
 
         <% if user_signed_in? %>
+          <% unless Rails.env.production? %>
+            <%= render 'layouts/system_***REMOVED***' %>
+          <% end %>
+
           <!-- logout button -->
           <div id="logout" class="btn-header transparent pull-right">
             <span>

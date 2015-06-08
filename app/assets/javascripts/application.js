@@ -36,6 +36,7 @@
 //= require signup
 //= require summernote
 //= require summernote/pt-BR
+//= require system_***REMOVED***
 //= require add_tags
 //= require strip_value
 //= require index

@@ -1,0 +1,23 @@
+<span id="activity" class="activity-dropdown">
+  <i class="fa fa-user"></i>
+  <b class="badge bounceIn animated"><%= count_unread_***REMOVED*** %></b>
+</span>
+
+<div class="ajax-dropdown" style="display: none;">
+  <div class="ajax-***REMOVED*** custom-scroll" style="opacity: 1;">
+    <ul class="notification-body">
+      <% last_system_***REMOVED***.each do |notification| %>
+        <li>
+          <span>
+            <%= link_to system_notification_path(notification), class: "msg" do %>
+              <span class="from"><%= notification.title %><i class="icon-paperclip"></i></span>
+              <time><%= distance_of_time_in_words_to_now notification.created_at %></time>
+              <span class="subject"></span>
+              <span class="msg-body"><%= notification.description %></span>
+            <% end %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
