@@ -91,6 +91,9 @@ form.smart-form .control-group.error label{
 }
 
 #change-permission {
+  float: left;
+  margin-right: 6px;
+  margin-left: 6px;
   padding-top: 14px;
 }
 
