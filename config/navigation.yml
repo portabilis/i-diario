@@ -5,6 +5,11 @@ navigation:
       path: "root_path"
       visible: true
   - ***REMOVED***:
+      type: "messages"
+      icon: "fa-inbox"
+      path: "messages_path"
+      visible: true
+  - ***REMOVED***:
       type: "accounts"
       icon: "fa-user"
       path: "edit_account_path"

@@ -14,6 +14,8 @@ class SystemNotificationRouter
     case object.source_type
     when "***REMOVED***"
       routes.***REMOVED***_path
+    when "Message"
+      routes.message_path(object.source_id)
     else
       ""
     end

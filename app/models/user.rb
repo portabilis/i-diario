@@ -34,6 +34,9 @@ class User < ActiveRecord::Base
     foreign_key: :responsible_id
   has_many :***REMOVED***s, foreign_key: :author_id
   has_many :system_notification_targets
+  has_many :message_targets
+  has_many :messages, through: :message_targets
+  has_many :sent_messages, class_name: "Message"
 
   has_and_belongs_to_many :students
 

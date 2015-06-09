@@ -50,6 +50,7 @@ pt-BR:
     frequencies_***REMOVED***: "Frequência"
     daily_frequencies: "Diário"
     absence_justifications: "Justificativas de falta"
+    messages: "Mensagens"
 
   enumerations:
     features:
