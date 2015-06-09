@@ -13,10 +13,7 @@ class SystemNotificationRouter
   def path
     case object.source_type
     when "***REMOVED***"
-      # Quando for feito a pagina de exibicao
-      # de ocorrencia disciplinar a linha abaixo deve ser descomentada
-      # routes.disciplinary_occurrence_path(object.source_id)
-      ""
+      routes.***REMOVED***_path
     else
       ""
     end

@@ -43,10 +43,6 @@
         <!-- end collapse ***REMOVED*** -->
 
         <% if user_signed_in? %>
-          <% unless Rails.env.production? %>
-            <%= render 'layouts/system_***REMOVED***' %>
-          <% end %>
-
           <!-- logout button -->
           <div id="logout" class="btn-header transparent pull-right">
             <span>
@@ -54,6 +50,10 @@
             </span>
           </div>
           <!-- logout button -->
+
+          <% unless Rails.env.production? %>
+            <%= render 'layouts/system_***REMOVED***' %>
+          <% end %>
 
           <% if current_user.roles.present? %>
             <div id="change-permission" class="btn-group btn-header transparent pull-right">
