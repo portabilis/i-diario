@@ -150,7 +150,13 @@ class User < ActiveRecord::Base
   end
 
   def unread_***REMOVED***
-    @unread_***REMOVED*** ||= system_***REMOVED***.not_in(system_notification_targets.read.pluck(:system_notification_id)).ordered
+    @unread_***REMOVED*** ||= system_***REMOVED***.
+      not_in(system_notification_targets.read.pluck(:system_notification_id)).
+      ordered
+  end
+
+  def count_unread_messages
+    message_targets.unread.active.count
   end
 
   def read_***REMOVED***!
