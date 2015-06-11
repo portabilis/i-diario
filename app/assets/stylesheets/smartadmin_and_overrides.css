@@ -181,3 +181,10 @@ aside#left-panel{
 .label{
   font-size: 80%;
 }
+
+.label.label-list{
+  display: block;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  margin-bottom: 3px;
+}
