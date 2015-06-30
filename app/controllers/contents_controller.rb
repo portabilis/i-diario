@@ -2,6 +2,7 @@ class ContentsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
   before_action :require_teacher, only: [:new, :create, :edit, :update]
+  before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
   before_action :require_current_school_calendar
 
   def index
@@ -73,6 +74,10 @@ class ContentsController < ApplicationController
   end
 
   private
+
+  def set_number_of_classes
+    @number_of_classes = current_school_calendar.number_of_classes
+  end
 
   def fetch_classrooms
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @content.unity_id, @content.classroom_id)
