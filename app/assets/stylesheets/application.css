@@ -66,7 +66,7 @@ form.signup .control-group.error input {
 
 form.signup .control-group.error input,
 form.signup .control-group.error select,
-form.smart-form .control-group.error input,
+form.smart-form .control-group.error > div > input,
 form.smart-form .control-group.error select,
 form.smart-form .control-group.error .select2-container{
   border: 1px solid #b94a48;

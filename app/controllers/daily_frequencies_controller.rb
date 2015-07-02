@@ -6,6 +6,7 @@ class DailyFrequenciesController < ApplicationController
 
   def new
     @daily_frequency = DailyFrequency.new
+    @class_numbers = []
 
     authorize @daily_frequency
 
@@ -15,7 +16,7 @@ class DailyFrequenciesController < ApplicationController
   def create
     @daily_frequency = DailyFrequency.new(resource_params)
     @daily_frequency.school_calendar = current_school_calendar
-    class_numbers = params[:class_numbers]
+    @class_numbers = params[:class_numbers].split(',')
 
     if(@daily_frequency.valid?)
       @daily_frequencies = []
@@ -30,7 +31,7 @@ class DailyFrequenciesController < ApplicationController
                                               global_absence: true,
                                               school_calendar: current_school_calendar)
       else
-        class_numbers.split(',').each do |class_number|
+        @class_numbers.each do |class_number|
           params = resource_params
           params[:class_number] = class_number
           params[:school_calendar_id] = current_school_calendar.id
@@ -40,8 +41,9 @@ class DailyFrequenciesController < ApplicationController
       end
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
     else
-      if !@daily_frequency.global_absence? && (class_numbers.nil? || class_numbers.empty?)
-        flash[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
+      if !@daily_frequency.global_absence? && (@class_numbers.nil? || @class_numbers.empty?)
+        @error_on_class_numbers = true
+        flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
       end
       fetch_unities
       render :new
@@ -57,6 +59,10 @@ class DailyFrequenciesController < ApplicationController
     fetch_students
 
     @students = []
+
+    Rails.logger.debug "@@@@@"
+    Rails.logger.debug @api_students.inspect
+    Rails.logger.debug "@@@@@"
 
     @api_students.each do |api_student|
       if student = Student.find_by(api_code: api_student['id'])
@@ -92,7 +98,6 @@ class DailyFrequenciesController < ApplicationController
   def fetch_students
     begin
       api = IeducarApi::Students.new(configuration.to_api)
-      Rails.logger.debug @daily_frequency.inspect
       result = api.fetch_for_daily({ classroom_api_code: @daily_frequency.classroom.api_code, discipline_api_code: @daily_frequency.discipline.try(:api_code) })
 
       @api_students = result["alunos"]
