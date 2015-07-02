@@ -1,5 +1,5 @@
 <div class="widget-body no-padding">
-  <table class="table table-bordered">
+  <table class="table table-bordered table-only-inner-bordered">
     <thead>
       <th><%= DailyNote.human_attribute_name :unity %></th>
       <th><%= DailyNote.human_attribute_name :classroom %></th>
@@ -17,7 +17,7 @@
   <%= simple_form_for @daily_note, html: { class: "smart-form" } do |f| %>
     <%= f.error_notification %>
 
-    <table class="table table-bordered table-striped table-hover">
+    <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <colgroup>
         <col style="width: 65px;" />
         <col />

@@ -839,8 +839,8 @@ table.table-bordered tbody td {
   border-left-width: 0;
   border-bottom-width: 0;
 }
-table.table-bordered th:last-child,
-table.table-bordered td:last-child {
+table.table-bordered.table-only-inner-bordered th:last-child,
+table.table-bordered.table-only-inner-bordered td:last-child {
   border-right-width: 0;
 }
 div.dataTables_scrollHead table.table-bordered {
@@ -849,7 +849,7 @@ div.dataTables_scrollHead table.table-bordered {
 /*
  * TableTools styles
  */
-/* conflicting styles with bootstrap 
+/* conflicting styles with bootstrap
 .table tbody tr.active td,
 .table tbody tr.active th {
 	background-color: #08C;
@@ -863,7 +863,7 @@ div.dataTables_scrollHead table.table-bordered {
 
 .table tbody tr.active a {
 	color: white;
-} 
+}
 
 .table-striped tbody tr.active:nth-child(odd) td,
 .table-striped tbody tr.active:nth-child(odd) th {
@@ -1158,7 +1158,7 @@ div.ColVis_catcher {
  * Language:    Javascript
  * License:     GPL v2 / 3 point BSD
  * Project:     DataTables
- * 
+ *
  * Copyright 2009-2012 Allan Jardine, all rights reserved.
  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -2326,12 +2326,12 @@ body.fd-slider-drag-horizontal * {
 }
 /*
 	 Sample tooltip code. Only works on grade A browsers (so no IE6,7 or 8).
-	
+
 	 See: http://nicol***REMOVED***allagher.com/multiple-backgrounds-and-borders-with-css2/ for full info on
 	 how to style generated content & the associated pitfalls
-	
+
 	 This code to be taken as experimental & untested - use at your discretion
-	
+
 	 If showing the tooltip above the sider handle you are relegated to showing
 	 single line tooltips due to styling constraints!
 	 */
@@ -2362,7 +2362,7 @@ body.fd-slider-drag-horizontal * {
 	 The tooltip body - as we position it above the slider and position the tooltip arrow
 	 below it, we need to know the height of the body. This means that multi-line tooltips
 	 are not supported.
-	
+
 	 To support multi-line tooltips, you will need to position the tooltip below the slider
 	 and the tooltip pointer above the tooltip body. Additionally, you will have to set the
 	 tooltip bodies "height" to auto
@@ -3167,14 +3167,14 @@ table.fc-border-separate {
 /*
 
 	 Copyright 2013 - SmartAdmin : WebApp (Sunny)
-	
+
 	 * This is part of an item on wrapbootstrap.com
 	 * https://wrapbootstrap.com/user/myorange
 	 * ==================================
-	
+
 	 Table of Contents
 	 ---------------------------------------------------------------
-	
+
 	 - Main
 	 - Header
 	 - Content
@@ -3189,7 +3189,7 @@ table.fc-border-separate {
 	 - Clearfix
 	 - Examples (minimalistic in grid)
 	 - Examples (lists)
-	
+
 	 */
 /*
 	 * MAIN
@@ -3859,9 +3859,9 @@ body.nooverflow {
 .jarviswidget-color-greenLight > header {
   border-color: #638167 !important;
 }
-/* 
+/*
 	 * WIDGET COLOR DROPDOWN
-	 * 
+	 *
 	 */
 .color-select {
   list-style: none;
@@ -5666,7 +5666,7 @@ disabled look for disabled choices in the results dropdown
   height: 100px;
   overflow: scroll;
 }
-/*! X-editable - v1.5.0 
+/*! X-editable - v1.5.0
 * In-place editing with Twitter Bootstrap, jQuery UI or pure jQuery
 * http://github.com/vitalets/x-editable
 * Copyright (c) 2013 Vitaliy Potapov; Licensed MIT */
@@ -5999,7 +5999,7 @@ a.editable-click.editable-disabled:hover {
 /*
 .MessageIE{
     background-image: url("@{base-url}/bg.png");
-    
+
 }*/
 .MessageBoxContainer {
   top: 35%;
@@ -14240,7 +14240,7 @@ div.wijmo-wij***REMOVED*** .wijmo-wij***REMOVED***-child .wijmo-wij***REMOVED***
 }
 /*
  * JS SLIDER
- * Copied from: js/plugin/noUiSlider/jquery.nouislider.css 
+ * Copied from: js/plugin/noUiSlider/jquery.nouislider.css
  */
 /*	General CSS resets;
  *		The target itself is not affected, allowing
@@ -14514,7 +14514,7 @@ div.wijmo-wij***REMOVED*** .wijmo-wij***REMOVED***-child .wijmo-wij***REMOVED***
   font-size: 21px;
   color: #999;
 }
-/* 
+/*
  * RIBBON
  */
 .ribbon {
@@ -15914,7 +15914,7 @@ textarea.clone {
 }
 /*
 		 * date picker
-		
+
 		.ui-datepicker {
 			display: none;
 			padding: 10px 12px;
@@ -15969,19 +15969,19 @@ textarea.clone {
 			text-align:center;
 		}
 		.ui-datepicker-unselectable.ui-state-disabled {
-			
+
 		}
 		.ui-datepicker-unselectable.ui-state-disabled > span {
 			color:#bfbfbf;
 			background-color: #FAFCFD;
 		}
-		
+
 		.ui-datepicker-calendar a:hover {
 			background: #3276B1;
 			color:#fff;
 		}
 		.ui-datepicker-calendar span {
-			
+
 		}
 		.ui-datepicker-today a {
 			font-weight: 700;
@@ -16579,7 +16579,7 @@ td.fc-other-month,
   display: block;
   opacity: 1 !important;
 }
-/* 
+/*
 	* Drag and drop events
 	*/
 #external-events > li {
@@ -22044,7 +22044,7 @@ label:hover input[type="checkbox"][disabled].checkbox:checked + span:before {
 /*
  * ANIMATED
  */
-/* Navigation icon first level 
+/* Navigation icon first level
 .desktop-detected nav > ul > li > a:hover i {
 	-webkit-animation-name: wobble;
 	-moz-animation-name: wobble;
@@ -22292,7 +22292,7 @@ label:hover input[type="checkbox"][disabled].checkbox:checked + span:before {
     padding-left: 30px;
     padding-right: 30px;
   }
-  /* added new class per version 1.3 
+  /* added new class per version 1.3
 	html, body {
 		overflow-x: hidden !important;
 	}*/
@@ -23069,7 +23069,7 @@ label:hover input[type="checkbox"][disabled].checkbox:checked + span:before {
   }
 }
 @-ms-viewport {
-  
+
 }
 #extr-page #main {
   margin-top: 0px !important;

@@ -2,7 +2,7 @@
   <div class="table-responsive">
   <%= simple_form_for :search, {url: users_path, method: :get,
                                 html: {class: 'filterable_search_form'}} do |f| %>
-    <table class="table table-bordered table-striped table-condensed table-hover" id="resources">
+    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
           <td><%= f.input :full_name, label: false, placeholder: "Filtrar nome" %></td>
