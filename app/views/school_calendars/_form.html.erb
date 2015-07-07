@@ -14,11 +14,8 @@
 
   </fieldset>
 
-  <fieldset id="school_calendar_steps" data-nested-fields-container>
+  <fieldset id="school_calendar_steps">
     <legend>Etapas</legend>
-
-    <%= link_to_add_association t('.add_step'), f, :steps,
-      class: 'btn btn-default btn-sm btn-add-item' %>
 
     <div>
       <span class="help-inline">
@@ -26,11 +23,31 @@
       </span>
     </div>
 
-    <div data-item-setting-steps-container>
-      <%= f.simple_fields_for :steps, @school_calendar.steps.ordered do |step| %>
-        <%= render 'step_fields', f: step %>
-      <% end %>
-    </div>
+    <table class="table table-striped table-bordered table-condensed records">
+      <thead>
+        <tr>
+          <th><%= SchoolCalendarStep.human_attribute_name :start_at %></th>
+          <th><%= SchoolCalendarStep.human_attribute_name :end_at %></th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody id="school-calendar-steps">
+        <%= f.simple_fields_for :steps do |step| %>
+          <%= render 'step_fields', f: step %>
+        <% end %>
+      </tbody>
+      <tfoot class="links">
+        <tr>
+          <td colspan="3">
+            <%= link_to_add_association t('.add_step'), f, :steps,
+              class: 'btn btn-success btn-sm',
+              :"data-association-insertion-method" => "append",
+              :"data-association-insertion-node" => "#school-calendar-steps" %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
   </fieldset>
 
   <footer>
