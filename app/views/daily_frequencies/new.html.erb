@@ -21,7 +21,7 @@
         <%= f.input :global_absence %>
       </div>
       <div class="col col-sm-4 hide_when_global_absence">
-        <%= f.association :discipline, as: :select2, elements: @disciplines %>
+        <%= f.association :discipline, as: :select2, elements: @disciplines, required: true %>
       </div>
       <div class="col col-sm-4 hide_when_global_absence">
         <div class="control-group required daily_frequency_class_numbers <%= @error_on_class_numbers ? 'error' : '' %>">

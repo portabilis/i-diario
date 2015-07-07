@@ -5,7 +5,8 @@ class DailyFrequenciesController < ApplicationController
   before_action :require_current_school_calendar
 
   def new
-    @daily_frequency = DailyFrequency.new
+    @daily_frequency = DailyFrequency.new.localized
+    @daily_frequency.frequency_date = Date.today
     @class_numbers = []
 
     authorize @daily_frequency
@@ -18,7 +19,7 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency.school_calendar = current_school_calendar
     @class_numbers = params[:class_numbers].split(',')
 
-    if(@daily_frequency.valid?)
+    if(@daily_frequency.valid? and validate_class_numbers)
       @daily_frequencies = []
 
       if @daily_frequency.global_absence?
@@ -41,10 +42,6 @@ class DailyFrequenciesController < ApplicationController
       end
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
     else
-      if !@daily_frequency.global_absence? && (@class_numbers.nil? || @class_numbers.empty?)
-        @error_on_class_numbers = true
-        flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
-      end
       fetch_unities
       render :new
     end
@@ -145,5 +142,14 @@ class DailyFrequenciesController < ApplicationController
       flash[:alert] = t('errors.daily_frequencies.require_teacher')
       redirect_to root_path
     end
+  end
+
+  def validate_class_numbers
+    if !@daily_frequency.global_absence? && (@class_numbers.nil? || @class_numbers.empty?)
+      @error_on_class_numbers = true
+      flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
+      return false
+    end
+    true
   end
 end
