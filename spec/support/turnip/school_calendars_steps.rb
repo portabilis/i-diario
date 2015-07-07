@@ -15,7 +15,7 @@ module Turnip
 
       click_link "Adicionar etapa"
 
-      within '#school_calendar_steps > div > div:last-child' do
+      within '#school-calendar-steps tr:last-child' do
         fill_mask 'Data inicial', with: '01/01/2015'
         fill_mask 'Data final', with: '01/03/2015'
       end
