@@ -1,7 +1,7 @@
 $(function() {
   var $supplier = $("[data-material-entrance-supplier]"),
       $materialExitFields = $("[data-material-entrance-material-exit]"),
-      $materialItems = $("[data-material-entrance-items-container]"),
+      $materialItems = $("#material-entrance-items"),
       $kind = $("#material_entrance_kind"),
       $materialExit = $("#material_entrance_material_exit_id"),
       itemTemplate = $("#material_entrance_items a.add_fields").attr("data-association-insertion-template"),
