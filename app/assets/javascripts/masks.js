@@ -36,7 +36,13 @@ $(function () {
     $state.val('');
     $country.val('');
 
-    $.getJSON('http://cep.correiocontrol.com.br/'+ zipCode +'.json').always(function (address) {
+    $.ajax({
+      url: 'http://cep.correiocontrol.com.br/'+ zipCode +'.json',
+      dataType: 'json',
+      timeout: 5000
+    }).fail(function() {
+      alert("Desculpe, mas não conseguimos localizar o CEP informado devido a um problema de conexão. Por favor, informe o endereço manualmente.");
+    }).done(function (address) {
       if (typeof(address['logradouro']) != 'undefined') {
         if (typeof(address['uf']) == 'undefined') {
           address['uf'] = "";
