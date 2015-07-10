@@ -16,6 +16,8 @@ class SchoolCalendar < ActiveRecord::Base
   validates :year, presence: true,
                    uniqueness: true
   validates :number_of_classes, presence: true
+  validates :maximum_score, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 1000 }
+  validates :number_of_decimal_places, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3 }
   validate :at_least_one_assigned_step
 
   scope :ordered, -> { order(arel_table[:year]) }

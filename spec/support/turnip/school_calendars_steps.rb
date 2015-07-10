@@ -12,6 +12,8 @@ module Turnip
     step 'poderei cadastrar um novo calendário letivo' do
       fill_in 'Ano', with: '2010'
       fill_in 'Número de aulas por turno', with: '4'
+      fill_in 'Nota máxima', with: '10'
+      fill_in 'Número de casas decimais', with: '2'
 
       click_link "Adicionar etapa"
 

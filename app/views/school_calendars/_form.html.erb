@@ -3,15 +3,22 @@
 
   <fieldset>
     <div class="row">
-      <div class="col col-sm-4">
+      <div class="col col-sm-3">
         <%= f.input :year, input_html: { max_length: 4 } %>
       </div>
 
-      <div class="col col-sm-4">
+      <div class="col col-sm-3">
         <%= f.input :number_of_classes %>
       </div>
-    </div>
 
+      <div class="col col-sm-3">
+        <%= f.input :maximum_score %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :number_of_decimal_places %>
+      </div>
+    </div>
   </fieldset>
 
   <fieldset id="school_calendar_steps">

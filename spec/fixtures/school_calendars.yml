@@ -1,3 +1,5 @@
 school_calendar_a:
   year: 2015
   number_of_classes: 5
+  maximum_score: 10
+  number_of_decimal_places: 2
