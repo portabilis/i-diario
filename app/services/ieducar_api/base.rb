@@ -34,6 +34,7 @@ module IeducarApi
       }.reverse_merge(params)
 
       Rails.logger.info "GET #{endpoint}?#{request_params.to_query}"
+      Sidekiq.logger.info "GET #{endpoint}?#{request_params.to_query}"
 
       begin
         result = RestClient.get endpoint, { params: request_params }
@@ -68,6 +69,7 @@ module IeducarApi
       }.reverse_merge(params)
 
       Rails.logger.info "POST #{endpoint}?#{request_params.to_query}"
+      Sidekiq.logger.info "POST #{endpoint}?#{request_params.to_query}"
 
       begin
         result = RestClient.get endpoint, { params: request_params }
