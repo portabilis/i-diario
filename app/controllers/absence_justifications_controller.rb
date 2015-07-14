@@ -9,7 +9,7 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   def new
-    @absence_justification = AbsenceJustification.new
+    @absence_justification = AbsenceJustification.new.localized
     @absence_justification.absence_date = Date.today
 
     authorize @absence_justification
@@ -28,7 +28,7 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   def edit
-    @absence_justification = AbsenceJustification.find(params[:id])
+    @absence_justification = AbsenceJustification.find(params[:id]).localized
 
     authorize @absence_justification
   end

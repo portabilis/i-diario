@@ -27,7 +27,7 @@ pt-BR:
   errors:
     daily_frequencies:
       require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
-      class_numbers_required_when_not_global_absence: 'É necessário informar ao menos uma aula quando não for falta global!'
+      class_numbers_required_when_not_global_absence: 'É necessário informar ao menos uma aula quando não for falta global.'
 
   daily_frequencies:
     success: 'Frequência lançada com sucesso!'

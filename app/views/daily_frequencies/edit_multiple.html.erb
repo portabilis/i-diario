@@ -1,5 +1,5 @@
 <div class="widget-body no-padding">
-  <table class="table table-bordered">
+  <table class="table table-bordered table-only-inner-bordered">
     <thead>
       <th><%= DailyFrequency.human_attribute_name :unity %></th>
       <th><%= DailyFrequency.human_attribute_name :classroom %></th>
@@ -15,7 +15,7 @@
   </table>
 
   <%= form_tag update_multiple_daily_frequencies_path, method: :put, class: 'smart-form' do %>
-    <table class="table table-bordered table-striped table-hover">
+    <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
         <th style="width: 65px;">Sequencial</th>
         <th style="min-width: 200px;"><%= DailyFrequencyStudent.human_attribute_name :student %></th>

@@ -1,19 +1,14 @@
-<div class="nested-fields">
-  <hr class="nested-fields-separator">
+<tr class="nested-fields">
+  <td>
+    <%= f.input :start_at, label_html: {class: 'hidden'} %>
+  </td>
 
-  <div class="row" data-nested-fields>
+  <td>
+    <%= f.input :end_at, label_html: {class: 'hidden'} %>
+  </td>
 
-    <div class="col col-sm-4">
-      <%= f.input :start_at %>
-    </div>
-
-    <div class="col col-sm-4">
-      <%= f.input :end_at %>
-    </div>
-
-    <div class="col col-sm-4">
-      <%= link_to_remove_association t('.remove'), f,
-        class: 'btn btn-danger btn-sm btn-rm-item' %>
-    </div>
-  </div>
-</div>
+  <td class="actions">
+    <%= link_to_remove_association t('.remove'), f,
+      class: 'btn btn-danger btn-sm' %>
+  </td>
+</tr>

@@ -1,5 +1,5 @@
 <fieldset>
-  <table class="table table-striped records">
+  <table class="table table-striped table-bordered table-condensed records">
     <thead>
       <tr>
         <th><%= UserRole.human_attribute_name :user %></th>
@@ -13,12 +13,15 @@
         <%= render 'user_role_fields', f: p %>
       <% end %>
     </tbody>
+    <tfoot class="links">
+      <tr>
+        <td colspan="3">
+          <%= link_to_add_association 'Adicionar', f, :user_roles,
+            class: 'btn btn-success btn-sm',
+            :"data-association-insertion-method" => "append",
+            :"data-association-insertion-node" => "#user-roles" %>
+        </td>
+      </tr>
+    </tfoot>
   </table>
-
-  <div class="links">
-    <%= link_to_add_association 'Adicionar', f, :user_roles,
-      class: 'btn btn-success btn-sm',
-      :"data-association-insertion-method" => "append",
-      :"data-association-insertion-node" => "#user-roles" %>
-  </div>
 </fieldset>

@@ -1,3 +1,4 @@
+<div class="widget-body no-padding">
 <%= simple_form_for @daily_frequency, html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
 
@@ -20,18 +21,18 @@
         <%= f.input :global_absence %>
       </div>
       <div class="col col-sm-4 hide_when_global_absence">
-        <%= f.association :discipline, as: :select2, elements: @disciplines %>
+        <%= f.association :discipline, as: :select2, elements: @disciplines, required: true %>
       </div>
-
       <div class="col col-sm-4 hide_when_global_absence">
-        <div class="control-group required daily_frequency_class_numbers">
-          <label class="select2 required control-label" for="daily_frequency_class_numbers">Aulas <abbr title="obrigatório">*</abbr></label>
+        <div class="control-group required daily_frequency_class_numbers <%= @error_on_class_numbers ? 'error' : '' %>">
+          <label class="select2 required control-label" for="daily_frequency_class_numbers">Aula <abbr title="obrigatório">*</abbr></label>
           <%= hidden_field_tag :class_numbers,
-                '[]',
+                @class_numbers.to_s,
                 class: 'form-control select2',
                 data:{
                   multiple: true,
-                  elements: number_of_classes_elements(@number_of_classes)
+                  elements: number_of_classes_elements(@number_of_classes),
+                  placeholder: 'Selecione uma ou mais aulas'
                 } %>
         </div>
       </div>
@@ -43,3 +44,4 @@
     <%= f.submit 'Carregar', class: 'btn btn-primary' %>
   </footer>
 <% end %>
+</div>

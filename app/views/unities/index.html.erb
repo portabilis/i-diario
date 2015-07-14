@@ -2,7 +2,7 @@
   <div class="table-responsive">
   <%= simple_form_for :search, {url: unities_path, method: :get,
                                 html: {class: 'filterable_search_form'}} do |f| %>
-    <table class="table table-bordered table-striped table-condensed table-hover selectable" id="resources">
+    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover selectable" id="resources">
       <thead>
         <tr>
           <td>

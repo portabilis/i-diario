@@ -1,6 +1,8 @@
 class Student < ActiveRecord::Base
   acts_as_copy_target
 
+  has_one :user
+
   has_and_belongs_to_many :users
 
   has_many :***REMOVED***, dependent: :restrict_with_error

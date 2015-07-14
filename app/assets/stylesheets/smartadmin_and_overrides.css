@@ -160,17 +160,17 @@ nav ul li b.collapse-sign em:before {
     z-index: 1;
 }
 
-.widget-body table.table.table-bordered{
+.widget-body table.table.table-bordered.table-only-inner-bordered{
     border: 0;
 }
 
-.widget-body table.table.table-bordered tfoot tr td{
+.widget-body table.table.table-bordered.table-only-inner-bordered tfoot tr td{
     border-left: 0;
     border-bottom: 0;
 }
 
-.widget-body table.table.table-bordered thead tr td,
-.widget-body table.table.table-bordered thead tr th{
+.widget-body table.table.table-bordered.table-only-inner-bordered thead tr td,
+.widget-body table.table.table-bordered.table-only-inner-bordered thead tr th{
     border-left: 0;
 }
 
@@ -180,4 +180,11 @@ aside#left-panel{
 
 .label{
   font-size: 80%;
+  white-space: normal;
+  margin-bottom: 3px;
+
+}
+
+.widget-body table.table.table-bordered td div.control-group{
+  margin-bottom: 0;
 }

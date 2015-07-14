@@ -25,6 +25,8 @@ pt-BR:
           attributes:
               content_date:
                 must_be_school_day: "deve ser um dia letivo"
+              class_number:
+                taken:  'conteúdo desta aula já foi registrado'
 
   errors:
     contents:

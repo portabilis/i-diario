@@ -12,10 +12,12 @@ module Turnip
     step 'poderei cadastrar um novo calendário letivo' do
       fill_in 'Ano', with: '2010'
       fill_in 'Número de aulas por turno', with: '4'
+      fill_in 'Nota máxima', with: '10'
+      fill_in 'Número de casas decimais', with: '2'
 
       click_link "Adicionar etapa"
 
-      within '#school_calendar_steps > div > div:last-child' do
+      within '#school-calendar-steps tr:last-child' do
         fill_mask 'Data inicial', with: '01/01/2015'
         fill_mask 'Data final', with: '01/03/2015'
       end

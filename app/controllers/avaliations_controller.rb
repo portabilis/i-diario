@@ -4,6 +4,7 @@ class AvaliationsController < ApplicationController
   before_action :require_teacher, only: [:new, :create, :edit, :update]
   before_action :require_current_school_calendar
   before_action :require_current_test_setting
+  before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
 
   def index
     @avaliations = apply_scopes(Avaliation.includes(:unity, :classroom, :discipline, :test_setting_test).ordered)
@@ -15,6 +16,7 @@ class AvaliationsController < ApplicationController
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
     @avaliation.test_setting    = current_test_setting
+    @avaliation.test_date       = Date.today
 
     authorize resource
 
@@ -76,6 +78,10 @@ class AvaliationsController < ApplicationController
   end
 
   private
+
+  def set_number_of_classes
+    @number_of_classes = current_school_calendar.number_of_classes
+  end
 
   def fetch_classrooms
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @avaliation.unity_id, @avaliation.classroom_id)

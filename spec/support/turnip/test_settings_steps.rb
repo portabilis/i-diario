@@ -2,7 +2,7 @@
 module Turnip
   module TestSettingsSteps
     step 'que acesso a listagem de configuração de avaliação' do
-      click_***REMOVED*** 'Configurações > Avaliação'
+      click_***REMOVED*** 'Configurações > Avaliações'
     end
 
     step 'eu entrar no formulário de nova configuração de avaliação' do
@@ -18,7 +18,7 @@ module Turnip
     end
 
     step 'que existe uma configuração de avaliação cadastrada' do
-      click_***REMOVED*** 'Configurações > Avaliação'
+      click_***REMOVED*** 'Configurações > Avaliações'
 
       within '#resources > tbody > tr:nth-child(1)' do
         expect(page).to have_content "2014 Não"

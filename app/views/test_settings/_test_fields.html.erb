@@ -1,23 +1,18 @@
-<div class="nested-fields">
-  <hr class="nested-fields-separator">
+<tr class="nested-fields">
+  <td>
+    <%= f.input :description, label_html: { class: 'hidden' } %>
+  </td>
 
-  <div class="row" data-nested-fields>
+  <td>
+    <%= f.input :weight, label_html: { class: 'hidden' } %>
+  </td>
 
-    <div class="col col-sm-4">
-      <%= f.input :description %>
-    </div>
+  <td>
+    <%= f.input :test_type, collection: TestTypes, label_html: { class: 'hidden' } %>
+  </td>
 
-    <div class="col col-sm-2">
-      <%= f.input :weight %>
-    </div>
-
-    <div class="col col-sm-3">
-      <%= f.input :test_type, collection: TestTypes %>
-    </div>
-
-    <div class="col col-sm-3">
-      <%= link_to_remove_association t('.remove'), f,
-        class: 'btn btn-danger btn-sm btn-rm-item' %>
-    </div>
-  </div>
-</div>
+  <td class="actions">
+    <%= link_to_remove_association t('.remove'), f,
+      class: 'btn btn-danger btn-sm btn-rm-item' %>
+  </td>
+</tr>

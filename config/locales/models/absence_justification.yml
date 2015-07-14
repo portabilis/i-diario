@@ -11,3 +11,9 @@ pt-BR:
         absence_date: "Data"
         student_id: "Aluno"
         student: "Aluno"
+    errors:
+      models:
+        absence_justification:
+          attributes:
+              absence_date:
+                taken:  'já existe uma justificativa para esta data'

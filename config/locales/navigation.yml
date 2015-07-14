@@ -40,16 +40,17 @@ pt-BR:
     ***REMOVED***_confirmations: "***REMOVED***"
     current_role: "Seleção de perfil"
     entity_configurations: "Entidade"
-    test_settings: "Avaliação"
+    test_settings: "Avaliações"
     school_calendars: "Calendário letivo"
     school_calendar_events: "Eventos"
     contents: "Registro de conteúdos"
     avaliations_***REMOVED***: "Avaliações"
-    avaliations: "Cadastro"
-    daily_notes: "Diário"
+    avaliations: "Cadastro de avaliações"
+    daily_notes: "Diário de avaliações"
     frequencies_***REMOVED***: "Frequência"
-    daily_frequencies: "Diário"
+    daily_frequencies: "Diário de frequência"
     absence_justifications: "Justificativas de falta"
+    messages: "Mensagens"
 
   enumerations:
     features:
@@ -57,3 +58,4 @@ pt-BR:
       ***REMOVED***s: "***REMOVED*** da pré-matrícula"
       ***REMOVED***_confirmations: "***REMOVED*** da pré-matrícula"
       ***REMOVED***_configs: "Configuração da pré-matrícula"
+      test_settings: "Configurações de avaliações"

@@ -41,7 +41,13 @@ Rails.application.routes.draw do
     get '/sandbox', to: 'dashboard#sandbox'
     get '/current_role/:id', to: 'current_role#set', as: :set_current_role
     get '/current_role', to: 'current_role#index', as: :current_roles
+    get '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
 
+    resources :messages, except: [:edit, :update] do
+      collection do
+        delete :destroy_batch
+      end
+    end
     resources :users, concerns: :history
     resource :account, only: [:edit, :update]
     resources :roles do

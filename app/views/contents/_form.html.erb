@@ -22,7 +22,7 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.input :class_number %>
+        <%= f.input :class_number, as: :select2, elements: number_of_classes_elements(@number_of_classes) %>
       </div>
     </div>
 

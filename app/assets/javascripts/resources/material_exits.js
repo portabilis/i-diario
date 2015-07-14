@@ -2,7 +2,7 @@ $(function() {
   var $returnReasonContainer = $("[data-material-exit-return-reason]"),
       $requestAuthorizationContainer = $("[data-material-exit-request-authorization]"),
       $destinationUnityContainer = $("[data-material-exit-destination-unity]"),
-      $materialItemsContainer = $("[data-material-exit-items-container]"),
+      $materialItemsContainer = $("#material-exits-items"),
       $supplierContainer = $("[data-material-exit-supplier]"),
       $supplier = $("#material_exit_supplier_id"),
       $returnReason = $("#material_exit_return_reason"),

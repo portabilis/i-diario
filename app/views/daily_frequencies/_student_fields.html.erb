@@ -11,7 +11,11 @@
       <td>
         <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
         <%= f.hidden_field :student_id, value: student.id %>
-        <%= f.check_box :present %>
+
+        <label class="checkbox">
+          <%= f.check_box :present %>
+          <i></i>
+        </label>
       </td>
     <% end %>
   <% end %>

@@ -14,11 +14,8 @@
 
   </fieldset>
 
-  <fieldset id="item_setting_tests" data-nested-fields-container>
+  <fieldset id="item_setting_tests">
     <legend>Avaliações</legend>
-
-    <%= link_to_add_association t('.add_test'), f, :tests,
-      class: 'btn btn-default btn-sm btn-add-item' %>
 
     <div>
       <span class="help-inline error">
@@ -26,11 +23,32 @@
       </span>
     </div>
 
-    <div data-item-setting-tests-container>
-      <%= f.simple_fields_for :tests do |test| %>
-        <%= render 'test_fields', f: test %>
-      <% end %>
-    </div>
+    <table class="table table-striped table-bordered table-condensed records">
+      <thead>
+        <tr>
+          <th><%= TestSettingTest.human_attribute_name :description %></th>
+          <th><%= TestSettingTest.human_attribute_name :weight %></th>
+          <th><%= TestSettingTest.human_attribute_name :test_type %></th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody id="test-settings-tests">
+        <%= f.association :tests do |p| %>
+          <%= render 'test_fields', f: p %>
+        <% end %>
+      </tbody>
+      <tfoot class="links">
+        <tr>
+          <td colspan="4">
+            <%= link_to_add_association t('.add_test'), f, :tests,
+              class: 'btn btn-success btn-sm',
+              :"data-association-insertion-method" => "append",
+              :"data-association-insertion-node" => "#test-settings-tests" %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
   </fieldset>
 
   <footer>
