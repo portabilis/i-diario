@@ -12,15 +12,17 @@ class DailyNote < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :avaliation
 
-  has_many :students, class_name: "DailyNoteStudent", dependent: :destroy
+  has_many :students, class_name: 'DailyNoteStudent', dependent: :destroy
   accepts_nested_attributes_for :students
 
-  validates :unity, :classroom, :discipline, :avaliation, presence: true
+  validates :unity, presence: true
+  validates :classroom,  presence: true
+  validates :discipline, presence: true
+  validates :avaliation, presence: true
 
   def mark_students_for_removal
     students.each do |student|
       student.mark_for_destruction if student.note.blank?
     end
   end
-
 end

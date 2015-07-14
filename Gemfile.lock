@@ -122,6 +122,11 @@ GEM
     erubis (2.7.0)
     excon (0.41.0)
     execjs (2.2.1)
+    factory_girl (4.5.0)
+      activesupport (>= 3.0.0)
+    factory_girl_rails (4.5.0)
+      factory_girl (~> 4.5.0)
+      railties (>= 3.0.0)
     fission (0.5.0)
       CFPropertyList (~> 2.2)
     fog (1.25.0)
@@ -413,6 +418,7 @@ DEPENDENCIES
   decore!
   devise (= 3.3.0)
   enumerate_it (= 1.2.3)
+  factory_girl_rails (~> 4.0)
   fog
   foreigner (= 1.6.1)
   handlebars_assets (= 0.17.1)

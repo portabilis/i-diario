@@ -6,6 +6,8 @@ class DailyNoteStudent < ActiveRecord::Base
   belongs_to :daily_note
   belongs_to :student
 
-  validates :student, :daily_note, presence: true
-  validates :note, numericality: {greater_than_or_equal_to: 1, less_than_or_equal_to: 10}, if: proc {|o| o.note.present? }
+  validates :student,    presence: true
+  validates :daily_note, presence: true
+  validates :note, numericality: { greater_than_or_equal_to: 0,
+                                   less_than_or_equal_to: proc { |o| o.daily_note.avaliation.school_calendar.maximum_score } }, allow_blank: true
 end
