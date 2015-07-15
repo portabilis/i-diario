@@ -3,6 +3,17 @@
 
   <%= f.input_field :id, class: 'hidden' %>
 
+  <div id="cep-timout-flash-message" class="hidden">
+    <div class="row">
+      <div class="col col-sm-12">
+        <div class="alert alert-warning fade in">
+          <i class="fa-fw fa fa-warning"></i>
+          Desculpe, mas não conseguimos localizar o CEP informado devido a um problema de conexão. Por favor, informe o endereço manualmente.
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row">
     <div class="col col-sm-3">
       <%= f.input :zip_code, input_html: { class: "zip_code" } %>
