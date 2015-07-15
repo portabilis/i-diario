@@ -9,6 +9,18 @@ RSpec.describe DailyNoteStudent, type: :model do
   let(:daily_note) { create(:daily_note, unity: unity, classroom: classroom, discipline: discipline, avaliation: avaliation) }
   subject(:daily_note_student) { build(:daily_note_student, daily_note: daily_note) }
 
+  describe "attributes" do
+    describe "note" do
+      context "when receive a localized value" do
+        before { subject.note = "1.500,25" }
+
+        it "delocates the value" do
+          expect(subject.note).to eq(1500.25)
+        end
+      end
+    end
+  end
+
   describe "associations" do
     it { expect(subject).to belong_to(:daily_note) }
     it { expect(subject).to belong_to(:student) }

@@ -28,8 +28,8 @@
         <th><%= DailyNoteStudent.human_attribute_name :student %></th>
         <th><%= DailyNoteStudent.human_attribute_name :note %></th>
       </thead>
-      <tbody>
-      <% sequence = 0 %>
+      <tbody id="students" data-scale="<%= @daily_note.avaliation.school_calendar.number_of_decimal_places %>">
+        <% sequence = 0 %>
         <%= f.fields_for :students do |student| %>
         <% sequence += 1 %>
           <%= render 'student_fields', f: student, sequence: sequence %>

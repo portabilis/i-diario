@@ -10,4 +10,12 @@ class DailyNoteStudent < ActiveRecord::Base
   validates :daily_note, presence: true
   validates :note, numericality: { greater_than_or_equal_to: 0,
                                    less_than_or_equal_to: proc { |o| o.daily_note.avaliation.school_calendar.maximum_score } }, allow_blank: true
+
+
+  def note=(note)
+    # Delocates the value
+    note.gsub!(/[.,]/, '.' => '', ',' => '.') if note.kind_of?(String)
+
+    write_attribute(:note, note)
+  end
 end

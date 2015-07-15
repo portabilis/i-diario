@@ -9,6 +9,7 @@
   </td>
 
   <td>
-    <%= f.input :note, as: :string, label: false, input_html: { maxlength: 3, style: 'margin-bottom: 0px;'} %>
+    <%= f.input :note, label_html: { class: 'hidden' },
+                       input_html: { value: number_with_precision(f.object.note, precision: f.object.daily_note.avaliation.school_calendar.number_of_decimal_places) } %>
   </td>
 </tr>
