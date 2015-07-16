@@ -27,6 +27,9 @@ class IeducarSynchronizerWorker
         # synchronize Disciplinary Occurrences
         ***REMOVED***sSynchronizer.synchronize!(synchronization)
 
+        # synchronize RoundingTables
+        RoundingTablesSynchronizer.synchronize!(synchronization)
+
         synchronization.mark_as_completed!
       rescue IeducarApi::Base::ApiError => e
         synchronization.mark_as_error!(e.message)
