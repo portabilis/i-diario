@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=tabelas-de-arredondamento&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*; q=0.5, application/xml'
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 16 Jul 2015 21:40:45 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=jvnjtu29n55evqsjmniju1j617; expires=Fri, 17-Jul-2015 21:40:45 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '2002'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: US-ASCII
+      string: ! '{"tabelas":[{"id":"1","nome":"0","descricao":"","valor_maximo":"0.400"},{"id":"1","nome":"0.5","descricao":"","valor_maximo":"0.900"},{"id":"1","nome":"1","descricao":"","valor_maximo":"1.400"},{"id":"1","nome":"1.5","descricao":"","valor_maximo":"1.900"},{"id":"1","nome":"2","descricao":"","valor_maximo":"2.400"},{"id":"1","nome":"2.5","descricao":"","valor_maximo":"2.900"},{"id":"1","nome":"3","descricao":"","valor_maximo":"3.400"},{"id":"1","nome":"3.5","descricao":"","valor_maximo":"3.900"},{"id":"1","nome":"4","descricao":"","valor_maximo":"4.000"},{"id":"1","nome":"4.5","descricao":"","valor_maximo":"4.900"},{"id":"1","nome":"5","descricao":"","valor_maximo":"5.400"},{"id":"1","nome":"5.5","descricao":"","valor_maximo":"5.900"},{"id":"1","nome":"6","descricao":"","valor_maximo":"6.400"},{"id":"1","nome":"6.5","descricao":"","valor_maximo":"6.900"},{"id":"1","nome":"7","descricao":"","valor_maximo":"7.400"},{"id":"1","nome":"7.5","descricao":"","valor_maximo":"7.900"},{"id":"1","nome":"8","descricao":"","valor_maximo":"8.400"},{"id":"1","nome":"8.5","descricao":"","valor_maximo":"8.900"},{"id":"1","nome":"9","descricao":"","valor_maximo":"9.400"},{"id":"1","nome":"9.5","descricao":"","valor_maximo":"9.900"},{"id":"1","nome":"10","descricao":"","valor_maximo":"10.000"},{"id":"4","nome":"PP","descricao":"progrediu
+        pouco","valor_maximo":"4.999"},{"id":"4","nome":"PR","descricao":"progrediu
+        regularmente","valor_maximo":"7.999"},{"id":"4","nome":"PM","descricao":"progrediu
+        muito","valor_maximo":"10.000"},{"id":"2","nome":"S","descricao":"Sim","valor_maximo":"5.999"},{"id":"2","nome":"EF","descricao":"Em
+        fase inicial","valor_maximo":"6.999"},{"id":"2","nome":"EC","descricao":"Em
+        constru\u00e7\u00e3o","valor_maximo":"7.999"},{"id":"2","nome":"NT","descricao":"N\u00e3o
+        trabalhado","valor_maximo":"8.999"},{"id":"2","nome":"PA","descricao":"Processo
+        Alcan\u00e7ado","valor_maximo":"9.999"}],"oper":"get","resource":"tabelas-de-arredondamento","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Thu, 16 Jul 2015 21:40:45 GMT
+recorded_with: VCR 2.9.3

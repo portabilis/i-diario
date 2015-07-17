@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    score_types:
+      dont_use: "Não utiliza"
+      numeric: "Nota numérica"
+      concept: "Nota conceitual"

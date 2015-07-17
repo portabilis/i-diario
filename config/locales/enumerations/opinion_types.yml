@@ -1,0 +1,8 @@
+pt-BR:
+  enumerations:
+    opinion_types:
+      dont_use: 'Não utiliza'
+      by_step_and_discipline: 'Por etapa e disciplina'
+      by_step: 'Por etapa'
+      by_year_and_discipline: 'Por ano e disciplina'
+      by_year: 'Por ano'
