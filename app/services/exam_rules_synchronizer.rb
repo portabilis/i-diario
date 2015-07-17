@@ -26,7 +26,13 @@ class ExamRulesSynchronizer
         exam_rule = nil
 
         if exam_rule = exam_rules.find_by(api_code: record["id"])
-          exam_rule.update(description: record["nome"])
+          exam_rule.update(
+            score_type: record["tipo_nota"],
+            frequency_type: record["tipo_presenca"],
+            opinion_type: record["parecer_descritivo"],
+            rounding_table_id: Unity.find_by(api_code: record["tabela_arredondamento_id"]).try(:id),
+            rounding_table_api_code: record["tabela_arredondamento_id"]
+          )
         else
           exam_rule = exam_rules.create(
             api_code: record["id"],
