@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    frequency_types:
+      general: "Geral"
+      by_discipline: "Por disciplina"
