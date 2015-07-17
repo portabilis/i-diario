@@ -1,0 +1,65 @@
+<%= simple_form_for @teaching_plan, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :unity, as: :select2, elements: @unities %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :classroom, as: :select2, elements: @classrooms %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :discipline, as: :select2, elements: @disciplines %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= f.input :objectives %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= f.input :content %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= f.input :methodology %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= f.input :evaluation %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= f.input :references %>
+      </div>
+    </div>
+  </fieldset>
+
+  <footer>
+    <%= link_to 'Voltar', teaching_plans_path, class: 'btn btn-default' %>
+
+    <% if @teaching_plan.persisted? %>
+      <%= link_to 'Histórico', history_content_path(@teaching_plan), class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+  </footer>
+<% end %>

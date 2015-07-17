@@ -1,0 +1,26 @@
+<div class="widget-body no-padding">
+  <div class="table-responsive">
+    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+      <thead>
+        <tr>
+          <th><%= Classroom.human_attribute_name :unity %></th>
+          <th><%= TeachingPlan.human_attribute_name :classroom %></th>
+          <th><%= TeachingPlan.human_attribute_name :discipline %></th>
+          <td class="actions" style="width: 190px;"><%= link_to t('.new_html'), new_teaching_plan_path, class: "btn btn-primary" %></td>
+        </tr>
+      </thead>
+
+      <%= render 'resources' %>
+      <tfoot id="paginator" class="remote">
+        <td colspan="6">
+          <div id="page_entries_info" class="pull-left hidden-xs">
+            <%= page_entries_info @teaching_plans %>
+          </div>
+          <div class="pull-right">
+            <%= paginate @teaching_plans %>
+          </div>
+        </td>
+      </tfoot>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,18 @@
+pt-BR:
+  activerecord:
+    models:
+      teaching_plan:
+        one: "Plano de ensino"
+        other: "Planos de ensinos"
+
+    attributes:
+      teaching_plan:
+        unity: "Escola"
+        classroom: "Turma"
+        discipline: "Disciplina"
+        school_calendar_step: "Etapa"
+        objectives: "Objetivos"
+        content: "Conteúdo"
+        methodology: "Metodologia"
+        evaluation: "Avaliação"
+        references: "Referências"

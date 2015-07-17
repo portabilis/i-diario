@@ -4,11 +4,11 @@ class CreateTeachingPlans < ActiveRecord::Migration
       t.integer :classroom_id, null: false
       t.integer :discipline_id, null: false
       t.integer :school_calendar_step_id, null: false
-      t.string :objectives
-      t.string :content
-      t.string :methodology
-      t.string :evaluation
-      t.string :references
+      t.text :objectives
+      t.text :content
+      t.text :methodology
+      t.text :evaluation
+      t.text :references
 
       t.timestamps
     end

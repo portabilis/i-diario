@@ -10,4 +10,8 @@ class SchoolCalendarStep < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:start_at]) }
   scope :started_after_and_before, lambda { |date| where(arel_table[:start_at].lteq(date)).
                                                   where(arel_table[:end_at].gteq(date)) }
+
+  def to_s
+    "#{start_at} a #{end_at}"
+  end
 end
