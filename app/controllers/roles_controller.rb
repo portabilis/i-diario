@@ -3,7 +3,7 @@ class RolesController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @roles = apply_scopes(Role.ordered)
+    @roles = apply_scopes(Role.includes(:author).ordered)
 
     authorize @roles
   end

@@ -148,6 +148,10 @@ navigation:
             type: "school_calendar_events"
             visible: "only-when-active"
   - ***REMOVED***:
+      type: "teaching_plans"
+      icon: "fa-coffee"
+      path: "teaching_plans_path"
+  - ***REMOVED***:
       type: "contents"
       icon: "fa-pencil"
       path: "contents_path"
