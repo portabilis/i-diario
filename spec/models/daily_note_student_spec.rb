@@ -30,7 +30,7 @@ RSpec.describe DailyNoteStudent, type: :model do
     it { expect(subject).to validate_presence_of(:student) }
     it { expect(subject).to validate_presence_of(:daily_note) }
     it { expect(subject).to validate_numericality_of(:note).is_greater_than_or_equal_to(0)
-                                                           .is_less_than_or_equal_to(subject.daily_note.avaliation.school_calendar.maximum_score) }
+                                                           .is_less_than_or_equal_to(subject.daily_note.avaliation.test_setting.maximum_score) }
     it { expect(subject).to allow_value('', nil).for(:note) }
   end
 end

@@ -4,6 +4,8 @@
       <thead>
         <tr>
           <th><%= TestSetting.human_attribute_name :year %></th>
+          <th><%= TestSetting.human_attribute_name :maximum_score %></th>
+          <th><%= TestSetting.human_attribute_name :number_of_decimal_places %></th>
           <th><%= TestSetting.human_attribute_name :fix_tests %></th>
           <td class="actions" style="width: 160px;"><%= link_to t('.new_html'), new_test_setting_path, class: "btn btn-primary" %></td>
         </tr>
@@ -11,7 +13,7 @@
 
       <%= render 'resources' %>
       <tfoot id="paginator" class="remote">
-        <td colspan="3">
+        <td colspan="5">
           <div id="page_entries_info" class="pull-left hidden-xs">
             <%= page_entries_info @test_settings %>
           </div>

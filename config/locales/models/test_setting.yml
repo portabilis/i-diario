@@ -7,8 +7,10 @@ pt-BR:
 
     attributes:
       test_setting:
-        id: Código
+        id: "Código"
         year: "Ano"
+        maximum_score: "Nota máxima"
+        number_of_decimal_places: "Número de casas decimais"
         fix_tests: "Fixar avaliações"
         responsible_id: "Responsável"
 
@@ -17,13 +19,14 @@ pt-BR:
         test_setting:
           attributes:
             tests:
-              at_least_one_test: "É necessário pelo menos uma avaliação"
-              weight_must_be_ten: "A soma dos pesos das avaliações deve resultar em 10 para cada tipo"
+              at_least_one_assigned_regular_test: "É necessário pelo menos uma avaliação do tipo normal"
+              regular_tests_weight_equal_maximum_score: "A soma dos pesos das avaliações do tipo normal deve resultar no mesmo valor da nota máxima"
+              recovery_tests_weight_equal_maximum_score: "A soma dos pesos das avaliações do tipo recuperação deve resultar no mesmo valor da nota máxima"
 
   test_settings:
     form:
-      add_test: Adicionar avaliação
+      add_test: "Adicionar avaliação"
     test_fields:
-      remove: Remover
+      remove: "Remover"
     index:
       new_html: "<i class='fa fa-plus'></i> Nova configuração"

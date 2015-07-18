@@ -1,6 +1,10 @@
 test_setting_a:
   year: 2015
+  maximum_score: 10
+  number_of_decimal_places: 2
   fix_tests: true
 test_setting_b:
   year: 2014
+  maximum_score: 10
+  number_of_decimal_places: 2
   fix_tests: false
