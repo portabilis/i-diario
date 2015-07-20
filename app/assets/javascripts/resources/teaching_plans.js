@@ -24,7 +24,7 @@ $(function () {
     }
   };
 
-  $('#teaching_plan_unity').on('change', function (e) {
+  $('#teaching_plan_unity_id').on('change', function (e) {
     var $classroom = $('#teaching_plan_classroom_id'),
         params = {
           unity_id: e.val

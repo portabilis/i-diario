@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TeachingPlan, type: :model do
   describe "attributes" do
+    it { expect(subject).to respond_to(:unity_id) }
     it { expect(subject).to respond_to(:classroom) }
     it { expect(subject).to respond_to(:discipline) }
     it { expect(subject).to respond_to(:school_calendar_step) }

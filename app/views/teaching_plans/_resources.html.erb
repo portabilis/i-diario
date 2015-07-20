@@ -6,6 +6,8 @@
   <% else %>
     <% @teaching_plans.each do |teaching_plan| %>
       <tr>
+        <td><%= teaching_plan.school_calendar_step.school_calendar.year %></td>
+        <td><%= teaching_plan.school_calendar_step %></td>
         <td><%= teaching_plan.classroom.unity %></td>
         <td><%= teaching_plan.classroom %></td>
         <td><%= teaching_plan.discipline %></td>

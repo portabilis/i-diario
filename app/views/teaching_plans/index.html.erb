@@ -3,6 +3,8 @@
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
+          <th><%= SchoolCalendar.model_name.human %></th>
+          <th><%= TeachingPlan.human_attribute_name :school_calendar_step %></th>
           <th><%= Classroom.human_attribute_name :unity %></th>
           <th><%= TeachingPlan.human_attribute_name :classroom %></th>
           <th><%= TeachingPlan.human_attribute_name :discipline %></th>

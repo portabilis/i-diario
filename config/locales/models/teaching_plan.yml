@@ -7,7 +7,7 @@ pt-BR:
 
     attributes:
       teaching_plan:
-        unity: "Escola"
+        unity_id: "Escola"
         classroom: "Turma"
         discipline: "Disciplina"
         school_calendar_step: "Etapa"
@@ -16,3 +16,10 @@ pt-BR:
         methodology: "Metodologia"
         evaluation: "Avaliação"
         references: "Referências"
+
+    errors:
+      models:
+        teaching_plan:
+          attributes:
+            school_calendar_step:
+              taken: "já está em uso para a turma/disciplina selecionadas"

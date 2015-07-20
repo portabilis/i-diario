@@ -2,8 +2,11 @@ class TeachingPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :require_current_teacher
+  before_action :require_current_school_calendar
+
   def index
-    @teaching_plans = apply_scopes(TeachingPlan.all)
+    @teaching_plans = apply_scopes(TeachingPlan.includes(:classroom, :discipline, school_calendar_step: :school_calendar))
 
     authorize @teaching_plans
   end
@@ -70,13 +73,6 @@ class TeachingPlansController < ApplicationController
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
     @school_calendar_steps = SchoolCalendarStep.where(school_calendar: current_school_calendar)
-  end
-
-  def require_teacher
-    unless current_teacher
-      flash[:alert] = t('errors.contents.require_teacher')
-      redirect_to contents_path
-    end
   end
 
   def resource

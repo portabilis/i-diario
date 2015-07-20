@@ -130,6 +130,13 @@ class ApplicationController < ActionController::Base
     TestSetting.find_by(year: Date.today.year)
   end
 
+  def require_current_teacher
+    unless current_teacher
+      flash[:alert] = t('errors.general.require_current_teacher')
+      redirect_to root_path
+    end
+  end
+
   def require_current_school_calendar
     unless current_school_calendar
       flash[:alert] = t('errors.general.require_current_school_calendar')
