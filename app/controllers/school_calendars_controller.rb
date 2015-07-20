@@ -73,8 +73,6 @@ class SchoolCalendarsController < ApplicationController
   def resource_params
     params.require(:school_calendar).permit(:year,
                                             :number_of_classes,
-                                            :maximum_score,
-                                            :number_of_decimal_places,
                                             steps_attributes: [:id,
                                                                :start_at,
                                                                :end_at,

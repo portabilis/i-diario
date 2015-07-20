@@ -71,11 +71,14 @@ class TestSettingsController < ApplicationController
   end
 
   def resource_params
-    params.require(:test_setting).permit(
-      :year, :fix_tests,
-      tests_attributes: [
-        :id, :description, :weight, :test_type, :_destroy
-      ]
-    )
+    params.require(:test_setting).permit(:year,
+                                         :maximum_score,
+                                         :number_of_decimal_places,
+                                         :fix_tests,
+                                         tests_attributes: [:id,
+                                                            :description,
+                                                            :weight,
+                                                            :test_type,
+                                                            :_destroy])
   end
 end

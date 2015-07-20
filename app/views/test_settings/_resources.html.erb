@@ -7,6 +7,8 @@
     <% @test_settings.each do |test_setting| %>
       <tr>
         <td><%= test_setting.year %></td>
+        <td><%= test_setting.maximum_score %></td>
+        <td><%= test_setting.number_of_decimal_places %></td>
         <td><%= t_boolean test_setting.fix_tests %></td>
         <td class="actions">
           <%= link_to 'Editar', edit_test_setting_path(test_setting),
