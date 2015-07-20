@@ -66,7 +66,7 @@ class TestSettingsController < ApplicationController
     when 'new', 'create'
       TestSetting.new
     when 'edit', 'update', 'destroy'
-      TestSetting.find(params[:id])
+      TestSetting.includes(tests: :test_setting).find(params[:id])
     end.localized
   end
 
