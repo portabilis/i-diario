@@ -38,7 +38,7 @@ class RoundingTablesSynchronizer
 
         record["valores"].each do |api_value|
           rounding_table_values.create!(
-            tabela_arredondamento_id: record["id"],
+            rounding_table_api_code: record["id"],
             rounding_table_id: rounding_table.id,
             label: api_value["rotulo"],
             description: api_value["descricao"],
