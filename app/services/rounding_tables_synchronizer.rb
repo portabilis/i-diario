@@ -21,20 +21,39 @@ class RoundingTablesSynchronizer
 
   def update_records(collection)
     ActiveRecord::Base.transaction do
-      rounding_tables.delete_all
-
+      rounding_table_values.delete_all
       collection.each do |record|
-        rounding_tables.create!(
-          api_code: record["id"],
-          label: record["nome"],
-          description: record["descricao"],
-          value: record["valor_maximo"]
-        )
+        rounding_table = nil
+
+        if rounding_table = rounding_tables.find_by(api_code: record["id"])
+          rounding_table.update(
+            name: record["nome"]
+          )
+        else
+          rounding_table = rounding_tables.create!(
+            api_code: record["id"],
+            name: record["nome"]
+          )
+        end
+
+        record["valores"].each do |api_value|
+          rounding_table_values.create!(
+            tabela_arredondamento_id: record["id"],
+            rounding_table_id: rounding_table.id,
+            label: api_value["rotulo"],
+            description: api_value["descricao"],
+            value: api_value["valor_maximo"]
+          )
+        end
       end
     end
   end
 
   def rounding_tables(klass = RoundingTable)
+    klass
+  end
+
+  def rounding_table_values(klass = RoundingTableValue)
     klass
   end
 end

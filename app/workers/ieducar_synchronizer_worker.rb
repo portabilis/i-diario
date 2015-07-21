@@ -19,13 +19,13 @@ class IeducarSynchronizerWorker
         TeachersSynchronizer.synchronize!(synchronization)
 
         # synchronize Students
-        StudentsSynchronizer.synchronize!(synchronization)
+        #StudentsSynchronizer.synchronize!(synchronization)
 
         # synchronize Deficiencies
-        DeficienciesSynchronizer.synchronize!(synchronization)
+        #DeficienciesSynchronizer.synchronize!(synchronization)
 
         # synchronize Disciplinary Occurrences
-        ***REMOVED***sSynchronizer.synchronize!(synchronization)
+        #***REMOVED***sSynchronizer.synchronize!(synchronization)
 
         # synchronize RoundingTables
         RoundingTablesSynchronizer.synchronize!(synchronization)

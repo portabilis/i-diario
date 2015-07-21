@@ -30,7 +30,7 @@ class ExamRulesSynchronizer
             score_type: record["tipo_nota"],
             frequency_type: record["tipo_presenca"],
             opinion_type: record["parecer_descritivo"],
-            rounding_table_id: Unity.find_by(api_code: record["tabela_arredondamento_id"]).try(:id),
+            rounding_table_id: RoundingTable.find_by(api_code: record["tabela_arredondamento_id"]).try(:id),
             rounding_table_api_code: record["tabela_arredondamento_id"]
           )
         else
@@ -39,7 +39,7 @@ class ExamRulesSynchronizer
             score_type: record["tipo_nota"],
             frequency_type: record["tipo_presenca"],
             opinion_type: record["parecer_descritivo"],
-            rounding_table_id: Unity.find_by(api_code: record["tabela_arredondamento_id"]).try(:id),
+            rounding_table_id: RoundingTable.find_by(api_code: record["tabela_arredondamento_id"]).try(:id),
             rounding_table_api_code: record["tabela_arredondamento_id"]
           )
         end
