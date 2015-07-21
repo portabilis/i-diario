@@ -57,10 +57,6 @@ class DailyFrequenciesController < ApplicationController
 
     @students = []
 
-    Rails.logger.debug "@@@@@"
-    Rails.logger.debug @api_students.inspect
-    Rails.logger.debug "@@@@@"
-
     @api_students.each do |api_student|
       if student = Student.find_by(api_code: api_student['id'])
         @students << student

@@ -3,6 +3,10 @@ $(function () {
   window.disciplines = [];
   window.avaliations = [];
 
+  var $hideWhenGlobalAbsence = $(".hide_when_global_absence"),
+      $globalAbsence = $("#daily_frequency_global_absence"),
+      $examRuleNotFoundAlert = $('#exam-rule-not-found-alert');
+
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
       $.getJSON('/classrooms?' + $.param(params)).always(function (data) {
@@ -34,6 +38,12 @@ $(function () {
     } else {
       callback(window.avaliations);
     }
+  };
+
+  var fetchExamRule = function (params, callback) {
+    $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
+      callback(data);
+    });
   };
 
   var $classroom = $('#daily_frequency_classroom_id');
@@ -77,6 +87,28 @@ $(function () {
     $avaliation.val('').select2({ data: [] });
 
     if (!_.isEmpty(e.val)) {
+      fetchExamRule(params, function(exam_rule){
+        if(!$.isEmptyObject(exam_rule)){
+          $hideWhenGlobalAbsence.addClass('hidden');
+
+          if(exam_rule.frequency_type == 1){
+            $globalAbsence.val(1);
+            $hideWhenGlobalAbsence.hide();
+          }else{
+            $globalAbsence.val(0);
+            $hideWhenGlobalAbsence.show();
+          }
+        }else{
+          $globalAbsence.val(0);
+          $hideWhenGlobalAbsence.hide();
+
+          // Display alert
+          $examRuleNotFoundAlert.removeClass('hidden');
+
+          // Disable form submit
+          $('form input[type=submit]').attr('disabled', 'disabled');
+        }
+      });
       fetchDisciplines(params, function (disciplines) {
         var selectedDisciplines = _.map(disciplines, function (discipline) {
           return { id:discipline['id'], text: discipline['description'] };
@@ -111,22 +143,7 @@ $(function () {
     }
   });
 
-  var $hideWhenGlobalAbsence = $(".hide_when_global_absence"),
-      $globalAbsence = $("#daily_frequency_global_absence");
-
-  toggleDailyFrequencyGlobalAbsence($globalAbsence.prop('checked'));
-
-  $globalAbsence.on('change', function() {
-    toggleDailyFrequencyGlobalAbsence($globalAbsence.prop('checked'));
-  });
-
-  function toggleDailyFrequencyGlobalAbsence(hide) {
-    if (hide) {
-      $hideWhenGlobalAbsence.hide();
-    } else {
-      $hideWhenGlobalAbsence.show();
-    }
-  }
+  $hideWhenGlobalAbsence.hide();
 
   // fix to checkboxes work correctly
   $('[name="daily_frequency_student[][present]"][type=hidden]').remove();

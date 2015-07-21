@@ -1,5 +1,9 @@
 <div class="widget-body no-padding">
 <%= simple_form_for @daily_frequency, html: { class: "smart-form" } do |f| %>
+  <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
+    <i class="fa fa-exclamation-circle fa-fw"></i>
+    <%= t('.exam_rule_not_found') %>
+  </div>
   <%= f.error_notification %>
 
   <fieldset>
@@ -17,9 +21,7 @@
       </div>
     </div>
     <div class="row">
-      <div class="col col-sm-4">
-        <%= f.input :global_absence %>
-      </div>
+      <%= f.input :global_absence, as: :hidden %>
       <div class="col col-sm-4 hide_when_global_absence">
         <%= f.association :discipline, as: :select2, elements: @disciplines, required: true %>
       </div>
