@@ -1,10 +1,13 @@
 $(function () {
 
-  var $unity = $('#conceptual_exam_unity'),
-      $classroom = $('#conceptual_exam_classroom_id'),
-      $discipline = $('#conceptual_exam_discipline_id'),
+  var $unity = $('#descriptive_exam_unity'),
+      $classroom = $('#descriptive_exam_classroom_id'),
+      $discipline = $('#descriptive_exam_discipline_id'),
+      $step = $('#descriptive_exam_school_calendar_step'),
+      $disciplineContainer = $('[data-descriptive-exam-discipline-container]'),
+      $stepContainer = $('[data-descriptive-exam-step-container]'),
       $examRuleNotFoundAlert = $('#exam-rule-not-found-alert'),
-      $examRuleNotAllowConcept = $('#exam-rule-not-allow-concept');
+      $examRuleNotAllowDescriptiveExam = $('#exam-rule-not-allow-descriptive-exam');
 
   window.classrooms = [];
   window.disciplines = [];
@@ -64,12 +67,23 @@ $(function () {
     fetchExamRule(params, function(exam_rule){
       $('form input[type=submit]').removeClass('disabled');
       $examRuleNotFoundAlert.addClass('hidden');
-      $examRuleNotAllowConcept.addClass('hidden');
+      $examRuleNotAllowDescriptiveExam.addClass('hidden');
+      $disciplineContainer.addClass('hidden');
+      $stepContainer.addClass('hidden');
+      $discipline.val('');
+      $step.val('');
 
       if(!$.isEmptyObject(exam_rule)){
-        if(exam_rule.score_type != "2"){
+        if($.inArray(exam_rule.opinion_type, ["2", "3", "5", "6"]) >= 0){
+          if($.inArray(exam_rule.opinion_type, ["2", "5"]) >= 0)
+            $disciplineContainer.removeClass('hidden');
+
+          if($.inArray(exam_rule.opinion_type, ["2", "3"]) >= 0)
+            $stepContainer.removeClass('hidden');
+
+        }else{
           // Display alert
-          $examRuleNotAllowConcept.removeClass('hidden');
+          $examRuleNotAllowDescriptiveExam.removeClass('hidden');
 
           // Disable form submit
           $('form input[type=submit]').addClass('disabled');
@@ -93,6 +107,7 @@ $(function () {
     $discipline.val('').select2({ data: [] });
 
     if (!_.isEmpty(e.val)) {
+
       checkExamRule(params);
 
       fetchDisciplines(params, function (disciplines) {

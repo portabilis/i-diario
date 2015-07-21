@@ -1,0 +1,3 @@
+form[id^=edit_descriptive_exam_] textarea.form-control.text{
+  padding-left: 0px;
+}

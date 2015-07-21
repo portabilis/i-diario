@@ -88,6 +88,7 @@ $(function () {
 
     if (!_.isEmpty(e.val)) {
       fetchExamRule(params, function(exam_rule){
+        $('form input[type=submit]').removeClass('disabled');
         if(!$.isEmptyObject(exam_rule)){
           $examRuleNotFoundAlert.addClass('hidden');
 
@@ -106,7 +107,7 @@ $(function () {
           $examRuleNotFoundAlert.removeClass('hidden');
 
           // Disable form submit
-          $('form input[type=submit]').attr('disabled', 'disabled');
+          $('form input[type=submit]').addClass('disabled');
         }
       });
       fetchDisciplines(params, function (disciplines) {

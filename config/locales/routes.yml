@@ -48,6 +48,7 @@ pt-BR:
     absence_justifications: 'justificativas-de-falta'
     messages: 'mensagens'
     conceptual_exams: 'avaliacoes-conceituais'
+    descriptive_exams: 'avaliacoes-descritivas'
 
     # actions
     edit: 'editar'

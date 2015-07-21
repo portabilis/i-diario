@@ -40,7 +40,8 @@ class Features < EnumerateIt::Base
                    :daily_frequencies,
                    :absence_justifications,
                    :messages,
-                   :conceptual_exams
+                   :conceptual_exams,
+                   :descriptive_exams
 
   sort_by :translation
 end

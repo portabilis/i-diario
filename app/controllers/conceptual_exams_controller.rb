@@ -14,6 +14,7 @@ class ConceptualExamsController < ApplicationController
 
   def create
     @conceptual_exam = ConceptualExam.new(resource_params)
+    @unity_id = params[:conceptual_exam][:unity]
 
     if(@conceptual_exam.valid?)
       @conceptual_exam = ConceptualExam.find_or_create_by(resource_params)

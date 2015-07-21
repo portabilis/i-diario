@@ -53,6 +53,7 @@ pt-BR:
     absence_justifications: "Justificativas de falta"
     messages: "Mensagens"
     conceptual_exams: "Avaliações conceituais"
+    descriptive_exams: "Avaliações descritivas"
 
   enumerations:
     features:

@@ -1,12 +1,12 @@
 <div class="widget-body no-padding">
-  <%= simple_form_for @conceptual_exam, html: { class: "smart-form" } do |f| %>
+  <%= simple_form_for @descriptive_exam, html: { class: "smart-form" } do |f| %>
   <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
     <i class="fa fa-exclamation-circle fa-fw"></i>
     <%= t('.exam_rule_not_found') %>
   </div>
-  <div class="alert alert-danger hidden" id="exam-rule-not-allow-concept">
+  <div class="alert alert-danger hidden" id="exam-rule-not-allow-descriptive-exam">
     <i class="fa fa-exclamation-circle fa-fw"></i>
-    <%= t('.exam_rule_not_allow_concept') %>
+    <%= t('.exam_rule_not_allow_descriptive_exam') %>
   </div>
   <%= f.error_notification %>
 
@@ -20,12 +20,12 @@
           <%= f.association :classroom, as: :select2, elements: @classrooms %>
         </div>
 
-        <div class="col col-sm-4">
+        <div class="col col-sm-4 hidden" data-descriptive-exam-discipline-container>
           <%= f.association :discipline, as: :select2, elements: @disciplines %>
         </div>
       </div>
       <div class="row">
-        <div class="col col-sm-4">
+        <div class="col col-sm-4 hidden" data-descriptive-exam-step-container>
           <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
         </div>
       </div>
