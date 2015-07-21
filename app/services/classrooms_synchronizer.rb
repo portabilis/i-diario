@@ -23,7 +23,10 @@ class ClassroomsSynchronizer
     ActiveRecord::Base.transaction do
       collection.each do |record|
         if classroom = classrooms.find_by(api_code: record["id"])
-          classroom.update(description: record["nome"])
+          classroom.update(description: record["nome"],
+              unity_id: Unity.find_by(api_code: record["escola_id"]).try(:id),
+              unity_code: record["escola_id"]
+            )
         elsif record["nome"].present?
           classrooms.create!(
             api_code: record["id"],
