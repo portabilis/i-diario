@@ -1,12 +1,13 @@
 class ContentsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
-  before_action :require_teacher, only: [:new, :create, :edit, :update]
-  before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
+
+  before_action :require_current_teacher
   before_action :require_current_school_calendar
+  before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
 
   def index
-    @contents = apply_scopes(Content.includes(:unity, :classroom, :discipline).ordered)
+    @contents = apply_scopes(Content.by_teacher(current_teacher.id).includes(:unity, :classroom, :discipline).ordered)
 
     authorize @contents
   end
@@ -37,6 +38,7 @@ class ContentsController < ApplicationController
 
   def edit
     @content = resource
+    validate_current_teacher
 
     authorize resource
 
@@ -79,12 +81,20 @@ class ContentsController < ApplicationController
     @number_of_classes = current_school_calendar.number_of_classes
   end
 
+
   def fetch_classrooms
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @content.unity_id, @content.classroom_id)
     fetcher.fetch!
     @unities = fetcher.unities
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
+  end
+
+  def validate_current_teacher
+    unless @content.teacher_discipline_classrooms.any? { |teacher_discipline_classroom| teacher_discipline_classroom.teacher_id.eql?(current_teacher.id) }
+      flash[:alert] = t('.current_teacher_not_allowed')
+      redirect_to root_path
+    end
   end
 
   def resource
@@ -100,12 +110,5 @@ class ContentsController < ApplicationController
     params.require(:content).permit(
       :unity_id, :classroom_id, :discipline_id, :school_calendar_id, :content_date, :class_number, :description
     )
-  end
-
-  def require_teacher
-    unless current_teacher
-      flash[:alert] = t('errors.contents.require_teacher')
-      redirect_to contents_path
-    end
   end
 end
