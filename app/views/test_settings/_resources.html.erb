@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @test_settings.empty? %>
     <tr>
-      <td class="no_record_found" colspan="3"> <%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="5"> <%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @test_settings.each do |test_setting| %>
