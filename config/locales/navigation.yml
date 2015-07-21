@@ -52,6 +52,7 @@ pt-BR:
     daily_frequencies: "Diário de frequência"
     absence_justifications: "Justificativas de falta"
     messages: "Mensagens"
+    conceptual_exams: "Avaliações conceituais"
 
   enumerations:
     features:

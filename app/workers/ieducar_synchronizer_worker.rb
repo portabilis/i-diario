@@ -8,7 +8,6 @@ class IeducarSynchronizerWorker
       synchronization = IeducarApiSyncronization.find(synchronization_id)
 
       begin
-        logger.info "Just checking if sidekiq will log it"
         # synchronize Classrooms
         ClassroomsSynchronizer.synchronize!(synchronization)
 

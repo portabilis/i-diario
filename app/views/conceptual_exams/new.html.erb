@@ -1,0 +1,39 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for @conceptual_exam, html: { class: "smart-form" } do |f| %>
+  <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
+    <i class="fa fa-exclamation-circle fa-fw"></i>
+    <%= t('.exam_rule_not_found') %>
+  </div>
+  <div class="alert alert-danger hidden" id="exam-rule-not-allow-concept">
+    <i class="fa fa-exclamation-circle fa-fw"></i>
+    <%= t('.exam_rule_not_allow_concept') %>
+  </div>
+  <%= f.error_notification %>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :unity, as: :select2, elements: @unities, required: true %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.association :classroom, as: :select2, elements: @classrooms %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.association :discipline, as: :select2, elements: @disciplines %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+        </div>
+      </div>
+
+    </fieldset>
+
+    <footer>
+      <%= f.submit 'Carregar', class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>

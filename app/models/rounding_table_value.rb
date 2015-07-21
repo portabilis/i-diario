@@ -4,7 +4,7 @@ class RoundingTableValue < ActiveRecord::Base
 
   validates :label, :tabela_arredondamento_id, :value, presence: true
 
-  scope :ordered, -> { order(arel_table[:label].asc) }
+  scope :ordered, -> { order(arel_table[:value].desc) }
 
   def to_s
     label

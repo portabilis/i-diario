@@ -165,6 +165,9 @@ navigation:
         - ***REMOVED***:
             type: "daily_notes"
             path: "new_daily_note_path"
+        - ***REMOVED***:
+            type: "conceptual_exams"
+            path: "new_conceptual_exam_path"
   - ***REMOVED***:
       type: "frequencies_***REMOVED***"
       icon: "fa-check-square-o"
