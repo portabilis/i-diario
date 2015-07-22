@@ -31,6 +31,8 @@ pt-BR:
                 must_be_school_day: "deve ser um dia letivo"
               test_setting_test:
                 unique_per_step: "deve ser única por etapa"
+              classroom:
+                classroom_score_type_must_be_numeric: "o tipo de avaliação deve ser númerico"
 
   errors:
     avaliations:

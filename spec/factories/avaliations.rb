@@ -4,8 +4,10 @@ FactoryGirl.define do
     class_number '1'
     description  'Avaliation description'
 
-    test_setting
-    school_calendar
+    unity
     discipline
+    classroom
+    school_calendar
+    test_setting
   end
 end

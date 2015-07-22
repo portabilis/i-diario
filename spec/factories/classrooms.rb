@@ -6,5 +6,6 @@ FactoryGirl.define do
     unity_code  '1234'
 
     unity
+    exam_rule
   end
 end

@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :school_calendar do
-    year                     2020
+    sequence(:year) { |n| 2020 + n }
     number_of_classes        5
 
     after(:build) do |school_calendar|
