@@ -28,7 +28,7 @@ RSpec.describe Avaliation, type: :model do
 
       it "validates that classroom score type is numeric" do
         expect(subject).to_not be_valid
-        expect(subject.errors.messages[:classroom]).to include('o tipo de avaliação deve ser númerico')
+        expect(subject.errors.messages[:classroom]).to include('o tipo de nota da regra de avaliação não é numérica')
       end
     end
 

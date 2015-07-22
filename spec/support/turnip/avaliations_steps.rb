@@ -30,7 +30,7 @@ module Turnip
     end
 
     step 'devo visualizar uma mensagem de turma com tipo de avaliação não numérica' do
-      expect(page).to have_content "o tipo de avaliação deve ser númerico"
+      expect(page).to have_content "o tipo de nota da regra de avaliação não é numérica"
     end
   end
 end
