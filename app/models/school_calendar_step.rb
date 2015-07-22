@@ -12,6 +12,6 @@ class SchoolCalendarStep < ActiveRecord::Base
                                                   where(arel_table[:end_at].gteq(date)) }
 
   def to_s
-    "#{start_at} a #{end_at}"
+    "#{localized.start_at} a #{localized.end_at}"
   end
 end

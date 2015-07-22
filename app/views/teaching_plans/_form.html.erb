@@ -57,7 +57,7 @@
     <%= link_to 'Voltar', teaching_plans_path, class: 'btn btn-default' %>
 
     <% if @teaching_plan.persisted? %>
-      <%= link_to 'Histórico', history_content_path(@teaching_plan), class: 'btn btn-info' %>
+      <%= link_to 'Histórico', history_teaching_plan_path(@teaching_plan), class: 'btn btn-info' %>
     <% end %>
 
     <%= f.submit 'Salvar', class: 'btn btn-primary' %>

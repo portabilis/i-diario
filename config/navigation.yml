@@ -149,7 +149,7 @@ navigation:
             visible: "only-when-active"
   - ***REMOVED***:
       type: "teaching_plans"
-      icon: "fa-coffee"
+      icon: "fa-book"
       path: "teaching_plans_path"
   - ***REMOVED***:
       type: "contents"

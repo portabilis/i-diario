@@ -22,7 +22,7 @@ pt-BR:
         teaching_plan:
           attributes:
             school_calendar_step:
-              taken: "já está em uso para a turma/disciplina selecionadas"
+              taken: "já existe um plano de ensino para a turma e disciplina informada nesta etapa"
 
 
 

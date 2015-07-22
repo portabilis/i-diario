@@ -25,21 +25,16 @@ $(function () {
   };
 
   $('#teaching_plan_unity_id').on('change', function (e) {
-    var $classroom = $('#teaching_plan_classroom_id'),
-        params = {
-          unity_id: e.val
-        };
+    var $classroom = $('#teaching_plan_classroom_id');
+    var params = { unity_id: e.val };
 
     window.classrooms = [];
 
-    if (_.isEmpty(e.val)) {
-      $classroom.val('');
-      $classroom.select2({
-        data: []
-      });
+    $classroom.val('');
+    $classroom.select2({ data: [] });
 
-    } else {
-      fetchClassrooms(params, function (classrooms) {
+    if (!_.isEmpty(e.val)) {
+      fetchClassrooms(params, function(classrooms) {
         var selectedClassrooms = _.map(classrooms, function (classroom) {
           return { id:classroom['id'], text: classroom['description'] };
         });
@@ -52,19 +47,15 @@ $(function () {
   });
 
   $('#teaching_plan_classroom_id').on('change', function (e) {
-    var $discipline = $('#teaching_plan_discipline_id'),
-        params = {
-          classroom_id: e.val
-        };
+    var $discipline = $('#teaching_plan_discipline_id');
+    var params = { classroom_id: e.val };
+
     window.disciplines = [];
 
-    if (_.isEmpty(e.val)) {
-      $discipline.val('');
-      $discipline.select2({
-        data: []
-      });
+    $discipline.val('');
+    $discipline.select2({ data: [] });
 
-    } else {
+    if (!_.isEmpty(e.val)) {
       fetchDisciplines(params, function (disciplines) {
         var selectedDisciplines = _.map(disciplines, function (discipline) {
           return { id:discipline['id'], text: discipline['description'] };

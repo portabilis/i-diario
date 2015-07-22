@@ -64,6 +64,14 @@ class TeachingPlansController < ApplicationController
     respond_with resource, location: teaching_plans_path
   end
 
+  def history
+    @teaching_plan = TeachingPlan.find(params[:id])
+
+    authorize @teaching_plan
+
+    respond_with @teaching_plan
+  end
+
   private
 
   def fetch_collections
