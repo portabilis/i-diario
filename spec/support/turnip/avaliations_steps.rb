@@ -21,7 +21,10 @@ module Turnip
 
     step 'selecionar uma turma com tipo de avaliação não numérica' do
       fill_in_select2 "Escola", with: @classroom_with_concept_score_type.unity.id
+      expect(page).to have_content(@classroom_with_concept_score_type.unity.name)
+
       fill_in_select2 "Turma", with: @classroom_with_concept_score_type.id
+      expect(page).to have_content(@classroom_with_concept_score_type.description)
 
       click_on "Salvar"
     end
