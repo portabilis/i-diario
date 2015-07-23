@@ -70,16 +70,21 @@ $(function () {
       $examRuleNotAllowDescriptiveExam.addClass('hidden');
       $disciplineContainer.addClass('hidden');
       $stepContainer.addClass('hidden');
-      $discipline.val('');
-      $step.val('');
+
+      var should_clear_discipline = true;
+      var should_clear_step = true;
 
       if(!$.isEmptyObject(exam_rule)){
         if($.inArray(exam_rule.opinion_type, ["2", "3", "5", "6"]) >= 0){
-          if($.inArray(exam_rule.opinion_type, ["2", "5"]) >= 0)
+          if($.inArray(exam_rule.opinion_type, ["2", "5"]) >= 0){
             $disciplineContainer.removeClass('hidden');
+            should_clear_discipline = false
+          }
 
-          if($.inArray(exam_rule.opinion_type, ["2", "3"]) >= 0)
+          if($.inArray(exam_rule.opinion_type, ["2", "3"]) >= 0){
             $stepContainer.removeClass('hidden');
+            should_clear_step = false
+          }
 
         }else{
           // Display alert
@@ -95,6 +100,12 @@ $(function () {
         // Disable form submit
         $('form input[type=submit]').addClass('disabled');
       }
+
+      if(should_clear_discipline)
+        $discipline.val('');
+
+      if(should_clear_step)
+        $step.val('');
     });
   }
 

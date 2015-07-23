@@ -17,6 +17,7 @@ class DescriptiveExam < ActiveRecord::Base
   has_many :students, class_name: 'DescriptiveExamStudent', dependent: :destroy
   accepts_nested_attributes_for :students
 
+  validates :unity, presence: true
   validates :classroom, presence: true
   validates :discipline, presence: true, if: :should_validate_presence_of_discipline
   validates :school_calendar_step, presence: true, if: :should_validate_presence_of_school_calendar_step
