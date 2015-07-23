@@ -8,8 +8,11 @@ pt-BR:
     attributes:
       teaching_plan:
         unity_id: "Escola"
+        classroom_id: "Turma"
         classroom: "Turma"
+        discipline_id: "Disciplina"
         discipline: "Disciplina"
+        school_calendar_step_id: "Etapa"
         school_calendar_step: "Etapa"
         objectives: "Objetivos"
         content: "Conteúdo"
