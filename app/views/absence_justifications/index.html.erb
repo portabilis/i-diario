@@ -3,8 +3,8 @@
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
-          <th><%= AbsenceJustification.human_attribute_name :absence_date %></th>
           <th><%= AbsenceJustification.human_attribute_name :student %></th>
+          <th><%= AbsenceJustification.human_attribute_name :absence_date %></th>
           <td class="actions" style="width: 18px;"><%= link_to t('.new_html'), new_absence_justification_path, class: "btn btn-primary" %></td>
         </tr>
       </thead>
