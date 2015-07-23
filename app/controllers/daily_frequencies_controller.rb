@@ -26,9 +26,9 @@ class DailyFrequenciesController < ApplicationController
         params = resource_params
         params[:discipline_id] = nil
         @daily_frequencies << @daily_frequency =
-            DailyFrequency.find_or_create_by(unity_id: resource_params[:unity_id],
-                                              classroom_id: resource_params[:classroom_id],
-                                              frequency_date: resource_params[:frequency_date],
+            DailyFrequency.find_or_create_by(unity_id: @daily_frequency.unity_id,
+                                              classroom_id: @daily_frequency.classroom_id,
+                                              frequency_date: @daily_frequency.frequency_date,
                                               global_absence: true,
                                               school_calendar: current_school_calendar)
       else

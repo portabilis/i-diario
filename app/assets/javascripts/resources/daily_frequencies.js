@@ -76,7 +76,33 @@ $(function () {
     }
   });
 
-  $('#daily_frequency_classroom_id').on('change', function (e) {
+  var checkExamRule = function(params){
+    fetchExamRule(params, function(exam_rule){
+      $('form input[type=submit]').removeClass('disabled');
+      if(!$.isEmptyObject(exam_rule)){
+        $examRuleNotFoundAlert.addClass('hidden');
+
+        if(exam_rule.frequency_type == 1){
+          $globalAbsence.val(1);
+          $hideWhenGlobalAbsence.hide();
+        }else{
+          $globalAbsence.val(0);
+          $hideWhenGlobalAbsence.show();
+        }
+      }else{
+        $globalAbsence.val(0);
+        $hideWhenGlobalAbsence.hide();
+
+        // Display alert
+        $examRuleNotFoundAlert.removeClass('hidden');
+
+        // Disable form submit
+        $('form input[type=submit]').addClass('disabled');
+      }
+    });
+  }
+
+  $classroom.on('change', function (e) {
     var params = {
       classroom_id: e.val
     };
@@ -87,29 +113,9 @@ $(function () {
     $avaliation.val('').select2({ data: [] });
 
     if (!_.isEmpty(e.val)) {
-      fetchExamRule(params, function(exam_rule){
-        $('form input[type=submit]').removeClass('disabled');
-        if(!$.isEmptyObject(exam_rule)){
-          $examRuleNotFoundAlert.addClass('hidden');
 
-          if(exam_rule.frequency_type == 1){
-            $globalAbsence.val(1);
-            $hideWhenGlobalAbsence.hide();
-          }else{
-            $globalAbsence.val(0);
-            $hideWhenGlobalAbsence.show();
-          }
-        }else{
-          $globalAbsence.val(0);
-          $hideWhenGlobalAbsence.hide();
+      checkExamRule(params);
 
-          // Display alert
-          $examRuleNotFoundAlert.removeClass('hidden');
-
-          // Disable form submit
-          $('form input[type=submit]').addClass('disabled');
-        }
-      });
       fetchDisciplines(params, function (disciplines) {
         var selectedDisciplines = _.map(disciplines, function (discipline) {
           return { id:discipline['id'], text: discipline['description'] };
@@ -125,7 +131,7 @@ $(function () {
   $('#daily_frequency_discipline_id').on('change', function (e) {
     var params = {
       discipline_id: e.val,
-      classroom_id: $('#daily_frequency_classroom_id').val()
+      classroom_id: $classroom.val()
     };
 
     window.avaliations = [];
@@ -149,4 +155,7 @@ $(function () {
   // fix to checkboxes work correctly
   $('[name="daily_frequency_student[][present]"][type=hidden]').remove();
 
+  if($classroom.length && $classroom.val().length){
+    checkExamRule({classroom_id: $classroom.val()});
+  }
 });
