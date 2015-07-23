@@ -1,0 +1,4 @@
+pt-BR:
+  absence_justifications:
+    edit:
+      current_user_not_allowed: "O usuário atual não tem permissão para acessar esse cadastro"

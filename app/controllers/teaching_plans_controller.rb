@@ -6,7 +6,7 @@ class TeachingPlansController < ApplicationController
   before_action :require_current_school_calendar
 
   def index
-    @teaching_plans = apply_scopes(TeachingPlan.by_teacher(current_teacher.id).includes(:classroom, :discipline, school_calendar_step: :school_calendar))
+    @teaching_plans = apply_scopes(TeachingPlan.by_teacher(current_teacher.id).includes(:discipline, school_calendar_step: :school_calendar, classroom: :unity))
 
     authorize @teaching_plans
   end
