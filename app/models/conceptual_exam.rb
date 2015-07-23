@@ -16,6 +16,7 @@ class ConceptualExam < ActiveRecord::Base
   has_many :students, class_name: 'ConceptualExamStudent', dependent: :destroy
   accepts_nested_attributes_for :students
 
+  validates :unity,  presence: true
   validates :classroom,  presence: true
   validates :discipline, presence: true
   validates :school_calendar_step, presence: true
