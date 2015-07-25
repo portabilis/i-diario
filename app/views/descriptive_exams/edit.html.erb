@@ -1,0 +1,52 @@
+<div class="widget-body no-padding">
+  <table class="table table-bordered table-only-inner-bordered">
+    <thead>
+      <th><%= DescriptiveExam.human_attribute_name :unity %></th>
+      <th><%= DescriptiveExam.human_attribute_name :classroom %></th>
+      <% if @descriptive_exam.discipline.present? %>
+        <th><%= DescriptiveExam.human_attribute_name :discipline %></th>
+      <% end %>
+      <% if @descriptive_exam.school_calendar_step.present? %>
+        <th><%= DescriptiveExam.human_attribute_name :school_calendar_step %></th>
+      <% end %>
+    </thead>
+    <tbody style="border-bottom: 1px solid #ccc;">
+      <td><%= @descriptive_exam.unity %></td>
+      <td><%= @descriptive_exam.classroom %></td>
+      <% if @descriptive_exam.discipline.present? %>
+        <td><%= @descriptive_exam.discipline %></td>
+      <% end %>
+      <% if @descriptive_exam.school_calendar_step.present? %>
+        <td><%= @descriptive_exam.school_calendar_step %></td>
+      <% end %>
+    </tbody>
+  </table>
+
+  <%= simple_form_for @descriptive_exam, html: { class: "smart-form" } do |f| %>
+    <%= f.error_notification %>
+
+    <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
+      <colgroup>
+        <col style="width: 65px;" />
+        <col />
+        <col style="width: 50%;" />
+      </colgroup>
+      <thead>
+        <th>Sequencial</th>
+        <th><%= DescriptiveExamStudent.human_attribute_name :student %></th>
+        <th><%= DescriptiveExamStudent.human_attribute_name :value %></th>
+      </thead>
+      <tbody id="students">
+        <% sequence = 0 %>
+        <%= f.fields_for :students do |student| %>
+        <% sequence += 1 %>
+          <%= render 'student_fields', f: student, sequence: sequence %>
+        <% end %>
+      </tbody>
+    </table>
+
+    <footer>
+      <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>

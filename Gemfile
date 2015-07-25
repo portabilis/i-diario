@@ -72,6 +72,7 @@ group :test do
   gem 'shoulda-matchers', '2.6.2'
   gem 'webmock', '1.9.3'
   gem 'vcr'
+  gem "factory_girl_rails", "~> 4.0"
 end
 
 gem 'newrelic_rpm'

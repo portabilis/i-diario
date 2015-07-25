@@ -1,0 +1,4 @@
+pt-BR:
+  teaching_plans:
+    edit:
+      current_teacher_not_allowed: "O professor vinculado ao usuário atual não tem permissão para acessar esse cadastro"

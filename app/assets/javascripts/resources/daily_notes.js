@@ -111,8 +111,14 @@ $(function () {
     }
   });
 
-  $('input.string[id^=daily_note_students_attributes][id*=_note]').bind("keypress", function(e) {
+  $('input.string[id^=daily_note_students_attributes][id*=_note]').priceFormat({
+    prefix: '',
+    centsSeparator: ',',
+    thousandsSeparator: '.',
+    centsLimit: $('#students').data("scale")
+  });
 
+  $('input.string[id^=daily_note_students_attributes][id*=_note]').bind("keypress", function(e) {
     if (e.keyCode == 13) {
       e.preventDefault();
       var inps = $('input.string[id^=daily_note_students_attributes][id*=_note]');

@@ -1,0 +1,42 @@
+<div class="widget-body no-padding">
+  <table class="table table-bordered table-only-inner-bordered">
+    <thead>
+      <th><%= ConceptualExam.human_attribute_name :unity %></th>
+      <th><%= ConceptualExam.human_attribute_name :classroom %></th>
+      <th><%= ConceptualExam.human_attribute_name :discipline %></th>
+    </thead>
+    <tbody style="border-bottom: 1px solid #ccc;">
+      <td><%= @conceptual_exam.unity %></td>
+      <td><%= @conceptual_exam.classroom %></td>
+      <td><%= @conceptual_exam.discipline %></td>
+    </tbody>
+  </table>
+
+  <%= simple_form_for @conceptual_exam, html: { class: "smart-form" } do |f| %>
+    <%= f.error_notification %>
+
+    <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
+      <colgroup>
+        <col style="width: 65px;" />
+        <col />
+        <col style="width: 200px;" />
+      </colgroup>
+      <thead>
+        <th>Sequencial</th>
+        <th><%= ConceptualExamStudent.human_attribute_name :student %></th>
+        <th><%= ConceptualExamStudent.human_attribute_name :value %></th>
+      </thead>
+      <tbody id="students">
+        <% sequence = 0 %>
+        <%= f.fields_for :students do |student| %>
+        <% sequence += 1 %>
+          <%= render 'student_fields', f: student, sequence: sequence %>
+        <% end %>
+      </tbody>
+    </table>
+
+    <footer>
+      <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>

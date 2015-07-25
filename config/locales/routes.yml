@@ -47,6 +47,8 @@ pt-BR:
     daily_frequencies: 'diario-de-frequencia'
     absence_justifications: 'justificativas-de-falta'
     messages: 'mensagens'
+    conceptual_exams: 'avaliacoes-conceituais'
+    descriptive_exams: 'avaliacoes-descritivas'
 
     # actions
     edit: 'editar'

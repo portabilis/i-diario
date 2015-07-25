@@ -9,8 +9,6 @@ pt-BR:
       school_calendar:
         year: "Ano"
         number_of_classes: "Número de aulas por turno"
-        maximum_score: "Nota máxima"
-        number_of_decimal_places: "Número de casas decimais"
 
     errors:
       models:

@@ -1,0 +1,25 @@
+pt-BR:
+  activerecord:
+    models:
+      conceptual_exam:
+        one: "Avaliação conceitual"
+        other: "Avaliações conceituais"
+
+    attributes:
+      conceptual_exam:
+        unity: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        school_calendar_step: "Etapa"
+        school_calendar_step_id: "Etapa"
+
+  errors:
+    conceptual_exams:
+      require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
+
+  conceptual_exams:
+    new:
+      exam_rule_not_found: 'Não localizamos uma regra de avaliação para a turma informada. Entre em contato com o administrador do sistema.'
+      exam_rule_not_allow_concept: 'A regra de avaliação da turma informada não permite lançamento de conceitos.'

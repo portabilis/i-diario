@@ -41,7 +41,7 @@ $(function () {
       dataType: 'json',
       timeout: 5000
     }).fail(function() {
-      alert("Desculpe, mas não conseguimos localizar o CEP informado devido a um problema de conexão. Por favor, informe o endereço manualmente.");
+      $('#cep-timout-flash-message').removeClass('hidden')
     }).done(function (address) {
       if (typeof(address['logradouro']) != 'undefined') {
         if (typeof(address['uf']) == 'undefined') {
@@ -65,6 +65,8 @@ $(function () {
       } else {
         $destroy.val(true);
       }
+
+      $('#cep-timout-flash-message').addClass('hidden')
     });
   });
 });

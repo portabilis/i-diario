@@ -148,6 +148,10 @@ navigation:
             type: "school_calendar_events"
             visible: "only-when-active"
   - ***REMOVED***:
+      type: "teaching_plans"
+      icon: "fa-book"
+      path: "teaching_plans_path"
+  - ***REMOVED***:
       type: "contents"
       icon: "fa-pencil"
       path: "contents_path"
@@ -155,6 +159,12 @@ navigation:
       type: "avaliations_***REMOVED***"
       icon: "fa-file-text-o"
       sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "conceptual_exams"
+            path: "new_conceptual_exam_path"
+        - ***REMOVED***:
+            type: "descriptive_exams"
+            path: "new_descriptive_exam_path"
         - ***REMOVED***:
             type: "avaliations"
             path: "avaliations_path"

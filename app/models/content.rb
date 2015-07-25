@@ -11,10 +11,13 @@ class Content < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :school_calendar
 
+  has_many :teacher_discipline_classrooms, through: :classroom
+
   validates :unity, :classroom, :discipline, :school_calendar, :content_date, :class_number, :description, presence: true
   validates :class_number, uniqueness: {scope: [:classroom, :discipline, :content_date]}
   validate :is_school_day?
 
+  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :ordered, -> { order(arel_table[:content_date]) }
 
   def to_s

@@ -3,6 +3,10 @@ $(function () {
   window.disciplines = [];
   window.avaliations = [];
 
+  var $hideWhenGlobalAbsence = $(".hide_when_global_absence"),
+      $globalAbsence = $("#daily_frequency_global_absence"),
+      $examRuleNotFoundAlert = $('#exam-rule-not-found-alert');
+
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
       $.getJSON('/classrooms?' + $.param(params)).always(function (data) {
@@ -36,6 +40,12 @@ $(function () {
     }
   };
 
+  var fetchExamRule = function (params, callback) {
+    $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
+      callback(data);
+    });
+  };
+
   var $classroom = $('#daily_frequency_classroom_id');
   var $discipline = $('#daily_frequency_discipline_id');
   var $avaliation = $('#daily_frequency_avaliation_id');
@@ -66,7 +76,33 @@ $(function () {
     }
   });
 
-  $('#daily_frequency_classroom_id').on('change', function (e) {
+  var checkExamRule = function(params){
+    fetchExamRule(params, function(exam_rule){
+      $('form input[type=submit]').removeClass('disabled');
+      if(!$.isEmptyObject(exam_rule)){
+        $examRuleNotFoundAlert.addClass('hidden');
+
+        if(exam_rule.frequency_type == 1){
+          $globalAbsence.val(1);
+          $hideWhenGlobalAbsence.hide();
+        }else{
+          $globalAbsence.val(0);
+          $hideWhenGlobalAbsence.show();
+        }
+      }else{
+        $globalAbsence.val(0);
+        $hideWhenGlobalAbsence.hide();
+
+        // Display alert
+        $examRuleNotFoundAlert.removeClass('hidden');
+
+        // Disable form submit
+        $('form input[type=submit]').addClass('disabled');
+      }
+    });
+  }
+
+  $classroom.on('change', function (e) {
     var params = {
       classroom_id: e.val
     };
@@ -77,6 +113,9 @@ $(function () {
     $avaliation.val('').select2({ data: [] });
 
     if (!_.isEmpty(e.val)) {
+
+      checkExamRule(params);
+
       fetchDisciplines(params, function (disciplines) {
         var selectedDisciplines = _.map(disciplines, function (discipline) {
           return { id:discipline['id'], text: discipline['description'] };
@@ -92,7 +131,7 @@ $(function () {
   $('#daily_frequency_discipline_id').on('change', function (e) {
     var params = {
       discipline_id: e.val,
-      classroom_id: $('#daily_frequency_classroom_id').val()
+      classroom_id: $classroom.val()
     };
 
     window.avaliations = [];
@@ -111,24 +150,12 @@ $(function () {
     }
   });
 
-  var $hideWhenGlobalAbsence = $(".hide_when_global_absence"),
-      $globalAbsence = $("#daily_frequency_global_absence");
-
-  toggleDailyFrequencyGlobalAbsence($globalAbsence.prop('checked'));
-
-  $globalAbsence.on('change', function() {
-    toggleDailyFrequencyGlobalAbsence($globalAbsence.prop('checked'));
-  });
-
-  function toggleDailyFrequencyGlobalAbsence(hide) {
-    if (hide) {
-      $hideWhenGlobalAbsence.hide();
-    } else {
-      $hideWhenGlobalAbsence.show();
-    }
-  }
+  $hideWhenGlobalAbsence.hide();
 
   // fix to checkboxes work correctly
   $('[name="daily_frequency_student[][present]"][type=hidden]').remove();
 
+  if($classroom.length && $classroom.val().length){
+    checkExamRule({classroom_id: $classroom.val()});
+  }
 });

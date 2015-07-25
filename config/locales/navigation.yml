@@ -43,6 +43,7 @@ pt-BR:
     test_settings: "Avaliações"
     school_calendars: "Calendário letivo"
     school_calendar_events: "Eventos"
+    teaching_plans: "Planos de ensino"
     contents: "Registro de conteúdos"
     avaliations_***REMOVED***: "Avaliações"
     avaliations: "Cadastro de avaliações"
@@ -51,6 +52,8 @@ pt-BR:
     daily_frequencies: "Diário de frequência"
     absence_justifications: "Justificativas de falta"
     messages: "Mensagens"
+    conceptual_exams: "Avaliações conceituais"
+    descriptive_exams: "Avaliações descritivas"
 
   enumerations:
     features:

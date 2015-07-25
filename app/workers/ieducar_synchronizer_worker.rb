@@ -8,7 +8,6 @@ class IeducarSynchronizerWorker
       synchronization = IeducarApiSyncronization.find(synchronization_id)
 
       begin
-        logger.info "Just checking if sidekiq will log it"
         # synchronize Classrooms
         ClassroomsSynchronizer.synchronize!(synchronization)
 
@@ -26,6 +25,12 @@ class IeducarSynchronizerWorker
 
         # synchronize Disciplinary Occurrences
         ***REMOVED***sSynchronizer.synchronize!(synchronization)
+
+        # synchronize RoundingTables
+        RoundingTablesSynchronizer.synchronize!(synchronization)
+
+        # synchronize Exam Rules
+        ExamRulesSynchronizer.synchronize!(synchronization)
 
         synchronization.mark_as_completed!
       rescue IeducarApi::Base::ApiError => e

@@ -1,0 +1,14 @@
+<tr class="nested-fields">
+  <td>
+    <%= sequence %>
+    <%= f.hidden_field :id %>
+  </td>
+  <td>
+    <%= f.input :student_id, as: :hidden %>
+    <%= f.object.student.api_code + ' - ' + f.object.student.to_s %>
+  </td>
+
+  <td>
+    <%= f.input :value, label_html: { class: 'hidden' } %>
+  </td>
+</tr>

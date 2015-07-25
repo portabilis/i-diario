@@ -118,12 +118,16 @@ Rails.application.routes.draw do
       resources :school_calendar_events, concerns: :history
     end
 
+    resources :teaching_plans, concerns: :history
     resources :contents, concerns: :history
     resources :classrooms, only: [:index]
     resources :disciplines, only: [:index]
+    resources :exam_rules, only: [:index]
     resources :avaliations, concerns: :history
     resources :teacher_avaliations, only: :index
     resources :daily_notes, only: [:new, :create, :edit, :update], concerns: :history
+    resources :conceptual_exams, only: [:new, :create, :edit, :update]
+    resources :descriptive_exams, only: [:new, :create, :edit, :update]
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
         get :edit_multiple

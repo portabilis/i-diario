@@ -4,7 +4,7 @@
   </td>
 
   <td>
-    <%= f.input :weight, label_html: { class: 'hidden' } %>
+    <%= f.input :weight, label_html: { class: 'hidden' }, input_html: { value: number_with_precision(f.object.weight, precision: @test_setting.number_of_decimal_places ? @test_setting.number_of_decimal_places : 0) } %>
   </td>
 
   <td>
@@ -12,7 +12,6 @@
   </td>
 
   <td class="actions">
-    <%= link_to_remove_association t('.remove'), f,
-      class: 'btn btn-danger btn-sm btn-rm-item' %>
+    <%= link_to_remove_association t('.remove'), f, class: 'btn btn-danger btn-sm' %>
   </td>
 </tr>
