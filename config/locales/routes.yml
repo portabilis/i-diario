@@ -49,6 +49,7 @@ pt-BR:
     messages: 'mensagens'
     conceptual_exams: 'avaliacoes-conceituais'
     descriptive_exams: 'avaliacoes-descritivas'
+    reports: 'relatorios'
 
     # actions
     edit: 'editar'
@@ -68,3 +69,6 @@ pt-BR:
     confirm: "confirmar"
     preview: "pre-visualizar"
     syncronizations: 'sincronizacoes'
+
+    # actions of reports
+    attendance: 'Frequência'

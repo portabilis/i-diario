@@ -41,7 +41,8 @@ class Features < EnumerateIt::Base
                    :absence_justifications,
                    :messages,
                    :conceptual_exams,
-                   :descriptive_exams
+                   :descriptive_exams,
+                   :attendance
 
   sort_by :translation
 end

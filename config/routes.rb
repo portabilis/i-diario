@@ -135,5 +135,7 @@ Rails.application.routes.draw do
       end
     end
     resources :absence_justifications, concerns: :history
+
+    get '/reports/attendance', to: 'reports#attendance'
   end
 end
