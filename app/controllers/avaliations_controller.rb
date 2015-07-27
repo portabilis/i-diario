@@ -1,13 +1,14 @@
 class AvaliationsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
-  before_action :require_teacher, only: [:new, :create, :edit, :update]
+
+  before_action :require_current_teacher
   before_action :require_current_school_calendar
   before_action :require_current_test_setting
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
 
   def index
-    @avaliations = apply_scopes(Avaliation.includes(:unity, :classroom, :discipline, :test_setting_test).ordered)
+    @avaliations = apply_scopes(Avaliation.by_teacher(current_teacher.id).includes(:unity, :classroom, :discipline, :test_setting_test).ordered)
 
     authorize @avaliations
   end
@@ -104,12 +105,5 @@ class AvaliationsController < ApplicationController
     params.require(:avaliation).permit(
       :unity_id, :classroom_id, :discipline_id, :test_date, :class_number, :test_setting_test_id, :description
     )
-  end
-
-  def require_teacher
-    unless current_teacher
-      flash[:alert] = t('errors.avaliations.require_teacher')
-      redirect_to avaliations_path
-    end
   end
 end

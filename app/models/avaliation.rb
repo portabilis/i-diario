@@ -22,8 +22,9 @@ class Avaliation < ActiveRecord::Base
   validate :is_school_day?
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
 
-  scope :ordered, -> { order(arel_table[:test_date]) }
+  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
+  scope :ordered, -> { order(arel_table[:test_date]) }
 
   def to_s
     test_setting_test || description
