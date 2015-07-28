@@ -1,63 +1,107 @@
 # encoding: utf-8
 
 require "prawn/measurement_extensions"
+require 'open-uri'
 
 class Attendance
   include Prawn::View
 
-  def self.build(daily_frequencies)
-    new.build(daily_frequencies)
+  def self.build(entity_configuration, teacher, daily_frequencies)
+    new.build(entity_configuration, teacher, daily_frequencies)
   end
 
   def initialize
     @document = Prawn::Document.new(page_size: 'A4',
                                     page_layout: :landscape,
-                                    margin: [0.5.cm, 0.5.cm, 0.5.cm, 0.5.cm])
+                                    left_margin: 5.mm,
+                                    right_margin: 5.mm,
+                                    top_margin: 5.mm,
+                                    bottom_margin: 5.mm)
   end
 
-  def build(daily_frequencies)
-    # daily_frequencies = { 1 => { frequency_date: '24/07/2015', class_number: 1, daily_frequency_students: { 1 => { student_name: 'Aluno 01', present: true },
-    #                                                                                                         2 => { student_name: 'Aluno 02', present: true },
-    #                                                                                                         3 => { student_name: 'Aluno 03', present: true } } },
-    #                       2 => { frequency_date: '24/07/2015', class_number: 2, daily_frequency_students: { 1 => { student_name: 'Aluno 01', present: true },
-    #                                                                                                         2 => { student_name: 'Aluno 02', present: true },
-    #                                                                                                         3 => { student_name: 'Aluno 03', present: true } } } }
+  def build(entity_configuration, teacher, daily_frequencies)
+    font('Helvetica')
+
+    attendance_header = make_cell(content: 'Registro de frequência', size: 12, font_style: :bold, background_color: 'DEDEDE', height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 5)
+    logo_cell = make_cell(content: '', width: 70, rowspan: 4)
+    entity_organ_and_unity_cell = make_cell(content: "#{entity_configuration.entity_name}\n#{entity_configuration.organ_name}\n#{daily_frequencies.first.unity.name}", size: 12, leading: 1.5, align: :center, valign: :center, rowspan: 4, padding: [6, 0, 8, 0])
+    classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
+    year_header = make_cell(content: 'Ano letivo', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
+    period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
+    discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, width: 200, colspan: 2, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
+    teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, width: 200, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
+    classroom_cell = make_cell(content: daily_frequencies.first.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    year_cell = make_cell(content: '2015', size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    perior_cell = make_cell(content: 'De 27/07/2015 a 27/08/2015', size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    discipline_cell = make_cell(content: daily_frequencies.first.discipline.description, size: 10, colspan: 2, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    teacher_cell = make_cell(content: teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+
+    first_table_data = [[attendance_header],
+                        [logo_cell, entity_organ_and_unity_cell, classroom_header, year_header, period_header],
+                        [classroom_cell, year_cell, perior_cell],
+                        [discipline_header, teacher_header],
+                        [discipline_cell, teacher_cell]]
+
+    table(first_table_data, width: bounds.width) do
+      cells.border_width = 0.25
+      row(0).border_top_width = 0.25
+      row(-1).border_bottom_width = 0.25
+      column(0).border_left_width = 0.25
+      column(-1).border_right_width = 0.25
+    end
+
+    move_down(6)
 
     class_numbers = []
     days = []
     months = []
     students = {}
     daily_frequencies.each do |daily_frequency|
-      class_numbers << daily_frequency.class_number
-      days << daily_frequency.frequency_date.day
-      months << daily_frequency.frequency_date.month
+      class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
+      days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
+      months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
       daily_frequency.students.each do |student|
         (students[student.student.id] ||= {})[:name] = student.student.name
-        (students[student.student.id][:attendances] ||= []) << (student.present ? '.' : 'F')
+        students[student.student.id][:absences] ||= 0
+        if !student.present
+          students[student.student.id][:absences] = students[student.student.id][:absences] + 1
+        end
+        (students[student.student.id][:attendances] ||= []) << make_cell(content: (student.present ? '.' : 'F'), font_style: :bold, align: :center)
       end
     end
 
-    table([
-      [{ content: "Prefeitura Municipal de Içara\nSecretaria de Educação\nEscola Municipal de Içara\nRegistro de Frequência", rowspan: 2 }, "Curso:\nEnsino Fundamental", "Turno:\nMatutino", "Série:\n6º Ano", "Turma: 601"],
-      ["Disciplina:\nMatemática", { content: "Professor:\nBruce Wayne", colspan: 3 }]
-    ])
+    sequential_number_header = make_cell(content: 'Nº', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, valign: :center, rowspan: 3)
+    student_name_header = make_cell(content: 'Nome do aluno', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, valign: :center, rowspan: 3)
+    class_number_header = make_cell(content: 'Aula', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 20)
+    day_header = make_cell(content: 'Dia', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
+    month_header = make_cell(content: 'Mês', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
+    absences_header = make_cell(content: 'Faltas', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, valign: :center, rowspan: 3)
 
-    sequential_number_header_cell = make_cell(content: 'Nº', font_style: :bold, align: :center, valign: :center, rowspan: 3)
-    student_name_header_cell = make_cell(content: 'Nome do Aluno', font_style: :bold, align: :center, valign: :center, rowspan: 3)
-    class_number_header_cell = make_cell(content: 'Aula', font_style: :bold, align: :center)
-    day_header_cell = make_cell(content: 'Dia', font_style: :bold, align: :center)
-    month_header_cell = make_cell(content: 'Mês', font_style: :bold, align: :center)
-    absences_header_cell = make_cell(content: 'Faltas', font_style: :bold, align: :center, valign: :center, rowspan: 3)
-
-    first_headers_and_class_numbers_cells = [sequential_number_header_cell, student_name_header_cell, class_number_header_cell].concat(class_numbers).concat(['01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', '01', '02', absences_header_cell])
-    days_header_and_cells = [day_header_cell].concat(days).concat(['03', '03', '04', '04', '05', '05', '06', '06', '07', '07', '08', '08', '09', '09', '10', '10', '11', '11', '12', '12', '13', '13', '14', '14', '15', '15', '16', '16', '17', '17', '18', '18', '19', '19', '20', '20', '21', '21'])
-    months_header_and_cells = [month_header_cell].concat(months).concat(['10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10', '10'])
+    first_headers_and_class_numbers_cells = [sequential_number_header, student_name_header, class_number_header].concat(class_numbers)
+    (40 - class_numbers.count).times { first_headers_and_class_numbers_cells << make_cell(content: '', background_color: 'FFFFFF') }
+    first_headers_and_class_numbers_cells << absences_header
+    days_header_and_cells = [day_header].concat(days)
+    (40 - days.count).times { days_header_and_cells << make_cell(content: '', background_color: 'FFFFFF') }
+    months_header_and_cells = [month_header].concat(months)
+    (40 - months.count).times { months_header_and_cells << make_cell(content: '', background_color: 'FFFFFF') }
 
     students_cells = []
     students.each_with_index do |(key, value), index|
-      students_cells << [index + 1, { content: value[:name], colspan: 2 }].concat(value[:attendances]).concat([".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", ".", 0])
+      sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
+      student_cells = [sequence_cell, { content: value[:name], colspan: 2 }].concat(value[:attendances])
+      (40 - value[:attendances].count).times { student_cells << nil }
+      student_cells << make_cell(content: value[:absences].to_s, align: :center)
+      students_cells << student_cells
     end
 
+    (30 - students_cells.count).times do
+      sequence_cell = make_cell(content: (students_cells.count + 1).to_s, align: :center)
+      attendances = []
+      40.times { attendances << make_cell(content: '', font_style: :bold, align: :center) }
+      student_cells = [sequence_cell, { content: '', colspan: 2 }].concat(attendances)
+      student_cells << make_cell(content: '', align: :center)
+      students_cells << student_cells
+    end
 
     data = [
       first_headers_and_class_numbers_cells,
@@ -66,7 +110,31 @@ class Attendance
     ]
     data.concat(students_cells)
 
-    table(data, cell_style: { size: 8, padding: [1.6, 1.6, 1.6, 1.6] }, column_widths: { 1 => 140 }, width: 813.5)
+    column_widths = { 0 => 20, 1 => 140, 43 => 30 }
+    (3..42).each { |i| column_widths[i] = 13 }
+
+    table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] }, column_widths: column_widths, width: bounds.width) do |t|
+     t.cells.border_width = 0.25
+     t.before_rendering_page do |page|
+       page.row(0).border_top_width = 0.25
+       page.row(-1).border_bottom_width = 0.25
+       page.column(0).border_left_width = 0.25
+       page.column(-1).border_right_width = 0.25
+     end
+    end
+
+    draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
+    draw_text('______________________________', size: 8, at: [118, 0])
+
+    draw_text('Data:', size: 8, style: :bold, at: [275, 0])
+    draw_text('____________________', size: 8, at: [298, 0])
+
+    string = "Página <page> de <total>"
+    options = { at: [bounds.right - 150, 6],
+                width: 150,
+                size: 8,
+                align: :right }
+    number_pages(string, options)
 
     self
   end
