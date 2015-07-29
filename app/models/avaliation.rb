@@ -18,7 +18,7 @@ class Avaliation < ActiveRecord::Base
               :school_calendar, presence: true
   validates :test_setting_test, presence: true, if: :fix_tests?
   validates :description, presence: true, unless: :fix_tests?
-  validate :unique_test_setting_test_per_step
+  validate :unique_test_setting_test_per_step, if: :fix_tests?
   validate :is_school_day?
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
 
