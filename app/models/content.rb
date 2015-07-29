@@ -11,7 +11,7 @@ class Content < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :school_calendar
 
-  has_many :teacher_discipline_classrooms, through: :classroom
+  has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Content.arel_table[:discipline_id])) }, through: :classroom
 
   validates :unity, :classroom, :discipline, :school_calendar, :content_date, :class_number, :description, presence: true
   validates :class_number, uniqueness: {scope: [:classroom, :discipline, :content_date]}
