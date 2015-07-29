@@ -55,7 +55,7 @@ pt-BR:
     conceptual_exams: "Avaliações conceituais"
     descriptive_exams: "Avaliações descritivas"
     reports: "Relatórios"
-    attendance: "Frequência"
+    attendance_record_report: "Registro de frequência"
 
   enumerations:
     features:

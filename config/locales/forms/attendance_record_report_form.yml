@@ -1,0 +1,17 @@
+pt-BR:
+  activemodel:
+    attributes:
+      attendance_record_report_form:
+        unity_id: "Escola"
+        classroom_id: "Turma"
+        discipline_id: "Disciplina"
+        class_numbers: "Aulas"
+        start_at: "Data inicial"
+        end_at: "Data final"
+
+    errors:
+      models:
+        attendance_record_report_form:
+          attributes:
+            start_at:
+              start_at_must_be_less_than_or_equal_to_end_at: "não pode ser maior que a data final"

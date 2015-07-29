@@ -1,9 +1,8 @@
 # encoding: utf-8
 
 require "prawn/measurement_extensions"
-require 'open-uri'
 
-class Attendance
+class AttendanceRecordReport
   include Prawn::View
 
   def self.build(entity_configuration, teacher, daily_frequencies)

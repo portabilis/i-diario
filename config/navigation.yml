@@ -186,5 +186,5 @@ navigation:
       icon: "fa-files-o"
       sub***REMOVED***s:
         - ***REMOVED***:
-            type: "attendance"
-            path: "reports_attendance_path"
+            type: "attendance_record_report"
+            path: "attendance_record_report_path"

@@ -11,7 +11,7 @@ $(document).ready(function(){
       multiple: $(element).data('multiple')
     });
 
-    if ($(element).data('multiple')) {
+    if ($(element).data('multiple') && !$(element).data('without-json-parser')) {
       $(element).select2("val", JSON.parse($(element).val()));
     }
   });
