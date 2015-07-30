@@ -17,7 +17,16 @@ class AttendanceRecordReportForm
   validates :end_at,         presence: true
   validates :global_absence, presence: true
 
-  validate  :start_at_must_be_less_than_or_equal_to_end_at
+  validate :start_at_must_be_less_than_or_equal_to_end_at
+  validate :must_have_daily_frequencies
+
+  def daily_frequencies
+    DailyFrequency.where(unity_id: unity_id,
+                         classroom_id: classroom_id,
+                         discipline_id: discipline_id,
+                         class_number: class_numbers.split(','),
+                         frequency_date: start_at.to_date..end_at.to_date)
+  end
 
   private
 
@@ -30,6 +39,12 @@ class AttendanceRecordReportForm
 
     if start_at.to_date > end_at.to_date
       errors.add(:start_at, :start_at_must_be_less_than_or_equal_to_end_at)
+    end
+  end
+
+  def must_have_daily_frequencies
+    if daily_frequencies.count == 0
+      errors.add(:daily_frequencies, :teste)
     end
   end
 end

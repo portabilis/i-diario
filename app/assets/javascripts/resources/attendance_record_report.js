@@ -34,18 +34,21 @@ $(function () {
     });
   };
 
+  var $unity = $('#attendance_record_report_form_unity_id');
   var $classroom = $('#attendance_record_report_form_classroom_id');
   var $discipline = $('#attendance_record_report_form_discipline_id');
 
-  $('#attendance_record_report_form_unity_id').on('change', function (e) {
+  $unity.on('change', function (e) {
     var params = {
       unity_id: e.val
     };
 
     window.classrooms = [];
     window.disciplines = [];
+
     $classroom.val('').select2({ data: [] });
     $discipline.val('').select2({ data: [] });
+    $('#attendance_record_report_form_class_numbers').select2("val", "")
 
     if (!_.isEmpty(e.val)) {
       fetchClassrooms(params, function (classrooms) {
@@ -93,6 +96,8 @@ $(function () {
 
     window.disciplines = [];
     $discipline.val('').select2({ data: [] });
+    $('#attendance_record_report_form_class_numbers').select2("val", "")
+
 
     if (!_.isEmpty(e.val)) {
       checkExamRule(params);

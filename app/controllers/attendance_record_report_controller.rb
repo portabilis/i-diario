@@ -8,8 +8,7 @@ class AttendanceRecordReportController < ApplicationController
     @attendance_record_report_form = AttendanceRecordReportForm.new(resource_params)
 
     if @attendance_record_report_form.valid?
-      daily_frequencies = DailyFrequency.where(classroom_id: 68)
-      pdf = AttendanceRecordReport.build(current_entity_configuration, current_teacher, daily_frequencies)
+      pdf = AttendanceRecordReport.build(current_entity_configuration, current_teacher, @attendance_record_report_form.daily_frequencies)
       send_data pdf.render, filename: "registro-de-frequencia.pdf", type: "application/pdf", disposition: "inline"
     else
       fetch_collections
@@ -20,7 +19,10 @@ class AttendanceRecordReportController < ApplicationController
   private
 
   def fetch_collections
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @attendance_record_report_form.unity_id, @attendance_record_report_form.classroom_id, @attendance_record_report_form.discipline_id)
+    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id,
+                                                        @attendance_record_report_form.unity_id,
+                                                        @attendance_record_report_form.classroom_id,
+                                                        @attendance_record_report_form.discipline_id)
     fetcher.fetch!
     @unities = fetcher.unities
     @classrooms = fetcher.classrooms
