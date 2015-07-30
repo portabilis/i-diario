@@ -41,7 +41,7 @@ class AttendanceRecordReport
     attendance_header = make_cell(content: 'Registro de frequência', size: 12, font_style: :bold, background_color: 'DEDEDE', height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 5)
     begin
       logo_cell = make_cell(image: open(@entity_configuration.logo.url), fit: [50, 50], width: 70, rowspan: 4, position: :center, vposition: :center)
-    rescue Prawn::Errors::UnsupportedImageType
+    rescue
       logo_cell = make_cell(content: '', width: 70, rowspan: 4)
     end
     entity_organ_and_unity_cell = make_cell(content: "#{@entity_configuration.entity_name}\n#{@entity_configuration.organ_name}\n#{@daily_frequencies.first.unity.name}", size: 12, leading: 1.5, align: :center, valign: :center, rowspan: 4, padding: [6, 0, 8, 0])
