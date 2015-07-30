@@ -5,8 +5,8 @@ require "prawn/measurement_extensions"
 class AttendanceRecordReport
   include Prawn::View
 
-  def self.build(entity_configuration, teacher, daily_frequencies)
-    new.build(entity_configuration, teacher, daily_frequencies)
+  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies)
+    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies)
   end
 
   def initialize
@@ -18,26 +18,43 @@ class AttendanceRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, daily_frequencies)
-    font('Helvetica')
+  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies)
+    @entity_configuration = entity_configuration
+    @teacher = teacher
+    @year = year
+    @start_at = start_at
+    @end_at = end_at
+    @daily_frequencies = daily_frequencies
 
+    header
+
+    daily_frequencies_table
+
+    footer
+
+    self
+  end
+
+  private
+
+  def header
     attendance_header = make_cell(content: 'Registro de frequência', size: 12, font_style: :bold, background_color: 'DEDEDE', height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 5)
     begin
-      logo_cell = make_cell(image: open(entity_configuration.logo.url), fit: [50, 50], width: 70, rowspan: 4, position: :center, vposition: :center)
+      logo_cell = make_cell(image: open(@entity_configuration.logo.url), fit: [50, 50], width: 70, rowspan: 4, position: :center, vposition: :center)
     rescue Prawn::Errors::UnsupportedImageType
       logo_cell = make_cell(content: '', width: 70, rowspan: 4)
     end
-    entity_organ_and_unity_cell = make_cell(content: "#{entity_configuration.entity_name}\n#{entity_configuration.organ_name}\n#{daily_frequencies.first.unity.name}", size: 12, leading: 1.5, align: :center, valign: :center, rowspan: 4, padding: [6, 0, 8, 0])
+    entity_organ_and_unity_cell = make_cell(content: "#{@entity_configuration.entity_name}\n#{@entity_configuration.organ_name}\n#{@daily_frequencies.first.unity.name}", size: 12, leading: 1.5, align: :center, valign: :center, rowspan: 4, padding: [6, 0, 8, 0])
     classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     year_header = make_cell(content: 'Ano letivo', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, width: 200, colspan: 2, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, width: 200, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
-    classroom_cell = make_cell(content: daily_frequencies.first.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    year_cell = make_cell(content: '2015', size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    perior_cell = make_cell(content: 'De 27/07/2015 a 27/08/2015', size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    discipline_cell = make_cell(content: daily_frequencies.first.discipline.description, size: 10, colspan: 2, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    teacher_cell = make_cell(content: teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    classroom_cell = make_cell(content: @daily_frequencies.first.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    year_cell = make_cell(content: @year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    perior_cell = make_cell(content: "De #{@start_at} a #{@end_at}", size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    discipline_cell = make_cell(content: (@daily_frequencies.first.discipline ? @daily_frequencies.first.discipline.description : 'Geral'), size: 10, colspan: 2, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    teacher_cell = make_cell(content: @teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
 
     first_table_data = [[attendance_header],
                         [logo_cell, entity_organ_and_unity_cell, classroom_header, year_header, period_header],
@@ -54,8 +71,10 @@ class AttendanceRecordReport
         column(-1).border_right_width = 0.25
       end
     end
+  end
 
-    sliced_daily_frequencies = daily_frequencies.each_slice(40).to_a
+  def daily_frequencies_table
+    sliced_daily_frequencies = @daily_frequencies.each_slice(40).to_a
 
     sliced_daily_frequencies.each_with_index do |daily_frequencies_slice, index|
       class_numbers = []
@@ -138,7 +157,9 @@ class AttendanceRecordReport
 
       start_new_page if index < sliced_daily_frequencies.count - 1
     end
+  end
 
+  def footer
     repeat(:all) do
       draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
       draw_text('______________________________', size: 8, at: [118, 0])
@@ -153,7 +174,5 @@ class AttendanceRecordReport
                 size: 8,
                 align: :right }
     number_pages(string, options)
-
-    self
   end
 end

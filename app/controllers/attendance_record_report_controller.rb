@@ -1,6 +1,10 @@
 class AttendanceRecordReportController < ApplicationController
+  before_action :require_current_teacher
+  before_action :require_current_school_calendar
+  before_action :require_current_test_setting
+
   def form
-    @attendance_record_report_form = AttendanceRecordReportForm.new
+    @attendance_record_report_form = AttendanceRecordReportForm.new(school_calendar_year: current_school_calendar.year)
     fetch_collections
   end
 
@@ -8,9 +12,16 @@ class AttendanceRecordReportController < ApplicationController
     @attendance_record_report_form = AttendanceRecordReportForm.new(resource_params)
 
     if @attendance_record_report_form.valid?
-      pdf = AttendanceRecordReport.build(current_entity_configuration, current_teacher, @attendance_record_report_form.daily_frequencies)
-      send_data pdf.render, filename: "registro-de-frequencia.pdf", type: "application/pdf", disposition: "inline"
+      attendance_record_report = AttendanceRecordReport.build(current_entity_configuration,
+                                                              current_teacher,
+                                                              current_school_calendar.year,
+                                                              @attendance_record_report_form.start_at,
+                                                              @attendance_record_report_form.end_at,
+                                                              @attendance_record_report_form.daily_frequencies)
+
+      send_data(attendance_record_report.render, filename: 'registro-de-frequencia.pdf', type: 'application/pdf', disposition: 'inline')
     else
+      @attendance_record_report_form.school_calendar_year = current_school_calendar.year
       fetch_collections
       render :form
     end
@@ -37,6 +48,7 @@ class AttendanceRecordReportController < ApplicationController
                                                           :class_numbers,
                                                           :start_at,
                                                           :end_at,
+                                                          :school_calendar_year,
                                                           :global_absence)
   end
 end

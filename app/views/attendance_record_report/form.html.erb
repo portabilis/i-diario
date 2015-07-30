@@ -5,7 +5,12 @@
       <%= t('.exam_rule_not_found') %>
     </div>
 
-    <%= f.error_notification %>
+    <%= f.error_notification unless @attendance_record_report_form.errors[:daily_frequencies].any? %>
+
+    <div class="alert alert-danger <%= 'hidden' unless @attendance_record_report_form.errors[:daily_frequencies].any? %>">
+      <i class="fa fa-exclamation-circle fa-fw"></i>
+      <%= @attendance_record_report_form.errors[:daily_frequencies].first %>
+    </div>
 
     <fieldset>
       <div class="row">
@@ -22,15 +27,17 @@
         <%= f.input :global_absence, as: :hidden %>
 
         <div class="col col-sm-4">
-          <%= f.input :discipline_id, as: :select2, elements: @disciplines, input_html: { value: @attendance_record_report_form.discipline_id } %>
+          <%= f.input :discipline_id, as: :select2, elements: @disciplines, required: true, input_html: { value: @attendance_record_report_form.discipline_id } %>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :class_numbers, as: :select2, multiple: true, elements: number_of_classes_elements(@number_of_classes), input_html: { value: @attendance_record_report_form.class_numbers, data: { without_json_parser: true } } %>
+          <%= f.input :class_numbers, as: :select2, multiple: true, elements: number_of_classes_elements(@number_of_classes), label_html: { class: 'required' }, input_html: { value: @attendance_record_report_form.class_numbers, data: { without_json_parser: true } } %>
         </div>
       </div>
 
       <div class="row">
+        <%= f.input :school_calendar_year, as: :hidden %>
+
         <div class="col col-sm-4">
           <%= f.input :start_at, as: :date %>
         </div>

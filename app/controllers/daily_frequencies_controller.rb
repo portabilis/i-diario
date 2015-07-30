@@ -48,7 +48,7 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def edit_multiple
-    @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).ordered
+    @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number
     @daily_frequency = @daily_frequencies.first
 
     authorize @daily_frequencies.first

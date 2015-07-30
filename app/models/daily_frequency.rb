@@ -11,7 +11,7 @@ class DailyFrequency < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :school_calendar
 
-  has_many :students, class_name: "DailyFrequencyStudent", dependent: :destroy
+  has_many :students, class_name: 'DailyFrequencyStudent', dependent: :destroy
   accepts_nested_attributes_for :students
 
   validates :unity, :classroom, :frequency_date, :school_calendar, presence: true
@@ -19,7 +19,19 @@ class DailyFrequency < ActiveRecord::Base
   validates :discipline, presence: true, unless: :global_absence?
   validate  :is_school_day?
 
-  scope :ordered, -> { order(arel_table[:class_number].asc) }
+  scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
+        lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at| where(unity_id: unity_id,
+                                                                                               classroom_id: classroom_id,
+                                                                                               discipline_id: discipline_id,
+                                                                                               class_number: class_number,
+                                                                                               frequency_date: start_at.to_date..end_at.to_date).includes(students: :student) }
+  scope :by_unity_classroom_and_frequency_date_between,
+        lambda { |unity_id, classroom_id, start_at, end_at| where(unity_id: unity_id,
+                                                                  classroom_id: classroom_id,
+                                                                  frequency_date: start_at.to_date..end_at.to_date).includes(students: :student) }
+  scope :order_by_student_name, -> { order('students.name') }
+  scope :order_by_frequency_date, -> { order(:frequency_date) }
+  scope :order_by_class_number, -> { order(:class_number) }
 
   def build_or_find_by_student student
     students.where(student_id: student.id).first || students.build(student_id: student.id, present: 1)
