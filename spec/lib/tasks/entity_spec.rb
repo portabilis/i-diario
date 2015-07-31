@@ -4,7 +4,7 @@ require 'rake'
 describe 'entity' do
   describe 'entity:setup' do
     before do
-      load File.expand_path("../../../../lib/tasks/entity_setup.rake", __FILE__)
+      load File.expand_path("../../../../lib/tasks/entity.rake", __FILE__)
       Rake::Task.define_task(:environment)
 
       ENV["NAME"] = "Entidade X"
