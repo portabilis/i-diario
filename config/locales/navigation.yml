@@ -54,6 +54,8 @@ pt-BR:
     messages: "Mensagens"
     conceptual_exams: "Avaliações conceituais"
     descriptive_exams: "Avaliações descritivas"
+    reports: "Relatórios"
+    attendance_record_report: "Registro de frequência"
 
   enumerations:
     features:

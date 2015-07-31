@@ -49,6 +49,9 @@ pt-BR:
     messages: 'mensagens'
     conceptual_exams: 'avaliacoes-conceituais'
     descriptive_exams: 'avaliacoes-descritivas'
+    disabled_entity: 'acesso-suspenso'
+    reports: 'relatorios'
+    attendance_record: 'registro-de-frequencia'
 
     # actions
     edit: 'editar'

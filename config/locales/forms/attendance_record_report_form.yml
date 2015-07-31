@@ -1,0 +1,24 @@
+pt-BR:
+  activemodel:
+    attributes:
+      attendance_record_report_form:
+        unity_id: "Escola"
+        classroom_id: "Turma"
+        discipline_id: "Disciplina"
+        class_numbers: "Aulas"
+        start_at: "Data inicial"
+        end_at: "Data final"
+
+    errors:
+      models:
+        attendance_record_report_form:
+          attributes:
+            start_at:
+              must_be_a_valid_date: "deve ser uma data válida"
+              start_at_must_be_less_than_or_equal_to_end_at: "não pode ser maior que a data final"
+              must_be_in_school_calendar_year: "não pode ter o ano diferente do calendário escolar atual"
+            end_at:
+              must_be_a_valid_date: "deve ser uma data válida"
+              must_be_in_school_calendar_year: "não pode ter o ano diferente do calendário escolar atual"
+            daily_frequencies:
+              must_have_daily_frequencies: "Nenhum resultado foi encontrado para os dados informados."

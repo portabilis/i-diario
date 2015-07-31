@@ -42,6 +42,7 @@ Rails.application.routes.draw do
     get '/current_role/:id', to: 'current_role#set', as: :set_current_role
     get '/current_role', to: 'current_role#index', as: :current_roles
     get '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
+    get '/disabled_entity', to: 'pages#disabled_entity'
 
     resources :messages, except: [:edit, :update] do
       collection do
@@ -135,5 +136,8 @@ Rails.application.routes.draw do
       end
     end
     resources :absence_justifications, concerns: :history
+
+    get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
+    post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
   end
 end

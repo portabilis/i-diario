@@ -54,6 +54,8 @@ class ApplicationPolicy
 
   # Overwrite when necessary
   def feature_name
+    return record.to_s.underscore if is_a_report?(record)
+
     klass = if record.respond_to?(:model_name)
       record.model_name
     elsif record.class.respond_to?(:model_name)
@@ -61,6 +63,12 @@ class ApplicationPolicy
     end
 
     klass.to_s.underscore.pluralize
+  end
+
+  private
+
+  def is_a_report?(record)
+    record.to_s.respond_to?(:underscore) && record.to_s.underscore.split('_').last.eql?('report')
   end
 end
 
