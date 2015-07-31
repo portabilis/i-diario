@@ -1,0 +1,5 @@
+pt-BR:
+  services:
+    entity_status_manager:
+      success: "Operação realizada com sucesso."
+      error: "Não foi possível realizar a operação. Por favor, utilize o seguinte formato:\nrake entity:%{action} NAME=\"nome_da_entidade\""

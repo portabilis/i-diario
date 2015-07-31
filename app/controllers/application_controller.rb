@@ -16,7 +16,8 @@ class ApplicationController < ActionController::Base
   #protect_from_forgery with: :exception
   protect_from_forgery with: :null_session
 
-  before_action :authenticate_user!
+  before_action :check_entity_status
+  before_action :authenticate_user!, unless: :disabled_entity_page?
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :check_for_***REMOVED***
   before_action :check_for_current_role
@@ -48,6 +49,12 @@ class ApplicationController < ActionController::Base
 
   def handle_customer(&block)
     current_entity.using_connection(&block)
+  end
+
+  def check_entity_status
+    if current_entity.disabled
+      redirect_to disabled_entity_path unless disabled_entity_page?
+    end
   end
 
   def configure_permitted_parameters
@@ -149,5 +156,11 @@ class ApplicationController < ActionController::Base
       flash[:alert] = t('errors.general.require_current_test_setting')
       redirect_to root_path
     end
+  end
+
+  private
+
+  def disabled_entity_page?
+    controller_name.eql?('pages') && action_name.eql?('disabled_entity')
   end
 end
