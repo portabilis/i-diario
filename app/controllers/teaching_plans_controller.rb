@@ -35,7 +35,6 @@ class TeachingPlansController < ApplicationController
 
   def edit
     @teaching_plan = resource
-    validate_current_teacher
 
     authorize resource
 
@@ -91,13 +90,6 @@ class TeachingPlansController < ApplicationController
     when 'edit', 'update', 'destroy'
       TeachingPlan.find(params[:id])
     end.localized
-  end
-
-  def validate_current_teacher
-    unless @teaching_plan.teacher_discipline_classrooms.any? { |teacher_discipline_classroom| teacher_discipline_classroom.teacher_id.eql?(current_teacher.id) }
-      flash[:alert] = t('.current_teacher_not_allowed')
-      redirect_to root_path
-    end
   end
 
   def resource_params
