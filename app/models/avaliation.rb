@@ -12,6 +12,7 @@ class Avaliation < ActiveRecord::Base
   belongs_to :school_calendar
   belongs_to :test_setting
   belongs_to :test_setting_test
+  has_many :daily_notes, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
 
   validates :unity, :classroom, :discipline, :test_date, :class_number, :test_setting,
