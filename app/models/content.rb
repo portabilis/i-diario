@@ -18,6 +18,7 @@ class Content < ActiveRecord::Base
   validate :is_school_day?
 
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
+  scope :by_teacher_classroom_and_discipline, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :ordered, -> { order(arel_table[:content_date]) }
 
   def to_s

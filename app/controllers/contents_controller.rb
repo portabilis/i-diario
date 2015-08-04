@@ -38,7 +38,6 @@ class ContentsController < ApplicationController
 
   def edit
     @content = resource
-    validate_current_teacher
 
     authorize resource
 
@@ -88,13 +87,6 @@ class ContentsController < ApplicationController
     @unities = fetcher.unities
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
-  end
-
-  def validate_current_teacher
-    unless @content.teacher_discipline_classrooms.any? { |teacher_discipline_classroom| teacher_discipline_classroom.teacher_id.eql?(current_teacher.id) }
-      flash[:alert] = t('.current_teacher_not_allowed')
-      redirect_to root_path
-    end
   end
 
   def resource
