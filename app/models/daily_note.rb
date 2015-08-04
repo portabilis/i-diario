@@ -3,7 +3,6 @@ class DailyNote < ActiveRecord::Base
 
   audited
   has_associated_audits
-  before_save :mark_students_for_removal
 
   include Audit
 
@@ -20,9 +19,11 @@ class DailyNote < ActiveRecord::Base
   validates :discipline, presence: true
   validates :avaliation, presence: true
 
-  def mark_students_for_removal
-    students.each do |student|
-      student.mark_for_destruction if student.note.blank?
-    end
-  end
+  scope :by_unity_classroom_discipline_and_avaliation_test_date_between,
+        lambda { |unity_id, classroom_id, discipline_id, start_at, end_at| where(unity_id: unity_id,
+                                                                                 classroom_id: classroom_id,
+                                                                                 discipline_id: discipline_id,
+                                                                                 'avaliations.test_date' => start_at.to_date..end_at.to_date).includes(:avaliation, students: :student) }
+  scope :order_by_student_name, -> { order('students.name') }
+  scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
 end

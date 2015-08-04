@@ -42,6 +42,7 @@ class Features < EnumerateIt::Base
                    :messages,
                    :conceptual_exams,
                    :descriptive_exams,
+                   :exam_record_report,
                    :attendance_record_report
 
   sort_by :translation

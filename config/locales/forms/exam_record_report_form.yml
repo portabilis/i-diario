@@ -1,0 +1,15 @@
+pt-BR:
+  activemodel:
+    attributes:
+      exam_record_report_form:
+        unity_id: "Escola"
+        classroom_id: "Turma"
+        discipline_id: "Disciplina"
+        school_calendar_step_id: "Etapa"
+
+    errors:
+      models:
+        exam_record_report_form:
+          attributes:
+            daily_notes:
+              must_have_daily_notes: "Nenhum resultado foi encontrado para os dados informados"

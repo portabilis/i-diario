@@ -1,0 +1,36 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for @exam_record_report_form, url: exam_record_report_path, method: :post, html: { class: 'smart-form', target: '_new' } do |f| %>
+    <%= f.error_notification unless @exam_record_report_form.errors[:daily_notes].any? %>
+
+    <div class="alert alert-danger <%= 'hidden' unless @exam_record_report_form.errors[:daily_notes].any? %>">
+      <i class="fa fa-exclamation-circle fa-fw"></i>
+      <%= @exam_record_report_form.errors[:daily_notes].first %>
+    </div>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :unity_id, as: :select2, elements: @unities, input_html: { value: @exam_record_report_form.unity_id } %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :classroom_id, as: :select2, elements: @classrooms, input_html: { value: @exam_record_report_form.classroom_id } %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :discipline_id, as: :select2, elements: @disciplines, input_html: { value: @exam_record_report_form.discipline_id } %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :school_calendar_step_id, as: :select2, elements: @school_calendar_steps, input_html: { value: @exam_record_report_form.school_calendar_step_id } %>
+        </div>
+      </div>
+    </fieldset>
+
+    <footer>
+      <%= f.submit 'Imprimir', class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>

@@ -21,4 +21,4 @@ pt-BR:
               must_be_a_valid_date: "deve ser uma data válida"
               must_be_in_school_calendar_year: "não pode ter o ano diferente do calendário escolar atual"
             daily_frequencies:
-              must_have_daily_frequencies: "Nenhum resultado foi encontrado para os dados informados."
+              must_have_daily_frequencies: "Nenhum resultado foi encontrado para os dados informados"

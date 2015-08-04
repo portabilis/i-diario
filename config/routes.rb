@@ -139,5 +139,8 @@ Rails.application.routes.draw do
 
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
+
+    get '/reports/exam_record', to: 'exam_record_report#form', as: 'exam_record_report'
+    post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
   end
 end
