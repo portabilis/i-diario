@@ -6,7 +6,8 @@ class TestSetting < ActiveRecord::Base
 
   include Audit
 
-  has_many :tests, class_name: 'TestSettingTest', dependent: :restrict_with_error
+  has_many :avaliations, dependent: :restrict_with_error
+  has_many :tests, class_name: 'TestSettingTest', dependent: :destroy
 
   accepts_nested_attributes_for :tests, reject_if: :all_blank, allow_destroy: true
 
