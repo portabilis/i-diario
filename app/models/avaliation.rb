@@ -6,6 +6,8 @@ class Avaliation < ActiveRecord::Base
 
   include Audit
 
+  before_destroy :try_destroy_daily_notes
+
   belongs_to :unity
   belongs_to :classroom
   belongs_to :discipline
@@ -87,5 +89,10 @@ class Avaliation < ActiveRecord::Base
     relation = relation.where(Avaliation.arel_table[:test_date].lteq(step.end_at))
 
     errors.add(:test_setting_test, :unique_per_step) if relation.any?
+  end
+
+  def try_destroy_daily_notes
+    can_destroy_daily_notes = !daily_notes.any? { |daily_note| daily_note.students.any? { |daily_note_student| daily_note_student.note } }
+    daily_notes.destroy_all if can_destroy_daily_notes
   end
 end

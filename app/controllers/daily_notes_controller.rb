@@ -13,8 +13,7 @@ class DailyNotesController < ApplicationController
   def create
     @daily_note = DailyNote.new(resource_params)
 
-    if(@daily_note.valid?)
-      @daily_note = DailyNote.find_or_create_by(resource_params)
+    if @daily_note.valid? && find_or_initialize_resource
       redirect_to edit_daily_note_path(@daily_note)
     else
       fetch_unities
@@ -45,9 +44,7 @@ class DailyNotesController < ApplicationController
     authorize @daily_note
 
     if @daily_note.save
-      #fetch_unities
       respond_with @daily_note, location: new_daily_note_path
-      #render :new
     else
       render :edit
     end
@@ -102,6 +99,26 @@ class DailyNotesController < ApplicationController
     unless current_teacher
       flash[:alert] = t('errors.daily_notes.require_teacher')
       redirect_to root_path
+    end
+  end
+
+  private
+
+  def find_or_initialize_resource
+    @daily_note = DailyNote.find_or_initialize_by(resource_params)
+
+    if @daily_note.new_record?
+      fetch_students
+
+      @api_students.each do |api_student|
+        if student = Student.find_by(api_code: api_student['id'])
+          @daily_note.students.build(student_id: student.id, daily_note: @daily_note)
+        end
+      end
+
+      @daily_note.save
+    else
+      true
     end
   end
 end
