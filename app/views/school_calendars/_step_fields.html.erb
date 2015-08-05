@@ -1,10 +1,10 @@
 <tr class="nested-fields">
   <td>
-    <%= f.input :start_at, label_html: {class: 'hidden'} %>
+    <%= f.input :start_at, label_html: {class: 'hidden' }, input_html: { value: f.object.localized.start_at }  %>
   </td>
 
   <td>
-    <%= f.input :end_at, label_html: {class: 'hidden'} %>
+    <%= f.input :end_at, label_html: {class: 'hidden'}, input_html: { value: f.object.localized.end_at } %>
   </td>
 
   <td class="actions">
