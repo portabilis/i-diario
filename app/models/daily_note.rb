@@ -23,7 +23,8 @@ class DailyNote < ActiveRecord::Base
         lambda { |unity_id, classroom_id, discipline_id, start_at, end_at| where(unity_id: unity_id,
                                                                                  classroom_id: classroom_id,
                                                                                  discipline_id: discipline_id,
-                                                                                 'avaliations.test_date' => start_at.to_date..end_at.to_date).includes(:avaliation, students: :student) }
+                                                                                 'avaliations.test_date' => start_at.to_date..end_at.to_date).where.not(students: { id: nil })
+                                                                                                                                             .includes(:avaliation, students: :student) }
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
 end
