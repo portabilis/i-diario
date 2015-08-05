@@ -1,6 +1,7 @@
 class SchoolCalendar < ActiveRecord::Base
   acts_as_copy_target
 
+  before_validation :self_assign_to_steps
   after_create :seed_events
 
   audited
@@ -17,6 +18,8 @@ class SchoolCalendar < ActiveRecord::Base
                    uniqueness: true
   validates :number_of_classes, presence: true
   validate :at_least_one_assigned_step
+
+  validates_associated :steps
 
   scope :ordered, -> { order(arel_table[:year]) }
 
@@ -44,5 +47,9 @@ class SchoolCalendar < ActiveRecord::Base
   def seed_events
     events_seeder = SchoolCalendarEventsSeeder.new(school_calendar: self)
     events_seeder.seed
+  end
+
+  def self_assign_to_steps
+    steps.each { |step| step.school_calendar = self }
   end
 end

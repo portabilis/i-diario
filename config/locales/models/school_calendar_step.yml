@@ -10,3 +10,13 @@ pt-BR:
         school_calendar_id: "Calendário letivo"
         start_at: "Data inicial"
         end_at: "Data final"
+
+    errors:
+      models:
+        school_calendar_step:
+          attributes:
+            start_at:
+              must_be_in_school_calendar_year: "não pode ter o ano diferente do calendário escolar"
+              must_be_less_than_end_at: "não pode ser maior ou igual a data final"
+            end_at:
+              must_be_in_school_calendar_year: "não pode ter o ano diferente do calendário escolar"
