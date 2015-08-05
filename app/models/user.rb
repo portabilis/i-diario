@@ -136,7 +136,7 @@ class User < ActiveRecord::Base
   end
 
   def roles
-    user_roles.map(&:role)
+    user_roles.includes(:role, :unity).map(&:role)
   end
 
   def set_role!(role_id)
