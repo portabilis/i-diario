@@ -16,8 +16,8 @@ module Turnip
       click_link "Adicionar etapa"
 
       within '#school-calendar-steps tr:last-child' do
-        fill_mask 'Data inicial', with: '01/01/2015'
-        fill_mask 'Data final', with: '01/03/2015'
+        fill_mask 'Data inicial', with: '01/01/2010'
+        fill_mask 'Data final', with: '01/03/2010'
       end
 
       click_on 'Salvar'
@@ -40,12 +40,12 @@ module Turnip
     end
 
     step 'poderei alterar os dados deste calendário letivo' do
-      fill_in 'Ano', with: '2012'
+      fill_in 'Número de aulas por turno', with: '3'
 
       click_on 'Salvar'
 
       expect(page).to have_content 'Calendário letivo foi alterado com sucesso.'
-      expect(page).to have_content '2012'
+      expect(page).to have_content '3'
     end
 
     step 'poderei excluir um calendário letivo' do
