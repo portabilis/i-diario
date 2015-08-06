@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 ruby "2.2.1"
 
-gem 'rails', '4.2.0'
+gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'sdoc', '~> 0.4.0', :group => :doc
 
@@ -68,9 +68,9 @@ end
 
 group :test do
   gem 'turnip', '1.3.1'
-  gem 'capybara', '2.2.1'
-  gem 'poltergeist', '1.5.0'
-  gem 'shoulda-matchers', '2.6.2'
+  gem 'capybara', '2.4.4'
+  gem 'poltergeist', '1.6.0'
+  gem 'shoulda-matchers', '2.8.0'
   gem 'webmock', '1.9.3'
   gem 'vcr'
   gem "factory_girl_rails", "~> 4.0"
