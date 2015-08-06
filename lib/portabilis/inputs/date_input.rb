@@ -1,7 +1,7 @@
 module Portabilis
   module Inputs
     class DateInput < SimpleForm::Inputs::StringInput
-      def input
+      def input(wrapper_options)
         @builder.text_field(attribute_name, input_html_options)
       end
 

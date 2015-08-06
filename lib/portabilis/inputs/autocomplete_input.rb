@@ -1,7 +1,7 @@
 module Portabilis
   module Inputs
     class AutocompleteInput < SimpleForm::Inputs::Base
-      def input
+      def input(wrapper_options)
         hidden_field + autocomplete_field
       end
 

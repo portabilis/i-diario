@@ -30,5 +30,7 @@ module Educacao
     config.i18n.default_locale = :"pt-BR"
 
     config.active_record.schema_format = :sql
+
+    config.active_record.raise_in_transactional_callbacks = true
   end
 end
