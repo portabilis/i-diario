@@ -32,9 +32,11 @@ class DailyNotesController < ApplicationController
 
     @api_students.each do |api_student|
       if student = Student.find_by(api_code: api_student['id'])
-        @students << (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id))
+        @students << (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
       end
     end
+
+    @students
   end
 
   def update

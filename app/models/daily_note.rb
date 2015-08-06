@@ -11,7 +11,7 @@ class DailyNote < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :avaliation
 
-  has_many :students, class_name: 'DailyNoteStudent', dependent: :destroy
+  has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyNoteStudent', dependent: :destroy
   accepts_nested_attributes_for :students
 
   validates :unity, presence: true
