@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 # '~> <version>' is used to limit versions in the same release, eg: "~> 2.1" is like as ">= 2.1 and < 3.0"
 
-ruby "1.9.3"
+ruby "2.2.1"
 
 gem 'rails', '4.1.5'
 gem 'uglifier', '>= 1.3.0'
@@ -47,11 +47,11 @@ gem 'decore', :git => 'https://github.com/matiasleidemer/decore'
 gem 'activerecord-connections', :git => "https://github.com/ricardohsd/activerecord-connections.git"
 
 gem 'carrierwave'
-gem 'fog'
+gem 'fog', '1.32.0'
 
 # Test
 group :development, :test do
-  gem 'rspec-rails', '3.0.2'
+  gem 'rspec-rails', '3.3.3'
   gem 'pry', '~> 0.10.1'
 end
 
@@ -66,7 +66,7 @@ group :development do
 end
 
 group :test do
-  gem 'turnip', '1.2.2'
+  gem 'turnip', '1.3.1'
   gem 'capybara', '2.2.1'
   gem 'poltergeist', '1.5.0'
   gem 'shoulda-matchers', '2.6.2'
