@@ -52,7 +52,7 @@ pt-BR:
     disabled_entity: 'acesso-suspenso'
     reports: 'relatorios'
     attendance_record: 'registro-de-frequencia'
-    exam_record: 'registro-de-avaliacao'
+    exam_record: 'registro-de-avaliacoes'
 
     # actions
     edit: 'editar'
