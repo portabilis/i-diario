@@ -6,7 +6,7 @@ ruby '2.2.2'
 
 gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
-gem 'sdoc', '~> 0.4.0', :group => :doc
+gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'simple_form', '3.1.0'
 gem 'pg', '0.17.1'
@@ -26,13 +26,13 @@ gem 'mask_validator', '0.2.1'
 gem 'uri_validator'
 gem 'prawn', '1.3.0'
 gem 'prawn-table', '0.2.2'
-gem 'audited-activerecord', :git => 'git://github.com/ricardohsd/audited.git'
-gem 'route_translator', :git => "https://github.com/enriclluelles/route_translator.git"
+gem 'audited-activerecord', git: 'git://github.com/ricardohsd/audited.git'
+gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.git'
 
-gem 'sinatra', '>= 1.3.0', :require => nil
+gem 'sinatra', '>= 1.3.0', require: nil
 gem 'sidekiq', '2.17.7'
 gem 'whenever', require: false
-gem 'rest-client', :git => "https://github.com/ricardohsd/rest-client.git"
+gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
 gem 'postgres-copy'
 
@@ -40,11 +40,11 @@ gem 'postgres-copy'
 gem 'therubyracer', '0.12.2'
 gem 'less-rails', '2.7.0'
 gem 'twitter-bootstrap-rails', '3.2.0'
-gem 'backbone-nested-attributes', :git => 'git://github.com/samuelsimoes/backbone-nested-attributes.git'
+gem 'backbone-nested-attributes', git: 'git://github.com/samuelsimoes/backbone-nested-attributes.git'
 gem 'handlebars_assets', '0.17.1'
 
-gem 'decore', :git => 'https://github.com/matiasleidemer/decore'
-gem 'activerecord-connections', :git => "https://github.com/ricardohsd/activerecord-connections.git"
+gem 'decore', git: 'https://github.com/matiasleidemer/decore'
+gem 'activerecord-connections', git: 'https://github.com/ricardohsd/activerecord-connections.git'
 
 gem 'carrierwave'
 gem 'fog', '1.32.0'
