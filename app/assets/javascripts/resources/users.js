@@ -14,6 +14,7 @@ $(document).ready(function(){
 
       if (!!isParentOrStudent) {
         $userUnity.addClass("hidden");
+        $userUnity.find('input').select2('val', '');
       } else {
         $userUnity.removeClass("hidden");
       }
