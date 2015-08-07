@@ -1,9 +1,9 @@
 <tr class="nested-fields">
-  <td>
-    <%= f.input :role_id, collection: Role.ordered, label_html: { class: "hidden" }, input_html: { class: "user-role" } %>
+  <td width="50%">
+    <%= f.input :role_id, as: :select2, elements: Role.ordered, label_html: { class: "hidden" }, input_html: { class: "user-role" } %>
   </td>
 
-  <td>
+  <td width="50%">
     <div class="user-unity <%= 'hidden' unless f.object.role_employee? %>">
       <%= f.association :unity, as: :select2, elements: Unity.ordered, label_html: { class: "hidden" } %>
     </div>

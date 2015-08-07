@@ -43,7 +43,7 @@ class User < ActiveRecord::Base
   has_many :***REMOVED***
   has_many :authorization_***REMOVED***
   has_many :***REMOVED***
-  has_many :user_roles
+  has_many :user_roles, -> { includes(:role) }
   #has_many :roles, through: :user_roles
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
