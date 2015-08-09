@@ -20,11 +20,11 @@ module Capybara
         select2_choice != matching_value
       end
 
-      def failure_message_for_should
+      def failure_message
         "expected #{matching_value.inspect} to be equals to #{select2_choice}"
       end
 
-      def failure_message_for_should_not
+      def failure_message_when_negated
         "expected #{matching_value.inspect} to not be equals to #{select2_choice}"
       end
 

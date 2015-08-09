@@ -1,4 +1,5 @@
 # encoding: utf-8
+
 module Turnip
   module UnitiesSteps
     step "que acesso a listagem de unidades" do
@@ -14,8 +15,18 @@ module Turnip
 
       fill_in "Nome", with: "Escola Y"
       fill_in_select2 "Tipo de unidade", with: "school_unit"
+      fill_mask 'CEP', with: '88820-000'
+      sleep 5.0
+      fill_in 'Rua', with: 'Rua de Exemplo'
+      fill_in 'Número', with: '11'
+      fill_in 'Bairro', with: 'Bairro de Exemplo'
+      fill_in 'Cidade', with: 'Içara'
+      select 'Santa Catarina', from: 'Estado'
+      fill_in 'País', with: 'Brasil'
 
-      click_on "Salvar"
+      click_button 'Salvar'
+
+      sleep 0.2
 
       expect(page).to have_content "Unidade foi criada com sucesso."
     end

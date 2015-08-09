@@ -1,5 +1,5 @@
 class Select2Input < SimpleForm::Inputs::StringInput
-  def input
+  def input(wrapper_options)
     input_html_options[:type] = "hidden"
     input_html_options[:style] = "width: 100%;" + (input_html_options[:style] || "")
     input_html_options[:data] = (input_html_options[:data] || {}).merge({ elements: parse_collection })

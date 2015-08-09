@@ -15,8 +15,8 @@ describe 'entity' do
     it "should call EntityCreator with the options" do
       creator = double("creator", status: 'success')
 
-      EntityCreator.should_receive(:new).with(ENV).and_return(creator)
-      creator.should_receive(:setup)
+      expect(EntityCreator).to receive(:new).with(ENV).and_return(creator)
+      expect(creator).to receive(:setup)
 
       Rake::Task["entity:setup"].invoke
     end

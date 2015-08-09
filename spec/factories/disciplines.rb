@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :discipline do
     description 'Example Discipline'
-    sequence(:api_code) { |n| n }
+    sequence(:api_code) { |n| n.to_s }
   end
 end
