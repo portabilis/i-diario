@@ -8,6 +8,6 @@ if ENV['to'] == "staging"
   set :rails_env, "staging"
   set :branch, "development"
   set :user, "deploy"
-  set :domain, 'ncloudtest1.portabilis.com.br'
+  set :domain, 'portabilis-dev.portabilis.com.br'
   set :deploy_to, '/var/www/novo-educacao'
 end
