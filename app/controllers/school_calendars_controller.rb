@@ -76,6 +76,8 @@ class SchoolCalendarsController < ApplicationController
                                             steps_attributes: [:id,
                                                                :start_at,
                                                                :end_at,
+                                                               :start_date_for_posting,
+                                                               :end_date_for_posting,
                                                                :_destroy])
   end
 end

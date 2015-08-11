@@ -2,3 +2,5 @@ school_calendar_step_a:
   school_calendar: school_calendar_a
   start_at: '2015-01-01'
   end_at: '2015-03-01'
+  start_date_for_posting: '2015-02-20'
+  end_date_for_posting: '2015-03-01'

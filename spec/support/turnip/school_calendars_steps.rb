@@ -18,6 +18,8 @@ module Turnip
       within '#school-calendar-steps tr:last-child' do
         fill_mask 'Data inicial', with: '01/01/2010'
         fill_mask 'Data final', with: '01/03/2010'
+        fill_mask 'Data inicial para postagem', with: '15/02/2010'
+        fill_mask 'Data final para postagem', with: '01/03/2010'
       end
 
       click_on 'Salvar'

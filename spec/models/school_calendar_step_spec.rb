@@ -10,6 +10,8 @@ RSpec.describe SchoolCalendarStep, type: :model do
   describe "validations" do
     it { expect(subject).to validate_presence_of(:start_at) }
     it { expect(subject).to validate_presence_of(:end_at) }
+    it { expect(subject).to validate_presence_of(:start_date_for_posting) }
+    it { expect(subject).to validate_presence_of(:end_date_for_posting) }
 
     it "validates that start_at is in school_calendar year" do
       school_calendar = build(:school_calendar, year: 2020)

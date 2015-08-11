@@ -5,7 +5,7 @@ class SchoolCalendarStep < ActiveRecord::Base
 
   belongs_to :school_calendar
 
-  validates :start_at, :end_at, presence: true
+  validates :start_at, :end_at, :start_date_for_posting, :end_date_for_posting, presence: true
 
   validate :start_at_must_be_in_school_calendar_year, if: :school_calendar
   validate :end_at_must_be_in_school_calendar_year, if: :school_calendar
