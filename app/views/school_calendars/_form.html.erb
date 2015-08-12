@@ -16,6 +16,13 @@
   <fieldset id="school_calendar_steps">
     <legend>Etapas</legend>
 
+
+
+    <div class="alert alert-info fade in">
+      <i class="fa-fw fa fa-info"></i>
+      Use os campos Data inicial e final para postagem para controlar o período que o professor poderá encerrar o período avaliativo.
+    </div>
+
     <div>
       <span class="help-inline">
         <%= f.object.errors[:steps].join "<br />" %>
@@ -25,11 +32,11 @@
     <table class="table table-striped table-bordered table-condensed records">
       <thead>
         <tr>
-          <th><%= SchoolCalendarStep.human_attribute_name :start_at %></th>
-          <th><%= SchoolCalendarStep.human_attribute_name :end_at %></th>
-          <th><%= SchoolCalendarStep.human_attribute_name :start_date_for_posting %></th>
-          <th><%= SchoolCalendarStep.human_attribute_name :end_date_for_posting %></th>
-          <th></th>
+          <th style="width: 22%;"><%= SchoolCalendarStep.human_attribute_name :start_at %></th>
+          <th style="width: 22%;"><%= SchoolCalendarStep.human_attribute_name :end_at %></th>
+          <th style="width: 22%;"><%= SchoolCalendarStep.human_attribute_name :start_date_for_posting %></th>
+          <th style="width: 22%;"><%= SchoolCalendarStep.human_attribute_name :end_date_for_posting %></th>
+          <th style="width: 12%;"></th>
         </tr>
       </thead>
 
