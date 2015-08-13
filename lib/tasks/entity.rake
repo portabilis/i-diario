@@ -25,4 +25,15 @@ namespace :entity do
 
     puts entity_status_manager.status
   end
+
+  namespace :db do
+    desc "Entity Seed"
+    task seed: :environment do
+      entity_database_seeder = EntityDatabaseSeeder.new(ENV)
+
+      entity_database_seeder.seed
+
+      puts entity_database_seeder.status
+    end
+  end
 end
