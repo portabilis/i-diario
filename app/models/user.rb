@@ -32,7 +32,7 @@ class User < ActiveRecord::Base
     foreign_key: :responsible_id
   has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
     foreign_key: :responsible_id
-  has_many :***REMOVED***s, foreign_key: :author_id
+  has_many :***REMOVED***s, foreign_key: :author_id, dependent: :restrict_with_error
   has_many :system_notification_targets
   has_many :message_targets
   has_many :messages, through: :message_targets
@@ -44,7 +44,6 @@ class User < ActiveRecord::Base
   has_many :authorization_***REMOVED***
   has_many :***REMOVED***
   has_many :user_roles, -> { includes(:role) }
-  #has_many :roles, through: :user_roles
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
@@ -211,5 +210,11 @@ class User < ActiveRecord::Base
         end
       end
     end
+  end
+
+  private
+
+  def method_name
+
   end
 end
