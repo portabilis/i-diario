@@ -44,7 +44,11 @@ class ExamRecordReport
     rescue
       logo_cell = make_cell(content: '', width: 70, rowspan: 4)
     end
-    entity_organ_and_unity_cell = make_cell(content: "#{@entity_configuration.entity_name}\n#{@entity_configuration.organ_name}\n#{@daily_notes.first.unity.name}", size: 12, leading: 1.5, align: :center, valign: :center, rowspan: 4, padding: [6, 0, 8, 0])
+
+    entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
+    organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
+
+    entity_organ_and_unity_cell = make_cell(content: "#{entity_name}\n#{organ_name}\n#{@daily_notes.first.unity.name}", size: 12, leading: 1.5, align: :center, valign: :center, rowspan: 4, padding: [6, 0, 8, 0])
     classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     year_header = make_cell(content: 'Ano letivo', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     step_header = make_cell(content: 'Etapa', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
