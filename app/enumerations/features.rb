@@ -3,6 +3,7 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :***REMOVED***,
                    :***REMOVED***,
+                   :***REMOVED***,
                    :***REMOVED***s,
                    :***REMOVED***,
                    :***REMOVED***,
