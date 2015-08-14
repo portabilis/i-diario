@@ -8,7 +8,8 @@ $(document).ready(function(){
         return el.name;
       },
       data: $(element).data('elements'),
-      multiple: $(element).data('multiple')
+      multiple: $(element).data('multiple'),
+      allowClear: true
     });
 
     if ($(element).data('multiple') && !$(element).data('without-json-parser')) {
@@ -16,3 +17,12 @@ $(document).ready(function(){
     }
   });
 });
+
+$(function() {
+  // Clear value when select empty element
+  $('input.select2').on('change', function(element) {
+    if (element.val === "empty") {
+      $(element.target).select2("val", "");
+    }
+  });
+})
