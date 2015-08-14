@@ -130,3 +130,11 @@ https://github.com/select2/select2/issues/2412
     display: none !important;
     visibility: hidden !important;
 }
+
+.success{
+  color: #356635;
+}
+
+.danger{
+  color: #953b39;
+}

@@ -54,6 +54,7 @@ pt-BR:
     reports: 'relatorios'
     attendance_record: 'registro-de-frequencia'
     exam_record: 'registro-de-avaliacoes'
+    ieducar_api_exam_postings: 'envio-de-avaliacoes'
 
     # actions
     edit: 'editar'

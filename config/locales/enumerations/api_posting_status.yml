@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    api_posting_status:
+      started: "Em andamento"
+      error: "Ocorreu erro"
+      completed: "Finalizada"

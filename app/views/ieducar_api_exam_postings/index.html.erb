@@ -1,0 +1,41 @@
+<div class="widget-body no-padding">
+  <div class="table-responsive">
+    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+      <thead>
+        <tr>
+          <th>Ações</th>
+          <th>Situação</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+
+        <% if @numerical_exam_posting && @numerical_exam_posting.syncronization_in_progress? %>
+              <%= link_to "Enviar "+ApiPostingTypes.t(ApiPostingTypes::NUMERICAL_EXAMS),
+                '#',
+                class: 'btn bg-color-red txt-color-white disabled' %>
+        <% else %>
+          <%= link_to "Enviar "+ApiPostingTypes.t(ApiPostingTypes::NUMERICAL_EXAMS),
+                ieducar_api_exam_postings_path(post_type: ApiPostingTypes::NUMERICAL_EXAMS),
+                method: 'post',
+                class: 'btn bg-color-red txt-color-white' %>
+        <% end %>
+        </td>
+        <td>
+          <% if @numerical_exam_posting %>
+            <% if @numerical_exam_posting.status == ApiPostingStatus::STARTED %>
+              <i class="fa fa-cog fa-spin"></i> Enviando
+            <% else %>
+              <p class="success"><%= @numerical_exam_posting.message %></p>
+              <p class="danger"><%= @numerical_exam_posting.error_message %></p>
+            <% end %>
+          <% else %>
+            <i>Nenhuma postagem realizada</i>
+          <% end %>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

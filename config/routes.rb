@@ -137,6 +137,7 @@ Rails.application.routes.draw do
       end
     end
     resources :absence_justifications, concerns: :history
+    resources :ieducar_api_exam_postings
 
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'

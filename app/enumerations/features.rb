@@ -44,7 +44,8 @@ class Features < EnumerateIt::Base
                    :conceptual_exams,
                    :descriptive_exams,
                    :exam_record_report,
-                   :attendance_record_report
+                   :attendance_record_report,
+                   :ieducar_api_exam_postings
 
   sort_by :translation
 end

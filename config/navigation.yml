@@ -194,3 +194,7 @@ navigation:
         - ***REMOVED***:
             type: "attendance_record_report"
             path: "attendance_record_report_path"
+  - ***REMOVED***:
+      type: "ieducar_api_exam_postings"
+      icon: "fa-arrow-circle-up"
+      path: "ieducar_api_exam_postings_path"

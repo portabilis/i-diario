@@ -1,0 +1,7 @@
+pt-BR:
+  enumerations:
+    api_posting_types:
+      numerical_exams: "Avaliações numéricas"
+      conceptual_exams: "Avaliações conceituais"
+      absences: "Faltas"
+      descriptive_exams: "Avaliações descritivas"

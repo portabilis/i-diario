@@ -38,6 +38,10 @@ class SchoolCalendar < ActiveRecord::Base
     steps.all.started_after_and_before(date).first
   end
 
+  def posting_step date
+    steps.all.posting_date_after_and_before(date).first
+  end
+
   private
 
   def at_least_one_assigned_step

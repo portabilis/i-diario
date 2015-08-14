@@ -1,0 +1,9 @@
+pt-BR:
+  activerecord:
+    models:
+      ieducar_api_syncronization:
+        one: "Sincronização com a API"
+        other: "Sincronizações com a API"
+  errors:
+    ieducar_api_exam_postings:
+      require_current_posting_step: "Para acessar esta funcionalidade é necessário estar em um período de envio de avaliações"
