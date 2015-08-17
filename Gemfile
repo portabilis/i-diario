@@ -53,6 +53,7 @@ gem 'fog', '1.32.0'
 group :development, :test do
   gem 'rspec-rails', '3.3.3'
   gem 'pry', '~> 0.10.1'
+  gem "factory_girl_rails", "~> 4.0"
 end
 
 group :development do
@@ -73,7 +74,6 @@ group :test do
   gem 'shoulda-matchers', '2.8.0'
   gem 'webmock', '1.9.3'
   gem 'vcr'
-  gem "factory_girl_rails", "~> 4.0"
 end
 
 gem 'newrelic_rpm'

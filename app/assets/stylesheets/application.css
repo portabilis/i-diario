@@ -101,7 +101,8 @@ form.smart-form .control-group.error label{
   color: #FFF;
 }
 
-table.table-condensed.table-bordered > tbody > tr > td.no_record_found{
+table.table-condensed.table-bordered > tbody > tr > td.no_record_found,
+table.table-condensed.table-bordered > tbody > tr > td.no_item_found {
   text-align: center;
   padding-top: 15px !important;
   padding-bottom: 15px !important;

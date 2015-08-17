@@ -1,16 +1,28 @@
 $(function() {
-   $('form').on('cocoon:after-insert', function(e, item) {
+  $('form').on('cocoon:before-insert', function(e, item) {
+    item.fadeIn();
+  }).on('cocoon:after-insert', function(e, item) {
+    hideNoItemMessage();
     loadSelect2Inputs();
     loadDecimalMasks();
-  })
-  .on('cocoon:before-insert', function(e, item) {
-    item.fadeIn();
+  }).on('cocoon:after-remove', function(e, item) {
+    showNoItemMessage();
   });
 
   $("[data-nested-fields-container] a.add_fields").
     data("association-insertion-method", 'append').
     data("association-insertion-traversal", 'closest').
     data("association-insertion-node", '[data-nested-fields-container]');
+
+  function hideNoItemMessage() {
+    $('.no_item_found').hide();
+  }
+
+  function showNoItemMessage() {
+    if (!$('.nested-fields').is(":visible")) {
+      $('.no_item_found').show();
+    }
+  }
 
   function loadSelect2Inputs() {
     _.each($('.nested-fields input.select2'), function(element) {
