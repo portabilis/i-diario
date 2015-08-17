@@ -9,5 +9,22 @@ RSpec.describe ***REMOVED***, type: :model do
   describe "validations" do
     it { expect(subject).to validate_presence_of(:material_id) }
     it { expect(subject).to validate_numericality_of(:quantity).is_greater_than(0) }
+
+    describe "validates material classification" do
+      context "when material classification is permanent" do
+        material = FactoryGirl.create(:material, classification: ***REMOVED***Classifications::PERMANENT)
+        subject = FactoryGirl.build(:food_material, material: material)
+
+        it { expect(subject.valid?).to be(false) }
+        it { expect(subject.errors[:material_id]).to include('deve ser um material de consumo') }
+      end
+
+      context "when material classification is consumption" do
+        material = FactoryGirl.create(:material, classification: ***REMOVED***Classifications::CONSUMPTION)
+        subject = FactoryGirl.build(:food_material, material: material)
+
+        it { expect(subject.valid?).to be(true) }
+      end
+    end
   end
 end
