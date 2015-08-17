@@ -2,4 +2,5 @@ pt-BR:
   views:
     index:
       no_record_found: "Nenhum registro encontrado"
+      actions: "Ações"
       edit: "Editar"

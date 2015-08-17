@@ -1,0 +1,6 @@
+pt-BR:
+  views:
+    edit:
+      back: "Voltar"
+      history: "Histórico"
+      save: "Salvar"
