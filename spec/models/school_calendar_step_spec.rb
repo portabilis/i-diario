@@ -76,4 +76,16 @@ RSpec.describe SchoolCalendarStep, type: :model do
       expect(subject.to_s).to eql('01/01/2015 a 01/03/2015')
     end
   end
+
+  describe "#to_number" do
+    subject do
+      school_calendar_step = school_calendar_steps(:school_calendar_step_a)
+      school_calendar_step.school_calendar = SchoolCalendar.new
+      school_calendar_step
+    end
+
+    it "returns step number" do
+      expect(subject.to_number).to eql(1)
+    end
+  end
 end

@@ -5,7 +5,9 @@ class IeducarApiExamPostingsController < ApplicationController
   before_action :require_current_posting_step
 
   def index
-    @numerical_exam_posting = IeducarApiExamPosting.where(author_id: current_user.id).numerical_exams.last
+    ApiPostingTypes.each_value do |value|
+      instance_variable_set "@#{value}_posting", IeducarApiExamPosting.where(author_id: current_user.id).send(value).last
+    end
   end
 
   def create

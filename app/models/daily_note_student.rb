@@ -6,6 +6,8 @@ class DailyNoteStudent < ActiveRecord::Base
   belongs_to :daily_note
   belongs_to :student
 
+  delegate :avaliation, to: :daily_note
+
   validates :student,    presence: true
   validates :daily_note, presence: true
   validates :note, numericality: { greater_than_or_equal_to: 0,
@@ -18,6 +20,24 @@ class DailyNoteStudent < ActiveRecord::Base
                                                        student_id: student_id,
                                                        'avaliations.test_date' => start_at.to_date..end_at.to_date)
                                                           .includes(daily_note: [:avaliation]) }
+
+scope :regular_by_classroom_discipline_student_and_avaliation_test_date_between,
+        lambda { |classroom_id, discipline_id, student_id, start_at, end_at| where(
+                                                       'daily_notes.classroom_id' => classroom_id,
+                                                       'daily_notes.discipline_id' => discipline_id,
+                                                       'test_setting_tests.test_type' => TestTypes::REGULAR,
+                                                       student_id: student_id,
+                                                       'avaliations.test_date' => start_at.to_date..end_at.to_date)
+                                                          .includes(daily_note: [avaliation: [:test_setting_test]]) }
+
+scope :recovery_by_classroom_discipline_student_and_avaliation_test_date_between,
+        lambda { |classroom_id, discipline_id, student_id, start_at, end_at| where(
+                                                       'daily_notes.classroom_id' => classroom_id,
+                                                       'daily_notes.discipline_id' => discipline_id,
+                                                       'test_setting_tests.test_type' => TestTypes::RECOVERY,
+                                                       student_id: student_id,
+                                                       'avaliations.test_date' => start_at.to_date..end_at.to_date)
+                                                          .includes(daily_note: [avaliation: [:test_setting_test]]) }
 
 
   # Workaround for the error described in issue 177 (https://github.com/portabilis/novo-educacao/issues/177)

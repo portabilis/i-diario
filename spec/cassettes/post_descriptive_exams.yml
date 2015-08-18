@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://test.ieducar.com.br/module/Api/Diario
+    body:
+      encoding: US-ASCII
+      string: etapa=1&turmas[1234][turma_id]=1234&resource=faltas-geral&oper=post&access_key=***REMOVED***&secret_key=***REMOVED***&instituicao_id=1
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      Content-Length:
+      - '168'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 18 Aug 2015 20:19:01 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=n1v0bu07c7g89k62a5frcnln80; expires=Wed, 19-Aug-2015 20:19:01 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '128'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"oper":"post","resource":"faltas-geral","msgs":[{"msg":"Faltas postadas
+        com sucesso!","type":"success"}],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Tue, 18 Aug 2015 20:19:01 GMT
+recorded_with: VCR 2.9.3

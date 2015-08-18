@@ -72,7 +72,7 @@ module IeducarApi
       Sidekiq.logger.info "POST #{endpoint}?#{request_params.to_query}"
 
       begin
-        result = RestClient.get endpoint, { params: request_params }
+        result = RestClient.post endpoint, request_params
         result = JSON.parse(result)
       rescue SocketError, RestClient::ResourceNotFound
         raise ApiError.new("URL do i-Educar informada não é válida.")

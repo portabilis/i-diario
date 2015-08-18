@@ -3,6 +3,7 @@ class Teacher < ActiveRecord::Base
 
   has_many :users
   has_many :teacher_discipline_classrooms, dependent: :destroy
+  has_many :classrooms, through: :teacher_discipline_classrooms
 
   validates :name, :api_code, presence: true
   validates :api_code, uniqueness: true

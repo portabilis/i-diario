@@ -24,6 +24,21 @@ class SchoolCalendarStep < ActiveRecord::Base
     "#{localized.start_at} a #{localized.end_at}"
   end
 
+  def to_number
+    return unless school_calendar
+    (school_calendar.steps.ordered.index(self) || 0) + 1
+  end
+
+  def number_of_school_days
+    return unless start_at || end_at || school_calendar
+
+    days = 0
+    (start_at..end_at).each do |date|
+      days += 1 if school_calendar.school_day?(date)
+    end
+    days
+  end
+
   private
 
   def start_at_must_be_in_school_calendar_year

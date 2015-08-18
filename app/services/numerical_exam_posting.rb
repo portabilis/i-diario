@@ -8,7 +8,7 @@ class NumericalExamPosting
   end
 
   def post!
-    api.send_post(turmas: post_classrooms, etapa: 1)
+    api.send_post(turmas: post_classrooms, etapa: posting.school_calendar_step.to_number)
   end
 
   protected
@@ -30,11 +30,46 @@ class NumericalExamPosting
       step_start_at = posting.school_calendar_step.start_at
       step_end_at = posting.school_calendar_step.end_at
 
+      test_setting = TestSetting.find_by(year: Date.today.year)
+
       exam_number = Avaliation.where(classroom: classroom,
                                      discipline: discipline
                                      ).count
-      if exam_number > 0
-        students = fetch_students(classroom, discipline)
+
+      if test_setting.fix_tests? && exam_number >= test_setting.tests.where(test_type: TestTypes::REGULAR).count
+        students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom, discipline)
+
+        regular_exam_number = Avaliation.joins(:test_setting_test)
+                                        .where(classroom: classroom,
+                                               discipline: discipline,
+                                              'test_setting_tests.test_type' => TestTypes::REGULAR
+                                              ).count
+
+        students.each do |student|
+          exams = DailyNoteStudent.regular_by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
+              discipline, student.id, step_start_at, step_end_at)
+          recovery_exams = DailyNoteStudent.recovery_by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
+              discipline, student.id, step_start_at, step_end_at)
+
+          if exams.count < regular_exam_number
+            raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno "+student.to_s+" não possui todas notas lançadas.")
+          else
+            classrooms[classroom.api_code]["turma_id"] = classroom.api_code
+            classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code
+            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["componente_curricular_id"] = discipline.api_code
+
+            value = (exams.map{|exam| exam.note * exam.avaliation.test_setting_test.weight}.sum / test_setting.maximum_score)
+            recovery_value = (recovery_exams.map{|exam| exam.note * exam.avaliation.test_setting_test.weight}.sum / test_setting.maximum_score)
+
+            value = (recovery_value || 0) > value ? recovery_value : value;
+
+            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = value
+          end
+        end
+
+      elsif exam_number > 0
+        students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom, discipline)
+
         students.each do |student|
           exams = DailyNoteStudent.by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
               discipline, student.id, step_start_at, step_end_at)
@@ -45,26 +80,11 @@ class NumericalExamPosting
             classrooms[classroom.api_code]["turma_id"] = classroom.api_code
             classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code
             classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["componente_curricular_id"] = discipline.api_code
-            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = exams.sum(:note) / exam_number
+            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = (exams.sum(:note) / exam_number)
           end
         end
       end
     end
     classrooms
-  end
-
-  def fetch_students classroom, discipline
-    students = []
-    begin
-      api = IeducarApi::Students.new(posting.ieducar_api_configuration.to_api)
-      result = api.fetch_for_daily({ classroom_api_code: classroom.api_code, discipline_api_code: discipline.api_code})
-
-      result["alunos"].each do |api_student|
-        if student = Student.find_by(api_code: api_student['id'])
-          students << student
-        end
-      end
-    end
-    students
   end
 end
