@@ -8,4 +8,5 @@ pt-BR:
     attributes:
       food_***REMOVED***:
         food_id: "Alimento"
+        quantity: "Quantidade (g)"
         ***REMOVED***_id: "Cardápio"

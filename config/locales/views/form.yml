@@ -1,6 +1,7 @@
 pt-BR:
   views:
-    edit:
+    form:
       back: "Voltar"
       history: "Histórico"
       save: "Salvar"
+      required: "obrigatório"
