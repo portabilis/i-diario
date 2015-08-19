@@ -136,6 +136,7 @@ GEM
       activemodel (>= 3.0)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
+    database_cleaner (1.4.1)
     debug_inspector (0.0.2)
     devise (3.5.1)
       bcrypt (~> 3.0)
@@ -482,6 +483,7 @@ DEPENDENCIES
   carrierwave
   cocoon (~> 1.2.6)
   cpf_validator (= 0.2.0)
+  database_cleaner
   decore!
   devise (= 3.5.1)
   enumerate_it!

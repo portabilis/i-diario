@@ -54,6 +54,14 @@ module Helpers
       }
     end
   end
+
+  def check_in_collection(text)
+    find('label.checkbox', text: text).trigger('click') unless find('label.checkbox', text: text).find('input').checked?
+  end
+
+  def uncheck_in_collection(text)
+    find('label.checkbox', text: text).trigger('click') if find('label.checkbox', text: text).find('input').checked?
+  end
 end
 
 RSpec.configure do |config|

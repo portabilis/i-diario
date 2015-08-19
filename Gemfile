@@ -74,6 +74,7 @@ group :test do
   gem 'shoulda-matchers', '2.8.0'
   gem 'webmock', '1.9.3'
   gem 'vcr'
+  gem 'database_cleaner'
 end
 
 gem 'newrelic_rpm'
