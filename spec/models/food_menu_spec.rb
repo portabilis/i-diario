@@ -8,6 +8,17 @@ RSpec.describe ***REMOVED***Menu, type: :model do
 
   describe "validations" do
     it { expect(subject).to validate_presence_of(:food_id) }
-    it { expect(subject).to validate_numericality_of(:quantity).is_greater_than(0) }
+    it { expect(subject).to validate_numericality_of(:quantity).is_greater_than(0).is_less_than_or_equal_to(999999.99) }
+
+    context "when food has not ***REMOVED***" do
+      it "expects to not be valid" do
+        ***REMOVED*** = FactoryGirl.build(:***REMOVED***)
+        food_with_no_***REMOVED*** = FactoryGirl.create(:food)
+        subject = FactoryGirl.build(:food_***REMOVED***, ***REMOVED***: ***REMOVED***, food: food_with_no_***REMOVED***)
+
+        expect(subject.valid?).to be(false)
+        expect(subject.errors[:food_id]).to include('deve possuir materiais')
+      end
+    end
   end
 end

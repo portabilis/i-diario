@@ -10,3 +10,10 @@ pt-BR:
         food_id: "Alimento"
         quantity: "Quantidade (g)"
         ***REMOVED***_id: "Cardápio"
+
+    errors:
+      models:
+        food_***REMOVED***:
+          attributes:
+            food_id:
+              food_must_have_***REMOVED***: "deve possuir materiais"
