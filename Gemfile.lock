@@ -33,13 +33,6 @@ GIT
       activesupport (>= 3.2, < 5.0)
 
 GIT
-  remote: https://github.com/lucassch/enumerate_it.git
-  revision: 6a87473fc50aaba8e2d6a2f70014e220fd2420bf
-  specs:
-    enumerate_it (1.2.8)
-      activesupport (>= 3.0.0)
-
-GIT
   remote: https://github.com/matiasleidemer/decore
   revision: ff017a022a623302d7ea823fc4af2b6bec461c7b
   specs:
@@ -146,6 +139,8 @@ GEM
       thread_safe (~> 0.1)
       warden (~> 1.2.3)
     diff-lcs (1.2.5)
+    enumerate_it (1.2.8)
+      activesupport (>= 3.0.0)
     erubis (2.7.0)
     excon (0.45.4)
     execjs (2.6.0)
@@ -486,7 +481,7 @@ DEPENDENCIES
   database_cleaner
   decore!
   devise (= 3.5.1)
-  enumerate_it!
+  enumerate_it (= 1.2.8)
   factory_girl_rails (~> 4.0)
   fog (= 1.32.0)
   foreigner (= 1.6.1)
