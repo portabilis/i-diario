@@ -16,7 +16,7 @@
             <%= user.status_humanize %>
           </span>
         </td>
-        <td>
+        <td class="actions">
           <%= link_to 'Editar', edit_user_path(user), class: "btn btn-success" %>
           <%= link_to 'Excluir', user_path(user), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
         </td>

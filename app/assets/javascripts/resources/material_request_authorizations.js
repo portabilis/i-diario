@@ -39,7 +39,7 @@ $(function() {
       output.push(itemTemplate(item));
     });
 
-    $("fieldset#material_request_authorization_items div").html(output);
+    $("fieldset#material_request_authorization_items tbody#material-request-authorizations-items").html(output);
     $('input.decimal').priceFormat({ prefix: '', centsSeparator: ',', thousandsSeparator: '.' });
   }
 
