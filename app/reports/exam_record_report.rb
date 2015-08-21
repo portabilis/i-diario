@@ -115,7 +115,8 @@ class ExamRecordReport
         student_cells = [sequence_cell, { content: value[:name] }].concat(value[:scores])
         (10 - value[:scores].count).times { student_cells << nil }
         if daily_notes_slice == sliced_daily_notes.last
-          student_cells << make_cell(content: "%.#{@test_setting.number_of_decimal_places}f" % (averages[key][:sum_scores] / averages[key][:count_scores]), font_style: :bold, align: :center)
+          average = @test_setting.fix_tests? ? averages[key][:sum_scores] : (averages[key][:sum_scores] / averages[key][:count_scores])
+          student_cells << make_cell(content: "%.#{@test_setting.number_of_decimal_places}f" % average, font_style: :bold, align: :center)
         else
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)
         end
