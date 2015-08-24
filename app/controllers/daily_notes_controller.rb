@@ -52,6 +52,15 @@ class DailyNotesController < ApplicationController
     end
   end
 
+  def destroy
+    @daily_note = DailyNote.find(params[:id])
+    authorize(@daily_note)
+
+    @daily_note.destroy
+
+    respond_with @daily_note, location: new_daily_note_path
+  end
+
   def history
     @daily_note = DailyNote.find(params[:id])
 
