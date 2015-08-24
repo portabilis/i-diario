@@ -38,8 +38,8 @@
     </table>
 
     <footer>
-      <%= f.submit 'Salvar', class: 'btn btn-primary' %>
       <%= link_to t('daily_notes.destroy'), daily_note_path(@daily_note), method: :delete, data: { confirm: t('daily_notes.confirm') }, class: 'btn btn-danger' %>
+      <%= f.submit 'Salvar', class: 'btn btn-primary' %>
     </footer>
   <% end %>
 </div>
