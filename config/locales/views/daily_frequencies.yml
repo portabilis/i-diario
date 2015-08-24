@@ -1,0 +1,5 @@
+pt-BR:
+  daily_frequencies:
+    edit_multiple:
+      destroy: "Excluir"
+      confirm: "Essa operação irá excluir este registro do diário de frequência. Você tem certeza?"

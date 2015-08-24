@@ -134,6 +134,7 @@ Rails.application.routes.draw do
       collection do
         get :edit_multiple
         put :update_multiple
+        delete :destroy_multiple
       end
     end
     resources :absence_justifications, concerns: :history

@@ -131,6 +131,9 @@ pt-BR:
 
     daily_frequencies:
       <<: *male
+      destroy_multiple:
+        notice: 'Registro do diário de frequência foi apagado com sucesso.'
+        alert: 'Registro do diário de frequência não pode ser apagado.'
 
     absence_justifications:
       <<: *female

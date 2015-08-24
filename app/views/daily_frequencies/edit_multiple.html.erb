@@ -36,9 +36,11 @@
       </tbody>
     </table>
 
-
     <footer>
       <%= submit_tag 'Salvar', class: 'btn btn-primary' %>
+      <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id)),
+                                 method: :delete, data: { confirm: t('.confirm') }, class: 'btn btn-danger' %>
+
     </footer>
   <% end %>
 </div>

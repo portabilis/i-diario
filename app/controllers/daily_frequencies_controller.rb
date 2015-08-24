@@ -78,6 +78,16 @@ class DailyFrequenciesController < ApplicationController
     redirect_to new_daily_frequency_path
   end
 
+  def destroy_multiple
+    @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number
+
+    authorize @daily_frequencies.first
+
+    @daily_frequencies.each { |daily_frequency| daily_frequency.destroy }
+
+    respond_with @daily_frequencies.first, location: new_daily_frequency_path
+  end
+
   def history
     @daily_frequency = DailyFrequency.find(params[:id])
 
