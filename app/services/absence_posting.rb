@@ -49,10 +49,20 @@ class AbsencePosting
         daily_frequency_students = DailyFrequencyStudent.general_by_classroom_student_date_between(classroom,
             student.id, step_start_at, step_end_at)
 
-        # todo: number of daily frequency students x school day quantity
+
         if daily_frequency_students.blank? || daily_frequency_students.count != posting.school_calendar_step.number_of_school_days
 
-          raise IeducarApi::Base::ApiError.new("Não é possível enviar as faltas pois o aluno "+student.to_s+" não possui todas as faltas lançadas.")
+          warning_dates = posting.school_calendar_step.school_day_dates
+
+          if daily_frequency_students.present?
+            daily_frequency_students.each do |dfs|
+              warning_dates.delete dfs.frequency_date
+            end
+          end
+
+          string_warning_dates = warning_dates.collect{|date| I18n.l date}.join(', ')
+
+          raise IeducarApi::Base::ApiError.new("Não é possível enviar as faltas pois o aluno "+student.to_s+" não possui todas as faltas lançadas para a etapa atual nas datas "+string_warning_dates+".")
         else
           classrooms[classroom.api_code]["turma_id"] = classroom.api_code
           classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code

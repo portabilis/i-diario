@@ -39,6 +39,16 @@ class SchoolCalendarStep < ActiveRecord::Base
     days
   end
 
+  def school_day_dates
+    return unless start_at || end_at || school_calendar
+
+    dates = []
+    (start_at..end_at).each do |date|
+      dates << date if school_calendar.school_day?(date)
+    end
+    dates
+  end
+
   private
 
   def start_at_must_be_in_school_calendar_year

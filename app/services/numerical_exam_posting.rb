@@ -52,7 +52,7 @@ class NumericalExamPosting
               discipline, student.id, step_start_at, step_end_at)
 
           if exams.count < regular_exam_number
-            raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno "+student.to_s+" não possui todas notas lançadas.")
+            raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno "+student.to_s+" não possui todas notas lançadas para a etapa atual.")
           else
             classrooms[classroom.api_code]["turma_id"] = classroom.api_code
             classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code
@@ -75,7 +75,7 @@ class NumericalExamPosting
               discipline, student.id, step_start_at, step_end_at)
 
           if exams.count < exam_number
-            raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno "+student.to_s+" não possui todas notas lançadas.")
+            raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno "+student.to_s+" não possui todas notas lançadas para a etapa atual.")
           else
             classrooms[classroom.api_code]["turma_id"] = classroom.api_code
             classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code

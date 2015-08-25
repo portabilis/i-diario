@@ -41,7 +41,7 @@ class ConceptualExamPosting
           classrooms[classroom.api_code]["alunos"][exam.student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = exam.value
         end
       else
-        raise IeducarApi::Base::ApiError.new("Não é possível enviar os conceitos pois não foram todos lançados na turma/disciplina "+classroom.to_s+"/"+discipline.to_s+".")
+        raise IeducarApi::Base::ApiError.new("Não é possível enviar os conceitos pois não foram todos lançados na turma "+classroom.to_s+" e disciplina "+discipline.to_s+" para a etapa atual.")
       end
 
     end
