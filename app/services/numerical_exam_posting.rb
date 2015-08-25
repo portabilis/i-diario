@@ -58,8 +58,8 @@ class NumericalExamPosting
             classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code
             classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["componente_curricular_id"] = discipline.api_code
 
-            value = (exams.map{|exam| exam.note * exam.avaliation.test_setting_test.weight}.sum / test_setting.maximum_score)
-            recovery_value = (recovery_exams.map{|exam| exam.note * exam.avaliation.test_setting_test.weight}.sum / test_setting.maximum_score)
+            value = exams.sum(:note)
+            recovery_value = recovery_exams.sum(:note)
 
             value = (recovery_value || 0) > value ? recovery_value : value;
 
