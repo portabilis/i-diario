@@ -1,0 +1,7 @@
+pt-BR:
+  enumerations:
+    bimesters:
+      first: "Primeiro"
+      second: "Segundo"
+      third: "Terceiro"
+      fourth: "Quarto"

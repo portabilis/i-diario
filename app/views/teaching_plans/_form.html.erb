@@ -3,6 +3,12 @@
 
   <fieldset>
     <div class="row">
+      <div class="col col-sm-3">
+        <%= f.input :year, disabled: true %>
+      </div>
+    </div>
+
+    <div class="row">
       <div class="col col-sm-4">
         <%= f.input :unity_id, as: :select2, elements: @unities, input_html: { value: @teaching_plan.unity_id } %>
       </div>
@@ -18,7 +24,11 @@
 
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+        <%= f.input :school_term_type, as: :select2, elements: SchoolTermTypes.to_select.to_json %>
+      </div>
+
+      <div id="school_term" class="col col-sm-4">
+        <%= f.input :school_term, as: :select2, elements: [] %>
       </div>
     </div>
 

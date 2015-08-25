@@ -4,3 +4,5 @@ pt-BR:
       no_record_found: "Nenhum registro encontrado"
       actions: "Ações"
       edit: "Editar"
+      delete: "Excluir"
+      confirm: "Você tem certeza?"

@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    semesters:
+      first: "Primeiro"
+      second: "Segundo"

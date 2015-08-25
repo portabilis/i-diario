@@ -67,4 +67,38 @@ $(function () {
       });
     }
   });
+
+  $('#teaching_plan_school_term_type').on('change', function(e) {
+    updateSchoolTermInput();
+  });
+
+  var updateSchoolTermInput = function() {
+    var $school_term_div = $('#school_term');
+    var $school_term_input = $('#teaching_plan_school_term');
+
+    switch ($('#teaching_plan_school_term_type').select2('val')) {
+      case 'bimester':
+        $school_term_input.select2('val', '');
+        $school_term_input.select2({ data: <%= Bimesters.to_select.to_json %> });
+        $school_term_div.show();
+        break;
+      case 'trimester':
+        $school_term_input.select2('val', '');
+        $school_term_input.select2({ data: <%= Trimesters.to_select.to_json %> });
+        $school_term_div.show();
+        break;
+      case 'semester':
+        $school_term_input.select2('val', '');
+        $school_term_input.select2({ data: <%= Semesters.to_select.to_json %> });
+        $school_term_div.show();
+        break;
+      default:
+        $school_term_div.hide();
+        $school_term_input.select2('val', '');
+        $school_term_input.select2({ data: [] });
+        break;
+    }
+  }
+
+  updateSchoolTermInput();
 });

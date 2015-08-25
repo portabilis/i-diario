@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    trimesters:
+      first: "Primeiro"
+      second: "Segundo"
+      third: "Terceiro"

@@ -1,0 +1,7 @@
+pt-BR:
+  enumerations:
+    school_term_types:
+      bimester: "Bimestre"
+      trimester: "Trimestre"
+      semester: "Semestre"
+      yearly: "Anual"

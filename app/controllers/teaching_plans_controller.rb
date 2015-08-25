@@ -3,12 +3,17 @@ class TeachingPlansController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def index
-    @teaching_plans = apply_scopes(TeachingPlan.by_teacher(current_teacher.id).includes(:discipline, school_calendar_step: :school_calendar, classroom: :unity))
+    @teaching_plans = apply_scopes(TeachingPlan).includes(:discipline, classroom: :unity)
+                                                .by_teacher(current_teacher.id)
+                                                .filter(filtering_params(params[:search]))
 
     authorize @teaching_plans
+
+    @unities     = Unity.by_teacher(current_teacher.id).uniq.ordered
+    @classrooms  = Classroom.by_teacher_id(current_teacher.id).ordered
+    @disciplines = Discipline.by_teacher_id(current_teacher.id).ordered
   end
 
   def new
@@ -86,16 +91,28 @@ class TeachingPlansController < ApplicationController
   def resource
     @teaching_plan ||= case params[:action]
     when 'new', 'create'
-      TeachingPlan.new
+      TeachingPlan.new(year: Date.today.year)
     when 'edit', 'update', 'destroy'
       TeachingPlan.find(params[:id])
     end.localized
   end
 
+  def filtering_params(params)
+    params = {} unless params
+    params.slice(:by_year,
+                 :by_unity_id,
+                 :by_classroom_id,
+                 :by_discipline_id,
+                 :by_school_term_type,
+                 :by_school_term)
+  end
+
   def resource_params
-    params.require(:teaching_plan).permit(:classroom_id,
+    params.require(:teaching_plan).permit(:year,
+                                          :classroom_id,
                                           :discipline_id,
-                                          :school_calendar_step_id,
+                                          :school_term_type,
+                                          :school_term,
                                           :objectives,
                                           :content,
                                           :methodology,

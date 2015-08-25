@@ -7,13 +7,14 @@ pt-BR:
 
     attributes:
       teaching_plan:
+        year: "Ano"
         unity_id: "Escola"
         classroom_id: "Turma"
         classroom: "Turma"
         discipline_id: "Disciplina"
         discipline: "Disciplina"
-        school_calendar_step_id: "Etapa"
-        school_calendar_step: "Etapa"
+        school_term_type: "Tipo de período escolar"
+        school_term: "Período escolar"
         objectives: "Objetivos"
         content: "Conteúdo"
         methodology: "Metodologia"
