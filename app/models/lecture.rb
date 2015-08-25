@@ -28,7 +28,7 @@ class Lecture
   end
 
   def grades
-    Grade.all(attributes["series"])
+    RemoteGrade.all(attributes["series"])
   end
 
   def label

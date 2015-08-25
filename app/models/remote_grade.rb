@@ -1,4 +1,4 @@
-class Grade
+class RemoteGrade
   extend ActiveModel::Naming
 
   attr_accessor :attributes
