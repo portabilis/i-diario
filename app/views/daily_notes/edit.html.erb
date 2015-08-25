@@ -30,9 +30,16 @@
       </thead>
       <tbody id="students" data-scale="<%= @daily_note.avaliation.test_setting.number_of_decimal_places %>">
         <% sequence = 0 %>
-        <%= f.fields_for :students do |student| %>
+        <%= f.fields_for :students, @normal_students do |student| %>
         <% sequence += 1 %>
           <%= render 'student_fields', f: student, sequence: sequence %>
+        <% end %>
+        <% if @dependence_students.any? %>
+          <%= f.fields_for :students, @dependence_students do |student| %>
+          <% sequence += 1 %>
+            <%= render 'student_fields', f: student, sequence: sequence %>
+          <% end %>
+          <tr><td colspan="3">* Alunos em dependência</td></tr>
         <% end %>
       </tbody>
     </table>

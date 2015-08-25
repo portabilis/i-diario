@@ -59,11 +59,19 @@ class DailyFrequenciesController < ApplicationController
 
     @api_students.each do |api_student|
       if student = Student.find_by(api_code: api_student['id'])
-        @students << student
+        @students << {student: student, dependence: api_student['dependencia']}
         @daily_frequencies.each do |daily_frequency|
-          (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.build(student_id: student.id))
+          (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.build(student_id: student.id, dependence: api_student['dependencia']))
         end
       end
+    end
+
+    @normal_students = []
+    @dependence_students = []
+
+    @students.each do |student|
+      @normal_students << student[:student] if !student[:dependence]
+      @dependence_students << student[:student] if student[:dependence]
     end
   end
 
@@ -128,7 +136,7 @@ class DailyFrequenciesController < ApplicationController
     params.require(:daily_frequency).permit(
       :unity_id, :classroom_id, :discipline_id, :global_absence, :frequency_date,
       students_attributes: [
-        :id, :student_id, :note
+        :id, :student_id, :note, :dependence
       ]
     )
   end

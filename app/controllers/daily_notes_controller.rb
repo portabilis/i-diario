@@ -32,11 +32,17 @@ class DailyNotesController < ApplicationController
 
     @api_students.each do |api_student|
       if student = Student.find_by(api_code: api_student['id'])
-        @students << (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
+        @students << (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student, dependence: api_student['dependencia']))
       end
     end
 
-    @students
+    @normal_students = []
+    @dependence_students = []
+
+    @students.each do |student|
+      @normal_students << student if !student.dependence?
+      @dependence_students << student if student.dependence?
+    end
   end
 
   def update
@@ -101,7 +107,7 @@ class DailyNotesController < ApplicationController
     params.require(:daily_note).permit(
       :unity_id, :classroom_id, :discipline_id, :avaliation_id,
       students_attributes: [
-        :id, :student_id, :note
+        :id, :student_id, :note, :dependence
       ]
     )
   end

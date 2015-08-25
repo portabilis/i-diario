@@ -37,8 +37,16 @@ class ConceptualExamsController < ApplicationController
 
     @api_students.each do |api_student|
       if student = Student.find_by(api_code: api_student['id'])
-        @students << (@conceptual_exam.students.where(student_id: student.id).first || @conceptual_exam.students.build(student_id: student.id))
+        @students << (@conceptual_exam.students.where(student_id: student.id).first || @conceptual_exam.students.build(student_id: student.id, dependence: api_student['dependencia']))
       end
+    end
+
+    @normal_students = []
+    @dependence_students = []
+
+    @students.each do |student|
+      @normal_students << student if !student.dependence?
+      @dependence_students << student if student.dependence?
     end
   end
 
@@ -87,7 +95,7 @@ class ConceptualExamsController < ApplicationController
     params.require(:conceptual_exam).permit(
       :classroom_id, :discipline_id, :school_calendar_step_id,
       students_attributes: [
-        :id, :student_id, :value
+        :id, :student_id, :value, :dependence
       ]
     )
   end

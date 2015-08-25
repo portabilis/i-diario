@@ -1,9 +1,9 @@
-<tr class="nested-fields">
+<tr class="nested-fields <%= dependence ? 'warning' : '' %>">
   <td>
-    <%= sequence + 1 %>
+    <%= sequence %>
   </td>
   <td>
-    <%= student.api_code + ' - ' + student.to_s %>
+    <%= student.api_code + ' - ' + student.to_s + (dependence ? '*' : '') %>
   </td>
 
   <% @daily_frequencies.each do |daily_frequency| %>
@@ -11,6 +11,7 @@
       <td>
         <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
         <%= f.hidden_field :student_id, value: student.id %>
+        <%= f.hidden_field :dependence, value: dependence %>
 
         <label class="checkbox">
           <%= f.check_box :present %>

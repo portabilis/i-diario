@@ -29,9 +29,18 @@
         <% end %>
       </thead>
       <tbody>
-        <% @students.each_with_index do |student, sequence| %>
+        <% sequence = 0 %>
+        <% @normal_students.each do |student| %>
+          <% sequence += 1 %>
 
-          <%= render 'student_fields', student: student, sequence: sequence %>
+          <%= render 'student_fields', student: student, sequence: sequence, dependence: false %>
+        <% end %>
+        <% if @dependence_students.any? %>
+          <% @dependence_students.each do |student| %>
+            <% sequence += 1 %>
+            <%= render 'student_fields', student: student, sequence: sequence, dependence: true %>
+          <% end %>
+          <tr><td colspan="<%= 2 + @daily_frequencies.count%>">* Alunos em dependência</td></tr>
         <% end %>
       </tbody>
     </table>

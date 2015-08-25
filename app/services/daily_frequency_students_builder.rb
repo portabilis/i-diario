@@ -11,7 +11,7 @@ class DailyFrequencyStudentsBuilder
       if daily_frequency_student = DailyFrequencyStudent.find_by(student_id: record[:student_id],
                                                                   daily_frequency_id: record[:daily_frequency_id])
 
-        daily_frequency_student.update(present: record[:present])
+        daily_frequency_student.update(present: record[:present], dependence: record[:dependence])
       else
         DailyFrequencyStudent.create!(record)
       end
