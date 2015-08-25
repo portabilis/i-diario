@@ -1,0 +1,8 @@
+pt-BR:
+  test_settings:
+    form:
+      tests: "Avaliações"
+      add_test: "Adicionar avaliação"
+      no_item_found: "Nenhuma avaliação"
+    test_fields:
+      remove: "Remover"

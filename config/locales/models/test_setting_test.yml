@@ -11,3 +11,4 @@ pt-BR:
         description: "Avaliação"
         weight: "Peso"
         test_type: "Tipo de avaliação"
+        allow_break_up: "Permitir desmembrar"

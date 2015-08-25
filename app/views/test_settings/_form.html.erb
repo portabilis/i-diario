@@ -22,14 +22,16 @@
   </fieldset>
 
   <fieldset id="item_setting_tests">
-    <legend>Avaliações</legend>
+    <legend><%= t('.tests') %></legend>
 
     <div>
-      <span class="help-inline error">
-        <% f.object.errors[:tests].each do |error| %>
-          <%= error %><br/>
-        <% end %>
-      </span>
+      <% if f.object.errors[:tests].any? %>
+        <div class="alert alert-danger fade in">
+          <% f.object.errors[:tests].each do |error| %>
+            <%= error %><br/>
+          <% end %>
+        </div>
+      <% end %>
     </div>
 
     <table class="table table-striped table-bordered table-condensed records">
@@ -38,22 +40,27 @@
           <th><%= TestSettingTest.human_attribute_name :description %></th>
           <th><%= TestSettingTest.human_attribute_name :weight %></th>
           <th><%= TestSettingTest.human_attribute_name :test_type %></th>
-          <th></th>
+          <th width="50px"><%= TestSettingTest.human_attribute_name :allow_break_up %></th>
+          <th width="50px"></th>
         </tr>
       </thead>
 
       <tbody id="test-settings-tests">
-        <%= f.association :tests do |p| %>
+        <tr>
+          <td class="no_item_found" colspan="5" style="<%= @test_setting.tests.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+        </tr>
+
+        <%= f.association :tests, collection: f.object.tests.map { |test| test.localized } do |p| %>
           <%= render 'test_fields', f: p %>
         <% end %>
       </tbody>
+
       <tfoot class="links">
         <tr>
-          <td colspan="4">
-            <%= link_to_add_association t('.add_test'), f, :tests,
-              class: 'btn btn-success btn-sm',
-              :"data-association-insertion-method" => "append",
-              :"data-association-insertion-node" => "#test-settings-tests" %>
+          <td colspan="5">
+            <%= link_to_add_association t('.add_test'), f, :tests, 'data-association-insertion-method': 'append',
+                                                                   'data-association-insertion-node':   '#test-settings-tests',
+                                                                   class: 'btn btn-success btn-sm' %>
           </td>
         </tr>
       </tfoot>
@@ -61,12 +68,12 @@
   </fieldset>
 
   <footer>
-    <%= link_to "Voltar", test_settings_path, class: "btn btn-default" %>
+    <%= link_to t('views.form.back'), test_settings_path, class: "btn btn-default" %>
 
     <% if @test_setting.persisted? %>
-      <%= link_to 'Histórico', history_test_setting_path(@test_setting), class: 'btn btn-info' %>
+      <%= link_to t('views.form.history'), history_test_setting_path(@test_setting), class: 'btn btn-info' %>
     <% end %>
 
-    <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
   </footer>
 <% end %>
