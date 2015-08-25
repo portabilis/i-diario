@@ -11,6 +11,9 @@ class IeducarSynchronizerWorker
         # synchronize Courses, Grades and Classrooms
         CoursesGradesClassroomsClassroomsSynchronizer.synchronize!(synchronization)
 
+        # synchronize Knowledge Areas
+        KnowledgeAreasSynchronizer.synchronize!(synchronization)
+
         # synchronize Disciplines
         DisciplinesSynchronizer.synchronize!(synchronization)
 
