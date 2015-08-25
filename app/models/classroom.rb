@@ -3,9 +3,10 @@ class Classroom < ActiveRecord::Base
 
   belongs_to :unity
   belongs_to :exam_rule
+  belongs_to :grade
   has_many :teacher_discipline_classrooms, dependent: :destroy
 
-  validates :description, :api_code, :unity_code, :year, presence: true
+  validates :description, :api_code, :unity_code, :year, :grade, presence: true
   validates :api_code, uniqueness: true
 
   scope :ordered, -> { order(arel_table[:description].asc) }
