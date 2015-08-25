@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @teaching_plans.empty? %>
     <tr>
-      <td class="no_record_found" colspan="6"> <%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="7"> <%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @teaching_plans.each do |teaching_plan| %>
