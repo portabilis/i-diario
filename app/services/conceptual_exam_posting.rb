@@ -8,7 +8,11 @@ class ConceptualExamPosting
   end
 
   def post!
-    api.send_post(turmas: post_classrooms, etapa: posting.school_calendar_step.to_number)
+    if classrooms = post_classrooms
+      api.send_post(turmas: classrooms, etapa: posting.school_calendar_step.to_number)
+    else
+      raise IeducarApi::Base::ApiError.new("Nenhuma turma com tipo de avaliações conceituais encontrada.")
+    end
   end
 
   protected
@@ -27,6 +31,12 @@ class ConceptualExamPosting
     teacher.teacher_discipline_classrooms.each do |teacher_discipline_classroom|
       classroom = teacher_discipline_classroom.classroom
       discipline = teacher_discipline_classroom.discipline
+
+      score_type = classroom.exam_rule.score_type
+
+      if score_type != ScoreTypes::CONCEPT
+        next
+      end
 
       exams = ConceptualExamStudent.by_classroom_discipline_and_step(classroom,discipline, posting.school_calendar_step.id)
 

@@ -80,7 +80,7 @@ class NumericalExamPosting
             classrooms[classroom.api_code]["turma_id"] = classroom.api_code
             classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code
             classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["componente_curricular_id"] = discipline.api_code
-            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = (exams.sum(:note) / exam_number)
+            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = (exams.sum(:note) / exam_number).round(test_setting.number_of_decimal_places)
           end
         end
       end
