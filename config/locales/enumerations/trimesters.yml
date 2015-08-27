@@ -1,6 +1,6 @@
 pt-BR:
   enumerations:
     trimesters:
-      first_trimester: "Primeiro trimestre"
-      second_trimester: "Segundo trimestre"
-      third_trimester: "Terceiro trimestre"
+      first_trimester: "1º Trimestre"
+      second_trimester: "2º Trimestre"
+      third_trimester: "3º Trimestre"
