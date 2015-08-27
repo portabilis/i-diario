@@ -7,5 +7,6 @@ FactoryGirl.define do
 
     unity
     exam_rule
+    grade
   end
 end

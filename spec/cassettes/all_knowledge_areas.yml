@@ -1,0 +1,702 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/ComponenteCurricular?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=componentes-curriculares&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 27 Aug 2015 13:46:13 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=s40vle4bolmft9ungju98m52e4; expires=Fri, 28-Aug-2015 13:46:13 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"disciplinas":[{"id":"3485","nome":"  Resolve situa\u00e7\u00f5es-problema
+        fazendo uso da linguagem oral matem\u00e1tica. ","area_conhecimento_id":"3"},{"id":"3522","nome":"
+        Ampliou as possibilidades de comunica\u00e7\u00e3o e intera\u00e7\u00e3o social
+        durante as brincadeiras e alimenta\u00e7\u00e3o.","area_conhecimento_id":"9"},{"id":"3481","nome":"
+        Aperfei\u00e7oa e amplia as habilidades motoras explorando os movimentos de
+        andar, correr, saltar, descer, subir, puxar, empurrar, agarrar e lan\u00e7ar.","area_conhecimento_id":"7"},{"id":"3458","nome":"
+        Aprecia e valoriza as cria\u00e7\u00f5es pessoais dos colegas e demais obras
+        art\u00edsticas.","area_conhecimento_id":"8"},{"id":"3525","nome":" Colabora
+        na organiza\u00e7\u00e3o de materiais de uso coletivo compartilhando objetos
+        com outras crian\u00e7as.","area_conhecimento_id":"9"},{"id":"3566","nome":"
+        Colabora na organiza\u00e7\u00e3o de materiais de uso coletivo compartilhando
+        objetos com outras crian\u00e7as.","area_conhecimento_id":"9"},{"id":"3512","nome":"
+        Compara seu nome com o nome dos colegas para identifica\u00e7\u00e3o das letras
+        que s\u00e3o comuns. ","area_conhecimento_id":"5"},{"id":"3561","nome":" Compartilha
+        viv\u00eancias respeitando a opini\u00e3o do grupo.","area_conhecimento_id":"9"},{"id":"3514","nome":"
+        Compreende instru\u00e7\u00f5es simples e combina varias palavras. ","area_conhecimento_id":"5"},{"id":"3508","nome":"
+        Demonstra compreens\u00e3o e faz uso de novas palavras ampliando o vocabul\u00e1rio.
+        ","area_conhecimento_id":"5"},{"id":"3526","nome":" Demonstra concentra\u00e7\u00e3o
+        nas atividades propostas.","area_conhecimento_id":"9"},{"id":"3406","nome":"
+        Demonstra interesse pela escrita observando e manuseando diferentes materiais
+        impressos.","area_conhecimento_id":"5"},{"id":"3505","nome":" Demonstra interesse
+        pela escrita observando e manuseando diferentes materiais impressos. ","area_conhecimento_id":"5"},{"id":"3564","nome":"
+        Desenvolve atitudes de auto cuidado aprimorando os h\u00e1bitos de higiene.","area_conhecimento_id":"9"},{"id":"3558","nome":"
+        Diferencia as caracter\u00edsticas geradas pelos sons de instrumentos musicais
+        e os produzidos pela natureza.","area_conhecimento_id":"4"},{"id":"3341","nome":"
+        Elabora perguntas e respostas de acordo com o contexto em que participa.","area_conhecimento_id":"5"},{"id":"3521","nome":"
+        Experimenta novos ***REMOVED*** com sabores diversificados.","area_conhecimento_id":"9"},{"id":"3497","nome":"
+        Explora as formas geom\u00e9tricas em imagens ou material concreto. ","area_conhecimento_id":"3"},{"id":"3310","nome":"
+        Explora e manipula diferentes materiais e texturas para o fazer art\u00edstico
+        de acordo com suas condi\u00e7\u00f5es motoras.","area_conhecimento_id":"8"},{"id":"3258","nome":"
+        Explora e manipula diferentes materiais e texturas para o fazer art\u00edstico
+        de acordo com suas condi\u00e7\u00f5es motoras.","area_conhecimento_id":"8"},{"id":"3487","nome":"
+        Identifica a posi\u00e7\u00e3o de um objeto observando a no\u00e7\u00e3o de
+        sucessor e antecessor.","area_conhecimento_id":"3"},{"id":"3269","nome":"
+        Identifica caracter\u00edsticas pessoais em compara\u00e7\u00e3o com o grupo
+        de conv\u00edvio.","area_conhecimento_id":"9"},{"id":"3504","nome":" Identifica
+        e nomeia os sons produzidos pela natureza. ","area_conhecimento_id":"4"},{"id":"3498","nome":"
+        Identifica e reconhece as cores. ","area_conhecimento_id":"3"},{"id":"3510","nome":"
+        Identifica o pr\u00f3prio nome em diferentes situa\u00e7\u00f5es do cotidiano.","area_conhecimento_id":"5"},{"id":"3556","nome":"
+        Imita e reproduz movimentos a partir de cria\u00e7\u00f5es musicais.","area_conhecimento_id":"4"},{"id":"3502","nome":"
+        Imita e reproduz movimentos a partir de cria\u00e7\u00f5es musicais. ","area_conhecimento_id":"4"},{"id":"3523","nome":"
+        Interage com outras crian\u00e7as e adultos de origens e h\u00e1bitos culturais
+        diversos.","area_conhecimento_id":"9"},{"id":"3389","nome":" Interage nas
+        brincadeiras, jogos, dan\u00e7as e outros movimentos.","area_conhecimento_id":"7"},{"id":"3275","nome":"
+        Manipula e explora objetos e brinquedos, em situa\u00e7\u00f5es organizadas.","area_conhecimento_id":"3"},{"id":"3326","nome":"
+        Manipula e explora objetos e brinquedos, em situa\u00e7\u00f5es organizadas.","area_conhecimento_id":"3"},{"id":"3480","nome":"
+        Manipula materiais, objetos e brinquedos explorando os movimentos de preens\u00e3o,
+        encaixe e lan\u00e7amento aperfei\u00e7oando as habilidades manuais.","area_conhecimento_id":"7"},{"id":"3515","nome":"
+        Memoriza can\u00e7\u00f5es e poemas curtos.","area_conhecimento_id":"5"},{"id":"3475","nome":"
+        Memoriza can\u00e7\u00f5es e poemas curtos.","area_conhecimento_id":"8"},{"id":"3472","nome":"
+        Observa e identifica imagens diversas.","area_conhecimento_id":"8"},{"id":"3301","nome":"
+        Observa os fen\u00f4menos da natureza.","area_conhecimento_id":"6"},{"id":"3507","nome":"
+        Oraliza as id\u00e9ias contidas em suas produ\u00e7\u00f5es para que o professor
+        possa registr\u00e1-las.","area_conhecimento_id":"5"},{"id":"3496","nome":"
+        Participa da marca\u00e7\u00e3o do tempo por meio do calend\u00e1rio.","area_conhecimento_id":"3"},{"id":"3495","nome":"
+        Participa de atividades envolvendo conhecimento da escrita de informa\u00e7\u00f5es
+        a partir de gr\u00e1ficos e tabelas. ","area_conhecimento_id":"3"},{"id":"3494","nome":"
+        Participa de atividades envolvendo no\u00e7\u00f5es de medidas de comprimento.","area_conhecimento_id":"3"},{"id":"3519","nome":"
+        Participa de atividades que envolva a\u00e7\u00f5es de coopera\u00e7\u00e3o,
+        solidariedade e ajuda na rela\u00e7\u00e3o com o outro e respeita as regras
+        de conv\u00edvio.","area_conhecimento_id":"9"},{"id":"3362","nome":" Participa
+        de atividades que envolvem a\u00e7\u00f5es de coopera\u00e7\u00e3o, solidariedade
+        e ajuda na rela\u00e7\u00e3o com o outro, realizando pequenas a\u00e7\u00f5es
+        cotidianas.","area_conhecimento_id":"9"},{"id":"3479","nome":" Participa de
+        atividades recreativas que desenvolvam a percep\u00e7\u00e3o viso-motora.","area_conhecimento_id":"7"},{"id":"3478","nome":"
+        Participa de atividades recreativas que desenvolvem a no\u00e7\u00e3o de lateralidade
+        (dois lados do corpo).","area_conhecimento_id":"7"},{"id":"3448","nome":"
+        Participa de atividades recreativas que desenvolvem a percep\u00e7\u00e3o
+        viso-motora.","area_conhecimento_id":"7"},{"id":"3503","nome":" Participa
+        de brincadeiras que envolvam a improvisa\u00e7\u00e3o e a mem\u00f3ria musical.","area_conhecimento_id":"4"},{"id":"3557","nome":"
+        Participa de brincadeiras que envolvam a improvisa\u00e7\u00e3o e a mem\u00f3ria
+        musical.","area_conhecimento_id":"4"},{"id":"3280","nome":" Participa de situa\u00e7\u00f5es
+        envolvendo m\u00fasica, imita\u00e7\u00f5es e movimentos corporais.","area_conhecimento_id":"4"},{"id":"3553","nome":"
+        Participa de situa\u00e7\u00f5es envolvendo m\u00fasicas de diferentes estilos
+        e cantigas.","area_conhecimento_id":"4"},{"id":"3334","nome":" Participa de
+        situa\u00e7\u00f5es envolvendo m\u00fasicas e cantigas.","area_conhecimento_id":"4"},{"id":"3555","nome":"
+        Participa de situa\u00e7\u00f5es nas quais se oferecem instrumentos musicais
+        e objetos sonoros podendo explor\u00e1-los percebendo as possibilidades sonoras.","area_conhecimento_id":"4"},{"id":"3501","nome":"
+        Participa de situa\u00e7\u00f5es nas quais se oferecem instrumentos musicais
+        e objetos sonoros podendo explor\u00e1-los percebendo as possibilidades sonoras.","area_conhecimento_id":"4"},{"id":"3238","nome":"
+        Participa de situa\u00e7\u00f5es nas quais utiliza instrumentos musicais e
+        objetos sonoros para que possa explor\u00e1-los e imitar gestos motores.","area_conhecimento_id":"4"},{"id":"3286","nome":"
+        Participa em situa\u00e7\u00f5es de leitura de diferentes g\u00eaneros textuais
+        realizado pelo professor(a).","area_conhecimento_id":"5"},{"id":"3563","nome":"
+        Participa em situa\u00e7\u00f5es di\u00e1rias tendo autonomia para fazer a
+        escolha de objetos, temas, espa\u00e7o e personagens, expressando seus desejos
+        e sentimentos.","area_conhecimento_id":"9"},{"id":"3374","nome":" Percebe
+        as diferen\u00e7as existentes a cada fase da vida.","area_conhecimento_id":"6"},{"id":"3249","nome":"
+        Percebe fen\u00f4menos da natureza.","area_conhecimento_id":"6"},{"id":"3477","nome":"
+        Percebe limites, sensa\u00e7\u00f5es e potencialidades do pr\u00f3prio corpo,
+        valorizando as suas conquistas corporais.","area_conhecimento_id":"7"},{"id":"3560","nome":"
+        Possui iniciativa para resolver problemas do cotidiano com e sem auxilio.","area_conhecimento_id":"9"},{"id":"3399","nome":"
+        Produz trabalhos art\u00edsticos explorando procedimentos b\u00e1sicos para
+        desenhar, pintar, recortar, colar, amassar e modelar.","area_conhecimento_id":"8"},{"id":"3554","nome":"
+        Realiza imita\u00e7\u00f5es e movimentos corporais desenvolvendo a express\u00e3o.","area_conhecimento_id":"4"},{"id":"3518","nome":"
+        Realiza pequenas a\u00e7\u00f5es cotidianas, adquirindo maior independ\u00eancia.","area_conhecimento_id":"9"},{"id":"3314","nome":"
+        Realiza pequenas a\u00e7\u00f5es cotidianos, adquirindo maior independ\u00eancia.","area_conhecimento_id":"9"},{"id":"3484","nome":"
+        Reconhece a import\u00e2ncia dos n\u00fameros nos contextos em que se encontram
+        (fun\u00e7\u00e3o social do n\u00famero).","area_conhecimento_id":"3"},{"id":"3476","nome":"
+        Reconhece os segmentos e elementos do pr\u00f3prio corpo por meio da explora\u00e7\u00e3o,
+        das brincadeiras e da intera\u00e7\u00e3o.","area_conhecimento_id":"7"},{"id":"3511","nome":"
+        Reconhece outras palavras que t\u00eam a letra inicial do seu nome.","area_conhecimento_id":"5"},{"id":"3506","nome":"
+        Representa id\u00e9ias por meio de desenho, colagem, modelagem, dobraduras
+        e pinturas.","area_conhecimento_id":"5"},{"id":"3562","nome":" Respeita e
+        valoriza as regras b\u00e1sicas de conv\u00edvio social, demonstrando solidariedade
+        em atitudes de ajuda e colabora\u00e7\u00e3o.","area_conhecimento_id":"9"},{"id":"3524","nome":"
+        Solicita ajuda quando sente necessidade demonstrando certa autonomia.","area_conhecimento_id":"9"},{"id":"3474","nome":"
+        Utiliza materiais gr\u00e1ficos variados para ampliar duas possibilidades
+        de express\u00e3o e comunica\u00e7\u00e3o.","area_conhecimento_id":"8"},{"id":"3513","nome":"
+        Valoriza a leitura como fonte de prazer e entretenimento e imita o procedimento
+        de leitura realizado pelo adulto ou por outra crian\u00e7a.","area_conhecimento_id":"5"},{"id":"3552","nome":"
+        Valoriza as a\u00e7\u00f5es art\u00edsticas e o respeito pela diversidade.","area_conhecimento_id":"4"},{"id":"3500","nome":"
+        Valoriza as a\u00e7\u00f5es art\u00edsticas e o respeito pela diversidade.
+        ","area_conhecimento_id":"4"},{"id":"3202","nome":"Acompanha a leitura realizada
+        pelo professor, observando as imagens.","area_conhecimento_id":"5"},{"id":"3619","nome":"Acompanha
+        diferentes ritmos.","area_conhecimento_id":"18"},{"id":"3304","nome":"Amplia
+        a destreza corporal de deslocamento pelo espa\u00e7o escolar por meio da possibilidade
+        rolar, andar e correr.","area_conhecimento_id":"7"},{"id":"3316","nome":"Amplia
+        as possibilidades de comunica\u00e7\u00e3o e intera\u00e7\u00e3o social durante
+        brincadeiras, alimenta\u00e7\u00e3o, higiene e descanso.","area_conhecimento_id":"9"},{"id":"3266","nome":"Amplia
+        as possibilidades de comunica\u00e7\u00e3o e intera\u00e7\u00e3o social durante
+        brincadeiras, alimenta\u00e7\u00e3o, higiene e descanso.","area_conhecimento_id":"9"},{"id":"3365","nome":"Amplia
+        as possibilidades de comunica\u00e7\u00e3o e intera\u00e7\u00e3o social durante
+        brincadeiras e alimenta\u00e7\u00e3o.","area_conhecimento_id":"9"},{"id":"3212","nome":"Ampliou
+        a destreza para deslocar-se no ambiente escolar por meio da possibilidade
+        de arrastar-se, engatinhar, rolar lateral e andar.","area_conhecimento_id":"7"},{"id":"3253","nome":"Ampliou
+        a destreza para deslocar-se no espa\u00e7o por meio da possibilidade de se
+        arrastar, engatinhar, rolar lateral e andar.","area_conhecimento_id":"7"},{"id":"3392","nome":"Ampliou
+        as habilidades motoras explorando os movimentos de andar, correr, saltar,
+        descer e subir.","area_conhecimento_id":"7"},{"id":"3227","nome":"Ampliou
+        as possibilidades de comunica\u00e7\u00e3o e intera\u00e7\u00e3o social durante
+        brincadeiras, alimenta\u00e7\u00e3o, higiene e descanso.","area_conhecimento_id":"9"},{"id":"3436","nome":"Analisa
+        e compreende os s\u00edmbolos utilizados socialmente.","area_conhecimento_id":"6"},{"id":"3309","nome":"Aperfei\u00e7oa
+        as habilidades motoras explorando os movimentos de correr, saltar, subir,
+        empurrar, lan\u00e7ar e rolar lateral.","area_conhecimento_id":"7"},{"id":"3257","nome":"Aperfei\u00e7oou
+        as habilidades manuais manipulando materiais, objetos e brinquedos explorando
+        os movimentos e preens\u00e3o, encaixe e lan\u00e7amento.","area_conhecimento_id":"7"},{"id":"3600","nome":"Aplica
+        o conte\u00fado te\u00f3rico na pr\u00e1tica perante as apresenta\u00e7\u00f5es.","area_conhecimento_id":"14"},{"id":"3217","nome":"Aprecia
+        brincar com jogos de encaixe.","area_conhecimento_id":"7"},{"id":"3402","nome":"Aprecia
+        e valoriza as cria\u00e7\u00f5es pessoais dos colegas e demais obras art\u00edsticas.","area_conhecimento_id":"8"},{"id":"3517","nome":"Apresenta
+        concentra\u00e7\u00e3o nas atividades propostas, respeita suas pr\u00f3prias
+        produ\u00e7\u00f5es e a dos colegas.","area_conhecimento_id":"5"},{"id":"3351","nome":"Apresenta
+        concentra\u00e7\u00e3o nas atividades propostas, respeita suas pr\u00f3prias
+        produ\u00e7\u00f5es e a dos colegas.","area_conhecimento_id":"5"},{"id":"3584","nome":"Artes","area_conhecimento_id":"8"},{"id":"3192","nome":"ARTES","area_conhecimento_id":"1"},{"id":"3582","nome":"Atividade
+        Esportiva","area_conhecimento_id":"7"},{"id":"3643","nome":"Avalia\u00e7\u00e3o
+        Individual","area_conhecimento_id":"1"},{"id":"3237","nome":"Brinca com a
+        m\u00fasica fazendo imita\u00e7\u00f5es.","area_conhecimento_id":"4"},{"id":"3190","nome":"CIENCIAS","area_conhecimento_id":"1"},{"id":"3194","nome":"CIENCIAS
+        F\u00cdSICAS","area_conhecimento_id":"1"},{"id":"3576","nome":"Ci\u00eancias","area_conhecimento_id":"6"},{"id":"3274","nome":"Colabora
+        na organiza\u00e7\u00e3o de materiais de uso coletivo, bem como compartilha
+        os mesmos.","area_conhecimento_id":"9"},{"id":"3319","nome":"Colabora na organiza\u00e7\u00e3o
+        de materiais de uso coletivo, bem como compartilha os mesmos.","area_conhecimento_id":"9"},{"id":"3372","nome":"Colabora
+        na organiza\u00e7\u00e3o de materiais de uso coletivo, e compartilha objetos
+        com outras crian\u00e7as.","area_conhecimento_id":"9"},{"id":"3439","nome":"Compara
+        os modos de vida dos diferentes seres vivos, identificando as fun\u00e7\u00f5es
+        de alimenta\u00e7\u00e3o, sustenta\u00e7\u00e3o, locomo\u00e7\u00e3o e reprodu\u00e7\u00e3o.","area_conhecimento_id":"6"},{"id":"3418","nome":"Compara
+        seu nome com o nome dos colegas para identifica\u00e7\u00e3o das letras que
+        s\u00e3o comuns, percebendo possibilidades na forma\u00e7\u00e3o de novas
+        palavras.","area_conhecimento_id":"5"},{"id":"3611","nome":"Compartilha ideias
+        exploradas no dia-a-dia.","area_conhecimento_id":"16"},{"id":"3533","nome":"Comp\u00f5e
+        grupos com base em uma determinada quantidade realizando registro n\u00e3o
+        convencional.","area_conhecimento_id":"3"},{"id":"3589","nome":"Compreende
+        e utiliza express\u00f5es do cotidiano.","area_conhecimento_id":"13"},{"id":"3628","nome":"Compreende
+        o processo do jogo apresentado.","area_conhecimento_id":"20"},{"id":"3636","nome":"Compreende
+        o resultado do experimento.","area_conhecimento_id":"22"},{"id":"3493","nome":"Comunica
+        a quantidade utilizando a linguagem oral, a nota\u00e7\u00e3o num\u00e9rica
+        ou registros n\u00e3o convencionais.","area_conhecimento_id":"3"},{"id":"3618","nome":"Conhece,
+        experimenta e explora elementos da dan\u00e7a.","area_conhecimento_id":"18"},{"id":"3531","nome":"Constr\u00f3i
+        conceitos n\u00famericos dentro de um contexto, ampliando suas experi\u00eancias.","area_conhecimento_id":"3"},{"id":"3321","nome":"Constr\u00f3i
+        h\u00e1bitos de higiene e sa\u00fade.","area_conhecimento_id":"9"},{"id":"3614","nome":"Constr\u00f3i
+        leitura de imagens.","area_conhecimento_id":"17"},{"id":"3629","nome":"Criar
+        novas possibilidades de jogo.","area_conhecimento_id":"20"},{"id":"3581","nome":"Dan\u00e7a","area_conhecimento_id":"7"},{"id":"3638","nome":"Demonstra
+        atrav\u00e9s de registros o que foi trabalhado.","area_conhecimento_id":"22"},{"id":"3291","nome":"Demonstra
+        compreens\u00e3o de novas palavras ampliando o vocabul\u00e1rio e as possibilidades
+        de comunica\u00e7\u00e3o e express\u00e3o.","area_conhecimento_id":"5"},{"id":"3343","nome":"Demonstra
+        compreens\u00e3o de novas palavras ampliando o vocabul\u00e1rio e as possibilidades
+        de comunica\u00e7\u00e3o e express\u00e3o.","area_conhecimento_id":"5"},{"id":"3242","nome":"Demonstra
+        compreens\u00e3o no uso de novas palavras.","area_conhecimento_id":"5"},{"id":"3333","nome":"Demonstra
+        concentra\u00e7\u00e3o nas atividades propostas.","area_conhecimento_id":"3"},{"id":"3361","nome":"Demonstra
+        cuidado com animais e plantas em situa\u00e7\u00f5es diversas.","area_conhecimento_id":"6"},{"id":"3597","nome":"Demonstra
+        empenho nas tentativas - experimenta e viabiliza novas possibilidades por
+        meio das vividas.","area_conhecimento_id":"14"},{"id":"3625","nome":"Demonstra
+        interesse desta tecnologia para seu aprendizado.","area_conhecimento_id":"19"},{"id":"3587","nome":"Demonstra
+        interesse nas atividades propostas.","area_conhecimento_id":"13"},{"id":"3288","nome":"Demonstra
+        interesse pela escrita observando e manuseando diferentes materiais impressos.","area_conhecimento_id":"5"},{"id":"3342","nome":"Demonstra
+        interesse pela escrita observando e manuseando diferentes materiais impressos.","area_conhecimento_id":"5"},{"id":"3210","nome":"Demonstra
+        percep\u00e7\u00e3o das partes do corpo.","area_conhecimento_id":"6"},{"id":"3626","nome":"Demonstra
+        racioc\u00ednio l\u00f3gico no decorrer da atividade.","area_conhecimento_id":"20"},{"id":"3596","nome":"Demonstra
+        responsabilidade e coopera\u00e7\u00e3o - planeja \/ investiga \/ compartilha.","area_conhecimento_id":"14"},{"id":"3345","nome":"Dialoga
+        com outras crian\u00e7as e adultos de maneira que a compreendam.","area_conhecimento_id":"5"},{"id":"3428","nome":"Diferencia
+        frases e palavras.","area_conhecimento_id":"5"},{"id":"3413","nome":"Diferencia
+        letras de n\u00fameros.","area_conhecimento_id":"5"},{"id":"3191","nome":"EDUCACAO
+        FISICA","area_conhecimento_id":"1"},{"id":"3577","nome":"Educa\u00e7\u00e3o
+        Ambiental","area_conhecimento_id":"6"},{"id":"3644","nome":"Educa\u00e7\u00e3o
+        f\u00edsica","area_conhecimento_id":"1"},{"id":"3580","nome":"Educa\u00e7\u00e3o
+        F\u00edsica","area_conhecimento_id":"7"},{"id":"3430","nome":"Elabora perguntas
+        e respostas de acordo com os diversos contextos de que participa.","area_conhecimento_id":"5"},{"id":"3203","nome":"Emite
+        sons e balbucios.","area_conhecimento_id":"5"},{"id":"3569","nome":"Ensino
+        Religioso","area_conhecimento_id":"9"},{"id":"3185","nome":"ENSINO RELIGIOSO","area_conhecimento_id":"1"},{"id":"3352","nome":"Entende
+        instru\u00e7\u00f5es simples e combina v\u00e1rias palavras.","area_conhecimento_id":"5"},{"id":"3403","nome":"Enumera
+        diferen\u00e7as e semelhan\u00e7as entre objetos.","area_conhecimento_id":"8"},{"id":"3534","nome":"Estabelece
+        crit\u00e9rios para classifica\u00e7\u00e3o, ordena\u00e7\u00e3o, sequ\u00eancia\u00e7\u00e3o,
+        compara\u00e7\u00e3o considerando cores, formas, tamanhos e espessuras.","area_conhecimento_id":"3"},{"id":"3358","nome":"Estabelece
+        rela\u00e7\u00f5es entre situa\u00e7\u00f5es do ontem e hoje.","area_conhecimento_id":"6"},{"id":"3382","nome":"Estabelece
+        rela\u00e7\u00f5es entre situa\u00e7\u00f5es do ontem, hoje e amanh\u00e3.","area_conhecimento_id":"6"},{"id":"3410","nome":"Estabelece
+        rela\u00e7\u00e3o entre a fala e a escrita.","area_conhecimento_id":"5"},{"id":"3241","nome":"Estabelece
+        rela\u00e7\u00e3o entre palavra e sentido (comando simples).","area_conhecimento_id":"5"},{"id":"3366","nome":"Estabelece
+        v\u00ednculos e rela\u00e7\u00f5es de seguran\u00e7a emocional atrav\u00e9s
+        da troca com adultos e crian\u00e7as.","area_conhecimento_id":"9"},{"id":"3317","nome":"Estabelece
+        v\u00ednculos e rela\u00e7\u00f5es de seguran\u00e7a emocional atrav\u00e9s
+        de troca com adultos e crian\u00e7as.","area_conhecimento_id":"9"},{"id":"3267","nome":"Estabelece
+        v\u00ednculos e rela\u00e7\u00f5es de seguran\u00e7a emocional atrav\u00e9s
+        de troca com adultos e crian\u00e7as.","area_conhecimento_id":"9"},{"id":"3593","nome":"ESTUDOS
+        SOCIAIS","area_conhecimento_id":"1"},{"id":"3229","nome":"Experimenta e aceita
+        novos ***REMOVED***.","area_conhecimento_id":"9"},{"id":"3271","nome":"Experimenta
+        e aceita novos ***REMOVED*** demonstrando prefer\u00eancias.","area_conhecimento_id":"9"},{"id":"3324","nome":"Experimenta
+        e aceita novos ***REMOVED*** e come com autonomia.","area_conhecimento_id":"9"},{"id":"3370","nome":"Experimenta
+        e aceita novos ***REMOVED*** e distingue-os.","area_conhecimento_id":"9"},{"id":"3256","nome":"Explora  as
+        possibilidades de gestos e ritmos corporais para se expressar nas brincadeiras
+        e demais situa\u00e7\u00f5es.","area_conhecimento_id":"7"},{"id":"3208","nome":"Explora
+        algumas partes do corpo com interve\u00e7\u00e3o do professor.","area_conhecimento_id":"6"},{"id":"3332","nome":"Explora
+        as formas geom\u00e9tricas em imagens ou material concreto.","area_conhecimento_id":"3"},{"id":"3623","nome":"Explora
+        com autonomia o computador enquanto ferramenta de aprendizagem.","area_conhecimento_id":"19"},{"id":"3219","nome":"Explora
+        diferentes formas de contato com materiais e texturas.","area_conhecimento_id":"8"},{"id":"3211","nome":"Explora
+        diferentes posturas corporais em diferentes inclina\u00e7\u00f5es, recebendo
+        aux\u00edlio se necess\u00e1rio.","area_conhecimento_id":"7"},{"id":"3547","nome":"Explora
+        e identifica as formas geom\u00e9tricas em imagens ou material concreto.","area_conhecimento_id":"3"},{"id":"3469","nome":"Explora
+        e manipula diferentes materiais e texturas para o fazer art\u00edstico de
+        acordo com as suas condi\u00e7\u00f5es motoras.","area_conhecimento_id":"8"},{"id":"3461","nome":"Explora
+        e manipula diferentes materiais e texturas para o fazer art\u00edstico de
+        acordo com suas condi\u00e7\u00f5es motoras.","area_conhecimento_id":"8"},{"id":"3400","nome":"Explora
+        e manipula diferentes materiais e texturas para o fazer art\u00edstico de
+        acordo com suas condi\u00e7\u00f5es motoras.","area_conhecimento_id":"8"},{"id":"3470","nome":"Explora
+        e reconhece diferentes movimentos gestuais, visando \u00e0 produ\u00e7\u00e3o
+        de marcas gr\u00e1ficas.","area_conhecimento_id":"8"},{"id":"3312","nome":"Explora
+        e reconhece diferentes movimentos gestuais, visando \u00e1 produ\u00e7\u00e3o
+        de marcas gr\u00e1ficas (desenho, pintura, r***REMOVED***ado, colagem).","area_conhecimento_id":"8"},{"id":"3259","nome":"Explora
+        e reconhece movimentos gestuais, visando \u00e0 produ\u00e7\u00e3o de marcas
+        gr\u00e1ficas.","area_conhecimento_id":"8"},{"id":"3463","nome":"Explora espa\u00e7os
+        bidimensionais e tridimensionais nas produ\u00e7\u00f5es.","area_conhecimento_id":"8"},{"id":"3621","nome":"Explora
+        fun\u00e7\u00f5es do computador.","area_conhecimento_id":"19"},{"id":"3231","nome":"Explora
+        nas brincadeiras conceitos como: maior\/menor, frente\/atr\u00e1s, embaixo\/em
+        cima, dentro\/fora.","area_conhecimento_id":"3"},{"id":"3209","nome":"Explora
+        o ambiente escolar com interven\u00e7\u00e3o do professor.","area_conhecimento_id":"6"},{"id":"3379","nome":"Explora
+        o ambiente para construir os conhecimentos pr\u00e1ticos relacionados a exist\u00eancia
+        de objetos, seres, formas e cores.","area_conhecimento_id":"6"},{"id":"3357","nome":"Explora
+        o ambiente para construir os conhecimentos pr\u00e1ticos relacionados a exist\u00eancia
+        de objetos, seres, formas e cores.","area_conhecimento_id":"6"},{"id":"3302","nome":"Explora
+        o ambiente para construir os conhecimentos pr\u00e1ticos relacionados aos
+        \u00f3rg\u00e3os dos sentidos.","area_conhecimento_id":"6"},{"id":"3313","nome":"Explora
+        procedimentos b\u00e1sicos para amassar e utilizar massa de modelar.","area_conhecimento_id":"8"},{"id":"3223","nome":"Explora
+        procedimentos b\u00e1sicos para desenho, pintura, r***REMOVED***ado.","area_conhecimento_id":"8"},{"id":"3261","nome":"Explora
+        procedimentos b\u00e1sicos para desenho, pintura, r***REMOVED***ado, massa de modelar
+        e amassar.","area_conhecimento_id":"8"},{"id":"3462","nome":"Expressa e comunica
+        utilizando materiais e texturas para o fazer art\u00edstico de acordo com
+        as suas condi\u00e7\u00f5es motoras.","area_conhecimento_id":"8"},{"id":"3346","nome":"Expressa
+        suas ideias e sentimentos atrav\u00e9s do desenho, pintura, colagem e dobraduras.","area_conhecimento_id":"5"},{"id":"3609","nome":"Express\u00e3o
+        clara e precisa de ideias.","area_conhecimento_id":"16"},{"id":"3632","nome":"Facilidade
+        na manipula\u00e7\u00e3o dos materiais utilizados no decorrer das aulas.","area_conhecimento_id":"21"},{"id":"3232","nome":"Familiariza-se
+        com elementos espaciais e num\u00e9ricos atrav\u00e9s de jogos, brincadeiras,
+        cantigas e rimas.","area_conhecimento_id":"3"},{"id":"3195","nome":"Familiariza-se
+        com elementos espaciais realizando compara\u00e7\u00f5es com interven\u00e7\u00e3o
+        do professor.","area_conhecimento_id":"3"},{"id":"3294","nome":"Faz uso da
+        linguagem oral nas rodas de conversa expressando desejos, necessidades e sentimentos.","area_conhecimento_id":"5"},{"id":"3568","nome":"Filosofia","area_conhecimento_id":"9"},{"id":"3608","nome":"Formula
+        perguntas.","area_conhecimento_id":"16"},{"id":"3376","nome":"Formula perguntas
+        do assunto que est\u00e1 sendo estudado.","area_conhecimento_id":"6"},{"id":"3434","nome":"Formula
+        perguntas sobre o que est\u00e1 sendo estudado buscando informa\u00e7\u00f5es.","area_conhecimento_id":"6"},{"id":"3575","nome":"Geografia","area_conhecimento_id":"6"},{"id":"3189","nome":"GEOGRAFIA","area_conhecimento_id":"1"},{"id":"3607","nome":"Habilidade
+        de di\u00e1logo.","area_conhecimento_id":"16"},{"id":"3631","nome":"Habilidade
+        de integra\u00e7\u00e3o com os colegas.","area_conhecimento_id":"21"},{"id":"3188","nome":"HISTORIA","area_conhecimento_id":"1"},{"id":"3574","nome":"Hist\u00f3ria","area_conhecimento_id":"6"},{"id":"3395","nome":"Identifica
+        a imagem global do pr\u00f3prio corpo.","area_conhecimento_id":"7"},{"id":"3454","nome":"Identifica
+        a imagem global do pr\u00f3prio corpo percebendo a necessidade e o interesse
+        em cuidar do mesmo.","area_conhecimento_id":"7"},{"id":"3541","nome":"Identifica
+        a partir de materiais concretos observando quantidades de n\u00fameros pares
+        e \u00edmpares.","area_conhecimento_id":"3"},{"id":"3540","nome":"Identifica
+        a posi\u00e7\u00e3o de materiais numa s\u00e9rie observando a ordem crescente
+        e decrescente.","area_conhecimento_id":"3"},{"id":"3549","nome":"Identifica
+        a posi\u00e7\u00e3o de um objeto ou um n\u00famero observando a no\u00e7\u00e3o
+        de sucessor e antecessor.","area_conhecimento_id":"3"},{"id":"3247","nome":"Identifica
+        algumas partes externas do corpo.","area_conhecimento_id":"6"},{"id":"3437","nome":"Identifica
+        alguns elementos do sistema solar.","area_conhecimento_id":"6"},{"id":"3251","nome":"Identifica
+        as pessoas do seu conv\u00edvio familiar e escolar.","area_conhecimento_id":"6"},{"id":"3441","nome":"Identifica
+        e informa o grau de parentesco das pessoas que comp\u00f5em a sua fam\u00edlia.","area_conhecimento_id":"6"},{"id":"3548","nome":"Identifica
+        e nomeia as cores (neutras, prim\u00e1rias e secund\u00e1rias).","area_conhecimento_id":"3"},{"id":"3443","nome":"Identifica
+        e nomeia as partes do corpo.","area_conhecimento_id":"6"},{"id":"3353","nome":"Identifica
+        e nomeia as partes externas do corpo e explora o ambiente para construir os
+        conhecimentos pr\u00e1ticos relacionados aos \u00f3rg\u00e3os dos sentidos.","area_conhecimento_id":"6"},{"id":"3383","nome":"Identifica
+        e nomeia as partes externas do corpo e participa de atividades envolvendo
+        \u00f3rg\u00e3os dos sentidos.","area_conhecimento_id":"6"},{"id":"3356","nome":"Identifica
+        e nomeia as pessoas que fazem parte da sua fam\u00edlia.","area_conhecimento_id":"6"},{"id":"3438","nome":"Identifica
+        e nomeia fen\u00f4menos da natureza.","area_conhecimento_id":"6"},{"id":"3360","nome":"Identifica
+        e observa os fen\u00f4menos da natureza.","area_conhecimento_id":"6"},{"id":"3442","nome":"Identifica
+        mudan\u00e7as ocorridas desde o nascimento at\u00e9 a idade atual, bem como
+        suas caracter\u00edsticas f\u00edsicas pessoais.","area_conhecimento_id":"6"},{"id":"3415","nome":"Identifica
+        o seu nome em diferentes situa\u00e7\u00f5es do cotidiano.","area_conhecimento_id":"5"},{"id":"3528","nome":"Identifica
+        os n\u00fameros nos diferentes contextos em que se encontram (fun\u00e7\u00e3o
+        social do n\u00famero).","area_conhecimento_id":"3"},{"id":"3634","nome":"Identifica
+        os objetos utilizados durante a experi\u00eancia.","area_conhecimento_id":"22"},{"id":"3337","nome":"Identifica
+        sons produzidos pelo pr\u00f3prio corpo e pela natureza.","area_conhecimento_id":"4"},{"id":"3367","nome":"Identifica
+        suas caracter\u00edsticas pessoais em rela\u00e7\u00e3o com o grupo de conv\u00edvio.","area_conhecimento_id":"9"},{"id":"3457","nome":"Imita
+        movimentos de deslocamento pelo espa\u00e7o escolar.","area_conhecimento_id":"7"},{"id":"3393","nome":"Imita
+        movimentos de deslocamento pelo espa\u00e7o escolar.","area_conhecimento_id":"7"},{"id":"3218","nome":"Imita
+        movimentos na rela\u00e7\u00e3o crian\u00e7a\/crian\u00e7a e crian\u00e7a\/adulto.","area_conhecimento_id":"7"},{"id":"3215","nome":"Imita
+        sons, a\u00e7\u00f5es e gestos.","area_conhecimento_id":"7"},{"id":"3297","nome":"Imita
+        sons e express\u00f5es na rela\u00e7\u00e3o crian\u00e7a\/crian\u00e7a e crian\u00e7a\/adulto.","area_conhecimento_id":"5"},{"id":"3206","nome":"Imita
+        sons e express\u00f5es na rela\u00e7\u00e3o crian\u00e7a\/crian\u00e7a e crian\u00e7a\/adulto.","area_conhecimento_id":"5"},{"id":"3375","nome":"Informa
+        o nome das pessoas de sua fam\u00edlia e da escola.","area_conhecimento_id":"6"},{"id":"3586","nome":"Inform\u00e1tica
+        Integrada","area_conhecimento_id":"11"},{"id":"3578","nome":"Inicia\u00e7\u00e3o
+        aos experimentos e \u00e0 pesquisa cient\u00edfica.","area_conhecimento_id":"6"},{"id":"3579","nome":"Inicia\u00e7\u00e3o
+        Musical","area_conhecimento_id":"4"},{"id":"3268","nome":"Iniciou o processo
+        de controle dos esf\u00edncteres.","area_conhecimento_id":"9"},{"id":"3532","nome":"Interage
+        com elementos espaciais e num\u00e9ricos atrav\u00e9s de jogos e brincadeiras.","area_conhecimento_id":"3"},{"id":"3276","nome":"Interage
+        com elementos espaciais e num\u00e9ricos atrav\u00e9s de jogos e brincadeiras.","area_conhecimento_id":"3"},{"id":"3490","nome":"Interage
+        com elementos num\u00e9ricos atrav\u00e9s de jogos e brincadeiras.","area_conhecimento_id":"3"},{"id":"3446","nome":"Interage
+        com os assuntos que est\u00e3o sendo estudados.","area_conhecimento_id":"6"},{"id":"3368","nome":"Interage
+        com outras crian\u00e7as e com adultos de origens e h\u00e1bitos culturais
+        diversos.","area_conhecimento_id":"9"},{"id":"3322","nome":"Interage com outras
+        crian\u00e7as e com adultos de origens e h\u00e1bitos culturais diversos.","area_conhecimento_id":"9"},{"id":"3270","nome":"Interage
+        com outras crian\u00e7as e com adultos de origens e h\u00e1bitos culturais
+        diversos e com novas brincadeiras.","area_conhecimento_id":"9"},{"id":"3456","nome":"Interage
+        nas atividades envolvendo os jogos com regra, jogos intelectuais, tradicionais.","area_conhecimento_id":"7"},{"id":"3329","nome":"Interage
+        nas diversas situa\u00e7\u00f5es matem\u00e1ticas envolvendo contagem, compara\u00e7\u00e3o
+        e associa\u00e7\u00e3o e no\u00e7\u00f5es de quantidade.","area_conhecimento_id":"3"},{"id":"3397","nome":"Interage
+        nos momentos de livre express\u00e3o (teatro e jogos simb\u00f3licos).","area_conhecimento_id":"7"},{"id":"3455","nome":"Interage
+        nos momentos de livre express\u00e3o (teatro e jogos simb\u00f3licos).","area_conhecimento_id":"7"},{"id":"3565","nome":"Interage
+        nos momentos de trocas no grupo a partir das suas experi\u00eancias.","area_conhecimento_id":"9"},{"id":"3409","nome":"Interessa-se
+        pelas situa\u00e7\u00f5es de leitura de diferentes g\u00eaneros textuais realizado
+        pelo professor(a).","area_conhecimento_id":"5"},{"id":"3573","nome":"Jogos
+        Matem\u00e1ticos","area_conhecimento_id":"3"},{"id":"3529","nome":"Levanta
+        hip\u00f3teses sobre situa\u00e7\u00f5es-problemas.","area_conhecimento_id":"3"},{"id":"3193","nome":"LINGUA
+        ESTRANGEIRA MODERNA - INGLES","area_conhecimento_id":"1"},{"id":"3592","nome":"LINGUA
+        ESTRANGEIRA-INGLES ","area_conhecimento_id":"1"},{"id":"3186","nome":"LINGUA
+        PORTUGUESA","area_conhecimento_id":"1"},{"id":"3570","nome":"Literatura","area_conhecimento_id":"5"},{"id":"3585","nome":"L\u00edngua
+        Estrangeira Moderna Ingl\u00eas","area_conhecimento_id":"12"},{"id":"3571","nome":"L\u00edngua
+        Portuguesa","area_conhecimento_id":"5"},{"id":"3591","nome":"LUDICIDADE PR\u00c1TICA","area_conhecimento_id":"1"},{"id":"3230","nome":"Manipula
+        e explora objetos e brinquedos, em situa\u00e7\u00f5es organizadas.","area_conhecimento_id":"3"},{"id":"3197","nome":"Manipula
+        jogos de encaixe favorecendo as percep\u00e7\u00f5es.","area_conhecimento_id":"3"},{"id":"3233","nome":"Manipula
+        materiais diversos na tentativa de encaixe e de empilhar.","area_conhecimento_id":"3"},{"id":"3308","nome":"Manipula
+        objetos e brinquedos explorando os movimentos de preens\u00e3o, encaixe e
+        lan\u00e7amento aperfei\u00e7oando as habilidades manuais.","area_conhecimento_id":"7"},{"id":"3244","nome":"Manuseia
+        material gr\u00e1fico diversificado para aprecia\u00e7\u00e3o de gravuras.
+        ","area_conhecimento_id":"5"},{"id":"3412","nome":"Manuseia material gr\u00e1fico
+        diversificado para aprecia\u00e7\u00e3o de gravuras e identifica\u00e7\u00e3o
+        de texto.","area_conhecimento_id":"5"},{"id":"3509","nome":"Manuseia material
+        gr\u00e1fico diversificado para aprecia\u00e7\u00e3o de gravuras e textos,
+        interessa-se pelas situa\u00e7\u00f5es de leitura.","area_conhecimento_id":"5"},{"id":"3187","nome":"MATEMATICA","area_conhecimento_id":"1"},{"id":"3572","nome":"Matem\u00e1tica","area_conhecimento_id":"3"},{"id":"3465","nome":"Memoriza
+        can\u00e7\u00f5es e poemas.","area_conhecimento_id":"8"},{"id":"3404","nome":"Memoriza
+        can\u00e7\u00f5es e poemas.","area_conhecimento_id":"8"},{"id":"3616","nome":"Memoriza
+        e escuta pequenas sequ\u00eancias de movimentos.","area_conhecimento_id":"18"},{"id":"3422","nome":"Narra
+        hist\u00f3rias ou fatos com altera\u00e7\u00e3o de verso original.","area_conhecimento_id":"5"},{"id":"3359","nome":"Nomeia
+        algumas esp\u00e9cies da fauna e flora.","area_conhecimento_id":"6"},{"id":"3300","nome":"Nomeia
+        algumas partes do corpo.","area_conhecimento_id":"6"},{"id":"3299","nome":"Nomeia
+        e reconhece alguns animais e plantas.","area_conhecimento_id":"6"},{"id":"3384","nome":"Nomeia
+        e reconhece alguns animais e plantas.","area_conhecimento_id":"6"},{"id":"3250","nome":"Nomeia
+        e reconhece alguns animais e plantas.","area_conhecimento_id":"6"},{"id":"3633","nome":"No\u00e7\u00e3o
+        de desenvolvimento do espa\u00e7o temporal.","area_conhecimento_id":"21"},{"id":"3354","nome":"Observa
+        as caracter\u00edsticas f\u00edsicas entre os membros do grupo de conv\u00edvio.","area_conhecimento_id":"6"},{"id":"3385","nome":"Observa
+        e estabelece rela\u00e7\u00f5es entre os fen\u00f4menos da natureza.","area_conhecimento_id":"6"},{"id":"3277","nome":"Observa
+        e explora nas brincadeiras conceitos como: maior\/menor, frente\/atr\u00e1s,
+        em cima\/embaixo, dentro\/fora.","area_conhecimento_id":"3"},{"id":"3486","nome":"Observa
+        e explora no espa\u00e7o conceitos como: maior\/menor, frente\/atr\u00e1s,
+        embaixo\/em cima, dentro\/fora,fino\/grosso. ","area_conhecimento_id":"3"},{"id":"3327","nome":"Observa
+        e explora no espa\u00e7o escolar conceitos como: maior\/menor, frente\/atr\u00e1s,
+        em cima\/embaixo, dentro\/fora.","area_conhecimento_id":"3"},{"id":"3260","nome":"Observa
+        e identifica imagens diversas.","area_conhecimento_id":"8"},{"id":"3311","nome":"Observa
+        e identifica imagens diversas.","area_conhecimento_id":"8"},{"id":"3435","nome":"Observa
+        e identifica o espa\u00e7o escolar bem como as profiss\u00f5es que s\u00e3o
+        necess\u00e1rias para o funcionamento deste.","area_conhecimento_id":"6"},{"id":"3377","nome":"Observa
+        e identifica o espa\u00e7o escolar e as profiss\u00f5es existentes no mesmo.","area_conhecimento_id":"6"},{"id":"3489","nome":"Observa
+        e identifica o espa\u00e7o escolar e as profiss\u00f5es existentes no mesmo.","area_conhecimento_id":"3"},{"id":"3444","nome":"Observa
+        e percebe as mudan\u00e7as ocorridas nos meios de transporte e de comunica\u00e7\u00e3o.","area_conhecimento_id":"6"},{"id":"3433","nome":"Observa
+        e reflete sobre as diversidades culturais, sociais e hist\u00f3ricas (modos
+        distintos de ser, viver e trabalhar das pessoas).","area_conhecimento_id":"6"},{"id":"3466","nome":"Observa
+        elementos constituintes da linguagem visual tendo como refer\u00eancia o ponto,
+        a linha, a forma, a cor e outros.","area_conhecimento_id":"8"},{"id":"3445","nome":"Observa
+        o espa\u00e7o da sala de aula e identifica os materiais escolares nele existente.","area_conhecimento_id":"6"},{"id":"3347","nome":"Oraliza
+        as ideias contidas em suas produ\u00e7\u00f5es para que o professor possa
+        registra-las.","area_conhecimento_id":"5"},{"id":"3408","nome":"Oraliza as
+        ideias contidas em suas produ\u00e7\u00f5es para que o professor possa registra-las.","area_conhecimento_id":"5"},{"id":"3290","nome":"Oraliza
+        as ideias contidas em suas produ\u00e7\u00f5es para que o professor possa
+        registra-las.","area_conhecimento_id":"5"},{"id":"3471","nome":"Organiza e
+        cuida dos materiais de uso pessoal e coletivo.","area_conhecimento_id":"8"},{"id":"3405","nome":"Organiza
+        e cuida dos materiais de uso pessoal e coletivo.","area_conhecimento_id":"8"},{"id":"3236","nome":"Ouve
+        e percebe diferentes sons.","area_conhecimento_id":"4"},{"id":"3200","nome":"Ouve
+        e percebe diferentes sons.","area_conhecimento_id":"4"},{"id":"3336","nome":"Ouve,
+        percebe e discrimina diferentes sons, fontes sonoras e produ\u00e7\u00f5es
+        musicais.","area_conhecimento_id":"4"},{"id":"3281","nome":"Ouve, percebe
+        e discrimina diferentes sons, fontes sonoras e produ\u00e7\u00f5es musicais.","area_conhecimento_id":"4"},{"id":"3598","nome":"Participa,
+        contribui e opina.","area_conhecimento_id":"14"},{"id":"3544","nome":"Participa
+        da constru\u00e7\u00e3o do calend\u00e1rio.","area_conhecimento_id":"3"},{"id":"3421","nome":"Participa
+        da elabora\u00e7\u00e3o de textos tendo o professor e\/ou fam\u00edlia como
+        escriba.","area_conhecimento_id":"5"},{"id":"3331","nome":"Participa da marca\u00e7\u00e3o
+        do tempo por meio de calend\u00e1rio.","area_conhecimento_id":"3"},{"id":"3630","nome":"Participa
+        das atividades propostas.","area_conhecimento_id":"21"},{"id":"3306","nome":"Participa
+        das atividades recreativas que desenvolvem a no\u00e7\u00e3o de lateralidade
+        (dois lados do corpo).","area_conhecimento_id":"7"},{"id":"3243","nome":"Participa
+        das rodas de conversa expressando desejos, necessidades e sentimentos.","area_conhecimento_id":"5"},{"id":"3234","nome":"Participa
+        de atividades de compara\u00e7\u00e3o e ordena\u00e7\u00e3o por meio de brinquedos
+        e brincadeiras.","area_conhecimento_id":"3"},{"id":"3278","nome":"Participa
+        de atividades de compara\u00e7\u00e3o e ordena\u00e7\u00e3o por meio de brinquedos
+        e brincadeiras.","area_conhecimento_id":"3"},{"id":"3293","nome":"Participa
+        de atividades de percep\u00e7\u00e3o sensorial (auditiva, visual, t\u00e1til
+        e gustativa).","area_conhecimento_id":"5"},{"id":"3610","nome":"Participa
+        de atividades em grupo com responsabilidade e colabora\u00e7\u00e3o.","area_conhecimento_id":"16"},{"id":"3492","nome":"Participa
+        de atividades envolvendo a ideia de juntar quantidades para formar uma quantidade
+        maior a partir de atividades concretas (adi\u00e7\u00e3o).","area_conhecimento_id":"3"},{"id":"3535","nome":"Participa
+        de atividades envolvendo a id\u00e9ia de juntar quantidades para formar uma
+        quantidade maior a partir de atividades concretas (adi\u00e7\u00e3o).","area_conhecimento_id":"3"},{"id":"3538","nome":"Participa
+        de atividades envolvendo a id\u00e9ia de repartir quantidades para que cada
+        grupo fique com a mesma quantidade a partir de atividades concretas (divis\u00e3o).","area_conhecimento_id":"3"},{"id":"3537","nome":"Participa
+        de atividades envolvendo a id\u00e9ia de repeti\u00e7\u00e3o de grupos com
+        a mesma quantidade a partir de atividades concretas (multiplica\u00e7\u00e3o).","area_conhecimento_id":"3"},{"id":"3536","nome":"Participa
+        de atividades envolvendo a id\u00e9ia de tirar quantidades de uma quantidade
+        maior a partir de atividades concretas (subtra\u00e7\u00e3o).","area_conhecimento_id":"3"},{"id":"3551","nome":"Participa
+        de atividades envolvendo conhecimento da escrita de informa\u00e7\u00f5es
+        a partir de gr\u00e1ficos e tabelas.","area_conhecimento_id":"3"},{"id":"3355","nome":"Participa
+        de atividades envolvendo hist\u00f3rias, brincadeiras e can\u00e7\u00f5es
+        referentes \u00e0s tradi\u00e7\u00f5es culturais da comunidade.","area_conhecimento_id":"6"},{"id":"3248","nome":"Participa
+        de atividades envolvendo hist\u00f3rias, brincadeiras e can\u00e7\u00f5es
+        referentes \u00e0s tradi\u00e7\u00f5es culturais da comunidade.","area_conhecimento_id":"6"},{"id":"3298","nome":"Participa
+        de atividades envolvendo hist\u00f3rias, brincadeiras e can\u00e7\u00f5es
+        referentes \u00e0s tradi\u00e7\u00f5es culturais da comunidade.","area_conhecimento_id":"6"},{"id":"3378","nome":"Participa
+        de atividades envolvendo hist\u00f3rias, brincadeiras e can\u00e7\u00f5es
+        referentes \u00e0s tradi\u00e7\u00f5es culturais da comunidade.","area_conhecimento_id":"6"},{"id":"3432","nome":"Participa
+        de atividades envolvendo hist\u00f3rias, brincadeiras e can\u00e7\u00f5es
+        referentes \u00e0s tradi\u00e7\u00f5es culturais da comunidade.","area_conhecimento_id":"6"},{"id":"3550","nome":"Participa
+        de atividades envolvendo no\u00e7\u00f5es de medidas de comprimento, peso
+        pela utiliza\u00e7\u00e3o de unidades convencionais e n\u00e3o convencionais.","area_conhecimento_id":"3"},{"id":"3453","nome":"Participa
+        de atividades motoras (brincadeiras, jogos, dan\u00e7as e outros movimentos).","area_conhecimento_id":"7"},{"id":"3315","nome":"Participa
+        de atividades que envolvem a\u00e7\u00f5es de coopera\u00e7\u00e3o, solidariedade
+        e ajuda na rela\u00e7\u00e3o com o outro.","area_conhecimento_id":"9"},{"id":"3264","nome":"Participa
+        de atividades que envolvem a\u00e7\u00f5es de coopera\u00e7\u00e3o, solidariedade
+        e ajuda na rela\u00e7\u00e3o com o outro.","area_conhecimento_id":"9"},{"id":"3307","nome":"Participa
+        de atividades recreativas que desenvolvem a percep\u00e7\u00e3o viso-motora.","area_conhecimento_id":"7"},{"id":"3483","nome":"Participa
+        de jogos simb\u00f3licos e tradicionais.","area_conhecimento_id":"7"},{"id":"3323","nome":"Participa
+        de momentos que favorecem o uso da linguagem oral para interagir, expressar
+        desejos necessidades e sentimentos.","area_conhecimento_id":"9"},{"id":"3328","nome":"Participa
+        de situa\u00e7\u00f5es com elementos espaciais e num\u00e9ricos atrav\u00e9s
+        de jogos e brincadeiras apropriando-se da contagem oral.","area_conhecimento_id":"3"},{"id":"3287","nome":"Participa
+        de situa\u00e7\u00f5es de leitura mesmo ainda que n\u00e3o o fa\u00e7a de
+        maneira convencional.","area_conhecimento_id":"5"},{"id":"3411","nome":"Participa
+        de situa\u00e7\u00f5es diversificadas de comunica\u00e7\u00e3o oral e escritas
+        expressando viv\u00eancias, desejos, necessidades e sentimentos.","area_conhecimento_id":"5"},{"id":"3344","nome":"Participa
+        de situa\u00e7\u00f5es envolvendo a percep\u00e7\u00e3o sensorial (auditiva,
+        visual, t\u00e1til e gustativa).","area_conhecimento_id":"5"},{"id":"3335","nome":"Participa
+        de situa\u00e7\u00f5es envolvendo imita\u00e7\u00f5es e movimentos corporais
+        adequados \u00e0 idade.","area_conhecimento_id":"4"},{"id":"3235","nome":"Participa
+        de situa\u00e7\u00f5es envolvendo m\u00fasica, imita\u00e7\u00f5es e movimentos
+        corporais.","area_conhecimento_id":"4"},{"id":"3198","nome":"Participa de
+        situa\u00e7\u00f5es envolvendo m\u00fasicas, cantigas, percebendo as varia\u00e7\u00f5es
+        de ritimo.","area_conhecimento_id":"4"},{"id":"3499","nome":"Participa de
+        situa\u00e7\u00f5es envolvendo m\u00fasicas e cantigas desenvolvendo a comunica\u00e7\u00e3o
+        e express\u00e3o corporal.","area_conhecimento_id":"4"},{"id":"3414","nome":"Participa
+        de situa\u00e7\u00f5es l\u00fadicas aliadas \u00e0 diferentes linguagens e
+        compet\u00eancias.","area_conhecimento_id":"5"},{"id":"3339","nome":"Participa
+        de situa\u00e7\u00f5es nas quais utiliza instrumentos musicais e objetos sonoros
+        para explor\u00e1-los.","area_conhecimento_id":"4"},{"id":"3284","nome":"Participa
+        de situa\u00e7\u00f5es nas quais utiliza instrumentos musicais e objetos sonoros
+        para explor\u00e1-los, imitando gestos motores percebendo as possibilidades
+        sonoras.","area_conhecimento_id":"4"},{"id":"3246","nome":"Participa de situa\u00e7\u00f5es
+        onde explora materiais para produ\u00e7\u00e3o de desenhos, colagens e pinturas.","area_conhecimento_id":"5"},{"id":"3207","nome":"Participa
+        de situa\u00e7\u00f5es onde explora materiais para produ\u00e7\u00e3o de rabiscos.","area_conhecimento_id":"5"},{"id":"3391","nome":"Participa
+        de situa\u00e7\u00f5es que desenvolvem potencialidades do corpo explorando
+        movimentos de for\u00e7a, velocidade, resist\u00eancia, flexibilidade e equil\u00edbrio.","area_conhecimento_id":"7"},{"id":"3369","nome":"Participa
+        de situa\u00e7\u00f5es que favorecem o uso da linguagem oral para interagir.","area_conhecimento_id":"9"},{"id":"3599","nome":"Participa
+        do desenvolvimento da proposta com iniciativa perante o processo produtivo.","area_conhecimento_id":"14"},{"id":"3606","nome":"Participa
+        do projeto: \"Recicla Lendo por meio de pr\u00e1ticas ambientais\".","area_conhecimento_id":"15"},{"id":"3588","nome":"Participa
+        dos jogos, brincadeiras, hist\u00f3rias e m\u00fasica.","area_conhecimento_id":"13"},{"id":"3387","nome":"Participa
+        em diferentes atividades envolvendo observa\u00e7\u00f5es e pesquisas dos
+        elementos do ambiente (\u00e1gua, vento, ar, solo).","area_conhecimento_id":"6"},{"id":"3279","nome":"Participa
+        em jogos, brincadeiras e m\u00fasica nas quais se utiliza contagem oral, no\u00e7\u00f5es
+        de quantidade, de tempo e espa\u00e7o.","area_conhecimento_id":"3"},{"id":"3240","nome":"Participa
+        em situa\u00e7\u00f5es de leitura de diferentes g\u00eaneros textuais realizado
+        pelo professor(a).","area_conhecimento_id":"5"},{"id":"3601","nome":"Participa
+        na explora\u00e7\u00e3o dos conte\u00fados.","area_conhecimento_id":"15"},{"id":"3635","nome":"Participa
+        tendo interesse e aten\u00e7\u00e3o durante a realiza\u00e7\u00e3o do experimento.","area_conhecimento_id":"22"},{"id":"3396","nome":"Percebe
+        a necessidade e interessa-se em cuidar do pr\u00f3prio corpo.","area_conhecimento_id":"7"},{"id":"3427","nome":"Percebe
+        as palavras em suas partes.","area_conhecimento_id":"5"},{"id":"3226","nome":"Percebe
+        e reconhece as sensa\u00e7\u00f5es do seu corpo.","area_conhecimento_id":"9"},{"id":"3213","nome":"Percebe
+        limites e sensa\u00e7\u00f5es do pr\u00f3prio corpo.","area_conhecimento_id":"7"},{"id":"3305","nome":"Percebe
+        limites, sensa\u00e7\u00f5es e potencialidades do pr\u00f3prio corpo.","area_conhecimento_id":"7"},{"id":"3254","nome":"Percebe
+        limites, sensa\u00e7\u00f5es e potencialidades do pr\u00f3prio corpo valorizando
+        as suas conquistas.","area_conhecimento_id":"7"},{"id":"3423","nome":"Percebe
+        o espa\u00e7amento entre as palavras.","area_conhecimento_id":"5"},{"id":"3617","nome":"Percebe
+        sensa\u00e7\u00f5es, limites, potencialidades, sinais vitais, integridade
+        no pr\u00f3prio corpo.","area_conhecimento_id":"18"},{"id":"3282","nome":"Percebe
+        varia\u00e7\u00f5es de sons e ritmos produzidos pelo pr\u00f3prio corpo.","area_conhecimento_id":"4"},{"id":"3199","nome":"Percebe
+        varia\u00e7\u00f5es de sons produzidos pelo pr\u00f3prio corpo.","area_conhecimento_id":"4"},{"id":"3612","nome":"Possui
+        coer\u00eancia em sua oralidade, desenvolvendo sequ\u00eancia l\u00f3gica.","area_conhecimento_id":"17"},{"id":"3459","nome":"Produz
+        trabalhos art\u00edsticos explorando procedimentos b\u00e1sicos para desenhar,
+        pintar, r***REMOVED***ar, recortar, modelar e amassar.","area_conhecimento_id":"8"},{"id":"3641","nome":"Pronuncia
+        palavras estudadas em ingl\u00eas.","area_conhecimento_id":"23"},{"id":"3201","nome":"Quando
+        agitado(a) consegue acalmar-se ouvindo m\u00fasicas.","area_conhecimento_id":"4"},{"id":"3285","nome":"Quando
+        agitado(a) consegue acalmar-se ouvindo m\u00fasicas. ","area_conhecimento_id":"4"},{"id":"3340","nome":"Quando
+        agitado(a) consegue acalmar-se ouvindo m\u00fasicas. ","area_conhecimento_id":"4"},{"id":"3239","nome":"Quando
+        agitado(a) consegue acalmar-se ouvindo m\u00fasicas. ","area_conhecimento_id":"4"},{"id":"3401","nome":"Realiza
+        a releitura de obras de arte.","area_conhecimento_id":"8"},{"id":"3464","nome":"Realiza
+        a releitura de obras de arte.","area_conhecimento_id":"8"},{"id":"3602","nome":"Realiza
+        as atividades com coer\u00eancia.","area_conhecimento_id":"15"},{"id":"3624","nome":"Realiza
+        as atividades corretamente propostas.","area_conhecimento_id":"19"},{"id":"3642","nome":"Realiza
+        as atividades propostas com interesse.","area_conhecimento_id":"23"},{"id":"3449","nome":"Realiza
+        atividades desafiadoras desenvolvendo o equil\u00edbrio est\u00e1tico e din\u00e2mico.","area_conhecimento_id":"7"},{"id":"3482","nome":"Realiza
+        atividades desafiadoras desenvolvendo o equil\u00edbrio est\u00e1tico e din\u00e2mico.
+        ","area_conhecimento_id":"7"},{"id":"3394","nome":"Realiza atividades envolvendo
+        as no\u00e7\u00f5es de direcionalidade com o corpo (em frente, para tr\u00e1s,
+        acima, abaixo, para um lado, para outro lado).","area_conhecimento_id":"7"},{"id":"3450","nome":"Realiza
+        atividades envolvendo as no\u00e7\u00f5es de direcionalidade com o corpo (em
+        frente, para tr\u00e1s, acima, abaixo, para um lado, para outro lado).","area_conhecimento_id":"7"},{"id":"3398","nome":"Realiza
+        brincadeiras e atividades que desenvolvem no\u00e7\u00f5es de espa\u00e7o
+        temporal.","area_conhecimento_id":"7"},{"id":"3539","nome":"Realiza c\u00e1lculo
+        mental simples.","area_conhecimento_id":"3"},{"id":"3330","nome":"Realiza
+        compara\u00e7\u00f5es (leve, pesado, alto, baixo).","area_conhecimento_id":"3"},{"id":"3390","nome":"Realiza
+        movimentos de preens\u00e3o, encaixe e lan\u00e7amento buscando a melhoria
+        das mesmas.","area_conhecimento_id":"7"},{"id":"3604","nome":"Realiza no seu
+        dia-a-dia pr\u00e1ticas sustent\u00e1veis (fechar a torneira).","area_conhecimento_id":"15"},{"id":"3451","nome":"Realiza
+        os movimentos de preens\u00e3o, encaixe, lan\u00e7amento, for\u00e7a, velocidade,
+        resist\u00eancia, flexibilidade.","area_conhecimento_id":"7"},{"id":"3262","nome":"Realiza
+        pequenas a\u00e7\u00f5es cotidianas, adquirindo maior independ\u00eancia.","area_conhecimento_id":"9"},{"id":"3224","nome":"Realiza
+        pequenas a\u00e7\u00f5es cotidianas, adquirindo maior independ\u00eancia.","area_conhecimento_id":"9"},{"id":"3559","nome":"Realiza
+        pequenas a\u00e7\u00f5es cotidianas adquirindo maior independ\u00eancia.","area_conhecimento_id":"9"},{"id":"3425","nome":"Realiza
+        tentativas de escrita com ou sem intencionalidade.","area_conhecimento_id":"5"},{"id":"3467","nome":"\u00c1reas
+        de Conhecimento","area_conhecimento_id":"10"},{"id":"3545","nome":"Reconhece
+        a divis\u00e3o do tempo considerando hoje, ontem e amanh\u00e3.","area_conhecimento_id":"3"},{"id":"3349","nome":"Reconhece
+        a escrita e do pr\u00f3prio nome em  situa\u00e7\u00f5es em que se faz necess\u00e1rio.","area_conhecimento_id":"5"},{"id":"3542","nome":"Reconhece
+        a import\u00e2ncia do sistema monet\u00e1rio vigente.","area_conhecimento_id":"3"},{"id":"3527","nome":"Reconhece
+        a import\u00e2ncia dos n\u00fameros, contagens orais, opera\u00e7\u00f5es
+        num\u00e9ricas e no\u00e7\u00f5es espaciais no dia-a-dia.","area_conhecimento_id":"3"},{"id":"3381","nome":"Reconhece
+        alguns pap\u00e9is sociais fora do espa\u00e7o escolar (profiss\u00f5es).","area_conhecimento_id":"6"},{"id":"3228","nome":"Reconhece
+        as pessoas do seu conv\u00edvio, expressa suas necessidades, pensamentos,
+        desejos, sentimentos e interesses.","area_conhecimento_id":"9"},{"id":"3380","nome":"Reconhece
+        caracter\u00edsticas de objetos produzidos em diferentes \u00e9pocas e por
+        diferentes grupos sociais.","area_conhecimento_id":"6"},{"id":"3221","nome":"Reconhece
+        e explora diferentes movimentos gestuais.","area_conhecimento_id":"8"},{"id":"3265","nome":"Reconhece
+        e identifica os limites e sensa\u00e7\u00f5es do seu corpo.","area_conhecimento_id":"9"},{"id":"3386","nome":"Reconhece
+        e nomeia algumas esp\u00e9cies da fauna e da flora.","area_conhecimento_id":"6"},{"id":"3468","nome":"Reconhece
+        e nomeia algumas esp\u00e9cies da fauna e da flora.","area_conhecimento_id":"6"},{"id":"3447","nome":"Reconhece
+        e nomeia algumas esp\u00e9cies da fauna e flora.","area_conhecimento_id":"6"},{"id":"3590","nome":"Reconhece
+        e pronuncia adequadamente o vocabul\u00e1rio.","area_conhecimento_id":"13"},{"id":"3543","nome":"Reconhece,
+        identifica e registra os n\u00fameros de 0 a 9.","area_conhecimento_id":"3"},{"id":"3364","nome":"Reconhece
+        o pr\u00f3prio corpo, familiarizando-se com a sua imagem.","area_conhecimento_id":"9"},{"id":"3320","nome":"Reconhece
+        o pr\u00f3prio corpo familiarizando-se com a sua imagem.","area_conhecimento_id":"9"},{"id":"3520","nome":"Reconhece
+        o pr\u00f3prio corpo familiarizando-se com a sua imagem bem como os cuidados
+        com sa\u00fade e higiene.","area_conhecimento_id":"9"},{"id":"3263","nome":"Reconhece
+        o pr\u00f3prio corpo familiarizando-se com a sua imagem no espelho.","area_conhecimento_id":"9"},{"id":"3225","nome":"Reconhece
+        o pr\u00f3prio corpo familiarizando-se com a sua imagem no espelho.","area_conhecimento_id":"9"},{"id":"3546","nome":"Reconhece
+        os dias da semana.","area_conhecimento_id":"3"},{"id":"3440","nome":"Reconhece
+        os diferentes tipos de paisagens naturais e modificadas.","area_conhecimento_id":"6"},{"id":"3363","nome":"Reconhece
+        os limites e sensa\u00e7\u00f5es do seu corpo e os cuidados com a sua sa\u00fade
+        e higiene.","area_conhecimento_id":"9"},{"id":"3252","nome":"Reconhece os
+        segmentos e elementos do pr\u00f3prio corpo por meio da explora\u00e7\u00e3o,
+        das brincadeiras e da intera\u00e7\u00e3o.","area_conhecimento_id":"7"},{"id":"3303","nome":"Reconhece
+        os segmentos e elementos do pr\u00f3prio corpo por meio da explora\u00e7\u00e3o,
+        das brincadeiras e da intera\u00e7\u00e3o.","area_conhecimento_id":"7"},{"id":"3388","nome":"Reconhece
+        os tipos de casas, meios de transportes, meios de comunica\u00e7\u00e3o, atrav\u00e9s
+        da visualiza\u00e7\u00e3o.","area_conhecimento_id":"6"},{"id":"3419","nome":"Reconhece
+        outras palavras que t\u00eam a letra inicial do nome registrando-as.","area_conhecimento_id":"5"},{"id":"3426","nome":"Registra
+        fatos, informa\u00e7\u00f5es e hist\u00f3rias por meio de desenhos.","area_conhecimento_id":"5"},{"id":"3416","nome":"Registra
+        seu nome com apoio.","area_conhecimento_id":"5"},{"id":"3417","nome":"Registra
+        seu nome sem apoio.","area_conhecimento_id":"5"},{"id":"3640","nome":"Relaciona
+        o vocabul\u00e1rio estudado ao vocabul\u00e1rio em portugu\u00eas.","area_conhecimento_id":"23"},{"id":"3350","nome":"Relata
+        fatos na sequ\u00eancia em que ele acontecem.","area_conhecimento_id":"5"},{"id":"3516","nome":"Relata
+        fatos na sequ\u00eancia em que eles acontecem. ","area_conhecimento_id":"5"},{"id":"3424","nome":"Relata
+        fatos na sequ\u00eancia que eles acontecem.","area_conhecimento_id":"5"},{"id":"3637","nome":"Relata
+        oralmente o processo de realiza\u00e7\u00e3o do experimento.","area_conhecimento_id":"22"},{"id":"3615","nome":"Representa
+        atrav\u00e9s de ilustra\u00e7\u00f5es.","area_conhecimento_id":"17"},{"id":"3407","nome":"Representa
+        ideias por meio de desenho, colagem, modelagem, dobraduras e pinturas.","area_conhecimento_id":"5"},{"id":"3289","nome":"Representa
+        ideias por meio de desenho, colagem, modelagem, dobraduras e pinturas.","area_conhecimento_id":"5"},{"id":"3431","nome":"Reproduz
+        a direcionalidade da escrita (da esquerda para a direita).","area_conhecimento_id":"5"},{"id":"3460","nome":"Reproduz
+        desenho de tra\u00e7os simples.","area_conhecimento_id":"8"},{"id":"3530","nome":"Resolve
+        situa\u00e7\u00f5es-problema fazendo uso da linguagem oral matem\u00e1tica.","area_conhecimento_id":"3"},{"id":"3373","nome":"Respeita
+        as regras b\u00e1sicas de conv\u00edvio social.","area_conhecimento_id":"9"},{"id":"3318","nome":"Respeita
+        as regras b\u00e1sicas de conv\u00edvio social, demonstrando solidariedade
+        em atitudes de ajuda e colabora\u00e7\u00e3o.","area_conhecimento_id":"9"},{"id":"3273","nome":"Respeita
+        as regras b\u00e1sicas de conv\u00edvio social, demonstrando solidariedade
+        em atitudes de ajuda e colabora\u00e7\u00e3o.","area_conhecimento_id":"9"},{"id":"3639","nome":"Respeita
+        e ouve com aten\u00e7\u00e3o e concentra\u00e7\u00e3o o assunto estudado.","area_conhecimento_id":"23"},{"id":"3613","nome":"Respeita
+        e ouve com aten\u00e7\u00e3o e concentra\u00e7\u00e3o o assunto estudado.","area_conhecimento_id":"17"},{"id":"3292","nome":"Respeita
+        suas produ\u00e7\u00f5es e as alheias.","area_conhecimento_id":"5"},{"id":"3255","nome":"Responde
+        a est\u00edmulos visuais, psicomotores, sonoros, gestuais e sentimentais.","area_conhecimento_id":"7"},{"id":"3214","nome":"Responde
+        a est\u00edmulos visuais, psicomotores, sonoros, gestuais e sentimentais.","area_conhecimento_id":"7"},{"id":"3204","nome":"Responde
+        com o olhar ou com sorriso quando falam com ele(a).","area_conhecimento_id":"5"},{"id":"3205","nome":"Responde
+        quando lhe chamam pelo pr\u00f3prio nome.","area_conhecimento_id":"5"},{"id":"3245","nome":"Responde
+        quando lhe chamam pelo pr\u00f3prio nome e imita sons e express\u00f5es na
+        rela\u00e7\u00e3o crian\u00e7a\/crian\u00e7a e crian\u00e7a\/adulto.","area_conhecimento_id":"5"},{"id":"3473","nome":"Se
+        expressa e comunica-se atrav\u00e9s de diferentes formas de express\u00e3o
+        art\u00edsticas (desenho, pintura, r***REMOVED***ado e colagem).","area_conhecimento_id":"8"},{"id":"3220","nome":"Se
+        expressa e se comunica atrav\u00e9s da utiliza\u00e7\u00e3o de diversas formas
+        de express\u00e3o art\u00edstica.","area_conhecimento_id":"8"},{"id":"3196","nome":"Segura
+        examina e explora objetos de diferentes formas.","area_conhecimento_id":"3"},{"id":"3627","nome":"Sente-se
+        estimulado em rela\u00e7\u00e3o aos jogos.","area_conhecimento_id":"20"},{"id":"3325","nome":"Solicita
+        a ajuda quando sente necessidade.","area_conhecimento_id":"9"},{"id":"3272","nome":"Solicita
+        a ajuda quando sente necessidade.","area_conhecimento_id":"9"},{"id":"3371","nome":"Solicita
+        a ajuda quando sente necessidade.","area_conhecimento_id":"9"},{"id":"3583","nome":"Teatro","area_conhecimento_id":"8"},{"id":"3622","nome":"Tem
+        no\u00e7\u00f5es b\u00e1sicas na utiliza\u00e7\u00e3o do mouse e teclado.","area_conhecimento_id":"19"},{"id":"3452","nome":"Tem
+        no\u00e7\u00e3o de lateralidade (direito-esquerda).","area_conhecimento_id":"7"},{"id":"3216","nome":"Transfere
+        objetos de uma m\u00e3o para outra.","area_conhecimento_id":"7"},{"id":"3488","nome":"Utiliza
+        a contagem oral em situa\u00e7\u00f5es nas quais reconhece sua necessidade
+        (no\u00e7\u00f5es de quantidade, de tempo e espa\u00e7o em jogos, brincadeiras
+        e m\u00fasicas).","area_conhecimento_id":"3"},{"id":"3491","nome":"Utiliza
+        da classifica\u00e7\u00e3o, compara\u00e7\u00e3o, associa\u00e7\u00e3o e seria\u00e7\u00e3o
+        a partir de brincadeiras.","area_conhecimento_id":"3"},{"id":"3605","nome":"Utiliza
+        das pr\u00e1ticas saud\u00e1veis no seu cotidiano por meio do Projeto: \"Vida
+        Saud\u00e1vel: Depende de Voc\u00ea\". ","area_conhecimento_id":"15"},{"id":"3420","nome":"Utiliza
+        o alfabeto m\u00f3vel observando a sequ\u00eancia da escrita.","area_conhecimento_id":"5"},{"id":"3620","nome":"Utiliza
+        o corpo com o objetivo de comunicar e expressar sentimentos e sensa\u00e7\u00f5es.","area_conhecimento_id":"18"},{"id":"3429","nome":"Utiliza
+        para escrita o alfabeto script (mai\u00fasculo).","area_conhecimento_id":"5"},{"id":"3295","nome":"Valoriza
+        a leitura como fonte de prazer e entretenimento.","area_conhecimento_id":"5"},{"id":"3348","nome":"Valoriza
+        a leitura como fonte de prazer e entretenimento e imita o procedimento de
+        leitura realizado pelo adulto ou por outra crian\u00e7a.","area_conhecimento_id":"5"},{"id":"3338","nome":"Valoriza
+        as a\u00e7\u00f5es art\u00edsticas e o respeito pela diversidade.","area_conhecimento_id":"4"},{"id":"3283","nome":"Valoriza
+        as a\u00e7\u00f5es art\u00edsticas e o respeito pela diversidade.","area_conhecimento_id":"4"},{"id":"3296","nome":"Visualiza
+        a escrita do pr\u00f3prio nome em situa\u00e7\u00f5es em que se faz necess\u00e1rio.
+        ","area_conhecimento_id":"5"},{"id":"3222","nome":"Visualiza imagens atrav\u00e9s
+        de brinquedos.","area_conhecimento_id":"8"}],"oper":"get","resource":"componentes-curriculares","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Thu, 27 Aug 2015 13:46:14 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/AreaConhecimento?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=areas-de-conhecimento&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 27 Aug 2015 13:52:42 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=6r71supudldhqq3v6g1ptrsji0; expires=Fri, 28-Aug-2015 13:52:42 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '1000'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"areas":[{"id":"8","nome":"ARTES VISUAIS"},{"id":"21","nome":"ATIVIDADES
+        ESPORTIVAS"},{"id":"18","nome":"DAN\u00c7A"},{"id":"15","nome":"EDUCA\u00c7\u00c3O
+        AMBIENTAL"},{"id":"1","nome":"Ensino Fundamental\/B\u00e1sico"},{"id":"16","nome":"FILOSOFIA"},{"id":"9","nome":"IDENTIDADE
+        E AUTONOMIA"},{"id":"19","nome":"INFORM\u00c1TICA EDUCATIVA"},{"id":"11","nome":"INFORM\u00c1TICA
+        INTEGRADA "},{"id":"12","nome":"INGL\u00caS"},{"id":"23","nome":"INGL\u00caS
+        (Emebi)"},{"id":"22","nome":"INICIA\u00c7\u00c3O A EXPERI\u00caNCIA CIENT\u00cdFICA"},{"id":"20","nome":"JOGOS
+        MATEM\u00c1TICOS"},{"id":"5","nome":"LINGUAGEM ORAL E ESCRITA"},{"id":"17","nome":"LITERATURA"},{"id":"13","nome":"L\u00cdNGUA
+        INGLESA"},{"id":"3","nome":"MATEM\u00c1TICA"},{"id":"7","nome":"MOVIMENTO"},{"id":"4","nome":"M\u00daSICA"},{"id":"6","nome":"NATUREZA
+        E SOCIEDADE"},{"id":"10","nome":"\u00c1REAS DE CONHECIMENTO"},{"id":"14","nome":"TEATRO"}],"oper":"get","resource":"areas-de-conhecimento","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Thu, 27 Aug 2015 13:52:42 GMT
+recorded_with: VCR 2.9.3

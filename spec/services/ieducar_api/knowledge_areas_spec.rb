@@ -8,7 +8,7 @@ RSpec.describe IeducarApi::KnowledgeAreas, :type => :service do
   let(:unity_id) { 1 }
 
   subject do
-    IeducarApi::Disciplines.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+    IeducarApi::KnowledgeAreas.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
   end
 
   describe "#fetch" do
