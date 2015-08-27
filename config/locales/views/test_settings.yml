@@ -2,6 +2,7 @@ pt-BR:
   test_settings:
     form:
       tests: "Avaliações"
+      allow_break_up_info_html: "Caso a opção <strong>Permitir desmembrar</strong> seja selecionada, o professor poderá cadastrar para cada avaliação fixada, uma ou mais avaliações limitadas ao peso configurado."
       add_test: "Adicionar avaliação"
       no_item_found: "Nenhuma avaliação"
     test_fields:
