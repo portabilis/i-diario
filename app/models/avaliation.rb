@@ -109,7 +109,7 @@ class Avaliation < ActiveRecord::Base
                             .by_test_date_between(step.start_at, step.end_at)
     avaliations = avaliations.where(Avaliation.arel_table[:id].not_eq(id)) if persisted?
 
-    total_weight_of_existing_avaliations = avaliations.any? ? avaliations.inject(0) { |sum, avaliation| sum + avaliation.weight } : 0
+    total_weight_of_existing_avaliations = avaliations.any? ? avaliations.inject(0) { |sum, avaliation| avaliation.weight ? sum + avaliation.weight : 0 } : 0
     if total_weight_of_existing_avaliations == test_setting_test.weight
       errors.add(:test_setting_test, :unavailable_weight)
     elsif (total_weight_of_existing_avaliations + weight) > test_setting_test.weight
