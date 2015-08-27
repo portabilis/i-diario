@@ -9,7 +9,7 @@ class IeducarSynchronizerWorker
 
       begin
         # synchronize Courses, Grades and Classrooms
-        CoursesGradesClassroomsClassroomsSynchronizer.synchronize!(synchronization)
+        CoursesGradesClassroomsSynchronizer.synchronize!(synchronization)
 
         # synchronize Knowledge Areas
         KnowledgeAreasSynchronizer.synchronize!(synchronization)

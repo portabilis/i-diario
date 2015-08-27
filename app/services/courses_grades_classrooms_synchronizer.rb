@@ -1,4 +1,4 @@
-class CoursesGradesClassroomsClassroomsSynchronizer
+class CoursesGradesClassroomsSynchronizer
   def self.synchronize!(synchronization)
     new(synchronization).synchronize!
   end
@@ -53,7 +53,7 @@ class CoursesGradesClassroomsClassroomsSynchronizer
           course: course
         )
       end
-      update_classrooms(grade, record["turmas"])
+      update_classrooms(grade, record['turmas']) if record['turmas']
     end
   end
 
