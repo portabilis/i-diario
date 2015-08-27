@@ -50,7 +50,7 @@
           <td class="no_item_found" colspan="5" style="<%= @test_setting.tests.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
         </tr>
 
-        <%= f.association :tests, collection: f.object.tests.map { |test| test.localized } do |p| %>
+        <%= f.association :tests do |p| %>
           <%= render 'test_fields', f: p %>
         <% end %>
       </tbody>

@@ -15,10 +15,10 @@
         <%= f.association :discipline, as: :select2, elements: @disciplines %>
       </div>
     </div>
-    <div class="row">
 
+    <div class="row">
       <div class="col col-sm-4">
-        <%= f.input :test_date %>
+        <%= f.input :test_date, input_html: { value: f.object.localized.test_date } %>
       </div>
 
       <div class="col col-sm-4">
@@ -30,6 +30,15 @@
           <%= f.association :test_setting_test, as: :select2, elements: @avaliation.test_setting.tests %>
         <% else %>
             <%= f.input :description %>
+        <% end %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div id="weight" class="col col-sm-4">
+        <% if @avaliation.test_setting.fix_tests? %>
+          <%= f.input :weight, input_html: { value: number_with_precision(f.object.weight, precision: @avaliation.test_setting.number_of_decimal_places),
+                                             data: { scale: @avaliation.test_setting.number_of_decimal_places } } %>
         <% end %>
       </div>
     </div>

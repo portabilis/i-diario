@@ -22,6 +22,7 @@ pt-BR:
         description: "Descrição da avaliação"
         test_setting_test_id: "Tipo de avaliação"
         test_setting_test: "Tipo de avaliação"
+        weight: "Peso"
 
     errors:
       models:
@@ -31,6 +32,7 @@ pt-BR:
                 must_be_school_day: "deve ser um dia letivo"
               test_setting_test:
                 unique_per_step: "deve ser única por etapa"
+                unavailable_weight: "já foram criadas avaliações que atingiram o peso limite para este tipo de avaliação"
               classroom:
                 classroom_score_type_must_be_numeric: "o tipo de nota da regra de avaliação não é numérica"
 

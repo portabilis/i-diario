@@ -2,7 +2,7 @@ FactoryGirl.define do
   factory :classroom do
     description 'Example Classroom'
     year        2020
-    api_code    '1234'
+    sequence(:api_code) { |n| n.to_s }
     unity_code  '1234'
 
     unity

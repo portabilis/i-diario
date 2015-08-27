@@ -20,13 +20,22 @@ class Avaliation < ActiveRecord::Base
   validates :unity, :classroom, :discipline, :test_date, :class_number, :test_setting,
               :school_calendar, presence: true
   validates :test_setting_test, presence: true, if: :fix_tests?
+  validates :weight, presence: true,
+                     if: :allow_break_up?
+
   validates :description, presence: true, unless: :fix_tests?
-  validate :unique_test_setting_test_per_step, if: :fix_tests?
+
+  validate :unique_test_setting_test_per_step, if: -> { fix_tests? && !allow_break_up? }
+  validate :test_setting_test_weight_available, if: :allow_break_up?
   validate :is_school_day?
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
 
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
+  scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_test_date_between, lambda { |start_at, end_at| where(test_date: start_at.to_date..end_at.to_date) }
+  scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :ordered, -> { order(arel_table[:test_date]) }
 
   def to_s
@@ -50,6 +59,10 @@ class Avaliation < ActiveRecord::Base
   def fix_tests?
     return false if test_setting.nil?
     test_setting.fix_tests?
+  end
+
+  def allow_break_up?
+    test_setting_test && test_setting_test.allow_break_up
   end
 
   private
@@ -78,17 +91,32 @@ class Avaliation < ActiveRecord::Base
   def unique_test_setting_test_per_step
     return unless step
 
-    relation = Avaliation
-    if persisted?
-      relation = relation.where(Avaliation.arel_table[:id].not_eq(id))
-    end
-    relation = relation.where(Avaliation.arel_table[:test_setting_test_id].eq(test_setting_test_id))
-    relation = relation.where(Avaliation.arel_table[:classroom_id].eq(classroom_id))
-    relation = relation.where(Avaliation.arel_table[:discipline_id].eq(discipline_id))
-    relation = relation.where(Avaliation.arel_table[:test_date].gteq(step.start_at))
-    relation = relation.where(Avaliation.arel_table[:test_date].lteq(step.end_at))
+    avaliations = Avaliation.by_classroom_id(classroom_id)
+                            .by_discipline_id(discipline)
+                            .by_test_setting_test_id(test_setting_test_id)
+                            .by_test_date_between(step.start_at, step.end_at)
+    avaliations = avaliations.where(Avaliation.arel_table[:id].not_eq(id)) if persisted?
 
-    errors.add(:test_setting_test, :unique_per_step) if relation.any?
+    errors.add(:test_setting_test, :unique_per_step) if avaliations.any?
+  end
+
+  def test_setting_test_weight_available
+    return unless step && weight
+
+    avaliations = Avaliation.by_classroom_id(classroom_id)
+                            .by_discipline_id(discipline)
+                            .by_test_setting_test_id(test_setting_test_id)
+                            .by_test_date_between(step.start_at, step.end_at)
+    avaliations = avaliations.where(Avaliation.arel_table[:id].not_eq(id)) if persisted?
+
+    total_weight_of_existing_avaliations = avaliations.any? ? avaliations.inject(0) { |sum, avaliation| sum + avaliation.weight } : 0
+    if total_weight_of_existing_avaliations == test_setting_test.weight
+      errors.add(:test_setting_test, :unavailable_weight)
+    elsif (total_weight_of_existing_avaliations + weight) > test_setting_test.weight
+      errors.add(:weight, :less_than_or_equal_to, count: test_setting_test.weight - total_weight_of_existing_avaliations)
+    elsif (weight <= 0)
+      errors.add(:weight, :greater_than, count: 0.0)
+    end
   end
 
   def try_destroy_daily_notes

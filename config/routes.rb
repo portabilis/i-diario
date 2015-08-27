@@ -114,6 +114,7 @@ Rails.application.routes.draw do
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
     end
+    resources :test_setting_tests, only: [:show]
 
     resources :school_calendars, concerns: :history do
       resources :school_calendar_steps, only: [:index]

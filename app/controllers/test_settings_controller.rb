@@ -79,6 +79,7 @@ class TestSettingsController < ApplicationController
                                                             :description,
                                                             :weight,
                                                             :test_type,
+                                                            :allow_break_up,
                                                             :_destroy])
   end
 end

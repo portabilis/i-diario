@@ -41,20 +41,21 @@ class AvaliationsController < ApplicationController
   end
 
   def edit
-    @avaliation = resource
+    @avaliation = Avaliation.find(params[:id])
 
-    authorize resource
+    authorize @avaliation
 
     fetch_classrooms
   end
 
   def update
-    resource.assign_attributes resource_params
+    @avaliation = Avaliation.find(params[:id])
+    @avaliation.localized.assign_attributes(resource_params)
 
-    authorize resource
+    authorize @avaliation
 
     if resource.save
-      respond_with resource, location: avaliations_path
+      respond_with @avaliation, location: avaliations_path
     else
       fetch_classrooms
 
@@ -102,8 +103,13 @@ class AvaliationsController < ApplicationController
   end
 
   def resource_params
-    params.require(:avaliation).permit(
-      :unity_id, :classroom_id, :discipline_id, :test_date, :class_number, :test_setting_test_id, :description
-    )
+    params.require(:avaliation).permit(:unity_id,
+                                       :classroom_id,
+                                       :discipline_id,
+                                       :test_date,
+                                       :class_number,
+                                       :description,
+                                       :test_setting_test_id,
+                                       :weight)
   end
 end
