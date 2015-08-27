@@ -24,6 +24,11 @@
   <fieldset id="item_setting_tests">
     <legend><%= t('.tests') %></legend>
 
+    <p class="alert alert-info">
+      <i class="fa-fw fa fa-info"></i>
+      Caso a opção <strong>Permitir desmembrar</strong> seja selecionada, o professor poderá cadastrar para cada avaliação fixada, uma ou mais avaliações limitadas ao peso configurado.
+    </p>
+
     <div>
       <% if f.object.errors[:tests].any? %>
         <div class="alert alert-danger fade in">
