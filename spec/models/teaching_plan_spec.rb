@@ -28,6 +28,17 @@ RSpec.describe TeachingPlan, type: :model do
     it { expect(subject).to validate_presence_of(:discipline) }
     it { expect(subject).to validate_presence_of(:school_term_type) }
 
+    it 'should validate uniqueness of teaching plan in year/unity/classroom/discipline/school_term' do
+      another_teaching_plan = FactoryGirl.create(:teaching_plan, year: subject.year,
+                                                                 classroom: subject.classroom,
+                                                                 discipline: subject.discipline,
+                                                                 school_term_type: subject.school_term_type,
+                                                                 school_term: subject.school_term)
+
+      expect(subject).to_not be_valid
+      expect(subject.errors[:school_term_type]).to include('já existe um plano de ensino para a turma e disciplina informadas neste período')
+    end
+
     context 'when school term type equals to yearly' do
       it 'should not validate presence of school term' do
         subject.school_term_type = SchoolTermTypes::YEARLY

@@ -25,8 +25,8 @@ pt-BR:
       models:
         teaching_plan:
           attributes:
-            school_calendar_step:
-              taken: "já existe um plano de ensino para a turma e disciplina informada nesta etapa"
+            school_term_type:
+              uniqueness_of_teaching_plan: "já existe um plano de ensino para a turma e disciplina informadas neste período"
 
 
 

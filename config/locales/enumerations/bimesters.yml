@@ -1,7 +1,7 @@
 pt-BR:
   enumerations:
     bimesters:
-      first: "Primeiro"
-      second: "Segundo"
-      third: "Terceiro"
-      fourth: "Quarto"
+      first_bimester: "Primeiro bimestre"
+      second_bimester: "Segundo bimestre"
+      third_bimester: "Terceiro bimestre"
+      fourth_bimester: "Quarto bimestre"

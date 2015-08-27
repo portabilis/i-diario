@@ -1,5 +1,5 @@
 pt-BR:
   enumerations:
     semesters:
-      first: "Primeiro"
-      second: "Segundo"
+      first_semester: "Primeiro semestre"
+      second_semester: "Segundo semestre"
