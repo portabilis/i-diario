@@ -29,6 +29,7 @@ class Avaliation < ActiveRecord::Base
   validates :description,       presence: true, unless: :fix_tests?
   validates :weight,            presence: true, if: :allow_break_up?
 
+  validate :uniqueness_of_avaliation
   validate :unique_test_setting_test_per_step,    if: -> { fix_tests? && !allow_break_up? }
   validate :test_setting_test_weight_available,   if: :allow_break_up?
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
@@ -38,6 +39,8 @@ class Avaliation < ActiveRecord::Base
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_test_date, lambda { |test_date| where(test_date: test_date) }
+  scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
   scope :by_test_date_between, lambda { |start_at, end_at| where(test_date: start_at.to_date..end_at.to_date) }
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :ordered, -> { order(arel_table[:test_date]) }
@@ -96,6 +99,16 @@ class Avaliation < ActiveRecord::Base
     school_calendar.step(test_date)
   end
 
+  def uniqueness_of_avaliation
+    avaliations = Avaliation.by_classroom_id(classroom_id)
+                            .by_discipline_id(discipline)
+                            .by_test_date(test_date)
+                            .by_classes(classes)
+    avaliations = avaliations.where.not(id: id) if persisted?
+
+    errors.add(:classes, :uniqueness_of_avaliation, count: classes.count) if avaliations.any?
+  end
+
   def unique_test_setting_test_per_step
     return unless step
 
@@ -103,7 +116,7 @@ class Avaliation < ActiveRecord::Base
                             .by_discipline_id(discipline)
                             .by_test_setting_test_id(test_setting_test_id)
                             .by_test_date_between(step.start_at, step.end_at)
-    avaliations = avaliations.where(Avaliation.arel_table[:id].not_eq(id)) if persisted?
+    avaliations = avaliations.where.not(id: id) if persisted?
 
     errors.add(:test_setting_test, :unique_per_step) if avaliations.any?
   end
@@ -115,7 +128,7 @@ class Avaliation < ActiveRecord::Base
                             .by_discipline_id(discipline)
                             .by_test_setting_test_id(test_setting_test_id)
                             .by_test_date_between(step.start_at, step.end_at)
-    avaliations = avaliations.where(Avaliation.arel_table[:id].not_eq(id)) if persisted?
+    avaliations = avaliations.where.not(id: id) if persisted?
 
     total_weight_of_existing_avaliations = avaliations.any? ? avaliations.inject(0) { |sum, avaliation| avaliation.weight ? sum + avaliation.weight : 0 } : 0
     if total_weight_of_existing_avaliations == test_setting_test.weight

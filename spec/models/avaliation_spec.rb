@@ -25,7 +25,6 @@ RSpec.describe Avaliation, type: :model do
     it { expect(subject).to validate_presence_of(:school_calendar) }
     it { expect(subject).to validate_presence_of(:test_setting) }
     it { expect(subject).to validate_presence_of(:test_date) }
-    it { expect(subject).to validate_presence_of(:classes) }
 
     context 'when classroom present' do
       let(:exam_rule_with_concept_score_type) { FactoryGirl.build(:exam_rule, score_type: ScoreTypes::CONCEPT) }
@@ -35,6 +34,23 @@ RSpec.describe Avaliation, type: :model do
       it 'should validate that classroom score type is numeric' do
         expect(subject).to_not be_valid
         expect(subject.errors.messages[:classroom]).to include('o tipo de nota da regra de avaliação não é numérica')
+      end
+    end
+
+    context 'when there is already an avaliation with the classroom/discipline/test_date and class number' do
+      let(:another_avaliation) { create(:avaliation, test_date: '03/02/2015',
+                                                     classes: '1',
+                                                     school_calendar: school_calendar) }
+      subject { build(:avaliation, unity: another_avaliation.unity,
+                                   classroom: another_avaliation.classroom,
+                                   discipline: another_avaliation.discipline,
+                                   test_date: another_avaliation.test_date,
+                                   classes: '1',
+                                   school_calendar: another_avaliation.school_calendar) }
+
+      it 'should not be valida' do
+        expect(subject).to_not be_valid
+        expect(subject.errors[:classes]).to include('já existe uma avaliação para a aula informada')
       end
     end
 
@@ -73,7 +89,7 @@ RSpec.describe Avaliation, type: :model do
         another_avaliation = FactoryGirl.create(:avaliation, school_calendar: school_calendar,
                                                              classroom: subject.classroom,
                                                              discipline: subject.discipline,
-                                                             test_date: '03/02/2015',
+                                                             test_date: '04/02/2015',
                                                              test_setting: subject.test_setting,
                                                              test_setting_test: subject.test_setting.tests.first,
                                                              weight: 5)
