@@ -10,28 +10,56 @@ RSpec.describe DailyNoteStudent, type: :model do
   let(:daily_note) { create(:daily_note, unity: unity, classroom: classroom, discipline: discipline, avaliation: avaliation) }
   subject(:daily_note_student) { build(:daily_note_student, daily_note: daily_note) }
 
-  describe "attributes" do
-    describe "note" do
-      context "when receive a localized value" do
-        before { subject.note = "1.500,25" }
-
-        it "delocates the value" do
-          expect(subject.note).to eq(1500.25)
-        end
-      end
-    end
-  end
-
-  describe "associations" do
+  describe 'associations' do
     it { expect(subject).to belong_to(:daily_note) }
     it { expect(subject).to belong_to(:student) }
   end
 
-  describe "validations" do
+  describe 'validations' do
     it { expect(subject).to validate_presence_of(:student) }
     it { expect(subject).to validate_presence_of(:daily_note) }
-    it { expect(subject).to validate_numericality_of(:note).is_greater_than_or_equal_to(0)
-                                                           .is_less_than_or_equal_to(subject.daily_note.avaliation.test_setting.maximum_score) }
-    it { expect(subject).to allow_value('', nil).for(:note) }
+
+    context 'when test_setting with no fixed tests' do
+      let(:test_setting) { create(:test_setting, fix_tests: false) }
+      let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_setting: test_setting) }
+      let(:daily_note) { create(:daily_note, unity: unity, classroom: classroom, discipline: discipline, avaliation: avaliation) }
+      subject { build(:daily_note_student, daily_note: daily_note) }
+
+      it { expect(subject).to validate_numericality_of(:note).is_greater_than_or_equal_to(0)
+                                                             .is_less_than_or_equal_to(subject.daily_note.avaliation.test_setting.maximum_score) }
+      it { expect(subject).to allow_value('', nil).for(:note) }
+    end
+
+    context 'when test_setting with fixed tests and that do not allow break up' do
+      let(:test_setting_with_fixed_tests_that_do_not_allow_break_up) { FactoryGirl.create(:test_setting_with_fixed_tests) }
+      let(:avaliation) { create(:avaliation, unity: unity,
+                                             classroom: classroom,
+                                             discipline: discipline,
+                                             school_calendar: school_calendar,
+                                             test_setting: test_setting_with_fixed_tests_that_do_not_allow_break_up,
+                                             test_setting_test: test_setting_with_fixed_tests_that_do_not_allow_break_up.tests.first,
+                                             weight: nil) }
+      subject { build(:daily_note_student, daily_note: daily_note) }
+
+      it { expect(subject).to validate_numericality_of(:note).is_greater_than_or_equal_to(0)
+                                                             .is_less_than_or_equal_to(subject.daily_note.avaliation.test_setting_test.weight) }
+      it { expect(subject).to allow_value('', nil).for(:note) }
+    end
+
+    context 'when test_setting with fixed tests and that allow break up' do
+      let(:test_setting_with_fixed_tests_that_allow_break_up) { FactoryGirl.create(:test_setting_with_fixed_tests_that_allow_break_up) }
+      let(:avaliation) { create(:avaliation, unity: unity,
+                                             classroom: classroom,
+                                             discipline: discipline,
+                                             school_calendar: school_calendar,
+                                             test_setting: test_setting_with_fixed_tests_that_allow_break_up,
+                                             test_setting_test: test_setting_with_fixed_tests_that_allow_break_up.tests.first,
+                                             weight: test_setting_with_fixed_tests_that_allow_break_up.tests.first.weight / 2) }
+      subject { build(:daily_note_student, daily_note: daily_note) }
+
+      it { expect(subject).to validate_numericality_of(:note).is_greater_than_or_equal_to(0)
+                                                             .is_less_than_or_equal_to(subject.daily_note.avaliation.weight) }
+      it { expect(subject).to allow_value('', nil).for(:note) }
+    end
   end
 end
