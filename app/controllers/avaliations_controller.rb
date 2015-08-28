@@ -107,7 +107,7 @@ class AvaliationsController < ApplicationController
                                        :classroom_id,
                                        :discipline_id,
                                        :test_date,
-                                       :class_number,
+                                       :classes,
                                        :description,
                                        :test_setting_test_id,
                                        :weight)

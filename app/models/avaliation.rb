@@ -14,24 +14,28 @@ class Avaliation < ActiveRecord::Base
   belongs_to :school_calendar
   belongs_to :test_setting
   belongs_to :test_setting_test
+
   has_many :daily_notes, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
 
-  validates :unity, :classroom, :discipline, :test_date, :class_number, :test_setting,
-              :school_calendar, presence: true
+  validates :unity,             presence: true
+  validates :classroom,         presence: true
+  validates :discipline,        presence: true
+  validates :test_date,         presence: true
+  validates :classes,           presence: true
+  validates :school_calendar,   presence: true
+  validates :test_setting,      presence: true
   validates :test_setting_test, presence: true, if: :fix_tests?
-  validates :weight, presence: true,
-                     if: :allow_break_up?
+  validates :description,       presence: true, unless: :fix_tests?
+  validates :weight,            presence: true, if: :allow_break_up?
 
-  validates :description, presence: true, unless: :fix_tests?
-
-  validate :unique_test_setting_test_per_step, if: -> { fix_tests? && !allow_break_up? }
-  validate :test_setting_test_weight_available, if: :allow_break_up?
-  validate :is_school_day?
+  validate :unique_test_setting_test_per_step,    if: -> { fix_tests? && !allow_break_up? }
+  validate :test_setting_test_weight_available,   if: :allow_break_up?
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
+  validate :is_school_day?
 
-  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
+  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_test_date_between, lambda { |start_at, end_at| where(test_date: start_at.to_date..end_at.to_date) }
@@ -40,6 +44,10 @@ class Avaliation < ActiveRecord::Base
 
   def to_s
     test_setting_test || description
+  end
+
+  def classes=(classes)
+    write_attribute(:classes, classes ? classes.split(',').sort.map(&:to_i) : classes)
   end
 
   def description_to_teacher
