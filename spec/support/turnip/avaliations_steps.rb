@@ -53,7 +53,12 @@ module Turnip
       sleep 1
       fill_in_select2 'Disciplina', with: @teacher_discipline_classroom.discipline.id
       fill_mask 'Data da avaliação', with: '26/02/2015'
-      fill_in_select2 'Aula', with: 1
+
+      # TODO: find a better solution
+      page.execute_script %{
+        $("#avaliation_classes").select2('val', [1], true);
+      }
+
       fill_in_select2 'Tipo de avaliação', with: @test.id
 
       expect(page).to_not have_field('Peso')
@@ -68,7 +73,12 @@ module Turnip
       sleep 1
       fill_in_select2 'Disciplina', with: @teacher_discipline_classroom.discipline.id
       fill_mask 'Data da avaliação', with: '26/02/2015'
-      fill_in_select2 'Aula', with: 1
+
+      # TODO: find a better solution
+      page.execute_script %{
+        $("#avaliation_classes").select2('val', [1], true);
+      }
+
       fill_in_select2 'Tipo de avaliação', with: @test.id
       fill_in 'Peso', with: 5
 

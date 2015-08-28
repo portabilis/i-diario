@@ -6,6 +6,7 @@ RSpec.describe Avaliation, type: :model do
 
   describe 'attributes' do
     it { expect(subject).to respond_to(:weight) }
+    it { expect(subject).to respond_to(:classes) }
   end
 
   describe 'associations' do
@@ -24,7 +25,7 @@ RSpec.describe Avaliation, type: :model do
     it { expect(subject).to validate_presence_of(:school_calendar) }
     it { expect(subject).to validate_presence_of(:test_setting) }
     it { expect(subject).to validate_presence_of(:test_date) }
-    it { expect(subject).to validate_presence_of(:class_number) }
+    it { expect(subject).to validate_presence_of(:classes) }
 
     context 'when classroom present' do
       let(:exam_rule_with_concept_score_type) { FactoryGirl.build(:exam_rule, score_type: ScoreTypes::CONCEPT) }

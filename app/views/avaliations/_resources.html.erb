@@ -10,7 +10,13 @@
         <td><%= avaliation.classroom %></td>
         <td><%= avaliation.discipline %></td>
         <td><%= l avaliation.test_date %></td>
-        <td><%= avaliation.class_number %></td>
+        <td>
+          <% avaliation.classes.each do |class_number| %>
+            <span class="label label-info label-list">
+              <%= class_number %>
+            </span>
+          <% end %>
+        </td>
         <td><%= avaliation %></td>
         <td class="actions">
           <%= link_to 'Editar', edit_avaliation_path(avaliation),
