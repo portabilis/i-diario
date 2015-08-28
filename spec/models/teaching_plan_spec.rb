@@ -36,7 +36,7 @@ RSpec.describe TeachingPlan, type: :model do
                                                                  school_term: subject.school_term)
 
       expect(subject).to_not be_valid
-      expect(subject.errors[:school_term_type]).to include('já existe um plano de ensino para a turma e disciplina informadas neste período')
+      expect(subject.errors[:school_term]).to include('já existe um plano de ensino para a turma e disciplina informadas neste período')
     end
 
     context 'when school term type equals to yearly' do

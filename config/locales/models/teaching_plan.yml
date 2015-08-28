@@ -27,6 +27,8 @@ pt-BR:
           attributes:
             school_term_type:
               uniqueness_of_teaching_plan: "já existe um plano de ensino para a turma e disciplina informadas neste período"
+            school_term:
+              uniqueness_of_teaching_plan: "já existe um plano de ensino para a turma e disciplina informadas neste período"
 
 
 

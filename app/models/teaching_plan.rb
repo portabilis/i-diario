@@ -57,6 +57,8 @@ class TeachingPlan < ActiveRecord::Base
                                  .by_school_term(school_term)
     teaching_plans = teaching_plans.where(TeachingPlan.arel_table[:id].not_eq(id)) if persisted?
 
-    errors.add(:school_term_type, :uniqueness_of_teaching_plan) if teaching_plans.any?
+    if teaching_plans.any?
+      yearly? ? errors.add(:school_term_type, :uniqueness_of_teaching_plan) : errors.add(:school_term, :uniqueness_of_teaching_plan)
+    end
   end
 end
