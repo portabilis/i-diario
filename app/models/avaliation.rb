@@ -27,7 +27,7 @@ class Avaliation < ActiveRecord::Base
   validates :school_calendar,   presence: true
   validates :test_setting,      presence: true
   validates :test_setting_test, presence: true, if: :fix_tests?
-  validates :description,       presence: true, unless: :fix_tests?
+  validates :description,       presence: true, if: -> { !fix_tests? || allow_break_up? }
   validates :weight,            presence: true, if: :allow_break_up?
 
   validate :uniqueness_of_avaliation
@@ -52,7 +52,7 @@ class Avaliation < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:test_date]) }
 
   def to_s
-    test_setting_test || description
+    !test_setting_test || allow_break_up? ? description : test_setting_test
   end
 
   def classes=(classes)

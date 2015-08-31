@@ -82,27 +82,29 @@ $(function () {
     updateWeightInput();
   });
 
-  var $weight_div = $('#weight');
+  var $description_and_weight_div = $('#show_when_allow_break_up');
+  var $description_input = $('#avaliation_description');
   var $weight_input = $('#avaliation_weight');
 
   var updateWeightInput = function() {
     if (!document.getElementById('avaliation_test_setting_test_id') || _.isEmpty($test_setting_input.select2('val')) || $test_setting_input.select2('val') == 'empty') {
-      hideWeightInput();
+      hideDescriptionAndWeightInput();
       return;
     }
 
     $.getJSON('/test_setting_tests/' + $test_setting_input.select2('val')).always(function(data) {
       if (data['allow_break_up']) {
-        $weight_div.show();
+        $description_and_weight_div.show();
       } else {
-        hideWeightInput();
+        hideDescriptionAndWeightInput();
       }
     });
   }
 
-  var hideWeightInput = function() {
+  var hideDescriptionAndWeightInput = function() {
+    $description_input.val('');
     $weight_input.select2('val', '');
-    $weight_div.hide();
+    $description_and_weight_div.hide();
   }
 
   function updateWeightFormat() {
