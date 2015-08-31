@@ -1,8 +1,8 @@
 # encoding: utf-8
 class DailyFrequenciesController < ApplicationController
   before_action :require_teacher
-  before_action :set_number_of_classes, only: [:new, :create, :edit_multiple, :update_multiple]
   before_action :require_current_school_calendar
+  before_action :set_number_of_classes, only: [:new, :create, :edit_multiple, :update_multiple]
 
   def new
     @daily_frequency = DailyFrequency.new.localized
