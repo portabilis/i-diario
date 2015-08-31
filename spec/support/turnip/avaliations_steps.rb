@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 module Turnip
   module AvaliationsSteps
     step 'que existem turmas com tipo de avaliação númerica vinculadas ao professor logado' do
@@ -80,6 +78,7 @@ module Turnip
       }
 
       fill_in_select2 'Tipo de avaliação', with: @test.id
+      fill_in 'Descrição', with: 'Prova'
       fill_in 'Peso', with: 5
 
       click_on "Salvar"

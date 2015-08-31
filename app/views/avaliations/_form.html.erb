@@ -34,14 +34,18 @@
       </div>
     </div>
 
-    <div class="row">
-      <div id="weight" class="col col-sm-4">
-        <% if @avaliation.test_setting.fix_tests? %>
-          <%= f.input :weight, input_html: { value: number_with_precision(f.object.weight, precision: @avaliation.test_setting.number_of_decimal_places),
-                                             data: { scale: @avaliation.test_setting.number_of_decimal_places } } %>
-        <% end %>
+    <% if @avaliation.test_setting.fix_tests? %>
+      <div id="show_when_allow_break_up" class="row">
+        <div class="col col-sm-4">
+          <%= f.input :description %>
+        </div>
+
+        <div class="col col-sm-4">
+            <%= f.input :weight, input_html: { value: number_with_precision(f.object.weight, precision: @avaliation.test_setting.number_of_decimal_places),
+                                               data: { scale: @avaliation.test_setting.number_of_decimal_places } } %>
+        </div>
       </div>
-    </div>
+    <% end %>
 
   </fieldset>
 

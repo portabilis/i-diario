@@ -83,6 +83,7 @@ RSpec.describe Avaliation, type: :model do
                                                test_setting: test_setting_with_fixed_tests_that_allow_break_up,
                                                test_setting_test: test_setting_with_fixed_tests_that_allow_break_up.tests.first) }
 
+      it { expect(subject).to validate_presence_of(:description) }
       it { expect(subject).to validate_presence_of(:weight) }
 
       it 'should not validate that test_setting_test is unique per step/classroom/discipline' do
