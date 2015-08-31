@@ -8,9 +8,16 @@ class AvaliationsController < ApplicationController
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
 
   def index
-    @avaliations = apply_scopes(Avaliation.by_teacher(current_teacher.id).includes(:unity, :classroom, :discipline, :test_setting_test).ordered)
+    @avaliations = apply_scopes(Avaliation).includes(:unity, :classroom, :discipline, :test_setting_test)
+                                           .by_teacher(current_teacher.id)
+                                           .filter(filtering_params(params[:search]))
+                                           .ordered
 
     authorize @avaliations
+
+    @unities = Unity.by_teacher(current_teacher.id)
+    @classrooms = Classroom.by_teacher_id(current_teacher.id)
+    @disciplines = Discipline.by_teacher_id(current_teacher.id)
   end
 
   def new
@@ -100,6 +107,15 @@ class AvaliationsController < ApplicationController
     when 'edit', 'update', 'destroy'
       Avaliation.find(params[:id])
     end.localized
+  end
+
+  def filtering_params(params)
+    params = {} unless params
+    params.slice(:by_unity_id,
+                 :by_classroom_id,
+                 :by_discipline_id,
+                 :by_test_date,
+                 :by_description)
   end
 
   def resource_params

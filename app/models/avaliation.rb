@@ -5,6 +5,7 @@ class Avaliation < ActiveRecord::Base
   has_associated_audits
 
   include Audit
+  include Filterable
 
   before_destroy :try_destroy_daily_notes
 
@@ -37,11 +38,16 @@ class Avaliation < ActiveRecord::Base
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
+  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_test_date, lambda { |test_date| where(test_date: test_date) }
-  scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
   scope :by_test_date_between, lambda { |start_at, end_at| where(test_date: start_at.to_date..end_at.to_date) }
+  scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
+  scope :by_description, lambda { |description| joins(arel_table.join(TestSettingTest.arel_table, Arel::Nodes::OuterJoin)
+                                                                .on(TestSettingTest.arel_table[:id]
+                                                                .eq(arel_table[:test_setting_test_id])).join_sources)
+                                                .where('avaliations.description ILIKE ? OR test_setting_tests.description ILIKE ?', "%#{description}%", "%#{description}%") }
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :ordered, -> { order(arel_table[:test_date]) }
 

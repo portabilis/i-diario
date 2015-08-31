@@ -9,7 +9,7 @@
         <td><%= avaliation.unity %></td>
         <td><%= avaliation.classroom %></td>
         <td><%= avaliation.discipline %></td>
-        <td><%= l avaliation.test_date %></td>
+        <td><%= l(avaliation.test_date) %></td>
         <td>
           <% avaliation.classes.each do |class_number| %>
             <span class="label label-info label-list">
@@ -19,10 +19,8 @@
         </td>
         <td><%= avaliation %></td>
         <td class="actions">
-          <%= link_to 'Editar', edit_avaliation_path(avaliation),
-            class: "btn btn-success" %>
-          <%= link_to 'Excluir', avaliation_path(avaliation),
-            class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+          <%= link_to t('views.index.edit'), edit_avaliation_path(avaliation), class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'), avaliation_path(avaliation), class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
         </td>
       </tr>
     <% end %>
