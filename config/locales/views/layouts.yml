@@ -1,0 +1,4 @@
+pt-BR:
+  layouts:
+    application:
+      current_user_role: "Perfil atual:"

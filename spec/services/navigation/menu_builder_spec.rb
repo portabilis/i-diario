@@ -126,7 +126,12 @@ describe Navigation::MenuBuilder, :type => :service do
       let(:feature) { "dashboard" }
 
       let :current_user do
-        users(:mary_jane)
+        current_user = users(:mary_jane)
+        user_role = create(:user_role, user: current_user, role: roles(:admin))
+        current_user.user_roles << user_role
+        current_user.save
+        current_user.set_current_user_role!(user_role.id)
+        current_user
       end
 
       it "returns all permitted ***REMOVED***s" do

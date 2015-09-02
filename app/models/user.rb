@@ -19,7 +19,7 @@ class User < ActiveRecord::Base
 
   belongs_to :student
   belongs_to :teacher
-  belongs_to :role
+  belongs_to :current_user_role, class_name: 'UserRole'
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :syncronizations, class_name: "IeducarApiSyncronization", foreign_key: :author_id
@@ -51,9 +51,10 @@ class User < ActiveRecord::Base
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, presence: true
-  validate :uniqueness_of_student_parent_role
 
-  delegate :name, to: :role, prefix: true, allow_nil: true
+  validates_associated :user_roles
+
+  validate :uniqueness_of_student_parent_role
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
@@ -85,16 +86,16 @@ class User < ActiveRecord::Base
 
   def can_show?(feature)
     return true if admin?
-    return unless role
+    return unless current_user_role
 
-    role.can_show?(feature)
+    current_user_role.role.can_show?(feature)
   end
 
   def can_change?(feature)
     return true if admin?
-    return unless role
+    return unless current_user_role
 
-    role.can_change?(feature)
+    current_user_role.role.can_change?(feature)
   end
 
   def update_tracked_fields!(request)
@@ -139,10 +140,10 @@ class User < ActiveRecord::Base
     user_roles.includes(:role, :unity).map(&:role)
   end
 
-  def set_role!(role_id)
-    return false unless user_roles.exists?(role_id: role_id)
+  def set_current_user_role!(user_role_id)
+    return false unless user_roles.exists?(id: user_role_id)
 
-    update_column :role_id, role_id
+    update_column(:current_user_role_id, user_role_id)
   end
 
   def system_***REMOVED***
@@ -211,11 +212,5 @@ class User < ActiveRecord::Base
         end
       end
     end
-  end
-
-  private
-
-  def method_name
-
   end
 end
