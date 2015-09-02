@@ -1,11 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  context 'attributes' do
-    it { expect(subject).to respond_to(:current_user_role_id) }
-  end
-
   context 'associations' do
+    it { expect(subject).to belong_to(:current_user_role).class_name('UserRole') }
+
     it { expect(subject).to have_many(:logins) }
     it { expect(subject).to have_many(:syncronizations) }
     it { expect(subject).to have_many(:***REMOVED***) }

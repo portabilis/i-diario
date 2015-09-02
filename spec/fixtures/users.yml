@@ -25,4 +25,3 @@ mary_jane:
   student: bary_allen
   authorize_email_and_sms: false
   admin: false
-  role: admin

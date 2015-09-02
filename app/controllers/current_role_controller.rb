@@ -5,10 +5,10 @@ class CurrentRoleController < ApplicationController
   end
 
   def set
-    if current_user.set_role!(params[:id])
-      redirect_to root_path, notice: "Perfil alterado com sucesso."
+    if current_user.set_current_user_role!(params[:id])
+      redirect_to root_path, notice: I18n.t('.current_role.set.notice')
     else
-      redirect_to root_path, alert: "Perfil não pode ser alterado. Verifique se o usuário possui este perfil."
+      redirect_to root_path, alert: I18n.t('.current_role.set.alert')
     end
   end
 end
