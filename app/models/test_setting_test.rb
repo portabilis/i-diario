@@ -5,6 +5,8 @@ class TestSettingTest < ActiveRecord::Base
 
   belongs_to :test_setting
 
+  has_many :avaliations, dependent: :nullify
+
   has_enumeration_for :test_type, with: TestTypes
 
   validates :description, :weight, :test_type, presence: true
