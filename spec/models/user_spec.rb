@@ -44,7 +44,7 @@ RSpec.describe User, type: :model do
 
         subject.valid?
 
-        expect(subject.errors['user_roles']).to eq(['não é válido'])
+        expect(subject.errors['user_roles']).to include('não é válido')
       end
 
       it 'validates uniqueness of parent role' do
@@ -55,14 +55,14 @@ RSpec.describe User, type: :model do
 
         subject.valid?
 
-        expect(subject.errors['user_roles']).to eq(['não é válido'])
+        expect(subject.errors['user_roles']).to include('não é válido')
       end
 
       it 'accepts diferent roles' do
         subject = User.new
 
-        subject.user_roles << UserRole.new(role: roles(:parent))
-        subject.user_roles << UserRole.new(role: roles(:student))
+        subject.user_roles.build(user: subject, role: roles(:parent))
+        subject.user_roles.build(user: subject, role: roles(:student))
 
         subject.valid?
 
