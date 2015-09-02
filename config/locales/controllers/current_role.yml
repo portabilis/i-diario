@@ -1,0 +1,5 @@
+pt-BR:
+  current_role:
+    set:
+      notice: "Perfil alterado com sucesso."
+      alert: "Perfil não pode ser alterado. Verifique se o usuário possui este perfil."
