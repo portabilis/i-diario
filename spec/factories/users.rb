@@ -9,5 +9,11 @@ FactoryGirl.define do
     phone      '(11) 99887766'
     cpf        '639.290.118-32'
     admin      true
+
+    factory :user_with_user_role do
+      after(:build) do |user|
+        user.user_roles.build(user: user, role: create(:role), unity: create(:unity))
+      end
+    end
   end
 end

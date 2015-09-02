@@ -145,6 +145,12 @@ class User < ActiveRecord::Base
     update_column :role_id, role_id
   end
 
+  def set_current_user_role!(user_role_id)
+    return false unless user_roles.exists?(id: user_role_id)
+
+    update_column(:current_user_role_id, user_role_id)
+  end
+
   def system_***REMOVED***
     SystemNotification.where(id: system_notification_targets.pluck(:system_notification_id))
   end
