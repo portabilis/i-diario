@@ -56,8 +56,6 @@ $(function() {
     output = $(itemTemplate.replace(/new_items/g, new Date().getTime()));
 
     output.find("[id$=quantity]").val(item.quantity);
-    output.find("[id$=unit_value]").val(item.unit_value);
-    output.find(".total-value").text("R$ "+item.total_value.toCurrency());
     output.find("[id$=material_id]").val(item.material.id);
     output.find("span.measuring-unit").html(item.material.measuring_unit);
 
