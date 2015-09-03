@@ -501,7 +501,7 @@ DEPENDENCIES
   prawn (= 2.0.2)
   prawn-table (= 0.2.2)
   pry (~> 0.10.1)
-  puma (= 2.9.2)
+  puma
   pundit (= 0.3.0)
   quiet_assets
   rails (= 4.2.3)

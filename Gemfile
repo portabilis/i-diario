@@ -62,7 +62,7 @@ group :development do
   gem 'better_errors', '~> 1.1.0'
   gem 'binding_of_caller', '~> 0.7.2'
   gem 'bullet', '~> 4.14.0'
-  gem 'puma', '2.9.2'
+  gem 'puma'
   gem 'mina-sidekiq'
   gem 'web-console', '~> 2.0'
 end
