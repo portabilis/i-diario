@@ -43,4 +43,5 @@
 //= require datepicker.pt-BR
 //= require datepicker-custom
 //= require readurl
+//= require tocurrency
 //= require_tree ./resources

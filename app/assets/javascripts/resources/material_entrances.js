@@ -5,7 +5,8 @@ $(function() {
       $kind = $("#material_entrance_kind"),
       $materialExit = $("#material_entrance_material_exit_id"),
       itemTemplate = $("#material_entrance_items a.add_fields").attr("data-association-insertion-template"),
-      flashMessages = new FlashMessages();
+      flashMessages = new FlashMessages(),
+      $materialItemsTotalValue = $('#entrance-material-items-total-value');
 
   toggle***REMOVED***($kind.val() === 'supplier');
   toggle***REMOVED***($kind.val() === 'return' || $kind.val() === 'transfer');
@@ -41,7 +42,13 @@ $(function() {
     $materialItems.append(output);
     $('form').trigger('cocoon:after-insert');
     $materialItems.show();
+    toggle***REMOVED***($kind.val() === 'supplier');
   }
+
+  $('#material_entrance_items').on('cocoon:after-insert', function(e, item) {
+    toggle***REMOVED***($kind.val() === 'supplier');
+    $("[id$=unit_value], [id$=quantity]").on("blur", update***REMOVED***Totals);
+  })
 
   function updateTemplate(item) {
     var output = [];
@@ -49,6 +56,8 @@ $(function() {
     output = $(itemTemplate.replace(/new_items/g, new Date().getTime()));
 
     output.find("[id$=quantity]").val(item.quantity);
+    output.find("[id$=unit_value]").val(item.unit_value);
+    output.find(".total-value").text("R$ "+item.total_value.toCurrency());
     output.find("[id$=material_id]").val(item.material.id);
     output.find("span.measuring-unit").html(item.material.measuring_unit);
 
@@ -61,8 +70,11 @@ $(function() {
 
   function toggle***REMOVED***(show) {
     if (show) {
+      $('.show-only-for-supplier').show();
       $supplier.show();
     } else {
+      $('.show-only-for-supplier').hide();
+      $("[id$=unit_value]").val('');
       $supplier.hide().find("input").val("");
       $supplier.find("input.select2").select2("val", "");
     }
@@ -76,4 +88,20 @@ $(function() {
         find("input.select2").select2("val", "");
     }
   }
+
+  var update***REMOVED***Totals = function(){
+    var total_value = 0;
+    $.each($materialItems.find('tr'), function(i, row){
+      var unit_value = $(row).find("[id$=unit_value]").val();
+      var quantity = $(row).find("[id$=quantity]").val();
+      var _total_value = unit_value.currencyToNumber() * quantity.currencyToNumber();
+      total_value += _total_value;
+
+      $(row).find('span.total-value').text("R$ "+_total_value.toCurrency());
+    });
+
+    $materialItemsTotalValue.text(total_value.toCurrency());
+  }
+  $("[id$=unit_value], [id$=quantity]").on("blur", update***REMOVED***Totals);
+  update***REMOVED***Totals();
 });
