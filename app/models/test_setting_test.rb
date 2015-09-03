@@ -5,7 +5,7 @@ class TestSettingTest < ActiveRecord::Base
 
   belongs_to :test_setting
 
-  has_many :avaliations, dependent: :nullify
+  has_many :avaliations, dependent: :restrict_with_error
 
   has_enumeration_for :test_type, with: TestTypes
 
