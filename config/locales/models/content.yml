@@ -2,8 +2,8 @@ pt-BR:
   activerecord:
     models:
       content:
-        one: "Registro de conteúdo"
-        other: "Registro de conteúdos"
+        one: "Plano de aula"
+        other: "Plano de aulas"
 
     attributes:
       content:
@@ -16,8 +16,15 @@ pt-BR:
         discipline: "Disciplina"
         discipline_id: "Disciplina"
         content_date: "Data"
-        class_number: "Aula"
-        description: "Conteúdo ministrado"
+        classes: "Aulas"
+        description: "Procedimentos metodológicos"
+        theme: "Tema"
+        goals: "Objetivos"
+        means: "Recursos"
+        evaluation: "Avaliação"
+        bibliography: "Bibliografia"
+        knowledge_area: "Área de conhecimento"
+        knowledge_area: "Área de conhecimento"
 
     errors:
       models:
@@ -25,8 +32,8 @@ pt-BR:
           attributes:
               content_date:
                 must_be_school_day: "deve ser um dia letivo"
-              class_number:
-                taken:  'conteúdo desta aula já foi registrado'
+              classes:
+                taken:  'plano desta aula já foi registrado'
 
   errors:
     contents:

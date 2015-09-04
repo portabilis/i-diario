@@ -123,8 +123,9 @@ Rails.application.routes.draw do
 
     resources :teaching_plans, concerns: :history
     resources :contents, concerns: :history
-    resources :classrooms, only: [:index]
+    resources :classrooms, only: [:index, :show]
     resources :disciplines, only: [:index]
+    resources :knowledge_areas, only: [:index]
     resources :exam_rules, only: [:index]
     resources :avaliations, concerns: :history
     resources :teacher_avaliations, only: :index

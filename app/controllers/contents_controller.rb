@@ -7,8 +7,7 @@ class ContentsController < ApplicationController
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
 
   def index
-    @contents = apply_scopes(Content.by_teacher(current_teacher.id).includes(:unity, :classroom, :discipline).ordered)
-
+    @contents = apply_scopes(Content.filter(filtering_params(params[:search])).ordered)                        
     authorize @contents
   end
 
@@ -80,6 +79,13 @@ class ContentsController < ApplicationController
     @number_of_classes = current_school_calendar.number_of_classes
   end
 
+  def filtering_params(params)
+    if params
+      params.slice(:by_unity, :by_classroom, :by_date)
+    else
+      {}
+    end
+  end
 
   def fetch_classrooms
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @content.unity_id, @content.classroom_id)
@@ -87,6 +93,7 @@ class ContentsController < ApplicationController
     @unities = fetcher.unities
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
+    @knowledge_areas = KnowledgeArea.all
   end
 
   def resource
@@ -100,7 +107,8 @@ class ContentsController < ApplicationController
 
   def resource_params
     params.require(:content).permit(
-      :unity_id, :classroom_id, :discipline_id, :school_calendar_id, :content_date, :class_number, :description
+      :unity_id, :classroom_id, :discipline_id, :school_calendar_id, :content_date, :classes, :description, :evaluation,
+      :theme, :goals, :means, :bibliography, :knowledge_area_id
     )
   end
 end

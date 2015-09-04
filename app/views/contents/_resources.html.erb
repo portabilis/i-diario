@@ -8,9 +8,15 @@
       <tr>
         <td><%= content.unity %></td>
         <td><%= content.classroom %></td>
-        <td><%= content.discipline %></td>
+        <td><%= content.discipline %><%= content.knowledge_area%></td>
         <td><%= l content.content_date %></td>
-        <td><%= content.class_number %></td>
+        <td>
+          <% content.classes.each do |class_number| %>
+            <span class="label label-info label-list">
+              <%= class_number %>
+            </span>
+          <% end %>
+        </td>
         <td class="actions">
           <%= link_to 'Editar', edit_content_path(content),
             class: "btn btn-success" %>

@@ -5,24 +5,35 @@ class Content < ActiveRecord::Base
   has_associated_audits
 
   include Audit
+  include Filterable
 
   belongs_to :unity
   belongs_to :classroom
   belongs_to :discipline
   belongs_to :school_calendar
+  belongs_to :knowledge_area
 
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Content.arel_table[:discipline_id])) }, through: :classroom
 
-  validates :unity, :classroom, :discipline, :school_calendar, :content_date, :class_number, :description, presence: true
-  validates :class_number, uniqueness: {scope: [:classroom, :discipline, :content_date]}
+  validates :unity, :classroom, :school_calendar, :content_date, :classes, :description, presence: true
+  validates :knowledge_area, :presence => true, if: "discipline.blank?"
+  validates :discipline, :presence => true, if: "knowledge_area.blank?"
   validate :is_school_day?
 
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_teacher_classroom_and_discipline, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :ordered, -> { order(arel_table[:content_date]) }
+  scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
+  scope :by_unity, lambda { |unity| where unity_id: unity }
+  scope :by_classroom, lambda { |classroom| where classroom_id: classroom }
+  scope :by_date, lambda { |date| where(content_date: date) }
 
   def to_s
     description
+  end
+
+  def classes=(classes)
+    write_attribute(:classes, classes ? classes.split(',').sort.map(&:to_i) : classes)
   end
 
   private
