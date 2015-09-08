@@ -10,5 +10,5 @@ var n = this,
  };
 
  String.prototype.currencyToNumber = function(){
-  return parseFloat(this.replace(".", "").replace(",", "."));
+  return parseFloat(this.replace(/\./g, "").replace(/,/g, "."));
  }
