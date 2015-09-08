@@ -1,0 +1,8 @@
+pt-BR:
+  school_calendars:
+    index:
+      synchronize_html: <i class="fa fa-refresh"></i> Sincronizar
+    form:
+      add_step: "Adicionar etapa"
+    step_fields:
+      remove: "Remover"

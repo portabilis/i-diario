@@ -1,6 +1,18 @@
 # encoding: utf-8
 module Turnip
   module SchoolCalendarSteps
+    step 'que acesso a listagem de celendários letivos' do
+      click_***REMOVED*** 'Calendário letivo'
+    end
+
+    step 'eu clicar em Sincronizar' do
+      click_on 'Sincronizar'
+    end
+
+    step 'poderei sincronizar novos calendários letivos do i-Educar' do
+
+    end
+
     step 'que acesso a listagem de calendário letivo' do
       click_***REMOVED*** 'Calendário letivo'
     end

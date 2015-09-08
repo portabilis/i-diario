@@ -7,6 +7,8 @@ pt-BR:
 
     attributes:
       school_calendar:
+        unity_id: "Escola"
+        unity: "Escola"
         year: "Ano"
         number_of_classes: "Número de aulas por turno"
 
@@ -16,11 +18,3 @@ pt-BR:
           attributes:
             steps:
               at_least_one_step: "É necessário adicionar pelo menos uma etapa"
-
-  school_calendars:
-    form:
-      add_step: "Adicionar etapa"
-    step_fields:
-      remove: "Remover"
-    index:
-      new_html: "<i class='fa fa-plus'></i> Novo calendário"

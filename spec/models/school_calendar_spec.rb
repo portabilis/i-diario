@@ -1,13 +1,14 @@
-# encoding: utf-8
 require 'rails_helper'
 
 RSpec.describe SchoolCalendar, type: :model do
-  describe "attributes" do
+  describe 'attributes' do
     it { expect(subject).to respond_to(:year) }
     it { expect(subject).to respond_to(:number_of_classes) }
+    it { expect(subject).to respond_to(:unity_id) }
   end
 
-  describe "associations" do
+  describe 'associations' do
+    it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to have_many(:steps) }
     it { expect(subject).to have_many(:events) }
   end

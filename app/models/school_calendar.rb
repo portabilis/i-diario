@@ -9,6 +9,8 @@ class SchoolCalendar < ActiveRecord::Base
 
   include Audit
 
+  belongs_to :unity
+
   has_many :steps,  class_name: 'SchoolCalendarStep',  dependent: :destroy
   has_many :events, class_name: 'SchoolCalendarEvent', dependent: :destroy
 
