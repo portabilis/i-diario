@@ -1,4 +1,3 @@
-# encoding: utf-8
 module Turnip
   module SchoolCalendarSteps
     step 'que as unidades estão sincronizadas com o i-Educar' do
@@ -11,7 +10,7 @@ module Turnip
       end
     end
 
-    step 'que acesso a listagem de celendários letivos' do
+    step 'que acesso a listagem de calendários letivos' do
       click_***REMOVED*** 'Calendário letivo'
     end
 
@@ -22,7 +21,7 @@ module Turnip
     end
 
     step 'poderei sincronizar novos calendários letivos do i-Educar' do
-      find("#select-all").set(true)
+      find('#select-all-unities').trigger('click')
 
       click_on 'Sincronizar'
 
