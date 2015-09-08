@@ -41,7 +41,9 @@ class DescriptiveExamsController < ApplicationController
 
     @api_students.each do |api_student|
       if student = Student.find_by(api_code: api_student['id'])
-        @students << (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id, dependence: api_student['dependencia']))
+        exam_student = (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
+        exam_student.dependence = api_student['dependencia']
+        @students << exam_student
       end
     end
 
