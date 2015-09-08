@@ -37,7 +37,9 @@ class ConceptualExamsController < ApplicationController
 
     @api_students.each do |api_student|
       if student = Student.find_by(api_code: api_student['id'])
-        @students << (@conceptual_exam.students.where(student_id: student.id).first || @conceptual_exam.students.build(student_id: student.id, dependence: api_student['dependencia']))
+        exam_student = (@conceptual_exam.students.where(student_id: student.id).first || @conceptual_exam.students.build(student_id: student.id))
+        exam_student.dependence = api_student['dependencia']
+        @students << exam_student
       end
     end
 
