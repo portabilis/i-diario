@@ -2,7 +2,9 @@ pt-BR:
   school_calendars:
     index:
       synchronize_html: <i class="fa fa-refresh"></i> Sincronizar
-    form:
-      add_step: "Adicionar etapa"
-    step_fields:
-      remove: "Remover"
+    edit:
+      steps: "Etapas"
+      info: "Use os campos data inicial e final de postagem para controlar o período que o professor poderá encerrar o período avaliativo."
+    synchronize:
+      info: "Selecione os calendários letivos que deseja sincronizar."
+      synchronize: "Sincronizar"
