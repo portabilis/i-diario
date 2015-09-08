@@ -1,0 +1,113 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Escola?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=info-escolas&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 08 Sep 2015 17:03:40 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=05o962mlf5lkatk1oc1e23u9i3; expires=Wed, 09-Sep-2015 17:03:40 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Transfer-Encoding:
+      - chunked
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"escolas":[{"cod_escola":"139637","nome":"EMEB PROF IRENE OLINDA TEIFKE
+        RIBEIRO","cep":"89295000","numero":null,"complemento":"","logradouro":"R VALDOMIRO
+        MARTINS","bairro":"CAMPO LEN\u00c7OL","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"escolaireneribeiro@gmail.com","ddd":"47","fone":"36443185","nome_responsavel":""},{"cod_escola":"703015","nome":"CMEI
+        ARCO-IRIS","cep":"89295000","numero":"70","complemento":"","logradouro":"Rua
+        Afonso  Mueller,","bairro":"CRUZEIRO","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"cmeiarcoiris@gmail.com","ddd":"47","fone":"36443925","nome_responsavel":"ANA
+        CRISTINA STREIT ECHER"},{"cod_escola":"124370","nome":"EMEB PREF. HENRIQUE
+        LIEBL","cep":"89295000","numero":"503","complemento":"","logradouro":"R SANTO
+        ANTONIO","bairro":"JARDIM HANTSCHE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"henriqueliebl@gmail.com","ddd":"47","fone":"36443910","nome_responsavel":"MAURICIO
+        ANTONIO DE OLIVEIRA"},{"cod_escola":"98680","nome":"EMEB PROFA SELMA TEIXEIRA
+        GRABOSKI","cep":"89295000","numero":"74","complemento":"","logradouro":"TV
+        JOAO PSCHEIDT","bairro":"BARRO PRETO","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"emebselmateixeira@gmail.com","ddd":"47","fone":"36443908","nome_responsavel":"ZULMARA
+        PREISLER"},{"cod_escola":"703010","nome":"EMEJA PROF ALBERTO TOMELIN","cep":"89295000","numero":null,"complemento":"","logradouro":"Rua
+        Helmuth Ilg, S\/N\u00ba","bairro":"Bela Vista","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"emejaescola@gmail.com","ddd":"47","fone":"36443919","nome_responsavel":""},{"cod_escola":"105392","nome":"EMEB
+        PROF ARNALDO DE ALMEIDA OLIVEIRA","cep":"89295000","numero":null,"complemento":"","logradouro":"RUA
+        JOSE BRUSKY JUNIOR, 347","bairro":"INDUSTRIAL SUL","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"emeb.arnaldo@gmail.com","ddd":"47","fone":"6443912","nome_responsavel":""},{"cod_escola":"115789","nome":"EMEBI
+        PE CLAUDIO LONGEN","cep":"89295000","numero":null,"complemento":"","logradouro":"THEODORO
+        KWITSCHAL,","bairro":"PINHEIRINHO","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"claudiolongen@gmail.com","ddd":"47","fone":"36443015","nome_responsavel":""},{"cod_escola":"98647","nome":"EMEB
+        PROF AURORA SIQUEIRA JABLONSKI","cep":"89295000","numero":"539","complemento":"","logradouro":"PREFEITO
+        HUGO FISCHER","bairro":"BELA VISTA","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"escolaaurora.sj@gmail.com","ddd":"47","fone":"36440104","nome_responsavel":""},{"cod_escola":"703028","nome":"CMEI
+        DONA BENTA","cep":"89295000","numero":null,"complemento":"","logradouro":"Rua
+        Felipe Stoeberl","bairro":"Volta Grande","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"cmeidonabenta@gmail.com","ddd":"47","fone":"36466522","nome_responsavel":""},{"cod_escola":"109894","nome":"EMEB
+        PROF QUILIANO MARTINS","cep":"89295000","numero":"0","complemento":"","logradouro":"R
+        DONA FRANCISCA VELHA","bairro":"QUITANDINHA","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"emebquiliano@gmail.com","ddd":"47","fone":"36443914","nome_responsavel":""},{"cod_escola":"703023","nome":"CMEI
+        ESPA\u00c7O CRIAN\u00c7A","cep":"89295000","numero":null,"complemento":"","logradouro":"Rua
+        Carlos Muelbauer","bairro":"Barro Preto","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"espaco.cmei@gmail.com","ddd":"47","fone":"36449472","nome_responsavel":""},{"cod_escola":"703013","nome":"CMEI
+        JARDIM PRIMAVERA","cep":"89295000","numero":"370","complemento":"","logradouro":"Rua
+        Marino Picolli,","bairro":"VISTA ALEGRE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"cmeijardimprimavera@gmail.com","ddd":"47","fone":"36443927","nome_responsavel":""},{"cod_escola":"703021","nome":"CMEI
+        MUNDO ENCANTADO","cep":"89295000","numero":null,"complemento":"","logradouro":"Rua
+        Jos\u00e9 Zipperer Neto, s\/n","bairro":"CERAMARTE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"cmeimundoencantadorn@gmail.com","ddd":"47","fone":"36449609","nome_responsavel":""},{"cod_escola":"703014","nome":"CMEI
+        PEQUENO PRINCIPE","cep":"89295000","numero":null,"complemento":"","logradouro":"Rua
+        Ewaldo Treml, s\/n","bairro":"INDUSTRIAL NORT","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"pequenoprincipe.cmeirn@gmail.com","ddd":"47","fone":"36443928","nome_responsavel":""},{"cod_escola":"703016","nome":"CMEI
+        VILA NOVA","cep":"89295000","numero":"367","complemento":"","logradouro":"Rua
+        Martinho Jo\u00e3o de Souza,","bairro":"VILA NOVA","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"novavilacmei@gmail.com","ddd":"47","fone":"36443923","nome_responsavel":""},{"cod_escola":"703020","nome":"CMEI
+        CLARA LUZ","cep":"89295000","numero":"302","complemento":"","logradouro":"Rua
+        Luiz Scholtz","bairro":"Centro","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"cmeiclaraluzrn@gmail.com","ddd":"47","fone":"36448078","nome_responsavel":""},{"cod_escola":"703022","nome":"CMEI
+        ALGOD\u00c3O DOCE","cep":"89295000","numero":"333","complemento":"","logradouro":"Rua
+        Adolfo Olsen,","bairro":"CRUZEIRO","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"algodaodoce.cmei@gmail.com","ddd":"47","fone":"36445657","nome_responsavel":"ELAINE
+        CRISTINA PEREIRA"},{"cod_escola":"126969","nome":"EMEB PROF PEDRO HENRIQUE
+        BERKENBROCK","cep":"89295000","numero":"313","complemento":"","logradouro":"RUA
+        RUTH WOLLMANN RITZMANN","bairro":"IND. NORTE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"emeb.pedro3917@gmail.com","ddd":"47","fone":"36443917","nome_responsavel":"JOSIMAR
+        DE OLIVEIRA"},{"cod_escola":"98701","nome":"EMEB PROFA LUCINDA MAROS PSCHEIDT","cep":"89295000","numero":"162","complemento":"","logradouro":"R
+        TIBURCIO DE CARVALHO","bairro":"VISTA ALEGRE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"emeblucinda@gmail.com","ddd":"47","fone":"36443909","nome_responsavel":""},{"cod_escola":"98671","nome":"EMEB
+        PROF. RICARDO HOFFMANN","cep":"89295000","numero":null,"complemento":"","logradouro":"RUA
+        PEDRO HENRIQUE BERKENBROCK","bairro":"INDUSTRIAL NORT","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"escolaricardoh@gmail.com","ddd":"47","fone":"36443906","nome_responsavel":""},{"cod_escola":"703012","nome":"CMEI
+        TEMPO FELIZ","cep":"89295000","numero":"127","complemento":"","logradouro":"Rua
+        Proc\u00f3pio Moreira s\/n","bairro":"BELA VISTA","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"cmeitempofeliz@gmail.com","ddd":"47","fone":"36443920","nome_responsavel":""},{"cod_escola":"703017","nome":"CMEI
+        JOAO E MARIA","cep":"89295000","numero":null,"complemento":"S\/N","logradouro":"ARNOLDO
+        SCHIER","bairro":"IND NORTE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"cmeijoaoemaria@gmail.com","ddd":"47","fone":"36443926","nome_responsavel":""},{"cod_escola":"703019","nome":"CMEI
+        CHAPEUZINHO VERMELHO","cep":"89295000","numero":null,"complemento":"","logradouro":"ESTRADA
+        GERAL","bairro":"CERRO AZUL","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"
+        cmeichapeuzinho@gmail.com","ddd":"47","fone":"36463143","nome_responsavel":""},{"cod_escola":"703011","nome":"CMEI
+        FLOR DO CAMPO","cep":"89295000","numero":"420","complemento":"","logradouro":"WALDEMAR
+        WERNER","bairro":"VISTA ALEGRE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"cmeiflordocampo@gmail.com","ddd":"47","fone":"36443918","nome_responsavel":""},{"cod_escola":"1","nome":"CMEI
+        ANJO SAPECA","cep":"89295000","numero":"164","complemento":"","logradouro":"Alvino
+        Kellner","bairro":"Campo Len\u00e7ol \/ Zona Urbana","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"cmeianjosapeca@gmail.com","ddd":"47","fone":"36449014","nome_responsavel":""},{"cod_escola":"703018","nome":"CMEI
+        S\u00c3O PEDRO","cep":"89295000","numero":"5028","complemento":"","logradouro":"Estrada
+        Dona Francisca Velha,","bairro":"SAO PEDRO","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"saopedro.cmei@gmail.com","ddd":"47","fone":"36443924","nome_responsavel":"ZIGUARA
+        PISSAIA NIESSUKOWSKI"},{"cod_escola":"98450","nome":"EMEB PROF ADELIA DA LUZ
+        SOUZA","cep":"89295000","numero":null,"complemento":"","logradouro":"BR 280
+        BOA VISTA","bairro":"BOA VISTA","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"emebprofadeliadaluz@gmail.com","ddd":"47","fone":"36448966","nome_responsavel":"VANESSA
+        CARVALHO"},{"cod_escola":"98698","nome":"EMEB PE DR TOMAS GASSER","cep":"89295000","numero":null,"complemento":"","logradouro":"CERRO
+        AZUL","bairro":"CERRO AZUL","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"esctom***REMOVED***asser@gmail.com","ddd":"47","fone":"36460051","nome_responsavel":""},{"cod_escola":"703025","nome":"CAE
+        NOVA ESPERAN\u00c7A","cep":"89295000","numero":"609","complemento":"","logradouro":"R
+        RUTH WOLMANN RITZMANN","bairro":"INDL. NORTE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"caenovaesperansa@gmail.com","ddd":"47","fone":"36448743","nome_responsavel":""},{"cod_escola":"115770","nome":"EMEB
+        PIONEIRO MARCELINO STOEBERL","cep":"89295000","numero":null,"complemento":"","logradouro":"AGUAS
+        CLARAS","bairro":"VOLTA GRANDE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"marcelino.stoeberl@yahoo.com.br","ddd":"47","fone":"36466038","nome_responsavel":"JURANDI
+        DE CASTILHO GRUNDMANN"},{"cod_escola":"98710","nome":"EMEB PREF. FREDERICO
+        LAMPE","cep":"89295000","numero":"195","complemento":"","logradouro":"ROD
+        SC 422","bairro":"SAO PEDRO","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"EMEBFRELAMPE@GMAIL.COM","ddd":"47","fone":"36443910","nome_responsavel":""},{"cod_escola":"98370","nome":"EMEB
+        MENINO JESUS","cep":"89295000","numero":"62","complemento":"","logradouro":"RUA
+        ALFREDO SCHWENDNER","bairro":"VILA NOVA","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"meninojesus.emeb@gmail.com","ddd":"47","fone":"30069999","nome_responsavel":""}],"oper":"get","resource":"info-escolas","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Tue, 08 Sep 2015 17:03:40 GMT
+recorded_with: VCR 2.9.3

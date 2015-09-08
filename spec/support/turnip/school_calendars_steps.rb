@@ -1,42 +1,32 @@
 # encoding: utf-8
 module Turnip
   module SchoolCalendarSteps
+    step 'que as unidades estão sincronizadas com o i-Educar' do
+      VCR.use_cassette('unities') do
+        unities = UnitiesParser.parse!(IeducarApiConfiguration.current)
+        unities.each do |unity|
+          create(:unity, name: unity[:name],
+                         api_code: unity[:api_code])
+        end
+      end
+    end
+
     step 'que acesso a listagem de celendários letivos' do
       click_***REMOVED*** 'Calendário letivo'
     end
 
     step 'eu clicar em Sincronizar' do
-      click_on 'Sincronizar'
+      VCR.use_cassette('school_calendars') do
+        click_on 'Sincronizar'
+      end
     end
 
     step 'poderei sincronizar novos calendários letivos do i-Educar' do
+      find("#select-all").set(true)
 
-    end
+      click_on 'Sincronizar'
 
-    step 'que acesso a listagem de calendário letivo' do
-      click_***REMOVED*** 'Calendário letivo'
-    end
-
-    step 'eu entrar no formulário de novo calendário letivo' do
-      click_on "Novo calendário"
-    end
-
-    step 'poderei cadastrar um novo calendário letivo' do
-      fill_in 'Ano', with: '2010'
-      fill_in 'Número de aulas por turno', with: '4'
-
-      click_link "Adicionar etapa"
-
-      within '#school-calendar-steps tr:last-child' do
-        fill_mask 'Data inicial', with: '01/01/2010'
-        fill_mask 'Data final', with: '01/03/2010'
-        fill_mask 'Data inicial para postagem', with: '15/02/2010'
-        fill_mask 'Data final para postagem', with: '01/03/2010'
-      end
-
-      click_on 'Salvar'
-
-      expect(page).to have_content 'Calendário letivo foi criado com sucesso.'
+      expect(page).to have_content('Calendários letivos sincronizados com sucesso.')
     end
 
     step 'que existe um calendário letivo cadastrada' do
