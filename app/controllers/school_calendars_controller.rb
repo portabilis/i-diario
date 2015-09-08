@@ -3,7 +3,7 @@ class SchoolCalendarsController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @school_calendars = apply_scopes(SchoolCalendar.ordered)
+    @school_calendars = apply_scopes(SchoolCalendar.includes(:unity).ordered)
 
     authorize @school_calendars
   end
@@ -66,6 +66,11 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def create_batch
+    if SchoolCalendarsCreator.create!(params[:synchronize])
+      redirect_to school_calendars_path, notice: t('.notice')
+    else
+      redirect_to synchronize_school_calendars_path, alert: t('.alert')
+    end
   end
 
   private

@@ -6,14 +6,10 @@ Funcionalidade: Calendários letivo
     Dado que estou logado
 
   Cenário: Sincronizar novos calendários letivos do i-Educar
+    Dado que as unidades estão sincronizadas com o i-Educar
     Dado que acesso a listagem de celendários letivos
     Quando eu clicar em Sincronizar
     Então poderei sincronizar novos calendários letivos do i-Educar
-
-  # Cenário: Cadastrar um calendário letivo
-  #   Dado que acesso a listagem de calendário letivo
-  #   Quando eu entrar no formulário de novo calendário letivo
-  #   Então poderei cadastrar um novo calendário letivo
 
   Cenário: Editar um calendário letivo
     Dado que existe um calendário letivo cadastrada

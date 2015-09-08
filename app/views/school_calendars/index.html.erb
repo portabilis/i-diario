@@ -4,15 +4,16 @@
       <thead>
         <tr>
           <th><%= SchoolCalendar.human_attribute_name :year %></th>
+          <th><%= SchoolCalendar.human_attribute_name :unity %></th>
           <th><%= SchoolCalendar.human_attribute_name :number_of_classes %></th>
-          <td class="actions" style="width: 130px;"><%= link_to t('.synchronize_html'), synchronize_school_calendars_path, class: "btn btn-info pull-right" %></td>
+          <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px;"><%= link_to t('.synchronize_html'), synchronize_school_calendars_path, class: "btn btn-info pull-right" %></td>
         </tr>
       </thead>
 
       <%= render 'resources' %>
 
       <tfoot id="paginator" class="remote">
-        <td colspan="3">
+        <td colspan="4">
           <div id="page_entries_info" class="pull-left hidden-xs">
             <%= page_entries_info @school_calendars %>
           </div>

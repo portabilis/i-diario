@@ -15,7 +15,6 @@ RSpec.describe SchoolCalendar, type: :model do
 
   describe "validations" do
     it { expect(subject).to validate_presence_of(:year) }
-    it { expect(subject).to validate_uniqueness_of(:year) }
     it { expect(subject).to validate_presence_of(:number_of_classes) }
 
     it "validates at least one assigned step" do

@@ -14,13 +14,14 @@ module BootstrapFlashHelper
       type = :danger  if type == :error
       next unless ALERT_TYPES.include?(type)
 
-      icon = "fa-check"
-      icon = "fa-times" if type == :danger
+      icon = 'fa-check'
+      icon = 'fa-info'  if type == :info
+      icon = 'fa-times' if type == :danger
 
       Array(message).each do |msg|
         text = content_tag(:div,
                            content_tag(:button, raw("&times;"), :class => "close", "data-dismiss" => "alert") +
-                           raw("<i class='fa #{icon}'></i> #{msg}"), :class => "alert fade in alert-#{type} #{options[:class]}")
+                           raw("<i class='fa-fw fa #{icon}'></i> #{msg}"), :class => "alert fade in alert-#{type} #{options[:class]}")
         flash_messages << text if msg
       end
     end
