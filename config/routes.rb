@@ -117,6 +117,11 @@ Rails.application.routes.draw do
     resources :test_setting_tests, only: [:show]
 
     resources :school_calendars, concerns: :history do
+      collection do
+        get  :synchronize
+        post :create_batch
+      end
+
       resources :school_calendar_steps, only: [:index]
       resources :school_calendar_events, concerns: :history
     end

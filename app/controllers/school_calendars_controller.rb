@@ -59,6 +59,15 @@ class SchoolCalendarsController < ApplicationController
     respond_with @school_calendar
   end
 
+  def synchronize
+    @school_calendars = SchoolCalendarsParser.parse!(IeducarApiConfiguration.current)
+
+    authorize(SchoolCalendar, :create?)
+  end
+
+  def create_batch
+  end
+
   private
 
   def resource
