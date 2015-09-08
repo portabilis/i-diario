@@ -1,22 +1,17 @@
 <tr class="nested-fields">
   <td>
-    <%= f.input :start_at, label_html: {class: 'hidden' }, input_html: { value: f.object.localized.start_at }  %>
+    <%= f.input :start_at, label_html: { class: 'hidden' }, input_html: { value: f.object.localized.start_at }, disabled: true  %>
   </td>
 
   <td>
-    <%= f.input :end_at, label_html: {class: 'hidden'}, input_html: { value: f.object.localized.end_at } %>
+    <%= f.input :end_at, label_html: { class: 'hidden' }, input_html: { value: f.object.localized.start_at }, disabled: true %>
   </td>
 
   <td>
-    <%= f.input :start_date_for_posting, label_html: {class: 'hidden'}, input_html: { value: f.object.localized.start_date_for_posting } %>
+    <%= f.input :start_date_for_posting, label_html: { class: 'hidden'}, input_html: { value: f.object.localized.start_at } %>
   </td>
 
   <td>
-    <%= f.input :end_date_for_posting, label_html: {class: 'hidden'}, input_html: { value: f.object.localized.end_date_for_posting } %>
-  </td>
-
-  <td class="actions">
-    <%= link_to_remove_association t('.remove'), f,
-      class: 'btn btn-danger btn-sm' %>
+    <%= f.input :end_date_for_posting, label_html: { class: 'hidden'}, input_html: { value: f.object.localized.start_at } %>
   </td>
 </tr>

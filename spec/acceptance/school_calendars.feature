@@ -7,7 +7,7 @@ Funcionalidade: Calendários letivo
 
   Cenário: Sincronizar novos calendários letivos do i-Educar
     Dado que as unidades estão sincronizadas com o i-Educar
-    Dado que acesso a listagem de celendários letivos
+    E que acesso a listagem de calendários letivos
     Quando eu clicar em Sincronizar
     Então poderei sincronizar novos calendários letivos do i-Educar
 

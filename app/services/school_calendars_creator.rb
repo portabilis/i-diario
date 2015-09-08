@@ -21,7 +21,7 @@ class SchoolCalendarsCreator
                                       end_date_for_posting: step_params['end_date_for_posting'])
         end
 
-        school_calendar.save
+        school_calendar.save!
       end
     rescue
       return false
