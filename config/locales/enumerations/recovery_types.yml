@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    recovery_types:
+      dont_use: 'Não utiliza'
+      parallel: 'Recuperação paralela'
+      specifc: 'Recuperação específica'

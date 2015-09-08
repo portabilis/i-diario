@@ -13,7 +13,7 @@ RSpec.describe IeducarApi::ExamRules, :type => :service do
   end
 
   describe "#fetch" do
-    it "returns all classrooms" do
+    it "returns all exam rules" do
       VCR.use_cassette('all_exam_rules') do
         result = subject.fetch(ano: ano)
 

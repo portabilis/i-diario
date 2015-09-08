@@ -35,6 +35,9 @@ class IeducarSynchronizerWorker
         # synchronize Exam Rules
         ExamRulesSynchronizer.synchronize!(synchronization)
 
+        # synchronize Recovery Exam Rules
+        RecoveryExamRulesSynchronizer.synchronize!(synchronization)
+
         synchronization.mark_as_completed!
       rescue IeducarApi::Base::ApiError => e
         synchronization.mark_as_error!(e.message)
