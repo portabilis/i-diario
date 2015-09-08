@@ -35,6 +35,10 @@ class AttendanceRecordReport
     self
   end
 
+  protected
+
+  attr_accessor :any_student_with_dependence
+
   private
 
   def header
@@ -78,6 +82,7 @@ class AttendanceRecordReport
   end
 
   def daily_frequencies_table
+    self.any_student_with_dependence = false
     sliced_daily_frequencies = @daily_frequencies.each_slice(40).to_a
 
     sliced_daily_frequencies.each_with_index do |daily_frequencies_slice, index|
@@ -91,6 +96,8 @@ class AttendanceRecordReport
         months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
         daily_frequency.students.each do |student|
           (students[student.student.id] ||= {})[:name] = student.student.name
+          (students[student.student.id] ||= {})[:dependence] = student.dependence?
+          self.any_student_with_dependence = self.any_student_with_dependence || student.dependence?
           students[student.student.id][:absences] ||= 0
           if !student.present
             students[student.student.id][:absences] = students[student.student.id][:absences] + 1
@@ -115,9 +122,10 @@ class AttendanceRecordReport
       (40 - months.count).times { months_header_and_cells << make_cell(content: '', background_color: 'FFFFFF') }
 
       students_cells = []
+      students = students.sort_by { |(key, value)| value[:dependence] ? 1 : 0 }
       students.each_with_index do |(key, value), index|
         sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
-        student_cells = [sequence_cell, { content: value[:name], colspan: 2 }].concat(value[:attendances])
+        student_cells = [sequence_cell, { content: (value[:dependence] ? '*' : '') + value[:name], colspan: 2 }].concat(value[:attendances])
         (40 - value[:attendances].count).times { student_cells << nil }
         student_cells << make_cell(content: value[:absences].to_s, align: :center)
         students_cells << student_cells
@@ -170,6 +178,10 @@ class AttendanceRecordReport
 
       draw_text('Data:', size: 8, style: :bold, at: [275, 0])
       draw_text('____________________', size: 8, at: [298, 0])
+
+      if(self.any_student_with_dependence)
+        draw_text('* Alunos cursando dependência', size: 8, at: [400, 0])
+      end
     end
 
     string = "Página <page> de <total>"

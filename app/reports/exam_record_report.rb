@@ -35,6 +35,10 @@ class ExamRecordReport
     self
   end
 
+  protected
+
+  attr_accessor :any_student_with_dependence
+
   private
 
   def header
@@ -79,6 +83,8 @@ class ExamRecordReport
 
   def daily_notes_table
     averages = {}
+    self.any_student_with_dependence = false
+
     @daily_notes.each do |daily_note|
       daily_note.students.each do |student|
         ((averages[student.student.id] ||= {})[:sum_scores] ||= 0)
@@ -96,7 +102,9 @@ class ExamRecordReport
       daily_notes_slice.each do |daily_note|
         avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center)
         daily_note.students.each do |student|
+          self.any_student_with_dependence = any_student_with_dependence || student.dependence?
           (students[student.student.id] ||= {})[:name] = student.student.name
+          (students[student.student.id] ||= {})[:dependence] = student.dependence?
           (students[student.student.id][:scores] ||= []) << make_cell(content: student.note.to_s, align: :center)
         end
       end
@@ -110,9 +118,10 @@ class ExamRecordReport
       first_headers_and_cells << average_header
 
       students_cells = []
+      students = students.sort_by { |(key, value)| value[:dependence] ? 1 : 0 }
       students.each_with_index do |(key, value), index|
         sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
-        student_cells = [sequence_cell, { content: value[:name] }].concat(value[:scores])
+        student_cells = [sequence_cell, { content: (value[:dependence] ? '*' : '') + value[:name] }].concat(value[:scores])
         (10 - value[:scores].count).times { student_cells << nil }
         if daily_notes_slice == sliced_daily_notes.last
           average = @test_setting.fix_tests? ? averages[key][:sum_scores] : (averages[key][:sum_scores] / averages[key][:count_scores])
@@ -168,6 +177,10 @@ class ExamRecordReport
 
       draw_text('Data:', size: 8, style: :bold, at: [275, 0])
       draw_text('____________________', size: 8, at: [298, 0])
+
+      if(self.any_student_with_dependence)
+        draw_text('* Alunos cursando dependência', size: 8, at: [400, 0])
+      end
     end
 
     string = "Página <page> de <total>"
