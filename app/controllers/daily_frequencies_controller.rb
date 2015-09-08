@@ -134,16 +134,13 @@ class DailyFrequenciesController < ApplicationController
 
   def resource_params
     params.require(:daily_frequency).permit(
-      :unity_id, :classroom_id, :discipline_id, :global_absence, :frequency_date,
-      students_attributes: [
-        :id, :student_id, :note, :dependence
-      ]
+      :unity_id, :classroom_id, :discipline_id, :global_absence, :frequency_date
     )
   end
 
   def frequency_student_params
     params.permit(
-      daily_frequency_student: [:daily_frequency_id, :student_id, :present]
+      daily_frequency_student: [:daily_frequency_id, :student_id, :present, :dependence]
     )
   end
 
