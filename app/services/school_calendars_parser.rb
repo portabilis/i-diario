@@ -23,16 +23,16 @@ class SchoolCalendarsParser
     new_school_calendars = []
 
     collection.each do |record|
-      unless SchoolCalendar.joins(:unity).exists?(unities: { api_code: record['escola_id'] })
+      if Unity.exists?(api_code: record['escola_id']) && !SchoolCalendar.joins(:unity).exists?(unities: { api_code: record['escola_id'] })
         unity = Unity.find_by_api_code(record['escola_id'])
         new_school_calendar = SchoolCalendar.new(unity: unity,
                                                  year: Date.today.year,
                                                  number_of_classes: 4)
-        record['etapas'].each do |etapa|
-          new_school_calendar.steps.build(start_at: etapa['data_inicio'],
-                                          end_at:   etapa['data_fim'],
-                                          start_date_for_posting: etapa['data_inicio'],
-                                          end_date_for_posting: etapa['data_fim'])
+        record['etapas'].each do |step|
+          new_school_calendar.steps.build(start_at: step['data_inicio'],
+                                          end_at:   step['data_fim'],
+                                          start_date_for_posting: step['data_inicio'],
+                                          end_date_for_posting: step['data_fim'])
         end
 
         new_school_calendars << new_school_calendar

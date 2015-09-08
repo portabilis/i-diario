@@ -1,0 +1,5 @@
+pt-BR:
+  school_calendars:
+    create_batch:
+      notice: "Calendários letivos sincronizados com sucesso."
+      alert:  "Ocorreu um erro ao sincronizar os calendários letivos. Por favor, tente novamente."

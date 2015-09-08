@@ -1,12 +1,13 @@
 <tbody id="resources-tbody">
   <% if @school_calendars.empty? %>
     <tr>
-      <td class="no_record_found" colspan="3"> <%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="4"> <%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @school_calendars.each do |school_calendar| %>
       <tr>
         <td><%= school_calendar.year %></td>
+        <td><%= school_calendar.unity.name %></td>
         <td><%= school_calendar.number_of_classes %></td>
         <td class="actions">
           <%= link_to 'Eventos', school_calendar_school_calendar_events_path(school_calendar),
