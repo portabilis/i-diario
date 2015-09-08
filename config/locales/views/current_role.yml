@@ -1,0 +1,4 @@
+pt-BR:
+  current_role:
+    resources:
+      set_current_user_role: "Usar este perfil"

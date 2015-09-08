@@ -10,7 +10,7 @@
         <td><%= user_role.role_kind_humanize %></td>
         <td><%= user_role.unity_name %></td>
         <td class="actions">
-          <%= link_to 'Usar este perfil', set_current_role_path(user_role.role_id), class: "btn btn-primary" %>
+          <%= link_to t('.set_current_user_role'), set_current_role_path(user_role.id), class: 'btn btn-primary' %>
         </td>
       </tr>
     <% end %>
