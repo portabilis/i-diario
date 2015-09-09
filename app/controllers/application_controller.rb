@@ -165,6 +165,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def current_user_unity
+    current_user.current_user_role.try(:unity)
+  end
+
   private
 
   def disabled_entity_page?
