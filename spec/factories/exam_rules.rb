@@ -4,5 +4,6 @@ FactoryGirl.define do
     score_type     ScoreTypes::NUMERIC
     frequency_type FrequencyTypes::GENERAL
     opinion_type   OpinionTypes::DONT_USE
+    recovery_type   RecoveryTypes::DONT_USE
   end
 end
