@@ -27,6 +27,7 @@ class ApplicationController < ActionController::Base
   end
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+  rescue_from IeducarApi::Base::ApiError, with: :rescue_from_api_error
 
   protected
 
@@ -122,6 +123,10 @@ class ApplicationController < ActionController::Base
 
     flash[:error] = t "#{policy_name}.#{exception.query}", scope: "pundit", default: :default
     redirect_to(request.referrer || root_path)
+  end
+
+  def rescue_from_api_error(exception)
+    redirect_to edit_ieducar_api_configurations_path, alert: exception.message
   end
 
   def current_teacher
