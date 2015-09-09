@@ -17,7 +17,8 @@ class SchoolCalendar < ActiveRecord::Base
 
   accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
 
-  validates :year, presence: true
+  validates :year, presence: true,
+                   uniqueness: { scope: :unity_id }
   validates :number_of_classes, presence: true,
                                 numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
 
