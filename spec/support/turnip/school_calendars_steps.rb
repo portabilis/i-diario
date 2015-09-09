@@ -23,7 +23,7 @@ module Turnip
     step 'poderei sincronizar novos calendários letivos do i-Educar' do
       find('#select-all-unities').trigger('click')
 
-      click_on 'Sincronizar'
+      find('button[type=submit]').trigger('click')
 
       expect(page).to have_content('Calendários letivos sincronizados com sucesso.')
     end

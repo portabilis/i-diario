@@ -8,6 +8,8 @@ class SchoolCalendarsCreator
   end
 
   def create!
+    return false if selected_school_calendars.empty?
+
     begin
       selected_school_calendars.each do |school_calendar_params|
         school_calendar = SchoolCalendar.new(year: Date.today.year,
@@ -33,6 +35,6 @@ class SchoolCalendarsCreator
   attr_accessor :school_calendars
 
   def selected_school_calendars
-    school_calendars.select { |school_calendar| school_calendar['unity_api_code'].present? }
+    school_calendars.select { |school_calendar| school_calendar['unity_id'].present? }
   end
 end
