@@ -12,23 +12,6 @@ class SchoolCalendarsController < ApplicationController
     @unities = Unity.ordered
   end
 
-  def new
-    @school_calendar = resource
-    authorize resource
-  end
-
-  def create
-    resource.assign_attributes resource_params
-
-    authorize resource
-
-    if resource.save
-      respond_with resource, location: school_calendars_path
-    else
-      render :new
-    end
-  end
-
   def edit
     @school_calendar = resource
 
