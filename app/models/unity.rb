@@ -13,8 +13,6 @@ class Unity < ActiveRecord::Base
 
   has_many :origin_***REMOVED***, foreign_key: :origin_unity_id,
     class_name: "***REMOVED***Request"
-  has_many :destination_***REMOVED***, foreign_key: :destination_unity_id,
-    class_name: "***REMOVED***Request"
   has_many :origin_***REMOVED***, foreign_key: :origin_unity_id,
     class_name: "***REMOVED***"
   has_many :destination_***REMOVED***, foreign_key: :destination_unity_id,

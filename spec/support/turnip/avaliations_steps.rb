@@ -90,6 +90,8 @@ module Turnip
         expect(page).to have_content(@classroom_with_concept_score_type.unity.name)
       end
 
+      sleep 1
+
       fill_in_select2 "Turma", with: @classroom_with_concept_score_type.id
       using_wait_time 10 do
         expect(page).to have_content(@classroom_with_concept_score_type.description)
