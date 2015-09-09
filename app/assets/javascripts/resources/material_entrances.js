@@ -50,6 +50,10 @@ $(function() {
     $("[id$=unit_value], [id$=quantity]").on("blur", update***REMOVED***Totals);
   })
 
+  $('#material_entrance_items').on('cocoon:after-remove', function(e, item) {
+    update***REMOVED***Totals();
+  })
+
   function updateTemplate(item) {
     var output = [];
 
@@ -90,7 +94,7 @@ $(function() {
 
   var update***REMOVED***Totals = function(){
     var total_value = 0;
-    $.each($materialItems.find('tr'), function(i, row){
+    $.each($materialItems.find('tr:visible'), function(i, row){
       var unit_value = $(row).find("[id$=unit_value]").val();
       var quantity = $(row).find("[id$=quantity]").val();
       var _total_value = unit_value.currencyToNumber() * quantity.currencyToNumber();
