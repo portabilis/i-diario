@@ -8,21 +8,26 @@ class SchoolCalendar < ActiveRecord::Base
   has_associated_audits
 
   include Audit
+  include Filterable
 
   belongs_to :unity
 
-  has_many :steps,  class_name: 'SchoolCalendarStep',  dependent: :destroy
+  has_many :steps, -> { includes(:school_calendar).ordered },  class_name: 'SchoolCalendarStep',  dependent: :destroy
   has_many :events, class_name: 'SchoolCalendarEvent', dependent: :destroy
 
   accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
 
   validates :year, presence: true
-  validates :number_of_classes, presence: true
+  validates :number_of_classes, presence: true,
+                                numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
+
   validate :at_least_one_assigned_step
 
   validates_associated :steps
 
-  scope :ordered, -> { order(arel_table[:year]) }
+  scope :by_year, lambda { |year| where(year: year) }
+  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :ordered, -> { joins(:unity).order(year: :desc).order('unities.name') }
 
   def to_s
     year
@@ -35,11 +40,11 @@ class SchoolCalendar < ActiveRecord::Base
     ![0, 6].include? date.wday
   end
 
-  def step date
+  def step(date)
     steps.all.started_after_and_before(date).first
   end
 
-  def posting_step date
+  def posting_step(date)
     steps.all.posting_date_after_and_before(date).first
   end
 
@@ -49,12 +54,12 @@ class SchoolCalendar < ActiveRecord::Base
     errors.add(:steps, :at_least_one_step) if steps.empty?
   end
 
+  def self_assign_to_steps
+    steps.each { |step| step.school_calendar = self }
+  end
+
   def seed_events
     events_seeder = SchoolCalendarEventsSeeder.new(school_calendar: self)
     events_seeder.seed
-  end
-
-  def self_assign_to_steps
-    steps.each { |step| step.school_calendar = self }
   end
 end

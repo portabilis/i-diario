@@ -16,6 +16,9 @@ RSpec.describe SchoolCalendar, type: :model do
   describe "validations" do
     it { expect(subject).to validate_presence_of(:year) }
     it { expect(subject).to validate_presence_of(:number_of_classes) }
+    it { expect(subject).to validate_numericality_of(:number_of_classes).only_integer
+                                                                        .is_greater_than_or_equal_to(1)
+                                                                        .is_less_than_or_equal_to(10) }
 
     it "validates at least one assigned step" do
       subject.steps = []

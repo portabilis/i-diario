@@ -1,5 +1,8 @@
 pt-BR:
   school_calendars:
+    index:
+      by_year: "Filtrar ano"
+      by_unity_id: "Filtrar escola"
     create_batch:
       notice: "Calendários letivos sincronizados com sucesso."
       alert:  "Ocorreu um erro ao sincronizar os calendários letivos. Por favor, tente novamente."

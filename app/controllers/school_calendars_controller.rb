@@ -3,9 +3,13 @@ class SchoolCalendarsController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @school_calendars = apply_scopes(SchoolCalendar.includes(:unity).ordered)
+    @school_calendars = apply_scopes(SchoolCalendar).includes(:unity)
+                                                    .filter(filtering_params(params[:search]))
+                                                    .ordered
 
     authorize @school_calendars
+
+    @unities = Unity.ordered
   end
 
   def new
@@ -74,6 +78,12 @@ class SchoolCalendarsController < ApplicationController
   end
 
   private
+
+  def filtering_params(params)
+    params = {} unless params
+    params.slice(:by_year,
+                 :by_unity_id)
+  end
 
   def resource
     @school_calendar ||= case params[:action]

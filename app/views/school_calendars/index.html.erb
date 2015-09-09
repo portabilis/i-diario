@@ -1,27 +1,35 @@
 <div class="widget-body no-padding">
-  <div class="table-responsive">
-    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
-      <thead>
-        <tr>
-          <th><%= SchoolCalendar.human_attribute_name :year %></th>
-          <th><%= SchoolCalendar.human_attribute_name :unity %></th>
-          <th><%= SchoolCalendar.human_attribute_name :number_of_classes %></th>
-          <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px;"><%= link_to t('.synchronize_html'), synchronize_school_calendars_path, class: "btn btn-info pull-right" %></td>
-        </tr>
-      </thead>
+  <%= simple_form_for :search, { url: school_calendars_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+        <thead>
+          <tr>
+              <td width="10%"><%= f.input :by_year, label: false, placeholder: t('.by_year') %></td>
+              <td><%= f.input :by_unity_id, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity_id') %></td>
+              <td></td>
+              <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px"><%= link_to t('.synchronize_html'), synchronize_school_calendars_path, class: "btn btn-info pull-right" %></td>
+            </tr>
+          <tr>
+            <th><%= SchoolCalendar.human_attribute_name :year %></th>
+            <th><%= SchoolCalendar.human_attribute_name :unity %></th>
+            <th><%= SchoolCalendar.human_attribute_name :number_of_classes %></th>
+            <td></td>
+          </tr>
+        </thead>
 
-      <%= render 'resources' %>
+        <%= render 'resources' %>
 
-      <tfoot id="paginator" class="remote">
-        <td colspan="4">
-          <div id="page_entries_info" class="pull-left hidden-xs">
-            <%= page_entries_info @school_calendars %>
-          </div>
-          <div class="pull-right">
-            <%= paginate @school_calendars %>
-          </div>
-        </td>
-      </tfoot>
-    </table>
-  </div>
+        <tfoot id="paginator" class="remote">
+          <td colspan="4">
+            <div id="page_entries_info" class="pull-left hidden-xs">
+              <%= page_entries_info @school_calendars %>
+            </div>
+            <div class="pull-right">
+              <%= paginate @school_calendars %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
 </div>
