@@ -36,20 +36,19 @@ class NumericalExamPosting
                                      discipline: discipline
                                      ).count
 
-      if test_setting.fix_tests? && exam_number >= test_setting.tests.where(test_type: TestTypes::REGULAR).count
+      if test_setting.fix_tests? && exam_number >= test_setting.tests.count
         students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom, discipline)
 
         regular_exam_number = Avaliation.joins(:test_setting_test)
                                         .where(classroom: classroom,
-                                               discipline: discipline,
-                                              'test_setting_tests.test_type' => TestTypes::REGULAR
-                                              ).count
+                                               discipline: discipline).count
 
         students.each do |student|
-          exams = DailyNoteStudent.regular_by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
-              discipline, student.id, step_start_at, step_end_at)
-          recovery_exams = DailyNoteStudent.recovery_by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
-              discipline, student.id, step_start_at, step_end_at)
+          exams = DailyNoteStudent.by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
+                                                                                                    discipline,
+                                                                                                    student.id,
+                                                                                                    step_start_at,
+                                                                                                    step_end_at)
 
           if exams.count < regular_exam_number
             raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno "+student.to_s+" não possui todas notas lançadas para a etapa atual.")
@@ -59,9 +58,6 @@ class NumericalExamPosting
             classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["componente_curricular_id"] = discipline.api_code
 
             value = exams.sum(:note)
-            recovery_value = recovery_exams.sum(:note)
-
-            value = (recovery_value || 0) > value ? recovery_value : value;
 
             classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = value
           end

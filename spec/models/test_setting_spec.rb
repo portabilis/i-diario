@@ -81,30 +81,20 @@ RSpec.describe TestSetting, type: :model do
     context 'when fixed tests' do
       before { subject.fix_tests = true }
 
-      it 'validates at least one assigned regular test' do
-        subject.tests << FactoryGirl.build(:test_setting_test, test_type: 'recovery')
+      it 'validates at least one assigned test' do
+        subject.tests = []
 
         expect(subject).to_not be_valid
-        expect(subject.errors.messages[:tests]).to include('É necessário pelo menos uma avaliação do tipo normal')
+        expect(subject.errors.messages[:tests]).to include('É necessário pelo menos uma avaliação')
       end
 
-      context 'when there are assigned regular tests' do
-        it 'validates regular tests weight equal maximum score' do
+      context 'when there are assigned tests' do
+        it 'validates tests weight equal maximum score' do
           subject.maximum_score = 100
-          subject.tests << FactoryGirl.build(:test_setting_test, weight: 10, test_type: 'regular')
+          subject.tests << FactoryGirl.build(:test_setting_test, weight: 10)
 
           expect(subject).to_not be_valid
-          expect(subject.errors.messages[:tests]).to include('A soma dos pesos das avaliações do tipo normal deve resultar no mesmo valor da nota máxima')
-        end
-      end
-
-      context 'when there are assigned recovery tests' do
-        it 'validates recovery tests weight equal maximum score' do
-          subject.maximum_score = 100
-          subject.tests << FactoryGirl.build(:test_setting_test, weight: 10, test_type: 'recovery')
-
-          expect(subject).to_not be_valid
-          expect(subject.errors.messages[:tests]).to include('A soma dos pesos das avaliações do tipo recuperação deve resultar no mesmo valor da nota máxima')
+          expect(subject.errors.messages[:tests]).to include('A soma dos pesos das avaliações deve resultar no mesmo valor da nota máxima')
         end
       end
     end

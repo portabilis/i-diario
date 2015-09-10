@@ -7,10 +7,9 @@ class TestSettingTest < ActiveRecord::Base
 
   has_many :avaliations, dependent: :restrict_with_error
 
-  has_enumeration_for :test_type, with: TestTypes
-
-  validates :description, :weight, :test_type, presence: true
-  validates :weight, numericality: true
+  validates :description, presence: true
+  validates :weight, presence: true,
+                     numericality: true
 
   def to_s
     description

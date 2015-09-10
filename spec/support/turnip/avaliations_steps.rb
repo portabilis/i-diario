@@ -23,7 +23,7 @@ module Turnip
       TestSettingTest.delete_all
       TestSetting.delete_all
       @test_setting = FactoryGirl.build(:test_setting, year: 2015, maximum_score: 10, fix_tests: true)
-      @test = @test_setting.tests.build(FactoryGirl.attributes_for(:test_setting_test, weight: @test_setting.maximum_score, test_type: TestTypes::REGULAR, allow_break_up: false))
+      @test = @test_setting.tests.build(FactoryGirl.attributes_for(:test_setting_test, weight: @test_setting.maximum_score, allow_break_up: false))
       @test_setting.save
     end
 
@@ -32,7 +32,7 @@ module Turnip
       TestSettingTest.delete_all
       TestSetting.delete_all
       @test_setting = FactoryGirl.build(:test_setting, year: 2015, maximum_score: 10, fix_tests: true)
-      @test = @test_setting.tests.build(FactoryGirl.attributes_for(:test_setting_test, weight: @test_setting.maximum_score, test_type: TestTypes::REGULAR, allow_break_up: true))
+      @test = @test_setting.tests.build(FactoryGirl.attributes_for(:test_setting_test, weight: @test_setting.maximum_score, allow_break_up: true))
       @test_setting.save
     end
 

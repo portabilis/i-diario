@@ -21,9 +21,8 @@ pt-BR:
         test_setting:
           attributes:
             tests:
-              at_least_one_assigned_regular_test: "É necessário pelo menos uma avaliação do tipo normal"
-              regular_tests_weight_equal_maximum_score: "A soma dos pesos das avaliações do tipo normal deve resultar no mesmo valor da nota máxima"
-              recovery_tests_weight_equal_maximum_score: "A soma dos pesos das avaliações do tipo recuperação deve resultar no mesmo valor da nota máxima"
+              at_least_one_assigned_test: "É necessário pelo menos uma avaliação"
+              tests_weight_equal_maximum_score: "A soma dos pesos das avaliações deve resultar no mesmo valor da nota máxima"
 
   test_settings:
     form:
