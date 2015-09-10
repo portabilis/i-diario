@@ -23,7 +23,7 @@ module Turnip
       click_***REMOVED*** 'Configurações > Avaliações'
 
       within '#resources > tbody > tr:nth-child(2)' do
-        expect(page).to have_content '2014 10 2 Não'
+        expect(page).to have_content 'Geral 2014 - 10 2 Não'
       end
     end
 
@@ -44,12 +44,12 @@ module Turnip
 
     step 'poderei excluir uma configuração de avaliação' do
       within '#resources > tbody > tr:nth-child(2)' do
-        expect(page).to have_content '2014 10 2 Não'
+        expect(page).to have_content 'Geral 2014 - 10 2 Não'
         click_link "Excluir"
       end
 
       expect(page).to have_content 'Configuração de avaliação foi apagada com sucesso'
-      expect(page).to have_no_content '2014 10 2 Não'
+      expect(page).to have_no_content 'Geral 2014 - 10 2 Não'
     end
 
     step 'cadastrar uma nova configuração de avaliação com avaliações fixadas e desmembráveis' do
