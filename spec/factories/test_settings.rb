@@ -1,5 +1,6 @@
 FactoryGirl.define do
   factory :test_setting do
+    exam_setting_type ExamSettingTypes::GENERAL
     sequence(:year) { |n| 2020 + n }
     maximum_score 10
     number_of_decimal_places 2

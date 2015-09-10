@@ -34,4 +34,22 @@ $(function() {
   $('form').on('cocoon:after-insert', function(e, item) {
     updatePriceFormat();
   })
+
+  $('#test_setting_exam_setting_type').on('change', function(e) {
+    updateTestSettingSchoolTermInput();
+  });
+
+  var updateTestSettingSchoolTermInput = function() {
+    var $test_setting_school_term_div = $('#test_setting_school_term_div');
+    var $test_setting_school_term_input = $('#test_setting_school_term');
+
+    if ($('#test_setting_exam_setting_type').select2('val') == 'by_school_term') {
+      $test_setting_school_term_div.show();
+    } else {
+      $test_setting_school_term_div.hide();
+      $test_setting_school_term_input.select2('val', '');
+    }
+  }
+
+  updateTestSettingSchoolTermInput();
 });

@@ -9,6 +9,7 @@ module Turnip
     end
 
     step 'poderei cadastrar uma nova configuração de avaliação' do
+      fill_in_select2 'Tipo', with: 'general'
       fill_in 'Ano', with: '2010'
       fill_in 'Nota máxima', with: '10'
       fill_in 'Número de casas decimais', with: '2'
@@ -52,6 +53,7 @@ module Turnip
     end
 
     step 'cadastrar uma nova configuração de avaliação com avaliações fixadas e desmembráveis' do
+      fill_in_select2 'Tipo', with: 'general'
       fill_in 'Ano', with: '2010'
       fill_in 'Nota máxima', with: '10'
       fill_in 'Número de casas decimais', with: '2'

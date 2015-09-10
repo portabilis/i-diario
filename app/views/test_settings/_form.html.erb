@@ -4,9 +4,19 @@
   <fieldset>
     <div class="row">
       <div class="col col-sm-3">
+        <%= f.input :exam_setting_type, as: :select2, elements: ExamSettingTypes.to_select.to_json %>
+      </div>
+
+      <div class="col col-sm-3">
         <%= f.input :year, input_html: { max_length: 4 } %>
       </div>
 
+      <div id="test_setting_school_term_div" class="col col-sm-3">
+        <%= f.input :school_term, as: :select2, elements: (Bimesters.to_select + Trimesters.to_select + Semesters.to_select).uniq.to_json, required: true %>
+      </div>
+    </div>
+
+    <div class="row">
       <div class="col col-sm-3">
         <%= f.input :maximum_score %>
       </div>

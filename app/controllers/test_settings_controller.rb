@@ -11,6 +11,7 @@ class TestSettingsController < ApplicationController
   def new
     @test_setting = resource
     authorize resource
+    @school_terms
   end
 
   def create
@@ -71,7 +72,9 @@ class TestSettingsController < ApplicationController
   end
 
   def resource_params
-    params.require(:test_setting).permit(:year,
+    params.require(:test_setting).permit(:exam_setting_type,
+                                         :year,
+                                         :school_term,
                                          :maximum_score,
                                          :number_of_decimal_places,
                                          :fix_tests,

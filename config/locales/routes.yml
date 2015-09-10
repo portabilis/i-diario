@@ -39,7 +39,7 @@ pt-BR:
     moved_***REMOVED***: 'saldo-de-materiais-por-unidade'
     ***REMOVED***: '***REMOVED***'
     entity_configurations: 'configuracoes-da-entidade'
-    test_settings: 'configuracoes-de-avaliacao'
+    test_settings: 'configuracoes-de-avaliacoes-numericas'
     school_calendars: 'calendarios-letivo'
     school_calendar_events: 'eventos'
     contents: 'registro-de-conteudos'
