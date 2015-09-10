@@ -30,6 +30,19 @@ class TestSetting < ActiveRecord::Base
     year
   end
 
+  def school_term_humanize
+    case
+    when school_term.nil?
+      '-'
+    when school_term.end_with?(SchoolTermTypes::BIMESTER)
+      I18n.t("enumerations.bimesters.#{school_term}")
+    when school_term.end_with?(SchoolTermTypes::TRIMESTER)
+      I18n.t("enumerations.trimesters.#{school_term}")
+    when school_term.end_with?(SchoolTermTypes::SEMESTER)
+      I18n.t("enumerations.semesters.#{school_term}")
+    end
+  end
+
   private
 
   def uniqueness_of_general_test_setting

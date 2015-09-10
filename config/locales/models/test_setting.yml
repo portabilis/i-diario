@@ -9,7 +9,7 @@ pt-BR:
       test_setting:
         id: "Código"
         exam_setting_type: "Tipo"
-        school_term: "Etapa"
+        school_term: "Período escolar"
         year: "Ano"
         maximum_score: "Nota máxima"
         number_of_decimal_places: "Número de casas decimais"
