@@ -27,7 +27,11 @@ class TestSetting < ActiveRecord::Base
   scope :ordered, -> { order(year: :desc) }
 
   def to_s
-    year
+    if school_term.nil?
+      year
+    else
+      school_term_humanize
+    end
   end
 
   def school_term_humanize

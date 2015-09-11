@@ -2,9 +2,15 @@
   <%= f.error_notification %>
 
   <fieldset>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.association :test_setting, as: :select2, elements: @test_settings, hide_empty_element: true, input_html: { data: { hide_empty_element: true } } %>
+        </div>
+      </div>
+
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.association :unity, as: :select2, elements: @unities %>
+        <%= f.association :unity, as: :select2, elements: unities, readonly: !current_user.admin? %>
       </div>
 
       <div class="col col-sm-4">
@@ -26,16 +32,16 @@
       </div>
 
       <div class="col col-sm-4">
-        <% if @avaliation.test_setting.fix_tests? %>
+        <% # if @avaliation.test_setting.fix_tests? %>
           <%= f.association :test_setting_test, as: :select2, elements: @avaliation.test_setting.tests %>
-        <% else %>
-            <%= f.input :description %>
-        <% end %>
+        <% # else %>
+            <% #f.input :description %>
+        <% # end %>
       </div>
     </div>
 
-    <% if @avaliation.test_setting.fix_tests? %>
-      <div id="show_when_allow_break_up" class="row">
+    <% # if @avaliation.test_setting.fix_tests? %>
+      <div class="row">
         <div class="col col-sm-4">
           <%= f.input :description %>
         </div>
@@ -45,7 +51,7 @@
                                                data: { scale: @avaliation.test_setting.number_of_decimal_places } } %>
         </div>
       </div>
-    <% end %>
+    <% # end %>
 
   </fieldset>
 

@@ -49,6 +49,20 @@ class SchoolCalendar < ActiveRecord::Base
     steps.all.posting_date_after_and_before(date).first
   end
 
+  def school_term(date)
+    school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters }
+
+    index_of_step = steps.find_index(step(date))
+
+    school_term = school_terms[steps.count]
+    school_term.key_for(index_of_step)
+  end
+
+  def school_term_day?(school_term, date)
+    real_school_term = school_term(date)
+    real_school_term.to_sym == school_term.to_sym
+  end
+
   private
 
   def at_least_one_assigned_step
