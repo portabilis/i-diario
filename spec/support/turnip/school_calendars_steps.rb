@@ -17,6 +17,7 @@ module Turnip
     step 'eu clicar em Sincronizar' do
       VCR.use_cassette('school_calendars') do
         click_on 'Sincronizar'
+        sleep 2
       end
     end
 
