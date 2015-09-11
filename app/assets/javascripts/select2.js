@@ -9,7 +9,7 @@ $(document).ready(function(){
       },
       data: $(element).data('elements'),
       multiple: $(element).data('multiple'),
-      allowClear: true
+      allowClear: !$(element).data('hide-empty-element')
     });
 
     if ($(element).data('multiple') && !$(element).data('without-json-parser')) {

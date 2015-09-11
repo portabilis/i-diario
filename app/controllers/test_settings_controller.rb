@@ -1,4 +1,6 @@
 class TestSettingsController < ApplicationController
+  respond_to :json, only: [:show]
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
@@ -6,6 +8,14 @@ class TestSettingsController < ApplicationController
     @test_settings = apply_scopes(TestSetting.ordered)
 
     authorize @test_settings
+  end
+
+  def show
+   @test_setting = resource
+
+    authorize resource
+
+    respond_with(@test_setting)
   end
 
   def new
@@ -66,7 +76,7 @@ class TestSettingsController < ApplicationController
     @test_setting ||= case params[:action]
     when 'new', 'create'
       TestSetting.new
-    when 'edit', 'update', 'destroy'
+    when 'show', 'edit', 'update', 'destroy'
       TestSetting.find(params[:id])
     end.localized
   end

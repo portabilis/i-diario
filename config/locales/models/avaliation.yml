@@ -30,6 +30,7 @@ pt-BR:
           attributes:
               test_date:
                 must_be_school_day: "deve ser um dia letivo"
+                must_be_school_term_day: "deve ser um dia válido para o período escolar selecionado"
               test_setting_test:
                 unique_per_step: "deve ser única por etapa"
                 unavailable_weight: "já foram criadas avaliações que atingiram o peso limite para este tipo de avaliação"

@@ -35,6 +35,7 @@ class Avaliation < ActiveRecord::Base
   validate :test_setting_test_weight_available,   if: :allow_break_up?
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
   validate :is_school_day?
+  validate :is_school_term_day?
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
@@ -87,7 +88,13 @@ class Avaliation < ActiveRecord::Base
   def is_school_day?
     return unless school_calendar && test_date
 
-    errors.add(:test_date, :must_be_school_day) if !school_calendar.school_day? test_date
+    errors.add(:test_date, :must_be_school_day) if !school_calendar.school_day?(test_date)
+  end
+
+  def is_school_term_day?
+    return if test_setting.nil? || test_setting.exam_setting_type == ExamSettingTypes::GENERAL
+
+    errors.add(:test_date, :must_be_school_term_day) if !school_calendar.school_term_day?(test_setting.school_term, test_date)
   end
 
   def should_validate_classroom_score_type?

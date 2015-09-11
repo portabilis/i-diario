@@ -8,8 +8,11 @@ class AvaliationsController < ApplicationController
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
 
   def index
+    current_user_unity_id = current_user_unity.id if current_user_unity
+
     @avaliations = apply_scopes(Avaliation).includes(:unity, :classroom, :discipline, :test_setting_test)
                                            .by_teacher(current_teacher.id)
+                                           .by_unity_id(current_user_unity_id)
                                            .filter(filtering_params(params[:search]))
                                            .ordered
 
@@ -24,17 +27,18 @@ class AvaliationsController < ApplicationController
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
     @avaliation.test_setting    = current_test_setting
+    @avaliation.unity           = current_user_unity
     @avaliation.test_date       = Date.today
 
     authorize resource
 
     fetch_classrooms
+    @test_settings = TestSetting.where(year: Date.today.year).ordered
   end
 
   def create
-    resource.assign_attributes resource_params
+    resource.assign_attributes(resource_params)
     resource.school_calendar = current_school_calendar
-    resource.test_setting    = current_test_setting
 
     authorize resource
 
@@ -42,6 +46,7 @@ class AvaliationsController < ApplicationController
       respond_with resource, location: avaliations_path
     else
       fetch_classrooms
+      @test_settings = TestSetting.where(year: Date.today.year).ordered
 
       render :new
     end
@@ -53,6 +58,7 @@ class AvaliationsController < ApplicationController
     authorize @avaliation
 
     fetch_classrooms
+    @test_settings = TestSetting.where(year: Date.today.year).ordered
   end
 
   def update
@@ -65,6 +71,7 @@ class AvaliationsController < ApplicationController
       respond_with @avaliation, location: avaliations_path
     else
       fetch_classrooms
+      @test_settings = TestSetting.where(year: Date.today.year).ordered
 
       render :edit
     end
@@ -95,7 +102,7 @@ class AvaliationsController < ApplicationController
   def fetch_classrooms
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @avaliation.unity_id, @avaliation.classroom_id)
     fetcher.fetch!
-    @unities = fetcher.unities
+
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
   end
@@ -111,15 +118,15 @@ class AvaliationsController < ApplicationController
 
   def filtering_params(params)
     params = {} unless params
-    params.slice(:by_unity_id,
-                 :by_classroom_id,
+    params.slice(:by_classroom_id,
                  :by_discipline_id,
                  :by_test_date,
                  :by_description)
   end
 
   def resource_params
-    params.require(:avaliation).permit(:unity_id,
+    params.require(:avaliation).permit(:test_setting_id,
+                                       :unity_id,
                                        :classroom_id,
                                        :discipline_id,
                                        :test_date,

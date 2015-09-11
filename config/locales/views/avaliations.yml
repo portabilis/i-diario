@@ -1,7 +1,6 @@
 pt-BR:
   avaliations:
     index:
-      by_unity_id: "Filtrar unidade"
       by_classroom_id: "Filtrar turma"
       by_discipline_id: "Filtrar disciplina"
       by_test_date: "Filtrar data"

@@ -1,7 +1,5 @@
 $(function () {
   window.classrooms = [];
-  window.disciplines = [];
-
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
       $.getJSON('/classrooms?' + $.param(params)).always(function (data) {
@@ -13,6 +11,7 @@ $(function () {
     }
   };
 
+  window.disciplines = [];
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
       $.getJSON('/disciplines?' + $.param(params)).always(function (data) {
@@ -21,6 +20,18 @@ $(function () {
       });
     } else {
       callback(window.disciplines);
+    }
+  };
+
+  window.testSettingTests = []
+  var fetchTestSettingTests = function (params, callback) {
+    if (_.isEmpty(window.testSettingTests)) {
+      $.getJSON('/test_setting_tests?' + $.param(params)).always(function (data) {
+        window.testSettingTests = data;
+        callback(window.testSettingTests);
+      });
+    } else {
+      callback(window.testSettingTests);
     }
   };
 
@@ -77,34 +88,72 @@ $(function () {
     }
   });
 
+  var updateFieldsBasedOnTestSetting = function() {
+    $.getJSON('/test_settings/' + $('#avaliation_test_setting_id').select2('val')).always(function(data) {
+      if (data['exam_setting_type'] == 'general')
+      {
+        $('.avaliation_test_setting').hide();
+      }
+
+      if (data['fix_tests']) {
+        $('.avaliation_test_setting_test').show();
+        $('.avaliation_description').hide();
+        $('.avaliation_weight').hide();
+      } else {
+        $('.avaliation_test_setting_test').hide();
+        $('.avaliation_description').show();
+        $('.avaliation_weight').hide();
+      }
+    });
+
+    var params = { test_setting_id: $('#avaliation_test_setting_id').select2('val') };
+    window.testSettingTests = [];
+    if (_.isEmpty($('#avaliation_test_setting_id').select2('val'))) {
+      $('#avaliation_test_setting_test_id').val('');
+      $('#avaliation_test_setting_test_id').select2({ data: [] });
+    } else {
+      fetchTestSettingTests(params, function (testSettingTests) {
+        var selectedTestSettingTests = _.map(testSettingTests, function (testSettingTest) {
+          return { id: testSettingTest['id'], text: testSettingTest['description'] };
+        });
+
+        $('#avaliation_test_setting_test_id').select2({
+          data: selectedTestSettingTests
+        });
+      });
+    }
+  }
+
+  $('#avaliation_test_setting_id').on('change', function (e) {
+    updateFieldsBasedOnTestSetting();
+  });
+
   var $test_setting_input = $('#avaliation_test_setting_test_id');
   $test_setting_input.on('change', function(e) {
-    updateWeightInput();
+    updateFieldsBaseOnTestSettingTest();
   });
 
   var $description_and_weight_div = $('#show_when_allow_break_up');
   var $description_input = $('#avaliation_description');
   var $weight_input = $('#avaliation_weight');
 
-  var updateWeightInput = function() {
+  var updateFieldsBaseOnTestSettingTest = function() {
     if (!document.getElementById('avaliation_test_setting_test_id') || _.isEmpty($test_setting_input.select2('val')) || $test_setting_input.select2('val') == 'empty') {
-      hideDescriptionAndWeightInput();
+      $('.avaliation_description').hide();
+      $('.avaliation_weight').hide();
+
       return;
     }
 
     $.getJSON('/test_setting_tests/' + $test_setting_input.select2('val')).always(function(data) {
       if (data['allow_break_up']) {
-        $description_and_weight_div.show();
+        $('.avaliation_description').show();
+        $('.avaliation_weight').show();
       } else {
-        hideDescriptionAndWeightInput();
+        $('.avaliation_description').hide();
+        $('.avaliation_weight').hide();
       }
     });
-  }
-
-  var hideDescriptionAndWeightInput = function() {
-    $description_input.val('');
-    $weight_input.select2('val', '');
-    $description_and_weight_div.hide();
   }
 
   function updateWeightFormat() {
@@ -116,8 +165,12 @@ $(function () {
     });
   }
 
+  if (!!document.getElementById('avaliation_test_setting_id')) {
+    updateFieldsBasedOnTestSetting();
+  }
+
   if (!!document.getElementById('avaliation_weight')) {
-    updateWeightInput();
+    updateFieldsBaseOnTestSettingTest();
     updateWeightFormat();
   }
 });
