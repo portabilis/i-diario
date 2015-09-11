@@ -53,9 +53,15 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def create_batch
-    if SchoolCalendarsCreator.create!(params[:synchronize])
-      redirect_to school_calendars_path, notice: t('.notice')
-    else
+    begin
+      if SchoolCalendarsCreator.create!(params[:synchronize])
+        redirect_to school_calendars_path, notice: t('.notice')
+      else
+        redirect_to synchronize_school_calendars_path, alert: t('.alert')
+      end
+    rescue ActiveRecord::RecordInvalid => invalid
+      redirect_to synchronize_school_calendars_path, alert: t('.error_on_unity', unity_name: invalid.record.unity.name)
+    rescue
       redirect_to synchronize_school_calendars_path, alert: t('.alert')
     end
   end

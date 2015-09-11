@@ -11,6 +11,8 @@ pt-BR:
         unity: "Escola"
         year: "Ano"
         number_of_classes: "Número de aulas por turno"
+        school_calendar_steps: "a"
+
 
     errors:
       models:
