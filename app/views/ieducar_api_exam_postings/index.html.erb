@@ -1,14 +1,19 @@
-<div class="widget-body no-padding">
-  <div class="table-responsive">
-    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
-      <thead>
-        <tr>
-          <th>Tipo</th>
-          <th>Situação</th>
-          <th></th>
-        </tr>
-      </thead>
-      <%= render 'resources' %>
-    </table>
-  </div>
+<div class="widget-body">
+  <% @school_calendar.steps.each do |step| %>
+    <legend><%= "#{step.school_term} (#{step.to_s})" %></legend>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-striped table-condensed table-hover">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Situação</th>
+            <th width="2%"></th>
+          </tr>
+        </thead>
+
+        <%= render 'resources', step: step %>
+      </table>
+    </div>
+  <% end %>
 </div>

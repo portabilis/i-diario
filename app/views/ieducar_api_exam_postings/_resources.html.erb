@@ -1,44 +1,43 @@
 <tbody>
-<% ApiPostingTypes.each_value do |value| %>
-  <tr>
-    <td>
-      <%= ApiPostingTypes.t(value) %>
-    </td>
-    <td>
-      <% if instance_variable_get("@#{value}_posting") %>
-        <% if instance_variable_get("@#{value}_posting").status == ApiPostingStatus::STARTED %>
-          <i class="fa fa-cog fa-spin"></i> Enviando
-        <% else %>
-          <% if instance_variable_get("@#{value}_posting").message.present? %>
-            <p class="success">
-              <i class="fa fa-check"></i>
-              <%= instance_variable_get("@#{value}_posting").message %>
-            </p>
-          <% end %>
-          <% if instance_variable_get("@#{value}_posting").error_message.present? %>
-            <p class="danger">
-              <i class="fa fa-times"></i>
-              <%= instance_variable_get("@#{value}_posting").error_message %>
-            </p>
-          <% end %>
+  <% ApiPostingTypes.each_value do |value| %>
+    <tr>
+      <td>
+        <%= ApiPostingTypes.t(value) %>
+      </td>
 
+      <td>
+        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting") %>
+          <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").status == ApiPostingStatus::STARTED %>
+            <i class="fa fa-cog fa-spin"></i> Enviando
+          <% else %>
+            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").message.present? %>
+              <p class="success">
+                <i class="fa fa-check"></i>
+                <%= instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").message %>
+              </p>
+            <% end %>
+
+            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").error_message.present? %>
+              <p class="danger">
+                <i class="fa fa-times"></i>
+                <%= instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").error_message %>
+              </p>
+            <% end %>
+          <% end %>
+        <% else %>
+          <i>Nenhuma postagem realizada</i>
         <% end %>
-      <% else %>
-        <i>Nenhuma postagem realizada</i>
-      <% end %>
-    </td>
-    <td>
-      <% if instance_variable_get("@#{value}_posting") && instance_variable_get("@#{value}_posting").syncronization_in_progress? %>
-          <%= link_to "Enviar",
-          '#',
-          class: 'btn bg-color-red txt-color-white disabled' %>
-      <% else %>
-        <%= link_to "Enviar",
-              ieducar_api_exam_postings_path(post_type: value),
-              method: 'post',
-              class: 'btn bg-color-red txt-color-white' %>
-      <% end %>
-    </td>
-  </tr>
-<% end %>
+      </td>
+
+      <td>
+        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting") && instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").syncronization_in_progress? %>
+            <%= link_to 'Enviar', '#', class: 'btn bg-color-red txt-color-white disabled' %>
+        <% else %>
+          <%= link_to 'Enviar', ieducar_api_exam_postings_path(school_calendar_step_id: step.id, post_type: value),
+                                method: 'post',
+                                class: 'btn bg-color-red txt-color-white' %>
+        <% end %>
+      </td>
+    </tr>
+  <% end %>
 </tbody>
