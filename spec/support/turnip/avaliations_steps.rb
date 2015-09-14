@@ -37,11 +37,11 @@ module Turnip
     end
 
     step 'que acesso a listagem de avaliações' do
-      click_***REMOVED*** 'Avaliações > Cadastro de avaliações'
+      click_***REMOVED*** 'Avaliações > Avaliações numéricas'
     end
 
     step 'eu entrar no formulário de nova avaliação' do
-      click_on "Novo cadastro de avaliação"
+      click_on "Nova avaliação numérica"
     end
 
     step 'cadastrar uma nova avaliação com avaliações que não permite desmembrar' do
@@ -101,7 +101,7 @@ module Turnip
     end
 
     step 'devo visualizar uma mensagem de avaliação cadastrada com sucesso' do
-      expect(page).to have_content 'Cadastro de avaliação foi criado com sucesso.'
+      expect(page).to have_content 'Avaliação numérica foi criada com sucesso.'
     end
 
     step 'devo visualizar uma mensagem de turma com tipo de avaliação não numérica' do

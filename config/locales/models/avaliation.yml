@@ -2,8 +2,8 @@ pt-BR:
   activerecord:
     models:
       avaliation:
-        one: "Cadastro de avaliação"
-        other: "Cadastro de avaliações"
+        one: "Avaliação numérica"
+        other: "Avaliações numéricas"
 
     attributes:
       avaliation:

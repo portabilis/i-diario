@@ -124,7 +124,7 @@ pt-BR:
       <<: *male
 
     avaliations:
-      <<: *male
+      <<: *female
 
     daily_notes:
       <<: *male
