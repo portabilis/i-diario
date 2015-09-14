@@ -25,6 +25,8 @@ class NumericalExamPosting
     teacher = posting.author.teacher
 
     teacher.teacher_discipline_classrooms.each do |teacher_discipline_classroom|
+      next if teacher_discipline_classroom.classroom.unity_id != posting.school_calendar_step.school_calendar.unity_id
+
       classroom = teacher_discipline_classroom.classroom
       discipline = teacher_discipline_classroom.discipline
       step_start_at = posting.school_calendar_step.start_at
