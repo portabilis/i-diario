@@ -5,9 +5,11 @@ class IeducarApiExamPostingsController < ApplicationController
   before_action :require_current_posting_step
 
   def index
-    @school_calendar = current_school_calendar
+    @school_calendar_steps = SchoolCalendarStep.by_school_calendar_id(current_school_calendar.id)
+                                               .posting_date_after_and_before(Date.today)
+                                               .ordered
 
-    @school_calendar.steps.each do |step|
+    @school_calendar_steps.each do |step|
       ApiPostingTypes.each_value do |value|
         ieducar_api_exam_posting = IeducarApiExamPosting.where(school_calendar_step: step.id, author_id: current_user.id).send(value).last
         instance_variable_set("@school_calendar_step_#{step.id}_#{value}_posting", ieducar_api_exam_posting)
