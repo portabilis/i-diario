@@ -45,7 +45,7 @@ class NumericalExamPosting
                                                                                                                       step_start_at,
                                                                                                                       step_end_at)
 
-          if number_of_student_exams.count < regular_exam_number
+          if number_of_student_exams.count < number_of_exams
             raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno #{student.to_s} não possui todas notas lançadas para a etapa informada.")
           else
             value = number_of_student_exams.sum(:note)
