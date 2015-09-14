@@ -42,6 +42,7 @@ class Unity < ActiveRecord::Base
   }
   scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
+  scope :by_unity, -> unity { where(id: unity) }
 
   #search scopes
   scope :search_name, lambda { |search_name| where("name ILIKE ?", "%#{search_name}%") }

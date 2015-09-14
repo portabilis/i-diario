@@ -9,11 +9,12 @@ $(function() {
       $materialItemsTotalValue = $('#entrance-material-items-total-value');
 
   toggle***REMOVED***($kind.val() === 'supplier');
-  toggle***REMOVED***($kind.val() === 'return' || $kind.val() === 'transfer');
+  toggle***REMOVED***();
+  
 
   $kind.on('change', function(e) {
     toggle***REMOVED***(e.val === 'supplier');
-    toggle***REMOVED***(e.val === 'return' || e.val === 'transfer');
+    toggle***REMOVED***();
   });
 
   $materialExit.on('change', function(e) {
@@ -83,10 +84,14 @@ $(function() {
     }
   }
 
-  function toggle***REMOVED***(show) {
-    if (show) {
+  function toggle***REMOVED***() {
+    if($kind.val() === 'return'){
+      $("label[for='material_entrance_material_exit_id']").text("Devolução");
       $materialExitFields.show();
-    } else {
+    }else if($kind.val() === 'transfer'){
+      $("label[for='material_entrance_material_exit_id']").text("Transferência");
+      $materialExitFields.show();
+    }else {
       $materialExitFields.hide().
         find("input.select2").select2("val", "");
     }

@@ -14,7 +14,7 @@ $(function() {
 
   toggleReturnReason($kind.val() === 'return');
   toggleRequestAuthorization($kind.val() === 'transfer');
-  toggleDestinationUnity($kind.val() !== 'consumption');
+  toggleDestinationUnity($kind.val() != '' && $kind.val() !== 'consumption');
   toggle***REMOVED***($kind.val() != '' && $kind.val() !== 'consumption');
 
   $kind.on('change', function(e) {
@@ -67,6 +67,7 @@ $(function() {
     return output;
   }
 
+
   function toggleReturnReason(show) {
     if (show) {
       $returnReasonContainer.show();
@@ -95,6 +96,7 @@ $(function() {
   }
 
   function toggleDestinationUnity(show) {
+
     if (show) {
       $destinationUnityContainer.show();
     } else {
