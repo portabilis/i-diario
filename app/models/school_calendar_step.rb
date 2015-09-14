@@ -14,11 +14,11 @@ class SchoolCalendarStep < ActiveRecord::Base
   validate :dates_for_posting_less_than_start_date
   validate :end_date_less_than_start_date_for_posting
 
-  scope :ordered, -> { order(arel_table[:start_at]) }
+  scope :by_school_calendar_id, lambda { |school_calendar_id| where(school_calendar_id: school_calendar_id) }
   scope :started_after_and_before, lambda { |date| where(arel_table[:start_at].lteq(date)).
                                                   where(arel_table[:end_at].gteq(date)) }
-  scope :posting_date_after_and_before, lambda { |date| where(arel_table[:start_date_for_posting].lteq(date)).
-                                                        where(arel_table[:end_date_for_posting].gteq(date)) }
+  scope :posting_date_after_and_before, lambda { |date| where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date))) }
+  scope :ordered, -> { order(arel_table[:start_at]) }
 
   def to_s
     "#{localized.start_at} a #{localized.end_at}"

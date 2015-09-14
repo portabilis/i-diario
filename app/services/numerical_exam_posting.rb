@@ -30,57 +30,67 @@ class NumericalExamPosting
       step_start_at = posting.school_calendar_step.start_at
       step_end_at = posting.school_calendar_step.end_at
 
-      test_setting = TestSetting.find_by(year: Date.today.year)
+      number_of_exams = Avaliation.by_classroom_id(classroom.id)
+                                  .by_discipline_id(discipline.id)
+                                  .by_test_date_between(step_start_at, step_end_at)
+                                  .count
 
-      exam_number = Avaliation.where(classroom: classroom,
-                                     discipline: discipline
-                                     ).count
-
-      if test_setting.fix_tests? && exam_number >= test_setting.tests.count
+      if test_setting.fix_tests? && number_of_exams >= test_setting.tests.count
         students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom, discipline)
 
-        regular_exam_number = Avaliation.joins(:test_setting_test)
-                                        .where(classroom: classroom,
-                                               discipline: discipline).count
-
         students.each do |student|
-          exams = DailyNoteStudent.by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
-                                                                                                    discipline,
-                                                                                                    student.id,
-                                                                                                    step_start_at,
-                                                                                                    step_end_at)
+          number_of_student_exams = DailyNoteStudent.by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
+                                                                                                                      discipline,
+                                                                                                                      student.id,
+                                                                                                                      step_start_at,
+                                                                                                                      step_end_at)
 
-          if exams.count < regular_exam_number
-            raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno "+student.to_s+" não possui todas notas lançadas para a etapa atual.")
+          if number_of_student_exams.count < regular_exam_number
+            raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno #{student.to_s} não possui todas notas lançadas para a etapa informada.")
           else
-            classrooms[classroom.api_code]["turma_id"] = classroom.api_code
-            classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code
-            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["componente_curricular_id"] = discipline.api_code
+            value = number_of_student_exams.sum(:note)
 
-            value = exams.sum(:note)
-
-            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = value
+            classrooms[classroom.api_code]['turma_id'] = classroom.api_code
+            classrooms[classroom.api_code]['alunos'][student.api_code]['aluno_id'] = student.api_code
+            classrooms[classroom.api_code]['alunos'][student.api_code]['componentes_curriculares'][discipline.api_code]['componente_curricular_id'] = discipline.api_code
+            classrooms[classroom.api_code]['alunos'][student.api_code]['componentes_curriculares'][discipline.api_code]['valor'] = value
           end
         end
-
-      elsif exam_number > 0
+      elsif number_of_exams > 0
         students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom, discipline)
 
         students.each do |student|
-          exams = DailyNoteStudent.by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
-              discipline, student.id, step_start_at, step_end_at)
+          number_of_student_exams = DailyNoteStudent.by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
+                                                                                                                      discipline,
+                                                                                                                      student.id,
+                                                                                                                      step_start_at,
+                                                                                                                      step_end_at)
 
-          if exams.count < exam_number
-            raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno "+student.to_s+" não possui todas notas lançadas para a etapa atual.")
+          if number_of_student_exams.count < number_of_exams
+            raise IeducarApi::Base::ApiError.new("Não é possível enviar as notas pois o aluno #{student.to_s} não possui todas notas lançadas para a etapa informada.")
           else
-            classrooms[classroom.api_code]["turma_id"] = classroom.api_code
-            classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code
-            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["componente_curricular_id"] = discipline.api_code
-            classrooms[classroom.api_code]["alunos"][student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = (exams.sum(:note) / exam_number).round(test_setting.number_of_decimal_places)
+            value = (number_of_student_exams.sum(:note) / number_of_exams).round(test_setting.number_of_decimal_places)
+
+            classrooms[classroom.api_code]['turma_id'] = classroom.api_code
+            classrooms[classroom.api_code]['alunos'][student.api_code]['aluno_id'] = student.api_code
+            classrooms[classroom.api_code]['alunos'][student.api_code]['componentes_curriculares'][discipline.api_code]['componente_curricular_id'] = discipline.api_code
+            classrooms[classroom.api_code]['alunos'][student.api_code]['componentes_curriculares'][discipline.api_code]['valor'] = value
           end
         end
       end
     end
+
     classrooms
+  end
+
+  private
+
+  def test_setting
+    test_setting = TestSetting.find_by(year: posting.school_calendar_step.start_at.year, exam_setting_type: ExamSettingTypes::GENERAL)
+    if test_setting.nil?
+      school_term = posting.school_calendar_step.school_calendar.school_term(posting.school_calendar_step.start_at)
+      test_setting = TestSetting.find_by(year: posting.school_calendar_step.start_at.year, school_term: school_term)
+    end
+    test_setting
   end
 end
