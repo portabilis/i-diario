@@ -49,6 +49,19 @@ class SchoolCalendarStep < ActiveRecord::Base
     dates
   end
 
+  def school_term
+    school_term = school_calendar.school_term(start_at).to_s
+
+    case
+    when school_term.end_with?(SchoolTermTypes::BIMESTER)
+      I18n.t("enumerations.bimesters.#{school_term}")
+    when school_term.end_with?(SchoolTermTypes::TRIMESTER)
+      I18n.t("enumerations.trimesters.#{school_term}")
+    when school_term.end_with?(SchoolTermTypes::SEMESTER)
+      I18n.t("enumerations.semesters.#{school_term}")
+    end
+  end
+
   private
 
   def start_at_must_be_in_school_calendar_year

@@ -8,7 +8,6 @@ class IeducarExamPostingWorker
       posting = IeducarApiExamPosting.find(posting_id)
 
       begin
-
         case posting.post_type
         when ApiPostingTypes::NUMERICAL_EXAMS
           NumericalExamPosting.post!(posting)
@@ -24,8 +23,8 @@ class IeducarExamPostingWorker
       rescue IeducarApi::Base::ApiError => e
         posting.mark_as_error!(e.message)
       rescue Exception => e
-        # mark with error in any exception
-        posting.mark_as_error!("Ocorreu um erro desconhecido.")
+        posting.mark_as_error!('Ocorreu um erro desconhecido.')
+
         raise e
       end
     end

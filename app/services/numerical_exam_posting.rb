@@ -20,7 +20,7 @@ class NumericalExamPosting
   end
 
   def post_classrooms
-    classrooms = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
+    classrooms = Hash.new{ |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
     teacher = posting.author.teacher
 
