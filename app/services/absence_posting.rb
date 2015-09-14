@@ -33,6 +33,8 @@ class AbsencePosting
     teacher = posting.author.teacher
 
     teacher.classrooms.uniq.each do |classroom|
+      next if classroom.unity_id != posting.school_calendar_step.school_calendar.unity_id
+
       frequency_type = classroom.exam_rule.frequency_type
 
       if frequency_type != FrequencyTypes::GENERAL
@@ -80,6 +82,8 @@ class AbsencePosting
     teacher = posting.author.teacher
 
     teacher.teacher_discipline_classrooms.each do |teacher_discipline_classroom|
+      next if teacher_discipline_classroom.classroom.unity_id != posting.school_calendar_step.school_calendar.unity_id
+
       classroom = teacher_discipline_classroom.classroom
       discipline = teacher_discipline_classroom.discipline
 
