@@ -5,4 +5,4 @@ pt-BR:
       by_discipline_id: "Filtrar disciplina"
       by_test_date: "Filtrar data"
       by_description: "Filtrar descrição"
-      new_html: "<i class='fa fa-plus'></i> Novo cadastro de avaliação"
+      new_html: "<i class='fa fa-plus'></i> Nova avaliação numérica"
