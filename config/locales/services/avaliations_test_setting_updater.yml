@@ -1,0 +1,5 @@
+pt-BR:
+  services:
+    avaliations_test_setting_updater:
+      success: "As configurações de avaliações das avaliações foram atualizadas com sucesso."
+      error: "Não foi possível realizar a atualização das configurações de avaliações das avaliações na entidade. Por favor, utilize o seguinte formato:\nrake entity:update_avaliations_test_setting NAME=\"nome_da_entidade\""
