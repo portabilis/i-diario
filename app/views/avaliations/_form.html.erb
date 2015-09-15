@@ -32,37 +32,28 @@
       </div>
 
       <div class="col col-sm-4">
-        <% # if @avaliation.test_setting.fix_tests? %>
-          <%= f.association :test_setting_test, as: :select2, elements: @avaliation.test_setting.tests %>
-        <% # else %>
-            <% #f.input :description %>
-        <% # end %>
+        <%= f.association :test_setting_test, as: :select2, elements: @avaliation.test_setting.tests %>
       </div>
     </div>
 
-    <% # if @avaliation.test_setting.fix_tests? %>
-      <div class="row">
-        <div class="col col-sm-4">
-          <%= f.input :description %>
-        </div>
-
-        <div class="col col-sm-4">
-            <%= f.input :weight, input_html: { value: number_with_precision(f.object.weight, precision: @avaliation.test_setting.number_of_decimal_places),
-                                               data: { scale: @avaliation.test_setting.number_of_decimal_places } } %>
-        </div>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :description, required: true %>
       </div>
-    <% # end %>
 
+      <div class="col col-sm-4">
+          <%= f.input :weight, required: true,
+                               input_html: { value: number_with_precision(f.object.weight, precision: @avaliation.test_setting.number_of_decimal_places),
+                                             data: { scale: @avaliation.test_setting.number_of_decimal_places } } %>
+      </div>
+    </div>
   </fieldset>
 
   <footer>
-    <%= link_to "Voltar", avaliations_path, class: "btn btn-default" %>
+    <%= link_to(t('views.form.back'), avaliations_path, class: 'btn btn-default') %>
 
-    <% if @avaliation.persisted? %>
-      <%= link_to 'Histórico', history_avaliation_path(@avaliation), class: 'btn btn-info' %>
-    <% end %>
+    <%= link_to(t('views.form.history'), history_avaliation_path(@avaliation), class: 'btn btn-info') if @avaliation.persisted? %>
 
-    <%= f.submit 'Salvar', class: 'btn btn-primary' %>
-
+    <%= f.submit(t('views.form.save'), class: 'btn btn-primary') %>
   </footer>
 <% end %>
