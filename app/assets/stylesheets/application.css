@@ -77,6 +77,16 @@ form.smart-form .control-group.error .select2-container ul.select2-choices {
   border: none;
 }
 
+# Fix height of select2 with multiple options
+form.smart-form ul.select2-choices > li.select2-search-field {
+  height: 30px;
+}
+
+# Fix height of select2 with multiple options
+form.smart-form ul.select2-choices > li.select2-search-choice {
+  height: 17.8px;
+}
+
 form.smart-form .control-group.error span.help-inline,
 form.smart-form .help-inline.error,
 form.signup .error .help-inline,
