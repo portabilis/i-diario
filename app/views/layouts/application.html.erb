@@ -51,9 +51,7 @@
           </div>
           <!-- logout button -->
 
-          <% unless Rails.env.production? %>
-            <%= render 'layouts/system_***REMOVED***' %>
-          <% end %>
+          <%= render 'layouts/system_***REMOVED***' %>
 
           <% if current_user.roles.present? %>
             <div id="change-permission" class="btn-group btn-header transparent">
