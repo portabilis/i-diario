@@ -7,6 +7,7 @@ RSpec.describe Avaliation, type: :model do
   describe 'attributes' do
     it { expect(subject).to respond_to(:weight) }
     it { expect(subject).to respond_to(:classes) }
+    it { expect(subject).to respond_to(:observations) }
   end
 
   describe 'associations' do
