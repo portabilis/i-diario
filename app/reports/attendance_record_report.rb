@@ -96,7 +96,10 @@ class AttendanceRecordReport
         months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
         daily_frequency.students.each do |student|
           (students[student.student.id] ||= {})[:name] = student.student.name
-          (students[student.student.id] ||= {})[:dependence] = student.dependence?
+
+          students[student.student.id] = {} if students[student.student.id].nil?
+          students[student.student.id][:dependence] = students[student.student.id][:dependence] || student.dependence?
+
           self.any_student_with_dependence = self.any_student_with_dependence || student.dependence?
           students[student.student.id][:absences] ||= 0
           if !student.present
@@ -125,7 +128,7 @@ class AttendanceRecordReport
       students = students.sort_by { |(key, value)| value[:dependence] ? 1 : 0 }
       students.each_with_index do |(key, value), index|
         sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
-        student_cells = [sequence_cell, { content: (value[:dependence] ? '*' : '') + value[:name], colspan: 2 }].concat(value[:attendances])
+        student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name], colspan: 2 }].concat(value[:attendances])
         (40 - value[:attendances].count).times { student_cells << nil }
         student_cells << make_cell(content: value[:absences].to_s, align: :center)
         students_cells << student_cells
