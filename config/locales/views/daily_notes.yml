@@ -2,3 +2,6 @@ pt-BR:
   daily_notes:
     destroy: "Excluir"
     confirm: "Essa operação irá excluir este registro do diário de avaliações. Você tem certeza?"
+
+    edit:
+      dependence_students_legend: "* Alunos cursando dependência"

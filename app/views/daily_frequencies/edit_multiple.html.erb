@@ -40,7 +40,12 @@
             <% sequence += 1 %>
             <%= render 'student_fields', student: student, sequence: sequence, dependence: true %>
           <% end %>
-          <tr><td colspan="<%= 2 + @daily_frequencies.count%>">* Alunos em dependência</td></tr>
+
+          <tr>
+            <td colspan="<%= 2 + @daily_frequencies.count %>">
+              <%= t('.dependence_students_legend') %>
+            </td>
+          </tr>
         <% end %>
       </tbody>
     </table>

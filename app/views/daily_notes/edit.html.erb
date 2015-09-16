@@ -39,7 +39,12 @@
           <% sequence += 1 %>
             <%= render 'student_fields', f: student, sequence: sequence %>
           <% end %>
-          <tr><td colspan="3">* Alunos em dependência</td></tr>
+
+          <tr>
+            <td colspan="3">
+              <%= t('.dependence_students_legend') %>
+            </td>
+          </tr>
         <% end %>
       </tbody>
     </table>

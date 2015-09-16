@@ -6,7 +6,7 @@
   </td>
   <td>
     <%= f.input :student_id, as: :hidden %>
-    <%= f.object.student.api_code + ' - ' + f.object.student.to_s + (f.object.dependence? ? '*' : '') %>
+    <%= "#{f.object.dependence? ? '* ' : ''}#{f.object.student.to_s}" %>
   </td>
 
   <td>

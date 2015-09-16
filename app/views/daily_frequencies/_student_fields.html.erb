@@ -3,7 +3,7 @@
     <%= sequence %>
   </td>
   <td>
-    <%= student.api_code + ' - ' + student.to_s + (dependence ? '*' : '') %>
+    <%= "#{dependence ? '* ' : ''}#{student.to_s}" %>
   </td>
 
   <% @daily_frequencies.each do |daily_frequency| %>
