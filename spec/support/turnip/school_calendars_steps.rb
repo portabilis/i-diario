@@ -7,6 +7,8 @@ module Turnip
           create(:unity, name: unity[:name],
                          api_code: unity[:api_code])
         end
+
+        sleep 2
       end
     end
 
@@ -17,6 +19,7 @@ module Turnip
     step 'eu clicar em Sincronizar' do
       VCR.use_cassette('school_calendars') do
         click_on 'Sincronizar'
+
         sleep 2
       end
     end
