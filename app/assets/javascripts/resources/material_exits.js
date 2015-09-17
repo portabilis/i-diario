@@ -9,13 +9,15 @@ $(function() {
       $kind = $("#material_exit_kind"),
       $requestAuthorization = $("#material_exit_material_request_authorization_id"),
       $destinationUnity = $("#material_exit_destination_unity_id"),
-      itemTemplate = $("#material_exit_items a.add_fields").attr("data-association-insertion-template");
+      itemTemplate = $("#material_exit_items a.add_fields").attr("data-association-insertion-template"),
+      $measuring_unit_id = 0;
       flashMessages = new FlashMessages(),
 
   toggleReturnReason($kind.val() === 'return');
   toggleRequestAuthorization($kind.val() === 'transfer');
   toggleDestinationUnity($kind.val() != '' && $kind.val() !== 'consumption');
   toggle***REMOVED***($kind.val() != '' && $kind.val() !== 'consumption');
+  alterUnit();
 
   $kind.on('change', function(e) {
     toggleReturnReason(e.val === 'return');
@@ -28,6 +30,62 @@ $(function() {
     fetchAuthorizationItems(e.val);
   });
 
+  $('#material-exits-items').on('cocoon:after-insert', function() {
+    $("[id$=material_id]").on("change", function(){
+      alterUnit();
+    });
+  });
+
+  function select***REMOVED***Id(items){
+    _.each(items, function(item) {
+      if(item['id'] == $material_id){
+        $measuring_unit_id = item['measuring_unit_id'];
+      }
+    });
+  }
+
+  function selectUnit(items){
+    var unit;
+    _.each(items, function(item) {
+      if(item['id'] == $measuring_unit_id){
+        unit = item['unit'];
+      }
+    });
+    if($material_id == 'empty'){
+      return '';
+    }else{
+      return translateUnit(unit);
+    }
+  }
+
+  function alterUnit(){
+    $material_id = $("input[id$=material_id]").val();
+      
+    $.ajax({
+      type: "GET",
+      url: "/***REMOVED***/json",
+      success: select***REMOVED***Id        
+    });
+
+    $.ajax({
+      type: "GET",
+      url: "/***REMOVED***/json",
+      success: function(items){ 
+        $("span.measuring-unit").html(selectUnit(items));
+      }       
+    });
+  }
+
+  function translateUnit(unit){
+    if(unit == 'unit'){
+      return 'Unidade';
+    }else if(unit == 'kg'){
+      return 'Kg';
+    }else if(unit == 'l'){
+      return 'L';
+    }
+  }
+  
   function fetchAuthorizationItems(authorizationId) {
     $.ajax({
       url: '/autorizacoes-de-requisicoes-de-materiais/' + authorizationId +

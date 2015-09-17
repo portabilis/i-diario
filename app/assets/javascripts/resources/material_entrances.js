@@ -79,28 +79,37 @@ $(function() {
     if($material_id == 'empty'){
       return '';
     }else{
-      return unit;
+      return translateUnit(unit);
     }
   }
 
   function alterUnit(){
     $material_id = $("input[id$=material_id]").val();
       
-      $.ajax({
-        type: "GET",
-        url: "/***REMOVED***/json",
-        success: select***REMOVED***Id        
-      });
+    $.ajax({
+      type: "GET",
+      url: "/***REMOVED***/json",
+      success: select***REMOVED***Id        
+    });
 
-      $.ajax({
-        type: "GET",
-        url: "/***REMOVED***/json",
-        success: function(items){ 
-          $("span.measuring-unit").html(selectUnit(items));
-        }       
-      });
+    $.ajax({
+      type: "GET",
+      url: "/***REMOVED***/json",
+      success: function(items){ 
+        $("span.measuring-unit").html(selectUnit(items));
+      }       
+    });
   }
 
+  function translateUnit(unit){
+    if(unit == 'unit'){
+      return 'Unidade';
+    }else if(unit == 'kg'){
+      return 'Kg';
+    }else if(unit == 'l'){
+      return 'L';
+    }
+  }
 
   $('#material_entrance_items').on('cocoon:after-remove', function(e, item) {
     update***REMOVED***Totals();
