@@ -2,6 +2,7 @@ $(function() {
   var $supplier = $("[data-material-entrance-supplier]"),
       $materialExitFields = $("[data-material-entrance-material-exit]"),
       $materialItems = $("#material-entrance-items"),
+      $materialItem = $("#material_entrance_items_material_id"),
       $kind = $("#material_entrance_kind"),
       $materialExit = $("#material_entrance_material_exit_id"),
       itemTemplate = $("#material_entrance_items a.add_fields").attr("data-association-insertion-template"),
@@ -10,7 +11,11 @@ $(function() {
 
   toggle***REMOVED***($kind.val() === 'supplier');
   toggle***REMOVED***();
+  update***REMOVED***Unit();
+  alterUnit();
   
+
+
 
   $kind.on('change', function(e) {
     toggle***REMOVED***(e.val === 'supplier');
@@ -48,8 +53,54 @@ $(function() {
 
   $('#material_entrance_items').on('cocoon:after-insert', function(e, item) {
     toggle***REMOVED***($kind.val() === 'supplier');
+    
     $("[id$=unit_value], [id$=quantity]").on("blur", update***REMOVED***Totals);
-  })
+    $("[id$=material_id]").on("change", function(){
+      alterUnit();
+    });
+  });
+
+  function select***REMOVED***Id(items){
+    $measuring_unit_id = 0;
+    _.each(items, function(item) {
+      if(item['id'] == $material_id){
+        $measuring_unit_id = item['measuring_unit_id'];
+      }
+    });
+  }
+
+  function selectUnitSymbol(items){
+    var symbol;
+    _.each(items, function(item) {
+      if(item['id'] == $measuring_unit_id){
+        symbol = item['unit'];
+      }
+    });
+    if($material_id == 'empty'){
+      return '';
+    }else{
+      return symbol;
+    }
+  }
+
+  function alterUnit(){
+    $material_id = $("input[id$=material_id]").val();
+      
+      $.ajax({
+        type: "GET",
+        url: "/***REMOVED***/json",
+        success: select***REMOVED***Id        
+      });
+
+      $.ajax({
+        type: "GET",
+        url: "/***REMOVED***/json",
+        success: function(items){ 
+          $("span.measuring-unit").html(selectUnitSymbol(items));
+        }       
+      });
+  }
+
 
   $('#material_entrance_items').on('cocoon:after-remove', function(e, item) {
     update***REMOVED***Totals();
@@ -64,7 +115,6 @@ $(function() {
     output.find("[id$=unit_value]").val(0);
     output.find("[id$=material_id]").val(item.material.id);
     output.find("span.measuring-unit").html(item.material.measuring_unit);
-
     return output;
   }
 
@@ -97,6 +147,13 @@ $(function() {
     }
   }
 
+  function update***REMOVED***Unit(){
+    $materialItems.find('tr:visible'), function(i, row){
+      var unit = $(row).find("[id$=unit_value]").val();
+      var material = $(row).find("[id$=material_id]").val();
+    }
+  }
+
   var update***REMOVED***Totals = function(){
     var total_value = 0;
     $.each($materialItems.find('tr:visible'), function(i, row){
@@ -104,7 +161,6 @@ $(function() {
       var quantity = $(row).find("[id$=quantity]").val();
       var _total_value = unit_value.currencyToNumber() * quantity.currencyToNumber();
       total_value += _total_value;
-
       $(row).find('span.total-value').text("R$ "+_total_value.toCurrency());
     });
 
