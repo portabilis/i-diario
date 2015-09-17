@@ -7,7 +7,8 @@ $(function() {
       $materialExit = $("#material_entrance_material_exit_id"),
       itemTemplate = $("#material_entrance_items a.add_fields").attr("data-association-insertion-template"),
       flashMessages = new FlashMessages(),
-      $materialItemsTotalValue = $('#entrance-material-items-total-value');
+      $materialItemsTotalValue = $('#entrance-material-items-total-value'),
+      $measuring_unit_id = 0;
 
   toggle***REMOVED***($kind.val() === 'supplier');
   toggle***REMOVED***();
@@ -61,7 +62,6 @@ $(function() {
   });
 
   function select***REMOVED***Id(items){
-    $measuring_unit_id = 0;
     _.each(items, function(item) {
       if(item['id'] == $material_id){
         $measuring_unit_id = item['measuring_unit_id'];
@@ -69,17 +69,17 @@ $(function() {
     });
   }
 
-  function selectUnitSymbol(items){
-    var symbol;
+  function selectUnit(items){
+    var unit;
     _.each(items, function(item) {
       if(item['id'] == $measuring_unit_id){
-        symbol = item['unit'];
+        unit = item['unit'];
       }
     });
     if($material_id == 'empty'){
       return '';
     }else{
-      return symbol;
+      return unit;
     }
   }
 
@@ -96,7 +96,7 @@ $(function() {
         type: "GET",
         url: "/***REMOVED***/json",
         success: function(items){ 
-          $("span.measuring-unit").html(selectUnitSymbol(items));
+          $("span.measuring-unit").html(selectUnit(items));
         }       
       });
   }
