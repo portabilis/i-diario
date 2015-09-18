@@ -15,9 +15,6 @@ $(function() {
   update***REMOVED***Unit();
   alterUnit();
   
-
-
-
   $kind.on('change', function(e) {
     toggle***REMOVED***(e.val === 'supplier');
     toggle***REMOVED***();
@@ -73,13 +70,13 @@ $(function() {
     var unit;
     _.each(items, function(item) {
       if(item['id'] == $measuring_unit_id){
-        unit = item['unit'];
+        unit = item['symbol'];
       }
     });
     if($material_id == 'empty'){
       return '';
     }else{
-      return translateUnit(unit);
+      return unit;
     }
   }
 
@@ -100,17 +97,7 @@ $(function() {
       }       
     });
   }
-
-  function translateUnit(unit){
-    if(unit == 'unit'){
-      return 'Unidade';
-    }else if(unit == 'kg'){
-      return 'Kg';
-    }else if(unit == 'l'){
-      return 'L';
-    }
-  }
-
+  
   $('#material_entrance_items').on('cocoon:after-remove', function(e, item) {
     update***REMOVED***Totals();
   })

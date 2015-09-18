@@ -10,6 +10,9 @@ $(function() {
       $requestAuthorization = $("#material_exit_material_request_authorization_id"),
       $destinationUnity = $("#material_exit_destination_unity_id"),
       itemTemplate = $("#material_exit_items a.add_fields").attr("data-association-insertion-template"),
+      $***REMOVED*** = [],
+      $unities = [],
+      $unity_id = 0,
       $measuring_unit_id = 0;
       flashMessages = new FlashMessages(),
 
@@ -28,6 +31,7 @@ $(function() {
 
   $requestAuthorization.on('change', function(e) {
     fetchAuthorizationItems(e.val);
+    fetchMaterailRequestAuthorizations($requestAuthorization.val());
   });
 
   $('#material-exits-items').on('cocoon:after-insert', function() {
@@ -48,13 +52,13 @@ $(function() {
     var unit;
     _.each(items, function(item) {
       if(item['id'] == $measuring_unit_id){
-        unit = item['unit'];
+        unit = item['symbol'];
       }
     });
     if($material_id == 'empty'){
       return '';
     }else{
-      return translateUnit(unit);
+      return unit;
     }
   }
 
@@ -75,16 +79,6 @@ $(function() {
       }       
     });
   }
-
-  function translateUnit(unit){
-    if(unit == 'unit'){
-      return 'Unidade';
-    }else if(unit == 'kg'){
-      return 'Kg';
-    }else if(unit == 'l'){
-      return 'L';
-    }
-  }
   
   function fetchAuthorizationItems(authorizationId) {
     $.ajax({
@@ -93,6 +87,67 @@ $(function() {
       success: renderAuthorizationItems,
       error: handleError
     });
+  }
+
+
+  function fetchMaterailRequestAuthorizations(materialRequestAuthorization) {
+    loading***REMOVED***Request();
+    loadUnities();
+    $.ajax({
+      type: "GET",
+      url: "/***REMOVED***/json",
+      success: function(items){
+      var material_request_id; 
+        var selectedDestinationUnity = [];
+        _.each(items, function(item){
+          if(materialRequestAuthorization == item['id']){
+            material_request_id = item['material_request_id'];
+          }
+        });
+        _.each($***REMOVED***, function(item){
+          if(material_request_id == item['id']){
+            $unity_id = item['origin_unity_id'];
+          }
+        });
+        _.each($unities, function(item){
+          if($unity_id == item['id']){
+            selectedDestinationUnity.push({id: item['id'], text: item['name'] });
+          }
+        });
+        setTimeout(alterInputUnityDestination(selectedDestinationUnity), 500);
+      }
+    });
+  }
+
+  function alterInputUnityDestination(destination){
+    $destinationUnity.select2({
+      data: destination
+    });
+    $destinationUnity.select2('val', $unity_id );
+  }
+
+  function loading***REMOVED***Request(){
+    $.ajax({
+      type: "GET",
+      url: "/***REMOVED***/json",
+      success: return***REMOVED***Requests
+    });
+  }
+
+  function loadUnities(){
+    $.ajax({
+      type: "GET",
+      url: "/unities/json",
+      success: returnUnities
+    });
+  }
+  
+  function returnUnities(items){
+    $unities = items;
+  }
+
+  function return***REMOVED***Requests(items){
+    $***REMOVED*** = items;
   }
 
   function renderAuthorizationItems(items) {
@@ -148,7 +203,7 @@ $(function() {
     if (show) {
       $requestAuthorizationContainer.show();
     } else {
-      $requestAuthorizationContainer.hide();
+      $destinationUnity.prop('disabled', false)
       $requestAuthorization.select2('val', '');
     }
   }
