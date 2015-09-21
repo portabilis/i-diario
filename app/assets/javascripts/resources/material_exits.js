@@ -10,9 +10,9 @@ $(function() {
       $requestAuthorization = $("#material_exit_material_request_authorization_id"),
       $destinationUnity = $("#material_exit_destination_unity_id"),
       itemTemplate = $("#material_exit_items a.add_fields").attr("data-association-insertion-template"),
-      $***REMOVED*** = [],
+      $materialRequests = [],
       $unities = [],
-      $unity_id = 0,
+      $unityId = 0,
       $measuring_unit_id = 0;
       flashMessages = new FlashMessages(),
 
@@ -30,6 +30,8 @@ $(function() {
   });
 
   $requestAuthorization.on('change', function(e) {
+    loading***REMOVED***Request();
+    loadUnities();
     fetchAuthorizationItems(e.val);
     fetchMaterailRequestAuthorizations($requestAuthorization.val());
   });
@@ -89,32 +91,14 @@ $(function() {
     });
   }
 
-
   function fetchMaterailRequestAuthorizations(materialRequestAuthorization) {
-    loading***REMOVED***Request();
-    loadUnities();
+    var selectedDestinationUnity = [];
     $.ajax({
       type: "GET",
       url: "/***REMOVED***/json",
       success: function(items){
-      var material_request_id; 
-        var selectedDestinationUnity = [];
-        _.each(items, function(item){
-          if(materialRequestAuthorization == item['id']){
-            material_request_id = item['material_request_id'];
-          }
-        });
-        _.each($***REMOVED***, function(item){
-          if(material_request_id == item['id']){
-            $unity_id = item['origin_unity_id'];
-          }
-        });
-        _.each($unities, function(item){
-          if($unity_id == item['id']){
-            selectedDestinationUnity.push({id: item['id'], text: item['name'] });
-          }
-        });
-        setTimeout(alterInputUnityDestination(selectedDestinationUnity), 500);
+        returnUnityId(return***REMOVED***RequestId(items, materialRequestAuthorization));
+        setTimeout(alterInputUnityDestination(returnDestinationUnity()), 2000);
       }
     });
   }
@@ -123,7 +107,8 @@ $(function() {
     $destinationUnity.select2({
       data: destination
     });
-    $destinationUnity.select2('val', $unity_id );
+    $destinationUnity.select2('val', $unityId );
+    alterUnit();
   }
 
   function loading***REMOVED***Request(){
@@ -147,7 +132,36 @@ $(function() {
   }
 
   function return***REMOVED***Requests(items){
-    $***REMOVED*** = items;
+    $materialRequests = items;
+  }
+
+  function returnDestinationUnity() {
+    var selectedDestinationUnity = [];
+    _.each($unities, function(item){
+      if($unityId == item['id']){
+        selectedDestinationUnity.push({id: item['id'], text: item['name'] });
+      }
+    });
+    return selectedDestinationUnity;
+  }
+
+  var returnUnityId = function(materialRequestId){
+    _.each($materialRequests, function(item){
+      if(materialRequestId == item['id']){
+         $unityId = item['origin_unity_id'];
+      }
+    });
+    return $unityId;
+  }
+
+  var return***REMOVED***RequestId = function(items, materialRequestAuthorization){
+    var materialRequestId;
+    _.each(items, function(item){
+      if(materialRequestAuthorization == item['id']){
+        materialRequestId = item['material_request_id'];
+       }
+    });
+    return materialRequestId;
   }
 
   function renderAuthorizationItems(items) {
