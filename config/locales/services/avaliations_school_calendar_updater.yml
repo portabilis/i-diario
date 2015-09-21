@@ -1,0 +1,5 @@
+pt-BR:
+  services:
+    avaliations_school_calendar_updater:
+      success: "Os calendários letivos das avaliações foram atualizadas com sucesso."
+      error: "Não foi possível realizar a atualização dos calendários letivos das avaliações na entidade. Por favor, utilize o seguinte formato:\nrake entity:update_avaliations_school_calendar NAME=\"nome_da_entidade\""
