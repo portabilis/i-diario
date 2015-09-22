@@ -3,7 +3,7 @@ pt-BR:
     models:
       content:
         one: "Plano de aula"
-        other: "Plano de aulas"
+        other: "Planos de aula"
 
     attributes:
       content:
@@ -17,12 +17,12 @@ pt-BR:
         discipline_id: "Disciplina"
         content_date: "Data"
         classes: "Aulas"
-        description: "Procedimentos metodológicos"
-        theme: "Tema"
+        description: "Atividades/metodologia"
+        theme: "Conteúdos"
         goals: "Objetivos"
         means: "Recursos"
         evaluation: "Avaliação"
-        bibliography: "Bibliografia"
+        bibliography: "Referências"
         knowledge_area: "Área de conhecimento"
         knowledge_area: "Área de conhecimento"
 

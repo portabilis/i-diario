@@ -7,13 +7,11 @@ $(function() {
       $materialExit = $("#material_entrance_material_exit_id"),
       itemTemplate = $("#material_entrance_items a.add_fields").attr("data-association-insertion-template"),
       flashMessages = new FlashMessages(),
-      $materialItemsTotalValue = $('#entrance-material-items-total-value'),
-      $measuring_unit_id = 0;
+      $materialItemsTotalValue = $('#entrance-material-items-total-value');
 
   toggle***REMOVED***($kind.val() === 'supplier');
   toggle***REMOVED***();
   update***REMOVED***Unit();
-  alterUnit();
   
   $kind.on('change', function(e) {
     toggle***REMOVED***(e.val === 'supplier');
@@ -53,50 +51,8 @@ $(function() {
     toggle***REMOVED***($kind.val() === 'supplier');
     
     $("[id$=unit_value], [id$=quantity]").on("blur", update***REMOVED***Totals);
-    $("[id$=material_id]").on("change", function(){
-      alterUnit();
-    });
   });
 
-  function select***REMOVED***Id(items){
-    _.each(items, function(item) {
-      if(item['id'] == $material_id){
-        $measuring_unit_id = item['measuring_unit_id'];
-      }
-    });
-  }
-
-  function selectUnit(items){
-    var unit;
-    _.each(items, function(item) {
-      if(item['id'] == $measuring_unit_id){
-        unit = item['symbol'];
-      }
-    });
-    if($material_id == 'empty'){
-      return '';
-    }else{
-      return unit;
-    }
-  }
-
-  function alterUnit(){
-    $material_id = $("input[id$=material_id]").val();
-      
-    $.ajax({
-      type: "GET",
-      url: "/***REMOVED***/json",
-      success: select***REMOVED***Id        
-    });
-
-    $.ajax({
-      type: "GET",
-      url: "/***REMOVED***/json",
-      success: function(items){ 
-        $("span.measuring-unit").html(selectUnit(items));
-      }       
-    });
-  }
   
   $('#material_entrance_items').on('cocoon:after-remove', function(e, item) {
     update***REMOVED***Totals();

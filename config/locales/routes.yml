@@ -42,7 +42,7 @@ pt-BR:
     test_settings: 'configuracoes-de-avaliacoes-numericas'
     school_calendars: 'calendarios-letivo'
     school_calendar_events: 'eventos'
-    contents: 'plano-de-aulas'
+    contents: 'planos-de-aula'
     avaliations: 'cadastro-de-avaliacoes'
     daily_notes: 'diario-de-notas'
     daily_frequencies: 'diario-de-frequencia'

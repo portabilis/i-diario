@@ -15,7 +15,7 @@
               </div>
             </td>
             <td></td>
-            <td></td>
+            <td><%= link_to t('.new_html'), new_content_path, class: "btn btn-primary pull-right" %></td>
           </tr>
           <tr>
             <th><%= Content.human_attribute_name :unity %></th>
@@ -23,7 +23,7 @@
             <th><%= Content.human_attribute_name :discipline %>/<%= Content.human_attribute_name :knowledge_area %></th>
             <th><%= Content.human_attribute_name :content_date %></th>
             <th><%= Content.human_attribute_name :classes %></th>
-            <td class="actions" style="width: 180px;"><%= link_to t('.new_html'), new_content_path, class: "btn btn-primary" %></td>
+            <td class="actions" style="width: 160px;"></td>
           </tr>
         </thead>
 
