@@ -5,6 +5,7 @@ class DescriptiveExamsController < ApplicationController
 
   def new
     @descriptive_exam = DescriptiveExam.new
+    @unity_id = current_user_unity.id
 
     authorize @descriptive_exam
 
@@ -90,9 +91,10 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def fetch_unities
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @descriptive_exam.unity.try(:id), @descriptive_exam.classroom_id, @descriptive_exam.discipline_id)
+    @unity_id ||= @descriptive_exam.unity.try(:id)
+    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @unity_id, @descriptive_exam.classroom_id, @descriptive_exam.discipline_id)
     fetcher.fetch!
-    @unities = fetcher.unities
+    @unities = current_user.admin? ? fetcher.unities : Unity.where(id: @unity_id)
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
   end
