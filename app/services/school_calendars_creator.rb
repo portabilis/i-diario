@@ -8,9 +8,7 @@ class SchoolCalendarsCreator
   end
 
   def create!
-    return false if selected_school_calendars.empty?
-
-    selected_school_calendars.each do |school_calendar_params|
+    selected_school_calendars_to_create.each do |school_calendar_params|
       school_calendar = SchoolCalendar.new(year: Date.today.year,
                                            unity_id: school_calendar_params['unity_id'],
                                            number_of_classes: school_calendar_params['number_of_classes'])
@@ -30,7 +28,7 @@ class SchoolCalendarsCreator
 
   attr_accessor :school_calendars
 
-  def selected_school_calendars
-    school_calendars.select { |school_calendar| school_calendar['unity_id'].present? }
+  def selected_school_calendars_to_create
+    school_calendars.select { |school_calendar| school_calendar['unity_id'].present? && school_calendar['school_calendar_id'].blank? }
   end
 end

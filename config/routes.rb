@@ -119,7 +119,7 @@ Rails.application.routes.draw do
     resources :school_calendars, concerns: :history do
       collection do
         get  :synchronize
-        post :create_batch
+        post :create_and_update_batch
       end
 
       resources :school_calendar_steps, only: [:index]

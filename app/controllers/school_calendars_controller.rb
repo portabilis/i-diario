@@ -50,11 +50,12 @@ class SchoolCalendarsController < ApplicationController
     @school_calendars = SchoolCalendarsParser.parse!(IeducarApiConfiguration.current)
 
     authorize(SchoolCalendar, :create?)
+    authorize(SchoolCalendar, :update?)
   end
 
-  def create_batch
+  def create_and_update_batch
     begin
-      if SchoolCalendarsCreator.create!(params[:synchronize])
+      if SchoolCalendarsCreator.create!(params[:synchronize]) && SchoolCalendarsUpdater.update!(params[:synchronize])
         redirect_to school_calendars_path, notice: t('.notice')
       else
         redirect_to synchronize_school_calendars_path, alert: t('.alert')
