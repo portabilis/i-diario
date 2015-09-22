@@ -5,6 +5,7 @@ class ConceptualExamsController < ApplicationController
 
   def new
     @conceptual_exam = ConceptualExam.new
+    @unity_id = current_user_unity.id
 
     authorize @conceptual_exam
 
@@ -86,9 +87,10 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_unities
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @conceptual_exam.unity.try(:id), @conceptual_exam.classroom_id, @conceptual_exam.discipline_id)
+    @unity_id ||= @conceptual_exam.unity.try(:id)
+    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @unity_id, @conceptual_exam.classroom_id, @conceptual_exam.discipline_id)
     fetcher.fetch!
-    @unities = fetcher.unities
+    @unities = current_user.admin? ? fetcher.unities : Unity.where(id: @unity_id)
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
   end
