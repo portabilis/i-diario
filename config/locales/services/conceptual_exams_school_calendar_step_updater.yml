@@ -1,0 +1,5 @@
+pt-BR:
+  services:
+    conceptual_exams_school_calendar_step_updater:
+      success: "As etapas das avaliações conceituais foram atualizadas com sucesso."
+      error: "Não foi possível realizar a atualização das etapas das avaliações conceituais na entidade. Por favor, utilize o seguinte formato:\nrake entity:update_conceptual_exams_school_calendar_step NAME=\"nome_da_entidade\""
