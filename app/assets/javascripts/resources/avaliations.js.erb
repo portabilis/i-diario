@@ -27,7 +27,7 @@ $(function () {
   var fetchTestSettingTests = function (params, callback) {
     if (_.isEmpty(window.testSettingTests)) {
       $.getJSON('/test_setting_tests?' + $.param(params)).always(function (data) {
-        window.testSettingTests = data;
+        window.testSettingTests = data.test_setting_tests;
         callback(window.testSettingTests);
       });
     } else {
