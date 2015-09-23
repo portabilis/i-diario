@@ -15,6 +15,5 @@ RSpec.describe Content, :type => :model do
     it { should validate_presence_of :school_calendar }
     it { should validate_presence_of :content_date }
     it { should validate_presence_of :classes }
-    it { should validate_presence_of :description }
   end
 end
