@@ -265,6 +265,9 @@ GEM
     jbuilder (2.2.16)
       activesupport (>= 3.0.0, < 5)
       multi_json (~> 1.2)
+    js-routes (1.1.2)
+      railties (>= 3.2)
+      sprockets-rails
     json (1.8.3)
     kaminari (0.16.3)
       actionpack (>= 3.0.0)
@@ -489,6 +492,7 @@ DEPENDENCIES
   has_scope (= 0.5.1)
   i18n_alchemy (= 0.2.1)!
   jbuilder (~> 2.2.2)
+  js-routes
   kaminari (~> 0.16.1)
   less-rails (= 2.7.0)
   mask_validator (= 0.2.1)
