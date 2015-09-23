@@ -7,7 +7,7 @@ class ContentsController < ApplicationController
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
 
   def index
-    @contents = apply_scopes(Content.filter(filtering_params(params[:search])).ordered)                        
+    @contents = apply_scopes(Content.filter(filtering_params(params[:search])).by_unity(current_user.current_user_role.unity.id).ordered)                        
     authorize @contents
   end
 
@@ -81,7 +81,7 @@ class ContentsController < ApplicationController
 
   def filtering_params(params)
     if params
-      params.slice(:by_unity, :by_classroom, :by_date)
+      params.slice(:by_classroom, :by_date)
     else
       {}
     end
