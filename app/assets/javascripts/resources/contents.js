@@ -1,6 +1,8 @@
 $(function () {
   window.classrooms = [];
   window.disciplines = [];
+  var $classroom = $('#content_classroom_id'),
+      $content_classes = $(".content_classes");
 
   hiddenField();
 
@@ -37,7 +39,62 @@ $(function () {
     }
   };
 
+  var fetchExamRule = function (params, callback) {
+    $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
+      callback(data);
+    });
+  };
+
+  $('#content_unity_id').on('change', function (e) {
+    var params = {
+      unity_id: e.val
+    };
+
+    window.classrooms = [];
+    $classroom.val('').select2({ data: [] });
+
+
+    if (!_.isEmpty(e.val)) {
+      fetchClassrooms(params, function (classrooms) {
+        var selectedClassrooms = _.map(classrooms, function (classroom) {
+          return { id:classroom['id'], text: classroom['description'] };
+        });
+
+        $classroom.select2({
+          data: selectedClassrooms
+        });
+      });
+    }
+  });
+
+  var checkExamRule = function(params){
+    fetchExamRule(params, function(exam_rule){
+      $('form input[type=submit]').removeClass('disabled');
+      if(!$.isEmptyObject(exam_rule)){
+
+        if(exam_rule.frequency_type == 1){
+          $content_classes.hide();
+        }else{
+          $content_classes.show();
+        }
+      }else{
+        $content_classes.hide();
+      }
+    });
+  }
+
+  $classroom.on('change', function (e) {
+    var params = {
+      classroom_id: e.val
+    };
+    if (!_.isEmpty(e.val)) {
+
+      checkExamRule(params);
+    }
+  });
+
   function hiddenField(){
+    $content_classes.hide();
     if($('#content_classroom_id').val()){
       $.getJSON('/classrooms/' + $('#content_classroom_id').val()).always(function (data) {
         if(data.score_type == '2'){

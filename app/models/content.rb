@@ -15,7 +15,7 @@ class Content < ActiveRecord::Base
 
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Content.arel_table[:discipline_id])) }, through: :classroom
 
-  validates :unity, :classroom, :school_calendar, :content_date, :classes, :description, presence: true
+  validates :unity, :classroom, :school_calendar, :content_date, :classes, :theme, presence: true
   validates :knowledge_area, :presence => true, if: "discipline.blank?"
   validates :discipline, :presence => true, if: "knowledge_area.blank?"
   validate :is_school_day?
