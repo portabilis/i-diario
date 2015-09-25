@@ -37,6 +37,7 @@ pt-BR:
     ***REMOVED***: 'solicitacoes-de-servico'
     authorization_***REMOVED***: 'autorizacoes-de-solicitacoes-de-servico'
     moved_***REMOVED***: 'saldo-de-materiais-por-unidade'
+    ***REMOVED***: 'ajustes-de-estoque'
     ***REMOVED***: '***REMOVED***'
     entity_configurations: 'configuracoes-da-entidade'
     test_settings: 'configuracoes-de-avaliacoes-numericas'
