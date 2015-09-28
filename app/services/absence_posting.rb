@@ -64,7 +64,8 @@ class AbsencePosting
 
           string_warning_dates = warning_dates.collect{|date| I18n.l date}.join(', ')
 
-          raise IeducarApi::Base::ApiError.new("Não é possível enviar as faltas pois o aluno "+student.to_s+" não possui todas as faltas lançadas para a etapa atual nas datas "+string_warning_dates+".")
+          # Comentado provisoriamente a pedido de São Miguel dos Campos para postagem retroativa que será corrigida diretamente no i-Educar.
+          # raise IeducarApi::Base::ApiError.new("Não é possível enviar as faltas pois o aluno "+student.to_s+" não possui todas as faltas lançadas para a etapa atual nas datas "+string_warning_dates+".")
         else
           classrooms[classroom.api_code]["turma_id"] = classroom.api_code
           classrooms[classroom.api_code]["alunos"][student.api_code]["aluno_id"] = student.api_code
