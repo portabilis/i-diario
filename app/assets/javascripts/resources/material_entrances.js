@@ -45,6 +45,8 @@ $(function() {
     $('form').trigger('cocoon:after-insert');
     $materialItems.show();
     toggle***REMOVED***($kind.val() === 'supplier');
+    $("[id$=material_id]").prop("readonly", true);
+    $("[id$=quantity]").prop("readonly", true);
   }
 
   $('#material_entrance_items').on('cocoon:after-insert', function(e, item) {
@@ -97,6 +99,7 @@ $(function() {
       $materialExitFields.hide().
         find("input.select2").select2("val", "");
     }
+    $('.remove_fields').click();
   }
 
   function update***REMOVED***Unit(){

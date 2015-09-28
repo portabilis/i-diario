@@ -38,7 +38,7 @@ class Content < ActiveRecord::Base
   private
 
   def classroom_required?
-    if (ExamRule.by_id(classroom.exam_rule_id).by_frequency_type '1') == []
+    if (ExamRule.by_id(classroom == nil ? 0 : classroom.exam_rule_id ).by_frequency_type '1') == []
       return true
     end
   end
