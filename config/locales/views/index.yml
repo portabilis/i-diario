@@ -3,6 +3,7 @@ pt-BR:
     index:
       no_record_found: "Nenhum registro encontrado"
       actions: "Ações"
+      show: "Visualizar"
       edit: "Editar"
       delete: "Excluir"
       confirm: "Você tem certeza?"
