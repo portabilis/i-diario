@@ -11,4 +11,7 @@ class ExamRule < ActiveRecord::Base
 
   validates :api_code, :score_type, :frequency_type, :opinion_type, :recovery_type, presence: true
   validates :api_code, uniqueness: true
+
+  scope :by_id, lambda { |id| where id: id }
+  scope :by_frequency_type, lambda {|frequency_type| where frequency_type: frequency_type}
 end

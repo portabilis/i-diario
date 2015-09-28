@@ -11,14 +11,13 @@ class Content < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :discipline
   belongs_to :school_calendar
-  belongs_to :knowledge_area
 
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Content.arel_table[:discipline_id])) }, through: :classroom
 
-  validates :unity, :classroom, :school_calendar, :content_date, :classes, :theme, presence: true
-  validates :knowledge_area, :presence => true, if: "discipline.blank?"
-  validates :discipline, :presence => true, if: "knowledge_area.blank?"
+  validates :unity, :classroom, :school_calendar,  :content_date, :theme, presence: true
+  validates :classes, presence: true, if: :classroom_required?
   validate :is_school_day?
+
 
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_teacher_classroom_and_discipline, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
@@ -37,6 +36,12 @@ class Content < ActiveRecord::Base
   end
 
   private
+
+  def classroom_required?
+    if (ExamRule.by_id(classroom.exam_rule_id).by_frequency_type '1') == []
+      return true
+    end
+  end
 
   def is_school_day?
     return unless school_calendar && content_date

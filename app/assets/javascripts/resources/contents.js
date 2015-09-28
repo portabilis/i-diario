@@ -94,22 +94,16 @@ $(function () {
   });
 
   function hiddenField(){
-    $content_classes.hide();
     if($('#content_classroom_id').val()){
       $.getJSON('/classrooms/' + $('#content_classroom_id').val()).always(function (data) {
         if(data.score_type == '2'){
-          $('.content_knowledge_area').show();
-          $('.content_discipline').hide();
           $('#content_discipline_id').val('');
         }else if(data.score_type == '1'){
-          $('.content_knowledge_area').hide();
           $('.content_discipline').show();
-          $('#content_knowledge_area_id').val('');
         }
       });
     }
     if($('#content_unity_id').val() == ''){
-      $('.content_knowledge_area').hide();
       $('.content_discipline').hide();
     }
   }
@@ -144,12 +138,10 @@ $(function () {
 
   $('#content_classroom_id').on('change', function (e) {
     var $discipline = $('#content_discipline_id'),
-        $knowledge_area =  $('#content_knowledge_area_id'),
         params = {
           classroom_id: e.val
         };
     window.disciplines = [];
-    window.knowledge_areas = [];
 
     if (_.isEmpty(e.val)) {
       $discipline.val('');
@@ -157,10 +149,6 @@ $(function () {
         data: []
       });
 
-      $knowledge_area.val('');
-      $knowledge_area.select2({
-        data: []
-      });
 
     } else {
       fetchDisciplines(params, function (disciplines) {
@@ -170,15 +158,6 @@ $(function () {
 
         $discipline.select2({
           data: selectedDisciplines
-        });
-      });
-      fetchKnowledgeAreas(params, function (knowledge_areas) {
-        var selectedKnowledgeAreas = _.map(knowledge_areas, function (knowledge_area) {
-          return { id:knowledge_area['id'], text: knowledge_area['description'] };
-        });
-
-        $knowledge_area.select2({
-          data: selectedKnowledgeAreas
         });
       });
 
