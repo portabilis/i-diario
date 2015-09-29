@@ -7,8 +7,24 @@ class ContentsController < ApplicationController
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
 
   def index
-    @contents = apply_scopes(Content.filter(filtering_params(params[:search])).by_unity(current_user.current_user_role.unity.id).ordered)                        
+    @contents = apply_scopes(Content).includes(
+        :unity,
+        :classroom,
+        :discipline
+      )
+      .filter(filtering_params(params[:search]))
+      .by_unity(current_user_unity.id)
+      .by_teacher(current_teacher.id)
+      .ordered
+
     authorize @contents
+
+    @classrooms = Classroom.by_unity_and_teacher(
+        current_user_unity.id,
+        current_teacher.id
+      )
+      .ordered
+      .uniq
   end
 
   def new

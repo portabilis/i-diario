@@ -6,7 +6,7 @@
         <thead>
           <tr>
             <td></td>
-            <td><%= f.input :by_classroom, as: :select, label: false, prompt: "Filtrar turma", collection: Classroom.ordered %></td>
+            <td><%= f.input :by_classroom, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom') %></td>
             <td></td>
             <td>
               <div class="icon-addon">
