@@ -34,7 +34,7 @@ $(function() {
     fetchMaterailRequestAuthorizations($requestAuthorization.val());
   });
 
-  
+
   function fetchAuthorizationItems(authorizationId) {
     $.ajax({
       url: '/autorizacoes-de-requisicoes-de-materiais/' + authorizationId +
@@ -79,7 +79,7 @@ $(function() {
       success: returnUnities
     });
   }
-  
+
   function returnUnities(items){
     $unities = items;
   }

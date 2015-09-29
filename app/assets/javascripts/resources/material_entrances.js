@@ -12,7 +12,7 @@ $(function() {
   toggle***REMOVED***($kind.val() === 'supplier');
   toggle***REMOVED***();
   update***REMOVED***Unit();
-  
+
   $kind.on('change', function(e) {
     toggle***REMOVED***(e.val === 'supplier');
     toggle***REMOVED***();
@@ -51,11 +51,11 @@ $(function() {
 
   $('#material_entrance_items').on('cocoon:after-insert', function(e, item) {
     toggle***REMOVED***($kind.val() === 'supplier');
-    
+
     $("[id$=unit_value], [id$=quantity]").on("blur", update***REMOVED***Totals);
   });
 
-  
+
   $('#material_entrance_items').on('cocoon:after-remove', function(e, item) {
     update***REMOVED***Totals();
   })
@@ -99,7 +99,8 @@ $(function() {
       $materialExitFields.hide().
         find("input.select2").select2("val", "");
     }
-    $('.remove_fields').click();
+
+    $('#remove_material_entrance').click();
   }
 
   function update***REMOVED***Unit(){
