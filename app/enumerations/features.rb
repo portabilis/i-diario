@@ -25,6 +25,7 @@ class Features < EnumerateIt::Base
                    :moved_***REMOVED***,
                    :***REMOVED***,
                    :***REMOVED***,
+                   :***REMOVED***,
                    :authorization_***REMOVED***,
                    :***REMOVED***_configs,
                    :***REMOVED***s,
