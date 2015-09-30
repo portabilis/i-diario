@@ -19,13 +19,23 @@ class Content < ActiveRecord::Base
   validate :is_school_day?
 
 
-  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
-  scope :by_teacher_classroom_and_discipline, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
+  scope :by_teacher_id, (lambda do |teacher_id|
+      joins(
+        arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
+          .on(
+            TeacherDisciplineClassroom.arel_table[:classroom_id].eq(arel_table[:classroom_id])
+              .and(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(arel_table[:discipline_id]).or(arel_table[:discipline_id].eq(nil)))
+          )
+          .join_sources
+      )
+      .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id))
+      .uniq
+    end)
+  scope :by_unity_id, lambda { |unity_id| where unity_id: unity_id }
+  scope :by_classroom_id, lambda { |classroom_id| where classroom_id: classroom_id }
+  scope :by_content_date, lambda { |content_date| where(content_date: content_date) }
+
   scope :ordered, -> { order(arel_table[:content_date]) }
-  scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
-  scope :by_unity, lambda { |unity| where unity_id: unity }
-  scope :by_classroom, lambda { |classroom| where classroom_id: classroom }
-  scope :by_date, lambda { |date| where(content_date: date) }
 
   def to_s
     description

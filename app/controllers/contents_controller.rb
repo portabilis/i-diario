@@ -13,8 +13,8 @@ class ContentsController < ApplicationController
         :discipline
       )
       .filter(filtering_params(params[:search]))
-      .by_unity(current_user_unity.id)
-      .by_teacher(current_teacher.id)
+      .by_unity_id(current_user_unity.id)
+      .by_teacher_id(current_teacher.id)
       .ordered
 
     authorize @contents
@@ -29,9 +29,10 @@ class ContentsController < ApplicationController
 
   def new
     @content = resource
+    @content.unity = current_user_unity
     @content.school_calendar = current_school_calendar
 
-    authorize resource
+    authorize @content
 
     fetch_classrooms
   end
@@ -96,11 +97,11 @@ class ContentsController < ApplicationController
   end
 
   def filtering_params(params)
-    if params
-      params.slice(:by_classroom, :by_date)
-    else
-      {}
-    end
+    params = {} unless params
+    params.slice(
+      :by_classroom_id,
+      :by_content_date
+    )
   end
 
   def fetch_classrooms

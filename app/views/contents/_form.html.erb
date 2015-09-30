@@ -4,7 +4,7 @@
   <fieldset>
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.association :unity, as: :select2, elements: @unities %>
+        <%= f.association :unity, as: :select2, elements: @unities, readonly: !current_user.admin? %>
       </div>
 
       <div class="col col-sm-4">
@@ -15,7 +15,7 @@
         <%= f.association :discipline, as: :select2, elements: @disciplines, required: true%>
       </div>
     </div>
-    
+
     <div class="row">
 
       <div class="col col-sm-4">
