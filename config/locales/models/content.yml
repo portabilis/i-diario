@@ -32,8 +32,12 @@ pt-BR:
           attributes:
               content_date:
                 must_be_school_day: "deve ser um dia letivo"
+                uniqueness_of_content: "já existe um plano de aula para a aula informada"
+                
               classes:
-                taken:  'plano desta aula já foi registrado'
+                uniqueness_of_content:
+                  one: "já existe um plano de aula para a aula informada"
+                  other: "já existe um plano de aula para uma das aulas informadas"
 
   errors:
     contents:

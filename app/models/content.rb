@@ -16,8 +16,9 @@ class Content < ActiveRecord::Base
 
   validates :unity, :classroom, :school_calendar,  :content_date, :theme, presence: true
   validates :classes, presence: true, if: :classroom_required?
-  validate :is_school_day?
 
+  validate :is_school_day?
+  validate :uniqueness_of_content
 
   scope :by_teacher_id, (lambda do |teacher_id|
       joins(
@@ -33,7 +34,9 @@ class Content < ActiveRecord::Base
     end)
   scope :by_unity_id, lambda { |unity_id| where unity_id: unity_id }
   scope :by_classroom_id, lambda { |classroom_id| where classroom_id: classroom_id }
+  scope :by_discipline_id, lambda { |discipline_id| where discipline_id: discipline_id }
   scope :by_content_date, lambda { |content_date| where(content_date: content_date) }
+  scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
 
   scope :ordered, -> { order(arel_table[:content_date]) }
 
@@ -57,5 +60,25 @@ class Content < ActiveRecord::Base
     return unless school_calendar && content_date
 
     errors.add(:content_date, :must_be_school_day) if !school_calendar.school_day? content_date
+  end
+
+  def uniqueness_of_content
+    if discipline_id.present?
+      contents = Content.by_classroom_id(classroom_id)
+        .by_discipline_id(discipline_id)
+        .by_content_date(content_date)
+        .by_classes(classes)
+
+      contents = contents.where.not(id: id) if persisted?
+
+      errors.add(:classes, :uniqueness_of_content, count: classes.count) if contents.any?
+    else
+      contents = Content.by_classroom_id(classroom_id)
+        .by_content_date(content_date)
+
+      contents = contents.where.not(id: id) if persisted?
+
+      errors.add(:content_date, :uniqueness_of_content) if contents.any?
+    end
   end
 end

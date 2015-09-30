@@ -73,22 +73,31 @@ $(function () {
       if(!$.isEmptyObject(exam_rule)){
 
         if(exam_rule.frequency_type == 1){
+          $('#content_classes').select2('val', '');
           $content_classes.hide();
         }else{
           $content_classes.show();
         }
       }else{
+        $('#content_classes').select2('val', '');
         $content_classes.hide();
       }
     });
+  }
+
+  if ($('#content_classroom_id').select2('val')) {
+    var params = {
+      classroom_id: $('#content_classroom_id').select2('val')
+    };
+
+    checkExamRule(params);
   }
 
   $classroom.on('change', function (e) {
     var params = {
       classroom_id: e.val
     };
-    if (!_.isEmpty(e.val)) {
-
+    if (!_.isEmpty(e.val) && e.val != 'empty') {
       checkExamRule(params);
     }
   });
@@ -97,13 +106,15 @@ $(function () {
     if($('#content_classroom_id').val()){
       $.getJSON('/classrooms/' + $('#content_classroom_id').val()).always(function (data) {
         if(data.score_type == '2'){
-          $('#content_discipline_id').val('');
+          $('#content_discipline_id').select2('val', '');
+          $('.content_discipline').hide();
         }else if(data.score_type == '1'){
           $('.content_discipline').show();
         }
       });
     }
-    if($('#content_unity_id').val() == ''){
+    if($('#content_classroom_id').val() == ''){
+      $('#content_discipline_id').select2('val', '');
       $('.content_discipline').hide();
     }
   }
@@ -144,7 +155,7 @@ $(function () {
     window.disciplines = [];
 
     if (_.isEmpty(e.val)) {
-      $discipline.val('');
+      $discipline.select2('val', '');
       $discipline.select2({
         data: []
       });
