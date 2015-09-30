@@ -12,4 +12,11 @@ class ClassroomsController < ApplicationController
       @classrooms = Classroom.by_unity_and_teacher(unity_id, teacher_id).ordered.uniq
     end
   end
+
+  def show
+    return unless teacher_id = current_teacher.try(:id)
+    id = params[:id]
+
+    @classroom = Classroom.find_by_id(id)
+  end
 end

@@ -140,3 +140,9 @@ pt-BR:
 
     absence_justifications:
       <<: *female
+
+    ***REMOVED***:
+      <<: *male
+      create:
+        notice: 'Ajuste de estoque realizado com sucesso.'
+        alert: 'Ajuste de estoque não pode ser realizado.'

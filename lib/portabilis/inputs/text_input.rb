@@ -4,7 +4,7 @@ module Portabilis
       private
 
       def input_html_classes
-        super.unshift("form-control")
+        super.unshift('form-control col col-sm-12')
       end
 
       def input_html_options

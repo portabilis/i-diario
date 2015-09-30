@@ -1,28 +1,45 @@
 <div class="widget-body no-padding">
-  <div class="table-responsive">
-    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
-      <thead>
-        <tr>
-          <th><%= Content.human_attribute_name :unity %></th>
-          <th><%= Content.human_attribute_name :classroom %></th>
-          <th><%= Content.human_attribute_name :discipline %></th>
-          <th><%= Content.human_attribute_name :content_date %></th>
-          <th><%= Content.human_attribute_name :class_number %></th>
-          <td class="actions" style="width: 190px;"><%= link_to t('.new_html'), new_content_path, class: "btn btn-primary" %></td>
-        </tr>
-      </thead>
+  <%= simple_form_for :search, {url: contents_path, method: :get,
+                                html: {class: 'filterable_search_form'}} do |f| %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+        <thead>
+          <tr>
+            <td></td>
+            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
+            <td></td>
+            <td>
+              <div class="icon-addon">
+                <label for="search_by_date" class="fa fa-calendar"></label>
+                <%= f.text_field :by_content_date, as: :date, label: false, placeholder: t('.by_content_date'), class: 'form-control date datepicker' %>
+              </div>
+            </td>
+            <td></td>
+            <td><%= link_to t('.new_html'), new_content_path, class: "btn btn-primary pull-right" %></td>
+          </tr>
+          <tr>
+            <th><%= Content.human_attribute_name :unity %></th>
+            <th width="20%"><%= Content.human_attribute_name :classroom %></th>
+            <th width="20%"><%= Content.human_attribute_name :discipline %>
+            <th width="10%"><%= Content.human_attribute_name :content_date %></th>
+            <th width="10%"><%= Content.human_attribute_name :classes %></th>
+            <td width="160px"></td>
+          </tr>
+        </thead>
 
-      <%= render 'resources' %>
-      <tfoot id="paginator" class="remote">
-        <td colspan="6">
-          <div id="page_entries_info" class="pull-left hidden-xs">
-            <%= page_entries_info @contents %>
-          </div>
-          <div class="pull-right">
-            <%= paginate @contents %>
-          </div>
-        </td>
-      </tfoot>
-    </table>
-  </div>
+        <%= render 'resources' %>
+
+        <tfoot id="paginator" class="remote">
+          <td colspan="6">
+            <div id="page_entries_info" class="pull-left hidden-xs">
+              <%= page_entries_info @contents %>
+            </div>
+            <div class="pull-right">
+              <%= paginate @contents %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
 </div>

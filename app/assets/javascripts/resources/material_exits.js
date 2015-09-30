@@ -9,7 +9,10 @@ $(function() {
       $kind = $("#material_exit_kind"),
       $requestAuthorization = $("#material_exit_material_request_authorization_id"),
       $destinationUnity = $("#material_exit_destination_unity_id"),
-      itemTemplate = $("#material_exit_items a.add_fields").attr("data-association-insertion-template");
+      itemTemplate = $("#material_exit_items a.add_fields").attr("data-association-insertion-template"),
+      $materialRequests = [],
+      $unities = [],
+      $unityId = 0;
       flashMessages = new FlashMessages(),
 
   toggleReturnReason($kind.val() === 'return');
@@ -25,8 +28,12 @@ $(function() {
   });
 
   $requestAuthorization.on('change', function(e) {
+    loading***REMOVED***Request();
+    loadUnities();
     fetchAuthorizationItems(e.val);
+    fetchMaterailRequestAuthorizations($requestAuthorization.val());
   });
+
 
   function fetchAuthorizationItems(authorizationId) {
     $.ajax({
@@ -35,6 +42,79 @@ $(function() {
       success: renderAuthorizationItems,
       error: handleError
     });
+  }
+
+  function fetchMaterailRequestAuthorizations(materialRequestAuthorization) {
+    var selectedDestinationUnity = [];
+    $.ajax({
+      type: "GET",
+      url: "/***REMOVED***/json",
+      success: function(items){
+        returnUnityId(return***REMOVED***RequestId(items, materialRequestAuthorization));
+        setTimeout(alterInputUnityDestination(returnDestinationUnity()), 2000);
+      }
+    });
+  }
+
+  function alterInputUnityDestination(destination){
+    $destinationUnity.select2({
+      data: destination
+    });
+    $destinationUnity.select2('val', $unityId );
+    alterUnit();
+  }
+
+  function loading***REMOVED***Request(){
+    $.ajax({
+      type: "GET",
+      url: "/***REMOVED***/json",
+      success: return***REMOVED***Requests
+    });
+  }
+
+  function loadUnities(){
+    $.ajax({
+      type: "GET",
+      url: "/unities/json",
+      success: returnUnities
+    });
+  }
+
+  function returnUnities(items){
+    $unities = items;
+  }
+
+  function return***REMOVED***Requests(items){
+    $materialRequests = items;
+  }
+
+  function returnDestinationUnity() {
+    var selectedDestinationUnity = [];
+    _.each($unities, function(item){
+      if($unityId == item['id']){
+        selectedDestinationUnity.push({id: item['id'], text: item['name'] });
+      }
+    });
+    return selectedDestinationUnity;
+  }
+
+  var returnUnityId = function(materialRequestId){
+    _.each($materialRequests, function(item){
+      if(materialRequestId == item['id']){
+         $unityId = item['origin_unity_id'];
+      }
+    });
+    return $unityId;
+  }
+
+  var return***REMOVED***RequestId = function(items, materialRequestAuthorization){
+    var materialRequestId;
+    _.each(items, function(item){
+      if(materialRequestAuthorization == item['id']){
+        materialRequestId = item['material_request_id'];
+       }
+    });
+    return materialRequestId;
   }
 
   function renderAuthorizationItems(items) {
@@ -90,7 +170,7 @@ $(function() {
     if (show) {
       $requestAuthorizationContainer.show();
     } else {
-      $requestAuthorizationContainer.hide();
+      $destinationUnity.prop('disabled', false)
       $requestAuthorization.select2('val', '');
     }
   }

@@ -9,13 +9,19 @@
         <td><%= content.unity %></td>
         <td><%= content.classroom %></td>
         <td><%= content.discipline %></td>
-        <td><%= l content.content_date %></td>
-        <td><%= content.class_number %></td>
+        <td><%= l(content.content_date) %></td>
+        <td>
+          <% content.classes.each do |class_number| %>
+            <span class="label label-info label-list">
+              <%= class_number %>
+            </span>
+          <% end %>
+        </td>
         <td class="actions">
-          <%= link_to 'Editar', edit_content_path(content),
-            class: "btn btn-success" %>
-          <%= link_to 'Excluir', content_path(content),
-            class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+          <%= link_to t('views.index.edit'), edit_content_path(content),
+                class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'), content_path(content),
+                class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
         </td>
       </tr>
     <% end %>

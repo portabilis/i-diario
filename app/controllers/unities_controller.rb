@@ -15,6 +15,11 @@ class UnitiesController < ApplicationController
     authorize @unity
   end
 
+  def show
+    @unities = Unity.all 
+    render json:  @unities
+  end
+
   def create
     @unity = Unity.new(unity_params)
     @unity.author = current_user

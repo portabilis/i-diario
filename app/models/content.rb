@@ -5,6 +5,7 @@ class Content < ActiveRecord::Base
   has_associated_audits
 
   include Audit
+  include Filterable
 
   belongs_to :unity
   belongs_to :classroom
@@ -13,23 +14,71 @@ class Content < ActiveRecord::Base
 
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Content.arel_table[:discipline_id])) }, through: :classroom
 
-  validates :unity, :classroom, :discipline, :school_calendar, :content_date, :class_number, :description, presence: true
-  validates :class_number, uniqueness: {scope: [:classroom, :discipline, :content_date]}
-  validate :is_school_day?
+  validates :unity, :classroom, :school_calendar,  :content_date, :theme, presence: true
+  validates :classes, presence: true, if: :classroom_required?
 
-  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
-  scope :by_teacher_classroom_and_discipline, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
+  validate :is_school_day?
+  validate :uniqueness_of_content
+
+  scope :by_teacher_id, (lambda do |teacher_id|
+      joins(
+        arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
+          .on(
+            TeacherDisciplineClassroom.arel_table[:classroom_id].eq(arel_table[:classroom_id])
+              .and(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(arel_table[:discipline_id]).or(arel_table[:discipline_id].eq(nil)))
+          )
+          .join_sources
+      )
+      .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id))
+      .uniq
+    end)
+  scope :by_unity_id, lambda { |unity_id| where unity_id: unity_id }
+  scope :by_classroom_id, lambda { |classroom_id| where classroom_id: classroom_id }
+  scope :by_discipline_id, lambda { |discipline_id| where discipline_id: discipline_id }
+  scope :by_content_date, lambda { |content_date| where(content_date: content_date) }
+  scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
+
   scope :ordered, -> { order(arel_table[:content_date]) }
 
   def to_s
     description
   end
 
+  def classes=(classes)
+    write_attribute(:classes, classes ? classes.split(',').sort.map(&:to_i) : classes)
+  end
+
   private
+
+  def classroom_required?
+    if (ExamRule.by_id(classroom == nil ? 0 : classroom.exam_rule_id ).by_frequency_type '1') == []
+      return true
+    end
+  end
 
   def is_school_day?
     return unless school_calendar && content_date
 
     errors.add(:content_date, :must_be_school_day) if !school_calendar.school_day? content_date
+  end
+
+  def uniqueness_of_content
+    if discipline_id.present?
+      contents = Content.by_classroom_id(classroom_id)
+        .by_discipline_id(discipline_id)
+        .by_content_date(content_date)
+        .by_classes(classes)
+
+      contents = contents.where.not(id: id) if persisted?
+
+      errors.add(:classes, :uniqueness_of_content, count: classes.count) if contents.any?
+    else
+      contents = Content.by_classroom_id(classroom_id)
+        .by_content_date(content_date)
+
+      contents = contents.where.not(id: id) if persisted?
+
+      errors.add(:content_date, :uniqueness_of_content) if contents.any?
+    end
   end
 end

@@ -7,16 +7,32 @@ class ContentsController < ApplicationController
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
 
   def index
-    @contents = apply_scopes(Content.by_teacher(current_teacher.id).includes(:unity, :classroom, :discipline).ordered)
+    @contents = apply_scopes(Content).includes(
+        :unity,
+        :classroom,
+        :discipline
+      )
+      .filter(filtering_params(params[:search]))
+      .by_unity_id(current_user_unity.id)
+      .by_teacher_id(current_teacher.id)
+      .ordered
 
     authorize @contents
+
+    @classrooms = Classroom.by_unity_and_teacher(
+        current_user_unity.id,
+        current_teacher.id
+      )
+      .ordered
+      .uniq
   end
 
   def new
     @content = resource
+    @content.unity = current_user_unity
     @content.school_calendar = current_school_calendar
 
-    authorize resource
+    authorize @content
 
     fetch_classrooms
   end
@@ -80,6 +96,13 @@ class ContentsController < ApplicationController
     @number_of_classes = current_school_calendar.number_of_classes
   end
 
+  def filtering_params(params)
+    params = {} unless params
+    params.slice(
+      :by_classroom_id,
+      :by_content_date
+    )
+  end
 
   def fetch_classrooms
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @content.unity_id, @content.classroom_id)
@@ -87,6 +110,7 @@ class ContentsController < ApplicationController
     @unities = fetcher.unities
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
+    @knowledge_areas = KnowledgeArea.all
   end
 
   def resource
@@ -100,7 +124,8 @@ class ContentsController < ApplicationController
 
   def resource_params
     params.require(:content).permit(
-      :unity_id, :classroom_id, :discipline_id, :school_calendar_id, :content_date, :class_number, :description
+      :unity_id, :classroom_id, :discipline_id, :school_calendar_id, :content_date, :classes, :description, :evaluation,
+      :theme, :goals, :means, :bibliography, :knowledge_area_id, :opinion
     )
   end
 end

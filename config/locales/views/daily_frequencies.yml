@@ -3,3 +3,4 @@ pt-BR:
     edit_multiple:
       destroy: "Excluir"
       confirm: "Essa operação irá excluir este registro do diário de frequência. Você tem certeza?"
+      dependence_students_legend: "* Alunos cursando dependência"

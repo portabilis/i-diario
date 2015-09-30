@@ -24,7 +24,11 @@
 
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.input :test_date, input_html: { value: f.object.localized.test_date } %>
+        <%= f.label :test_date %>
+        <div class="icon-addon">
+          <label for="test_date" class="fa fa-calendar"></label>
+          <%= f.text_field :test_date, class: 'form-control date datepicker col col-sm-4' %>
+        </div>
       </div>
 
       <div class="col col-sm-4">
@@ -45,6 +49,12 @@
           <%= f.input :weight, required: true,
                                input_html: { value: number_with_precision(f.object.weight, precision: @avaliation.test_setting.number_of_decimal_places),
                                              data: { scale: @avaliation.test_setting.number_of_decimal_places } } %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= f.input :observations %>
       </div>
     </div>
   </fieldset>

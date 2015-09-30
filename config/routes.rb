@@ -108,7 +108,14 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :authorization_***REMOVED***, concerns: :history
+
     resources :moved_***REMOVED***, only: [:index]
+    get '/unities/:unity_id/moved_***REMOVED***/:material_id', to: 'moved_***REMOVED***#show', as: 'unity_moved_material'
+
+    resources :***REMOVED***, only: [:index, :new, :create]
+    get '/***REMOVED***/entrances/:id', to: '***REMOVED***#show_entrance', as: 'inventory_adjustment_entrance'
+    get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
+
     resources :***REMOVED***, concerns: :history
 
     resources :test_settings, concerns: :history do
@@ -128,8 +135,9 @@ Rails.application.routes.draw do
 
     resources :teaching_plans, concerns: :history
     resources :contents, concerns: :history
-    resources :classrooms, only: [:index]
+    resources :classrooms, only: [:index, :show]
     resources :disciplines, only: [:index]
+    resources :knowledge_areas, only: [:index]
     resources :exam_rules, only: [:index]
     resources :avaliations, concerns: :history
     resources :teacher_avaliations, only: :index

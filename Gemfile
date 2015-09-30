@@ -28,6 +28,8 @@ gem 'prawn', '2.0.2'
 gem 'prawn-table', '0.2.2'
 gem 'audited-activerecord', git: 'git://github.com/ricardohsd/audited.git'
 gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.git'
+gem 'js-routes'
+gem 'active_model_serializers'
 
 gem 'sinatra', '>= 1.3.0', require: nil
 gem 'sidekiq', '3.4.2'

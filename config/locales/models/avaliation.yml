@@ -23,6 +23,7 @@ pt-BR:
         test_setting_test_id: "Tipo de avaliação"
         test_setting_test: "Tipo de avaliação"
         weight: "Peso"
+        observations: "Observações"
 
     errors:
       models:

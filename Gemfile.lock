@@ -78,6 +78,8 @@ GEM
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
+    active_model_serializers (0.9.3)
+      activemodel (>= 3.2)
     activejob (4.2.3)
       activesupport (= 4.2.3)
       globalid (>= 0.3.0)
@@ -265,6 +267,9 @@ GEM
     jbuilder (2.2.16)
       activesupport (>= 3.0.0, < 5)
       multi_json (~> 1.2)
+    js-routes (1.1.2)
+      railties (>= 3.2)
+      sprockets-rails
     json (1.8.3)
     kaminari (0.16.3)
       actionpack (>= 3.0.0)
@@ -468,6 +473,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  active_model_serializers
   activerecord-connections!
   audited-activerecord!
   backbone-nested-attributes!
@@ -489,6 +495,7 @@ DEPENDENCIES
   has_scope (= 0.5.1)
   i18n_alchemy (= 0.2.1)!
   jbuilder (~> 2.2.2)
+  js-routes
   kaminari (~> 0.16.1)
   less-rails (= 2.7.0)
   mask_validator (= 0.2.1)

@@ -53,7 +53,7 @@ class AvaliationsController < ApplicationController
   end
 
   def edit
-    @avaliation = Avaliation.find(params[:id])
+    @avaliation = resource
 
     authorize @avaliation
 
@@ -62,8 +62,8 @@ class AvaliationsController < ApplicationController
   end
 
   def update
-    @avaliation = Avaliation.find(params[:id])
-    @avaliation.localized.assign_attributes(resource_params)
+    @avaliation = resource
+    @avaliation.assign_attributes(resource_params)
 
     authorize @avaliation
 
@@ -133,6 +133,7 @@ class AvaliationsController < ApplicationController
                                        :classes,
                                        :description,
                                        :test_setting_test_id,
-                                       :weight)
+                                       :weight,
+                                       :observations)
   end
 end
