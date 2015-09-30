@@ -77,6 +77,18 @@
     </div>
   </fieldset>
 
+  <% if @content.persisted? %>
+    <fieldset>
+      <legend><%= t('.additional_information') %></legend>
+
+      <div class="row">
+        <div class="col col-sm-12">
+          <%= f.input :opinion, input_html: { class: 'col col-sm-12' } %>
+        </div>
+      </div>
+    </fieldset>
+  <% end %>
+
   <footer>
     <%= link_to t('views.form.back'), contents_path, class: 'btn btn-default' %>
     <%= link_to t('views.form.history'), history_content_path(@content), class: 'btn btn-info' if @content.persisted? %>

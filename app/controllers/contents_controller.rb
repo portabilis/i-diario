@@ -125,7 +125,7 @@ class ContentsController < ApplicationController
   def resource_params
     params.require(:content).permit(
       :unity_id, :classroom_id, :discipline_id, :school_calendar_id, :content_date, :classes, :description, :evaluation,
-      :theme, :goals, :means, :bibliography, :knowledge_area_id
+      :theme, :goals, :means, :bibliography, :knowledge_area_id, :opinion
     )
   end
 end

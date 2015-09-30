@@ -24,7 +24,8 @@ pt-BR:
         evaluation: "Avaliação"
         bibliography: "Referências"
         knowledge_area: "Área de conhecimento"
-        knowledge_area: "Área de conhecimento"
+        opinion: "Parecer"
+
 
     errors:
       models:
@@ -33,7 +34,7 @@ pt-BR:
               content_date:
                 must_be_school_day: "deve ser um dia letivo"
                 uniqueness_of_content: "já existe um plano de aula para a aula informada"
-                
+
               classes:
                 uniqueness_of_content:
                   one: "já existe um plano de aula para a aula informada"

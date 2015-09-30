@@ -4,3 +4,5 @@ pt-BR:
       by_content_date: "Filtrar data"
       by_classroom_id: "Filtrar turma"
       new_html: "<i class='fa fa-plus'></i> Novo plano de aula"
+    form:
+      additional_information: "Informações adicionais"
