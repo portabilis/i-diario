@@ -37,7 +37,7 @@ class AvaliationsController < ApplicationController
   end
 
   def create
-    resource.assign_attributes(resource_params)
+    resource.localized.assign_attributes(resource_params)
     resource.school_calendar = current_school_calendar
 
     authorize resource
@@ -63,7 +63,7 @@ class AvaliationsController < ApplicationController
 
   def update
     @avaliation = resource
-    @avaliation.assign_attributes(resource_params)
+    @avaliation.localized.assign_attributes(resource_params)
 
     authorize @avaliation
 
@@ -113,7 +113,7 @@ class AvaliationsController < ApplicationController
       Avaliation.new
     when 'edit', 'update', 'destroy'
       Avaliation.find(params[:id])
-    end.localized
+    end
   end
 
   def filtering_params(params)
