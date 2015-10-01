@@ -59,6 +59,7 @@ pt-BR:
     reports: "Relatórios"
     exam_record_report: "Registro de avaliações"
     attendance_record_report: "Registro de frequência"
+    ***REMOVED***: "***REMOVED***"
     ieducar_api_exam_postings: "Envio de avaliações"
 
   enumerations:
