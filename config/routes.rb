@@ -9,6 +9,8 @@ Rails.application.routes.draw do
     namespace :api do
       namespace :v1 do
         resources :***REMOVED***, only: [:create]
+        resources :teacher_unities, only: [:index]
+        resources :teacher_classrooms, only: [:index]
       end
     end
 
