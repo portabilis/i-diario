@@ -1,4 +1,6 @@
-<%= javascript_include_tag 'views/contents/form' %>
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/contents/form' %>
+<% end %>
 
 <%= simple_form_for @content, html: { class: "smart-form" } do |f| %>
 
