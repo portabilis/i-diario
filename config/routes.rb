@@ -11,6 +11,8 @@ Rails.application.routes.draw do
         resources :***REMOVED***, only: [:create]
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index]
+        resources :daily_frequencies, only: [:create]
+        resources :daily_frequency_students, only: [:update]
       end
     end
 
