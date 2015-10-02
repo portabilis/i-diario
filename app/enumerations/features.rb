@@ -46,6 +46,7 @@ class Features < EnumerateIt::Base
                    :descriptive_exams,
                    :exam_record_report,
                    :attendance_record_report,
+                   :***REMOVED***,
                    :ieducar_api_exam_postings
 
   sort_by :translation

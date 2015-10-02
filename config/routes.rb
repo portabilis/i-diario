@@ -159,5 +159,8 @@ Rails.application.routes.draw do
 
     get '/reports/exam_record', to: 'exam_record_report#form', as: 'exam_record_report'
     post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
+
+    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
+    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
   end
 end
