@@ -4,6 +4,7 @@ pt-BR:
       no_record_found: "Nenhum registro encontrado"
       actions: "Ações"
       show: "Visualizar"
+      print: "Imprimir"
       edit: "Editar"
       delete: "Excluir"
       confirm: "Você tem certeza?"
