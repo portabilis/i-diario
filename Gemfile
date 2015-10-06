@@ -30,8 +30,10 @@ gem 'audited-activerecord', git: 'git://github.com/ricardohsd/audited.git'
 gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.git'
 gem 'js-routes'
 gem 'active_model_serializers'
+gem 'exception_notification'
+
 gem 'angular_rails_csrf'
-gem 'rack-cors', :require => 'rack/cors'
+gem 'rack-cors', require: 'rack/cors'
 
 gem 'sinatra', '>= 1.3.0', require: nil
 gem 'sidekiq', '3.4.2'
