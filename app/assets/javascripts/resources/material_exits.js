@@ -60,14 +60,13 @@ $(function() {
     $destinationUnity.select2({
       data: destination
     });
-    $destinationUnity.select2('val', $unityId );
-    alterUnit();
+    $destinationUnity.select2('val', $unityId );    
   }
 
   function loading***REMOVED***Request(){
     $.ajax({
       type: "GET",
-      url: "/***REMOVED***/json",
+      url: Routes.***REMOVED***_pt_br_path({ format: 'json' }),
       success: return***REMOVED***Requests
     });
   }

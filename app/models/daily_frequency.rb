@@ -11,7 +11,7 @@ class DailyFrequency < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :school_calendar
 
-  has_many :students, class_name: 'DailyFrequencyStudent', dependent: :destroy
+  has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyFrequencyStudent', dependent: :destroy
   accepts_nested_attributes_for :students
 
   validates :unity, :classroom, :frequency_date, :school_calendar, presence: true

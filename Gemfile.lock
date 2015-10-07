@@ -97,6 +97,8 @@ GEM
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
     addressable (2.3.8)
+    angular_rails_csrf (1.0.4)
+      rails (>= 3, < 5)
     arel (6.0.3)
     bcrypt (3.1.10)
     better_errors (1.1.0)
@@ -144,6 +146,9 @@ GEM
     enumerate_it (1.2.8)
       activesupport (>= 3.0.0)
     erubis (2.7.0)
+    exception_notification (4.1.1)
+      actionmailer (>= 3.0.4)
+      activesupport (>= 3.0.4)
     excon (0.45.4)
     execjs (2.6.0)
     factory_girl (4.5.0)
@@ -336,6 +341,7 @@ GEM
     quiet_assets (1.1.0)
       railties (>= 3.1, < 5.0)
     rack (1.6.4)
+    rack-cors (0.4.0)
     rack-protection (1.5.3)
       rack
     rack-test (0.6.3)
@@ -475,6 +481,7 @@ PLATFORMS
 DEPENDENCIES
   active_model_serializers
   activerecord-connections!
+  angular_rails_csrf
   audited-activerecord!
   backbone-nested-attributes!
   better_errors (~> 1.1.0)
@@ -488,6 +495,7 @@ DEPENDENCIES
   decore!
   devise (= 3.5.1)
   enumerate_it (= 1.2.8)
+  exception_notification
   factory_girl_rails (~> 4.0)
   fog (= 1.32.0)
   foreigner (= 1.6.1)
@@ -511,6 +519,7 @@ DEPENDENCIES
   puma
   pundit (= 0.3.0)
   quiet_assets
+  rack-cors
   rails (= 4.2.3)
   responders (~> 2.0)
   rest-client!
