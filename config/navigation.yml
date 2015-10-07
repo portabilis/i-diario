@@ -158,9 +158,15 @@ navigation:
       icon: "fa-book"
       path: "teaching_plans_path"
   - ***REMOVED***:
-      type: "contents"
+      type: "lesson_plans_***REMOVED***"
       icon: "fa-pencil"
-      path: "contents_path"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "discipline_lesson_plans"
+            path: "discipline_lesson_plans_path"
+        - ***REMOVED***:
+            type: "knowledge_area_lesson_plans"
+            path: "knowledge_area_lesson_plans_path"        
   - ***REMOVED***:
       type: "avaliations_***REMOVED***"
       icon: "fa-file-text-o"

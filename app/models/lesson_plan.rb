@@ -1,4 +1,4 @@
-class Content < ActiveRecord::Base
+class LessonPlan < ActiveRecord::Base
   acts_as_copy_target
 
   audited
@@ -14,11 +14,11 @@ class Content < ActiveRecord::Base
 
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Content.arel_table[:discipline_id])) }, through: :classroom
 
-  validates :unity, :classroom, :school_calendar,  :content_date, :theme, presence: true
+  validates :unity, :classroom, :school_calendar,  :lesson_plan_date, :contents, presence: true
   validates :classes, presence: true, if: :classroom_required?
 
   validate :is_school_day?
-  validate :uniqueness_of_content
+  validate :uniqueness_of_lesson_plan
 
   scope :by_teacher_id, (lambda do |teacher_id|
       joins(
@@ -35,10 +35,10 @@ class Content < ActiveRecord::Base
   scope :by_unity_id, lambda { |unity_id| where unity_id: unity_id }
   scope :by_classroom_id, lambda { |classroom_id| where classroom_id: classroom_id }
   scope :by_discipline_id, lambda { |discipline_id| where discipline_id: discipline_id }
-  scope :by_content_date, lambda { |content_date| where(content_date: content_date) }
+  scope :by_lesson_plan_date, lambda { |lesson_plan_date| where(lesson_plan_date: lesson_plan_date) }
   scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
 
-  scope :ordered, -> { order(arel_table[:content_date]) }
+  scope :ordered, -> { order(arel_table[:lesson_plan_date]) }
 
   def to_s
     description
@@ -57,28 +57,28 @@ class Content < ActiveRecord::Base
   end
 
   def is_school_day?
-    return unless school_calendar && content_date
+    return unless school_calendar && lesson_plan_date
 
-    errors.add(:content_date, :must_be_school_day) if !school_calendar.school_day? content_date
+    errors.add(:lesson_plan_date, :must_be_school_day) if !school_calendar.school_day? lesson_plan_date
   end
 
-  def uniqueness_of_content
+  def uniqueness_of_lesson_plan
     if discipline_id.present?
-      contents = Content.by_classroom_id(classroom_id)
+      lesson_plans = LessonPlan.by_classroom_id(classroom_id)
         .by_discipline_id(discipline_id)
-        .by_content_date(content_date)
+        .by_lesson_plan_date(lesson_plan_date)
         .by_classes(classes)
 
-      contents = contents.where.not(id: id) if persisted?
+      lesson_plans = lesson_plans.where.not(id: id) if persisted?
 
-      errors.add(:classes, :uniqueness_of_content, count: classes.count) if contents.any?
+      errors.add(:classes, :uniqueness_of_lesson_plan, count: classes.count) if lesson_plans.any?
     else
-      contents = Content.by_classroom_id(classroom_id)
-        .by_content_date(content_date)
+      lesson_plans = LessonPlan.by_classroom_id(classroom_id)
+        .by_lesson_plan_date(lesson_plan_date)
 
-      contents = contents.where.not(id: id) if persisted?
+      lesson_plans = lesson_plans.where.not(id: id) if persisted?
 
-      errors.add(:content_date, :uniqueness_of_content) if contents.any?
+      errors.add(:lesson_plan_date, :uniqueness_of_lesson_plan) if lesson_plans.any?
     end
   end
 end
