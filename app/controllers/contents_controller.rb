@@ -24,7 +24,6 @@ class ContentsController < ApplicationController
         current_teacher.id
       )
       .ordered
-      .uniq
   end
 
   def new

@@ -1,0 +1,10 @@
+pt-BR:
+  discipline_lesson_plans:
+    index:
+      by_classroom_id: "Filtrar turma"
+      by_discipline_id: "Filtrar disciplina"
+      by_lesson_plan_date: "Filtrar data"
+      new_html: "<i class='fa fa-plus'></i> Novo plano de aula"
+
+    form:
+      additional_information: "Informações adicionais"

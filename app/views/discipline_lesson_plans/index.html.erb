@@ -1,0 +1,46 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for :search, { url: discipline_lesson_plans_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
+        <thead>
+          <tr>
+            <td></td>
+            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
+            <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></td>
+            <td>
+              <div class="icon-addon">
+                <label for="search_by_lesson_plan_date" class="fa fa-calendar"></label>
+                <%= f.text_field :by_lesson_plan_date, as: :date, label: false, placeholder: t('.by_lesson_plan_date'), class: 'form-control date datepicker' %>
+              </div>
+            </td>
+            <td></td>
+            <td><%= link_to t('.new_html'), new_discipline_lesson_plan_path, class: 'btn btn-primary pull-right' %></td>
+          </tr>
+
+          <tr>
+            <th><%= LessonPlan.human_attribute_name :unity %></th>
+            <th width="20%"><%= LessonPlan.human_attribute_name :classroom %></th>
+            <th width="20%"><%= DisciplineLessonPlan.human_attribute_name :discipline %>
+            <th width="10%"><%= LessonPlan.human_attribute_name :lesson_plan_date %></th>
+            <th width="10%"><%= DisciplineLessonPlan.human_attribute_name :classes %></th>
+            <td width="160px"></td>
+          </tr>
+        </thead>
+
+        <%= render 'resources' %>
+
+        <tfoot id="paginator" class="remote">
+          <td colspan="6">
+            <div id="page_entries_info" class="pull-left hidden-xs">
+              <%= page_entries_info @discipline_lesson_plans %>
+            </div>
+
+            <div class="pull-right">
+              <%= paginate @discipline_lesson_plans %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

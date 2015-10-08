@@ -1,0 +1,25 @@
+pt-BR:
+  activerecord:
+    models:
+      discipline_lesson_plan:
+        one: "Plano de aula por disciplina"
+        other: "Planos de aula por disciplina"
+
+    attributes:
+      discipline_lesson_plan:
+        lesson_plan: "Plano de aula"
+        lesson_plan_id: "Plano de aula"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        classes: "Aulas"
+
+    errors:
+      models:
+        discipline_lesson_plan:
+          attributes:
+              lesson_plan:
+                uniqueness_of_discipline_lesson_plan: "já existe um plano de aula para a aula informada"
+              classes:
+                uniqueness_of_discipline_lesson_plan:
+                  one: "já existe um plano de aula para a aula informada"
+                  other: "já existe um planos de aula para uma das aulas informadas"

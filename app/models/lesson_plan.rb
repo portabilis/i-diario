@@ -9,16 +9,14 @@ class LessonPlan < ActiveRecord::Base
 
   belongs_to :unity
   belongs_to :classroom
-  belongs_to :discipline
   belongs_to :school_calendar
 
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Content.arel_table[:discipline_id])) }, through: :classroom
 
   validates :unity, :classroom, :school_calendar,  :lesson_plan_date, :contents, presence: true
-  validates :classes, presence: true, if: :classroom_required?
 
   validate :is_school_day?
-  validate :uniqueness_of_lesson_plan
+  # validate :uniqueness_of_lesson_plan
 
   scope :by_teacher_id, (lambda do |teacher_id|
       joins(
