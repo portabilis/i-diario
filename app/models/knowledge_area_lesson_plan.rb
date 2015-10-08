@@ -37,6 +37,8 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
   end
 
   def uniqueness_of_knowledge_area_lesson_plan
+    return unless lesson_plan.present? && lesson_plan.classroom.present?
+    
     knowledge_area_lesson_plans = KnowledgeAreaLessonPlan.by_classroom_id(lesson_plan.classroom_id)
       .by_lesson_plan_date(lesson_plan.lesson_plan_date)
 
