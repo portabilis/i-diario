@@ -1,0 +1,19 @@
+pt-BR:
+  activerecord:
+    models:
+      knowledge_area_lesson_plan:
+        one: "Plano de aula por áreas de conhecimento"
+        other: "Planos de aula por áreas de conhecimento"
+
+    attributes:
+      knowledge_area_lesson_plan:
+        lesson_plan: "Plano de aula"
+        lesson_plan_id: "Plano de aula"
+        knowledge_areas: "Áreas de conhecimento"
+
+    errors:
+      models:
+        knowledge_area_lesson_plan:
+          attributes:
+              lesson_plan:
+                uniqueness_of_knowledge_area_lesson_plan: "já existe um plano de aula para a aula informada"

@@ -1,8 +1,9 @@
 pt-BR:
-  contents:
+  knowledge_area_lesson_plans:
     index:
-      by_content_date: "Filtrar data"
       by_classroom_id: "Filtrar turma"
+      by_lesson_plan_date: "Filtrar data"
       new_html: "<i class='fa fa-plus'></i> Novo plano de aula"
+
     form:
       additional_information: "Informações adicionais"

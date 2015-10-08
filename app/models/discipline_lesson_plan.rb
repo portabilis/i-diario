@@ -24,8 +24,6 @@ class DisciplineLessonPlan < ActiveRecord::Base
   validates :discipline, presence: true
   validates :classes, presence: true, if: :require_classes?
 
-  # validates_associated :lesson_plan
-
   validate :uniqueness_of_discipline_lesson_plan
 
   def classes=(classes)
