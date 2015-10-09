@@ -18,12 +18,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     authorize @knowledge_area_lesson_plans
 
-    @classrooms = Classroom.by_unity_and_teacher(
-        current_user_unity.id,
-        current_teacher.id
-      )
-      .ordered
-    @knowledge_areas = KnowledgeArea.all
+    @classrooms = fetch_classrooms
+    @knowledge_areas = fetch_knowledge_area
   end
 
   def new
@@ -34,9 +30,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     authorize @knowledge_area_lesson_plan
 
-    @unities = Unity.by_teacher(current_teacher.id).ordered
-    @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
-    @knowledge_areas = KnowledgeArea.all
+    @unities = fetch_unities
+    @classrooms =  fetch_classrooms
+    @knowledge_areas = fetch_knowledge_area
   end
 
   def create
@@ -50,9 +46,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     if @knowledge_area_lesson_plan.save
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
-      @unities = Unity.by_teacher(current_teacher.id).ordered
-      @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
-      @knowledge_areas = KnowledgeArea.all
+      @unities = fetch_unities
+      @classrooms =  fetch_classrooms
+      @knowledge_areas = fetch_knowledge_area
 
       render :new
     end
@@ -63,9 +59,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     authorize @knowledge_area_lesson_plan
 
-    @unities = Unity.by_teacher(current_teacher.id).ordered
-    @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
-    @knowledge_areas = KnowledgeArea.all
+    @unities = fetch_unities
+    @classrooms =  fetch_classrooms
+    @knowledge_areas = fetch_knowledge_area
   end
 
   def update
@@ -78,9 +74,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     if @knowledge_area_lesson_plan.save
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
-      @unities = Unity.by_teacher(current_teacher.id).ordered
-      @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
-      @knowledge_areas = KnowledgeArea.all
+      @unities = fetch_unities
+      @classrooms =  fetch_classrooms
+      @knowledge_areas = fetch_knowledge_area
 
       render :edit
     end
@@ -92,6 +88,14 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.destroy
 
     respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
+  end
+
+  def history
+    @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id])
+
+    authorize @knowledge_area_lesson_plan
+
+    respond_with @knowledge_area_lesson_plan
   end
 
   private
@@ -124,5 +128,21 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       :by_knowledge_area_id,
       :by_lesson_plan_date
     )
+  end
+
+  def fetch_unities
+    Unity.by_teacher(current_teacher.id).ordered
+  end
+
+  def fetch_classrooms
+    Classroom.by_unity_and_teacher(
+      current_user_unity.id,
+      current_teacher.id
+    )
+    .ordered
+  end
+
+  def fetch_knowledge_area
+    KnowledgeArea.all
   end
 end

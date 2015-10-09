@@ -4,11 +4,13 @@ class LessonPlan < ActiveRecord::Base
   acts_as_copy_target
 
   audited
-  has_associated_audits
 
   belongs_to :school_calendar
   belongs_to :unity
   belongs_to :classroom
+
+  has_one :discipline_lesson_plan
+  has_one :knowledge_area_lesson_plan
 
   validates :school_calendar, presence: true
   validates :unity, presence: true

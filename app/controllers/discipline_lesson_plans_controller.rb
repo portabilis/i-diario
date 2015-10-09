@@ -15,16 +15,8 @@ class DisciplineLessonPlansController < ApplicationController
 
     authorize @discipline_lesson_plans
 
-    @classrooms = Classroom.by_unity_and_teacher(
-        current_user_unity.id,
-        current_teacher.id
-      )
-      .ordered
-
-    @disciplines = Discipline.by_teacher_id(
-        current_teacher.id
-      )
-      .ordered
+    @classrooms = fetch_classrooms
+    @disciplines = fetch_disciplines
   end
 
   def new
@@ -35,9 +27,9 @@ class DisciplineLessonPlansController < ApplicationController
 
     authorize @discipline_lesson_plan
 
-    @unities = Unity.by_teacher(current_teacher.id).ordered
-    @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
-    @number_of_classes = current_school_calendar.number_of_classes
+    @unities = fetch_unities
+    @classrooms =  fetch_classrooms
+    @number_of_classes = fetch_numer_of_classes
   end
 
   def create
@@ -50,9 +42,9 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      @unities = Unity.by_teacher(current_teacher.id).ordered
-      @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
-      @number_of_classes = current_school_calendar.number_of_classes
+      @unities = fetch_unities
+      @classrooms =  fetch_classrooms
+      @number_of_classes = fetch_numer_of_classes
 
       render :new
     end
@@ -63,9 +55,9 @@ class DisciplineLessonPlansController < ApplicationController
 
     authorize @discipline_lesson_plan
 
-    @unities = Unity.by_teacher(current_teacher.id).ordered
-    @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
-    @number_of_classes = current_school_calendar.number_of_classes
+    @unities = fetch_unities
+    @classrooms =  fetch_classrooms
+    @number_of_classes = fetch_numer_of_classes
   end
 
   def update
@@ -77,9 +69,9 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      @unities = Unity.by_teacher(current_teacher.id).ordered
-      @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
-      @number_of_classes = current_school_calendar.number_of_classes
+      @unities = fetch_unities
+      @classrooms =  fetch_classrooms
+      @number_of_classes = fetch_numer_of_classes
 
       render :edit
     end
@@ -91,6 +83,14 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.destroy
 
     respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
+  end
+
+  def history
+    @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id])
+
+    authorize @discipline_lesson_plan
+
+    respond_with @discipline_lesson_plan
   end
 
   private
@@ -124,5 +124,28 @@ class DisciplineLessonPlansController < ApplicationController
       :by_discipline_id,
       :by_lesson_plan_date
     )
+  end
+
+  def fetch_unities
+    Unity.by_teacher(current_teacher.id).ordered
+  end
+
+  def fetch_classrooms
+    Classroom.by_unity_and_teacher(
+      current_user_unity.id,
+      current_teacher.id
+    )
+    .ordered
+  end
+
+  def fetch_disciplines
+    Discipline.by_teacher_id(
+        current_teacher.id
+      )
+      .ordered
+  end
+
+  def fetch_numer_of_classes
+    current_school_calendar.number_of_classes
   end
 end

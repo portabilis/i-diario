@@ -6,13 +6,9 @@
 
     <fieldset>
       <div class="row">
-        <div class="col col-sm-4">
-          <%= lesson_plan.association :unity, as: :select2, elements: @unities, readonly: !current_user.admin? %>
-        </div>
+        <%= render partial: 'lesson_plans/unity_field', f: { lesson_plan: lesson_plan } %>
 
-        <div class="col col-sm-4">
-          <%= lesson_plan.association :classroom, as: :select2, elements: @classrooms %>
-        </div>
+        <%= render partial: 'lesson_plans/classroom_field', f: { lesson_plan: lesson_plan } %>
 
         <div class="col col-sm-4">
           <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
@@ -21,69 +17,13 @@
       </div>
 
       <div class="row">
-        <div class="col col-sm-4">
-          <div class="control-group <%= 'error' if @knowledge_area_lesson_plan.lesson_plan.errors[:lesson_plan_date].any? %>">
-            <%= lesson_plan.label :lesson_plan_date %>
-            <div class="icon-addon">
-              <label for="lesson_plan_date" class="fa fa-calendar"></label>
-              <%= lesson_plan.text_field :lesson_plan_date, class: 'form-control date datepicker col col-sm-4' %>
-            </div>
-
-            <% if @knowledge_area_lesson_plan.lesson_plan.errors[:lesson_plan_date].any? %>
-              <span class="help-inline"><%= @knowledge_area_lesson_plan.lesson_plan.errors[:lesson_plan_date].first %></span>
-            <% end %>
-          </div>
-        </div>
+        <%= render partial: 'lesson_plans/lesson_plan_date_field', f: { lesson_plan: lesson_plan } %>
       </div>
 
-      <div class="row textarea">
-        <div class="col col-sm-12">
-          <%= lesson_plan.input :contents, input_html: { class: 'col col-sm-12'} %>
-        </div>
-      </div>
-
-      <div class="row textarea">
-        <div class="col col-sm-12">
-          <%= lesson_plan.input :activities, input_html: { class: 'col col-sm-12' } %>
-        </div>
-      </div>
-
-      <div class="row textarea">
-        <div class="col col-sm-12">
-          <%= lesson_plan.input :objectives, input_html: { class: 'col col-sm-12' } %>
-        </div>
-      </div>
-
-      <div class="row textarea">
-        <div class="col col-sm-12">
-          <%= lesson_plan.input :resources, input_html: { class: 'col col-sm-12' } %>
-        </div>
-      </div>
-
-      <div class="row textarea">
-        <div class="col col-sm-12">
-          <%= lesson_plan.input :evaluation, input_html: { class: 'col col-sm-12' } %>
-        </div>
-      </div>
-
-      <div class="row textarea">
-        <div class="col col-sm-12">
-          <%= lesson_plan.input :bibliography, input_html: { class: 'col col-sm-12' } %>
-        </div>
-      </div>
+      <%= render partial: 'lesson_plans/fields', f: { lesson_plan: lesson_plan } %>
     </fieldset>
 
-    <% if @knowledge_area_lesson_plan.persisted? %>
-      <fieldset>
-        <legend><%= t('.additional_information') %></legend>
-
-        <div class="row">
-          <div class="col col-sm-12">
-            <%= lesson_plan.input :opinion, input_html: { class: 'col col-sm-12' } %>
-          </div>
-        </div>
-      </fieldset>
-    <% end %>
+    <%= render partial: 'lesson_plans/opinion_field', f: { lesson_plan: lesson_plan } %>
   <% end %>
 
   <footer>
