@@ -13,6 +13,11 @@
         <div class="col col-sm-4">
           <%= lesson_plan.association :classroom, as: :select2, elements: @classrooms %>
         </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
+                input_html: { data: { without_json_parser: true } } %>
+        </div>
       </div>
 
       <div class="row">

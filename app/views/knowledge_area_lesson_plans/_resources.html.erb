@@ -8,7 +8,13 @@
       <tr>
         <td><%= knowledge_area_lesson_plan.lesson_plan.unity %></td>
         <td><%= knowledge_area_lesson_plan.lesson_plan.classroom %></td>
-        <td></td>
+        <td>
+          <% knowledge_area_lesson_plan.knowledge_areas.each do |knowledge_area| %>
+            <span class="label label-info label-list">
+              <%= knowledge_area.description %>
+            </span>
+          <% end %>
+        </td>
         <td><%= l(knowledge_area_lesson_plan.lesson_plan.lesson_plan_date) %></td>
         <td class="actions">
           <%= link_to t('views.index.edit'),

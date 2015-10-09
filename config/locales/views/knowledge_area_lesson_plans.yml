@@ -2,6 +2,7 @@ pt-BR:
   knowledge_area_lesson_plans:
     index:
       by_classroom_id: "Filtrar turma"
+      by_knowledge_area_id: "Filtrar área de conhecimento"
       by_lesson_plan_date: "Filtrar data"
       new_html: "<i class='fa fa-plus'></i> Novo plano de aula"
 

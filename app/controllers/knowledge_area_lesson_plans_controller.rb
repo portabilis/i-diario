@@ -7,7 +7,10 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
   def index
     @knowledge_area_lesson_plans = apply_scopes(KnowledgeAreaLessonPlan)
-      .includes(lesson_plan: [:unity, :classroom])
+      .includes(
+        :knowledge_areas,
+        lesson_plan: [:unity, :classroom]
+      )
       .filter(filtering_params(params[:search]))
       .by_unity_id(current_user_unity.id)
       .by_teacher_id(current_teacher.id)
@@ -20,6 +23,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         current_teacher.id
       )
       .ordered
+    @knowledge_areas = KnowledgeArea.all
   end
 
   def new
@@ -32,11 +36,13 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     @unities = Unity.by_teacher(current_teacher.id).ordered
     @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
+    @knowledge_areas = KnowledgeArea.all
   end
 
   def create
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
+    @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
 
     authorize @knowledge_area_lesson_plan
@@ -46,6 +52,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     else
       @unities = Unity.by_teacher(current_teacher.id).ordered
       @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
+      @knowledge_areas = KnowledgeArea.all
 
       render :new
     end
@@ -58,11 +65,13 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     @unities = Unity.by_teacher(current_teacher.id).ordered
     @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
+    @knowledge_areas = KnowledgeArea.all
   end
 
   def update
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
+    @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
     authorize @knowledge_area_lesson_plan
 
@@ -71,6 +80,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     else
       @unities = Unity.by_teacher(current_teacher.id).ordered
       @classrooms =  Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
+      @knowledge_areas = KnowledgeArea.all
 
       render :edit
     end
@@ -89,6 +99,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   def resource_params
     params.require(:knowledge_area_lesson_plan).permit(
       :lesson_plan_id,
+      :knowledge_area_ids,
       lesson_plan_attributes: [
         :id,
         :school_calendar_id,
@@ -110,6 +121,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     params = {} unless params
     params.slice(
       :by_classroom_id,
+      :by_knowledge_area_id,
       :by_lesson_plan_date
     )
   end

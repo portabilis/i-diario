@@ -10,10 +10,13 @@ pt-BR:
         lesson_plan: "Plano de aula"
         lesson_plan_id: "Plano de aula"
         knowledge_areas: "Áreas de conhecimento"
+        knowledge_area_ids: "Áreas de conhecimento"
 
     errors:
       models:
         knowledge_area_lesson_plan:
           attributes:
               lesson_plan:
-                uniqueness_of_knowledge_area_lesson_plan: "já existe um plano de aula para a aula informada"
+                uniqueness_of_knowledge_area_lesson_plan:
+                  one: "já existe um plano de aula para a área de conhecimento informada"
+                  other: "já existe um plano de aula para uma das áreas de conhecimento informadas"

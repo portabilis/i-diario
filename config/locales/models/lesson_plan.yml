@@ -29,4 +29,6 @@ pt-BR:
               lesson_plan_date:
                 must_be_school_day: "deve ser um dia letivo"
                 uniqueness_of_discipline_lesson_plan: "já existe um plano de aula para a aula informada"
-                uniqueness_of_knowledge_area_lesson_plan: "já existe um plano de aula para a aula informada"
+                uniqueness_of_knowledge_area_lesson_plan:
+                  one: "já existe um plano de aula para a área de conhecimento informada"
+                  other: "já existe um plano de aula para uma das áreas de conhecimento informadas"
