@@ -1,71 +1,67 @@
 $(function () {
-  var disciplines = [];
+  'use strict';
+
+  var flashMessages = new FlashMessages();
   var $classroom = $('#discipline_lesson_plan_lesson_plan_attributes_classroom_id');
   var $discipline = $('#discipline_lesson_plan_discipline_id');
+  var $classes = $('#discipline_lesson_plan_classes');
+  var $classes_div = $('.discipline_lesson_plan_classes');
 
-  var fetchDisciplines = function(params, callback) {
-    if (_.isEmpty(disciplines)) {
-      $.getJSON(Routes.disciplines_pt_br_path(params)).always(function(data) {
-        disciplines = data;
-        callback(disciplines);
-      });
+  function classroomChangeHandler() {
+    var classroom_id = $classroom.select2('val');
+
+    $discipline.select2('val', '');
+    $discipline.select2({ data: [] });
+    $classes.select2('val', '');
+
+    if (!_.isEmpty(classroom_id)) {
+      fetchDisciplines(classroom_id);
+      fetchExamRule(classroom_id);
     } else {
-      callback(disciplines);
+      $classes_div.hide();
     }
   };
-
-  var fetchExamRule = function (params, callback) {
-    $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
-      callback(data);
-    });
-  };
-
-  var checkExamRule = function(params) {
-    fetchExamRule(params, function(exam_rule){
-      if(!$.isEmptyObject(exam_rule)){
-        if(exam_rule.frequency_type == 1){
-          $('#discipline_lesson_plan_classes').select2('val', '');
-          $('.discipline_lesson_plan_classes').hide();
-        }else{
-          $('.discipline_lesson_plan_classes').show();
-        }
-      }else{
-        $('#discipline_lesson_plan_classes').select2('val', '');
-        $('.discipline_lesson_plan_classes').hide()
-      }
-    });
-  };
-
-  var classroomChangeHandler = (function() {
-    var params = {
-          classroom_id: $classroom.select2('val'),
-          format: 'json'
-        };
-
-    disciplines = [];
-
-    if (_.isEmpty($classroom.select2('val'))) {
-      $discipline.select2('val', '');
-      $discipline.select2({
-        data: []
-      });
-    } else {
-      checkExamRule(params);
-      fetchDisciplines(params, function(disciplines) {
-        var selectedDisciplines = _.map(disciplines, function(discipline) {
-          return { id: discipline['id'], text: discipline['description'] };
-        });
-
-        $discipline.select2({
-          data: selectedDisciplines
-        });
-      });
-    }
-  });
 
   $classroom.on('change', classroomChangeHandler);
   classroomChangeHandler();
 
+  function fetchDisciplines(classroom_id) {
+    $.ajax({
+      url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+      success: handleFetchDisciplinesSuccess,
+      error: handleFetchDisciplinesError
+    });
+  };
 
+  function handleFetchDisciplinesSuccess(disciplines) {
+    var selectedDisciplines = _.map(disciplines, function(discipline) {
+      return { id: discipline['id'], text: discipline['description'] };
+    });
 
+    $discipline.select2({ data: selectedDisciplines });
+  };
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  };
+
+  function fetchExamRule(classroom_id) {
+    $.ajax({
+      url: Routes.exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+      success: handleFetchExamRuleSuccess,
+      error: handleFetchExamRuleError
+    });
+  };
+
+  function handleFetchExamRuleSuccess(exam_rule) {
+    if (!$.isEmptyObject(exam_rule) && exam_rule.frequency_type !== '1') {
+      $classes_div.show();
+    } else {
+      $classes_div.hide();
+    }
+  };
+
+  function handleFetchExamRuleError() {
+    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
+  };
 });
