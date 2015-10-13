@@ -12,13 +12,13 @@ $(function () {
 
     $discipline.select2('val', '');
     $discipline.select2({ data: [] });
-    $classes.select2('val', '');
 
     if (!_.isEmpty(classroom_id)) {
       fetchDisciplines(classroom_id);
       fetchExamRule(classroom_id);
     } else {
       $classes_div.hide();
+      $classes.select2('val', '');
     }
   };
 
@@ -58,6 +58,7 @@ $(function () {
       $classes_div.show();
     } else {
       $classes_div.hide();
+      $classes.select2('val', '');
     }
   };
 

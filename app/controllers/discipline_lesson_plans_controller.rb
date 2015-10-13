@@ -24,6 +24,7 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.build_lesson_plan
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @discipline_lesson_plan.lesson_plan.unity = current_user_unity
+    @discipline_lesson_plan.lesson_plan.lesson_plan_date = Date.today
 
     authorize @discipline_lesson_plan
 
@@ -139,9 +140,8 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def fetch_disciplines
-    Discipline.by_teacher_id(
-        current_teacher.id
-      )
+    Discipline.by_unity_id(current_user_unity.id)
+      .by_teacher_id(current_teacher.id)
       .ordered
   end
 

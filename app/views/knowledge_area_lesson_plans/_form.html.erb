@@ -6,9 +6,9 @@
 
     <fieldset>
       <div class="row">
-        <%= render partial: 'lesson_plans/unity_field', f: { lesson_plan: lesson_plan } %>
+        <%= render partial: 'lesson_plans/unity_field', locals: { f: lesson_plan } %>
 
-        <%= render partial: 'lesson_plans/classroom_field', f: { lesson_plan: lesson_plan } %>
+        <%= render partial: 'lesson_plans/classroom_field', locals: { f: lesson_plan } %>
 
         <div class="col col-sm-4">
           <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
@@ -17,13 +17,13 @@
       </div>
 
       <div class="row">
-        <%= render partial: 'lesson_plans/lesson_plan_date_field', f: { lesson_plan: lesson_plan } %>
+        <%= render partial: 'lesson_plans/lesson_plan_date_field', locals: { f: lesson_plan } %>
       </div>
 
-      <%= render partial: 'lesson_plans/fields', f: { lesson_plan: lesson_plan } %>
+      <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan } %>
     </fieldset>
 
-    <%= render partial: 'lesson_plans/opinion_field', f: { lesson_plan: lesson_plan } %>
+    <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
   <% end %>
 
   <footer>
