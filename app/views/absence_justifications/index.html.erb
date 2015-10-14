@@ -5,13 +5,14 @@
         <tr>
           <th><%= AbsenceJustification.human_attribute_name :student %></th>
           <th><%= AbsenceJustification.human_attribute_name :absence_date %></th>
+          <th><%= AbsenceJustification.human_attribute_name :absence_date_end %></th>
           <td class="actions" style="width: 18px;"><%= link_to t('.new_html'), new_absence_justification_path, class: "btn btn-primary" %></td>
         </tr>
       </thead>
 
       <%= render 'resources' %>
       <tfoot id="paginator" class="remote">
-        <td colspan="3">
+        <td colspan="4">
           <div id="page_entries_info" class="pull-left hidden-xs">
             <%= page_entries_info @absence_justifications %>
           </div>

@@ -10,7 +10,8 @@ pt-BR:
         author_id: "Autor"
         author: "Autor"
         justification: "Justificativa"
-        absence_date: "Data"
+        absence_date: "Data inicial"
+        absence_date_end: "Data final"
         student_id: "Aluno"
         student: "Aluno"
     errors:
@@ -18,4 +19,6 @@ pt-BR:
         absence_justification:
           attributes:
               absence_date:
+                taken:  'já existe uma justificativa para esta data'
+              absence_date_end:
                 taken:  'já existe uma justificativa para esta data'

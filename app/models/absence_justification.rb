@@ -10,6 +10,8 @@ class AbsenceJustification < ActiveRecord::Base
 
   validates :author, presence: true
   validates :student, presence: true
+  validates :absence_date_end, presence: true,
+                               uniqueness: { scope: :student_id }
   validates :absence_date, presence: true,
                            uniqueness: { scope: :student_id }
   validates :justification, presence: true
