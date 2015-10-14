@@ -13,6 +13,10 @@ module Helpers
     end
   end
 
+  def click_on_tooltip_button(title)
+    find("[data-original-title='#{title}']").click
+  end
+
   def close_modal
     page.execute_script %{
       $('.modal').modal('hide')
