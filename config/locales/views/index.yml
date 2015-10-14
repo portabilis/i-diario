@@ -8,3 +8,8 @@ pt-BR:
       edit: "Editar"
       delete: "Excluir"
       confirm: "Você tem certeza?"
+
+      tooltips:
+        print: "Imprimir"
+        edit: "Editar"
+        delete: "Excluir"
