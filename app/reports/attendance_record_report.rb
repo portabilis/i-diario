@@ -1,12 +1,10 @@
-# encoding: utf-8
-
 require "prawn/measurement_extensions"
 
 class AttendanceRecordReport
   include Prawn::View
 
-  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies)
-    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies)
+  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students)
+    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students)
   end
 
   def initialize
@@ -18,13 +16,14 @@ class AttendanceRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies)
+  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
     @start_at = start_at
     @end_at = end_at
     @daily_frequencies = daily_frequencies
+    @students = students
 
     header
 
@@ -90,14 +89,16 @@ class AttendanceRecordReport
       days = []
       months = []
       students = {}
+
+      @students.each do |student|
+        (students[student.id] ||= {})[:name] = student.name
+      end
+
       daily_frequencies_slice.each do |daily_frequency|
         class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
         days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
         months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
         daily_frequency.students.each do |student|
-          (students[student.student.id] ||= {})[:name] = student.student.name
-
-          students[student.student.id] = {} if students[student.student.id].nil?
           students[student.student.id][:dependence] = students[student.student.id][:dependence] || student.dependence?
 
           self.any_student_with_dependence = self.any_student_with_dependence || student.dependence?
@@ -106,6 +107,12 @@ class AttendanceRecordReport
             students[student.student.id][:absences] = students[student.student.id][:absences] + 1
           end
           (students[student.student.id][:attendances] ||= []) << make_cell(content: (student.present ? '.' : 'F'), font_style: :bold, align: :center)
+        end
+
+        @students.each do |student|
+          unless daily_frequency.students.any? { |s| s.student.id == student.id }
+            (students[student.id][:attendances] ||= []) << make_cell(content: '', font_style: :bold, align: :center)
+          end
         end
       end
 
