@@ -99,6 +99,7 @@ class AttendanceRecordReport
         days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
         months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
         daily_frequency.students.each do |student|
+          students[student.student.id] = {} if students[student.student.id].nil?
           students[student.student.id][:dependence] = students[student.student.id][:dependence] || student.dependence?
 
           self.any_student_with_dependence = self.any_student_with_dependence || student.dependence?
