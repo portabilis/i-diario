@@ -166,7 +166,7 @@ navigation:
             path: "discipline_lesson_plans_path"
         - ***REMOVED***:
             type: "knowledge_area_lesson_plans"
-            path: "knowledge_area_lesson_plans_path"        
+            path: "knowledge_area_lesson_plans_path"
   - ***REMOVED***:
       type: "avaliations_***REMOVED***"
       icon: "fa-file-text-o"
@@ -183,6 +183,16 @@ navigation:
         - ***REMOVED***:
             type: "daily_notes"
             path: "new_daily_note_path"
+  - ***REMOVED***:
+      type: "recovery_diary_records_***REMOVED***"
+      icon: "fa-file-text"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "school_term_recovery_diary_records"
+            path: "school_term_recovery_diary_records_path"
+        - ***REMOVED***:
+            type: "final_recovery_diary_records"
+            path: "final_recovery_diary_records_path"
   - ***REMOVED***:
       type: "frequencies_***REMOVED***"
       icon: "fa-check-square-o"

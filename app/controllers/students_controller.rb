@@ -18,6 +18,12 @@ class StudentsController < ApplicationController
     end
   end
 
+  def in_recovery
+    @students = Student.limit(30)
+
+    render json: @students
+  end
+
   protected
 
   def configuration

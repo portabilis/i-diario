@@ -1,0 +1,90 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/school_term_recovery_diary_records/form' %>
+<% end %>
+
+
+<%= simple_form_for @school_term_recovery_diary_record, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <%= f.simple_fields_for :recovery_diary_record, @school_term_recovery_diary_record.recovery_diary_record.localized do |recovery_diary_record| %>
+    <%= recovery_diary_record.hidden_field :id %>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= recovery_diary_record.association :unity, as: :select2, elements: @unities, readonly: !current_user.admin? %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= recovery_diary_record.association :classroom, as: :select2, elements: @classrooms %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= recovery_diary_record.association :discipline, as: :select2, elements: [] %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+        </div>
+
+        <div class="col col-sm-4">
+          <div class="control-group <%= 'error' if recovery_diary_record.object.errors[:recorded_at].any? %>">
+            <%= recovery_diary_record.label :recorded_at %>
+            <div class="icon-addon">
+              <label for="recorded_at" class="fa fa-calendar"></label>
+              <%= recovery_diary_record.text_field :recorded_at, class: 'form-control date datepicker col col-sm-4' %>
+            </div>
+
+            <% if recovery_diary_record.object.errors[:recorded_at].any? %>
+              <span class="help-inline"><%= recovery_diary_record.object.errors[:recorded_at].first %></span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><%= t('.students') %></legend>
+
+      <% if recovery_diary_record.object.errors.added? :students, :at_least_one_assigned_student %>
+        <div class="alert alert-danger fade in">
+          <i class="fa-fw fa fa-times"></i>
+          <%= recovery_diary_record.object.errors[:students].first %>
+        </div>
+      <% end %>
+
+      <table class="table table-striped table-bordered table-condensed records">
+        <thead>
+          <tr>
+            <th><%= RecoveryDiaryRecordStudent.human_attribute_name :student %></th>
+            <th width="20%"><%= RecoveryDiaryRecordStudent.human_attribute_name :score %></th>
+          </tr>
+        </thead>
+
+        <tbody id="recovery-diary-record-students">
+          <tr>
+            <td class="no_item_found" colspan="2" style="<%= recovery_diary_record.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+          </tr>
+
+          <%= recovery_diary_record.association :students, collection: recovery_diary_record.object.students.map(&:localized) do |student| %>
+            <%= render 'student_fields', f: student %>
+          <% end %>
+        </tbody>
+      </table>
+    </fieldset>
+  <% end %>
+
+  <footer>
+    <%= link_to t('views.form.back'), school_term_recovery_diary_records_path, class: 'btn btn-default' %>
+
+    <% if @school_term_recovery_diary_record.persisted? %>
+      <%= link_to t('views.form.history'),
+            history_school_term_recovery_diary_record_path(@school_term_recovery_diary_record),
+            class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+  </footer>
+<% end %>

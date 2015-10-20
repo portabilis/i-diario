@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     resources :students do
       collection do
         get :search_api
+        get :in_recovery, path: '/in_recovery/classrooms/:classroom_id/disciplines/:discipline_id/school_calendar_steps/:school_calendar_step_id'
       end
     end
 
@@ -147,6 +148,8 @@ Rails.application.routes.draw do
     resources :avaliations, concerns: :history
     resources :teacher_avaliations, only: :index
     resources :daily_notes, only: [:new, :create, :edit, :update, :destroy], concerns: :history
+    resources :school_term_recovery_diary_records, concerns: :history
+    resources :final_recovery_diary_records, concerns: :history
     resources :conceptual_exams, only: [:new, :create, :edit, :update]
     resources :descriptive_exams, only: [:new, :create, :edit, :update]
     resources :daily_frequencies, only: [:new, :create], concerns: :history do

@@ -50,6 +50,8 @@ pt-BR:
     avaliations: 'cadastro-de-avaliacoes'
     daily_notes: 'diario-de-notas'
     daily_frequencies: 'diario-de-frequencia'
+    school_term_recovery_diary_records: 'diario-de-recuperacoes-de-etapas'
+    final_recovery_diary_records: 'diario-de-recuperacoes-finais'
     absence_justifications: 'justificativas-de-falta'
     messages: 'mensagens'
     conceptual_exams: 'avaliacoes-conceituais'
@@ -60,6 +62,11 @@ pt-BR:
     exam_record: 'registro-de-avaliacoes'
     ***REMOVED***: '***REMOVED***'
     ieducar_api_exam_postings: 'envio-de-avaliacoes'
+    students: 'alunos'
+    in_recovery: 'em-recuperacao'
+    classrooms: 'turmas'
+    disciplines: 'disciplinas'
+    school_calendar_steps: 'etapas'
 
     # actions
     edit: 'editar'
@@ -72,7 +79,6 @@ pt-BR:
     password: 'senha'
     cancel: 'cancelar'
     parents: 'pais'
-    students: 'alunos'
     employees: 'servidores'
     search_api: 'api'
     history: 'historico'

@@ -41,6 +41,8 @@ class Features < EnumerateIt::Base
                    :avaliations,
                    :daily_notes,
                    :daily_frequencies,
+                   :school_term_recovery_diary_records,
+                   :final_recovery_diary_records,
                    :absence_justifications,
                    :messages,
                    :conceptual_exams,

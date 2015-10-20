@@ -1,7 +1,7 @@
 class CreateRecoveryDiaryRecords < ActiveRecord::Migration
   def change
     create_table :recovery_diary_records do |t|
-      t.datetime :recorded_at, null: false
+      t.date :recorded_at, null: false
 
       t.references :unity, index: true, null: false
       t.references :classroom, index: true, null: false

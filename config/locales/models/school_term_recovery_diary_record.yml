@@ -1,0 +1,6 @@
+pt-BR:
+  activerecord:
+    attributes:
+      school_term_recovery_diary_record:
+        school_calendar_step: "Etapa"
+        school_calendar_step_id: "Etapa"

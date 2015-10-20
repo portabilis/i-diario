@@ -1,0 +1,7 @@
+pt-BR:
+  activerecord:
+    attributes:
+      recovery_diary_record_student:
+        student: "Aluno"
+        student_id: "Aluno"
+        score: "Nota"

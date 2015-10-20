@@ -21,7 +21,7 @@ class SchoolCalendarStep < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:start_at]) }
 
   def to_s
-    "#{localized.start_at} a #{localized.end_at}"
+    "#{school_term} (#{localized.start_at} a #{localized.end_at})"
   end
 
   def to_number
