@@ -19,14 +19,35 @@ class StudentsController < ApplicationController
   end
 
   def in_recovery
-    @students = Student.limit(30)
+    classroom = Classroom.find(params[:classroom_id])
+    discipline = Discipline.find(params[:discipline_id])
+
+    @students = fetch_students(
+      classroom.api_code,
+      discipline.api_code
+    )
 
     render json: @students
   end
 
-  protected
+  private
 
   def configuration
-    @configuration ||= IeducarApiConfiguration.current
+    IeducarApiConfiguration.current
+  end
+
+  def fetch_students(classroom_api_code, discipline_api_code)
+    api = IeducarApi::Students.new(configuration.to_api)
+    result = api.fetch_for_daily(
+      {
+        classroom_api_code: classroom_api_code,
+        discipline_api_code: discipline_api_code
+      }
+    )
+    api_students = result['alunos']
+    students_api_codes = api_students.map { |api_student| api_student['id'] }
+    students = Student.where(api_code: students_api_codes).ordered
+
+    students
   end
 end
