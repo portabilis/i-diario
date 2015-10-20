@@ -19,5 +19,14 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   validates :unity, presence: true
   validates :classroom, presence: true
   validates :discipline, presence: true
-  validates :recorded_at, presence: true
+  validates :recorded_at, presence: true,
+                          uniqueness: { scope: [:unity_id, :classroom_id, :discipline_id] }
+
+  validate :at_least_one_assigned_student
+
+  private
+
+  def at_least_one_assigned_student
+    errors.add(:students, :at_least_one_assigned_student) if students.reject(&:marked_for_destruction?).empty?
+  end
 end

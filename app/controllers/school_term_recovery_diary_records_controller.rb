@@ -7,8 +7,17 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def index
     @school_term_recovery_diary_records = apply_scopes(SchoolTermRecoveryDiaryRecord)
+      .includes(
+        :school_calendar_step,
+        recovery_diary_record: [
+          :unity,
+          :classroom,
+          :discipline
+        ]
+      )
       .filter(filtering_params(params[:search]))
       .by_unity_id(current_user_unity.id)
+      .by_teacher_id(current_teacher.id)
       .ordered
 
     authorize @school_term_recovery_diary_records
