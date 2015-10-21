@@ -50,6 +50,8 @@ $(function () {
     examRule = data.exam_rule;
     if (!$.isEmptyObject(examRule) && examRule.recovery_type === 0) {
       flashMessages.error('A turma selecionada está configurada para não permitir o lançamento de recuperações de etapas.');
+    } else {
+      flashMessages.pop('');
     }
   };
 
@@ -87,6 +89,7 @@ $(function () {
       var html = JST['templates/school_term_recovery_diary_records/student_fields']({
           id: student.id,
           name: student.name,
+          average: student.average,
           element_id: element_id
         });
 
@@ -122,7 +125,7 @@ $(function () {
   }
 
   function loadDecimalMasks() {
-    $('.nested-fields input.decimal').priceFormat({
+    $('.nested-fields input.decimal, .current-average').priceFormat({
       prefix: '',
       centsSeparator: ',',
       thousandsSeparator: '.'
@@ -150,4 +153,6 @@ $(function () {
   // On load
 
   fetchDisciplines();
+  fetchExamRule();
+  loadDecimalMasks();
 });

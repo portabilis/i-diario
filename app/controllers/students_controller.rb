@@ -24,10 +24,13 @@ class StudentsController < ApplicationController
 
     case classroom.exam_rule.recovery_type
     when RecoveryTypes::PARALLEL
-      @students = fetch_students(
-        classroom.api_code,
-        discipline.api_code
-      )
+      if classroom.exam_rule.parallel_recovery_average
+      else
+        @students = fetch_students(
+          classroom.api_code,
+          discipline.api_code
+        )
+      end
     when RecoveryTypes::SPECIFIC
       @students = fetch_students(
         classroom.api_code,
@@ -35,7 +38,12 @@ class StudentsController < ApplicationController
       )
     end
 
-    render json: @students
+    render(
+      json: @students,
+      each_serializer: StudentInRecoverySerializer,
+      discipline_id: params[:discipline_id],
+      school_calendar_step_id: params[:school_calendar_step_id]
+    )
   end
 
   private

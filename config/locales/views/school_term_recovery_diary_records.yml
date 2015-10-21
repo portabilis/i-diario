@@ -10,3 +10,4 @@ pt-BR:
     form:
       students: "Alunos"
       no_item_found: "Nenhum aluno"
+      current_average: "Média atual"

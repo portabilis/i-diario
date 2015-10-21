@@ -10,6 +10,15 @@
   </td>
 
   <td>
+    <span class="current-average">
+      <%= f.object.student.average(
+            @school_term_recovery_diary_record.recovery_diary_record.discipline_id,
+            @school_term_recovery_diary_record.school_calendar_step_id
+          ) %>
+    </span>
+  </td>
+
+  <td>
     <%= f.input :score, label_html: { class: 'hidden' } %>
   </td>
 </tr>

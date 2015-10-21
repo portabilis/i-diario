@@ -59,13 +59,14 @@
         <thead>
           <tr>
             <th><%= RecoveryDiaryRecordStudent.human_attribute_name :student %></th>
+            <th width="20%"><%= t('.current_average') %></th>
             <th width="20%"><%= RecoveryDiaryRecordStudent.human_attribute_name :score %></th>
           </tr>
         </thead>
 
         <tbody id="recovery-diary-record-students">
           <tr>
-            <td class="no_item_found" colspan="2" style="<%= recovery_diary_record.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+            <td class="no_item_found" colspan="3" style="<%= recovery_diary_record.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
           </tr>
 
           <%= recovery_diary_record.association :students, collection: recovery_diary_record.object.students.map(&:localized) do |student| %>

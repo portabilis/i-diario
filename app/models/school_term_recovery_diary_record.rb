@@ -57,9 +57,11 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def recovery_type_must_allow_recovery
-    return unless recovery_diary_record.classroom && recovery_diary_record.classroom.exam_rule.recovery_type == RecoveryTypes::DONT_USE
-
-    errors.add(:recovery_diary_record, :recovery_type_must_allow_recovery)
-    recovery_diary_record.errors.add(:classroom, :recovery_type_must_allow_recovery)
+    classroom_present = recovery_diary_record && recovery_diary_record.classroom
+    
+    if classroom_present && recovery_diary_record.classroom.exam_rule.recovery_type == RecoveryTypes::DONT_USE
+      errors.add(:recovery_diary_record, :recovery_type_must_allow_recovery)
+      recovery_diary_record.errors.add(:classroom, :recovery_type_must_allow_recovery)
+    end
   end
 end
