@@ -65,7 +65,7 @@ $(function () {
 
   var checkExamRule = function(params){
     fetchExamRule(params, function(data){
-      var examRule = data.exam_rule);
+      var examRule = data.exam_rule;
       $('form input[type=submit]').removeClass('disabled');
       $examRuleNotFoundAlert.addClass('hidden');
       $examRuleNotAllowDescriptiveExam.addClass('hidden');
