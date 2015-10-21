@@ -6,7 +6,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   audited
 
   belongs_to :unity
-  belongs_to :classroom
+  belongs_to :classroom, -> { includes(:exam_rule) }
   belongs_to :discipline
 
   has_many :students, class_name: 'RecoveryDiaryRecordStudent', dependent: :destroy

@@ -1,8 +1,8 @@
 class ExamRulesController < ApplicationController
-  respond_to :json
-
   def index
-    classroom_id = params[:classroom_id]
-    @exam_rule = Classroom.find(classroom_id).exam_rule
+    classroom = Classroom.find(params[:classroom_id])
+    @exam_rule = classroom.exam_rule
+
+    render json: @exam_rule
   end
 end

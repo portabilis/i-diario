@@ -22,10 +22,18 @@ class StudentsController < ApplicationController
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])
 
-    @students = fetch_students(
-      classroom.api_code,
-      discipline.api_code
-    )
+    case classroom.exam_rule.recovery_type
+    when RecoveryTypes::PARALLEL
+      @students = fetch_students(
+        classroom.api_code,
+        discipline.api_code
+      )
+    when RecoveryTypes::SPECIFIC
+      @students = fetch_students(
+        classroom.api_code,
+        discipline.api_code
+      )
+    end
 
     render json: @students
   end

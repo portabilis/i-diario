@@ -9,5 +9,7 @@ pt-BR:
       models:
         school_term_recovery_diary_record:
           attributes:
+              recovery_diary_record:
+                recovery_type_must_allow_recovery: "deve permitir o lançamento de recuperações de etapas"
               school_calendar_step:
                 uniqueness_of_school_term_recovery_diary_record: "já existe um lançamento recuperação para a etapa informada"

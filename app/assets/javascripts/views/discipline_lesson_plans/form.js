@@ -53,8 +53,9 @@ $(function () {
     });
   };
 
-  function handleFetchExamRuleSuccess(exam_rule) {
-    if (!$.isEmptyObject(exam_rule) && exam_rule.frequency_type !== '1') {
+  function handleFetchExamRuleSuccess(data) {
+    var examRule = data.exam_rule
+    if (!$.isEmptyObject(examRule) && examRule.frequency_type !== '1') {
       $classes_div.show();
     } else {
       $classes_div.hide();
