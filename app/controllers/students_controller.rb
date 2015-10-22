@@ -19,12 +19,22 @@ class StudentsController < ApplicationController
   end
 
   def in_recovery
+    @students = []
+
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])
 
     case classroom.exam_rule.recovery_type
     when RecoveryTypes::PARALLEL
       if classroom.exam_rule.parallel_recovery_average
+        students = fetch_students(
+          classroom.api_code,
+          discipline.api_code
+        )
+        @students = students.select do |student|
+          average = student.average(params[:discipline_id], params[:school_calendar_step_id])
+          average < classroom.exam_rule.parallel_recovery_average
+        end
       else
         @students = fetch_students(
           classroom.api_code,
@@ -32,10 +42,31 @@ class StudentsController < ApplicationController
         )
       end
     when RecoveryTypes::SPECIFIC
-      @students = fetch_students(
-        classroom.api_code,
-        discipline.api_code
-      )
+      step = SchoolCalendarStep.find(params[:school_calendar_step_id])
+      recovery_exam_rule = classroom.exam_rule.recovery_exam_rules.find { |r| r.steps.last.eql?(step.to_number) }
+      if recovery_exam_rule
+        school_calendar = step.school_calendar
+        steps_ids = []
+        school_calendar.steps.each do |s|
+          if recovery_exam_rule.steps.include?(s.to_number)
+            steps_ids << s.id
+          end
+        end
+
+        students = fetch_students(
+          classroom.api_code,
+          discipline.api_code
+        )
+
+        @students = students.select do |student|
+          sum_averages = 0
+          steps_ids.each do |step_id|
+            sum_averages = sum_averages + student.average(params[:discipline_id], step_id)
+          end
+          average = sum_averages / steps_ids.count
+          average < recovery_exam_rule.average
+        end
+      end
     end
 
     render(

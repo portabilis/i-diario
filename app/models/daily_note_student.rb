@@ -19,8 +19,8 @@ class DailyNoteStudent < ActiveRecord::Base
                                                        student_id: student_id,
                                                        'avaliations.test_date' => start_at.to_date..end_at.to_date)
                                                           .includes(daily_note: [:avaliation]) }
-  scope :by_discipline_id, lambda { |discipline_id| joins(:daily_note).where(daily_notes: { discipline_id: discipline_id }) }
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
+  scope :by_discipline_id, lambda { |discipline_id| joins(:daily_note).where(daily_notes: { discipline_id: discipline_id }) }
   scope :by_test_date_between, lambda { |start_at, end_at| by_test_date_between(start_at, end_at) }
 
   def maximum_score

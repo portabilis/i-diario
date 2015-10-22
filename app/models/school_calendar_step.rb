@@ -62,6 +62,17 @@ class SchoolCalendarStep < ActiveRecord::Base
     end
   end
 
+  def test_setting
+    TestSetting.where(
+      TestSetting.arel_table[:year].eq(school_calendar.year)
+        .and(TestSetting.arel_table[:exam_setting_type].eq(ExamSettingTypes::GENERAL)
+               .or(TestSetting.arel_table[:school_term].eq(school_term))
+        )
+    )
+    .order(school_term: :desc)
+    .first
+  end
+
   private
 
   def start_at_must_be_in_school_calendar_year

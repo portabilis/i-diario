@@ -79,24 +79,27 @@ $(function () {
   };
 
   function handleFetchStudentsInRecoverySuccess(data) {
-    var element_counter = 0;
+    var students = data.students
+    if (!_.isEmpty(students)) {
+      var element_counter = 0;
 
-    hideNoItemMessage();
+      hideNoItemMessage();
 
-    _.each(data.students, function(student) {
-      var element_id = new Date().getTime() + element_counter++
+      _.each(students, function(student) {
+        var element_id = new Date().getTime() + element_counter++
 
-      var html = JST['templates/school_term_recovery_diary_records/student_fields']({
-          id: student.id,
-          name: student.name,
-          average: student.average,
-          element_id: element_id
-        });
+        var html = JST['templates/school_term_recovery_diary_records/student_fields']({
+            id: student.id,
+            name: student.name,
+            average: student.average,
+            element_id: element_id
+          });
 
-      $('#recovery-diary-record-students').append(html);
-    });
+        $('#recovery-diary-record-students').append(html);
+      });
 
-    loadDecimalMasks();
+      loadDecimalMasks();
+    }
   };
 
   function handleFetchStudentsInRecoveryError() {
