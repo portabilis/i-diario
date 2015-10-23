@@ -23,10 +23,17 @@ class RecoveryDiaryRecord < ActiveRecord::Base
                           uniqueness: { scope: [:unity_id, :classroom_id, :discipline_id] }
 
   validate :at_least_one_assigned_student
+  validate :recorded_at_must_be_less_than_or_equal_to_today
 
   private
 
   def at_least_one_assigned_student
     errors.add(:students, :at_least_one_assigned_student) if students.reject(&:marked_for_destruction?).empty?
+  end
+
+  def recorded_at_must_be_less_than_or_equal_to_today
+    if recorded_at > Date.today
+      errors.add(:recorded_at, :recorded_at_must_be_less_than_or_equal_to_today)
+    end
   end
 end
