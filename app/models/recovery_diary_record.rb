@@ -25,6 +25,8 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   validate :at_least_one_assigned_student
   validate :recorded_at_must_be_less_than_or_equal_to_today
 
+  before_validation :self_assign_to_students
+
   private
 
   def at_least_one_assigned_student
@@ -32,8 +34,14 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def recorded_at_must_be_less_than_or_equal_to_today
+    return unless recorded_at
+
     if recorded_at > Date.today
       errors.add(:recorded_at, :recorded_at_must_be_less_than_or_equal_to_today)
     end
+  end
+
+  def self_assign_to_students
+    students.each { |student| student.recovery_diary_record = self }
   end
 end

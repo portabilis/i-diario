@@ -26,6 +26,8 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   validate :uniqueness_of_school_term_recovery_diary_record
   validate :recovery_type_must_allow_recovery
 
+  before_validation :self_assign_to_recovery_diary_record
+
   def school_calendar_steps_ids
     school_calendar_steps = RecoverySchoolCalendarStepsFetcher.new(
       school_calendar_step_id,
@@ -73,5 +75,9 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
       errors.add(:recovery_diary_record, :recovery_type_must_allow_recovery)
       recovery_diary_record.errors.add(:classroom, :recovery_type_must_allow_recovery)
     end
+  end
+
+  def self_assign_to_recovery_diary_record
+    recovery_diary_record.school_term_recovery_diary_record = self
   end
 end
