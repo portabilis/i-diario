@@ -149,3 +149,14 @@ pt-BR:
       create:
         notice: 'Ajuste de estoque realizado com sucesso.'
         alert: 'Ajuste de estoque não pode ser realizado.'
+
+    school_term_recovery_diary_records:
+      create:
+        notice: "Recuperação de etapa lançada com sucesso!"
+        alert: "Recuperação de etapa não pode ser lançada."
+      update:
+        notice: "Lançamento de recuperação de etapa atualizado com sucesso."
+        alert: "Lançamento de recuperação de etapa não pode ser atualizado."
+      destroy:
+        notice: "Lançamento de recuperação de etapa apagado com sucesso."
+        alert: "Lançamento de recuperação de etapa não pode ser apagado."

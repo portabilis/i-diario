@@ -78,6 +78,6 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def self_assign_to_recovery_diary_record
-    recovery_diary_record.school_term_recovery_diary_record = self
+    recovery_diary_record.school_term_recovery_diary_record = self unless recovery_diary_record.school_term_recovery_diary_record.present?
   end
 end
