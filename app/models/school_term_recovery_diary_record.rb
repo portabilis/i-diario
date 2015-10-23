@@ -26,6 +26,16 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   validate :uniqueness_of_school_term_recovery_diary_record
   validate :recovery_type_must_allow_recovery
 
+  def school_calendar_steps_ids
+    school_calendar_steps = RecoverySchoolCalendarStepsFetcher.new(
+      school_calendar_step_id,
+      recovery_diary_record.classroom_id
+      )
+      .fetch
+
+    school_calendar_steps.map(&:id)
+  end
+
   private
 
   def self.by_teacher_id_query(teacher_id)
@@ -58,7 +68,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   def recovery_type_must_allow_recovery
     classroom_present = recovery_diary_record && recovery_diary_record.classroom
-    
+
     if classroom_present && recovery_diary_record.classroom.exam_rule.recovery_type == RecoveryTypes::DONT_USE
       errors.add(:recovery_diary_record, :recovery_type_must_allow_recovery)
       recovery_diary_record.errors.add(:classroom, :recovery_type_must_allow_recovery)

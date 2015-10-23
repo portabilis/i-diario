@@ -38,7 +38,7 @@ class NumericalExamPosting
                                   .count
 
       if test_setting.fix_tests? && number_of_exams >= test_setting.tests.count
-        students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom, discipline)
+        students = StudentsFetcher.new(posting.ieducar_api_configuration, classroom.api_code, discipline.api_code).fetch
 
         students.each do |student|
           number_of_student_exams = DailyNoteStudent.by_classroom_discipline_student_and_avaliation_test_date_between(classroom,
@@ -59,7 +59,7 @@ class NumericalExamPosting
           end
         end
       elsif number_of_exams > 0
-        students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom, discipline)
+        students = StudentsFetcher.new(posting.ieducar_api_configuration, classroom.api_code, discipline.api_code).fetch
 
         students.each do |student|
           number_of_student_exams = DailyNoteStudent.by_classroom_discipline_student_and_avaliation_test_date_between(classroom,

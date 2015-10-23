@@ -44,7 +44,7 @@ class AbsencePosting
       step_start_at = posting.school_calendar_step.start_at
       step_end_at = posting.school_calendar_step.end_at
 
-      students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom)
+      students = StudentsFetcher.new(posting.ieducar_api_configuration, classroom.api_code).fetch
 
       students.each do |student|
 
@@ -97,7 +97,7 @@ class AbsencePosting
       step_start_at = posting.school_calendar_step.start_at
       step_end_at = posting.school_calendar_step.end_at
 
-      students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom)
+      students = StudentsFetcher.new(posting.ieducar_api_configuration, classroom.api_code).fetch
 
       students.each do |student|
 

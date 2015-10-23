@@ -42,7 +42,7 @@ class ConceptualExamPosting
 
       exams = ConceptualExamStudent.by_classroom_discipline_and_step(classroom,discipline, posting.school_calendar_step.id)
 
-      students = StudentsFetcher.fetch_students(posting.ieducar_api_configuration, classroom, discipline)
+      students = StudentsFetcher.new(posting.ieducar_api_configuration, classroom.api_code, discipline.api_code).fetch
 
       if exams.count == students.count
         exams.each do |exam|

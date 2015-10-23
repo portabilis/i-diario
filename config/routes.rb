@@ -137,6 +137,7 @@ Rails.application.routes.draw do
       resources :school_calendar_steps, only: [:index]
       resources :school_calendar_events, concerns: :history
     end
+    resources :school_calendar_steps, only: [:show]
 
     resources :teaching_plans, concerns: :history
     resources :discipline_lesson_plans, concerns: :history

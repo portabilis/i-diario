@@ -4,15 +4,19 @@ class StudentAverageCalculator
   end
 
   def calculate(discipline_id, school_calendar_step_id)
-    step = SchoolCalendarStep.find(school_calendar_step_id)
-    daily_notes = DailyNoteStudent.by_student_id(@student.id)
-      .by_discipline_id(discipline_id)
-      .by_test_date_between(step.start_at, step.end_at)
+    steps = SchoolCalendarStep.where(id: school_calendar_step_id)
+    averages_sum = 0
+    steps.each do |step|
+      daily_notes = DailyNoteStudent.by_student_id(@student.id)
+        .by_discipline_id(discipline_id)
+        .by_test_date_between(step.start_at, step.end_at)
 
-    if step.test_setting.fix_tests?
-      daily_notes.sum(:note)
-    else
-      daily_notes.sum(:note) / daily_notes.count
+      if step.test_setting.fix_tests?
+        averages_sum = averages_sum + daily_notes.sum(:note)
+      else
+        averages_sum = averages_sum + (daily_notes.sum(:note) / daily_notes.count)
+      end
     end
+    averages_sum / steps.count
   end
 end

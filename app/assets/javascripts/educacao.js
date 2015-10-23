@@ -19,7 +19,9 @@ $(function () {
       $('#page-loading').removeClass('hidden');
     },
     complete: function () {
-      $('#page-loading').addClass('hidden');
+      if ($.active === 1) {
+        $('#page-loading').addClass('hidden');
+      }
     }
   });
 

@@ -1,17 +1,21 @@
 class StudentsFetcher
+  def initialize(ieducar_api_configuration, classroom_api_code, discipline_api_code = nil)
+    @ieducar_api_configuration = ieducar_api_configuration
+    @classroom_api_code = classroom_api_code
+    @discipline_api_code = discipline_api_code
+  end
 
-  def self.fetch_students ieducar_api_configuration, classroom, discipline = nil
-    students = []
-    begin
-      api = IeducarApi::Students.new(ieducar_api_configuration.to_api)
-      result = api.fetch_for_daily({ classroom_api_code: classroom.api_code, discipline_api_code: discipline.try(:api_code)})
+  def fetch
+    api = IeducarApi::Students.new(@ieducar_api_configuration.to_api)
+    result = api.fetch_for_daily(
+      {
+        classroom_api_code: @classroom_api_code,
+        discipline_api_code: @discipline_api_code
+      }
+    )
+    api_students = result['alunos']
+    students_api_codes = api_students.map { |api_student| api_student['id'] }
 
-      result["alunos"].each do |api_student|
-        if student = Student.find_by(api_code: api_student['id'])
-          students << student
-        end
-      end
-    end
-    students
+    Student.where(api_code: students_api_codes).ordered
   end
 end

@@ -3,6 +3,7 @@ $(function () {
 
   var flashMessages = new FlashMessages();
   var examRule = null;
+  var schoolCalendarStep = null;
   var $classroom = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_classroom_id');
   var $discipline = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
   var $school_calendar_step = $('#school_term_recovery_diary_record_school_calendar_step_id');
@@ -59,6 +60,27 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
   };
 
+  function fetchSchoolCalendarStep(){
+    var school_calendar_step_id = $school_calendar_step.select2('val');
+
+    if (!_.isEmpty(school_calendar_step_id)) {
+      $.ajax({
+        url: Routes.school_calendar_step_pt_br_path(school_calendar_step_id, { format: 'json' }),
+        success: handleFetchSchoolCalendarStepSuccess,
+        error: handleFetchSchoolCalendarStepError
+      });
+    }
+  }
+
+  function handleFetchSchoolCalendarStepSuccess(data) {
+    schoolCalendarStep = data.school_calendar_step;
+    loadDecimalMasks();
+  };
+
+  function handleFetchSchoolCalendarStepError() {
+    flashMessages.error('Ocorreu um erro ao buscar a etapa selecionada.');
+  };
+
   function fetchStudentsInRecovery() {
     var classroom_id = $classroom.select2('val');
     var discipline_id = $discipline.select2('val');
@@ -92,6 +114,7 @@ $(function () {
             id: student.id,
             name: student.name,
             average: student.average,
+            scale: 2,
             element_id: element_id
           });
 
@@ -131,7 +154,8 @@ $(function () {
     $('.nested-fields input.decimal, .current-average').priceFormat({
       prefix: '',
       centsSeparator: ',',
-      thousandsSeparator: '.'
+      thousandsSeparator: '.',
+      centsLimit: !_.isEmpty(schoolCalendarStep) ? parseInt(schoolCalendarStep.test_setting.number_of_decimal_places) : 0
     });
   }
 
@@ -149,6 +173,7 @@ $(function () {
   });
 
   $school_calendar_step.on('change', function() {
+    fetchSchoolCalendarStep();
     removeStudents();
     fetchStudentsInRecovery();
   });
@@ -157,5 +182,6 @@ $(function () {
 
   fetchDisciplines();
   fetchExamRule();
+  fetchSchoolCalendarStep();
   loadDecimalMasks();
 });
