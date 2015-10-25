@@ -1,0 +1,30 @@
+<tbody id="resources-tbody">
+  <% if @knowledge_area_lesson_plans.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="5"><%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @knowledge_area_lesson_plans.each do |knowledge_area_lesson_plan| %>
+      <tr>
+        <td><%= knowledge_area_lesson_plan.lesson_plan.unity %></td>
+        <td><%= knowledge_area_lesson_plan.lesson_plan.classroom %></td>
+        <td>
+          <% knowledge_area_lesson_plan.knowledge_areas.each do |knowledge_area| %>
+            <span class="label label-info label-list">
+              <%= knowledge_area.description %>
+            </span>
+          <% end %>
+        </td>
+        <td><%= l(knowledge_area_lesson_plan.lesson_plan.lesson_plan_date) %></td>
+        <td class="actions">
+          <%= link_to t('views.index.edit'),
+                edit_knowledge_area_lesson_plan_path(knowledge_area_lesson_plan),
+                class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'),
+                knowledge_area_lesson_plan_path(knowledge_area_lesson_plan),
+                class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

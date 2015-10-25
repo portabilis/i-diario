@@ -1,0 +1,34 @@
+pt-BR:
+  activerecord:
+    models:
+      lesson_plan:
+        one: "Plano de aula"
+        other: "Planos de aula"
+
+    attributes:
+      lesson_plan:
+        school_calendar: "Calendário letivo"
+        school_calendar_id: "Calendário letivo"
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        lesson_plan_date: "Data"
+        contents: "Conteúdos"
+        activities: "Atividades/metodologia"
+        objectives: "Objetivos"
+        resources: "Recursos"
+        evaluation: "Avaliação"
+        bibliography: "Referências"
+        opinion: "Parecer"
+
+    errors:
+      models:
+        lesson_plan:
+          attributes:
+              lesson_plan_date:
+                must_be_school_day: "deve ser um dia letivo"
+                uniqueness_of_discipline_lesson_plan: "já existe um plano de aula para a aula informada"
+                uniqueness_of_knowledge_area_lesson_plan:
+                  one: "já existe um plano de aula para a área de conhecimento informada"
+                  other: "já existe um plano de aula para uma das áreas de conhecimento informadas"

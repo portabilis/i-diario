@@ -1,0 +1,11 @@
+<% if f.object.persisted? %>
+  <fieldset>
+    <legend><%= t('.additional_information') %></legend>
+
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= f.input :opinion, input_html: { class: 'col col-sm-12' } %>
+      </div>
+    </div>
+  </fieldset>
+<% end %>

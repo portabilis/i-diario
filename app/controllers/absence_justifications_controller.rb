@@ -69,7 +69,7 @@ class AbsenceJustificationsController < ApplicationController
 
   def resource_params
     params.require(:absence_justification).permit(
-      :student_id, :absence_date, :justification
+      :student_id, :absence_date, :justification, :absence_date_end
     )
   end
 

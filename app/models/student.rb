@@ -11,6 +11,7 @@ class Student < ActiveRecord::Base
   validates :api_code, presence: true, if: :api?
 
   scope :api, -> { where(arel_table[:api].eq(true)) }
+  scope :ordered, -> { order(:name) }
 
   def self.search(value)
     relation = all

@@ -14,7 +14,8 @@ module Turnip
     end
 
     step 'poderei cadastrar uma nova justificativa de falta' do
-      fill_mask "Data", with: '15/02/2015'
+      fill_mask "Data inicial", with: '15/02/2015'
+      fill_mask "Data final", with: '15/02/2015'
       fill_autocomplete 'Aluno', with: 'Bruce Wayne'
       fill_in "Justificativa", with: "Cras justo odio, dapibus ac facilisis in, egestas eget quam."
 
@@ -45,7 +46,7 @@ module Turnip
     end
 
     step 'poderei alterar os dados desta justificativa de falta' do
-      fill_mask 'Data', with: '20/01/2015'
+      fill_mask 'Data inicial', with: '20/01/2015'
 
       click_on 'Salvar'
 

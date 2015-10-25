@@ -49,7 +49,7 @@ RSpec.describe Avaliation, type: :model do
                                    classes: '1',
                                    school_calendar: another_avaliation.school_calendar) }
 
-      it 'should not be valida' do
+      it 'should not be valid' do
         expect(subject).to_not be_valid
         expect(subject.errors[:classes]).to include('já existe uma avaliação para a aula informada')
       end

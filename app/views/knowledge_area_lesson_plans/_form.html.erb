@@ -1,0 +1,40 @@
+<%= simple_form_for @knowledge_area_lesson_plan, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <%= f.simple_fields_for :lesson_plan, @knowledge_area_lesson_plan.lesson_plan.localized do |lesson_plan| %>
+    <%= lesson_plan.hidden_field :id %>
+
+    <fieldset>
+      <div class="row">
+        <%= render partial: 'lesson_plans/unity_field', locals: { f: lesson_plan } %>
+
+        <%= render partial: 'lesson_plans/classroom_field', locals: { f: lesson_plan } %>
+
+        <div class="col col-sm-4">
+          <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
+                input_html: { data: { without_json_parser: true } } %>
+        </div>
+      </div>
+
+      <div class="row">
+        <%= render partial: 'lesson_plans/lesson_plan_date_field', locals: { f: lesson_plan } %>
+      </div>
+
+      <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan } %>
+    </fieldset>
+
+    <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
+  <% end %>
+
+  <footer>
+    <%= link_to t('views.form.back'), knowledge_area_lesson_plans_path, class: 'btn btn-default' %>
+
+    <% if @knowledge_area_lesson_plan.persisted? %>
+      <%= link_to t('views.form.history'),
+            history_knowledge_area_lesson_plan_path(@knowledge_area_lesson_plan),
+            class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+  </footer>
+<% end %>

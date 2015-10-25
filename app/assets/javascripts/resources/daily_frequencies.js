@@ -83,9 +83,11 @@ $(function () {
         $examRuleNotFoundAlert.addClass('hidden');
 
         if(exam_rule.frequency_type == 1){
+          console.log(exam_rule.frequency_type)
           $globalAbsence.val(1);
           $hideWhenGlobalAbsence.hide();
         }else{
+          console.log(exam_rule.frequency_type)
           $globalAbsence.val(0);
           $hideWhenGlobalAbsence.show();
         }
