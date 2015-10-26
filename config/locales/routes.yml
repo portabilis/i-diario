@@ -58,6 +58,7 @@ pt-BR:
     reports: 'relatorios'
     attendance_record: 'registro-de-frequencia'
     exam_record: 'registro-de-avaliacoes'
+    lesson_plan: 'planos-de-aula'
     ***REMOVED***: '***REMOVED***'
     ieducar_api_exam_postings: 'envio-de-avaliacoes'
 

@@ -1,0 +1,20 @@
+pt-BR:
+  activemodel:
+    attributes:
+      lesson_plan_report_form:
+        unity_id: "Escola"
+        classroom_id: "Turma"
+        date_start: "Data inicial"
+        date_end: "Data final"
+        discipline_id: "Disciplina"
+        class_numbers: "Aulas"
+        knowledge_area_id: "Áreas de conhecimento"
+
+    errors:
+      models:
+        lesson_plan_report_form:
+          attributes:
+            discipline_lesson_plan:
+              must_have_discipline_lesson_plan: "Nenhum resultado foi encontrado para os dados informados"
+            knowledge_area_lesson_plan:
+              must_have_knowledge_area_lesson_plan: "Nenhum resultado foi encontrado para os dados informados"

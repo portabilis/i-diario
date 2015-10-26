@@ -18,6 +18,7 @@ class DisciplineLessonPlan < ActiveRecord::Base
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_lesson_plan_date, lambda { |lesson_plan_date| joins(:lesson_plan).where(lesson_plans: { lesson_plan_date: lesson_plan_date }) }
   scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
+  scope :by_discipline_id_lesson_plan_date, lambda {|discipline_id, date_start, date_end, classroom_id| joins(:lesson_plan).where(lesson_plans: { lesson_plan_date: date_start..date_end, classroom_id: classroom_id }, discipline_id: discipline_id)}
   scope :ordered, -> { joins(:lesson_plan).order(LessonPlan.arel_table[:lesson_plan_date].desc) }
 
   validates :lesson_plan, presence: true

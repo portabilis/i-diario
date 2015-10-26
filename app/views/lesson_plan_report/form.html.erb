@@ -1,0 +1,66 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for @lesson_plan_report_form, url: lesson_plan_report_path, method: :post, html: { class: 'smart-form', target: '_new' } do |f| %>
+    <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
+      <i class="fa fa-exclamation-circle fa-fw"></i>
+      <%= t('.exam_rule_not_found') %>
+    </div>
+
+    <%= f.error_notification unless @lesson_plan_report_form.errors[:discipline_lesson_plan].any? || @lesson_plan_report_form.errors[:knowledge_area_lesson_plan].any? %>
+
+    <div class="alert alert-danger <%= 'hidden' unless @lesson_plan_report_form.errors[:discipline_lesson_plan].any? %>">
+      <i class="fa fa-exclamation-circle fa-fw"></i>
+      <%= @lesson_plan_report_form.errors[:discipline_lesson_plan].first %>
+    </div>
+
+    <div class="alert alert-danger <%= 'hidden' unless @lesson_plan_report_form.errors[:knowledge_area_lesson_plan].any? %>">
+      <i class="fa fa-exclamation-circle fa-fw"></i>
+      <%= @lesson_plan_report_form.errors[:knowledge_area_lesson_plan].first %>
+    </div>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :unity_id, as: :select2, elements: @unities, input_html: { value: @lesson_plan_report_form.unity_id } %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :classroom_id, as: :select2, elements: @classrooms, input_html: { value: @lesson_plan_report_form.classroom_id } %>
+        </div>
+      </div>
+
+      <div class="row">
+        <%= f.input :global_absence, as: :hidden %>
+
+        <div class="col col-sm-4">
+          <%= f.input :discipline_id, as: :select2, elements: @disciplines, input_html: { value: @lesson_plan_report_form.discipline_id } %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :knowledge_area_id, as: :select2, elements: @knowledge_areas, input_html: { value: @lesson_plan_report_form.knowledge_area_id } %>
+        </div>
+
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.label :date_start %>
+          <div class="icon-addon">
+            <label for="content_date" class="fa fa-calendar"></label>
+            <%= f.text_field :date_start, class: 'form-control date datepicker col col-sm-4' %>
+          </div>
+        </div>
+        <div class="col col-sm-4">
+          <%= f.label :date_end %>
+          <div class="icon-addon">
+            <label for="content_date" class="fa fa-calendar"></label>
+            <%= f.text_field :date_end, class: 'form-control date datepicker col col-sm-4' %>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <footer>
+      <%= f.submit 'Imprimir', class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>

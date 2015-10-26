@@ -201,11 +201,14 @@ navigation:
             type: "exam_record_report"
             path: "exam_record_report_path"
         - ***REMOVED***:
-            type: "attendance_record_report"
-            path: "attendance_record_report_path"
-        - ***REMOVED***:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
+        - ***REMOVED***:
+            type: "lesson_plan_report"
+            path: "lesson_plan_report_path"
+        - ***REMOVED***:
+            type: "attendance_record_report"
+            path: "attendance_record_report_path"
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"
       icon: "fa-arrow-circle-up"

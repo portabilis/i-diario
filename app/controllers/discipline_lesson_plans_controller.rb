@@ -19,6 +19,28 @@ class DisciplineLessonPlansController < ApplicationController
     @disciplines = fetch_disciplines
   end
 
+  def show
+    @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
+
+    authorize @discipline_lesson_plan
+
+    respond_with @discipline_lesson_plan do |format|
+      format.pdf do
+        discipline_lesson_plan_pdf = DisciplineLessonPlanPdf.build(
+          current_entity_configuration,
+          @discipline_lesson_plan
+        )
+
+        send_data(
+          discipline_lesson_plan_pdf.render,
+          filename: 'planos-de-aula-por-disciplina.pdf',
+          type: 'application/pdf',
+          disposition: 'inline'
+        )
+      end
+    end
+  end
+
   def new
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
