@@ -1,32 +1,50 @@
 $(function(){
   $('.apply_tooltip').tooltip({ placement: 'left'});
 
+  // Regular expression for dd/mm/yyyy date including validation for leap year and more
+  var dateRegex = '^(?:(?:31(\\/)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/)(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$';
   var typingTimer;
   var doneTypingInterval = 500;
 
-  var filterableSearch = function(){
-    clearTimeout(typingTimer);
-    $.get($('form.filterable_search_form').attr('action'),
-      $('form.filterable_search_form').serialize(), null, 'script');
-    return false;
+
+  var filterableSearch = function(e) {
+    if (!_.isEmpty(e) && $(e.target).inputmask('isComplete'))
+    {
+      if ($(e.target).data('mask') == '99/99/9999' && _.isEmpty($(e.target).val().match(dateRegex)))
+      {
+        // Should not submit search form when date is invalid
+        return false;
+      }
+
+      clearTimeout(typingTimer);
+
+      $.get(
+        $('form.filterable_search_form').attr('action'),
+        $('form.filterable_search_form').serialize(),
+        null,
+        'script'
+      );
+
+      return false;
+    }
   }
 
   $('form.filterable_search_form').submit(filterableSearch);
 
   $('.remote .pagination a').on('click',
-    function () {
+    function() {
       $.getScript(this.href);
       return false;
     }
   );
 
-  $('form.filterable_search_form input').keyup(function(){
-      clearTimeout(typingTimer);
-      typingTimer = setTimeout(filterableSearch, doneTypingInterval);
+  $('form.filterable_search_form input').keyup(function(e) {
+    clearTimeout(typingTimer);
+    typingTimer = setTimeout(filterableSearch(e), doneTypingInterval);
   });
 
-  $('form.filterable_search_form input').keydown(function(){
-      clearTimeout(typingTimer);
+  $('form.filterable_search_form input').keydown(function() {
+    clearTimeout(typingTimer);
   });
 
   $('form.filterable_search_form select, form.filterable_search_form input.select2, form.filterable_search_form input.datepicker').on('change', filterableSearch);

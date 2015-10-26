@@ -11,7 +11,8 @@
             <td>
               <div class="icon-addon">
                 <label for="search_by_recorded_at" class="fa fa-calendar"></label>
-                <%= f.text_field :by_recorded_at, as: :date, label: false, placeholder: t('.by_recorded_at'), class: 'form-control date datepicker' %>
+                <%= f.input :by_recorded_at, as: :date, label: false,
+                      placeholder: t('.by_recorded_at'), input_html: { class: 'datepicker' } %>
               </div>
             </td>
             <td><%= link_to t('.new_html'), new_school_term_recovery_diary_record_path, class: 'btn btn-primary pull-right' %></td>

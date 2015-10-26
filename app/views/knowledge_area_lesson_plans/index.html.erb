@@ -10,7 +10,8 @@
             <td>
               <div class="icon-addon">
                 <label for="search_by_lesson_plan_date" class="fa fa-calendar"></label>
-                <%= f.text_field :by_lesson_plan_date, as: :date, label: false, placeholder: t('.by_lesson_plan_date'), class: 'form-control date datepicker' %>
+                <%= f.input :by_lesson_plan_date, as: :date, label: false,
+                      placeholder: t('.by_lesson_plan_date'), input_html: { class: 'datepicker' } %>
               </div>
             </td>
             <td><%= link_to t('.new_html'), new_knowledge_area_lesson_plan_path, class: 'btn btn-primary pull-right' %></td>
