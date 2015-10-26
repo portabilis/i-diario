@@ -7,13 +7,15 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
   def index
     @knowledge_area_lesson_plans = apply_scopes(KnowledgeAreaLessonPlan)
-      .includes(
-        :knowledge_areas,
-        lesson_plan: [:unity, :classroom]
+      .select(
+        KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
+        LessonPlan.arel_table[:lesson_plan_date]
       )
+      .includes(:knowledge_areas, lesson_plan: [:unity, :classroom])
       .filter(filtering_params(params[:search]))
       .by_unity_id(current_user_unity.id)
       .by_teacher_id(current_teacher.id)
+      .uniq
       .ordered
 
     authorize @knowledge_area_lesson_plans
