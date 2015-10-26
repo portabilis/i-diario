@@ -7,10 +7,15 @@ class DisciplineLessonPlansController < ApplicationController
 
   def index
     @discipline_lesson_plans = apply_scopes(DisciplineLessonPlan)
+      .select(
+        DisciplineLessonPlan.arel_table[Arel.sql('*')],
+        LessonPlan.arel_table[:lesson_plan_date]
+      )
       .includes(:discipline, lesson_plan: [:unity, :classroom])
       .filter(filtering_params(params[:search]))
       .by_unity_id(current_user_unity.id)
       .by_teacher_id(current_teacher.id)
+      .uniq
       .ordered
 
     authorize @discipline_lesson_plans
