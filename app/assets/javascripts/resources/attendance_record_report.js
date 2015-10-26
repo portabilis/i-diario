@@ -64,12 +64,13 @@ $(function () {
   });
 
   var checkExamRule = function(params){
-    fetchExamRule(params, function(exam_rule){
+    fetchExamRule(params, function(data){
+      var examRule = data.exam_rule;
       $('form input[type=submit]').removeClass('disabled');
-      if(!$.isEmptyObject(exam_rule)){
+      if(!$.isEmptyObject(examRule)){
         $examRuleNotFoundAlert.addClass('hidden');
 
-        if(exam_rule.frequency_type == 1){
+        if(examRule.frequency_type == 1){
           $globalAbsence.val(1);
           $hideWhenGlobalAbsence.hide();
         }else{

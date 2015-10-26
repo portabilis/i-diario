@@ -1,0 +1,30 @@
+<tr class="nested-fields <%= f.object.persisted? ? 'existing' : 'dynamic' %>">
+  <td>
+    <% if f.object.persisted? %>
+      <%= f.hidden_field :id %>
+      <%= f.hidden_field :_destroy %>
+    <% end %>
+
+    <%= f.input :student_id, as: :hidden %>
+    <%= f.object.student.name %>
+  </td>
+
+  <td>
+    <span class="current-average">
+      <% # FIXME: Need to find a better solution to format the scores based on the configuration. :( %>
+      <%= number_with_precision(
+            f.object.student.average(
+              @school_term_recovery_diary_record.recovery_diary_record.discipline_id,
+              @school_term_recovery_diary_record.school_calendar_steps_ids
+            ),
+            precision: @school_term_recovery_diary_record.school_calendar_step.test_setting.number_of_decimal_places
+          ) %>
+    </span>
+  </td>
+
+  <td>
+    <%= f.input :score, label_html: {
+          value: number_with_precision(f.object.score, precision: @school_term_recovery_diary_record.school_calendar_step.test_setting.number_of_decimal_places),
+          class: 'hidden' } %>
+  </td>
+</tr>

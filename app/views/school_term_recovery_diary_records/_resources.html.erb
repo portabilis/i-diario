@@ -1,0 +1,25 @@
+<tbody id="resources-tbody">
+  <% if @school_term_recovery_diary_records.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @school_term_recovery_diary_records.each do |school_term_recovery_diary_record| %>
+      <tr>
+        <td><%= school_term_recovery_diary_record.recovery_diary_record.unity %></td>
+        <td><%= school_term_recovery_diary_record.recovery_diary_record.classroom %></td>
+        <td><%= school_term_recovery_diary_record.recovery_diary_record.discipline %></td>
+        <td><%= school_term_recovery_diary_record.school_calendar_step %></td>
+        <td><%= l(school_term_recovery_diary_record.recovery_diary_record.recorded_at) %></td>
+        <td class="actions">
+          <%= link_to t('views.index.edit'),
+                edit_school_term_recovery_diary_record_path(school_term_recovery_diary_record),
+                class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'),
+                school_term_recovery_diary_record_path(school_term_recovery_diary_record),
+                class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

@@ -90,12 +90,12 @@ $(function () {
 
   var updateFieldsBasedOnTestSetting = function() {
     $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_test_setting_id').select2('val')).always(function(data) {
-      if (data['exam_setting_type'] == 'general')
+      if (data['test_setting']['exam_setting_type'] == 'general')
       {
         $('.avaliation_test_setting').hide();
       }
 
-      if (data['fix_tests']) {
+      if (data['test_setting']['fix_tests']) {
         $('.avaliation_test_setting_test').show();
         $('.avaliation_description').hide();
         $('.avaliation_weight').hide();

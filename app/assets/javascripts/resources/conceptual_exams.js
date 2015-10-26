@@ -61,13 +61,14 @@ $(function () {
   });
 
   var checkExamRule = function(params){
-    fetchExamRule(params, function(exam_rule){
+    fetchExamRule(params, function(data){
+      var examRule = data.exam_rule
       $('form input[type=submit]').removeClass('disabled');
       $examRuleNotFoundAlert.addClass('hidden');
       $examRuleNotAllowConcept.addClass('hidden');
 
-      if(!$.isEmptyObject(exam_rule)){
-        if(exam_rule.score_type != "2"){
+      if(!$.isEmptyObject(examRule)){
+        if(examRule.score_type != "2"){
           // Display alert
           $examRuleNotAllowConcept.removeClass('hidden');
 
