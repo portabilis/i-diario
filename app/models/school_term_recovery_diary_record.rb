@@ -8,7 +8,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   has_associated_audits
 
   belongs_to :recovery_diary_record, dependent: :destroy
-  belongs_to :school_calendar_step
+  belongs_to :school_calendar_step, -> { includes(:school_calendar) }
 
   accepts_nested_attributes_for :recovery_diary_record
 
@@ -78,6 +78,8 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def self_assign_to_recovery_diary_record
-    recovery_diary_record.school_term_recovery_diary_record = self unless recovery_diary_record.school_term_recovery_diary_record.present?
+    if recovery_diary_record && !recovery_diary_record.school_term_recovery_diary_record
+      recovery_diary_record.school_term_recovery_diary_record = self
+    end
   end
 end

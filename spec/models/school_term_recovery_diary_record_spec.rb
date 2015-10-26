@@ -10,19 +10,20 @@ RSpec.describe SchoolTermRecoveryDiaryRecord, type: :model do
 
   describe 'validations' do
     it { expect(subject).to validate_presence_of(:recovery_diary_record) }
-    it { expect(subject).to validate_presence_of(:school_calendar_step) }
 
     it 'should validate uniqueness of school term recovery diary record' do
+      test_setting = create(:test_setting, year: 2020)
       exam_rule = create(:exam_rule, recovery_type: RecoveryTypes::PARALLEL)
       classroom = create(:classroom, exam_rule: exam_rule)
-      another_recovery_diary_record = create(
+      another_recovery_diary_record = build(
         :recovery_diary_record_with_students,
         classroom: classroom
       )
-      another_school_term_recovery_diary_record = create(
+      another_school_term_recovery_diary_record = build(
         :school_term_recovery_diary_record,
         recovery_diary_record: another_recovery_diary_record
       )
+      another_school_term_recovery_diary_record.save
 
       recovery_diary_record = build(:recovery_diary_record_with_students,
         unity: another_school_term_recovery_diary_record.recovery_diary_record.unity,
