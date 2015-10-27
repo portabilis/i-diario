@@ -1,3 +1,3 @@
 $(function(){
-	$('.datepicker').datepicker();
+	$('.datepicker:not([readonly]):not([disabled])').datepicker();
 })

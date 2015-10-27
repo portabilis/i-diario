@@ -192,3 +192,9 @@ aside#left-panel{
 .icon-addon > input.datepicker {
   padding-left: 30px;
 }
+
+.icon-addon > input.datepicker[readonly] {
+  cursor: not-allowed;
+  background-color: #eeeeee;
+  opacity: 1;
+}

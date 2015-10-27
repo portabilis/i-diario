@@ -1,13 +1,3 @@
 <div class="col col-sm-4">
-  <div class="control-group <%= 'error' if f.object.errors[:lesson_plan_date].any? %>">
-    <%= f.label :lesson_plan_date %>
-    <div class="icon-addon">
-      <label for="lesson_plan_date" class="fa fa-calendar"></label>
-      <%= f.text_field :lesson_plan_date, class: 'form-control date datepicker col col-sm-4' %>
-    </div>
-
-    <% if f.object.errors[:lesson_plan_date].any? %>
-      <span class="help-inline"><%= f.object.errors[:lesson_plan_date].first %></span>
-    <% end %>
-  </div>
+  <%= f.input :lesson_plan_date, as: :date %>
 </div>
