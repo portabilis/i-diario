@@ -9,7 +9,7 @@ $(function () {
 
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
-      $.getJSON('/classrooms?' + $.param(params)).always(function (data) {
+      $.getJSON('/turmas?' + $.param(params)).always(function (data) {
         window.classrooms = data;
         callback(window.classrooms);
       });
@@ -20,7 +20,7 @@ $(function () {
 
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
-      $.getJSON('/disciplines?' + $.param(params)).always(function (data) {
+      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
         window.disciplines = data;
         callback(window.disciplines);
       });
