@@ -9,11 +9,7 @@
             <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></td>
             <td><%= f.input :by_school_calendar_step_id, as: :select2, elements: @school_calendar_steps, label: false, placeholder: t('.by_school_calendar_step_id') %></td>
             <td>
-              <div class="icon-addon">
-                <label for="search_by_recorded_at" class="fa fa-calendar"></label>
-                <%= f.input :by_recorded_at, as: :date, label: false,
-                      placeholder: t('.by_recorded_at'), input_html: { class: 'datepicker' } %>
-              </div>
+              <%= f.input :by_recorded_at, as: :date, label: false, placeholder: t('.by_recorded_at') %>
             </td>
             <td><%= link_to t('.new_html'), new_school_term_recovery_diary_record_path, class: 'btn btn-primary pull-right' %></td>
           </tr>

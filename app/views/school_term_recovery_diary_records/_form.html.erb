@@ -30,17 +30,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <div class="control-group <%= 'error' if recovery_diary_record.object.errors[:recorded_at].any? %>">
-            <%= recovery_diary_record.label :recorded_at %>
-            <div class="icon-addon">
-              <label for="recorded_at" class="fa fa-calendar"></label>
-              <%= recovery_diary_record.text_field :recorded_at, class: 'form-control date datepicker col col-sm-4' %>
-            </div>
-
-            <% if recovery_diary_record.object.errors[:recorded_at].any? %>
-              <span class="help-inline"><%= recovery_diary_record.object.errors[:recorded_at].first %></span>
-            <% end %>
-          </div>
+          <%= recovery_diary_record.input :recorded_at, as: :date %>
         </div>
       </div>
     </fieldset>
