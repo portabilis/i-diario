@@ -24,6 +24,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   validate :at_least_one_assigned_student
   validate :recorded_at_must_be_less_than_or_equal_to_today
+  validate :recorded_at_must_be_school_day
 
   before_validation :self_assign_to_students
 
@@ -38,6 +39,19 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
     if recorded_at > Date.today
       errors.add(:recorded_at, :recorded_at_must_be_less_than_or_equal_to_today)
+    end
+  end
+
+  def recorded_at_must_be_school_day
+    return unless recorded_at && unity
+
+    school_calendar = SchoolCalendar.find_by(
+      year: Date.today.year,
+      unity_id: unity.id
+    )
+
+    unless school_calendar.school_day?(recorded_at)
+      errors.add(:recorded_at, :recorded_at_must_be_school_day)
     end
   end
 

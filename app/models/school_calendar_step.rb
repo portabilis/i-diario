@@ -29,6 +29,16 @@ class SchoolCalendarStep < ActiveRecord::Base
     (school_calendar.steps.ordered.index(self) || 0) + 1
   end
 
+  def school_calendar_step_day?(date)
+    step_from_date = school_calendar.step(date)
+
+    if !step_from_date.eql?(self)
+      false
+    else
+      school_calendar.school_day?(date)
+    end
+  end
+
   def number_of_school_days
     return unless start_at || end_at || school_calendar
 

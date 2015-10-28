@@ -25,6 +25,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   validate :uniqueness_of_school_term_recovery_diary_record
   validate :recovery_type_must_allow_recovery
+  validate :recorded_at_must_be_school_calendar_step_day
 
   before_validation :self_assign_to_recovery_diary_record
 
@@ -74,6 +75,15 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     if classroom_present && recovery_diary_record.classroom.exam_rule.recovery_type == RecoveryTypes::DONT_USE
       errors.add(:recovery_diary_record, :recovery_type_must_allow_recovery)
       recovery_diary_record.errors.add(:classroom, :recovery_type_must_allow_recovery)
+    end
+  end
+
+  def recorded_at_must_be_school_calendar_step_day
+    return unless recovery_diary_record && recovery_diary_record.recorded_at && school_calendar_step
+
+    unless school_calendar_step.school_calendar_step_day?(recovery_diary_record.recorded_at)
+      errors.add(:recovery_diary_record, :recorded_at_must_be_school_calendar_step_day)
+      recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_school_calendar_step_day)
     end
   end
 

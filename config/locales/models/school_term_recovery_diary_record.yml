@@ -11,5 +11,6 @@ pt-BR:
           attributes:
               recovery_diary_record:
                 recovery_type_must_allow_recovery: "deve permitir o lançamento de recuperações de etapas"
+                recorded_at_must_be_school_calendar_step_day: "deve ser um dia letivo da etapa selecionada"
               school_calendar_step:
                 uniqueness_of_school_term_recovery_diary_record: "já existe um lançamento recuperação para a etapa informada"
