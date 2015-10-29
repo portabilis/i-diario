@@ -3,7 +3,9 @@ class DailyNotesController < ApplicationController
   before_action :require_current_school_calendar
 
   def new
-    @daily_note = DailyNote.new
+    @daily_note = DailyNote.new(
+      unity: current_user_unity
+    )
 
     authorize @daily_note
 
@@ -51,6 +53,8 @@ class DailyNotesController < ApplicationController
     @daily_note = DailyNote.find(params[:id]).localized
     @daily_note.assign_attributes resource_params
 
+    destroy_students_not_found
+
     authorize @daily_note
 
     if @daily_note.save
@@ -89,7 +93,7 @@ class DailyNotesController < ApplicationController
         }
       )
 
-      @api_students = result["alunos"]
+      @api_students = result['alunos']
     rescue IeducarApi::Base::ApiError => e
       flash[:alert] = e.message
       fetch_unities
@@ -143,6 +147,16 @@ class DailyNotesController < ApplicationController
       @daily_note.save
     else
       true
+    end
+  end
+
+  def destroy_students_not_found
+    @daily_note.students.each do |student|
+      student_exists = resource_params[:students_attributes].any? do |student_params|
+        student_params.last[:student_id].to_i == student.student.id
+      end
+
+      student.destroy unless student_exists
     end
   end
 end

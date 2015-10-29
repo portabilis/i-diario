@@ -19,6 +19,8 @@ class DailyNote < ActiveRecord::Base
   validates :discipline, presence: true
   validates :avaliation, presence: true
 
+  validate :avaliation_date_must_be_less_than_or_equal_to_today
+
   scope :by_unity_classroom_discipline_and_avaliation_test_date_between,
         lambda { |unity_id, classroom_id, discipline_id, start_at, end_at| where(unity_id: unity_id,
                                                                                  classroom_id: classroom_id,
@@ -28,4 +30,14 @@ class DailyNote < ActiveRecord::Base
                                                                                     .includes(:avaliation, students: :student) }
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
+
+  private
+
+  def avaliation_date_must_be_less_than_or_equal_to_today
+    return unless avaliation
+
+    if avaliation.test_date > Date.today
+      errors.add(:avaliation, :must_be_less_than_or_equal_to_today)
+    end
+  end
 end
