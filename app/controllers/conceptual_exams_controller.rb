@@ -72,7 +72,13 @@ class ConceptualExamsController < ApplicationController
   def fetch_students
     begin
       api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily({ classroom_api_code: @conceptual_exam.classroom.api_code, discipline_api_code: @conceptual_exam.discipline.api_code})
+      result = api.fetch_for_daily(
+        {
+          classroom_api_code: @conceptual_exam.classroom.api_code,
+          discipline_api_code: @conceptual_exam.discipline.api_code,
+          date: Date.today
+        }
+      )
 
       @api_students = result["alunos"]
     rescue IeducarApi::Base::ApiError => e

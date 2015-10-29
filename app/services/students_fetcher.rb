@@ -1,8 +1,9 @@
 class StudentsFetcher
-  def initialize(ieducar_api_configuration, classroom_api_code, discipline_api_code = nil)
+  def initialize(ieducar_api_configuration, classroom_api_code, discipline_api_code = nil, date = Date.today)
     @ieducar_api_configuration = ieducar_api_configuration
     @classroom_api_code = classroom_api_code
     @discipline_api_code = discipline_api_code
+    @date = date
   end
 
   def fetch
@@ -10,7 +11,8 @@ class StudentsFetcher
     result = api.fetch_for_daily(
       {
         classroom_api_code: @classroom_api_code,
-        discipline_api_code: @discipline_api_code
+        discipline_api_code: @discipline_api_code,
+        date: @date
       }
     )
     api_students = result['alunos']

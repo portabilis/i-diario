@@ -1,4 +1,3 @@
-# encoding: utf-8
 class DailyFrequenciesController < ApplicationController
   before_action :require_teacher
   before_action :require_current_school_calendar
@@ -6,7 +5,9 @@ class DailyFrequenciesController < ApplicationController
 
   def new
     @daily_frequency = DailyFrequency.new.localized
+    @daily_frequency.unity = current_user_unity
     @daily_frequency.frequency_date = Date.today
+
     @class_numbers = []
 
     authorize @daily_frequency
@@ -59,9 +60,10 @@ class DailyFrequenciesController < ApplicationController
 
     @api_students.each do |api_student|
       if student = Student.find_by(api_code: api_student['id'])
-        @students << {student: student, dependence: api_student['dependencia']}
+        @students << { student: student, dependence: api_student['dependencia'] }
+
         @daily_frequencies.each do |daily_frequency|
-          (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.build(student_id: student.id, dependence: api_student['dependencia']))
+          daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.build(student_id: student.id, dependence: api_student['dependencia'])
         end
       end
     end
@@ -73,6 +75,9 @@ class DailyFrequenciesController < ApplicationController
       @normal_students << student[:student] if !student[:dependence]
       @dependence_students << student[:student] if student[:dependence]
     end
+
+    @normal_students = @normal_students.sort_by { |student| student.name }
+    @dependence_students = @dependence_students.sort_by { |student| student.name }
   end
 
   def update_multiple
@@ -80,6 +85,8 @@ class DailyFrequenciesController < ApplicationController
 
     builder = DailyFrequencyStudentsBuilder.new(frequency_student_params[:daily_frequency_student])
     builder.build_all
+
+    destroy_students_not_found
 
     flash[:success] = t 'daily_frequencies.success'
 
@@ -109,9 +116,15 @@ class DailyFrequenciesController < ApplicationController
   def fetch_students
     begin
       api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily({ classroom_api_code: @daily_frequency.classroom.api_code, discipline_api_code: @daily_frequency.discipline.try(:api_code) })
+      result = api.fetch_for_daily(
+        {
+          classroom_api_code: @daily_frequency.classroom.api_code,
+          discipline_api_code: @daily_frequency.discipline.try(:api_code),
+          date: @daily_frequency.frequency_date
+        }
+      )
 
-      @api_students = result["alunos"]
+      @api_students = result['alunos']
     rescue IeducarApi::Base::ApiError => e
       flash[:alert] = e.message
       @api_students = []
@@ -162,5 +175,20 @@ class DailyFrequenciesController < ApplicationController
       return false
     end
     true
+  end
+
+  private
+
+  def destroy_students_not_found
+    frequency_student_params[:daily_frequency_student].each do |daily_frequency_student_params|
+      daily_frequency = DailyFrequency.find(daily_frequency_student_params[:daily_frequency_id])
+      daily_frequency.students.each do |student|
+        student_exists = frequency_student_params[:daily_frequency_student].any? do |daily_frequency_student_params|
+          daily_frequency_student_params[:student_id].to_i == student.student.id
+        end
+
+        student.destroy unless student_exists
+      end
+    end
   end
 end

@@ -12,12 +12,14 @@ class DailyFrequency < ActiveRecord::Base
   belongs_to :school_calendar
 
   has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyFrequencyStudent', dependent: :destroy
-  accepts_nested_attributes_for :students
+  accepts_nested_attributes_for :students, allow_destroy: true
 
   validates :unity, :classroom, :frequency_date, :school_calendar, presence: true
   validates :global_absence, inclusion: [true, false]
   validates :discipline, presence: true, unless: :global_absence?
-  validate  :is_school_day?
+
+  validate :frequency_date_must_be_less_than_or_equal_to_today
+  validate :is_school_day?
 
   scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
         lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at| where(unity_id: unity_id,
@@ -38,6 +40,14 @@ class DailyFrequency < ActiveRecord::Base
   end
 
   private
+
+  def frequency_date_must_be_less_than_or_equal_to_today
+    return unless frequency_date
+
+    if frequency_date > Date.today
+      errors.add(:frequency_date, :must_be_less_than_or_equal_to_today)
+    end
+  end
 
   def is_school_day?
     return unless school_calendar && frequency_date

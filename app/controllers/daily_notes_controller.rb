@@ -82,7 +82,12 @@ class DailyNotesController < ApplicationController
   def fetch_students
     begin
       api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily({ classroom_api_code: @daily_note.classroom.api_code, discipline_api_code: @daily_note.discipline.api_code})
+      result = api.fetch_for_daily(
+        { classroom_api_code: @daily_note.classroom.api_code,
+          discipline_api_code: @daily_note.discipline.api_code,
+          date: @daily_note.avaliation.test_date
+        }
+      )
 
       @api_students = result["alunos"]
     rescue IeducarApi::Base::ApiError => e

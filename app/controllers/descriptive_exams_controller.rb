@@ -76,7 +76,12 @@ class DescriptiveExamsController < ApplicationController
   def fetch_students
     begin
       api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily({ classroom_api_code: @descriptive_exam.classroom.api_code, discipline_api_code: @descriptive_exam.discipline.try(:api_code)})
+      result = api.fetch_for_daily(
+        { classroom_api_code: @descriptive_exam.classroom.api_code,
+          discipline_api_code: @descriptive_exam.discipline.try(:api_code),
+          date: Date.today
+        }
+      )
 
       @api_students = result["alunos"]
     rescue IeducarApi::Base::ApiError => e
