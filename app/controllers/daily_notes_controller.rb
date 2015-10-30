@@ -53,9 +53,9 @@ class DailyNotesController < ApplicationController
     @daily_note = DailyNote.find(params[:id]).localized
     @daily_note.assign_attributes resource_params
 
-    destroy_students_not_found
-
     authorize @daily_note
+
+    destroy_students_not_found
 
     if @daily_note.save
       respond_with @daily_note, location: new_daily_note_path

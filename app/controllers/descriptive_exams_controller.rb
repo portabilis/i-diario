@@ -63,6 +63,8 @@ class DescriptiveExamsController < ApplicationController
 
     authorize @descriptive_exam
 
+    destroy_students_not_found
+
     if @descriptive_exam.save
       fetch_unities
       respond_with @descriptive_exam, location: new_descriptive_exam_path
@@ -122,5 +124,17 @@ class DescriptiveExamsController < ApplicationController
 
   def set_school_calendar_steps
     @school_calendar_steps =  current_school_calendar.steps.ordered || {}
+  end
+
+  private
+
+  def destroy_students_not_found
+    @descriptive_exam.students.each do |student|
+      student_exists = resource_params[:students_attributes].any? do |student_params|
+        student_params.last[:student_id].to_i == student.student.id
+      end
+
+      student.destroy unless student_exists
+    end
   end
 end
