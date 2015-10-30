@@ -2,6 +2,8 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   belongs_to :recovery_diary_record
   belongs_to :student
 
+  scope :ordered, -> { joins(:student).order(Student.arel_table[:name]) }
+
   validates :recovery_diary_record, presence: true
   validates(
     :score,

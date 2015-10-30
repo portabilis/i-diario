@@ -23,7 +23,8 @@ class StudentsController < ApplicationController
         configuration,
         params[:classroom_id],
         params[:discipline_id],
-        params[:school_calendar_step_id]
+        params[:school_calendar_step_id],
+        params[:date].to_date.to_s
       )
       .fetch
 

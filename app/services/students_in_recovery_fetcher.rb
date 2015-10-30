@@ -1,9 +1,10 @@
 class StudentsInRecoveryFetcher
-  def initialize(ieducar_api_configuration, classroom_id, discipline_id, school_calendar_step_id)
+  def initialize(ieducar_api_configuration, classroom_id, discipline_id, school_calendar_step_id, date)
     @ieducar_api_configuration = ieducar_api_configuration
     @classroom_id = classroom_id
     @discipline_id = discipline_id
     @school_calendar_step_id = school_calendar_step_id
+    @date = date
   end
 
   def fetch
@@ -37,7 +38,8 @@ class StudentsInRecoveryFetcher
     @students = StudentsFetcher.new(
         @ieducar_api_configuration,
         classroom.api_code,
-        discipline.api_code
+        discipline.api_code,
+        @date
       )
       .fetch
 
@@ -69,7 +71,8 @@ class StudentsInRecoveryFetcher
       students = StudentsFetcher.new(
           @ieducar_api_configuration,
           classroom.api_code,
-          discipline.api_code
+          discipline.api_code,
+          @date
         )
         .fetch
 

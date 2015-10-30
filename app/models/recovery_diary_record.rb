@@ -9,7 +9,9 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   belongs_to :classroom, -> { includes(:exam_rule) }
   belongs_to :discipline
 
-  has_many :students, class_name: 'RecoveryDiaryRecordStudent', dependent: :destroy
+  has_many :students, -> { includes(:student).ordered },
+    class_name: 'RecoveryDiaryRecordStudent',
+    dependent: :destroy
 
   accepts_nested_attributes_for :students, allow_destroy: true
 

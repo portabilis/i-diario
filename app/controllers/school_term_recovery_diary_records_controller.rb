@@ -59,6 +59,10 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     authorize @school_term_recovery_diary_record
 
+    students_in_recovery = fetch_students_in_recovery
+    mark_students_not_in_recovery_for_destruction(students_in_recovery)
+    add_missing_students(students_in_recovery)
+
     @unities = fetch_unities
     @classrooms = fetch_classrooms
     @school_calendar_steps = current_school_calendar.steps
@@ -136,5 +140,42 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     Discipline.by_unity_id(current_user_unity.id)
       .by_teacher_id(current_teacher.id)
       .ordered
+  end
+
+  def fetch_students_in_recovery
+    StudentsInRecoveryFetcher.new(
+      api_configuration,
+      @school_term_recovery_diary_record.recovery_diary_record.classroom_id,
+      @school_term_recovery_diary_record.recovery_diary_record.discipline_id,
+      @school_term_recovery_diary_record.school_calendar_step_id,
+      @school_term_recovery_diary_record.recovery_diary_record.recorded_at
+    )
+    .fetch
+  end
+
+  def mark_students_not_in_recovery_for_destruction(students_in_recovery)
+    @school_term_recovery_diary_record.recovery_diary_record.students.each do |student|
+      is_student_in_recovery = students_in_recovery.any? do |student_in_recovery|
+        student.student.id == student_in_recovery.id
+      end
+
+      student.mark_for_destruction unless is_student_in_recovery
+    end
+  end
+
+  def add_missing_students(students_in_recovery)
+    students_missing = students_in_recovery.select do |student_in_recovery|
+      @school_term_recovery_diary_record.recovery_diary_record.students.none? do |student|
+        student.student.id == student_in_recovery.id
+      end
+    end
+
+    students_missing.each do |student_missing|
+      @school_term_recovery_diary_record.recovery_diary_record.students.build(student: student_missing)
+    end    
+  end
+
+  def api_configuration
+    IeducarApiConfiguration.current
   end
 end
