@@ -8,25 +8,24 @@ $(function(){
 
 
   var filterableSearch = function(e) {
-    if (!_.isEmpty(e) && $(e.target).inputmask('isComplete'))
+    if (!_.isEmpty($(e.target).val()) &&
+        $(e.target).data('mask') == '99/99/9999' &&
+        _.isEmpty($(e.target).val().match(dateRegex)))
     {
-      if ($(e.target).data('mask') == '99/99/9999' && _.isEmpty($(e.target).val().match(dateRegex)))
-      {
-        // Should not submit search form when date is invalid
-        return false;
-      }
-
-      clearTimeout(typingTimer);
-
-      $.get(
-        $('form.filterable_search_form').attr('action'),
-        $('form.filterable_search_form').serialize(),
-        null,
-        'script'
-      );
-
+      // Should not submit search form when date is invalid
       return false;
     }
+
+    clearTimeout(typingTimer);
+
+    $.get(
+      $('form.filterable_search_form').attr('action'),
+      $('form.filterable_search_form').serialize(),
+      null,
+      'script'
+    );
+
+    return false;
   }
 
   $('form.filterable_search_form').submit(filterableSearch);
