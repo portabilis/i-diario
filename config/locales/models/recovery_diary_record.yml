@@ -16,9 +16,9 @@ pt-BR:
         recovery_diary_record:
           attributes:
             classroom:
-              recovery_type_must_allow_recovery: "deve permitir o lançamento de recuperações de etapas"
+              recovery_type_must_allow_recovery_for_classroom: "deve permitir o lançamento de recuperações de etapas"
             students:
-              at_least_one_assigned_student: "É necessário pelo menos 1 aluno"
+              at_least_one_assigned_student: "Nenhum aluno em recuperação foi encontrado a partir dos dados informados"
             recorded_at:
               recorded_at_must_be_less_than_or_equal_to_today: "deve ser menor ou igual a data de hoje"
               recorded_at_must_be_school_day: "deve ser um dia letivo"

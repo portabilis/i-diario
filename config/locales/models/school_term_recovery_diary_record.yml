@@ -10,7 +10,8 @@ pt-BR:
         school_term_recovery_diary_record:
           attributes:
               recovery_diary_record:
-                recovery_type_must_allow_recovery: "deve permitir o lançamento de recuperações de etapas"
+                recovery_type_must_allow_recovery_for_classroom: "deve permitir o lançamento de recuperações de etapas"
                 recorded_at_must_be_school_calendar_step_day: "deve ser um dia letivo da etapa selecionada"
               school_calendar_step:
+                recovery_type_must_allow_recovery_for_school_calendar_step: "não é permitido recuperar a etapa informada"
                 uniqueness_of_school_term_recovery_diary_record: "já existe um lançamento recuperação para a etapa informada"
