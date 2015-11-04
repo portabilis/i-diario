@@ -1,4 +1,4 @@
-class LessonPlanReportForm
+class LessonPlanKnowledgeAreaReportForm
   include ActiveModel::Model
 
   attr_accessor :unity_id,
@@ -26,10 +26,6 @@ class LessonPlanReportForm
     KnowledgeAreaLessonPlan.by_knowledge_area_id_lesson_plan_date(knowledge_area_id, date_start, date_end, classroom_id)
   end
 
-  def discipline_lesson_plan
-    DisciplineLessonPlan.by_discipline_id_lesson_plan_date(discipline_id, date_start, date_end, classroom_id)
-  end
-
   private
 
   def global_absence?
@@ -55,7 +51,7 @@ class LessonPlanReportForm
   def has_classroom
     return unless errors.blank?
 
-    if !discipline_id.present? && !classroom_id.present?
+    if !knowledge_area_id.present? && !classroom_id.present?
       errors.add(:classroom_id, :has_classroom)
     end
   end

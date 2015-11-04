@@ -29,19 +29,6 @@
       </div>
 
       <div class="row">
-        <%= f.input :global_absence, as: :hidden %>
-
-        <div class="col col-sm-4">
-          <%= f.input :discipline_id, as: :select2, elements: @disciplines, input_html: { value: @lesson_plan_report_form.discipline_id } %>
-        </div>
-
-        <div class="col col-sm-4">
-          <%= f.input :knowledge_area_id, as: :select2, elements: @knowledge_areas, input_html: { value: @lesson_plan_report_form.knowledge_area_id } %>
-        </div>
-
-      </div>
-
-      <div class="row">
         <div class="col col-sm-4">
           <%= f.input :date_start, as: :date %>
         </div>
@@ -49,6 +36,15 @@
         <div class="col col-sm-4">
           <%= f.input :date_end, as: :date %>
         </div>
+      </div>
+
+      <div class="row">
+        <%= f.input :global_absence, as: :hidden %>
+
+        <div class="col col-sm-4">
+          <%= f.input :discipline_id, as: :select2, elements: @disciplines, input_html: { value: @lesson_plan_report_form.discipline_id } %>
+        </div>
+
       </div>
     </fieldset>
 
