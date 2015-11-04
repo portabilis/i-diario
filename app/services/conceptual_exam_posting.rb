@@ -11,7 +11,7 @@ class ConceptualExamPosting
     if classrooms = post_classrooms
       api.send_post(turmas: classrooms, etapa: posting.school_calendar_step.to_number)
     else
-      raise IeducarApi::Base::ApiError.new("Nenhuma turma com tipo de avaliações conceituais encontrada.")
+      raise IeducarApi::Base::ApiError.new('Nenhuma turma com tipo de avaliações conceituais encontrada.')
     end
   end
 
@@ -24,7 +24,7 @@ class ConceptualExamPosting
   end
 
   def post_classrooms
-    classrooms = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
+    classrooms = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 
     teacher = posting.author.teacher
 
@@ -40,22 +40,17 @@ class ConceptualExamPosting
         next
       end
 
-      exams = ConceptualExamStudent.by_classroom_discipline_and_step(classroom,discipline, posting.school_calendar_step.id)
-
-      students = StudentsFetcher.new(posting.ieducar_api_configuration, classroom.api_code, discipline.api_code).fetch
-
-      if exams.count == students.count
+      exams = ConceptualExamStudent.by_classroom_discipline_and_step(classroom, discipline, posting.school_calendar_step.id)
+      if exams.any?
         exams.each do |exam|
-
-          classrooms[classroom.api_code]["turma_id"] = classroom.api_code
-          classrooms[classroom.api_code]["alunos"][exam.student.api_code]["aluno_id"] = exam.student.api_code
-          classrooms[classroom.api_code]["alunos"][exam.student.api_code]["componentes_curriculares"][discipline.api_code]["componente_curricular_id"] = discipline.api_code
-          classrooms[classroom.api_code]["alunos"][exam.student.api_code]["componentes_curriculares"][discipline.api_code]["valor"] = exam.value
+          classrooms[classroom.api_code]['turma_id'] = classroom.api_code
+          classrooms[classroom.api_code]['alunos'][exam.student.api_code]['aluno_id'] = exam.student.api_code
+          classrooms[classroom.api_code]['alunos'][exam.student.api_code]['componentes_curriculares'][discipline.api_code]['componente_curricular_id'] = discipline.api_code
+          classrooms[classroom.api_code]['alunos'][exam.student.api_code]['componentes_curriculares'][discipline.api_code]['valor'] = exam.value
         end
       else
-        raise IeducarApi::Base::ApiError.new("Não é possível enviar os conceitos pois não foram todos lançados na turma "+classroom.to_s+" e disciplina "+discipline.to_s+" para a etapa atual.")
+        raise IeducarApi::Base::ApiError.new("Não foi possível enviar as avaliações conceituais da turma #{classroom} pois não foram lançados dos os conceitos.")
       end
-
     end
     classrooms
   end

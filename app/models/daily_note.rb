@@ -28,6 +28,12 @@ class DailyNote < ActiveRecord::Base
                                                                                  'avaliations.test_date' => start_at.to_date..end_at.to_date)
                                                                                     .where.not(students: { id: nil })
                                                                                     .includes(:avaliation, students: :student) }
+
+  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_test_date_between, lambda { |start_at, end_at| includes(:avaliation, students: :student).where('avaliations.test_date': start_at.to_date..end_at.to_date) }
+
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
 
