@@ -27,7 +27,7 @@ class StudentsInRecoveryFetcher
   end
 
   def discipline
-    discipline = Discipline.find(@discipline_id)
+    Discipline.find(@discipline_id)
   end
 
   def school_calendar_step
@@ -54,7 +54,6 @@ class StudentsInRecoveryFetcher
   end
 
   def fetch_students_in_specific_recovery
-
     @students = []
 
     school_calendar_steps = RecoverySchoolCalendarStepsFetcher.new(
