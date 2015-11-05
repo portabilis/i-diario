@@ -11,6 +11,7 @@ $(function () {
   var $discipline = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
   var $school_calendar_step = $('#school_term_recovery_diary_record_school_calendar_step_id');
   var $recorded_at = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_recorded_at');
+  var $submitButton = $('input[type=submit]');
 
 
   function fetchDisciplines() {
@@ -65,7 +66,7 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
   };
 
-  function fetchSchoolCalendarStep(){
+  function fetchSchoolCalendarStep() {
     var school_calendar_step_id = $school_calendar_step.select2('val');
 
     if (!_.isEmpty(school_calendar_step_id)) {
@@ -192,6 +193,11 @@ $(function () {
   $recorded_at.on('change', function() {
     removeStudents();
     fetchStudentsInRecovery();
+  });
+
+  $submitButton.on('click', function() {
+    // Workaround for a bug on Datepicker plugin to prevent change after submit
+    $recorded_at.unbind();
   });
 
   // On load
