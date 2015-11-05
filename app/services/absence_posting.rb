@@ -46,7 +46,7 @@ class AbsencePosting
       daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
         .by_frequency_date_between(step_start_at, step_end_at)
 
-      if daily_frequencies.blank? || daily_frequencies.count != posting.school_calendar_step.number_of_school_days
+      if daily_frequencies.blank? || daily_frequencies.count < posting.school_calendar_step.number_of_school_days
         warning_dates = posting.school_calendar_step.school_day_dates
 
         if daily_frequencies.present?
