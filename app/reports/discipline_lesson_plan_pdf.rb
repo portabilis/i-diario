@@ -101,7 +101,6 @@ class DisciplineLessonPlanPdf
     classes = (!@discipline_lesson_plan.classes ? '' : @discipline_lesson_plan.classes.map { |classes| classes}.join(", "))
 
 
-
     unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 4)
     unity_cell = make_cell(content: @discipline_lesson_plan.lesson_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
 

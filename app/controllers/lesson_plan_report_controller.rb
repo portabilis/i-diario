@@ -8,14 +8,14 @@ class LessonPlanReportController < ApplicationController
   def report
     @lesson_plan_report_form = LessonPlanReportForm.new(resource_params)
 
+
     if @lesson_plan_report_form.valid?
       lesson_plan_report = LessonPlanReport.build(current_entity_configuration,
                                                               @lesson_plan_report_form.date_start,
                                                               @lesson_plan_report_form.date_end,
-                                                              @lesson_plan_report_form.discipline_lesson_plan,
-                                                              @lesson_plan_report_form.knowledge_area_lesson_plan)
+                                                              @lesson_plan_report_form.discipline_lesson_plan)
 
-      send_data(lesson_plan_report.render, filename: 'planos-de-aula.pdf', type: 'application/pdf', disposition: 'inline')
+      send_data(lesson_plan_report.render, filename: 'registro-de-conteudos-por-disciplina.pdf', type: 'application/pdf', disposition: 'inline')
     else
       @lesson_plan_report_form
       fetch_collections
@@ -27,11 +27,11 @@ class LessonPlanReportController < ApplicationController
 
   def fetch_collections
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id,
-                                                        @lesson_plan_report_form.unity_id,
+                                                        current_user.current_user_role.unity.id,
                                                         @lesson_plan_report_form.classroom_id,
                                                         @lesson_plan_report_form.discipline_id)
     fetcher.fetch!
-    @unities = fetcher.unities
+    @unities = Unity.by_unity(current_user.current_user_role.unity.id)
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
     @number_of_classes = current_school_calendar.number_of_classes
