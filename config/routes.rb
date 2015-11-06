@@ -174,5 +174,7 @@ Rails.application.routes.draw do
 
     get '/reports/lesson_plan', to: 'lesson_plan_report#form', as: 'lesson_plan_report'
     post '/reports/lesson_plan', to: 'lesson_plan_report#report', as: 'lesson_plan_report'
+
+    post '/food_composition', to: 'food_composition#calculate'
   end
 end

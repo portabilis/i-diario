@@ -8,7 +8,7 @@ pt-BR:
     attributes:
       food_***REMOVED***:
         food_id: "Alimento"
-        quantity: "Quantidade (g)"
+        quantity: "Porção"
         ***REMOVED***_id: "Cardápio"
 
     errors:
