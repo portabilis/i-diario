@@ -24,6 +24,28 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_areas = fetch_knowledge_area
   end
 
+  def show
+    @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
+
+    authorize @knowledge_area_lesson_plan
+
+    respond_with @knowledge_area_lesson_plan do |format|
+      format.pdf do
+        knowledge_area_lesson_plan_pdf = KnowledgeAreaLessonPlanPdf.build(
+          current_entity_configuration,
+          @knowledge_area_lesson_plan
+        )
+
+        send_data(
+          knowledge_area_lesson_plan_pdf.render,
+          filename: 'planos-de-aula-por-area-de-conhecimento.pdf',
+          type: 'application/pdf',
+          disposition: 'inline'
+        )
+      end
+    end
+  end
+
   def new
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
     @knowledge_area_lesson_plan.build_lesson_plan

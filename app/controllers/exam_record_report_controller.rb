@@ -17,7 +17,8 @@ class ExamRecordReportController < ApplicationController
                                                   current_school_calendar.year,
                                                   @exam_record_report_form.step,
                                                   current_test_setting,
-                                                  @exam_record_report_form.daily_notes)
+                                                  @exam_record_report_form.daily_notes,
+                                                  @exam_record_report_form.students)
 
       send_data(exam_record_report.render, filename: 'registro-de-avaliacao.pdf', type: 'application/pdf', disposition: 'inline')
     else
@@ -47,5 +48,3 @@ class ExamRecordReportController < ApplicationController
                                                     :school_calendar_step_id)
   end
 end
-
-

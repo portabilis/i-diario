@@ -5,6 +5,7 @@ $(function() {
     hideNoItemMessage();
     loadSelect2Inputs();
     loadDecimalMasks();
+    loadDatepickers();
   }).on('cocoon:after-remove', function(e, item) {
     showNoItemMessage();
   });
@@ -60,5 +61,9 @@ $(function() {
       centsSeparator: ',',
       thousandsSeparator: '.'
     });
+  }
+
+  function loadDatepickers() {
+  	$('.datepicker:not([readonly]):not([disabled])').datepicker();
   }
 });

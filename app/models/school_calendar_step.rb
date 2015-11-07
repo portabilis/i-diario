@@ -21,12 +21,22 @@ class SchoolCalendarStep < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:start_at]) }
 
   def to_s
-    "#{localized.start_at} a #{localized.end_at}"
+    "#{school_term} (#{localized.start_at} a #{localized.end_at})"
   end
 
   def to_number
     return unless school_calendar
     (school_calendar.steps.ordered.index(self) || 0) + 1
+  end
+
+  def school_calendar_step_day?(date)
+    step_from_date = school_calendar.step(date)
+
+    if !step_from_date.eql?(self)
+      false
+    else
+      school_calendar.school_day?(date)
+    end
   end
 
   def number_of_school_days
@@ -60,6 +70,17 @@ class SchoolCalendarStep < ActiveRecord::Base
     when school_term.end_with?(SchoolTermTypes::SEMESTER)
       I18n.t("enumerations.semesters.#{school_term}")
     end
+  end
+
+  def test_setting
+    TestSetting.where(
+      TestSetting.arel_table[:year].eq(school_calendar.year)
+        .and(TestSetting.arel_table[:exam_setting_type].eq(ExamSettingTypes::GENERAL)
+               .or(TestSetting.arel_table[:school_term].eq(school_calendar.school_term(start_at)))
+        )
+    )
+    .order(school_term: :desc)
+    .first
   end
 
   private

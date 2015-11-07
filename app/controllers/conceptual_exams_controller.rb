@@ -57,6 +57,8 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = ConceptualExam.find(params[:id])
     @conceptual_exam.assign_attributes resource_params
 
+    destroy_students_not_found
+
     authorize @conceptual_exam
 
     if @conceptual_exam.save
@@ -72,7 +74,13 @@ class ConceptualExamsController < ApplicationController
   def fetch_students
     begin
       api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily({ classroom_api_code: @conceptual_exam.classroom.api_code, discipline_api_code: @conceptual_exam.discipline.api_code})
+      result = api.fetch_for_daily(
+        {
+          classroom_api_code: @conceptual_exam.classroom.api_code,
+          discipline_api_code: @conceptual_exam.discipline.api_code,
+          date: Date.today
+        }
+      )
 
       @api_students = result["alunos"]
     rescue IeducarApi::Base::ApiError => e
@@ -113,5 +121,17 @@ class ConceptualExamsController < ApplicationController
 
   def set_school_calendar_steps
     @school_calendar_steps =  current_school_calendar.steps.ordered || {}
+  end
+
+  private
+
+  def destroy_students_not_found
+    @conceptual_exam.students.each do |student|
+      student_exists = resource_params[:students_attributes].any? do |student_params|
+        student_params.last[:student_id].to_i == student.student.id
+      end
+
+      student.destroy unless student_exists
+    end
   end
 end

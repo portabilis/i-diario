@@ -9,7 +9,7 @@ $(function () {
 
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
-      $.getJSON('/classrooms?' + $.param(params)).always(function (data) {
+      $.getJSON('/turmas?' + $.param(params)).always(function (data) {
         window.classrooms = data;
         callback(window.classrooms);
       });
@@ -20,7 +20,7 @@ $(function () {
 
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
-      $.getJSON('/disciplines?' + $.param(params)).always(function (data) {
+      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
         window.disciplines = data;
         callback(window.disciplines);
       });
@@ -77,17 +77,16 @@ $(function () {
   });
 
   var checkExamRule = function(params){
-    fetchExamRule(params, function(exam_rule){
+    fetchExamRule(params, function(data){
+      var examRule = data.exam_rule;
       $('form input[type=submit]').removeClass('disabled');
-      if(!$.isEmptyObject(exam_rule)){
+      if(!$.isEmptyObject(examRule)){
         $examRuleNotFoundAlert.addClass('hidden');
 
-        if(exam_rule.frequency_type == 1){
-          console.log(exam_rule.frequency_type)
+        if(examRule.frequency_type == 1){
           $globalAbsence.val(1);
           $hideWhenGlobalAbsence.hide();
         }else{
-          console.log(exam_rule.frequency_type)
           $globalAbsence.val(0);
           $hideWhenGlobalAbsence.show();
         }

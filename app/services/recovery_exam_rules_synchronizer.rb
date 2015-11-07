@@ -31,7 +31,7 @@ class RecoveryExamRulesSynchronizer
             steps: record["etapas_recuperadas"],
             average: record["media"],
             maximum_score: record["nota_maxima"],
-            exam_rule_id: RoundingTable.find_by(api_code: record["regra_avaliacao_id"]).try(:id)
+            exam_rule_id: ExamRule.find_by(api_code: record["regra_avaliacao_id"]).try(:id)
           )
         else
           recovery_exam_rule = recovery_exam_rules.create(
@@ -40,7 +40,7 @@ class RecoveryExamRulesSynchronizer
             steps: record["etapas_recuperadas"],
             average: record["media"],
             maximum_score: record["nota_maxima"],
-            exam_rule_id: RoundingTable.find_by(api_code: record["regra_avaliacao_id"]).try(:id)
+            exam_rule_id: ExamRule.find_by(api_code: record["regra_avaliacao_id"]).try(:id)
           )
         end
       end

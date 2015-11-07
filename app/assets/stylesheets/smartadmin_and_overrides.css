@@ -188,3 +188,13 @@ aside#left-panel{
 .widget-body table.table.table-bordered td div.control-group{
   margin-bottom: 0;
 }
+
+.icon-addon > input.datepicker {
+  padding-left: 30px;
+}
+
+.icon-addon > input.datepicker[readonly] {
+  cursor: not-allowed;
+  background-color: #eeeeee;
+  opacity: 1;
+}

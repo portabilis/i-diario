@@ -5,8 +5,8 @@ require "prawn/measurement_extensions"
 class ExamRecordReport
   include Prawn::View
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes)
-    new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
+    new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
   end
 
   def initialize
@@ -18,13 +18,14 @@ class ExamRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
     @school_calendar_step = school_calendar_step
     @test_setting = test_setting
     @daily_notes = daily_notes
+    @students = students
 
     header
 
@@ -99,6 +100,11 @@ class ExamRecordReport
     sliced_daily_notes.each_with_index do |daily_notes_slice, index|
       avaliations = []
       students = {}
+
+      @students.each do |student|
+        (students[student.id] ||= {})[:name] = student.name
+      end
+
       daily_notes_slice.each do |daily_note|
         avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center)
         daily_note.students.each do |student|
@@ -109,6 +115,12 @@ class ExamRecordReport
           students[student.student.id][:dependence] = students[student.student.id][:dependence] || student.dependence?
 
           (students[student.student.id][:scores] ||= []) << make_cell(content: student.note.to_s, align: :center)
+        end
+
+        @students.each do |student|
+          unless daily_note.students.any? { |s| s.student.id == student.id }
+            (students[student.id][:scores] ||= []) << make_cell(content: '', font_style: :bold, align: :center)
+          end
         end
       end
 

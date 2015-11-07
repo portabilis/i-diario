@@ -16,6 +16,13 @@ pt-BR:
         avaliation: "Avaliação"
         avaliation_id: "Avaliação"
 
+    errors:
+      models:
+        daily_note:
+          attributes:
+              avaliation:
+                must_be_less_than_or_equal_to_today: "a data da avaliação deve ser menor ou igual a data de hoje"
+
   errors:
     daily_notes:
       require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"

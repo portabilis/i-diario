@@ -14,7 +14,7 @@ $(function () {
 
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
-      $.getJSON('/classrooms?' + $.param(params)).always(function (data) {
+      $.getJSON('/turmas?' + $.param(params)).always(function (data) {
         window.classrooms = data;
         callback(window.classrooms);
       });
@@ -25,7 +25,7 @@ $(function () {
 
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
-      $.getJSON('/disciplines?' + $.param(params)).always(function (data) {
+      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
         window.disciplines = data;
         callback(window.disciplines);
       });
@@ -64,7 +64,8 @@ $(function () {
   });
 
   var checkExamRule = function(params){
-    fetchExamRule(params, function(exam_rule){
+    fetchExamRule(params, function(data){
+      var examRule = data.exam_rule;
       $('form input[type=submit]').removeClass('disabled');
       $examRuleNotFoundAlert.addClass('hidden');
       $examRuleNotAllowDescriptiveExam.addClass('hidden');
@@ -74,14 +75,14 @@ $(function () {
       var should_clear_discipline = true;
       var should_clear_step = true;
 
-      if(!$.isEmptyObject(exam_rule)){
-        if($.inArray(exam_rule.opinion_type, ["2", "3", "5", "6"]) >= 0){
-          if($.inArray(exam_rule.opinion_type, ["2", "5"]) >= 0){
+      if(!$.isEmptyObject(examRule)){
+        if($.inArray(examRule.opinion_type, ["2", "3", "5", "6"]) >= 0){
+          if($.inArray(examRule.opinion_type, ["2", "5"]) >= 0){
             $disciplineContainer.removeClass('hidden');
             should_clear_discipline = false
           }
 
-          if($.inArray(exam_rule.opinion_type, ["2", "3"]) >= 0){
+          if($.inArray(examRule.opinion_type, ["2", "3"]) >= 0){
             $stepContainer.removeClass('hidden');
             should_clear_step = false
           }

@@ -11,7 +11,7 @@ $(function () {
 
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
-      $.getJSON('/classrooms?' + $.param(params)).always(function (data) {
+      $.getJSON('/turmas?' + $.param(params)).always(function (data) {
         window.classrooms = data;
         callback(window.classrooms);
       });
@@ -22,7 +22,7 @@ $(function () {
 
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
-      $.getJSON('/disciplines?' + $.param(params)).always(function (data) {
+      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
         window.disciplines = data;
         callback(window.disciplines);
       });
@@ -61,13 +61,14 @@ $(function () {
   });
 
   var checkExamRule = function(params){
-    fetchExamRule(params, function(exam_rule){
+    fetchExamRule(params, function(data){
+      var examRule = data.exam_rule
       $('form input[type=submit]').removeClass('disabled');
       $examRuleNotFoundAlert.addClass('hidden');
       $examRuleNotAllowConcept.addClass('hidden');
 
-      if(!$.isEmptyObject(exam_rule)){
-        if(exam_rule.score_type != "2"){
+      if(!$.isEmptyObject(examRule)){
+        if(examRule.score_type != "2"){
           // Display alert
           $examRuleNotAllowConcept.removeClass('hidden');
 

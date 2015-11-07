@@ -1,6 +1,6 @@
 <div class="widget-body">
   <% @school_calendar_steps.each do |step| %>
-    <legend><%= "#{step.school_term} (#{step.to_s})" %></legend>
+    <legend><%= step.to_s %></legend>
 
     <div class="table-responsive">
       <table class="table table-bordered table-striped table-condensed table-hover">

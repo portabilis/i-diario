@@ -28,19 +28,37 @@ class AttendanceRecordReportForm
 
   def daily_frequencies
     if global_absence?
-      DailyFrequency.by_unity_classroom_and_frequency_date_between(unity_id, classroom_id, start_at, end_at).order_by_student_name
-                                                                                                            .order_by_frequency_date
-                                                                                                            .order_by_class_number
+      DailyFrequency.by_unity_classroom_and_frequency_date_between(
+        unity_id,
+        classroom_id,
+        start_at,
+        end_at
+      )
+      .order_by_frequency_date
+      .order_by_class_number
+      .order_by_student_name
+
     else
-      DailyFrequency.by_unity_classroom_discipline_class_number_and_frequency_date_between(unity_id,
-                                                                                           classroom_id,
-                                                                                           discipline_id,
-                                                                                           class_numbers.split(','),
-                                                                                           start_at,
-                                                                                           end_at).order_by_student_name
-                                                                                                  .order_by_frequency_date
-                                                                                                  .order_by_class_number
+      DailyFrequency.by_unity_classroom_discipline_class_number_and_frequency_date_between(
+        unity_id,
+        classroom_id,
+        discipline_id,
+        class_numbers.split(','),
+        start_at,
+        end_at
+      )
+      .order_by_frequency_date
+      .order_by_class_number
+      .order_by_student_name      
     end
+  end
+
+  def students
+    students_ids = []
+    daily_frequencies.each { |d| students_ids << d.students.map(&:student_id) }
+    students_ids.flatten!.uniq!
+
+    Student.find(students_ids)
   end
 
   private

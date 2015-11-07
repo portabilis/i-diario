@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     resources :students do
       collection do
         get :search_api
+        get :in_recovery, path: '/in_recovery/classrooms/:classroom_id/disciplines/:discipline_id/school_calendar_steps/:school_calendar_step_id'
       end
     end
 
@@ -136,6 +137,7 @@ Rails.application.routes.draw do
       resources :school_calendar_steps, only: [:index]
       resources :school_calendar_events, concerns: :history
     end
+    resources :school_calendar_steps, only: [:show]
 
     resources :teaching_plans, concerns: :history
     resources :discipline_lesson_plans, concerns: :history
@@ -147,6 +149,8 @@ Rails.application.routes.draw do
     resources :avaliations, concerns: :history
     resources :teacher_avaliations, only: :index
     resources :daily_notes, only: [:new, :create, :edit, :update, :destroy], concerns: :history
+    resources :school_term_recovery_diary_records, concerns: :history
+    resources :final_recovery_diary_records, concerns: :history
     resources :conceptual_exams, only: [:new, :create, :edit, :update]
     resources :descriptive_exams, only: [:new, :create, :edit, :update]
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
@@ -167,5 +171,8 @@ Rails.application.routes.draw do
 
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
+
+    get '/reports/lesson_plan', to: 'lesson_plan_report#form', as: 'lesson_plan_report'
+    post '/reports/lesson_plan', to: 'lesson_plan_report#report', as: 'lesson_plan_report'
   end
 end

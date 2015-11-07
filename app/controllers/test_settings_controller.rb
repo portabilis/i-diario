@@ -15,7 +15,7 @@ class TestSettingsController < ApplicationController
 
     authorize resource
 
-    respond_with(@test_setting)
+    render json: @test_setting
   end
 
   def new

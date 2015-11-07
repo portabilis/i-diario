@@ -53,7 +53,7 @@ class Avaliation < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:test_date]) }
 
   def to_s
-    !test_setting_test || allow_break_up? ? description : test_setting_test
+    !test_setting_test || allow_break_up? ? description : test_setting_test.to_s
   end
 
   def classes=(classes)
@@ -61,7 +61,7 @@ class Avaliation < ActiveRecord::Base
   end
 
   def description_to_teacher
-    I18n.l(test_date) + ' - ' + (fix_tests? ? test_setting_test.to_s : (description ? description : ''))
+    I18n.l(test_date) + ' - ' + self.to_s
   end
 
   def self.data_for_select2

@@ -14,12 +14,23 @@ class ExamRecordReportForm
   validate :must_have_daily_notes
 
   def daily_notes
-    DailyNote.by_unity_classroom_discipline_and_avaliation_test_date_between(unity_id,
-                                                                             classroom_id,
-                                                                             discipline_id,
-                                                                             step.start_at,
-                                                                             step.end_at).order_by_student_name
-                                                                                         .order_by_avaliation_test_date
+    DailyNote.by_unity_classroom_discipline_and_avaliation_test_date_between(
+      unity_id,
+      classroom_id,
+      discipline_id,
+      step.start_at,
+      step.end_at
+    )
+    .order_by_avaliation_test_date
+    .order_by_student_name
+  end
+
+  def students
+    students_ids = []
+    daily_notes.each { |d| students_ids << d.students.map(&:student_id) }
+    students_ids.flatten!.uniq!
+
+    Student.find(students_ids)
   end
 
   def step

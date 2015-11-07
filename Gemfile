@@ -48,6 +48,7 @@ gem 'less-rails', '2.7.0'
 gem 'twitter-bootstrap-rails', '3.2.0'
 gem 'backbone-nested-attributes', git: 'git://github.com/samuelsimoes/backbone-nested-attributes.git'
 gem 'handlebars_assets', '0.17.1'
+gem 'ejs', '~> 1.1', '>= 1.1.1'
 
 gem 'decore', git: 'https://github.com/matiasleidemer/decore'
 gem 'activerecord-connections', git: 'https://github.com/ricardohsd/activerecord-connections.git'

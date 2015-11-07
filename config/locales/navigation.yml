@@ -52,6 +52,9 @@ pt-BR:
     avaliations_***REMOVED***: "Avaliações"
     avaliations: "Avaliações numéricas"
     daily_notes: "Diário de avaliações"
+    recovery_diary_records_***REMOVED***: "Recuperações"
+    school_term_recovery_diary_records: "Diário de recuperações de etapas"
+    final_recovery_diary_records: "Diário de recuperações finais"
     frequencies_***REMOVED***: "Frequência"
     daily_frequencies: "Diário de frequência"
     absence_justifications: "Justificativas de falta"
@@ -61,6 +64,7 @@ pt-BR:
     reports: "Relatórios"
     exam_record_report: "Registro de avaliações"
     attendance_record_report: "Registro de frequência"
+    lesson_plan_report: "Planos de aula"
     ***REMOVED***: "***REMOVED***"
     ieducar_api_exam_postings: "Envio de avaliações"
 

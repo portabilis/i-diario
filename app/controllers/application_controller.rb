@@ -49,7 +49,11 @@ class ApplicationController < ActionController::Base
   helper_method :policy
 
   def handle_customer(&block)
-    current_entity.using_connection(&block)
+    if current_entity
+      current_entity.using_connection(&block)
+    else
+      redirect_to '/404'
+    end
   end
 
   def check_entity_status

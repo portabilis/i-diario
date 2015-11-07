@@ -28,4 +28,9 @@ class Student < ActiveRecord::Base
   def to_s
     name
   end
+
+  def average(discipline_id, school_calendar_step_id)
+    StudentAverageCalculator.new(self)
+      .calculate(discipline_id, school_calendar_step_id)
+  end
 end
