@@ -5,6 +5,8 @@ class DailyFrequencyStudentsBuilder
   end
 
   def build_all
+    return if params.blank?
+
     params.each do |record|
       next unless record[:student_id] && record[:daily_frequency_id]
 

@@ -180,6 +180,8 @@ class DailyFrequenciesController < ApplicationController
   private
 
   def destroy_students_not_found
+    return if frequency_student_params[:daily_frequency_student].blank?
+    
     frequency_student_params[:daily_frequency_student].each do |daily_frequency_student_params|
       daily_frequency = DailyFrequency.find(daily_frequency_student_params[:daily_frequency_id])
       daily_frequency.students.each do |student|
