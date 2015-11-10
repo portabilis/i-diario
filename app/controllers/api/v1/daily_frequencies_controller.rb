@@ -40,7 +40,7 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
         {
           classroom_api_code: @daily_frequency.classroom.api_code,
           discipline_api_code: @daily_frequency.discipline.try(:api_code),
-          date: Date.today
+          date: params[:frequency_date] || Date.today
         }
       )
 
