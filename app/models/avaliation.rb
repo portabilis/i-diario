@@ -61,7 +61,7 @@ class Avaliation < ActiveRecord::Base
   end
 
   def description_to_teacher
-    I18n.l(test_date) + ' - ' + self.to_s
+    I18n.l(test_date) + ' - ' + (self.to_s || '')
   end
 
   def self.data_for_select2
