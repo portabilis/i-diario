@@ -113,7 +113,6 @@ $(function () {
       });
     }
   });
-  $showKnowledge_area.hide();
 
   if ($classroom.length && $classroom.val().length){
     checkExamRule({classroom_id: $classroom.val()});
