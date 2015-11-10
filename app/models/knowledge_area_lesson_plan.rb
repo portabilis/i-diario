@@ -19,12 +19,6 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
   scope :by_classroom_id, lambda { |classroom_id| joins(:lesson_plan).where(lesson_plans: { classroom_id: classroom_id }) }
   scope :by_knowledge_area_id, lambda { |knowledge_area_id| joins(:knowledge_area_lesson_plan_knowledge_areas).where(knowledge_area_lesson_plan_knowledge_areas: { knowledge_area_id: knowledge_area_id }) }
   scope :by_lesson_plan_date, lambda { |lesson_plan_date| joins(:lesson_plan).where(lesson_plans: { lesson_plan_date: lesson_plan_date }) }
-  scope :by_knowledge_area_id_lesson_plan_date, lambda {|knowledge_area_id, date_start, date_end, classroom_id| joins(:lesson_plan, :knowledge_area_lesson_plan_knowledge_areas).where("case when ? = 0 then 1=1 else knowledge_area_id = ? end
-             and case when ? = 0 then 1 = 1 else classroom_id = ? end
-             and case when ? = '01/01/1900' then  1=1 when ? = '01/01/1900' then  1=1  else lesson_plan_date between ? and ? end",
-             (knowledge_area_id == '' ? 0 : knowledge_area_id), (knowledge_area_id == '' ? 0 : knowledge_area_id), (classroom_id == '' ? 0 : classroom_id), 
-             (classroom_id == '' ? 0 : classroom_id), (date_start == '' ? '01/01/1900' : date_start), 
-             (date_end == '' ? '01/01/1900' : date_end), (date_start == '' ? '01/01/1900' : date_start), (date_end == '' ? '01/01/1900' : date_end)).order("lesson_plan_date ASC")}
   scope :ordered, -> { joins(:lesson_plan).order(LessonPlan.arel_table[:lesson_plan_date].desc) }
 
   validates :lesson_plan, presence: true

@@ -61,7 +61,7 @@ pt-BR:
     reports: 'relatorios'
     attendance_record: 'registro-de-frequencia'
     exam_record: 'registro-de-avaliacoes'
-    lesson_plan_disciplina: 'registro-de-conteudos-por-disciplina'
+    lesson_plan_discipline: 'registro-de-conteudos-por-disciplina'
     lesson_plan_knowledge_area: 'registro-de-conteudos-por-areas-de-conhecimento'
     ***REMOVED***: '***REMOVED***'
     ieducar_api_exam_postings: 'envio-de-avaliacoes'

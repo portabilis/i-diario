@@ -33,7 +33,8 @@ class DisciplineLessonPlansController < ApplicationController
       format.pdf do
         discipline_lesson_plan_pdf = DisciplineLessonPlanPdf.build(
           current_entity_configuration,
-          @discipline_lesson_plan
+          @discipline_lesson_plan,
+          current_teacher
         )
 
         send_data(

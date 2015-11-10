@@ -49,7 +49,7 @@ class Features < EnumerateIt::Base
                    :exam_record_report,
                    :attendance_record_report,
                    :***REMOVED***,
-                   :lesson_plan_report,
+                   :lesson_plan_discipline_report,
                    :lesson_plan_knowledge_area_report,
                    :ieducar_api_exam_postings
 

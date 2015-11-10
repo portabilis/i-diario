@@ -5,12 +5,7 @@
       <%= t('.exam_rule_not_found') %>
     </div>
 
-    <%= f.error_notification unless @lesson_plan_knowledge_area_report_form.errors[:discipline_lesson_plan].any? || @lesson_plan_knowledge_area_report_form.errors[:knowledge_area_lesson_plan].any? %>
-
-    <div class="alert alert-danger <%= 'hidden' unless @lesson_plan_knowledge_area_report_form.errors[:discipline_lesson_plan].any? %>">
-      <i class="fa fa-exclamation-circle fa-fw"></i>
-      <%= @lesson_plan_knowledge_area_report_form.errors[:discipline_lesson_plan].first %>
-    </div>
+    <%= f.error_notification unless @lesson_plan_knowledge_area_report_form.errors[:knowledge_area_lesson_plan].any? %>
 
     <div class="alert alert-danger <%= 'hidden' unless @lesson_plan_knowledge_area_report_form.errors[:knowledge_area_lesson_plan].any? %>">
       <i class="fa fa-exclamation-circle fa-fw"></i>
@@ -20,11 +15,11 @@
     <fieldset>
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.input :unity_id, as: :select2, elements: @unities, input_html: { value: @lesson_plan_knowledge_area_report_form.unity_id } %>
+          <%= f.input :classroom_id, as: :select2, elements: @classrooms, input_html: { value: @lesson_plan_knowledge_area_report_form.classroom_id } %>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :classroom_id, as: :select2, elements: @classrooms, input_html: { value: @lesson_plan_knowledge_area_report_form.classroom_id } %>
+          <%= f.input :knowledge_area_id, as: :select2, elements: @knowledge_areas, input_html: { value: @lesson_plan_knowledge_area_report_form.knowledge_area_id } %>
         </div>
       </div>
 
@@ -35,14 +30,6 @@
 
         <div class="col col-sm-4">
           <%= f.input :date_end, as: :date%>
-        </div>
-      </div>
-
-      <div class="row">
-        <%= f.input :global_absence, as: :hidden %>
-
-        <div class="col col-sm-4">
-          <%= f.input :knowledge_area_id, as: :select2, elements: @knowledge_areas, input_html: { value: @lesson_plan_knowledge_area_report_form.knowledge_area_id } %>
         </div>
       </div>
     </fieldset>

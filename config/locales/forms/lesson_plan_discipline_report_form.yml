@@ -1,8 +1,7 @@
 pt-BR:
   activemodel:
     attributes:
-      lesson_plan_report_form:
-        unity_id: "Escola"
+      lesson_plan_discipline_report_form:
         classroom_id: "Turma"
         date_start: "Data inicial"
         date_end: "Data final"
@@ -11,9 +10,11 @@ pt-BR:
 
     errors:
       models:
-        lesson_plan_report_form:
+        lesson_plan_discipline_report_form:
           attributes:
             discipline_lesson_plan:
               must_have_discipline_lesson_plan: "Nenhum resultado foi encontrado para os dados informados"
-            knowledge_area_lesson_plan:
-              must_have_knowledge_area_lesson_plan: "Nenhum resultado foi encontrado para os dados informados"
+            date_start:
+              date_start_must_be_a_valid_date: "deve ser uma data válida"
+            date_end:
+              date_end_must_be_a_valid_date: "deve ser uma data válida"

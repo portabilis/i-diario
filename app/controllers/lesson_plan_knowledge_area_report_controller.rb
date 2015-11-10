@@ -12,7 +12,8 @@ class LessonPlanKnowledgeAreaReportController < ApplicationController
       lesson_plan_knowledge_area_report = LessonPlanKnowledgeAreaReport.build(current_entity_configuration,
                                                               @lesson_plan_knowledge_area_report_form.date_start,
                                                               @lesson_plan_knowledge_area_report_form.date_end,
-                                                              @lesson_plan_knowledge_area_report_form.knowledge_area_lesson_plan)
+                                                              @lesson_plan_knowledge_area_report_form.knowledge_area_lesson_plan,
+                                                              current_teacher)
 
       send_data(lesson_plan_knowledge_area_report.render, filename: 'registo-de-conteudo-por-areas-de-conhecimento.pdf', type: 'application/pdf', disposition: 'inline')
     else
@@ -28,11 +29,10 @@ class LessonPlanKnowledgeAreaReportController < ApplicationController
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id,
                                                         Unity.by_unity(current_user.current_user_role.unity.id),
                                                         @lesson_plan_knowledge_area_report_form.classroom_id,
-                                                        @lesson_plan_knowledge_area_report_form.discipline_id)
+                                                        nil)
     fetcher.fetch!
-    @unities = Unity.by_unity(current_user.current_user_role.unity.id)
+    @unities = fetcher.unities
     @classrooms = fetcher.classrooms
-    @disciplines = fetcher.disciplines
     @number_of_classes = current_school_calendar.number_of_classes
     @knowledge_areas = KnowledgeArea.all
   end
@@ -40,10 +40,8 @@ class LessonPlanKnowledgeAreaReportController < ApplicationController
   def resource_params
     params.require(:lesson_plan_knowledge_area_report_form).permit(:unity_id,
                                                           :classroom_id,
-                                                          :discipline_id,
                                                           :date_start,
                                                           :date_end,
-                                                          :global_absence,
                                                           :knowledge_area_id)
   end
 end

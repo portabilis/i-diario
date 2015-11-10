@@ -3,8 +3,8 @@ require "prawn/measurement_extensions"
 class LessonPlanKnowledgeAreaReport
   include Prawn::View
 
-  def self.build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans)
-    new.build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans)
+  def self.build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans, current_teacher)
+    new.build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans, current_teacher)
   end
 
   def initialize
@@ -16,11 +16,12 @@ class LessonPlanKnowledgeAreaReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans)
+  def build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans, current_teacher)
     @entity_configuration = entity_configuration
     @date_start = date_start
     @date_end = date_end
     @knowledge_area_lesson_plans = knowledge_area_lesson_plans
+    @current_teacher = current_teacher
     @gap = 10
 
     header
@@ -127,48 +128,63 @@ class LessonPlanKnowledgeAreaReport
       [general_information_header_cell]
     ]
 
-    unity_header = make_cell(content: 'Unidade', size: 8, width: 70, font_style: :bold, background_color: 'FFFFFF', align: :center)
-    plan_date_header = make_cell(content: 'Data', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
-    classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
-    knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
-    conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
+    teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    plan_date_header = make_cell(content: 'Data', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
 
 
     identification_headers = [
       unity_header,
-      knowledge_area_header,
-      classroom_header
+      classroom_header,
+      teacher_header
     ]
 
     general_information_headers = [
       plan_date_header,
+      knowledge_area_header,
       conteudo_header
     ]
 
     identification_cells = []
     general_information_cells = []
 
+    unity_cell = make_cell(content:  @knowledge_area_lesson_plans.first.lesson_plan.unity.name, size: 10, width: 240, align: :left)
+    classroom_cell = make_cell(content: @knowledge_area_lesson_plans.first.lesson_plan.classroom.description, size: 10, align: :left)
+    teacher_cell = make_cell(content: @current_teacher.name, size: 10, align: :left)
+
+
+    identification_cells << [
+      unity_cell, 
+      classroom_cell,
+      teacher_cell
+    ]
+
 
     @knowledge_area_lesson_plans.each do |knowledge_area_lesson_plan|
 
-      knowledge_area_lesson_plans_knowledge_area = KnowledgeAreaLessonPlanKnowledgeArea.find_by knowledge_area_lesson_plan_id: knowledge_area_lesson_plan.id
-      knowledge_area = KnowledgeArea.find_by id: knowledge_area_lesson_plans_knowledge_area.knowledge_area_id
+      knowledge_area_lesson_plans_knowledge_areas = KnowledgeAreaLessonPlanKnowledgeArea.where knowledge_area_lesson_plan_id: knowledge_area_lesson_plan.id
+      
+      knowledge_area_ids = []
 
-      unity_cell = make_cell(content:  @knowledge_area_lesson_plans.first.lesson_plan.unity.name, size: 10, width: 240, align: :left)
+      knowledge_area_lesson_plans_knowledge_areas.each do |knowledge_area_lesson_plans_knowledge_area|
+        knowledge_area_ids << knowledge_area_lesson_plans_knowledge_area.knowledge_area_id
+      end
+
+      knowledge_areas = KnowledgeArea.where id: [knowledge_area_ids]
+
+      knowledge_area_descriptions = (knowledge_areas.map { |descriptions| descriptions}.join(", "))
+
       plan_date_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.lesson_plan_date.strftime("%d/%m/%Y"), size: 10, width: 80, align: :left)
-      classroom_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.classroom.description, size: 10, align: :left)
-      knowledge_area_cell = make_cell(content: knowledge_area.description, size: 10, align: :left)
       conteudo_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.contents, size: 10, align: :left)
+      knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, width: 150, align: :left)
 
-
-      identification_cells << [
-        unity_cell, 
-        knowledge_area_cell, 
-        classroom_cell
-      ]
 
       general_information_cells << [
         plan_date_cell,
+        knowledge_area_cell,
         conteudo_cell
       ]
     end
