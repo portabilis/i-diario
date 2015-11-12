@@ -190,6 +190,9 @@ navigation:
         - ***REMOVED***:
             type: "school_term_recovery_diary_records"
             path: "school_term_recovery_diary_records_path"
+        - ***REMOVED***:
+            type: "final_recovery_diary_records"
+            path: "final_recovery_diary_records_path"
   - ***REMOVED***:
       type: "frequencies_***REMOVED***"
       icon: "fa-check-square-o"
@@ -221,7 +224,7 @@ navigation:
             path: "attendance_record_report_path"
         - ***REMOVED***:
             type: "***REMOVED***"
-            path: "***REMOVED***_path"        
+            path: "***REMOVED***_path"
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"
       icon: "fa-arrow-circle-up"

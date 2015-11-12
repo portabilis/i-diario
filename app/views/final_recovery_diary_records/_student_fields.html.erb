@@ -1,0 +1,19 @@
+<tr class="nested-fields <%= f.object.persisted? ? 'existing' : 'dynamic' %>" style="<%= 'display: none;' if f.object.marked_for_destruction? %>">
+  <td>
+    <% if f.object.persisted? %>
+      <%= f.hidden_field :id %>
+      <%= f.hidden_field :_destroy %>
+    <% end %>
+
+    <%= f.input :student_id, as: :hidden %>
+    <%= f.object.student.name %>
+  </td>
+
+  <td>
+  </td>
+
+  <td>
+    <%= f.input :score, label: false,
+          input_html: { value: number_with_precision(f.object.score, precision: @final_recovery_diary_record.school_calendar.school_calendar_steps.last.test_setting.number_of_decimal_places) } %>
+  </td>
+</tr>
