@@ -20,7 +20,7 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency.school_calendar = current_school_calendar
     @class_numbers = params[:class_numbers].split(',')
 
-    if(@daily_frequency.valid? and validate_class_numbers)
+    if (@daily_frequency.valid? and validate_class_numbers)
       @daily_frequencies = []
 
       if @daily_frequency.global_absence?
@@ -49,7 +49,7 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def edit_multiple
-    @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number
+    @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number.includes(:students)
     @daily_frequency = @daily_frequencies.first
 
     authorize @daily_frequencies.first
@@ -58,12 +58,20 @@ class DailyFrequenciesController < ApplicationController
 
     @students = []
 
-    @api_students.each do |api_student|
-      if student = Student.find_by(api_code: api_student['id'])
-        @students << { student: student, dependence: api_student['dependencia'] }
+    students_api_codes = @api_students.map { |api_student| api_student['id'] }
+    students = Student.where(api_code: students_api_codes)
 
-        @daily_frequencies.each do |daily_frequency|
-          daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.build(student_id: student.id, dependence: api_student['dependencia'])
+    students.each do |student|
+      api_student = @api_students.find { |api_student| api_student['id'] == student.api_code }
+      @students << { student: student, dependence: api_student['dependencia'] }
+    end
+
+    @daily_frequencies.each do |daily_frequency|
+      students_ids = daily_frequency.students.map(&:student_id)
+
+      @students.each do |student|
+        if students_ids.none? { |student_id| student_id == student[:student].id }
+          daily_frequency.students.build(student_id: student[:student].id, dependence: student[:dependence])
         end
       end
     end
@@ -83,10 +91,8 @@ class DailyFrequenciesController < ApplicationController
   def update_multiple
     authorize DailyFrequency.new
 
-    builder = DailyFrequencyStudentsBuilder.new(frequency_student_params[:daily_frequency_student])
-    builder.build_all
-
-    destroy_students_not_found
+    daily_frequency_updater = DailyFrequencyUpdater.new
+    daily_frequency_updater.update(daily_frequency_student_params[:daily_frequency_student])
 
     flash[:success] = t 'daily_frequencies.success'
 
@@ -151,7 +157,7 @@ class DailyFrequenciesController < ApplicationController
     )
   end
 
-  def frequency_student_params
+  def daily_frequency_student_params
     params.permit(
       daily_frequency_student: [:daily_frequency_id, :student_id, :present, :dependence]
     )
@@ -175,22 +181,5 @@ class DailyFrequenciesController < ApplicationController
       return false
     end
     true
-  end
-
-  private
-
-  def destroy_students_not_found
-    return if frequency_student_params[:daily_frequency_student].blank?
-    
-    frequency_student_params[:daily_frequency_student].each do |daily_frequency_student_params|
-      daily_frequency = DailyFrequency.find(daily_frequency_student_params[:daily_frequency_id])
-      daily_frequency.students.each do |student|
-        student_exists = frequency_student_params[:daily_frequency_student].any? do |daily_frequency_student_params|
-          daily_frequency_student_params[:student_id].to_i == student.student.id
-        end
-
-        student.destroy unless student_exists
-      end
-    end
   end
 end
