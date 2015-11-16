@@ -27,29 +27,29 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
   def new
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.new.localized
+    @final_recovery_diary_record.school_calendar = current_school_calendar
     @final_recovery_diary_record.build_recovery_diary_record
     @final_recovery_diary_record.recovery_diary_record.unity = current_user_unity
 
     @unities = fetch_unities
     @classrooms = fetch_classrooms
   end
-  #
-  # def create
-  #   @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.new.localized
-  #   @school_term_recovery_diary_record.assign_attributes(resource_params)
-  #
-  #   authorize @school_term_recovery_diary_record
-  #
-  #   if @school_term_recovery_diary_record.save
-  #     respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
-  #   else
-  #     @unities = fetch_unities
-  #     @classrooms = fetch_classrooms
-  #     @school_calendar_steps = current_school_calendar.steps
-  #
-  #     render :new
-  #   end
-  # end
+
+  def create
+    @final_recovery_diary_record = FinalRecoveryDiaryRecord.new.localized
+    @final_recovery_diary_record.assign_attributes(resource_params)
+
+    authorize @final_recovery_diary_record
+
+    if @final_recovery_diary_record.save
+      respond_with @sfinal_recovery_diary_record, location: final_recovery_diary_records_path
+    else
+      @unities = fetch_unities
+      @classrooms = fetch_classrooms
+
+      render :new
+    end
+  end
   #
   # def edit
   #   @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
@@ -92,25 +92,25 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
   private
 
-  # def resource_params
-  #   params.require(:school_term_recovery_diary_record).permit(
-  #     :school_calendar_step_id,
-  #     recovery_diary_record_attributes: [
-  #       :id,
-  #       :unity_id,
-  #       :classroom_id,
-  #       :discipline_id,
-  #       :recorded_at,
-  #       students_attributes: [
-  #         :id,
-  #         :student_id,
-  #         :score,
-  #         :_destroy
-  #       ]
-  #     ]
-  #   )
-  # end
-  #
+  def resource_params
+    params.require(:final_recovery_diary_record).permit(
+      :school_calendar_id,
+      recovery_diary_record_attributes: [
+        :id,
+        :unity_id,
+        :classroom_id,
+        :discipline_id,
+        :recorded_at,
+        students_attributes: [
+          :id,
+          :student_id,
+          :score,
+          :_destroy
+        ]
+      ]
+    )
+  end
+
   def filtering_params(params)
     params = {} unless params
     params.slice(

@@ -7,6 +7,7 @@
   <%= f.error_notification %>
 
   <%= f.simple_fields_for :recovery_diary_record, @final_recovery_diary_record.recovery_diary_record.localized do |recovery_diary_record| %>
+    <%= f.hidden_field :school_calendar_id %>
     <%= recovery_diary_record.hidden_field :id %>
 
     <fieldset>
@@ -25,6 +26,10 @@
       </div>
 
       <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :year, disabled: true %>
+        </div>
+
         <div class="col col-sm-4">
           <%= recovery_diary_record.input :recorded_at, as: :date %>
         </div>

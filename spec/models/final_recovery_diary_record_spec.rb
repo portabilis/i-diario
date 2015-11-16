@@ -11,5 +11,8 @@ RSpec.describe FinalRecoveryDiaryRecord, type: :model do
   describe 'validations' do
     it { expect(subject).to validate_presence_of(:recovery_diary_record) }
     it { expect(subject).to validate_presence_of(:school_calendar) }
+
+    it 'validates uniqueness per school_calendar, classroom and discipline' do
+    end
   end
 end
