@@ -46,4 +46,5 @@
 //= require datepicker-custom
 //= require readurl
 //= require tocurrency
+//= require chart/chart.min
 //= require_tree ./resources

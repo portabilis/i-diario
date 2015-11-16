@@ -64,7 +64,8 @@ pt-BR:
     reports: "Relatórios"
     exam_record_report: "Registro de avaliações"
     attendance_record_report: "Registro de frequência"
-    lesson_plan_report: "Planos de aula"
+    lesson_plan_discipline_report: "Registro de conteúdos por disciplina"
+    lesson_plan_knowledge_area_report: "Registro de conteúdos por Área de conhecimento"
     ***REMOVED***: "***REMOVED***"
     ieducar_api_exam_postings: "Envio de avaliações"
 

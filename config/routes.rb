@@ -9,8 +9,11 @@ Rails.application.routes.draw do
     namespace :api do
       namespace :v1 do
         resources :***REMOVED***, only: [:create]
+        resources :exam_rules, only: [:index]
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index]
+        resources :teacher_disciplines, only: [:index]
+        resources :school_calendars, only: [:index]
         resources :daily_frequencies, only: [:create]
         resources :daily_frequency_students, only: [:update]
       end
@@ -172,7 +175,12 @@ Rails.application.routes.draw do
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
-    get '/reports/lesson_plan', to: 'lesson_plan_report#form', as: 'lesson_plan_report'
-    post '/reports/lesson_plan', to: 'lesson_plan_report#report', as: 'lesson_plan_report'
+    get '/reports/lesson_plan_discipline', to: 'lesson_plan_discipline_report#form', as: 'lesson_plan_discipline_report'
+    post '/reports/lesson_plan_discipline', to: 'lesson_plan_discipline_report#report', as: 'lesson_plan_discipline_report'
+
+    post '/food_composition', to: 'food_composition#calculate'
+
+    get '/reports/lesson_plan_knowledge_area', to: 'lesson_plan_knowledge_area_report#form', as: 'lesson_plan_knowledge_area_report'
+    post '/reports/lesson_plan_knowledge_area', to: 'lesson_plan_knowledge_area_report#report', as: 'lesson_plan_knowledge_area_report'
   end
 end

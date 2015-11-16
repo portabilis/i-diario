@@ -33,7 +33,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       format.pdf do
         knowledge_area_lesson_plan_pdf = KnowledgeAreaLessonPlanPdf.build(
           current_entity_configuration,
-          @knowledge_area_lesson_plan
+          @knowledge_area_lesson_plan,
+          current_teacher
         )
 
         send_data(
