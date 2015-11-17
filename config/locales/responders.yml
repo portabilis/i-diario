@@ -160,3 +160,14 @@ pt-BR:
       destroy:
         notice: "Lançamento de recuperação de etapa apagado com sucesso."
         alert: "Lançamento de recuperação de etapa não pode ser apagado."
+
+    final_recovery_diary_records:
+      create:
+        notice: "Recuperação final lançada com sucesso!"
+        alert: "Recuperação final não pode ser lançada."
+      update:
+        notice: "Lançamento de recuperação final atualizado com sucesso."
+        alert: "Lançamento de recuperação final não pode ser atualizado."
+      destroy:
+        notice: "Lançamento de recuperação final apagado com sucesso."
+        alert: "Lançamento de recuperação final não pode ser apagado."

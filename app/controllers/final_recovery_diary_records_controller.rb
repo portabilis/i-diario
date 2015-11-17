@@ -33,6 +33,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
     @unities = fetch_unities
     @classrooms = fetch_classrooms
+    @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
   end
 
   def create
@@ -46,49 +47,57 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     else
       @unities = fetch_unities
       @classrooms = fetch_classrooms
+      @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
+
+      students_in_final_recovery = fetch_students_in_final_recovery
+      decorate_students(students_in_final_recovery)
 
       render :new
     end
   end
-  #
-  # def edit
-  #   @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
-  #
-  #   authorize @school_term_recovery_diary_record
-  #
-  #   students_in_recovery = fetch_students_in_recovery
-  #   mark_students_not_in_recovery_for_destruction(students_in_recovery)
-  #   add_missing_students(students_in_recovery)
-  #
-  #   @unities = fetch_unities
-  #   @classrooms = fetch_classrooms
-  #   @school_calendar_steps = current_school_calendar.steps
-  # end
-  #
-  # def update
-  #   @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
-  #   @school_term_recovery_diary_record.assign_attributes(resource_params)
-  #
-  #   authorize @school_term_recovery_diary_record
-  #
-  #   if @school_term_recovery_diary_record.save
-  #     respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
-  #   else
-  #     @unities = fetch_unities
-  #     @classrooms = fetch_classrooms
-  #     @school_calendar_steps = current_school_calendar.steps
-  #
-  #     render :edit
-  #   end
-  # end
-  #
-  # def destroy
-  #   @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id])
-  #
-  #   @school_term_recovery_diary_record.destroy
-  #
-  #   respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
-  # end
+
+  def edit
+    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
+
+    authorize @final_recovery_diary_record
+
+    students_in_final_recovery = fetch_students_in_final_recovery
+    mark_students_not_in_final_recovery_for_destruction(students_in_final_recovery)
+    add_missing_students(students_in_final_recovery)
+    decorate_students(students_in_final_recovery)
+
+    @unities = fetch_unities
+    @classrooms = fetch_classrooms
+    @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
+  end
+
+  def update
+    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
+    @final_recovery_diary_record.assign_attributes(resource_params)
+
+    authorize @final_recovery_diary_record
+
+    students_in_final_recovery = fetch_students_in_final_recovery
+    decorate_students(students_in_final_recovery)
+
+    if @final_recovery_diary_record.save
+      respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
+    else
+      @unities = fetch_unities
+      @classrooms = fetch_classrooms
+      @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
+
+      render :edit
+    end
+  end
+
+  def destroy
+    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id])
+
+    @final_recovery_diary_record.destroy
+
+    respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
+  end
 
   private
 
@@ -138,40 +147,45 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       .ordered
   end
 
-  # def fetch_students_in_recovery
-  #   StudentsInRecoveryFetcher.new(
-  #     api_configuration,
-  #     @school_term_recovery_diary_record.recovery_diary_record.classroom_id,
-  #     @school_term_recovery_diary_record.recovery_diary_record.discipline_id,
-  #     @school_term_recovery_diary_record.school_calendar_step_id,
-  #     @school_term_recovery_diary_record.recovery_diary_record.recorded_at
-  #   )
-  #   .fetch
-  # end
-  #
-  # def mark_students_not_in_recovery_for_destruction(students_in_recovery)
-  #   @school_term_recovery_diary_record.recovery_diary_record.students.each do |student|
-  #     is_student_in_recovery = students_in_recovery.any? do |student_in_recovery|
-  #       student.student.id == student_in_recovery.id
-  #     end
-  #
-  #     student.mark_for_destruction unless is_student_in_recovery
-  #   end
-  # end
-  #
-  # def add_missing_students(students_in_recovery)
-  #   students_missing = students_in_recovery.select do |student_in_recovery|
-  #     @school_term_recovery_diary_record.recovery_diary_record.students.none? do |student|
-  #       student.student.id == student_in_recovery.id
-  #     end
-  #   end
-  #
-  #   students_missing.each do |student_missing|
-  #     @school_term_recovery_diary_record.recovery_diary_record.students.build(student: student_missing)
-  #   end
-  # end
-  #
-  # def api_configuration
-  #   IeducarApiConfiguration.current
-  # end
+  def fetch_students_in_final_recovery
+    return unless @final_recovery_diary_record.recovery_diary_record.classroom_id && @final_recovery_diary_record.recovery_diary_record.discipline_id
+
+    StudentsInFinalRecoveryFetcher.new(api_configuration)
+      .fetch(
+        @final_recovery_diary_record.recovery_diary_record.classroom_id,
+        @final_recovery_diary_record.recovery_diary_record.discipline_id
+      )
+  end
+
+  def mark_students_not_in_final_recovery_for_destruction(students_in_final_recovery)
+    @final_recovery_diary_record.recovery_diary_record.students.each do |student|
+      is_student_in_final_recovery = students_in_final_recovery.any? do |student_in_final_recovery|
+        student.student.id == student_in_final_recovery.id
+      end
+
+      student.mark_for_destruction unless is_student_in_final_recovery
+    end
+  end
+
+  def add_missing_students(students_in_final_recovery)
+    students_missing = students_in_final_recovery.select do |student_in_final_recovery|
+      @final_recovery_diary_record.recovery_diary_record.students.none? do |student|
+        student.student.id == student_in_final_recovery.id
+      end
+    end
+
+    students_missing.each do |student_missing|
+      @final_recovery_diary_record.recovery_diary_record.students.build(student: student_missing)
+    end
+  end
+
+  def decorate_students(students_in_final_recovery)
+    @final_recovery_diary_record.recovery_diary_record.students.reject(&:marked_for_destruction?).each do |student|
+      student.student = students_in_final_recovery.find { |student_in_final_recovery| student_in_final_recovery.id == student.student_id }
+    end
+  end
+
+  def api_configuration
+    IeducarApiConfiguration.current
+  end
 end

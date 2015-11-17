@@ -47,6 +47,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
 
   def maximum_score_for_final_recovery
     # TODO: When final recovery we will need to get this information from i-Educar
+    # Waiting issue https://github.com/portabilis/i-educar/issues/2102
     10
   end
 end

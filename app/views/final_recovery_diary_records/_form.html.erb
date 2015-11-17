@@ -50,12 +50,12 @@
         <thead>
           <tr>
             <th><%= RecoveryDiaryRecordStudent.human_attribute_name :student %></th>
-            <th width="20%"></th>
+            <th width="20%"><%= t('.needed_score') %></th>
             <th width="20%"><%= RecoveryDiaryRecordStudent.human_attribute_name :score %></th>
           </tr>
         </thead>
 
-        <tbody id="recovery-diary-record-students">
+        <tbody id="recovery-diary-record-students" data-scale="<%= @number_of_decimal_places %>">
           <tr>
             <td class="no_item_found" colspan="3" style="<%= recovery_diary_record.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
           </tr>

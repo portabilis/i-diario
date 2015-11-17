@@ -63,6 +63,7 @@ $(function () {
         var html = JST['templates/final_recovery_diary_records/student_fields']({
             id: student.id,
             name: student.name,
+            needed_score: student.needed_score,
             element_id: element_id
           });
 
@@ -103,7 +104,7 @@ $(function () {
       prefix: '',
       centsSeparator: ',',
       thousandsSeparator: '.',
-      centsLimit: 2
+      centsLimit: parseInt($('#recovery-diary-record-students').data('scale')) || 0
     });
   }
 
@@ -122,4 +123,5 @@ $(function () {
   // On load
 
   fetchDisciplines();
+  loadDecimalMasks();
 });

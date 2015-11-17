@@ -10,10 +10,13 @@
   </td>
 
   <td>
+    <span class="needed_score">
+      <%= f.object.student.needed_score unless f.object.marked_for_destruction? %>
+    </span>
   </td>
 
   <td>
     <%= f.input :score, label: false,
-          input_html: { value: number_with_precision(f.object.score, precision: @final_recovery_diary_record.school_calendar.school_calendar_steps.last.test_setting.number_of_decimal_places) } %>
+          input_html: { value: number_with_precision(f.object.score, precision: @number_of_decimal_places) } %>
   </td>
 </tr>

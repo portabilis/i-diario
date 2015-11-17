@@ -4,3 +4,10 @@ pt-BR:
       final_recovery_diary_record:
         school_calendar: 'Calendário letivo'
         year: 'Ano'
+
+    errors:
+      models:
+        final_recovery_diary_record:
+          attributes:
+              year:
+                uniqueness_of_final_recovery_diary_record: 'já existe um lançamento recuperação para este ano'

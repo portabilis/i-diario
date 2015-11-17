@@ -46,9 +46,16 @@ class StudentsController < ApplicationController
   end
 
   def in_final_recovery
-    @students = Student.limit(20)
+    @students = StudentsInFinalRecoveryFetcher.new(configuration)
+      .fetch(
+        params[:classroom_id],
+        params[:discipline_id]
+      )
 
-    render json: @students
+    render(
+      json: @students,
+      each_serializer: StudentInFinalRecoverySerializer
+    )
   end
 
   private
