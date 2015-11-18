@@ -28,11 +28,11 @@ RSpec.describe IeducarApi::Grades, type: :service do
 
       it "returns all grades" do
         VCR.use_cassette('grades') do
-          result = subject.fetch(escola_id: [121908,  76910], curso_id: [1, 4])
+          result = subject.fetch(escola_id: [124370], curso_id: [301])
 
           expect(result.keys).to include "series"
 
-          expect(result["series"].size).to eq 10
+          expect(result["series"].size).to eq 4
         end
       end
     end
