@@ -8,8 +8,7 @@ RSpec.describe ***REMOVED***, type: :model do
 
   describe "validations" do
     it { expect(subject).to validate_presence_of(:material_id) }
-    it { expect(subject).to validate_numericality_of(:quantity).is_greater_than(0).is_less_than_or_equal_to(999999.99) }
-
+    
     describe "validates material classification" do
       context "when material classification is permanent" do
         material = FactoryGirl.create(:material, classification: ***REMOVED***Classifications::PERMANENT)

@@ -8,8 +8,7 @@ class TestSettingTest < ActiveRecord::Base
   has_many :avaliations, dependent: :restrict_with_error
 
   validates :description, presence: true
-  validates :weight, presence: true,
-                     numericality: true
+  validates :weight, presence: true
 
   def to_s
     description

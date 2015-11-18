@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       Accept:
-      - ! '*/*; q=0.5, application/xml'
+      - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       User-Agent:
@@ -43,7 +43,7 @@ http_interactions:
       - application/json; charset=UTF-8
     body:
       encoding: US-ASCII
-      string: ! '{"matriculas":[{"id":"4702","instituicao_id":"1","escola_id":"121909","curso_id":"4","serie_id":"19","aluno_id":"2378","aluno_nome":"Ana
+      string: '{"matriculas":[{"id":"4702","instituicao_id":"1","escola_id":"121909","curso_id":"4","serie_id":"19","aluno_id":"2378","aluno_nome":"Ana
         Clara Domingos Correa","situacao":"Em andamento","ano":"2014","turma_id":"152","turma_nome":"Pr\u00e9-i
         B","escola_nome":"C.e.i. Margareth Maria Tomasi Rocha","curso_nome":"Educa\u00e7\u00e3o
         Infantil","serie_nome":"Pr\u00e9-escolar 1 (4 Anos)","ultima_enturmacao":"Pr\u00e9-i
@@ -56,4 +56,44 @@ http_interactions:
         Infantil","serie_nome":"Pr\u00e9-escolar 1 (4 Anos)","ultima_enturmacao":"","data_entrada":"02\/03\/2011","data_saida":[],"user_can_access":false,"transferencia_em_aberto":false}],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Tue, 25 Nov 2014 18:47:50 GMT
-recorded_with: VCR 2.9.3
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=***REMOVED***&aluno_id%5B%5D=1812&aluno_id%5B%5D=1931&aluno_id%5B%5D=2378&instituicao_id=1&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 18 Nov 2015 12:26:25 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=nsg0putjckgfi9se0pa5uddm44; expires=Thu, 19-Nov-2015 12:26:25 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '86'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"matriculas":[],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Wed, 18 Nov 2015 12:26:25 GMT
+recorded_with: VCR 3.0.0

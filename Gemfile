@@ -55,14 +55,7 @@ gem 'decore', git: 'https://github.com/matiasleidemer/decore'
 gem 'activerecord-connections', git: 'https://github.com/ricardohsd/activerecord-connections.git'
 
 gem 'carrierwave'
-gem 'fog', '1.32.0'
-
-# Test
-group :development, :test do
-  gem 'rspec-rails', '3.3.3'
-  gem 'pry', '~> 0.10.1'
-  gem "factory_girl_rails", "~> 4.0"
-end
+gem 'fog', '~> 1.36'
 
 group :development do
   gem 'quiet_assets'
@@ -75,14 +68,20 @@ group :development do
   gem 'web-console', '~> 2.0'
 end
 
+group :development, :test do
+  gem 'rspec-rails', '~> 3.4'
+  gem 'factory_girl_rails', '~> 4.5'
+  gem 'pry', '~> 0.10.3'
+end
+
 group :test do
-  gem 'turnip', '1.3.1'
-  gem 'capybara', '2.4.4'
-  gem 'poltergeist', '1.6.0'
-  gem 'shoulda-matchers', '2.8.0'
-  gem 'webmock', '1.9.3'
-  gem 'vcr'
-  gem 'database_cleaner'
+  gem 'turnip', '~> 1.3', '>= 1.3.1'
+  gem 'capybara', '~> 2.5'
+  gem 'poltergeist', '~> 1.8'
+  gem 'shoulda-matchers', '~> 3.0', '>= 3.0.1'
+  gem 'vcr', '~> 3.0'
+  gem 'webmock', '~> 1.22', '>= 1.22.3'
+  gem 'database_cleaner', '~> 1.5', '>= 1.5.1'
 end
 
 gem 'newrelic_rpm'

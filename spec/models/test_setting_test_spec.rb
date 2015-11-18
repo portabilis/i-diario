@@ -14,6 +14,5 @@ RSpec.describe TestSettingTest, type: :model do
   describe 'validations' do
     it { expect(subject).to validate_presence_of(:description) }
     it { expect(subject).to validate_presence_of(:weight) }
-    it { expect(subject).to validate_numericality_of(:weight) }
   end
 end
