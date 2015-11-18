@@ -1,14 +1,14 @@
 bary_allen:
-  api_code: "1812"
+  api_code: "18625"
   name: "Bary Allen"
   api: true
 
 bruce_wayne:
-  api_code: "1931"
+  api_code: "18627"
   name: "Bruce Wayne"
   api: true
 
 miss_marvel:
-  api_code: "2378"
+  api_code: "18685"
   name: "Miss Marvel"
   api: true
