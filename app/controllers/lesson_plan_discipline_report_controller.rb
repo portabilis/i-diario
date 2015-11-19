@@ -1,7 +1,7 @@
 class LessonPlanDisciplineReportController < ApplicationController
 
   def form
-    @lesson_plan_discipline_report_form = LessonPlanDisciplineReportForm.new()
+    @lesson_plan_discipline_report_form = LessonPlanDisciplineReportForm.new(unity_id: current_user_unity.id)
     fetch_collections
   end
 

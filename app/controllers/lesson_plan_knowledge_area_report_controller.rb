@@ -1,7 +1,7 @@
 class LessonPlanKnowledgeAreaReportController < ApplicationController
 
   def form
-    @lesson_plan_knowledge_area_report_form = LessonPlanKnowledgeAreaReportForm.new()
+    @lesson_plan_knowledge_area_report_form = LessonPlanKnowledgeAreaReportForm.new(unity_id: current_user_unity.id)
     fetch_collections
   end
 

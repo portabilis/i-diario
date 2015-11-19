@@ -15,8 +15,8 @@ class LessonPlanKnowledgeAreaReportForm
   validate :must_have_knowledge_area_lesson_plan
 
   def knowledge_area_lesson_plan
-    KnowledgeAreaLessonPlan.joins(:lesson_plan, :knowledge_area_lesson_plan_knowledge_areas)
-             .where("case when ? = 0 then 1=1 else knowledge_area_id = ? end
+    KnowledgeAreaLessonPlan.joins(:lesson_plan)
+             .where("case when ? = 0 then 1=1 else knowledge_area_lesson_plans.id = ? end
                and case when ? = 0 then 1 = 1 else classroom_id = ? end
                and case when ? = '01/01/1900' then  1=1 when ? = '01/01/1900' then  1=1  else lesson_plan_date between ? and ? end",
                (knowledge_area_id == '' ? 0 : knowledge_area_id), (knowledge_area_id == '' ? 0 : knowledge_area_id), (classroom_id == '' ? 0 : classroom_id), 

@@ -15,6 +15,10 @@
     <fieldset>
       <div class="row">
         <div class="col col-sm-4">
+          <%= f.input :unity_id, as: :select2, elements: @unities, input_html: { value: @lesson_plan_discipline_report_form.unity_id }, readonly: !current_user.admin? %>
+        </div>
+        
+        <div class="col col-sm-4">
           <%= f.input :classroom_id, as: :select2, elements: @classrooms, input_html: { value: @lesson_plan_discipline_report_form.classroom_id } %>
         </div>
         <div class="col col-sm-4">
