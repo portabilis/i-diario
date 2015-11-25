@@ -139,11 +139,9 @@ class ApplicationController < ActionController::Base
   helper_method :current_teacher
 
   def current_school_calendar
-    if current_user.admin?
-      SchoolCalendar.find_by(year: Date.today.year)
-    else
-      SchoolCalendar.find_by(year: Date.today.year, unity_id: current_user.current_user_role.unity_id)
-    end
+    return if current_user.admin? && current_user_unity.blank?
+
+    SchoolCalendar.find_by(year: Date.today.year, unity_id: current_user_unity.id)
   end
 
   def current_test_setting
