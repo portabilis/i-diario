@@ -8,7 +8,9 @@ class NumericalExamPosting
   end
 
   def post!
-    api.send_post(turmas: post_classrooms, etapa: posting.school_calendar_step.to_number)
+    post_classrooms.each do |key, value|
+      api.send_post(turmas: { key => value }, etapa: posting.school_calendar_step.to_number)
+    end
   end
 
   protected
