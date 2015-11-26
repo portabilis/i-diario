@@ -32,6 +32,7 @@ class ExamRulesSynchronizer
             recovery_type: record["tipo_recuperacao"],
             parallel_recovery_average: record["media_recuperacao_paralela"],
             opinion_type: record["parecer_descritivo"],
+            final_recovery_maximum_score: record['nota_maxima_exame'],
             rounding_table_id: RoundingTable.find_by(api_code: record["tabela_arredondamento_id"]).try(:id),
             rounding_table_api_code: record["tabela_arredondamento_id"]
           )
@@ -43,6 +44,7 @@ class ExamRulesSynchronizer
             recovery_type: record["tipo_recuperacao"],
             parallel_recovery_average: record["media_recuperacao_paralela"],
             opinion_type: record["parecer_descritivo"],
+            final_recovery_maximum_score: record['nota_maxima_exame'],
             rounding_table_id: RoundingTable.find_by(api_code: record["tabela_arredondamento_id"]).try(:id),
             rounding_table_api_code: record["tabela_arredondamento_id"]
           )

@@ -9,7 +9,13 @@ class ExamRule < ActiveRecord::Base
   belongs_to :rounding_table
   has_many :recovery_exam_rules
 
-  validates :api_code, :score_type, :frequency_type, :opinion_type, :recovery_type, presence: true
+  validates :api_code,
+    :score_type,
+    :frequency_type,
+    :opinion_type,
+    :recovery_type,
+    :final_recovery_maximum_score,
+    presence: true
   validates :api_code, uniqueness: true
 
   scope :by_id, lambda { |id| where id: id }
