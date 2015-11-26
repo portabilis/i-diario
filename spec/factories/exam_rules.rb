@@ -5,5 +5,6 @@ FactoryGirl.define do
     frequency_type FrequencyTypes::GENERAL
     opinion_type   OpinionTypes::DONT_USE
     recovery_type  RecoveryTypes::DONT_USE
+    final_recovery_maximum_score 10
   end
 end
