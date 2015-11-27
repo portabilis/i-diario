@@ -11,3 +11,5 @@ pt-BR:
           attributes:
               year:
                 uniqueness_of_final_recovery_diary_record: 'já existe um lançamento recuperação para este ano'
+              recovery_diary_record:
+                recorded_at_must_be_in_last_school_calendar_step: 'deve ser um dia letivo da última etapa do calendário letivo'

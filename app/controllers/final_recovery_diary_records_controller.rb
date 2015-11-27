@@ -4,6 +4,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
   before_action :require_current_teacher
   before_action :require_current_school_calendar
+  before_action :require_current_test_setting
 
   def index
     @final_recovery_diary_records = apply_scopes(FinalRecoveryDiaryRecord)
@@ -33,7 +34,8 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
     @unities = fetch_unities
     @classrooms = fetch_classrooms
-    @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
+
+    @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.to_a.last.test_setting.number_of_decimal_places
   end
 
   def create

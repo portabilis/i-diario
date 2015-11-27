@@ -1,0 +1,84 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=***REMOVED***&disciplina_id=3187&instituicao_id=1&oper=get&resource=alunos-exame-turma&secret_key=***REMOVED***&turma_id=4244
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 26 Nov 2015 17:26:37 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=vl4an2ofakjqjstlapblja6s71; expires=Fri, 27-Nov-2015 17:26:37 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '184'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"oper":"get","resource":"alunos-exame-turma","msgs":[{"msg":"Opera\u00e7\u00e3o
+        ''get'' n\u00e3o implementada para o recurso ''alunos-exame-turma''","type":"error"}],"any_error_msg":true}'
+    http_version: 
+  recorded_at: Thu, 26 Nov 2015 17:26:37 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=***REMOVED***&disciplina_id=3187&instituicao_id=1&oper=get&resource=alunos-exame-turma&secret_key=***REMOVED***&turma_id=4244
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 26 Nov 2015 17:28:17 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=2l1ghgn6sbss4d4lkvgtji9ef4; expires=Fri, 27-Nov-2015 17:28:17 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '233'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"alunos":[{"id":"21008","nota_exame":"1.300"},{"id":"10485","nota_exame":"1.500"},{"id":"11185","nota_exame":"1.300"},{"id":"22273","nota_exame":"1.000"}],"oper":"get","resource":"alunos-exame-turma","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Thu, 26 Nov 2015 17:28:17 GMT
+recorded_with: VCR 3.0.0
