@@ -18,7 +18,7 @@ class IeducarExamPostingWorker
         when ApiPostingTypes::ABSENCES
           AbsencePosting.post!(posting)
         when ApiPostingTypes::FINAL_RECOVERIES
-          FinalRecoveryPoster.post!(posting)
+          FinalRecoveryPoster.post(posting)
         end
 
         posting.mark_as_completed! 'Envio realizado com sucesso!'
