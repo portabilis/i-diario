@@ -18,7 +18,6 @@ RSpec.describe RecoveryDiaryRecord, type: :model do
 
   describe 'validations' do
     it { expect(subject).to validate_presence_of(:unity) }
-    it { expect(subject).to validate_presence_of(:classroom) }
     it { expect(subject).to validate_presence_of(:discipline) }
     it { expect(subject).to validate_presence_of(:recorded_at) }
 

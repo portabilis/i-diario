@@ -61,7 +61,7 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def recorded_at_must_be_in_last_school_calendar_step
-    return unless recovery_diary_record
+    return unless recovery_diary_record && school_calendar
 
     unless school_calendar.steps.to_a.last.school_calendar_step_day?(recovery_diary_record.recorded_at)
       errors.add(:recovery_diary_record, :recorded_at_must_be_in_last_school_calendar_step)
