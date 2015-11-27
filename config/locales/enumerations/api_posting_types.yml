@@ -1,7 +1,8 @@
 pt-BR:
   enumerations:
     api_posting_types:
-      numerical_exams: "Avaliações numéricas"
-      conceptual_exams: "Avaliações conceituais"
       absences: "Faltas"
+      conceptual_exams: "Avaliações conceituais"
       descriptive_exams: "Avaliações descritivas"
+      numerical_exams: "Avaliações numéricas"
+      final_recoveries: "Recuperações finais"

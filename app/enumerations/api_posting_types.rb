@@ -1,5 +1,9 @@
 class ApiPostingTypes < EnumerateIt::Base
-  associate_values :numerical_exams, :conceptual_exams, :absences, :descriptive_exams
+  associate_values :absences,
+    :conceptual_exams,
+    :descriptive_exams,
+    :numerical_exams,
+    :final_recoveries
 
   sort_by :none
 end
