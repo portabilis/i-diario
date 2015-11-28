@@ -29,7 +29,7 @@ class FinalRecoveryPoster
 
     final_recovery_diary_records.each do |final_recovery_diary_record|
       if final_recovery_diary_record.recovery_diary_record.students.any? { |student| student.score.blank? }
-        raise IeducarApi::Base::ApiError.new("Não foi possível enviar as recuperações finais da turma #{classroom} pois existem alunos sem nota.")
+        raise IeducarApi::Base::ApiError.new("Não foi possível enviar as recuperações finais da turma #{final_recovery_diary_record.recovery_diary_record.classroom} pois existem alunos sem nota.")
       end
 
       classroom_api_code = final_recovery_diary_record.recovery_diary_record.classroom.api_code
