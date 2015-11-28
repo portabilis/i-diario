@@ -1,0 +1,39 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for :search, { url: final_recovery_diary_records_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
+        <thead>
+          <tr>
+            <td></td>
+            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
+            <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></td>
+            <td><%= f.input :by_recorded_at, as: :date, label: false, placeholder: t('.by_recorded_at') %></td>
+            <td><%= link_to t('.new_html'), new_final_recovery_diary_record_path, class: 'btn btn-primary pull-right' %></td>
+          </tr>
+
+          <tr>
+            <th><%= RecoveryDiaryRecord.human_attribute_name :unity %></th>
+            <th><%= RecoveryDiaryRecord.human_attribute_name :classroom %></th>
+            <th><%= RecoveryDiaryRecord.human_attribute_name :discipline %>
+            <th width="10%"><%= RecoveryDiaryRecord.human_attribute_name :recorded_at %></th>
+            <td width="160px"></td>
+          </tr>
+        </thead>
+
+        <%= render 'resources' %>
+
+        <tfoot id="paginator" class="remote">
+          <td colspan="5">
+            <div id="page_entries_info" class="pull-left hidden-xs">
+              <%= page_entries_info @final_recovery_diary_records %>
+            </div>
+
+            <div class="pull-right">
+              <%= paginate @final_recovery_diary_records %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       Accept:
-      - ! '*/*; q=0.5, application/xml'
+      - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       User-Agent:
@@ -37,7 +37,7 @@ http_interactions:
       - application/json; charset=UTF-8
     body:
       encoding: US-ASCII
-      string: ! '{"cursos":[{"id":"4","nome":"Educa\u00e7\u00e3o Infantil"},{"id":"1","nome":"Ensino
+      string: '{"cursos":[{"id":"4","nome":"Educa\u00e7\u00e3o Infantil"},{"id":"1","nome":"Ensino
         Fundamental - 8 Anos"},{"id":"2","nome":"Ensino Fundamental - 9 Anos"}],"oper":"get","resource":"cursos","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Mon, 03 Nov 2014 11:48:34 GMT
@@ -49,7 +49,7 @@ http_interactions:
       string: ''
     headers:
       Accept:
-      - ! '*/*; q=0.5, application/xml'
+      - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       User-Agent:
@@ -78,7 +78,7 @@ http_interactions:
       - application/json; charset=UTF-8
     body:
       encoding: US-ASCII
-      string: ! '{"cursos":[{"id":"4","nome":"Educa\u00e7\u00e3o Infantil","series":[{"id":"19","nome":"Pr\u00e9-Escolar
+      string: '{"cursos":[{"id":"4","nome":"Educa\u00e7\u00e3o Infantil","series":[{"id":"19","nome":"Pr\u00e9-Escolar
         1 (4 anos)"},{"id":"18","nome":"Pr\u00e9-Escolar 2 (5 anos)"}]},{"id":"1","nome":"Ensino
         Fundamental - 8 Anos","series":[{"id":"1","nome":"1a S\u00e9rie"},{"id":"2","nome":"2a
         S\u00e9rie"},{"id":"3","nome":"3a S\u00e9rie"},{"id":"4","nome":"4a S\u00e9rie"},{"id":"5","nome":"5a
@@ -89,4 +89,94 @@ http_interactions:
         Ano"},{"id":"16","nome":"8\u00ba Ano"},{"id":"17","nome":"9\u00ba Ano"}]}],"oper":"get","resource":"cursos","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Sun, 30 Nov 2014 17:59:09 GMT
-recorded_with: VCR 2.9.3
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Curso?access_key=***REMOVED***&escola_id%5B%5D=121908&escola_id%5B%5D=76910&get_series=true&instituicao_id=1&oper=get&resource=cursos&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 18 Nov 2015 12:41:20 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=gmfg99lr1k436j5q37bj4msl74; expires=Thu, 19-Nov-2015 12:41:20 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '78'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"cursos":[],"oper":"get","resource":"cursos","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Wed, 18 Nov 2015 12:41:20 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Curso?access_key=***REMOVED***&escola_id%5B%5D=124370&get_series=true&instituicao_id=1&oper=get&resource=cursos&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 18 Nov 2015 12:54:24 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=gkr4mvs2pjqt0kps0qct5ua8e1; expires=Thu, 19-Nov-2015 12:54:24 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '1126'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"cursos":[{"id":"149","nome":"EDUCA\u00c7\u00c3O INFANTIL","series":[{"id":"12","nome":"Ber\u00e7\u00e1rio"},{"id":"21","nome":"N\u00edvel
+        III"},{"id":"25","nome":"Pr\u00e9-escola"}]},{"id":"150","nome":"ENSINO FUNDAMENTAL","series":[{"id":"10","nome":"1\u00aa
+        S\u00e9rie"},{"id":"46","nome":"2\u00aa S\u00e9rie"},{"id":"28","nome":"3\u00aa
+        S\u00e9rie"},{"id":"2","nome":"4\u00aa S\u00e9rie"}]},{"id":"300","nome":"ENSINO
+        FUNDAMENTAL - 1\u00ba A 5\u00ba","series":[{"id":"22","nome":"1\u00ba Ano"},{"id":"40","nome":"2\u00ba
+        Ano"},{"id":"6","nome":"3\u00ba Ano"},{"id":"36","nome":"4\u00ba Ano"},{"id":"14","nome":"5\u00ba
+        Ano"}]},{"id":"151","nome":"ENSINO FUNDAMENTAL - 5 A 8 SERIE","series":[{"id":"18","nome":"5\u00aa
+        S\u00e9rie"},{"id":"29","nome":"6\u00aa S\u00e9rie"},{"id":"37","nome":"7\u00aa
+        S\u00e9rie"},{"id":"8","nome":"8\u00aa S\u00e9rie"}]},{"id":"301","nome":"ENSINO
+        FUNDAMENTAL - 6\u00ba A 9\u00ba","series":[{"id":"7","nome":"6\u00ba Ano"},{"id":"47","nome":"7\u00ba
+        Ano"},{"id":"30","nome":"8\u00ba Ano"},{"id":"38","nome":"9\u00ba Ano"}]}],"oper":"get","resource":"cursos","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Wed, 18 Nov 2015 12:54:25 GMT
+recorded_with: VCR 3.0.0

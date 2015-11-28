@@ -46,7 +46,6 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   end
 
   def maximum_score_for_final_recovery
-    # TODO: When final recovery we will need to get this information from i-Educar
-    10
+    recovery_diary_record.classroom.exam_rule.final_recovery_maximum_score
   end
 end

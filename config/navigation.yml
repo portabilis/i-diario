@@ -190,6 +190,9 @@ navigation:
         - ***REMOVED***:
             type: "school_term_recovery_diary_records"
             path: "school_term_recovery_diary_records_path"
+        - ***REMOVED***:
+            type: "final_recovery_diary_records"
+            path: "final_recovery_diary_records_path"
   - ***REMOVED***:
       type: "frequencies_***REMOVED***"
       icon: "fa-check-square-o"
@@ -214,11 +217,11 @@ navigation:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
         # - ***REMOVED***:
-        #     type: "lesson_plan_knowledge_area_report"
-        #     path: "lesson_plan_knowledge_area_report_path"
-        # - ***REMOVED***:
         #     type: "lesson_plan_discipline_report"
         #     path: "lesson_plan_discipline_report_path"
+        # - ***REMOVED***:
+        #     type: "lesson_plan_knowledge_area_report"
+        #     path: "lesson_plan_knowledge_area_report_path"
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"
       icon: "fa-arrow-circle-up"

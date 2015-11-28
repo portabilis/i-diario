@@ -1,26 +1,28 @@
 <tbody>
-  <% ApiPostingTypes.each_value do |value| %>
+  <% ApiPostingTypes.to_a.each do |value| %>
+    <% next if value.last == ApiPostingTypes::FINAL_RECOVERIES && step != step.school_calendar.steps.to_a.last %>
+
     <tr>
       <td>
-        <%= ApiPostingTypes.t(value) %>
+        <%= value.first %>
       </td>
 
       <td>
-        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting") %>
-          <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").status == ApiPostingStatus::STARTED %>
+        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting") %>
+          <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").status == ApiPostingStatus::STARTED %>
             <i class="fa fa-cog fa-spin"></i> Enviando
           <% else %>
-            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").message.present? %>
+            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").message.present? %>
               <p class="success">
                 <i class="fa fa-check"></i>
-                <%= instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").message %>
+                <%= instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").message %>
               </p>
             <% end %>
 
-            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").error_message.present? %>
+            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").error_message.present? %>
               <p class="danger">
                 <i class="fa fa-times"></i>
-                <%= instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").error_message %>
+                <%= instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").error_message %>
               </p>
             <% end %>
           <% end %>
@@ -30,10 +32,10 @@
       </td>
 
       <td>
-        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting") && instance_variable_get("@school_calendar_step_#{step.id}_#{value}_posting").syncronization_in_progress? %>
+        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting") && instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").syncronization_in_progress? %>
             <%= link_to 'Enviar', '#', class: 'btn bg-color-red txt-color-white disabled' %>
         <% else %>
-          <%= link_to 'Enviar', ieducar_api_exam_postings_path(school_calendar_step_id: step.id, post_type: value),
+          <%= link_to 'Enviar', ieducar_api_exam_postings_path(school_calendar_step_id: step.id, post_type: value.last),
                                 method: 'post',
                                 class: 'btn bg-color-red txt-color-white' %>
         <% end %>

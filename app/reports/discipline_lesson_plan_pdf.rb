@@ -186,8 +186,6 @@ class DisciplineLessonPlanPdf
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
-      
-    
   end
 
   def class_plan

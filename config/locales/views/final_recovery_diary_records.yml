@@ -1,0 +1,12 @@
+pt-BR:
+  final_recovery_diary_records:
+    index:
+      by_classroom_id: "Filtrar turma"
+      by_discipline_id: "Filtrar disciplina"
+      by_recorded_at: "Filtrar data"
+      new_html: "<i class='fa fa-plus'></i> Novo lançamento"
+
+    form:
+      students: "Alunos"
+      no_item_found: "Nenhum aluno"
+      needed_score: "Nota necessária para promoção"

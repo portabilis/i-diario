@@ -4,6 +4,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   before_action :require_current_teacher
   before_action :require_current_school_calendar
+  before_action :require_current_test_setting
 
   def index
     @school_term_recovery_diary_records = apply_scopes(SchoolTermRecoveryDiaryRecord)
@@ -172,7 +173,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     students_missing.each do |student_missing|
       @school_term_recovery_diary_record.recovery_diary_record.students.build(student: student_missing)
-    end    
+    end
   end
 
   def api_configuration

@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       Accept:
-      - ! '*/*; q=0.5, application/xml'
+      - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       User-Agent:
@@ -37,11 +37,91 @@ http_interactions:
       - application/json; charset=UTF-8
     body:
       encoding: US-ASCII
-      string: ! '{"series":[{"id":"1","nome":"1a S\u00e9rie"},{"id":"2","nome":"2a
-        S\u00e9rie"},{"id":"3","nome":"3a S\u00e9rie"},{"id":"4","nome":"4a S\u00e9rie"},{"id":"5","nome":"5a
-        S\u00e9rie"},{"id":"6","nome":"6a S\u00e9rie"},{"id":"7","nome":"7a S\u00e9rie"},{"id":"8","nome":"8a
-        S\u00e9rie"},{"id":"19","nome":"Pr\u00e9-Escolar 1 (4 anos)"},{"id":"18","nome":"Pr\u00e9-Escolar
-        2 (5 anos)"}],"oper":"get","resource":"series","msgs":[],"any_error_msg":false}'
+      string: '{"series":[{"id":"1","nome":"1a S\u00e9rie"},{"id":"2","nome":"2a S\u00e9rie"},{"id":"3","nome":"3a
+        S\u00e9rie"},{"id":"4","nome":"4a S\u00e9rie"},{"id":"5","nome":"5a S\u00e9rie"},{"id":"6","nome":"6a
+        S\u00e9rie"},{"id":"7","nome":"7a S\u00e9rie"},{"id":"8","nome":"8a S\u00e9rie"},{"id":"19","nome":"Pr\u00e9-Escolar
+        1 (4 anos)"},{"id":"18","nome":"Pr\u00e9-Escolar 2 (5 anos)"}],"oper":"get","resource":"series","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Mon, 03 Nov 2014 12:08:53 GMT
-recorded_with: VCR 2.9.3
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Serie?access_key=***REMOVED***&curso_id%5B%5D=1&curso_id%5B%5D=4&escola_id%5B%5D=121908&escola_id%5B%5D=76910&instituicao_id=1&oper=get&resource=series&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 18 Nov 2015 12:41:19 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=ai9hfaqc3k2umtmnhus4fttcv1; expires=Thu, 19-Nov-2015 12:41:19 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '78'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"series":[],"oper":"get","resource":"series","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Wed, 18 Nov 2015 12:41:19 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Serie?access_key=***REMOVED***&curso_id%5B%5D=301&escola_id%5B%5D=124370&instituicao_id=1&oper=get&resource=series&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 18 Nov 2015 12:52:35 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=ur2mdkpjh439agnfu7nnlimhr2; expires=Thu, 19-Nov-2015 12:52:35 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '208'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"series":[{"id":"7","nome":"6\u00ba Ano"},{"id":"47","nome":"7\u00ba
+        Ano"},{"id":"30","nome":"8\u00ba Ano"},{"id":"38","nome":"9\u00ba Ano"}],"oper":"get","resource":"series","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Wed, 18 Nov 2015 12:52:35 GMT
+recorded_with: VCR 3.0.0

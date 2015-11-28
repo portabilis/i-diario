@@ -1,21 +1,38 @@
 module Turnip
   module AvaliationsSteps
+    step 'que estou logado e conectado a uma escola' do
+      @current_user = create(:user_with_user_role)
+      @current_user.current_user_role = @current_user.user_roles.first
+      @current_user.save!
+
+      create(:school_calendar, year: Date.today.year, unity: @current_user.current_user_role.unity)
+
+      visit root_path
+
+      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: @current_user.email
+      fill_in 'Senha', with: @current_user.password
+
+      click_button 'Acessar'
+
+      expect(page).to have_content 'Login realizado com sucesso.'
+    end
+
     step 'que existem turmas com tipo de avaliação númerica vinculadas ao professor logado' do
       exam_rule_with_numeric_score_type = create(:exam_rule, score_type: ScoreTypes::NUMERIC)
       @classroom_with_numeric_score_type = create(:classroom, exam_rule: exam_rule_with_numeric_score_type)
       @teacher_discipline_classroom = create(:teacher_discipline_classroom, classroom: @classroom_with_numeric_score_type)
-      user = users(:john_doe)
-      user.teacher = @teacher_discipline_classroom.teacher
-      user.save
+
+      @current_user.teacher = @teacher_discipline_classroom.teacher
+      @current_user.save!
     end
 
     step 'que existem turmas com tipo de avaliação não numérica vinculadas ao professor logado' do
       exam_rule_with_concept_score_type = create(:exam_rule, score_type: ScoreTypes::CONCEPT)
       @classroom_with_concept_score_type = create(:classroom, exam_rule: exam_rule_with_concept_score_type)
       @teacher_discipline_classroom = create(:teacher_discipline_classroom, classroom: @classroom_with_concept_score_type)
-      user = users(:john_doe)
-      user.teacher = @teacher_discipline_classroom.teacher
-      user.save
+
+      @current_user.teacher = @teacher_discipline_classroom.teacher
+      @current_user.save!
     end
 
     step 'que existe uma configuração de avaliação com avaliações fixas e que não permitem desmembrar' do

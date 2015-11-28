@@ -3,7 +3,7 @@
 Funcionalidade: Gerenciamento de avaliações
 
   Contexto:
-    Dado que estou logado
+    Dado que estou logado e conectado a uma escola
 
   Cenário: Cadastrar uma avaliação quando configuração de avaliações com avaliações fixas e que não permitem desmembrar
     Dado que existem turmas com tipo de avaliação númerica vinculadas ao professor logado
