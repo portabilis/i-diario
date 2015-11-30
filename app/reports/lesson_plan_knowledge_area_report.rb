@@ -129,10 +129,10 @@ class LessonPlanKnowledgeAreaReport
     @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
 
-    @unity_cell = make_cell(content:  @knowledge_area_lesson_plans.first.lesson_plan.unity.name, size: 10, width: 240, align: :left)
-    @classroom_cell = make_cell(content: @knowledge_area_lesson_plans.first.lesson_plan.classroom.description, size: 10, align: :left)
-    @teacher_cell = make_cell(content: @current_teacher.name, size: 10, align: :left)
-    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} à #{@date_end}"), size: 10, align: :left)
+    @unity_cell = make_cell(content:  @knowledge_area_lesson_plans.first.lesson_plan.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left)
+    @classroom_cell = make_cell(content: @knowledge_area_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left)
+    @teacher_cell = make_cell(content: @current_teacher.name, borders: [:bottom, :left, :right], size: 10, align: :left)
+    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} à #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left)
   end
 
 
@@ -251,8 +251,8 @@ class LessonPlanKnowledgeAreaReport
 
   def footer
     repeat(:all) do
-      draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
-
+      draw_text("Data e hora: #{DateTime.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
+      
       draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [20, 40])
       draw_text('____________________________', size: 8, at: [137, 40])
 

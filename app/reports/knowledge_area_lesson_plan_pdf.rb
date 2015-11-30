@@ -178,10 +178,10 @@ class KnowledgeAreaLessonPlanPdf
       [@identification_header_cell],
       [@unity_header],
       [@unity_cell],
-      [@teacher_header, @knowledge_area_header],
-      [@teacher_cell,   @knowledge_area_cell],
-      [@classroom_header, @plan_date_header],
-      [@classroom_cell, @plan_date_cell]
+      [@knowledge_area_header, @classroom_header],
+      [@knowledge_area_cell, @classroom_cell],
+      [@teacher_header, @plan_date_header],
+      [@teacher_cell, @plan_date_cell]
     ]
 
     table(identification_table_data, width: bounds.width) do

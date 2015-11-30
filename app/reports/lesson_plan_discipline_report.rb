@@ -129,11 +129,11 @@ class LessonPlanDisciplineReport
     @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
 
-    @unity_cell = make_cell(content:  @discipline_lesson_plans.first.lesson_plan.unity.name, size: 10, width: 240, align: :left, colspan: 3)
-    @discipline_cell = make_cell(content: @discipline_lesson_plans.first.discipline.description, size: 10, align: :left)
-    @classroom_cell = make_cell(content: @discipline_lesson_plans.first.lesson_plan.classroom.description, size: 10, align: :left)
-    @teacher_cell = make_cell(content: (teacher_discipline_classroom.first.teacher.name.present? ? teacher_discipline_classroom.first.teacher.name : @current_teacher.name), size: 10, align: :left, colspan: 2)
-    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} à #{@date_end}"), size: 10, align: :left)
+    @unity_cell = make_cell(content:  @discipline_lesson_plans.first.lesson_plan.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, colspan: 3)
+    @discipline_cell = make_cell(content: @discipline_lesson_plans.first.discipline.description, borders: [:bottom, :left, :right], size: 10, align: :left)
+    @classroom_cell = make_cell(content: @discipline_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left)
+    @teacher_cell = make_cell(content: (teacher_discipline_classroom.first.teacher.name.present? ? teacher_discipline_classroom.first.teacher.name : @current_teacher.name), borders: [:bottom, :left, :right], size: 10, align: :left, colspan: 2)
+    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} à #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left)
   end
 
   def identification
@@ -197,7 +197,7 @@ class LessonPlanDisciplineReport
       column(-1).border_right_width = 0.25
     end
 
-    table(general_information_table_data, row_colors: ['FFFFFF', 'DEDEDE'], width: bounds.width, header: true) do
+    table(general_information_table_data, row_colors: ['DEDEDE', 'FFFFFF'], width: bounds.width, header: true) do
       cells.border_width = 0.25
       row(0).border_top_width = 0.25
       row(-1).border_bottom_width = 0.25
