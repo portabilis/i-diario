@@ -78,7 +78,7 @@ class ConceptualExamsController < ApplicationController
         {
           classroom_api_code: @conceptual_exam.classroom.api_code,
           discipline_api_code: @conceptual_exam.discipline.api_code,
-          date: Date.today
+          date: Time.zone.today
         }
       )
 

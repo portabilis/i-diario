@@ -50,7 +50,7 @@ class DailyFrequency < ActiveRecord::Base
   def frequency_date_must_be_less_than_or_equal_to_today
     return unless frequency_date
 
-    if frequency_date > Date.today
+    if frequency_date > Time.zone.today
       errors.add(:frequency_date, :must_be_less_than_or_equal_to_today)
     end
   end

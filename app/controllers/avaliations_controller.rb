@@ -28,12 +28,12 @@ class AvaliationsController < ApplicationController
     @avaliation.school_calendar = current_school_calendar
     @avaliation.test_setting    = current_test_setting
     @avaliation.unity           = current_user_unity
-    @avaliation.test_date       = Date.today
+    @avaliation.test_date       = Time.zone.today
 
     authorize resource
 
     fetch_classrooms
-    @test_settings = TestSetting.where(year: Date.today.year).ordered
+    @test_settings = TestSetting.where(year: Time.zone.today.year).ordered
   end
 
   def create
@@ -46,7 +46,7 @@ class AvaliationsController < ApplicationController
       respond_with resource, location: avaliations_path
     else
       fetch_classrooms
-      @test_settings = TestSetting.where(year: Date.today.year).ordered
+      @test_settings = TestSetting.where(year: Time.zone.today.year).ordered
 
       render :new
     end
@@ -58,7 +58,7 @@ class AvaliationsController < ApplicationController
     authorize @avaliation
 
     fetch_classrooms
-    @test_settings = TestSetting.where(year: Date.today.year).ordered
+    @test_settings = TestSetting.where(year: Time.zone.today.year).ordered
   end
 
   def update
@@ -71,7 +71,7 @@ class AvaliationsController < ApplicationController
       respond_with @avaliation, location: avaliations_path
     else
       fetch_classrooms
-      @test_settings = TestSetting.where(year: Date.today.year).ordered
+      @test_settings = TestSetting.where(year: Time.zone.today.year).ordered
 
       render :edit
     end

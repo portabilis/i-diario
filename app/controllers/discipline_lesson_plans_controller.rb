@@ -52,7 +52,7 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.build_lesson_plan
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @discipline_lesson_plan.lesson_plan.unity = current_user_unity
-    @discipline_lesson_plan.lesson_plan.lesson_plan_date = Date.today
+    @discipline_lesson_plan.lesson_plan.lesson_plan_date = Time.zone.today
 
     authorize @discipline_lesson_plan
 

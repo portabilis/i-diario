@@ -6,7 +6,7 @@ RSpec.describe IeducarApi::Teachers, :type => :service do
   let(:access_key) { "***REMOVED***" }
   let(:secret_key) { "***REMOVED***" }
   let(:unity_id) { 1 }
-  let(:ano) { Date.today.year }
+  let(:ano) { Time.zone.today.year }
 
   subject do
     IeducarApi::Teachers.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)

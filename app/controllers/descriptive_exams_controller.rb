@@ -81,7 +81,7 @@ class DescriptiveExamsController < ApplicationController
       result = api.fetch_for_daily(
         { classroom_api_code: @descriptive_exam.classroom.api_code,
           discipline_api_code: @descriptive_exam.discipline.try(:api_code),
-          date: Date.today
+          date: Time.zone.today
         }
       )
 

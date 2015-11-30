@@ -42,7 +42,7 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
         {
           classroom_api_code: @daily_frequency.classroom.api_code,
           discipline_api_code: @daily_frequency.discipline.try(:api_code),
-          date: params[:frequency_date] || Date.today
+          date: params[:frequency_date] || Time.zone.today
         }
       )
 
@@ -58,6 +58,6 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
   end
 
   def current_school_calendar
-    SchoolCalendar.find_by(year: Date.today.year, unity_id: params[:unity_id])
+    SchoolCalendar.find_by(year: Time.zone.today.year, unity_id: params[:unity_id])
   end
 end
