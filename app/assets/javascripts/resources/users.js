@@ -1,6 +1,5 @@
 $(document).ready(function(){
   if ($('form.user-form').length > 0) {
-    $("#user_phone").inputmask("(99) 99999999");
     $("#user_cpf").inputmask("999.999.999-99");
 
     $('form').on("change", '.user-role', function (e) {
