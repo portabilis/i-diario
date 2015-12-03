@@ -10,12 +10,18 @@ class AbsencePosting
   def post!
     classrooms = post_general_classrooms
     if classrooms.any?
-      api.send_post(turmas: classrooms, etapa: posting.school_calendar_step.to_number, resource: 'faltas-geral')
+      classrooms.each do |key, value|
+        api.send_post(turmas: { key => value }, etapa: posting.school_calendar_step.to_number, resource: 'faltas-geral')
+      end
     end
 
     classrooms = post_by_discipline_classrooms
     if classrooms.any?
-      api.send_post(turmas: classrooms, etapa: posting.school_calendar_step.to_number, resource: 'faltas-por-componente')
+      classrooms.each do |k, v|
+        v.each do |key, value|
+          api.send_post(turmas: { key => value }, etapa: posting.school_calendar_step.to_number, resource: 'faltas-por-componente')
+        end
+      end
     end
   end
 
@@ -108,10 +114,10 @@ class AbsencePosting
           )
 
           if daily_frequency_students.any?
-            classrooms[classroom.api_code]['turma_id'] = classroom.api_code
-            classrooms[classroom.api_code]['alunos'][student.api_code]['aluno_id'] = student.api_code
-            classrooms[classroom.api_code]['alunos'][student.api_code]['componentes_curriculares'][discipline.api_code]['componente_curricular_id'] = discipline.api_code
-            classrooms[classroom.api_code]['alunos'][student.api_code]['componentes_curriculares'][discipline.api_code]['faltas'] = daily_frequency_students.absences.count
+            classrooms[discipline.id][classroom.api_code]['turma_id'] = classroom.api_code
+            classrooms[discipline.id][classroom.api_code]['alunos'][student.api_code]['aluno_id'] = student.api_code
+            classrooms[discipline.id][classroom.api_code]['alunos'][student.api_code]['componentes_curriculares'][discipline.api_code]['componente_curricular_id'] = discipline.api_code
+            classrooms[discipline.id][classroom.api_code]['alunos'][student.api_code]['componentes_curriculares'][discipline.api_code]['faltas'] = daily_frequency_students.absences.count
           end
         end
       end
