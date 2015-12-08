@@ -3,6 +3,6 @@ FactoryGirl.define do
     quantity 1.00
 
     association :***REMOVED***
-    association :food
+    association :food, factory: :food_with_***REMOVED***
   end
 end
