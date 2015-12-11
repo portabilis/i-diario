@@ -39,7 +39,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   def recorded_at_must_be_less_than_or_equal_to_today
     return unless recorded_at
 
-    if recorded_at > Date.today
+    if recorded_at > Time.zone.today
       errors.add(:recorded_at, :recorded_at_must_be_less_than_or_equal_to_today)
     end
   end
@@ -48,7 +48,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
     return unless recorded_at && unity
 
     school_calendar = SchoolCalendar.find_by(
-      year: Date.today.year,
+      year: Time.zone.today.year,
       unity_id: unity.id
     )
 

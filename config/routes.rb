@@ -91,7 +91,10 @@ Rails.application.routes.draw do
         post :create_batch
       end
     end
-    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history do
+      get '***REMOVED***_classes/select'
+    end
+
     resources :***REMOVED***_classes, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history

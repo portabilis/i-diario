@@ -10,7 +10,7 @@ class AbsenceJustificationsController < ApplicationController
 
   def new
     @absence_justification = AbsenceJustification.new.localized
-    @absence_justification.absence_date = Date.today
+    @absence_justification.absence_date = Time.zone.today
     @absence_justification.author = current_user
 
     authorize @absence_justification

@@ -42,7 +42,7 @@ class DailyNote < ActiveRecord::Base
   def avaliation_date_must_be_less_than_or_equal_to_today
     return unless avaliation
 
-    if avaliation.test_date > Date.today
+    if avaliation.test_date > Time.zone.today
       errors.add(:avaliation, :must_be_less_than_or_equal_to_today)
     end
   end

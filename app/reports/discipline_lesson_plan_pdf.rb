@@ -109,7 +109,7 @@ class DisciplineLessonPlanPdf
       height: 20,
       padding: [2, 2, 4, 4],
       align: :center,
-      colspan: 4 
+      colspan: 4
     )
 
     @additional_information_header_cell = make_cell(
@@ -120,10 +120,10 @@ class DisciplineLessonPlanPdf
       height: 20,
       padding: [2, 2, 4, 4],
       align: :center,
-      colspan: 4 
+      colspan: 4
     )
 
-    
+
     classes = (!@discipline_lesson_plan.classes ? '' : @discipline_lesson_plan.classes.map { |classes| classes}.join(", "))
 
     teacher_discipline_classroom = TeacherDisciplineClassroom.where discipline_id: @discipline_lesson_plan.discipline.id, classroom_id: @discipline_lesson_plan.lesson_plan.classroom.id
@@ -178,7 +178,7 @@ class DisciplineLessonPlanPdf
       [@teacher_header, @plan_date_header, @class_header],
       [@teacher_cell, @plan_date_cell, @class_cell]
     ]
-     
+
     table(general_information_table_data, width: bounds.width) do
       cells.border_width = 0.25
       row(0).border_top_width = 0.25
@@ -235,7 +235,7 @@ class DisciplineLessonPlanPdf
     end
   end
 
-  def body 
+  def body
     bounding_box([0, cursor - @gap], width: bounds.width) do
       general_information
       class_plan
@@ -245,7 +245,7 @@ class DisciplineLessonPlanPdf
 
   def footer
     repeat(:all) do
-      draw_text("Data e hora: #{DateTime.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
+      draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
     end
 
     string = "Página <page> de <total>"

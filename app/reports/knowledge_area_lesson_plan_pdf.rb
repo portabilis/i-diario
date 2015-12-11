@@ -109,7 +109,7 @@ class KnowledgeAreaLessonPlanPdf
       height: 20,
       padding: [2, 2, 4, 4],
       align: :center,
-      colspan: 4 
+      colspan: 4
     )
 
     @additional_information_header_cell = make_cell(
@@ -120,13 +120,13 @@ class KnowledgeAreaLessonPlanPdf
       height: 20,
       padding: [2, 2, 4, 4],
       align: :center,
-      colspan: 4 
+      colspan: 4
     )
 
     knowledge_area_lesson_plans_knowledge_areas = KnowledgeAreaLessonPlanKnowledgeArea.where knowledge_area_lesson_plan_id: @knowledge_area_lesson_plan.id
-      
+
     knowledge_area_ids = []
-      
+
     knowledge_area_lesson_plans_knowledge_areas.each do |knowledge_area_lesson_plans_knowledge_area|
       knowledge_area_ids << knowledge_area_lesson_plans_knowledge_area.knowledge_area_id
     end
@@ -168,7 +168,7 @@ class KnowledgeAreaLessonPlanPdf
 
     @activitie_header = make_cell(content: 'Atividades/metodologia', size: 8, font_style: :bold, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4], colspan: 4)
     @activitie_cell = make_cell(content: (@knowledge_area_lesson_plan.lesson_plan.activities.present? ? @knowledge_area_lesson_plan.lesson_plan.activities : '-' ), size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-    
+
     @opinion_header = make_cell(content: 'Parecer', size: 8, font_style: :bold, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4], colspan: 4)
     @opinion_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.opinion, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
   end
@@ -249,7 +249,7 @@ class KnowledgeAreaLessonPlanPdf
 
   def footer
     repeat(:all) do
-      draw_text("Data e hora: #{DateTime.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
+      draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
     end
 
     string = "Página <page> de <total>"

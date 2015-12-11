@@ -1,5 +1,5 @@
 class StudentsFetcher
-  def initialize(ieducar_api_configuration, classroom_api_code, discipline_api_code = nil, date = Date.today)
+  def initialize(ieducar_api_configuration, classroom_api_code, discipline_api_code = nil, date = Time.zone.today)
     @ieducar_api_configuration = ieducar_api_configuration
     @classroom_api_code = classroom_api_code
     @discipline_api_code = discipline_api_code

@@ -106,7 +106,7 @@ class LessonPlanKnowledgeAreaReport
       height: 20,
       padding: [2, 2, 4, 4],
       align: :center,
-      colspan: 5 
+      colspan: 5
     )
 
     @general_information_header_cell = make_cell(
@@ -117,7 +117,7 @@ class LessonPlanKnowledgeAreaReport
       height: 20,
       padding: [2, 2, 4, 4],
       align: :center,
-      colspan: 5 
+      colspan: 5
     )
 
 
@@ -140,7 +140,7 @@ class LessonPlanKnowledgeAreaReport
     title_identification = [
       [@identification_header_cell]
     ]
-    
+
 
     identification_headers = [
       @unity_header,
@@ -152,7 +152,7 @@ class LessonPlanKnowledgeAreaReport
     identification_cells = []
 
     identification_cells << [
-      @unity_cell, 
+      @unity_cell,
       @classroom_cell,
       @teacher_cell,
       @period_cell
@@ -196,7 +196,7 @@ class LessonPlanKnowledgeAreaReport
     @knowledge_area_lesson_plans.each do |knowledge_area_lesson_plan|
 
       knowledge_area_lesson_plans_knowledge_areas = KnowledgeAreaLessonPlanKnowledgeArea.where knowledge_area_lesson_plan_id: knowledge_area_lesson_plan.id
-      
+
       knowledge_area_ids = []
 
       knowledge_area_lesson_plans_knowledge_areas.each do |knowledge_area_lesson_plans_knowledge_area|
@@ -222,8 +222,8 @@ class LessonPlanKnowledgeAreaReport
 
     general_information_table_data = [general_information_headers]
     general_information_table_data.concat(general_information_cells)
-     
-    move_down @gap 
+
+    move_down @gap
 
     table(title_general_information, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -251,7 +251,7 @@ class LessonPlanKnowledgeAreaReport
 
   def footer
     repeat(:all) do
-      draw_text("Data e hora: #{DateTime.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
+      draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
 
       draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [20, 40])
       draw_text('____________________________', size: 8, at: [137, 40])
@@ -266,5 +266,5 @@ class LessonPlanKnowledgeAreaReport
                 size: 8,
                 align: :right }
     number_pages(string, options)
-  end  
+  end
 end
