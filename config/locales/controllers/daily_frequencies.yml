@@ -1,0 +1,4 @@
+pt-BR:
+  daily_frequencies:
+    destroy_multiple:
+      alert: 'Registro do diário de frequência que você está tentando apagar não existe.'
