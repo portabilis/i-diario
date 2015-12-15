@@ -16,23 +16,19 @@ class Lecture
   end
 
   def id
-    "#{raw_id}\\#{name}"
-  end
-
-  def raw_id
-    attributes["id"]
+    attributes['id']
   end
 
   def name
-    attributes["nome"]
+    attributes['nome']
   end
 
   def grades
-    RemoteGrade.all(attributes["series"])
+    RemoteGrade.all(attributes['series'])
   end
 
   def label
-    "#{raw_id} - #{name}"
+    "#{id} - #{name}"
   end
 
   def to_s

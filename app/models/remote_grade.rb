@@ -14,23 +14,19 @@ class RemoteGrade
   end
 
   def id
-    "#{raw_id}\\#{name}"
-  end
-
-  def raw_id
-    attributes["id"]
+    attributes['id']
   end
 
   def name
-    attributes["nome"]
+    attributes['nome']
   end
 
   def label
-    "#{raw_id} - #{name}"
+    "#{id} - #{name}"
   end
 
   def school_classes
-    SchoolClass.all(attributes["turmas"])
+    SchoolClass.all(attributes['turmas'])
   end
 
   def to_s
