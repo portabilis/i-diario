@@ -1,9 +1,5 @@
 class LessonPlanKnowledgeAreaReportForm
   include ActiveModel::Model
-  include ActiveModel::Validations::Callbacks
-
-  before_validation :date_start_must_be_a_valid_date
-  before_validation :date_end_must_be_a_valid_date
 
   attr_accessor :unity_id,
                 :classroom_id,
@@ -12,28 +8,29 @@ class LessonPlanKnowledgeAreaReportForm
                 :date_end,
                 :knowledge_area_lesson_plan
 
+  validates :unity_id,
+    :classroom_id,
+    :date_start,
+    :date_end,
+    presence: true
+
+  validate :date_start_must_be_a_valid_date
+  validate :date_end_must_be_a_valid_date
+  validate :start_at_must_be_less_than_or_equal_to_end_at
   validate :must_have_knowledge_area_lesson_plan
 
   def knowledge_area_lesson_plan
-    KnowledgeAreaLessonPlan.joins(:lesson_plan)
-             .where("case when ? = 0 then 1=1 else knowledge_area_lesson_plans.id = ? end
-               and case when ? = 0 then 1 = 1 else classroom_id = ? end
-               and case when ? = '01/01/1900' then  1=1 when ? = '01/01/1900' then  1=1  else lesson_plan_date between ? and ? end",
-               (knowledge_area_id == '' ? 0 : knowledge_area_id), (knowledge_area_id == '' ? 0 : knowledge_area_id), (classroom_id == '' ? 0 : classroom_id), 
-               (classroom_id == '' ? 0 : classroom_id), (date_start == '' ? '01/01/1900' : date_start), 
-               (date_end == '' ? '01/01/1900' : date_end), (date_start == '' ? '01/01/1900' : date_start), (date_end == '' ? '01/01/1900' : date_end))
-             .order("lesson_plan_date ASC")
+    relation = KnowledgeAreaLessonPlan.by_unity_id(unity_id)
+      .by_classroom_id(classroom_id)
+      .by_lesson_plan_date_between(date_start, date_end)
+      .order(LessonPlan.arel_table[:lesson_plan_date].asc)
+
+    relation = relation.by_knowledge_area_id(knowledge_area_id) if knowledge_area_id.present?
+
+    relation
   end
 
   private
-
-  def must_have_knowledge_area_lesson_plan
-    return unless errors.blank?
-
-    if knowledge_area_lesson_plan.count == 0
-      errors.add(:knowledge_area_lesson_plan, :must_have_knowledge_area_lesson_plan)
-    end
-  end
 
   def date_start_must_be_a_valid_date
     return if errors[:date_start].any?
@@ -52,6 +49,22 @@ class LessonPlanKnowledgeAreaReportForm
       date_end.to_date
     rescue ArgumentError
       errors.add(:date_end, :date_end_must_be_a_valid_date)
+    end
+  end
+
+  def start_at_must_be_less_than_or_equal_to_end_at
+    return if errors[:date_start].any? || errors[:date_end].any?
+
+    if date_start.to_date > date_end.to_date
+      errors.add(:date_start, :date_start_must_be_less_than_or_equal_to_end_at)
+    end
+  end
+
+  def must_have_knowledge_area_lesson_plan
+    return unless errors.blank?
+
+    if knowledge_area_lesson_plan.count == 0
+      errors.add(:knowledge_area_lesson_plan, :must_have_knowledge_area_lesson_plan)
     end
   end
 end

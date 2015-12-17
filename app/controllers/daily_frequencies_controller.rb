@@ -102,11 +102,18 @@ class DailyFrequenciesController < ApplicationController
   def destroy_multiple
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number
 
-    authorize @daily_frequencies.first
+    if @daily_frequencies.any?
+      authorize @daily_frequencies.first
 
-    @daily_frequencies.each { |daily_frequency| daily_frequency.destroy }
+      @daily_frequencies.each { |daily_frequency| daily_frequency.destroy }
 
-    respond_with @daily_frequencies.first, location: new_daily_frequency_path
+      respond_with @daily_frequencies.first, location: new_daily_frequency_path
+    else
+      flash[:alert] =  t('.alert')
+
+      redirect_to new_daily_frequency_path
+    end
+
   end
 
   def history

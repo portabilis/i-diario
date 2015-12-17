@@ -19,7 +19,7 @@ class KnowledgeAreaLessonPlanPdf
     @entity_configuration = entity_configuration
     @knowledge_area_lesson_plan = knowledge_area_lesson_plan
     @current_teacher = current_teacher
-    @gap = 10
+    @gap = 8
     attributes
 
     header
@@ -151,26 +151,26 @@ class KnowledgeAreaLessonPlanPdf
     @knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
     @knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
-    @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 4)
-    @conteudo_cell = make_cell(content: (@knowledge_area_lesson_plan.lesson_plan.contents.present? ? @knowledge_area_lesson_plan.lesson_plan.contents : '-') , size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    conteudo_cell_content = inline_formated_cell_header('Conteúdos') + (@knowledge_area_lesson_plan.lesson_plan.contents.present? ? @knowledge_area_lesson_plan.lesson_plan.contents : '-')
+    @conteudo_cell = make_cell(content:  conteudo_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
-    @objective_header = make_cell(content: 'Objetivos', size: 8, font_style: :bold, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4], colspan: 4)
-    @objective_cell = make_cell(content: (@knowledge_area_lesson_plan.lesson_plan.objectives.present? ? @knowledge_area_lesson_plan.lesson_plan.objectives : '-'), size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    objective_cell_content = inline_formated_cell_header('Objetivos') + (@knowledge_area_lesson_plan.lesson_plan.objectives.present? ? @knowledge_area_lesson_plan.lesson_plan.objectives : '-')
+    @objective_cell = make_cell(content: objective_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
-    @resource_header = make_cell(content: 'Recursos', size: 8, font_style: :bold, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4], colspan: 4)
-    @resource_cell = make_cell(content: (@knowledge_area_lesson_plan.lesson_plan.resources.present? ? @knowledge_area_lesson_plan.lesson_plan.resources : '-'), size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    resource_cell_content = inline_formated_cell_header('Recursos') + (@knowledge_area_lesson_plan.lesson_plan.resources.present? ? @knowledge_area_lesson_plan.lesson_plan.resources : '-')
+    @resource_cell = make_cell(content: resource_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
-    @evaluation_header = make_cell(content: 'Avaliação', size: 8, font_style: :bold, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4], colspan: 4)
-    @evaluation_cell = make_cell(content: (@knowledge_area_lesson_plan.lesson_plan.evaluation.present? ? @knowledge_area_lesson_plan.lesson_plan.evaluation : '-'), size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    evaluation_cell_content = inline_formated_cell_header('Avaliação') + (@knowledge_area_lesson_plan.lesson_plan.evaluation.present? ? @knowledge_area_lesson_plan.lesson_plan.evaluation : '-')
+    @evaluation_cell = make_cell(content: evaluation_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
-    @bibliography_header = make_cell(content: 'Referências', size: 8, font_style: :bold, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4], colspan: 4)
-    @bibliography_cell = make_cell(content: (@knowledge_area_lesson_plan.lesson_plan.bibliography.present? ? @knowledge_area_lesson_plan.lesson_plan.bibliography : '-'), size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    bibliography_cell_content = inline_formated_cell_header('Referências') + (@knowledge_area_lesson_plan.lesson_plan.bibliography.present? ? @knowledge_area_lesson_plan.lesson_plan.bibliography : '-')
+    @bibliography_cell = make_cell(content: bibliography_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
-    @activitie_header = make_cell(content: 'Atividades/metodologia', size: 8, font_style: :bold, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4], colspan: 4)
-    @activitie_cell = make_cell(content: (@knowledge_area_lesson_plan.lesson_plan.activities.present? ? @knowledge_area_lesson_plan.lesson_plan.activities : '-' ), size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    activitie_cell_content = inline_formated_cell_header('Atividades/metodologia') + (@knowledge_area_lesson_plan.lesson_plan.activities.present? ? @knowledge_area_lesson_plan.lesson_plan.activities : '-' )
+    @activitie_cell = make_cell(content: activitie_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
-    @opinion_header = make_cell(content: 'Parecer', size: 8, font_style: :bold, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4], colspan: 4)
-    @opinion_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.opinion, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    opinion_cell_content = inline_formated_cell_header('Parecer') + @knowledge_area_lesson_plan.lesson_plan.opinion.to_s
+    @opinion_cell = make_cell(content: opinion_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
   end
 
   def identification
@@ -178,10 +178,10 @@ class KnowledgeAreaLessonPlanPdf
       [@identification_header_cell],
       [@unity_header],
       [@unity_cell],
-      [@teacher_header, @knowledge_area_header],
-      [@teacher_cell,   @knowledge_area_cell],
-      [@classroom_header, @plan_date_header],
-      [@classroom_cell, @plan_date_cell]
+      [@knowledge_area_header, @classroom_header],
+      [@knowledge_area_cell, @classroom_cell],
+      [@teacher_header, @plan_date_header],
+      [@teacher_cell, @plan_date_cell]
     ]
 
     table(identification_table_data, width: bounds.width) do
@@ -196,22 +196,16 @@ class KnowledgeAreaLessonPlanPdf
   def class_plan
     class_plan_table_data = [
       [@class_plan_header_cell],
-      [@conteudo_header],
       [@conteudo_cell],
-      [@activitie_header],
       [@activitie_cell],
-      [@objective_header],
       [@objective_cell],
-      [@resource_header],
       [@resource_cell],
-      [@evaluation_header],
       [@evaluation_cell],
-      [@bibliography_header],
       [@bibliography_cell]
     ]
 
     move_down @gap
-    table(class_plan_table_data, width: bounds.width) do
+    table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
       cells.border_width = 0.25
       row(0).border_top_width = 0.25
       row(-1).border_bottom_width = 0.25
@@ -223,13 +217,12 @@ class KnowledgeAreaLessonPlanPdf
   def additional_information
     additional_information_table_data = [
       [@additional_information_header_cell],
-      [@opinion_header],
       [@opinion_cell]
     ]
 
     if @knowledge_area_lesson_plan.lesson_plan.opinion.present?
       move_down @gap
-      table(additional_information_table_data, width: bounds.width) do
+      table(additional_information_table_data, width: bounds.width, cell_style: { inline_format: true }) do
         cells.border_width = 0.25
         row(0).border_top_width = 0.25
         row(-1).border_bottom_width = 0.25
@@ -240,7 +233,7 @@ class KnowledgeAreaLessonPlanPdf
   end
 
   def body
-    bounding_box([0, cursor - @gap], width: bounds.width) do
+    bounding_box([0, 712], width: bounds.width, height: 700) do
       identification
       class_plan
       additional_information
@@ -258,5 +251,9 @@ class KnowledgeAreaLessonPlanPdf
                 size: 8,
                 align: :right }
     number_pages(string, options)
+  end
+
+  def inline_formated_cell_header(text)
+    "<font size='8'><b>#{text}</b></font>\n"
   end
 end

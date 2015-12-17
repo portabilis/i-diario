@@ -97,6 +97,7 @@ class DailyNotesController < ApplicationController
     rescue IeducarApi::Base::ApiError => e
       flash[:alert] = e.message
       fetch_unities
+      @api_students = []
       render :new
     end
   end
