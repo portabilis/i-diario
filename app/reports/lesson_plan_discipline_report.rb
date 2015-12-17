@@ -132,7 +132,7 @@ class LessonPlanDisciplineReport
     @discipline_cell = make_cell(content: @discipline_lesson_plans.first.discipline.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @classroom_cell = make_cell(content: @discipline_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @teacher_cell = make_cell(content: (teacher_discipline_classroom.first.teacher.name.present? ? teacher_discipline_classroom.first.teacher.name : @current_teacher.name), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
-    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} à #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} a #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
   end
 
   def identification
@@ -206,7 +206,7 @@ class LessonPlanDisciplineReport
   end
 
   def body
-    bounding_box([0, 727], width: bounds.width, height: 715) do
+    bounding_box([0, 712], width: bounds.width, height: 700) do
       identification
       general_information
       signatures
@@ -218,7 +218,7 @@ class LessonPlanDisciplineReport
 
     move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
-    text_box("______________________________________________\nCordenador(a)", size: 10, align: :center, at: [306, cursor], width: 260)
+    text_box("______________________________________________\nCoordenador(a)", size: 10, align: :center, at: [306, cursor], width: 260)
   end
 
   def footer

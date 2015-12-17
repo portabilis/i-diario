@@ -233,7 +233,7 @@ class KnowledgeAreaLessonPlanPdf
   end
 
   def body
-    bounding_box([0, 727], width: bounds.width, height: 715) do
+    bounding_box([0, 712], width: bounds.width, height: 700) do
       identification
       class_plan
       additional_information

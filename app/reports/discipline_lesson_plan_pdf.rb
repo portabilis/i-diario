@@ -229,7 +229,7 @@ class DisciplineLessonPlanPdf
   end
 
   def body
-    bounding_box([0, 727], width: bounds.width, height: 715) do
+    bounding_box([0, 712], width: bounds.width, height: 700) do
       general_information
       class_plan
       additional_information

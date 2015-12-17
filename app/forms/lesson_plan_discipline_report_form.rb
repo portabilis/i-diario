@@ -25,7 +25,7 @@ class LessonPlanDisciplineReportForm
       .by_classroom_id(classroom_id)
       .by_discipline_id(discipline_id)
       .by_lesson_plan_date_between(date_start, date_end)
-      .ordered
+      .order(LessonPlan.arel_table[:lesson_plan_date].asc)
   end
 
   private

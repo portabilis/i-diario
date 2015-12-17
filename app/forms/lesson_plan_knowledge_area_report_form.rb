@@ -23,7 +23,7 @@ class LessonPlanKnowledgeAreaReportForm
     relation = KnowledgeAreaLessonPlan.by_unity_id(unity_id)
       .by_classroom_id(classroom_id)
       .by_lesson_plan_date_between(date_start, date_end)
-      .ordered
+      .order(LessonPlan.arel_table[:lesson_plan_date].asc)
 
     relation = relation.by_knowledge_area_id(knowledge_area_id) if knowledge_area_id.present?
 
