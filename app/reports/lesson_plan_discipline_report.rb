@@ -23,7 +23,6 @@ class LessonPlanDisciplineReport
     @discipline_lesson_plans = discipline_lesson_plan
     @current_teacher = current_teacher
     attributes
-    @gap = 10
 
     header
     body
@@ -32,12 +31,9 @@ class LessonPlanDisciplineReport
     self
   end
 
-  protected
-
   private
 
   def header
-
     entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
     organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
     title =  'Registro de conteúdos por disciplina'
@@ -104,7 +100,7 @@ class LessonPlanDisciplineReport
       height: 20,
       padding: [2, 2, 4, 4],
       align: :center,
-      colspan: 4
+      colspan: 2
     )
 
     @general_information_header_cell = make_cell(
@@ -118,10 +114,13 @@ class LessonPlanDisciplineReport
       colspan: 5
     )
 
-    teacher_discipline_classroom = TeacherDisciplineClassroom.where discipline_id: @discipline_lesson_plans.first.discipline.id, classroom_id: @discipline_lesson_plans.first.lesson_plan.classroom.id
+    teacher_discipline_classroom = TeacherDisciplineClassroom.where(
+      discipline_id: @discipline_lesson_plans.first.discipline.id,
+      classroom_id: @discipline_lesson_plans.first.lesson_plan.classroom.id
+    )
 
-    @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4], colspan: 2)
-    @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 3)
+    @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
     @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4])
     @plan_date_header = make_cell(content: 'Data', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', width: 60, padding: [2, 2, 4, 4])
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
@@ -129,20 +128,22 @@ class LessonPlanDisciplineReport
     @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
 
-    @unity_cell = make_cell(content:  @discipline_lesson_plans.first.lesson_plan.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, colspan: 3)
-    @discipline_cell = make_cell(content: @discipline_lesson_plans.first.discipline.description, borders: [:bottom, :left, :right], size: 10, align: :left)
-    @classroom_cell = make_cell(content: @discipline_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left)
-    @teacher_cell = make_cell(content: (teacher_discipline_classroom.first.teacher.name.present? ? teacher_discipline_classroom.first.teacher.name : @current_teacher.name), borders: [:bottom, :left, :right], size: 10, align: :left, colspan: 2)
-    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} à #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left)
+    @unity_cell = make_cell(content:  @discipline_lesson_plans.first.lesson_plan.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4], colspan: 2)
+    @discipline_cell = make_cell(content: @discipline_lesson_plans.first.discipline.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @classroom_cell = make_cell(content: @discipline_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @teacher_cell = make_cell(content: (teacher_discipline_classroom.first.teacher.name.present? ? teacher_discipline_classroom.first.teacher.name : @current_teacher.name), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} à #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
   end
 
   def identification
     identification_table_data = [
       [@identification_header_cell],
-      [@unity_header, @discipline_header],
-      [@unity_cell, @discipline_cell],
-      [@classroom_header, @teacher_header, @period_header],
-      [@classroom_cell, @teacher_cell, @period_cell]
+      [@unity_header],
+      [@unity_cell],
+      [@discipline_header, @classroom_header],
+      [@discipline_cell, @classroom_cell],
+      [@teacher_header, @period_header],
+      [@teacher_cell, @period_cell]
     ]
 
     table(identification_table_data, width: bounds.width, header: true) do
@@ -169,7 +170,6 @@ class LessonPlanDisciplineReport
     general_information_cells = []
 
     @discipline_lesson_plans.each do |discipline_lesson_plan|
-
       classes = (!discipline_lesson_plan.classes ? '' : discipline_lesson_plan.classes.map { |classes| classes}.join(", "))
 
       plan_date_cell = make_cell(content: discipline_lesson_plan.lesson_plan.lesson_plan_date.strftime("%d/%m/%Y"), size: 10, align: :left)
@@ -183,11 +183,10 @@ class LessonPlanDisciplineReport
       ]
     end
 
-
     general_information_table_data = [general_information_headers]
     general_information_table_data.concat(general_information_cells)
 
-    move_down @gap
+    move_down 8
 
     table(title_general_information, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -207,21 +206,24 @@ class LessonPlanDisciplineReport
   end
 
   def body
-    bounding_box([0, cursor - @gap], width: bounds.width) do
+    bounding_box([0, 727], width: bounds.width, height: 715) do
       identification
       general_information
+      signatures
     end
+  end
+
+  def signatures
+    start_new_page if cursor < 45
+
+    move_down 30
+    text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
+    text_box("______________________________________________\nCordenador(a)", size: 10, align: :center, at: [306, cursor], width: 260)
   end
 
   def footer
     repeat(:all) do
       draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
-
-      draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [20, 40])
-      draw_text('____________________________', size: 8, at: [137, 40])
-
-      draw_text('Assinatura do(a) coordenador(a):', size: 8, style: :bold, at: [279, 40])
-      draw_text('____________________________', size: 8, at: [407, 40])
     end
 
     string = "Página <page> de <total>"

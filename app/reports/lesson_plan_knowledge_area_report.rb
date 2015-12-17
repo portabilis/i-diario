@@ -23,7 +23,6 @@ class LessonPlanKnowledgeAreaReport
     @knowledge_area_lesson_plans = knowledge_area_lesson_plans
     @current_teacher = current_teacher
     attributes
-    @gap = 10
 
     header
     body
@@ -129,10 +128,10 @@ class LessonPlanKnowledgeAreaReport
     @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
 
-    @unity_cell = make_cell(content:  @knowledge_area_lesson_plans.first.lesson_plan.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left)
-    @classroom_cell = make_cell(content: @knowledge_area_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left)
-    @teacher_cell = make_cell(content: @current_teacher.name, borders: [:bottom, :left, :right], size: 10, align: :left)
-    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} à #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left)
+    @unity_cell = make_cell(content:  @knowledge_area_lesson_plans.first.lesson_plan.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4])
+    @classroom_cell = make_cell(content: @knowledge_area_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @teacher_cell = make_cell(content: @current_teacher.name, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} à #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
   end
 
 
@@ -141,26 +140,12 @@ class LessonPlanKnowledgeAreaReport
       [@identification_header_cell]
     ]
 
-
-    identification_headers = [
-      @unity_header,
-      @classroom_header,
-      @teacher_header,
-      @period_header
+    identification_table_data = [
+      [@unity_header, @classroom_header],
+      [@unity_cell, @classroom_cell],
+      [@teacher_header, @period_header],
+      [@teacher_cell, @period_cell]
     ]
-
-    identification_cells = []
-
-    identification_cells << [
-      @unity_cell,
-      @classroom_cell,
-      @teacher_cell,
-      @period_cell
-    ]
-
-
-    identification_table_data = [identification_headers]
-    identification_table_data.concat(identification_cells)
 
     table(title_identification, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -223,7 +208,7 @@ class LessonPlanKnowledgeAreaReport
     general_information_table_data = [general_information_headers]
     general_information_table_data.concat(general_information_cells)
 
-    move_down @gap
+    move_down 8
 
     table(title_general_information, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -243,21 +228,24 @@ class LessonPlanKnowledgeAreaReport
   end
 
   def body
-    bounding_box([0, cursor - @gap], width: bounds.width) do
+    bounding_box([0, 727], width: bounds.width, height: 715) do
       identification
       general_information
+      signatures
     end
+  end
+
+  def signatures
+    start_new_page if cursor < 45
+
+    move_down 30
+    text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
+    text_box("______________________________________________\nCordenador(a)", size: 10, align: :center, at: [306, cursor], width: 260)
   end
 
   def footer
     repeat(:all) do
       draw_text("Data e hora: #{DateTime.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
-      
-      draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [20, 40])
-      draw_text('____________________________', size: 8, at: [137, 40])
-
-      draw_text('Assinatura do(a) coordenador(a):', size: 8, style: :bold, at: [279, 40])
-      draw_text('____________________________', size: 8, at: [407, 40])
     end
 
     string = "Página <page> de <total>"

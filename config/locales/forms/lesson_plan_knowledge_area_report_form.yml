@@ -16,5 +16,6 @@ pt-BR:
               must_have_knowledge_area_lesson_plan: "Nenhum resultado foi encontrado para os dados informados"
             date_start:
               date_start_must_be_a_valid_date: "deve ser uma data válida"
+              date_start_must_be_less_than_or_equal_to_end_at: "não pode ser maior que a data final"
             date_end:
               date_end_must_be_a_valid_date: "deve ser uma data válida"
