@@ -137,7 +137,7 @@ class DailyFrequenciesController < ApplicationController
         }
       )
 
-      @api_students = result['alunos']
+      @api_students = result['alunos'].uniq
     rescue IeducarApi::Base::ApiError => e
       flash[:alert] = e.message
       @api_students = []
