@@ -7,7 +7,7 @@ FactoryGirl.define do
     last_name  'Example'
     login      'user.example'
     phone      '(11) 99887766'
-    cpf        '639.290.118-32'
+    cpf        { Faker::CPF.pretty }
     admin      true
 
     factory :user_with_user_role do

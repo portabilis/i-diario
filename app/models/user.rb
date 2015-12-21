@@ -50,7 +50,7 @@ class User < ActiveRecord::Base
 
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
-  validates :email, email: true, presence: true
+  validates :email, email: true, allow_blank: true
 
   validates_associated :user_roles
 
@@ -183,7 +183,15 @@ class User < ActiveRecord::Base
     end
   end
 
+  def email=(value)
+    write_attribute(:email, value) if value.present?
+  end
+
   protected
+
+  def email_required?
+    false
+  end
 
   def uniqueness_of_student_parent_role
     return if user_roles.blank?

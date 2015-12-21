@@ -16,7 +16,6 @@ module Turnip
         fill_in 'E-mail', with: 'clark@example.com'
         fill_in 'Senha', with: '11223344'
         fill_in 'Confirme a senha', with: '11223344'
-        fill_mask "Celular", with: "(31) 94361177"
 
         check "Selecione esta opção se você é um pai ou responsável por aluno e deseja cadastrar-se para acessar recursos como pré-matrícula, consulta de notas, faltas, ocorrências disciplinares e outros."
 
@@ -106,7 +105,6 @@ module Turnip
         fill_in 'E-mail', with: 'johnstuart@example.com'
         fill_in 'Senha', with: '11223344'
         fill_in 'Confirme a senha', with: '11223344'
-        fill_mask "Celular", with: "(31) 94361177"
 
         check "Selecione esta opção se você é um servidor da rede de ensino e deseja cadastrar-se para acessar recursos como diário eletrônico e outras ferramentas administrativas exclusivas para servidores."
         check "Selecione esta opção se você é um aluno já matriculado na rede de ensino e deseja cadastrar-se para acessar recursos como consulta de notas, faltas e outras informações exclusivas para alunos."

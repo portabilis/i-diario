@@ -1,0 +1,3 @@
+form.signup label.checkbox input[type="checkbox"].checkbox:checked + span {
+  font-weight: normal;
+}
