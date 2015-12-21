@@ -55,6 +55,7 @@ class User < ActiveRecord::Base
   validates_associated :user_roles
 
   validate :uniqueness_of_student_parent_role
+  validate :presence_of_email_or_cpf
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
@@ -220,6 +221,14 @@ class User < ActiveRecord::Base
           student_roles.push(_role)
         end
       end
+    end
+  end
+
+  def presence_of_email_or_cpf
+    return if errors[:email].any? || errors[:cpf].any?
+
+    if email.blank? && cpf.blank?
+      errors.add(:base, :must_inform_email_or_cpf)
     end
   end
 end

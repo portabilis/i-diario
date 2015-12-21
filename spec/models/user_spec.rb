@@ -17,7 +17,6 @@ RSpec.describe User, type: :model do
   end
 
   context 'validations' do
-    it { expect(subject).to validate_presence_of(:email) }
     it { expect(subject).to_not validate_presence_of(:student) }
 
     it { expect(subject).to allow_value('').for(:phone) }
@@ -67,6 +66,39 @@ RSpec.describe User, type: :model do
         subject.valid?
 
         expect(subject.errors['user_roles']).to be_blank
+      end
+    end
+
+    context 'when without email and without cpf' do
+      it 'should require email or cpf' do
+        subject.email = nil
+        subject.cpf = nil
+
+        subject.valid?
+
+        expect(subject.errors[:base]).to include('Necessário informar e-mail ou CPF')
+      end
+    end
+
+    context 'when with email and without cpf' do
+      it 'should not require email or cpf' do
+        subject.email = 'user@example.com'
+        subject.cpf = nil
+
+        subject.valid?
+
+        expect(subject.errors[:base]).not_to include('Necessário informar e-mail ou CPF')
+      end
+    end
+
+    context 'when without email and with cpf' do
+      it 'should not require email or cpf' do
+        subject.email = nil
+        subject.cpf = Faker::CPF.pretty
+
+        subject.valid?
+
+        expect(subject.errors[:base]).not_to include('Necessário informar e-mail ou CPF')
       end
     end
   end
