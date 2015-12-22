@@ -26,7 +26,7 @@ RSpec.describe User, type: :model do
     it { expect(subject).to_not allow_value('(33) 3344-556').for(:phone) }
     it { expect(subject).to_not allow_value('(33) 3344556').for(:phone) }
 
-    it { expect(subject).to allow_value('').for(:cpf) }
+    it { expect(subject).to allow_value(nil).for(:cpf) }
     it { expect(subject).to allow_value('531.880.033-58').for(:cpf) }
     it { expect(subject).to_not allow_value('531.880.033-5').for(:cpf) }
     it { expect(subject).to_not allow_value('531.880.033-587').for(:cpf) }
