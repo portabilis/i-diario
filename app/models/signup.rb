@@ -1,10 +1,12 @@
 class Signup
   include ActiveModel::Model
 
-  attr_accessor :document, :student_code, :email, :password,
+  attr_accessor :first_name, :last_name, :document, :student_code, :email, :password,
     :password_confirmation, :students_attributes, :without_student, :parent_role,
     :employee_role, :student_role
 
+  validates :first_name, presence: true
+  validates :last_name, presence: true
   validates :document, presence: true, if: :parent_role?
   validates :email, presence: true, if: :employee_role?
   validates :email, email: true, allow_blank: true
@@ -60,6 +62,8 @@ class Signup
 
     ActiveRecord::Base.transaction do
       user = User.create!(
+        first_name: first_name,
+        last_name: last_name,
         email: email,
         cpf: document,
         password: password,

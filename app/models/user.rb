@@ -188,6 +188,10 @@ class User < ActiveRecord::Base
     write_attribute(:email, value) if value.present?
   end
 
+  def cpf=(value)
+    write_attribute(:cpf, value) if value.present?
+  end
+
   protected
 
   def email_required?

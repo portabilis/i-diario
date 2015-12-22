@@ -13,6 +13,8 @@ module Turnip
       VCR.use_cassette('signup_parent') do
         expect(page).to have_content "Dados pessoais"
 
+        fill_in 'Nome', with: 'Clark'
+        fill_in 'Sobrenome', with: 'Kent'
         fill_in 'E-mail', with: 'clark@example.com'
         fill_mask 'CPF', with: '729.785.662-21'
         fill_in 'Senha', with: '11223344'
@@ -57,6 +59,8 @@ module Turnip
     step "informo os dados para o acesso do aluno" do
       expect(page).to have_content "Dados pessoais"
 
+      fill_in 'Nome', with: 'Mary'
+      fill_in 'Sobrenome', with: 'Jane'
       fill_in 'E-mail', with: 'mary@mary.com'
       fill_in 'Senha', with: '11223344'
       fill_in 'Confirme a senha', with: '11223344'
@@ -82,6 +86,8 @@ module Turnip
     end
 
     step "informo os dados para o acesso do servidor" do
+      fill_in 'Nome', with: 'Tony'
+      fill_in 'Sobrenome', with: 'Stark'
       fill_in 'E-mail', with: 'tony@stark.com'
       fill_in 'Senha', with: '11223344'
       fill_in 'Confirme a senha', with: '11223344'
@@ -105,6 +111,8 @@ module Turnip
       VCR.use_cassette('signup_parent') do
         expect(page).to have_content "Dados pessoais"
 
+        fill_in 'Nome', with: 'John'
+        fill_in 'Sobrenome', with: 'Stuart'
         fill_in 'E-mail', with: 'johnstuart@example.com'
         fill_mask "CPF", with: "729.785.662-21"
         fill_in 'Senha', with: '11223344'

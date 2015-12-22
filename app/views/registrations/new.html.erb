@@ -11,7 +11,7 @@
 
           <div class="alert alert-info">
             <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-            De posse da senha de acesso, você poderá acessar usando seu e-mail, celular ou CPF.
+            Depois de criar sua conta você poderá acessar usando seu e-mail ou CPF.
           </div>
 
           <% if @signup.errors[:base].present? %>
@@ -19,6 +19,26 @@
               <%= @signup.errors[:base].to_sentence %>
             </div>
           <% end %>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :first_name, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                  <%= f.input_field :first_name, as: :string, placeholder: 'Nome', class: 'form-control input-lg' %>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :last_name, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                  <%= f.input_field :last_name, as: :string, placeholder: 'Sobrenome', class: 'form-control input-lg' %>
+                <% end %>
+              </div>
+            </div>
+          </div>
 
           <div class="row">
             <div class="col-sm-6">
@@ -123,7 +143,7 @@
 
             <div class="alert alert-info">
               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-              Informe o CPF do pai, mãe ou responsável e código do aluno e iremos tentar localizar a matrícula para vinculação. Este processo também poderá ser feito posteriormente.
+              O CPF e o código do aluno informados serão utilizados para localizar a matrícula do aluno. Este processo também poderá ser feito posteriormente.
             </div>
 
             <div class="row">
