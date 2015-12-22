@@ -12,10 +12,19 @@ class SchoolCalendarsUpdater
       school_calendar = SchoolCalendar.find_by(id: school_calendar_params['school_calendar_id'])
 
       school_calendar_params['steps'].each_with_index do |step_params, index|
-        school_calendar.steps[index].start_at = step_params['start_at']
-        school_calendar.steps[index].start_date_for_posting = step_params['start_date_for_posting']
-        school_calendar.steps[index].end_at = step_params['end_at']
-        school_calendar.steps[index].end_date_for_posting = step_params['end_date_for_posting']
+        if school_calendar.steps[index].present?
+          school_calendar.steps[index].start_at = step_params['start_at']
+          school_calendar.steps[index].start_date_for_posting = step_params['start_date_for_posting']
+          school_calendar.steps[index].end_at = step_params['end_at']
+          school_calendar.steps[index].end_date_for_posting = step_params['end_date_for_posting']
+        else
+          school_calendar.steps.build(
+            start_at: step_params['start_at'],
+            end_at: step_params['end_at'],
+            start_date_for_posting: step_params['start_date_for_posting'],
+            end_date_for_posting: step_params['end_date_for_posting']
+          )
+        end
       end
 
       school_calendar.save!
