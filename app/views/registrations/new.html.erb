@@ -11,7 +11,33 @@
 
           <div class="alert alert-info">
             <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-            De posse da senha de acesso, você poderá acessar usando seu e-mail, celular ou CPF.
+            Depois de criar sua conta você poderá acessar usando seu e-mail ou CPF.
+          </div>
+
+          <% if @signup.errors[:base].present? %>
+            <div class="alert alert-danger">
+              <%= @signup.errors[:base].to_sentence %>
+            </div>
+          <% end %>
+
+          <div class="row">
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :first_name, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                  <%= f.input_field :first_name, as: :string, placeholder: 'Nome', class: 'form-control input-lg' %>
+                <% end %>
+              </div>
+            </div>
+
+            <div class="col-sm-6">
+              <div class="form-group">
+                <%= f.input :last_name, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-user fa-lg fa-fw"></i></span>
+                  <%= f.input_field :last_name, as: :string, placeholder: 'Sobrenome', class: 'form-control input-lg' %>
+                <% end %>
+              </div>
+            </div>
           </div>
 
           <div class="row">
@@ -27,9 +53,10 @@
 
             <div class="col-sm-6">
               <div class="form-group">
-                <%= f.input :celphone, label: false, wrapper: 'input_group' do %>
-                  <span class="input-group-addon"><i class="fa fa-mobile fa-lg fa-fw"></i></span>
-                  <%= f.input_field :celphone, as: :tel, placeholder: "Celular", class: "form-control input-lg" %>
+                <%= f.input :document, label: false, wrapper: 'input_group' do %>
+                  <span class="input-group-addon"><i class="fa fa-file-text-o fa-lg fa-fw"></i></span>
+                  <%= f.input_field :document, as: :string, placeholder: "CPF", class: "form-control input-lg",
+                    data: { mask: "999.999.999-99" } %>
                 <% end %>
               </div>
             </div>
@@ -68,13 +95,13 @@
           <div class="row">
             <div class="col-sm-4 text-center">
               <div class="form-group">
-                <div class="well well-lg">
+                <div class="well well-lg well-parent-role">
                   <i class="fa fa-group fa-2x"></i><br/>
                   <strong>Acesso pais</strong>
 
                   <label class="checkbox">
-                    <%= f.input_field :parent_role, as: :boolean, boolean_style: :inline %>
-                    Selecione esta opção se você é um pai ou responsável por aluno e deseja cadastrar-se para acessar recursos como pré-matrícula, consulta de notas, faltas, ocorrências disciplinares e outros.
+                    <%= f.input_field :parent_role, as: :boolean, boolean_style: :inline, class: 'checkbox' %>
+                    <span>Selecione esta opção se você é um pai ou responsável por aluno e deseja cadastrar-se para acessar recursos como pré-matrícula, consulta de notas, faltas, ocorrências disciplinares e outros.</span>
                   </label>
                 </div>
               </div>
@@ -82,13 +109,13 @@
 
             <div class="col-sm-4 text-center">
               <div class="form-group">
-                <div class="well well-lg">
+                <div class="well well-lg well-student-role">
                   <i class="fa fa-mortar-board fa-2x"></i><br/>
                   <strong>Acesso alunos</strong>
 
                   <label class="checkbox">
-                    <%= f.input_field :student_role, as: :boolean, boolean_style: :inline %>
-                    Selecione esta opção se você é um aluno já matriculado na rede de ensino e deseja cadastrar-se para acessar recursos como consulta de notas, faltas e outras informações exclusivas para alunos.
+                    <%= f.input_field :student_role, as: :boolean, boolean_style: :inline, class: 'checkbox' %>
+                    <span>Selecione esta opção se você é um aluno já matriculado na rede de ensino e deseja cadastrar-se para acessar recursos como consulta de notas, faltas e outras informações exclusivas para alunos.</span>
                   </label>
                 </div>
               </div>
@@ -96,13 +123,13 @@
 
             <div class="col-sm-4 text-center">
               <div class="form-group">
-                <div class="well well-lg">
+                <div class="well well-lg well-employee-role">
                   <i class="fa fa-male fa-2x"></i><br/>
                   <strong>Acesso servidores</strong>
 
                   <label class="checkbox">
-                    <%= f.input_field :employee_role, as: :boolean, boolean_style: :inline %>
-                    Selecione esta opção se você é um servidor da rede de ensino e deseja cadastrar-se para acessar recursos como diário eletrônico e outras ferramentas administrativas exclusivas para servidores.
+                    <%= f.input_field :employee_role, as: :boolean, boolean_style: :inline, class: 'checkbox' %>
+                    <span>Selecione esta opção se você é um servidor da rede de ensino e deseja cadastrar-se para acessar recursos como diário eletrônico e outras ferramentas administrativas exclusivas para servidores.</span>
                   </label>
                 </div>
               </div>
@@ -116,21 +143,11 @@
 
             <div class="alert alert-info">
               <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-              Informe o CPF do pai, mãe ou responsável e código do aluno e iremos tentar localizar a matrícula para vinculação. Este processo também poderá ser feito posteriormente.
+              O CPF e o código do aluno informados serão utilizados para localizar a matrícula do aluno. Este processo também poderá ser feito posteriormente.
             </div>
 
             <div class="row">
               <div class="col-sm-6">
-                <div class="form-group">
-                  <%= f.input :document, label: false, wrapper: 'input_group' do %>
-                    <span class="input-group-addon"><i class="fa fa-file-text-o fa-lg fa-fw"></i></span>
-                    <%= f.input_field :document, as: :string,
-                      placeholder: "CPF", class: "form-control input-lg", data: { mask: "999.999.999-99" } %>
-                  <% end %>
-                </div>
-              </div>
-
-              <div class="col-sm-3">
                 <div class="form-group">
                   <%= f.input :student_code, label: false, wrapper: 'input_group' do %>
                     <span class="input-group-addon"><i class="fa fa-mortar-board fa-lg fa-fw"></i></span>
@@ -145,11 +162,12 @@
                 </div>
               </div>
 
-              <div class="col-sm-3">
+              <div class="col-sm-6">
                 <div class="form-group">
-                  <%= f.input :without_student, label: "Nenhum aluno matriculado ou não sei o código", wrapper: 'input_group' do %>
-                    <%= f.input_field :without_student, as: :boolean, boolean_style: :inline %>
-                  <% end %>
+                  <label>
+                    <%= f.input_field :without_student, as: :boolean, boolean_style: :inline, class: 'checkbox' %>
+                    <span>Nenhum aluno matriculado ou não sei o código</span>
+                  </label>
                 </div>
               </div>
             </div>

@@ -2,6 +2,31 @@
 //= require_tree ./signup/views
 
 $(function () {
+  'use strict';
+
+  var $signupParentRole = $('#signup_parent_role');
+  var $signupParentRoleContainer = $('div.well-parent-role');
+  var $signupStudentRole = $('#signup_student_role');
+  var $signupStudentRoleContainer = $('div.well-student-role');
+  var $signupEmployeeRole = $('#signup_employee_role');
+  var $signupEmployeeRoleContainer = $('div.well-employee-role');
+
+  $signupParentRoleContainer.on('click', function() {
+    var parentRoleChecked = $signupParentRole.prop('checked');
+    $signupParentRole.prop('checked', !parentRoleChecked);
+    displayParentFields($(this));
+  });
+
+  $signupStudentRoleContainer.on('click', function() {
+    var studentRoleChecked = $signupStudentRole.prop('checked');
+    $signupStudentRole.prop('checked', !studentRoleChecked);
+  });
+
+  $signupEmployeeRoleContainer.on('click', function() {
+    var employeeRoleChecked = $signupEmployeeRole.prop('checked');
+    $signupEmployeeRole.prop('checked', !employeeRoleChecked);
+  });
+
   var userWithoutStudents = function () {
     var $studentCode = $('#signup_student_code'),
         $studentsContainer = $('#students-container');
@@ -29,7 +54,7 @@ $(function () {
   var displayParentFields = function (el) {
     var parentsFields = $('#registration-page #parents-fields');
 
-    if (el.prop('checked')) {
+    if ($signupParentRole.prop('checked')) {
       parentsFields.show();
     } else {
       parentsFields.hide();
@@ -38,8 +63,10 @@ $(function () {
 
   displayParentFields($('#registration-page #signup_parent_role'));
 
-  $('#registration-page #signup_parent_role').on('click', function () {
-    displayParentFields($(this));
+  $('#registration-page #signup_parent_role').on('click', function(e) {
+    var parentRoleChecked = $signupParentRole.prop('checked');
+    $signupParentRole.prop('checked', !parentRoleChecked)
+    e.stopPropagation();
   });
 
   $('form.signup').on('change', '#signup_document, #signup_student_code', function () {

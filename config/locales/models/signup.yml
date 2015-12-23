@@ -1,0 +1,8 @@
+pt-BR:
+  activemodel:
+    errors:
+      models:
+        signup:
+          attributes:
+              base:
+                must_inform_email_or_document: 'Necessário informar e-mail ou CPF'

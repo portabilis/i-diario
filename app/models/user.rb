@@ -50,11 +50,12 @@ class User < ActiveRecord::Base
 
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
-  validates :email, email: true, presence: true
+  validates :email, email: true, allow_blank: true
 
   validates_associated :user_roles
 
   validate :uniqueness_of_student_parent_role
+  validate :presence_of_email_or_cpf
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
@@ -183,7 +184,19 @@ class User < ActiveRecord::Base
     end
   end
 
+  def email=(value)
+    write_attribute(:email, value) if value.present?
+  end
+
+  def cpf=(value)
+    write_attribute(:cpf, value) if value.present?
+  end
+
   protected
+
+  def email_required?
+    false
+  end
 
   def uniqueness_of_student_parent_role
     return if user_roles.blank?
@@ -212,6 +225,14 @@ class User < ActiveRecord::Base
           student_roles.push(_role)
         end
       end
+    end
+  end
+
+  def presence_of_email_or_cpf
+    return if errors[:email].any? || errors[:cpf].any?
+
+    if email.blank? && cpf.blank?
+      errors.add(:base, :must_inform_email_or_cpf)
     end
   end
 end

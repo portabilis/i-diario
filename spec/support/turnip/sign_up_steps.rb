@@ -13,14 +13,16 @@ module Turnip
       VCR.use_cassette('signup_parent') do
         expect(page).to have_content "Dados pessoais"
 
+        fill_in 'Nome', with: 'Clark'
+        fill_in 'Sobrenome', with: 'Kent'
         fill_in 'E-mail', with: 'clark@example.com'
+        fill_mask 'CPF', with: '729.785.662-21'
         fill_in 'Senha', with: '11223344'
         fill_in 'Confirme a senha', with: '11223344'
-        fill_mask "Celular", with: "(31) 94361177"
 
-        check "Selecione esta opção se você é um pai ou responsável por aluno e deseja cadastrar-se para acessar recursos como pré-matrícula, consulta de notas, faltas, ocorrências disciplinares e outros."
+        # Clica no checkbox do tipo Pai
+        find('div.well-parent-role').trigger('click')
 
-        fill_mask "CPF", with: "729.785.662-21"
         fill_in "Código do aluno", with: "1932"
 
         sleep 2
@@ -57,11 +59,14 @@ module Turnip
     step "informo os dados para o acesso do aluno" do
       expect(page).to have_content "Dados pessoais"
 
+      fill_in 'Nome', with: 'Mary'
+      fill_in 'Sobrenome', with: 'Jane'
       fill_in 'E-mail', with: 'mary@mary.com'
       fill_in 'Senha', with: '11223344'
       fill_in 'Confirme a senha', with: '11223344'
 
-      check "Selecione esta opção se você é um aluno já matriculado na rede de ensino e deseja cadastrar-se para acessar recursos como consulta de notas, faltas e outras informações exclusivas para alunos."
+      # Clica no checkbox do tipo Aluno
+      find('div.well-student-role').trigger('click')
 
       click_on "Confirmar e acessar o sistema"
     end
@@ -81,11 +86,14 @@ module Turnip
     end
 
     step "informo os dados para o acesso do servidor" do
+      fill_in 'Nome', with: 'Tony'
+      fill_in 'Sobrenome', with: 'Stark'
       fill_in 'E-mail', with: 'tony@stark.com'
       fill_in 'Senha', with: '11223344'
       fill_in 'Confirme a senha', with: '11223344'
 
-      check "Selecione esta opção se você é um servidor da rede de ensino e deseja cadastrar-se para acessar recursos como diário eletrônico e outras ferramentas administrativas exclusivas para servidores."
+      # Clica no checkbox do tipo Servidor
+      find('div.well-employee-role').trigger('click')
 
       click_on "Confirmar e acessar o sistema"
     end
@@ -103,16 +111,22 @@ module Turnip
       VCR.use_cassette('signup_parent') do
         expect(page).to have_content "Dados pessoais"
 
+        fill_in 'Nome', with: 'John'
+        fill_in 'Sobrenome', with: 'Stuart'
         fill_in 'E-mail', with: 'johnstuart@example.com'
+        fill_mask "CPF", with: "729.785.662-21"
         fill_in 'Senha', with: '11223344'
         fill_in 'Confirme a senha', with: '11223344'
-        fill_mask "Celular", with: "(31) 94361177"
 
-        check "Selecione esta opção se você é um servidor da rede de ensino e deseja cadastrar-se para acessar recursos como diário eletrônico e outras ferramentas administrativas exclusivas para servidores."
-        check "Selecione esta opção se você é um aluno já matriculado na rede de ensino e deseja cadastrar-se para acessar recursos como consulta de notas, faltas e outras informações exclusivas para alunos."
-        check "Selecione esta opção se você é um pai ou responsável por aluno e deseja cadastrar-se para acessar recursos como pré-matrícula, consulta de notas, faltas, ocorrências disciplinares e outros."
+        # Clica no checkbox do tipo Pai
+        find('div.well-parent-role').trigger('click')
 
-        fill_mask "CPF", with: "729.785.662-21"
+        # Clica no checkbox do tipo Aluno
+        find('div.well-student-role').trigger('click')
+
+        # Clica no checkbox do tipo Servidor
+        find('div.well-employee-role').trigger('click')
+
         fill_in "Código do aluno", with: "1932"
 
         sleep 2

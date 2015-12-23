@@ -70,16 +70,26 @@ class SchoolCalendarsParser
 
       need_to_synchronize = false
       existing_school_calendar_from_api['etapas'].each_with_index do |step, index|
-        if school_calendar.steps[index].start_at != Date.parse(step['data_inicio'])
-          need_to_synchronize = true
-          school_calendar.steps[index].start_at = step['data_inicio']
-          school_calendar.steps[index].start_date_for_posting = step['data_inicio']
-        end
+        if school_calendar.steps[index].present?
+          if school_calendar.steps[index].start_at != Date.parse(step['data_inicio'])
+            need_to_synchronize = true
+            school_calendar.steps[index].start_at = step['data_inicio']
+            school_calendar.steps[index].start_date_for_posting = step['data_inicio']
+          end
 
-        if school_calendar.steps[index].end_at != Date.parse(step['data_fim'])
+          if school_calendar.steps[index].end_at != Date.parse(step['data_fim'])
+            need_to_synchronize = true
+            school_calendar.steps[index].end_at = step['data_fim']
+            school_calendar.steps[index].end_date_for_posting = step['data_fim']
+          end
+        else
           need_to_synchronize = true
-          school_calendar.steps[index].end_at = step['data_fim']
-          school_calendar.steps[index].end_date_for_posting = step['data_fim']
+          school_calendar.steps.build(
+            start_at: step['data_inicio'],
+            end_at: step['data_fim'],
+            start_date_for_posting: step['data_inicio'],
+            end_date_for_posting: step['data_fim']
+          )
         end
       end
 

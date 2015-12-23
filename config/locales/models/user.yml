@@ -32,6 +32,8 @@ pt-BR:
       models:
         user:
           attributes:
+            base:
+              must_inform_email_or_cpf: 'Necessário informar e-mail ou CPF'
             phone:
               incorrect_format: "formato incorreto"
             cpf:
