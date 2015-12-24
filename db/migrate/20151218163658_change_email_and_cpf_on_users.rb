@@ -4,6 +4,7 @@ class ChangeEmailAndCpfOnUsers < ActiveRecord::Migration
 
     execute <<-SQL
       UPDATE users SET cpf = null WHERE cpf = '';
+      UPDATE users u1 SET cpf = null WHERE (SELECT COUNT(*) FROM users u2 WHERE u2.cpf = u1.cpf) > 1;
     SQL
 
     add_index :users, :cpf, unique: true
