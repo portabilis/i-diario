@@ -11,6 +11,7 @@ rerun.txt
 pickle-email-*.html
 config/initializers/secret_token.rb
 config/initializers/sidekiq.rb
+config/initializers/better_errors.rb
 config/database.yml
 config/secrets.yml
 /public/uploads
