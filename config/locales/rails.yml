@@ -8,6 +8,7 @@ pt-BR:
   ieducar_api:
     error:
       messages:
+        invalid_fetch: "Requisição não pode ser realizada. É necessário informar o %{field}." 
         invalid_post: "Requisição não pode ser realizada. É necessário informar o %{field}."
 
   boolean:

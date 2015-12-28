@@ -115,7 +115,13 @@ Rails.application.routes.draw do
     resources :***REMOVED***s, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :lectures, only: [:index]
-    resources :grades, only: [:index]
+
+    resources :grades, only: [:index] do
+      member do
+        get :validate_student_birth_date
+      end
+    end
+
     resources :schools, only: [:index]
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history

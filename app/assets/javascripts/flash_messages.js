@@ -17,3 +17,9 @@ FlashMessages.prototype.warning = function(message) {
 FlashMessages.prototype.error = function(message) {
   this.pop("<div class='alert alert-danger'><i class='fa-fw fa fa-times'></i> " + message + "</div>");
 };
+
+FlashMessages.prototype.remove = function() {
+  _.each(this.$container[0].getElementsByClassName('alert'), function(e) {
+    e.remove();
+  })
+};

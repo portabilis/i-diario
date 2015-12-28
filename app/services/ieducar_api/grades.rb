@@ -1,4 +1,3 @@
-# encoding: utf-8
 module IeducarApi
   class Grades < Base
     def fetch(params = {})
