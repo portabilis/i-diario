@@ -118,7 +118,7 @@ Rails.application.routes.draw do
 
     resources :grades, only: [:index] do
       member do
-        get :validate_student_birth_date
+        get :verify_candidate_birthdate
       end
     end
 
