@@ -141,7 +141,7 @@ class ApplicationController < ActionController::Base
   def current_school_calendar
     return if current_user.admin? && current_user_unity.blank?
 
-    SchoolCalendar.find_by(year: Time.zone.today.year, unity_id: current_user_unity.id)
+    SchoolCalendar.find_by(year: 2015, unity_id: current_user_unity.id)
   end
 
   def current_test_setting

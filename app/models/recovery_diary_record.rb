@@ -48,7 +48,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
     return unless recorded_at && unity
 
     school_calendar = SchoolCalendar.find_by(
-      year: Time.zone.today.year,
+      year: 2015,
       unity_id: unity.id
     )
 
