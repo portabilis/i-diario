@@ -145,11 +145,11 @@ class ApplicationController < ActionController::Base
   end
 
   def current_test_setting
-    current_test_setting = TestSetting.find_by(exam_setting_type: ExamSettingTypes::GENERAL, year: Time.zone.today.year)
+    current_test_setting = TestSetting.find_by(exam_setting_type: ExamSettingTypes::GENERAL, year: 2015)
     return current_test_setting if current_test_setting
 
     school_term = current_school_calendar.school_term(Time.zone.today)
-    TestSetting.find_by(year: Time.zone.today.year, school_term: school_term)
+    TestSetting.find_by(year: 2015, school_term: school_term)
   end
 
   def require_current_teacher
