@@ -33,7 +33,7 @@ class AvaliationsController < ApplicationController
     authorize resource
 
     fetch_classrooms
-    @test_settings = TestSetting.where(year: Time.zone.today.year).ordered
+    @test_settings = TestSetting.where(year: 2015).ordered
   end
 
   def create
@@ -46,7 +46,7 @@ class AvaliationsController < ApplicationController
       respond_with resource, location: avaliations_path
     else
       fetch_classrooms
-      @test_settings = TestSetting.where(year: Time.zone.today.year).ordered
+      @test_settings = TestSetting.where(year: 2015).ordered
 
       render :new
     end
@@ -58,7 +58,7 @@ class AvaliationsController < ApplicationController
     authorize @avaliation
 
     fetch_classrooms
-    @test_settings = TestSetting.where(year: Time.zone.today.year).ordered
+    @test_settings = TestSetting.where(year: 2015).ordered
   end
 
   def update
@@ -71,7 +71,7 @@ class AvaliationsController < ApplicationController
       respond_with @avaliation, location: avaliations_path
     else
       fetch_classrooms
-      @test_settings = TestSetting.where(year: Time.zone.today.year).ordered
+      @test_settings = TestSetting.where(year: 2015).ordered
 
       render :edit
     end
