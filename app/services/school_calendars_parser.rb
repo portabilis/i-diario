@@ -4,7 +4,7 @@ class SchoolCalendarsParser
   end
 
   def parse!
-    school_calendars_from_api = api.fetch(ano: Time.zone.today.year)['escolas']
+    school_calendars_from_api = api.fetch(ano: 2015)['escolas']
     build_school_calendars_to_synchronize(school_calendars_from_api)
   end
 
@@ -38,7 +38,7 @@ class SchoolCalendarsParser
       unity = Unity.find_by(api_code: unity_api_code)
 
       new_school_calendar = SchoolCalendar.new(unity: unity,
-                                               year: Time.zone.today.year,
+                                               year: 2015,
                                                number_of_classes: 4)
 
       new_school_calendar_from_api['etapas'].each do |step|
