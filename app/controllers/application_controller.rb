@@ -138,18 +138,18 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_teacher
 
+  def current_school_year
+    CurrentSchoolYearFetcher.new(current_user_unity).fetch
+  end
+
   def current_school_calendar
     return if current_user.admin? && current_user_unity.blank?
 
-    SchoolCalendar.find_by(year: 2015, unity_id: current_user_unity.id)
+    CurrentSchoolCalendarFetcher.new(current_user_unity).fetch
   end
 
   def current_test_setting
-    current_test_setting = TestSetting.find_by(exam_setting_type: ExamSettingTypes::GENERAL, year: 2015)
-    return current_test_setting if current_test_setting
-
-    school_term = current_school_calendar.school_term(Time.zone.today)
-    TestSetting.find_by(year: 2015, school_term: school_term)
+    CurrentTestSettingFetcher.new(current_school_calendar).fetch
   end
 
   def require_current_teacher

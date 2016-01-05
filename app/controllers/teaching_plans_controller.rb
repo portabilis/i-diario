@@ -91,7 +91,7 @@ class TeachingPlansController < ApplicationController
   def resource
     @teaching_plan ||= case params[:action]
     when 'new', 'create'
-      TeachingPlan.new(year: Time.zone.today.year)
+      TeachingPlan.new(year: current_school_year)
     when 'edit', 'update', 'destroy'
       TeachingPlan.find(params[:id])
     end.localized
