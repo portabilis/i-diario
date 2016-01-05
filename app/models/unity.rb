@@ -54,4 +54,8 @@ class Unity < ActiveRecord::Base
   def to_s
     name
   end
+
+  def current_school_year
+    2015
+  end
 end

@@ -47,11 +47,6 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   def recorded_at_must_be_school_day
     return unless recorded_at && unity
 
-    school_calendar = SchoolCalendar.find_by(
-      year: 2015,
-      unity_id: unity.id
-    )
-
     unless school_calendar.school_day?(recorded_at)
       errors.add(:recorded_at, :recorded_at_must_be_school_day)
     end
@@ -59,5 +54,9 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   def self_assign_to_students
     students.each { |student| student.recovery_diary_record = self }
+  end
+
+  def school_calendar
+    CurrentSchoolCalendarFetcher.new(unity).fetch
   end
 end
