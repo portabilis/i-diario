@@ -14,5 +14,5 @@ $(function() {
     }
   });
 
-  $('input.decimal').inputmask('customDecimal');
+  $('input.decimal:not(.auto-inputmask-disabled)').inputmask('customDecimal');
 });

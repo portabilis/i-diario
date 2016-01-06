@@ -4,7 +4,7 @@
   </td>
 
   <td>
-    <%= f.input :weight, label_html: { class: 'hidden' } %>
+    <%= f.input :weight, label_html: { class: 'hidden' }, input_html: { data: { inputmask: "'digits': #{@test_setting.number_of_decimal_places}" } } %>
   </td>
 
   <td>

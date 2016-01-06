@@ -105,9 +105,8 @@ $(function () {
         $('.avaliation_weight').hide();
       }
 
-      $weight_input.inputmask('customDecimal', {
-        digits: parseInt(data['test_setting']['number_of_decimal_places']) || 0
-      });
+      $weight_input.attr('data-inputmask', "'digits': " + (parseInt(data['test_setting']['number_of_decimal_places']) || 0));
+      $weight_input.inputmask('customDecimal');
     });
 
     var params = { test_setting_id: $('#avaliation_test_setting_id').select2('val') };
@@ -165,6 +164,6 @@ $(function () {
   }
 
   if (!!document.getElementById('avaliation_weight')) {
-    updateFieldsBaseOnTestSettingTest();  
+    updateFieldsBaseOnTestSettingTest();
   }
 });

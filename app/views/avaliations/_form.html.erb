@@ -42,7 +42,7 @@
       </div>
 
       <div class="col col-sm-4">
-          <%= f.input :weight, required: true %>
+          <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': #{@avaliation.test_setting.number_of_decimal_places}" } } %>
       </div>
     </div>
 

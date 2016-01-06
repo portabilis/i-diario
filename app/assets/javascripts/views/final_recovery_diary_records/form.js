@@ -100,7 +100,8 @@ $(function () {
   }
 
   function loadDecimalMasks() {
-    $('.nested-fields input.decimal').inputmask('customDecimal');
+    var numberOfDecimalPlaces = $('#recovery-diary-record-students').data('scale');
+    $('.nested-fields input.decimal, .needed_score').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
   // On change

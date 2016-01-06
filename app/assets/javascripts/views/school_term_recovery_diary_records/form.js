@@ -163,7 +163,8 @@ $(function () {
   }
 
   function loadDecimalMasks() {
-    $('.nested-fields input.decimal, .current-average').inputmask('customDecimal');
+    var numberOfDecimalPlaces = $('#recovery-diary-record-students').data('scale');
+    $('.nested-fields input.decimal, .current-average').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
   // On change
