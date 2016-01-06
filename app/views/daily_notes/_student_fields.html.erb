@@ -11,6 +11,6 @@
 
   <td>
     <%= f.input :note, label_html: { class: 'hidden' },
-                       input_html: { value: number_with_precision(f.object.note, precision: f.object.daily_note.avaliation.test_setting.number_of_decimal_places) } %>
+          input_html: { data: { inputmask: "'digits': #{f.object.daily_note.avaliation.test_setting.number_of_decimal_places}" } } %>
   </td>
 </tr>

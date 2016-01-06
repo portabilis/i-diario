@@ -23,11 +23,9 @@ $(function() {
   });
 
   function updatePriceFormat() {
-    $('input.string[id^=test_setting_tests_attributes][id*=_weight]').priceFormat({
-      prefix: '',
-      centsSeparator: ',',
-      thousandsSeparator: '.',
-      centsLimit: parseInt($('#test_setting_number_of_decimal_places').val()) || 0
+    $('input.string[id^=test_setting_tests_attributes][id*=_weight]').inputmask(
+      'customDecimal', {
+      digits: parseInt($('#test_setting_number_of_decimal_places').val()) || 0
     });
   }
 

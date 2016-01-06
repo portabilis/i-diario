@@ -42,9 +42,7 @@
       </div>
 
       <div class="col col-sm-4">
-          <%= f.input :weight, required: true,
-                input_html: { value: number_with_precision(f.object.weight, precision: @avaliation.test_setting.number_of_decimal_places),
-                              data: { scale: @avaliation.test_setting.number_of_decimal_places } } %>
+          <%= f.input :weight, required: true %>
       </div>
     </div>
 

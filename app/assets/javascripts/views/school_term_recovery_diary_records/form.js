@@ -163,12 +163,7 @@ $(function () {
   }
 
   function loadDecimalMasks() {
-    $('.nested-fields input.decimal, .current-average').priceFormat({
-      prefix: '',
-      centsSeparator: ',',
-      thousandsSeparator: '.',
-      centsLimit: !_.isEmpty(schoolCalendarStep) ? parseInt(schoolCalendarStep.test_setting.number_of_decimal_places) : 0
-    });
+    $('.nested-fields input.decimal, .current-average').inputmask('customDecimal');
   }
 
   // On change
