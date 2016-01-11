@@ -8,7 +8,7 @@ class TeachersSynchronizer
   end
 
   def synchronize!
-    update_records api.fetch(ano: Time.zone.today.year)["servidores"]
+    update_records api.fetch(ano: 2015)["servidores"]
   end
 
   protected
@@ -38,7 +38,7 @@ class TeachersSynchronizer
   end
 
   def update_discipline_classrooms(collection, teacher)
-    year = Time.zone.today.year
+    year = 2015
 
     if teacher.present?
       # inactivate all records and activate when find

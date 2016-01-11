@@ -8,7 +8,7 @@ class CoursesGradesClassroomsSynchronizer
   end
 
   def synchronize!
-    update_records api.fetch(ano: Time.zone.today.year,
+    update_records api.fetch(ano: 2015,
                              escola_id: unities,
                              get_series: true,
                              get_turmas: true)["cursos"]
@@ -73,7 +73,7 @@ class CoursesGradesClassroomsSynchronizer
           unity_id: Unity.find_by(api_code: record["escola_id"]).try(:id),
           unity_code: record["escola_id"],
           grade: grade,
-          year: Time.zone.today.year
+          year: 2015
         )
       end
     end
