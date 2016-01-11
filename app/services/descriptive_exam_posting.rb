@@ -8,25 +8,10 @@ class DescriptiveExamPosting
   end
 
   def post!
-    classrooms = classroms_for_opinion_by_step
-    if classrooms.any?
-      api.send_post(turmas: classrooms, etapa: posting.school_calendar_step.to_number, resource: 'pareceres-por-etapa-geral')
-    end
-
-    classrooms = classroms_for_opinion_by_step_and_discipline
-    if classrooms.any?
-      api.send_post(turmas: classrooms, etapa: posting.school_calendar_step.to_number, resource: 'pareceres-por-etapa-e-componente')
-    end
-
-    classrooms = classroms_for_opinion_by_year
-    if classrooms.any?
-      api.send_post(turmas: classrooms, resource: 'pareceres-anual-geral')
-    end
-
-    classrooms = classroms_for_opinion_by_year_and_discipline
-    if classrooms.any?
-      api.send_post(turmas: classrooms, resource: 'pareceres-anual-por-componente')
-    end
+    post_by_students(classroms_for_opinion_by_step, 'pareceres-por-etapa-geral')
+    post_by_students(classroms_for_opinion_by_step_and_discipline, 'pareceres-por-etapa-e-componente')
+    post_by_students(classroms_for_opinion_by_year, 'pareceres-anual-geral')
+    post_by_students(classroms_for_opinion_by_year_and_discipline, 'pareceres-anual-por-componente')
   end
 
   protected
@@ -149,5 +134,19 @@ class DescriptiveExamPosting
       end
     end
     classrooms
+  end
+
+  private
+
+  def post_by_students(classrooms, resource)
+    classrooms.each do |key_classroom, value_classroom|
+      value_classroom['alunos'].each do |key_student, value_student|
+        params = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
+        params['turma_id'] = key_classroom
+        params['alunos'][key_student] = value_student
+
+        api.send_post(turmas: { key_classroom => params }, etapa: posting.school_calendar_step.to_number, resource: resource)
+      end
+    end
   end
 end
