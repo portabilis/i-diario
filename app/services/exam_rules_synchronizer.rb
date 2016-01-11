@@ -8,7 +8,7 @@ class ExamRulesSynchronizer
   end
 
   def synchronize!
-    update_records api.fetch(ano: Time.zone.today.year)["regras"]
+    update_records api.fetch(ano: 2015)["regras"]
   end
 
   protected
