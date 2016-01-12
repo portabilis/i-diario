@@ -4,7 +4,7 @@ RSpec.describe DailyNoteStudent, type: :model do
   let(:discipline) { create(:discipline) }
   let(:unity) { create(:unity) }
   let(:classroom) { create(:classroom, unity: unity) }
-  let(:school_calendar) { create(:school_calendar, year: 2014) }
+  let(:school_calendar) { create(:school_calendar_with_one_step, year: 2014) }
   let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_date: '2014-02-06') }
   let(:daily_note) { create(:daily_note, unity: unity, classroom: classroom, discipline: discipline, avaliation: avaliation) }
   subject(:daily_note_student) { build(:daily_note_student, daily_note: daily_note) }

@@ -23,6 +23,7 @@ Funcionalidade: Gerenciamento de avaliações
 
   Cenário: Cadastrar uma avaliação para uma turma com tipo de avaliação não numérica
     Dado que existem turmas com tipo de avaliação não numérica vinculadas ao professor logado
+    E que existe uma configuração de avaliação com avaliações fixas e que não permitem desmembrar
     E que acesso a listagem de avaliações
     Quando eu entrar no formulário de nova avaliação
     E selecionar uma turma com tipo de avaliação não numérica

@@ -7,7 +7,7 @@ FactoryGirl.define do
     unity
     discipline
     classroom
-    school_calendar
+    association :school_calendar, factory: :school_calendar_with_one_step
     test_setting
   end
 end

@@ -28,6 +28,7 @@ class SchoolCalendar < ActiveRecord::Base
 
   scope :by_year, lambda { |year| where(year: year) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :by_school_day, lambda { |date| by_school_day(date) }
   scope :ordered, -> { joins(:unity).order(year: :desc).order('unities.name') }
 
   def to_s
@@ -50,6 +51,10 @@ class SchoolCalendar < ActiveRecord::Base
   end
 
   def school_term(date)
+    puts '****************************************'
+    puts date
+    puts '****************************************'
+    
     school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters }
 
     index_of_step = steps.find_index(step(date))
@@ -64,6 +69,11 @@ class SchoolCalendar < ActiveRecord::Base
   end
 
   private
+
+  def self.by_school_day(date)
+    joins(:steps).where(SchoolCalendarStep.arel_table[:start_at].lteq(date.to_date))
+      .where(SchoolCalendarStep.arel_table[:end_at].gteq(date.to_date))
+  end
 
   def at_least_one_assigned_step
     errors.add(:steps, :at_least_one_step) if steps.empty?

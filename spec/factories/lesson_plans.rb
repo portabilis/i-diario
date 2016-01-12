@@ -5,6 +5,6 @@ FactoryGirl.define do
 
     unity
   	classroom
-  	school_calendar
+  	association :school_calendar, factory: :school_calendar_with_one_step
   end
 end

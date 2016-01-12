@@ -11,7 +11,7 @@ FactoryGirl.define do
       school_calendar.destroy if school_calendar
 
       unless SchoolCalendar.find_by(year: 2015, unity_id: recovery_diary_record.unity_id)
-        create(:school_calendar, year: 2015, unity_id: recovery_diary_record.unity_id)
+        create(:school_calendar_with_one_step, year: 2015, unity_id: recovery_diary_record.unity_id)
       end
     end
 
