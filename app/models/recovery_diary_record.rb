@@ -45,7 +45,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def recorded_at_must_be_school_day
-    return unless recorded_at && unity
+    return unless recorded_at && unity && school_calendar
 
     unless school_calendar.school_day?(recorded_at)
       errors.add(:recorded_at, :recorded_at_must_be_school_day)
