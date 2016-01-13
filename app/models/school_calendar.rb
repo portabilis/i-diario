@@ -51,10 +51,6 @@ class SchoolCalendar < ActiveRecord::Base
   end
 
   def school_term(date)
-    puts '****************************************'
-    puts date
-    puts '****************************************'
-    
     school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters }
 
     index_of_step = steps.find_index(step(date))
