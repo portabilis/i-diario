@@ -23,6 +23,7 @@ class SchoolCalendar < ActiveRecord::Base
                                 numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
 
   validate :at_least_one_assigned_step
+  validate :must_not_have_conflicting_steps
 
   validates_associated :steps
 
@@ -73,6 +74,16 @@ class SchoolCalendar < ActiveRecord::Base
 
   def at_least_one_assigned_step
     errors.add(:steps, :at_least_one_step) if steps.empty?
+  end
+
+  def must_not_have_conflicting_steps
+    exist_conflicting_steps = steps.any? do |step|
+      SchoolCalendar.by_unity_id(unity_id).where.not(id: id).any? do |school_calendar|
+        school_calendar.school_day?(step.start_at) || school_calendar.school_day?(step.end_at)
+      end
+    end
+
+    errors.add(:steps, :must_not_have_conflicting_steps) if exist_conflicting_steps
   end
 
   def self_assign_to_steps

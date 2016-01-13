@@ -62,11 +62,35 @@ RSpec.describe SchoolCalendar, type: :model do
     #                                                                     .is_less_than_or_equal_to(10)
     #                                                                     .only_integer }
 
-    it 'validates at least one assigned step' do
+    it 'should require at least one assigned step' do
       subject.steps = []
 
       expect(subject).to_not be_valid
       expect(subject.errors.messages[:steps]).to include('É necessário adicionar pelo menos uma etapa')
+    end
+
+    it 'should not have conflicting school terms with other school calendars from the same unity' do
+      existing_school_calendar = build(:school_calendar, year: 2020)
+      existing_school_calendar.steps.build(
+        start_at: '2020-02-15',
+        end_at: '2021-01-30',
+        start_date_for_posting: '2020-02-15',
+        end_date_for_posting: '2021-01-30'
+      )
+      existing_school_calendar.save!
+
+      subject = build(:school_calendar, year: 2021, unity: existing_school_calendar.unity)
+      subject.steps.build(
+        start_at: '2021-01-20',
+        end_at: '2021-10-10',
+        start_date_for_posting: '2021-01-20',
+        end_date_for_posting: '2021-10-10',
+      )
+
+      subject.valid?
+
+      expect(subject).to_not be_valid
+      expect(subject.errors.messages[:steps]).to include('Existem datas conflitantes com um calendário letivo existente para a unidade informada')
     end
   end
 
