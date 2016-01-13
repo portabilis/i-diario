@@ -1,19 +1,20 @@
 class TeachersSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
+  def self.synchronize!(synchronization, year)
+    new(synchronization, year).synchronize!
   end
 
-  def initialize(synchronization)
+  def initialize(synchronization, year)
     self.synchronization = synchronization
+    self.year = year
   end
 
   def synchronize!
-    update_records api.fetch(ano: 2015)["servidores"]
+    update_records api.fetch(ano: year)["servidores"]
   end
 
   protected
 
-  attr_accessor :synchronization
+  attr_accessor :synchronization, :year
 
   def api
     IeducarApi::Teachers.new(synchronization.to_api)
@@ -38,8 +39,6 @@ class TeachersSynchronizer
   end
 
   def update_discipline_classrooms(collection, teacher)
-    year = 2015
-
     if teacher.present?
       # inactivate all records and activate when find
       teacher.teacher_discipline_classrooms.update_all(active: false)

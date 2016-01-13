@@ -1,4 +1,3 @@
-# encoding: utf-8
 class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
   respond_to :json
@@ -48,7 +47,6 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
       @api_students = result["alunos"]
     rescue IeducarApi::Base::ApiError => e
-      #flash[:alert] = e.message
       @api_students = []
     end
   end
@@ -58,6 +56,6 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
   end
 
   def current_school_calendar
-    SchoolCalendar.find_by(year: Time.zone.today.year, unity_id: params[:unity_id])
+    CurrentSchoolCalendarFetcher.new(params[:unity_id]).fetch
   end
 end

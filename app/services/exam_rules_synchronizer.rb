@@ -1,19 +1,20 @@
 class ExamRulesSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
+  def self.synchronize!(synchronization, year)
+    new(synchronization, year).synchronize!
   end
 
-  def initialize(synchronization)
+  def initialize(synchronization, year)
     self.synchronization = synchronization
+    self.year = year
   end
 
   def synchronize!
-    update_records api.fetch(ano: 2015)["regras"]
+    update_records api.fetch(ano: year)["regras"]
   end
 
   protected
 
-  attr_accessor :synchronization
+  attr_accessor :synchronization, :year
 
   def api
     IeducarApi::ExamRules.new(synchronization.to_api)
