@@ -9,7 +9,7 @@ class SchoolCalendarsCreator
 
   def create!
     selected_school_calendars_to_create.each do |school_calendar_params|
-      school_calendar = SchoolCalendar.new(year: 2015,
+      school_calendar = SchoolCalendar.new(year: school_calendar_params['year'],
                                            unity_id: school_calendar_params['unity_id'],
                                            number_of_classes: school_calendar_params['number_of_classes'])
 

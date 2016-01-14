@@ -36,6 +36,6 @@ class IeducarSynchronizerWorker
   private
 
   def years_to_synchronize
-    Unity.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }.uniq
+    Unity.all.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }.uniq
   end
 end

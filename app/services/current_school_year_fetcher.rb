@@ -4,7 +4,7 @@ class CurrentSchoolYearFetcher
   end
 
   def fetch
-    current_school_calendar.year
+    current_school_calendar.year if current_school_calendar
   end
 
   private
