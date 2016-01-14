@@ -9,7 +9,9 @@ class ConceptualExamPosting
 
   def post!
     if classrooms = post_classrooms
-      api.send_post(turmas: classrooms, etapa: posting.school_calendar_step.to_number)
+      classrooms.each do |key, value|
+        api.send_post(turmas: { key => value }, etapa: posting.school_calendar_step.to_number)
+      end
     else
       raise IeducarApi::Base::ApiError.new('Nenhuma turma com tipo de avaliações conceituais encontrada.')
     end
