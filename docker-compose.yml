@@ -3,7 +3,7 @@ postgres:
   environment:
     - POSTGRES_PASSWORD=postgres
   ports:
-    - "5432"
+    - "5430:5432"
 
 redis:
   image: redis
