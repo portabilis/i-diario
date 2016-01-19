@@ -67,7 +67,7 @@ module Portabilis
       end
 
       def sanitized_object_name
-        object_name.gsub(/\]\[|[^-a-zA-Z0-9:.]/, "_").sub(/_$/, "")
+        object_name.to_s.gsub(/\]\[|[^-a-zA-Z0-9:.]/, "_").sub(/_$/, "")
       end
     end
   end

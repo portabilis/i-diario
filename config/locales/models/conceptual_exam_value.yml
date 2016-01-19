@@ -1,0 +1,7 @@
+pt-BR:
+  activerecord:
+    attributes:
+      conceptual_exam_value:
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        value: "Conceito"

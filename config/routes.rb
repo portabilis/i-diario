@@ -155,7 +155,9 @@ Rails.application.routes.draw do
     resources :teaching_plans, concerns: :history
     resources :discipline_lesson_plans, concerns: :history
     resources :knowledge_area_lesson_plans, concerns: :history
-    resources :classrooms, only: [:index, :show]
+    resources :classrooms, only: [:index, :show] do
+      resources :students, only: [:index]
+    end
     resources :disciplines, only: [:index]
     resources :knowledge_areas, only: [:index]
     resources :exam_rules, only: [:index]
@@ -164,7 +166,7 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:new, :create, :edit, :update, :destroy], concerns: :history
     resources :school_term_recovery_diary_records, concerns: :history
     resources :final_recovery_diary_records, concerns: :history
-    resources :conceptual_exams, only: [:new, :create, :edit, :update]
+    resources :conceptual_exams
     resources :descriptive_exams, only: [:new, :create, :edit, :update]
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do

@@ -1,0 +1,71 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/conceptual_exams/form' %>
+<% end %>
+
+
+<%= simple_form_for @conceptual_exam, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
+    <i class="fa fa-exclamation-circle fa-fw"></i>
+    <%= t('.exam_rule_not_found') %>
+  </div>
+
+  <div class="alert alert-danger hidden" id="exam-rule-not-allow-concept">
+    <i class="fa fa-exclamation-circle fa-fw"></i>
+    <%= t('.exam_rule_not_allow_concept') %>
+  </div>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :unity_id, as: :select2, elements: @unities,
+              required: true,
+              readonly: !current_user.admin? %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :classroom, as: :select2, elements: @classrooms %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :recorded_at %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :student, as: :select2, elements: @students %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <table class="table table-striped table-bordered table-condensed">
+      <thead>
+        <th><%= ConceptualExamValue.human_attribute_name :discipline %></th>
+        <th width="20%"><%= ConceptualExamValue.human_attribute_name :value %></th>
+      </thead>
+
+      <tbody id="conceptual_exam_values">
+        <tr>
+          <td class="no_item_found" colspan="2" style="<%= f.object.conceptual_exam_values.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+        </tr>
+
+        <%= f.simple_fields_for :conceptual_exam_values do |conceptual_exam_value_form| %>
+          <%= render 'conceptual_exam_value_fields', f: conceptual_exam_value_form %>
+        <% end %>
+      </tbody>
+    </table>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), conceptual_exams_path, class: 'btn btn-default' %>
+    <%= link_to t('views.form.history'), history_conceptual_exam_path(@conceptual_exam), class: 'btn btn-info' if @conceptual_exam.persisted? %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+  </footer>
+<% end %>

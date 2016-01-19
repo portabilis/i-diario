@@ -1,0 +1,12 @@
+<tr class="nested-fields">
+  <td>
+    <%= f.input :discipline_id, as: :hidden %>
+    <%= f.object.discipline.description %>
+  </td>
+
+  <td>
+    <%= f.input :value, as: :select2,
+          elements: f.object.decorator.data_for_select2,
+          label_html: { class: 'hidden' } %>
+  </td>
+</tr>

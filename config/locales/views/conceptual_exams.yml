@@ -1,0 +1,11 @@
+pt-BR:
+  conceptual_exams:
+    index:
+      new_html: "<i class='fa fa-plus'></i> Novo lançamento"
+      by_classroom: "Filtrar turma"
+      by_student_name: "Filtrar aluno"
+      by_school_calendar_step: "Filtrar etapa"
+      by_status: "Filtrar situação"
+
+    form:
+      no_item_found: "Nenhuma disciplina"

@@ -55,7 +55,7 @@ pt-BR:
     final_recovery_diary_records: 'diario-de-recuperacoes-finais'
     absence_justifications: 'justificativas-de-falta'
     messages: 'mensagens'
-    conceptual_exams: 'avaliacoes-conceituais'
+    conceptual_exams: 'diario-de-avaliacoes-conceituais'
     descriptive_exams: 'avaliacoes-descritivas'
     disabled_entity: 'acesso-suspenso'
     reports: 'relatorios'

@@ -1,6 +1,7 @@
 class RoundingTable < ActiveRecord::Base
   acts_as_copy_target
-  has_many :rounding_table_values
+
+  has_many :rounding_table_values, -> { ordered }
 
   validates :name, :api_code, presence: true
 

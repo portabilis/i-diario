@@ -173,7 +173,7 @@ navigation:
       sub***REMOVED***s:
         - ***REMOVED***:
             type: "conceptual_exams"
-            path: "new_conceptual_exam_path"
+            path: "conceptual_exams_path"
         - ***REMOVED***:
             type: "descriptive_exams"
             path: "new_descriptive_exam_path"

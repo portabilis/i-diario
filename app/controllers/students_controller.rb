@@ -2,9 +2,22 @@ class StudentsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:search_api]
 
   def index
-    @students = apply_scopes(Student)
+    if params[:classroom_id] && params[:date]
+      classroom = Classroom.find(params[:classroom_id])
 
-    respond_with @students
+      @students = StudentsFetcher.new(
+        configuration,
+        classroom.api_code,
+        date: params[:date].to_date.to_s
+      )
+      .fetch
+
+      render json: @students
+    else
+      @students = apply_scopes(Student).ordered
+
+      respond_with @students
+    end
   end
 
   def search_api

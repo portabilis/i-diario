@@ -1,0 +1,23 @@
+<tr class="nested-fields dynamic">
+  <td>
+    <div class="control-group hidden conceptual_exam_conceptual_exam_values_discipline_id">
+      <div class="controls input">
+        <input class="hidden" type="hidden" name="conceptual_exam[conceptual_exam_values_attributes][<%= element_id %>][discipline_id]" id="conceptual_exam_conceptual_exam_values_attributes_<%= element_id %>_student_id" value=<%= discipline_id %>>
+      </div>
+    </div>
+
+    <%= discipline_description %>
+  </td>
+
+  <td>
+    <div class="control-group select2 optional conceptual_exam_conceptual_exam_values_value">
+      <label class="select2 optional control-label hidden" for="conceptual_exam_conceptual_exam_values_attributes_<%= element_id %>_value">
+        Conceito
+      </label>
+
+      <div class="controls input">
+        <input class="select2 optional conceptual-exam-value-select2" type="hidden" style="width: 100%;" data-elements="[]" data-multiple="false" name="conceptual_exam[conceptual_exam_values_attributes][<%= element_id %>][value]" id="conceptual_exam_conceptual_exam_values_attributes_<%= element_id %>_value">
+      </div>
+    </div>
+  </td>
+</tr>

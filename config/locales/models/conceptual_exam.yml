@@ -7,17 +7,15 @@ pt-BR:
 
     attributes:
       conceptual_exam:
-        unity: "Escola"
+        unity_id: "Escola"
         classroom: "Turma"
         classroom_id: "Turma"
-        discipline: "Disciplina"
-        discipline_id: "Disciplina"
         school_calendar_step: "Etapa"
         school_calendar_step_id: "Etapa"
-
-  errors:
-    conceptual_exams:
-      require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
+        student: "Aluno"
+        student_id: "Aluno"
+        recorded_at: 'Data'
+        status: 'Situação'
 
   conceptual_exams:
     new:

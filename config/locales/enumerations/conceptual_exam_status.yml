@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    conceptual_exam_status:
+      incomplete: "Incompleto"
+      complete: "Completo"
