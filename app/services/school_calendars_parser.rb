@@ -4,7 +4,7 @@ class SchoolCalendarsParser
   end
 
   def parse!
-    school_calendars_from_api = api.fetch(ano: 2015)['escolas']
+    school_calendars_from_api = api.fetch['escolas']
     build_school_calendars_to_synchronize(school_calendars_from_api)
   end
 
@@ -25,65 +25,55 @@ class SchoolCalendarsParser
   end
 
   def build_new_school_calendars(school_calendars_from_api)
-    school_calendars_to_synchronize = []
+    new_school_calendars_from_api = fetch_new_school_calendars_from_api(school_calendars_from_api)
 
-    new_school_calendars_from_api = school_calendars_from_api.select do |school_calendar_from_api|
-      unity_api_code = school_calendar_from_api['escola_id']
-      Unity.exists?(api_code: unity_api_code) &&
-      !SchoolCalendar.joins(:unity).exists?(unities: { api_code: unity_api_code })
-    end
+    new_school_calendars_from_api.map do |school_calendar_from_api|
+      unity = Unity.find_by(api_code: school_calendar_from_api['escola_id'])
+      school_calendar = SchoolCalendar.new(
+        unity: unity,
+        year: school_calendar_from_api['ano'].to_i,
+        number_of_classes: 4
+      )
 
-    new_school_calendars_from_api.each do |new_school_calendar_from_api|
-      unity_api_code = new_school_calendar_from_api['escola_id']
-      unity = Unity.find_by(api_code: unity_api_code)
-
-      new_school_calendar = SchoolCalendar.new(unity: unity,
-                                               year: 2015,
-                                               number_of_classes: 4)
-
-      new_school_calendar_from_api['etapas'].each do |step|
-        new_school_calendar.steps.build(start_at: step['data_inicio'],
-                                        end_at:   step['data_fim'],
-                                        start_date_for_posting: step['data_inicio'],
-                                        end_date_for_posting:   step['data_fim'])
+      school_calendar_from_api['etapas'].each do |step|
+        school_calendar.steps.build(
+          start_at: step['data_inicio'],
+          end_at: step['data_fim'],
+          start_date_for_posting: step['data_inicio'],
+          end_date_for_posting: step['data_fim']
+        )
       end
 
-      school_calendars_to_synchronize << new_school_calendar
+      school_calendar
     end
+  end
 
-    school_calendars_to_synchronize
+  def fetch_new_school_calendars_from_api(school_calendars_from_api)
+    school_calendars_from_api.select do |school_calendar_from_api|
+      unity_api_code = school_calendar_from_api['escola_id']
+      year = school_calendar_from_api['ano'].to_i
+
+      Unity.exists?(api_code: unity_api_code) &&
+        SchoolCalendar.by_year(year).by_unity_api_code(unity_api_code).none?
+    end
   end
 
   def build_existing_school_calendars(school_calendars_from_api)
     school_calendars_to_synchronize = []
+    existing_school_calendars_from_api = fetch_existing_school_calendars_from_api(school_calendars_from_api)
 
-    existing_school_calendars_from_api = school_calendars_from_api.select do |school_calendar_from_api|
+    existing_school_calendars_from_api.each do |school_calendar_from_api|
       unity_api_code = school_calendar_from_api['escola_id']
-      Unity.exists?(api_code: unity_api_code) &&
-      SchoolCalendar.joins(:unity).exists?(unities: { api_code: unity_api_code })
-    end
+      year = school_calendar_from_api['ano'].to_i
 
-    existing_school_calendars_from_api.each do |existing_school_calendar_from_api|
-      unity_api_code = existing_school_calendar_from_api['escola_id']
       unity = Unity.find_by(api_code: unity_api_code)
-      school_calendar = SchoolCalendar.joins(:unity).find_by(unities: { api_code: unity_api_code })
+      school_calendar = SchoolCalendar.by_year(year).by_unity_api_code(unity_api_code).first
 
-      need_to_synchronize = false
-      existing_school_calendar_from_api['etapas'].each_with_index do |step, index|
+      school_calendar_from_api['etapas'].each_with_index do |step, index|
         if school_calendar.steps[index].present?
-          if school_calendar.steps[index].start_at != Date.parse(step['data_inicio'])
-            need_to_synchronize = true
-            school_calendar.steps[index].start_at = step['data_inicio']
-            school_calendar.steps[index].start_date_for_posting = step['data_inicio']
-          end
-
-          if school_calendar.steps[index].end_at != Date.parse(step['data_fim'])
-            need_to_synchronize = true
-            school_calendar.steps[index].end_at = step['data_fim']
-            school_calendar.steps[index].end_date_for_posting = step['data_fim']
-          end
+          update_step_start_at(school_calendar, index, step)
+          update_step_end_at(school_calendar, index, step)
         else
-          need_to_synchronize = true
           school_calendar.steps.build(
             start_at: step['data_inicio'],
             end_at: step['data_fim'],
@@ -93,9 +83,34 @@ class SchoolCalendarsParser
         end
       end
 
+      need_to_synchronize = school_calendar.changed? || school_calendar.steps.any?(&:new_record?) || school_calendar.steps.any?(&:changed?)
       school_calendars_to_synchronize << school_calendar if need_to_synchronize
     end
 
     school_calendars_to_synchronize
+  end
+
+  def fetch_existing_school_calendars_from_api(school_calendars_from_api)
+    school_calendars_from_api.select do |school_calendar_from_api|
+      unity_api_code = school_calendar_from_api['escola_id']
+      year = school_calendar_from_api['ano'].to_i
+
+      Unity.exists?(api_code: unity_api_code) &&
+        SchoolCalendar.by_year(year).by_unity_api_code(unity_api_code).any?
+    end
+  end
+
+  def update_step_start_at(school_calendar, index, step)
+    if school_calendar.steps[index].start_at != Date.parse(step['data_inicio'])
+      school_calendar.steps[index].start_at = step['data_inicio']
+      school_calendar.steps[index].start_date_for_posting = step['data_inicio']
+    end
+  end
+
+  def update_step_end_at(school_calendar, index, step)
+    if school_calendar.steps[index].end_at != Date.parse(step['data_fim'])
+      school_calendar.steps[index].end_at = step['data_fim']
+      school_calendar.steps[index].end_date_for_posting = step['data_fim']
+    end
   end
 end

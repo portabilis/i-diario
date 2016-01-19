@@ -23,11 +23,14 @@ class SchoolCalendar < ActiveRecord::Base
                                 numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
 
   validate :at_least_one_assigned_step
+  validate :must_not_have_conflicting_steps
 
   validates_associated :steps
 
   scope :by_year, lambda { |year| where(year: year) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :by_unity_api_code, lambda { |unity_api_code| joins(:unity).where(unities: { api_code: unity_api_code }) }
+  scope :by_school_day, lambda { |date| by_school_day(date) }
   scope :ordered, -> { joins(:unity).order(year: :desc).order('unities.name') }
 
   def to_s
@@ -65,8 +68,23 @@ class SchoolCalendar < ActiveRecord::Base
 
   private
 
+  def self.by_school_day(date)
+    joins(:steps).where(SchoolCalendarStep.arel_table[:start_at].lteq(date.to_date))
+      .where(SchoolCalendarStep.arel_table[:end_at].gteq(date.to_date))
+  end
+
   def at_least_one_assigned_step
     errors.add(:steps, :at_least_one_step) if steps.empty?
+  end
+
+  def must_not_have_conflicting_steps
+    exist_conflicting_steps = steps.any? do |step|
+      SchoolCalendar.by_unity_id(unity_id).where.not(id: id).any? do |school_calendar|
+        school_calendar.school_day?(step.start_at) || school_calendar.school_day?(step.end_at)
+      end
+    end
+
+    errors.add(:steps, :must_not_have_conflicting_steps) if exist_conflicting_steps
   end
 
   def self_assign_to_steps

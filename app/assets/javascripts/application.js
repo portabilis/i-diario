@@ -14,9 +14,9 @@
 //= require js-routes
 //= require ejs/ejs
 //= require_tree ./templates
-//= require jquery.inputmask
-//= require jquery.singlemask
-//= require jquery.price_format.2.0
+//= require inputmask/inputmask
+//= require inputmask/inputmask.numeric.extensions
+//= require inputmask/jquery.inputmask
 //= require flash_messages
 //= require server-errors-presenter
 //= require bootstrap-typeahead

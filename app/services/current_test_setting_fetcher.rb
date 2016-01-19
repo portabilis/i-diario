@@ -16,5 +16,7 @@ class CurrentTestSettingFetcher
         school_term: school_term
       )
     end
+
+    current_test_setting
   end
 end

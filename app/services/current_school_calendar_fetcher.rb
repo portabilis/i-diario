@@ -4,16 +4,8 @@ class CurrentSchoolCalendarFetcher
   end
 
   def fetch
-    SchoolCalendar.find_by(year: current_school_year, unity: @unity)
-  end
-
-  private
-
-  def current_school_year
-    current_school_year_fetcher.fetch
-  end
-
-  def current_school_year_fetcher
-    @current_school_year_fetcher ||= CurrentSchoolYearFetcher.new(@unity)
+    SchoolCalendar.by_unity_id(@unity)
+      .by_school_day(Time.zone.today)
+      .first
   end
 end

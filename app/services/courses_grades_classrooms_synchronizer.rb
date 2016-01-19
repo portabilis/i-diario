@@ -1,14 +1,15 @@
 class CoursesGradesClassroomsSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
+  def self.synchronize!(synchronization, year)
+    new(synchronization, year).synchronize!
   end
 
-  def initialize(synchronization)
+  def initialize(synchronization, year)
     self.synchronization = synchronization
+    self.year = year
   end
 
   def synchronize!
-    update_records api.fetch(ano: 2015,
+    update_records api.fetch(ano: year,
                              escola_id: unities,
                              get_series: true,
                              get_turmas: true)["cursos"]
@@ -16,7 +17,7 @@ class CoursesGradesClassroomsSynchronizer
 
   protected
 
-  attr_accessor :synchronization
+  attr_accessor :synchronization, :year
 
   def api
     IeducarApi::Lectures.new(synchronization.to_api)
@@ -73,7 +74,7 @@ class CoursesGradesClassroomsSynchronizer
           unity_id: Unity.find_by(api_code: record["escola_id"]).try(:id),
           unity_code: record["escola_id"],
           grade: grade,
-          year: 2015
+          year: year
         )
       end
     end

@@ -104,6 +104,9 @@ $(function () {
         $('.avaliation_description').show();
         $('.avaliation_weight').hide();
       }
+
+      $weight_input.attr('data-inputmask', "'digits': " + (parseInt(data['test_setting']['number_of_decimal_places']) || 0));
+      $weight_input.inputmask('customDecimal');
     });
 
     var params = { test_setting_id: $('#avaliation_test_setting_id').select2('val') };
@@ -156,21 +159,11 @@ $(function () {
     });
   }
 
-  function updateWeightFormat() {
-    $weight_input.priceFormat({
-      prefix: '',
-      centsSeparator: ',',
-      thousandsSeparator: '.',
-      centsLimit: parseInt($weight_input.data("scale")) || 0
-    });
-  }
-
   if (!!document.getElementById('avaliation_test_setting_id')) {
     updateFieldsBasedOnTestSetting();
   }
 
   if (!!document.getElementById('avaliation_weight')) {
     updateFieldsBaseOnTestSettingTest();
-    updateWeightFormat();
   }
 });

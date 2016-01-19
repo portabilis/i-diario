@@ -5,6 +5,6 @@ FactoryGirl.define do
     start_date_for_posting   '10/06/2020'
     end_date_for_posting   '30/06/2020'
 
-    school_calendar
+    association :school_calendar, factory: :school_calendar_with_one_step
   end
 end

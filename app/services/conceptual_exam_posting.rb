@@ -43,17 +43,14 @@ class ConceptualExamPosting
       end
 
       exams = ConceptualExamStudent.by_classroom_discipline_and_step(classroom, discipline, posting.school_calendar_step.id)
-      if exams.any?
-        exams.each do |exam|
-          classrooms[classroom.api_code]['turma_id'] = classroom.api_code
-          classrooms[classroom.api_code]['alunos'][exam.student.api_code]['aluno_id'] = exam.student.api_code
-          classrooms[classroom.api_code]['alunos'][exam.student.api_code]['componentes_curriculares'][discipline.api_code]['componente_curricular_id'] = discipline.api_code
-          classrooms[classroom.api_code]['alunos'][exam.student.api_code]['componentes_curriculares'][discipline.api_code]['valor'] = exam.value
-        end
-      else
-        raise IeducarApi::Base::ApiError.new("Não foi possível enviar as avaliações conceituais da turma #{classroom} pois não foram lançados dos os conceitos.")
+      exams.each do |exam|
+        classrooms[classroom.api_code]['turma_id'] = classroom.api_code
+        classrooms[classroom.api_code]['alunos'][exam.student.api_code]['aluno_id'] = exam.student.api_code
+        classrooms[classroom.api_code]['alunos'][exam.student.api_code]['componentes_curriculares'][discipline.api_code]['componente_curricular_id'] = discipline.api_code
+        classrooms[classroom.api_code]['alunos'][exam.student.api_code]['componentes_curriculares'][discipline.api_code]['valor'] = exam.value
       end
     end
+
     classrooms
   end
 end

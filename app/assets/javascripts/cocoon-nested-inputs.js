@@ -56,11 +56,7 @@ $(function() {
   }
 
   function loadDecimalMasks() {
-    $('.nested-fields input.decimal').priceFormat({
-      prefix: '',
-      centsSeparator: ',',
-      thousandsSeparator: '.'
-    });
+    $('.nested-fields input.decimal').inputmask('customDecimal');
   }
 
   function loadDatepickers() {

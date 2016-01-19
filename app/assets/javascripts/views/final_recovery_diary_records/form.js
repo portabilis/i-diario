@@ -100,12 +100,8 @@ $(function () {
   }
 
   function loadDecimalMasks() {
-    $('.nested-fields input.decimal').priceFormat({
-      prefix: '',
-      centsSeparator: ',',
-      thousandsSeparator: '.',
-      centsLimit: parseInt($('#recovery-diary-record-students').data('scale')) || 0
-    });
+    var numberOfDecimalPlaces = $('#recovery-diary-record-students').data('scale');
+    $('.nested-fields input.decimal, .needed_score').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
   // On change

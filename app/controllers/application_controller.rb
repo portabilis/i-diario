@@ -138,10 +138,6 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_teacher
 
-  def current_school_year
-    CurrentSchoolYearFetcher.new(current_user_unity).fetch
-  end
-
   def current_school_calendar
     return if current_user.admin? && current_user_unity.blank?
 
