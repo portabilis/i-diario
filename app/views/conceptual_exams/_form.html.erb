@@ -21,15 +21,17 @@
       <div class="col col-sm-4">
         <%= f.input :unity_id, as: :select2, elements: @unities,
               required: true,
-              readonly: !current_user.admin? %>
+              readonly: !current_user.admin? || @conceptual_exam.persisted? %>
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :classroom, as: :select2, elements: @classrooms %>
+        <%= f.association :classroom, as: :select2, elements: @classrooms,
+              readonly: @conceptual_exam.persisted? %>
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+        <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps,
+              readonly: @conceptual_exam.persisted? %>
       </div>
     </div>
 
@@ -39,7 +41,8 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :student, as: :select2, elements: @students %>
+        <%= f.association :student, as: :select2, elements: @students,
+              readonly: @conceptual_exam.persisted? %>
       </div>
     </div>
   </fieldset>

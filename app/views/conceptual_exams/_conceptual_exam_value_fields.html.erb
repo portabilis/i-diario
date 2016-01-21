@@ -1,4 +1,4 @@
-<tr class="nested-fields">
+<tr class="nested-fields <%= f.object.new_record? ? 'dynamic' : 'existing' %>">
   <td>
     <%= f.input :discipline_id, as: :hidden %>
     <%= f.object.discipline.description %>

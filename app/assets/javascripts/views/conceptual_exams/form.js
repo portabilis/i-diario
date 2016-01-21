@@ -8,6 +8,7 @@ $(function() {
   var $student = $('#conceptual_exam_student_id');
   var $examRuleNotFoundAlert = $('#exam-rule-not-found-alert');
   var $examRuleNotAllowConcept = $('#exam-rule-not-allow-concept');
+  var flashMessages = new FlashMessages();
 
   function fetchClassrooms() {
     var unity_id = $unity.select2('val');
@@ -52,20 +53,32 @@ $(function() {
   };
 
   function handleFetchExamRuleSuccess(data) {
-    window.examRule = data.exam_rule;
-    window.roundingTableValues = _.map(data.exam_rule.rounding_table.rounding_table_values, function(rounding_table_value) {
-      return { id: rounding_table_value.value, text: rounding_table_value.label };
-    });
+    if (examRuleIsValid(data.exam_rule)) {
+      window.examRule = data.exam_rule;
+      window.roundingTableValues = _.map(data.exam_rule.rounding_table.rounding_table_values, function(rounding_table_value) {
+        return { id: rounding_table_value.value, text: rounding_table_value.label };
+      });
+    }
   };
 
   function handleFetchExamRuleError() {
     flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
   };
 
+  function examRuleIsValid(examRule) {
+    if (examRule.score_type != '2') {
+      flashMessages.error('A turma informada não possui uma regra de avaliação conceitual.');
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   function fetchStudents() {
     var classroom_id = $classroom.select2('val');
     var recorded_at = $recorded_at.val();
 
+    window.studentPreviouslySelected = $student.select2('val');
     $student.select2('val', '');
     $student.select2({ data: [] });
 
@@ -79,11 +92,22 @@ $(function() {
   };
 
   function handleFetchStudentsSuccess(data) {
-    var students = _.map(data['students'], function(student) {
-      return { id: student['id'], text: student['name'] };
+    var studentPreviouslySelectedExists = false;
+
+    var students = _.map(data.students, function(student) {
+      if (student.id == window.studentPreviouslySelected) {
+        studentPreviouslySelectedExists = true;
+      }
+
+      return { id: student.id, text: student.name };
     });
 
     $student.select2({ data: students });
+
+    if (studentPreviouslySelectedExists) {
+      $student.select2('val', window.studentPreviouslySelected);
+      window.studentPreviouslySelected = null;
+    }
   };
 
   function handleFetchStudentsError() {
@@ -140,9 +164,11 @@ $(function() {
         data: $(element).data('elements')
       });
 
-      $(element).select2({
-        data: window.roundingTableValues
-      });
+      if (!_.isEmpty(window.roundingTableValues)) {
+        $(element).select2({
+          data: window.roundingTableValues
+        });
+      }
     });
   }
 
@@ -183,111 +209,4 @@ $(function() {
   $recorded_at.on('change', function() {
     fetchStudents();
   });
-
-
-  // window.classrooms = [];
-  // window.disciplines = [];
-  //
-  // var fetchClassrooms = function (params, callback) {
-  //   if (_.isEmpty(window.classrooms)) {
-  //     $.getJSON('/turmas?' + $.param(params)).always(function (data) {
-  //       window.classrooms = data;
-  //       callback(window.classrooms);
-  //     });
-  //   } else {
-  //     callback(window.classrooms);
-  //   }
-  // };
-  //
-  // var fetchDisciplines = function (params, callback) {
-  //   if (_.isEmpty(window.disciplines)) {
-  //     $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
-  //       window.disciplines = data;
-  //       callback(window.disciplines);
-  //     });
-  //   } else {
-  //     callback(window.disciplines);
-  //   }
-  // };
-  //
-  // var fetchExamRule = function (params, callback) {
-  //   $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
-  //     callback(data);
-  //   });
-  // };
-  //
-  // $unity.on('change', function (e) {
-  //   var params = {
-  //     unity_id: e.val
-  //   };
-  //
-  //   window.classrooms = [];
-  //   window.disciplines = [];
-  //   $classroom.val('').select2({ data: [] });
-  //   $discipline.val('').select2({ data: [] });
-  //
-  //   if (!_.isEmpty(e.val)) {
-  //     fetchClassrooms(params, function (classrooms) {
-  //       var selectedClassrooms = _.map(classrooms, function (classroom) {
-  //         return { id:classroom['id'], text: classroom['description'] };
-  //       });
-  //
-  //       $classroom.select2({
-  //         data: selectedClassrooms
-  //       });
-  //     });
-  //   }
-  // });
-  //
-  // var checkExamRule = function(params){
-  //   fetchExamRule(params, function(data){
-  //     var examRule = data.exam_rule
-  //     $('form input[type=submit]').removeClass('disabled');
-  //     $examRuleNotFoundAlert.addClass('hidden');
-  //     $examRuleNotAllowConcept.addClass('hidden');
-  //
-  //     if(!$.isEmptyObject(examRule)){
-  //       if(examRule.score_type != "2"){
-  //         // Display alert
-  //         $examRuleNotAllowConcept.removeClass('hidden');
-  //
-  //         // Disable form submit
-  //         $('form input[type=submit]').addClass('disabled');
-  //       }
-  //     }else{
-  //       // Display alert
-  //       $examRuleNotFoundAlert.removeClass('hidden');
-  //
-  //       // Disable form submit
-  //       $('form input[type=submit]').addClass('disabled');
-  //     }
-  //   });
-  // }
-  //
-  // $classroom.on('change', function (e) {
-  //   var params = {
-  //     classroom_id: e.val
-  //   };
-  //
-  //   window.disciplines = [];
-  //   $discipline.val('').select2({ data: [] });
-  //
-  //   if (!_.isEmpty(e.val)) {
-  //     checkExamRule(params);
-  //
-  //     fetchDisciplines(params, function (disciplines) {
-  //       var selectedDisciplines = _.map(disciplines, function (discipline) {
-  //         return { id:discipline['id'], text: discipline['description'] };
-  //       });
-  //
-  //       $discipline.select2({
-  //         data: selectedDisciplines
-  //       });
-  //     });
-  //   }
-  // });
-  //
-  // if($classroom.length && $classroom.val().length){
-  //   checkExamRule({classroom_id: $classroom.val()});
-  // }
 });

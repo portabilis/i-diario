@@ -14,6 +14,8 @@ class ConceptualExamsController < ApplicationController
         school_calendar_step: :school_calendar
       )
       .filter(filtering_params(params[:search]))
+      .by_unity(current_user_unity)
+      .by_teacher(current_teacher)
       .ordered
 
     authorize @conceptual_exams
@@ -31,6 +33,7 @@ class ConceptualExamsController < ApplicationController
     authorize @conceptual_exam
 
     fetch_unities_classrooms_disciplines_by_teacher
+    fetch_classrooms
     fetch_school_calendar_steps
     fetch_students
   end
@@ -44,6 +47,7 @@ class ConceptualExamsController < ApplicationController
       respond_with @conceptual_exam, location: conceptual_exams_path
     else
       fetch_unities_classrooms_disciplines_by_teacher
+      fetch_classrooms
       fetch_school_calendar_steps
       fetch_students
 
@@ -52,45 +56,51 @@ class ConceptualExamsController < ApplicationController
   end
 
   def edit
-    @conceptual_exam = ConceptualExam.find(params[:id])
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+    @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
 
     authorize @conceptual_exam
 
+    fetch_unities_classrooms_disciplines_by_teacher
+    fetch_classrooms
+    fetch_school_calendar_steps
     fetch_students
-
-    @students = []
-
-    @api_students.each do |api_student|
-      if student = Student.find_by(api_code: api_student['id'])
-        exam_student = (@conceptual_exam.students.where(student_id: student.id).first || @conceptual_exam.students.build(student_id: student.id))
-        exam_student.dependence = api_student['dependencia']
-        @students << exam_student
-      end
-    end
-
-    @normal_students = []
-    @dependence_students = []
-
-    @students.each do |student|
-      @normal_students << student if !student.dependence?
-      @dependence_students << student if student.dependence?
-    end
   end
 
   def update
-    @conceptual_exam = ConceptualExam.find(params[:id])
-    @conceptual_exam.assign_attributes resource_params
-
-    destroy_students_not_found
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+    @conceptual_exam.assign_attributes(resource_params)
 
     authorize @conceptual_exam
 
     if @conceptual_exam.save
-      fetch_unities
-      respond_with @conceptual_exam, location: new_conceptual_exam_path
+      respond_with @conceptual_exam, location: conceptual_exams_path
     else
+      fetch_unities_classrooms_disciplines_by_teacher
+      fetch_classrooms
+      fetch_school_calendar_steps
+      fetch_students
+
       render :edit
     end
+  end
+
+  def destroy
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+
+    authorize @conceptual_exam
+
+    @conceptual_exam.destroy
+
+    respond_with @conceptual_exam, location: conceptual_exams_path
+  end
+
+  def history
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+
+    authorize @conceptual_exam
+
+    respond_with @conceptual_exam
   end
 
   private
@@ -126,6 +136,9 @@ class ConceptualExamsController < ApplicationController
 
   def fetch_classrooms
     @classrooms = Classroom.by_teacher_id(current_teacher.id)
+    .by_unity(current_user_unity)
+    .by_teacher_id(current_teacher)
+    .by_score_type(ScoreTypes::CONCEPT)
   end
 
   def fetch_unities_classrooms_disciplines_by_teacher
@@ -137,7 +150,6 @@ class ConceptualExamsController < ApplicationController
     fetcher.fetch!
 
     @unities = fetcher.unities
-    @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
   end
 
@@ -160,16 +172,6 @@ class ConceptualExamsController < ApplicationController
         flash[:alert] = e.message
         render :new
       end
-    end
-  end
-
-  def destroy_students_not_found
-    @conceptual_exam.students.each do |student|
-      student_exists = resource_params[:students_attributes].any? do |student_params|
-        student_params.last[:student_id].to_i == student.student.id
-      end
-
-      student.destroy unless student_exists
     end
   end
 end

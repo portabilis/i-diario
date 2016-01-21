@@ -166,7 +166,7 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:new, :create, :edit, :update, :destroy], concerns: :history
     resources :school_term_recovery_diary_records, concerns: :history
     resources :final_recovery_diary_records, concerns: :history
-    resources :conceptual_exams
+    resources :conceptual_exams, concerns: :history
     resources :descriptive_exams, only: [:new, :create, :edit, :update]
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
