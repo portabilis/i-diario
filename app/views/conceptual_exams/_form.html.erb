@@ -48,7 +48,7 @@
   </fieldset>
 
   <fieldset>
-    <table class="table table-striped table-bordered table-condensed">
+    <table class="table table-bordered table-condensed">
       <thead>
         <th><%= ConceptualExamValue.human_attribute_name :discipline %></th>
         <th width="20%"><%= ConceptualExamValue.human_attribute_name :value %></th>
@@ -59,8 +59,16 @@
           <td class="no_item_found" colspan="2" style="<%= f.object.conceptual_exam_values.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
         </tr>
 
-        <%= f.simple_fields_for :conceptual_exam_values do |conceptual_exam_value_form| %>
-          <%= render 'conceptual_exam_value_fields', f: conceptual_exam_value_form %>
+        <% @conceptual_exam.conceptual_exam_values
+             .group_by { |conceptual_exam_value| conceptual_exam_value.discipline.knowledge_area }
+             .each do |knowledge_area, conceptual_exam_values| %>
+          <tr class="knowledge-area-table-row">
+            <td class="knowledge-area-table-data" colspan="2"><strong><%= knowledge_area %></strong></td>
+          </tr>
+
+          <%= f.simple_fields_for :conceptual_exam_values, conceptual_exam_values do |conceptual_exam_value_form| %>
+            <%= render 'conceptual_exam_value_fields', f: conceptual_exam_value_form %>
+          <% end %>
         <% end %>
       </tbody>
     </table>

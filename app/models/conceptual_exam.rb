@@ -12,7 +12,8 @@ class ConceptualExam < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :school_calendar_step
   belongs_to :student
-  has_many :conceptual_exam_values, -> { includes(:conceptual_exam, :discipline) }, dependent: :destroy
+  has_many :conceptual_exam_values, -> { includes(:conceptual_exam, discipline: :knowledge_area) },
+    dependent: :destroy
 
   accepts_nested_attributes_for :conceptual_exam_values
 

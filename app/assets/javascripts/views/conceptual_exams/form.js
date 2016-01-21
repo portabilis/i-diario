@@ -130,18 +130,30 @@ $(function() {
     if (!_.isEmpty(disciplines)) {
       hideNoItemMessage();
 
+      disciplines.sort(function(a, b) {
+        return a.knowledge_area_description.localeCompare(b.knowledge_area_description);
+      });
+
       var element_counter = 0;
+      var disciplines***REMOVED***edByKnowledgeArea = _.groupBy(disciplines, function(discipline) {
+        return discipline.knowledge_area_description;
+      });
 
-      _.each(disciplines, function(discipline) {
-        var element_id = new Date().getTime() + element_counter++
+      _.each(disciplines***REMOVED***edByKnowledgeArea, function(disciplines, knowledge_area_description) {
+        var knowledgeAreaTableRowHtml = '<tr class="knowledge-area-table-row"><td class="knowledge-area-table-data" colspan="2"><strong>' + knowledge_area_description + '</strong></td></tr>';
+        $('#conceptual_exam_values').append(knowledgeAreaTableRowHtml);
 
-        var html = JST['templates/conceptual_exams/conceptual_exam_value_fields']({
-            discipline_id: discipline.id,
-            discipline_description: discipline.description,
-            element_id: element_id
-          });
+        _.each(disciplines, function(discipline) {
+          var element_id = new Date().getTime() + element_counter++
 
-        $('#conceptual_exam_values').append(html);
+          var html = JST['templates/conceptual_exams/conceptual_exam_value_fields']({
+              discipline_id: discipline.id,
+              discipline_description: discipline.description,
+              element_id: element_id
+            });
+
+          $('#conceptual_exam_values').append(html);
+        });
       });
 
       loadSelect2ForConceptualExamValues();
@@ -173,6 +185,9 @@ $(function() {
   }
 
   function removeDisciplines() {
+    // Remove knowledge areas rows
+    $('.knowledge-area-table-row').remove();
+
     // Remove not persisted disciplines
     $('.nested-fields.dynamic').remove();
 
