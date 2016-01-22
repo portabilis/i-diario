@@ -8,4 +8,5 @@ pt-BR:
       by_status: "Filtrar situação"
 
     form:
+      save_and_go_to_the_next: 'Salvar e ir para o próximo'
       no_item_found: "Nenhuma disciplina"

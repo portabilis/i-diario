@@ -34,6 +34,7 @@ class ConceptualExam < ActiveRecord::Base
     school_term_day: { school_term: lambda(&:school_calendar_step) }
 
   validate :classroom_must_have_conceptual_exam_score_type
+  validate :at_least_one_conceptual_exam_value
 
   before_validation :self_assign_to_conceptual_exam_values
 
@@ -75,6 +76,12 @@ class ConceptualExam < ActiveRecord::Base
 
     if classroom.exam_rule.score_type != ScoreTypes::CONCEPT
       errors.add(:classroom, :classroom_must_have_conceptual_exam_score_type)
+    end
+  end
+
+  def at_least_one_conceptual_exam_value
+    if conceptual_exam_values.reject(&:marked_for_destruction?).empty?
+      errors.add(:conceptual_exam_values, :at_least_one_conceptual_exam_value)
     end
   end
 

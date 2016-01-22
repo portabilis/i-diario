@@ -25,3 +25,5 @@ pt-BR:
               classroom_must_have_conceptual_exam_score_type: 'regra de avaliação não permite lançamento de avaliação conceitual'
             student:
               taken: 'já existe um lançamento para este aluno na etapa informada'
+            conceptual_exam_values:
+              at_least_one_conceptual_exam_value: 'É necessário pelo menos 1 disciplina'

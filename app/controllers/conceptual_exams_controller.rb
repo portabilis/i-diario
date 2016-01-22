@@ -30,12 +30,20 @@ class ConceptualExamsController < ApplicationController
       recorded_at: Time.zone.today
     ).localized
 
+    if params[:conceptual_exam].present?
+      @conceptual_exam.assign_attributes(resource_params)
+    end
+
     authorize @conceptual_exam
 
-    fetch_unities_classrooms_disciplines_by_teacher
-    fetch_classrooms
-    fetch_school_calendar_steps
-    fetch_students
+    fetch_collections
+
+    @disciplines.each do |discipline|
+      @conceptual_exam.conceptual_exam_values.build(
+        conceptual_exam: @conceptual_exam,
+        discipline: discipline
+      )
+    end
   end
 
   def create
@@ -44,12 +52,9 @@ class ConceptualExamsController < ApplicationController
     authorize @conceptual_exam
 
     if @conceptual_exam.save
-      respond_with @conceptual_exam, location: conceptual_exams_path
+      respond_to_save
     else
-      fetch_unities_classrooms_disciplines_by_teacher
-      fetch_classrooms
-      fetch_school_calendar_steps
-      fetch_students
+      fetch_collections
 
       render :new
     end
@@ -61,10 +66,7 @@ class ConceptualExamsController < ApplicationController
 
     authorize @conceptual_exam
 
-    fetch_unities_classrooms_disciplines_by_teacher
-    fetch_classrooms
-    fetch_school_calendar_steps
-    fetch_students
+    fetch_collections
   end
 
   def update
@@ -74,12 +76,9 @@ class ConceptualExamsController < ApplicationController
     authorize @conceptual_exam
 
     if @conceptual_exam.save
-      respond_with @conceptual_exam, location: conceptual_exams_path
+      respond_to_save
     else
-      fetch_unities_classrooms_disciplines_by_teacher
-      fetch_classrooms
-      fetch_school_calendar_steps
-      fetch_students
+      fetch_collections
 
       render :edit
     end
@@ -134,11 +133,11 @@ class ConceptualExamsController < ApplicationController
     @configuration ||= IeducarApiConfiguration.current
   end
 
-  def fetch_classrooms
-    @classrooms = Classroom.by_teacher_id(current_teacher.id)
-    .by_unity(current_user_unity)
-    .by_teacher_id(current_teacher)
-    .by_score_type(ScoreTypes::CONCEPT)
+  def fetch_collections
+    fetch_unities_classrooms_disciplines_by_teacher
+    fetch_classrooms
+    fetch_school_calendar_steps
+    fetch_students
   end
 
   def fetch_unities_classrooms_disciplines_by_teacher
@@ -151,6 +150,13 @@ class ConceptualExamsController < ApplicationController
 
     @unities = fetcher.unities
     @disciplines = fetcher.disciplines
+  end
+
+  def fetch_classrooms
+    @classrooms = Classroom.by_teacher_id(current_teacher.id)
+    .by_unity(current_user_unity)
+    .by_teacher_id(current_teacher)
+    .by_score_type(ScoreTypes::CONCEPT)
   end
 
   def fetch_school_calendar_steps
@@ -173,5 +179,55 @@ class ConceptualExamsController < ApplicationController
         render :new
       end
     end
+  end
+
+  def respond_to_save
+    if params[:commit] == 'Salvar'
+      respond_with @conceptual_exam, location: conceptual_exams_path
+    else
+      respond_with_next_conceptual_exam
+    end
+  end
+
+  def respond_with_next_conceptual_exam
+    next_conceptual_exam = fetch_next_conceptual_exam
+
+    if next_conceptual_exam.new_record?
+      respond_with(
+        @conceptual_exam,
+        location: new_conceptual_exam_path(
+          conceptual_exam: next_conceptual_exam.attributes
+        )
+      )
+    else
+      respond_with(
+        @conceptual_exam,
+        location: edit_conceptual_exam_path(next_conceptual_exam)
+      )
+    end
+  end
+
+  def fetch_next_conceptual_exam
+    next_student = fetch_next_student
+
+    next_conceptual_exam = ConceptualExam.find_or_initialize_by(
+      classroom_id: @conceptual_exam.classroom_id,
+      school_calendar_step_id: @conceptual_exam.school_calendar_step_id,
+      student_id: next_student.id
+    )
+    next_conceptual_exam.recorded_at = @conceptual_exam.recorded_at
+
+    next_conceptual_exam
+  end
+
+  def fetch_next_student
+    @students = fetch_students
+    next_student_index = @students.find_index(@conceptual_exam.student) + 1
+
+    if next_student_index == @students.length
+      next_student_index = 0
+    end
+
+    @students[next_student_index]
   end
 end
