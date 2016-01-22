@@ -8,16 +8,25 @@ class ConceptualExamPosting
   end
 
   def post!
-    if classrooms = post_classrooms
-      classrooms.each do |key, value|
-        api.send_post(turmas: { key => value }, etapa: posting.school_calendar_step.to_number)
+    if params = fetch_params
+      puts '************************'
+      puts params.to_json
+      puts '************************'
+
+      params.each do |key, value|
+        api.send_post(
+          turmas: { key => value },
+          etapa: posting.school_calendar_step.to_number
+        )
       end
     else
-      raise IeducarApi::Base::ApiError.new('Nenhuma turma com tipo de avaliações conceituais encontrada.')
+      raise IeducarApi::Base::ApiError.new(
+        'Nenhum lançamento de avaliação conceitual encontrado.'
+      )
     end
   end
 
-  protected
+  private
 
   attr_accessor :posting
 
@@ -25,32 +34,26 @@ class ConceptualExamPosting
     IeducarApi::PostExams.new(posting.to_api)
   end
 
-  def post_classrooms
-    classrooms = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
+  def fetch_params
+    params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 
-    teacher = posting.author.teacher
+    conceptual_exams = ConceptualExam.by_teacher(posting.author.teacher)
+      .by_unity(posting.school_calendar_step.school_calendar.unity)
+      .by_school_calendar_step(posting.school_calendar_step)
 
-    teacher.teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-      next if teacher_discipline_classroom.classroom.unity_id != posting.school_calendar_step.school_calendar.unity_id
+    conceptual_exams.each do |conceptual_exam|
+      conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
+        classroom_api_code = conceptual_exam.classroom.api_code
+        student_api_code = conceptual_exam.student.api_code
+        discipline_api_code = conceptual_exam_value.discipline.api_code
 
-      classroom = teacher_discipline_classroom.classroom
-      discipline = teacher_discipline_classroom.discipline
-
-      score_type = classroom.exam_rule.score_type
-
-      if score_type != ScoreTypes::CONCEPT
-        next
-      end
-
-      exams = ConceptualExamStudent.by_classroom_discipline_and_step(classroom, discipline, posting.school_calendar_step.id)
-      exams.each do |exam|
-        classrooms[classroom.api_code]['turma_id'] = classroom.api_code
-        classrooms[classroom.api_code]['alunos'][exam.student.api_code]['aluno_id'] = exam.student.api_code
-        classrooms[classroom.api_code]['alunos'][exam.student.api_code]['componentes_curriculares'][discipline.api_code]['componente_curricular_id'] = discipline.api_code
-        classrooms[classroom.api_code]['alunos'][exam.student.api_code]['componentes_curriculares'][discipline.api_code]['valor'] = exam.value
+        params[classroom_api_code]['turma_id'] = classroom_api_code
+        params[classroom_api_code]['alunos'][student_api_code]['aluno_id'] = student_api_code
+        params[classroom_api_code]['alunos'][student_api_code]['componentes_curriculares'][discipline_api_code]['componente_curricular_id'] = discipline_api_code
+        params[classroom_api_code]['alunos'][student_api_code]['componentes_curriculares'][discipline_api_code]['valor'] = conceptual_exam_value.value
       end
     end
 
-    classrooms
+    params
   end
 end
