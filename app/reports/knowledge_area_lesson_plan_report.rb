@@ -1,10 +1,10 @@
 require "prawn/measurement_extensions"
 
-class LessonPlanDisciplineReport
+class KnowledgeAreaLessonPlanReport
   include Prawn::View
 
-  def self.build(entity_configuration, date_start, date_end, discipline_lesson_plan, current_teacher)
-    new.build(entity_configuration, date_start, date_end, discipline_lesson_plan, current_teacher)
+  def self.build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans, current_teacher)
+    new.build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans, current_teacher)
   end
 
   def initialize
@@ -16,11 +16,11 @@ class LessonPlanDisciplineReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, date_start, date_end, discipline_lesson_plan, current_teacher)
+  def build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans, current_teacher)
     @entity_configuration = entity_configuration
     @date_start = date_start
     @date_end = date_end
-    @discipline_lesson_plans = discipline_lesson_plan
+    @knowledge_area_lesson_plans = knowledge_area_lesson_plans
     @current_teacher = current_teacher
     attributes
 
@@ -31,12 +31,15 @@ class LessonPlanDisciplineReport
     self
   end
 
+  protected
+
   private
 
   def header
+
     entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
     organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
-    title =  'Registro de conteúdos por disciplina'
+    title = 'Registro de conteúdos por áreas de conhecimento'
 
     header_cell = make_cell(
       content: title,
@@ -63,7 +66,7 @@ class LessonPlanDisciplineReport
     end
 
     entity_organ_and_unity_cell = make_cell(
-      content: "#{entity_name}\n#{organ_name}\n" + "#{@discipline_lesson_plans.first.lesson_plan.unity.name}",
+      content: "#{entity_name}\n#{organ_name}\n" + "#{@knowledge_area_lesson_plans.first.lesson_plan.unity.name}",
       size: 12,
       leading: 1.5,
       align: :center,
@@ -71,6 +74,8 @@ class LessonPlanDisciplineReport
       rowspan: 4,
       padding: [6, 0, 8, 0]
     )
+
+
 
     table_data = [
       [header_cell],
@@ -100,7 +105,7 @@ class LessonPlanDisciplineReport
       height: 20,
       padding: [2, 2, 4, 4],
       align: :center,
-      colspan: 2
+      colspan: 5
     )
 
     @general_information_header_cell = make_cell(
@@ -114,37 +119,43 @@ class LessonPlanDisciplineReport
       colspan: 5
     )
 
-    teacher_discipline_classroom = TeacherDisciplineClassroom.where(
-      discipline_id: @discipline_lesson_plans.first.discipline.id,
-      classroom_id: @discipline_lesson_plans.first.lesson_plan.classroom.id
-    )
 
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
-    @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4])
+    @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @plan_date_header = make_cell(content: 'Data', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', width: 60, padding: [2, 2, 4, 4])
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
-    @class_header = make_cell(content: 'Aulas', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    @knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    @start_at_header = make_cell(content: 'Data inicial', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    @end_at_header = make_cell(content: 'Data final', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
 
-    @unity_cell = make_cell(content:  @discipline_lesson_plans.first.lesson_plan.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4], colspan: 2)
-    @discipline_cell = make_cell(content: @discipline_lesson_plans.first.discipline.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
-    @classroom_cell = make_cell(content: @discipline_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
-    @teacher_cell = make_cell(content: (teacher_discipline_classroom.first.teacher.name.present? ? teacher_discipline_classroom.first.teacher.name : @current_teacher.name), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @unity_cell = make_cell(content:  @knowledge_area_lesson_plans.first.lesson_plan.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4])
+    @classroom_cell = make_cell(content: @knowledge_area_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @teacher_cell = make_cell(content: @current_teacher.name, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} a #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
   end
 
+
   def identification
+    title_identification = [
+      [@identification_header_cell]
+    ]
+
     identification_table_data = [
-      [@identification_header_cell],
-      [@unity_header],
-      [@unity_cell],
-      [@discipline_header, @classroom_header],
-      [@discipline_cell, @classroom_cell],
+      [@unity_header, @classroom_header],
+      [@unity_cell, @classroom_cell],
       [@teacher_header, @period_header],
       [@teacher_cell, @period_cell]
     ]
+
+    table(title_identification, width: bounds.width, header: true) do
+      cells.border_width = 0.25
+      row(0).border_top_width = 0.25
+      row(-1).border_bottom_width = 0.25
+      column(0).border_left_width = 0.25
+      column(-1).border_right_width = 0.25
+    end
 
     table(identification_table_data, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -162,26 +173,38 @@ class LessonPlanDisciplineReport
     ]
 
     general_information_headers = [
-      @plan_date_header,
-      @class_header,
+      @start_at_header,
+      @end_date_header,
+      @knowledge_area_header,
       @conteudo_header
     ]
 
     general_information_cells = []
 
-    @discipline_lesson_plans.each do |discipline_lesson_plan|
-      classes = (!discipline_lesson_plan.classes ? '' : discipline_lesson_plan.classes.map { |classes| classes}.join(", "))
+    @knowledge_area_lesson_plans.each do |knowledge_area_lesson_plan|
 
-      plan_date_cell = make_cell(content: discipline_lesson_plan.lesson_plan.lesson_plan_date.strftime("%d/%m/%Y"), size: 10, align: :left)
-      class_cell = make_cell(content: classes.to_s, size: 10, width: 70, align: :left)
-      conteudo_cell = make_cell(content: discipline_lesson_plan.lesson_plan.contents, size: 10, align: :left)
+      knowledge_area_lesson_plans_knowledge_areas = KnowledgeAreaLessonPlanKnowledgeArea.where knowledge_area_lesson_plan_id: knowledge_area_lesson_plan.id
+
+      knowledge_area_ids = knowledge_area_lesson_plans_knowledge_areas.map(&:knowledge_area_id)
+
+      knowledge_areas = KnowledgeArea.where(id: knowledge_area_ids)
+
+      knowledge_area_descriptions = knowledge_areas.map(&:description).join(", ")
+
+      start_at_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.start_at.strftime("%d/%m/%Y"), size: 10, width: 80, align: :left)
+      end_at_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.end_at.strftime("%d/%m/%Y"), size: 10, width: 80, align: :left)
+      conteudo_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.contents, size: 10, align: :left)
+      knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, width: 150, align: :left)
+
 
       general_information_cells << [
-        plan_date_cell,
-        class_cell,
+        start_at_cell,
+        end_at_cell,
+        knowledge_area_cell,
         conteudo_cell
       ]
     end
+
 
     general_information_table_data = [general_information_headers]
     general_information_table_data.concat(general_information_cells)
@@ -223,7 +246,7 @@ class LessonPlanDisciplineReport
 
   def footer
     repeat(:all) do
-      draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
+      draw_text("Data e hora: #{DateTime.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
     end
 
     string = "Página <page> de <total>"

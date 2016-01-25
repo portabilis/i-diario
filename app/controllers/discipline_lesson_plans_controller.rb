@@ -9,7 +9,8 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plans = apply_scopes(DisciplineLessonPlan)
       .select(
         DisciplineLessonPlan.arel_table[Arel.sql('*')],
-        LessonPlan.arel_table[:lesson_plan_date]
+        LessonPlan.arel_table[:start_at],
+        LessonPlan.arel_table[:end_at]
       )
       .includes(:discipline, lesson_plan: [:unity, :classroom])
       .filter(filtering_params(params[:search]))
@@ -52,7 +53,8 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.build_lesson_plan
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @discipline_lesson_plan.lesson_plan.unity = current_user_unity
-    @discipline_lesson_plan.lesson_plan.lesson_plan_date = Time.zone.today
+    @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
+    @discipline_lesson_plan.lesson_plan.end_at = Time.zone.today
 
     authorize @discipline_lesson_plan
 
@@ -134,7 +136,8 @@ class DisciplineLessonPlansController < ApplicationController
         :school_calendar_id,
         :unity_id,
         :classroom_id,
-        :lesson_plan_date,
+        :start_at,
+        :end_at,
         :contents,
         :activities,
         :objectives,
@@ -151,7 +154,7 @@ class DisciplineLessonPlansController < ApplicationController
     params.slice(
       :by_classroom_id,
       :by_discipline_id,
-      :by_lesson_plan_date
+      :by_date
     )
   end
 

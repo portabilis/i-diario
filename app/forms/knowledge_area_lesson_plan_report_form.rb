@@ -1,16 +1,15 @@
-class LessonPlanDisciplineReportForm
+class KnowledgeAreaLessonPlanReportForm
   include ActiveModel::Model
 
   attr_accessor :unity_id,
                 :classroom_id,
-                :discipline_id,
+                :knowledge_area_id,
                 :date_start,
                 :date_end,
-                :discipline_lesson_plan
+                :knowledge_area_lesson_plan
 
   validates :unity_id,
     :classroom_id,
-    :discipline_id,
     :date_start,
     :date_end,
     presence: true
@@ -18,14 +17,17 @@ class LessonPlanDisciplineReportForm
   validate :date_start_must_be_a_valid_date
   validate :date_end_must_be_a_valid_date
   validate :start_at_must_be_less_than_or_equal_to_end_at
-  validate :must_have_discipline_lesson_plan
+  validate :must_have_knowledge_area_lesson_plan
 
-  def discipline_lesson_plan
-    DisciplineLessonPlan.by_unity_id(unity_id)
+  def knowledge_area_lesson_plan
+    relation = KnowledgeAreaLessonPlan.by_unity_id(unity_id)
       .by_classroom_id(classroom_id)
-      .by_discipline_id(discipline_id)
-      .by_lesson_plan_date_between(date_start, date_end)
-      .order(LessonPlan.arel_table[:lesson_plan_date].asc)
+      .by_date_range(date_start.to_date, date_end.to_date)
+      .order(LessonPlan.arel_table[:start_at].asc)
+
+    relation = relation.by_knowledge_area_id(knowledge_area_id) if knowledge_area_id.present?
+
+    relation
   end
 
   private
@@ -58,11 +60,11 @@ class LessonPlanDisciplineReportForm
     end
   end
 
-  def must_have_discipline_lesson_plan
+  def must_have_knowledge_area_lesson_plan
     return unless errors.blank?
 
-    if discipline_lesson_plan.count == 0
-      errors.add(:discipline_lesson_plan, :must_have_discipline_lesson_plan)
+    if knowledge_area_lesson_plan.count == 0
+      errors.add(:knowledge_area_lesson_plan, :must_have_knowledge_area_lesson_plan)
     end
   end
 end

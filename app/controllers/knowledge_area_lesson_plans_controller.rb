@@ -9,7 +9,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plans = apply_scopes(KnowledgeAreaLessonPlan)
       .select(
         KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
-        LessonPlan.arel_table[:lesson_plan_date]
+        LessonPlan.arel_table[:start_at],
+        LessonPlan.arel_table[:end_at]
       )
       .includes(:knowledge_areas, lesson_plan: [:unity, :classroom])
       .filter(filtering_params(params[:search]))
@@ -52,7 +53,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.build_lesson_plan
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @knowledge_area_lesson_plan.lesson_plan.unity = current_user_unity
-    @knowledge_area_lesson_plan.lesson_plan.lesson_plan_date = Time.zone.today
+    @knowledge_area_lesson_plan.lesson_plan.start_at = Time.zone.today
+    @knowledge_area_lesson_plan.lesson_plan.end_at = Time.zone.today
 
     authorize @knowledge_area_lesson_plan
 
@@ -135,7 +137,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         :school_calendar_id,
         :unity_id,
         :classroom_id,
-        :lesson_plan_date,
+        :start_at,
+        :end_at,
         :contents,
         :activities,
         :objectives,
@@ -152,7 +155,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     params.slice(
       :by_classroom_id,
       :by_knowledge_area_id,
-      :by_lesson_plan_date
+      :by_date
     )
   end
 

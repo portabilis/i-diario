@@ -15,16 +15,21 @@ class LessonPlan < ActiveRecord::Base
   validates :school_calendar, presence: true
   validates :unity, presence: true
   validates :classroom, presence: true
-  validates :lesson_plan_date, presence: true
+  validates :start_at, presence: true
+  validates :end_at, presence: true
   validates :contents, presence: true
 
-  validate :is_school_day?
+  validate :crescent_date_range
 
   private
 
-  def is_school_day?
-    return unless school_calendar && lesson_plan_date
-
-    errors.add(:lesson_plan_date, :must_be_school_day) if !school_calendar.school_day?(lesson_plan_date)
+  def crescent_date_range
+    return if start_at.nil? or end_at.nil?
+    if start_at > end_at
+      errors.add(:start_at)
+      errors.add(:end_at)
+      errors.add(:base, :crescent_date_range)
+    end
   end
+
 end

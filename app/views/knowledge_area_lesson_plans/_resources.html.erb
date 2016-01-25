@@ -15,7 +15,8 @@
             </span>
           <% end %>
         </td>
-        <td><%= l(knowledge_area_lesson_plan.lesson_plan.lesson_plan_date) %></td>
+        <td><%= l(knowledge_area_lesson_plan.lesson_plan.start_at) %></td>
+        <td><%= l(knowledge_area_lesson_plan.lesson_plan.end_at) %></td>
         <td class="actions">
           <%= link_to(
                 t('helpers.links.print_html'),

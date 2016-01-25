@@ -135,15 +135,17 @@ class KnowledgeAreaLessonPlanPdf
 
     knowledge_area_descriptions = (knowledge_areas.map { |descriptions| descriptions}.join(", "))
 
-
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
     @teacher_cell = make_cell(content: @current_teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 4)
     @unity_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
 
-    @plan_date_header = make_cell(content: 'Data', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
-    @plan_date_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.lesson_plan_date.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @start_at_header = make_cell(content: 'Data inicial', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
+    @start_at_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.start_at.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
+
+    @end_at_header = make_cell(content: 'Data final', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
+    @end_at_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.end_at.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
 
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
     @classroom_cell = make_cell(content: @knowledge_area_lesson_plan.lesson_plan.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
@@ -180,8 +182,8 @@ class KnowledgeAreaLessonPlanPdf
       [@unity_cell],
       [@knowledge_area_header, @classroom_header],
       [@knowledge_area_cell, @classroom_cell],
-      [@teacher_header, @plan_date_header],
-      [@teacher_cell, @plan_date_cell]
+      [@teacher_header, @start_at_header, @end_at_header],
+      [@teacher_cell, @start_at_cell, @end_at_cell]
     ]
 
     table(identification_table_data, width: bounds.width) do
@@ -221,7 +223,7 @@ class KnowledgeAreaLessonPlanPdf
     ]
 
     if @knowledge_area_lesson_plan.lesson_plan.opinion.present?
-      move_down @gap
+      start_new_page if cursor < 45
       table(additional_information_table_data, width: bounds.width, cell_style: { inline_format: true }) do
         cells.border_width = 0.25
         row(0).border_top_width = 0.25
@@ -233,7 +235,7 @@ class KnowledgeAreaLessonPlanPdf
   end
 
   def body
-    bounding_box([0, 712], width: bounds.width, height: 700) do
+    bounding_box([0, 728], width: bounds.width, height: 700) do
       identification
       class_plan
       additional_information

@@ -3,7 +3,7 @@ $(function () {
 
   var flashMessages = new FlashMessages();
   var $classroom = $('#discipline_lesson_plan_lesson_plan_attributes_classroom_id');
-  var $discipline = $('#discipline_lesson_plan_discipline_id');
+  var $discipline = $('#discipline_discipline_lesson_plan_id');
   var $classes = $('#discipline_lesson_plan_classes');
   var $classes_div = $('.discipline_lesson_plan_classes');
 

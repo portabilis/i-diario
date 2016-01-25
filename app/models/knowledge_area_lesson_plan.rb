@@ -18,9 +18,10 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
   scope :by_teacher_id, lambda { |teacher_id| by_teacher_id_query(teacher_id) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:lesson_plan).where(lesson_plans: { classroom_id: classroom_id }) }
   scope :by_knowledge_area_id, lambda { |knowledge_area_id| joins(:knowledge_area_lesson_plan_knowledge_areas).where(knowledge_area_lesson_plan_knowledge_areas: { knowledge_area_id: knowledge_area_id }) }
-  scope :by_lesson_plan_date, lambda { |lesson_plan_date| joins(:lesson_plan).where(lesson_plans: { lesson_plan_date: lesson_plan_date }) }
-  scope :by_lesson_plan_date_between, lambda { |start_at, end_at| joins(:lesson_plan).where(lesson_plans: { lesson_plan_date: start_at.to_date..end_at.to_date }) }
-  scope :ordered, -> { joins(:lesson_plan).order(LessonPlan.arel_table[:lesson_plan_date].desc) }
+  scope :by_date, lambda { |date| by_date_query(date) }
+  scope :by_date_range, lambda { |start_at, end_at| joins(:lesson_plan).where("start_at <= ? AND end_at >= ?", end_at, start_at) }
+
+  scope :ordered, -> { joins(:lesson_plan).order(LessonPlan.arel_table[:start_at].desc) }
 
   validates :lesson_plan, presence: true
   validates :knowledge_area_ids, presence: true
@@ -51,13 +52,22 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
 
     knowledge_area_lesson_plans = KnowledgeAreaLessonPlan.by_classroom_id(lesson_plan.classroom_id)
       .by_knowledge_area_id(knowledge_areas.collect(&:id))
-      .by_lesson_plan_date(lesson_plan.lesson_plan_date)
+      .by_date_range(lesson_plan.start_at, lesson_plan.end_at)
 
     knowledge_area_lesson_plans = knowledge_area_lesson_plans.where.not(id: id) if persisted?
 
     if knowledge_area_lesson_plans.any?
-        errors.add(:lesson_plan, :uniqueness_of_knowledge_area_lesson_plan, count: knowledge_areas.split(',').count)
-        lesson_plan.errors.add(:lesson_plan_date, :uniqueness_of_knowledge_area_lesson_plan, count: knowledge_areas.split(',').count)
+        errors.add(:knowledge_area_ids, :uniqueness_of_knowledge_area_lesson_plan, count: knowledge_areas.split(',').count)
     end
+  end
+
+  def self.by_date_query(date)
+    date = date.to_date
+    joins(:lesson_plan)
+      .where(
+        LessonPlan.arel_table[:start_at]
+          .lteq(date)
+          .and(LessonPlan.arel_table[:end_at].gteq(date))
+      )
   end
 end

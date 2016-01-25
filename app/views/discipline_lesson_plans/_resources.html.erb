@@ -9,14 +9,8 @@
         <td><%= discipline_lesson_plan.lesson_plan.unity %></td>
         <td><%= discipline_lesson_plan.lesson_plan.classroom %></td>
         <td><%= discipline_lesson_plan.discipline %></td>
-        <td><%= l(discipline_lesson_plan.lesson_plan.lesson_plan_date) %></td>
-        <td>
-          <% discipline_lesson_plan.classes.each do |class_number| %>
-            <span class="label label-info label-list">
-              <%= class_number %>
-            </span>
-          <% end %>
-        </td>
+        <td><%= l(discipline_lesson_plan.lesson_plan.start_at) %></td>
+        <td><%= l(discipline_lesson_plan.lesson_plan.end_at) %></td>
         <td class="actions">
           <%= link_to(
                 t('helpers.links.print_html'),
