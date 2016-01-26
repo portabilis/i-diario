@@ -1,10 +1,18 @@
 class DisciplinesController < ApplicationController
   respond_to :json
 
-  def index
-    return unless teacher_id = current_teacher.try(:id)
-    classroom_id = params[:classroom_id]
+  has_scope :by_unity_id
+  has_scope :by_grade
+  has_scope :by_classroom
 
-    @disciplines = Discipline.by_teacher_and_classroom(teacher_id, classroom_id).ordered.uniq
+  def index
+    return unless current_teacher.present?
+
+    if params[:classroom_id].present?
+      params[:by_classroom] = params[:classroom_id]
+    end
+
+    @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
+      .ordered
   end
 end

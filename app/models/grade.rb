@@ -4,10 +4,26 @@ class Grade < ActiveRecord::Base
   belongs_to :course
   has_many :classrooms
 
+  scope :by_unity, lambda { |unity| by_unity(unity) }
+  scope :by_teacher, lambda { |teacher| by_teacher(teacher) }
+  scope :ordered, -> { order(arel_table[:description].asc) }
+
   validates :description, :api_code, :course, presence: true
   validates :api_code, uniqueness: true
 
-  scope :ordered, -> { order(arel_table[:description].asc) }
+  def self.by_unity(unity)
+    joins(:classrooms).where(classrooms: { unity_id: unity }).uniq
+  end
+
+  def self.by_teacher(teacher)
+    joins(:classrooms).joins(
+        arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
+          .on(TeacherDisciplineClassroom.arel_table[:classroom_id].eq(Classroom.arel_table[:id]))
+          .join_sources
+      )
+      .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher))
+      .uniq
+  end
 
   def to_s
     description

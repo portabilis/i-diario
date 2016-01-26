@@ -1,0 +1,82 @@
+$(function() {
+  'use strict';
+
+  var $unity = $('#discipline_teaching_plan_teaching_plan_attributes_unity_id');
+  var $grade = $('#discipline_teaching_plan_teaching_plan_attributes_grade_id');
+  var $discipline = $('#discipline_teaching_plan_discipline_id');
+  var $schoolTermType = $('#discipline_teaching_plan_teaching_plan_attributes_school_term_type');
+  var $schoolTermContainer = $('#school-term-container');
+  var $schoolTerm = $('#discipline_teaching_plan_teaching_plan_attributes_school_term');
+  var flashMessages = new FlashMessages();
+
+  function fetchDisciplines() {
+    var unity_id = $unity.select2('val');
+    var grade_id = $grade.select2('val');
+
+    $discipline.select2('val', '');
+    $discipline.select2({ data: [] });
+
+    if (!_.isEmpty(unity_id) && !_.isEmpty(grade_id)) {
+      $.ajax({
+        url: Routes.disciplines_pt_br_path({
+          by_unity_id: unity_id,
+          by_grade: grade_id,
+          format: 'json'
+        }),
+        success: handleFetchDisciplinesSuccess,
+        error: handleFetchDisciplinesError
+      });
+    }
+  };
+
+  function handleFetchDisciplinesSuccess(disciplines) {
+    var disciplines = _.map(disciplines, function(discipline) {
+      return { id: discipline.id, text: discipline.description };
+    });
+
+    $discipline.select2({ data: disciplines });
+  };
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da série selecionada.');
+  };
+
+  function updateSchoolTermInput() {
+    switch ($schoolTermType.select2('val')) {
+      case 'bimester':
+        $schoolTerm.select2('val', '');
+        $schoolTerm.select2({ data: <%= Bimesters.to_select.to_json %> });
+        $schoolTermContainer.show();
+        break;
+      case 'trimester':
+        $schoolTerm.select2('val', '');
+        $schoolTerm.select2({ data: <%= Trimesters.to_select.to_json %> });
+        $schoolTermContainer.show();
+        break;
+      case 'semester':
+        $schoolTerm.select2('val', '');
+        $schoolTerm.select2({ data: <%= Semesters.to_select.to_json %> });
+        $schoolTermContainer.show();
+        break;
+      default:
+        $schoolTerm.select2('val', '');
+        $schoolTerm.select2({ data: [] });
+        $schoolTermContainer.hide();
+        break;
+    }
+  }
+
+  // On change
+
+  $grade.on('change', function() {
+    fetchDisciplines();
+  });
+
+  $schoolTermType.on('change', function() {
+    updateSchoolTermInput();
+  });
+
+  // On load
+
+  updateSchoolTermInput();
+});
