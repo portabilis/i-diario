@@ -1,0 +1,13 @@
+pt-BR:
+  activerecord:
+    models:
+      knowledge_area_teaching_plan:
+        one: "Plano de ensino por áreas de conhecimento"
+        other: "Planos de ensino por áreas de conhecimento"
+
+    attributes:
+      knowledge_area_teaching_plan:
+        teaching_plan: "Plano de ensino"
+        teaching_plan_id: "Plano de ensino"
+        knowledge_areas: "Áreas de conhecimento"
+        knowledge_area_ids: "Áreas de conhecimento"

@@ -14,8 +14,10 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   scope :by_year, lambda { |year| joins(:teaching_plan).where(teaching_plans: { year: year }) }
   scope :by_unity, lambda { |unity| joins(:teaching_plan).where(teaching_plans: { unity_id: unity }) }
   scope :by_grade, lambda { |grade| joins(:teaching_plan).where(teaching_plans: { grade_id: grade }) }
+  scope :by_school_term_type, lambda { |school_term_type| joins(:teaching_plan).where(teaching_plans: { school_term_type: school_term_type }) }
   scope :by_school_term, lambda { |school_term| joins(:teaching_plan).where(teaching_plans: { school_term: school_term }) }
   scope :by_discipline, lambda { |discipline| where(discipline: discipline) }
+  scope :by_teacher, lambda { |teacher| by_teacher(teacher) }
 
   validates :teaching_plan, presence: true
   validates :discipline, presence: true
@@ -23,6 +25,34 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   validate :uniqueness_of_discipline_teaching_plan, if: :teaching_plan
 
   private
+
+  def self.by_teacher(teacher)
+    joins(:teaching_plan).joins(
+      arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
+        .on(
+          TeacherDisciplineClassroom.arel_table[:teacher_id]
+            .eq(teacher)
+            .and(
+              TeacherDisciplineClassroom.arel_table[:discipline_id]
+                .eq(arel_table[:discipline_id])
+            )
+        )
+        .join_sources
+      )
+      .joins(
+        arel_table.join(Classroom.arel_table, Arel::Nodes::OuterJoin)
+          .on(
+            Classroom.arel_table[:grade_id]
+              .eq(TeachingPlan.arel_table[:grade_id])
+              .and(
+                Classroom.arel_table[:id]
+                  .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
+              )
+          )
+          .join_sources
+      )
+      .uniq
+  end
 
   def uniqueness_of_discipline_teaching_plan
     discipline_teaching_plans = DisciplineTeachingPlan.by_year(teaching_plan.year)

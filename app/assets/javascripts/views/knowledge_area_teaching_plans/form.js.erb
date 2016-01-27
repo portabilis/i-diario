@@ -1,0 +1,82 @@
+$(function() {
+  'use strict';
+
+  var $unity = $('#knowledge_area_teaching_plan_teaching_plan_attributes_unity_id');
+  var $grade = $('#knowledge_area_teaching_plan_teaching_plan_attributes_grade_id');
+  var $knowledgeAreas = $('#knowledge_area_teaching_plan_knowledge_area_ids');
+  var $schoolTermType = $('#knowledge_area_teaching_plan_teaching_plan_attributes_school_term_type');
+  var $schoolTermContainer = $('#school-term-container');
+  var $schoolTerm = $('#knowledge_area_teaching_plan_teaching_plan_attributes_school_term');
+  var flashMessages = new FlashMessages();
+
+  function fetchKnowledgeAreas() {
+    var unity_id = $unity.select2('val');
+    var grade_id = $grade.select2('val');
+
+    $knowledgeAreas.select2('val', '');
+    $knowledgeAreas.select2({ data: [] });
+
+    if (!_.isEmpty(unity_id) && !_.isEmpty(grade_id)) {
+      $.ajax({
+        url: Routes.knowledge_areas_pt_br_path({
+          by_unity: unity_id,
+          by_grade: grade_id,
+          format: 'json'
+        }),
+        success: handleFetchKnowledgeAreasSuccess,
+        error: handleFetchKnowledgeAreasError
+      });
+    }
+  };
+
+  function handleFetchKnowledgeAreasSuccess(knowledge_areas) {
+    var knowledge_areas = _.map(knowledge_areas, function(knowledge_area) {
+      return { id: knowledge_area.id, text: knowledge_area.description };
+    });
+
+    $knowledgeAreas.select2({ data: knowledge_areas });
+  };
+
+  function handleFetchKnowledgeAreasError() {
+    flashMessages.error('Ocorreu um erro ao buscar as áreas de conhecimento da série selecionada.');
+  };
+
+  function updateSchoolTermInput() {
+    switch ($schoolTermType.select2('val')) {
+      case 'bimester':
+        $schoolTerm.select2('val', '');
+        $schoolTerm.select2({ data: <%= Bimesters.to_select.to_json %> });
+        $schoolTermContainer.show();
+        break;
+      case 'trimester':
+        $schoolTerm.select2('val', '');
+        $schoolTerm.select2({ data: <%= Trimesters.to_select.to_json %> });
+        $schoolTermContainer.show();
+        break;
+      case 'semester':
+        $schoolTerm.select2('val', '');
+        $schoolTerm.select2({ data: <%= Semesters.to_select.to_json %> });
+        $schoolTermContainer.show();
+        break;
+      default:
+        $schoolTerm.select2('val', '');
+        $schoolTerm.select2({ data: [] });
+        $schoolTermContainer.hide();
+        break;
+    }
+  }
+
+  // On change
+
+  $grade.on('change', function() {
+    fetchKnowledgeAreas();
+  });
+
+  $schoolTermType.on('change', function() {
+    updateSchoolTermInput();
+  });
+
+  // On load
+
+  updateSchoolTermInput();
+});

@@ -3,11 +3,13 @@ class DisciplineTeachingPlansController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_school_calendar
+  before_action :require_current_teacher
 
   def index
     @discipline_teaching_plans = apply_scopes(DisciplineTeachingPlan)
       .includes(:discipline, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
+      .by_teacher(current_teacher)
 
     authorize @discipline_teaching_plans
 
