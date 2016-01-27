@@ -17,6 +17,15 @@ class DisciplineTeachingPlansController < ApplicationController
     fetch_disciplines
   end
 
+  def show
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id])
+      .localized
+
+    authorize @discipline_teaching_plan
+
+    fetch_collections
+  end
+
   def new
     @discipline_teaching_plan = DisciplineTeachingPlan.new.localized
     @discipline_teaching_plan.build_teaching_plan(

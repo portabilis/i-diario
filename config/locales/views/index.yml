@@ -11,5 +11,6 @@ pt-BR:
 
       tooltips:
         print: "Imprimir"
+        show: "Visualizar"
         edit: "Editar"
         delete: "Excluir"

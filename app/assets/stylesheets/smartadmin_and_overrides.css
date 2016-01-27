@@ -151,6 +151,10 @@ nav ul li b.collapse-sign em:before {
   background-color: #eee;
 }
 
+.smart-form textarea[readonly] {
+  background-color: #eee;
+}
+
 #extr-page .hero{
   height: 295px;
   background-image: none;

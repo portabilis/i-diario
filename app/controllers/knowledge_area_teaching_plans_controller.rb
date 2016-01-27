@@ -17,6 +17,15 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     fetch_knowledge_areas
   end
 
+  def show
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
+      .localized
+
+    authorize @knowledge_area_teaching_plan
+
+    fetch_collections
+  end
+
   def new
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.new.localized
     @knowledge_area_teaching_plan.build_teaching_plan(
