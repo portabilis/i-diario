@@ -16,7 +16,6 @@ class DisciplineLessonPlan < ActiveRecord::Base
   scope :by_teacher_id, lambda { |teacher_id| by_teacher_id_query(teacher_id) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:lesson_plan).where(lesson_plans: { classroom_id: classroom_id }) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
-
   scope :by_date, lambda { |date| by_date_query(date) }
   scope :by_date_range, lambda { |start_at, end_at| joins(:lesson_plan).where("start_at <= ? AND end_at >= ?", end_at, start_at) }
   scope :ordered, -> { joins(:lesson_plan).order(LessonPlan.arel_table[:start_at].desc) }

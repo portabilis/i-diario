@@ -1,0 +1,13 @@
+pt-BR:
+  activerecord:
+    models:
+      discipline_teaching_plan:
+        one: "Plano de ensino por disciplina"
+        other: "Planos de ensino por disciplina"
+
+    attributes:
+      discipline_teaching_plan:
+        teaching_plan: "Plano de ensino"
+        teaching_plan_id: "Plano de ensino"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"

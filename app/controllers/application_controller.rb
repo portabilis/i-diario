@@ -26,6 +26,15 @@ class ApplicationController < ActionController::Base
     scope.search(value).limit(10)
   end
 
+  has_scope :filter, type: :hash do |controller, scope, value|
+    filters = value.select { |filter_name, filter_value| filter_value.present? }
+    filters.each do |filter_name, filter_value|
+      scope = scope.send(filter_name, filter_value)
+    end
+
+    scope
+  end
+
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from IeducarApi::Base::ApiError, with: :rescue_from_api_error
 

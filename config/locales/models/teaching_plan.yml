@@ -3,16 +3,15 @@ pt-BR:
     models:
       teaching_plan:
         one: "Plano de ensino"
-        other: "Planos de ensinos"
+        other: "Planos de ensino"
 
     attributes:
       teaching_plan:
         year: "Ano"
+        unity: "Escola"
         unity_id: "Escola"
-        classroom_id: "Turma"
-        classroom: "Turma"
-        discipline_id: "Disciplina"
-        discipline: "Disciplina"
+        grade: "Série"
+        grade_id: "Série"
         school_term_type: "Tipo de período escolar"
         school_term: "Período escolar"
         objectives: "Objetivos"
@@ -20,15 +19,3 @@ pt-BR:
         methodology: "Metodologia"
         evaluation: "Avaliação"
         references: "Referências"
-
-    errors:
-      models:
-        teaching_plan:
-          attributes:
-            school_term_type:
-              uniqueness_of_teaching_plan: "já existe um plano de ensino para a turma e disciplina informadas neste período"
-            school_term:
-              uniqueness_of_teaching_plan: "já existe um plano de ensino para a turma e disciplina informadas neste período"
-
-
-

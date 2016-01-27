@@ -154,9 +154,15 @@ navigation:
             type: "school_calendar_events"
             visible: "only-when-active"
   - ***REMOVED***:
-      type: "teaching_plans"
+      type: "teaching_plans_***REMOVED***"
       icon: "fa-book"
-      path: "teaching_plans_path"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "discipline_teaching_plans"
+            path: "discipline_teaching_plans_path"
+        - ***REMOVED***:
+            type: "knowledge_area_teaching_plans"
+            path: "knowledge_area_teaching_plans_path"
   - ***REMOVED***:
       type: "lesson_plans_***REMOVED***"
       icon: "fa-pencil"
