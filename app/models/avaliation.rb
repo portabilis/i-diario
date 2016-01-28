@@ -5,7 +5,6 @@ class Avaliation < ActiveRecord::Base
   has_associated_audits
 
   include Audit
-  include Filterable
 
   before_destroy :try_destroy_daily_notes
 
@@ -16,6 +15,7 @@ class Avaliation < ActiveRecord::Base
   belongs_to :test_setting
   belongs_to :test_setting_test
 
+  has_one  :recovery, class_name: "AvaliationRecoveryDiaryRecord"
   has_many :daily_notes, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
 

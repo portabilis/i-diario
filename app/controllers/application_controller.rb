@@ -27,13 +27,13 @@ class ApplicationController < ActionController::Base
   end
 
   has_scope :filter, type: :hash do |controller, scope, value|
-    filters = value.select { |filter_name, filter_value| filter_value.present? }
-    filters.each do |filter_name, filter_value|
-      scope = scope.send(filter_name, filter_value)
-    end
+   filters = value.select { |filter_name, filter_value| filter_value.present? }
+   filters.each do |filter_name, filter_value|
+     scope = scope.send(filter_name, filter_value)
+   end
 
-    scope
-  end
+   scope
+ end
 
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from IeducarApi::Base::ApiError, with: :rescue_from_api_error
