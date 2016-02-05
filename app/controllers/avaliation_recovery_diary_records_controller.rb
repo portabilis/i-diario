@@ -51,6 +51,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       @unities = fetch_unities
       @classrooms = fetch_classrooms
       @school_calendar_steps = current_school_calendar.steps
+      @student_notes = fetch_student_notes
 
       render :new
     end

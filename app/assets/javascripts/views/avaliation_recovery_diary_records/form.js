@@ -32,7 +32,8 @@ $(function () {
       $.ajax({
         url: Routes.avaliations_pt_br_path({filter: {
                                               by_classroom_id: classroom_id,
-                                              by_discipline_id: discipline_id
+                                              by_discipline_id: discipline_id,
+                                              recovered: false
                                             },
                                             format: 'json'
                                             }),
@@ -158,7 +159,7 @@ $(function () {
     fetchAvaliations();
   });
   $avaliation.on('change', function() {
-    // removeStudents();
+    removeStudents();
     fetchStudents();
   });
   // On load

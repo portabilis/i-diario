@@ -15,7 +15,9 @@ class Avaliation < ActiveRecord::Base
   belongs_to :test_setting
   belongs_to :test_setting_test
 
-  has_one  :recovery, class_name: "AvaliationRecoveryDiaryRecord"
+  has_one  :recovery_diary_record, through: :avaliation_recovery_diary_record
+  has_one  :avaliation_recovery_diary_record
+
   has_many :daily_notes, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
 
@@ -81,6 +83,16 @@ class Avaliation < ActiveRecord::Base
 
   def allow_break_up?
     test_setting_test && test_setting_test.allow_break_up
+  end
+
+  def self.recovered(is_recovered)
+    recovered_avaliation_ids = AvaliationRecoveryDiaryRecord.all.pluck(:avaliation_id)
+    if is_recovered
+      where(arel_table[:id].not_in(recovered_avaliation_ids))
+    else
+      where(arel_table[:id].in(recovered_avaliation_ids))
+    end
+
   end
 
   private

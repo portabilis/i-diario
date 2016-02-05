@@ -4,6 +4,17 @@ RSpec.describe ExamRecordReport, type: :report do
   it "should be created" do
     entity_configuration = create(:entity_configuration)
     school_calendar = create(:school_calendar_with_one_step, year: 2016)
+
+    school_calendar_step_two = create(:school_calendar_step,
+      start_at: '01/07/2016',
+      end_at: '20/12/2016',
+      start_date_for_posting: '10/07/2016',
+      end_date_for_posting: '30/12/2016',
+      school_calendar: school_calendar)
+
+    school_calendar.steps << school_calendar_step_two
+
+    puts school_calendar.steps.inspect
     avaliation = create(:avaliation, school_calendar: school_calendar, test_date: "04/01/2016")
     classroom = create(:classroom)
     unity = create(:unity)
@@ -20,7 +31,7 @@ RSpec.describe ExamRecordReport, type: :report do
       entity_configuration,
       teacher,
       school_calendar.year,
-      1,
+      school_calendar_step_two,
       test_setting,
       daily_notes,
       students

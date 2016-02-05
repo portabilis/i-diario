@@ -70,11 +70,12 @@ class NumericalExamPosting
           )
 
           pending_exams = student_exams.select { |e| e.note.blank? }
+
           if pending_exams.any?
             pending_exams_string = pending_exams.map { |e| e.daily_note.avaliation.description_to_teacher }.join(', ')
             raise IeducarApi::Base::ApiError.new("Não foi possível enviar as avaliações numéricas da turma #{classroom} pois existem avaliações que não foram lançadas no diário de avaliações numéricas para a disciplina #{discipline} para o aluno #{student}. Avaliações: #{pending_exams_string}.")
           else
-            value = test_setting.fix_tests? ? student_exams.sum(:note) : (student_exams.sum(:note) / number_of_exams).round(test_setting.number_of_decimal_places)
+            value = StudentAverageCalculator.new(student).calculate(discipline.id, posting.school_calendar_step.id)
 
             classrooms[classroom.api_code]['turma_id'] = classroom.api_code
             classrooms[classroom.api_code]['alunos'][student.api_code]['aluno_id'] = student.api_code

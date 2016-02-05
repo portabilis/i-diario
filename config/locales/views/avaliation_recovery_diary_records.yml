@@ -6,6 +6,7 @@ pt-BR:
       by_discipline_id: "Filtrar disciplina"
       by_school_calendar_step_id: "Filtrar etapa"
       by_recorded_at: "Filtrar data"
+      by_avaliation_description: "Filtrar avaliação"
       new_html: "<i class='fa fa-plus'></i> Novo lançamento"
 
     form:
