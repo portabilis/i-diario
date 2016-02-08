@@ -15,7 +15,7 @@ class ConceptualExam < ActiveRecord::Base
   has_many :conceptual_exam_values, -> { includes(:conceptual_exam, discipline: :knowledge_area) },
     dependent: :destroy
 
-  accepts_nested_attributes_for :conceptual_exam_values
+  accepts_nested_attributes_for :conceptual_exam_values, allow_destroy: true
 
   has_enumeration_for :status, with: ConceptualExamStatus,  create_helpers: true
 
