@@ -19,64 +19,64 @@
       <div class="row">
         <div class="col col-sm-4">
           <%= teaching_plan_form.association :unity, as: :select2,
-                elements: @unities, readonly: !current_user.admin? || current_page?(action: :show) %>
+                elements: @unities, readonly: !current_user.admin? || action_name == 'show' %>
         </div>
 
         <div class="col col-sm-4">
           <%= teaching_plan_form.association :grade, as: :select2, elements: @grades,
-                readonly: current_page?(action: :show) %>
+                readonly: action_name == 'show' %>
         </div>
 
         <div class="col col-sm-4">
           <%= f.association :discipline, as: :select2, elements: @disciplines,
-                readonly: current_page?(action: :show) %>
+                readonly: action_name == 'show' %>
         </div>
       </div>
 
       <div class="row">
         <div class="col col-sm-4">
           <%= teaching_plan_form.input :school_term_type, as: :select2, elements: SchoolTermTypes.to_select.to_json,
-                readonly: current_page?(action: :show) %>
+                readonly: action_name == 'show' %>
         </div>
 
         <div id="school-term-container" class="col col-sm-4">
           <%= teaching_plan_form.input :school_term, as: :select2, elements: [], required: true,
-                readonly: current_page?(action: :show) %>
+                readonly: action_name == 'show' %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
           <%= teaching_plan_form.input :objectives, input_html: { class: 'col col-sm-12' },
-                readonly: current_page?(action: :show) %>
+                readonly: action_name == 'show' %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
           <%= teaching_plan_form.input :content, input_html: { class: 'col col-sm-12' },
-                readonly: current_page?(action: :show) %>
+                readonly: action_name == 'show' %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
           <%= teaching_plan_form.input :methodology, input_html: { class: 'col col-sm-12' },
-                readonly: current_page?(action: :show) %>
+                readonly: action_name == 'show' %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
           <%= teaching_plan_form.input :evaluation, input_html: { class: 'col col-sm-12' },
-                readonly: current_page?(action: :show) %>
+                readonly: action_name == 'show' %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
           <%= teaching_plan_form.input :references, input_html: { class: 'col col-sm-12' },
-                readonly: current_page?(action: :show)%>
+                readonly: action_name == 'show' %>
         </div>
       </div>
     </fieldset>
@@ -85,6 +85,6 @@
   <footer>
     <%= link_to t('views.form.back'), discipline_teaching_plans_path, class: 'btn btn-default' %>
     <%= link_to t('views.form.history'), history_discipline_teaching_plan_path(@discipline_teaching_plan), class: 'btn btn-info' if @discipline_teaching_plan.persisted? %>
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary' unless current_page?(action: :show) %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' unless action_name == 'show' %>
   </footer>
 <% end %>
