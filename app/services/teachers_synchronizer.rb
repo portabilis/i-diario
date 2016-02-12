@@ -41,13 +41,14 @@ class TeachersSynchronizer
   def update_discipline_classrooms(collection, teacher)
     if teacher.present?
       # inactivate all records and activate when find
-      teacher.teacher_discipline_classrooms.update_all(active: false)
+      teacher.teacher_discipline_classrooms.where(year: year).update_all(active: false)
 
       collection.each do |record|
 
         if discipline_classroom = discipline_classrooms.unscoped.where(teacher_api_code: teacher.api_code,
                                                                       discipline_api_code: record['disciplina_id'],
-                                                                      classroom_api_code: record['turma_id']).first
+                                                                      classroom_api_code: record['turma_id'],
+                                                                      year: year).first
 
           discipline_classroom.update_attributes(
             active: true,
