@@ -33,6 +33,7 @@ class DailyNoteStudent < ActiveRecord::Base
 
   def recovered_note
     return note if !has_recovery?
+    note ||= 0.00
     recovery_diary_record_id = daily_note.avaliation.recovery_diary_record.id
     recovery_note = RecoveryDiaryRecordStudent.
       find_by(recovery_diary_record_id: recovery_diary_record_id, student_id: student.id).score.to_f

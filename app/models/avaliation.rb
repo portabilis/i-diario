@@ -85,16 +85,6 @@ class Avaliation < ActiveRecord::Base
     test_setting_test && test_setting_test.allow_break_up
   end
 
-  def self.recovered(is_recovered)
-    recovered_avaliation_ids = AvaliationRecoveryDiaryRecord.all.pluck(:avaliation_id)
-    if is_recovered
-      where(arel_table[:id].not_in(recovered_avaliation_ids))
-    else
-      where(arel_table[:id].in(recovered_avaliation_ids))
-    end
-
-  end
-
   private
 
   def is_school_day?

@@ -6,7 +6,7 @@ pt-BR:
         avaliation_id: 'Avaliação'
     errors:
       models:
-        final_recovery_diary_record:
+        avaliation_recovery_diary_record:
           attributes:
               avaliation:
                 uniqueness_of_avaliation_recovery_diary_record: 'já existe um lançamento de recuperação para esta avaliação'

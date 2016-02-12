@@ -17,12 +17,13 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   has_one :school_term_recovery_diary_record
   has_one :final_recovery_diary_record
+  has_one :avaliation_recovery_diary_record
 
   validates :unity, presence: true
   validates :classroom, presence: true
   validates :discipline, presence: true
-  validates :recorded_at, presence: true,
-                          uniqueness: { scope: [:unity_id, :classroom_id, :discipline_id] }
+  validates :recorded_at, presence: true
+                          # uniqueness: { scope: [:unity_id, :classroom_id, :discipline_id] }
 
   validate :at_least_one_assigned_student
   validate :recorded_at_must_be_less_than_or_equal_to_today

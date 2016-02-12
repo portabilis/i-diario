@@ -32,8 +32,7 @@ $(function () {
       $.ajax({
         url: Routes.avaliations_pt_br_path({filter: {
                                               by_classroom_id: classroom_id,
-                                              by_discipline_id: discipline_id,
-                                              recovered: false
+                                              by_discipline_id: discipline_id
                                             },
                                             format: 'json'
                                             }),
@@ -144,12 +143,11 @@ $(function () {
   }
 
   function loadDecimalMasks() {
-    var numberOfDecimalPlaces = $('#recovery-diary-record-students').data('scale');
+    var numberOfDecimalPlaces = parseInt($('#recovery-diary-record-students').data('scale')) || 0;
     $('.nested-fields input.decimal, .note').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
   // On change
-
   $classroom.on('change', function() {
     fetchDisciplines();
     removeStudents();
@@ -162,8 +160,8 @@ $(function () {
     removeStudents();
     fetchStudents();
   });
-  // On load
 
+  // On load
   fetchDisciplines();
   fetchAvaliations();
   loadDecimalMasks();
