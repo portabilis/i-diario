@@ -25,6 +25,7 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
 
   validate :uniqueness_of_final_recovery_diary_record
   validate :recorded_at_must_be_in_last_school_calendar_step
+  validate :uniqueness_of_recorded_at
 
   def year
     school_calendar.year
@@ -66,6 +67,14 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
     unless school_calendar.steps.to_a.last.school_calendar_step_day?(recovery_diary_record.recorded_at)
       errors.add(:recovery_diary_record, :recorded_at_must_be_in_last_school_calendar_step)
       recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_in_last_school_calendar_step)
+    end
+  end
+
+  def uniqueness_of_recorded_at
+    return unless recovery_diary_record
+    relation = RecoveryDiaryRecord.find_by(unity_id: recovery_diary_record.unity_id, classroom_id: recovery_diary_record.classroom_id, discipline_id: recovery_diary_record.discipline_id)
+    if relation
+      recovery_diary_record.errors.add(:recorded_at, :uniqueness)
     end
   end
 end

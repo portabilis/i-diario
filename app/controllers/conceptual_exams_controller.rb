@@ -47,7 +47,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def create
-    @conceptual_exam = ConceptualExam.new(resource_params).localized
+    @conceptual_exam = ConceptualExam.new(resource_params)
 
     authorize @conceptual_exam
 
@@ -67,10 +67,13 @@ class ConceptualExamsController < ApplicationController
     authorize @conceptual_exam
 
     fetch_collections
+
+    add_missing_disciplines
+    mark_not_existing_disciplines_for_destruction
   end
 
   def update
-    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+    @conceptual_exam = ConceptualExam.find(params[:id])
     @conceptual_exam.assign_attributes(resource_params)
 
     authorize @conceptual_exam
@@ -114,7 +117,8 @@ class ConceptualExamsController < ApplicationController
       conceptual_exam_values_attributes: [
         :id,
         :discipline_id,
-        :value
+        :value,
+        :_destroy
       ]
     )
   end
@@ -131,6 +135,36 @@ class ConceptualExamsController < ApplicationController
 
   def configuration
     @configuration ||= IeducarApiConfiguration.current
+  end
+
+  def add_missing_disciplines
+    missing_disciplines.each do |missing_discipline|
+      @conceptual_exam.conceptual_exam_values.build(
+        conceptual_exam: @conceptual_exam,
+        discipline: missing_discipline
+      )
+    end
+  end
+
+  def missing_disciplines
+    missing_disciplines = []
+    @disciplines.each do |discipline|
+      is_missing = @conceptual_exam.conceptual_exam_values.none? do |conceptual_exam_value|
+        conceptual_exam_value.discipline.id == discipline.id
+      end
+      missing_disciplines << discipline if is_missing
+    end
+    missing_disciplines
+  end
+
+  def mark_not_existing_disciplines_for_destruction
+    @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
+      discipline_exists = @disciplines.any? do |discipline|
+          conceptual_exam_value.discipline.id == discipline.id
+      end
+
+      conceptual_exam_value.mark_for_destruction unless discipline_exists
+    end
   end
 
   def fetch_collections

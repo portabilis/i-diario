@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 require "prawn/measurement_extensions"
 
 class ExamRecordReport
@@ -88,10 +86,7 @@ class ExamRecordReport
 
     @daily_notes.each do |daily_note|
       daily_note.students.each do |student|
-        ((averages[student.student.id] ||= {})[:sum_scores] ||= 0)
-        averages[student.student.id][:sum_scores] = averages[student.student.id][:sum_scores] + (student.note ? student.note : 0)
-        ((averages[student.student.id] ||= {})[:count_scores] ||= 0)
-        averages[student.student.id][:count_scores] = averages[student.student.id][:count_scores] + 1
+        averages[student.student.id] = StudentAverageCalculator.new(student.student).calculate(@daily_notes.first.discipline, @school_calendar_step.id)
       end
     end
 
@@ -107,6 +102,8 @@ class ExamRecordReport
 
       daily_notes_slice.each do |daily_note|
         avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center)
+        avaliations << make_cell(content: "Rec. #{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center) if daily_note.avaliation.recovery_diary_record
+
         daily_note.students.each do |student|
           self.any_student_with_dependence = any_student_with_dependence || student.dependence?
           (students[student.student.id] ||= {})[:name] = student.student.name
@@ -115,6 +112,9 @@ class ExamRecordReport
           students[student.student.id][:dependence] = students[student.student.id][:dependence] || student.dependence?
 
           (students[student.student.id][:scores] ||= []) << make_cell(content: student.note.to_s, align: :center)
+
+          (students[student.student.id][:scores] ||= []) << make_cell(content: student.recovery_note.to_s, align: :center) if student.has_recovery?
+
         end
 
         @students.each do |student|
@@ -137,9 +137,11 @@ class ExamRecordReport
       students.each_with_index do |(key, value), index|
         sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name] }].concat(value[:scores])
-        (10 - value[:scores].count).times { student_cells << nil }
+        data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
+
+        (10 - data_column_count).times { student_cells << nil }
         if daily_notes_slice == sliced_daily_notes.last
-          average = @test_setting.fix_tests? ? averages[key][:sum_scores] : (averages[key][:sum_scores] / averages[key][:count_scores])
+          average = averages[key]
           student_cells << make_cell(content: "%.#{@test_setting.number_of_decimal_places}f" % average, font_style: :bold, align: :center)
         else
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)

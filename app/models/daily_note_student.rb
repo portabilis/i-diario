@@ -31,6 +31,27 @@ class DailyNoteStudent < ActiveRecord::Base
     return avaliation.test_setting_test.weight if !avaliation.test_setting_test.allow_break_up
   end
 
+  def recovered_note
+    return note if !has_recovery?
+    note ||= 0.00
+    recovery_diary_record_id = daily_note.avaliation.recovery_diary_record.id
+    recovery_note = RecoveryDiaryRecordStudent.
+      find_by(recovery_diary_record_id: recovery_diary_record_id, student_id: student.id).score.to_f
+    recovery_note > note ? recovery_note : note
+  end
+
+  def recovery_note
+    if has_recovery?
+      recovery_diary_record_id = daily_note.avaliation.recovery_diary_record.id
+      RecoveryDiaryRecordStudent.
+        find_by(recovery_diary_record_id: recovery_diary_record_id, student_id: student.id).score
+    end
+  end
+
+  def has_recovery?
+    daily_note.avaliation.recovery_diary_record
+  end
+
   private
 
   def self.by_test_date_between(start_at, end_at)

@@ -51,6 +51,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       @unities = fetch_unities
       @classrooms = fetch_classrooms
       @school_calendar_steps = current_school_calendar.steps
+      @student_notes = fetch_student_notes
+      @number_of_decimal_places = current_test_setting.number_of_decimal_places
 
       render :new
     end
@@ -85,6 +87,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       @unities = fetch_unities
       @classrooms = fetch_classrooms
       @school_calendar_steps = current_school_calendar.steps
+      @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      @student_notes = fetch_student_notes
 
       render :edit
     end

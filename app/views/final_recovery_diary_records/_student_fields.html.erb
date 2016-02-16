@@ -17,6 +17,6 @@
 
   <td>
     <%= f.input :score, label: false,
-          input_html: { data: { inputmask: "'digits': #{@number_of_decimal_places}" } } %>
+          input_html: decimal_input_mask(@number_of_decimal_places) %>
   </td>
 </tr>

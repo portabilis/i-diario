@@ -143,12 +143,11 @@ $(function () {
   }
 
   function loadDecimalMasks() {
-    var numberOfDecimalPlaces = $('#recovery-diary-record-students').data('scale');
+    var numberOfDecimalPlaces = parseInt($('#recovery-diary-record-students').data('scale')) || 0;
     $('.nested-fields input.decimal, .note').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
   // On change
-
   $classroom.on('change', function() {
     fetchDisciplines();
     removeStudents();
@@ -158,11 +157,11 @@ $(function () {
     fetchAvaliations();
   });
   $avaliation.on('change', function() {
-    // removeStudents();
+    removeStudents();
     fetchStudents();
   });
-  // On load
 
+  // On load
   fetchDisciplines();
   fetchAvaliations();
   loadDecimalMasks();
