@@ -1,3 +1,3 @@
-class ApiSyncronizationStatus < EnumerateIt::Base
+class ApiSynchronizationStatus < EnumerateIt::Base
   associate_values :started, :error, :completed
 end

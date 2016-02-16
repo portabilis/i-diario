@@ -5,7 +5,7 @@ class GeneralConfiguration < ActiveRecord::Base
 
   include Audit
 
-  has_enumeration_for :backup_status, with: ApiSyncronizationStatus, create_helpers: true
+  has_enumeration_for :backup_status, with: ApiSynchronizationStatus, create_helpers: true
   has_enumeration_for :security_level, with: SecurityLevels
 
   mount_uploader :backup_file, BackupFileUploader
@@ -22,7 +22,7 @@ class GeneralConfiguration < ActiveRecord::Base
 
   def mark_with_error!(message)
     update_columns(
-      backup_status: ApiSyncronizationStatus::ERROR,
+      backup_status: ApiSynchronizationStatus::ERROR,
       error_message: message
     )
   end

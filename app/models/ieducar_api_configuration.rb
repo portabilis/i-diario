@@ -5,7 +5,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
 
   include Audit
 
-  has_many :syncronizations, class_name: "IeducarApiSyncronization"
+  has_many :synchronizations, class_name: "IeducarApiSynchronization"
 
   validates :url, :token, :secret_token, :unity_code, presence: true
   validates :url, uri: { protocols: %w(http https), message: :invalid_url }, allow_blank: true
@@ -14,12 +14,12 @@ class IeducarApiConfiguration < ActiveRecord::Base
     self.first.presence || new
   end
 
-  def start_syncronization!(user = nil)
-    syncronizations.create!(status: ApiSyncronizationStatus::STARTED, author: user)
+  def start_synchronization!(user = nil)
+    synchronizations.create!(status: ApiSynchronizationStatus::STARTED, author: user)
   end
 
-  def syncronization_in_progress?
-    syncronizations.started.exists?
+  def synchronization_in_progress?
+    synchronizations.started.exists?
   end
 
   def to_api

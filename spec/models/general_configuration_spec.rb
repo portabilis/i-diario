@@ -23,7 +23,7 @@ RSpec.describe GeneralConfiguration, :type => :model do
       error = ""
 
       expect(subject).to receive(:update_columns).with(
-        backup_status: ApiSyncronizationStatus::ERROR,
+        backup_status: ApiSynchronizationStatus::ERROR,
         error_message: error
       )
 

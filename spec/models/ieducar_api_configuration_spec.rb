@@ -3,7 +3,7 @@ require 'rails_helper'
 
 RSpec.describe IeducarApiConfiguration, :type => :model do
   context "Associations" do
-    it { should have_many :syncronizations }
+    it { should have_many :synchronizations }
   end
 
   context "Validations" do
@@ -43,18 +43,18 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
     end
   end
 
-  describe "#start_syncronization!" do
-    it "starts a syncronization with a given user" do
+  describe "#start_synchronization!" do
+    it "starts a synchronization with a given user" do
       user = double
-      syncronizations = double
+      synchronizations = double
 
-      expect(subject).to receive(:syncronizations).and_return(syncronizations)
-      expect(syncronizations).to receive(:create!).with(
-        status: ApiSyncronizationStatus::STARTED,
+      expect(subject).to receive(:synchronizations).and_return(synchronizations)
+      expect(synchronizations).to receive(:create!).with(
+        status: ApiSynchronizationStatus::STARTED,
         author: user
       )
 
-      subject.start_syncronization!(user)
+      subject.start_synchronization!(user)
     end
   end
 

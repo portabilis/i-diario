@@ -22,7 +22,7 @@ class IeducarApiExamPostingsController < ApplicationController
 
     ieducar_api_exam_posting = IeducarApiExamPosting.new(permitted_attributes)
     ieducar_api_exam_posting.author = current_user
-    ieducar_api_exam_posting.status = ApiSyncronizationStatus::STARTED
+    ieducar_api_exam_posting.status = ApiSynchronizationStatus::STARTED
     ieducar_api_exam_posting.ieducar_api_configuration = IeducarApiConfiguration.current
 
     ieducar_api_exam_posting.save!

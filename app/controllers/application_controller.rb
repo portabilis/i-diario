@@ -88,12 +88,12 @@ class ApplicationController < ActionController::Base
   def check_for_***REMOVED***
     return unless current_user
 
-    if syncronization = current_user.syncronizations.completed_unnotified
-      flash.now[:notice] = t("ieducar_api_syncronization.completed")
-      syncronization.notified!
-    elsif syncronization = current_user.syncronizations.last_error
-      flash.now[:alert] = t("ieducar_api_syncronization.error", error: syncronization.error_message)
-      syncronization.notified!
+    if synchronization = current_user.synchronizations.completed_unnotified
+      flash.now[:notice] = t("ieducar_api_synchronization.completed")
+      synchronization.notified!
+    elsif synchronization = current_user.synchronizations.last_error
+      flash.now[:alert] = t("ieducar_api_synchronization.error", error: synchronization.error_message)
+      synchronization.notified!
     end
   end
 

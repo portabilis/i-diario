@@ -5,7 +5,7 @@ class IeducarSynchronizerWorker
     entity = Entity.find(entity_id)
 
     entity.using_connection do
-      synchronization = IeducarApiSyncronization.find(synchronization_id)
+      synchronization = IeducarApiSynchronization.find(synchronization_id)
 
       begin
         KnowledgeAreasSynchronizer.synchronize!(synchronization)

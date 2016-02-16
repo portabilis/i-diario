@@ -5,7 +5,7 @@ RSpec.describe User, type: :model do
     it { expect(subject).to belong_to(:current_user_role).class_name('UserRole') }
 
     it { expect(subject).to have_many(:logins) }
-    it { expect(subject).to have_many(:syncronizations) }
+    it { expect(subject).to have_many(:synchronizations) }
     it { expect(subject).to have_many(:***REMOVED***) }
     it { expect(subject).to have_many(:requested_***REMOVED***) }
     it { expect(subject).to have_many(:responsible_requested_***REMOVED***) }

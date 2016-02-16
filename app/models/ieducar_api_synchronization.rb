@@ -1,7 +1,7 @@
-class IeducarApiSyncronization < ActiveRecord::Base
+class IeducarApiSynchronization < ActiveRecord::Base
   acts_as_copy_target
 
-  has_enumeration_for :status, with: ApiSyncronizationStatus, create_helpers: true,
+  has_enumeration_for :status, with: ApiSynchronizationStatus, create_helpers: true,
     create_scopes: true
 
   belongs_to :ieducar_api_configuration
@@ -23,13 +23,13 @@ class IeducarApiSyncronization < ActiveRecord::Base
 
   def mark_as_error!(message)
     update_columns(
-      status: ApiSyncronizationStatus::ERROR,
+      status: ApiSynchronizationStatus::ERROR,
       error_message: message
     )
   end
 
   def mark_as_completed!
-    update_column :status, ApiSyncronizationStatus::COMPLETED
+    update_column :status, ApiSynchronizationStatus::COMPLETED
   end
 
   def notified!

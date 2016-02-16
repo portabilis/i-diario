@@ -61,7 +61,7 @@ pt-BR:
       create:
         notice: "O backup está sendo gerado."
 
-    syncronizations:
+    synchronizations:
       create:
         notice: "Integração de alunos do i-Educar está sendo processada."
         alert: "Integração de alunos do i-Educar não pode ser processada."

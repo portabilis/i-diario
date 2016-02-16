@@ -11,7 +11,7 @@ class BackupFileWorker
         backup = BackupFile.process!
 
         configuration.backup_file = backup
-        configuration.backup_status = ApiSyncronizationStatus::COMPLETED
+        configuration.backup_status = ApiSynchronizationStatus::COMPLETED
         configuration.save!
 
         backup.close
