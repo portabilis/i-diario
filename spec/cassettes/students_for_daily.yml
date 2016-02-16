@@ -38,7 +38,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"alunos":[{"id":"22362","dependencia":false,"sequencia":"0"},{"id":"25075","dependencia":false,"sequencia":"0"},{"id":"11467","dependencia":false,"sequencia":"0"},{"id":"25206","dependencia":false,"sequencia":"0"},{"id":"25085","dependencia":false,"sequencia":"0"},{"id":"25077","dependencia":false,"sequencia":"0"},{"id":"25083","dependencia":false,"sequencia":"0"},{"id":"21091","dependencia":false,"sequencia":"0"},{"id":"25016","dependencia":false,"sequencia":"0"},{"id":"11706","dependencia":false,"sequencia":"0"},{"id":"25055","dependencia":false,"sequencia":"0"},{"id":"28182","dependencia":false,"sequencia":"0"},{"id":"25088","dependencia":false,"sequencia":"0"},{"id":"25186","dependencia":false,"sequencia":"0"},{"id":"24849","dependencia":false,"sequencia":"0"},{"id":"25210","dependencia":false,"sequencia":"0"},{"id":"24956","dependencia":false,"sequencia":"0"},{"id":"24963","dependencia":false,"sequencia":"0"}],"oper":"get","resource":"alunos-matriculados-turma","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 24 Nov 2015 18:48:12 GMT
 - request:
     method: get
@@ -78,7 +78,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"alunos":[{"id":"22362","dependencia":false,"sequencia":"0"},{"id":"25075","dependencia":false,"sequencia":"0"},{"id":"11467","dependencia":false,"sequencia":"0"},{"id":"25206","dependencia":false,"sequencia":"0"},{"id":"25085","dependencia":false,"sequencia":"0"},{"id":"25077","dependencia":false,"sequencia":"0"},{"id":"25083","dependencia":false,"sequencia":"0"},{"id":"21091","dependencia":false,"sequencia":"0"},{"id":"25016","dependencia":false,"sequencia":"0"},{"id":"11706","dependencia":false,"sequencia":"0"},{"id":"25055","dependencia":false,"sequencia":"0"},{"id":"28182","dependencia":false,"sequencia":"0"},{"id":"25088","dependencia":false,"sequencia":"0"},{"id":"25186","dependencia":false,"sequencia":"0"},{"id":"24849","dependencia":false,"sequencia":"0"},{"id":"25210","dependencia":false,"sequencia":"0"},{"id":"24956","dependencia":false,"sequencia":"0"},{"id":"24963","dependencia":false,"sequencia":"0"}],"oper":"get","resource":"alunos-matriculados-turma","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Thu, 21 Jan 2016 19:20:24 GMT
 - request:
     method: get
@@ -118,7 +118,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"alunos":[{"id":"22362","dependencia":false,"sequencia":"0"},{"id":"25075","dependencia":false,"sequencia":"0"},{"id":"11467","dependencia":false,"sequencia":"0"},{"id":"25206","dependencia":false,"sequencia":"0"},{"id":"25085","dependencia":false,"sequencia":"0"},{"id":"25077","dependencia":false,"sequencia":"0"},{"id":"25083","dependencia":false,"sequencia":"0"},{"id":"21091","dependencia":false,"sequencia":"0"},{"id":"25016","dependencia":false,"sequencia":"0"},{"id":"11706","dependencia":false,"sequencia":"0"},{"id":"25055","dependencia":false,"sequencia":"0"},{"id":"28182","dependencia":false,"sequencia":"0"},{"id":"25088","dependencia":false,"sequencia":"0"},{"id":"25186","dependencia":false,"sequencia":"0"},{"id":"24849","dependencia":false,"sequencia":"0"},{"id":"25210","dependencia":false,"sequencia":"0"},{"id":"24956","dependencia":false,"sequencia":"0"},{"id":"24963","dependencia":false,"sequencia":"0"}],"oper":"get","resource":"alunos-matriculados-turma","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Mon, 25 Jan 2016 18:11:45 GMT
 - request:
     method: get
@@ -158,15 +158,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"alunos":[{"id":"22362","dependencia":false,"sequencia":"0"},{"id":"25075","dependencia":false,"sequencia":"0"},{"id":"11467","dependencia":false,"sequencia":"0"},{"id":"25206","dependencia":false,"sequencia":"0"},{"id":"25085","dependencia":false,"sequencia":"0"},{"id":"25077","dependencia":false,"sequencia":"0"},{"id":"25083","dependencia":false,"sequencia":"0"},{"id":"21091","dependencia":false,"sequencia":"0"},{"id":"25016","dependencia":false,"sequencia":"0"},{"id":"11706","dependencia":false,"sequencia":"0"},{"id":"25055","dependencia":false,"sequencia":"0"},{"id":"28182","dependencia":false,"sequencia":"0"},{"id":"25088","dependencia":false,"sequencia":"0"},{"id":"25186","dependencia":false,"sequencia":"0"},{"id":"24849","dependencia":false,"sequencia":"0"},{"id":"25210","dependencia":false,"sequencia":"0"},{"id":"24956","dependencia":false,"sequencia":"0"},{"id":"24963","dependencia":false,"sequencia":"0"}],"oper":"get","resource":"alunos-matriculados-turma","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Thu, 28 Jan 2016 20:14:28 GMT
 - request:
     method: get
-<<<<<<< HEAD
-    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=***REMOVED***&data_matricula=2016-02-16&disciplina_id=3192&instituicao_id=1&oper=get&resource=alunos-matriculados-turma&secret_key=***REMOVED***&turma_id=4202
-=======
     uri: http://test.ieducar.com.br/module/Api/Turma?access_key=***REMOVED***&data_matricula=2016-02-04&disciplina_id=3192&instituicao_id=1&oper=get&resource=alunos-matriculados-turma&secret_key=***REMOVED***&turma_id=4202
->>>>>>> 5e7da00abd6a3eb6c502f4878ee1164b3b940dbd
     body:
       encoding: US-ASCII
       string: ''
@@ -183,19 +179,11 @@ http_interactions:
       message: OK
     headers:
       Date:
-<<<<<<< HEAD
-      - Tue, 16 Feb 2016 11:50:50 GMT
-      Server:
-      - Apache
-      Set-Cookie:
-      - PHPSESSID=oc6ia84d01flemg3rvag5o23h3; expires=Wed, 17-Feb-2016 11:50:50 GMT;
-=======
       - Thu, 04 Feb 2016 22:07:18 GMT
       Server:
       - Apache
       Set-Cookie:
       - PHPSESSID=b9i6p2ie5tjh739hnf64ug7kd1; expires=Fri, 05-Feb-2016 22:07:18 GMT;
->>>>>>> 5e7da00abd6a3eb6c502f4878ee1164b3b940dbd
         path=/
       Expires:
       - Thu, 19 Nov 1981 08:52:00 GMT
@@ -210,10 +198,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"alunos":[{"id":"22362","dependencia":false,"sequencia":"0"},{"id":"25075","dependencia":false,"sequencia":"0"},{"id":"11467","dependencia":false,"sequencia":"0"},{"id":"25206","dependencia":false,"sequencia":"0"},{"id":"25085","dependencia":false,"sequencia":"0"},{"id":"25077","dependencia":false,"sequencia":"0"},{"id":"25083","dependencia":false,"sequencia":"0"},{"id":"21091","dependencia":false,"sequencia":"0"},{"id":"25016","dependencia":false,"sequencia":"0"},{"id":"11706","dependencia":false,"sequencia":"0"},{"id":"25055","dependencia":false,"sequencia":"0"},{"id":"28182","dependencia":false,"sequencia":"0"},{"id":"25088","dependencia":false,"sequencia":"0"},{"id":"25186","dependencia":false,"sequencia":"0"},{"id":"24849","dependencia":false,"sequencia":"0"},{"id":"25210","dependencia":false,"sequencia":"0"},{"id":"24956","dependencia":false,"sequencia":"0"},{"id":"24963","dependencia":false,"sequencia":"0"}],"oper":"get","resource":"alunos-matriculados-turma","msgs":[],"any_error_msg":false}'
-    http_version: 
-<<<<<<< HEAD
-  recorded_at: Tue, 16 Feb 2016 11:50:50 GMT
-=======
+    http_version:
   recorded_at: Thu, 04 Feb 2016 22:07:18 GMT
 - request:
     method: get
@@ -253,7 +238,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"alunos":[{"id":"22362","dependencia":false,"sequencia":"0"},{"id":"25075","dependencia":false,"sequencia":"0"},{"id":"11467","dependencia":false,"sequencia":"0"},{"id":"25206","dependencia":false,"sequencia":"0"},{"id":"25085","dependencia":false,"sequencia":"0"},{"id":"25077","dependencia":false,"sequencia":"0"},{"id":"25083","dependencia":false,"sequencia":"0"},{"id":"21091","dependencia":false,"sequencia":"0"},{"id":"25016","dependencia":false,"sequencia":"0"},{"id":"11706","dependencia":false,"sequencia":"0"},{"id":"25055","dependencia":false,"sequencia":"0"},{"id":"28182","dependencia":false,"sequencia":"0"},{"id":"25088","dependencia":false,"sequencia":"0"},{"id":"25186","dependencia":false,"sequencia":"0"},{"id":"24849","dependencia":false,"sequencia":"0"},{"id":"25210","dependencia":false,"sequencia":"0"},{"id":"24956","dependencia":false,"sequencia":"0"},{"id":"24963","dependencia":false,"sequencia":"0"}],"oper":"get","resource":"alunos-matriculados-turma","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 05 Feb 2016 11:34:29 GMT
->>>>>>> 5e7da00abd6a3eb6c502f4878ee1164b3b940dbd
 recorded_with: VCR 3.0.0

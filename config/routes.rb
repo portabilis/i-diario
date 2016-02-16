@@ -110,7 +110,7 @@ Rails.application.routes.draw do
       resources :material_exit_items, only: [:index]
     end
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, only: [:index, :edit, :update], concerns: :history
+    resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***s, concerns: :history
     resources :***REMOVED***, concerns: :history
