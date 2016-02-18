@@ -12,7 +12,7 @@
     <fieldset>
       <div class="row">
         <div class="col col-sm-4">
-          <%= recovery_diary_record.association :unity, as: :select2, elements: @unities, readonly: !current_user.admin? %>
+          <%= recovery_diary_record.association :unity, as: :select2, elements: @unities, readonly: !current_user.admin? || f.object.persisted? %>
         </div>
 
         <div class="col col-sm-4">

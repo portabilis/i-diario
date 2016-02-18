@@ -25,6 +25,9 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   validates :avaliation, presence: true
 
   validate :uniqueness_of_avaliation_recovery_diary_record
+  validate :recovery_date_should_be_greater_or_equal_avaliation_date
+
+  before_validation :self_assign_to_recovery_diary_record
 
   private
 
@@ -55,5 +58,19 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
     relation = relation.where.not(id: id) if persisted?
 
     errors.add(:avaliation, :uniqueness_of_avaliation_recovery_diary_record) if relation.any?
+  end
+
+  def recovery_date_should_be_greater_or_equal_avaliation_date
+    return unless recovery_diary_record.present? && avaliation.present?
+    if !(recovery_diary_record.recorded_at >= avaliation.test_date)
+      errors.add(:recovery_diary_record, :recovery_date_should_be_greater_or_equal_avaliation_date)
+      recovery_diary_record.errors.add(:recorded_at, :recovery_date_should_be_greater_or_equal_avaliation_date)
+    end
+  end
+
+  def self_assign_to_recovery_diary_record
+    if recovery_diary_record && !recovery_diary_record.avaliation_recovery_diary_record
+      recovery_diary_record.avaliation_recovery_diary_record = self
+    end
   end
 end
