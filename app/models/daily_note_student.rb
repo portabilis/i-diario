@@ -22,11 +22,31 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_note).where(daily_notes: { discipline_id: discipline_id }) }
   scope :by_test_date_between, lambda { |start_at, end_at| by_test_date_between(start_at, end_at) }
+  scope :by_avaliation, lambda { |avaliation| joins(:daily_note).where(daily_notes: { avaliation_id: avaliation }) }
+  scope :ordered, -> { joins(:student).order(Student.arel_table[:name]) }
 
   def maximum_score
     return avaliation.test_setting.maximum_score if !avaliation.test_setting.fix_tests
     return avaliation.weight.to_f if avaliation.test_setting_test.allow_break_up
     return avaliation.test_setting_test.weight if !avaliation.test_setting_test.allow_break_up
+  end
+
+  def recovered_note
+    recovery_note.to_f > note.to_f ? recovery_note : note
+  end
+
+  def recovery_note
+    if has_recovery?
+      recovery_diary_record_id = daily_note.avaliation.recovery_diary_record.id
+      RecoveryDiaryRecordStudent.
+        find_by(recovery_diary_record_id: recovery_diary_record_id, student_id: student.id).try(:score)
+    else
+      0.0
+    end
+  end
+
+  def has_recovery?
+    daily_note.avaliation.recovery_diary_record.present?
   end
 
   private

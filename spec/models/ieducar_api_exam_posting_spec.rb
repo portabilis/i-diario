@@ -13,11 +13,11 @@ RSpec.describe IeducarApiExamPosting, :type => :model do
   end
 
   describe "#mark_as_error!" do
-    it "should mark syncronization as error and set the error message" do
+    it "should mark synchronization as error and set the error message" do
       message = double
 
       expect(subject).to receive(:update_columns).with(
-        status: ApiSyncronizationStatus::ERROR,
+        status: ApiSynchronizationStatus::ERROR,
         error_message: message
       )
 
@@ -26,11 +26,11 @@ RSpec.describe IeducarApiExamPosting, :type => :model do
   end
 
   describe "#mark_as_completed!" do
-    it "should mark syncronization as completed" do
+    it "should mark synchronization as completed" do
       message = double
 
       expect(subject).to receive(:update_columns).with(
-        status: ApiSyncronizationStatus::COMPLETED,
+        status: ApiSynchronizationStatus::COMPLETED,
         message: message
       )
 

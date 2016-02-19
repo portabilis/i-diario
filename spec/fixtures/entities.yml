@@ -9,4 +9,3 @@ prefeitura_controller:
   domain: "test.host"
   config:
     database: "novo_educacao_test"
-

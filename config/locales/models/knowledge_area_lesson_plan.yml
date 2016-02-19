@@ -16,7 +16,7 @@ pt-BR:
       models:
         knowledge_area_lesson_plan:
           attributes:
-              lesson_plan:
+              knowledge_area_ids:
                 uniqueness_of_knowledge_area_lesson_plan:
                   one: "já existe um plano de aula para a área de conhecimento informada"
                   other: "já existe um plano de aula para uma das áreas de conhecimento informadas"

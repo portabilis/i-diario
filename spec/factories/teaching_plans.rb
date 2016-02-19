@@ -4,7 +4,7 @@ FactoryGirl.define do
     school_term_type SchoolTermTypes::BIMESTER
     school_term      Bimesters::FIRST_BIMESTER
 
-    association :classroom
-    association :discipline
+    unity
+    grade
   end
 end

@@ -11,6 +11,7 @@ pt-BR:
       destroy: "Apagar"
       new: "Novo(a)"
       edit: "Editar"
+      show_html: "<i class='fa fa-search'></i> "
       edit_html: "<i class='fa fa-pencil'></i> "
       print_html: "<i class='fa fa-print'></i> "
       destroy_html: "<i class='fa fa-times'></i> "

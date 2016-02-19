@@ -4,6 +4,8 @@
   <%= f.simple_fields_for :lesson_plan, @knowledge_area_lesson_plan.lesson_plan.localized do |lesson_plan| %>
     <%= lesson_plan.hidden_field :id %>
 
+    <%= render partial: 'lesson_plans/base_errors', locals: { f: lesson_plan } %>
+
     <fieldset>
       <div class="row">
         <%= render partial: 'lesson_plans/unity_field', locals: { f: lesson_plan } %>
@@ -17,7 +19,7 @@
       </div>
 
       <div class="row">
-        <%= render partial: 'lesson_plans/lesson_plan_date_field', locals: { f: lesson_plan } %>
+        <%= render partial: 'lesson_plans/lesson_plan_date_fields', locals: { f: lesson_plan } %>
       </div>
 
       <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan } %>

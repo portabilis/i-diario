@@ -1,7 +1,7 @@
 pt-BR:
   activemodel:
     attributes:
-      lesson_plan_discipline_report_form:
+      discipline_lesson_plan_report_form:
         classroom_id: "Turma"
         date_start: "Data inicial"
         date_end: "Data final"
@@ -11,7 +11,7 @@ pt-BR:
 
     errors:
       models:
-        lesson_plan_discipline_report_form:
+        discipline_lesson_plan_report_form:
           attributes:
             discipline_lesson_plan:
               must_have_discipline_lesson_plan: "Nenhum resultado foi encontrado para os dados informados"

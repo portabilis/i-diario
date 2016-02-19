@@ -24,3 +24,5 @@ pt-BR:
               recorded_at_must_be_school_day: "deve ser um dia letivo"
               recorded_at_must_be_school_calendar_step_day: "deve ser um dia letivo da etapa selecionada"
               recorded_at_must_be_in_last_school_calendar_step: "deve ser um dia letivo da última etapa do calendário letivo"
+              uniqueness: "já existe uma recuperação lançada nesta data"
+              recovery_date_should_be_greater_or_equal_avaliation_date: "a recuperação deve ocorrer na mesma data ou após a avaliação"

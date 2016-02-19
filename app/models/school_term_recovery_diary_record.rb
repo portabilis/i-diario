@@ -27,6 +27,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   validate :recovery_type_must_allow_recovery_for_classroom
   validate :recovery_type_must_allow_recovery_for_school_calendar_step
   validate :recorded_at_must_be_school_calendar_step_day
+  validate :uniqueness_of_recorded_at
 
   before_validation :self_assign_to_recovery_diary_record
 
@@ -100,6 +101,14 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   def self_assign_to_recovery_diary_record
     if recovery_diary_record && !recovery_diary_record.school_term_recovery_diary_record
       recovery_diary_record.school_term_recovery_diary_record = self
+    end
+  end
+
+  def uniqueness_of_recorded_at
+    return unless recovery_diary_record
+    relation = RecoveryDiaryRecord.find_by(unity_id: recovery_diary_record.unity_id, classroom_id: recovery_diary_record.classroom_id, discipline_id: recovery_diary_record.discipline_id)
+    if relation
+      recovery_diary_record.errors.add(:recorded_at, :uniqueness)
     end
   end
 end

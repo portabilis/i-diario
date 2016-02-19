@@ -3,7 +3,7 @@ $(function () {
   window.disciplines = [];
 
   var $hideWhenGlobalAbsence = $(".hide-when-global-absence"),
-      $globalAbsence = $("#lesson_plan_discipline_report_form_global_absence"),
+      $globalAbsence = $("#discipline_lesson_plan_report_form_global_absence"),
       $examRuleNotFoundAlert = $('#exam-rule-not-found-alert')
 
   var fetchClassrooms = function (params, callback) {
@@ -34,9 +34,9 @@ $(function () {
     });
   };
 
-  var $unity = $('#lesson_plan_discipline_report_form_unity_id');
-  var $classroom = $('#lesson_plan_discipline_report_form_classroom_id');
-  var $discipline = $('#lesson_plan_discipline_report_form_discipline_id');
+  var $unity = $('#discipline_lesson_plan_report_form_unity_id');
+  var $classroom = $('#discipline_lesson_plan_report_form_classroom_id');
+  var $discipline = $('#discipline_lesson_plan_report_form_discipline_id');
 
   $unity.on('change', function (e) {
     var params = {
@@ -48,7 +48,7 @@ $(function () {
 
     $classroom.val('').select2({ data: [] });
     $discipline.val('').select2({ data: [] });
-    $('#lesson_plan_discipline_report_form_class_numbers').select2("val", "")
+    $('#discipline_lesson_plan_report_form_class_numbers').select2("val", "")
 
     if (!_.isEmpty(e.val)) {
       fetchClassrooms(params, function (classrooms) {
@@ -96,7 +96,7 @@ $(function () {
 
     window.disciplines = [];
     $discipline.val('').select2({ data: [] });
-    $('#lesson_plan_discipline_report_form_class_numbers').select2("val", "")
+    $('#discipline_lesson_plan_report_form_class_numbers').select2("val", "")
 
 
     if (!_.isEmpty(e.val)) {

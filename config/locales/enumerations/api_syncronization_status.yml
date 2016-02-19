@@ -1,6 +1,0 @@
-pt-BR:
-  enumerations:
-    api_syncronization_status:
-      started: "Em andamento"
-      error: "Ocorreu erro"
-      completed: "Finalizada"

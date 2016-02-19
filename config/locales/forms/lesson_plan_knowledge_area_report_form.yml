@@ -1,7 +1,7 @@
 pt-BR:
   activemodel:
     attributes:
-      lesson_plan_knowledge_area_report_form:
+      knowledge_area_lesson_plan_report_form:
         classroom_id: "Turma"
         date_start: "Data inicial"
         date_end: "Data final"
@@ -10,7 +10,7 @@ pt-BR:
 
     errors:
       models:
-        lesson_plan_knowledge_area_report_form:
+        knowledge_area_lesson_plan_report_form:
           attributes:
             knowledge_area_lesson_plan:
               must_have_knowledge_area_lesson_plan: "Nenhum resultado foi encontrado para os dados informados"

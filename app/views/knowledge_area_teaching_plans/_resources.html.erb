@@ -1,0 +1,47 @@
+<tbody id="resources-tbody">
+  <% if @knowledge_area_teaching_plans.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @knowledge_area_teaching_plans.each do |knowledge_area_teaching_plan| %>
+      <tr>
+        <td><%= knowledge_area_teaching_plan.teaching_plan.year %></td>
+        <td><%= knowledge_area_teaching_plan.teaching_plan.unity %></td>
+        <td><%= knowledge_area_teaching_plan.teaching_plan.grade %></td>
+        <td>
+          <% knowledge_area_teaching_plan.knowledge_areas.each do |knowledge_area| %>
+            <span class="label label-info label-list">
+              <%= knowledge_area.description %>
+            </span>
+          <% end %>
+        </td>
+        <td><%= knowledge_area_teaching_plan.teaching_plan.school_term_type_humanize %></td>
+        <td><%= knowledge_area_teaching_plan.teaching_plan.school_term_humanize %></td>
+        <td class="actions">
+          <%= link_to(
+                t('helpers.links.show_html'),
+                knowledge_area_teaching_plan_path(knowledge_area_teaching_plan),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('views.index.tooltips.show') }) %>
+          <%= link_to(
+                t('helpers.links.edit_html'),
+                edit_knowledge_area_teaching_plan_path(knowledge_area_teaching_plan),
+                class: 'btn btn-success apply_tooltip',
+                data: { original_title: t('views.index.tooltips.edit') }
+              ) %>
+          <%= link_to(
+                  t('helpers.links.destroy_html'),
+                  knowledge_area_teaching_plan_path(knowledge_area_teaching_plan),
+                  class: 'btn btn-danger apply_tooltip',
+                  method: 'delete',
+                  data: {
+                    confirm: t('views.index.confirm'),
+                    original_title: t('views.index.tooltips.delete')
+                  }
+                ) %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

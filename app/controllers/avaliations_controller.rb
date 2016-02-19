@@ -2,6 +2,8 @@ class AvaliationsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  respond_to :html, :js, :json
+
   before_action :require_current_teacher
   before_action :require_current_school_calendar
   before_action :require_current_test_setting
@@ -13,7 +15,6 @@ class AvaliationsController < ApplicationController
     @avaliations = apply_scopes(Avaliation).includes(:unity, :classroom, :discipline, :test_setting_test)
                                            .by_teacher(current_teacher.id)
                                            .by_unity_id(current_user_unity_id)
-                                           .filter(filtering_params(params[:search]))
                                            .ordered
 
     authorize @avaliations
@@ -21,6 +22,8 @@ class AvaliationsController < ApplicationController
     @unities = Unity.by_teacher(current_teacher.id)
     @classrooms = Classroom.by_teacher_id(current_teacher.id)
     @disciplines = Discipline.by_teacher_id(current_teacher.id)
+
+    respond_with @avaliations
   end
 
   def new
@@ -114,14 +117,6 @@ class AvaliationsController < ApplicationController
     when 'edit', 'update', 'destroy'
       Avaliation.find(params[:id])
     end
-  end
-
-  def filtering_params(params)
-    params = {} unless params
-    params.slice(:by_classroom_id,
-                 :by_discipline_id,
-                 :by_test_date,
-                 :by_description)
   end
 
   def resource_params

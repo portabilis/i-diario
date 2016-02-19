@@ -1,7 +1,7 @@
 pt-BR:
   activerecord:
     models:
-      ieducar_api_syncronization:
+      ieducar_api_synchronization:
         one: "Sincronização com a API"
         other: "Sincronizações com a API"
   errors:

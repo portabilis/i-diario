@@ -61,7 +61,7 @@ pt-BR:
       create:
         notice: "O backup está sendo gerado."
 
-    syncronizations:
+    synchronizations:
       create:
         notice: "Integração de alunos do i-Educar está sendo processada."
         alert: "Integração de alunos do i-Educar não pode ser processada."
@@ -171,3 +171,14 @@ pt-BR:
       destroy:
         notice: "Lançamento de recuperação final apagado com sucesso."
         alert: "Lançamento de recuperação final não pode ser apagado."
+
+    avaliation_recovery_diary_records:
+      create:
+        notice: "Recuperação de avaliação lançada com sucesso!"
+        alert: "Recuperação de avaliação não pode ser lançada."
+      update:
+        notice: "Lançamento de recuperação de avaliação atualizado com sucesso."
+        alert: "Lançamento de recuperação de avaliação não pode ser atualizado."
+      destroy:
+        notice: "Lançamento de recuperação de avaliação apagado com sucesso."
+        alert: "Lançamento de recuperação de avaliação não pode ser apagado."

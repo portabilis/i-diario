@@ -1,0 +1,17 @@
+pt-BR:
+  avaliation_recovery_diary_records:
+    model:
+    index:
+      by_classroom_id: "Filtrar turma"
+      by_discipline_id: "Filtrar disciplina"
+      by_school_calendar_step_id: "Filtrar etapa"
+      by_recorded_at: "Filtrar data"
+      by_avaliation_description: "Filtrar avaliação"
+      new_html: "<i class='fa fa-plus'></i> Novo lançamento"
+
+    form:
+      students: "Alunos"
+      no_item_found: "Nenhum aluno"
+      note: Nota da avaliação
+      avaliation_recovery: Nota da recuperação
+      avaliation: "Avaliação"

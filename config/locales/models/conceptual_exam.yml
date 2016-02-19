@@ -7,19 +7,23 @@ pt-BR:
 
     attributes:
       conceptual_exam:
-        unity: "Escola"
+        unity_id: "Escola"
         classroom: "Turma"
         classroom_id: "Turma"
-        discipline: "Disciplina"
-        discipline_id: "Disciplina"
         school_calendar_step: "Etapa"
         school_calendar_step_id: "Etapa"
+        student: "Aluno"
+        student_id: "Aluno"
+        recorded_at: 'Data'
+        status: 'Situação'
 
-  errors:
-    conceptual_exams:
-      require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
-
-  conceptual_exams:
-    new:
-      exam_rule_not_found: 'Não localizamos uma regra de avaliação para a turma informada. Entre em contato com o administrador do sistema.'
-      exam_rule_not_allow_concept: 'A regra de avaliação da turma informada não permite lançamento de conceitos.'
+    errors:
+      models:
+        conceptual_exam:
+          attributes:
+            classroom:
+              classroom_must_have_conceptual_exam_score_type: 'regra de avaliação não permite lançamento de avaliação conceitual'
+            student:
+              taken: 'já existe um lançamento para este aluno na etapa informada'
+            conceptual_exam_values:
+              at_least_one_conceptual_exam_value: 'É necessário pelo menos 1 disciplina'

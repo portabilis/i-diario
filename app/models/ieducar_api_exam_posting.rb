@@ -21,20 +21,20 @@ class IeducarApiExamPosting < ActiveRecord::Base
     self.error.last
   end
 
-  def syncronization_in_progress?
-    status == ApiSyncronizationStatus::STARTED
+  def synchronization_in_progress?
+    status == ApiSynchronizationStatus::STARTED
   end
 
   def mark_as_error!(message)
     update_columns(
-      status: ApiSyncronizationStatus::ERROR,
+      status: ApiSynchronizationStatus::ERROR,
       error_message: message
     )
   end
 
   def mark_as_completed!(message)
     update_columns(
-      status: ApiSyncronizationStatus::COMPLETED,
+      status: ApiSynchronizationStatus::COMPLETED,
       message: message
     )
   end

@@ -1,0 +1,41 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for :filter, { url: avaliation_recovery_diary_records_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
+        <thead>
+          <tr>
+            <td width="20%"></td>
+            <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom_id') %></td>
+            <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline_id') %></td>
+            <td><%= f.input :by_avaliation_description, label: false, placeholder: t('.by_avaliation_description') %></td>
+            <td width="15%"><%= f.input :by_recorded_at, as: :date, label: false, placeholder: t('.by_recorded_at') %></td>
+            <td><%= link_to t('.new_html'), new_avaliation_recovery_diary_record_path, class: 'btn btn-primary pull-right' %></td>
+          </tr>
+
+          <tr>
+            <th width="20%"><%= RecoveryDiaryRecord.human_attribute_name :unity %></th>
+            <th><%= RecoveryDiaryRecord.human_attribute_name :classroom %></th>
+            <th><%= RecoveryDiaryRecord.human_attribute_name :discipline %>
+            <th><%= AvaliationRecoveryDiaryRecord.human_attribute_name :avaliation %></th>
+            <th width="15%"><%= RecoveryDiaryRecord.human_attribute_name :recorded_at %></th>
+            <td width="160px"></td>
+          </tr>
+        </thead>
+
+        <%= render 'resources' %>
+
+        <tfoot id="paginator" class="remote">
+          <td colspan="6">
+            <div id="page_entries_info" class="pull-left hidden-xs">
+              <%= page_entries_info @avaliation_recovery_diary_records %>
+            </div>
+
+            <div class="pull-right">
+              <%= paginate @avaliation_recovery_diary_records %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

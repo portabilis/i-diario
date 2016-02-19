@@ -1,138 +1,267 @@
 class ConceptualExamsController < ApplicationController
-  before_action :require_teacher
+  has_scope :page, default: 1
+  has_scope :per, default: 10
+
+  before_action :require_current_teacher
   before_action :require_current_school_calendar
 
+  def index
+    @conceptual_exams = apply_scopes(ConceptualExam)
+      .includes(
+        :student,
+        :conceptual_exam_values,
+        classroom: :unity,
+        school_calendar_step: :school_calendar
+      )
+      .filter(filtering_params(params[:search]))
+      .by_unity(current_user_unity)
+      .by_teacher(current_teacher)
+      .ordered
+
+    authorize @conceptual_exams
+
+    fetch_classrooms
+    fetch_school_calendar_steps
+  end
 
   def new
-    @conceptual_exam = ConceptualExam.new
-    @unity_id = current_user_unity.id
+    @conceptual_exam = ConceptualExam.new(
+      unity_id: current_user_unity.id,
+      recorded_at: Time.zone.today
+    ).localized
+
+    if params[:conceptual_exam].present?
+      @conceptual_exam.assign_attributes(resource_params)
+    end
 
     authorize @conceptual_exam
 
-    fetch_unities
-    set_school_calendar_steps
+    fetch_collections
+
+    @disciplines.each do |discipline|
+      @conceptual_exam.conceptual_exam_values.build(
+        conceptual_exam: @conceptual_exam,
+        discipline: discipline
+      )
+    end
   end
 
   def create
     @conceptual_exam = ConceptualExam.new(resource_params)
-    @unity_id = params[:conceptual_exam][:unity]
 
-    if(@conceptual_exam.valid?)
-      @conceptual_exam = ConceptualExam.find_or_create_by(resource_params)
-      redirect_to edit_conceptual_exam_path(@conceptual_exam)
+    authorize @conceptual_exam
+
+    if @conceptual_exam.save
+      respond_to_save
     else
-      fetch_unities
-      set_school_calendar_steps
+      fetch_collections
+
       render :new
     end
   end
 
   def edit
-    @conceptual_exam = ConceptualExam.find(params[:id])
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+    @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
 
     authorize @conceptual_exam
 
-    fetch_students
+    fetch_collections
 
-    @students = []
-
-    @api_students.each do |api_student|
-      if student = Student.find_by(api_code: api_student['id'])
-        exam_student = (@conceptual_exam.students.where(student_id: student.id).first || @conceptual_exam.students.build(student_id: student.id))
-        exam_student.dependence = api_student['dependencia']
-        @students << exam_student
-      end
-    end
-
-    @normal_students = []
-    @dependence_students = []
-
-    @students.each do |student|
-      @normal_students << student if !student.dependence?
-      @dependence_students << student if student.dependence?
-    end
+    add_missing_disciplines
+    mark_not_existing_disciplines_for_destruction
   end
 
   def update
     @conceptual_exam = ConceptualExam.find(params[:id])
-    @conceptual_exam.assign_attributes resource_params
-
-    destroy_students_not_found
+    @conceptual_exam.assign_attributes(resource_params)
 
     authorize @conceptual_exam
 
     if @conceptual_exam.save
-      fetch_unities
-      respond_with @conceptual_exam, location: new_conceptual_exam_path
+      respond_to_save
     else
+      fetch_collections
+
       render :edit
     end
   end
 
-  protected
+  def destroy
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
 
-  def fetch_students
-    begin
-      api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily(
-        {
-          classroom_api_code: @conceptual_exam.classroom.api_code,
-          discipline_api_code: @conceptual_exam.discipline.api_code,
-          date: Time.zone.today
-        }
-      )
+    authorize @conceptual_exam
 
-      @api_students = result["alunos"]
-    rescue IeducarApi::Base::ApiError => e
-      flash[:alert] = e.message
-      fetch_unities
-      @api_students = []
-      render :new
-    end
+    @conceptual_exam.destroy
+
+    respond_with @conceptual_exam, location: conceptual_exams_path
+  end
+
+  def history
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+
+    authorize @conceptual_exam
+
+    respond_with @conceptual_exam
+  end
+
+  private
+
+  def resource_params
+    params.require(:conceptual_exam).permit(
+      :unity_id,
+      :classroom_id,
+      :school_calendar_step_id,
+      :recorded_at,
+      :student_id,
+      conceptual_exam_values_attributes: [
+        :id,
+        :discipline_id,
+        :value,
+        :_destroy
+      ]
+    )
+  end
+
+  def filtering_params(params)
+    params = {} unless params
+    params.slice(
+      :by_classroom,
+      :by_student_name,
+      :by_school_calendar_step,
+      :by_status
+    )
   end
 
   def configuration
     @configuration ||= IeducarApiConfiguration.current
   end
 
-  def fetch_unities
-    @unity_id ||= @conceptual_exam.unity.try(:id)
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @unity_id, @conceptual_exam.classroom_id, @conceptual_exam.discipline_id)
+  def add_missing_disciplines
+    missing_disciplines.each do |missing_discipline|
+      @conceptual_exam.conceptual_exam_values.build(
+        conceptual_exam: @conceptual_exam,
+        discipline: missing_discipline
+      )
+    end
+  end
+
+  def missing_disciplines
+    missing_disciplines = []
+    @disciplines.each do |discipline|
+      is_missing = @conceptual_exam.conceptual_exam_values.none? do |conceptual_exam_value|
+        conceptual_exam_value.discipline.id == discipline.id
+      end
+      missing_disciplines << discipline if is_missing
+    end
+    missing_disciplines
+  end
+
+  def mark_not_existing_disciplines_for_destruction
+    @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
+      discipline_exists = @disciplines.any? do |discipline|
+          conceptual_exam_value.discipline.id == discipline.id
+      end
+
+      conceptual_exam_value.mark_for_destruction unless discipline_exists
+    end
+  end
+
+  def fetch_collections
+    fetch_unities_classrooms_disciplines_by_teacher
+    fetch_classrooms
+    fetch_school_calendar_steps
+    fetch_students
+  end
+
+  def fetch_unities_classrooms_disciplines_by_teacher
+    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(
+      current_teacher.id,
+      @conceptual_exam.try(:classroom).try(:unity_id) || @conceptual_exam.try(:unity_id),
+      @conceptual_exam.classroom_id
+    )
     fetcher.fetch!
-    @unities = current_user.admin? ? fetcher.unities : Unity.where(id: @unity_id)
-    @classrooms = fetcher.classrooms
+
+    @unities = fetcher.unities
     @disciplines = fetcher.disciplines
   end
 
-  def resource_params
-    params.require(:conceptual_exam).permit(
-      :classroom_id, :discipline_id, :school_calendar_step_id,
-      students_attributes: [
-        :id, :student_id, :value, :dependence
-      ]
-    )
+  def fetch_classrooms
+    @classrooms = Classroom.by_teacher_id(current_teacher.id)
+    .by_unity(current_user_unity)
+    .by_teacher_id(current_teacher)
+    .by_score_type(ScoreTypes::CONCEPT)
   end
 
-  def require_teacher
-    unless current_teacher
-      flash[:alert] = t('errors.conceptual_exams.require_teacher')
-      redirect_to root_path
-    end
+  def fetch_school_calendar_steps
+    @school_calendar_steps = current_school_calendar.steps
   end
 
-  def set_school_calendar_steps
-    @school_calendar_steps =  current_school_calendar.steps.ordered || {}
-  end
+  def fetch_students
+    @students = []
 
-  private
-
-  def destroy_students_not_found
-    @conceptual_exam.students.each do |student|
-      student_exists = resource_params[:students_attributes].any? do |student_params|
-        student_params.last[:student_id].to_i == student.student.id
+    if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present?
+      begin
+        @students = StudentsFetcher.new(
+          configuration,
+          @conceptual_exam.classroom.api_code,
+          date: @conceptual_exam.recorded_at.to_date.to_s
+        )
+        .fetch
+      rescue IeducarApi::Base::ApiError => e
+        flash[:alert] = e.message
+        render :new
       end
-
-      student.destroy unless student_exists
     end
+  end
+
+  def respond_to_save
+    if params[:commit] == 'Salvar'
+      respond_with @conceptual_exam, location: conceptual_exams_path
+    else
+      respond_with_next_conceptual_exam
+    end
+  end
+
+  def respond_with_next_conceptual_exam
+    next_conceptual_exam = fetch_next_conceptual_exam
+
+    if next_conceptual_exam.new_record?
+      respond_with(
+        @conceptual_exam,
+        location: new_conceptual_exam_path(
+          conceptual_exam: next_conceptual_exam.attributes
+        )
+      )
+    else
+      respond_with(
+        @conceptual_exam,
+        location: edit_conceptual_exam_path(next_conceptual_exam)
+      )
+    end
+  end
+
+  def fetch_next_conceptual_exam
+    next_student = fetch_next_student
+
+    next_conceptual_exam = ConceptualExam.find_or_initialize_by(
+      classroom_id: @conceptual_exam.classroom_id,
+      school_calendar_step_id: @conceptual_exam.school_calendar_step_id,
+      student_id: next_student.id
+    )
+    next_conceptual_exam.recorded_at = @conceptual_exam.recorded_at
+
+    next_conceptual_exam
+  end
+
+  def fetch_next_student
+    @students = fetch_students
+    next_student_index = @students.find_index(@conceptual_exam.student) + 1
+
+    if next_student_index == @students.length
+      next_student_index = 0
+    end
+
+    @students[next_student_index]
   end
 end

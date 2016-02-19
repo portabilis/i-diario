@@ -26,6 +26,15 @@ class ApplicationController < ActionController::Base
     scope.search(value).limit(10)
   end
 
+  has_scope :filter, type: :hash do |controller, scope, value|
+   filters = value.select { |filter_name, filter_value| filter_value.present? }
+   filters.each do |filter_name, filter_value|
+     scope = scope.send(filter_name, filter_value)
+   end
+
+   scope
+ end
+
   rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   rescue_from IeducarApi::Base::ApiError, with: :rescue_from_api_error
 
@@ -79,12 +88,12 @@ class ApplicationController < ActionController::Base
   def check_for_***REMOVED***
     return unless current_user
 
-    if syncronization = current_user.syncronizations.completed_unnotified
-      flash.now[:notice] = t("ieducar_api_syncronization.completed")
-      syncronization.notified!
-    elsif syncronization = current_user.syncronizations.last_error
-      flash.now[:alert] = t("ieducar_api_syncronization.error", error: syncronization.error_message)
-      syncronization.notified!
+    if synchronization = current_user.synchronizations.completed_unnotified
+      flash.now[:notice] = t("ieducar_api_synchronization.completed")
+      synchronization.notified!
+    elsif synchronization = current_user.synchronizations.last_error
+      flash.now[:alert] = t("ieducar_api_synchronization.error", error: synchronization.error_message)
+      synchronization.notified!
     end
   end
 

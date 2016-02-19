@@ -123,9 +123,6 @@ class DisciplineLessonPlanPdf
       colspan: 4
     )
 
-
-    classes = (!@discipline_lesson_plan.classes ? '' : @discipline_lesson_plan.classes.map { |classes| classes}.join(", "))
-
     teacher_discipline_classroom = TeacherDisciplineClassroom.where discipline_id: @discipline_lesson_plan.discipline.id, classroom_id: @discipline_lesson_plan.lesson_plan.classroom.id
 
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
@@ -134,14 +131,14 @@ class DisciplineLessonPlanPdf
     @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 6)
     @unity_cell = make_cell(content: @discipline_lesson_plan.lesson_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 6)
 
-    @plan_date_header = make_cell(content: 'Data', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @plan_date_cell = make_cell(content: @discipline_lesson_plan.lesson_plan.lesson_plan_date.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @start_at_header = make_cell(content: 'Data inicial', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
+    @start_at_cell = make_cell(content: @discipline_lesson_plan.lesson_plan.start_at.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+
+    @end_at_header = make_cell(content: 'Data final', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
+    @end_at_cell = make_cell(content: @discipline_lesson_plan.lesson_plan.end_at.strftime("%d/%m/%Y"), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
     @classroom_cell = make_cell(content: @discipline_lesson_plan.lesson_plan.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
-
-    @class_header = make_cell(content: 'Aulas', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @class_cell = make_cell(content: classes.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 4)
     @discipline_cell = make_cell(content: @discipline_lesson_plan.discipline.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
@@ -175,8 +172,8 @@ class DisciplineLessonPlanPdf
       [@unity_cell],
       [@discipline_header, @classroom_header],
       [@discipline_cell, @classroom_cell],
-      [@teacher_header, @plan_date_header, @class_header],
-      [@teacher_cell, @plan_date_cell, @class_cell]
+      [@teacher_header, @start_at_header, @end_at_header],
+      [@teacher_cell, @start_at_cell, @end_at_cell]
     ]
 
     table(general_information_table_data, width: bounds.width) do

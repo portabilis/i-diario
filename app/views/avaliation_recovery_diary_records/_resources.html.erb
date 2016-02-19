@@ -1,0 +1,25 @@
+<tbody id="resources-tbody">
+  <% if @avaliation_recovery_diary_records.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @avaliation_recovery_diary_records.each do |avaliation_recovery_diary_record| %>
+      <tr>
+        <td><%= avaliation_recovery_diary_record.recovery_diary_record.unity %></td>
+        <td><%= avaliation_recovery_diary_record.recovery_diary_record.classroom %></td>
+        <td><%= avaliation_recovery_diary_record.recovery_diary_record.discipline %></td>
+        <td><%= avaliation_recovery_diary_record.avaliation.to_s %></td>
+        <td><%= l(avaliation_recovery_diary_record.recovery_diary_record.recorded_at) %></td>
+        <td class="actions">
+          <%= link_to t('views.index.edit'),
+                edit_avaliation_recovery_diary_record_path(avaliation_recovery_diary_record),
+                class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'),
+                avaliation_recovery_diary_record_path(avaliation_recovery_diary_record),
+                class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

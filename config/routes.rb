@@ -77,7 +77,7 @@ Rails.application.routes.draw do
     resource :***REMOVED***_configs, only: [:edit, :update], concerns: :history
     resources :***REMOVED***s, concerns: :history
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
-      resources :syncronizations, only: [:index, :create]
+      resources :synchronizations, only: [:index, :create]
     end
     resource :contact_school, only: [:new, :create]
     resource :notification, only: [:edit, :update], concerns: :history
@@ -110,7 +110,7 @@ Rails.application.routes.draw do
       resources :material_exit_items, only: [:index]
     end
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, only: [:index, :edit, :update], concerns: :history
+    resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***s, concerns: :history
     resources :***REMOVED***, concerns: :history
@@ -152,19 +152,24 @@ Rails.application.routes.draw do
     end
     resources :school_calendar_steps, only: [:show]
 
-    resources :teaching_plans, concerns: :history
+    resources :discipline_teaching_plans, concerns: :history
+    resources :knowledge_area_teaching_plans, concerns: :history
     resources :discipline_lesson_plans, concerns: :history
     resources :knowledge_area_lesson_plans, concerns: :history
-    resources :classrooms, only: [:index, :show]
+    resources :classrooms, only: [:index, :show] do
+      resources :students, only: [:index]
+    end
     resources :disciplines, only: [:index]
     resources :knowledge_areas, only: [:index]
     resources :exam_rules, only: [:index]
     resources :avaliations, concerns: :history
     resources :teacher_avaliations, only: :index
     resources :daily_notes, only: [:new, :create, :edit, :update, :destroy], concerns: :history
+    resources :daily_note_students, only: [:index]
     resources :school_term_recovery_diary_records, concerns: :history
     resources :final_recovery_diary_records, concerns: :history
-    resources :conceptual_exams, only: [:new, :create, :edit, :update]
+    resources :avaliation_recovery_diary_records, concerns: :history
+    resources :conceptual_exams, concerns: :history
     resources :descriptive_exams, only: [:new, :create, :edit, :update]
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
@@ -185,12 +190,12 @@ Rails.application.routes.draw do
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
-    get '/reports/lesson_plan_discipline', to: 'lesson_plan_discipline_report#form', as: 'lesson_plan_discipline_report'
-    post '/reports/lesson_plan_discipline', to: 'lesson_plan_discipline_report#report', as: 'lesson_plan_discipline_report'
+    get '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#form', as: 'discipline_lesson_plan_report'
+    post '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#report', as: 'discipline_lesson_plan_report'
 
     post '/food_composition', to: 'food_composition#calculate'
 
-    get '/reports/lesson_plan_knowledge_area', to: 'lesson_plan_knowledge_area_report#form', as: 'lesson_plan_knowledge_area_report'
-    post '/reports/lesson_plan_knowledge_area', to: 'lesson_plan_knowledge_area_report#report', as: 'lesson_plan_knowledge_area_report'
+    get '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#form', as: 'knowledge_area_lesson_plan_report'
+    post '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#report', as: 'knowledge_area_lesson_plan_report'
   end
 end

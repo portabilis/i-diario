@@ -154,9 +154,15 @@ navigation:
             type: "school_calendar_events"
             visible: "only-when-active"
   - ***REMOVED***:
-      type: "teaching_plans"
+      type: "teaching_plans_***REMOVED***"
       icon: "fa-book"
-      path: "teaching_plans_path"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "discipline_teaching_plans"
+            path: "discipline_teaching_plans_path"
+        - ***REMOVED***:
+            type: "knowledge_area_teaching_plans"
+            path: "knowledge_area_teaching_plans_path"
   - ***REMOVED***:
       type: "lesson_plans_***REMOVED***"
       icon: "fa-pencil"
@@ -173,7 +179,7 @@ navigation:
       sub***REMOVED***s:
         - ***REMOVED***:
             type: "conceptual_exams"
-            path: "new_conceptual_exam_path"
+            path: "conceptual_exams_path"
         - ***REMOVED***:
             type: "descriptive_exams"
             path: "new_descriptive_exam_path"
@@ -193,6 +199,9 @@ navigation:
         - ***REMOVED***:
             type: "final_recovery_diary_records"
             path: "final_recovery_diary_records_path"
+        - ***REMOVED***:
+            type: "avaliation_recovery_diary_records"
+            path: "avaliation_recovery_diary_records_path"
   - ***REMOVED***:
       type: "frequencies_***REMOVED***"
       icon: "fa-check-square-o"
@@ -217,11 +226,11 @@ navigation:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
         - ***REMOVED***:
-            type: "lesson_plan_discipline_report"
-            path: "lesson_plan_discipline_report_path"
+            type: "discipline_lesson_plan_report"
+            path: "discipline_lesson_plan_report_path"
         - ***REMOVED***:
-            type: "lesson_plan_knowledge_area_report"
-            path: "lesson_plan_knowledge_area_report_path"
+            type: "knowledge_area_lesson_plan_report"
+            path: "knowledge_area_lesson_plan_report_path"
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"
       icon: "fa-arrow-circle-up"

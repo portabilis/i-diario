@@ -22,7 +22,7 @@ class User < ActiveRecord::Base
   belongs_to :current_user_role, class_name: 'UserRole'
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
-  has_many :syncronizations, class_name: "IeducarApiSyncronization", foreign_key: :author_id
+  has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id
   has_many :***REMOVED***, dependent: :destroy
   has_many :requested_***REMOVED***, class_name: "***REMOVED***Request",
     foreign_key: :requestor_id

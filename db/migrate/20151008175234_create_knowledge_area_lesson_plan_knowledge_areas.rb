@@ -12,7 +12,7 @@ class CreateKnowledgeAreaLessonPlanKnowledgeAreas < ActiveRecord::Migration
 
     add_foreign_key :knowledge_area_lesson_plan_knowledge_areas,
       :knowledge_area_lesson_plans,
-      name: 'lesson_plan_knowledge_areas_knowledge_area_lesson_plan_id_fk'
+      name: 'knowledge_area_lesson_plans_knowledge_area_lesson_plan_id_fk'
       
     add_foreign_key :knowledge_area_lesson_plan_knowledge_areas, :knowledge_areas
   end

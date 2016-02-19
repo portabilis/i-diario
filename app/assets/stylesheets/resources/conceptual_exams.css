@@ -1,0 +1,5 @@
+table.table-condensed.table-bordered > tbody > tr > td.knowledge-area-table-data {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  background-color: #f9f9f9;
+}

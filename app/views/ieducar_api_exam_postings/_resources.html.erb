@@ -32,7 +32,7 @@
       </td>
 
       <td>
-        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting") && instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").syncronization_in_progress? %>
+        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting") && instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").synchronization_in_progress? %>
             <%= link_to 'Enviar', '#', class: 'btn bg-color-red txt-color-white disabled' %>
         <% else %>
           <%= link_to 'Enviar', ieducar_api_exam_postings_path(school_calendar_step_id: step.id, post_type: value.last),

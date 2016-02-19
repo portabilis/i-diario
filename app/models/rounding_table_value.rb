@@ -7,6 +7,10 @@ class RoundingTableValue < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:value].desc) }
 
   def to_s
-    label
+    if description.present?
+      "#{description} (#{label})"
+    else
+      label
+    end
   end
 end

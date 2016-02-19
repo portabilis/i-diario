@@ -16,7 +16,8 @@ RSpec.describe KnowledgeAreaLessonPlan, type: :model do
       knowledge_area = FactoryGirl.create(:knowledge_area)
       another_lesson_plan = FactoryGirl.create(
         :lesson_plan,
-        lesson_plan_date: '30/06/2020'
+        start_at: '30/06/2020',
+        end_at: '07/07/2020'
       )
       another_knowledge_area_lesson_plan = FactoryGirl.create(
         :knowledge_area_lesson_plan,
@@ -28,7 +29,8 @@ RSpec.describe KnowledgeAreaLessonPlan, type: :model do
         :lesson_plan,
         school_calendar: another_lesson_plan.school_calendar,
         classroom: another_lesson_plan.classroom,
-        lesson_plan_date: '30/06/2020'
+        start_at: '06/07/2020',
+        end_at: '30/07/2020'
       )
       subject = FactoryGirl.build(
         :knowledge_area_lesson_plan,
@@ -37,8 +39,7 @@ RSpec.describe KnowledgeAreaLessonPlan, type: :model do
       )
 
       expect(subject).to_not be_valid
-      expect(subject.errors.messages[:lesson_plan]).to include('já existe um plano de aula para a área de conhecimento informada')
-      expect(subject.lesson_plan.errors.messages[:lesson_plan_date]).to include('já existe um plano de aula para a área de conhecimento informada')
+      expect(subject.errors.messages[:knowledge_area_ids]).to include('já existe um plano de aula para a área de conhecimento informada')
     end
   end
 end

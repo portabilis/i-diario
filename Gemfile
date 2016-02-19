@@ -84,6 +84,7 @@ group :test do
   gem 'vcr', '~> 3.0'
   gem 'webmock', '~> 1.22', '>= 1.22.3'
   gem 'database_cleaner', '~> 1.5', '>= 1.5.1'
+  gem 'pdf-inspector', :require => "pdf/inspector"
 end
 
 gem 'newrelic_rpm'

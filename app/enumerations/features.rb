@@ -35,7 +35,8 @@ class Features < EnumerateIt::Base
                    :test_settings,
                    :school_calendars,
                    :school_calendar_events,
-                   :teaching_plans,
+                   :discipline_teaching_plans,
+                   :knowledge_area_teaching_plans,
                    :discipline_lesson_plans,
                    :knowledge_area_lesson_plans,
                    :avaliations,
@@ -50,9 +51,10 @@ class Features < EnumerateIt::Base
                    :exam_record_report,
                    :attendance_record_report,
                    :***REMOVED***,
-                   :lesson_plan_discipline_report,
-                   :lesson_plan_knowledge_area_report,
-                   :ieducar_api_exam_postings
+                   :discipline_lesson_plan_report,
+                   :knowledge_area_lesson_plan_report,
+                   :ieducar_api_exam_postings,
+                   :avaliation_recovery_diary_records
 
   sort_by :translation
 end
