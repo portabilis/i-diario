@@ -49,6 +49,8 @@ class TeachersSynchronizer
                                                                     classroom_api_code: record['turma_id'],
                                                                     year: year).first
 
+        next if !discipline_classroom
+
         discipline = Discipline.find_by(api_code: discipline_classroom.discipline_api_code)
         classroom = Classroom.find_by(api_code: discipline_classroom.classroom_api_code)
 
