@@ -23,7 +23,6 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   validates :classroom, presence: true
   validates :discipline, presence: true
   validates :recorded_at, presence: true
-                          # uniqueness: { scope: [:unity_id, :classroom_id, :discipline_id] }
 
   validate :at_least_one_assigned_student
   validate :recorded_at_must_be_less_than_or_equal_to_today

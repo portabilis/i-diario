@@ -32,24 +32,21 @@ class DailyNoteStudent < ActiveRecord::Base
   end
 
   def recovered_note
-    return note if !has_recovery?
-    note ||= 0.00
-    recovery_diary_record_id = daily_note.avaliation.recovery_diary_record.id
-    recovery_note = RecoveryDiaryRecordStudent.
-      find_by(recovery_diary_record_id: recovery_diary_record_id, student_id: student.id).score.to_f
-    recovery_note > note ? recovery_note : note
+    recovery_note.to_f > note.to_f ? recovery_note : note
   end
 
   def recovery_note
     if has_recovery?
       recovery_diary_record_id = daily_note.avaliation.recovery_diary_record.id
       RecoveryDiaryRecordStudent.
-        find_by(recovery_diary_record_id: recovery_diary_record_id, student_id: student.id).score
+        find_by(recovery_diary_record_id: recovery_diary_record_id, student_id: student.id).try(:score)
+    else
+      0.0
     end
   end
 
   def has_recovery?
-    daily_note.avaliation.recovery_diary_record
+    daily_note.avaliation.recovery_diary_record.present?
   end
 
   private
