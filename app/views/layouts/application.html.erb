@@ -105,7 +105,7 @@
     <div class="page-footer">
       <div class="row">
         <div class="col-xs-12 col-sm-6">
-          <span class="txt-color-white">&copy; <%= current_entity.name == '***REMOVED***' ? '***REMOVED***' : 'Portabilis' %> <%= Time.zone.today.year %></span>
+          <span class="txt-color-white"><%= entity_copyright(current_entity.name) %></sspan>
         </div>
       </div>
     </div>
