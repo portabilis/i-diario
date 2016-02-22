@@ -39,5 +39,6 @@ class IeducarSynchronizerWorker
     Unity.with_api_code.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }
       .uniq
       .reject(&:blank?)
+      .sort
   end
 end
