@@ -10,7 +10,7 @@ class IeducarExamPostingWorker
       begin
         case posting.post_type
         when ApiPostingTypes::NUMERICAL_EXAMS
-          NumericalExamPosting.post!(posting)
+          NumericalExamPoster.post!(posting)
         when ApiPostingTypes::CONCEPTUAL_EXAMS
           ConceptualExamPosting.post!(posting)
         when ApiPostingTypes::DESCRIPTIVE_EXAMS

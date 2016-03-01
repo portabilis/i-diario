@@ -7,7 +7,7 @@ RSpec.describe IeducarApi::PostExams, :type => :service do
   let(:secret_key) { "***REMOVED***" }
   let(:unity_id) { 1 }
   let(:etapa) { 1 }
-  let(:turmas) { {  '1234' => { turma_id: '1234' } } }
+  let(:turma) { {  '1234' => { turma_id: '1234' } } }
 
   subject do
     IeducarApi::PostExams.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
@@ -16,21 +16,22 @@ RSpec.describe IeducarApi::PostExams, :type => :service do
   describe "#send_post" do
     it "returns message" do
       VCR.use_cassette('post_exams') do
-        result = subject.send_post(etapa: etapa, turmas: turmas)
+        result = subject.send_post(etapa: etapa, turma: turma)
 
         expect(result.keys).to include "msgs"
+        expect(result["any_error_msg"]).to be false
       end
     end
 
-    it "necessary to inform classrooms" do
+    it "necessary to inform classroom" do
       expect {
         subject.send_post(unity_id: 1)
-      }.to raise_error("É necessário informar as turmas")
+      }.to raise_error("É necessário informar a turma")
     end
 
     it "necessary to inform etapa" do
       expect {
-        subject.send_post(unity_id: 1, turmas: turmas)
+        subject.send_post(unity_id: 1, turma: turma)
       }.to raise_error("É necessário informar a etapa")
     end
   end
