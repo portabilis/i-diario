@@ -22,6 +22,10 @@ class IeducarApiConfiguration < ActiveRecord::Base
     synchronizations.started.exists?
   end
 
+  def authenticate!(token)
+    self.token == token
+  end
+
   def to_api
     {
       url: url,
