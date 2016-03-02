@@ -3,6 +3,7 @@ module Portabilis
     map_type :autocomplete,                      :to => Portabilis::Inputs::AutocompleteInput
     map_type :decimal, :float,                   :to => Portabilis::Inputs::DecimalInput
     map_type :date,                              :to => Portabilis::Inputs::DateInput
+    map_type :datetime,                              :to => Portabilis::Inputs::DatetimeInput
     map_type :boolean,                           :to => Portabilis::Inputs::BooleanInput
     map_type :string, :email, :integer,          :to => Portabilis::Inputs::StringInput
     map_type :tel,                               :to => Portabilis::Inputs::TelInput
