@@ -45,6 +45,7 @@ Rails.application.routes.draw do
     end
 
     resources :teachers, only: :index
+    resources :***REMOVED***, only: :index
 
     root 'dashboard#index'
 
