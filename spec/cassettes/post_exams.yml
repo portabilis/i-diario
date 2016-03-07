@@ -5,7 +5,7 @@ http_interactions:
     uri: http://test.ieducar.com.br/module/Api/Diario
     body:
       encoding: US-ASCII
-      string: etapa=1&turmas[1234][turma_id]=1234&resource=notas&oper=post&access_key=***REMOVED***&secret_key=***REMOVED***&instituicao_id=1
+      string: etapa=1&turma[1234][turma_id]=1234&resource=notas&oper=post&access_key=***REMOVED***&secret_key=***REMOVED***&instituicao_id=1
     headers:
       Accept:
       - "*/*; q=0.5, application/xml"
@@ -43,6 +43,6 @@ http_interactions:
       encoding: UTF-8
       string: '{"oper":"post","resource":"notas","msgs":[{"msg":"Notas postadas com
         sucesso!","type":"success"}],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 18 Aug 2015 20:20:09 GMT
 recorded_with: VCR 2.9.3

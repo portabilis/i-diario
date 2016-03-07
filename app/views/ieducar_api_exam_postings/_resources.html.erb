@@ -1,6 +1,6 @@
 <tbody>
   <% ApiPostingTypes.to_a.each do |value| %>
-    <% next if value.last == ApiPostingTypes::FINAL_RECOVERIES && step != step.school_calendar.steps.to_a.last %>
+    <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != step.school_calendar.steps.to_a.last %>
 
     <tr>
       <td>
