@@ -1,4 +1,4 @@
-class DescriptiveExamPosting
+class DescriptiveExamPoster
   def self.post!(posting)
     new(posting).post!
   end

@@ -4,9 +4,9 @@ module IeducarApi
     def send_post(params = {})
       params.reverse_merge!(path: "module/Api/Diario")
 
-      raise ApiError.new("É necessário informar as turmas") if params[:turmas].blank?
       raise ApiError.new("É necessário informar o recurso") if params[:resource].blank?
       raise ApiError.new("É necessário informar a etapa") if params[:etapa].blank?
+      raise ApiError.new("É necessário informar as faltas") if params[:faltas].blank?
       super
     end
   end
