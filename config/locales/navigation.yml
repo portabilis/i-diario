@@ -71,6 +71,8 @@ pt-BR:
     knowledge_area_lesson_plan_report: "Registro de conteúdos por áreas de conhecimento"
     ***REMOVED***: "***REMOVED***"
     ieducar_api_exam_postings: "Envio de avaliações"
+    school_frequency_***REMOVED***: "Frequência na escola"
+    ***REMOVED***: "***REMOVED***"
 
   enumerations:
     features:

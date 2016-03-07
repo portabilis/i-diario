@@ -74,6 +74,7 @@ pt-BR:
     classrooms: 'turmas'
     disciplines: 'disciplinas'
     school_calendar_steps: 'etapas'
+    ***REMOVED***: 'acesso-do-aluno-a-escola'
 
     # actions
     edit: 'editar'

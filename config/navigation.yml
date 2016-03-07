@@ -213,6 +213,13 @@ navigation:
             type: "absence_justifications"
             path: "absence_justifications_path"
   - ***REMOVED***:
+      type: "school_frequency_***REMOVED***"
+      icon: "fa-building"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
+  - ***REMOVED***:
       type: "reports"
       icon: "fa-files-o"
       sub***REMOVED***s:

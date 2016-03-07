@@ -54,7 +54,8 @@ class Features < EnumerateIt::Base
                    :discipline_lesson_plan_report,
                    :knowledge_area_lesson_plan_report,
                    :ieducar_api_exam_postings,
-                   :avaliation_recovery_diary_records
+                   :avaliation_recovery_diary_records,
+                   :***REMOVED***
 
   sort_by :translation
 end
