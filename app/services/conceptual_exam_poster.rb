@@ -9,8 +9,10 @@ class ConceptualExamPoster
 
   def post!
     post_conceptual_exams.each do |classroom_id, conceptual_exam_classroom|
-      conceptual_exam_classroom.each do |discipline_id, conceptual_exam_discipline|
-        api.send_post( notas: { classroom_id => { discipline_id => conceptual_exam_discipline } }, etapa: posting.school_calendar_step.to_number )
+      conceptual_exam_classroom.each do |student_id, conceptual_exam_student|
+        conceptual_exam_student.each do |discipline_id, conceptual_exam_discipline|
+          api.send_post( notas: { classroom_id => { student_id => { discipline_id => conceptual_exam_discipline } } }, etapa: posting.school_calendar_step.to_number, resource: 'notas' )
+        end
       end
     end
 
