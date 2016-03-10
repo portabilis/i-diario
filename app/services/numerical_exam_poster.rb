@@ -9,8 +9,10 @@ class NumericalExamPoster
 
   def post!
     post_by_classrooms.each do |classroom_id, classroom_score|
-      classroom_score.each do |discipline_id, discipline_score|
-        api.send_post(notas: { classroom_id => { discipline_id => discipline_score } }, etapa: @post_data.school_calendar_step.to_number, resource: 'notas')
+      classroom_score.each do |student_id, student_score|
+        student_score.each do |discipline_id, discipline_score|
+          api.send_post(notas: { classroom_id => { student_id => { discipline_id => discipline_score } } }, etapa: @post_data.school_calendar_step.to_number, resource: 'notas')
+        end
       end
     end
   end
