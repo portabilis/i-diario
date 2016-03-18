@@ -92,8 +92,7 @@ class DailyNotesController < ApplicationController
           date: @daily_note.avaliation.test_date
         }
       )
-
-      @api_students = result['alunos'].uniq
+      @api_students = remove_duplicated_students(result['alunos'])
     rescue IeducarApi::Base::ApiError => e
       flash[:alert] = e.message
       fetch_unities
@@ -159,5 +158,15 @@ class DailyNotesController < ApplicationController
 
       student.destroy unless student_exists
     end
+  end
+
+  def remove_duplicated_students(students)
+    unique_student_ids = []
+    unique_students = []
+    students.each do |student|
+      unique_students << student unless unique_student_ids.include? student["id"]
+      unique_student_ids << student["id"]
+    end
+    unique_students
   end
 end
