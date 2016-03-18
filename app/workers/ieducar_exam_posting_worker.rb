@@ -9,16 +9,16 @@ class IeducarExamPostingWorker
 
       begin
         case posting.post_type
-        when ApiPostingTypes::NUMERICAL_EXAMS
-          NumericalExamPosting.post!(posting)
-        when ApiPostingTypes::CONCEPTUAL_EXAMS
-          ConceptualExamPosting.post!(posting)
-        when ApiPostingTypes::DESCRIPTIVE_EXAMS
-          DescriptiveExamPosting.post!(posting)
-        when ApiPostingTypes::ABSENCES
-          AbsencePosting.post!(posting)
-        when ApiPostingTypes::FINAL_RECOVERIES
-          FinalRecoveryPoster.post(posting)
+        when ApiPostingTypes::NUMERICAL_EXAM
+          NumericalExamPoster.post!(posting)
+        when ApiPostingTypes::CONCEPTUAL_EXAM
+          ConceptualExamPoster.post!(posting)
+        when ApiPostingTypes::DESCRIPTIVE_EXAM
+          DescriptiveExamPoster.post!(posting)
+        when ApiPostingTypes::ABSENCE
+          AbsencePoster.post!(posting)
+        when ApiPostingTypes::FINAL_RECOVERY
+          FinalRecoveryPoster.post!(posting)
         end
 
         posting.mark_as_completed! 'Envio realizado com sucesso!'

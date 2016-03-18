@@ -4,10 +4,10 @@ class FinalRecoveryPoster
   end
 
   def self.post(post_data)
-    new(post_data).post
+    new(post_data).post!
   end
 
-  def post
+  def post!
     params = build_params
     params.each { |key, value| api.send_post(turmas: { key => value }) }
   end
