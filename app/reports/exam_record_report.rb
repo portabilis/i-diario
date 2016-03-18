@@ -117,13 +117,6 @@ class ExamRecordReport
           (students[student_id][:scores] ||= []) << make_cell(content: student_note.note.to_s, align: :center)
 
           (students[student_id][:scores] ||= []) << make_cell(content: student_note.recovery_note.to_s, align: :center) if student_note.has_recovery?
-
-        end
-
-        @students.each do |student|
-          unless daily_note.students.any? { |s| s.student.id == student.id }
-            (students[student.id][:scores] ||= []) << make_cell(content: '', font_style: :bold, align: :center)
-          end
         end
       end
 
