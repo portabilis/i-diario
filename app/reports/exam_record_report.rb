@@ -83,11 +83,10 @@ class ExamRecordReport
   def daily_notes_table
     averages = {}
     self.any_student_with_dependence = false
+    students_ids = fetch_students_ids
 
-    @daily_notes.each do |daily_note|
-      daily_note.students.each do |student|
-        averages[student.student.id] = StudentAverageCalculator.new(student.student).calculate(@daily_notes.first.discipline, @school_calendar_step.id)
-      end
+    students_ids.each do |student_id|
+      averages[student_id] = StudentAverageCalculator.new(Student.find(student_id)).calculate(@daily_notes.first.discipline, @school_calendar_step.id)
     end
 
     sliced_daily_notes = @daily_notes.each_slice(10).to_a
@@ -104,16 +103,20 @@ class ExamRecordReport
         avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center)
         avaliations << make_cell(content: "Rec. #{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center) if daily_note.avaliation.recovery_diary_record
 
-        daily_note.students.each do |student|
-          self.any_student_with_dependence = any_student_with_dependence || student.dependence?
-          (students[student.student.id] ||= {})[:name] = student.student.name
+        students_ids.each do |student_id|
+          student_note = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note.id) || NullDailyNoteStudent.new
+          student = Student.find(student_id)
 
-          students[student.student.id] = {} if students[student.student.id].nil?
-          students[student.student.id][:dependence] = students[student.student.id][:dependence] || student.dependence?
+          self.any_student_with_dependence = any_student_with_dependence || student_note.dependence?
 
-          (students[student.student.id][:scores] ||= []) << make_cell(content: student.note.to_s, align: :center)
+          (students[student_id] ||= {})[:name] = student.name
 
-          (students[student.student.id][:scores] ||= []) << make_cell(content: student.recovery_note.to_s, align: :center) if student.has_recovery?
+          students[student_id] = {} if students[student_id].nil?
+          students[student_id][:dependence] = students[student_id][:dependence] || student_note.dependence?
+
+          (students[student_id][:scores] ||= []) << make_cell(content: student_note.note.to_s, align: :center)
+
+          (students[student_id][:scores] ||= []) << make_cell(content: student_note.recovery_note.to_s, align: :center) if student_note.has_recovery?
 
         end
 
@@ -209,5 +212,15 @@ class ExamRecordReport
                 size: 8,
                 align: :right }
     number_pages(string, options)
+  end
+
+  def fetch_students_ids
+    students_ids = []
+    @daily_notes.each do |daily_note|
+      daily_note.students.each do |student|
+        students_ids << student.student.id
+      end
+    end
+    students_ids.uniq
   end
 end
