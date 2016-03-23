@@ -48,12 +48,13 @@ class TeachersSynchronizer
         if discipline_classroom = discipline_classrooms.unscoped.where(teacher_api_code: teacher.api_code,
                                                                       discipline_api_code: record['disciplina_id'],
                                                                       classroom_api_code: record['turma_id'],
-                                                                      year: year).first
-
+                                                                      year: year,
+                                                                      specific_area: record['area_especifica']).first
           discipline_classroom.update_attributes(
             active: true,
             discipline_id: Discipline.find_by(api_code: discipline_classroom.discipline_api_code).try(:id),
-            classroom_id: Classroom.find_by(api_code: discipline_classroom.classroom_api_code).try(:id)
+            classroom_id: Classroom.find_by(api_code: discipline_classroom.classroom_api_code).try(:id),
+            specific_area: record['area_especifica']
           )
         else
           discipline_classrooms.create!(
@@ -64,7 +65,8 @@ class TeachersSynchronizer
             discipline_id: Discipline.find_by(api_code: record['disciplina_id']).try(:id),
             discipline_api_code: record['disciplina_id'],
             classroom_id: Classroom.find_by(api_code: record['turma_id']).try(:id),
-            classroom_api_code: record['turma_id']
+            classroom_api_code: record['turma_id'],
+            specific_area: record['area_especifica']
           )
         end
       end
