@@ -116,7 +116,7 @@ class ExamRecordReport
 
           (students[student_id][:scores] ||= []) << make_cell(content: student_note.note.to_s, align: :center)
 
-          (students[student_id][:scores] ||= []) << make_cell(content: student_note.recovery_note.to_s, align: :center) if student_note.has_recovery?
+          (students[student_id][:scores] ||= []) << make_cell(content: student_note.recovery_note.to_s, align: :center) if daily_note.avaliation.recovery_diary_record.present?
         end
       end
 
