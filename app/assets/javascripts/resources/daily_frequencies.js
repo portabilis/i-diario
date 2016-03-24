@@ -3,7 +3,7 @@ $(function () {
   window.disciplines = [];
   window.avaliations = [];
 
-  var $hideWhenGlobalAbsence = $(".hide_when_global_absence"),
+  var $disciplineAbsenceFields = $(".discipline_absence_fields"),
       $globalAbsence = $("#daily_frequency_global_absence"),
       $examRuleNotFoundAlert = $('#exam-rule-not-found-alert');
 
@@ -85,14 +85,14 @@ $(function () {
 
         if(examRule.frequency_type == 1){
           $globalAbsence.val(1);
-          $hideWhenGlobalAbsence.hide();
+          $disciplineAbsenceFields.hide();
         }else{
           $globalAbsence.val(0);
-          $hideWhenGlobalAbsence.show();
+          $disciplineAbsenceFields.show();
         }
       }else{
         $globalAbsence.val(0);
-        $hideWhenGlobalAbsence.hide();
+        $disciplineAbsenceFields.hide();
 
         // Display alert
         $examRuleNotFoundAlert.removeClass('hidden');
@@ -151,7 +151,7 @@ $(function () {
     }
   });
 
-  $hideWhenGlobalAbsence.hide();
+  $disciplineAbsenceFields.hide();
 
   // fix to checkboxes work correctly
   $('[name="daily_frequency_student[][present]"][type=hidden]').remove();
