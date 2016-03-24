@@ -15,17 +15,5 @@ RSpec.describe DailyFrequency, :type => :model do
     it { should validate_presence_of :classroom }
     it { should validate_presence_of :frequency_date }
     it { should validate_presence_of :school_calendar }
-
-    context "it is global absence" do
-      before { subject.global_absence = true }
-
-      it { should_not validate_presence_of :discipline }
-    end
-
-    context "it is not global absence" do
-      before { subject.global_absence = false }
-
-      it { should validate_presence_of :discipline }
-    end
   end
 end
