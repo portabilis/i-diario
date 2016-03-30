@@ -23,9 +23,10 @@
         </div>
       </div>
 
-      <div class="row hide-when-global-absence">
-        <%= f.input :global_absence, as: :hidden %>
 
+      <div class="row hide-when-global-absence">
+
+        <%= f.input :current_teacher_id, as: :hidden, input_html: { value: @teacher.id } %>
         <div class="col col-sm-4">
           <%= f.input :discipline_id, as: :select2, elements: @disciplines, required: true, input_html: { value: @attendance_record_report_form.discipline_id } %>
         </div>

@@ -42,6 +42,7 @@ class AttendanceRecordReportController < ApplicationController
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
     @number_of_classes = current_school_calendar.number_of_classes
+    @teacher = current_teacher
   end
 
   def resource_params
@@ -51,6 +52,7 @@ class AttendanceRecordReportController < ApplicationController
                                                           :class_numbers,
                                                           :start_at,
                                                           :end_at,
-                                                          :school_calendar_year)
+                                                          :school_calendar_year,
+                                                          :current_teacher_id)
   end
 end
