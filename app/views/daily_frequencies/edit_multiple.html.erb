@@ -9,7 +9,7 @@
     <tbody style="border-bottom: 1px solid #ccc;">
       <td><%= @daily_frequencies.first.classroom.unity %></td>
       <td><%= @daily_frequencies.first.classroom %></td>
-      <td><%= @daily_frequencies.first.global_absence? ? 'Todas' : @daily_frequencies.first.discipline %></td>
+      <td><%= @daily_frequencies.first.discipline || 'Todas' %></td>
       <td><%= l @daily_frequencies.first.frequency_date %></td>
     </tbody>
   </table>
@@ -21,7 +21,7 @@
         <th style="min-width: 200px;"><%= DailyFrequencyStudent.human_attribute_name :student %></th>
         <% @daily_frequencies.each do |daily_frequency| %>
             <th>
-              <% if !daily_frequency.global_absence? %>
+              <% if daily_frequency.class_number? %>
                 <%= daily_frequency.class_number.to_s + 'ª Aula - '%>
               <% end %>
               <%= DailyFrequencyStudent.human_attribute_name(:present) %>
