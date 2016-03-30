@@ -175,7 +175,7 @@ class DailyFrequenciesController < ApplicationController
     absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
     absence_type_definer.define!
 
-    if (absence_type_definer.frequency_type == FrequencyTypes::GENERAL) && (@class_numbers.nil? || @class_numbers.empty?)
+    if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@class_numbers.nil? || @class_numbers.empty?)
       @error_on_class_numbers = true
       flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
       return false

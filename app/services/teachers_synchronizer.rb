@@ -45,16 +45,16 @@ class TeachersSynchronizer
 
       collection.each do |record|
 
-        if discipline_classroom = discipline_classrooms.unscoped.where(teacher_api_code: teacher.api_code,
+        if discipline_classroom = discipline_classrooms.unscoped  .where(teacher_api_code: teacher.api_code,
                                                                       discipline_api_code: record['disciplina_id'],
                                                                       classroom_api_code: record['turma_id'],
                                                                       year: year,
-                                                                      specific_area: record['area_especifica']).first
+                                                                      allow_absence_by_discipline: record['permite_lancar_faltas_componente']).first
           discipline_classroom.update_attributes(
             active: true,
             discipline_id: Discipline.find_by(api_code: discipline_classroom.discipline_api_code).try(:id),
             classroom_id: Classroom.find_by(api_code: discipline_classroom.classroom_api_code).try(:id),
-            specific_area: record['area_especifica']
+            allow_absence_by_discipline: record['permite_lancar_faltas_componente']
           )
         else
           discipline_classrooms.create!(
@@ -66,7 +66,7 @@ class TeachersSynchronizer
             discipline_api_code: record['disciplina_id'],
             classroom_id: Classroom.find_by(api_code: record['turma_id']).try(:id),
             classroom_api_code: record['turma_id'],
-            specific_area: record['area_especifica']
+            allow_absence_by_discipline: record['permite_lancar_faltas_componente']
           )
         end
       end

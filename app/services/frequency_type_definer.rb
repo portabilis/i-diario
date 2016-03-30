@@ -13,14 +13,14 @@ class FrequencyTypeDefiner
       return
     end
 
-    specific_area_record = TeacherDisciplineClassroom
+    allow_absence_by_discipline_record = TeacherDisciplineClassroom
         .find_by(teacher_id: @teacher.id,
                  classroom_id: @classroom.id,
                  year: current_year,
-                 specific_area: 1,
+                 allow_absence_by_discipline: 1,
                  active: true)
 
-    if specific_area_record
+    if allow_absence_by_discipline_record
       @frequency_type = FrequencyTypes::BY_DISCIPLINE
     else
       @frequency_type = FrequencyTypes::GENERAL
