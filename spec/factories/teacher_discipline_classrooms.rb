@@ -5,6 +5,8 @@ FactoryGirl.define do
     sequence(:classroom_api_code) { |n| n.to_s }
     sequence(:discipline_api_code) { |n| n.to_s }
 
+    specific_area 0
+
     teacher
     classroom
     discipline

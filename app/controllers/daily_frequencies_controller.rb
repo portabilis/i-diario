@@ -23,7 +23,10 @@ class DailyFrequenciesController < ApplicationController
     if (@daily_frequency.valid? and validate_class_numbers)
       @daily_frequencies = []
 
-      if @daily_frequency.global_absence?
+      absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
+      absence_type_definer.define!
+
+      if absence_type_definer.frequency_type == FrequencyTypes::GENERAL
         @daily_frequencies = create_global_frequencies(resource_params)
       else
         @daily_frequencies = create_discipline_frequencies(resource_params)
@@ -169,7 +172,10 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def validate_class_numbers
-    if !@daily_frequency.global_absence? && (@class_numbers.nil? || @class_numbers.empty?)
+    absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
+    absence_type_definer.define!
+
+    if (absence_type_definer.frequency_type == FrequencyTypes::GENERAL) && (@class_numbers.nil? || @class_numbers.empty?)
       @error_on_class_numbers = true
       flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
       return false

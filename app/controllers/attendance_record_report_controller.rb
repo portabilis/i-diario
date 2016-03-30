@@ -51,7 +51,6 @@ class AttendanceRecordReportController < ApplicationController
                                                           :class_numbers,
                                                           :start_at,
                                                           :end_at,
-                                                          :school_calendar_year,
-                                                          :global_absence)
+                                                          :school_calendar_year)
   end
 end

@@ -83,13 +83,14 @@ $(function () {
       if(!$.isEmptyObject(examRule)){
         $examRuleNotFoundAlert.addClass('hidden');
 
-        if(examRule.frequency_type == 1){
-          $globalAbsence.val(1);
-          $disciplineAbsenceFields.hide();
-        }else{
+        if(examRule.frequency_type == 2 || examRule.allow_frequency_by_discipline){
           $globalAbsence.val(0);
           $disciplineAbsenceFields.show();
+        }else{
+          $globalAbsence.val(1);
+          $disciplineAbsenceFields.hide();
         }
+
       }else{
         $globalAbsence.val(0);
         $disciplineAbsenceFields.hide();
