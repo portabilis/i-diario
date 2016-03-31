@@ -1,0 +1,99 @@
+$(function() {
+  var flashMessages = new FlashMessages(),
+      $disciplineDiv = $("[data-discipline]"),
+      $studentDiv = $("[data-student]"),
+      $classroom = $("#absence_justification_classroom_id"),
+      $discipline = $("#absence_justification_discipline_id"),
+      $student = $("#absence_justification_student");
+
+  var currentDate = $('#current_date').val();
+
+  $classroom.on('change', function(e) {
+    toggleStudent(e.val != '' && e.val != 'empty');
+    fetchStudents();
+    toggleDiscipline(e.val != '' && e.val != 'empty');
+    fetchDisciplines();
+  });
+
+  function fetchStudents() {
+    var classroom_id = $classroom.select2('val');
+
+    $student.select2('val', '');
+    $student.select2({ data: [] });
+
+    if (!_.isEmpty(classroom_id)) {
+
+      $.ajax({
+        url: Routes.students_pt_br_path({
+          classroom_id: classroom_id,
+          date: currentDate,
+          format: 'json'
+        }),
+        success: fetchStudentsSuccess,
+        error: fetchStudentsError
+      });
+    }
+  };
+
+  function fetchStudentsSuccess(data) {
+    var students = _.map(data.students, function(student) {
+      return { id: student.id, text: student.name };
+    });
+
+    $student.select2({ data: students });
+  };
+
+  function fetchStudentsError() {
+    flashMessages.error('Ocorreu um erro ao buscar os alunos!')
+  };
+
+  function fetchDisciplines() {
+    var classroom_id = $classroom.select2('val');
+
+    $discipline.select2('val', '');
+    $discipline.select2({ data: [] });
+
+    if (!_.isEmpty(classroom_id) ) {
+      $.ajax({
+        url: Routes.disciplines_pt_br_path({
+          by_classroom: classroom_id,
+          format: 'json'
+        }),
+        success: fetchDisciplinesSucces,
+        error: fetchDisciplinesError
+      });
+    }
+  };
+
+  function fetchDisciplinesSucces(disciplines) {
+    var disciplines = _.map(disciplines, function(discipline){
+      return { id: discipline.id, text: discipline.description };
+    });
+
+    // console.log(disciplines);
+    $discipline.select2({ data: disciplines });
+  };
+
+  function fetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas!')
+  };
+
+  toggleDiscipline($classroom.val() != '' && $classroom.val() != 'empty');
+  toggleStudent($classroom.val() != '' && $classroom.val() != 'empty');
+
+  function toggleStudent(show) {
+    if (show) {
+      $studentDiv.show();
+    }else {
+      $studentDiv.hide();
+    }
+  }
+
+  function toggleDiscipline(show) {
+    if (show) {
+      $disciplineDiv.show();
+    }else {
+      $disciplineDiv.hide();
+    }
+  }
+});

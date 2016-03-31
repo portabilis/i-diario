@@ -1,8 +1,20 @@
 <div class="widget-body no-padding">
   <div class="table-responsive">
+  <%= simple_form_for :search, {url: absence_justifications_path, method: :get,
+                                html: {class: 'filterable_search_form'}} do |f| %>
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
+          <td></td>
+          <td><%= f.input :by_classroom, as: :select2, elements: @classrooms, label: false, placeholder: "Filtrar por turma" %></td>
+          <td><%= f.input :by_student, label: false, placeholder: "Filtrar por aluno" %></td>
+          <td><%= f.input :by_absence_date, as: :date, label: false, placeholder: "Filtrar por data inicial"%></td>
+          <td><%= f.input :by_absence_date_end, as: :date, label: false, placeholder: "Filtrar por data final" %></td>
+          <td></td>
+        </tr>
+        <tr>
+          <th><%= AbsenceJustification.human_attribute_name :unity %></th>
+          <th><%= AbsenceJustification.human_attribute_name :classroom %></th>
           <th><%= AbsenceJustification.human_attribute_name :student %></th>
           <th><%= AbsenceJustification.human_attribute_name :absence_date %></th>
           <th><%= AbsenceJustification.human_attribute_name :absence_date_end %></th>
@@ -12,7 +24,7 @@
 
       <%= render 'resources' %>
       <tfoot id="paginator" class="remote">
-        <td colspan="4">
+        <td colspan="6">
           <div id="page_entries_info" class="pull-left hidden-xs">
             <%= page_entries_info @absence_justifications %>
           </div>
@@ -22,5 +34,6 @@
         </td>
       </tfoot>
     </table>
+  <% end %>
   </div>
 </div>
