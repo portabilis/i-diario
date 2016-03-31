@@ -27,23 +27,6 @@ class DisciplineLessonPlan < ActiveRecord::Base
 
   private
 
-  def self.by_teacher_id_query(teacher_id)
-    joins(
-      :lesson_plan,
-      arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
-        .on(
-          TeacherDisciplineClassroom.arel_table[:classroom_id]
-            .eq(LessonPlan.arel_table[:classroom_id])
-            .and(
-              TeacherDisciplineClassroom.arel_table[:discipline_id]
-                .eq(arel_table[:discipline_id])
-            )
-        )
-        .join_sources
-      )
-      .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id))
-  end
-
   def self.by_date_query(date)
     date = date.to_date
     joins(:lesson_plan)
