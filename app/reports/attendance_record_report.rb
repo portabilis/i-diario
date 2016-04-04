@@ -90,10 +90,6 @@ class AttendanceRecordReport
       months = []
       students = {}
 
-      @students.each do |student|
-        (students[student.id] ||= {})[:name] = student.name
-      end
-
       daily_frequencies_slice.each do |daily_frequency|
         class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
         days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
