@@ -2,6 +2,7 @@ class KnowledgeAreaLessonPlanReportForm
   include ActiveModel::Model
 
   attr_accessor :unity_id,
+                :teacher_id,
                 :classroom_id,
                 :knowledge_area_id,
                 :date_start,
@@ -23,6 +24,7 @@ class KnowledgeAreaLessonPlanReportForm
     relation = KnowledgeAreaLessonPlan.by_unity_id(unity_id)
       .by_classroom_id(classroom_id)
       .by_date_range(date_start.to_date, date_end.to_date)
+      .by_teacher_id(teacher_id)
       .order(LessonPlan.arel_table[:start_at].asc)
 
     relation = relation.by_knowledge_area_id(knowledge_area_id) if knowledge_area_id.present?
