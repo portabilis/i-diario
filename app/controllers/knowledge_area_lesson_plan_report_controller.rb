@@ -39,6 +39,7 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
 
   def resource_params
     params.require(:knowledge_area_lesson_plan_report_form).permit(:unity_id,
+                                                          :teacher_id,
                                                           :classroom_id,
                                                           :date_start,
                                                           :date_end,
