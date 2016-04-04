@@ -95,10 +95,6 @@ class ExamRecordReport
       avaliations = []
       students = {}
 
-      @students.each do |student|
-        (students[student.id] ||= {})[:name] = student.name
-      end
-
       daily_notes_slice.each do |daily_note|
         avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center)
         avaliations << make_cell(content: "Rec. #{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center) if daily_note.avaliation.recovery_diary_record
