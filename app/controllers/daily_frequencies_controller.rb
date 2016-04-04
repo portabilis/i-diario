@@ -23,23 +23,13 @@ class DailyFrequenciesController < ApplicationController
     if (@daily_frequency.valid? and validate_class_numbers)
       @daily_frequencies = []
 
-      if @daily_frequency.global_absence?
-        params = resource_params
-        params[:discipline_id] = nil
-        @daily_frequencies << @daily_frequency =
-            DailyFrequency.find_or_create_by(unity_id: @daily_frequency.unity_id,
-                                              classroom_id: @daily_frequency.classroom_id,
-                                              frequency_date: @daily_frequency.frequency_date,
-                                              global_absence: true,
-                                              school_calendar: current_school_calendar)
+      absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
+      absence_type_definer.define!
+
+      if absence_type_definer.frequency_type == FrequencyTypes::GENERAL
+        @daily_frequencies = create_global_frequencies(resource_params)
       else
-        @class_numbers.each do |class_number|
-          params = resource_params
-          params[:class_number] = class_number
-          params[:school_calendar_id] = current_school_calendar.id
-          params[:frequency_date] = params[:frequency_date].to_date
-          @daily_frequencies << @daily_frequency = DailyFrequency.find_or_create_by(params)
-        end
+        @daily_frequencies = create_discipline_frequencies(resource_params)
       end
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
     else
@@ -84,8 +74,8 @@ class DailyFrequenciesController < ApplicationController
       @dependence_students << student[:student] if student[:dependence]
     end
 
-    @normal_students = @normal_students.sort_by { |student| student.name }
-    @dependence_students = @dependence_students.sort_by { |student| student.name }
+    @normal_students.sort_by! { |student| student.name }
+    @dependence_students.sort_by! { |student| student.name }
   end
 
   def update_multiple
@@ -160,7 +150,7 @@ class DailyFrequenciesController < ApplicationController
 
   def resource_params
     params.require(:daily_frequency).permit(
-      :unity_id, :classroom_id, :discipline_id, :global_absence, :frequency_date
+      :unity_id, :classroom_id, :discipline_id, :frequency_date
     )
   end
 
@@ -182,11 +172,35 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def validate_class_numbers
-    if !@daily_frequency.global_absence? && (@class_numbers.nil? || @class_numbers.empty?)
+    absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
+    absence_type_definer.define!
+
+    if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@class_numbers.nil? || @class_numbers.empty?)
       @error_on_class_numbers = true
       flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
       return false
     end
     true
+  end
+
+  def create_global_frequencies(params)
+    daily_frequencies = []
+    daily_frequencies << DailyFrequency.find_or_create_by(unity_id: @daily_frequency.unity_id,
+                                          classroom_id: @daily_frequency.classroom_id,
+                                          frequency_date: @daily_frequency.frequency_date,
+                                          school_calendar: current_school_calendar)
+    daily_frequencies
+  end
+
+  def create_discipline_frequencies(params)
+    daily_frequencies = []
+    @class_numbers.each do |class_number|
+      params = resource_params
+      params[:class_number] = class_number
+      params[:school_calendar_id] = current_school_calendar.id
+      params[:frequency_date] = params[:frequency_date].to_date
+      daily_frequencies << DailyFrequency.find_or_create_by(params)
+    end
+    daily_frequencies
   end
 end

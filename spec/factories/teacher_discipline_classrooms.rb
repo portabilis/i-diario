@@ -5,6 +5,8 @@ FactoryGirl.define do
     sequence(:classroom_api_code) { |n| n.to_s }
     sequence(:discipline_api_code) { |n| n.to_s }
 
+    allow_absence_by_discipline 0
+
     teacher
     classroom
     discipline

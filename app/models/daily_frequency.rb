@@ -15,8 +15,6 @@ class DailyFrequency < ActiveRecord::Base
   accepts_nested_attributes_for :students, allow_destroy: true
 
   validates :unity, :classroom, :frequency_date, :school_calendar, presence: true
-  validates :global_absence, inclusion: [true, false]
-  validates :discipline, presence: true, unless: :global_absence?
 
   validate :frequency_date_must_be_less_than_or_equal_to_today
   validate :is_school_day?

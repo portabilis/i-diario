@@ -69,14 +69,14 @@ $(function () {
       $('form input[type=submit]').removeClass('disabled');
       if(!$.isEmptyObject(examRule)){
         $examRuleNotFoundAlert.addClass('hidden');
-
-        if(examRule.frequency_type == 1){
-          $globalAbsence.val(1);
-          $hideWhenGlobalAbsence.hide();
-        }else{
+        if(examRule.frequency_type == 2 || examRule.allow_frequency_by_discipline){
           $globalAbsence.val(0);
           $hideWhenGlobalAbsence.show();
+        }else{
+          $globalAbsence.val(1);
+          $hideWhenGlobalAbsence.hide();
         }
+
       }else{
         $globalAbsence.val(0);
         $hideWhenGlobalAbsence.hide();

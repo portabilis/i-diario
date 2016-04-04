@@ -1,7 +1,6 @@
 class AttendanceRecordReportController < ApplicationController
   before_action :require_current_teacher
   before_action :require_current_school_calendar
-  before_action :require_current_test_setting
 
   def form
     @attendance_record_report_form = AttendanceRecordReportForm.new(
@@ -43,6 +42,7 @@ class AttendanceRecordReportController < ApplicationController
     @classrooms = fetcher.classrooms
     @disciplines = fetcher.disciplines
     @number_of_classes = current_school_calendar.number_of_classes
+    @teacher = current_teacher
   end
 
   def resource_params
@@ -53,6 +53,6 @@ class AttendanceRecordReportController < ApplicationController
                                                           :start_at,
                                                           :end_at,
                                                           :school_calendar_year,
-                                                          :global_absence)
+                                                          :current_teacher_id)
   end
 end
