@@ -94,22 +94,24 @@ class AttendanceRecordReport
         class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
         days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
         months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
-        daily_frequency.students.each do |student|
-          (students[student.student.id] ||= {})[:name] = student.student.name
-          students[student.student.id] = {} if students[student.student.id].nil?
-          students[student.student.id][:dependence] = students[student.student.id][:dependence] || student.dependence?
+        if daily_frequency.students.any?
+          daily_frequency.students.each do |student|
+            (students[student.student.id] ||= {})[:name] = student.student.name
+            students[student.student.id] = {} if students[student.student.id].nil?
+            students[student.student.id][:dependence] = students[student.student.id][:dependence] || student.dependence?
 
-          self.any_student_with_dependence = self.any_student_with_dependence || student.dependence?
-          students[student.student.id][:absences] ||= 0
-          if !student.present
-            students[student.student.id][:absences] = students[student.student.id][:absences] + 1
+            self.any_student_with_dependence = self.any_student_with_dependence || student.dependence?
+            students[student.student.id][:absences] ||= 0
+            if !student.present
+              students[student.student.id][:absences] = students[student.student.id][:absences] + 1
+            end
+            (students[student.student.id][:attendances] ||= []) << make_cell(content: (student.present ? '.' : 'F'), font_style: :bold, align: :center)
           end
-          (students[student.student.id][:attendances] ||= []) << make_cell(content: (student.present ? '.' : 'F'), font_style: :bold, align: :center)
-        end
 
-        @students.each do |student|
-          unless daily_frequency.students.any? { |s| s.student.id == student.id }
-            (students[student.id][:attendances] ||= []) << make_cell(content: '', font_style: :bold, align: :center)
+          @students.each do |student|
+            unless daily_frequency.students.any? { |s| s.student.id == student.id }
+              (students[student.id][:attendances] ||= []) << make_cell(content: '', font_style: :bold, align: :center)
+            end
           end
         end
       end
