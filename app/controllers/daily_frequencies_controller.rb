@@ -185,10 +185,10 @@ class DailyFrequenciesController < ApplicationController
 
   def create_global_frequencies(params)
     daily_frequencies = []
-    daily_frequencies << DailyFrequency.find_or_create_by(unity_id: @daily_frequency.unity_id,
-                                          classroom_id: @daily_frequency.classroom_id,
-                                          frequency_date: @daily_frequency.frequency_date,
-                                          school_calendar: current_school_calendar)
+    params[:school_calendar] = current_school_calendar
+    params[:discipline_id] = nil
+    params[:class_number] = nil
+    daily_frequencies << DailyFrequency.find_or_create_by(params)
     daily_frequencies
   end
 
