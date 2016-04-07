@@ -29,6 +29,8 @@
     </fieldset>
 
     <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
+
+    <%= render partial: 'lesson_plans/hidden_fields', locals: { f: lesson_plan } %>
   <% end %>
 
   <footer>
