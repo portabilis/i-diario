@@ -191,8 +191,10 @@ class ExamRecordReport
       draw_text('________________', size: 8, at: [549, 0])
 
       if(self.any_student_with_dependence)
-        draw_text('* Alunos cursando dependência', size: 8, at: [637, 0])
+        draw_text('* Alunos cursando dependência', size: 8, at: [0, 32])
       end
+
+      draw_text('Legenda: N - Não enturmado', size: 8, at: [0, 17])
     end
 
     string = "Página <page> de <total>"
