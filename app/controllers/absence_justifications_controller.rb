@@ -3,7 +3,7 @@ class AbsenceJustificationsController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id)
+    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
     @absence_justifications = apply_scopes(AbsenceJustification.by_author(current_user.id).where(unity_id: current_user_unity)
                                                                 .filter(filtering_params(params[:search]))
                                                                 .includes(:student).ordered)
@@ -16,8 +16,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification.absence_date = Time.zone.today
     @absence_justification.author = current_user
     @absence_justification.unity = current_user_unity
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id)
-    @teacher_id = current_teacher.id
+    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
 
     authorize @absence_justification
   end
@@ -80,7 +79,7 @@ class AbsenceJustificationsController < ApplicationController
   def resource_params
     params.require(:absence_justification).permit(
       :student_id, :absence_date, :justification, :absence_date_end,
-      :unity_id, :classroom_id
+      :unity_id, :classroom_id, :discipline_id
     )
   end
 

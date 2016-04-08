@@ -5,7 +5,6 @@
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
         <tr>
-          <td></td>
           <td><%= f.input :by_classroom, as: :select2, elements: @classrooms, label: false, placeholder: "Filtrar por turma" %></td>
           <td><%= f.input :by_student, label: false, placeholder: "Filtrar por aluno" %></td>
           <td><%= f.input :by_absence_date, as: :date, label: false, placeholder: "Filtrar por data inicial"%></td>
@@ -13,7 +12,6 @@
           <td></td>
         </tr>
         <tr>
-          <th><%= AbsenceJustification.human_attribute_name :unity %></th>
           <th><%= AbsenceJustification.human_attribute_name :classroom %></th>
           <th><%= AbsenceJustification.human_attribute_name :student %></th>
           <th><%= AbsenceJustification.human_attribute_name :absence_date %></th>

@@ -14,6 +14,13 @@ pt-BR:
         absence_date_end: "Data final"
         student_id: "Aluno"
         student: "Aluno"
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+
     errors:
       models:
         absence_justification:
@@ -22,3 +29,5 @@ pt-BR:
                 taken:  'já existe uma justificativa para esta data'
               absence_date_end:
                 taken:  'já existe uma justificativa para esta data'
+              base:
+                discipline_period_absence: 'Já existe uma justificativa para a disciplina e período informados'

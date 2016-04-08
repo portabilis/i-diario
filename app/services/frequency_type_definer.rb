@@ -8,6 +8,15 @@ class FrequencyTypeDefiner
   end
 
   def define!
+    if !@classroom
+      return
+    end
+
+    if !@teacher
+      @frequency_type = @classroom.exam_rule.frequency_type
+      return
+    end
+
     if @classroom.exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
       @frequency_type = FrequencyTypes::BY_DISCIPLINE
       return
