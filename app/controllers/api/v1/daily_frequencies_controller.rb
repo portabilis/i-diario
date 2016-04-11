@@ -9,7 +9,6 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
       discipline_id: params[:discipline_id],
       frequency_date: params[:frequency_date],
       class_number: params[:class_number],
-      global_absence: params[:global_absence],
       school_calendar: current_school_calendar
     }
     @daily_frequency = DailyFrequency.new(frequency_params)
