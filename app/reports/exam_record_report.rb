@@ -212,6 +212,13 @@ class ExamRecordReport
         students_ids << student.student.id
       end
     end
-    students_ids.uniq
+    students_ids.uniq!
+    order_students_by_name(students_ids)
+  end
+
+  def order_students_by_name(students_ids)
+    students = Student.where(id: students_ids).ordered
+    students_ids = students.collect(&:id)
+    students_ids
   end
 end
