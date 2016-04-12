@@ -59,13 +59,13 @@ class AttendanceRecordReport
     teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, width: 200, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     classroom_cell = make_cell(content: @daily_frequencies.first.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     year_cell = make_cell(content: @year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    perior_cell = make_cell(content: "De #{@start_at} a #{@end_at}", size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    period_cell = make_cell(content: "De #{@start_at} a #{@end_at}", size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     discipline_cell = make_cell(content: (@daily_frequencies.first.discipline ? @daily_frequencies.first.discipline.description : 'Geral'), size: 10, colspan: 2, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     teacher_cell = make_cell(content: @teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
 
     first_table_data = [[attendance_header],
                         [logo_cell, entity_organ_and_unity_cell, classroom_header, year_header, period_header],
-                        [classroom_cell, year_cell, perior_cell],
+                        [classroom_cell, year_cell, period_cell],
                         [discipline_header, teacher_header],
                         [discipline_cell, teacher_cell]]
 
@@ -210,6 +210,13 @@ class AttendanceRecordReport
         students_ids << student.student.id
       end
     end
-    students_ids.uniq
+    students_ids.uniq!
+    order_students_by_name(students_ids)
+  end
+
+  def order_students_by_name(students_ids)
+    students = Student.where(id: students_ids).ordered
+    students_ids = students.collect(&:id)
+    students_ids
   end
 end
