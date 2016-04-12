@@ -11,11 +11,13 @@ class AbsenceJustification < ActiveRecord::Base
   belongs_to :unity
   belongs_to :classroom
   belongs_to :discipline
+  belongs_to :school_calendar
 
   validates :author,           presence: true
   validates :student_id,       presence: true
   validates :unity,            presence: true
   validates :classroom_id,     presence: true
+  validates :school_calendar,  presence: true
   validates :absence_date_end, presence: true,
                                uniqueness: { scope: :student_id }
   validates :absence_date,     presence: true,
@@ -37,6 +39,8 @@ class AbsenceJustification < ActiveRecord::Base
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_date_range, lambda { |absence_date, absence_date_end| where("absence_date <= ? AND absence_date_end >= ?", absence_date_end, absence_date) }
+  scope :by_unity, lambda { |unity| where("unity_id = ? OR unity_id IS NULL", unity) }
+  scope :by_school_calendar, lambda { |school_calendar| where(school_calendar: school_calendar) }
 
   private
 

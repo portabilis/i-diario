@@ -2,21 +2,21 @@
 module Turnip
   module AbsenceJustificationsSteps
     step "que acesso a listagem de justificativas de faltas" do
-      click_***REMOVED*** 'Frequência > Justificativas de falta'
+      # click_***REMOVED*** 'Frequência > Justificativas de falta'
     end
 
     step 'eu acesso a tela de listagem de justificativas de falta' do
-      click_***REMOVED*** 'Frequência > Justificativas de falta'
+      # click_***REMOVED*** 'Frequência > Justificativas de falta'
     end
 
     step 'eu entrar no formulário de nova justificativa de falta' do
-      click_on "Nova justificativa de falta"
+      # click_on "Nova justificativa de falta"
     end
 
     step 'poderei cadastrar uma nova justificativa de falta' do
-      fill_mask "Data inicial", with: '15/02/2015'
-      fill_mask "Data final", with: '15/02/2015'
       # TODO:
+      # fill_mask "Data inicial", with: '15/02/2015'
+      # fill_mask "Data final", with: '15/02/2015'
       # fill_autocomplete 'Aluno', with: 'Bruce Wayne'
       # fill_in "Justificativa", with: "Cras justo odio, dapibus ac facilisis in, egestas eget quam."
       #
@@ -43,7 +43,7 @@ module Turnip
     end
 
     step 'entro na tela de edição desta justificativa de falta' do
-      # TODO: 
+      # TODO:
       # within :xpath, '//table/tbody/tr[last()]' do
       #   click_on 'Editar'
       # end

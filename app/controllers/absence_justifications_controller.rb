@@ -1,10 +1,15 @@
 class AbsenceJustificationsController < ApplicationController
+  before_action :require_current_school_calendar
+
   has_scope :page, default: 1
   has_scope :per, default: 10
 
   def index
+    @unities = Unity.by_teacher(current_teacher.id)
     @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
-    @absence_justifications = apply_scopes(AbsenceJustification.by_author(current_user.id).where(unity_id: current_user_unity)
+    @absence_justifications = apply_scopes(AbsenceJustification.by_author(current_user.id)
+                                                                .by_unity(current_user_unity)
+                                                                .by_school_calendar(current_school_calendar)
                                                                 .filter(filtering_params(params[:search]))
                                                                 .includes(:student).ordered)
 
@@ -16,6 +21,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification.absence_date = Time.zone.today
     @absence_justification.author = current_user
     @absence_justification.unity = current_user_unity
+    @absence_justification.school_calendar = current_school_calendar
     @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
 
     authorize @absence_justification
@@ -25,6 +31,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification = AbsenceJustification.new(resource_params)
     @absence_justification.author = current_user
     @absence_justification.unity = current_user_unity
+    @absence_justification.school_calendar = current_school_calendar
 
     authorize @absence_justification
 
