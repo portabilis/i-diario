@@ -57,7 +57,8 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
         )
         .join_sources
       )
-      .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id))
+      .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id)
+      .and(TeacherDisciplineClassroom.arel_table[:active].eq('t')))
   end
 
   def uniqueness_of_school_term_recovery_diary_record
