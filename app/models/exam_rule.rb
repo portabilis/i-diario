@@ -22,4 +22,12 @@ class ExamRule < ActiveRecord::Base
 
   scope :by_id, lambda { |id| where id: id }
   scope :by_frequency_type, lambda {|frequency_type| where frequency_type: frequency_type}
+
+  def general_frequency_type?
+    frequency_type == FrequencyTypes::GENERAL
+  end
+
+  def frequency_type_by_discipline?
+    frequency_type == FrequencyTypes::BY_DISCIPLINE
+  end
 end

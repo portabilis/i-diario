@@ -1,0 +1,6 @@
+pt-BR:
+  activerecord:
+    attributes:
+      observation_diary_record_note:
+        students: 'Alunos'
+        description: 'Descrição'
