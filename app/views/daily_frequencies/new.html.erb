@@ -22,7 +22,9 @@
     </div>
     <div class="row">
       <div class="col col-sm-4 discipline_absence_fields">
-        <%= f.association :discipline, as: :select2, elements: @disciplines, required: true %>
+        <div class="control-group required daily_frequency_discipline <%= @error_on_discipline ? 'error' : '' %>">
+          <%= f.association :discipline, as: :select2, elements: @disciplines, required: true %>
+        </div>
       </div>
       <div class="col col-sm-4 discipline_absence_fields">
         <div class="control-group required daily_frequency_class_numbers <%= @error_on_class_numbers ? 'error' : '' %>">
