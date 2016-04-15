@@ -19,8 +19,9 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = DailyFrequency.new(resource_params)
     @daily_frequency.school_calendar = current_school_calendar
     @class_numbers = params[:class_numbers].split(',')
+    @discipline = params[:daily_frequency][:discipline_id]
 
-    if (@daily_frequency.valid? and validate_class_numbers)
+    if (@daily_frequency.valid? and validate_class_numbers and validate_discipline)
       @daily_frequencies = []
 
       absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
@@ -178,6 +179,18 @@ class DailyFrequenciesController < ApplicationController
     if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@class_numbers.nil? || @class_numbers.empty?)
       @error_on_class_numbers = true
       flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
+      return false
+    end
+    true
+  end
+
+  def validate_discipline
+    absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
+    absence_type_definer.define!
+
+    if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@discipline.nil? || @discipline.empty?)
+      @error_on_discipline = true
+      flash.now[:alert] = t('errors.daily_frequencies.discipline_required_when_not_global_absence')
       return false
     end
     true
