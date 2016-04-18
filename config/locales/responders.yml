@@ -144,6 +144,9 @@ pt-BR:
     absence_justifications:
       <<: *female
 
+    observation_diary_records:
+      <<: *male
+
     ***REMOVED***:
       <<: *male
       create:

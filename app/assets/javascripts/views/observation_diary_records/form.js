@@ -1,0 +1,119 @@
+$(function () {
+  'use strict';
+
+  var flashMessages = new FlashMessages();
+  var $classroom = $('#observation_diary_record_classroom_id');
+  var $discipline = $('#observation_diary_record_discipline_id');
+  var $disciplineContainer = $('.observation_diary_record_discipline');
+  var $date = $('#observation_diary_record_date');
+  var $observationDiaryRecordNotesContainer = $('#observation-diary-record-notes');
+  var students = [];
+
+  function loadStudentsSelect2() {
+    var $studentsInputs = $('input[id$=student_ids]')
+    $studentsInputs.select2({ data: students, multiple: true });
+  }
+
+  function fetchDisciplines() {
+    var classroom_id = $classroom.select2('val');
+
+    $discipline.select2('val', '');
+    $discipline.select2({ data: [] });
+
+    if (!_.isEmpty(classroom_id)) {
+      $.ajax({
+        url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        success: handleFetchDisciplinesSuccess,
+        error: handleFetchDisciplinesError
+      });
+    }
+  }
+
+  function handleFetchDisciplinesSuccess(disciplines) {
+    var selectedDisciplines = _.map(disciplines, function(discipline) {
+      return { id: discipline['id'], text: discipline['description'] };
+    });
+
+    $discipline.select2({ data: selectedDisciplines });
+  }
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  }
+
+  function fetchStudents() {
+    var classroom_id = $classroom.select2('val');
+    var date = $date.val();
+
+    if (!_.isEmpty(classroom_id) && !_.isEmpty(date)) {
+      $.ajax({
+        url: Routes.classroom_students_pt_br_path({ classroom_id: classroom_id, date: date, format: 'json' }),
+        success: handleFetchStudentsSuccess,
+        error: handleFetchStudentsError
+      });
+    }
+  }
+
+  function handleFetchStudentsSuccess(data) {
+    students = _.map(data.students, function(student) {
+      return { id: student.id, text: student.name };
+    });
+
+    loadStudentsSelect2();
+  }
+
+  function handleFetchStudentsError() {
+    flashMessages.error('Ocorreu um erro ao buscar os alunos da turma selecionada.');
+  }
+
+  function fetchExamRule() {
+    var classroom_id = $classroom.select2('val');
+
+    if (!_.isEmpty(classroom_id)) {
+      $.ajax({
+        url: Routes.exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        success: handleFetchExamRuleSuccess,
+        error: handleFetchExamRuleError
+      });
+    }
+  };
+
+  function handleFetchExamRuleSuccess(data) {
+    var examRule = data.exam_rule
+    if (!$.isEmptyObject(examRule) && (examRule.frequency_type == '2' || examRule.allow_frequency_by_discipline)) {
+      $disciplineContainer.show();
+    } else {
+      $disciplineContainer.hide();
+      $discipline.select2('val', '');
+    }
+  };
+
+  function handleFetchExamRuleError() {
+    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
+  };
+
+  // On change
+
+  $classroom.on('change', function() {
+    fetchDisciplines();
+    fetchStudents();
+    fetchExamRule();
+  });
+
+  $date.on('change', function() {
+    fetchStudents();
+  });
+
+  // On after add note
+
+  $observationDiaryRecordNotesContainer.on('cocoon:after-insert', function(e, item) {
+    // Workaround to correctly load students select2
+    setTimeout(loadStudentsSelect2, 50);
+  });
+
+  // On load
+
+  fetchExamRule();
+  fetchDisciplines();
+  fetchStudents();
+});

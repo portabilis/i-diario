@@ -1,0 +1,98 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/observation_diary_records/form' %>
+<% end %>
+
+
+<%= simple_form_for @observation_diary_record, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <%= f.hidden_field :school_calendar_id %>
+  <%= f.hidden_field :teacher_id %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :unity_id, as: :select2, elements: unities, readonly: !current_user.admin? %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :classroom, as: :select2, elements: classrooms %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :discipline, as: :select2, elements: [] %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :date, as: :date %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend><%= ObservationDiaryRecord.human_attribute_name :notes %></legend>
+
+    <div>
+      <% if f.object.errors[:notes].any? %>
+        <div class="alert alert-danger fade in">
+          <i class="fa-fw fa fa-times"></i>
+
+          <% f.object.errors.full_messages_for(:notes).each do |error| %>
+            <%= error %><br/>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <table class="table table-striped table-bordered table-condensed records">
+      <thead>
+        <tr>
+          <th width="45%"><%= ObservationDiaryRecordNote.human_attribute_name :students %></th>
+          <th width="46%"><%= ObservationDiaryRecordNote.human_attribute_name :description %></th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <tbody id="observation-diary-record-notes">
+        <tr>
+          <td class="no_item_found" colspan="3" style="<%= f.object.notes.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+        </tr>
+
+        <%= f.association :notes do |note_form| %>
+          <%= render 'note_fields', f: note_form %>
+        <% end %>
+      </tbody>
+
+      <tfoot class="links">
+        <tr>
+          <td colspan="3">
+            <%= link_to_add_association(
+                  t('.add_note'),
+                  f,
+                  :notes,
+                  'data-association-insertion-method': 'append',
+                  'data-association-insertion-node': '#observation-diary-record-notes',
+                  class: 'btn btn-success btn-sm'
+                ) %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), observation_diary_records_path, class: 'btn btn-default' %>
+
+    <% if f.object.persisted? %>
+      <%= link_to(
+            t('views.form.history'),
+            history_observation_diary_record_path(f.object),
+            class: 'btn btn-info'
+          ) %>
+    <% end %>
+
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+  </footer>
+<% end %>
