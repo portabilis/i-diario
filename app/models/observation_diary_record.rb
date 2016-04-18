@@ -8,15 +8,6 @@ class ObservationDiaryRecord < ActiveRecord::Base
   attr_accessor :unity_id
 
   delegate :unity, to: :classroom, allow_nil: true
-  delegate :exam_rule, to: :classroom, prefix: true, allow_nil: true
-  delegate(
-    :general_frequency_type?,
-    :frequency_type_by_discipline?,
-    to: :classroom_exam_rule,
-    prefix: true,
-    allow_nil: true
-  )
-
 
   belongs_to :school_calendar
   belongs_to :teacher
@@ -35,8 +26,8 @@ class ObservationDiaryRecord < ActiveRecord::Base
   validates :school_calendar, presence: true
   validates :teacher, presence: true
   validates :classroom, presence: true
-  validates :discipline, presence: true, if: :classroom_exam_rule_frequency_type_by_discipline?
-  validates :discipline, absence: true, if: :classroom_exam_rule_general_frequency_type?
+  validates :discipline, presence: true, if: :require_discipline?
+  validates :discipline, absence: true, unless: :require_discipline?
   validates(
     :date,
     presence: true,
@@ -56,5 +47,11 @@ class ObservationDiaryRecord < ActiveRecord::Base
 
   def self_assign_to_notes
     notes.each { |note| note.observation_diary_record = self }
+  end
+
+  def require_discipline?
+    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)
+    frequency_type_definer.define!
+    frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
   end
 end

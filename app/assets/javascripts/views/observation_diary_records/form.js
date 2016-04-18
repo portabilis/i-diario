@@ -80,7 +80,7 @@ $(function () {
 
   function handleFetchExamRuleSuccess(data) {
     var examRule = data.exam_rule
-    if (!$.isEmptyObject(examRule) && examRule.frequency_type == '2') {
+    if (!$.isEmptyObject(examRule) && (examRule.frequency_type == '2' || examRule.allow_frequency_by_discipline)) {
       $disciplineContainer.show();
     } else {
       $disciplineContainer.hide();

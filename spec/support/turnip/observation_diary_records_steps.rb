@@ -9,7 +9,8 @@ module Turnip
       )
       @teacher_discipline_classroom = create(
         :teacher_discipline_classroom,
-        classroom: @classroom
+        classroom: @classroom,
+        allow_absence_by_discipline: true,
       )
       @teacher = @teacher_discipline_classroom.teacher
       @discipline = @teacher_discipline_classroom.discipline
