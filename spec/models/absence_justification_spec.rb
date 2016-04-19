@@ -23,8 +23,6 @@ RSpec.describe AbsenceJustification, type: :model do
     context "given that I have a record persisted" do
       fixtures :students, :absence_justifications
 
-      it { expect(subject).to validate_uniqueness_of(:absence_date).scoped_to(:student_id) }
-      it { expect(subject).to validate_uniqueness_of(:absence_date_end).scoped_to(:student_id) }
       it "should validate if is a valid date on a absence with frequence type by discipline" do
         exam_rule = FactoryGirl.create(
           :exam_rule_by_discipline
@@ -49,6 +47,7 @@ RSpec.describe AbsenceJustification, type: :model do
 
         school_calendar = FactoryGirl.create(
           :school_calendar_with_one_step,
+          year: 2016,
           unity: unity
         )
 
@@ -59,8 +58,8 @@ RSpec.describe AbsenceJustification, type: :model do
           classroom: classroom,
           discipline: discipline,
           student: student,
-          absence_date: '07/04/2016',
-          absence_date_end: '09/04/2016'
+          absence_date: '12/04/2016',
+          absence_date_end: '14/04/2016'
         )
 
         subject = FactoryGirl.build(
@@ -70,8 +69,8 @@ RSpec.describe AbsenceJustification, type: :model do
           classroom: classroom,
           student: student,
           discipline: discipline,
-          absence_date: '08/04/2016',
-          absence_date_end: '08/04/2016'
+          absence_date: '13/04/2016',
+          absence_date_end: '13/04/2016'
         )
 
         expect(subject).to_not be_valid

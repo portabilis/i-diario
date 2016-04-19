@@ -6,7 +6,7 @@ FactoryGirl.define do
     absence_date_end  '2015-01-02'
     justification 'Consulta médica'
 
-    association :author, factory: :user
+    association :teacher, factory: :teacher
     student
   end
 end
