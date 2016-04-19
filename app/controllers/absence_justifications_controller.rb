@@ -7,11 +7,11 @@ class AbsenceJustificationsController < ApplicationController
   def index
     @unities = Unity.by_teacher(current_teacher.id)
     @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
-    @absence_justifications = apply_scopes(AbsenceJustification.by_author(current_user.id)
-                                                                .by_unity(current_user_unity)
-                                                                .by_school_calendar(current_school_calendar)
-                                                                .filter(filtering_params(params[:search]))
-                                                                .includes(:student).ordered)
+    @absence_justifications = apply_scopes(AbsenceJustification.by_teacher(current_teacher.id)
+                                                               .by_unity(current_user_unity)
+                                                               .by_school_calendar(current_school_calendar)
+                                                               .filter(filtering_params(params[:search]))
+                                                               .includes(:student).ordered)
 
     authorize @absence_justifications
   end
@@ -19,17 +19,18 @@ class AbsenceJustificationsController < ApplicationController
   def new
     @absence_justification = AbsenceJustification.new.localized
     @absence_justification.absence_date = Time.zone.today
-    @absence_justification.author = current_user
+    @absence_justification.teacher = current_teacher
     @absence_justification.unity = current_user_unity
     @absence_justification.school_calendar = current_school_calendar
     @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
+    @unities = Unity.by_teacher(current_teacher.id).ordered
 
     authorize @absence_justification
   end
 
   def create
     @absence_justification = AbsenceJustification.new(resource_params)
-    @absence_justification.author = current_user
+    @absence_justification.teacher = current_teacher
     @absence_justification.unity = current_user_unity
     @absence_justification.school_calendar = current_school_calendar
 
@@ -39,6 +40,8 @@ class AbsenceJustificationsController < ApplicationController
       respond_with @absence_justification, location: absence_justifications_path
     else
       @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher.id)
+      @unities = Unity.by_teacher(current_teacher.id).ordered
+      # raise "a"
       render :new
     end
   end
@@ -46,6 +49,7 @@ class AbsenceJustificationsController < ApplicationController
   def edit
     @absence_justification = AbsenceJustification.find(params[:id]).localized
     @classrooms = Classroom.by_teacher_id(current_teacher.id)
+    @unities = Unity.by_teacher(current_teacher.id).ordered
 
     validate_current_user
 
@@ -93,7 +97,7 @@ class AbsenceJustificationsController < ApplicationController
   private
 
   def validate_current_user
-    unless @absence_justification.author_id.eql?(current_user.id)
+    unless @absence_justification.teacher_id.eql?(current_teacher.id)
       flash[:alert] = t('.current_user_not_allowed')
       redirect_to root_path
     end
@@ -101,7 +105,7 @@ class AbsenceJustificationsController < ApplicationController
 
   def filtering_params(params)
     if params
-      params.slice(:by_classroom, :by_student, :by_absence_date, :by_absence_date_end)
+      params.slice(:by_classroom, :by_student, :by_date)
     else
       {}
     end

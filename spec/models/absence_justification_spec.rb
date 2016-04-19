@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe AbsenceJustification, type: :model do
   describe "associations" do
-    it { expect(subject).to belong_to(:author) }
+    it { expect(subject).to belong_to(:teacher) }
     it { expect(subject).to belong_to(:student) }
     it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to belong_to(:classroom) }
@@ -11,7 +11,7 @@ RSpec.describe AbsenceJustification, type: :model do
   end
 
   describe "validations" do
-    it { expect(subject).to validate_presence_of(:author) }
+    it { expect(subject).to validate_presence_of(:teacher) }
     it { expect(subject).to validate_presence_of(:student_id) }
     it { expect(subject).to validate_presence_of(:absence_date) }
     it { expect(subject).to validate_presence_of(:absence_date_end) }
