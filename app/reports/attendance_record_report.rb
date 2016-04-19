@@ -92,23 +92,25 @@ class AttendanceRecordReport
       students_ids = fetch_students_ids
 
       daily_frequencies_slice.each do |daily_frequency|
-        class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
-        days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
-        months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
+        if daily_frequency.students.any?
+          class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
+          days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
+          months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
 
-        students_ids.each do |student_id|
-          student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id) || NullDailyFrequencyStudent.new
-          student = Student.find(student_id)
-          (students[student_id] ||= {})[:name] = student.name
-          students[student_id] = {} if students[student_id].nil?
-          students[student_id][:dependence] = students[student_id][:dependence] || student_frequency.dependence?
+          students_ids.each do |student_id|
+            student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id) || NullDailyFrequencyStudent.new
+            student = Student.find(student_id)
+            (students[student_id] ||= {})[:name] = student.name
+            students[student_id] = {} if students[student_id].nil?
+            students[student_id][:dependence] = students[student_id][:dependence] || student_frequency.dependence?
 
-          self.any_student_with_dependence = self.any_student_with_dependence || student_frequency.dependence?
-          students[student_id][:absences] ||= 0
-          if !student_frequency.present
-            students[student_id][:absences] = students[student_id][:absences] + 1
+            self.any_student_with_dependence = self.any_student_with_dependence || student_frequency.dependence?
+            students[student_id][:absences] ||= 0
+            if !student_frequency.present
+              students[student_id][:absences] = students[student_id][:absences] + 1
+            end
+            (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
           end
-          (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
         end
       end
 
