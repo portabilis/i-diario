@@ -32,9 +32,9 @@ class AttendanceRecordReportForm
         .by_frequency_date_between(start_at, end_at)
         .general_frequency
         .includes(students: :student)
-        .order_by_student_name
         .order_by_frequency_date
         .order_by_class_number
+        .order_by_student_name
 
     else
       DailyFrequency
@@ -43,9 +43,9 @@ class AttendanceRecordReportForm
         .by_class_number(class_numbers.split(','))
         .by_frequency_date_between(start_at, end_at)
         .includes(students: :student)
-        .order_by_student_name
         .order_by_frequency_date
         .order_by_class_number
+        .order_by_student_name
     end
   end
 
