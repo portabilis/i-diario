@@ -6,11 +6,10 @@
       <thead>
         <tr>
           <td></td>
-          <td><%= f.input :by_classroom, as: :select2, elements: @classrooms, label: false, placeholder: "Filtrar por turma" %></td>
-          <td><%= f.input :by_student, label: false, placeholder: "Filtrar por aluno" %></td>
-          <td><%= f.input :by_absence_date, as: :date, label: false, placeholder: "Filtrar por data inicial"%></td>
-          <td><%= f.input :by_absence_date_end, as: :date, label: false, placeholder: "Filtrar por data final" %></td>
-          <td></td>
+          <td><%= f.input :by_classroom, as: :select2, elements: @classrooms, label: false, placeholder: "Filtrar turma" %></td>
+          <td><%= f.input :by_student, label: false, placeholder: "Filtrar aluno" %></td>
+          <td colspan="2"><%= f.input :by_date, as: :date, label: false, placeholder: "Filtrar data" %></td>
+          <td class="actions" style="width: 18px;"><%= link_to t('.new_html'), new_absence_justification_path, class: "btn btn-primary" %></td>
         </tr>
         <tr>
           <th><%= AbsenceJustification.human_attribute_name :unity %></th>
@@ -18,7 +17,7 @@
           <th><%= AbsenceJustification.human_attribute_name :student %></th>
           <th><%= AbsenceJustification.human_attribute_name :absence_date %></th>
           <th><%= AbsenceJustification.human_attribute_name :absence_date_end %></th>
-          <td class="actions" style="width: 18px;"><%= link_to t('.new_html'), new_absence_justification_path, class: "btn btn-primary" %></td>
+          <td></td>
         </tr>
       </thead>
 

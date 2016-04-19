@@ -9,8 +9,8 @@
         <td><%= absence_justification.unity.name %></td>
         <td><%= absence_justification.classroom ? absence_justification.classroom : "Não informado" %></td>
         <td><%= absence_justification.student %></td>
-        <td><%= l absence_justification.absence_date %></td>
-        <td><%= l absence_justification.absence_date_end %></td>
+        <td width="70"><%= l absence_justification.absence_date %></td>
+        <td width="70"><%= l absence_justification.absence_date_end %></td>
         <td class="actions">
           <%= link_to 'Editar', edit_absence_justification_path(absence_justification),
             class: "btn btn-success" %>
