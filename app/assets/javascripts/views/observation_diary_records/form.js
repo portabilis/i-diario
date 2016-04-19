@@ -67,6 +67,7 @@ $(function () {
   }
 
   function fetchExamRule() {
+    $disciplineContainer.hide();
     var classroom_id = $classroom.select2('val');
 
     if (!_.isEmpty(classroom_id)) {
