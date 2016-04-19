@@ -42,17 +42,14 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number.includes(:students)
     @daily_frequency = @daily_frequencies.first
 
-    authorize @daily_frequencies.first
+    authorize @daily_frequency
 
     fetch_students
 
     @students = []
 
-    students_api_codes = @api_students.map { |api_student| api_student['id'] }
-    students = Student.where(api_code: students_api_codes)
-
-    students.each do |student|
-      api_student = @api_students.find { |api_student| api_student['id'] == student.api_code }
+    @api_students.each do |api_student|
+      student = Student.find_by(api_code: api_student['id']) || nil
       @students << { student: student, dependence: api_student['dependencia'] }
     end
 
@@ -74,8 +71,6 @@ class DailyFrequenciesController < ApplicationController
       @dependence_students << student[:student] if student[:dependence]
     end
 
-    @normal_students.sort_by! { |student| student.name }
-    @dependence_students.sort_by! { |student| student.name }
   end
 
   def update_multiple
