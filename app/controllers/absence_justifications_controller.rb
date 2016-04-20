@@ -49,6 +49,7 @@ class AbsenceJustificationsController < ApplicationController
   def edit
     @absence_justification = AbsenceJustification.find(params[:id]).localized
     @classrooms = Classroom.by_teacher_id(current_teacher.id)
+    @absence_justification.unity = current_user_unity
     @unities = Unity.by_teacher(current_teacher.id).ordered
 
     validate_current_user

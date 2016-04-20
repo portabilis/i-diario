@@ -115,7 +115,12 @@ $(function() {
   }
 
   // togglers
-  toggleDiscipline($classroom.val() != '' && $classroom.val() != 'empty');
+  if ($classroom.val() != '' && $classroom.val() != 'empty') {
+    checkExamRule({ classroom_id: $classroom.val() });
+  }else {
+    toggleDiscipline(false);
+  }
+
   toggleStudent($classroom.val() != '' && $classroom.val() != 'empty');
 
   function toggleStudent(show) {

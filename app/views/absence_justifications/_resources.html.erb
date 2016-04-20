@@ -6,7 +6,7 @@
   <% else %>
     <% @absence_justifications.each do |absence_justification| %>
       <tr>
-        <td><%= absence_justification.unity.name %></td>
+        <td><%= absence_justification.unity ? absence_justification.unity : "Não informado" %></td>
         <td><%= absence_justification.classroom ? absence_justification.classroom : "Não informado" %></td>
         <td><%= absence_justification.student %></td>
         <td width="70"><%= l absence_justification.absence_date %></td>
