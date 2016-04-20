@@ -25,4 +25,8 @@ class DailyFrequencyStudent < ActiveRecord::Base
                                                        student_id: student_id,
                                                        'daily_frequencies.frequency_date' => start_at.to_date..end_at.to_date)
                                                           .includes(:daily_frequency) }
+
+  def to_s
+    present ? '.' : 'F'
+  end
 end

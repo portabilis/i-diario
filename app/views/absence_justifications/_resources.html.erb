@@ -1,14 +1,16 @@
 <tbody id="resources-tbody">
   <% if @absence_justifications.empty? %>
     <tr>
-      <td class="no_record_found" colspan="3"> <%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="6"> <%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @absence_justifications.each do |absence_justification| %>
       <tr>
+        <td><%= absence_justification.unity ? absence_justification.unity : "Não informado" %></td>
+        <td><%= absence_justification.classroom ? absence_justification.classroom : "Não informado" %></td>
         <td><%= absence_justification.student %></td>
-        <td><%= l absence_justification.absence_date %></td>
-        <td><%= l absence_justification.absence_date_end %></td>
+        <td width="70"><%= l absence_justification.absence_date %></td>
+        <td width="70"><%= l absence_justification.absence_date_end %></td>
         <td class="actions">
           <%= link_to 'Editar', edit_absence_justification_path(absence_justification),
             class: "btn btn-success" %>

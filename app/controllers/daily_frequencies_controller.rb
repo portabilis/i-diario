@@ -19,8 +19,9 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = DailyFrequency.new(resource_params)
     @daily_frequency.school_calendar = current_school_calendar
     @class_numbers = params[:class_numbers].split(',')
+    @discipline = params[:daily_frequency][:discipline_id]
 
-    if (@daily_frequency.valid? and validate_class_numbers)
+    if (@daily_frequency.valid? and validate_class_numbers and validate_discipline)
       @daily_frequencies = []
 
       absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
@@ -42,17 +43,14 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number.includes(:students)
     @daily_frequency = @daily_frequencies.first
 
-    authorize @daily_frequencies.first
+    authorize @daily_frequency
 
     fetch_students
 
     @students = []
 
-    students_api_codes = @api_students.map { |api_student| api_student['id'] }
-    students = Student.where(api_code: students_api_codes)
-
-    students.each do |student|
-      api_student = @api_students.find { |api_student| api_student['id'] == student.api_code }
+    @api_students.each do |api_student|
+      student = Student.find_by(api_code: api_student['id']) || nil
       @students << { student: student, dependence: api_student['dependencia'] }
     end
 
@@ -73,9 +71,6 @@ class DailyFrequenciesController < ApplicationController
       @normal_students << student[:student] if !student[:dependence]
       @dependence_students << student[:student] if student[:dependence]
     end
-
-    @normal_students.sort_by! { |student| student.name }
-    @dependence_students.sort_by! { |student| student.name }
   end
 
   def update_multiple
@@ -178,6 +173,18 @@ class DailyFrequenciesController < ApplicationController
     if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@class_numbers.nil? || @class_numbers.empty?)
       @error_on_class_numbers = true
       flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
+      return false
+    end
+    true
+  end
+
+  def validate_discipline
+    absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
+    absence_type_definer.define!
+
+    if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@discipline.nil? || @discipline.empty?)
+      @error_on_discipline = true
+      flash.now[:alert] = t('errors.daily_frequencies.discipline_required_when_not_global_absence')
       return false
     end
     true

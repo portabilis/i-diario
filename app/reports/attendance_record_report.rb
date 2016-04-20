@@ -59,13 +59,13 @@ class AttendanceRecordReport
     teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, width: 200, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     classroom_cell = make_cell(content: @daily_frequencies.first.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     year_cell = make_cell(content: @year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    perior_cell = make_cell(content: "De #{@start_at} a #{@end_at}", size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    period_cell = make_cell(content: "De #{@start_at} a #{@end_at}", size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     discipline_cell = make_cell(content: (@daily_frequencies.first.discipline ? @daily_frequencies.first.discipline.description : 'Geral'), size: 10, colspan: 2, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     teacher_cell = make_cell(content: @teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
 
     first_table_data = [[attendance_header],
                         [logo_cell, entity_organ_and_unity_cell, classroom_header, year_header, period_header],
-                        [classroom_cell, year_cell, perior_cell],
+                        [classroom_cell, year_cell, period_cell],
                         [discipline_header, teacher_header],
                         [discipline_cell, teacher_cell]]
 
@@ -89,31 +89,27 @@ class AttendanceRecordReport
       days = []
       months = []
       students = {}
-
-      @students.each do |student|
-        (students[student.id] ||= {})[:name] = student.name
-      end
+      students_ids = fetch_students_ids
 
       daily_frequencies_slice.each do |daily_frequency|
-        class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
-        days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
-        months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
-        daily_frequency.students.each do |student|
-          (students[student.student.id] ||= {})[:name] = student.student.name
-          students[student.student.id] = {} if students[student.student.id].nil?
-          students[student.student.id][:dependence] = students[student.student.id][:dependence] || student.dependence?
+        if daily_frequency.students.any?
+          class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
+          days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
+          months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
 
-          self.any_student_with_dependence = self.any_student_with_dependence || student.dependence?
-          students[student.student.id][:absences] ||= 0
-          if !student.present
-            students[student.student.id][:absences] = students[student.student.id][:absences] + 1
-          end
-          (students[student.student.id][:attendances] ||= []) << make_cell(content: (student.present ? '.' : 'F'), font_style: :bold, align: :center)
-        end
+          students_ids.each do |student_id|
+            student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id) || NullDailyFrequencyStudent.new
+            student = Student.find(student_id)
+            (students[student_id] ||= {})[:name] = student.name
+            students[student_id] = {} if students[student_id].nil?
+            students[student_id][:dependence] = students[student_id][:dependence] || student_frequency.dependence?
 
-        @students.each do |student|
-          unless daily_frequency.students.any? { |s| s.student.id == student.id }
-            (students[student.id][:attendances] ||= []) << make_cell(content: '', font_style: :bold, align: :center)
+            self.any_student_with_dependence = self.any_student_with_dependence || student_frequency.dependence?
+            students[student_id][:absences] ||= 0
+            if !student_frequency.present
+              students[student_id][:absences] = students[student_id][:absences] + 1
+            end
+            (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
           end
         end
       end
@@ -195,8 +191,10 @@ class AttendanceRecordReport
       draw_text('________________', size: 8, at: [549, 0])
 
       if(self.any_student_with_dependence)
-        draw_text('* Alunos cursando dependência', size: 8, at: [637, 0])
+        draw_text('* Alunos cursando dependência', size: 8, at: [0, 32])
       end
+
+      draw_text('Legenda: N - Não enturmado', size: 8, at: [0, 17])
     end
 
     string = "Página <page> de <total>"
@@ -205,5 +203,22 @@ class AttendanceRecordReport
                 size: 8,
                 align: :right }
     number_pages(string, options)
+  end
+
+  def fetch_students_ids
+    students_ids = []
+    @daily_frequencies.each do |daily_frequency|
+      daily_frequency.students.each do |student|
+        students_ids << student.student.id
+      end
+    end
+    students_ids.uniq!
+    order_students_by_name(students_ids)
+  end
+
+  def order_students_by_name(students_ids)
+    students = Student.where(id: students_ids).ordered
+    students_ids = students.collect(&:id)
+    students_ids
   end
 end

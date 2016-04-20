@@ -95,10 +95,6 @@ class ExamRecordReport
       avaliations = []
       students = {}
 
-      @students.each do |student|
-        (students[student.id] ||= {})[:name] = student.name
-      end
-
       daily_notes_slice.each do |daily_note|
         avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center)
         avaliations << make_cell(content: "Rec. #{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center) if daily_note.avaliation.recovery_diary_record
@@ -195,8 +191,10 @@ class ExamRecordReport
       draw_text('________________', size: 8, at: [549, 0])
 
       if(self.any_student_with_dependence)
-        draw_text('* Alunos cursando dependência', size: 8, at: [637, 0])
+        draw_text('* Alunos cursando dependência', size: 8, at: [0, 32])
       end
+
+      draw_text('Legenda: N - Não enturmado', size: 8, at: [0, 17])
     end
 
     string = "Página <page> de <total>"
@@ -214,6 +212,13 @@ class ExamRecordReport
         students_ids << student.student.id
       end
     end
-    students_ids.uniq
+    students_ids.uniq!
+    order_students_by_name(students_ids)
+  end
+
+  def order_students_by_name(students_ids)
+    students = Student.where(id: students_ids).ordered
+    students_ids = students.collect(&:id)
+    students_ids
   end
 end

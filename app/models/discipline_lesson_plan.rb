@@ -13,7 +13,7 @@ class DisciplineLessonPlan < ActiveRecord::Base
   accepts_nested_attributes_for :lesson_plan
 
   scope :by_unity_id, lambda { |unity_id| joins(:lesson_plan).where(lesson_plans: { unity_id: unity_id }) }
-  scope :by_teacher_id, lambda { |teacher_id| by_teacher_id_query(teacher_id) }
+  scope :by_teacher_id, lambda { |teacher_id| joins(:lesson_plan).where(lesson_plans: { teacher_id: teacher_id }) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:lesson_plan).where(lesson_plans: { classroom_id: classroom_id }) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_date, lambda { |date| by_date_query(date) }
@@ -26,23 +26,6 @@ class DisciplineLessonPlan < ActiveRecord::Base
   validate :uniqueness_of_discipline_lesson_plan
 
   private
-
-  def self.by_teacher_id_query(teacher_id)
-    joins(
-      :lesson_plan,
-      arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
-        .on(
-          TeacherDisciplineClassroom.arel_table[:classroom_id]
-            .eq(LessonPlan.arel_table[:classroom_id])
-            .and(
-              TeacherDisciplineClassroom.arel_table[:discipline_id]
-                .eq(arel_table[:discipline_id])
-            )
-        )
-        .join_sources
-      )
-      .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id))
-  end
 
   def self.by_date_query(date)
     date = date.to_date

@@ -1,0 +1,21 @@
+<tr class="nested-fields">
+  <td>
+    <%= f.input(
+          :student_ids,
+          as: :select2,
+          elements: [],
+          multiple: true,
+          label_html: { class: 'hidden' },
+          input_html: { data: { without_json_parser: true } }
+        ) %>
+  </td>
+
+  <td>
+    <%= f.input :description, label_html: { class: 'hidden' } %>
+  </td>
+
+  <td class="actions">
+    <%= f.hidden_field :id %>
+    <%= link_to_remove_association t('.remove'), f, class: 'btn btn-danger btn-sm' %>
+  </td>
+</tr>
