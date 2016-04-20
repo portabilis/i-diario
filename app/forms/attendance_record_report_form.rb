@@ -27,28 +27,25 @@ class AttendanceRecordReportForm
 
   def daily_frequencies
     if global_absence?
-      DailyFrequency.by_unity_classroom_and_frequency_date_between(
-        unity_id,
-        classroom_id,
-        start_at,
-        end_at
-      )
-      .order_by_frequency_date
-      .order_by_class_number
-      .order_by_student_name
+      DailyFrequency
+        .by_classroom_id(classroom_id)
+        .by_frequency_date_between(start_at, end_at)
+        .general_frequency
+        .includes(students: :student)
+        .order_by_frequency_date
+        .order_by_class_number
+        .order_by_student_name
 
     else
-      DailyFrequency.by_unity_classroom_discipline_class_number_and_frequency_date_between(
-        unity_id,
-        classroom_id,
-        discipline_id,
-        class_numbers.split(','),
-        start_at,
-        end_at
-      )
-      .order_by_frequency_date
-      .order_by_class_number
-      .order_by_student_name
+      DailyFrequency
+        .by_classroom_id(classroom_id)
+        .by_discipline_id(discipline_id)
+        .by_class_number(class_numbers.split(','))
+        .by_frequency_date_between(start_at, end_at)
+        .includes(students: :student)
+        .order_by_frequency_date
+        .order_by_class_number
+        .order_by_student_name
     end
   end
 
@@ -63,12 +60,9 @@ class AttendanceRecordReportForm
   private
 
   def global_absence?
-    frequency_type_definer = FrequencyTypeDefiner.new(classroom, current_teacher)
+    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)
+    frequency_type_definer.define!
     frequency_type_definer.frequency_type == FrequencyTypes::GENERAL
-  end
-
-  def classroom
-    Classroom.find(classroom_id)
   end
 
   def start_at_must_be_a_valid_date
@@ -119,7 +113,11 @@ class AttendanceRecordReportForm
     end
   end
 
-  def current_teacher
-    Teacher.find(current_teacher_id)
+  def classroom
+    Classroom.find(@classroom_id)
+  end
+
+  def teacher
+    Teacher.find(@current_teacher_id)
   end
 end

@@ -213,6 +213,10 @@ navigation:
             type: "absence_justifications"
             path: "absence_justifications_path"
   - ***REMOVED***:
+      type: "observation_diary_records"
+      icon: "fa-sticky-note-o"
+      path: "observation_diary_records_path"
+  - ***REMOVED***:
       type: "school_frequency_***REMOVED***"
       icon: "fa-building"
       sub***REMOVED***s:

@@ -34,8 +34,10 @@ class AbsencePoster
       next if classroom.unity_id != @post_data.school_calendar_step.school_calendar.unity_id
       next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
 
-      daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
+      daily_frequencies = DailyFrequency
+        .by_classroom_id(classroom.id)
         .by_frequency_date_between(step_start_at, step_end_at)
+        .general_frequency
 
       students = fetch_students(daily_frequencies)
 

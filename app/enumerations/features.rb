@@ -45,6 +45,7 @@ class Features < EnumerateIt::Base
                    :school_term_recovery_diary_records,
                    :final_recovery_diary_records,
                    :absence_justifications,
+                   :observation_diary_records,
                    :messages,
                    :conceptual_exams,
                    :descriptive_exams,

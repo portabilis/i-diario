@@ -1,0 +1,14 @@
+pt-BR:
+  observation_diary_records:
+    index:
+      by_classroom: 'Filtrar turma'
+      by_discipline: 'Filtrar disciplina'
+      by_date: 'Filtrar data'
+      new_html: '<i class="fa fa-plus"></i> Novo lançamento'
+
+    form:
+      add_note: 'Adicionar observação'
+      no_item_found: 'Nenhuma observação'
+
+    note_fields:
+      remove: 'Remover'

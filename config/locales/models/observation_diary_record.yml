@@ -1,0 +1,17 @@
+pt-BR:
+  activerecord:
+    models:
+      observation_diary_record:
+        one: 'Registro do diário de observações'
+        other: 'Registros do diário de observações'
+
+    attributes:
+      observation_diary_record:
+        unity: 'Escola'
+        unity_id: 'Escola'
+        classroom: 'Turma'
+        classroom_id: 'Turma'
+        discipline: 'Disciplina'
+        discipline_id: 'Disciplina'
+        date: 'Data'
+        notes: 'Observações'
