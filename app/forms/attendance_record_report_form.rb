@@ -8,7 +8,7 @@ class AttendanceRecordReportForm
                 :start_at,
                 :end_at,
                 :school_calendar_year,
-                :global_absence
+                :current_teacher_id
 
   validates :unity_id,       presence: true
   validates :classroom_id,   presence: true
@@ -17,7 +17,6 @@ class AttendanceRecordReportForm
   validates :start_at,       presence: true
   validates :end_at,         presence: true
   validates :school_calendar_year, presence: true
-  validates :global_absence, presence: true
 
   validate :start_at_must_be_a_valid_date
   validate :end_at_must_be_a_valid_date
@@ -49,7 +48,7 @@ class AttendanceRecordReportForm
       )
       .order_by_frequency_date
       .order_by_class_number
-      .order_by_student_name      
+      .order_by_student_name
     end
   end
 
@@ -64,7 +63,12 @@ class AttendanceRecordReportForm
   private
 
   def global_absence?
-    global_absence == "1"
+    frequency_type_definer = FrequencyTypeDefiner.new(classroom, current_teacher)
+    frequency_type_definer.frequency_type == FrequencyTypes::GENERAL
+  end
+
+  def classroom
+    Classroom.find(classroom_id)
   end
 
   def start_at_must_be_a_valid_date
@@ -113,5 +117,9 @@ class AttendanceRecordReportForm
     if daily_frequencies.count == 0
       errors.add(:daily_frequencies, :must_have_daily_frequencies)
     end
+  end
+
+  def current_teacher
+    Teacher.find(current_teacher_id)
   end
 end

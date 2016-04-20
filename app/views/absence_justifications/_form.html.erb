@@ -1,17 +1,36 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/absence_justifications/form' %>
+<% end %>
+
 <%= simple_form_for @absence_justification, html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
+  <%= render 'base_errors', f: f %>
 
   <fieldset>
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.input :student, as: :autocomplete %>
+        <%= f.association :unity, as: :select2, elements: @unities, readonly: !current_user.admin? %>
       </div>
+      <div class="col col-sm-4">
+        <%= f.input :classroom_id, as: :select2, elements: @classrooms %>
+      </div>
+      <div class="row" data-discipline>
+        <div class="col col-sm-4">
+          <%= f.input :discipline_id, as: :select2, elements: [], required: true %>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
       <div class="col col-sm-4">
         <%= f.input :absence_date %>
       </div>
       <div class="col col-sm-4">
         <%= f.input :absence_date_end %>
       </div>
+        <div class="col col-sm-4" data-student>
+          <%= f.input :student_id, as: :select2, elements: [] %>
+        </div>
     </div>
     <div class="row">
 
@@ -19,6 +38,9 @@
         <%= f.input :justification %>
       </div>
     </div>
+
+  <%= hidden_field_tag :current_date, Time.now.strftime("%d/%m/%Y") %>
+  <%= hidden_field_tag :teacher_id, current_teacher %>
 
   </fieldset>
 

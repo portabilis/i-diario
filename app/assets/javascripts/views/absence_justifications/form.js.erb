@@ -1,0 +1,141 @@
+$(function() {
+  var flashMessages = new FlashMessages(),
+      $disciplineDiv = $("[data-discipline]"),
+      $studentDiv = $("[data-student]"),
+      $classroom = $("#absence_justification_classroom_id"),
+      $discipline = $("#absence_justification_discipline_id"),
+      $student = $("#absence_justification_student_id");
+
+  var currentDate = $('#current_date').val();
+  var teacherId = $('#teacher_id').val();
+
+  // on change
+  $classroom.on('change', function(e) {
+    toggleStudent(e.val != '' && e.val != 'empty');
+    fetchStudents();
+
+    var params = { classroom_id: e.val };
+
+    if(!_.isEmpty(params)) {
+      checkExamRule(params);
+
+      fetchDisciplines();
+    }
+  });
+
+  // fetchers
+
+  var fetchExamRule = function (params, callback) {
+    $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
+      callback(data);
+    });
+  };
+
+  var checkExamRule = function(params){
+    fetchExamRule(params, function(data){
+      var examRule = data.exam_rule;
+      if (!$.isEmptyObject(examRule)) {
+        if (examRule.frequency_type == 2 || examRule.allow_frequency_by_discipline) {
+          $disciplineDiv.show();
+        }else {
+          $disciplineDiv.hide();
+        }
+      }else {
+        $disciplineDiv.hide();
+      }
+    });
+  }
+
+  function fetchStudents() {
+    var classroom_id = $classroom.select2('val');
+
+    $student.select2('val', '');
+    $student.select2({ data: [] });
+
+    if (!_.isEmpty(classroom_id)) {
+
+      $.ajax({
+        url: Routes.students_pt_br_path({
+          date: currentDate,
+          classroom_id: classroom_id,
+          format: 'json'
+        }),
+        success: fetchStudentsSuccess,
+        error: fetchStudentsError
+      });
+    }
+  };
+
+  function fetchStudentsSuccess(data) {
+    var students = _.map(data.students, function(student) {
+      return { id: student.id, text: student.name };
+    });
+
+    $student.select2({ data: students });
+  };
+
+  function fetchStudentsError() {
+    flashMessages.error('Ocorreu um erro ao buscar os alunos!')
+  };
+
+  function fetchDisciplines() {
+    var classroom_id = $classroom.select2('val');
+
+    $discipline.select2('val', '');
+    $discipline.select2({ data: [] });
+
+    if (!_.isEmpty(classroom_id) ) {
+      $.ajax({
+        url: Routes.disciplines_pt_br_path({
+          by_teacher_id: teacherId,
+          by_classroom: classroom_id,
+          format: 'json'
+        }),
+        success: fetchDisciplinesSucces,
+        error: fetchDisciplinesError
+      });
+    }
+  };
+
+  function fetchDisciplinesSucces(disciplines) {
+    var disciplines = _.map(disciplines, function(discipline){
+      return { id: discipline.id, text: discipline.description };
+    });
+
+    $discipline.select2({ data: disciplines });
+  };
+
+  function fetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas!')
+  };
+
+  if ($classroom.val() != '' && $classroom.val() != 'empty') {
+    fetchStudents();
+    fetchDisciplines();
+  }
+
+  // togglers
+  if ($classroom.val() != '' && $classroom.val() != 'empty') {
+    checkExamRule({ classroom_id: $classroom.val() });
+  }else {
+    toggleDiscipline(false);
+  }
+
+  toggleStudent($classroom.val() != '' && $classroom.val() != 'empty');
+
+  function toggleStudent(show) {
+    if (show) {
+      $studentDiv.show();
+    }else {
+      $studentDiv.hide();
+    }
+  }
+
+  function toggleDiscipline(show) {
+    if (show) {
+      $disciplineDiv.show();
+    }else {
+      $disciplineDiv.hide();
+    }
+  }
+});

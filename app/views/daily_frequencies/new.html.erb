@@ -21,11 +21,10 @@
       </div>
     </div>
     <div class="row">
-      <%= f.input :global_absence, as: :hidden %>
-      <div class="col col-sm-4 hide_when_global_absence">
+      <div class="col col-sm-4 discipline_absence_fields">
         <%= f.association :discipline, as: :select2, elements: @disciplines, required: true %>
       </div>
-      <div class="col col-sm-4 hide_when_global_absence">
+      <div class="col col-sm-4 discipline_absence_fields">
         <div class="control-group required daily_frequency_class_numbers <%= @error_on_class_numbers ? 'error' : '' %>">
           <label class="select2 required control-label" for="daily_frequency_class_numbers">Aula <abbr title="obrigatório">*</abbr></label>
           <%= hidden_field_tag :class_numbers,

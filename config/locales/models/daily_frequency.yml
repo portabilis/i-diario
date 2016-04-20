@@ -10,7 +10,6 @@ pt-BR:
         classroom_id: "Turma"
         discipline: "Disciplina"
         discipline_id: "Disciplina"
-        global_absence: "Falta global"
         frequency_date: "Data"
         class_number: "Aula"
     errors:
