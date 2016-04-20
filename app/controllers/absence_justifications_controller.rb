@@ -22,8 +22,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification.teacher = current_teacher
     @absence_justification.unity = current_user_unity
     @absence_justification.school_calendar = current_school_calendar
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
-    @unities = Unity.by_teacher(current_teacher.id).ordered
+    fetch_collections
 
     authorize @absence_justification
   end
@@ -39,18 +38,15 @@ class AbsenceJustificationsController < ApplicationController
     if @absence_justification.save
       respond_with @absence_justification, location: absence_justifications_path
     else
-      @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher.id)
-      @unities = Unity.by_teacher(current_teacher.id).ordered
-      # raise "a"
+      fetch_collections
       render :new
     end
   end
 
   def edit
     @absence_justification = AbsenceJustification.find(params[:id]).localized
-    @classrooms = Classroom.by_teacher_id(current_teacher.id)
     @absence_justification.unity = current_user_unity
-    @unities = Unity.by_teacher(current_teacher.id).ordered
+    fetch_collections
 
     validate_current_user
 
@@ -60,6 +56,7 @@ class AbsenceJustificationsController < ApplicationController
   def update
     @absence_justification = AbsenceJustification.find(params[:id])
     @absence_justification.assign_attributes resource_params
+    fetch_collections
 
     authorize @absence_justification
 
@@ -67,6 +64,7 @@ class AbsenceJustificationsController < ApplicationController
       respond_with @absence_justification, location: absence_justifications_path
     else
       render :edit
+      fetch_collections
     end
   end
 
@@ -114,23 +112,9 @@ class AbsenceJustificationsController < ApplicationController
 
   protected
 
-  def fetch_students
-    begin
-      api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily(
-        {
-          classroom_api_code: @absence_justification.classroom.api_code,
-          discipline_api_code: @absence_justification.discipline.try(:api_code),
-          date: Time.zone.today
-        }
-      )
-
-      @api_students = result['alunos'].uniq
-    rescue IeducarApi::Base::ApiError => e
-      flash[:alert] = e.message
-      @api_students = []
-      redirect_to new_daily_frequency_path
-    end
+  def fetch_collections
+    @unities = Unity.by_teacher(current_teacher.id).ordered
+    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher.id)
   end
 
   def configuration
