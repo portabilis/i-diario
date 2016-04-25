@@ -47,12 +47,8 @@ class AbsenceJustification < ActiveRecord::Base
   def is_school_day?
     return unless school_calendar && absence_date && absence_date_end
 
-    (absence_date..absence_date_end).each do |date|
-      if !school_calendar.school_day? date
-        errors.add(:base, "O dia #{date.strftime("%d/%m/%Y")} não é um dia letivo")
-        break
-      end
-    end
+    errors.add(:absence_date, "O dia #{absence_date.strftime("%d/%m/%Y")} não é um dia letivo") if !school_calendar.school_day? absence_date
+    errors.add(:absence_date_end, "O dia #{absence_date_end.strftime("%d/%m/%Y")} não é um dia letivo") if !school_calendar.school_day? absence_date_end
   end
 
   def self.by_date_query(date)
