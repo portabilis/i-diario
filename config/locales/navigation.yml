@@ -70,6 +70,7 @@ pt-BR:
     attendance_record_report: "Registro de frequência"
     discipline_lesson_plan_report: "Registro de conteúdos por disciplina"
     knowledge_area_lesson_plan_report: "Registro de conteúdos por áreas de conhecimento"
+    absence_justification_report: "Registro de Justificativa de faltas"
     ***REMOVED***: "***REMOVED***"
     ieducar_api_exam_postings: "Envio de avaliações"
     school_frequency_***REMOVED***: "Frequência na escola"

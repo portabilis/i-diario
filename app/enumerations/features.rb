@@ -56,7 +56,8 @@ class Features < EnumerateIt::Base
                    :knowledge_area_lesson_plan_report,
                    :ieducar_api_exam_postings,
                    :avaliation_recovery_diary_records,
-                   :***REMOVED***
+                   :***REMOVED***,
+                   :absence_justification_report
 
   sort_by :translation
 end
