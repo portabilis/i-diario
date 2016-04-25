@@ -242,6 +242,10 @@ navigation:
         - ***REMOVED***:
             type: "knowledge_area_lesson_plan_report"
             path: "knowledge_area_lesson_plan_report_path"
+        - ***REMOVED***:
+            type: "absence_justification_report"
+            path: "absence_justification_report_path"
+
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"
       icon: "fa-arrow-circle-up"
