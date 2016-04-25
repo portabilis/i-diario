@@ -1,0 +1,84 @@
+$(function() {
+    var flashMessages = new FlashMessages(),
+        $disciplineDiv = $("[data-discipline]"),
+        $classroom = $("#absence_justification_report_form_classroom_id"),
+        $discipline = $("#absence_justification_report_form_discipline_id");
+
+    var teacherId = $('#teacher_id').val();
+
+    $classroom.on('change', function(e) {
+      var params = { classroom_id: e.val };
+      
+      if (!_.isEmpty(params)) {
+        checkExamRule(params);
+
+        fetchDisciplines();
+      }
+    });
+
+    var fetchExamRule = function (params, callback) {
+      $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
+        callback(data);
+      });
+    };
+
+    var checkExamRule = function(params){
+      fetchExamRule(params, function(data){
+        var examRule = data.exam_rule;
+        if (!$.isEmptyObject(examRule)) {
+          if (examRule.frequency_type == 2 || examRule.allow_frequency_by_discipline) {
+            $disciplineDiv.show();
+          }else {
+            $disciplineDiv.hide();
+          }
+        }else {
+          $disciplineDiv.hide();
+        }
+      });
+    }
+
+    function fetchDisciplines() {
+      var classroom_id = $classroom.select2('val');
+
+      $discipline.select2('val', '');
+      $discipline.select2({ data: [] });
+
+      if (!_.isEmpty(classroom_id) ) {
+        $.ajax({
+          url: Routes.disciplines_pt_br_path({
+            by_teacher_id: teacherId,
+            by_classroom: classroom_id,
+            format: 'json'
+          }),
+          success: fetchDisciplinesSucces,
+          error: fetchDisciplinesError
+        });
+      }
+    }
+
+    function fetchDisciplinesSucces(disciplines) {
+      var disciplines = _.map(disciplines, function(discipline){
+        return { id: discipline.id, text: discipline.description };
+      });
+
+      $discipline.select2({ data: disciplines });
+    };
+
+    function fetchDisciplinesError() {
+      flashMessages.error('Ocorreu um erro ao buscar as disciplinas!')
+    };
+
+    if ($classroom.val() != '' && $classroom.val() != 'empty') {
+      checkExamRule({ classroom_id: $classroom.val() });
+    }else {
+      toggleDiscipline(false);
+    }
+
+    function toggleDiscipline(show) {
+      if (show) {
+        $disciplineDiv.show();
+      }else {
+        $disciplineDiv.hide();
+      }
+    }
+  });

@@ -26,7 +26,7 @@ class AbsenceJustification < ActiveRecord::Base
 
   validate :period_absence
   validate :absence_date_cannot_be_greater_than_absence_date_end
-  validate :absence_date_end_must_lower_than_today
+  validate :absence_date_end_must_be_lower_than_today
   validate :is_school_day?
 
   scope :ordered, -> { order(absence_date: :desc) }
@@ -41,6 +41,8 @@ class AbsenceJustification < ActiveRecord::Base
   scope :by_unity, lambda { |unity| where("unity_id = ? OR unity_id IS NULL", unity) }
   scope :by_school_calendar, lambda { |school_calendar| where("school_calendar_id = ? OR school_calendar_id IS NULL", school_calendar) }
   scope :by_date, lambda { |date| by_date_query(date) }
+  scope :by_date_report, lambda { |absence_date, absence_date_end| where("absence_date >= ? AND absence_date_end <= ?", absence_date, absence_date_end) }
+  scope :by_school_calendar_report, lambda { |school_calendar| where(school_calendar: school_calendar)  }
 
   private
 
@@ -64,7 +66,7 @@ class AbsenceJustification < ActiveRecord::Base
     )
   end
 
-  def absence_date_end_must_lower_than_today
+  def absence_date_end_must_be_lower_than_today
     if absence_date_end.present?
       errors.add(:absence_date_end, "Deve ser menor ou igual a data de hoje") if absence_date_end > Time.zone.today
     end
