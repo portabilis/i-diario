@@ -56,6 +56,7 @@ class AbsenceJustificationsController < ApplicationController
   def update
     @absence_justification = AbsenceJustification.find(params[:id])
     @absence_justification.assign_attributes resource_params
+    @absence_justification.school_calendar = current_school_calendar if @absence_justification.persisted? && @absence_justification.school_calendar.blank?
     fetch_collections
 
     authorize @absence_justification
