@@ -17,8 +17,12 @@ class IeducarApiExamPosting < ActiveRecord::Base
     self.completed.last
   end
 
-  def self.last_error
+  def self.errors
     self.error.last
+  end
+
+  def self.warnings
+    self.warning
   end
 
   def synchronization_in_progress?
@@ -29,6 +33,13 @@ class IeducarApiExamPosting < ActiveRecord::Base
     update_columns(
       status: ApiSynchronizationStatus::ERROR,
       error_message: message
+    )
+  end
+
+  def mark_as_warning!(message)
+    update_columns(
+      status: ApiSynchronizationStatus::WARNING,
+      warning_message: message
     )
   end
 
