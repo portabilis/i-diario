@@ -25,6 +25,15 @@
                 <%= instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").error_message %>
               </p>
             <% end %>
+
+            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").warning_message.present? %>
+            <% instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").warning_message.each do |message| %>
+              <p class="warning">
+                <i class="fa fa-exclamation-triangle"></i>
+                  <%= message %>
+              </p>
+              <% end %>
+            <% end %>
           <% end %>
         <% else %>
           <i>Nenhuma postagem realizada</i>
