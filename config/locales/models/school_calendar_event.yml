@@ -11,6 +11,13 @@ pt-BR:
         event_date: "Data"
         description: "Descrição"
         event_type: "Tipo"
+        course: "Curso"
+        course_id: "Curso"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        grade: "Série"
+        grade_id: "Série"
+        coverage: "Cobertura"
 
   school_calendar_events:
     index:
