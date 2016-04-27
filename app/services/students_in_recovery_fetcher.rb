@@ -45,7 +45,7 @@ class StudentsInRecoveryFetcher
 
     if classroom.exam_rule.parallel_recovery_average
       @students = @students.select do |student|
-        average = student.average(discipline.id, school_calendar_step.id)
+        average = student.average(classroom.id, discipline.id, school_calendar_step.id)
         average < classroom.exam_rule.parallel_recovery_average
       end
     end
