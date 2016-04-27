@@ -38,7 +38,7 @@ class NumericalExamPoster
         student_scores = teacher_score_fetcher.scores
 
         student_scores.each do |student_score|
-          value = StudentAverageCalculator.new(student_score).calculate(discipline.id, @post_data.school_calendar_step.id)
+          value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline.id, @post_data.school_calendar_step.id)
           scores[classroom.api_code][student_score.api_code][discipline.api_code]['valor'] = value
         end
       end

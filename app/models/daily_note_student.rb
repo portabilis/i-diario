@@ -21,6 +21,7 @@ class DailyNoteStudent < ActiveRecord::Base
                                                           .includes(daily_note: [:avaliation]) }
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_note).where(daily_notes: { discipline_id: discipline_id }) }
+  scope :by_classroom_id, lambda { |classroom_id| joins(:daily_note).where(daily_notes: { classroom_id: classroom_id }) }
   scope :by_test_date_between, lambda { |start_at, end_at| by_test_date_between(start_at, end_at) }
   scope :by_avaliation, lambda { |avaliation| joins(:daily_note).where(daily_notes: { avaliation_id: avaliation }) }
   scope :ordered, -> { joins(:student).order(Student.arel_table[:name]) }
