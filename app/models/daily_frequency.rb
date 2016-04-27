@@ -56,8 +56,8 @@ class DailyFrequency < ActiveRecord::Base
   end
 
   def is_school_day?
-    return unless school_calendar && frequency_date
+    return unless school_calendar && frequency_date && classroom
 
-    errors.add(:frequency_date, :must_be_school_day) if !school_calendar.school_day? frequency_date
+    errors.add(:frequency_date, :must_be_school_day) if !school_calendar.school_day?(frequency_date, classroom.grade.id, classroom.id)
   end
 end

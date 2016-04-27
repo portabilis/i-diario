@@ -1,0 +1,8 @@
+pt-BR:
+  school_calendar_events:
+    index:
+      by_date: "Filtrar data"
+      by_description: "Filtrar descrição"
+      by_type: "Filtrar tipo"
+      by_grade: "Filtrar série"
+      by_classroom: "Filtrar turma"

@@ -9,6 +9,8 @@ module Turnip
 
     step 'eu entrar no formulário de novo evento do calendário letivo' do
       click_on "Novo evento"
+      sleep 1
+      click_link "Da escola"
     end
 
     step 'poderei cadastrar um novo evento do calendário letivo' do

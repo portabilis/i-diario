@@ -88,9 +88,9 @@ class Avaliation < ActiveRecord::Base
   private
 
   def is_school_day?
-    return unless school_calendar && test_date
+    return unless school_calendar && test_date && classroom
 
-    errors.add(:test_date, :must_be_school_day) if !school_calendar.school_day?(test_date)
+    errors.add(:test_date, :must_be_school_day) if !school_calendar.school_day?(test_date, classroom.grade.id, classroom.id)
   end
 
   def is_school_term_day?
