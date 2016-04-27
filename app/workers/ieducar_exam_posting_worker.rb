@@ -8,26 +8,30 @@ class IeducarExamPostingWorker
       posting = IeducarApiExamPosting.find(posting_id)
 
       begin
-        case posting.post_type
-        when ApiPostingTypes::NUMERICAL_EXAM
-          NumericalExamPoster.post!(posting)
-        when ApiPostingTypes::CONCEPTUAL_EXAM
-          ConceptualExamPoster.post!(posting)
-        when ApiPostingTypes::DESCRIPTIVE_EXAM
-          DescriptiveExamPoster.post!(posting)
-        when ApiPostingTypes::ABSENCE
-          AbsencePoster.post!(posting)
-        when ApiPostingTypes::FINAL_RECOVERY
-          FinalRecoveryPoster.post!(posting)
-        end
+        messages =
+          case posting.post_type
+          when ApiPostingTypes::NUMERICAL_EXAM
+            ExamPoster::NumericalExamPoster.post!(posting)
+          when ApiPostingTypes::CONCEPTUAL_EXAM
+            ExamPoster::ConceptualExamPoster.post!(posting)
+          when ApiPostingTypes::DESCRIPTIVE_EXAM
+            ExamPoster::DescriptiveExamPoster.post!(posting)
+          when ApiPostingTypes::ABSENCE
+            ExamPoster::AbsencePoster.post!(posting)
+          when ApiPostingTypes::FINAL_RECOVERY
+            ExamPoster::FinalRecoveryPoster.post!(posting)
+          end
+
+        posting.mark_as_warning!(messages[:warning_messages]) if !messages[:warning_messages].empty?
 
         posting.mark_as_completed! 'Envio realizado com sucesso!'
+
       rescue IeducarApi::Base::ApiError => e
         posting.mark_as_error!(e.message)
       rescue Exception => e
         posting.mark_as_error!('Ocorreu um erro desconhecido.')
-
         raise e
+
       end
     end
   end

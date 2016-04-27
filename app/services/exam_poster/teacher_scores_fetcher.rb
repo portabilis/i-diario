@@ -1,12 +1,14 @@
 class TeacherScoresFetcher
   attr_reader :scores
-  attr_reader :error_message
+  attr_reader :warning_messages
 
   def initialize(teacher, classroom, discipline, school_calendar_step)
     @teacher = teacher
     @classroom = classroom
     @discipline = discipline
     @school_calendar_step = school_calendar_step
+    @warning_messages = []
+    @scores = []
   end
 
   def fetch!
@@ -22,8 +24,6 @@ class TeacherScoresFetcher
     validate_exam_quantity(number_of_exams)
     validate_exam_quantity_for_fix_test(number_of_exams)
     validate_pending_exams(daily_notes, exams)
-
-    return if self.has_errors?
 
     student_ids = fetch_student_ids(daily_notes)
     students = Student.find(student_ids)
@@ -41,27 +41,27 @@ class TeacherScoresFetcher
 
       if pending_exams.any?
         pending_exams_string = pending_exams.map { |e| e.daily_note.avaliation.description_to_teacher }.join(', ')
-        @error_message = "Não foi possível enviar as avaliações numéricas da turma #{@classroom} pois existem avaliações que não foram lançadas no diário de avaliações numéricas para a disciplina #{@discipline} para o aluno #{student}. Avaliações: #{pending_exams_string}."
+        @warning_messages << "O aluno #{student} não possui nota lançada no diário de avaliações numéricas na turma #{@classroom}, disciplina de #{@discipline}. Avaliações: #{pending_exams_string}."
       end
     end
   end
 
-  def has_errors?
-    !@error_message.blank?
+  def has_warnings?
+    !@warning_messages.blank?
   end
 
   private
 
   def validate_exam_quantity(number_of_exams)
     if number_of_exams == 0
-      @error_message = "Não foi possível enviar as avaliações numéricas da turma #{@classroom} pois não foram cadastradas avaliações numéricas para a disciplina #{@discipline}."
+      @warning_messages << "Não foi possível enviar as avaliações numéricas da turma #{@classroom} pois não foram cadastradas avaliações numéricas para a disciplina #{@discipline}."
     end
   end
 
   def validate_exam_quantity_for_fix_test(number_of_exams)
     return unless current_test_setting.fix_tests?
     if number_of_exams < current_test_setting.tests.count
-      @error_message = "Não foi possível enviar as avaliações numéricas da turma #{@classroom} pois não foram cadastradas todas as avaliações numéricas da configuração de avaliações numéricas para a disciplina #{@discipline}."
+      @warning_messages << "Não foi possível enviar as avaliações numéricas da turma #{@classroom} pois não foram cadastradas todas as avaliações numéricas da configuração de avaliações numéricas para a disciplina #{@discipline}."
     end
   end
 
@@ -70,7 +70,7 @@ class TeacherScoresFetcher
     if daily_notes.count < number_of_exams
       pending_exams = exams.select { |exam| daily_notes.none? { |daily_note| daily_note.avaliation_id == exam.id } }
       pending_exams_string = pending_exams.map(&:description_to_teacher).join(', ')
-      @error_message = "Não foi possível enviar as avaliações numéricas da turma #{@classroom} pois existem avaliações que não foram lançadas no diário de avaliações numéricas para a disciplina #{@discipline}. Avaliações: #{pending_exams_string}."
+      @warning_messages << "Não foi possível enviar as avaliações numéricas da turma #{@classroom} pois existem avaliações que não foram lançadas no diário de avaliações numéricas para a disciplina #{@discipline}. Avaliações: #{pending_exams_string}."
     end
   end
 
