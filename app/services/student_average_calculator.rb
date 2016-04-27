@@ -3,11 +3,12 @@ class StudentAverageCalculator
     @student = student
   end
 
-  def calculate(discipline_id, school_calendar_step_id)
+  def calculate(classroom_id, discipline_id, school_calendar_step_id)
     averages_sum = 0
     step = SchoolCalendarStep.find(school_calendar_step_id)
     daily_notes = DailyNoteStudent.by_student_id(@student.id)
       .by_discipline_id(discipline_id)
+      .by_classroom_id(classroom_id)
       .by_test_date_between(step.start_at, step.end_at)
 
     if step.test_setting.presence && step.test_setting.fix_tests?

@@ -86,7 +86,7 @@ class ExamRecordReport
     students_ids = fetch_students_ids
 
     students_ids.each do |student_id|
-      averages[student_id] = StudentAverageCalculator.new(Student.find(student_id)).calculate(@daily_notes.first.discipline, @school_calendar_step.id)
+      averages[student_id] = StudentAverageCalculator.new(Student.find(student_id)).calculate(@daily_notes.first.classroom, @daily_notes.first.discipline, @school_calendar_step.id)
     end
 
     sliced_daily_notes = @daily_notes.each_slice(10).to_a
