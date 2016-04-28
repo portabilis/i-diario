@@ -1,0 +1,22 @@
+pt-BR:
+  reports:
+    observation_record_report:
+      title: 'Registro de observações'
+      identification_header: 'Identificação'
+      unity: 'Unidade'
+      discipline: 'Disciplina'
+      classroom: 'Turma'
+      empty_discipline: 'Geral'
+      teacher: 'Professor'
+      period: 'Período'
+      period_content: '%{start_at} a %{end_at}'
+      general_information: 'Informações gerais'
+      date: 'Data'
+      students: 'Alunos'
+      observation: 'Observação'
+      teacher_signature: |
+        ______________________________________________
+        Professor(a)
+      coordinator_signature: |
+        ______________________________________________
+        Coordenador(a)

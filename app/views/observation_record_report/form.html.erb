@@ -1,0 +1,48 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/observation_record_report/form' %>
+<% end %>
+
+<div class="widget-body no-padding">
+  <%= simple_form_for @observation_record_report_form, url: observation_record_report_path, method: :post, html: { class: 'smart-form', target: '_new' } do |f| %>
+    <%= f.error_notification unless f.object.show_records_not_found_message? %>
+
+    <% if f.object.show_records_not_found_message? %>
+      <div class="alert alert-danger">
+        <i class="fa fa-exclamation-circle fa-fw"></i>
+        <%= f.object.records_not_found_message %>
+      </div>
+    <% end %>
+    
+    <%= f.hidden_field :teacher_id %>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :unity_id, as: :select2, elements: unities, readonly: !current_user.admin? %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :classroom_id, as: :select2, elements: classrooms %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :discipline_id, as: :select2, elements: [], required: true %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :start_at, as: :date %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :end_at, as: :date %>
+        </div>
+      </div>
+    </fieldset>
+
+    <footer>
+      <%= f.submit t('.print'), class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>

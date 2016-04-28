@@ -1,0 +1,16 @@
+pt-BR:
+  activemodel:
+    attributes:
+      observation_record_report_form:
+        unity_id: 'Escola'
+        classroom_id: 'Turma'
+        discipline_id: 'Disciplina'
+        start_at: 'Data inicial'
+        end_at: 'Data final'
+
+    errors:
+      models:
+        observation_record_report_form:
+          attributes:
+            observation_diary_records:
+              blank: 'Nenhum resultado foi encontrado para os dados informados'            

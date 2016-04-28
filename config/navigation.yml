@@ -234,6 +234,9 @@ navigation:
             type: "attendance_record_report"
             path: "attendance_record_report_path"
         - ***REMOVED***:
+            type: "observation_record_report"
+            path: "observation_record_report_path"
+        - ***REMOVED***:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
         - ***REMOVED***:

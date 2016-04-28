@@ -68,6 +68,7 @@ pt-BR:
     reports: "Relatórios"
     exam_record_report: "Registro de avaliações"
     attendance_record_report: "Registro de frequência"
+    observation_record_report: "Registro de observações"
     discipline_lesson_plan_report: "Registro de conteúdos por disciplina"
     knowledge_area_lesson_plan_report: "Registro de conteúdos por áreas de conhecimento"
     absence_justification_report: "Registro de Justificativa de faltas"

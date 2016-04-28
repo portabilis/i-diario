@@ -1,7 +1,25 @@
 <%= simple_form_for [@school_calendar, @school_calendar_event], html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
+  <%= f.input :school_calendar_id, as: :hidden %>
+  <%= f.input :coverage, as: :hidden %>
 
   <fieldset>
+    <% if @school_calendar_event.coverage != CoveragesOfEvent::BY_UNITY %>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :course_id, as: :select2, elements: @courses %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :grade, as: :select2, elements: @grades %>
+      </div>
+      <% if @school_calendar_event.coverage == CoveragesOfEvent::BY_CLASSROOM %>
+      <div class="col col-sm-4">
+        <%= f.association :classroom, as: :select2, elements: @classrooms %>
+      </div>
+      <% end %>
+    </div>
+    <% end %>
     <div class="row">
       <div class="col col-sm-4">
         <%= f.input :event_date %>
