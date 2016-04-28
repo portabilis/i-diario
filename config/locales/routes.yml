@@ -65,6 +65,7 @@ pt-BR:
     disabled_entity: 'acesso-suspenso'
     reports: 'relatorios'
     attendance_record: 'registro-de-frequencia'
+    observation_record: 'registro-de-observacoes'
     exam_record: 'registro-de-avaliacoes'
     discipline_lesson_plan: 'registro-de-conteudos-por-disciplina'
     knowledge_area_lesson_plan: 'registro-de-conteudos-por-areas-de-conhecimento'
