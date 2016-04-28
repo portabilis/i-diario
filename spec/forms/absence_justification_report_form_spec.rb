@@ -2,32 +2,27 @@ require 'rails_helper'
 
 RSpec.describe AbsenceJustificationReportForm, type: :model do
   describe "validations" do
+
     it { expect(subject).to validate_presence_of(:unity) }
     it { expect(subject).to validate_presence_of(:classroom_id) }
     it { expect(subject).to validate_presence_of(:absence_date) }
     it { expect(subject).to validate_presence_of(:absence_date_end) }
 
-    subject = AbsenceJustificationReportForm.new
-
-    unity = FactoryGirl.create(
-      :unity
-    )
-
-    exam_rule = FactoryGirl.create(
-      :exam_rule
-    )
-
-    classroom = FactoryGirl.create(
-      :classroom,
-      exam_rule: exam_rule
-    )
-
-    classroom = FactoryGirl.create(
-      :classroom,
-      exam_rule: exam_rule
-    )
-
     it "should validate if absence date end is lower than today" do
+      subject = AbsenceJustificationReportForm.new
+      unity = FactoryGirl.create(
+        :unity
+      )
+
+      exam_rule = FactoryGirl.create(
+        :exam_rule
+      )
+
+      classroom = FactoryGirl.create(
+        :classroom,
+        exam_rule: exam_rule
+      )
+
       subject.unity = unity
       subject.classroom_id = classroom.id
       subject.absence_date = Time.zone.today
@@ -38,6 +33,20 @@ RSpec.describe AbsenceJustificationReportForm, type: :model do
     end
 
     it "should validate if absence date isn't greater than absence date end" do
+      subject = AbsenceJustificationReportForm.new
+      unity = FactoryGirl.create(
+        :unity
+      )
+
+      exam_rule = FactoryGirl.create(
+        :exam_rule
+      )
+
+      classroom = FactoryGirl.create(
+        :classroom,
+        exam_rule: exam_rule
+      )
+
       subject.unity = unity
       subject.classroom_id = classroom.id
       subject.absence_date = '26/06/2016'

@@ -76,7 +76,7 @@ pt-BR:
     disciplines: 'disciplinas'
     school_calendar_steps: 'etapas'
     ***REMOVED***: 'acesso-do-aluno-a-escola'
-    absence_justification: 'registro-de-justificativa-de-falta'
+    absence_justification: 'registro-de-justificativa-de-faltas'
 
     # actions
     edit: 'editar'
