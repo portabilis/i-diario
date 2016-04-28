@@ -41,7 +41,6 @@ class AbsenceJustificationsController < ApplicationController
     else
       @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher.id)
       @unities = Unity.by_teacher(current_teacher.id).ordered
-      # raise "a"
       render :new
     end
   end

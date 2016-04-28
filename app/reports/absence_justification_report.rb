@@ -22,7 +22,6 @@ class AbsenceJustificationReport
 
     header
     body
-    signatures
     footer
 
     self
@@ -32,7 +31,7 @@ class AbsenceJustificationReport
 
   def header
     absences_header = make_cell(
-      content: 'Registro de Justificativa de Falta',
+      content: 'Registro de Justificativa de Faltas',
       size: 12,
       font_style: :bold,
       background_color: 'DEDEDE',
@@ -85,7 +84,7 @@ class AbsenceJustificationReport
     end
   end
 
-  def body
+  def identification
     identification_header_cell = make_cell(
       content: 'Identificação',
       size: 12,
@@ -122,7 +121,7 @@ class AbsenceJustificationReport
     )
 
     discipline_cell = make_cell(
-      content: @absence_justifications.first.discipline ? @absence_justifications.first.discipline.description : '-',
+      content: @absence_justifications.first.discipline ? @absence_justifications.first.discipline.description : 'Geral',
       size: 10,
       borders: [:left, :right, :bottom],
       padding: [0, 2, 4, 4]
@@ -186,16 +185,16 @@ class AbsenceJustificationReport
       [teacher_cell, period_cell]
     ]
 
-    bounding_box([0, 715], width: bounds.width) do
-      table(identification_table_data, width: bounds.width) do
-        cells.border_width = 0.25
-        row(0).border_top_width = 0.25
-        row(-1).border_bottom_width = 0.25
-        column(0).border_left_width = 0.25
-        column(-1).border_right_width = 0.25
-      end
+    table(identification_table_data, width: bounds.width, header: true) do
+      cells.border_width = 0.25
+      row(0).border_top_width = 0.25
+      row(-1).border_bottom_width = 0.25
+      column(0).border_left_width = 0.25
+      column(-1).border_right_width = 0.25
     end
+  end
 
+  def general_information
     general_information_header_cell = make_cell(
       content: 'Informações gerais',
       size: 12,
@@ -207,10 +206,15 @@ class AbsenceJustificationReport
       colspan: 4
     )
 
+    title_general_information = [
+      [general_information_header_cell]
+    ]
+
     initial_date_header = make_cell(
       content: 'Data inicial',
       size: 8,
       font_style: :bold,
+      width: 65,
       background_color: 'FFFFFF',
       align: :left,
     )
@@ -219,6 +223,7 @@ class AbsenceJustificationReport
       content: 'Data final',
       size: 8,
       font_style: :bold,
+      width: 65,
       background_color: 'FFFFFF',
       align: :left
     )
@@ -278,30 +283,45 @@ class AbsenceJustificationReport
         student_cell,
         justification_cell
       ]
-    end
 
+    end
     general_information_table_data = [
-      [general_information_header_cell],
       headers
     ]
 
     general_information_table_data.concat(general_information_cells)
 
-    bounding_box([0, 593], width: bounds.width) do
-      table(general_information_table_data, row_colors: ['DEDEDE', 'FFFFFF'], width: bounds.width) do
-        cells.border_width = 0.25
-        row(0).border_top_width = 0.25
-        row(-1).border_bottom_width = 0.25
-        column(0).border_left_width = 0.25
-        column(-1).border_right_width = 0.25
-      end
+    move_down 8
+
+    table(title_general_information, width: bounds.width, header: true) do
+      cells.border_width = 0.25
+      row(0).border_top_width = 0.25
+      row(-1).border_bottom_width = 0.25
+      column(0).border_left_width = 0.25
+      column(-1).border_right_width = 0.25
+    end
+
+    table(general_information_table_data, row_colors: ['DEDEDE', 'FFFFFF'], width: bounds.width, header: true) do
+      cells.border_width = 0.25
+      row(0).border_top_width = 0.25
+      row(-1).border_bottom_width = 0.25
+      column(0).border_left_width = 0.25
+      column(-1).border_right_width = 0.25
+    end
+  end
+
+  def body
+    bounding_box([0, 712], width: bounds.width, height: 700) do
+      identification
+      general_information
+      signatures
     end
   end
 
   def signatures
     start_new_page if cursor < 45
 
-    move_down 50
+    move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
     text_box("______________________________________________\nCoordenador(a)", size: 10, align: :center, at: [306, cursor], width: 260)
   end
