@@ -1,0 +1,6 @@
+pt-BR:
+  reports:
+    base_report:
+      date_and_time: 'Data e hora: %{date_time}'
+      date_time_format: '%d/%m/%Y %H:%M'
+      number_pages: 'Página <page> de <total>'
