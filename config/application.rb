@@ -16,6 +16,7 @@ module Educacao
       #{config.root}/lib
       #{config.root}/app/workers
       #{config.root}/app/services
+      #{config.root}/app/queries
     )
 
     # Set Time.zone default to the specified zone and make Active Record auto-convert to this zone.

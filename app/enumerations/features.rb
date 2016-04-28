@@ -51,6 +51,7 @@ class Features < EnumerateIt::Base
                    :descriptive_exams,
                    :exam_record_report,
                    :attendance_record_report,
+                   :observation_record_report,
                    :***REMOVED***,
                    :discipline_lesson_plan_report,
                    :knowledge_area_lesson_plan_report,
