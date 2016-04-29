@@ -31,7 +31,7 @@ class AbsenceJustificationReport
 
   def header
     absences_header = make_cell(
-      content: 'Registro de Justificativa de Faltas',
+      content: 'Registro de justificativa de faltas',
       size: 12,
       font_style: :bold,
       background_color: 'DEDEDE',
