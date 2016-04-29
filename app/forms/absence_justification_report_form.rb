@@ -78,7 +78,7 @@ class AbsenceJustificationReportForm
   end
 
   def absence_date_end_must_be_lower_than_today
-    return if errors[:absence_date].any?
+    return if errors[:absence_date_end].any?
 
     begin
       absence_date.to_date
@@ -86,7 +86,7 @@ class AbsenceJustificationReportForm
         errors.add(:absence_date_end, "Deve ser menor ou igual a data de hoje") if absence_date_end.to_date > Time.zone.today
       end
     rescue ArgumentError
-      errors.add(:absence_date, "Deve ser uma data válida")
+      errors.add(:absence_date_end, "Deve ser uma data válida")
     end
   end
 

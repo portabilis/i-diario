@@ -40,7 +40,7 @@ class AbsenceJustificationReportController < ApplicationController
                                                     .by_classroom(@absence_justification_report_form.classroom_id)
                                                     .by_discipline_id(@absence_justification_report_form.discipline_id)
                                                     .by_date_report(@absence_justification_report_form.absence_date, @absence_justification_report_form.absence_date_end)
-                                                    .ordered
+                                                    .order(absence_date: :asc)
     else
       @absence_justifications = AbsenceJustification.by_teacher(current_teacher)
                                                     .by_unity(current_user_unity.id)
