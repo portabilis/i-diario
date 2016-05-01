@@ -27,7 +27,7 @@ class ObservationRecordReport < BaseReport
     )
 
     unity_header = make_row_header_cell(t(:unity), colspan: 2)
-    unity_cell = make_content_cell(@form.unity.name, colspan: 2)
+    unity_cell = make_content_cell(@form.unity.to_s, colspan: 2)
     discipline_header = make_row_header_cell(t(:discipline))
     classroom_header = make_row_header_cell(t(:classroom))
 

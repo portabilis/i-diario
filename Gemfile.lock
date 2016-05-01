@@ -120,6 +120,9 @@ GEM
       rack (>= 1.0.0)
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
+    capybara-screenshot (1.0.12)
+      capybara (>= 1.0, < 3)
+      launchy
     carrierwave (0.10.0)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -304,6 +307,8 @@ GEM
     kaminari (0.16.3)
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
+    launchy (2.4.3)
+      addressable (~> 2.3)
     less (2.6.0)
       commonjs (~> 0.2.7)
     less-rails (2.7.0)
@@ -521,6 +526,7 @@ DEPENDENCIES
   bulk_insert (~> 1.0)
   bullet (~> 4.14.0)
   capybara (~> 2.5)
+  capybara-screenshot
   carrierwave
   cocoon (~> 1.2.6)
   cpf_faker (~> 1.3)

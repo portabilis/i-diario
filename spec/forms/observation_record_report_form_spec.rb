@@ -2,20 +2,18 @@ require 'spec_helper_form'
 require 'active_record'
 require 'postgres-copy'
 require 'i18n_alchemy'
-require 'enumerate_it'
-require 'app/enumerations/frequency_types'
 require 'app/models/classroom'
 require 'app/models/teacher'
 require 'app/forms/observation_record_report_form'
 
 RSpec.describe ObservationRecordReportForm do
-  let(:frequency_type_definer) { double(:frequency_type_definer) }
+  let(:frequency_type_resolver) { double(:frequency_type_resolver) }
   let(:observation_record_report_query) { double(:observation_record_report_query) }
 
   before do
     stub_classroom
     stub_teacher
-    stub_frequency_type_definer
+    stub_frequency_type_resolver
     stub_observation_record_report_query
   end
 
@@ -87,11 +85,10 @@ RSpec.describe ObservationRecordReportForm do
     allow(Teacher).to receive(:find)
   end
 
-  def stub_frequency_type_definer
-    stub_const('FrequencyTypeDefiner', Class.new)
-    allow(FrequencyTypeDefiner).to receive(:new).and_return(frequency_type_definer)
-    allow(frequency_type_definer).to receive(:define!)
-    allow(frequency_type_definer).to receive(:frequency_type).and_return(FrequencyTypes::GENERAL)
+  def stub_frequency_type_resolver
+    stub_const('FrequencyTypeResolver', Class.new)
+    allow(FrequencyTypeResolver).to receive(:new).and_return(frequency_type_resolver)
+    allow(frequency_type_resolver).to receive(:by_discipline?).and_return(false)
   end
 
   def stub_observation_record_report_query
