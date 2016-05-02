@@ -18,7 +18,6 @@ pt-BR:
           attributes:
               frequency_date:
                 must_be_less_than_or_equal_to_today: "deve ser menor ou igual a data de hoje"
-                must_be_school_day: "deve ser um dia letivo"
               discipline:
                 required_when_not_global_absence: "não pode ser branco em falta por disciplina"
               class_number:

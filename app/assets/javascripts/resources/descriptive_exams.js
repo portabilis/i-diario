@@ -14,7 +14,7 @@ $(function () {
 
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
-      $.getJSON('/turmas?' + $.param(params)).always(function (data) {
+      $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
         window.classrooms = data;
         callback(window.classrooms);
       });
@@ -42,7 +42,10 @@ $(function () {
 
   $unity.on('change', function (e) {
     var params = {
-      unity_id: e.val
+      filter: {
+        by_unity: e.val
+      },
+      find_by_current_teacher: true
     };
 
     window.classrooms = [];

@@ -38,35 +38,7 @@ class SchoolCalendar < ActiveRecord::Base
   end
 
   def school_day?(date, grade_id = nil, classroom_id = nil)
-    # events by classrooms are priority
-    return false if events.where(event_date: date, event_type: EventTypes::NO_SCHOOL)
-                          .where(events.arel_table[:grade_id].eq(grade_id))
-                          .where(events.arel_table[:classroom_id].eq(classroom_id))
-                          .any?
-    return true if events.where(event_date: date, event_type: EventTypes::EXTRA_SCHOOL)
-                          .where(events.arel_table[:grade_id].eq(grade_id))
-                          .where(events.arel_table[:classroom_id].eq(classroom_id))
-                          .any?
-    # after classrooms the grades are priority
-    return false if events.where(event_date: date, event_type: EventTypes::NO_SCHOOL)
-                          .where(events.arel_table[:grade_id].eq(grade_id))
-                          .where(events.arel_table[:classroom_id].eq(nil))
-                          .any?
-    return true if events.where(event_date: date, event_type: EventTypes::EXTRA_SCHOOL)
-                          .where(events.arel_table[:grade_id].eq(grade_id))
-                          .where(events.arel_table[:classroom_id].eq(nil))
-                          .any?
-    # after all the calendar events
-    return false if events.where(event_date: date, event_type: EventTypes::NO_SCHOOL)
-                          .where(events.arel_table[:grade_id].eq(nil))
-                          .where(events.arel_table[:classroom_id].eq(nil))
-                          .any?
-    return true if events.where(event_date: date, event_type: EventTypes::EXTRA_SCHOOL)
-                          .where(events.arel_table[:grade_id].eq(nil))
-                          .where(events.arel_table[:classroom_id].eq(nil))
-                          .any?
-    return false if step(date).nil?
-    ![0, 6].include? date.wday
+    SchoolDayChecker.new(self, date, grade_id, classroom_id).school_day?
   end
 
   def step(date)

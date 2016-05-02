@@ -2,15 +2,17 @@ class ClassroomsController < ApplicationController
   respond_to :json
 
   def index
-    return unless teacher_id = current_teacher.try(:id)
-    unity_id = params[:unity_id]
+    if params[:find_by_current_teacher]
+      teacher_id = current_teacher.try(:id)
+      return unless teacher_id
+    end
     score_type = params[:score_type]
 
-    if score_type
-      @classrooms = Classroom.by_unity_and_teacher(unity_id, teacher_id).by_score_type(ScoreTypes.value_for(score_type.upcase)).ordered.uniq
-    else
-      @classrooms = Classroom.by_unity_and_teacher(unity_id, teacher_id).ordered.uniq
-    end
+    @classrooms = apply_scopes(Classroom).ordered
+    @classrooms = @classrooms.by_teacher_id(teacher_id) if teacher_id
+    @classrooms = @classrooms.by_score_type(ScoreTypes.value_for(score_type.upcase)) if score_type
+    @classrooms = @classrooms.by_year(Date.today.year)
+    @classrooms = @classrooms.uniq
   end
 
   def show

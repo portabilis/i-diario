@@ -14,10 +14,10 @@ class DailyFrequency < ActiveRecord::Base
   has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyFrequencyStudent', dependent: :destroy
   accepts_nested_attributes_for :students, allow_destroy: true
 
-  validates :unity, :classroom, :frequency_date, :school_calendar, presence: true
+  validates :unity, :classroom, :school_calendar, presence: true
+  validates :frequency_date, presence: true, school_calendar_day: true
 
   validate :frequency_date_must_be_less_than_or_equal_to_today
-  validate :is_school_day?
 
   scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
         lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at| where(unity_id: unity_id,
@@ -53,11 +53,5 @@ class DailyFrequency < ActiveRecord::Base
     if frequency_date > Time.zone.today
       errors.add(:frequency_date, :must_be_less_than_or_equal_to_today)
     end
-  end
-
-  def is_school_day?
-    return unless school_calendar && frequency_date && classroom
-
-    errors.add(:frequency_date, :must_be_school_day) if !school_calendar.school_day?(frequency_date, classroom.grade.id, classroom.id)
   end
 end
