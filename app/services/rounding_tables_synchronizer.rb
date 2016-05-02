@@ -42,7 +42,9 @@ class RoundingTablesSynchronizer
             rounding_table_id: rounding_table.id,
             label: api_value["rotulo"],
             description: api_value["descricao"],
-            value: api_value["valor_maximo"]
+            value: api_value["valor_maximo"],
+            exact_decimal_place: api_value["casa_decimal_exata"],
+            action: api_value["acao"]
           )
         end
       end
