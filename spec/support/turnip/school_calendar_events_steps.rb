@@ -18,6 +18,10 @@ module Turnip
       fill_in 'Descrição', with: 'Natal'
       select 'Não letivo', :from => 'Tipo'
 
+      page.execute_script %{
+        $("#school_calendar_event_periods").select2('val', [1], true);
+      }
+
       click_on 'Salvar'
 
       expect(page).to have_content 'Evento do calendário letivo foi criado com sucesso.'
