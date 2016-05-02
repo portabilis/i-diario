@@ -1,12 +1,16 @@
 class DisciplineLessonPlanReportController < ApplicationController
 
   def form
-    @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new(unity_id: current_user_unity.id)
+    @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new
+    @discipline_lesson_plan_report_form.unity_id = current_user_unity.id
+    @discipline_lesson_plan_report_form.teacher_id = current_teacher.id
     fetch_collections
   end
 
   def report
     @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new(resource_params)
+    @discipline_lesson_plan_report_form.unity_id = current_user_unity.id
+    @discipline_lesson_plan_report_form.teacher_id = current_teacher.id
 
     if @discipline_lesson_plan_report_form.valid?
       lesson_plan_report = DisciplineLessonPlanReport.build(current_entity_configuration,

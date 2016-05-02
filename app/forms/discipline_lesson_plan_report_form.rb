@@ -6,13 +6,15 @@ class DisciplineLessonPlanReportForm
                 :discipline_id,
                 :date_start,
                 :date_end,
-                :discipline_lesson_plan
+                :discipline_lesson_plan,
+                :teacher_id
 
   validates :unity_id,
     :classroom_id,
     :discipline_id,
     :date_start,
     :date_end,
+    :teacher_id,
     presence: true
 
   validate :date_start_must_be_a_valid_date
@@ -22,6 +24,7 @@ class DisciplineLessonPlanReportForm
 
   def discipline_lesson_plan
     DisciplineLessonPlan.by_unity_id(unity_id)
+      .by_teacher_id(teacher_id)
       .by_classroom_id(classroom_id)
       .by_discipline_id(discipline_id)
       .by_date_range(date_start.to_date, date_end.to_date)
