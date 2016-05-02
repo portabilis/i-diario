@@ -50,8 +50,8 @@ class ObservationDiaryRecord < ActiveRecord::Base
   end
 
   def require_discipline?
-    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)
-    frequency_type_definer.define!
-    frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+    return unless classroom && teacher
+
+    FrequencyTypeResolver.new(classroom, teacher).by_discipline?
   end
 end
