@@ -13,7 +13,7 @@ class ScoreRounder
       if score_decimal_part == value.label
         case value.action
         when RoundingTableAction::NONE
-          rounded_score = truncate_score(score)
+          rounded_score = score
         when RoundingTableAction::BELOW
           rounded_score = round_to_below(score)
         when RoundingTableAction::ABOVE
@@ -38,7 +38,7 @@ class ScoreRounder
   def decimal_part(value)
     parts = value.to_s.split(".")
     decimal_part = parts.count > 1 ? parts[1][0].to_s : 0
-    return decimal_part.to_f
+    return decimal_part
   end
 
   def round_to_exact_decimal(score, exact_decimal_place)
