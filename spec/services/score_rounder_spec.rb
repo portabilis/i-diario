@@ -10,7 +10,7 @@ RSpec.describe ScoreRounder, type: :service do
   let(:rounding_table_value) { double(:rounding_table_value) }
   let(:rounding_table_values) { [rounding_table_value] }
   let(:exact_decimal_place) { "" }
-  let(:label) { 0 }
+  let(:label) { "0" }
   let(:action) { RoundingTableAction::NONE }
 
   subject do
@@ -25,15 +25,15 @@ RSpec.describe ScoreRounder, type: :service do
 
   describe '#round' do
     context 'when there is no rounding action' do
-      let(:label) { 5 }
+      let(:label) { "5" }
       let(:action) { RoundingTableAction::NONE }
       it "should return the same score truncated" do
-        expect(subject.round(8.555)).to be(8.5)
+        expect(subject.round(8.555)).to be(8.555)
       end
     end
 
     context 'when rounding is below' do
-      let(:label) { 9 }
+      let(:label) { "9" }
       let(:action) { RoundingTableAction::BELOW }
       it "should round to below" do
         expect(subject.round(5.9)).to be(5.0)
@@ -41,7 +41,7 @@ RSpec.describe ScoreRounder, type: :service do
     end
 
     context 'when rounding is above' do
-      let(:label) { 3 }
+      let(:label) { "3" }
       let(:action) { RoundingTableAction::ABOVE }
       it "should round to above" do
         expect(subject.round(3.3)).to be(4.0)
@@ -49,7 +49,7 @@ RSpec.describe ScoreRounder, type: :service do
     end
 
     context 'when rounding is specific' do
-      let(:label) { 9 }
+      let(:label) { "9" }
       let(:action) { RoundingTableAction::SPECIFIC }
       let(:exact_decimal_place) { 5 }
       it "should round to .5" do
@@ -58,7 +58,7 @@ RSpec.describe ScoreRounder, type: :service do
     end
 
     context 'when number is complex' do
-      let(:label) { 4 }
+      let(:label) { "4" }
       let(:action) { RoundingTableAction::ABOVE }
       it "it should round to above normally" do
         expect(subject.round(2.44443)).to be(3.0)
@@ -66,7 +66,7 @@ RSpec.describe ScoreRounder, type: :service do
     end
 
     context 'when number is zero' do
-      let(:label) { 0 }
+      let(:label) { "0" }
       context 'and there is no rounding action' do
         let(:action) { RoundingTableAction::NONE }
         it "it should return zero" do
