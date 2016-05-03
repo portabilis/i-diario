@@ -58,10 +58,10 @@ RSpec.describe ScoreRounder, type: :service do
     end
 
     context 'when number is complex' do
-      let(:label) { "4" }
+      let(:label) { "0" }
       let(:action) { RoundingTableAction::ABOVE }
       it "it should round to above normally" do
-        expect(subject.round(2.44443)).to be(3.0)
+        expect(subject.round(2.08)).to be(3.0)
       end
     end
 
@@ -89,9 +89,16 @@ RSpec.describe ScoreRounder, type: :service do
 
   def stub_rounding_table
     allow(rounding_table).to receive(:values).and_return(rounding_table_values)
+    allow(rounding_table).to receive(:id).and_return(1)
   end
 
   def stub_rounding_table_value
+    stub_const('RoundingTableValue', Class.new)
+    allow(RoundingTableValue).to(
+      receive(:find_by).with(rounding_table_id: 1,
+                             label: label
+      ).and_return(rounding_table_value)
+    )
     allow(rounding_table_value).to receive(:label).and_return(label)
     allow(rounding_table_value).to receive(:action).and_return(action)
     allow(rounding_table_value).to receive(:exact_decimal_place).and_return(exact_decimal_place)
