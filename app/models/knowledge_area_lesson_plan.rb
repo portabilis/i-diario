@@ -40,6 +40,7 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
     knowledge_area_lesson_plans = KnowledgeAreaLessonPlan.by_classroom_id(lesson_plan.classroom_id)
       .by_knowledge_area_id(knowledge_areas.collect(&:id))
       .by_date_range(lesson_plan.start_at, lesson_plan.end_at)
+      .by_teacher_id(lesson_plan.teacher_id)
 
     knowledge_area_lesson_plans = knowledge_area_lesson_plans.where.not(id: id) if persisted?
 
