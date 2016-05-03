@@ -18,7 +18,8 @@ class StudentAverageCalculator
     end
     #TODO Modificar classe para receber objetos e não ids (Classroom, Discipline, SchoolCalendarStep)
     classroom = Classroom.find(classroom_id)
-    return ScoreRounder.new(classroom.exam_rule).round(result)
+
+    ScoreRounder.new(classroom.exam_rule).round(result)
   end
 
   def score_sum(daily_notes)
