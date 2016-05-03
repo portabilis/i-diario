@@ -30,14 +30,11 @@ class DisciplineTeachingPlan < ActiveRecord::Base
     joins(:teaching_plan).joins(
       arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
         .on(
-          TeacherDisciplineClassroom.arel_table[:teacher_id]
-            .eq(teacher)
-            .and(
-              TeacherDisciplineClassroom.arel_table[:discipline_id]
-                .eq(arel_table[:discipline_id])
-            )
-        )
-        .join_sources
+          TeacherDisciplineClassroom.arel_table[:discipline_id]
+            .eq(arel_table[:discipline_id])
+            .and(TeachingPlan.arel_table[:year]
+                  .eq(TeacherDisciplineClassroom.arel_table[:year]))
+          ).join_sources
       )
       .joins(
         arel_table.join(Classroom.arel_table, Arel::Nodes::OuterJoin)
@@ -51,6 +48,10 @@ class DisciplineTeachingPlan < ActiveRecord::Base
           )
           .join_sources
       )
+      .where(TeacherDisciplineClassroom.arel_table[:teacher_id]
+              .eq(teacher)
+            .and(TeacherDisciplineClassroom.arel_table[:active]
+              .eq('t')))
       .uniq
   end
 
