@@ -40,7 +40,8 @@ class DisciplineLessonPlan < ActiveRecord::Base
   def uniqueness_of_discipline_lesson_plan
     return unless lesson_plan.present? && lesson_plan.classroom.present?
 
-    discipline_lesson_plans = DisciplineLessonPlan.by_classroom_id(lesson_plan.classroom_id)
+    discipline_lesson_plans = DisciplineLessonPlan.by_teacher_id(lesson_plan.teacher_id)
+      .by_classroom_id(lesson_plan.classroom_id)
       .by_discipline_id(discipline_id)
       .by_date_range(lesson_plan.start_at, lesson_plan.end_at)
 
