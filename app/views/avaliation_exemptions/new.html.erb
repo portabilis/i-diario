@@ -1,0 +1,70 @@
+<% content_for :js do %>
+<% end %>
+
+
+<div class="widget-body no-padding">
+  <%= simple_form_for @avaliation_exemption, html: { class: "smart-form" } do |f| %>
+    <%= f.error_notification %>
+
+    <fieldset>
+
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :unity_id, as: :select2, elements: @unities, disabled: true %>
+        </div>
+      </div>
+
+    </fieldset>
+
+
+    <fieldset id="food_***REMOVED***">
+      <legend><%= t('.***REMOVED***') %></legend>
+
+      <div class="alert alert-info fade in">
+				<button class="close" data-dismiss="alert">
+					×
+				</button>
+			</div>
+
+      <table class="table table-striped table-bordered table-condensed records">
+        <thead>
+          <tr>
+            <th><%= ***REMOVED***.human_attribute_name :description %></th>
+            <th width="40%"><%= ***REMOVED***.human_attribute_name :quantity %></th>
+            <th width="20%"><%= ***REMOVED***.human_attribute_name :measuring_unit_id %></th>
+            <th width="5.8%"></th>
+          </tr>
+        </thead>
+
+        <tbody id="food-***REMOVED***">
+          <tr>
+            <td class="no_item_found" colspan="4" style="<%= @food.food_***REMOVED***.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+          </tr>
+          <%= f.association :food_***REMOVED*** do |ff| %>
+            <%= render 'food_material_fields', f: ff %>
+          <% end %>
+        </tbody>
+
+        <tfoot class="links">
+          <tr>
+            <td colspan="4">
+              <%= link_to_add_association t('.add_material'), f, :food_***REMOVED***, 'data-association-insertion-method': 'append',
+                                                                                  'data-association-insertion-node': '#food-***REMOVED***',
+                                                                                  class: 'btn btn-success btn-sm' %>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </fieldset>
+
+    <footer>
+      <%= link_to t('views.form.back'), ***REMOVED***_path, class: "btn btn-default" %>
+
+      <% if @food.persisted? %>
+        <%= link_to t('views.form.history'), history_food_path(@food), class: 'btn btn-info' %>
+      <% end %>
+
+      <button type="submit" class="btn btn-primary"><%= t('views.form.save') %></button>
+    </footer>
+  <% end %>
+</div>

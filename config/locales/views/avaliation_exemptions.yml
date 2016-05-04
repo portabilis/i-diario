@@ -1,0 +1,14 @@
+pt-BR:
+  avaliation_exemptions:
+    index:
+      by_unity: "Filtrar escola"
+      by_grade: "Filtrar série"
+      by_classroom: "Filtrar turma"
+      by_created_at: "Filtrar data"
+
+      new_html: "<i class='fa fa-plus'></i> Nova dispensa"
+    edit:
+      no_item_found: "Nenhuma dispensa"
+      ***REMOVED***: "Dispensas"
+    food_material_fields:
+      remove: "Remover"

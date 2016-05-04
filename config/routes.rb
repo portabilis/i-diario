@@ -183,6 +183,7 @@ Rails.application.routes.draw do
     resources :absence_justifications, concerns: :history
     resources :observation_diary_records, expect: :show, concerns: :history
     resources :ieducar_api_exam_postings
+    resources :avaliation_exemptions, concerns: :history
 
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
