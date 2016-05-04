@@ -1,3 +1,5 @@
+require "prawn/measurement_extensions"
+
 class AbsenceJustificationReport
   include Prawn::View
 
@@ -232,6 +234,7 @@ class AbsenceJustificationReport
       content: 'Aluno',
       size: 8,
       font_style: :bold,
+      width: 220,
       background_color: 'FFFFFF',
       align: :left
     )
@@ -256,18 +259,21 @@ class AbsenceJustificationReport
       initial_date_cell = make_cell(
         content: "#{absence_justification.absence_date.strftime("%d/%m/%Y")}",
         size: 10,
+        width: 65,
         align: :left
       )
 
       final_date_cell = make_cell(
         content: "#{absence_justification.absence_date_end.strftime("%d/%m/%Y")}",
         size: 10,
+        width: 65,
         align: :left
       )
 
       student_cell = make_cell(
         content: absence_justification.student.name,
         size: 10,
+        width: 220,
         align: :left
       )
 
