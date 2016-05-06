@@ -28,7 +28,7 @@ RSpec.describe ScoreRounder, type: :service do
       let(:label) { "5" }
       let(:action) { RoundingTableAction::NONE }
       it "should return the same score truncated" do
-        expect(subject.round(8.555)).to be(8.555)
+        expect(subject.round(8.555)).to be(8.5)
       end
     end
 
@@ -36,7 +36,7 @@ RSpec.describe ScoreRounder, type: :service do
       let(:label) { "9" }
       let(:action) { RoundingTableAction::BELOW }
       it "should round to below" do
-        expect(subject.round(5.9)).to be(5.0)
+        expect(subject.round(5.912)).to be(5.0)
       end
     end
 
@@ -53,7 +53,7 @@ RSpec.describe ScoreRounder, type: :service do
       let(:action) { RoundingTableAction::SPECIFIC }
       let(:exact_decimal_place) { 5 }
       it "should round to .5" do
-        expect(subject.round(2.9)).to be(2.5)
+        expect(subject.round(2.9999)).to be(2.5)
       end
     end
 
@@ -67,17 +67,15 @@ RSpec.describe ScoreRounder, type: :service do
 
     context 'when number is zero' do
       let(:label) { "0" }
-      context 'and there is no rounding action' do
-        let(:action) { RoundingTableAction::NONE }
-        it "it should return zero" do
-          expect(subject.round(0.0)).to be(0.0)
-        end
+      let(:action) { RoundingTableAction::NONE }
+      it "it should return zero" do
+        expect(subject.round(0.0)).to be(0.0)
       end
-      context 'when number is 10.0' do
-        let(:action) { RoundingTableAction::ABOVE }
-        it "should not round at all" do
-          expect(subject.round(10.0)).to be(10.0)
-        end
+    end
+    context 'when number is 10.0' do
+      let(:action) { RoundingTableAction::ABOVE }
+      it "should not round at all" do
+        expect(subject.round(10.0)).to be(10.0)
       end
     end
 
