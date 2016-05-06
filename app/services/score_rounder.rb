@@ -6,6 +6,7 @@ class ScoreRounder
   end
 
   def round(score)
+    return 10.0 if score == 10
     score_decimal_part = decimal_part(score)
     rounding_table_id = exam_rule_rounding_table.try(:id)
     rounding_table_value = RoundingTableValue.find_by(rounding_table_id: rounding_table_id, label: score_decimal_part)
@@ -24,7 +25,7 @@ class ScoreRounder
       end
     end
 
-    rounded_score.to_f
+    truncate_score(rounded_score.to_f)
   end
 
   private
