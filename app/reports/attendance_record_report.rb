@@ -3,8 +3,8 @@ require "prawn/measurement_extensions"
 class AttendanceRecordReport
   include Prawn::View
 
-  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students)
-    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students)
+  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students, events)
+    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students, events)
   end
 
   def initialize
@@ -16,7 +16,7 @@ class AttendanceRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students)
+  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students, events)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -24,6 +24,9 @@ class AttendanceRecordReport
     @end_at = end_at
     @daily_frequencies = daily_frequencies
     @students = students
+    @events = events
+
+    self.legend = "Legenda: N - Não enturmado"
 
     header
 
@@ -36,7 +39,7 @@ class AttendanceRecordReport
 
   protected
 
-  attr_accessor :any_student_with_dependence
+  attr_accessor :any_student_with_dependence, :legend
 
   private
 
@@ -82,34 +85,56 @@ class AttendanceRecordReport
 
   def daily_frequencies_table
     self.any_student_with_dependence = false
-    sliced_daily_frequencies = @daily_frequencies.each_slice(40).to_a
+    frequencies_and_events = @daily_frequencies.to_a + @events.to_a
+    frequencies_and_events = frequencies_and_events.sort_by do |obj|
+      obj.class.to_s == "SchoolCalendarEvent" ? obj.event_date : obj.frequency_date
+    end
+    sliced_frequencies_and_events = frequencies_and_events.each_slice(40 - @events.count).to_a
 
-    sliced_daily_frequencies.each_with_index do |daily_frequencies_slice, index|
+    sliced_frequencies_and_events.each_with_index do |frequencies_and_events_slice, index|
       class_numbers = []
       days = []
       months = []
       students = {}
       students_ids = fetch_students_ids
 
-      daily_frequencies_slice.each do |daily_frequency|
-        if daily_frequency.students.any?
-          class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
-          days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
-          months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
+      frequencies_and_events_slice.each do |daily_frequency_or_event|
+        if daily_frequency_or_event.class.to_s == "SchoolCalendarEvent"
+          school_calendar_event = daily_frequency_or_event
+          self.legend += ", "+school_calendar_event.legend+" - "+school_calendar_event.description
+
+          class_numbers << make_cell(content: "", background_color: 'FFFFFF', align: :center)
+          days << make_cell(content: "#{school_calendar_event.event_date.day}", background_color: 'FFFFFF', align: :center)
+          months << make_cell(content: "#{school_calendar_event.event_date.month}", background_color: 'FFFFFF', align: :center)
 
           students_ids.each do |student_id|
-            student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id) || NullDailyFrequencyStudent.new
             student = Student.find(student_id)
             (students[student_id] ||= {})[:name] = student.name
             students[student_id] = {} if students[student_id].nil?
-            students[student_id][:dependence] = students[student_id][:dependence] || student_frequency.dependence?
-
-            self.any_student_with_dependence = self.any_student_with_dependence || student_frequency.dependence?
             students[student_id][:absences] ||= 0
-            if !student_frequency.present
-              students[student_id][:absences] = students[student_id][:absences] + 1
+            (students[student_id][:attendances] ||= []) << make_cell(content: "#{school_calendar_event.legend}", align: :center)
+          end
+        else
+          daily_frequency = daily_frequency_or_event
+          if daily_frequency.students.any?
+            class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
+            days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
+            months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
+
+            students_ids.each do |student_id|
+              student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id) || NullDailyFrequencyStudent.new
+              student = Student.find(student_id)
+              (students[student_id] ||= {})[:name] = student.name
+              students[student_id] = {} if students[student_id].nil?
+              students[student_id][:dependence] = students[student_id][:dependence] || student_frequency.dependence?
+
+              self.any_student_with_dependence = self.any_student_with_dependence || student_frequency.dependence?
+              students[student_id][:absences] ||= 0
+              if !student_frequency.present
+                students[student_id][:absences] = students[student_id][:absences] + 1
+              end
+              (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
             end
-            (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
           end
         end
       end
@@ -175,7 +200,7 @@ class AttendanceRecordReport
         start_new_page if index < sliced_students_cells.count - 1
       end
 
-      start_new_page if index < sliced_daily_frequencies.count - 1
+      start_new_page if index < sliced_frequencies_and_events.count - 1
     end
   end
 
@@ -194,7 +219,7 @@ class AttendanceRecordReport
         draw_text('* Alunos cursando dependência', size: 8, at: [0, 32])
       end
 
-      draw_text('Legenda: N - Não enturmado', size: 8, at: [0, 17])
+      draw_text(self.legend, size: 8, at: [0, 17])
     end
 
     string = "Página <page> de <total>"

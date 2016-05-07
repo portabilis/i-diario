@@ -27,15 +27,18 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :ordered, -> { order(arel_table[:event_date]) }
   scope :with_frequency, -> { where(arel_table[:event_type].eq(EventTypes::EXTRA_SCHOOL)) }
   scope :without_frequency, -> { where(arel_table[:event_type].not_eq(EventTypes::EXTRA_SCHOOL)) }
+  scope :extra_school_without_frequency, -> { where(event_type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY) }
   scope :without_grade, -> { where(arel_table[:grade_id].eq(nil) ) }
   scope :without_classroom, -> { where(arel_table[:classroom_id].eq(nil) ) }
   scope :by_period, lambda { |period| where(' ? = ANY (periods)', period) }
   scope :by_date, lambda { |date| where(event_date: date.to_date) }
+  scope :by_date_between, lambda { |start_at, end_at| where(event_date: start_at.to_date..end_at.to_date) }
   scope :by_description, lambda { |description| where('description ILIKE ?', '%'+description+'%') }
   scope :by_type, lambda { |type| where(event_type: type) }
   scope :by_grade, lambda { |grade| where(grade_id: grade) }
   scope :by_classroom, lambda { |classroom| joins(:classroom).where('classrooms.description ILIKE ?', '%'+classroom+'%') }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :all_events_for_classroom, lambda { |classroom| all_events_for_classroom(classroom) }
 
   def to_s
     description
@@ -54,6 +57,11 @@ class SchoolCalendarEvent < ActiveRecord::Base
   end
 
   protected
+
+  def self.all_events_for_classroom(classroom)
+    where('? = ANY (periods) OR classroom_id = ?', classroom.period, classroom.id)
+    where('grade_id IS NULL OR grade_id = ?', classroom.grade.id)
+  end
 
   def should_validate_grade?
     [EventCoverageType::BY_GRADE, EventCoverageType::BY_CLASSROOM].include? self.coverage
