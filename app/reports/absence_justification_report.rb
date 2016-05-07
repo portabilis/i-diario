@@ -216,35 +216,40 @@ class AbsenceJustificationReport
       content: 'Data inicial',
       size: 8,
       font_style: :bold,
-      width: 65,
+      borders: [:left, :right, :top],
       background_color: 'FFFFFF',
-      align: :left,
+      width: 60,
+      padding: [2, 2, 4, 4],
     )
 
     final_date_header = make_cell(
       content: 'Data final',
       size: 8,
       font_style: :bold,
-      width: 65,
+      borders: [:left, :right, :top],
       background_color: 'FFFFFF',
-      align: :left
+      width: 60,
+      padding: [2, 2, 4, 4],
     )
 
     student_header = make_cell(
       content: 'Aluno',
       size: 8,
       font_style: :bold,
-      width: 220,
+      borders: [:left, :right, :top],
       background_color: 'FFFFFF',
-      align: :left
+      width: 60,
+      padding: [2, 2, 4, 4],
     )
 
     justification_header = make_cell(
       content: 'Justificativa',
       size: 8,
       font_style: :bold,
+      borders: [:left, :right, :top],
       background_color: 'FFFFFF',
-      align: :left
+      width: 60,
+      padding: [2, 2, 4, 4], 
     )
 
     headers = [
