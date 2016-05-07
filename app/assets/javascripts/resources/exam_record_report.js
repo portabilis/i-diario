@@ -31,7 +31,7 @@ $(function () {
   $unity.on('change', function (e) {
     var params = {
       filter: {
-        unity_id: e.val
+        by_unity: e.val
       },
       score_type: 'numeric',
       find_by_current_teacher: true

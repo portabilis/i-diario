@@ -42,7 +42,7 @@ $(function () {
   $unity.on('change', function (e) {
     var params = {
       filter: {
-        unity_id: e.val
+        by_unity: e.val
       },
       find_by_current_teacher: true
     };
