@@ -59,8 +59,18 @@ class SchoolCalendarEvent < ActiveRecord::Base
   protected
 
   def self.all_events_for_classroom(classroom)
-    where('? = ANY (periods) OR classroom_id = ?', classroom.period, classroom.id)
-    where('grade_id IS NULL OR grade_id = ?', classroom.grade.id)
+    where('? = ANY (periods) OR classroom_id = ?', classroom.period, classroom.id).
+    where('grade_id IS NULL OR grade_id = ?', classroom.grade.id).
+    where(' "school_calendar_events"."id" in (
+            SELECT id
+            FROM school_calendar_events sce
+            WHERE sce.event_date = "school_calendar_events"."event_date"
+            AND sce.school_calendar_id = "school_calendar_events"."school_calendar_id"
+            AND (? = ANY (periods) OR classroom_id = ?)
+            AND (grade_id IS NULL OR grade_id = ?)
+            ORDER BY classroom_id DESC
+            LIMIT 1
+            )', classroom.period, classroom.id, classroom.grade.id)
   end
 
   def should_validate_grade?
