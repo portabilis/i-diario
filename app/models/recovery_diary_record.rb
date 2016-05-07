@@ -29,6 +29,10 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   before_validation :self_assign_to_students
 
+  def school_calendar
+    CurrentSchoolCalendarFetcher.new(unity).fetch
+  end
+
   private
 
   def at_least_one_assigned_student
@@ -45,9 +49,5 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   def self_assign_to_students
     students.each { |student| student.recovery_diary_record = self }
-  end
-
-  def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity).fetch
   end
 end
