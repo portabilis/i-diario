@@ -23,7 +23,6 @@ class IeducarApiExamPostingsController < ApplicationController
     ieducar_api_exam_posting = IeducarApiExamPosting.new(permitted_attributes)
     ieducar_api_exam_posting.author = current_user
     ieducar_api_exam_posting.status = ApiSynchronizationStatus::STARTED
-    logger.debug "Passou no started----------------------------------------------------------"
     ieducar_api_exam_posting.ieducar_api_configuration = IeducarApiConfiguration.current
 
     ieducar_api_exam_posting.save!
