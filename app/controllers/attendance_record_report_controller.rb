@@ -12,6 +12,7 @@ class AttendanceRecordReportController < ApplicationController
 
   def report
     @attendance_record_report_form = AttendanceRecordReportForm.new(resource_params)
+    @attendance_record_report_form.school_calendar = current_school_calendar
 
     if @attendance_record_report_form.valid?
       attendance_record_report = AttendanceRecordReport.build(current_entity_configuration,
@@ -20,7 +21,8 @@ class AttendanceRecordReportController < ApplicationController
                                                               @attendance_record_report_form.start_at,
                                                               @attendance_record_report_form.end_at,
                                                               @attendance_record_report_form.daily_frequencies,
-                                                              @attendance_record_report_form.students)
+                                                              @attendance_record_report_form.students,
+                                                              @attendance_record_report_form.school_calendar_events)
 
       send_data(attendance_record_report.render, filename: 'registro-de-frequencia.pdf', type: 'application/pdf', disposition: 'inline')
     else
