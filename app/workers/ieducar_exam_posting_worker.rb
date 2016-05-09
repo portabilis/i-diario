@@ -22,9 +22,11 @@ class IeducarExamPostingWorker
             ExamPoster::FinalRecoveryPoster.post!(posting)
           end
 
-        posting.mark_as_warning!(messages[:warning_messages]) if !messages[:warning_messages].empty?
-
-        posting.mark_as_completed! 'Envio realizado com sucesso!'
+         if messages[:warning_messages].empty?
+           posting.mark_as_completed! 'Envio realizado com sucesso!'
+         else
+           posting.mark_as_warning!(messages[:warning_messages])
+         end
 
       rescue IeducarApi::Base::ApiError => e
         posting.mark_as_error!(e.message)
