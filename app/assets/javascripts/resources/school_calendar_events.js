@@ -1,16 +1,19 @@
 $(function () {
+  'use strict';
   window.grades = [];
   window.classrooms = [];
 
-  var $schoolCalendar = $('#school_calendar_event_school_calendar_id');
-  var $course = $('#school_calendar_event_course_id');
-  var $grade = $('#school_calendar_event_grade_id');
-  var $classroom = $('#school_calendar_event_classroom_id');
+  var $legendContainer = $('[data-event-legend-container]'),
+      $eventType = $('#school_calendar_event_event_type'),
+      $unity = $('#school_calendar_event_unity_id'),
+      $course = $('#school_calendar_event_course_id'),
+      $grade = $('#school_calendar_event_grade_id'),
+      $classroom = $('#school_calendar_event_classroom_id');
 
   var fetchGrades = function (params, callback) {
     if (_.isEmpty(window.grades)) {
-      $.getJSON('/calendarios-letivo/'+$schoolCalendar.val()+'/eventos/grades?' + $.param(params)).always(function (data) {
-        window.grades = data.grades;
+      $.getJSON(Routes.grades_pt_br_path(params)).always(function (data) {
+        window.grades = data;
         callback(window.grades);
       });
     } else {
@@ -20,8 +23,8 @@ $(function () {
 
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
-      $.getJSON('/calendarios-letivo/'+$schoolCalendar.val()+'/eventos/turmas?' + $.param(params)).always(function (data) {
-        window.classrooms = data.classrooms;
+      $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
+        window.classrooms = data;
         callback(window.classrooms);
       });
     } else {
@@ -31,7 +34,10 @@ $(function () {
 
   $course.on('change', function (e) {
     var params = {
-      course_id: e.val
+      filter: {
+        by_course: e.val,
+        by_unity: $unity.val()
+      }
     };
 
     window.grades = [];
@@ -55,7 +61,10 @@ $(function () {
 
   $grade.on('change', function (e) {
     var params = {
-      grade_id: e.val
+      filter: {
+        by_grade: e.val,
+        by_unity: $unity.val()
+      }
     };
 
     window.classrooms = [];
@@ -64,11 +73,9 @@ $(function () {
 
     if (!_.isEmpty(e.val)) {
       fetchClassrooms(params, function (classrooms) {
-        console.log(classrooms);
         var selectedClassrooms = _.map(classrooms, function (classroom) {
           return { id:classroom['id'], text: classroom['description'] };
         });
-        console.log(selectedClassrooms);
 
         $classroom.select2({
           data: selectedClassrooms
@@ -76,4 +83,15 @@ $(function () {
       });
     }
   });
+
+  var togleLegendContainerVisibility = function(){
+    if($eventType.val() == "extra_school_without_frequency"){
+      $legendContainer.removeClass("hidden");
+    }else{
+      $legendContainer.addClass("hidden");
+    }
+  }
+
+  $eventType.on('change', togleLegendContainerVisibility);
+  togleLegendContainerVisibility();
 });

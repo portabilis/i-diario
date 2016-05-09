@@ -1,5 +1,5 @@
 <div class="widget-body no-padding">
-  <%= simple_form_for :search, { url: school_calendar_school_calendar_events_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for :filter, { url: school_calendar_school_calendar_events_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
   <div class="table-responsive">
     <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
       <thead>
@@ -7,7 +7,7 @@
           <td><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
           <td><%= f.input :by_description, label: false, placeholder: t('.by_description') %></td>
           <td><%= f.input :by_type, label: false, as: :select, collection: EventTypes, placeholder: t('.by_type') %></td>
-          <td><%= f.input :by_grade, as: :select2, elements: @grades, label: false, placeholder: t('.by_grade') %></td>
+          <td><%= f.input :by_grade, as: :select2, elements: grades, label: false, placeholder: t('.by_grade') %></td>
           <td><%= f.input :by_classroom, label: false, placeholder: t('.by_classroom') %></td>
           <td></td>
         </tr>
@@ -23,7 +23,7 @@
                 <%= t('.new_html') %> <span class="caret"></span>
               </button>
               <ul class="dropdown-***REMOVED***">
-                <% CoveragesOfEvent.to_a.each do |t, v| %>
+                <% EventCoverageType.to_a.each do |t, v| %>
                   <li>
                     <%= link_to t, new_school_calendar_school_calendar_event_path(coverage: v) %>
                   </li>

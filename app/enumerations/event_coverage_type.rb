@@ -1,4 +1,4 @@
-class CoveragesOfEvent < EnumerateIt::Base
+class EventCoverageType < EnumerateIt::Base
   associate_values :by_unity, :by_grade, :by_classroom
 
   sort_by :none

@@ -26,6 +26,7 @@ RSpec.describe Avaliation, type: :model do
     it { expect(subject).to validate_presence_of(:school_calendar) }
     it { expect(subject).to validate_presence_of(:test_setting) }
     it { expect(subject).to validate_presence_of(:test_date) }
+    it { expect(subject).to validate_school_calendar_day_of(:test_date) }
 
     context 'when classroom present' do
       let(:exam_rule_with_concept_score_type) { FactoryGirl.build(:exam_rule, score_type: ScoreTypes::CONCEPT) }

@@ -14,6 +14,7 @@ RSpec.describe DailyFrequency, :type => :model do
     it { should validate_presence_of :unity }
     it { should validate_presence_of :classroom }
     it { should validate_presence_of :frequency_date }
+    it { expect(subject).to validate_school_calendar_day_of(:frequency_date) }
     it { should validate_presence_of :school_calendar }
   end
 end

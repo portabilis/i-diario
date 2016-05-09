@@ -5,6 +5,7 @@ class Grade < ActiveRecord::Base
   has_many :classrooms
 
   scope :by_unity, lambda { |unity| by_unity(unity) }
+  scope :by_course, lambda { |course_id| where(course_id: course_id) }
   scope :by_teacher, lambda { |teacher| by_teacher(teacher) }
   scope :ordered, -> { order(arel_table[:description].asc) }
 
