@@ -33,10 +33,9 @@ pt-BR:
         user:
           attributes:
             base:
+              no_role_found: "Você não possui permissão de acesso. Por favor, contate o responsável pelo sistema no seu município."
               must_inform_email_or_cpf: 'Necessário informar e-mail ou CPF'
             phone:
               incorrect_format: "formato incorreto"
             cpf:
               incorrect_format: "formato incorreto"
-  no_role_found:
-    error: "Você não possui permissão de acesso. Por favor, contate o responsável pelo sistema no seu município."
