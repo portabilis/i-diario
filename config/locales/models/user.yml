@@ -1,5 +1,7 @@
 pt-BR:
   activerecord:
+  no_role_found:
+    error: "Você não possui permissão de acesso. Por favor, contate o responsável pelo sistema no seu município."
     models:
       user:
         one: "Usuário"
