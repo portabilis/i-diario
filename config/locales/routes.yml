@@ -78,7 +78,7 @@ pt-BR:
     school_calendar_steps: 'etapas'
     ***REMOVED***: 'acesso-do-aluno-a-escola'
     absence_justification: 'registro-de-justificativa-de-faltas'
-    avaliation_exemption: 'dispensa-de-avaliacao'
+    avaliation_exemptions: 'dispensa-de-avaliacoes'
 
     # actions
     edit: 'editar'
