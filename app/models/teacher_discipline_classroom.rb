@@ -7,9 +7,8 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
 
   validates :teacher, :teacher_api_code, :discipline_api_code, :classroom_api_code, :year, presence: true
 
-  scope :active, -> {
-    where(arel_table[:active].eq('t'))
-  }
+  default_scope { where(arel_table[:active].eq(true)) }
+
   scope :by_classroom, lambda { |classroom| where(classroom: classroom) }
   scope :by_year, lambda { |year| where(year: year) }
 

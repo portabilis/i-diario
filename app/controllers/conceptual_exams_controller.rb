@@ -159,13 +159,9 @@ class ConceptualExamsController < ApplicationController
   end
 
   def mark_not_assigned_disciplines_for_destruction
-    @conceptual_exam.conceptual_exam_values.each do |discipline_with_assignment|
-      # discipline_exists = @disciplines.any? do |discipline|
-      #     discipline_with_assignment == discipline.id
-      # end
-      discipline_with_assignment.mark_for_destruction
+    @conceptual_exam.conceptual_exam_values.where.not(discipline_id: disciplines_with_assignment).each do |conceptual_exam_value|
+      conceptual_exam_value.mark_for_destruction
     end
-
   end
 
   def mark_not_existing_disciplines_as_invisible
@@ -181,11 +177,10 @@ class ConceptualExamsController < ApplicationController
     disciplines = TeacherDisciplineClassroom
       .by_classroom(@conceptual_exam.classroom_id)
       .by_year(current_school_calendar.year)
-      .active
       .collect(&:discipline_id)
       .uniq
-      puts "--------------------------------------" + disciplines.to_json
-      disciplines
+
+    disciplines
   end
 
   def fetch_collections
