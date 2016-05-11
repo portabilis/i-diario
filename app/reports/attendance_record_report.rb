@@ -3,6 +3,8 @@ require "prawn/measurement_extensions"
 class AttendanceRecordReport
   include Prawn::View
 
+  STUDENTS_BY_PAGE = 29
+
   def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students, events)
     new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students, events)
   end
@@ -101,7 +103,7 @@ class AttendanceRecordReport
       frequencies_and_events_slice.each do |daily_frequency_or_event|
         if daily_frequency_or_event.class.to_s == "SchoolCalendarEvent"
           school_calendar_event = daily_frequency_or_event
-          self.legend += ", "+school_calendar_event.legend+" - "+school_calendar_event.description
+          self.legend += ", "+school_calendar_event.legend.to_s+" - "+school_calendar_event.description
 
           class_numbers << make_cell(content: "", background_color: 'FFFFFF', align: :center)
           days << make_cell(content: "#{school_calendar_event.event_date.day}", background_color: 'FFFFFF', align: :center)
@@ -164,7 +166,7 @@ class AttendanceRecordReport
         students_cells << student_cells
       end
 
-      (30 - students_cells.count).times do
+      (STUDENTS_BY_PAGE - students_cells.count).times do
         sequence_cell = make_cell(content: (students_cells.count + 1).to_s, align: :center)
         attendances = []
         40.times { attendances << make_cell(content: '', font_style: :bold, align: :center) }
@@ -173,7 +175,7 @@ class AttendanceRecordReport
         students_cells << student_cells
       end
 
-      sliced_students_cells = students_cells.each_slice(30).to_a
+      sliced_students_cells = students_cells.each_slice(STUDENTS_BY_PAGE).to_a
       sliced_students_cells.each_with_index do |students_cells_slice, index|
         data = [
           first_headers_and_class_numbers_cells,
@@ -216,10 +218,11 @@ class AttendanceRecordReport
       draw_text('________________', size: 8, at: [549, 0])
 
       if(self.any_student_with_dependence)
-        draw_text('* Alunos cursando dependência', size: 8, at: [0, 32])
+        draw_text('* Alunos cursando dependência', size: 8, at: [0, 47])
       end
 
-      draw_text(self.legend, size: 8, at: [0, 17])
+      draw_text(self.legend[0..183], size: 8, at: [0, 30])
+      draw_text(self.legend[184..368], size: 8, at: [0, 17])
     end
 
     string = "Página <page> de <total>"
