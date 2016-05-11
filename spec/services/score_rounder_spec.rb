@@ -79,6 +79,13 @@ RSpec.describe ScoreRounder, type: :service do
       end
     end
 
+    context 'when number is greater than 10.0' do
+      let(:action) { RoundingTableAction::ABOVE }
+      it "should return the same score" do
+        expect(subject.round(12.3)).to be(12.3)
+      end
+    end
+
   end
 
   def stub_exam_rule
