@@ -85,7 +85,7 @@ $(function () {
   });
 
   var togleLegendContainerVisibility = function(){
-    if($eventType.val() == "extra_school_without_frequency"){
+    if($eventType.val() != "extra_school"){
       $legendContainer.removeClass("hidden");
     }else{
       $legendContainer.addClass("hidden");
