@@ -30,6 +30,13 @@ module ExamPoster
 
       conceptual_exams.each do |conceptual_exam|
         conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
+          if conceptual_exam_value.value.nil? || conceptual_exam_value.value.blank?
+            student_name = conceptual_exam.student.name
+            classroom_description = conceptual_exam.classroom.description
+            discipline_description = conceptual_exam_value.discipline.description
+            @warning_messages << "O aluno #{student_name} não possui nota lançada no diário de notas conceituais na turma #{classroom_description} disciplina: #{discipline_description}"
+            next
+          end
           classroom_api_code = conceptual_exam.classroom.api_code
           student_api_code = conceptual_exam.student.api_code
           discipline_api_code = conceptual_exam_value.discipline.api_code
