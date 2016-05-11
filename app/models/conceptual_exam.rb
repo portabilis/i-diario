@@ -80,7 +80,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def at_least_one_conceptual_exam_value
-    if conceptual_exam_values.reject(&:marked_for_destruction?).empty?
+    if conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty?
       errors.add(:conceptual_exam_values, :at_least_one_conceptual_exam_value)
     end
   end

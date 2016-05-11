@@ -56,13 +56,13 @@
 
       <tbody id="conceptual_exam_values">
         <tr>
-          <td class="no_item_found" colspan="2" style="<%= f.object.conceptual_exam_values.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+          <td class="no_item_found" colspan="2" style="<%= f.object.conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
         </tr>
 
         <% @conceptual_exam.conceptual_exam_values
              .group_by { |conceptual_exam_value| conceptual_exam_value.discipline.knowledge_area }
              .each do |knowledge_area, conceptual_exam_values| %>
-          <% if conceptual_exam_values.reject(&:marked_for_destruction?).any? %>
+          <% if conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).any? %>
             <tr class="knowledge-area-table-row">
               <td class="knowledge-area-table-data" colspan="2"><strong><%= knowledge_area %></strong></td>
             </tr>
