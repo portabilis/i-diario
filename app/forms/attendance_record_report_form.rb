@@ -53,7 +53,7 @@ class AttendanceRecordReportForm
 
   def school_calendar_events
     school_calendar.events
-                   .extra_school_without_frequency
+                   .without_frequency
                    .by_date_between(start_at, end_at)
                    .all_events_for_classroom(classroom)
                    .ordered

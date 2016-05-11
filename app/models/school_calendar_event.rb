@@ -67,9 +67,9 @@ class SchoolCalendarEvent < ActiveRecord::Base
             FROM school_calendar_events sce
             WHERE sce.event_date = "school_calendar_events"."event_date"
             AND sce.school_calendar_id = "school_calendar_events"."school_calendar_id"
-            AND (? = ANY (periods) OR classroom_id = ?)
+            AND ((? = ANY (periods) AND classroom_id IS NULL) OR classroom_id = ?)
             AND (grade_id IS NULL OR grade_id = ?)
-            ORDER BY classroom_id DESC
+            ORDER BY COALESCE(classroom_id, 0) DESC, COALESCE(grade_id,0) DESC
             LIMIT 1
             )', classroom.period, classroom.id, classroom.grade.id)
   end
