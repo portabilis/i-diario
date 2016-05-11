@@ -47,4 +47,6 @@
 //= require readurl
 //= require tocurrency
 //= require chart/chart.min
+//= require raphael.min
+//= require morris
 //= require_tree ./resources
