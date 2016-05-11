@@ -31,6 +31,7 @@ class SchoolCalendarEventsController < ApplicationController
 
   def edit
     @school_calendar_event = resource
+    @school_calendar_event.course_id = @school_calendar_event.course.try(:id)
 
     authorize resource
   end

@@ -18,9 +18,10 @@ class SchoolCalendarEvent < ActiveRecord::Base
   has_enumeration_for :coverage, with: EventCoverageType
 
   validates :description, :event_type, :event_date, :school_calendar_id, presence: true
+  validates :periods, presence: true, if: :coverage_by_classroom?
   validates :grade, presence: true, if: :should_validate_grade?
   validates :classroom, presence: true, if: :should_validate_classroom?
-  validates :legend, presence: true, exclusion: {in: %w(F N .) }, if: :should_validate_legend?
+  validates :legend, presence: true, exclusion: {in: %w(F f N n .) }, if: :should_validate_legend?
   validate :uniquenesss_of_event_in_grade
   validate :uniquenesss_of_event_in_classroom
 
