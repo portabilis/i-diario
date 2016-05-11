@@ -76,6 +76,7 @@ pt-BR:
     ieducar_api_exam_postings: "Envio de avaliações"
     school_frequency_***REMOVED***: "Frequência na escola"
     ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "Situação do aluno"
 
   enumerations:
     features:
@@ -84,3 +85,4 @@ pt-BR:
       ***REMOVED***_confirmations: "***REMOVED*** da pré-matrícula"
       ***REMOVED***_configs: "Configuração da pré-matrícula"
       test_settings: "Configurações de avaliações"
+      ***REMOVED***: "Situação do aluno"

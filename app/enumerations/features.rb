@@ -58,7 +58,8 @@ class Features < EnumerateIt::Base
                    :ieducar_api_exam_postings,
                    :avaliation_recovery_diary_records,
                    :***REMOVED***,
-                   :absence_justification_report
+                   :absence_justification_report,
+                   :***REMOVED***
 
   sort_by :translation
 end

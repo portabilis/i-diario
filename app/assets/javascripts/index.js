@@ -37,12 +37,12 @@ $(function(){
     }
   );
 
-  $('form.filterable_search_form input:not(.autocomplete)').keyup(function(e) {
+  $('form.filterable_search_form input:not(.autocomplete, .select2-input)').keyup(function(e) {
     clearTimeout(typingTimer);
     typingTimer = setTimeout(filterableSearch(e), doneTypingInterval);
   });
 
-  $('form.filterable_search_form input:not(.autocomplete)').keydown(function() {
+  $('form.filterable_search_form input:not(.autocomplete, .select2-input)').keydown(function() {
     clearTimeout(typingTimer);
   });
 
