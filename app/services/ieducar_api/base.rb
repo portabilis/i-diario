@@ -68,8 +68,8 @@ module IeducarApi
         instituicao_id: unity_id
       }.reverse_merge(params)
 
-      Rails.logger.info "POST #{endpoint}?#{request_params.to_query}"
-      Sidekiq.logger.info "POST #{endpoint}?#{request_params.to_query}"
+      Rails.logger.info "POST #{endpoint}?#{request_params.to_query} Hash Param: #{request_params}"
+      Sidekiq.logger.info "POST #{endpoint}?#{request_params.to_query} Hash Param: #{request_params}"
 
       begin
         result = RestClient.post endpoint, request_params
