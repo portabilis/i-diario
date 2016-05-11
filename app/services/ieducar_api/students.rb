@@ -27,6 +27,24 @@ module IeducarApi
       )
     end
 
+    def fetch_registereds(params = {})
+      params.merge!(resource: "alunos-matriculados")
+
+      raise ApiError.new("É necessário informar a escola: unity_code") if params[:unity_api_code].blank?
+      raise ApiError.new("É necessário informar o ano: year") if params[:year].blank?
+      raise ApiError.new("É necessário informar a data: date") if params[:date].blank?
+
+      params["escola_id"] = params.delete(:unity_api_code)
+      params["ano"] = params.delete(:year)
+      params["data"] = params.delete(:date)
+      params["curso_id"] = params.delete(:course_api_code)
+      params["serie_id"] = params.delete(:grade_api_code)
+      params["turma_id"] = params.delete(:classroom_api_code)
+      params["turno_id"] = params.delete(:period)
+
+      fetch(params)
+    end
+
     def fetch_for_daily(params = {})
 
       params.merge!(

@@ -78,6 +78,8 @@ pt-BR:
     school_calendar_steps: 'etapas'
     ***REMOVED***: 'acesso-do-aluno-a-escola'
     absence_justification: 'registro-de-justificativa-de-faltas'
+    ***REMOVED***: 'situacao-dos-alunos'
+    courses: 'courses'
 
     # actions
     edit: 'editar'

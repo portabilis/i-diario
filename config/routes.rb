@@ -46,6 +46,7 @@ Rails.application.routes.draw do
 
     resources :teachers, only: :index
     resources :***REMOVED***, only: :index
+    resources :***REMOVED***, only: :index
 
     root 'dashboard#index'
 
@@ -116,6 +117,7 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***s, concerns: :history
     resources :***REMOVED***, concerns: :history
+    resources :courses, only: [:index]
     resources :lectures, only: [:index]
 
     resources :grades, only: [:index] do

@@ -15,6 +15,7 @@
  *= require summernote_and_overrides
  *= require jNotify.jquery.css
  *= require educacao
+ *= require morris
  *= require jquery-file-upload/jquery.fileupload
  *= require_tree ./resources
  *= require_self
