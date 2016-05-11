@@ -18,8 +18,8 @@ class AbsenceJustification < ActiveRecord::Base
   validates :unity,            presence: true
   validates :classroom_id,     presence: true
   validates :school_calendar,  presence: true
-  validates :absence_date_end, presence: true
-  validates :absence_date,     presence: true
+  validates :absence_date_end, presence: true, school_calendar_day: true
+  validates :absence_date,     presence: true, school_calendar_day: true
   validates :discipline_id,    presence: true,
                                if: :frequence_type_by_discipline?
   validates :justification,    presence: true
@@ -27,7 +27,6 @@ class AbsenceJustification < ActiveRecord::Base
   validate :period_absence
   validate :absence_date_cannot_be_greater_than_absence_date_end
   validate :absence_date_end_must_be_lower_than_today
-  validate :is_school_day?
 
   scope :ordered, -> { order(absence_date: :desc) }
 
@@ -45,17 +44,6 @@ class AbsenceJustification < ActiveRecord::Base
   scope :by_school_calendar_report, lambda { |school_calendar| where(school_calendar: school_calendar)  }
 
   private
-
-  def is_school_day?
-    return unless school_calendar && absence_date && absence_date_end
-
-    (absence_date..absence_date_end).each do |date|
-      if !school_calendar.school_day? date
-        errors.add(:base, "O dia #{date.strftime("%d/%m/%Y")} não é um dia letivo")
-        break
-      end
-    end
-  end
 
   def self.by_date_query(date)
     date = date.to_date

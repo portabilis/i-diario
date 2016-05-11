@@ -1,5 +1,6 @@
 require 'capybara/rspec'
 require 'capybara/poltergeist'
+require 'capybara-screenshot/rspec'
 
 module Capybara
   class Session

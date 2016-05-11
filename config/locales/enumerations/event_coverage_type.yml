@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    event_coverage_type:
+      by_unity: "Da escola"
+      by_grade: "Da série"
+      by_classroom: "Da turma"

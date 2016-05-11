@@ -9,12 +9,18 @@ module Turnip
 
     step 'eu entrar no formulário de novo evento do calendário letivo' do
       click_on "Novo evento"
+      sleep 1
+      click_link "Da escola"
     end
 
     step 'poderei cadastrar um novo evento do calendário letivo' do
       fill_mask 'Data', with: '25/12/2015'
       fill_in 'Descrição', with: 'Natal'
       select 'Não letivo', :from => 'Tipo'
+
+      page.execute_script %{
+        $("#school_calendar_event_periods").select2('val', [1], true);
+      }
 
       click_on 'Salvar'
 

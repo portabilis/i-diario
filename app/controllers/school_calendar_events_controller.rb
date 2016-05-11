@@ -1,15 +1,19 @@
 class SchoolCalendarEventsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
+  respond_to :json, only: [:grades, :classrooms]
 
   def index
-    @school_calendar_events = apply_scopes(school_calendar.events.ordered)
+    @school_calendar_events = apply_scopes(school_calendar.events).includes(:grade, :classroom)
+                                                                  .ordered
 
     authorize @school_calendar_events
   end
 
   def new
     @school_calendar_event = resource
+    @school_calendar_event.coverage = params[:coverage]
+    @school_calendar_event.periods = Periods.list
     authorize resource
   end
 
@@ -61,6 +65,23 @@ class SchoolCalendarEventsController < ApplicationController
 
   private
 
+  def courses
+    @courses ||= Course.by_unity(@school_calendar.unity.id).ordered || {}
+  end
+  helper_method :courses
+
+  def grades
+    @grades ||= Grade.by_unity(school_calendar.unity.id).ordered
+    @grades = @grades.by_course(@school_calendar_event.course_id) if @school_calendar_event.try(:course_id).present?
+    @grades
+  end
+  helper_method :grades
+
+  def classrooms
+    @classrooms ||= Classroom.by_unity_and_grade(@school_calendar.unity.id, @school_calendar_event.grade_id).by_year(@school_calendar.year).ordered || {}
+  end
+  helper_method :classrooms
+
   def resource
     @school_calendar_event ||= case params[:action]
     when 'new', 'create'
@@ -72,7 +93,8 @@ class SchoolCalendarEventsController < ApplicationController
 
   def resource_params
     params.require(:school_calendar_event).permit(
-      :description, :event_date, :event_type
+      :coverage, :course_id, :grade_id, :classroom_id,
+      :description, :event_date, :event_type, :periods, :legend
     )
   end
 

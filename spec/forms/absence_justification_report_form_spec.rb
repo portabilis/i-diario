@@ -29,7 +29,7 @@ RSpec.describe AbsenceJustificationReportForm, type: :model do
       subject.absence_date_end = Time.zone.today + 1
 
       expect(subject).to_not be_valid
-      expect(subject.errors.messages[:absence_date_end]).to include("Deve ser menor ou igual a data de hoje")
+      expect(subject.errors.messages[:absence_date_end]).to include("deve ser menor ou igual a data de hoje")
     end
 
     it "should validate if absence date isn't greater than absence date end" do
@@ -49,11 +49,11 @@ RSpec.describe AbsenceJustificationReportForm, type: :model do
 
       subject.unity = unity
       subject.classroom_id = classroom.id
-      subject.absence_date = '26/06/2016'
-      subject.absence_date_end = '25/04/2016'
+      subject.absence_date = '04/05/2016'
+      subject.absence_date_end = '03/05/2016'
 
       expect(subject).to_not be_valid
-      expect(subject.errors.messages[:absence_date]).to include("Data inicial não pode ser maior que a final")
+      expect(subject.errors.messages[:absence_date]).to include("deve ser menor ou igual a Data final")
     end
   end
 end

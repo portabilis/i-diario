@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @school_calendar_events.empty? %>
     <tr>
-      <td class="no_record_found" colspan="4"> <%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="6"> <%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @school_calendar_events.each do |school_calendar_event| %>
@@ -9,6 +9,8 @@
         <td><%= l school_calendar_event.event_date %></td>
         <td><%= school_calendar_event.description %></td>
         <td><%= school_calendar_event.event_type_humanize %></td>
+        <td><%= school_calendar_event.grade %></td>
+        <td><%= school_calendar_event.classroom %></td>
         <td class="actions">
           <%= link_to 'Editar', edit_school_calendar_school_calendar_event_path(@school_calendar, school_calendar_event),
             class: "btn btn-success" %>

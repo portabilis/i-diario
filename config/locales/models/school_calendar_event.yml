@@ -11,6 +11,22 @@ pt-BR:
         event_date: "Data"
         description: "Descrição"
         event_type: "Tipo"
+        course: "Curso"
+        course_id: "Curso"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        grade: "Série"
+        grade_id: "Série"
+        coverage: "Cobertura"
+        periods: "Turnos"
+        legend: "Legenda"
+
+    errors:
+      models:
+        school_calendar_event:
+          attributes:
+            event_date:
+              already_exists_event_in_this_date: "Já existe um evento cadastrado de outro tipo nesta data"
 
   school_calendar_events:
     index:

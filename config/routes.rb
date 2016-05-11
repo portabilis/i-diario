@@ -152,7 +152,12 @@ Rails.application.routes.draw do
       end
 
       resources :school_calendar_steps, only: [:index]
-      resources :school_calendar_events, concerns: :history
+      resources :school_calendar_events, concerns: :history do
+        collection do
+          get  :grades
+          get  :classrooms
+        end
+      end
     end
     resources :school_calendar_steps, only: [:show]
 
