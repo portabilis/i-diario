@@ -17,4 +17,13 @@ class ConceptualExamValue < ActiveRecord::Base
     )
     .order(KnowledgeArea.arel_table[:description])
   end
+
+  def mark_as_invisible
+    @marked_as_invisible = true
+  end
+
+  def marked_as_invisible?
+    @marked_as_invisible
+  end
+
 end
