@@ -6,19 +6,11 @@
         <tr>
           <td><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
           <td><%= f.input :by_description, label: false, placeholder: t('.by_description') %></td>
-          <td><%= f.input :by_type, label: false, as: :select, collection: EventTypes, placeholder: t('.by_type') %></td>
+          <td><%= f.input :by_type, label: false, as: :select2, elements: EventTypes.to_select.to_json, placeholder: t('.by_type') %></td>
           <td><%= f.input :by_grade, as: :select2, elements: grades, label: false, placeholder: t('.by_grade') %></td>
           <td><%= f.input :by_classroom, label: false, placeholder: t('.by_classroom') %></td>
-          <td></td>
-        </tr>
-        <tr>
-          <th><%= SchoolCalendarEvent.human_attribute_name :event_date %></th>
-          <th><%= SchoolCalendarEvent.human_attribute_name :description %></th>
-          <th><%= SchoolCalendarEvent.human_attribute_name :event_type %></th>
-          <th><%= SchoolCalendarEvent.human_attribute_name :grade %></th>
-          <th><%= SchoolCalendarEvent.human_attribute_name :classroom %></th>
           <td class="actions" style="width: 160px;">
-          <div class="btn-group">
+            <div class="btn-group">
               <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                 <%= t('.new_html') %> <span class="caret"></span>
               </button>
@@ -30,8 +22,16 @@
                 <% end %>
               </ul>
             </div>
-
           </td>
+          <td></td>
+        </tr>
+        <tr>
+          <th><%= SchoolCalendarEvent.human_attribute_name :event_date %></th>
+          <th><%= SchoolCalendarEvent.human_attribute_name :description %></th>
+          <th><%= SchoolCalendarEvent.human_attribute_name :event_type %></th>
+          <th><%= SchoolCalendarEvent.human_attribute_name :grade %></th>
+          <th><%= SchoolCalendarEvent.human_attribute_name :classroom %></th>
+          <th></th>
         </tr>
       </thead>
 
