@@ -126,7 +126,7 @@ class DisciplineLessonPlanPdf
     teacher_discipline_classroom = TeacherDisciplineClassroom.where discipline_id: @discipline_lesson_plan.discipline.id, classroom_id: @discipline_lesson_plan.lesson_plan.classroom.id
 
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @teacher_cell = make_cell(content: (teacher_discipline_classroom.first.teacher.name.present? ? teacher_discipline_classroom.first.teacher.name : @current_teacher.name), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @teacher_cell = make_cell(content: @current_teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 6)
     @unity_cell = make_cell(content: @discipline_lesson_plan.lesson_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 6)
