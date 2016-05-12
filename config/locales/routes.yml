@@ -80,6 +80,7 @@ pt-BR:
     absence_justification: 'registro-de-justificativa-de-faltas'
     ***REMOVED***: 'situacao-dos-alunos'
     courses: 'courses'
+    transfer_notes: 'notas-de-transferencia'
 
     # actions
     edit: 'editar'

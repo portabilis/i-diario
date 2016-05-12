@@ -1,0 +1,36 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for :filter, { url: transfer_notes_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+        <thead>
+          <tr>
+            <td><%= f.input :by_classroom_id, as: :select2, elements: {}, label: false, placeholder: t('.by_classroom_id') %></td>
+            <td><%= f.input :by_discipline_id, as: :select2, elements: {}, label: false, placeholder: t('.by_discipline_id') %></td>
+            <td><%= f.input :by_student_id, as: :select2, elements: {}, label: false, placeholder: t('.by_student_id') %></td>
+            <td><%= f.input :by_transfer_date, as: :date, elements: {}, label: false, placeholder: t('.by_transfer_date') %></td>
+            <td><%= link_to t('.new_html'), new_transfer_note_path, class: "btn btn-primary pull-right" %></td>
+          </tr>
+          <tr>
+            <th><%= TransferNote.human_attribute_name :classroom %></th>
+            <th><%= TransferNote.human_attribute_name :discipline %></th>
+            <th><%= TransferNote.human_attribute_name :student %></th>
+            <th><%= TransferNote.human_attribute_name :transfer_date %></th>
+            <td width="190px"></td>
+          </tr>
+        </thead>
+
+
+        <tfoot id="paginator" class="remote">
+          <td colspan="5">
+            <div id="page_entries_info" class="pull-left hidden-xs">
+              <%= page_entries_info @transfer_notes %>
+            </div>
+            <div class="pull-right">
+              <%= paginate @transfer_notes %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

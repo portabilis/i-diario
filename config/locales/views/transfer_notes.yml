@@ -1,0 +1,12 @@
+pt-BR:
+  transfer_notes:
+    index:
+      by_classroom_id: "Filtrar turma"
+      by_discipline_id: "Filtrar disciplina"
+      by_student_id: "Filtrar aluno"
+      by_transfer_date: "Filtrar data"
+      new_html: "<i class='fa fa-plus'></i> Novo processo"
+    form:
+      back: "Voltar"
+      history: "Histórico"
+      save: "Salvar"

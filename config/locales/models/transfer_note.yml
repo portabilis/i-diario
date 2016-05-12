@@ -1,0 +1,19 @@
+pt-BR:
+  activerecord:
+    models:
+      transfer_note:
+        one: "Notas de transferência"
+        other: "Notas de transferẽncias"
+
+    attributes:
+      transfer_note:
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        school_calendar_step: "Etapa"
+        school_calendar_step_id: "Etapa"
+        transfer_date: "Data"
+        student: "Aluno"
+        student_id: "Aluno"

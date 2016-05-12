@@ -1,0 +1,150 @@
+$(function () {
+  'use strict';
+
+  // Regular expression for dd/mm/yyyy date including validation for leap year and more
+  var dateRegex = '^(?:(?:31(\\/)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/)(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$';
+
+  var flashMessages = new FlashMessages();
+  var $classroom = $('#transfer_note_classroom_id');
+  var $discipline = $('#transfer_note_discipline_id');
+  var $school_calendar_step = $('#transfer_note_school_calendar_step_id');
+  var $transferDate = $('#transfer_note_transfer_date');
+  var $student = $('#transfer_note_student_id');
+
+
+  function fetchDisciplines() {
+    var classroom_id = $classroom.select2('val');
+
+    $discipline.select2('val', '');
+    $discipline.select2({ data: [] });
+
+    if (!_.isEmpty(classroom_id)) {
+      $.ajax({
+        url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        success: handleFetchDisciplinesSuccess,
+        error: handleFetchDisciplinesError
+      });
+    }
+  };
+
+
+  function fetchStudents() {
+    var classroom_id = $classroom.select2('val');
+    var transfer_date = $transferDate.val();
+
+    $student.select2('val', '');
+    $student.select2({ data: [] });
+
+    if (!_.isEmpty(classroom_id) &&
+        !_.isEmpty(transfer_date.match(dateRegex))) {
+      $.ajax({
+        url: Routes.students_pt_br_path(),
+        data: {
+          classroom_id: classroom_id,
+          date: transfer_date
+        },
+        success: handleFetchStudentsSuccess,
+        error: handleFetchStudentsError
+      });
+    }
+  };
+
+  function handleFetchDisciplinesSuccess(disciplines) {
+    var selectedDisciplines = _.map(disciplines, function(discipline) {
+      return { id: discipline['id'], text: discipline['description'] };
+    });
+
+    $discipline.select2({ data: selectedDisciplines });
+  };
+
+  function handleFetchDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  };
+
+  function handleFetchStudentsSuccess(data) {
+    var selectedStudents = _.map(data.students, function(student) {
+      return { id: student['id'], text: student['name'] };
+    });
+
+    $student.select2({ data: selectedStudents });
+  };
+
+  function handleFetchStudentsError() {
+    flashMessages.error('Ocorreu um erro ao buscar os alunos da turma selecionada.');
+  };
+
+  function fetchStudentOldNotes() {
+    var classroom_id = $classroom.select2('val');
+    var discipline_id = $discipline.select2('val');
+    var school_calendar_step_id = $school_calendar_step.select2('val');
+    var student_id = $student.select2('val');
+
+    if (!_.isEmpty(classroom_id) &&
+        !_.isEmpty(discipline_id) &&
+        !_.isEmpty(school_calendar_step_id) &&
+        !_.isEmpty(student_id)) {
+      $.ajax({
+        url: Routes.old_notes_daily_note_students_pt_br_path({
+            classroom_id: classroom_id,
+            discipline_id: discipline_id,
+            school_calendar_step_id: school_calendar_step_id,
+            student_id: student_id,
+            format: 'json'
+          }),
+        success: handlefetchStudentOldNotesSuccess,
+        error: handlefetchStudentOldNotesError
+      });
+    }
+  };
+
+  function handlefetchStudentOldNotesSuccess(data) {
+    if (!_.isEmpty(data.old_notes)) {
+      _.each(data.old_notes, function(old_note) {
+        var html = JST['templates/transfer_notes/old_notes_row'](old_note);
+        $('#old-notes-rows').append(html);
+      });
+
+    }
+  };
+
+  function handlefetchStudentOldNotesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as notas do aluno na turma anterior.');
+  };
+
+  function removeStudentOldNotes() {
+    $('#old-notes-rows').html('');
+  }
+
+  // On change
+
+  $classroom.on('change', function() {
+    fetchDisciplines();
+    fetchStudents();
+    removeStudentOldNotes();
+  });
+
+  $discipline.on('change', function() {
+    removeStudentOldNotes();
+    fetchStudentOldNotes();
+  });
+
+  $school_calendar_step.on('change', function() {
+    removeStudentOldNotes();
+    fetchStudentOldNotes();
+  });
+
+  $transferDate.on('change', function() {
+    removeStudentOldNotes();
+    fetchStudents();
+    fetchStudentOldNotes();
+  });
+
+  $student.on('change', function() {
+    removeStudentOldNotes();
+    fetchStudentOldNotes();
+  });
+
+  // On load
+
+  fetchDisciplines();
+});
