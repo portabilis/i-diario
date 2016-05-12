@@ -15,3 +15,5 @@ pt-BR:
         discipline_id: 'Disciplina'
         date: 'Data'
         notes: 'Observações'
+        teacher_id: 'Professor'
+        school_calendar_id: 'Calendário escolar'
