@@ -93,7 +93,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   def recorded_at_must_be_school_calendar_step_day
     return unless recovery_diary_record && recovery_diary_record.recorded_at && school_calendar_step
 
-    unless school_calendar_step.school_calendar_step_day?(recovery_diary_record.recorded_at)
+    unless school_calendar_step == school_calendar_step.school_calendar.step(recovery_diary_record.recorded_at)
       errors.add(:recovery_diary_record, :recorded_at_must_be_school_calendar_step_day)
       recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_school_calendar_step_day)
     end

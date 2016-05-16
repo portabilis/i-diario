@@ -22,13 +22,16 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   validates :unity, presence: true
   validates :classroom, presence: true
   validates :discipline, presence: true
-  validates :recorded_at, presence: true
+  validates :recorded_at, presence: true, school_calendar_day: true
 
   validate :at_least_one_assigned_student
   validate :recorded_at_must_be_less_than_or_equal_to_today
-  validate :recorded_at_must_be_school_day
 
   before_validation :self_assign_to_students
+
+  def school_calendar
+    CurrentSchoolCalendarFetcher.new(unity).fetch
+  end
 
   private
 
@@ -44,19 +47,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
     end
   end
 
-  def recorded_at_must_be_school_day
-    return unless recorded_at && unity && school_calendar
-
-    unless school_calendar.school_day?(recorded_at)
-      errors.add(:recorded_at, :recorded_at_must_be_school_day)
-    end
-  end
-
   def self_assign_to_students
     students.each { |student| student.recovery_diary_record = self }
-  end
-
-  def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity).fetch
   end
 end

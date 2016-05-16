@@ -60,6 +60,7 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :absence_justification_report,
                    :avaliation_exemptions
+                   :***REMOVED***
 
   sort_by :translation
 end

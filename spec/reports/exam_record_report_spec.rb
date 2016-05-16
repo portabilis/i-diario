@@ -14,7 +14,6 @@ RSpec.describe ExamRecordReport, type: :report do
 
     school_calendar.steps << school_calendar_step_two
 
-    puts school_calendar.steps.inspect
     avaliation = create(:avaliation, school_calendar: school_calendar, test_date: "04/01/2016")
     classroom = create(:classroom)
     unity = create(:unity)

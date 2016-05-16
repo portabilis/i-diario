@@ -1,0 +1,53 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/avaliation_exemptions/form' %>
+<% end %>
+
+<fieldset>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :api_code, as: :select2, elements: @unities, input_html: { value: @current_user_unity_api_code } %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :course_id, as: :select2, elements: @grades %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :grade_id, as: :select2, elements: @grades %>
+    </div>
+
+  </div>
+
+  <div class="row">
+
+    <div class="col col-sm-4">
+      <%= f.input :classroom_id, as: :select2, elements: @classrooms %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :discipline_id, as: :select2, elements: @disciplines %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :student_id, as: :select2, elements: @students %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :avaliation_id, as: :select2, elements: @avaliations %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :reason, as: :text %>
+    </div>
+  </div>
+
+</fieldset>

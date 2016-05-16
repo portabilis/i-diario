@@ -37,11 +37,8 @@ class SchoolCalendar < ActiveRecord::Base
     year
   end
 
-  def school_day?(date)
-    return false if events.where(event_date: date, event_type: EventTypes::NO_SCHOOL).any?
-    return true if events.where(event_date: date, event_type: EventTypes::EXTRA_SCHOOL).any?
-    return false if step(date).nil?
-    ![0, 6].include? date.wday
+  def school_day?(date, grade_id = nil, classroom_id = nil)
+    SchoolDayChecker.new(self, date, grade_id, classroom_id).school_day?
   end
 
   def step(date)

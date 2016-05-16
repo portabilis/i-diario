@@ -65,6 +65,7 @@ class CoursesGradesClassroomsSynchronizer
           description: record["nm_turma"],
           unity_id: Unity.find_by(api_code: record["escola_id"]).try(:id),
           unity_code: record["escola_id"],
+          period: record["turma_turno_id"],
           grade: grade
         )
       else
@@ -73,6 +74,7 @@ class CoursesGradesClassroomsSynchronizer
           description: record["nm_turma"],
           unity_id: Unity.find_by(api_code: record["escola_id"]).try(:id),
           unity_code: record["escola_id"],
+          period: record["turma_turno_id"],
           grade: grade,
           year: year
         )

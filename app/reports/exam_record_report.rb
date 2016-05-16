@@ -134,7 +134,7 @@ class ExamRecordReport
         (10 - data_column_count).times { student_cells << nil }
         if daily_notes_slice == sliced_daily_notes.last
           average = averages[key]
-          student_cells << make_cell(content: "%.#{@test_setting.number_of_decimal_places}f" % average, font_style: :bold, align: :center)
+          student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)
         else
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)
         end

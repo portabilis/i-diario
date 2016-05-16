@@ -7,7 +7,7 @@ class ObservationRecordReport < BaseReport
   end
 
   def body
-    bounding_box([0, 727], width: bounds.width, height: 710) do
+    bounding_box([0, 712], width: bounds.width, height: 700) do
       identification
       general_information
       signatures
@@ -27,12 +27,13 @@ class ObservationRecordReport < BaseReport
     )
 
     unity_header = make_row_header_cell(t(:unity), colspan: 2)
-    unity_cell = make_content_cell(@form.unity.name, colspan: 2)
-    discipline_header = make_row_header_cell(t(:discipline))
+    unity_cell = make_content_cell(@form.unity.to_s, colspan: 2)
+    discipline_header = make_row_header_cell(t(:discipline), width: 70)
     classroom_header = make_row_header_cell(t(:classroom))
 
     discipline_cell = make_content_cell(
-      @form.discipline.present? ? @form.discipline.to_s : t(:empty_discipline)
+      @form.discipline.present? ? @form.discipline.to_s : t(:empty_discipline),
+      width: 70
     )
 
     classroom_cell = make_content_cell(@form.classroom.to_s)
@@ -74,7 +75,7 @@ class ObservationRecordReport < BaseReport
     ]
 
     date_header = make_row_header_cell(t(:date), width: 62)
-    students_header = make_row_header_cell(t(:students), width: 250)
+    students_header = make_row_header_cell(t(:students), width: 207)
     observations_header = make_row_header_cell(t(:observation))
 
     general_information_headers = [
@@ -90,7 +91,7 @@ class ObservationRecordReport < BaseReport
         students = note.students.map(&:to_s).join(', ')
 
         date_cell = make_row_cell(record.localized.date, width: 62)
-        students_cell = make_row_cell(students, width: 250)
+        students_cell = make_row_cell(students, width: 207)
         observation_cell = make_row_cell(note.description)
 
         general_information_table_data << [

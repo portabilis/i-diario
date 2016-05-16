@@ -5,7 +5,7 @@
   <%= simple_form_for @avaliation_exemption, html: { class: "smart-form" } do |f| %>
     <%= f.error_notification %>
 
-    <%= render 'avaliation_exemption_fields', f: f %>
+    <%= render 'form', f: f %>
 
     <footer>
       <%= link_to t('views.form.back'), avaliation_exemptions_path, class: "btn btn-default" %>

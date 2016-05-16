@@ -3,6 +3,7 @@ class AvaliationExemptionsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
+  before_action :require_current_school_calendar
 
   def index
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
@@ -11,7 +12,8 @@ class AvaliationExemptionsController < ApplicationController
 
   def new
     @avaliation_exemption = AvaliationExemption.new
-    @unities = fetch_unities
+    @current_user_unity_api_code = current_user_unity.api_code
+    fetch_collections
     authorize @avaliation_exemption
   end
 
@@ -73,4 +75,13 @@ class AvaliationExemptionsController < ApplicationController
     Unity.by_teacher(current_teacher)
   end
 
+  def fetch_collections
+    @unities = fetch_unities
+    @grades = []
+    @classrooms = []
+    @disciplines = []
+    @students = []
+    @school_calendar_steps = current_school_calendar.steps
+    @avaliations = []
+  end
 end

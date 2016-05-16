@@ -14,7 +14,9 @@ RSpec.describe AbsenceJustification, type: :model do
     it { expect(subject).to validate_presence_of(:teacher) }
     it { expect(subject).to validate_presence_of(:student_id) }
     it { expect(subject).to validate_presence_of(:absence_date) }
+    it { expect(subject).to validate_school_calendar_day_of(:absence_date) }
     it { expect(subject).to validate_presence_of(:absence_date_end) }
+    it { expect(subject).to validate_school_calendar_day_of(:absence_date_end) }
     it { expect(subject).to validate_presence_of(:justification) }
     it { expect(subject).to validate_presence_of(:unity) }
     it { expect(subject).to validate_presence_of(:classroom_id) }

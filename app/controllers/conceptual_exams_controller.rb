@@ -69,7 +69,8 @@ class ConceptualExamsController < ApplicationController
     fetch_collections
 
     add_missing_disciplines
-    mark_not_existing_disciplines_for_destruction
+    mark_not_assigned_disciplines_for_destruction
+    mark_not_existing_disciplines_as_invisible
   end
 
   def update
@@ -157,14 +158,29 @@ class ConceptualExamsController < ApplicationController
     missing_disciplines
   end
 
-  def mark_not_existing_disciplines_for_destruction
+  def mark_not_assigned_disciplines_for_destruction
+    @conceptual_exam.conceptual_exam_values.where.not(discipline_id: disciplines_with_assignment).each do |conceptual_exam_value|
+      conceptual_exam_value.mark_for_destruction
+    end
+  end
+
+  def mark_not_existing_disciplines_as_invisible
     @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
       discipline_exists = @disciplines.any? do |discipline|
           conceptual_exam_value.discipline.id == discipline.id
       end
-
-      conceptual_exam_value.mark_for_destruction unless discipline_exists
+      conceptual_exam_value.mark_as_invisible unless discipline_exists
     end
+  end
+
+  def disciplines_with_assignment
+    disciplines = TeacherDisciplineClassroom
+      .by_classroom(@conceptual_exam.classroom_id)
+      .by_year(current_school_calendar.year)
+      .collect(&:discipline_id)
+      .uniq
+
+    disciplines
   end
 
   def fetch_collections

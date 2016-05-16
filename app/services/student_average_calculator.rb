@@ -4,7 +4,7 @@ class StudentAverageCalculator
   end
 
   def calculate(classroom_id, discipline_id, school_calendar_step_id)
-    averages_sum = 0
+    result = 0.0
     step = SchoolCalendarStep.find(school_calendar_step_id)
     daily_notes = DailyNoteStudent.by_student_id(@student.id)
       .by_discipline_id(discipline_id)
@@ -12,10 +12,14 @@ class StudentAverageCalculator
       .by_test_date_between(step.start_at, step.end_at)
 
     if step.test_setting.presence && step.test_setting.fix_tests?
-      score_sum(daily_notes)
+      result = score_sum(daily_notes)
     else
-      calculate_average(score_sum(daily_notes), daily_notes.count)
+      result = calculate_average(score_sum(daily_notes), daily_notes.count)
     end
+    #TODO Modificar classe para receber objetos e não ids (Classroom, Discipline, SchoolCalendarStep)
+    classroom = Classroom.find(classroom_id)
+
+    ScoreRounder.new(classroom.exam_rule).round(result)
   end
 
   def score_sum(daily_notes)

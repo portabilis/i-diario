@@ -1,3 +1,5 @@
+require "prawn/measurement_extensions"
+
 class AbsenceJustificationReport
   include Prawn::View
 
@@ -31,7 +33,7 @@ class AbsenceJustificationReport
 
   def header
     absences_header = make_cell(
-      content: 'Registro de Justificativa de Faltas',
+      content: 'Registro de justificativa de faltas',
       size: 12,
       font_style: :bold,
       background_color: 'DEDEDE',
@@ -214,34 +216,40 @@ class AbsenceJustificationReport
       content: 'Data inicial',
       size: 8,
       font_style: :bold,
-      width: 65,
+      borders: [:left, :right, :top],
       background_color: 'FFFFFF',
-      align: :left,
+      width: 60,
+      padding: [2, 2, 4, 4],
     )
 
     final_date_header = make_cell(
       content: 'Data final',
       size: 8,
       font_style: :bold,
-      width: 65,
+      borders: [:left, :right, :top],
       background_color: 'FFFFFF',
-      align: :left
+      width: 60,
+      padding: [2, 2, 4, 4],
     )
 
     student_header = make_cell(
       content: 'Aluno',
       size: 8,
       font_style: :bold,
+      borders: [:left, :right, :top],
       background_color: 'FFFFFF',
-      align: :left
+      width: 60,
+      padding: [2, 2, 4, 4],
     )
 
     justification_header = make_cell(
       content: 'Justificativa',
       size: 8,
       font_style: :bold,
+      borders: [:left, :right, :top],
       background_color: 'FFFFFF',
-      align: :left
+      width: 60,
+      padding: [2, 2, 4, 4], 
     )
 
     headers = [
@@ -256,18 +264,21 @@ class AbsenceJustificationReport
       initial_date_cell = make_cell(
         content: "#{absence_justification.absence_date.strftime("%d/%m/%Y")}",
         size: 10,
+        width: 65,
         align: :left
       )
 
       final_date_cell = make_cell(
         content: "#{absence_justification.absence_date_end.strftime("%d/%m/%Y")}",
         size: 10,
+        width: 65,
         align: :left
       )
 
       student_cell = make_cell(
         content: absence_justification.student.name,
         size: 10,
+        width: 220,
         align: :left
       )
 

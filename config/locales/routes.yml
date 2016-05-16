@@ -79,6 +79,8 @@ pt-BR:
     ***REMOVED***: 'acesso-do-aluno-a-escola'
     absence_justification: 'registro-de-justificativa-de-faltas'
     avaliation_exemptions: 'dispensa-de-avaliacoes'
+    ***REMOVED***: 'situacao-dos-alunos'
+    courses: 'courses'
 
     # actions
     edit: 'editar'

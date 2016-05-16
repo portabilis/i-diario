@@ -14,11 +14,11 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :classroom, as: :select2, elements: @classrooms %>
+        <%= f.association :classroom, as: :select2, elements: @classrooms, disabled: f.object.persisted? %>
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :discipline, as: :select2, elements: @disciplines %>
+        <%= f.association :discipline, as: :select2, elements: @disciplines, disabled: f.object.persisted? %>
       </div>
     </div>
 

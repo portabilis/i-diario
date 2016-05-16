@@ -103,6 +103,7 @@ class ApplicationController < ActionController::Base
 
     if current_user.current_user_role.blank? && controller_name != "current_role"
       redirect_to current_roles_path
+      flash[:alert] = t("activerecord.errors.models.user.attributes.base.no_role_found") if current_user.user_roles.count == 0
     end
   end
 

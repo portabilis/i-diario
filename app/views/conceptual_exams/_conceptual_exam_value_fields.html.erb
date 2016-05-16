@@ -1,4 +1,4 @@
-<tr class="nested-fields <%= f.object.new_record? ? 'dynamic' : 'existing' %>"  style="<%= 'display: none;' if f.object.marked_for_destruction? %>">
+<tr class="nested-fields <%= f.object.new_record? ? 'dynamic' : 'existing' %>"  style="<%= 'display: none;' if f.object.marked_for_destruction? || f.object.marked_as_invisible? %>">
   <td>
     <%= f.hidden_field :id %>
     <%= f.hidden_field :discipline_id %>

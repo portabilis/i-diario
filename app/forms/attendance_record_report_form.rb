@@ -8,7 +8,8 @@ class AttendanceRecordReportForm
                 :start_at,
                 :end_at,
                 :school_calendar_year,
-                :current_teacher_id
+                :current_teacher_id,
+                :school_calendar
 
   validates :unity_id,       presence: true
   validates :classroom_id,   presence: true
@@ -17,6 +18,7 @@ class AttendanceRecordReportForm
   validates :start_at,       presence: true
   validates :end_at,         presence: true
   validates :school_calendar_year, presence: true
+  validates :school_calendar, presence: true
 
   validate :start_at_must_be_a_valid_date
   validate :end_at_must_be_a_valid_date
@@ -47,6 +49,14 @@ class AttendanceRecordReportForm
         .order_by_class_number
         .order_by_student_name
     end
+  end
+
+  def school_calendar_events
+    school_calendar.events
+                   .without_frequency
+                   .by_date_between(start_at, end_at)
+                   .all_events_for_classroom(classroom)
+                   .ordered
   end
 
   def students

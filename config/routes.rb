@@ -46,6 +46,7 @@ Rails.application.routes.draw do
 
     resources :teachers, only: :index
     resources :***REMOVED***, only: :index
+    resources :***REMOVED***, only: :index
 
     root 'dashboard#index'
 
@@ -116,6 +117,7 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***s, concerns: :history
     resources :***REMOVED***, concerns: :history
+    resources :courses, only: [:index]
     resources :lectures, only: [:index]
 
     resources :grades, only: [:index] do
@@ -150,7 +152,12 @@ Rails.application.routes.draw do
       end
 
       resources :school_calendar_steps, only: [:index]
-      resources :school_calendar_events, concerns: :history
+      resources :school_calendar_events, concerns: :history do
+        collection do
+          get  :grades
+          get  :classrooms
+        end
+      end
     end
     resources :school_calendar_steps, only: [:show]
 

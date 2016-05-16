@@ -71,12 +71,13 @@ pt-BR:
     observation_record_report: "Registro de observações"
     discipline_lesson_plan_report: "Registro de conteúdos por disciplina"
     knowledge_area_lesson_plan_report: "Registro de conteúdos por áreas de conhecimento"
-    absence_justification_report: "Registro de Justificativa de faltas"
+    absence_justification_report: "Registro de justificativa de faltas"
     ***REMOVED***: "***REMOVED***"
     ieducar_api_exam_postings: "Envio de avaliações"
     school_frequency_***REMOVED***: "Frequência na escola"
     ***REMOVED***: "***REMOVED***"
     avaliation_exemptions: "Dispensa de avaliações"
+    ***REMOVED***: "Situação do aluno"
 
   enumerations:
     features:
@@ -85,3 +86,4 @@ pt-BR:
       ***REMOVED***_confirmations: "***REMOVED*** da pré-matrícula"
       ***REMOVED***_configs: "Configuração da pré-matrícula"
       test_settings: "Configurações de avaliações"
+      ***REMOVED***: "Situação do aluno"
