@@ -16,7 +16,7 @@ module Turnip
     step 'poderei cadastrar um novo evento do calendário letivo' do
       fill_mask 'Data', with: '25/12/2015'
       fill_in 'Descrição', with: 'Natal'
-      fill_in_select2 'Não letivo', :from => 'Tipo'
+      fill_in_select2 'Tipo', with: 'no_school'
       fill_in 'Legenda', with: 'E'
 
       page.execute_script %{
