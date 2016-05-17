@@ -21,7 +21,7 @@ class DailyNoteStudentsController < ApplicationController
     @old_notes = []
     daily_note_students.each do |daily_note_student|
       @old_notes << {
-        avaliation_description: daily_note_student.avaliation.to_s,
+        avaliation_description: daily_note_student.avaliation.description_to_teacher,
         note: daily_note_student.note
       }
     end

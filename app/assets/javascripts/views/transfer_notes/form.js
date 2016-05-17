@@ -99,6 +99,7 @@ $(function () {
 
   function handlefetchStudentOldNotesSuccess(data) {
     if (!_.isEmpty(data.old_notes)) {
+      $('.no_old_notes_found').hide();
       _.each(data.old_notes, function(old_note) {
         var html = JST['templates/transfer_notes/old_notes_row'](old_note);
         $('#old-notes-rows').append(html);
@@ -111,8 +112,58 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as notas do aluno na turma anterior.');
   };
 
+  function fetchStudentCurrentNotes(){
+    var classroom_id = $classroom.select2('val');
+    var discipline_id = $discipline.select2('val');
+    var school_calendar_step_id = $school_calendar_step.select2('val');
+    var student_id = $student.select2('val');
+    var transfer_date = $transferDate.val();
+
+    if (!_.isEmpty(classroom_id) &&
+        !_.isEmpty(discipline_id) &&
+        !_.isEmpty(school_calendar_step_id) &&
+        !_.isEmpty(student_id) &&
+        !_.isEmpty(transfer_date.match(dateRegex))) {
+      $.ajax({
+        url: Routes.current_notes_transfer_notes_pt_br_path({
+            classroom_id: classroom_id,
+            discipline_id: discipline_id,
+            school_calendar_step_id: school_calendar_step_id,
+            student_id: student_id,
+            transfer_date: transfer_date,
+            format: 'json'
+          }),
+        success: handlefetchStudentCurrentNotesSuccess,
+        error: handlefetchStudentCurrentNotesError
+      });
+    }
+  };
+
+  function handlefetchStudentCurrentNotesSuccess(data) {
+    if (!_.isEmpty(data.transfer_notes)) {
+      $('.no_current_notes_found').hide();
+      var element_counter = 0;
+      _.each(data.transfer_notes, function(current_note) {
+        current_note.element_id = new Date().getTime() + element_counter++;
+        var html = JST['templates/transfer_notes/current_notes_row'](current_note);
+        $('#current-notes-rows').append(html);
+      });
+
+    }
+  };
+
+  function handlefetchStudentCurrentNotesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as notas do aluno na turma atual.');
+  };
+
   function removeStudentOldNotes() {
     $('#old-notes-rows').html('');
+    $('.no_old_notes_found').show();
+  }
+
+  function removeStudentCurrentNotes() {
+    $('#current-notes-rows').html('');
+    $('.no_current_notes_found').show();
   }
 
   // On change
@@ -121,30 +172,39 @@ $(function () {
     fetchDisciplines();
     fetchStudents();
     removeStudentOldNotes();
+    removeStudentCurrentNotes();
   });
 
   $discipline.on('change', function() {
     removeStudentOldNotes();
+    removeStudentCurrentNotes();
     fetchStudentOldNotes();
   });
 
   $school_calendar_step.on('change', function() {
     removeStudentOldNotes();
+    removeStudentCurrentNotes();
     fetchStudentOldNotes();
+    fetchStudentCurrentNotes();
   });
 
   $transferDate.on('change', function() {
     removeStudentOldNotes();
+    removeStudentCurrentNotes();
     fetchStudents();
     fetchStudentOldNotes();
+    fetchStudentCurrentNotes();
   });
 
   $student.on('change', function() {
     removeStudentOldNotes();
+    removeStudentCurrentNotes();
     fetchStudentOldNotes();
+    fetchStudentCurrentNotes();
   });
 
   // On load
 
   fetchDisciplines();
+  fetchStudentOldNotes();
 });

@@ -81,6 +81,7 @@ pt-BR:
     ***REMOVED***: 'situacao-dos-alunos'
     courses: 'courses'
     transfer_notes: 'notas-de-transferencia'
+    current_notes: 'notas-atuais'
 
     # actions
     edit: 'editar'

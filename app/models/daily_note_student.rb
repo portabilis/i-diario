@@ -5,6 +5,7 @@ class DailyNoteStudent < ActiveRecord::Base
 
   belongs_to :daily_note
   belongs_to :student
+  belongs_to :transfer_note
 
   delegate :avaliation, to: :daily_note
 

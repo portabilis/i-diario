@@ -4,10 +4,10 @@
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
-            <td><%= f.input :by_classroom_id, as: :select2, elements: {}, label: false, placeholder: t('.by_classroom_id') %></td>
-            <td><%= f.input :by_discipline_id, as: :select2, elements: {}, label: false, placeholder: t('.by_discipline_id') %></td>
-            <td><%= f.input :by_student_id, as: :select2, elements: {}, label: false, placeholder: t('.by_student_id') %></td>
-            <td><%= f.input :by_transfer_date, as: :date, elements: {}, label: false, placeholder: t('.by_transfer_date') %></td>
+            <td><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom_description') %></td>
+            <td><%= f.input :by_discipline_description, label: false, placeholder: t('.by_discipline_description') %></td>
+            <td><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></td>
+            <td><%= f.input :by_transfer_date, as: :date, label: false, placeholder: t('.by_transfer_date') %></td>
             <td><%= link_to t('.new_html'), new_transfer_note_path, class: "btn btn-primary pull-right" %></td>
           </tr>
           <tr>
@@ -18,6 +18,8 @@
             <td width="190px"></td>
           </tr>
         </thead>
+
+        <%= render 'resources' %>
 
 
         <tfoot id="paginator" class="remote">

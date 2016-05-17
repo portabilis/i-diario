@@ -17,3 +17,11 @@ pt-BR:
         transfer_date: "Data"
         student: "Aluno"
         student_id: "Aluno"
+        user_id: "Usuário"
+        user: "Usuário"
+    errors:
+      models:
+        transfer_note:
+          attributes:
+            transfer_date:
+              must_be_in_step: "Data deve estar dentro da etapa selecionada"
