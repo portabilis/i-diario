@@ -91,7 +91,7 @@ class AttendanceRecordReport
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
       obj.class.to_s == "SchoolCalendarEvent" ? obj.event_date : obj.frequency_date
     end
-    sliced_frequencies_and_events = frequencies_and_events.each_slice(40 - @events.count).to_a
+    sliced_frequencies_and_events = frequencies_and_events.each_slice(40).to_a
 
     sliced_frequencies_and_events.each_with_index do |frequencies_and_events_slice, index|
       class_numbers = []
@@ -221,8 +221,7 @@ class AttendanceRecordReport
         draw_text('* Alunos cursando dependência', size: 8, at: [0, 47])
       end
 
-      draw_text(self.legend[0..183], size: 8, at: [0, 30])
-      draw_text(self.legend[184..368], size: 8, at: [0, 17])
+      text_box(self.legend, size: 8, at: [0, 30], width: 825, height: 20)
     end
 
     string = "Página <page> de <total>"
