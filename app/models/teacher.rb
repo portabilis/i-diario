@@ -8,6 +8,10 @@ class Teacher < ActiveRecord::Base
   validates :name, :api_code, presence: true
   validates :api_code, uniqueness: true
 
+  scope :by_active_teacher, -> { joins(:teacher_discipline_classrooms).active.order_by_name.uniq }
+  scope :active, -> { where(TeacherDisciplineClassroom.arel_table[:active].eq(true)) }
+  scope :order_by_name, -> { order(name: :asc)  }
+
   def self.search(value)
     relation = all
 
