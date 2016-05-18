@@ -6,6 +6,7 @@ class AvaliationExemptionsController < ApplicationController
 
   def index
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
+      .by_unity(current_user_unity)
     authorize @avaliation_exemptions
   end
 
@@ -83,7 +84,7 @@ class AvaliationExemptionsController < ApplicationController
     @avaliations = fetch_avaliations
     @disciplines = fetch_disciplines
     @students = fetch_students
-    @school_calendar_steps = current_school_calendar.steps
+    @school_calendar_steps = fetch_school_calendar_steps
   end
 
   def fetch_unities
@@ -136,6 +137,11 @@ class AvaliationExemptionsController < ApplicationController
         render :new
       end
     end
+  end
+
+  def fetch_school_calendar_steps
+    SchoolCalendarStep
+      .by_school_calendar_id(@avaliation_exemption.school_calendar_id)
   end
 
   def configuration

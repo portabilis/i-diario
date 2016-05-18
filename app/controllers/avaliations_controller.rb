@@ -102,6 +102,10 @@ class AvaliationsController < ApplicationController
     render json: @avaliations
   end
 
+  def show
+    render json: resource
+  end
+
   private
 
   def set_number_of_classes
@@ -120,7 +124,7 @@ class AvaliationsController < ApplicationController
     @avaliation ||= case params[:action]
     when 'new', 'create'
       Avaliation.new
-    when 'edit', 'update', 'destroy'
+    when 'edit', 'update', 'destroy', 'show'
       Avaliation.find(params[:id])
     end
   end

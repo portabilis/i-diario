@@ -12,7 +12,7 @@ pt-BR:
         classroom: "Turma"
         student: "Aluno"
         avaliation: "Avaliação"
-        created_at: "Data de criação"
+        created_at: "Data/hora de cadastro"
         course_id: "Curso"
         unity_id: "Escola"
         grade_id: "Série"
@@ -23,14 +23,11 @@ pt-BR:
         student_id: "Aluno"
         reason: "Motivo"
 
-
     errors:
       models:
-        absence_justification:
+        avaliation_exemption:
           attributes:
-              absence_date:
-                taken:  'já existe uma justificativa para esta data'
-              absence_date_end:
-                taken:  'já existe uma justificativa para esta data'
-              base:
-                discipline_period_absence: 'Já existe uma justificativa para a disciplina e período informados'
+              avaliation_id:
+                has_score_on_avaliation: 'Esta avaliação já possui nota lançada para este aluno'
+              student_id:
+                taken:  'Já existe uma dispensa lançada para este aluno nesta avaliação'

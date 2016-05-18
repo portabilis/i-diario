@@ -12,37 +12,37 @@
     </div>
 
     <div class="col col-sm-4">
-      <%= f.input :course_id, as: :select2, elements: @courses %>
+      <%= f.input :course_id, as: :select2, elements: @courses, readonly: f.object.persisted? %>
     </div>
 
     <div class="col col-sm-4">
-      <%= f.input :grade_id, as: :select2, elements: @grades %>
-    </div>
-  </div>
-
-  <div class="row">
-
-    <div class="col col-sm-4">
-      <%= f.input :classroom_id, as: :select2, elements: @classrooms %>
-    </div>
-
-    <div class="col col-sm-4">
-      <%= f.input :discipline_id, as: :select2, elements: @disciplines %>
-    </div>
-
-    <div class="col col-sm-4">
-      <%= f.input :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
-
+      <%= f.input :grade_id, as: :select2, elements: @grades, readonly: f.object.persisted? %>
     </div>
   </div>
 
   <div class="row">
+
     <div class="col col-sm-4">
-      <%= f.input :avaliation_id, as: :select2, elements: @avaliations %>
+      <%= f.input :classroom_id, as: :select2, elements: @classrooms, readonly: f.object.persisted? %>
     </div>
 
     <div class="col col-sm-4">
-      <%= f.input :student_id, as: :select2, elements: @students %>
+      <%= f.input :discipline_id, as: :select2, elements: @disciplines, readonly: f.object.persisted? %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :school_calendar_step, as: :select2, elements: @school_calendar_steps, readonly: f.object.persisted? %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :avaliation_id, as: :select2, elements: @avaliations, readonly: f.object.persisted? %>
+      <%= f.input :avaliation_date, as: :hidden, input_html: { value: f.object.persisted? ? @avaliation_exemption.avaliation.test_date : '' } %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :student_id, as: :select2, elements: @students, readonly: f.object.persisted? %>
     </div>
   </div>
 

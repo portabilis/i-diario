@@ -13,6 +13,7 @@ $(function () {
   var $student = $('#avaliation_exemption_student_id');
   var $school_calendar_step_start_at = $('#avaliation_exemption_school_calendar_step_start_at');
   var $school_calendar_step_end_at = $('#avaliation_exemption_school_calendar_step_end_at');
+  var $avaliation_date = $('#avaliation_exemption_avaliation_date');
 
   fetchCourses();
 
@@ -38,7 +39,7 @@ $(function () {
   });
 
   $avaliation.on('change', function(){
-    fetchStudents();
+    fetchAvaliationDate();
   });
 
   function fetchCourses() {
@@ -177,9 +178,8 @@ $(function () {
 
   function handleFetchAvaliationsSuccess(avaliations) {
     var selectedAvaliations = _.map(avaliations['avaliations'], function(avaliation) {
-      return { id: avaliation['id'], text: avaliation['description_to_teacher'] };
+      return { id: avaliation['id'], text: avaliation['description'] };
     });
-
 
     $avaliation.select2({ data: selectedAvaliations });
   };
@@ -188,10 +188,31 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as avaliações da turma e disciplina selecionadas.');
   };
 
+  function fetchAvaliationDate() {
+    var avaliation_id = $avaliation.select2('val');
+
+    if (!_.isEmpty(avaliation_id)) {
+
+      $.ajax({
+        url: '/avaliations/' + avaliation_id,
+        success: handleFetchAvaliationDateSuccess,
+        error: handleFetchAvaliationDateError
+      });
+    }
+  };
+
+  function handleFetchAvaliationDateSuccess(avaliation) {
+    $avaliation_date.val(avaliation['avaliation'].test_date)
+    fetchStudents();
+  };
+
+  function handleFetchAvaliationDateError() {
+    flashMessages.error('Ocorreu um erro ao buscar a data da avaliação selecionada.');
+  };
 
   function fetchStudents() {
     var classroom_id = $classroom.select2('val');
-    var avaliation_date = '2016-03-04';
+    var avaliation_date = $('#avaliation_exemption_avaliation_date').val();
 
     if (!_.isEmpty(classroom_id) && !_.isEmpty(avaliation_date)) {
       $.ajax({

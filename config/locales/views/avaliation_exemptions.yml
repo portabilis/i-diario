@@ -5,6 +5,8 @@ pt-BR:
       by_grade: "Filtrar série"
       by_classroom: "Filtrar turma"
       by_created_at: "Filtrar data"
+      by_student_name: "Filtrar por aluno"
+      by_avaliation: "Filtrar por avaliação"
 
       new_html: "<i class='fa fa-plus'></i> Nova dispensa"
     edit:
