@@ -130,7 +130,6 @@ pt-BR:
       <<: *female
       destroy:
         alert: '%{resource_name} não pode ser apagada pois possui vínculos.'
-        foreign_key_violation: 'A Avaliação numérica não pode ser apagada pois possui vínculos.'
 
     daily_notes:
       <<: *male

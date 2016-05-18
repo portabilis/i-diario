@@ -16,7 +16,7 @@ class Avaliation < ActiveRecord::Base
   belongs_to :test_setting_test
 
   has_one  :recovery_diary_record, through: :avaliation_recovery_diary_record
-  has_one  :avaliation_recovery_diary_record
+  has_one  :avaliation_recovery_diary_record, dependent: :restrict_with_error
 
   has_many :daily_notes, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
