@@ -82,10 +82,14 @@ class AvaliationsController < ApplicationController
 
   def destroy
     authorize resource
+    if resource.recovery_diary_record
+      flash[:alert] = t("flash.avaliations.destroy.foreign_key_violation")
+      redirect_to avaliations_path
+    else
+      resource.destroy
 
-    resource.destroy
-
-    respond_with resource, location: avaliations_path
+      respond_with resource, location: avaliations_path
+    end
   end
 
   def history
