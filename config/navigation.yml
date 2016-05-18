@@ -190,6 +190,9 @@ navigation:
             type: "daily_notes"
             path: "new_daily_note_path"
         - ***REMOVED***:
+            type: "avaliation_exemptions"
+            path: "avaliation_exemptions_path"
+        - ***REMOVED***:
             type: "transfer_notes"
             path: "transfer_notes_path"
   - ***REMOVED***:

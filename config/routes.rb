@@ -168,10 +168,18 @@ Rails.application.routes.draw do
     resources :classrooms, only: [:index, :show] do
       resources :students, only: [:index]
     end
-    resources :disciplines, only: [:index]
+    resources :disciplines, only: [:index] do
+      collection do
+        get :search
+      end
+    end
     resources :knowledge_areas, only: [:index]
     resources :exam_rules, only: [:index]
-    resources :avaliations, concerns: :history
+    resources :avaliations, concerns: :history do
+      collection do
+        get :search
+      end
+    end
     resources :teacher_avaliations, only: :index
     resources :daily_notes, only: [:new, :create, :edit, :update, :destroy], concerns: :history
     resources :daily_note_students, only: [:index] do
@@ -199,6 +207,7 @@ Rails.application.routes.draw do
     resources :absence_justifications, concerns: :history
     resources :observation_diary_records, expect: :show, concerns: :history
     resources :ieducar_api_exam_postings
+    resources :avaliation_exemptions, concerns: :history
 
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'

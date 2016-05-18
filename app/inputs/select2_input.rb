@@ -17,6 +17,8 @@ class Select2Input < SimpleForm::Inputs::StringInput
   def parse_collection
     return options[:elements] if options[:elements].is_a? String
 
+    options[:elements] ||= []
+
     elements = options[:elements].map { |g| { id: g.id, name: g.to_s, text: g.to_s } }
     insert_empty_element(elements) if elements.any? && !options[:hide_empty_element]
     elements.to_json

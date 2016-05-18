@@ -59,6 +59,7 @@ class Features < EnumerateIt::Base
                    :avaliation_recovery_diary_records,
                    :***REMOVED***,
                    :absence_justification_report,
+                   :avaliation_exemptions,
                    :***REMOVED***,
                    :transfer_notes
 

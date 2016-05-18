@@ -15,4 +15,10 @@ class DisciplinesController < ApplicationController
     @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
       .ordered
   end
+
+  def search
+    @disciplines = apply_scopes(Discipline).ordered
+
+    render json: @disciplines
+  end
 end
