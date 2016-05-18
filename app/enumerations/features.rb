@@ -59,7 +59,8 @@ class Features < EnumerateIt::Base
                    :avaliation_recovery_diary_records,
                    :***REMOVED***,
                    :absence_justification_report,
-                   :***REMOVED***
+                   :***REMOVED***,
+                   :transfer_notes
 
   sort_by :translation
 end

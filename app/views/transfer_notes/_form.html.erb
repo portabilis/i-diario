@@ -1,0 +1,86 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/transfer_notes/form' %>
+<% end %>
+
+
+<%= simple_form_for @transfer_note, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :unity_id, as: :select2, elements: unities, readonly: true %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :classroom_id, as: :select2, elements: classrooms, readonly: f.object.persisted? %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :discipline_id, as: :select2, elements: disciplines, readonly: f.object.persisted? %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :school_calendar_step_id, as: :select2, elements: school_calendar_steps, readonly: f.object.persisted? %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :transfer_date, as: :date, readonly: f.object.persisted? %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :student_id, as: :select2, elements: students, readonly: f.object.persisted? %>
+      </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Notas do aluno na turma anterior</legend>
+    <table class="table table-bordered table-striped table-condensed table-hover">
+      <thead>
+        <tr>
+          <th>Avaliação</th>
+          <th style="width: 30%;">Nota</th>
+        </tr>
+      </thead>
+      <tbody id="old-notes-rows">
+
+      </tbody>
+      <tfoot class="no_old_notes_found">
+        <td colspan="2"><%= t('.no_old_notes_found') %></td>
+      </tfoot>
+    </table>
+  </fieldset>
+  <fieldset>
+    <legend>Notas de aluno na turma atual</legend>
+    <table class="table table-bordered table-striped table-condensed table-hover">
+      <thead>
+        <tr>
+          <th>Avaliação</th>
+          <th style="width: 30%;">Nota</th>
+        </tr>
+      </thead>
+      <tbody id="current-notes-rows">
+        <%= f.simple_fields_for :daily_note_students do |daily_note_student| %>
+          <%= render 'current_notes_rows', f: daily_note_student %>
+        <% end %>
+      </tbody>
+      <tfoot class="no_current_notes_found" style="<%= f.object.daily_note_students.present? ? 'display: none;' : ''  %>">
+        <td colspan="2"><%= t('.no_current_notes_found') %></td>
+      </tfoot>
+    </table>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), transfer_notes_path, class: 'btn btn-default' %>
+
+    <% if @transfer_note.persisted? %>
+      <%= link_to t('views.form.history'),
+            history_transfer_note_path(@transfer_note),
+            class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+  </footer>
+<% end %>
