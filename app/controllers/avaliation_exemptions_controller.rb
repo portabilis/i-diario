@@ -2,7 +2,6 @@ class AvaliationExemptionsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_teacher
   before_action :require_current_school_calendar
 
   def index
@@ -12,8 +11,10 @@ class AvaliationExemptionsController < ApplicationController
 
   def new
     @avaliation_exemption = AvaliationExemption.new
-    @current_user_unity_api_code = current_user_unity.api_code
-    fetch_collections
+    @current_user_unity_id = current_user_unity.id
+    @school_calendar_year = current_school_calendar.year
+    @unities = fetch_unities
+    @school_calendar_steps = current_school_calendar.steps
     authorize @avaliation_exemption
   end
 
@@ -24,8 +25,9 @@ class AvaliationExemptionsController < ApplicationController
     authorize @avaliation_exemption
 
     if @avaliation_exemption.save
-      respond_with @avaliation_exemption, location: avaliation_exemption_path
+      respond_with @avaliation_exemption, location: avaliation_exemptions_path
     else
+      fetch_collections
       render :new
     end
   end
@@ -33,6 +35,7 @@ class AvaliationExemptionsController < ApplicationController
   def edit
     @avaliation_exemption = AvaliationExemption.find(params[:id]).localized
     authorize @avaliation_exemption
+    fetch_collections
   end
 
   def update
@@ -41,8 +44,9 @@ class AvaliationExemptionsController < ApplicationController
     authorize @avaliation_exemption
 
     if @avaliation_exemption.update_attributes(avaliation_exemption_params)
-      respond_with @avaliation_exemption, location: avaliation_exemption_path
+      respond_with @avaliation_exemption, location: avaliation_exemptions_path
     else
+      fetch_collections
       render :edit
     end
   end
@@ -54,7 +58,7 @@ class AvaliationExemptionsController < ApplicationController
 
     @avaliation_exemption.destroy
 
-    respond_with @avaliation_exemption, location: avaliation_exemption_path, alert: @avaliation_exemption.errors.to_a
+    respond_with @avaliation_exemption, location: avaliation_exemptions_path, alert: @avaliation_exemption.errors.to_a
   end
 
   def history
@@ -71,17 +75,71 @@ class AvaliationExemptionsController < ApplicationController
                                                  :reason)
   end
 
+  def fetch_collections
+    @unities = fetch_unities
+    @courses = fetch_courses
+    @grades = fetch_grades
+    @classrooms = fetch_classrooms
+    @avaliations = fetch_avaliations
+    @disciplines = fetch_disciplines
+    @students = fetch_students
+    @school_calendar_steps = current_school_calendar.steps
+  end
+
   def fetch_unities
     Unity.by_teacher(current_teacher)
   end
 
-  def fetch_collections
-    @unities = fetch_unities
-    @grades = []
-    @classrooms = []
-    @disciplines = []
-    @students = []
-    @school_calendar_steps = current_school_calendar.steps
-    @avaliations = []
+  def fetch_courses
+    Course.by_unity(current_user_unity.id)
   end
+
+  def fetch_grades
+    Grade
+      .by_unity(current_user_unity.id)
+      .by_course(@avaliation_exemption.course_id)
+  end
+
+  def fetch_classrooms
+    Classroom
+      .by_unity(current_user_unity.id)
+      .by_year(current_school_calendar.year)
+      .by_grade(@avaliation_exemption.grade_id)
+  end
+
+  def fetch_disciplines
+    Discipline
+      .by_unity_id(current_user_unity.id)
+      .by_grade(@avaliation_exemption.grade_id)
+      .by_classroom(@avaliation_exemption.classroom_id)
+  end
+
+  def fetch_avaliations
+    Avaliation
+      .by_classroom_id(@avaliation_exemption.classroom_id)
+      .by_discipline_id(@avaliation_exemption.discipline_id)
+  end
+
+  def fetch_students
+    @students = []
+
+    if @avaliation_exemption.classroom.present? && @avaliation_exemption.avaliation.test_date
+      begin
+        @students = StudentsFetcher.new(
+          configuration,
+          @avaliation_exemption.classroom.api_code,
+          date: @avaliation_exemption.avaliation.test_date.to_s
+        )
+        .fetch
+      rescue IeducarApi::Base::ApiError => e
+        flash[:alert] = e.message
+        render :new
+      end
+    end
+  end
+
+  def configuration
+    @configuration ||= IeducarApiConfiguration.current
+  end
+
 end

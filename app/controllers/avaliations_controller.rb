@@ -96,6 +96,12 @@ class AvaliationsController < ApplicationController
     respond_with @avaliation
   end
 
+  def search
+    @avaliations = apply_scopes(Avaliation).ordered
+
+    render json: @avaliations
+  end
+
   private
 
   def set_number_of_classes

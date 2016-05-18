@@ -1,3 +1,3 @@
 class AvaliationSerializer < ActiveModel::Serializer
-  attributes :id, :description_to_teacher
+  attributes :id, :description_to_teacher, :test_date
 end

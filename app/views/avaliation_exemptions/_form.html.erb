@@ -5,18 +5,19 @@
 <fieldset>
 
   <div class="row">
+    <%= f.input :school_calendar_year, as: :hidden, input_html: { value: @school_calendar_year } %>
+
     <div class="col col-sm-4">
-      <%= f.input :api_code, as: :select2, elements: @unities, input_html: { value: @current_user_unity_api_code } %>
+      <%= f.input :unity_id, as: :select2, elements: @unities, disabled: true, input_html: { value: !f.object.persisted? ? @current_user_unity_id : f.object.unity_id } %>
     </div>
 
     <div class="col col-sm-4">
-      <%= f.input :course_id, as: :select2, elements: @grades %>
+      <%= f.input :course_id, as: :select2, elements: @courses %>
     </div>
 
     <div class="col col-sm-4">
       <%= f.input :grade_id, as: :select2, elements: @grades %>
     </div>
-
   </div>
 
   <div class="row">
@@ -31,16 +32,17 @@
 
     <div class="col col-sm-4">
       <%= f.input :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+
     </div>
   </div>
 
   <div class="row">
     <div class="col col-sm-4">
-      <%= f.input :student_id, as: :select2, elements: @students %>
+      <%= f.input :avaliation_id, as: :select2, elements: @avaliations %>
     </div>
 
     <div class="col col-sm-4">
-      <%= f.input :avaliation_id, as: :select2, elements: @avaliations %>
+      <%= f.input :student_id, as: :select2, elements: @students %>
     </div>
   </div>
 
