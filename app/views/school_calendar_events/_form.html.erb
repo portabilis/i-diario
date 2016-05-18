@@ -30,7 +30,7 @@
         <%= f.input :description %>
       </div>
       <div class="col col-sm-4">
-        <%= f.input :event_type, collection: EventTypes %>
+        <%= f.input :event_type, as: :select2, elements: EventTypes.to_select.to_json %>
       </div>
     </div>
 

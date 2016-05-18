@@ -7,12 +7,18 @@
             <td><%= f.input :by_unity, label: false, placeholder: t('.by_unity') %></td>
             <td><%= f.input :by_grade, label: false, placeholder: t('.by_grade') %></td>
             <td><%= f.input :by_classroom, label: false, placeholder: t('.by_classroom') %></td>
+            <td><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></td>
+            <td><%= f.input :by_avaliation, label: false, placeholder: t('.by_avaliation') %></td>
+            <td><%= f.input :by_created_at, label: false, placeholder: t('.by_created_at') %></td>
             <td><%= link_to t('.new_html'), new_avaliation_exemption_path, class: 'btn btn-primary pull-right' %></td>
           </tr>
           <tr>
-            <th><%= AvaliationExemption.human_attribute_name :number %></th>
-            <th><%= AvaliationExemption.human_attribute_name :number %></th>
-            <th><%= AvaliationExemption.human_attribute_name :number %></th>
+            <th><%= AvaliationExemption.human_attribute_name :unity %></th>
+            <th><%= AvaliationExemption.human_attribute_name :grade %></th>
+            <th><%= AvaliationExemption.human_attribute_name :classroom %></th>
+            <th><%= AvaliationExemption.human_attribute_name :student %></th>
+            <th><%= AvaliationExemption.human_attribute_name :avaliation %></th>
+            <th><%= AvaliationExemption.human_attribute_name :created_at %></th>
             <th></th>
           </tr>
         </thead>
@@ -20,13 +26,16 @@
         <tbody id="resources-tbody">
           <% if @avaliation_exemptions.empty? %>
             <tr>
-              <td class="no_record_found" colspan="4"> <%= t('views.index.no_record_found')%></td>
+              <td class="no_record_found" colspan="7"> <%= t('views.index.no_record_found')%></td>
             </tr>
           <% else %>
             <% @avaliation_exemptions.map { |avaliation_exemption| avaliation_exemption.localized }.each do |avaliation_exemption| %>
               <tr>
                 <td><%= avaliation_exemption.avaliation_id %></td>
                 <td><%= avaliation_exemption.student_id %></td>
+                <td><%= avaliation_exemption.reason %></td>
+                <td><%= avaliation_exemption.reason %></td>
+                <td><%= avaliation_exemption.reason %></td>
                 <td><%= avaliation_exemption.reason %></td>
                 <td>
                   <%= link_to 'Excluir', avaliation_exemption_path(avaliation_exemption), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>

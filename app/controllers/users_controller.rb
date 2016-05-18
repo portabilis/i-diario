@@ -11,6 +11,8 @@ class UsersController < ApplicationController
   def edit
     @user = User.find(params[:id])
 
+    @teachers = Teacher.by_active_teacher
+
     authorize @user
   end
 
@@ -24,6 +26,7 @@ class UsersController < ApplicationController
 
       respond_with @user, location: users_path
     else
+      @teachers = Teacher.by_active_teacher
       render :edit
     end
   end

@@ -51,7 +51,7 @@ class DailyFrequenciesController < ApplicationController
 
     @api_students.each do |api_student|
       student = Student.find_by(api_code: api_student['id']) || nil
-      @students << { student: student, dependence: api_student['dependencia'] }
+      @students << { student: student, dependence: api_student['dependencia'] } if student
     end
 
     @daily_frequencies.each do |daily_frequency|

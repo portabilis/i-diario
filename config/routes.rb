@@ -182,8 +182,17 @@ Rails.application.routes.draw do
     end
     resources :teacher_avaliations, only: :index
     resources :daily_notes, only: [:new, :create, :edit, :update, :destroy], concerns: :history
-    resources :daily_note_students, only: [:index]
+    resources :daily_note_students, only: [:index] do
+      collection do
+        get :old_notes
+      end
+    end
     resources :school_term_recovery_diary_records, concerns: :history
+    resources :transfer_notes, concerns: :history do
+      collection do
+        get :current_notes
+      end
+    end
     resources :final_recovery_diary_records, concerns: :history
     resources :avaliation_recovery_diary_records, concerns: :history
     resources :conceptual_exams, concerns: :history
