@@ -50,7 +50,7 @@ pt-BR:
     knowledge_area_teaching_plans: 'planos-de-ensino-por-areas-de-conhecimento'
     discipline_lesson_plans: 'planos-de-aula-por-disciplina'
     knowledge_area_lesson_plans: 'planos-de-aula-por-areas-de-conhecimento'
-    avaliations: 'cadastro-de-avaliacoes'
+    avaliations: 'avaliacoes'
     daily_notes: 'diario-de-notas'
     daily_note_students: 'alunos-do-diario-de-notas'
     daily_frequencies: 'diario-de-frequencia'
@@ -102,3 +102,4 @@ pt-BR:
     preview: "pre-visualizar"
     synchronizations: 'sincronizacoes'
     synchronize: 'sincronizar'
+    search: 'busca'

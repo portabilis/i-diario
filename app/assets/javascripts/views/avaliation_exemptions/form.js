@@ -143,7 +143,7 @@ $(function () {
         by_classroom: classroom_id
       };
       $.ajax({
-        url: '/disciplinas/search',
+        url: '/disciplinas/busca',
         data: filter,
         success: handleFetchDisciplinesSuccess,
         error: handleFetchDisciplinesError
@@ -175,8 +175,7 @@ $(function () {
         by_school_calendar_step: school_calendar_step_id
       };
       $.ajax({
-        url: '/avaliations/search',
-        data: filter,
+        url: Routes.search_avaliations_pt_br_path({ filter: filter, format: 'json' }),
         success: handleFetchAvaliationsSuccess,
         error: handleFetchAvaliationsError
       });

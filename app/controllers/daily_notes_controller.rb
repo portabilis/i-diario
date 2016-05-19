@@ -36,12 +36,14 @@ class DailyNotesController < ApplicationController
       if student = Student.find_by(api_code: api_student['id'])
         note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
         note_student.dependence = api_student['dependencia']
+        note_student.exempted = student_exempted_from_avaliation?(student.id)
         @students << note_student
       end
     end
 
     @normal_students = []
     @dependence_students = []
+    @any_exempted_student = any_exempted_student?
 
     @students.each do |student|
       @normal_students << student if !student.dependence?
@@ -168,5 +170,22 @@ class DailyNotesController < ApplicationController
       unique_student_ids << student["id"]
     end
     unique_students
+  end
+
+  def student_exempted_from_avaliation?(student_id)
+    avaliation_id = @daily_note.avaliation_id
+    is_exempted = AvaliationExemption
+      .by_student(student_id)
+      .by_avaliation(avaliation_id)
+      .any?
+    is_exempted
+  end
+
+  def any_exempted_student?
+    avaliation_id = @daily_note.avaliation_id
+    any_exempted_student = AvaliationExemption
+      .by_avaliation(avaliation_id)
+      .any?
+    any_exempted_student
   end
 end
