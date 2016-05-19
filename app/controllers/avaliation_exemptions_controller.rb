@@ -28,6 +28,8 @@ class AvaliationExemptionsController < ApplicationController
     if @avaliation_exemption.save
       respond_with @avaliation_exemption, location: avaliation_exemptions_path
     else
+      @current_user_unity_id = current_user_unity.id
+      @school_calendar_year = current_school_calendar.year
       fetch_collections
       render :new
     end
@@ -47,6 +49,8 @@ class AvaliationExemptionsController < ApplicationController
     if @avaliation_exemption.update_attributes(avaliation_exemption_params)
       respond_with @avaliation_exemption, location: avaliation_exemptions_path
     else
+      @current_user_unity_id = current_user_unity.id
+      @school_calendar_year = current_school_calendar.year
       fetch_collections
       render :edit
     end

@@ -44,11 +44,13 @@ $(function () {
 
   function fetchCourses() {
     var unity_id = $unity.select2('val');
-
-    if (!_.isEmpty(unity_id)) {
     var filter = { by_unity: unity_id };
+    if (!_.isEmpty(unity_id)) {
       $.ajax({
-        url: Routes.courses_pt_br_path({ filter, format: 'json' }),
+        url: Routes.courses_pt_br_path({
+            filter,
+            format: 'json'
+        }),
         success: handleFetchCoursesSuccess,
         error: handleFetchCoursesError
       });
@@ -70,15 +72,17 @@ $(function () {
   function fetchGrades() {
     var unity_id = $unity.select2('val');
     var course_id = $course.select2('val');
+    var filter = {
+      by_unity: unity_id,
+      by_course: course_id
+    };
 
     if (!_.isEmpty(unity_id) && !_.isEmpty(course_id)) {
-      var filter = {
-        by_unity: unity_id,
-        by_course: course_id
-      };
-
       $.ajax({
-        url: Routes.grades_pt_br_path({ filter, format: 'json' }),
+        url: Routes.grades_pt_br_path({
+          filter,
+          format: 'json'
+        }),
         success: handleFetchGradesSuccess,
         error: handleFetchGradesError
       });
@@ -109,7 +113,10 @@ $(function () {
         by_year: year
       };
       $.ajax({
-        url: Routes.classrooms_pt_br_path({ filter, format: 'json' }),
+        url: Routes.classrooms_pt_br_path({
+          filter,
+          format: 'json'
+        }),
         success: handleFetchClasroomsSuccess,
         error: handleFetchGradesError
       });
