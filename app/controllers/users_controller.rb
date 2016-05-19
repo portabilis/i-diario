@@ -1,6 +1,4 @@
 class UsersController < ApplicationController
-  before_action :require_current_school_calendar
-
   has_scope :page, default: 1
   has_scope :per, default: 10
 
