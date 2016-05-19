@@ -1,0 +1,22 @@
+<tbody id="resources-tbody">
+  <% if @avaliation_exemptions.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="7"> <%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @avaliation_exemptions.map { |avaliation_exemption| avaliation_exemption.localized }.each do |avaliation_exemption| %>
+      <tr>
+        <td><%= avaliation_exemption.avaliation.unity.name %></td>
+        <td><%= avaliation_exemption.avaliation.classroom.grade.description %></td>
+        <td><%= avaliation_exemption.avaliation.classroom.description %></td>
+        <td><%= avaliation_exemption.student.name %></td>
+        <td><%= "#{avaliation_exemption.avaliation.description} (#{avaliation_exemption.avaliation.discipline.description})" %></td>
+        <td><%= avaliation_exemption.created_at %></td>
+        <td>
+          <%= link_to 'Excluir', avaliation_exemption_path(avaliation_exemption), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+          <%= link_to t('views.index.edit'), edit_avaliation_exemption_path(avaliation_exemption), class: "btn btn-success pull-right" %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

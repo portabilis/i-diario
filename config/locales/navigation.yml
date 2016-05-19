@@ -76,7 +76,9 @@ pt-BR:
     ieducar_api_exam_postings: "Envio de avaliações"
     school_frequency_***REMOVED***: "Frequência na escola"
     ***REMOVED***: "***REMOVED***"
+    avaliation_exemptions: "Dispensa de avaliações"
     ***REMOVED***: "Situação do aluno"
+    transfer_notes: "Notas de transferência"
 
   enumerations:
     features:

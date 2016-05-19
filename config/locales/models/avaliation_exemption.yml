@@ -1,0 +1,33 @@
+pt-BR:
+  activerecord:
+    models:
+      avaliation_exemption:
+        one: "Dispensa de avaliação"
+        other: "Dispensa de avaliações"
+
+    attributes:
+      avaliation_exemption:
+        unity: "Escola"
+        grade: "Série"
+        classroom: "Turma"
+        student: "Aluno"
+        avaliation: "Avaliação"
+        created_at: "Data/hora de cadastro"
+        course_id: "Curso"
+        unity_id: "Escola"
+        grade_id: "Série"
+        classroom_id: "Turma"
+        discipline_id: "Disciplina"
+        school_calendar_step: "Etapa"
+        avaliation_id: "Avaliação"
+        student_id: "Aluno"
+        reason: "Motivo"
+
+    errors:
+      models:
+        avaliation_exemption:
+          attributes:
+              avaliation_id:
+                has_score_on_avaliation: 'Esta avaliação já possui nota lançada para este aluno'
+              student_id:
+                taken:  'Já existe uma dispensa lançada para este aluno nesta avaliação'

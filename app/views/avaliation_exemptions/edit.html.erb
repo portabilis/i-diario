@@ -1,0 +1,16 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for @avaliation_exemption, html: { class: "smart-form" } do |f| %>
+    <%= f.error_notification %>
+
+    <%= render 'form', f: f %>
+
+    <footer>
+      <%= link_to t('views.form.back'), avaliation_exemptions_path, class: "btn btn-default" %>
+      <% if @avaliation_exemption.persisted? %>
+        <%= link_to t('views.form.history'), history_avaliation_exemption_path(@avaliation_exemption), class: 'btn btn-info' %>
+      <% end %>
+      <button type="submit" class="btn btn-primary"><%= t('views.form.save') %></button>
+    </footer>
+
+  <% end %>
+</div>
