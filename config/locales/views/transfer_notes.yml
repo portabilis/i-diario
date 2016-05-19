@@ -5,7 +5,7 @@ pt-BR:
       by_discipline_description: "Filtrar disciplina"
       by_student_name: "Filtrar aluno"
       by_transfer_date: "Filtrar data"
-      new_html: "<i class='fa fa-plus'></i> Novo processo"
+      new_html: "<i class='fa fa-plus'></i> Novo lançamento"
     form:
       back: "Voltar"
       history: "Histórico"

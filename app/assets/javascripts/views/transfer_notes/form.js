@@ -10,6 +10,7 @@ $(function () {
   var $school_calendar_step = $('#transfer_note_school_calendar_step_id');
   var $transferDate = $('#transfer_note_transfer_date');
   var $student = $('#transfer_note_student_id');
+  var schoolCalendarStep = null;
 
 
   function fetchDisciplines() {
@@ -36,12 +37,15 @@ $(function () {
     $student.select2({ data: [] });
 
     if (!_.isEmpty(classroom_id) &&
-        !_.isEmpty(transfer_date.match(dateRegex))) {
+        !_.isEmpty(transfer_date.match(dateRegex)) &&
+        schoolCalendarStep &&
+        !_.isEmpty(schoolCalendarStep.start_at) ) {
       $.ajax({
         url: Routes.students_pt_br_path(),
         data: {
           classroom_id: classroom_id,
-          date: transfer_date
+          date: transfer_date,
+          start_date: schoolCalendarStep.start_at
         },
         success: handleFetchStudentsSuccess,
         error: handleFetchStudentsError
@@ -71,6 +75,27 @@ $(function () {
 
   function handleFetchStudentsError() {
     flashMessages.error('Ocorreu um erro ao buscar os alunos da turma selecionada.');
+  };
+
+  function fetchSchoolCalendarStep() {
+    var school_calendar_step_id = $school_calendar_step.select2('val');
+
+    if (!_.isEmpty(school_calendar_step_id)) {
+      $.ajax({
+        url: Routes.school_calendar_step_pt_br_path(school_calendar_step_id, { format: 'json' }),
+        success: handleFetchSchoolCalendarStepSuccess,
+        error: handleFetchSchoolCalendarStepError
+      });
+    }
+  }
+
+  function handleFetchSchoolCalendarStepSuccess(data) {
+    schoolCalendarStep = data.school_calendar_step;
+    fetchStudents();
+  };
+
+  function handleFetchSchoolCalendarStepError() {
+    flashMessages.error('Ocorreu um erro ao buscar a etapa selecionada.');
   };
 
   function fetchStudentOldNotes() {
@@ -166,6 +191,19 @@ $(function () {
     $('.no_current_notes_found').show();
   }
 
+  $('#transfer_note_copy_notes').on('click', function(){
+    $('#old-notes-rows tr').each(function(i){
+      var note = $(this).find('td:eq(1)').text().trim();
+      var recovery_note = $(this).find('td:eq(2)').text().trim();
+      var $equivalentLine = $('#current-notes-rows tr:eq('+i+')');
+
+      if($equivalentLine.length){
+        $equivalentLine.find('input[id$=_note]').val(note > recovery_note ? note : recovery_note);
+      }
+    });
+    return false;
+  });
+
   // On change
 
   $classroom.on('change', function() {
@@ -182,6 +220,7 @@ $(function () {
   });
 
   $school_calendar_step.on('change', function() {
+    fetchSchoolCalendarStep();
     removeStudentOldNotes();
     removeStudentCurrentNotes();
     fetchStudentOldNotes();
@@ -204,7 +243,9 @@ $(function () {
   });
 
   // On load
-
   fetchDisciplines();
   fetchStudentOldNotes();
+  if(!$('form[id^=edit_transfer_note]').length){
+    fetchStudentCurrentNotes();
+  }
 });

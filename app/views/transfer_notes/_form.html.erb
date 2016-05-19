@@ -41,18 +41,34 @@
       <thead>
         <tr>
           <th>Avaliação</th>
-          <th style="width: 30%;">Nota</th>
+          <th style="width: 20%;">Nota</th>
+          <th style="width: 20%;">Recuperação</th>
         </tr>
       </thead>
       <tbody id="old-notes-rows">
 
       </tbody>
-      <tfoot class="no_old_notes_found">
-        <td colspan="2"><%= t('.no_old_notes_found') %></td>
+      <tfoot>
+        <tr>
+          <td class="no_old_notes_found" colspan="3"><%= t('.no_old_notes_found') %></td>
+        </tr>
+        <tr>
+          <td colspan="3">
+          <button type="button" class="btn btn-sm btn-primary pull-right" id="transfer_note_copy_notes">
+              <i class="fa fa-files-o"></i> Copiar notas
+            </button>
+          </td>
+        </tr>
       </tfoot>
     </table>
   </fieldset>
   <fieldset>
+    <% if f.object.errors[:daily_note_students].any? %>
+      <div class="alert alert-danger fade in">
+        <i class="fa-fw fa fa-times"></i>
+        <%= f.object.errors[:daily_note_students].first %>
+      </div>
+    <% end %>
     <legend>Notas de aluno na turma atual</legend>
     <table class="table table-bordered table-striped table-condensed table-hover">
       <thead>

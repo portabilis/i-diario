@@ -5,7 +5,9 @@ class TransferNotesController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @transfer_notes = apply_scopes(TransferNote.by_user_id(current_user.id))
+    @transfer_notes = apply_scopes(TransferNote).includes(:classroom, :discipline, :student)
+                                                .by_teacher_id(current_teacher.id)
+                                                .by_unity_id(current_user_unity.id)
 
     authorize @transfer_notes
   end
@@ -20,7 +22,7 @@ class TransferNotesController < ApplicationController
 
   def create
     @transfer_note = TransferNote.new(resource_params)
-    @transfer_note.user = current_user
+    @transfer_note.teacher = current_teacher
 
     authorize @transfer_note
 

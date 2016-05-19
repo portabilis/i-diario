@@ -17,12 +17,14 @@ class DailyNoteStudentsController < ApplicationController
                                            .by_student_id(params[:student_id])
                                            .by_test_date_between(school_calendar_step.start_at, school_calendar_step.end_at)
                                            .not_including_classroom_id(params[:classroom_id])
+                                           .ordered
 
     @old_notes = []
     daily_note_students.each do |daily_note_student|
       @old_notes << {
         avaliation_description: daily_note_student.avaliation.description_to_teacher,
-        note: daily_note_student.note
+        note: daily_note_student.note,
+        recovery_note: daily_note_student.recovery_note
       }
     end
     respond_with old_notes: @old_notes

@@ -156,7 +156,7 @@ class DailyNotesController < ApplicationController
         student_params.last[:student_id].to_i == student.student.id
       end
 
-      student.destroy unless student_exists
+      student.destroy unless student_exists || student.transfer_note.present?
     end
   end
 

@@ -26,7 +26,7 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :not_including_classroom_id, lambda { |classroom_id| joins(:daily_note).where(DailyNote.arel_table[:classroom_id].not_eq(classroom_id) ) }
   scope :by_test_date_between, lambda { |start_at, end_at| by_test_date_between(start_at, end_at) }
   scope :by_avaliation, lambda { |avaliation| joins(:daily_note).where(daily_notes: { avaliation_id: avaliation }) }
-  scope :ordered, -> { joins(:student).order(Student.arel_table[:name]) }
+  scope :ordered, -> { joins(:student, daily_note: :avaliation).order(Avaliation.arel_table[:test_date], Student.arel_table[:name]) }
 
   def maximum_score
     return avaliation.test_setting.maximum_score if !avaliation.test_setting.fix_tests
