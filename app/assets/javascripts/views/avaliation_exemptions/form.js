@@ -48,7 +48,7 @@ $(function () {
     if (!_.isEmpty(unity_id)) {
       $.ajax({
         url: Routes.courses_pt_br_path({
-            filter,
+            filter: filter,
             format: 'json'
         }),
         success: handleFetchCoursesSuccess,
@@ -80,7 +80,7 @@ $(function () {
     if (!_.isEmpty(unity_id) && !_.isEmpty(course_id)) {
       $.ajax({
         url: Routes.grades_pt_br_path({
-          filter,
+          filter: filter,
           format: 'json'
         }),
         success: handleFetchGradesSuccess,
@@ -114,7 +114,7 @@ $(function () {
       };
       $.ajax({
         url: Routes.classrooms_pt_br_path({
-          filter,
+          filter: filter,
           format: 'json'
         }),
         success: handleFetchClasroomsSuccess,
