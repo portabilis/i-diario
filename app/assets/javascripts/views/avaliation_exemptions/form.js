@@ -143,7 +143,7 @@ $(function () {
         by_classroom: classroom_id
       };
       $.ajax({
-        url: '/disciplines/search',
+        url: '/disciplinas/search',
         data: filter,
         success: handleFetchDisciplinesSuccess,
         error: handleFetchDisciplinesError

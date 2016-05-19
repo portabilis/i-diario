@@ -44,6 +44,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
+    @knowledge_area_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(@knowledge_area_teaching_plan.teaching_plan.contents_tags)
+
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
     else
@@ -68,6 +70,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan.assign_attributes(resource_params)
 
     authorize @knowledge_area_teaching_plan
+
+    @knowledge_area_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(@knowledge_area_teaching_plan.teaching_plan.contents_tags)
 
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
@@ -113,7 +117,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
         :content,
         :methodology,
         :evaluation,
-        :references
+        :references,
+        :contents_tags
       ]
     )
   end
@@ -123,6 +128,11 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     fetch_grades
     fetch_knowledge_areas
   end
+
+  def contents
+    Content.ordered
+  end
+  helper_method :contents
 
   def fetch_unities
     @unities = Unity.by_teacher(current_teacher).ordered

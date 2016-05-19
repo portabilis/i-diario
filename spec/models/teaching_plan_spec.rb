@@ -6,6 +6,7 @@ RSpec.describe TeachingPlan, type: :model do
   describe 'associations' do
     it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to belong_to(:grade) }
+    it { expect(subject).to have_and_belong_to_many(:contents) }
   end
 
   describe 'validations' do
