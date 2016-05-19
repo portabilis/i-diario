@@ -144,7 +144,7 @@ $(function () {
       };
       $.ajax({
         url: '/disciplines/search',
-        data: { filter },
+        data: filter,
         success: handleFetchDisciplinesSuccess,
         error: handleFetchDisciplinesError
       });
@@ -176,7 +176,7 @@ $(function () {
       };
       $.ajax({
         url: '/avaliations/search',
-        data: { filter },
+        data: filter,
         success: handleFetchAvaliationsSuccess,
         error: handleFetchAvaliationsError
       });
