@@ -26,7 +26,7 @@ class UsersController < ApplicationController
 
       respond_with @user, location: users_path
     else
-      @teachers = Teacher.by_active_teacher
+      @teachers = Teacher.order_by_name
       render :edit
     end
   end
