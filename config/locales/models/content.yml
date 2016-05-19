@@ -1,0 +1,5 @@
+pt-BR:
+  activerecord:
+    attributes:
+      content:
+        description: "Descrição"

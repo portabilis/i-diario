@@ -5,6 +5,8 @@ class TeachingPlan < ActiveRecord::Base
 
   audited
 
+  attr_writer :contents_tags
+
   has_enumeration_for :school_term_type,
     with: SchoolTermTypes,
     create_helpers: true
@@ -17,6 +19,12 @@ class TeachingPlan < ActiveRecord::Base
   validates :grade, presence: true
   validates :school_term_type, presence: true
   validates :school_term, presence: { unless: :yearly?  }
+
+  has_and_belongs_to_many :contents, dependent: :destroy
+
+  def contents_tags
+    @contents_tags || ContentTagConverter::contents_to_tags(contents)
+  end
 
   def school_term_humanize
     case school_term_type

@@ -44,6 +44,8 @@ class DisciplineTeachingPlansController < ApplicationController
 
     authorize @discipline_teaching_plan
 
+    @discipline_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(@discipline_teaching_plan.teaching_plan.contents_tags)
+
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
     else
@@ -68,6 +70,8 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.assign_attributes(resource_params)
 
     authorize @discipline_teaching_plan
+
+    @discipline_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(@discipline_teaching_plan.teaching_plan.contents_tags)
 
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
@@ -113,10 +117,16 @@ class DisciplineTeachingPlansController < ApplicationController
         :content,
         :methodology,
         :evaluation,
-        :references
+        :references,
+        :contents_tags
       ]
     )
   end
+
+  def contents
+    Content.ordered
+  end
+  helper_method :contents
 
   def fetch_collections
     fetch_unities

@@ -49,4 +49,5 @@
 //= require chart/chart.min
 //= require raphael.min
 //= require morris
+//= require select2-tags
 //= require_tree ./resources
