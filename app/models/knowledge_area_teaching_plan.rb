@@ -10,6 +10,8 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   has_many :knowledge_area_teaching_plan_knowledge_areas, dependent: :destroy
   has_many :knowledge_areas, through: :knowledge_area_teaching_plan_knowledge_areas
 
+  delegate :contents, to: :teaching_plan
+
   accepts_nested_attributes_for :teaching_plan
 
   scope :by_year, lambda { |year| joins(:teaching_plan).where(teaching_plans: { year: year }) }
@@ -47,7 +49,7 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
             TeacherDisciplineClassroom.arel_table[:discipline_id]
               .eq(Discipline.arel_table[:id])
             .and(TeachingPlan.arel_table[:year]
-              .eq(TeacherDisciplineClassroom.arel_table[:year])) 
+              .eq(TeacherDisciplineClassroom.arel_table[:year]))
           )
           .join_sources
       )

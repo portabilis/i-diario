@@ -9,6 +9,8 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   belongs_to :teaching_plan, dependent: :destroy
   belongs_to :discipline
 
+  delegate :contents, to: :teaching_plan
+
   accepts_nested_attributes_for :teaching_plan
 
   scope :by_year, lambda { |year| joins(:teaching_plan).where(teaching_plans: { year: year }) }

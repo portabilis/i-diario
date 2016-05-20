@@ -67,8 +67,8 @@ pt-BR:
     attendance_record: 'registro-de-frequencia'
     observation_record: 'registro-de-observacoes'
     exam_record: 'registro-de-avaliacoes'
-    discipline_lesson_plan: 'registro-de-conteudos-por-disciplina'
-    knowledge_area_lesson_plan: 'registro-de-conteudos-por-areas-de-conhecimento'
+    discipline_lesson_plan: 'planos-de-aula-por-disciplina'
+    knowledge_area_lesson_plan: 'planos-de-aula-por-areas-de-conhecimento'
     ***REMOVED***: '***REMOVED***'
     ieducar_api_exam_postings: 'envio-de-avaliacoes'
     students: 'alunos'
@@ -83,6 +83,9 @@ pt-BR:
     courses: 'courses'
     transfer_notes: 'notas-de-transferencia'
     current_notes: 'notas-atuais'
+    discipline_content_records: 'registros-de-conteudos-por-disciplina'
+    knowledge_area_content_records: 'registros-de-conteudos-por-area-de-conhecimento'
+    contents: 'conteudos'
 
     # actions
     edit: 'editar'

@@ -1,0 +1,13 @@
+pt-BR:
+  activerecord:
+    models:
+      discipline_content_record:
+        one: "Registro de conteúdo por disciplina"
+        other: "Registros de conteúdos por disciplina"
+
+    attributes:
+      discipline_content_record:
+        content_record: "Registro de conteúdo"
+        content_record_id: "Registro de conteúdo"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
