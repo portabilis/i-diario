@@ -145,3 +145,10 @@ https://github.com/select2/select2/issues/2412
 .warning{
   color: #869539;
 }
+
+.select2-container.form-control {
+     height: auto !important;
+}
+.desactivated{
+  color: #a39b9b;
+}

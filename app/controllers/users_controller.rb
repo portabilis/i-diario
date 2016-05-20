@@ -11,6 +11,8 @@ class UsersController < ApplicationController
   def edit
     @user = User.find(params[:id])
 
+    @teachers = Teacher.order_by_name
+
     authorize @user
   end
 
@@ -24,6 +26,7 @@ class UsersController < ApplicationController
 
       respond_with @user, location: users_path
     else
+      @teachers = Teacher.order_by_name
       render :edit
     end
   end

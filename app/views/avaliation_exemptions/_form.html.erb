@@ -1,0 +1,55 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/avaliation_exemptions/form' %>
+<% end %>
+
+<fieldset>
+
+  <div class="row">
+    <%= f.input :school_calendar_year, as: :hidden, input_html: { value: @school_calendar_year } %>
+
+    <div class="col col-sm-4">
+      <%= f.input :unity_id, as: :select2, elements: @unities, disabled: true, input_html: { value: !f.object.persisted? ? @current_user_unity_id : f.object.unity_id } %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :course_id, as: :select2, elements: @courses, readonly: f.object.persisted? %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :grade_id, as: :select2, elements: @grades, readonly: f.object.persisted? %>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="col col-sm-4">
+      <%= f.input :classroom_id, as: :select2, elements: @classrooms, readonly: f.object.persisted? %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :discipline_id, as: :select2, elements: @disciplines, readonly: f.object.persisted? %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :school_calendar_step, as: :select2, elements: @school_calendar_steps, readonly: f.object.persisted? %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-4">
+      <%= f.input :avaliation_id, as: :select2, elements: @avaliations, readonly: f.object.persisted? %>
+      <%= f.input :avaliation_date, as: :hidden, input_html: { value: f.object.persisted? ? @avaliation_exemption.avaliation.test_date : '' } %>
+    </div>
+
+    <div class="col col-sm-4">
+      <%= f.input :student_id, as: :select2, elements: @students, readonly: f.object.persisted? %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= f.input :reason, as: :text %>
+    </div>
+  </div>
+
+</fieldset>

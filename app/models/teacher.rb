@@ -8,6 +8,8 @@ class Teacher < ActiveRecord::Base
   validates :name, :api_code, presence: true
   validates :api_code, uniqueness: true
 
+  scope :order_by_name, -> { order(name: :asc) }
+
   def self.search(value)
     relation = all
 

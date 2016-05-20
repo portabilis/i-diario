@@ -1,0 +1,29 @@
+pt-BR:
+  activerecord:
+    models:
+      transfer_note:
+        one: "Notas de transferência"
+        other: "Notas de transferẽncias"
+
+    attributes:
+      transfer_note:
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        school_calendar_step: "Etapa"
+        school_calendar_step_id: "Etapa"
+        transfer_date: "Data"
+        student: "Aluno"
+        student_id: "Aluno"
+        user_id: "Usuário"
+        user: "Usuário"
+    errors:
+      models:
+        transfer_note:
+          attributes:
+            transfer_date:
+              must_be_in_step: "Data deve estar dentro da etapa selecionada"
+            daily_note_students:
+              at_least_one_daily_note_student: "Deve ser informada ao menos uma nota de transferência"

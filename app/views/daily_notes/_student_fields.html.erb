@@ -1,4 +1,4 @@
-<tr class="nested-fields <%= f.object.dependence? ? 'warning' : '' %>">
+<tr class="nested-fields <%= student_note_class(f.object) %>">
   <td>
     <%= sequence %>
     <%= f.hidden_field :id %>
@@ -6,11 +6,12 @@
   </td>
   <td>
     <%= f.input :student_id, as: :hidden %>
-    <%= "#{f.object.dependence? ? '* ' : ''}#{f.object.student.to_s}" %>
+    <%= student_name(f.object) %>
   </td>
 
   <td>
     <%= f.input :note, label_html: { class: 'hidden' },
-          input_html: { data: { inputmask: "'digits': #{f.object.daily_note.avaliation.test_setting.number_of_decimal_places}" } } %>
+          input_html: { data: { inputmask: "'digits': #{f.object.daily_note.avaliation.test_setting.number_of_decimal_places}" } },
+          readonly: f.object.exempted %>
   </td>
 </tr>

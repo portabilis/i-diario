@@ -3,8 +3,11 @@ class DailyNoteStudent < ActiveRecord::Base
 
   audited associated_with: :daily_note, except: :daily_note_id
 
+  attr_accessor :exempted
+
   belongs_to :daily_note
   belongs_to :student
+  belongs_to :transfer_note
 
   delegate :avaliation, to: :daily_note
 
@@ -22,9 +25,10 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_note).where(daily_notes: { discipline_id: discipline_id }) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:daily_note).where(daily_notes: { classroom_id: classroom_id }) }
+  scope :not_including_classroom_id, lambda { |classroom_id| joins(:daily_note).where(DailyNote.arel_table[:classroom_id].not_eq(classroom_id) ) }
   scope :by_test_date_between, lambda { |start_at, end_at| by_test_date_between(start_at, end_at) }
   scope :by_avaliation, lambda { |avaliation| joins(:daily_note).where(daily_notes: { avaliation_id: avaliation }) }
-  scope :ordered, -> { joins(:student).order(Student.arel_table[:name]) }
+  scope :ordered, -> { joins(:student, daily_note: :avaliation).order(Avaliation.arel_table[:test_date], Student.arel_table[:name]) }
 
   def maximum_score
     return avaliation.test_setting.maximum_score if !avaliation.test_setting.fix_tests

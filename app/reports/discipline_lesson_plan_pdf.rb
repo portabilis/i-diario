@@ -146,7 +146,7 @@ class DisciplineLessonPlanPdf
     activitie_cell_content = inline_formated_cell_header('Atividades/metodologia') + (@discipline_lesson_plan.lesson_plan.activities.present? ? @discipline_lesson_plan.lesson_plan.activities : '-')
     @activitie_cell = make_cell(content: activitie_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
-    conteudo_cell_content = inline_formated_cell_header('Conteúdos') + (@discipline_lesson_plan.lesson_plan.contents.present? ? @discipline_lesson_plan.lesson_plan.contents : '-')
+    conteudo_cell_content = inline_formated_cell_header('Conteúdos') + (@discipline_lesson_plan.lesson_plan.contents.present? ? @discipline_lesson_plan.lesson_plan.contents.map(&:to_s).join(", ") : '-')
     @conteudo_cell = make_cell(content: conteudo_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
     objective_cell_content = inline_formated_cell_header('Objetivos') + (@discipline_lesson_plan.lesson_plan.objectives.present? ? @discipline_lesson_plan.lesson_plan.objectives : '-')

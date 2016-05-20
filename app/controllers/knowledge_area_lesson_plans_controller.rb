@@ -69,6 +69,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
+    @knowledge_area_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(@knowledge_area_lesson_plan.lesson_plan.contents_tags)
 
     authorize @knowledge_area_lesson_plan
 
@@ -97,6 +98,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
+    @knowledge_area_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(@knowledge_area_lesson_plan.lesson_plan.contents_tags)
 
     authorize @knowledge_area_lesson_plan
 
@@ -147,7 +149,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         :evaluation,
         :bibliography,
         :opinion,
-        :teacher_id
+        :teacher_id,
+        :contents_tags
       ]
     )
   end
@@ -160,6 +163,11 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       :by_date
     )
   end
+
+  def contents
+    Content.ordered
+  end
+  helper_method :contents
 
   def fetch_unities
     Unity.by_teacher(current_teacher.id).ordered

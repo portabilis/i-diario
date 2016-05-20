@@ -16,7 +16,7 @@ class Avaliation < ActiveRecord::Base
   belongs_to :test_setting_test
 
   has_one  :recovery_diary_record, through: :avaliation_recovery_diary_record
-  has_one  :avaliation_recovery_diary_record
+  has_one  :avaliation_recovery_diary_record, dependent: :restrict_with_error
 
   has_many :daily_notes, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
@@ -51,6 +51,8 @@ class Avaliation < ActiveRecord::Base
                                                                 .eq(arel_table[:test_setting_test_id])).join_sources)
                                                 .where('avaliations.description ILIKE ? OR test_setting_tests.description ILIKE ?', "%#{description}%", "%#{description}%") }
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
+  scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
+
   scope :ordered, -> { order(arel_table[:test_date]) }
 
   def to_s
@@ -85,6 +87,11 @@ class Avaliation < ActiveRecord::Base
   end
 
   private
+
+  def self.by_school_calendar_step_query(school_calendar_step_id)
+    school_calendar_step = SchoolCalendarStep.find(school_calendar_step_id)
+    self.by_test_date_between(school_calendar_step.start_at, school_calendar_step.end_at)
+  end
 
   def is_school_term_day?
     return if test_setting.nil? || test_setting.exam_setting_type == ExamSettingTypes::GENERAL

@@ -8,7 +8,9 @@ class StudentsController < ApplicationController
       @students = StudentsFetcher.new(
         configuration,
         classroom.api_code,
-        date: params[:date].to_date.to_s
+        nil,
+        params[:date].to_date.to_s,
+        params[:start_date]
       )
       .fetch
 

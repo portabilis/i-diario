@@ -100,7 +100,16 @@ class ExamRecordReport
         avaliations << make_cell(content: "Rec. #{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center) if daily_note.avaliation.recovery_diary_record
 
         students_ids.each do |student_id|
-          student_note = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note.id) || NullDailyNoteStudent.new
+          if exempted_avaliation?(student_id, daily_note.avaliation_id)
+            student_note = ExemptedDailyNoteStudent.new
+          else
+            student_note = DailyNoteStudent
+            .find_by(
+              student_id: student_id,
+              daily_note_id: daily_note.id
+            ) || NullDailyNoteStudent.new
+          end
+
           student = Student.find(student_id)
 
           self.any_student_with_dependence = any_student_with_dependence || student_note.dependence?
@@ -190,11 +199,8 @@ class ExamRecordReport
       draw_text('Data:', size: 8, style: :bold, at: [528, 0])
       draw_text('________________', size: 8, at: [549, 0])
 
-      if(self.any_student_with_dependence)
-        draw_text('* Alunos cursando dependência', size: 8, at: [0, 32])
-      end
-
-      draw_text('Legenda: N - Não enturmado', size: 8, at: [0, 17])
+      draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação', size: 8, at: [0, 17])
+      draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if self.any_student_with_dependence
     end
 
     string = "Página <page> de <total>"
@@ -220,5 +226,13 @@ class ExamRecordReport
     students = Student.where(id: students_ids).ordered
     students_ids = students.collect(&:id)
     students_ids
+  end
+
+  def exempted_avaliation?(student_id, avaliation_id)
+    avaliation_is_exempted = AvaliationExemption
+      .by_student(student_id)
+      .by_avaliation(avaliation_id)
+      .any?
+    avaliation_is_exempted
   end
 end
