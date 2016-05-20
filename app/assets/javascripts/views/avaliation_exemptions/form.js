@@ -200,7 +200,7 @@ $(function () {
     if (!_.isEmpty(avaliation_id)) {
 
       $.ajax({
-        url: '/avaliations/' + avaliation_id,
+        url: '/avaliacoes/' + avaliation_id,
         success: handleFetchAvaliationDateSuccess,
         error: handleFetchAvaliationDateError
       });
