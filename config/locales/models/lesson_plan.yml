@@ -22,6 +22,7 @@ pt-BR:
         evaluation: "Avaliação"
         bibliography: "Referências"
         opinion: "Parecer"
+        contents_tags: "Conteúdos"
 
     errors:
       models:
