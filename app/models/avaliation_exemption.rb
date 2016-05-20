@@ -7,7 +7,16 @@ class AvaliationExemption < ActiveRecord::Base
 
   include Audit
 
-  validates :avaliation_id, :reason, presence: true
+  validates :avaliation_id,
+            :reason,
+            :unity_id,
+            :course_id,
+            :grade_id,
+            :classroom_id,
+            :discipline_id,
+            :school_calendar_step,
+            presence: true
+
   validates :student_id,
     presence: true,
     uniqueness: { scope: [:avaliation_id] }

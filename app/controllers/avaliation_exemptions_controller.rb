@@ -126,21 +126,7 @@ class AvaliationExemptionsController < ApplicationController
   end
 
   def fetch_students
-    @students = []
-
-    if @avaliation_exemption.classroom.present? && @avaliation_exemption.avaliation.test_date
-      begin
-        @students = StudentsFetcher.new(
-          configuration,
-          @avaliation_exemption.classroom.api_code,
-          date: @avaliation_exemption.avaliation.test_date.to_s
-        )
-        .fetch
-      rescue IeducarApi::Base::ApiError => e
-        flash[:alert] = e.message
-        render :new
-      end
-    end
+    @students = Student.all
   end
 
   def fetch_school_calendar_steps
