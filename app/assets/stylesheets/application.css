@@ -152,3 +152,8 @@ https://github.com/select2/select2/issues/2412
 .desactivated{
   color: #a39b9b;
 }
+
+.smart-form .list-group-item{
+  padding: 10px 15px;
+  margin-bottom: -1px;
+}

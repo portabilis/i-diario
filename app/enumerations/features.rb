@@ -61,7 +61,9 @@ class Features < EnumerateIt::Base
                    :absence_justification_report,
                    :avaliation_exemptions,
                    :***REMOVED***,
-                   :transfer_notes
+                   :transfer_notes,
+                   :discipline_content_records,
+                   :knowledge_area_content_records
 
   sort_by :translation
 end

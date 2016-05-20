@@ -165,9 +165,12 @@ Rails.application.routes.draw do
     resources :knowledge_area_teaching_plans, concerns: :history
     resources :discipline_lesson_plans, concerns: :history
     resources :knowledge_area_lesson_plans, concerns: :history
+    resources :discipline_content_records, concerns: :history
+    resources :knowledge_area_content_records, concerns: :history
     resources :classrooms, only: [:index, :show] do
       resources :students, only: [:index]
     end
+    resources :contents, only: :index
     resources :disciplines, only: [:index] do
       collection do
         get :search

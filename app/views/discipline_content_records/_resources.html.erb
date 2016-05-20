@@ -1,0 +1,33 @@
+<tbody id="resources-tbody">
+  <% if @discipline_content_records.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="4"><%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @discipline_content_records.each do |discipline_content_record| %>
+      <tr>
+        <td><%= discipline_content_record.content_record.classroom %></td>
+        <td><%= discipline_content_record.discipline %></td>
+        <td><%= l(discipline_content_record.content_record.record_date) %></td>
+        <td class="actions">
+          <%= link_to(
+                t('helpers.links.edit_html'),
+                edit_discipline_content_record_path(discipline_content_record),
+                class: 'btn btn-success apply_tooltip',
+                data: { original_title: t('views.index.tooltips.edit') }
+              ) %>
+          <%= link_to(
+                  t('helpers.links.destroy_html'),
+                  discipline_content_record_path(discipline_content_record),
+                  class: 'btn btn-danger apply_tooltip',
+                  method: 'delete',
+                  data: {
+                    confirm: t('views.index.confirm'),
+                    original_title: t('views.index.tooltips.delete')
+                  }
+                ) %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>
