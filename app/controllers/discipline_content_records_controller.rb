@@ -27,8 +27,7 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record = DisciplineContentRecord.new(resource_params).localized
     @discipline_content_record.content_record.teacher = current_teacher
 
-    # Não consegui fazer aceitar os valores pelo resource_params, se souber como fazer, favor me avisar :)
-    @discipline_content_record.content_record.content_ids = params[:discipline_content_record][:content_record_attributes][:content_ids]
+    @discipline_content_record.content_record.content_ids = content_ids
 
     authorize @discipline_content_record
 
@@ -49,8 +48,7 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record = DisciplineContentRecord.find(params[:id]).localized
     @discipline_content_record.assign_attributes(resource_params)
 
-    # Não consegui fazer aceitar os valores pelo resource_params, se souber como fazer, favor me avisar :)
-    @discipline_content_record.content_record.content_ids = params[:discipline_content_record][:content_record_attributes][:content_ids]
+    @discipline_content_record.content_record.content_ids = content_ids
 
     authorize @discipline_content_record
 
@@ -81,6 +79,13 @@ class DisciplineContentRecordsController < ApplicationController
 
   private
 
+  def content_ids
+    param_content_ids = params[:discipline_content_record][:content_record_attributes][:content_ids] || []
+    content_descriptions = params[:discipline_content_record][:content_record_attributes][:content_descriptions] || []
+    new_contents_ids = content_descriptions.map{|v| Content.find_or_create_by!(description: v).id }
+    param_content_ids + new_contents_ids
+  end
+
   def resource_params
     params.require(:discipline_content_record).permit(
       :discipline_id,
@@ -103,7 +108,10 @@ class DisciplineContentRecordsController < ApplicationController
     if teacher && classroom && discipline && date
       @contents = ContentsForDisciplineRecordFetcher.new(teacher, classroom, discipline, date).fetch
     end
-    @contents
+    if @discipline_content_record.content_record.contents
+      @contents << @discipline_content_record.content_record.contents
+    end
+    @contents.flatten.uniq
   end
   helper_method :contents
 

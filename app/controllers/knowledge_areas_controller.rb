@@ -13,7 +13,7 @@ class KnowledgeAreasController < ApplicationController
     if params[:classroom_id].present?
       classroom_id = params[:classroom_id]
 
-      disciplines_ids = Discipline.by_teacher_and_classroom(teacher_id, classroom_id)
+      disciplines_ids = Discipline.by_teacher_and_classroom(current_teacher.id, classroom_id)
         .ordered
         .uniq
         .map { |discipline| discipline.id }

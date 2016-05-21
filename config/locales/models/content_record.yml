@@ -13,6 +13,7 @@ pt-BR:
         classroom_id: "Turma"
         record_date: "Data"
         contents: "Conteúdos"
+        contents_tags: "Adicionar conteúdo não incluído"
     errors:
       models:
         content_record:

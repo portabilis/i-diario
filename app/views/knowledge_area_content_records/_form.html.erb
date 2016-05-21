@@ -1,11 +1,11 @@
 <% content_for :js do %>
-  <%= javascript_include_tag 'views/discipline_content_records/form' %>
+  <%= javascript_include_tag 'views/knowledge_area_content_records/form' %>
 <% end %>
 
-<%= simple_form_for @discipline_content_record, html: { class: 'smart-form' } do |f| %>
+<%= simple_form_for @knowledge_area_content_record, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
-  <%= f.simple_fields_for :content_record, @discipline_content_record.content_record.localized do |content_record| %>
+  <%= f.simple_fields_for :content_record, @knowledge_area_content_record.content_record.localized do |content_record| %>
     <%= content_record.hidden_field :id %>
 
     <fieldset>
@@ -20,7 +20,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2, elements: disciplines, readonly: f.object.persisted? %>
+          <%= f.association :knowledge_area, as: :select2, elements: knowledge_areas, readonly: f.object.persisted? %>
         </div>
       </div>
 
@@ -44,7 +44,7 @@
 
             <% contents.each do |content| %>
               <li class="list-group-item">
-                <%= check_box_tag("discipline_content_record[content_record_attributes][content_ids][]", content.id, content.id.in?(@discipline_content_record.contents.collect(&:id)),
+                <%= check_box_tag("knowledge_area_content_record[content_record_attributes][content_ids][]", content.id, content.id.in?(@knowledge_area_content_record.contents.collect(&:id)),
                       hidden: true, :"data-content_description" => content.to_s ) %>
                 <span style="margin-left: 5px;"><%= content %></span>
               </li>
@@ -61,11 +61,11 @@
   <% end %>
 
   <footer>
-    <%= link_to t('views.form.back'), discipline_content_records_path, class: 'btn btn-default' %>
+    <%= link_to t('views.form.back'), knowledge_area_content_records_path, class: 'btn btn-default' %>
 
-    <% if @discipline_content_record.persisted? %>
+    <% if @knowledge_area_content_record.persisted? %>
       <%= link_to t('views.form.history'),
-            history_discipline_content_record_path(@discipline_content_record),
+            history_knowledge_area_content_record_path(@knowledge_area_content_record),
             class: 'btn btn-info' %>
     <% end %>
 
