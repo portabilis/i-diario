@@ -1,0 +1,74 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/knowledge_area_content_records/form' %>
+<% end %>
+
+<%= simple_form_for @knowledge_area_content_record, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <%= f.simple_fields_for :content_record, @knowledge_area_content_record.content_record.localized do |content_record| %>
+    <%= content_record.hidden_field :id %>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= content_record.input :unity_id, as: :select2, elements: unities, readonly: true %>
+        </div>
+
+
+        <div class="col col-sm-4">
+          <%= content_record.association :classroom, as: :select2, elements: classrooms, readonly: f.object.persisted? %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.association :knowledge_area, as: :select2, elements: knowledge_areas, readonly: f.object.persisted? %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= content_record.input :record_date, as: :date, readonly: f.object.persisted? %>
+        </div>
+      </div>
+
+    </fieldset>
+    <fieldset>
+      <legend>Conteúdos</legend>
+      <% if content_record.object.errors[:contents].any? %>
+        <div class="alert alert-danger fade in">
+          <i class="fa-fw fa fa-times"></i>
+          <%= content_record.object.errors[:contents].first %>
+        </div>
+      <% end %>
+        <div class="well" style="max-height: 300px;overflow-y: auto;">
+          <ul class="list-group checked-list-box" id="contents-list">
+
+            <% contents.each do |content| %>
+              <li class="list-group-item">
+                <%= check_box_tag("knowledge_area_content_record[content_record_attributes][content_ids][]", content.id, content.id.in?(@knowledge_area_content_record.contents.collect(&:id)),
+                      hidden: true, :"data-content_description" => content.to_s ) %>
+                <span style="margin-left: 5px;"><%= content %></span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+        <div class="row textarea">
+          <div class="col col-sm-12">
+            <%= content_record.input :contents_tags, as: :string, input_html: { class: 'select2-tags', data: { elements: all_contents.map{|c| {id: c.description, text: c.description} } } } %>
+          </div>
+        </div>
+    </fieldset>
+
+  <% end %>
+
+  <footer>
+    <%= link_to t('views.form.back'), knowledge_area_content_records_path, class: 'btn btn-default' %>
+
+    <% if @knowledge_area_content_record.persisted? %>
+      <%= link_to t('views.form.history'),
+            history_knowledge_area_content_record_path(@knowledge_area_content_record),
+            class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+  </footer>
+<% end %>

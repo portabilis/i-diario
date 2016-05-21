@@ -1,0 +1,13 @@
+pt-BR:
+  activerecord:
+    models:
+      knowledge_area_content_record:
+        one: "Registro de conteúdo por área de conhecimento"
+        other: "Registros de conteúdos por área de conhecimento"
+
+    attributes:
+      knowledge_area_content_record:
+        content_record: "Registro de conteúdo"
+        content_record_id: "Registro de conteúdo"
+        knowledge_area: "Área de conhecimento"
+        knowledge_area_id: "Área de conhecimento"

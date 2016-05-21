@@ -174,6 +174,16 @@ navigation:
             type: "knowledge_area_lesson_plans"
             path: "knowledge_area_lesson_plans_path"
   - ***REMOVED***:
+      type: "content_records_***REMOVED***"
+      icon: "fa-pencil-square-o"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "discipline_content_records"
+            path: "discipline_content_records_path"
+        - ***REMOVED***:
+            type: "knowledge_area_content_records"
+            path: "knowledge_area_content_records_path"
+  - ***REMOVED***:
       type: "avaliations_***REMOVED***"
       icon: "fa-file-text-o"
       sub***REMOVED***s:

@@ -3,6 +3,7 @@ class Content < ActiveRecord::Base
 
   has_and_belongs_to_many :teaching_plans, dependent: :destroy
   has_and_belongs_to_many :lesson_plans, dependent: :destroy
+  has_and_belongs_to_many :content_records, dependent: :destroy
 
   validates :description, presence: true
 

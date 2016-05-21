@@ -1,0 +1,7 @@
+pt-BR:
+  discipline_content_records:
+    index:
+      by_classroom_description: "Filtrar turma"
+      by_discipline_description: "Filtrar disciplina"
+      by_date: "Filtrar data"
+      new_html: "<i class='fa fa-plus'></i> Novo registro de conteúdo"

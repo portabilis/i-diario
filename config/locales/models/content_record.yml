@@ -1,0 +1,22 @@
+pt-BR:
+  activerecord:
+    models:
+      content_record:
+        one: "Registro de conteúdo"
+        other: "Registros de conteúdos"
+
+    attributes:
+      content_record:
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        record_date: "Data"
+        contents: "Conteúdos"
+        contents_tags: "Adicionar conteúdo não incluído"
+    errors:
+      models:
+        content_record:
+          attributes:
+            contents:
+              at_least_one_content: "Ao menos um conteúdo deve ser selecionado"
