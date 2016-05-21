@@ -8,6 +8,7 @@ class ContentRecord < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :teacher
   attr_writer :unity_id
+  attr_accessor :contents_tags
 
   has_one :discipline_content_record
   has_and_belongs_to_many :contents, dependent: :destroy

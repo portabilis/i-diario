@@ -7,9 +7,9 @@ class DisciplineContentRecord < ActiveRecord::Base
   has_associated_audits
 
   belongs_to :content_record, dependent: :destroy
-  belongs_to :discipline
-
   accepts_nested_attributes_for :content_record
+
+  belongs_to :discipline
 
   scope :by_unity_id, lambda { |unity_id| joins(content_record: :classroom).where(Classroom.arel_table[:unity_id].eq(unity_id) ) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:content_record).where(content_records: { teacher_id: teacher_id }) }
@@ -41,6 +41,7 @@ class DisciplineContentRecord < ActiveRecord::Base
 
     if discipline_content_records.any?
       content_record.errors.add(:record_date, :taken)
+      errors.add(:base, :at_least_one_content)
     end
   end
 
