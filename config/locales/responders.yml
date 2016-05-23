@@ -132,6 +132,7 @@ pt-BR:
         alert: '%{resource_name} não pode ser apagada pois possui vínculos.'
 
     daily_notes:
+      has_avaliation_recovery: 'Avaliação numérica não pode ser apagada pois possui vínculos.'
       <<: *male
       destroy:
         notice: 'Registro do diário de avaliações foi apagado com sucesso.'

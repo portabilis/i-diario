@@ -70,9 +70,14 @@ class DailyNotesController < ApplicationController
     @daily_note = DailyNote.find(params[:id])
     authorize(@daily_note)
 
-    @daily_note.destroy
+    if has_avaliation_recovery
+      flash[:alert] = t('flash.daily_notes.has_avaliation_recovery')
+      redirect_to new_daily_note_path
+    else
+      @daily_note.destroy
 
-    respond_with @daily_note, location: new_daily_note_path
+      respond_with @daily_note, location: new_daily_note_path
+    end
   end
 
   def history
@@ -84,6 +89,10 @@ class DailyNotesController < ApplicationController
   end
 
   protected
+
+  def has_avaliation_recovery
+    AvaliationRecoveryDiaryRecord.find_by_avaliation_id(@daily_note.avaliation_id)
+  end
 
   def fetch_students
     begin
