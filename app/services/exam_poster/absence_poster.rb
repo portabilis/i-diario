@@ -5,8 +5,10 @@ module ExamPoster
     end
 
     def post!
-      post_general_classrooms.each do |key, value|
-        api.send_post(faltas: { key => value }, etapa: @post_data.school_calendar_step.to_number, resource: 'faltas-geral')
+      post_general_classrooms.each do |classroom_id, classroom_absence|
+        classroom_absence.each do |student_id, student_absence|
+          api.send_post(faltas: { classroom_id => { student_id => student_absence } }, etapa: @post_data.school_calendar_step.to_number, resource: 'faltas-geral')
+        end
       end
 
       post_by_discipline_classrooms.each do |classroom_id, classroom_absence|
