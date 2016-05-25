@@ -53,7 +53,7 @@
         </div>
         <div class="row textarea">
           <div class="col col-sm-12">
-            <%= content_record.input :contents_tags, as: :string, input_html: { class: 'select2-tags', data: { elements: all_contents.map{|c| {id: c.description, text: c.description} } } } %>
+            <%= content_record.input :contents_tags, as: :string, input_html: { class: 'select2-tags-ajax', value: '', data: { url: contents_path, data: content_record.object.contents_tags } } %>
           </div>
         </div>
     </fieldset>

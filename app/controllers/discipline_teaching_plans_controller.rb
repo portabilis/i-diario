@@ -44,7 +44,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
     authorize @discipline_teaching_plan
 
-    @discipline_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(@discipline_teaching_plan.teaching_plan.contents_tags)
+    @discipline_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(params[:discipline_teaching_plan][:teaching_plan_attributes][:contents_tags])
 
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
@@ -71,7 +71,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
     authorize @discipline_teaching_plan
 
-    @discipline_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(@discipline_teaching_plan.teaching_plan.contents_tags)
+    @discipline_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(params[:discipline_teaching_plan][:teaching_plan_attributes][:contents_tags])
 
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path

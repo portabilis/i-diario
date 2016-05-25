@@ -7,6 +7,7 @@ class Content < ActiveRecord::Base
 
   validates :description, presence: true
 
+  scope :by_description, lambda { |description| where(' contents.description ILIKE ? ', '%'+description+'%') }
   scope :ordered, -> { order(arel_table[:description].asc) }
 
   def to_s
