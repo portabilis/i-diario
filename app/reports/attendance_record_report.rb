@@ -30,9 +30,7 @@ class AttendanceRecordReport
 
     self.legend = "Legenda: N - Não enturmado"
 
-    header
-
-    daily_frequencies_table
+    content
 
     footer
 
@@ -74,14 +72,12 @@ class AttendanceRecordReport
                         [discipline_header, teacher_header],
                         [discipline_cell, teacher_cell]]
 
-    repeat(:all) do
-      table(first_table_data, width: bounds.width) do
-        cells.border_width = 0.25
-        row(0).border_top_width = 0.25
-        row(-1).border_bottom_width = 0.25
-        column(0).border_left_width = 0.25
-        column(-1).border_right_width = 0.25
-      end
+    table(first_table_data, width: bounds.width, header: true) do
+      cells.border_width = 0.25
+      row(0).border_top_width = 0.25
+      row(-1).border_bottom_width = 0.25
+      column(0).border_left_width = 0.25
+      column(-1).border_right_width = 0.25
     end
   end
 
@@ -187,15 +183,15 @@ class AttendanceRecordReport
         column_widths = { 0 => 20, 1 => 140, 43 => 30 }
         (3..42).each { |i| column_widths[i] = 13 }
 
-        bounding_box([0, 482], width: bounds.width) do
-          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] }, column_widths: column_widths, width: bounds.width) do |t|
-            t.cells.border_width = 0.25
-            t.before_rendering_page do |page|
-              page.row(0).border_top_width = 0.25
-              page.row(-1).border_bottom_width = 0.25
-              page.column(0).border_left_width = 0.25
-              page.column(-1).border_right_width = 0.25
-            end
+        move_down 8
+
+        table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] }, column_widths: column_widths, width: bounds.width) do |t|
+          t.cells.border_width = 0.25
+          t.before_rendering_page do |page|
+            page.row(0).border_top_width = 0.25
+            page.row(-1).border_bottom_width = 0.25
+            page.column(0).border_left_width = 0.25
+            page.column(-1).border_right_width = 0.25
           end
         end
 
@@ -204,6 +200,11 @@ class AttendanceRecordReport
 
       start_new_page if index < sliced_frequencies_and_events.count - 1
     end
+  end
+
+  def content
+    header
+    daily_frequencies_table
   end
 
   def footer
