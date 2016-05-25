@@ -54,7 +54,7 @@
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :contents_tags, as: :string, input_html: { class: 'select2-tags', data: { elements: contents.map{|c| {id: c.description, text: c.description} } } },
+          <%= teaching_plan_form.input :contents_tags, as: :string, input_html: { class: 'select2-tags-ajax', value: '', data: { url: contents_path, data: teaching_plan_form.object.contents_tags } },
                 readonly: action_name == 'show' %>
         </div>
       </div>

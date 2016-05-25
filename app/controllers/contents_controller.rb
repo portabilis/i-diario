@@ -1,6 +1,7 @@
 class ContentsController < ApplicationController
   respond_to :json
 
+
   def index
     if params[:fetch_for_discipline_records]
       teacher = current_teacher
@@ -16,6 +17,8 @@ class ContentsController < ApplicationController
       date = params[:date]
       return unless teacher && classroom && knowledge_area && date
       @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_area, date).fetch
+    else
+      @contents = apply_scopes(Content).ordered
     end
     respond_with(@contents)
   end

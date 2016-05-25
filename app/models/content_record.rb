@@ -8,7 +8,7 @@ class ContentRecord < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :teacher
   attr_writer :unity_id
-  attr_accessor :contents_tags
+  attr_writer :contents_tags
 
   has_one :discipline_content_record
   has_and_belongs_to_many :contents, dependent: :destroy
@@ -23,6 +23,13 @@ class ContentRecord < ActiveRecord::Base
   def unity_id
     classroom.try(:unity_id) || @unity_id
   end
+
+  def contents_tags
+    if @contents_tags.present?
+      ContentTagConverter::tags_to_json(@contents_tags)
+    end
+  end
+
 
   private
 

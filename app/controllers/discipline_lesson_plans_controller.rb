@@ -68,7 +68,7 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.assign_attributes(resource_params)
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
-    @discipline_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(@discipline_lesson_plan.lesson_plan.contents_tags)
+    @discipline_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(params[:discipline_lesson_plan][:lesson_plan_attributes][:contents_tags])
 
     authorize @discipline_lesson_plan
 
@@ -96,7 +96,7 @@ class DisciplineLessonPlansController < ApplicationController
   def update
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
     @discipline_lesson_plan.assign_attributes(resource_params)
-    @discipline_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(@discipline_lesson_plan.lesson_plan.contents_tags)
+    @discipline_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(params[:discipline_lesson_plan][:lesson_plan_attributes][:contents_tags])
 
     authorize @discipline_lesson_plan
 

@@ -23,7 +23,11 @@ class TeachingPlan < ActiveRecord::Base
   has_and_belongs_to_many :contents, dependent: :destroy
 
   def contents_tags
-    @contents_tags || ContentTagConverter::contents_to_tags(contents)
+    if @contents_tags.present?
+      ContentTagConverter::tags_to_json(@contents_tags)
+    else
+      ContentTagConverter::contents_to_json(contents)
+    end
   end
 
   def school_term_humanize

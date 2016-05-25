@@ -26,7 +26,11 @@ class LessonPlan < ActiveRecord::Base
   validate :crescent_date_range
 
   def contents_tags
-    @contents_tags || ContentTagConverter::contents_to_tags(contents)
+    if @contents_tags.present?
+      ContentTagConverter::tags_to_json(@contents_tags)
+    else
+      ContentTagConverter::contents_to_json(contents)
+    end
   end
 
   private
