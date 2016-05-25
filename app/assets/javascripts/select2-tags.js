@@ -28,7 +28,7 @@ $(function() {
       },
       minimumInputLength: 3,
       formatInputTooShort: function () {
-          return "Digite no mínimo 3 caractereres";
+          return "Digite no mínimo 3 caracteres";
       },
       ajax: {
         dataType: "json",
