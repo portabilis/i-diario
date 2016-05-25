@@ -30,10 +30,6 @@ class AttendanceRecordReport
 
     self.legend = "Legenda: N - Não enturmado"
 
-    # header
-    #
-    # daily_frequencies_table
-
     content
 
     footer
