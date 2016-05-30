@@ -1,6 +1,6 @@
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :contents_tags, as: :string, input_html: { class: 'select2-tags', data: { elements: contents.map{|c| {id: c.description, text: c.description} } } } %>
+    <%= f.input :contents_tags, as: :string, input_html: { class: 'select2-tags-ajax', value: '', data: { url: contents_path, data: f.object.contents_tags } } %>
   </div>
 </div>
 

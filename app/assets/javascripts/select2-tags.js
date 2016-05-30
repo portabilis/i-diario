@@ -1,5 +1,6 @@
 $(function() {
   'use strict';
+
   _.each($('.select2-tags'), function(element) {
     $(element).select2({
       tags: true,
@@ -10,23 +11,56 @@ $(function() {
               text: $.trim(term) + ' (Novo conteúdo)'
           };
       },
-      data: $(element).data('elements'),
-      formatLoadMore   : 'Carregando mais...',
-      query            : function (q) {
-      // pageSize is number of results to show in dropdown
-          var pageSize,
-              results;
-              pageSize = 20;
-              results  = _.filter(this.data, function (e) {
-                  return (q.term === "" || e.text.toUpperCase().indexOf(q.term.toUpperCase()) >= 0);
-           });
-          q.callback({
-              results: results.slice((q.page - 1) * pageSize, q.page * pageSize),
-              // retrieve more when user hits bottom
-              more   : results.length >= q.page * pageSize
-          });
-      }
-
+      data: $(element).data('elements')
     });
+  });
+
+  _.each($('.select2-tags-ajax'), function(element) {
+
+    $(element).select2({
+      tags: true,
+      tokenSeparators: [','],
+      createSearchChoice: function (term) {
+          return {
+              id: $.trim(term),
+              text: $.trim(term) + ' (Novo conteúdo)'
+          };
+      },
+      minimumInputLength: 3,
+      formatInputTooShort: function () {
+          return "Digite no mínimo 3 caracteres";
+      },
+      ajax: {
+        dataType: "json",
+        url: $(element).data('url'),
+        delay: 250,
+        data: function (term, page) {
+          var query = {
+            filter: {
+              by_description: term,
+              page: page,
+              per: 10
+            }
+          }
+
+          return query;
+        },
+        results: function (data, page) {
+          page = page || 1;
+          var results = []
+          $.each(data.contents, function(k, content){
+            results.push({
+              id: content.description,
+              text: content.description
+            })
+          });
+
+          return {
+            results: results
+          };
+        }
+      }
+    }).select2('data', $(element).data('data'));
+
   });
 });
