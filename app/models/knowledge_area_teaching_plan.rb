@@ -15,12 +15,12 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   accepts_nested_attributes_for :teaching_plan
 
   scope :by_year, lambda { |year| joins(:teaching_plan).where(teaching_plans: { year: year }) }
-  scope :by_teacher, lambda { |teacher| by_teacher(teacher) }
   scope :by_unity, lambda { |unity| joins(:teaching_plan).where(teaching_plans: { unity_id: unity }) }
   scope :by_grade, lambda { |grade| joins(:teaching_plan).where(teaching_plans: { grade_id: grade }) }
   scope :by_school_term_type, lambda { |school_term_type| joins(:teaching_plan).where(teaching_plans: { school_term_type: school_term_type }) }
   scope :by_school_term, lambda { |school_term| joins(:teaching_plan).where(teaching_plans: { school_term: school_term }) }
   scope :by_knowledge_area, lambda { |knowledge_area| by_knowledge_area(knowledge_area) }
+  scope :by_teacher_id, lambda { |teacher_id| joins(:teaching_plan).where(teaching_plans: { teacher_id: teacher_id})  }
 
   validates :teaching_plan, presence: true
   validates :knowledge_area_ids, presence: true
@@ -32,45 +32,6 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   end
 
   private
-
-  def self.by_teacher(teacher)
-    joins(:teaching_plan).joins(:knowledge_area_teaching_plan_knowledge_areas)
-      .joins(
-        arel_table.join(Discipline.arel_table, Arel::Nodes::OuterJoin)
-          .on(
-            Discipline.arel_table[:knowledge_area_id]
-              .eq(KnowledgeAreaTeachingPlanKnowledgeArea.arel_table[:knowledge_area_id])
-          )
-          .join_sources
-      )
-      .joins(
-        arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
-          .on(
-            TeacherDisciplineClassroom.arel_table[:discipline_id]
-              .eq(Discipline.arel_table[:id])
-            .and(TeachingPlan.arel_table[:year]
-              .eq(TeacherDisciplineClassroom.arel_table[:year]))
-          )
-          .join_sources
-      )
-      .joins(
-        arel_table.join(Classroom.arel_table, Arel::Nodes::OuterJoin)
-          .on(
-            Classroom.arel_table[:grade_id]
-              .eq(TeachingPlan.arel_table[:grade_id])
-              .and(
-                Classroom.arel_table[:id]
-                  .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
-              )
-          )
-          .join_sources
-      )
-      .where(TeacherDisciplineClassroom.arel_table[:teacher_id]
-              .eq(teacher)
-            .and(TeacherDisciplineClassroom.arel_table[:active]
-              .eq('t')))
-      .uniq
-  end
 
   def self.by_knowledge_area(knowledge_area)
     joins(:knowledge_area_teaching_plan_knowledge_areas)

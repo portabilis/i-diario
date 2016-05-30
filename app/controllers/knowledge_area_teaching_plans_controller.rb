@@ -9,7 +9,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan)
       .includes(:knowledge_areas, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
-      .by_teacher(current_teacher)
+      .by_teacher_id(current_teacher.id)
 
     authorize @knowledge_area_teaching_plans
 
@@ -45,6 +45,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     authorize @knowledge_area_teaching_plan
 
     @knowledge_area_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(@knowledge_area_teaching_plan.teaching_plan.contents_tags)
+    @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher.id
 
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
@@ -118,7 +119,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
         :methodology,
         :evaluation,
         :references,
-        :contents_tags
+        :contents_tags,
+        :teacher_id
       ]
     )
   end

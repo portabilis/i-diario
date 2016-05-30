@@ -9,7 +9,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plans = apply_scopes(DisciplineTeachingPlan)
       .includes(:discipline, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
-      .by_teacher(current_teacher)
+      .by_teacher_id(current_teacher.id)
 
     authorize @discipline_teaching_plans
 
@@ -44,6 +44,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
     authorize @discipline_teaching_plan
 
+    @discipline_teaching_plan.teaching_plan.teacher_id = current_teacher.id
     @discipline_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(params[:discipline_teaching_plan][:teaching_plan_attributes][:contents_tags])
 
     if @discipline_teaching_plan.save
@@ -118,7 +119,8 @@ class DisciplineTeachingPlansController < ApplicationController
         :methodology,
         :evaluation,
         :references,
-        :contents_tags
+        :contents_tags,
+        :teacher_id
       ]
     )
   end
