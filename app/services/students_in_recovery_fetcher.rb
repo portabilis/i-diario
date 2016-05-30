@@ -78,7 +78,7 @@ class StudentsInRecoveryFetcher
       @students = students.select do |student|
         sum_averages = 0
         school_calendar_steps.each do |s|
-          sum_averages = sum_averages + student.average(@discipline_id, s.id)
+          sum_averages = sum_averages + student.average(@classroom_id, @discipline_id, s.id)
         end
         average = sum_averages / school_calendar_steps.count
 

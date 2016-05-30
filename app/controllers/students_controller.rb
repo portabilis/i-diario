@@ -55,7 +55,8 @@ class StudentsController < ApplicationController
       json: @students,
       each_serializer: StudentInRecoverySerializer,
       discipline_id: params[:discipline_id],
-      school_calendar_step_id: school_calendar_steps.map(&:id),
+      classroom_id: params[:classroom_id],
+      school_calendar_step_id: school_calendar_step.id,
       number_of_decimal_places: school_calendar_step.test_setting.number_of_decimal_places
     )
   end
