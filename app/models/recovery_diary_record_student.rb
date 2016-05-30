@@ -2,6 +2,9 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   belongs_to :recovery_diary_record
   belongs_to :student
 
+  scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
+  scope :by_recovery_diary_record_id, lambda { |recovery_diary_record_id| where(recovery_diary_record_id: recovery_diary_record_id) }
+
   scope :ordered, -> { joins(:student).order(Student.arel_table[:name]) }
 
   validates :recovery_diary_record, presence: true
