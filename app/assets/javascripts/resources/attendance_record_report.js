@@ -4,7 +4,9 @@ $(function () {
 
   var $hideWhenGlobalAbsence = $(".hide-when-global-absence"),
       $globalAbsence = $("#attendance_record_report_form_global_absence"),
-      $examRuleNotFoundAlert = $('#exam-rule-not-found-alert');
+      $examRuleNotFoundAlert = $('#exam-rule-not-found-alert'),
+      $selectAll***REMOVED*** = $('#select-all-classes'),
+      $deselectAll***REMOVED*** = $('#deselect-all-classes');
 
   var fetchClassrooms = function (params, callback) {
     if (_.isEmpty(window.classrooms)) {
@@ -37,6 +39,7 @@ $(function () {
   var $unity = $('#attendance_record_report_form_unity_id');
   var $classroom = $('#attendance_record_report_form_classroom_id');
   var $discipline = $('#attendance_record_report_form_discipline_id');
+  var $class_numbers = $('#attendance_record_report_form_class_numbers');
 
   $unity.on('change', function (e) {
     var params = {
@@ -116,6 +119,30 @@ $(function () {
         });
       });
     }
+  });
+
+  $selectAll***REMOVED***.on('click', function(){
+    var allElements = $.parseJSON($("#attendance_record_report_form_class_numbers").attr('data-elements'));
+    var joinedElements = "";
+
+    $.each(allElements, function(index, element){
+      joinedElements = joinedElements + element.name + ",";
+    });
+
+    $class_numbers.val(joinedElements);
+    $class_numbers.trigger("change");
+
+    $selectAll***REMOVED***.hide();
+    $deselectAll***REMOVED***.show();
+  });
+
+  $deselectAll***REMOVED***.on('click', function(){
+
+    $class_numbers.val("");
+    $class_numbers.trigger("change");
+
+    $selectAll***REMOVED***.show();
+    $deselectAll***REMOVED***.hide();
   });
 
   $hideWhenGlobalAbsence.hide();
