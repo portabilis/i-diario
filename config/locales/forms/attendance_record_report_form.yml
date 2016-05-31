@@ -1,4 +1,8 @@
 pt-BR:
+  attendance_record_report:
+    form:
+      select_all: "Selecionar todos"
+      deselect_all: "Remover todos"
   activemodel:
     attributes:
       attendance_record_report_form:
