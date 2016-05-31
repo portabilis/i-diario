@@ -45,6 +45,7 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   def uniqueness_of_knowledge_area_teaching_plan
     knowledge_area_teaching_plans = KnowledgeAreaTeachingPlan.by_year(teaching_plan.year)
       .by_unity(teaching_plan.unity)
+      .by_teacher_id(teaching_plan.teacher_id)
       .by_grade(teaching_plan.grade)
       .by_school_term(teaching_plan.school_term)
       .by_knowledge_area(knowledge_areas.collect(&:id))
