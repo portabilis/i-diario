@@ -8,7 +8,8 @@ class SetTeacherIdToTeachingPlans < ActiveRecord::Migration
                                     FROM audits
                                    WHERE audits.auditable_type = 'TeachingPlan'
                                      AND audits.action = 'create'
-                                     AND audits.auditable_id = teaching_plans.id));
+                                     AND audits.auditable_id = teaching_plans.id
+                                   LIMIT 1));
     SQL
   end
 end
