@@ -30,6 +30,7 @@ class DisciplineTeachingPlan < ActiveRecord::Base
 
   def uniqueness_of_discipline_teaching_plan
     discipline_teaching_plans = DisciplineTeachingPlan.by_year(teaching_plan.year)
+      .by_teacher_id(teaching_plan.teacher_id)
       .by_unity(teaching_plan.unity)
       .by_grade(teaching_plan.grade)
       .by_school_term(teaching_plan.school_term)
