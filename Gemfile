@@ -68,14 +68,6 @@ group :development do
   gem 'web-console', '~> 2.0'
 end
 
-group :development, :test do
-  gem 'rspec-rails', '~> 3.4'
-  gem 'factory_girl_rails', '~> 4.5'
-  gem 'pry', '~> 0.10.3'
-  gem 'faker', '~> 1.6', '>= 1.6.1'
-  gem 'cpf_faker', '~> 1.3'
-end
-
 group :test do
   gem 'turnip', '~> 1.3', '>= 1.3.1'
   gem 'capybara', '~> 2.5'
@@ -86,6 +78,11 @@ group :test do
   gem 'database_cleaner', '~> 1.5', '>= 1.5.1'
   gem 'pdf-inspector', require: 'pdf/inspector'
   gem 'capybara-screenshot'
+  gem 'rspec-rails', '~> 3.4'
+  gem 'factory_girl_rails', '~> 4.5'
+  gem 'pry', '~> 0.10.3'
+  gem 'faker', '~> 1.6', '>= 1.6.1'
+  gem 'cpf_faker', '~> 1.3'
 end
 
 gem 'newrelic_rpm'

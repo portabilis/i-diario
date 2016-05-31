@@ -20,6 +20,7 @@ class DailyNote < ActiveRecord::Base
   validates :avaliation, presence: true
 
   validate :avaliation_date_must_be_less_than_or_equal_to_today
+  before_destroy :ensure_not_has_avaliation_recovery
 
   scope :by_unity_classroom_discipline_and_avaliation_test_date_between,
         lambda { |unity_id, classroom_id, discipline_id, start_at, end_at| where(unity_id: unity_id,
@@ -38,6 +39,13 @@ class DailyNote < ActiveRecord::Base
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
 
   private
+
+  def ensure_not_has_avaliation_recovery
+    if AvaliationRecoveryDiaryRecord.find_by_avaliation_id(avaliation)
+      errors.add(:base)
+      false
+    end
+  end
 
   def avaliation_date_must_be_less_than_or_equal_to_today
     return unless avaliation
