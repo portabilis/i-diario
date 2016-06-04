@@ -9,5 +9,5 @@ pt-BR:
       knowledge_area_content_record:
         content_record: "Registro de conteúdo"
         content_record_id: "Registro de conteúdo"
-        knowledge_area: "Área de conhecimento"
-        knowledge_area_id: "Área de conhecimento"
+        knowledge_areas: "Áreas de conhecimento"
+        knowledge_area_ids: "Áreas de conhecimento"

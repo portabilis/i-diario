@@ -7,7 +7,13 @@
     <% @knowledge_area_content_records.each do |knowledge_area_content_record| %>
       <tr>
         <td><%= knowledge_area_content_record.content_record.classroom %></td>
-        <td><%= knowledge_area_content_record.knowledge_area %></td>
+        <td>
+          <% knowledge_area_content_record.knowledge_areas.each do |knowledge_area| %>
+            <span class="label label-info label-list">
+              <%= knowledge_area.description %>
+            </span>
+          <% end %>
+        </td>
         <td><%= l(knowledge_area_content_record.content_record.record_date) %></td>
         <td class="actions">
           <%= link_to(

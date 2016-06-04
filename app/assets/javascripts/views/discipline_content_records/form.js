@@ -104,7 +104,7 @@ $(function () {
                 icon: 'fa fa-check'
             },
             off: {
-                icon: ''
+                icon: 'margin-left-17px'
             }
         };
 

@@ -5,18 +5,18 @@ $(function () {
   var dateRegex = '^(?:(?:31(\\/)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/)(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$';
   var flashMessages = new FlashMessages();
   var $classroom = $('#knowledge_area_content_record_content_record_attributes_classroom_id');
-  var $knowledgeArea = $('#knowledge_area_content_record_knowledge_area_id');
+  var $knowledgeArea = $('#knowledge_area_content_record_knowledge_area_ids');
   var $recordDate = $('#knowledge_area_content_record_content_record_attributes_record_date');
 
   $classroom.on('change', function(){
     var classroom_id = $classroom.select2('val');
 
-    $knowledgeArea.select2('val', '');
+    /*$knowledgeArea.select2('val', '');
     $knowledgeArea.select2({ data: [] });
 
     if (!_.isEmpty(classroom_id)) {
       fetchKnowledgeAreas(classroom_id);
-    }
+    }*/
     loadContents();
   });
 
@@ -35,10 +35,10 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar os conteúdos de acordo com filtros informados.');
   }
 
-  var fetchContents = function(classroom_id, knowledge_area_id, date){
+  var fetchContents = function(classroom_id, knowledge_area_ids, date){
     var params = {
       classroom_id: classroom_id,
-      knowledge_area_id: knowledge_area_id,
+      knowledge_area_ids: knowledge_area_ids,
       date: date,
       fetch_for_knowledge_area_records: true,
       format: "json"
@@ -53,14 +53,14 @@ $(function () {
 
   var loadContents = function(){
     var classroom_id = $classroom.select2('val');
-    var knowledge_area_id = $knowledgeArea.select2('val');
+    var knowledge_area_ids = $knowledgeArea.select2('val');
     var date = $recordDate.val();
     $('#contents-list .list-group-item:not(.manual)').remove();
 
     if (!_.isEmpty(classroom_id) &&
-        !_.isEmpty(knowledge_area_id) &&
+        !_.isEmpty(knowledge_area_ids) &&
         !_.isEmpty(date.match(dateRegex))) {
-      fetchContents(classroom_id, knowledge_area_id, date);
+      fetchContents(classroom_id, knowledge_area_ids, date);
     }
   }
 
@@ -104,7 +104,7 @@ $(function () {
                 icon: 'fa fa-check'
             },
             off: {
-                icon: ''
+                icon: 'margin-left-17px'
             }
         };
 
