@@ -16,6 +16,7 @@ class Classroom < ActiveRecord::Base
   scope :by_unity, lambda { |unity| where(unity: unity) }
   scope :by_grade, lambda { |grade_id| where(grade_id: grade_id) }
   scope :by_year, lambda { |year| where(year: year) }
+  scope :by_period, lambda { |period| where(period: period) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_score_type, lambda { |score_type| where('exam_rules.score_type' => score_type).includes(:exam_rule) }
   scope :ordered, -> { order(arel_table[:description].asc) }
