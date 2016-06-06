@@ -36,8 +36,10 @@ module ExamPoster
           student_scores = teacher_score_fetcher.scores
 
           student_scores.each do |student_score|
+            school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline.id, @post_data.school_calendar_step.id)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
+            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = school_term_recovery
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.has_warnings?
         end
@@ -61,6 +63,23 @@ module ExamPoster
 
     def correct_score_type(score_type)
       score_type == ScoreTypes::NUMERIC
+    end
+
+    def fetch_school_term_recovery_score(classroom, discipline, student)
+      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
+        .by_classroom_id(classroom)
+        .by_discipline_id(discipline)
+        .by_school_calendar_step_id(@post_data.school_calendar_step)
+        .first
+
+      return unless school_term_recovery_diary_record
+
+      student_recovery = RecoveryDiaryRecordStudent
+        .by_student_id(student)
+        .by_recovery_diary_record_id(school_term_recovery_diary_record.recovery_diary_record_id)
+        .first
+
+      student_recovery.try(:score)
     end
   end
 end
