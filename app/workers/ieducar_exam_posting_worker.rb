@@ -20,6 +20,8 @@ class IeducarExamPostingWorker
             ExamPoster::AbsencePoster.post!(posting)
           when ApiPostingTypes::FINAL_RECOVERY
             ExamPoster::FinalRecoveryPoster.post!(posting)
+          when ApiPostingTypes::SCHOOL_TERM_RECOVERY
+            ExamPoster::SchoolTermRecoveryPoster.post!(posting)
           end
 
         posting.mark_as_warning!(messages[:warning_messages]) if !messages[:warning_messages].empty?
