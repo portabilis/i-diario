@@ -143,6 +143,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def fetch_grades
     @grades = Grade.by_unity(current_user_unity)
       .by_teacher(current_teacher)
+      .by_year(current_school_calendar.year)
       .ordered
   end
 
