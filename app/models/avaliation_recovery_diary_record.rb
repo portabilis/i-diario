@@ -62,7 +62,6 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def recovery_date_should_be_greater_or_equal_avaliation_date
-    # return unless recovery_diary_record.recorded_at.present? && avaliation.test_date.present?
     if !(recovery_diary_record.recorded_at >= avaliation.test_date)
       errors.add(:recovery_diary_record, :recovery_date_should_be_greater_or_equal_avaliation_date)
       recovery_diary_record.errors.add(:recorded_at, :recovery_date_should_be_greater_or_equal_avaliation_date)
