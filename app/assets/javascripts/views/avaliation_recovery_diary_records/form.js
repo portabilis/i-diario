@@ -30,7 +30,7 @@ $(function () {
 
     if (!_.isEmpty(classroom_id) && !_.isEmpty(discipline_id)) {
       $.ajax({
-        url: Routes.avaliations_pt_br_path({filter: {
+        url: Routes.search_avaliations_pt_br_path({filter: {
                                               by_classroom_id: classroom_id,
                                               by_discipline_id: discipline_id
                                             },
