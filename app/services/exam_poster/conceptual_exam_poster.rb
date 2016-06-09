@@ -40,7 +40,7 @@ module ExamPoster
           classroom_api_code = conceptual_exam.classroom.api_code
           student_api_code = conceptual_exam.student.api_code
           discipline_api_code = conceptual_exam_value.discipline.api_code
-          params[classroom_api_code][student_api_code][discipline_api_code]["valor"] = conceptual_exam_value.value
+          params[classroom_api_code][student_api_code][discipline_api_code]["nota"] = conceptual_exam_value.value
         end
       end
 
