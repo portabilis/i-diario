@@ -30,6 +30,10 @@ class TeachingPlan < ActiveRecord::Base
     end
   end
 
+  def contents
+    super.order(' "contents_teaching_plans"."id" ')
+  end
+
   def school_term_humanize
     case school_term_type
     when SchoolTermTypes::BIMESTER

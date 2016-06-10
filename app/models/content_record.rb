@@ -30,6 +30,9 @@ class ContentRecord < ActiveRecord::Base
     end
   end
 
+  def contents
+    super.order(' "content_records_contents"."id" ')
+  end
 
   private
 

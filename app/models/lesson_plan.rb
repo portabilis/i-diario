@@ -33,6 +33,10 @@ class LessonPlan < ActiveRecord::Base
     end
   end
 
+  def contents
+    super.order(' "contents_lesson_plans"."id" ')
+  end
+
   private
 
   def crescent_date_range
