@@ -110,7 +110,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
       @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_area, date).fetch
     end
     if @knowledge_area_content_record.content_record.contents
-      @contents << @knowledge_area_content_record.content_record.contents
+      @contents << @knowledge_area_content_record.content_record.contents_ordered
     end
     @contents.flatten.uniq
   end

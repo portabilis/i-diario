@@ -193,7 +193,7 @@ class KnowledgeAreaLessonPlanReport
 
       start_at_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.start_at.strftime("%d/%m/%Y"), size: 10, width: 80, align: :left)
       end_at_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.end_at.strftime("%d/%m/%Y"), size: 10, width: 80, align: :left)
-      conteudo_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.contents.map(&:to_s).join(", "), size: 10, align: :left)
+      conteudo_cell = make_cell(content: knowledge_area_lesson_plan.lesson_plan.contents_ordered.map(&:to_s).join(", "), size: 10, align: :left)
       knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, width: 150, align: :left)
 
 

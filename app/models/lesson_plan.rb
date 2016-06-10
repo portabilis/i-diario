@@ -29,12 +29,12 @@ class LessonPlan < ActiveRecord::Base
     if @contents_tags.present?
       ContentTagConverter::tags_to_json(@contents_tags)
     else
-      ContentTagConverter::contents_to_json(contents)
+      ContentTagConverter::contents_to_json(contents_ordered)
     end
   end
 
-  def contents
-    super.order(' "contents_lesson_plans"."id" ')
+  def contents_ordered
+    contents.order(' "contents_lesson_plans"."id" ')
   end
 
   private
