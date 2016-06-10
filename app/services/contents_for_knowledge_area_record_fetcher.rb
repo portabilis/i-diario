@@ -12,6 +12,7 @@ class ContentsForKnowledgeAreaRecordFetcher
                                        .by_knowledge_area_id(@knowledge_areas.map(&:id))
                                        .by_teacher_id(@teacher.id)
                                        .by_date(@date)
+                                       .includes(lesson_plan: :contents)
 
     if lesson_plans.any?
       @contents = lesson_plans.map(&:contents)
@@ -21,11 +22,12 @@ class ContentsForKnowledgeAreaRecordFetcher
                                            .by_knowledge_area(@knowledge_areas.map(&:id))
                                            .by_year(@date.to_date.year)
                                            .by_teacher_id(@teacher.id)
+                                           .includes(teaching_plan: :contents)
 
     if @contents.blank? && teaching_plans.any?
       @contents = teaching_plans.map(&:contents)
     end
 
-    @contents.uniq.flatten
+    @contents.flatten.uniq
   end
 end

@@ -16,9 +16,18 @@ class ContentRecord < ActiveRecord::Base
 
   validates :unity_id, presence: true
   validates :classroom, presence: true
-  validates :record_date, presence: true
+  validates :record_date, presence: true, school_calendar_day: true
   validates :teacher, presence: true
   validate :at_least_one_content
+
+  def school_calendar
+    CurrentSchoolCalendarFetcher.new(unity).fetch
+  end
+
+  def unity
+    return unless unity_id
+    Unity.find(unity_id)
+  end
 
   def unity_id
     classroom.try(:unity_id) || @unity_id

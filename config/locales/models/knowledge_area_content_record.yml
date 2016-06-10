@@ -11,3 +11,9 @@ pt-BR:
         content_record_id: "Registro de conteúdo"
         knowledge_areas: "Áreas de conhecimento"
         knowledge_area_ids: "Áreas de conhecimento"
+    errors:
+      models:
+        knowledge_area_content_record:
+          attributes:
+            knowledge_area_ids:
+              knowledge_area_in_use: "já existe um registro de conteúdo para a área de conhecimento informada"

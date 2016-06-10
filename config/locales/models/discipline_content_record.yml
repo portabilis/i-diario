@@ -11,3 +11,9 @@ pt-BR:
         content_record_id: "Registro de conteúdo"
         discipline: "Disciplina"
         discipline_id: "Disciplina"
+    errors:
+      models:
+        discipline_content_record:
+          attributes:
+            discipline_id:
+              discipline_in_use: "já existe um registro de conteúdo para a disciplina informada"

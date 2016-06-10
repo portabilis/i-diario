@@ -104,10 +104,10 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @contents = []
     teacher = current_teacher
     classroom = @knowledge_area_content_record.content_record.classroom
-    knowledge_area = @knowledge_area_content_record.knowledge_area
+    knowledge_areas = @knowledge_area_content_record.knowledge_areas
     date = @knowledge_area_content_record.content_record.record_date
-    if teacher && classroom && knowledge_area && date
-      @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_area, date).fetch
+    if teacher && classroom && knowledge_areas && date
+      @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_areas, date).fetch
     end
     if @knowledge_area_content_record.content_record.contents
       @contents << @knowledge_area_content_record.content_record.contents_ordered

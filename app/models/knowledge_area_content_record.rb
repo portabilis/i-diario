@@ -36,7 +36,7 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   private
 
   def uniqueness_of_knowledge_area_content_record
-    return unless content_record.present? && content_record.classroom.present?
+    return unless content_record.present? && content_record.classroom.present? && content_record.record_date.present?
 
     knowledge_area_content_records = KnowledgeAreaContentRecord.by_teacher_id(content_record.teacher_id)
       .by_classroom_id(content_record.classroom_id)
@@ -46,8 +46,7 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
     knowledge_area_content_records = knowledge_area_content_records.where.not(id: id) if persisted?
 
     if knowledge_area_content_records.any?
-      content_record.errors.add(:record_date, :taken)
-      errors.add(:base, :at_least_one_content)
+      errors.add(:knowledge_area_ids, :knowledge_area_in_use)
     end
   end
 
