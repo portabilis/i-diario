@@ -1,5 +1,5 @@
 module ExamPoster
-  class NumericalExamPoster < Base
+  class SchoolTermRecoveryPoster < Base
     def self.post!(post_data)
       new(post_data).post!
     end
@@ -12,7 +12,7 @@ module ExamPoster
           end
         end
       end
-      return { warning_messages: @warning_messages }
+      return { warning_messages: "" }
     end
 
     def post_by_classrooms
@@ -37,11 +37,13 @@ module ExamPoster
 
           student_scores.each do |student_score|
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
-            value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline.id, @post_data.school_calendar_step.id)
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = school_term_recovery
+            if school_term_recovery
+              value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline.id, @post_data.school_calendar_step.id)
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = school_term_recovery
+            end
           end
-          @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.has_warnings?
+
         end
       end
       return scores

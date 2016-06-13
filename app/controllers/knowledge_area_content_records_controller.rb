@@ -6,7 +6,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
   def index
     @knowledge_area_content_records = apply_scopes(KnowledgeAreaContentRecord)
-      .includes(:knowledge_area, content_record: [:classroom])
+      .includes(:knowledge_areas, content_record: [:classroom])
       .by_unity_id(current_user_unity.id)
       .by_teacher_id(current_teacher.id)
 
@@ -25,6 +25,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
   def create
     @knowledge_area_content_record = KnowledgeAreaContentRecord.new(resource_params).localized
+    @knowledge_area_content_record.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_content_record.content_record.teacher = current_teacher
 
     @knowledge_area_content_record.content_record.content_ids = content_ids
@@ -88,7 +89,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
   def resource_params
     params.require(:knowledge_area_content_record).permit(
-      :knowledge_area_id,
+      :knowledge_area_ids,
       content_record_attributes: [
         :id,
         :unity_id,
@@ -103,13 +104,13 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @contents = []
     teacher = current_teacher
     classroom = @knowledge_area_content_record.content_record.classroom
-    knowledge_area = @knowledge_area_content_record.knowledge_area
+    knowledge_areas = @knowledge_area_content_record.knowledge_areas
     date = @knowledge_area_content_record.content_record.record_date
-    if teacher && classroom && knowledge_area && date
-      @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_area, date).fetch
+    if teacher && classroom && knowledge_areas && date
+      @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_areas, date).fetch
     end
     if @knowledge_area_content_record.content_record.contents
-      @contents << @knowledge_area_content_record.content_record.contents
+      @contents << @knowledge_area_content_record.content_record.contents_ordered
     end
     @contents.flatten.uniq
   end
@@ -138,14 +139,14 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   helper_method :classrooms
 
   def knowledge_areas
-    @knowledge_areas = []
+    #@knowledge_areas = []
 
-    if @knowledge_area_content_record.content_record.classroom.present?
-      @knowledge_areas = KnowledgeArea.by_teacher(current_teacher.id)
-                                  .by_grade(@knowledge_area_content_record.content_record.classroom.grade.id)
-                                  .ordered
-    end
-    @knowledge_areas
+    #if @knowledge_area_content_record.content_record.classroom.present?
+    #  @knowledge_areas = KnowledgeArea.by_teacher(current_teacher.id)
+    #                              .by_grade(@knowledge_area_content_record.content_record.classroom.grade.id)
+    #                              .ordered
+    #end
+    @knowledge_areas = KnowledgeArea.ordered
   end
   helper_method :knowledge_areas
 end

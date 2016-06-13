@@ -30,7 +30,7 @@ class DisciplineContentRecord < ActiveRecord::Base
   private
 
   def uniqueness_of_discipline_content_record
-    return unless content_record.present? && content_record.classroom.present?
+    return unless content_record.present? && content_record.classroom.present? && content_record.record_date.present?
 
     discipline_content_records = DisciplineContentRecord.by_teacher_id(content_record.teacher_id)
       .by_classroom_id(content_record.classroom_id)
@@ -40,8 +40,7 @@ class DisciplineContentRecord < ActiveRecord::Base
     discipline_content_records = discipline_content_records.where.not(id: id) if persisted?
 
     if discipline_content_records.any?
-      content_record.errors.add(:record_date, :taken)
-      errors.add(:base, :at_least_one_content)
+      errors.add(:discipline_id, :discipline_in_use)
     end
   end
 

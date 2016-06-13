@@ -20,7 +20,7 @@ class ContentsForDisciplineRecordFetcher
     teaching_plans = DisciplineTeachingPlan.by_grade(@classroom.grade.id)
                                            .by_discipline(@discipline.id)
                                            .by_year(@date.to_date.year)
-                                           .by_teacher(@teacher.id)
+                                           .by_teacher_id(@teacher.id)
 
     if @contents.blank? && teaching_plans.any?
       @contents = teaching_plans.map(&:contents)

@@ -109,7 +109,7 @@ class DisciplineContentRecordsController < ApplicationController
       @contents = ContentsForDisciplineRecordFetcher.new(teacher, classroom, discipline, date).fetch
     end
     if @discipline_content_record.content_record.contents
-      @contents << @discipline_content_record.content_record.contents
+      @contents << @discipline_content_record.content_record.contents_ordered
     end
     @contents.flatten.uniq
   end
