@@ -69,6 +69,18 @@ class User < ActiveRecord::Base
   scope :login, lambda { |login| where("login ILIKE ?", "%#{login}%")}
   scope :status, lambda { |status| where status: status }
 
+  def self.to_csv
+    attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Telefone"]
+
+    CSV.generate(headers: true) do |csv|
+      csv << attributes
+
+      all.each do |user|
+        csv << [user.first_name, user.last_name, user.email, user.login, user.phone]
+      end
+    end
+  end
+
   def self.find_for_authentication(conditions)
     credential = conditions.fetch(:credentials)
 

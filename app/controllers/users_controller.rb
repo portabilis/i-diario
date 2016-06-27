@@ -8,6 +8,22 @@ class UsersController < ApplicationController
     authorize @users
   end
 
+  def export_all
+    @exported_users = User.ordered
+
+    respond_with @exported_users do |format|
+      format.csv { send_data @exported_users.to_csv, filename: "usuarios.csv" }
+    end
+  end
+
+  def export_selected
+    users_split = params[:ids].split(',')
+    @exported_users = User.where(id: users_split)
+    respond_with @exported_users do |format|
+      format.csv { send_data @exported_users.to_csv, filename: "usuarios.csv" }
+    end
+  end
+
   def edit
     @user = User.find(params[:id])
 
