@@ -61,7 +61,13 @@ Rails.application.routes.draw do
         delete :destroy_batch
       end
     end
-    resources :users, concerns: :history
+    resources :users, concerns: :history do
+      collection do
+        get :export_all
+        get :export_selected
+      end
+    end
+
     resource :account, only: [:edit, :update]
     resources :roles do
       member do
