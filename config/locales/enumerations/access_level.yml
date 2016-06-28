@@ -3,6 +3,6 @@ pt-BR:
     access_level:
       institutional: "Institucional"
       unit: "Unidade"
-      professor: "Professor"
+      teacher: "Professor"
       parent: "Pai"
       student: "Aluno"

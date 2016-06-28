@@ -14,7 +14,7 @@
           <% end %>
         </td>
         <td><%= role.author %></td>
-        <td><%= role.kind_humanize %></td>
+        <td><%= role.access_level_humanize %></td>
         <% if policy(role).update? %>
           <td>
             <%= link_to 'Editar', edit_role_path(role), class: "btn btn-success" %>

@@ -5,6 +5,7 @@ class Role < ActiveRecord::Base
   include Audit
 
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
+  has_enumeration_for :access_level, with: AccessLevel, create_helpers: true
 
   belongs_to :author, class_name: "User"
 
