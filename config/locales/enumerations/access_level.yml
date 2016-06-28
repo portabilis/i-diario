@@ -1,0 +1,8 @@
+pt-BR:
+  enumerations:
+    access_level:
+      institutional: "Institucional"
+      unit: "Unidade"
+      professor: "Professor"
+      parent: "Pai"
+      student: "Aluno"
