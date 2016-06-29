@@ -72,7 +72,7 @@ class RolesController < ApplicationController
 
   def role_params
     params.require(:role).permit(
-      :name, :kind, :access_level, :permissions_attributes => [:id, :feature, :permission],
+      :name, :access_level, :permissions_attributes => [:id, :feature, :permission],
       :user_roles_attributes => [
         :id, :user_id, :unity_id, :_destroy
       ]

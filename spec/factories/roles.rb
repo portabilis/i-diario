@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :role do
     sequence(:name) { |n| "Example Role #{n}" }
-    kind RoleKind::EMPLOYEE
+    access_level AccessLevel::TEACHER
 
     association :author, factory: :user
   end

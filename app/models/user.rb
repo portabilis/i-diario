@@ -219,17 +219,17 @@ class User < ActiveRecord::Base
     user_roles.reject(&:marked_for_destruction?).each do |user_role|
       _role = Role.find(user_role.role_id)
 
-      next if _role.employee?
+      next if _role.teacher?
 
-      case _role.kind.to_s
-      when RoleKind::PARENT
+      case _role.access_level.to_s
+      when AccessLevel::PARENT
         if parent_roles.include?(_role)
           errors.add(:user_roles, :invalid)
           user_role.errors.add(:role_id, :parent_role_taken)
         else
           parent_roles.push(_role)
         end
-      when RoleKind::STUDENT
+      when AccessLevel::STUDENT
         if student_roles.include?(_role)
           errors.add(:user_roles, :invalid)
           user_role.errors.add(:role_id, :student_role_taken)
