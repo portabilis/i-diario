@@ -58,6 +58,7 @@ class User < ActiveRecord::Base
   validate :presence_of_email_or_cpf
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
+  scope :email_ordered, -> { order(email: :asc)  }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
   scope :with_phone, -> { where(arel_table[:phone].not_eq(nil)).where(arel_table[:phone].not_eq("")) }
   scope :admin, -> { where(arel_table[:admin].eq(true)) }
@@ -70,7 +71,7 @@ class User < ActiveRecord::Base
   scope :status, lambda { |status| where status: status }
 
   def self.to_csv
-    attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Telefone"]
+    attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Celular"]
 
     CSV.generate(headers: true) do |csv|
       csv << attributes

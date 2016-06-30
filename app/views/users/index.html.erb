@@ -17,10 +17,10 @@
               <ul class="dropdown-***REMOVED***">
                 <li>
                   <%= hidden_field :export_selected, :selected_users %>
-                  <%= link_to ' Exportar selecionados', '#', id: "export-selected-users", class: 'fa fa-share' %>
+                  <%= link_to '<i class="fa fa-share"></i> Exportar selecionados'.html_safe, '#', id: "export-selected-users" %>
                 </li>
                 <li>
-                  <%= link_to ' Exportar tudo', export_all_users_path(format: :csv), class: 'fa fa-download' %>
+                  <%= link_to '<i class="fa fa-download"></i> Exportar todos'.html_safe, export_all_users_path(format: :csv) %>
                 </li>
               </ul>
             </div>
@@ -40,7 +40,7 @@
           <th><%= User.human_attribute_name :email %></th>
           <th><%= User.human_attribute_name :login %></th>
           <th><%= User.human_attribute_name :status %></th>
-          <th></th>
+          <td class="actions" style="width: 160px;"> </td>
         </tr>
       </thead>
 
