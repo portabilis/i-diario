@@ -6,9 +6,9 @@ class UserRole < ActiveRecord::Base
   belongs_to :unity
 
   validates :user, :role, presence: true
-  validates :unity, presence: true, if: :role_teacher?
+  validates :unity, presence: true, if: :require_unity?
 
-  delegate :name, :access_level_humanize, :teacher?, to: :role, prefix: true, allow_nil: true
+  delegate :name, :access_level_humanize, :teacher?, :unit?, to: :role, prefix: true, allow_nil: true
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
   def to_s
@@ -17,5 +17,10 @@ class UserRole < ActiveRecord::Base
     else
       role_access_level_humanize
     end
+  end
+
+  private
+  def require_unity?
+    role_teacher? || role_unit?
   end
 end
