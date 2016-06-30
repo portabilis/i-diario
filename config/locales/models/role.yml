@@ -9,7 +9,7 @@ pt-BR:
         name: "Nome"
         author: "Autor"
         author_id: "Autor"
-        kind: "Tipo"
+        access_level: "Nível de acesso"
   roles:
     index:
       new_html: "<i class='fa fa-plus'></i> Nova permissão"

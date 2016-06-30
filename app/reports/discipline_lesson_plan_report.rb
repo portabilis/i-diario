@@ -167,7 +167,7 @@ class DisciplineLessonPlanReport
     @discipline_lesson_plans.each do |discipline_lesson_plan|
       start_at_cell = make_cell(content: discipline_lesson_plan.lesson_plan.start_at.strftime("%d/%m/%Y"), size: 10, align: :left)
       end_at_cell = make_cell(content: discipline_lesson_plan.lesson_plan.end_at.strftime("%d/%m/%Y"), size: 10, align: :left)
-      conteudo_cell = make_cell(content: discipline_lesson_plan.lesson_plan.contents.map(&:to_s).join(", "), size: 10, align: :left)
+      conteudo_cell = make_cell(content: discipline_lesson_plan.lesson_plan.contents_ordered.map(&:to_s).join(", "), size: 10, align: :left)
 
       general_information_cells << [
         start_at_cell,

@@ -20,11 +20,16 @@ $(function() {
     $(element).select2({
       tags: true,
       tokenSeparators: [','],
-      createSearchChoice: function (term) {
+      createSearchChoice: function (term,data) {
+
+        if($(data).filter(function(k,obj){
+          return obj.id.toLowerCase().localeCompare(term.toLowerCase()) == 0
+        }).length == 0){
           return {
               id: $.trim(term),
               text: $.trim(term) + ' (Novo conteúdo)'
           };
+        }
       },
       minimumInputLength: 3,
       formatInputTooShort: function () {

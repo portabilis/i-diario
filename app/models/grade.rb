@@ -8,6 +8,7 @@ class Grade < ActiveRecord::Base
   scope :by_course, lambda { |course_id| where(course_id: course_id) }
   scope :by_teacher, lambda { |teacher| by_teacher(teacher) }
   scope :ordered, -> { order(arel_table[:description].asc) }
+  scope :by_year, lambda { |year| by_year(year)  }
 
   validates :description, :api_code, :course, presence: true
   validates :api_code, uniqueness: true
@@ -24,6 +25,10 @@ class Grade < ActiveRecord::Base
       )
       .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher))
       .uniq
+  end
+
+  def self.by_year(year)
+    joins(:classrooms).where(Classroom.arel_table[:year].eq(year))
   end
 
   def to_s

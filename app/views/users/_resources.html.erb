@@ -7,6 +7,9 @@
     <% @users.each do |user| %>
       <tr>
         <td>
+          <input type="checkbox" name="ids[]" value="<%= user.id %>" class="selected_users">
+        </td>
+        <td>
           <%= link_to user, edit_user_path(user) %>
         </td>
         <td><%= user.email %></td>

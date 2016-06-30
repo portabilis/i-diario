@@ -58,6 +58,7 @@ class User < ActiveRecord::Base
   validate :presence_of_email_or_cpf
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
+  scope :email_ordered, -> { order(email: :asc)  }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
   scope :with_phone, -> { where(arel_table[:phone].not_eq(nil)).where(arel_table[:phone].not_eq("")) }
   scope :admin, -> { where(arel_table[:admin].eq(true)) }
@@ -68,6 +69,18 @@ class User < ActiveRecord::Base
   scope :email, lambda { |email| where("email ILIKE ?", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE ?", "%#{login}%")}
   scope :status, lambda { |status| where status: status }
+
+  def self.to_csv
+    attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Celular"]
+
+    CSV.generate(headers: true) do |csv|
+      csv << attributes
+
+      all.each do |user|
+        csv << [user.first_name, user.last_name, user.email, user.login, user.phone]
+      end
+    end
+  end
 
   def self.find_for_authentication(conditions)
     credential = conditions.fetch(:credentials)
@@ -207,17 +220,17 @@ class User < ActiveRecord::Base
     user_roles.reject(&:marked_for_destruction?).each do |user_role|
       _role = Role.find(user_role.role_id)
 
-      next if _role.employee?
+      next if _role.teacher?
 
-      case _role.kind.to_s
-      when RoleKind::PARENT
+      case _role.access_level.to_s
+      when AccessLevel::PARENT
         if parent_roles.include?(_role)
           errors.add(:user_roles, :invalid)
           user_role.errors.add(:role_id, :parent_role_taken)
         else
           parent_roles.push(_role)
         end
-      when RoleKind::STUDENT
+      when AccessLevel::STUDENT
         if student_roles.include?(_role)
           errors.add(:user_roles, :invalid)
           user_role.errors.add(:role_id, :student_role_taken)

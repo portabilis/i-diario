@@ -13,10 +13,10 @@ class ContentsController < ApplicationController
     elsif params[:fetch_for_knowledge_area_records]
       teacher = current_teacher
       classroom = Classroom.find(params[:classroom_id])
-      knowledge_area = KnowledgeArea.find(params[:knowledge_area_id])
+      knowledge_areas = KnowledgeArea.find(params[:knowledge_area_ids])
       date = params[:date]
-      return unless teacher && classroom && knowledge_area && date
-      @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_area, date).fetch
+      return unless teacher && classroom && knowledge_areas && date
+      @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_areas, date).fetch
     else
       @contents = apply_scopes(Content).ordered
     end

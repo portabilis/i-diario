@@ -21,6 +21,8 @@ class UsersController < ApplicationController
 
     authorize @user
 
+    # raise "a"
+
     if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
 
@@ -47,6 +49,22 @@ class UsersController < ApplicationController
     authorize @user
 
     respond_with @user
+  end
+
+  def export_all
+    @exported_users = User.ordered.email_ordered
+
+    respond_with @exported_users do |format|
+      format.csv { send_data @exported_users.to_csv, filename: "usuarios.csv" }
+    end
+  end
+
+  def export_selected
+    users_split = params[:ids].split(',')
+    @exported_users = User.where(id: users_split).ordered.email_ordered
+    respond_with @exported_users do |format|
+      format.csv { send_data @exported_users.to_csv, filename: "usuarios.csv" }
+    end
   end
 
   private
