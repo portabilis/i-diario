@@ -68,6 +68,7 @@ module Turnip
     end
 
     step 'poderei atualizar os dados deste registro do diário de observações' do
+      sleep 2
       within '#observation-diary-record-notes tr.nested-fields' do
         fill_in 'Descrição', with: 'Novo exemplo de descrição'
       end

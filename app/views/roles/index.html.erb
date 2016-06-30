@@ -5,7 +5,7 @@
         <tr>
           <th><%= Role.human_attribute_name :name %></th>
           <th><%= Role.human_attribute_name :author %></th>
-          <th><%= Role.human_attribute_name :kind %></th>
+          <th><%= Role.human_attribute_name :access_level %></th>
           <% if policy(@roles).update? %>
             <td style="text-align: right; width: 150px;"><%= link_to t('.new_html'), new_role_path, class: "btn btn-primary" %></td>
           <% end %>

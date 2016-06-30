@@ -41,7 +41,8 @@ end
 Capybara.register_driver :poltergeist do |app|
   options = {
     #The dimensions of the browser window in which to test, expressed as a 2-element array,
-    window_size: [1280, 800]
+    window_size: [1280, 800],
+    timeout: 1.minute
   }
 
   Capybara::Poltergeist::Driver.new(app, options)

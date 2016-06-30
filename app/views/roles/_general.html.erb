@@ -1,4 +1,38 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/roles/edit' %>
+<% end %>
+
 <fieldset>
+  <div class="row">
+    <div class="col col-sm-12">
+
+      <p class="alert alert-info" id="institutional-role-info">
+  	     <i class="fa fa-info"></i>
+         O nível de acesso <strong> Institucional </strong> não exigirá vínculo com unidades no cadastro de usuários.
+      </p>
+
+      <p class="alert alert-info" id="unit-role-info">
+  	     <i class="fa fa-info"></i>
+         O nível de acesso <strong> Unidade </strong> exigirá vínculo com unidades no cadastro de usuários.
+      </p>
+
+      <p class="alert alert-info" id="teacher-role-info">
+  	     <i class="fa fa-info"></i>
+         O nível de acesso <strong> Professor </strong> exigirá vínculo com unidades e com um professor no cadastro de usuários.
+      </p>
+
+      <p class="alert alert-info" id="parent-role-info">
+  	     <i class="fa fa-info"></i>
+          O nível de acesso <strong> Pai </strong> exigirá vínculo com unidades e com um ou mais alunos.
+      </p>
+
+      <p class="alert alert-info" id="student-role-info">
+         <i class="fa fa-info"></i>
+         O nível de acesso <strong> Aluno </strong> exigirá vínculo com unidades e com um aluno no cadastro de usuários.
+      </p>
+
+    </div>
+  </div>
   <div class="row">
     <div class="col col-sm-4">
       <%= f.input :name %>
@@ -9,7 +43,7 @@
     </div>
 
     <div class="col col-sm-4">
-      <%= f.input :kind, as: :select2, elements: RoleKind.to_select.to_json %>
+      <%= f.input :access_level, as: :select2, elements: AccessLevel.to_select.to_json %>
     </div>
   </div>
 

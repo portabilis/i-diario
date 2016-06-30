@@ -4,7 +4,7 @@ class Role < ActiveRecord::Base
 
   include Audit
 
-  has_enumeration_for :kind, with: RoleKind, create_helpers: true
+  has_enumeration_for :access_level, with: AccessLevel, create_helpers: true
 
   belongs_to :author, class_name: "User"
 
@@ -17,8 +17,9 @@ class Role < ActiveRecord::Base
   accepts_nested_attributes_for :permissions
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
-  validates :author, :name, :kind, presence: true
+  validates :author, :name, presence: true
   validates :name, uniqueness: { case_sensitive: false }, allow_blank: true
+
   validate :uniqueness_of_user_unity
 
   scope :ordered, -> { order(arel_table[:name].asc) }
@@ -43,7 +44,7 @@ class Role < ActiveRecord::Base
   end
 
   def to_s
-    "#{name} - Tipo: #{kind_humanize}"
+    "#{name} - Tipo: #{access_level_humanize}"
   end
 
   protected
