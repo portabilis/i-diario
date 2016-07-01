@@ -4,7 +4,7 @@
   </td>
 
   <td width="50%">
-    <div class="user-unity <%= 'hidden' unless f.object.role_teacher? || f.object.role_unit? %>">
+    <div class="user-unity <%= 'hidden' unless f.object.role_teacher? || f.object.role_employee? %>">
       <%= f.association :unity, as: :select2, elements: Unity.ordered, label_html: { class: "hidden" } %>
     </div>
   </td>
