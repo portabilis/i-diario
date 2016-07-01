@@ -155,10 +155,11 @@ class User < ActiveRecord::Base
     user_roles.includes(:role, :unity).map(&:role)
   end
 
-  def set_current_user_role!(user_role_id)
+  def set_current_user_role!(user_role_id, teacher_id)
     return false unless user_roles.exists?(id: user_role_id)
 
     update_column(:current_user_role_id, user_role_id)
+    update_column(:teacher_id, teacher_id)
   end
 
   def system_***REMOVED***

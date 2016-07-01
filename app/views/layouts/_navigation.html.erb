@@ -2,7 +2,7 @@
   <div class="login-info">
     <span>
       <% if user_signed_in? %>
-        <%= link_to "#", title: 'Editar meus dados', data: { toggle: "modal", target: "#myModal" } do %>
+        <%= link_to "#", title: 'Editar meus dados', data: { toggle: "modal", target: "#role-modal", backdrop: "static", keyboard: "false" } do %>
           <%= gravatar_image_tag current_user.email %>
           <%= content_tag :span, current_user.navigation_display %>
           <%= content_tag :i, "", class: "fa fa-angle-down" %>
@@ -17,78 +17,24 @@
 
 </aside>
 
-  <div class="modal" tabindex="-1" role="dialog" id="myModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <h4 class="modal-title">Selecione o perfil atual</h4>
-        </div>
-        <div class="modal-body">
-          <%= simple_form_for @current_user, url: set_current_role_path, html: { method: :patch, class: "simple_form smart-form" } do |f| %>
-            <%= f.input :current_user_role_id, as: :select2, elements: @current_user.user_roles %>
+<div class="modal" tabindex="-1" role="dialog" id="role-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Selecione o perfil atual</h4>
+      </div>
+      <div class="modal-body">
+        <%= simple_form_for @current_user, url: set_current_role_path, html: { method: :patch, class: "simple_form smart-form" } do |f| %>
+          <%= f.input :current_user_role_id, as: :select2, elements: @current_user.user_roles %>
+          <%= f.input :teacher_id, as: :select2, elements: Teacher.all.limit(2) %>
+          <%= f.input :current_classroom_id, as: :select2, elements: Classroom.all.limit(2) %>
+          <%= f.input :current_discipline_id, as: :select2, elements: Discipline.all.limit(2) %>
 
-            <div class="modal-footer">
-              <%= f.submit "Usar este perfil", class: "btn btn-primary" %>
-              <!-- <button type="button" class="btn btn-primary">Usar este perfil</button> -->
-            </div>
-          <% end %>
-          <!-- <form class="simple_form smart-form"> -->
-            <!-- <fieldset>
-
-              <div class="row">
-                <div class="col col-sm-12">
-                  <label class="select2 required control-label" for="avaliation_unity_id">Escola
-                    <abbr title="obrigatório">*</abbr>
-                  </label>
-
-                <div class="controls input">
-                  <div class="select2-container select2 required" id="s2id_avaliation_unity_id" style="width: 100%;">
-                    <label for="s2id_autogen2" class="select2-offscreen">Escola *</label>
-                    <input class="select2 required select2-offscreen" type="hidden" style="width: 100%;" data-elements="[{&quot;id&quot;:&quot;empty&quot;,&quot;name&quot;:&quot;\u003coption\u003e\u003c/option\u003e&quot;,&quot;text&quot;:&quot;&quot;},{&quot;id&quot;:2,&quot;name&quot;:&quot;BIBLIOTECA PÚBLICA MUNICIPAL&quot;,&quot;text&quot;:&quot;BIBLIOTECA PÚBLICA MUNICIPAL&quot;},{&quot;id&quot;:10,&quot;name&quot;:&quot;EEB DEMETRIO BETTIOL&quot;,&quot;text&quot;:&quot;EEB DEMETRIO BETTIOL&quot;},{&quot;id&quot;:11,&quot;name&quot;:&quot;EEB PROF GIOVANNI BATTAIN&quot;,&quot;text&quot;:&quot;EEB PROF GIOVANNI BATTAIN&quot;},{&quot;id&quot;:7,&quot;name&quot;:&quot;EEB PROF JOSE PERUCCHI&quot;,&quot;text&quot;:&quot;EEB PROF JOSE PERUCCHI&quot;},{&quot;id&quot;:12,&quot;name&quot;:&quot;EEF CRISTO REI&quot;,&quot;text&quot;:&quot;EEF CRISTO REI&quot;},{&quot;id&quot;:9,&quot;name&quot;:&quot;EEF UNIAO&quot;,&quot;text&quot;:&quot;EEF UNIAO&quot;},{&quot;id&quot;:6,&quot;name&quot;:&quot;IEI CANTINHO ALEGRE&quot;,&quot;text&quot;:&quot;IEI CANTINHO ALEGRE&quot;},{&quot;id&quot;:8,&quot;name&quot;:&quot;IEI FERNANDO DE FAVERI &quot;,&quot;text&quot;:&quot;IEI FERNANDO DE FAVERI &quot;},{&quot;id&quot;:1,&quot;name&quot;:&quot;IEI HELENA SAVI&quot;,&quot;text&quot;:&quot;IEI HELENA SAVI&quot;},{&quot;id&quot;:3,&quot;name&quot;:&quot;IEI MAXIMILIANO GAIDZINSKI&quot;,&quot;text&quot;:&quot;IEI MAXIMILIANO GAIDZINSKI&quot;},{&quot;id&quot;:4,&quot;name&quot;:&quot;IEI MORADA DA ALEGRIA&quot;,&quot;text&quot;:&quot;IEI MORADA DA ALEGRIA&quot;},{&quot;id&quot;:13,&quot;name&quot;:&quot;IEI PROF. LENITA IZABEL DA SILVA&quot;,&quot;text&quot;:&quot;IEI PROF. LENITA IZABEL DA SILVA&quot;},{&quot;id&quot;:5,&quot;name&quot;:&quot;IEI PROF MARIA NUNES TRICHÊS &quot;,&quot;text&quot;:&quot;IEI PROF MARIA NUNES TRICHÊS &quot;},{&quot;id&quot;:14,&quot;name&quot;:&quot;Secretaria Municipal de Educação&quot;,&quot;text&quot;:&quot;Secretaria Municipal de Educação&quot;}]" data-multiple="false" value="10" name="avaliation[unity_id]" id="avaliation_unity_id" tabindex="-1" title="Escola *">
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col col-sm-12">
-                <label class="select2 required control-label" for="avaliation_unity_id">Escola
-                  <abbr title="obrigatório">*</abbr>
-                </label>
-
-              <div class="controls input">
-                <div class="select2-container select2 required" id="s2id_avaliation_unity_id" style="width: 100%;">
-                  <label for="s2id_autogen2" class="select2-offscreen">Escola *</label>
-                  <input class="select2 required select2-offscreen" type="hidden" style="width: 100%;" data-elements="[{&quot;id&quot;:&quot;empty&quot;,&quot;name&quot;:&quot;\u003coption\u003e\u003c/option\u003e&quot;,&quot;text&quot;:&quot;&quot;},{&quot;id&quot;:2,&quot;name&quot;:&quot;BIBLIOTECA PÚBLICA MUNICIPAL&quot;,&quot;text&quot;:&quot;BIBLIOTECA PÚBLICA MUNICIPAL&quot;},{&quot;id&quot;:10,&quot;name&quot;:&quot;EEB DEMETRIO BETTIOL&quot;,&quot;text&quot;:&quot;EEB DEMETRIO BETTIOL&quot;},{&quot;id&quot;:11,&quot;name&quot;:&quot;EEB PROF GIOVANNI BATTAIN&quot;,&quot;text&quot;:&quot;EEB PROF GIOVANNI BATTAIN&quot;},{&quot;id&quot;:7,&quot;name&quot;:&quot;EEB PROF JOSE PERUCCHI&quot;,&quot;text&quot;:&quot;EEB PROF JOSE PERUCCHI&quot;},{&quot;id&quot;:12,&quot;name&quot;:&quot;EEF CRISTO REI&quot;,&quot;text&quot;:&quot;EEF CRISTO REI&quot;},{&quot;id&quot;:9,&quot;name&quot;:&quot;EEF UNIAO&quot;,&quot;text&quot;:&quot;EEF UNIAO&quot;},{&quot;id&quot;:6,&quot;name&quot;:&quot;IEI CANTINHO ALEGRE&quot;,&quot;text&quot;:&quot;IEI CANTINHO ALEGRE&quot;},{&quot;id&quot;:8,&quot;name&quot;:&quot;IEI FERNANDO DE FAVERI &quot;,&quot;text&quot;:&quot;IEI FERNANDO DE FAVERI &quot;},{&quot;id&quot;:1,&quot;name&quot;:&quot;IEI HELENA SAVI&quot;,&quot;text&quot;:&quot;IEI HELENA SAVI&quot;},{&quot;id&quot;:3,&quot;name&quot;:&quot;IEI MAXIMILIANO GAIDZINSKI&quot;,&quot;text&quot;:&quot;IEI MAXIMILIANO GAIDZINSKI&quot;},{&quot;id&quot;:4,&quot;name&quot;:&quot;IEI MORADA DA ALEGRIA&quot;,&quot;text&quot;:&quot;IEI MORADA DA ALEGRIA&quot;},{&quot;id&quot;:13,&quot;name&quot;:&quot;IEI PROF. LENITA IZABEL DA SILVA&quot;,&quot;text&quot;:&quot;IEI PROF. LENITA IZABEL DA SILVA&quot;},{&quot;id&quot;:5,&quot;name&quot;:&quot;IEI PROF MARIA NUNES TRICHÊS &quot;,&quot;text&quot;:&quot;IEI PROF MARIA NUNES TRICHÊS &quot;},{&quot;id&quot;:14,&quot;name&quot;:&quot;Secretaria Municipal de Educação&quot;,&quot;text&quot;:&quot;Secretaria Municipal de Educação&quot;}]" data-multiple="false" value="10" name="avaliation[unity_id]" id="avaliation_unity_id" tabindex="-1" title="Escola *">
-                </div>
-              </div>
-            </div>
+          <div class="modal-footer">
+            <%= f.submit "Usar este perfil", class: "btn btn-primary" %>
           </div>
-
-          <div class="row">
-            <div class="col col-sm-12">
-              <label class="select2 required control-label" for="avaliation_unity_id">Escola
-                <abbr title="obrigatório">*</abbr>
-              </label>
-
-            <div class="controls input">
-              <div class="select2-container select2 required" id="s2id_avaliation_unity_id" style="width: 100%;">
-                <label for="s2id_autogen2" class="select2-offscreen">Escola *</label>
-                <input class="select2 required select2-offscreen" type="hidden" style="width: 100%;" data-elements="[{&quot;id&quot;:&quot;empty&quot;,&quot;name&quot;:&quot;\u003coption\u003e\u003c/option\u003e&quot;,&quot;text&quot;:&quot;&quot;},{&quot;id&quot;:2,&quot;name&quot;:&quot;BIBLIOTECA PÚBLICA MUNICIPAL&quot;,&quot;text&quot;:&quot;BIBLIOTECA PÚBLICA MUNICIPAL&quot;},{&quot;id&quot;:10,&quot;name&quot;:&quot;EEB DEMETRIO BETTIOL&quot;,&quot;text&quot;:&quot;EEB DEMETRIO BETTIOL&quot;},{&quot;id&quot;:11,&quot;name&quot;:&quot;EEB PROF GIOVANNI BATTAIN&quot;,&quot;text&quot;:&quot;EEB PROF GIOVANNI BATTAIN&quot;},{&quot;id&quot;:7,&quot;name&quot;:&quot;EEB PROF JOSE PERUCCHI&quot;,&quot;text&quot;:&quot;EEB PROF JOSE PERUCCHI&quot;},{&quot;id&quot;:12,&quot;name&quot;:&quot;EEF CRISTO REI&quot;,&quot;text&quot;:&quot;EEF CRISTO REI&quot;},{&quot;id&quot;:9,&quot;name&quot;:&quot;EEF UNIAO&quot;,&quot;text&quot;:&quot;EEF UNIAO&quot;},{&quot;id&quot;:6,&quot;name&quot;:&quot;IEI CANTINHO ALEGRE&quot;,&quot;text&quot;:&quot;IEI CANTINHO ALEGRE&quot;},{&quot;id&quot;:8,&quot;name&quot;:&quot;IEI FERNANDO DE FAVERI &quot;,&quot;text&quot;:&quot;IEI FERNANDO DE FAVERI &quot;},{&quot;id&quot;:1,&quot;name&quot;:&quot;IEI HELENA SAVI&quot;,&quot;text&quot;:&quot;IEI HELENA SAVI&quot;},{&quot;id&quot;:3,&quot;name&quot;:&quot;IEI MAXIMILIANO GAIDZINSKI&quot;,&quot;text&quot;:&quot;IEI MAXIMILIANO GAIDZINSKI&quot;},{&quot;id&quot;:4,&quot;name&quot;:&quot;IEI MORADA DA ALEGRIA&quot;,&quot;text&quot;:&quot;IEI MORADA DA ALEGRIA&quot;},{&quot;id&quot;:13,&quot;name&quot;:&quot;IEI PROF. LENITA IZABEL DA SILVA&quot;,&quot;text&quot;:&quot;IEI PROF. LENITA IZABEL DA SILVA&quot;},{&quot;id&quot;:5,&quot;name&quot;:&quot;IEI PROF MARIA NUNES TRICHÊS &quot;,&quot;text&quot;:&quot;IEI PROF MARIA NUNES TRICHÊS &quot;},{&quot;id&quot;:14,&quot;name&quot;:&quot;Secretaria Municipal de Educação&quot;,&quot;text&quot;:&quot;Secretaria Municipal de Educação&quot;}]" data-multiple="false" value="10" name="avaliation[unity_id]" id="avaliation_unity_id" tabindex="-1" title="Escola *">
-              </div>
-            </div>
-          </div>
-        </div>
-
-            </fieldset> -->
-          </form>
-        </div>
-
-      </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-  </div><!-- /.modal -->
-
+        <% end %>
+      </div>
+    </div>
+  </div>
 </div>
