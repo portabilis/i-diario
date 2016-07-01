@@ -8,7 +8,7 @@ class UserRole < ActiveRecord::Base
   validates :user, :role, presence: true
   validates :unity, presence: true, if: :require_unity?
 
-  delegate :name, :access_level_humanize, :teacher?, :unit?, to: :role, prefix: true, allow_nil: true
+  delegate :name, :access_level_humanize, :teacher?, :employee?, to: :role, prefix: true, allow_nil: true
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
   def to_s
@@ -21,6 +21,6 @@ class UserRole < ActiveRecord::Base
 
   private
   def require_unity?
-    role_teacher? || role_unit?
+    role_teacher? || role_employee?
   end
 end
