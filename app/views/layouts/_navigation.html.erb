@@ -27,8 +27,16 @@
           <h4 class="modal-title">Selecione o perfil atual</h4>
         </div>
         <div class="modal-body">
-          <form class="simple_form smart-form">
-            <fieldset>
+          <%= simple_form_for @current_user, url: set_current_role_path, html: { method: :patch, class: "simple_form smart-form" } do |f| %>
+            <%= f.input :current_user_role_id, as: :select2, elements: @current_user.user_roles %>
+
+            <div class="modal-footer">
+              <%= f.submit "Usar este perfil", class: "btn btn-primary" %>
+              <!-- <button type="button" class="btn btn-primary">Usar este perfil</button> -->
+            </div>
+          <% end %>
+          <!-- <form class="simple_form smart-form"> -->
+            <!-- <fieldset>
 
               <div class="row">
                 <div class="col col-sm-12">
@@ -75,12 +83,10 @@
           </div>
         </div>
 
-            </fieldset>
+            </fieldset> -->
           </form>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary">Usar este perfil</button>
-        </div>
+
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->

@@ -12,11 +12,11 @@ class UserRole < ActiveRecord::Base
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
   def to_s
-    if role_teacher?
+    # if role_teacher?
       "#{role_name} - #{unity_name}"
-    else
-      role_access_level_humanize
-    end
+    # else
+      # role_access_level_humanize
+    # end
   end
 
   private
