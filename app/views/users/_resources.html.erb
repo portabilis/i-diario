@@ -5,9 +5,9 @@
     </tr>
   <% else %>
     <% @users.each do |user| %>
-      <tr id="selected_users_csv">
+      <tr>
         <td>
-          <input type="checkbox" name="ids[]" value="<%= user.id %>" class="select-target">
+          <input type="checkbox" name="ids[]" value="<%= user.id %>" class="selected_users">
         </td>
         <td>
           <%= link_to user, edit_user_path(user) %>
