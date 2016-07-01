@@ -1,8 +1,8 @@
 pt-BR:
   enumerations:
     access_level:
-      institutional: "Institucional"
-      unit: "Unidade"
+      administrator: "Administrador"
+      employee: "Servidor"
       teacher: "Professor"
-      parent: "Pai"
+      parent: "Pais"
       student: "Aluno"

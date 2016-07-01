@@ -17,7 +17,7 @@ class Role < ActiveRecord::Base
   accepts_nested_attributes_for :permissions
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
-  validates :author, :name, presence: true
+  validates :author, :name, :access_level, presence: true
   validates :name, uniqueness: { case_sensitive: false }, allow_blank: true
 
   validate :uniqueness_of_user_unity
