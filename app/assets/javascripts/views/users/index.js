@@ -42,7 +42,7 @@ $(function() {
       $("a#export-selected-users").attr('href', Routes.export_selected_users_pt_br_path({ ids: users_id, format: 'csv' }))
     }else {
       $("a#export-selected-users").attr('href', '#');
-      window.alert("Por favor, selecione um ou mais registros primeiro!");
+      window.alert("Por favor, selecione um ou mais registros primeiro.");
     }
   };
 });
