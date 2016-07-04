@@ -26,7 +26,6 @@ class AbsenceJustification < ActiveRecord::Base
 
   validate :period_absence
   validate :absence_date_cannot_be_greater_than_absence_date_end
-  validate :absence_date_end_must_be_lower_than_today
 
   scope :ordered, -> { order(absence_date: :desc) }
 
@@ -52,12 +51,6 @@ class AbsenceJustification < ActiveRecord::Base
       .lteq(date)
       .and(AbsenceJustification.arel_table[:absence_date_end].gteq(date))
     )
-  end
-
-  def absence_date_end_must_be_lower_than_today
-    if absence_date_end.present?
-      errors.add(:absence_date_end, "Deve ser menor ou igual a data de hoje") if absence_date_end > Time.zone.today
-    end
   end
 
   def absence_date_cannot_be_greater_than_absence_date_end
