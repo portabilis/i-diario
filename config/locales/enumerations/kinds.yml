@@ -1,5 +1,6 @@
 pt-BR:
   enumerations:
-    kinds:
-      person: "Pessoa física"
-      company: "Pessoa jurídica"
+    resource_font_spheres:
+      federal: "Federal"
+      state: "Estadual"
+      municipal: "Municipal"
