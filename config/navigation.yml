@@ -267,6 +267,9 @@ navigation:
         - ***REMOVED***:
             type: "absence_justification_report"
             path: "absence_justification_report_path"
+        - ***REMOVED***:
+            type: "teacher_report_cards"
+            path: "teacher_report_cards_path"
 
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"
