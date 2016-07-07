@@ -83,6 +83,7 @@ pt-BR:
     ***REMOVED***: "***REMOVED***"
     transfer_notes: "Notas de transferência"
     ***REMOVED***: "Fonte de recursos"
+    teacher_report_cards: "Boletim do professor"
 
   enumerations:
     features:
@@ -91,3 +92,4 @@ pt-BR:
       ***REMOVED***_confirmations: "***REMOVED*** da pré-matrícula"
       ***REMOVED***_configs: "Configuração da pré-matrícula"
       test_settings: "Configurações de avaliações"
+      teacher_report_card: "Boletim do professor"
