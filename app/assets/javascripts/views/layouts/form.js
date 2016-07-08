@@ -223,7 +223,6 @@
     $('#discipline-field').hide();
     $('#unity-field').hide();
 
-    $('#unity-field').show();
     $('#assumed-teacher-field').show();
 
     $('#user_assumed_teacher_id').trigger('change');
