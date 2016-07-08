@@ -125,12 +125,12 @@ class ExamRecordReport
         end
       end
 
-      sequential_number_header = make_cell(content: 'Nº', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
-      student_name_header = make_cell(content: 'Nome do aluno', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
-      average_header = make_cell(content: 'Média', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
+      sequential_number_header = make_cell(content: 'Nº', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 15)
+      student_name_header = make_cell(content: 'Nome do aluno', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 170)
+      average_header = make_cell(content: 'Média', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
 
       first_headers_and_cells = [sequential_number_header, student_name_header].concat(avaliations)
-      (10 - avaliations.count).times { first_headers_and_cells << make_cell(content: '', background_color: 'FFFFFF') }
+      (10 - avaliations.count).times { first_headers_and_cells << make_cell(content: '', background_color: 'FFFFFF', width: 50) }
       first_headers_and_cells << average_header
 
       students_cells = []
@@ -159,18 +159,15 @@ class ExamRecordReport
         students_cells << student_cells
       end
 
-      sliced_students_cells = students_cells.each_slice(30).to_a
+      sliced_students_cells = students_cells.each_slice(25).to_a
       sliced_students_cells.each_with_index do |students_cells_slice, index|
         data = [
           first_headers_and_cells
         ]
         data.concat(students_cells_slice)
 
-        column_widths = { 0 => 20, 12 => 40 }
-        (2..11).each { |i| column_widths[i] = 50 }
-
         bounding_box([0, 482], width: bounds.width) do
-          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] }, column_widths: column_widths, width: bounds.width) do |t|
+          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] }, width: bounds.width) do |t|
             t.cells.border_width = 0.25
             t.before_rendering_page do |page|
               page.row(0).border_top_width = 0.25
