@@ -1,0 +1,7 @@
+pt-BR:
+  activemodel:
+    attributes:
+      teacher_report_card_form:
+        unity_id: "Escola"
+        classroom_id: "Turma"
+        discipline_id: "Disciplina"

@@ -1,0 +1,31 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/teacher_report_cards/form' %>
+<% end %>
+
+<%= simple_form_for @teacher_report_card_form, url: teacher_report_cards_path, method: :post, html: { class: "smart-form", target: '_new' } do |f| %>
+  <%= f.error_notification unless @teacher_report_card_form.errors[:base].any? %>
+  <div class="alert alert-danger <%= 'hidden' unless @teacher_report_card_form.errors[:base].any? %>">
+    <i class="fa fa-exclamation-circle fa-fw"></i>
+    <%= @teacher_report_card_form.errors[:base].first %>
+  </div>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :unity_id, as: :select2, elements: unities, readonly: true %>
+      </div>
+      <div class="col col-sm-4">
+        <%= f.input :classroom_id, as: :select2, elements: classrooms, input_html: { value: @teacher_report_card_form.classroom_id } %>
+      </div>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :discipline_id, as: :select2, elements: disciplines, required: true %>
+        </div>
+      </div>
+    </div>
+  </fieldset>
+
+  <footer>
+    <%= f.submit 'Imprimir', class: 'btn btn-primary' %>
+  </footer>
+<% end %>
