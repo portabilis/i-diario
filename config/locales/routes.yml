@@ -86,6 +86,7 @@ pt-BR:
     discipline_content_records: 'registros-de-conteudos-por-disciplina'
     knowledge_area_content_records: 'registros-de-conteudos-por-area-de-conhecimento'
     contents: 'conteudos'
+    user_roles: 'permissoes-do-usuario'
 
     # actions
     edit: 'editar'

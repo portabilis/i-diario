@@ -74,6 +74,7 @@ Rails.application.routes.draw do
         get :history
       end
     end
+    resources  :user_roles, only: [:show]
     resources :***REMOVED***, only: [:index]
     resources :***REMOVED***, only: [:index, :show]
     resources :***REMOVED***_confirmations, except: [:new, :create] do
@@ -98,6 +99,7 @@ Rails.application.routes.draw do
         delete :destroy_batch
         get :synchronizations
         post :create_batch
+        get :search
       end
     end
     resources :***REMOVED***, concerns: :history do
