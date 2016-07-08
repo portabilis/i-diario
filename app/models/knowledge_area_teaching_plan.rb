@@ -33,6 +33,45 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
 
   private
 
+  def self.by_teacher(teacher)
+    joins(:teaching_plan).joins(:knowledge_area_teaching_plan_knowledge_areas)
+      .joins(
+        arel_table.join(Discipline.arel_table, Arel::Nodes::OuterJoin)
+          .on(
+            Discipline.arel_table[:knowledge_area_id]
+              .eq(KnowledgeAreaTeachingPlanKnowledgeArea.arel_table[:knowledge_area_id])
+          )
+          .join_sources
+      )
+      .joins(
+        arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
+          .on(
+            TeacherDisciplineClassroom.arel_table[:discipline_id]
+              .eq(Discipline.arel_table[:id])
+            .and(TeachingPlan.arel_table[:year]
+              .eq(TeacherDisciplineClassroom.arel_table[:year]))
+          )
+          .join_sources
+      )
+      .joins(
+        arel_table.join(Classroom.arel_table, Arel::Nodes::OuterJoin)
+          .on(
+            Classroom.arel_table[:grade_id]
+              .eq(TeachingPlan.arel_table[:grade_id])
+              .and(
+                Classroom.arel_table[:id]
+                  .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
+              )
+          )
+          .join_sources
+      )
+      .where(TeacherDisciplineClassroom.arel_table[:teacher_id]
+              .eq(teacher)
+            .and(TeacherDisciplineClassroom.arel_table[:active]
+              .eq('t')))
+      .uniq
+  end
+
   def self.by_knowledge_area(knowledge_area)
     joins(:knowledge_area_teaching_plan_knowledge_areas)
       .where(

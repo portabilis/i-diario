@@ -1,10 +1,14 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/layouts/form' %>
+<% end %>
 <aside id="left-panel">
   <div class="login-info">
     <span>
       <% if user_signed_in? %>
-        <%= link_to edit_account_path, title: 'Editar meus dados' do %>
+        <%= link_to "#", title: 'Editar meus dados', data: { toggle: "modal", target: "#role-modal", backdrop: "static", keyboard: "false" } do %>
           <%= gravatar_image_tag current_user.email %>
           <%= content_tag :span, current_user.navigation_display %>
+          <%= content_tag :i, "", class: "fa fa-angle-down" %>
         <% end %>
       <% end %>
     </span>
@@ -13,4 +17,37 @@
   <nav>
     <%= ***REMOVED***s %>
   </nav>
+
 </aside>
+
+<div class="modal" tabindex="-1" role="dialog" id="role-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Selecione o perfil atual</h4>
+      </div>
+      <div class="modal-body">
+        <%= simple_form_for @current_user, remote: true, url: set_current_role_path, html: { method: :patch, class: "simple_form smart-form", id: "user-role" } do |f| %>
+          <%= f.hidden_field :id, value: f.object.id %>
+          <%= f.hidden_field :teacher_id, value: f.object.teacher_id %>
+          <%= f.input :current_user_role_id, as: :select2, elements: @current_user.user_roles %>
+          <div id="unity-field">
+            <%= f.input :current_unity_id, as: :select2, elements: [] %>
+          </div>
+          <div id="assumed-teacher-field">
+            <%= f.input :assumed_teacher_id, as: :select2, elements: [] %>
+          </div>
+          <div id="classroom-field">
+            <%= f.input :current_classroom_id, as: :select2, elements: [] %>
+          </div>
+          <div id="discipline-field">
+            <%= f.input :current_discipline_id, as: :select2, elements: [] %>
+          </div>
+          <div class="modal-footer">
+            <%= f.submit "Usar este perfil", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

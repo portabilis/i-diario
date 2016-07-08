@@ -16,7 +16,7 @@ class UnitiesController < ApplicationController
   end
 
   def show
-    @unities = Unity.all 
+    @unities = Unity.all
     render json:  @unities
   end
 
@@ -92,6 +92,12 @@ class UnitiesController < ApplicationController
     else
       redirect_to synchroniation_unities_path, alert: t('flash.unities.create_batch.alert')
     end
+  end
+
+  def search
+    @unities = apply_scopes(Unity).ordered
+
+    render json: @unities
   end
 
   private

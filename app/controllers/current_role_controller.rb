@@ -1,14 +1,22 @@
 # encoding: utf-8
 class CurrentRoleController < ApplicationController
-  def index
-    @user_roles = current_user.user_roles
+  def set
+    current_role_form = CurrentRoleForm.new(resource_params)
+
+    respond_to do |format|
+      if current_role_form.save
+        format.json { render json: current_role_form }
+      else
+        format.json { render json: current_role_form.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
-  def set
-    if current_user.set_current_user_role!(params[:id])
-      redirect_to root_path, notice: I18n.t('.current_role.set.notice')
-    else
-      redirect_to root_path, alert: I18n.t('.current_role.set.alert')
-    end
+  private
+
+  def resource_params
+    params.require(:user).permit(
+      :id, :current_user_role_id, :teacher_id, :current_unity_id, :current_classroom_id, :current_discipline_id, :assumed_teacher_id,
+    )
   end
 end
