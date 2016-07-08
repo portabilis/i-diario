@@ -50,7 +50,7 @@ class CurrentRoleForm
   end
 
   def require_unity?
-    (access_level == AccessLevel::ADMINISTRATOR || access_level == AccessLevel::EMPLOYEE)
+    access_level == AccessLevel::ADMINISTRATOR
   end
 
   def is_admin?
