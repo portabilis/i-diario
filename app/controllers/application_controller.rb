@@ -182,7 +182,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user_unity
-    current_user.current_unity
+    current_user.current_unity || current_user.current_user_role.try(:unity)
   end
   helper_method :current_user_unity
 
