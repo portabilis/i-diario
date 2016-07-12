@@ -87,6 +87,7 @@ pt-BR:
     knowledge_area_content_records: 'registros-de-conteudos-por-area-de-conhecimento'
     contents: 'conteudos'
     user_roles: 'permissoes-do-usuario'
+    teacher_report_cards: 'boletim-do-professor'
 
     # actions
     edit: 'editar'
