@@ -1,30 +1,32 @@
 $(function(){
   "use strict";
 
-  showCurrentRoleInfo()
+  var $rolePermissionsTbody = $("#role-permissions-tbody");
 
   $('#role_access_level').on('change', function(){
     showCurrentRoleInfo();
   });
 
+  var removeFeaturesNotIncluded = function (access_level){
+    $rolePermissionsTbody.find('tr.nested-fields:not([data-level-'+access_level+'])').each(function(){
+      $(this).hide().find('input.select2[id$=_permission]').select2('val', 'denied');
+    });
+  }
+
+  var showIncludedFeatures = function (access_level){
+    $rolePermissionsTbody.find('tr.nested-fields[data-level-'+access_level+']').each(function(){
+      $(this).show();
+    });
+  }
+
   function showCurrentRoleInfo(){
     hideAllRoleInfos();
-    switch($('#role_access_level').select2('val')){
-      case 'administrator':
-        $('#administrator-role-info').show();
-        break;
-      case 'employee':
-        $('#employee-role-info').show();
-        break;
-      case 'teacher':
-        $('#teacher-role-info').show();
-        break;
-      case 'parent':
-        $('#parent-role-info').show();
-        break;
-      case 'student':
-        $('#student-role-info').show();
-        break;
+    var access_level = $('#role_access_level').select2('val');
+
+    if(access_level.length){
+      $("#"+access_level+"-role-info").show();
+      removeFeaturesNotIncluded(access_level);
+      showIncludedFeatures(access_level);
     }
   }
 
@@ -35,4 +37,6 @@ $(function(){
     $('#parent-role-info').hide();
     $('#student-role-info').hide();
   }
+
+  showCurrentRoleInfo()
 });

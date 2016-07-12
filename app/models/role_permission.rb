@@ -15,4 +15,9 @@ class RolePermission < ActiveRecord::Base
     where(arel_table[:feature].eq(feature)).
       where(arel_table[:permission].eq(Permissions::CHANGE)).exists?
   end
+
+  def access_level_has_feature?(access_level)
+    return unless feature
+    FeaturesAccessLevels.send(access_level+'_features').include? feature.to_sym
+  end
 end

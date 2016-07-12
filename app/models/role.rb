@@ -21,6 +21,7 @@ class Role < ActiveRecord::Base
   validates :name, uniqueness: { case_sensitive: false }, allow_blank: true
 
   validate :uniqueness_of_user_unity
+  validate :permissions_must_match_access_level
 
   scope :ordered, -> { order(arel_table[:name].asc) }
 
@@ -48,6 +49,16 @@ class Role < ActiveRecord::Base
   end
 
   protected
+
+  def permissions_must_match_access_level
+    return unless access_level
+    permissions.each do |permission|
+      next if permission.permission == Permissions::DENIED
+      unless permission.access_level_has_feature?(access_level)
+        errors.add(:permissions, I18n.t('roles.errors.permission_must_match_access_level',feature: permission.feature_humanize, access_level: access_level_humanize))
+      end
+    end
+  end
 
   def uniqueness_of_user_unity
     return unless user_roles
