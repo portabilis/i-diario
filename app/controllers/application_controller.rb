@@ -139,7 +139,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_teacher
-    current_user.try(:teacher)
+    current_user.try(:current_teacher)
   end
   helper_method :current_teacher
 
@@ -182,7 +182,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user_unity
-    current_user.current_user_role.try(:unity)
+    current_user.current_unity
   end
   helper_method :current_user_unity
 

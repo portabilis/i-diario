@@ -8,7 +8,7 @@ class Select2Input < SimpleForm::Inputs::StringInput
     @builder.text_field(attribute_name, input_html_options)
   end
 
-  private
+  protected
 
   def fetch_multiple
     options.fetch(:multiple, false)
