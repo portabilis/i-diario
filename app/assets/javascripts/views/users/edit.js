@@ -11,7 +11,7 @@ $(function(){
 
       var mustShowUnity = _.find(window.roles, function (role) {
         return role['id'].toString() == val.toString() &&
-          (role['access_level'] == 'unit' || role['access_level'] == 'teacher');
+          (role['access_level'] == 'unit' || role['access_level'] == 'teacher' || role['access_level'] == 'employee');
       });
 
       if (mustShowUnity) {
