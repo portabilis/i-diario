@@ -1,6 +1,6 @@
 admin:
   name: "Administrador"
-  access_level: "teacher"
+  access_level: "administrator"
   author: john_doe
 
 secretary:

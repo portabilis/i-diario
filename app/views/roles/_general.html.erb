@@ -55,7 +55,17 @@
       </tr>
     </thead>
 
-    <tbody>
+
+    <% if f.object.errors[:permissions].present? %>
+      <div class="alert alert-danger alert-block ">
+        <i class="fa-fw fa fa-times"></i>
+        <span class="help-inline">
+          <%= raw(f.object.errors[:permissions].join("<br />")) %>
+        </span>
+      </div>
+    <% end %>
+
+    <tbody id="role-permissions-tbody">
       <%= f.association :permissions do |p| %>
         <%= render 'permission', f: p %>
       <% end %>
