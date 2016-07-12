@@ -40,9 +40,6 @@ class AttendanceRecordReportController < ApplicationController
                                                         @attendance_record_report_form.classroom_id,
                                                         @attendance_record_report_form.discipline_id)
     fetcher.fetch!
-    @unities = fetcher.unities
-    @classrooms = fetcher.classrooms
-    @disciplines = fetcher.disciplines
     @number_of_classes = current_school_calendar.number_of_classes
     @teacher = current_teacher
   end

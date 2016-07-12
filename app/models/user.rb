@@ -205,6 +205,29 @@ class User < ActiveRecord::Base
     write_attribute(:cpf, value) if value.present?
   end
 
+  def current_unity
+    return unless current_unity_id
+    @current_unity ||= Unity.find(current_unity_id)
+  end
+
+  def current_classroom
+    return unless current_classroom_id
+    @current_classroom ||= Classroom.find(current_classroom_id)
+  end
+
+  def current_discipline
+    return unless current_discipline_id
+    @current_discipline ||= Discipline.find(current_discipline_id)
+  end
+
+  def current_teacher
+    if assumed_teacher_id
+      Teacher.find(assumed_teacher_id)
+    else
+      teacher
+    end
+  end
+
   protected
 
   def email_required?
