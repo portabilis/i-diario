@@ -88,6 +88,7 @@ pt-BR:
     contents: 'conteudos'
     user_roles: 'permissoes-do-usuario'
     teacher_report_cards: 'boletim-do-professor'
+    ***REMOVED***: '***REMOVED***'
 
     # actions
     edit: 'editar'

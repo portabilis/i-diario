@@ -66,6 +66,7 @@ class Features < EnumerateIt::Base
                    :knowledge_area_content_records,
                    :***REMOVED***,
                    :teacher_report_cards
+                   :***REMOVED***
 
   sort_by :translation
 end
