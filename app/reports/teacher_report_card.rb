@@ -1,4 +1,5 @@
 class TeacherReportCard
+  include ActiveModel::Model
 
   def initialize(configuration)
     @configuration = configuration
