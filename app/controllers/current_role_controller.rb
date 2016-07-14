@@ -5,6 +5,7 @@ class CurrentRoleController < ApplicationController
 
     respond_to do |format|
       if current_role_form.save
+        flash[:notice] = I18n.t('current_role.set.notice')
         format.json { render json: current_role_form }
       else
         format.json { render json: current_role_form.errors, status: :unprocessable_entity }

@@ -13,9 +13,9 @@ class UserRole < ActiveRecord::Base
 
   def to_s
     if require_unity?
-      "#{role_name} - #{unity_name}"
+      "#{role_name} (Nível: #{role_access_level_humanize}) - #{unity_name}"
     else
-      "#{role_name} - #{role_access_level_humanize}"
+      "#{role_name} (Nível: #{role_access_level_humanize})"
     end
   end
 
