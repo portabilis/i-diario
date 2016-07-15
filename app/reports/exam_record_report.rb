@@ -89,24 +89,49 @@ class ExamRecordReport
       averages[student_id] = StudentAverageCalculator.new(Student.find(student_id)).calculate(@daily_notes.first.classroom, @daily_notes.first.discipline, @school_calendar_step.id)
     end
 
-    sliced_daily_notes = @daily_notes.each_slice(10).to_a
+    daily_notes_and_recoveries = []
+    daily_notes_descriptions = []
+    daily_notes_avaliations_ids = []
+    daily_notes_ids = []
 
-    sliced_daily_notes.each_with_index do |daily_notes_slice, index|
+    @daily_notes.each do |daily_note|
+      daily_notes_and_recoveries << daily_note
+      if daily_note.avaliation.recovery_diary_record
+        daily_notes_and_recoveries << daily_note.avaliation.recovery_diary_record
+        daily_notes_descriptions << daily_note.avaliation.to_s
+        daily_notes_avaliations_ids << daily_note.avaliation_id
+        daily_notes_ids << daily_note.id
+      end
+    end
+
+    daily_notes_and_recoveries.to_a
+    sliced_daily_notes_and_recoveries = daily_notes_and_recoveries.each_slice(10).to_a
+    pos = 0
+
+    sliced_daily_notes_and_recoveries.each_with_index do |daily_notes_slice, index|
       avaliations = []
       students = {}
 
       daily_notes_slice.each do |daily_note|
-        avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center)
-        avaliations << make_cell(content: "Rec. #{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center) if daily_note.avaliation.recovery_diary_record
+        if recovery_record(daily_note)
+          avaliations << make_cell(content: "Rec. #{daily_notes_descriptions[pos]}", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
+          avaliation_id = daily_notes_avaliations_ids[pos]
+          daily_note_id = daily_notes_ids[pos]
+          pos += 1
+        else
+          avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
+          avaliation_id = daily_note.avaliation_id
+          daily_note_id = daily_note.id
+        end
 
         students_ids.each do |student_id|
-          if exempted_avaliation?(student_id, daily_note.avaliation_id)
+          if exempted_avaliation?(student_id, avaliation_id)
             student_note = ExemptedDailyNoteStudent.new
           else
             student_note = DailyNoteStudent
             .find_by(
               student_id: student_id,
-              daily_note_id: daily_note.id
+              daily_note_id: daily_note_id
             ) || NullDailyNoteStudent.new
           end
 
@@ -119,9 +144,11 @@ class ExamRecordReport
           students[student_id] = {} if students[student_id].nil?
           students[student_id][:dependence] = students[student_id][:dependence] || student_note.dependence?
 
-          (students[student_id][:scores] ||= []) << make_cell(content: student_note.note.to_s, align: :center)
-
-          (students[student_id][:scores] ||= []) << make_cell(content: student_note.recovery_note.to_s, align: :center) if daily_note.avaliation.recovery_diary_record.present?
+          if recovery_record(daily_note)
+            (students[student_id][:scores] ||= []) << make_cell(content: student_note.recovery_note.to_s, align: :center)
+          else
+            (students[student_id][:scores] ||= []) << make_cell(content: student_note.note.to_s, align: :center)
+          end
         end
       end
 
@@ -130,7 +157,7 @@ class ExamRecordReport
       average_header = make_cell(content: 'Média', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
 
       first_headers_and_cells = [sequential_number_header, student_name_header].concat(avaliations)
-      (10 - avaliations.count).times { first_headers_and_cells << make_cell(content: '', background_color: 'FFFFFF', width: 50) }
+      (10 - avaliations.count).times { first_headers_and_cells << make_cell(content: '', background_color: 'FFFFFF', width: 55) }
       first_headers_and_cells << average_header
 
       students_cells = []
@@ -141,7 +168,7 @@ class ExamRecordReport
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
         (10 - data_column_count).times { student_cells << nil }
-        if daily_notes_slice == sliced_daily_notes.last
+        if daily_notes_slice == sliced_daily_notes_and_recoveries.last
           average = averages[key]
           student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)
         else
@@ -181,7 +208,7 @@ class ExamRecordReport
         start_new_page if index < sliced_students_cells.count - 1
       end
 
-      start_new_page if index < sliced_daily_notes.count - 1
+      start_new_page if index < sliced_daily_notes_and_recoveries.count - 1
     end
   end
 
@@ -231,5 +258,9 @@ class ExamRecordReport
       .by_avaliation(avaliation_id)
       .any?
     avaliation_is_exempted
+  end
+
+  def recovery_record(record)
+    record.class.to_s == "RecoveryDiaryRecord"
   end
 end
