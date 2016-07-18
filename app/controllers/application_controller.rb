@@ -99,7 +99,8 @@ class ApplicationController < ActionController::Base
 
   def check_for_current_user_role
     return unless current_user
-    return if current_user.admin?
+
+    flash.now[:warning] = t("current_role.check.warning") if current_user.current_user_role.blank?
   end
 
   def current_entity_configuration
@@ -131,7 +132,7 @@ class ApplicationController < ActionController::Base
     policy_name = exception.policy.class.to_s.underscore
 
     flash[:error] = t "#{policy_name}.#{exception.query}", scope: "pundit", default: :default
-    redirect_to(request.referrer || root_path)
+    redirect_to(root_path)
   end
 
   def rescue_from_api_error(exception)
@@ -182,7 +183,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user_unity
-    current_user.current_unity || current_user.current_user_role.try(:unity)
+    current_user.current_user_role.try(:unity) || current_user.current_unity
   end
   helper_method :current_user_unity
 
