@@ -23,7 +23,6 @@ $(function () {
   };
 
   $classroom.on('change', classroomChangeHandler);
-  classroomChangeHandler();
 
   function fetchDisciplines(classroom_id) {
     $.ajax({

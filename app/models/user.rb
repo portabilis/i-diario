@@ -220,10 +220,10 @@ class User < ActiveRecord::Base
   end
 
   def current_teacher
-    if assumed_teacher_id
-      Teacher.find(assumed_teacher_id)
-    else
+    if current_user_role.try(:role_teacher?)
       teacher
+    elsif assumed_teacher_id
+      Teacher.find(assumed_teacher_id)
     end
   end
 

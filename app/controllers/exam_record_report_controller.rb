@@ -30,14 +30,6 @@ class ExamRecordReportController < ApplicationController
   private
 
   def fetch_collections
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id,
-                                                        @exam_record_report_form.unity_id,
-                                                        @exam_record_report_form.classroom_id,
-                                                        @exam_record_report_form.discipline_id)
-    fetcher.fetch!
-    @unities = fetcher.unities
-    @classrooms = fetcher.classrooms
-    @disciplines = fetcher.disciplines
     @school_calendar_steps = SchoolCalendarStep.where(school_calendar: current_school_calendar)
   end
 

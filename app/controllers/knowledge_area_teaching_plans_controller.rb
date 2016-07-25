@@ -126,8 +126,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_collections
-    fetch_unities
-    fetch_grades
     fetch_knowledge_areas
   end
 

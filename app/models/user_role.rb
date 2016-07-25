@@ -20,6 +20,7 @@ class UserRole < ActiveRecord::Base
   end
 
   private
+
   def require_unity?
     role_teacher? || role_employee?
   end

@@ -71,6 +71,9 @@ $(function () {
   $recordDate.on('change', function(){
     loadContents();
   });
+  if(!$("#contents-list li").length){
+    loadContents();
+  }
 
   function fetchDisciplines(classroom_id) {
     $.ajax({

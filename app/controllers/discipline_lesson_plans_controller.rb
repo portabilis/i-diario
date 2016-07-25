@@ -59,8 +59,6 @@ class DisciplineLessonPlansController < ApplicationController
 
     authorize @discipline_lesson_plan
 
-    @unities = fetch_unities
-    @classrooms =  fetch_classrooms
     @number_of_classes = fetch_numer_of_classes
   end
 
@@ -75,8 +73,6 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      @unities = fetch_unities
-      @classrooms =  fetch_classrooms
       @number_of_classes = fetch_numer_of_classes
 
       render :new
@@ -88,8 +84,6 @@ class DisciplineLessonPlansController < ApplicationController
 
     authorize @discipline_lesson_plan
 
-    @unities = fetch_unities
-    @classrooms =  fetch_classrooms
     @number_of_classes = fetch_numer_of_classes
   end
 
@@ -103,8 +97,6 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      @unities = fetch_unities
-      @classrooms =  fetch_classrooms
       @number_of_classes = fetch_numer_of_classes
 
       render :edit

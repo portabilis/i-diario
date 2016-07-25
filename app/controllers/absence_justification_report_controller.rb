@@ -3,8 +3,6 @@ class AbsenceJustificationReportController < ApplicationController
   before_action :require_current_school_calendar
 
   def form
-    fetch_classrooms
-    @unities = Unity.by_teacher(current_teacher.id).ordered
     @absence_justification_report_form = AbsenceJustificationReportForm.new
     @absence_justification_report_form.unity = current_user_unity.id
     @absence_justification_report_form.school_calendar_year = current_school_calendar
@@ -24,8 +22,6 @@ class AbsenceJustificationReportController < ApplicationController
                                                                       @absence_justification_report_form)
       send_data(absence_justification_report.render, filename: 'registro-de-justificativa-de-faltas.pdf', type: 'application/pdf', disposition: 'inline')
     else
-      fetch_classrooms
-      @unities = Unity.by_teacher(current_teacher.id).ordered
       render :form
     end
   end
@@ -49,10 +45,6 @@ class AbsenceJustificationReportController < ApplicationController
                                                     .by_date_report(@absence_justification_report_form.absence_date, @absence_justification_report_form.absence_date_end)
                                                     .order(absence_date: :asc)
     end
-  end
-
-  def fetch_classrooms
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
   end
 
   def resource_params
