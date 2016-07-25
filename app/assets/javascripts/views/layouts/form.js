@@ -201,6 +201,7 @@
       $('#discipline-field').show();
       var unity_id = role_unity_id ? role_unity_id : $("#user_current_unity_id").select2("val");
       fetchClassroomsByTeacherAndUnity(teacher_id, unity_id);
+      fetchDisciplines();
     }else{
       $("#user_current_classroom_id").val('');
       $("#user_current_discipline_id").val('');
@@ -209,8 +210,8 @@
     }
   });
 
-  $('#user_current_classroom_id').on('change', function(){
-    var classroom_id = $(this).val();
+  function fetchDisciplines(){
+    var classroom_id = $("#user_current_classroom_id").val();
     $('#user_current_discipline_id').select2('val', '');
 
     filter = { by_classroom: classroom_id };
@@ -235,23 +236,25 @@
     }else{
       handleFetchDisciplinesSuccess({disciplines: [] });
     }
+  }
 
-    function handleFetchDisciplinesSuccess(data){
-      var selectedDisciplines = _.map(data.disciplines, function(discipline) {
-        return { id: discipline['id'], text: discipline['description'] };
-      });
+  $('#user_current_classroom_id').on('change', fetchDisciplines);
 
-      insertEmptyElement(selectedDisciplines);
-      $('#user_current_discipline_id').select2({ formatResult: function(el) {
-                                                                  return "<div class='select2-user-result'>" + el.text + "</div>";
-                                                               },
-                                                 data: selectedDisciplines });
-    }
+  function handleFetchDisciplinesSuccess(data){
+    var selectedDisciplines = _.map(data.disciplines, function(discipline) {
+      return { id: discipline['id'], text: discipline['description'] };
+    });
 
-    function handleFetchDisciplinesError(){
-      flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
-    }
-  });
+    insertEmptyElement(selectedDisciplines);
+    $('#user_current_discipline_id').select2({ formatResult: function(el) {
+                                                                return "<div class='select2-user-result'>" + el.text + "</div>";
+                                                             },
+                                               data: selectedDisciplines });
+  }
+
+  function handleFetchDisciplinesError(){
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+  }
 
   $('#user_current_user_role_id').trigger('change');
 
@@ -260,6 +263,12 @@
     $('#discipline-field').hide();
 
     $('#unity-field').show();
+
+    if(!$("#user_current_unity_id").val().length){
+      $("#user_assumed_teacher_id").val('');
+      $("#user_current_classroom_id").val('');
+      $("#user_current_discipline_id").val('');
+    }
 
     $('#user_current_unity_id').trigger('change');
     $('#user_assumed_teacher_id').trigger('change');
@@ -297,6 +306,7 @@
     $('#user_current_classroom_id').trigger('change');
 
     fetchClassroomsByTeacherAndUnity($('#user_teacher_id').val(), unity_id);
+    fetchDisciplines();
   }
 
   function toggleParentAndStudentFields(){

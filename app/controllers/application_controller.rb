@@ -100,7 +100,10 @@ class ApplicationController < ActionController::Base
   def check_for_current_user_role
     return unless current_user
 
-    flash.now[:warning] = t("current_role.check.warning") if current_user.current_user_role.blank?
+    if current_user.current_user_role.blank?
+      current_user.update_attribute(:current_user_role_id, nil)
+      flash.now[:warning] = t("current_role.check.warning")
+    end
   end
 
   def current_entity_configuration
