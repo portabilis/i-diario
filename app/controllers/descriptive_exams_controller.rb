@@ -9,7 +9,6 @@ class DescriptiveExamsController < ApplicationController
 
     authorize @descriptive_exam
 
-    fetch_unities
     set_school_calendar_steps
   end
 
@@ -25,7 +24,6 @@ class DescriptiveExamsController < ApplicationController
       )
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
-      fetch_unities
       set_school_calendar_steps
       render :new
     end
@@ -66,7 +64,6 @@ class DescriptiveExamsController < ApplicationController
     destroy_students_not_found
 
     if @descriptive_exam.save
-      fetch_unities
       respond_with @descriptive_exam, location: new_descriptive_exam_path
     else
       render :edit
@@ -88,7 +85,6 @@ class DescriptiveExamsController < ApplicationController
       @api_students = result["alunos"]
     rescue IeducarApi::Base::ApiError => e
       flash[:alert] = e.message
-      fetch_unities
       @api_students = []
       render :new
     end
@@ -96,15 +92,6 @@ class DescriptiveExamsController < ApplicationController
 
   def configuration
     @configuration ||= IeducarApiConfiguration.current
-  end
-
-  def fetch_unities
-    @unity_id ||= @descriptive_exam.unity.try(:id)
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @unity_id, @descriptive_exam.classroom_id, @descriptive_exam.discipline_id)
-    fetcher.fetch!
-    @unities = current_user.admin? ? fetcher.unities : Unity.where(id: @unity_id)
-    @classrooms = fetcher.classrooms
-    @disciplines = fetcher.disciplines
   end
 
   def resource_params

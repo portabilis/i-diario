@@ -185,7 +185,6 @@ class ConceptualExamsController < ApplicationController
 
   def fetch_collections
     fetch_unities_classrooms_disciplines_by_teacher
-    fetch_classrooms
     fetch_school_calendar_steps
     fetch_students
   end
@@ -198,7 +197,6 @@ class ConceptualExamsController < ApplicationController
     )
     fetcher.fetch!
 
-    @unities = fetcher.unities
     @disciplines = fetcher.disciplines
   end
 

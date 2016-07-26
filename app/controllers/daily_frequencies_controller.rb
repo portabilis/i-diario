@@ -12,7 +12,7 @@ class DailyFrequenciesController < ApplicationController
 
     authorize @daily_frequency
 
-    fetch_unities
+    fetch_avaliations
   end
 
   def create
@@ -34,7 +34,7 @@ class DailyFrequenciesController < ApplicationController
       end
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
     else
-      fetch_unities
+      fetch_avaliations
       render :new
     end
   end
@@ -134,12 +134,9 @@ class DailyFrequenciesController < ApplicationController
     @configuration ||= IeducarApiConfiguration.current
   end
 
-  def fetch_unities
+  def fetch_avaliations
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @daily_frequency.unity_id, @daily_frequency.classroom_id, @daily_frequency.discipline_id)
     fetcher.fetch!
-    @unities = fetcher.unities
-    @classrooms = fetcher.classrooms
-    @disciplines = fetcher.disciplines
     @avaliations = fetcher.avaliations
   end
 

@@ -9,7 +9,6 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    fetch_unities
   end
 
   def create
@@ -18,7 +17,6 @@ class DailyNotesController < ApplicationController
     if @daily_note.valid? && find_or_initialize_resource
       redirect_to edit_daily_note_path(@daily_note)
     else
-      fetch_unities
       render :new
     end
   end
@@ -97,7 +95,6 @@ class DailyNotesController < ApplicationController
       @api_students = remove_duplicated_students(result['alunos'])
     rescue IeducarApi::Base::ApiError => e
       flash[:alert] = e.message
-      fetch_unities
       @api_students = []
       render :new
     end
@@ -105,15 +102,6 @@ class DailyNotesController < ApplicationController
 
   def configuration
     @configuration ||= IeducarApiConfiguration.current
-  end
-
-  def fetch_unities
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @daily_note.unity_id, @daily_note.classroom_id, @daily_note.discipline_id)
-    fetcher.fetch!
-    @unities = fetcher.unities
-    @classrooms = fetcher.classrooms
-    @disciplines = fetcher.disciplines
-    @avaliations = fetcher.avaliations
   end
 
   def resource_params

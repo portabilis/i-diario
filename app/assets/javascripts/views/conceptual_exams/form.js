@@ -219,7 +219,7 @@ $(function() {
     fetchStudents();
     removeDisciplines();
     fetchDisciplines();
-  });
+  }).trigger("change");
 
   $recorded_at.on('change', function() {
     fetchStudents();

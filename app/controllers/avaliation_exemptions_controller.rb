@@ -14,7 +14,6 @@ class AvaliationExemptionsController < ApplicationController
     @avaliation_exemption = AvaliationExemption.new
     @current_user_unity_id = current_user_unity.id
     @school_calendar_year = current_school_calendar.year
-    @unities = fetch_unities
     @school_calendar_steps = current_school_calendar.steps
     authorize @avaliation_exemption
   end
@@ -81,42 +80,9 @@ class AvaliationExemptionsController < ApplicationController
   end
 
   def fetch_collections
-    @unities = fetch_unities
-    @courses = fetch_courses
-    @grades = fetch_grades
-    @classrooms = fetch_classrooms
     @avaliations = fetch_avaliations
-    @disciplines = fetch_disciplines
     @students = fetch_students
     @school_calendar_steps = fetch_school_calendar_steps
-  end
-
-  def fetch_unities
-    Unity.by_teacher(current_teacher)
-  end
-
-  def fetch_courses
-    Course.by_unity(current_user_unity.id)
-  end
-
-  def fetch_grades
-    Grade
-      .by_unity(current_user_unity.id)
-      .by_course(@avaliation_exemption.course_id)
-  end
-
-  def fetch_classrooms
-    Classroom
-      .by_unity(current_user_unity.id)
-      .by_year(current_school_calendar.year)
-      .by_grade(@avaliation_exemption.grade_id)
-  end
-
-  def fetch_disciplines
-    Discipline
-      .by_unity_id(current_user_unity.id)
-      .by_grade(@avaliation_exemption.grade_id)
-      .by_classroom(@avaliation_exemption.classroom_id)
   end
 
   def fetch_avaliations
