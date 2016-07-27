@@ -35,7 +35,6 @@ class AvaliationsController < ApplicationController
 
     authorize resource
 
-    fetch_classrooms
     @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
   end
 
@@ -48,7 +47,6 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_with resource, location: avaliations_path
     else
-      fetch_classrooms
       @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
 
       render :new
@@ -60,7 +58,6 @@ class AvaliationsController < ApplicationController
 
     authorize @avaliation
 
-    fetch_classrooms
     @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
   end
 
@@ -73,7 +70,6 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_with @avaliation, location: avaliations_path
     else
-      fetch_classrooms
       @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
 
       render :edit
@@ -110,14 +106,6 @@ class AvaliationsController < ApplicationController
 
   def set_number_of_classes
     @number_of_classes = current_school_calendar.number_of_classes
-  end
-
-  def fetch_classrooms
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @avaliation.unity_id, @avaliation.classroom_id)
-    fetcher.fetch!
-
-    @classrooms = fetcher.classrooms
-    @disciplines = fetcher.disciplines
   end
 
   def resource

@@ -32,8 +32,6 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     @final_recovery_diary_record.build_recovery_diary_record
     @final_recovery_diary_record.recovery_diary_record.unity = current_user_unity
 
-    @unities = fetch_unities
-    @classrooms = fetch_classrooms
 
     @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.to_a.last.test_setting.number_of_decimal_places
   end
@@ -47,8 +45,6 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     if @final_recovery_diary_record.save
       respond_with @sfinal_recovery_diary_record, location: final_recovery_diary_records_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
       @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
 
       students_in_final_recovery = fetch_students_in_final_recovery
@@ -68,8 +64,6 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     add_missing_students(students_in_final_recovery)
     decorate_students(students_in_final_recovery)
 
-    @unities = fetch_unities
-    @classrooms = fetch_classrooms
     @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
   end
 
@@ -85,8 +79,6 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     if @final_recovery_diary_record.save
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
       @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
 
       render :edit

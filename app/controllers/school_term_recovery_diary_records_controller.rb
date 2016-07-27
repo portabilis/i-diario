@@ -33,8 +33,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.build_recovery_diary_record
     @school_term_recovery_diary_record.recovery_diary_record.unity = current_user_unity
 
-    @unities = fetch_unities
-    @classrooms = fetch_classrooms
     @school_calendar_steps = current_school_calendar.steps
   end
 
@@ -47,8 +45,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     if @school_term_recovery_diary_record.save
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
       @school_calendar_steps = current_school_calendar.steps
 
       render :new
@@ -64,8 +60,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     mark_students_not_in_recovery_for_destruction(students_in_recovery)
     add_missing_students(students_in_recovery)
 
-    @unities = fetch_unities
-    @classrooms = fetch_classrooms
     @school_calendar_steps = current_school_calendar.steps
   end
 
@@ -78,8 +72,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     if @school_term_recovery_diary_record.save
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
-      @unities = fetch_unities
-      @classrooms = fetch_classrooms
       @school_calendar_steps = current_school_calendar.steps
 
       render :edit

@@ -243,7 +243,6 @@ $(function () {
   });
 
   // On load
-  fetchDisciplines();
   fetchStudentOldNotes();
   if(!$('form[id^=edit_transfer_note]').length){
     fetchStudentCurrentNotes();

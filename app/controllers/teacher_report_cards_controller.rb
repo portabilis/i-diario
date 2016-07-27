@@ -40,30 +40,6 @@ class TeacherReportCardsController < ApplicationController
 
   protected
 
-  def unities
-    @unities = [current_user_unity]
-  end
-  helper_method :unities
-
-  def classrooms
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity.try(:id), current_teacher.id)
-                           .ordered
-  end
-  helper_method :classrooms
-
-  def disciplines
-    @disciplines = []
-
-    if @teacher_report_card_form.classroom_id.present?
-      @disciplines = Discipline.by_teacher_and_classroom(
-          current_teacher.id, @teacher_report_card_form.classroom_id
-        )
-        .ordered
-    end
-    @disciplines
-  end
-  helper_method :disciplines
-
   def resource_params
     params.require(:teacher_report_card_form).permit(
       :unity_id, :classroom_id, :discipline_id

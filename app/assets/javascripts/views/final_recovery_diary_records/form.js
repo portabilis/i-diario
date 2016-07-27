@@ -118,6 +118,7 @@ $(function () {
 
   // On load
 
-  fetchDisciplines();
+  removeStudents();
+  fetchStudentsInFinalRecovery();
   loadDecimalMasks();
 });

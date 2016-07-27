@@ -30,14 +30,6 @@ class DisciplineLessonPlanReportController < ApplicationController
   private
 
   def fetch_collections
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id,
-                                                        current_user.current_user_role.unity.id,
-                                                        @discipline_lesson_plan_report_form.classroom_id,
-                                                        @discipline_lesson_plan_report_form.discipline_id)
-    fetcher.fetch!
-    @unities = fetcher.unities
-    @classrooms = fetcher.classrooms
-    @disciplines = fetcher.disciplines
     @number_of_classes = current_school_calendar.number_of_classes
   end
 

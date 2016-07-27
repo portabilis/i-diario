@@ -17,7 +17,6 @@ class ObservationDiaryRecordsController < ApplicationController
     @observation_diary_record = ObservationDiaryRecord.new.localized
     @observation_diary_record.school_calendar_id = current_school_calendar.id
     @observation_diary_record.teacher_id = current_teacher.id
-    @observation_diary_record.unity_id = current_user_unity.id
     @observation_diary_record.date = Time.zone.today
   end
 

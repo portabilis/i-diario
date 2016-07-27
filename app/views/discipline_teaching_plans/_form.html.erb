@@ -18,18 +18,16 @@
 
       <div class="row">
         <div class="col col-sm-4">
-          <%= teaching_plan_form.association :unity, as: :select2,
-                elements: @unities, readonly: !current_user.admin? || action_name == 'show' %>
+          <%= teaching_plan_form.association :unity, as: :select2_unity, user: current_user %>
         </div>
 
         <div class="col col-sm-4">
-          <%= teaching_plan_form.association :grade, as: :select2, elements: @grades,
-                readonly: action_name == 'show' %>
+          <%= teaching_plan_form.input :grade_id, as: :select2_grade, user: current_user %>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2, elements: @disciplines,
-                readonly: action_name == 'show' %>
+          <%= f.association :discipline, as: :select2_discipline, user: current_user,
+                grade_id: @discipline_teaching_plan.teaching_plan.grade_id %>
         </div>
       </div>
 

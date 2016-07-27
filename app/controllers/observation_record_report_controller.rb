@@ -36,20 +36,6 @@ class ObservationRecordReportController < ApplicationController
 
   private
 
-  def unities
-    @unities ||= Unity.by_teacher(current_teacher.id).ordered
-  end
-  helper_method :unities
-
-  def classrooms
-    @classrooms ||= Classroom.by_unity_and_teacher(
-      current_user_unity.id,
-      current_teacher.id
-    )
-    .ordered
-  end
-  helper_method :classrooms
-
   def resource_params
     params.require(:observation_record_report_form).permit(
       :teacher_id,
