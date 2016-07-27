@@ -98,6 +98,9 @@ Rails.application.routes.draw do
         delete :destroy_batch
         get :synchronizations
         post :create_batch
+        get :search
+        get :all
+        get :school_group
       end
     end
     resources :***REMOVED***, concerns: :history do
