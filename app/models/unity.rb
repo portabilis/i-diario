@@ -21,6 +21,7 @@ class Unity < ActiveRecord::Base
     class_name: "***REMOVED***"
   has_many :***REMOVED***_distribution_unities
   has_many :***REMOVED***, through: :***REMOVED***_distribution_unities
+  has_many :***REMOVED***, through: :***REMOVED***_unities
   has_many :moved_***REMOVED***
   has_many :***REMOVED***
   has_many :***REMOVED***

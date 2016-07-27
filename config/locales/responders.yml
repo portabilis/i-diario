@@ -156,6 +156,9 @@ pt-BR:
         notice: 'Ajuste de estoque realizado com sucesso.'
         alert: 'Ajuste de estoque não pode ser realizado.'
 
+    ***REMOVED***:
+      <<: *male
+
     school_term_recovery_diary_records:
       create:
         notice: "Recuperação de etapa lançada com sucesso!"
