@@ -29,6 +29,7 @@ class Unity < ActiveRecord::Base
   has_many :teacher_discipline_classrooms, through: :classrooms
 
   has_and_belongs_to_many :***REMOVED***
+  has_and_belongs_to_many :***REMOVED***
 
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
 
@@ -51,6 +52,7 @@ class Unity < ActiveRecord::Base
   scope :phone, lambda { |phone| where("phone ILIKE ?", "%#{phone}%") }
   scope :email, lambda { |email| where("email ILIKE ?", "%#{email}%") }
   scope :responsible, lambda { |responsible| where("responsible ILIKE ?", "%#{responsible}%") }
+  scope :by_school_group, lambda { |school_group| joins(:***REMOVED***).where(***REMOVED***_unities: { school_group_id: school_group })  }
 
   def to_s
     name

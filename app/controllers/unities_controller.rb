@@ -100,6 +100,17 @@ class UnitiesController < ApplicationController
     render json: @unities
   end
 
+  def school_group
+    @unities = apply_scopes(Unity).by_school_group(params[:id]).ordered
+
+    render json: @unities
+  end
+
+  def all
+    @unities = Unity.ordered
+    render json:  @unities
+  end
+
   private
 
   def unity_params
