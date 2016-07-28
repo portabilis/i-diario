@@ -31,3 +31,11 @@
     </div>
   </div>
 </div>
+<script type="text/javascript">
+  window.user = {};
+  window.user.current_user_role_id = <%= current_user.current_user_role_id || 0 %>;
+  window.user.current_unity_id = <%= current_user.current_unity_id || 0 %>;
+  window.user.assumed_teacher_id = <%= current_user.assumed_teacher_id || 0 %>;
+  window.user.current_classroom_id = <%= current_user.current_classroom_id || 0 %>;
+  window.user.current_discipline_id = <%= current_user.current_discipline_id || 0 %>;
+</script>
