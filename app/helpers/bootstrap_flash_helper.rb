@@ -17,6 +17,7 @@ module BootstrapFlashHelper
       icon = 'fa-check'
       icon = 'fa-info'  if type == :info
       icon = 'fa-times' if type == :danger
+      icon = 'fa-warning' if type == :warning
 
       Array(message).each do |msg|
         text = content_tag(:div,

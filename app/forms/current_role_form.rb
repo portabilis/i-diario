@@ -23,6 +23,8 @@ class CurrentRoleForm
 
   def save
     return false unless valid?
+    @params[:current_classroom_id] = @params[:current_discipline_id] = nil unless require_allocation?
+    @params[:current_unity_id] = nil unless require_unity?
     current_user.update_attributes(@params)
     current_user.save!
   end
