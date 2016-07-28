@@ -10,8 +10,7 @@ class FeaturesAccessLevels
       :***REMOVED***,
       :***REMOVED***_configs,
       :roles,
-      :unities,
-      :***REMOVED***
+      :unities
     ]
   end
 
