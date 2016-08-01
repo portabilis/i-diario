@@ -101,7 +101,7 @@ class UnitiesController < ApplicationController
   end
 
   def school_group
-    @unities = apply_scopes(Unity).by_school_group(params[:id]).ordered
+    @unities = Unity.by_school_group(params[:id]).ordered
 
     render json: @unities
   end
