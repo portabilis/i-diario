@@ -83,9 +83,13 @@ class AttendanceRecordReport
 
   def daily_frequencies_table
     self.any_student_with_dependence = false
-    frequencies_and_events = @daily_frequencies.to_a + @events.to_a
+
+    daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
+
+    frequencies_and_events = daily_frequencies.to_a + @events.to_a
+
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
-      obj.class.to_s == "SchoolCalendarEvent" ? obj.event_date : obj.frequency_date
+      event?(obj) ? obj.event_date : obj.frequency_date
     end
     sliced_frequencies_and_events = frequencies_and_events.each_slice(40).to_a
 
@@ -97,7 +101,7 @@ class AttendanceRecordReport
       students_ids = fetch_students_ids
 
       frequencies_and_events_slice.each do |daily_frequency_or_event|
-        if daily_frequency_or_event.class.to_s == "SchoolCalendarEvent"
+        if event?(daily_frequency_or_event)
           school_calendar_event = daily_frequency_or_event
           self.legend += ", "+school_calendar_event.legend.to_s+" - "+school_calendar_event.description
 
@@ -114,25 +118,22 @@ class AttendanceRecordReport
           end
         else
           daily_frequency = daily_frequency_or_event
-          if daily_frequency.students.any?
-            class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
-            days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
-            months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
+          class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
+          days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
+          months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
+          students_ids.each do |student_id|
+            student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id) || NullDailyFrequencyStudent.new
+            student = Student.find(student_id)
+            (students[student_id] ||= {})[:name] = student.name
+            students[student_id] = {} if students[student_id].nil?
+            students[student_id][:dependence] = students[student_id][:dependence] || student_frequency.dependence?
 
-            students_ids.each do |student_id|
-              student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id) || NullDailyFrequencyStudent.new
-              student = Student.find(student_id)
-              (students[student_id] ||= {})[:name] = student.name
-              students[student_id] = {} if students[student_id].nil?
-              students[student_id][:dependence] = students[student_id][:dependence] || student_frequency.dependence?
-
-              self.any_student_with_dependence = self.any_student_with_dependence || student_frequency.dependence?
-              students[student_id][:absences] ||= 0
-              if !student_frequency.present
-                students[student_id][:absences] = students[student_id][:absences] + 1
-              end
-              (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
+            self.any_student_with_dependence = self.any_student_with_dependence || student_frequency.dependence?
+            students[student_id][:absences] ||= 0
+            if !student_frequency.present
+              students[student_id][:absences] = students[student_id][:absences] + 1
             end
+          (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
           end
         end
       end
@@ -248,5 +249,9 @@ class AttendanceRecordReport
     students = Student.where(id: students_ids).ordered
     students_ids = students.collect(&:id)
     students_ids
+  end
+
+  def event?(record)
+    record.class.to_s == "SchoolCalendarEvent"
   end
 end
