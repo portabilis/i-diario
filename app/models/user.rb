@@ -37,14 +37,13 @@ class User < ActiveRecord::Base
   has_many :message_targets
   has_many :messages, through: :message_targets
   has_many :sent_messages, class_name: "Message"
-  has_many :absence_justifications, foreign_key: :author_id, dependent: :restrict_with_error
 
   has_and_belongs_to_many :students
 
   has_many :***REMOVED***
   has_many :authorization_***REMOVED***
   has_many :***REMOVED***
-  has_many :user_roles, -> { includes(:role) }, dependent: :restrict_with_error
+  has_many :user_roles, -> { includes(:role) }, dependent: :destroy
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
