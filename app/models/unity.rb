@@ -10,6 +10,7 @@ class Unity < ActiveRecord::Base
 
   belongs_to :author, class_name: "User"
   has_one :address, as: :source, inverse_of: :source
+  has_one :absence_justification, dependent: :restrict_with_error
 
   has_many :origin_***REMOVED***, foreign_key: :origin_unity_id,
     class_name: "***REMOVED***Request"
