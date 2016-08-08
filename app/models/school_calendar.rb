@@ -21,7 +21,6 @@ class SchoolCalendar < ActiveRecord::Base
                    uniqueness: { scope: :unity_id }
   validates :number_of_classes, presence: true,
                                 numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
-  validates :unity, presence: true
 
   validate :at_least_one_assigned_step
   validate :must_not_have_conflicting_steps

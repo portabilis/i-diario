@@ -35,7 +35,7 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
   validate :uniqueness_of_recorded_at
 
   def year
-    school_calendar.year
+    school_calendar.try(:year)
   end
 
   private
