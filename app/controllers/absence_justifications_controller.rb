@@ -5,9 +5,9 @@ class AbsenceJustificationsController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @unities = Unity.by_teacher(current_teacher.id)
+    @unities = Unity.by_teacher(current_teacher_id)
     @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
-    @absence_justifications = apply_scopes(AbsenceJustification.by_teacher(current_teacher.id)
+    @absence_justifications = apply_scopes(AbsenceJustification.by_teacher(current_teacher_id)
                                                                .by_unity(current_user_unity)
                                                                .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
@@ -114,8 +114,8 @@ class AbsenceJustificationsController < ApplicationController
   protected
 
   def fetch_collections
-    @unities = Unity.by_teacher(current_teacher.id).ordered
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher.id)
+    @unities = Unity.by_teacher(current_teacher_id).ordered
+    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher_id)
   end
 
   def configuration

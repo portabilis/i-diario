@@ -5,7 +5,11 @@
   $("form#user-role").on("ajax:success", function(event, data, status, xhr){
     $("form#user-role").clear_form_fields();
     $("form#user-role").clear_form_errors();
-    location.reload();
+    if($('#current_action_').val() == 'edit'){
+      location.href = Routes.root_pt_br_path;
+    }else{
+      location.reload();
+    }
     }).on("ajax:error", function(event, data, status, xhr){
       $("form#user-role").render_form_errors('user', data.responseJSON);
   });

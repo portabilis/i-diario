@@ -32,6 +32,7 @@ class ConceptualExam < ActiveRecord::Base
   validates :recorded_at, presence: true,
     not_in_future: true,
     school_term_day: { school_term: lambda(&:school_calendar_step) }
+  validates :unity_id, presence: true
 
   validate :classroom_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value

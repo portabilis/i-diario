@@ -1,3 +1,3 @@
 <div class="col col-sm-4">
-  <%= f.input :unity_id, as: :select2_unity, user: current_user %>
+  <%= f.association :unity, as: :select2_unity, user: current_user %>
 </div>

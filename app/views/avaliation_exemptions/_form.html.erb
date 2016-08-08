@@ -8,7 +8,7 @@
     <%= f.input :school_calendar_year, as: :hidden, input_html: { value: @school_calendar_year } %>
 
     <div class="col col-sm-4">
-      <%= f.input :unity_id, as: :select2_unity, user: current_user %>
+      <%= f.association :unity, as: :select2_unity, user: current_user %>
     </div>
 
     <div class="col col-sm-4">
