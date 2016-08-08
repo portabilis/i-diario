@@ -52,6 +52,8 @@ pt-BR:
 
     users:
       <<: *male
+      destroy:
+        alert: '%{resource_name} não pode ser apagado pois possui vínculos.'
 
     accounts:
       <<: *male

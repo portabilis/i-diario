@@ -25,24 +25,25 @@ class User < ActiveRecord::Base
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id
   has_many :***REMOVED***, dependent: :destroy
   has_many :requested_***REMOVED***, class_name: "***REMOVED***Request",
-    foreign_key: :requestor_id
+    foreign_key: :requestor_id, dependent: :restrict_with_error
   has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
-    foreign_key: :responsible_id
+    foreign_key: :responsible_id, dependent: :restrict_with_error
   has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
-    foreign_key: :responsible_id
+    foreign_key: :responsible_id, dependent: :restrict_with_error
   has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
-    foreign_key: :responsible_id
+    foreign_key: :responsible_id, dependent: :restrict_with_error
   has_many :***REMOVED***s, foreign_key: :author_id, dependent: :restrict_with_error
   has_many :system_notification_targets
-  has_many :message_targets
-  has_many :messages, through: :message_targets
-  has_many :sent_messages, class_name: "Message"
+  has_many :message_targets, dependent: :destroy
+  has_many :messages, through: :message_targets, dependent: :destroy
+  has_many :sent_messages, class_name: "Message", dependent: :destroy
+  has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
 
   has_and_belongs_to_many :students
 
-  has_many :***REMOVED***
-  has_many :authorization_***REMOVED***
-  has_many :***REMOVED***
+  has_many :***REMOVED***, dependent: :restrict_with_error
+  has_many :authorization_***REMOVED***, dependent: :restrict_with_error
+  has_many :***REMOVED***, dependent: :restrict_with_error
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
