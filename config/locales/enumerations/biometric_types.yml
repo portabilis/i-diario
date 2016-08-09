@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    biometric_types:
+      sagem: "Sagem"
+      inttelix: "Inttelix"
+      suprema: "Suprema"
