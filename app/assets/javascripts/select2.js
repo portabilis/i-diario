@@ -12,7 +12,7 @@ $(document).ready(function(){
       allowClear: !$(element).data('hide-empty-element')
     });
 
-    if ($(element).data('multiple') && !$(element).data('without-json-parser')) {
+    if ($(element).data('multiple') && !$(element).data('without-json-parser') && !_.isEmpty($(element).val())){
       $(element).select2("val", JSON.parse($(element).val()));
     }
   });

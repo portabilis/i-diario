@@ -29,7 +29,7 @@ class AbsenceJustificationReportController < ApplicationController
   private
 
   def fetch_absences
-    if @absence_justification_report_form.discipline_id.present?
+    if @absence_justification_report_form.frequence_type_by_discipline?
       @absence_justifications = AbsenceJustification.by_teacher(current_teacher)
                                                     .by_unity(current_user_unity.id)
                                                     .by_school_calendar_report(current_school_calendar)

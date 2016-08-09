@@ -147,6 +147,11 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_teacher
 
+  def current_teacher_id
+    current_teacher.try(:id)
+  end
+  helper_method :current_teacher_id
+
   def current_school_calendar
     return if current_user.admin? && current_user_unity.blank?
 

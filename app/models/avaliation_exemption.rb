@@ -1,6 +1,7 @@
 class AvaliationExemption < ActiveRecord::Base
   belongs_to :avaliation
   belongs_to :student
+  belongs_to :unity
 
   audited
   has_associated_audits

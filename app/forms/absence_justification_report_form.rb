@@ -27,7 +27,7 @@ class AbsenceJustificationReportForm
   validate :must_find_absence
 
   def absence_justification
-    if discipline_id.present?
+    if frequence_type_by_discipline?
       AbsenceJustification.by_teacher(current_teacher_id)
                           .by_unity(unity)
                           .by_school_calendar_report(school_calendar_year)
@@ -45,13 +45,13 @@ class AbsenceJustificationReportForm
     end
   end
 
-  private
-
   def frequence_type_by_discipline?
     frequency_type_definer = FrequencyTypeDefiner.new(classroom, current_teacher_id)
     frequency_type_definer.define!
     frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
   end
+
+  private
 
   def must_find_absence
     return unless errors.blank?

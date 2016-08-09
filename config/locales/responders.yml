@@ -30,6 +30,8 @@ pt-BR:
       create_batch:
         notice: "Unidades sincronizadas com sucesso."
         alert: "Ocorreu erro ao salvar as unidades. Favor tentar novamente."
+      destroy:
+        alert: '%{resource_name} não pode ser apagada pois possui vínculos.'
 
     ***REMOVED***s:
       <<: *female
@@ -50,6 +52,8 @@ pt-BR:
 
     users:
       <<: *male
+      destroy:
+        alert: '%{resource_name} não pode ser apagado pois possui vínculos.'
 
     accounts:
       <<: *male

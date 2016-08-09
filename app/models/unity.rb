@@ -13,21 +13,21 @@ class Unity < ActiveRecord::Base
   has_one :absence_justification, dependent: :restrict_with_error
 
   has_many :origin_***REMOVED***, foreign_key: :origin_unity_id,
-    class_name: "***REMOVED***Request"
+    class_name: "***REMOVED***Request", dependent: :restrict_with_error
   has_many :origin_***REMOVED***, foreign_key: :origin_unity_id,
-    class_name: "***REMOVED***"
+    class_name: "***REMOVED***", dependent: :restrict_with_error
   has_many :destination_***REMOVED***, foreign_key: :destination_unity_id,
-    class_name: "***REMOVED***"
+    class_name: "***REMOVED***", dependent: :restrict_with_error
   has_many :destination_***REMOVED***, foreign_key: :destination_unity_id,
-    class_name: "***REMOVED***"
+    class_name: "***REMOVED***",dependent: :restrict_with_error
   has_many :***REMOVED***_distribution_unities
   has_many :***REMOVED***, through: :***REMOVED***_distribution_unities
   has_many :***REMOVED***, through: :***REMOVED***_unities
-  has_many :moved_***REMOVED***
-  has_many :***REMOVED***
-  has_many :***REMOVED***
-  has_many :classrooms
-  has_many :teacher_discipline_classrooms, through: :classrooms
+  has_many :moved_***REMOVED***, dependent: :restrict_with_error
+  has_many :***REMOVED***, dependent: :restrict_with_error
+  has_many :***REMOVED***, dependent: :restrict_with_error
+  has_many :classrooms, dependent: :restrict_with_error
+  has_many :teacher_discipline_classrooms, through: :classrooms, dependent: :restrict_with_error
 
   has_and_belongs_to_many :***REMOVED***
   has_and_belongs_to_many :***REMOVED***
