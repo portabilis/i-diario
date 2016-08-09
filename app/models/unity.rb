@@ -21,6 +21,7 @@ class Unity < ActiveRecord::Base
   has_many :destination_***REMOVED***, foreign_key: :destination_unity_id,
     class_name: "***REMOVED***",dependent: :restrict_with_error
   has_many :***REMOVED***_distribution_unities
+  has_many :unity_equipments
   has_many :***REMOVED***, through: :***REMOVED***_distribution_unities
   has_many :***REMOVED***, through: :***REMOVED***_unities
   has_many :moved_***REMOVED***, dependent: :restrict_with_error
@@ -34,10 +35,13 @@ class Unity < ActiveRecord::Base
 
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
 
+  accepts_nested_attributes_for :unity_equipments, allow_destroy: true
+
   validates :author, :name, :unit_type, presence: true
   validates :name, uniqueness: { case_sensitive: false }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
+  validate :uniqueness_of_equipments
 
   scope :ordered, -> { order(arel_table[:name].asc) }
   scope :by_api_codes, lambda { |codes|
@@ -57,5 +61,23 @@ class Unity < ActiveRecord::Base
 
   def to_s
     name
+  end
+
+  def uniqueness_of_equipments
+    # necessário devido a bug relatado https://github.com/rails/rails/issues/20676
+    return if unity_equipments.reject(&:marked_for_destruction?).blank?
+
+    if any_duplicated_equipment?
+      errors.add(:unity_equipments, :uniqueness_of_items)
+
+      duplicated_equipments = unity_equipments.reject(&:marked_for_destruction?).select do |equipment|
+        unity_equipments.any? { |i| !i.eql?(equipment) && i.code.eql?(equipment.code) }
+      end
+      duplicated_equipments.each { |equipment| equipment.errors.add(:code, :taken) }
+    end
+  end
+
+  def any_duplicated_equipment?
+    unity_equipments.reject(&:marked_for_destruction?).group_by { |equipment| equipment.code }.count != unity_equipments.reject(&:marked_for_destruction?).count
   end
 end
