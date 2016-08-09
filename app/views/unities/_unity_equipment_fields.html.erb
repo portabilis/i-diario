@@ -1,0 +1,15 @@
+<tr class="nested-fields">
+  <td>
+    <%= f.input :code, label_html: {class: 'hidden'} %>
+  </td>
+
+  <td>
+    <%= f.input :biometric_type, label_html: {class: 'hidden'}, as: :select2, elements: BiometricTypesDecorator.data_for_select2 %>
+  </td>
+
+  <td class="actions">
+    <%= f.hidden_field :id %>
+    <%= link_to_remove_association t('.remove'), f,
+      class: 'btn btn-danger btn-sm' %>
+  </td>
+</tr>

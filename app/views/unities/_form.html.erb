@@ -42,6 +42,46 @@
     <%= render 'address/shared_form', f: a, show_map: true %>
   <% end %>
 
+  <fieldset>
+    <legend><%= t('activerecord.models.unity_equipment', count: 2) %></legend>
+
+    <% if f.object.errors[:unity_equipments].present? %>
+      <div class="alert alert-danger alert-block">
+        <span class="help-inline">
+          <%= f.object.errors[:unity_equipments].join "<br />" %>
+        </span>
+      </div>
+    <% end %>
+
+    <table class="table table-striped table-bordered table-condensed records">
+      <thead>
+        <tr>
+          <th><%= UnityEquipment.human_attribute_name :code %></th>
+          <th><%= UnityEquipment.human_attribute_name :biometric_type %></th>
+          <th width="73px"></th>
+        </tr>
+      </thead>
+
+      <tbody id="unity-equipments">
+        <%= f.simple_fields_for :unity_equipments do |unity_equipment| %>
+          <%= render 'unity_equipment_fields', f: unity_equipment %>
+        <% end %>
+      </tbody>
+
+      <tfoot class="links">
+        <tr>
+          <td colspan="5">
+            <%= link_to_add_association t('.add_unity_equipment'), f, :unity_equipments,
+              class: 'btn btn-success btn-sm',
+              :"data-association-insertion-method" => "append",
+              :"data-association-insertion-node" => "#unity-equipments" %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+
+  </fieldset>
+
   <footer>
     <%= link_to unities_path, class: "btn btn-default" do %>
       Voltar

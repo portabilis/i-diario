@@ -119,6 +119,9 @@ class UnitiesController < ApplicationController
       :address_attributes => [
         :id, :zip_code, :street, :number, :complement, :neighborhood, :city,
         :state, :country, :latitude, :longitude, :_destroy
+      ],
+      :unity_equipments_attributes => [
+        :id, :_destroy, :code, :biometric_type
       ]
     )
   end
