@@ -1,0 +1,10 @@
+pt-BR:
+  activerecord:
+    models:
+      student_biometric: "Biometria"
+    attributes:
+      student_biometric:
+        student: "Aluno"
+        student_id: "Aluno"
+        biometric: "Biometria"
+        biometric_type: "Tipo de biometria"
