@@ -1,0 +1,12 @@
+pt-BR:
+  activerecord:
+    models:
+      unity_equipment:
+        one: "Equipamento"
+        other: "Equipamentos"
+    attributes:
+      unity_equipment:
+        code: "Código"
+        unity: "Unidade"
+        unity_id: "Unidade"
+        biometric_type: "Tipo de biometria"

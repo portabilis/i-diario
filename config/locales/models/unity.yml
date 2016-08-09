@@ -25,3 +25,7 @@ pt-BR:
     index:
       new_html: <i class="fa fa-plus"></i> Nova unidade
       synchronize_html: <i class="fa fa-refresh"></i> Sincronizar
+    form:
+      add_unity_equipment: "Adicionar equipamento"
+    unity_equipment_fields:
+      remove: "Remover"

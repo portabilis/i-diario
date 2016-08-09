@@ -9,6 +9,7 @@ RSpec.describe Unity, :type => :model do
     it { should have_many :origin_***REMOVED*** }
     it { should have_many :destination_***REMOVED*** }
     it { should have_many :destination_***REMOVED*** }
+    it { should have_many :unity_equipments }
     it { should have_and_belong_to_many :***REMOVED*** }
   end
 
