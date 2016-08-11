@@ -118,3 +118,4 @@ pt-BR:
     send_access_batch: "enviarregistrobatch"
     biometric: "biometria"
     send_biometric: "enviarbiometria"
+    request_biometric: "solicitarbiometria"
