@@ -11,6 +11,13 @@ Rails.application.routes.draw do
       resources :access do
         collection do
           post :request_access
+          post :send_access
+          post :send_access_batch, to: :send_access
+        end
+      end
+      resources :biometric do
+        collection do
+          post :send_biometric
         end
       end
     end
