@@ -1,8 +1,5 @@
 # encoding: utf-8
-class V1::AccessController < ApplicationController
-  skip_before_action :authenticate_user!
-  skip_before_action :configure_permitted_parameters
-  skip_before_action :check_for_***REMOVED***
+class V1::AccessController < V1::BaseController
 
   def request_access
 

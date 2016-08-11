@@ -15,6 +15,11 @@ Rails.application.routes.draw do
           post :send_access_batch, to: :send_access
         end
       end
+      resources :biometric do
+        collection do
+          post :send_biometric
+        end
+      end
     end
 
     namespace :api do
