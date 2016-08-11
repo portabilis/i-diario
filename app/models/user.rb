@@ -34,9 +34,9 @@ class User < ActiveRecord::Base
     foreign_key: :responsible_id, dependent: :restrict_with_error
   has_many :***REMOVED***s, foreign_key: :author_id, dependent: :restrict_with_error
   has_many :system_notification_targets
-  has_many :message_targets, dependent: :destroy
-  has_many :messages, through: :message_targets, dependent: :destroy
-  has_many :sent_messages, class_name: "Message", dependent: :destroy
+  has_many :message_targets
+  has_many :messages, through: :message_targets, foreign_key: :author_id, dependent: :destroy
+  has_many :sent_messages, class_name: "Message", foreign_key: :author_id, dependent: :destroy
   has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
 
   has_and_belongs_to_many :students
