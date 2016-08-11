@@ -11,6 +11,7 @@ Rails.application.routes.draw do
       resources :access do
         collection do
           post :request_access
+          post :send_access
         end
       end
     end
