@@ -19,6 +19,7 @@ Rails.application.routes.draw do
         collection do
           post :send_biometric
           post :request_biometric
+          post '/request_biometric/:id', to: 'biometric#request_biometric_by_id'
         end
       end
     end

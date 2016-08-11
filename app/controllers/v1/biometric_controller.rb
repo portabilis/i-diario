@@ -44,6 +44,37 @@ class V1::BiometricController < V1::BaseController
     }
   end
 
+  def request_biometric_by_id
+    api_students = fetch_students_by_api_code params[:IdUnidade]
+
+    biometric = Student.joins(:student_biometrics)
+              .where(Student.arel_table[:api_code].eq(params[:id]))
+              .where(StudentBiometric.arel_table[:biometric_type].eq(params[:TipoBiometria]))
+              .pluck("student_biometrics.biometric")
+              .first
+
+    if biometric.present?
+      msg = "OK"
+      code = 1
+      data = {
+        "IdAluno" => params[:id],
+        "Biometria" => biometric
+      }
+    else
+      msg = "Biometria não cadastrada"
+      code = 2
+      data = {}
+    end
+
+    render json: {
+      "Dados" => data,
+      "Status" => {
+        "Codigo" => code,
+        "Mensagem" => msg
+      }
+    }
+  end
+
   protected
 
   def fetch_students_by_api_code api_code
