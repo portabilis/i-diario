@@ -110,3 +110,7 @@ pt-BR:
     synchronize: 'sincronizar'
     search: 'busca'
     export_selected: 'exportar-selecionados'
+
+    #***REMOVED***
+    access: "acesso"
+    request_access: "solicitaracesso"
