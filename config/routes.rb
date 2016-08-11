@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       resources :biometric do
         collection do
           post :send_biometric
+          post :request_biometric
         end
       end
     end

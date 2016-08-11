@@ -25,4 +25,35 @@ class V1::BiometricController < V1::BaseController
       "Mensagem" => msg
     }
   end
+
+  def request_biometric
+    api_students = fetch_students_by_api_code params[:IdUnidade]
+
+    result = Student.joins(:student_biometrics)
+              .where(Student.arel_table[:api_code].in(api_students.map{|a| a["aluno_id"] }))
+              .where(StudentBiometric.arel_table[:biometric_type].eq(params[:TipoBiometria]))
+              .pluck("students.api_code, student_biometrics.biometric")
+
+    render json: {
+      "Dados" => {
+        "Lista" => result.map{|api_code, biometric| { "IdAluno" => api_code.to_i, "Biometria" => biometric } }
+      },"Status" => {
+        "Codigo" => 1,
+        "Mensagem" => "OK"
+      }
+    }
+  end
+
+  protected
+
+  def fetch_students_by_api_code api_code
+    api = IeducarApi::Students.new(IeducarApiConfiguration.current.to_api)
+    api.fetch_registereds(
+      {
+        unity_api_code: api_code,
+        date: Date.today,
+        year: Date.today.year
+      }
+    )["alunos"].uniq
+  end
 end
