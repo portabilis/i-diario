@@ -11,37 +11,37 @@ class RequestAccessVerifier
     if student.blank?
       self.response_msg = "Aluno inválido"
       valid = false
-      return true
+      return false
     end
 
     unity = Unity.find_by(api_code: @unity_api_code)
     if unity.blank?
       self.response_msg = "Escola inválida"
       valid = false
-      return true
+      return false
     end
 
-    unity_equipment = unity.unity_equipments.find_by(code: @unity_equipment_code)
+    unity_equipment = UnityEquipment.find_by(code: @unity_equipment_code, unity_id: unity.id)
     if unity_equipment.blank?
       self.response_msg = "Equipamento inválido"
       valid = false
-      return true
+      return false
     end
 
-    student_biometric = student.student_biometrics.where(biometric_type: unity_equipment.biometric_type)
+    student_biometric = StudentBiometric.find_by(biometric_type: unity_equipment.biometric_type, student_id: student.id)
     if student_biometric.blank?
       self.response_msg = "Biometria não cadastrada"
       valid = false
-      return true
+      return false
     end
 
     if !StudentUnityChecker.new(student, unity).present?
       self.response_msg = "Acesso negado"
       valid = false
-      return true
+      return false
     end
 
-    biometric = student_biometric.biometric
+    self.biometric = student_biometric.biometric
     self.response_msg = "OK"
     valid = true
   end
