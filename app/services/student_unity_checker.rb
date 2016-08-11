@@ -7,7 +7,15 @@ class StudentUnityChecker
   end
 
   def present?
-    results = IeducarApi::StudentRegistrations.new(IeducarApiConfiguration.current.to_api).fetch(aluno_id: @student.api_code)['matriculas']
-    results.any?{|record| record["ano"] == Date.today.year.to_s && record["codigo_situacao"] == "3" && record["escola_id"] == @unity.api_code }
+    results = get_student_registrations @student.api_code
+    results.any?{|record| record["ano"] == Date.today.year.to_s &&
+                          record["codigo_situacao"] == "3" &&
+                          record["escola_id"] == @unity.api_code }
+  end
+
+  private
+
+  def get_student_registrations(student_api_code)
+    IeducarApi::StudentRegistrations.new(IeducarApiConfiguration.current.to_api).fetch(aluno_id: student_api_code)['matriculas']
   end
 end

@@ -12,11 +12,7 @@ class V1::AccessController < ApplicationController
       params[:IdEquipamento]
     )
 
-    verifier.process!
-
-    msg = verifier.response_msg
-
-    if verifier.valid
+    if verifier.process!
       code = 1
       data = {
         "IdAluno" => params[:idAluno],
@@ -34,7 +30,7 @@ class V1::AccessController < ApplicationController
       "Dados" => data,
       "Status" => {
         "Codigo" => code,
-        "Mensagem" => msg
+        "Mensagem" => verifier.response_msg
       }
     }
   end
