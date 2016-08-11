@@ -115,3 +115,4 @@ pt-BR:
     access: "acesso"
     request_access: "solicitaracesso"
     send_access: "enviarfimacesso"
+    send_access_batch: "enviarregistrobatch"
