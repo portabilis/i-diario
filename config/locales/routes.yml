@@ -116,3 +116,5 @@ pt-BR:
     request_access: "solicitaracesso"
     send_access: "enviarfimacesso"
     send_access_batch: "enviarregistrobatch"
+    biometric: "biometria"
+    send_biometric: "enviarbiometria"
