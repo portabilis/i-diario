@@ -38,3 +38,5 @@ pt-BR:
                   other: "já existe um plano de aula para uma das áreas de conhecimento informadas"
               base:
                 crescent_date_range: "A data final deve ser maior que a data inicial"
+              contents:
+                at_least_one_content: "Deve possuir pelo menos 1 conteúdo"

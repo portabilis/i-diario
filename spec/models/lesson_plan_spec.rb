@@ -15,6 +15,12 @@ RSpec.describe LessonPlan, type: :model do
     it { expect(subject).to validate_presence_of(:unity) }
     it { expect(subject).to validate_presence_of(:start_at) }
     it { expect(subject).to validate_presence_of(:end_at) }
-    it { expect(subject).to validate_presence_of(:contents) }
+
+    it "should validate if there is at least one content assigned" do
+      subject = FactoryGirl.build(:lesson_plan_without_contents)
+
+      expect(subject).to_not be_valid
+      expect(subject.errors.messages[:contents]).to include("Deve possuir pelo menos 1 conteúdo")
+    end
   end
 end

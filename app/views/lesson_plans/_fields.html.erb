@@ -1,6 +1,40 @@
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :contents_tags, as: :string, input_html: { class: 'select2-tags-ajax', value: '', data: { url: contents_path, data: f.object.contents_tags } } %>
+    <legend>Conteúdos</legend>
+    <br>
+    <% if f.object.errors[:contents].present? %>
+      <div class="alert alert-danger alert-block ">
+        <i class="fa-fw fa fa-times"></i>
+        <span class="help-inline">
+          <%= f.object.errors[:contents].join "<br />" %>
+        </span>
+      </div>
+    <% end %>
+    <table class="table table-striped table-bordered table-condensed records">
+      <thead>
+        <tr>
+          <th>Conteúdo</th>
+          <td width="73px"></td>
+        </tr>
+      </thead>
+
+      <tbody id="lesson-plans-contents">
+        <%= f.simple_fields_for :contents do |content| %>
+          <%= render 'content_fields', f: content %>
+        <% end %>
+      </tbody>
+      <tfoot class="links">
+        <tr>
+          <td colspan="2">
+            <%= link_to_add_association t('.add_content'), f, :contents,
+              id: 'add-lesson-plans-content',
+              class: 'btn btn-success btn-sm',
+              :"data-association-insertion-method" => "append",
+              :"data-association-insertion-node" => "#lesson-plans-contents" %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
   </div>
 </div>
 
