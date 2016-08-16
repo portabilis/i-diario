@@ -8,6 +8,7 @@ class DisciplineLessonPlanReportController < ApplicationController
 
   def report
     @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new(resource_params)
+    @discipline_lesson_plan_report_form.teacher_id = current_teacher_id
 
     if @discipline_lesson_plan_report_form.valid?
       lesson_plan_report = DisciplineLessonPlanReport.build(current_entity_configuration,

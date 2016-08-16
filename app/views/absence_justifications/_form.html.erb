@@ -12,11 +12,11 @@
         <%= f.association :unity, as: :select2_unity, user: current_user %>
       </div>
       <div class="col col-sm-4">
-        <%= f.input :classroom_id, as: :select2_classroom, user: current_user %>
+        <%= f.association :classroom, as: :select2_classroom, user: current_user %>
       </div>
       <div class="row" data-discipline>
         <div class="col col-sm-4">
-          <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+          <%= f.association :discipline, as: :select2_discipline, user: current_user,
                 classroom_id: @absence_justification.classroom_id,
                 required: true %>
         </div>

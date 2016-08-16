@@ -223,7 +223,7 @@ class User < ActiveRecord::Base
     if current_user_role.try(:role_teacher?)
       teacher
     elsif assumed_teacher_id
-      Teacher.find(assumed_teacher_id)
+      Teacher.find_by_id(assumed_teacher_id)
     end
   end
 

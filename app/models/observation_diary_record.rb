@@ -36,6 +36,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
     school_calendar_day: true
   )
   validates :notes, presence: true
+  validates :unity_id, presence: true
 
   before_validation :self_assign_to_notes
 
