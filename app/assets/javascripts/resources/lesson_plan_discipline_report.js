@@ -19,8 +19,8 @@ $(function () {
 
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
-      $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
-        window.disciplines = data;
+      $.getJSON(Routes.search_disciplines_pt_br_path(params)).always(function (data) {
+        window.disciplines = data.disciplines;
         callback(window.disciplines);
       });
     } else {
@@ -93,7 +93,7 @@ $(function () {
   }
 
   $classroom.on('change', function (e) {
-    var params = {
+    var exam_rule_params = {
       classroom_id: e.val
     };
 
@@ -103,9 +103,13 @@ $(function () {
 
 
     if (!_.isEmpty(e.val)) {
-      checkExamRule(params);
+      checkExamRule(exam_rule_params);
 
-      fetchDisciplines(params, function (disciplines) {
+      var discipline_params = {
+        by_classroom: e.val
+      };
+
+      fetchDisciplines(discipline_params, function (disciplines) {
         var selectedDisciplines = _.map(disciplines, function (discipline) {
           return { id:discipline['id'], text: discipline['description'] };
         });

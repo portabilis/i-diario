@@ -1,7 +1,7 @@
 class AbsenceJustificationReportForm
   include ActiveModel::Model
 
-  attr_accessor :unity,
+  attr_accessor :unity_id,
                 :classroom_id,
                 :discipline_id,
                 :absence_date,
@@ -9,9 +9,9 @@ class AbsenceJustificationReportForm
                 :school_calendar_year,
                 :current_teacher_id
 
-  validates :unity,            presence: true
+  validates :unity_id,         presence: true
   validates :classroom_id,     presence: true
-  validates :discipline_id,     presence: true,
+  validates :discipline_id,    presence: true,
                                if: :frequence_type_by_discipline?
   validates(
     :absence_date,
@@ -29,7 +29,7 @@ class AbsenceJustificationReportForm
   def absence_justification
     if frequence_type_by_discipline?
       AbsenceJustification.by_teacher(current_teacher_id)
-                          .by_unity(unity)
+                          .by_unity(unity_id)
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
                           .by_discipline_id(discipline_id)
@@ -37,7 +37,7 @@ class AbsenceJustificationReportForm
                           .ordered
     else
       AbsenceJustification.by_teacher(current_teacher_id)
-                          .by_unity(unity)
+                          .by_unity(unity_id)
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
                           .by_date_report(absence_date, absence_date_end)
