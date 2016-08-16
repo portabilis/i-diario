@@ -156,7 +156,7 @@
 
     var user_role_id = $(this).val();
 
-    if(!_.isEmpty(user_role_id)){
+    if(!noValueSelected($(this))){
       $.ajax({
         url: Routes.user_role_pt_br_path( user_role_id, {
             format: 'json'
@@ -164,6 +164,8 @@
         success: handleFetchRoleSuccess,
         error: handleFetchRoleError
       });
+    }else{
+      toggleNoProfileSelectedFields();
     }
 
     function handleFetchRoleSuccess(data){
@@ -262,6 +264,18 @@
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
   }
 
+  function toggleNoProfileSelectedFields(){
+
+    $("#user_current_teacher_id").val('');
+    $("#user_current_unity_id").val('');
+    $("#user_current_classroom_id").val('');
+    $("#user_current_discipline_id").val('');
+
+    $('#assumed-teacher-field').hide();
+    $('#unity-field').hide();
+    $('#classroom-field').hide();
+    $('#discipline-field').hide();
+  }
 
   function toggleAdministratorFields(){
     $('#classroom-field').hide();
