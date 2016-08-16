@@ -1,5 +1,5 @@
 class UserMailer < ActionMailer::Base
-  default from: "no-reply@portabilis.com.br"
+  default from: "no@reply.com.br"
 
   def notify_actived(user, entity)
     @user = user
