@@ -17,6 +17,13 @@ pt-BR:
         address: "Endereço"
         active: "Ativo?"
 
+    errors:
+      models:
+        unity:
+          attributes:
+            unity_equipments:
+              uniqueness_of_items: "Não é permitido dois códigos de equipamento iguais para a mesma unidade."
+
   unity:
     help:
       api_code: "Usaremos este código para vincular uma unidade deste sistema a uma unidade escolar do sistema i-Educar."
