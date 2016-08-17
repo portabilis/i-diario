@@ -45,7 +45,6 @@ class DisciplineTeachingPlansController < ApplicationController
     authorize @discipline_teaching_plan
 
     @discipline_teaching_plan.teaching_plan.teacher_id = current_teacher.id
-    @discipline_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(params[:discipline_teaching_plan][:teaching_plan_attributes][:contents_tags])
 
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
@@ -71,8 +70,6 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan.assign_attributes(resource_params)
 
     authorize @discipline_teaching_plan
-
-    @discipline_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(params[:discipline_teaching_plan][:teaching_plan_attributes][:contents_tags])
 
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
@@ -119,8 +116,12 @@ class DisciplineTeachingPlansController < ApplicationController
         :methodology,
         :evaluation,
         :references,
-        :contents_tags,
-        :teacher_id
+        :teacher_id,
+        contents_attributes: [
+          :id,
+          :description,
+          :_destroy
+        ]
       ]
     )
   end
