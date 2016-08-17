@@ -44,7 +44,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    @knowledge_area_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:contents_tags])
     @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher.id
 
     if @knowledge_area_teaching_plan.save
@@ -71,8 +70,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan.assign_attributes(resource_params)
 
     authorize @knowledge_area_teaching_plan
-
-    @knowledge_area_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:contents_tags])
 
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
@@ -119,8 +116,12 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
         :methodology,
         :evaluation,
         :references,
-        :contents_tags,
-        :teacher_id
+        :teacher_id,
+        contents_attributes: [
+          :id,
+          :description,
+          :_destroy
+        ]
       ]
     )
   end

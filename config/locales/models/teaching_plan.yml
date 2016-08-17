@@ -19,3 +19,10 @@ pt-BR:
         evaluation: "Avaliação"
         references: "Referências"
         contents_tags: "Conteúdos"
+
+    errors:
+      models:
+        teaching_plan:
+          attributes:
+            contents:
+              at_least_one_content_assigned: "Deve possuir pelo menos um conteúdo"

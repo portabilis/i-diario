@@ -6,3 +6,7 @@ pt-BR:
       by_grade: "Filtrar curso"
       by_discipline: "Filtrar disciplina"
       by_school_term_type: "Filtrar tipo de período escolar"
+    form:
+      add_content: "Adicionar conteúdo"
+    content_fields:
+      remove_html: "<i class='fa fa-times'></i>"
