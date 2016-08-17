@@ -22,10 +22,12 @@ RSpec.describe TeachingPlan, type: :model do
     end
 
     context "when contents has no records assigneds" do
-      subject = FactoryGirl.build(:teaching_plan_without_contents)
+      it "should validate if at leat one record is assigned" do
+        subject = FactoryGirl.build(:teaching_plan_without_contents)
 
-      expect(subject).to_not be_valid
-      expect(subject.errors.messages[:contents]).to include("Deve possuir pelo menos um conteúdo")
+        expect(subject).to_not be_valid
+        expect(subject.errors.messages[:contents]).to include("Deve possuir pelo menos um conteúdo")
+      end
     end
 
     school_term_types = [SchoolTermTypes::BIMESTER, SchoolTermTypes::TRIMESTER, SchoolTermTypes::SEMESTER]
