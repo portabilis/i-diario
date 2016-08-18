@@ -17,6 +17,8 @@ class User < ActiveRecord::Base
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
+  before_destroy :ensure_has_no_audits
+
   belongs_to :student
   belongs_to :teacher
   belongs_to :current_user_role, class_name: 'UserRole'
@@ -268,6 +270,16 @@ class User < ActiveRecord::Base
 
     if email.blank? && cpf.blank?
       errors.add(:base, :must_inform_email_or_cpf)
+    end
+  end
+
+  def ensure_has_no_audits
+    user_id = self.id
+    query = "SELECT COUNT(*) FROM audits WHERE audits.user_id = '#{user_id}'"
+    audits_count = ActiveRecord::Base.connection.execute(query).first.fetch("count").to_i
+    if audits_count > 0
+      errors.add(:base, "")
+      false
     end
   end
 end
