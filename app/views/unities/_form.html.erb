@@ -46,7 +46,8 @@
     <legend><%= t('activerecord.models.unity_equipment', count: 2) %></legend>
 
     <% if f.object.errors[:unity_equipments].present? %>
-      <div class="alert alert-danger alert-block">
+      <div class="alert alert-danger alert-block ">
+        <i class="fa-fw fa fa-times"></i>
         <span class="help-inline">
           <%= f.object.errors[:unity_equipments].join "<br />" %>
         </span>
