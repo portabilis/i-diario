@@ -22,7 +22,7 @@ pt-BR:
         unity:
           attributes:
             unity_equipments:
-              uniqueness_of_items: "Não é permitido dois códigos de equipamento iguais para a mesma unidade."
+              uniqueness_of_items: "Não é permitido códigos iguais para equipamentos da mesma unidade."
 
   unity:
     help:
