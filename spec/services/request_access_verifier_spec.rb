@@ -14,9 +14,12 @@ RSpec.describe RequestAccessVerifier, type: :service do
   let(:biometric_type) { 1 }
   let(:student_present_unity) { true }
   let(:student_unity_checker) { double :student_unity_checker }
+  let(:way) { 3 }
+  let(:time) { "2016-07-06T15:47:53" }
+  let(:request_type) { 3 }
 
   subject do
-    RequestAccessVerifier.new(student_api_code, unity_api_code, unity_equipment_code)
+    RequestAccessVerifier.new(student_api_code, unity_api_code, unity_equipment_code, way, time, request_type)
   end
 
   before do
@@ -28,6 +31,27 @@ RSpec.describe RequestAccessVerifier, type: :service do
   end
 
   describe '#process!' do
+    context 'when way is invalid' do
+      let(:way) { 4 }
+      it "should return false" do
+        expect(subject.process!).to be(false)
+      end
+    end
+
+    context 'when time is invalid' do
+      let(:time) { "asd" }
+      it "should return false" do
+        expect(subject.process!).to be(false)
+      end
+    end
+
+    context 'when request_type is invalid' do
+      let(:request_type) { 0 }
+      it "should return false" do
+        expect(subject.process!).to be(false)
+      end
+    end
+
     context 'when student not exists' do
       let(:student_api_code) { "2" }
       it "should return false" do
@@ -79,6 +103,38 @@ RSpec.describe RequestAccessVerifier, type: :service do
   end
 
   describe '#response_msg' do
+    context 'when way is invalid' do
+      let(:way) { 4 }
+      it "should return 'Sentido inválido'" do
+        subject.process!
+        expect(subject.response_msg).to eq('Sentido inválido')
+      end
+    end
+
+    context 'when time is invalid' do
+      let(:time) { "asd" }
+      it "should return 'Data e hora inválida'" do
+        subject.process!
+        expect(subject.response_msg).to eq('Data e hora inválida')
+      end
+    end
+
+    context 'when request_type is invalid' do
+      let(:request_type) { 0 }
+      it "should return 'Tipo de consulta inválida'" do
+        subject.process!
+        expect(subject.response_msg).to eq('Tipo de consulta inválida')
+      end
+    end
+
+    context 'when way is invalid' do
+      let(:way) { 4 }
+      it "should return 'Sentido inválido'" do
+        subject.process!
+        expect(subject.response_msg).to eq('Sentido inválido')
+      end
+    end
+
     context 'when student not exists' do
       let(:student_api_code) { "2" }
       it "should return 'Aluno inválido'" do

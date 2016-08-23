@@ -6,13 +6,16 @@ class V1::AccessController < V1::BaseController
     verifier = RequestAccessVerifier.new(
       params[:IdAluno],
       params[:IdUnidade],
-      params[:IdEquipamento]
+      params[:IdEquipamento],
+      params[:Sentido].to_i,
+      params[:DataHora],
+      params[:TipoConsulta].to_i
     )
 
     if verifier.process!
       code = 1
       data = {
-        "IdAluno" => params[:idAluno],
+        "IdAluno" => params[:IdAluno],
         "Mensagem" => "Acesso permitido",
         "Biometria" => verifier.biometric,
         "Senha" => nil,
