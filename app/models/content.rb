@@ -2,8 +2,8 @@ class Content < ActiveRecord::Base
   acts_as_copy_target
 
   has_and_belongs_to_many :teaching_plans, dependent: :destroy
-  has_and_belongs_to_many :lesson_plans, dependent: :destroy
-  has_and_belongs_to_many :content_records, dependent: :destroy
+  has_and_belongs_to_many :lesson_plans, dependent: :restrict
+  has_and_belongs_to_many :content_records, dependent: :restrict
 
   validates :description, presence: true
 
