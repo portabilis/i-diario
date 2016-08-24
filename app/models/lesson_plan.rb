@@ -13,8 +13,8 @@ class LessonPlan < ActiveRecord::Base
 
   has_one :discipline_lesson_plan
   has_one :knowledge_area_lesson_plan
-  has_and_belongs_to_many :contents, dependent: :destroy
-  accepts_nested_attributes_for :contents, reject_if: :all_blank, allow_destroy: true
+  has_and_belongs_to_many :contents, dependent: :restrict
+  accepts_nested_attributes_for :contents, allow_destroy: true
 
   validates :school_calendar, presence: true
   validates :unity, presence: true

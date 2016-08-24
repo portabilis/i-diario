@@ -39,4 +39,4 @@ pt-BR:
               base:
                 crescent_date_range: "A data final deve ser maior que a data inicial"
               contents:
-                at_least_one_content: "Deve possuir pelo menos 1 conteúdo"
+                at_least_one_content: "Conteúdos não pode ficar em branco"
