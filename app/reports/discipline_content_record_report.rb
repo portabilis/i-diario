@@ -1,10 +1,10 @@
 require "prawn/measurement_extensions"
 
-class DisciplineLessonPlanReport
+class DisciplineContentRecordReport
   include Prawn::View
 
-  def self.build(entity_configuration, date_start, date_end, discipline_lesson_plan, current_teacher)
-    new.build(entity_configuration, date_start, date_end, discipline_lesson_plan, current_teacher)
+  def self.build(entity_configuration, date_start, date_end, discipline_content_record, current_teacher)
+    new.build(entity_configuration, date_start, date_end, discipline_content_record, current_teacher)
   end
 
   def initialize
@@ -16,11 +16,11 @@ class DisciplineLessonPlanReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, date_start, date_end, discipline_lesson_plan, current_teacher)
+  def build(entity_configuration, date_start, date_end, discipline_content_record, current_teacher)
     @entity_configuration = entity_configuration
     @date_start = date_start
     @date_end = date_end
-    @discipline_lesson_plans = discipline_lesson_plan
+    @discipline_content_record = discipline_content_record
     @current_teacher = current_teacher
     attributes
 
@@ -36,7 +36,7 @@ class DisciplineLessonPlanReport
   def header
     entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
     organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
-    title =  'Planos de aula por disciplina'
+    title =  'Registro de conteúdos por disciplina'
 
     header_cell = make_cell(
       content: title,
@@ -63,7 +63,7 @@ class DisciplineLessonPlanReport
     end
 
     entity_organ_and_unity_cell = make_cell(
-      content: "#{entity_name}\n#{organ_name}\n" + "#{@discipline_lesson_plans.first.lesson_plan.unity.name}",
+      content: "#{entity_name}\n#{organ_name}\n" + "#{@discipline_content_record.first.content_record.unity.name}",
       size: 12,
       leading: 1.5,
       align: :center,
@@ -117,15 +117,14 @@ class DisciplineLessonPlanReport
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
     @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4])
-    @start_at_header = make_cell(content: 'Data inicial', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', width: 60, padding: [2, 2, 4, 4])
-    @end_at_header = make_cell(content: 'Data final', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', width: 60, padding: [2, 2, 4, 4])
+    @date_header = make_cell(content: 'Data', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', width: 60, padding: [2, 2, 4, 4])
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
 
-    @unity_cell = make_cell(content:  @discipline_lesson_plans.first.lesson_plan.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4], colspan: 2)
-    @discipline_cell = make_cell(content: @discipline_lesson_plans.first.discipline.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
-    @classroom_cell = make_cell(content: @discipline_lesson_plans.first.lesson_plan.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @unity_cell = make_cell(content:  @discipline_content_record.first.content_record.classroom.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4], colspan: 2)
+    @discipline_cell = make_cell(content: @discipline_content_record.first.discipline.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
+    @classroom_cell = make_cell(content: @discipline_content_record.first.content_record.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @teacher_cell = make_cell(content: @current_teacher.name, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} a #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
   end
@@ -157,21 +156,18 @@ class DisciplineLessonPlanReport
     ]
 
     general_information_headers = [
-      @start_at_header,
-      @end_at_header,
+      @date_header,
       @conteudo_header
     ]
 
     general_information_cells = []
 
-    @discipline_lesson_plans.each do |discipline_lesson_plan|
-      start_at_cell = make_cell(content: discipline_lesson_plan.lesson_plan.start_at.strftime("%d/%m/%Y"), size: 10, align: :left)
-      end_at_cell = make_cell(content: discipline_lesson_plan.lesson_plan.end_at.strftime("%d/%m/%Y"), size: 10, align: :left)
-      conteudo_cell = make_cell(content: discipline_lesson_plan.lesson_plan.contents_ordered.map(&:to_s).join(", "), size: 10, align: :left)
+    @discipline_content_record.each do |discipline_content_record|
+      date_cell = make_cell(content: discipline_content_record.content_record.record_date.strftime("%d/%m/%Y"), size: 10, align: :left)
+      conteudo_cell = make_cell(content: discipline_content_record.content_record.contents_ordered.map(&:to_s).join(", "), size: 10, align: :left)
 
       general_information_cells << [
-        start_at_cell,
-        end_at_cell,
+        date_cell,
         conteudo_cell
       ]
     end
