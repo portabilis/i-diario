@@ -57,7 +57,7 @@ class V1::AccessController < V1::BaseController
         student = Student.find_by(api_code: student_code)
 
         access = ***REMOVED***.new(
-          transaction_date: Time.parse(datetime),
+          transaction_date: Time.zone.parse(datetime),
           student: student,
           unity: unity,
           unity_equipment: UnityEquipment.find_by(code: equipment_code, unity_id: unity.try(:id)),
