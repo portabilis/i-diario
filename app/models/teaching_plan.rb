@@ -19,7 +19,7 @@ class TeachingPlan < ActiveRecord::Base
   validates :school_term, presence: { unless: :yearly?  }
 
   has_and_belongs_to_many :contents, dependent: :destroy
-  accepts_nested_attributes_for :contents, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :contents, allow_destroy: true
 
   validate :at_least_one_content_assigned
 

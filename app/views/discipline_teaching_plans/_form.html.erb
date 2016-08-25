@@ -56,6 +56,7 @@
           <br>
           <% if teaching_plan_form.object.errors[:contents].present? %>
             <div class="alert alert-danger alert-block">
+              <i class="fa-fw fa fa-times"></i>
               <span class="help-inline">
                 <%= teaching_plan_form.object.errors[:contents].join "<br />" %>
               </span>
@@ -71,7 +72,7 @@
             </thead>
 
             <tbody id="teaching-plans-contents">
-              <%= teaching_plan_form.simple_fields_for :contents do |content| %>
+              <%= teaching_plan_form.simple_fields_for :contents, f.object.contents.sort_by { |content| content.id } do |content| %>
                 <%= render 'content_fields', f: content %>
               <% end %>
             </tbody>
@@ -83,7 +84,8 @@
                     id: 'add-teaching-plans-content',
                     class: 'btn btn-success btn-sm',
                     :"data-association-insertion-method" => "append",
-                    :"data-association-insertion-node" => "#teaching-plans-contents" %>
+                    :"data-association-insertion-node" => "#teaching-plans-contents",
+                    disabled: action_name == 'show' %>
                 </td>
               </tr>
             </tfoot>
