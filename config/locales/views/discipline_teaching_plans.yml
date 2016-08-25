@@ -9,4 +9,4 @@ pt-BR:
     form:
       add_content: "Adicionar conteúdo"
     content_fields:
-      remove_html: "<i class='fa fa-times'></i>"
+      remove: "Remover"
