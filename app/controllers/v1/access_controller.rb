@@ -36,22 +36,31 @@ class V1::AccessController < V1::BaseController
   end
 
   def send_access
+    process_send_access params[:IdUnidade], params[:IdAluno], params[:DataHora], params[:IdEquipamento], params[:TipoAcesso].to_i
+  end
+
+  def send_access_batch
+    process_send_access params[:IdUnidade], params[:IdAluno], params[:DataHora], params[:IdEquipamento], params[:Sentido].to_i
+  end
+
+  protected
+
+  def process_send_access unity_code, student_code, datetime, equipment_code, access_type
     code = 1
     msg = "OK"
-    access_type = params[:TipoAcesso].to_i
 
     if [1,2].include? access_type
 
       begin
 
-        unity = Unity.find_by(api_code: params[:IdUnidade])
-        student = Student.find_by(api_code: params[:IdAluno])
+        unity = Unity.find_by(api_code: unity_code)
+        student = Student.find_by(api_code: student_code)
 
         access = ***REMOVED***.new(
-          transaction_date: Time.parse(params[:DataHora]),
+          transaction_date: Time.parse(datetime),
           student: student,
           unity: unity,
-          unity_equipment: UnityEquipment.find_by(code: params[:IdEquipamento], unity_id: unity.try(:id)),
+          unity_equipment: UnityEquipment.find_by(code: equipment_code, unity_id: unity.try(:id)),
           operation: access_type == 1 ? "entrance" : "exit"
         )
 
@@ -76,5 +85,6 @@ class V1::AccessController < V1::BaseController
       "Codigo" => code,
       "Mensagem" => msg
     }
+
   end
 end
