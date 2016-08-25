@@ -12,7 +12,7 @@ Rails.application.routes.draw do
         collection do
           post :request_access
           post :send_access
-          post :send_access_batch, to: :send_access
+          post :send_access_batch
         end
       end
       resources :biometric do
