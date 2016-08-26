@@ -1,5 +1,5 @@
 $(function(){
-  "use scrict";
+  "use strict";
 
   if ($('form.user-form').length > 0) {
     $("#user_cpf").inputmask("999.999.999-99");
@@ -17,8 +17,8 @@ $(function(){
       if (mustShowUnity) {
         $userUnity.removeClass("hidden");
       } else {
+        $userUnity.find('input').select2('val', undefined);
         $userUnity.addClass("hidden");
-        $userUnity.find('input').select2('val', '');
       }
     });
   }

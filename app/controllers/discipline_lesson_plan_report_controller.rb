@@ -1,4 +1,7 @@
 class DisciplineLessonPlanReportController < ApplicationController
+
+  before_action :require_current_teacher
+
   DISCIPLINE_LESSON_PLAN_REPORT = "1"
   DISCIPLINE_CONTENT_RECORD = "2"
 

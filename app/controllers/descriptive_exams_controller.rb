@@ -2,10 +2,8 @@ class DescriptiveExamsController < ApplicationController
   before_action :require_teacher
   before_action :require_current_school_calendar
 
-
   def new
     @descriptive_exam = DescriptiveExam.new
-    @unity_id = current_user_unity.id
 
     authorize @descriptive_exam
 
@@ -14,7 +12,6 @@ class DescriptiveExamsController < ApplicationController
 
   def create
     @descriptive_exam = DescriptiveExam.new(resource_params)
-    @unity_id = params[:descriptive_exam][:unity]
 
     if(@descriptive_exam.valid?)
       @descriptive_exam = DescriptiveExam.find_or_create_by(

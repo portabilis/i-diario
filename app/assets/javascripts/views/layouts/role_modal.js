@@ -182,7 +182,6 @@
     }
 
     function handleFetchRoleSuccess(data){
-      role_unity_id = data.user_role.unity_id;
       switch (data.user_role.role.access_level) {
         case 'administrator':
           toggleAdministratorFields();
@@ -190,10 +189,12 @@
 
         case 'employee':
           toggleEmployeeFields(data.user_role.unity_id);
+          role_unity_id = data.user_role.unity_id;
           break;
 
         case 'teacher':
           toggleTeacherFields(data.user_role.unity_id);
+          role_unity_id = data.user_role.unity_id;
           break;
 
         case 'parent':
@@ -218,13 +219,11 @@
   $('#user_assumed_teacher_id').on('change', function(){
     var teacher_id = $(this).val();
 
-
     if(valueSelected($(this))){
       $('#classroom-field').show();
       $('#discipline-field').show();
       var unity_id = role_unity_id ? role_unity_id : $("#user_current_unity_id").val();
       fetchClassroomsByTeacherAndUnity(teacher_id, unity_id);
-      // fetchDisciplines();
     }else{
       $("#user_current_classroom_id").val('');
       $("#user_current_discipline_id").val('');

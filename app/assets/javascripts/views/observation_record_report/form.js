@@ -66,9 +66,4 @@ $(function () {
     fetchExamRule();
     fetchDisciplines();
   });
-
-  // On load
-
-  fetchExamRule();
-  fetchDisciplines();
 });

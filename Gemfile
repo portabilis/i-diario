@@ -57,6 +57,8 @@ gem 'activerecord-connections', git: 'https://github.com/ricardohsd/activerecord
 gem 'carrierwave'
 gem 'fog', '~> 1.36'
 
+gem 'activerecord-session_store', github: 'rails/activerecord-session_store'
+
 group :development do
   gem 'quiet_assets'
   gem 'mina', '0.3.7'

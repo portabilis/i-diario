@@ -24,7 +24,7 @@ class AvaliationExemption < ActiveRecord::Base
 
   validate :ensure_no_score_for_avaliation
 
-  delegate :unity_id, :discipline_id, :school_calendar_id, :classroom_id, :classroom,
+  delegate :unity_id, :discipline_id, :school_calendar_id, :classroom_id, :classroom, :discipline,
     to: :avaliation, prefix: false, allow_nil: true
   delegate :test_date, to: :avaliation, prefix: true, allow_nil: true
 
