@@ -6,7 +6,7 @@ class DisciplineContentRecord < ActiveRecord::Base
   audited
   has_associated_audits
 
-  belongs_to :content_record, dependent: :destroy
+  belongs_to :content_record
   accepts_nested_attributes_for :content_record
 
   belongs_to :discipline
@@ -18,6 +18,7 @@ class DisciplineContentRecord < ActiveRecord::Base
   scope :by_classroom_description, lambda { |description| joins(content_record: :classroom).where('classrooms.description ILIKE ?', "%#{description}%" ) }
   scope :by_discipline_description, lambda { |description| joins(:discipline).where('disciplines.description ILIKE ?', "%#{description}%" ) }
   scope :by_date, lambda { |date| joins(:content_record).where(content_records: { record_date: date.to_date }) }
+  scope :by_date_range, lambda { |start_at, end_at| joins(:content_record).where("content_records.record_date <= ? AND content_records.record_date >= ?", end_at, start_at) }
   scope :ordered, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date].desc) }
 
   validates :content_record, presence: true

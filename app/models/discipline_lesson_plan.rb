@@ -7,7 +7,7 @@ class DisciplineLessonPlan < ActiveRecord::Base
   audited
   has_associated_audits
 
-  belongs_to :lesson_plan, dependent: :destroy
+  belongs_to :lesson_plan
   belongs_to :discipline
 
   delegate :contents, to: :lesson_plan

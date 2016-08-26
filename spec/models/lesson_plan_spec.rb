@@ -20,7 +20,7 @@ RSpec.describe LessonPlan, type: :model do
       subject = FactoryGirl.build(:lesson_plan_without_contents)
 
       expect(subject).to_not be_valid
-      expect(subject.errors.messages[:contents]).to include("Deve possuir pelo menos 1 conteúdo")
+      expect(subject.errors.messages[:contents]).to include("Conteúdos não pode ficar em branco")
     end
   end
 end

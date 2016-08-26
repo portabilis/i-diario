@@ -7,7 +7,8 @@ class DisciplineLessonPlanReportForm
                 :date_start,
                 :date_end,
                 :discipline_lesson_plan,
-                :teacher_id
+                :teacher_id,
+                :report_type
 
   validates :unity_id,
     :classroom_id,
@@ -20,7 +21,7 @@ class DisciplineLessonPlanReportForm
   validate :date_start_must_be_a_valid_date
   validate :date_end_must_be_a_valid_date
   validate :start_at_must_be_less_than_or_equal_to_end_at
-  validate :must_have_discipline_lesson_plan
+  validate :must_have_records
 
   def discipline_lesson_plan
     DisciplineLessonPlan.by_unity_id(unity_id)
@@ -29,6 +30,15 @@ class DisciplineLessonPlanReportForm
       .by_discipline_id(discipline_id)
       .by_date_range(date_start.to_date, date_end.to_date)
       .order(LessonPlan.arel_table[:start_at].asc)
+  end
+
+  def discipline_content_record
+    DisciplineContentRecord.by_unity_id(unity_id)
+      .by_teacher_id(teacher_id)
+      .by_classroom_id(classroom_id)
+      .by_discipline_id(discipline_id)
+      .by_date_range(date_start.to_date, date_end.to_date)
+      .ordered
   end
 
   private
@@ -61,11 +71,17 @@ class DisciplineLessonPlanReportForm
     end
   end
 
-  def must_have_discipline_lesson_plan
+  def must_have_records
     return unless errors.blank?
 
-    if discipline_lesson_plan.count == 0
-      errors.add(:discipline_lesson_plan, :must_have_discipline_lesson_plan)
+    if report_type == "1"
+      if discipline_lesson_plan.count == 0
+        errors.add(:discipline_lesson_plan, :must_have_discipline_lesson_plan)
+      end
+    else
+      if discipline_content_record.count == 0
+        errors.add(:discipline_lesson_plan, :must_have_discipline_lesson_plan)
+      end
     end
   end
 end
