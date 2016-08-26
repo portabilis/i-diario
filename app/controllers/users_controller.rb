@@ -21,7 +21,6 @@ class UsersController < ApplicationController
 
     authorize @user
 
-    # raise "a"
 
     if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)

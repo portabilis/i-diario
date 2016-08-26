@@ -27,8 +27,6 @@ class AvaliationExemptionsController < ApplicationController
     if @avaliation_exemption.save
       respond_with @avaliation_exemption, location: avaliation_exemptions_path
     else
-      @current_user_unity_id = current_user_unity.id
-      @school_calendar_year = current_school_calendar.year
       fetch_collections
       render :new
     end
@@ -73,6 +71,8 @@ class AvaliationExemptionsController < ApplicationController
     respond_with @avaliation_exemption
   end
 
+  private
+
   def avaliation_exemption_params
     params.require(:avaliation_exemption).permit(:student_id,
                                                  :avaliation_id,
@@ -80,24 +80,33 @@ class AvaliationExemptionsController < ApplicationController
   end
 
   def fetch_collections
-    @avaliations = fetch_avaliations
-    @students = fetch_students
-    @school_calendar_steps = fetch_school_calendar_steps
+    fetch_avaliations
+    fetch_students
+    fetch_school_calendar_steps
   end
 
   def fetch_avaliations
-    Avaliation
-      .by_classroom_id(@avaliation_exemption.classroom_id)
+    @avaliations ||= Avaliation.by_classroom_id(@avaliation_exemption.classroom_id)
       .by_discipline_id(@avaliation_exemption.discipline_id)
   end
 
   def fetch_students
-    @students = Student.all
+    @students = []
+    if @avaliation_exemption.avaliation.classroom.present?
+      begin
+        @students = StudentsFetcher.new(
+          configuration,
+          @avaliation_exemption.classroom.api_code,
+          nil,
+          @avaliation_exemption.avaliation.test_date.to_s
+        )
+        .fetch
+      end
+    end
   end
 
   def fetch_school_calendar_steps
-    SchoolCalendarStep
-      .by_school_calendar_id(@avaliation_exemption.school_calendar_id)
+    @school_calendar_steps ||= SchoolCalendarStep.by_school_calendar_id(@avaliation_exemption.school_calendar_id)
   end
 
   def configuration

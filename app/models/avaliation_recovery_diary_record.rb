@@ -24,11 +24,7 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   scope :by_avaliation_description, lambda { |avaliation_description| joins(:avaliation).where('avaliations.description ILIKE ?', "%#{avaliation_description}%" ) }
   scope :ordered, -> { joins(:recovery_diary_record).order(RecoveryDiaryRecord.arel_table[:recorded_at].desc) }
 
-  validates :recovery_diary_record, presence: true
   validates :avaliation, presence: true
-  validates :unity, presence: true
-  validates :classroom, presence: true
-  validates :discipline, presence: true
 
   validate :uniqueness_of_avaliation_recovery_diary_record
   validate :recovery_date_should_be_greater_or_equal_avaliation_date, if: :dates_are_set?

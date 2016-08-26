@@ -1,4 +1,5 @@
 class DisciplineLessonPlanReportController < ApplicationController
+  before_action :require_current_teacher
 
   def form
     @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new
