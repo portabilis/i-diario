@@ -4,7 +4,7 @@
   <ul class="nav nav-tabs bordered">
     <li class="active"><a href="#general" data-toggle="tab">Dados gerais</a></li>
 
-    <% if @role.teacher? || @role.employee? %>
+    <% if @role.teacher? || @role.employee? || @role.administrator? %>
       <li><a href="#users" data-toggle="tab">Usuários</a></li>
     <% end %>
   </ul>
@@ -14,7 +14,7 @@
       <%= render 'general', f: f %>
     </div>
 
-    <% if @role.teacher? || @role.employee? %>
+    <% if @role.teacher? || @role.employee? || @role.administrator? %>
       <div class="tab-pane" id="users">
         <%= render 'users', f: f %>
       </div>
