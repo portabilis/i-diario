@@ -1,4 +1,5 @@
  $(function(){
+   "use strict";
 
   var role_unity_id = null;
   var flashMessages = new FlashMessages();
@@ -49,15 +50,16 @@
       return { id: teacher['id'], text: teacher['name'] };
     });
 
-    if(_.isEmpty(selectedTeachers)){
-      $('#user_assumed_teacher_id').val("");
-    }
-
     insertEmptyElement(selectedTeachers);
     $('#user_assumed_teacher_id').select2({ formatResult: function(el) {
                                                     return "<div class='select2-user-result'>" + el.text + "</div>";
                                                   },
                                     data: selectedTeachers });
+    if(_.isNull($('#user_assumed_teacher_id').select2("data"))){
+      $('#user_assumed_teacher_id').val("");
+      $('#classroom-field').hide();
+      $('#discipline-field').hide();
+    }
   }
 
   function handleFetchTeachersError(){
@@ -99,7 +101,7 @@
     unity_id = String(unity_id);
     teacher_id = String(teacher_id);
 
-    filter = { by_teacher_id: teacher_id, by_unity: unity_id };
+    var filter = { by_teacher_id: teacher_id, by_unity: unity_id };
     if(!_.isEmpty(teacher_id) && !_.isEmpty(unity_id)){
       $.ajax({
         url: Routes.classrooms_pt_br_path({
@@ -168,7 +170,6 @@
   $('#user_current_user_role_id').on('change', function(){
 
     var user_role_id = $(this).val();
-
     if(valueSelected($(this))){
       $.ajax({
         url: Routes.user_role_pt_br_path( user_role_id, {
@@ -182,6 +183,7 @@
     }
 
     function handleFetchRoleSuccess(data){
+      role_unity_id = null;
       switch (data.user_role.role.access_level) {
         case 'administrator':
           toggleAdministratorFields();
@@ -211,8 +213,12 @@
 
   $('#user_current_unity_id').on('change', function(){
     $('#assumed-teacher-field').hide();
+    $('#classroom-field').hide();
+    $('#discipline-field').hide();
+
     var unity_id = $(this).val();
-    $('#user_assumed_teacher_id').trigger("change");
+
+    fetchTeachers(unity_id);
     checkUnityType(unity_id);
   });
 
@@ -227,7 +233,7 @@
     }else{
       $("#user_current_classroom_id").val('');
       $("#user_current_discipline_id").val('');
-      $('#classroom-field').hide()
+      $('#classroom-field').hide();
       $('#discipline-field').hide();
     }
   });
@@ -236,10 +242,8 @@
 
   function fetchDisciplines(){
     var classroom_id = $("#user_current_classroom_id").val();
-
-    filter = { by_classroom: classroom_id };
-
-    params = {
+    var filter = { by_classroom: classroom_id };
+    var params = {
       filter: filter,
       format: 'json'
     }
@@ -265,9 +269,7 @@
                                                                },
                                                  data: selectedDisciplines });
     }
-
   }
-
 
   function handleFetchDisciplinesSuccess(data){
     var selectedDisciplines = _.map(data.disciplines, function(discipline) {
@@ -289,6 +291,7 @@
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
   }
 
+  // Togglers
   function toggleNoProfileSelectedFields(){
 
     $("#user_current_teacher_id").val('');
@@ -313,6 +316,7 @@
     if(valueSelected($('#user_current_unity_id'))){
       $('#assumed-teacher-field').show();
       fetchTeachers($('#user_current_unity_id').val());
+      checkUnityType($('#user_current_unity_id').val());
 
       if(valueSelected($('#user_assumed_teacher_id'))){
         $('#discipline-field').show();
@@ -336,7 +340,6 @@
     if(valueSelected($('#user_assumed_teacher_id'))){
       $('#discipline-field').show();
       $('#classroom-field').show();
-
       fetchClassroomsByTeacherAndUnity($('#user_assumed_teacher_id').val(), unity_id);
     }
   }
@@ -375,6 +378,8 @@
     return !(_.isEmpty(select2Element.val()) || select2Element.val() == 0);
   }
 });
+
+// Form methods
 
 $.fn.render_form_errors = function(model_name, errors) {
   var form;
