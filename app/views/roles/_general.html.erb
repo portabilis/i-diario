@@ -13,7 +13,7 @@
     </div>
 
     <div class="col col-sm-4">
-      <%= f.input :access_level, as: :select2, elements: AccessLevel.to_select.to_json %>
+      <%= f.input :access_level, as: :select2, elements: AccessLevel.to_select.to_json, disabled: f.object.persisted? %>
     </div>
   </div>
 
