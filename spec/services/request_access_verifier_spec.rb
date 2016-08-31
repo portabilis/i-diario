@@ -184,9 +184,9 @@ RSpec.describe RequestAccessVerifier, type: :service do
     end
 
     context 'when all paramters are ok' do
-      it "should return 'OK'" do
+      it "should return 'Acesso permitido'" do
         subject.process!
-        expect(subject.response_msg).to eq('OK')
+        expect(subject.response_msg).to eq('Acesso permitido')
       end
     end
   end
