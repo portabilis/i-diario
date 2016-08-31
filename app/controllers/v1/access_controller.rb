@@ -12,25 +12,21 @@ class V1::AccessController < V1::BaseController
       params[:TipoConsulta].to_i
     )
 
-    if verifier.process!
-      code = 1
-      data = {
-        "IdAluno" => params[:IdAluno],
-        "Mensagem" => "Acesso permitido",
-        "Biometria" => verifier.biometric,
-        "Senha" => nil,
-        "Permissao" => 3
-      }
-    else
-      code = 2
-      data = {}
-    end
+    verifier.process!
+
+    data = {
+      "IdAluno" => params[:IdAluno],
+      "Mensagem" => verifier.response_msg,
+      "Biometria" => verifier.biometric,
+      "Senha" => nil,
+      "Permissao" => verifier.valid  ? 3 : 0
+    }
 
     render json: {
       "Dados" => data,
       "Status" => {
-        "Codigo" => code,
-        "Mensagem" => verifier.response_msg
+        "Codigo" => 1,
+        "Mensagem" => "OK"
       }
     }
   end

@@ -51,11 +51,14 @@ class RequestAccessVerifier
       return false
     end
 
-    student_biometric = StudentBiometric.find_by(biometric_type: unity_equipment.biometric_type, student_id: student.id)
-    if student_biometric.blank?
-      self.response_msg = "Biometria não cadastrada"
-      valid = false
-      return false
+    if @request_type == 3
+      student_biometric = StudentBiometric.find_by(biometric_type: unity_equipment.biometric_type, student_id: student.id)
+      if student_biometric.blank?
+        self.response_msg = "Biometria não cadastrada"
+        valid = false
+        return false
+      end
+      self.biometric = student_biometric.biometric
     end
 
     if !StudentUnityChecker.new(student, unity).present?
@@ -64,8 +67,7 @@ class RequestAccessVerifier
       return false
     end
 
-    self.biometric = student_biometric.biometric
-    self.response_msg = "OK"
+    self.response_msg = "Acesso permitido"
     valid = true
   end
 
