@@ -119,3 +119,5 @@ pt-BR:
     biometric: "biometria"
     send_biometric: "enviarbiometria"
     request_biometric: "solicitarbiometria"
+    command: "comando"
+    request_command: "solicitarcomando"
