@@ -1,0 +1,30 @@
+<tbody id="resources-tbody">
+  <% if @daily_notes.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @daily_notes.each do |daily_note| %>
+      <tr>
+        <td><%= daily_note.unity %></td>
+        <td><%= daily_note.classroom %></td>
+        <td><%= daily_note.discipline %></td>
+        <td><%= daily_note.avaliation %></td>
+        <td>
+          <span class="<%= conceptual_exam_label(daily_note.status) %>">
+            <%= daily_note.status_humanize %>
+          </span>
+        </td>
+
+        <td class="actions">
+          <%= link_to t('views.index.edit'),
+                edit_daily_note_path(daily_note),
+                class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'),
+                daily_note_path(daily_note),
+                class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

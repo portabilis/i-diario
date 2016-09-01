@@ -199,7 +199,7 @@ navigation:
             path: "avaliations_path"
         - ***REMOVED***:
             type: "daily_notes"
-            path: "new_daily_note_path"
+            path: "daily_notes_path"
         - ***REMOVED***:
             type: "avaliation_exemptions"
             path: "avaliation_exemptions_path"

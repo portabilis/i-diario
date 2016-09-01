@@ -1,6 +1,25 @@
 class DailyNotesController < ApplicationController
+  has_scope :page, default: 1
+  has_scope :per, default: 10
+
   before_action :require_teacher
   before_action :require_current_school_calendar
+
+  def index
+    @daily_notes = apply_scopes(DailyNote)
+                    .includes(:avaliation)
+                    .by_classroom_id(current_user_classroom)
+                    .by_discipline_id(current_user_discipline)
+                    .order_by_avaliation_test_date
+
+    @classrooms = Classroom.where(id: current_user_classroom)
+    @disciplines = Discipline.where(id: current_user_discipline)
+    @avaliations = Avaliation
+                    .by_classroom_id(current_user_classroom)
+                    .by_discipline_id(current_user_discipline)
+
+    authorize @daily_notes
+  end
 
   def new
     @daily_note = DailyNote.new(
@@ -58,7 +77,7 @@ class DailyNotesController < ApplicationController
     destroy_students_not_found
 
     if @daily_note.save
-      respond_with @daily_note, location: new_daily_note_path
+      respond_with @daily_note, location: daily_notes_path
     else
       render :edit
     end
@@ -70,7 +89,7 @@ class DailyNotesController < ApplicationController
 
     @daily_note.destroy
 
-    respond_with @daily_note, location: new_daily_note_path
+    respond_with @daily_note, location: daily_notes_path
   end
 
   def history
