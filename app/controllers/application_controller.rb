@@ -195,6 +195,16 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user_unity
 
+  def current_user_classroom
+    current_user.try(:current_classroom)
+  end
+  helper_method :current_user_classroom
+
+  def current_user_discipline
+    current_user.try(:current_discipline)
+  end
+  helper_method :current_user_discipline
+
   private
 
   def disabled_entity_page?
