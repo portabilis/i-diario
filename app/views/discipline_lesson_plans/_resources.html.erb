@@ -7,11 +7,16 @@
     <% @discipline_lesson_plans.each do |discipline_lesson_plan| %>
       <tr>
         <td><%= discipline_lesson_plan.lesson_plan.unity %></td>
-        <td><%= discipline_lesson_plan.lesson_plan.classroom %></td>
-        <td><%= discipline_lesson_plan.discipline %></td>
-        <td><%= l(discipline_lesson_plan.lesson_plan.start_at) %></td>
-        <td><%= l(discipline_lesson_plan.lesson_plan.end_at) %></td>
+        <td class="classroom"><%= discipline_lesson_plan.lesson_plan.classroom %></td>
+        <td class="discipline"><%= discipline_lesson_plan.discipline %></td>
+        <td class="start_at"><%= l(discipline_lesson_plan.lesson_plan.start_at) %></td>
+        <td class="end_at" ><%= l(discipline_lesson_plan.lesson_plan.end_at) %></td>
         <td class="actions">
+          <%= link_to(
+                t('helpers.links.copy_html'),
+                '#',
+                class: 'btn btn-primary apply_tooltip open_copy_modal',
+                data: { original_title: t('views.index.tooltips.copy'), discipline_lesson_plan_id: discipline_lesson_plan.id }) %>
           <%= link_to(
                 t('helpers.links.print_html'),
                 discipline_lesson_plan_path(discipline_lesson_plan, format: :pdf),
