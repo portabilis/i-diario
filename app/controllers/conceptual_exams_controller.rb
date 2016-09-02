@@ -15,7 +15,8 @@ class ConceptualExamsController < ApplicationController
       )
       .filter(filtering_params(params[:search]))
       .by_unity(current_user_unity)
-      .by_teacher(current_teacher)
+      .by_classroom(current_user_classroom)
+      .by_discipline(current_user_discipline)
       .ordered
 
     authorize @conceptual_exams
@@ -201,9 +202,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_classrooms
-    @classrooms = Classroom.by_teacher_id(current_teacher.id)
-    .by_unity(current_user_unity)
-    .by_teacher_id(current_teacher)
+    @classrooms = Classroom.where(id: current_user_classroom)
     .by_score_type(ScoreTypes::CONCEPT)
   end
 

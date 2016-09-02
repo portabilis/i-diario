@@ -13,15 +13,15 @@ class AvaliationsController < ApplicationController
     current_user_unity_id = current_user_unity.id if current_user_unity
 
     @avaliations = apply_scopes(Avaliation).includes(:unity, :classroom, :discipline, :test_setting_test)
-                                           .by_teacher(current_teacher.id)
                                            .by_unity_id(current_user_unity_id)
+                                           .by_classroom_id(current_user_classroom)
+                                           .by_discipline_id(current_user_discipline)
                                            .ordered
 
     authorize @avaliations
 
-    @unities = Unity.by_teacher(current_teacher.id)
-    @classrooms = Classroom.by_teacher_id(current_teacher.id)
-    @disciplines = Discipline.by_teacher_id(current_teacher.id)
+    @classrooms = Classroom.where(id: current_user_classroom)
+    @disciplines = Discipline.where(id: current_user_discipline)
 
     respond_with @avaliations
   end

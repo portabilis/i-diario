@@ -3,7 +3,7 @@ pt-BR:
     index:
       new_html: "<i class='fa fa-plus'></i> Novo plano de ensino"
       by_year: "Filtrar ano"
-      by_grade: "Filtrar curso"
+      by_grade: "Filtrar série"
       by_knowledge_area: "Filtrar área de conhecimento"
       by_school_term_type: "Filtrar tipo de período escolar"
     form:

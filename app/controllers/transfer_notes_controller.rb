@@ -1,13 +1,14 @@
 class TransferNotesController < ApplicationController
-  before_action :require_current_teacher
-  before_action :require_current_school_calendar
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :require_current_teacher
+  before_action :require_current_school_calendar
+
   def index
     @transfer_notes = apply_scopes(TransferNote).includes(:classroom, :discipline, :student)
-                                                .by_teacher_id(current_teacher.id)
-                                                .by_unity_id(current_user_unity.id)
+                                                .by_classroom_id(current_user_classroom)
+                                                .by_discipline_id(current_user_discipline)
 
     authorize @transfer_notes
   end

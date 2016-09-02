@@ -8,8 +8,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def index
     @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan)
       .includes(:knowledge_areas, teaching_plan: [:unity, :grade])
-      .by_unity(current_user_unity)
-      .by_teacher_id(current_teacher.id)
+      .by_grade(current_user_classroom.grade_id)
 
     authorize @knowledge_area_teaching_plans
 
@@ -140,9 +139,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_user_unity)
-      .by_teacher(current_teacher)
-      .by_year(current_school_calendar.year)
+    @grades = Grade.where(id: current_user_classroom.grade_id)
       .ordered
   end
 
