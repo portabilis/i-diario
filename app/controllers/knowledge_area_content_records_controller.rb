@@ -7,8 +7,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def index
     @knowledge_area_content_records = apply_scopes(KnowledgeAreaContentRecord)
       .includes(:knowledge_areas, content_record: [:classroom])
-      .by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher.id)
+      .by_classroom_id(current_user_classroom)
+      .by_teacher_id(current_teacher)
 
     authorize @knowledge_area_content_records
   end

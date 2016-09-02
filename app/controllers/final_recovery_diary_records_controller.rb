@@ -17,7 +17,8 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       )
       .filter(filtering_params(params[:search]))
       .by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher.id)
+      .by_classroom_id(current_user_classroom)
+      .by_discipline_id(current_user_discipline)
       .ordered
 
     authorize @final_recovery_diary_records
@@ -128,16 +129,12 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.by_unity_and_teacher(
-      current_user_unity.id,
-      current_teacher.id
-    )
+    Classroom.where(id: current_user_classroom)
     .ordered
   end
 
   def fetch_disciplines
-    Discipline.by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher.id)
+    Discipline.where(id: current_user_discipline)
       .ordered
   end
 

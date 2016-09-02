@@ -9,7 +9,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plans = apply_scopes(DisciplineTeachingPlan)
       .includes(:discipline, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
-      .by_teacher_id(current_teacher.id)
+      .by_discipline(current_user_discipline)
 
     authorize @discipline_teaching_plans
 
@@ -149,8 +149,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def fetch_disciplines
-    @disciplines = Discipline.by_unity_id(current_user_unity)
-      .by_teacher_id(current_teacher)
+    @disciplines = Discipline.where(id: current_user_discipline)
       .ordered
 
     if @discipline_teaching_plan.present?

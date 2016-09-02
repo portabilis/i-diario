@@ -2,14 +2,16 @@ class ObservationDiaryRecordsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_school_calendar
   before_action :require_current_teacher
+  before_action :require_current_school_calendar
 
   def index
+    current_discipline = fetch_current_discipline
+
     @observation_diary_records = apply_scopes(ObservationDiaryRecord)
       .includes(:discipline, classroom: :unity)
-      .by_unity(current_user_unity.id)
-      .by_teacher(current_teacher.id)
+      .by_classroom(current_user_classroom)
+      .by_discipline(current_discipline)
       .ordered
   end
 
@@ -71,18 +73,13 @@ class ObservationDiaryRecordsController < ApplicationController
   helper_method :unities
 
   def classrooms
-    @classrooms ||= Classroom.by_unity_and_teacher(
-      current_user_unity.id,
-      current_teacher.id
-    )
+    @classrooms ||= Classroom.where(id: current_user_classroom)
     .ordered
   end
   helper_method :classrooms
 
   def disciplines
-    @disciplines ||= Discipline.by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher.id)
-      .ordered
+    @disciplines ||= Discipline.where(id: fetch_current_discipline)
   end
   helper_method :disciplines
 
@@ -111,6 +108,17 @@ class ObservationDiaryRecordsController < ApplicationController
 
     params['observation_diary_record']['notes_attributes'].each do |_, v|
       v['student_ids'] = v['student_ids'].split(',')
+    end
+  end
+
+  def fetch_current_discipline
+    frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
+    frequency_type_definer.define!
+
+    if frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+      current_user_discipline
+    else
+      nil
     end
   end
 end

@@ -31,6 +31,9 @@ class TransferNote < ActiveRecord::Base
   scope :by_student_name, lambda { |name| joins(:student).where('students.name ILIKE ?', "%#{name}%" ) }
   scope :by_transfer_date, lambda { |transfer_date| where(transfer_date: transfer_date.to_date ) }
   scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id ) }
+  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id ) }
+  scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id ) }
+  scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id ) }
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).where(classrooms: { unity_id: unity_id }) }
 
   def unity_id
