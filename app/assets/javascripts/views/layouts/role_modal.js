@@ -221,9 +221,11 @@
     fetchTeachers(unity_id);
     checkUnityType(unity_id);
 
-    $('#user_assumed_teacher_id').select2("data", []);
-    $('#user_current_classroom_id').select2("data", []);
-    $('#user_current_discipline_id').select2("data", []);
+    var emptyElements = insertEmptyElement([]);
+
+    $('#user_assumed_teacher_id').select2("data", emptyElements);
+    $('#user_current_classroom_id').select2("data", emptyElements);
+    $('#user_current_discipline_id').select2("data", emptyElements);
   });
 
   $('#user_assumed_teacher_id').on('change', function(){
