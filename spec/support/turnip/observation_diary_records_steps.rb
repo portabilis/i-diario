@@ -36,19 +36,19 @@ module Turnip
     #   click_on 'Usar este perfil'
     # end
 
-    #TODO Ajustar testes
     step 'que existe um registro do diário de observações cadastrado' do
-      # @observation_diary_record = create(
-      #   :observation_diary_record_with_notes,
-      #   school_calendar: @school_calendar,
-      #   teacher: @teacher,
-      #   classroom: @classroom,
-      #   discipline: @discipline,
-      #   date: '16/02/2016'
-      # )
-      #
-      # click_***REMOVED*** 'Diário de observações'
-      #
+      @observation_diary_record = create(
+        :observation_diary_record_with_notes,
+        school_calendar: @school_calendar,
+        teacher: @teacher,
+        classroom: @classroom,
+        discipline: @discipline,
+        date: '16/02/2016'
+      )
+
+      click_***REMOVED*** 'Diário de observações'
+
+      #TODO Ajustar testes
       # within :xpath, '//table/tbody/tr[position()=1]' do
       #   expect(page).to have_content @observation_diary_record.classroom
       # end
