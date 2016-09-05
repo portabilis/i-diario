@@ -9,6 +9,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plans = apply_scopes(DisciplineTeachingPlan)
       .includes(:discipline, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
+      .by_grade(current_user_classroom.grade)
       .by_discipline(current_user_discipline)
 
     authorize @discipline_teaching_plans
