@@ -19,7 +19,7 @@
       </thead>
 
       <tbody id="lesson-plans-contents">
-        <%= f.simple_fields_for :contents, f.object.contents.sort_by { |content| content.id  } do |content| %>
+        <%= f.simple_fields_for :contents, f.object.contents.sort_by { |content| [content.id ? 0 : 1, content.id] } do |content| %>
           <%= render 'content_fields', f: content %>
         <% end %>
       </tbody>
