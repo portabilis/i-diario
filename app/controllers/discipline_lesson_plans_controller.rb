@@ -59,7 +59,6 @@ class DisciplineLessonPlansController < ApplicationController
 
     authorize @discipline_lesson_plan
 
-    @number_of_classes = fetch_numer_of_classes
   end
 
   def create
@@ -72,8 +71,6 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      @number_of_classes = fetch_numer_of_classes
-
       render :new
     end
   end
@@ -82,8 +79,6 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
 
     authorize @discipline_lesson_plan
-
-    @number_of_classes = fetch_numer_of_classes
   end
 
   def update
@@ -95,8 +90,6 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      @number_of_classes = fetch_numer_of_classes
-
       render :edit
     end
   end
@@ -178,9 +171,5 @@ class DisciplineLessonPlansController < ApplicationController
     Discipline.by_unity_id(current_user_unity.id)
       .by_teacher_id(current_teacher.id)
       .ordered
-  end
-
-  def fetch_numer_of_classes
-    current_school_calendar.number_of_classes
   end
 end
