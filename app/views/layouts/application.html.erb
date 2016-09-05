@@ -80,6 +80,13 @@
       </div>
 
       <div id="content">
+        <% unless current_entity.name == "camposdojordao" %>
+          <div class="alert alert-info fade in">
+            Temos novidades incríveis para compartilhar com você! A partir do dia 06/09 estará disponível no sistema a nova seleção de perfil,
+            simples e fácil de usar. <%= link_to "Clique aqui", new_role_modal_feature_path, target: "_blank" %> e veja como irá funcionar este novo recurso.
+          </div>
+        <% end %>
+
         <div id="flash-messages">
           <%= bootstrap_flash %>
         </div>

@@ -78,6 +78,7 @@ Rails.application.routes.draw do
     get '/current_role', to: 'current_role#index', as: :current_roles
     get '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
     get '/disabled_entity', to: 'pages#disabled_entity'
+    get '/new_role_modal_feature', to: 'news#role_modal_feature'
 
     resources :messages, except: [:edit, :update] do
       collection do
