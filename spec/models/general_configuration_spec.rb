@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe GeneralConfiguration, :type => :model do
   context "Validations" do
     it { should validate_presence_of :security_level }
+    it { should validate_presence_of :allows_after_sales_relationship }
 
     it { should allow_value(SecurityLevels::BASIC).for(:security_level) }
     it { should allow_value(SecurityLevels::ADVANCED).for(:security_level) }
