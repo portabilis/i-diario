@@ -197,7 +197,11 @@ Rails.application.routes.draw do
 
     resources :discipline_teaching_plans, concerns: :history
     resources :knowledge_area_teaching_plans, concerns: :history
-    resources :discipline_lesson_plans, concerns: :history
+    resources :discipline_lesson_plans, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
     resources :knowledge_area_lesson_plans, concerns: :history
     resources :discipline_content_records, concerns: :history
     resources :knowledge_area_content_records, concerns: :history

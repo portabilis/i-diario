@@ -5,6 +5,7 @@
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span></button>
         <h4 class="modal-title">Copiar plano de aula por disciplina</h4>
       </div>
+      <%= simple_form_for DisciplineLessonPlanClonerForm.new, url: clone_discipline_lesson_plans_path, remote: true, html: { class: 'smart-form' } do |f| %>
       <div class="modal-body">
         <table class="table table-bordered table-striped table-condensed table-hover">
           <thead>
@@ -24,11 +25,26 @@
             </tr>
           </tbody>
         </table>
+        <%= f.input :discipline_lesson_plan_id, as: :hidden %>
+        <div class="row">
+          <div class="col-sm-12">
+              <%= f.input(
+                :classroom_ids,
+                as: :select2,
+                elements: [],
+                multiple: true,
+                input_html: { data: { without_json_parser: true } },
+                wrapper_html: { style: "width: 95%;" }
+              ) %>
+
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
         <button type="submit" class="btn btn-primary" >Confirmar</button>
       </div>
+      <% end %>
     </div>
   </div>
 </div>
