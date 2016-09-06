@@ -229,6 +229,23 @@ class User < ActiveRecord::Base
     end
   end
 
+
+  def can_receive_news_related_daily_teacher?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "teacher"].include? access_level}
+  end
+
+  def can_receive_news_related_***REMOVED***?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
+  end
+
+  def can_receive_news_related_tools_for_parents?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "parent", "student"].include? access_level}
+  end
+
+  def can_receive_news_related_all_matters?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
+  end
+
   protected
 
   def email_required?
