@@ -12,7 +12,7 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
   has_many :knowledge_area_lesson_plan_knowledge_areas, dependent: :destroy
   has_many :knowledge_areas, through: :knowledge_area_lesson_plan_knowledge_areas
 
-  delegate :contents, to: :lesson_plan
+  delegate :contents, :classroom, to: :lesson_plan
 
   accepts_nested_attributes_for :lesson_plan
 
