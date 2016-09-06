@@ -16,6 +16,7 @@ class User < ActiveRecord::Base
 
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
+  after_save :update_rd_lead
 
   before_destroy :ensure_has_no_audits
 
@@ -229,7 +230,57 @@ class User < ActiveRecord::Base
     end
   end
 
+
+  def can_receive_news_related_daily_teacher?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "teacher"].include? access_level}
+  end
+
+  def can_receive_news_related_***REMOVED***?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
+  end
+
+  def can_receive_news_related_tools_for_parents?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "parent", "student"].include? access_level}
+  end
+
+  def can_receive_news_related_all_matters?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
+  end
+
   protected
+
+  def update_rd_lead
+    rdstation_client = RDStation::Client.new('***REMOVED***', '***REMOVED***', 'Usuário no produto Educar+')
+
+    response = rdstation_client.create_lead({
+      :"email" => email,
+      :"Cargo" => rd_access_level,
+      :"Nome" => name,
+      :"Telefone fixo" => phone,
+      :"Empresa" => Entity.current.name,
+      :"Permite relacionamento direto no pós-vendas?" => receive_news? ? "Sim" : "Não",
+      :"Assuntos de interesse" => rd_matters,
+      :identificador => 'Usuário no produto Educar+'
+    })
+  end
+
+  def rd_matters
+    options = []
+    options << "Educar+ - Diário do professor" if receive_news_related_daily_teacher?
+    options << "Educar+ - Gestão de estoque e alimentação escolar" if receive_news_related_***REMOVED***?
+    options << "Educar+ - Ferramentas para pais e alunos" if receive_news_related_tools_for_parents?
+    options << "Todos os assuntos relacionados ao Educar+" if receive_news_related_all_matters?
+    options
+  end
+
+  def rd_access_level
+    access_levels = roles.map(&:access_level).uniq
+    return "administrador" if access_levels.include? "administrator"
+    return "servidor" if access_levels.include? "employee"
+    return "professor" if access_levels.include? "teacher"
+    return "pais" if access_levels.include? "parent"
+    return "alunos" if access_levels.include? "student"
+  end
 
   def email_required?
     false

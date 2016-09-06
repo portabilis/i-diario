@@ -13,6 +13,7 @@ pt-BR:
         students_default_role_id: "Permissão padrão para alunos"
         employees_default_role_id: "Permissão padrão para servidores"
         parents_default_role_id: "Permissão padrão para pais"
+        allows_after_sales_relationship: "Permite relacionamento direto no pós-venda?"
 
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"

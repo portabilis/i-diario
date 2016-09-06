@@ -1,3 +1,6 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/accounts/edit' %>
+<% end %>
 <div class="widget-body no-padding">
   <%= simple_form_for(@user, url: account_path, html: { method: :put, class: "smart-form" }) do |f| %>
     <%= f.error_notification %>
@@ -48,6 +51,39 @@
           <%= f.input :current_password, hint: "precisamos de sua senha atual para confirmar as alterações", required: true %>
         </div>
       </div>
+    </fieldset>
+    <fieldset>
+      <legend>Anúncios e novidades do produto</legend>
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :receive_news %>
+        </div>
+      </div>
+      <div class="row receive_news_options">
+        <% if f.object.can_receive_news_related_daily_teacher? %>
+          <div class="col col-sm-4">
+            <%= f.input :receive_news_related_daily_teacher %>
+          </div>
+        <% end %>
+        <% if f.object.can_receive_news_related_***REMOVED***? %>
+          <div class="col col-sm-4">
+            <%= f.input :receive_news_related_***REMOVED*** %>
+          </div>
+        <% end %>
+      </div>
+      <div class="row receive_news_options">
+        <% if f.object.can_receive_news_related_tools_for_parents? %>
+          <div class="col col-sm-4">
+            <%= f.input :receive_news_related_tools_for_parents %>
+          </div>
+        <% end %>
+        <% if f.object.can_receive_news_related_all_matters? %>
+          <div class="col col-sm-4">
+            <%= f.input :receive_news_related_all_matters %>
+          </div>
+        <% end %>
+      </div>
+
     </fieldset>
 
     <footer>

@@ -18,7 +18,8 @@ class AccountsController < ApplicationController
   def user_params
     params.require(:user).permit(
       :email, :first_name, :last_name, :login, :phone, :cpf, :password, :password_confirmation,
-      :current_password, :authorize_email_and_sms
+      :current_password, :authorize_email_and_sms, :receive_news, :receive_news_related_daily_teacher,
+      :receive_news_related_***REMOVED***, :receive_news_related_tools_for_parents, :receive_news_related_all_matters
     )
   end
 end

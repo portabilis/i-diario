@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    after_sale_relationship_options:
+      allows: "Sim"
+      does_not_allow: "Não"
