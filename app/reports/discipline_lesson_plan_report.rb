@@ -36,7 +36,7 @@ class DisciplineLessonPlanReport
   def header
     entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
     organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
-    title =  'Registro de conteúdos por disciplina'
+    title =  'Planos de aula por disciplina'
 
     header_cell = make_cell(
       content: title,

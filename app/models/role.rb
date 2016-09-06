@@ -4,7 +4,7 @@ class Role < ActiveRecord::Base
 
   include Audit
 
-  has_enumeration_for :kind, with: RoleKind, create_helpers: true
+  has_enumeration_for :access_level, with: AccessLevel, create_helpers: true
 
   belongs_to :author, class_name: "User"
 
@@ -17,9 +17,11 @@ class Role < ActiveRecord::Base
   accepts_nested_attributes_for :permissions
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
-  validates :author, :name, :kind, presence: true
+  validates :author, :name, :access_level, presence: true
   validates :name, uniqueness: { case_sensitive: false }, allow_blank: true
+
   validate :uniqueness_of_user_unity
+  validate :permissions_must_match_access_level
 
   scope :ordered, -> { order(arel_table[:name].asc) }
 
@@ -43,10 +45,20 @@ class Role < ActiveRecord::Base
   end
 
   def to_s
-    "#{name} - Tipo: #{kind_humanize}"
+    "#{name} - Nível: #{access_level_humanize}"
   end
 
   protected
+
+  def permissions_must_match_access_level
+    return unless access_level
+    permissions.each do |permission|
+      next if permission.permission == Permissions::DENIED
+      unless permission.access_level_has_feature?(access_level)
+        errors.add(:permissions, I18n.t('roles.errors.permission_must_match_access_level',feature: permission.feature_humanize, access_level: access_level_humanize))
+      end
+    end
+  end
 
   def uniqueness_of_user_unity
     return unless user_roles

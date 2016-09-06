@@ -10,7 +10,7 @@
 
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.input :unity_id, as: :select2, elements: @unities, input_html: { value: @teaching_plan.unity_id } %>
+        <%= f.association :unity, as: :select2, elements: @unities, input_html: { value: @teaching_plan.unity_id } %>
       </div>
 
       <div class="col col-sm-4">

@@ -20,14 +20,24 @@ RSpec.describe Role, :type => :model do
 
       expect(subject.errors[:user_roles]).to eq ["não é válido"]
     end
+
+    it "should validate permissions must match access level" do
+      subject.access_level = AccessLevel::TEACHER
+
+      subject.permissions.build(feature: Features::USERS, permission: Permissions::CHANGE)
+
+      subject.valid?
+
+      expect(subject.errors[:permissions]).to eq ["Funcionalidade Usuários não pertence ao nível de acesso Professor."]
+    end
   end
 
   describe "#to_s" do
     it "returns name" do
       subject.name = "administrador"
-      subject.kind = RoleKind::PARENT
+      subject.access_level = AccessLevel::PARENT
 
-      expect(subject.to_s).to eq "administrador - Tipo: Pais"
+      expect(subject.to_s).to eq "administrador - Nível: Pais"
     end
   end
 end

@@ -2,6 +2,7 @@ class DisciplinesController < ApplicationController
   respond_to :json
 
   has_scope :by_unity_id
+  has_scope :by_teacher_id
   has_scope :by_grade
   has_scope :by_classroom
 
@@ -17,6 +18,9 @@ class DisciplinesController < ApplicationController
   end
 
   def search
+    if(params[:use_user_teacher])
+      params[:filter][:by_teacher_id] = current_user.teacher_id
+    end
     @disciplines = apply_scopes(Discipline).ordered
 
     render json: @disciplines

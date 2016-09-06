@@ -8,6 +8,9 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
 
   belongs_to :recovery_diary_record, dependent: :destroy
   belongs_to :avaliation
+  belongs_to :unity
+  belongs_to :classroom
+  belongs_to :discipline
 
   accepts_nested_attributes_for :recovery_diary_record
 
@@ -21,8 +24,7 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   scope :by_avaliation_description, lambda { |avaliation_description| joins(:avaliation).where('avaliations.description ILIKE ?', "%#{avaliation_description}%" ) }
   scope :ordered, -> { joins(:recovery_diary_record).order(RecoveryDiaryRecord.arel_table[:recorded_at].desc) }
 
-  validates :recovery_diary_record, presence: true
-  validates :avaliation, presence: true
+  validates :avaliation, :recovery_diary_record, presence: true
 
   validate :uniqueness_of_avaliation_recovery_diary_record
   validate :recovery_date_should_be_greater_or_equal_avaliation_date, if: :dates_are_set?

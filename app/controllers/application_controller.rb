@@ -99,11 +99,10 @@ class ApplicationController < ActionController::Base
 
   def check_for_current_user_role
     return unless current_user
-    return if current_user.admin?
 
-    if current_user.current_user_role.blank? && controller_name != "current_role"
-      redirect_to current_roles_path
-      flash[:alert] = t("activerecord.errors.models.user.attributes.base.no_role_found") if current_user.user_roles.count == 0
+    if current_user.current_user_role.blank?
+      current_user.update_attribute(:current_user_role_id, nil)
+      flash.now[:warning] = t("current_role.check.warning")
     end
   end
 
@@ -136,7 +135,7 @@ class ApplicationController < ActionController::Base
     policy_name = exception.policy.class.to_s.underscore
 
     flash[:error] = t "#{policy_name}.#{exception.query}", scope: "pundit", default: :default
-    redirect_to(request.referrer || root_path)
+    redirect_to(root_path)
   end
 
   def rescue_from_api_error(exception)
@@ -144,9 +143,14 @@ class ApplicationController < ActionController::Base
   end
 
   def current_teacher
-    current_user.try(:teacher)
+    current_user.try(:current_teacher)
   end
   helper_method :current_teacher
+
+  def current_teacher_id
+    current_teacher.try(:id)
+  end
+  helper_method :current_teacher_id
 
   def current_school_calendar
     return if current_user.admin? && current_user_unity.blank?
@@ -187,9 +191,19 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user_unity
-    current_user.current_user_role.try(:unity)
+    current_user.current_user_role.try(:unity) || current_user.current_unity
   end
   helper_method :current_user_unity
+
+  def current_user_classroom
+    current_user.try(:current_classroom)
+  end
+  helper_method :current_user_classroom
+
+  def current_user_discipline
+    current_user.try(:current_discipline)
+  end
+  helper_method :current_user_discipline
 
   private
 

@@ -9,7 +9,7 @@ RSpec.describe AbsenceJustificationReport, type: :report do
     classroom = create(:classroom)
 
     absence_justification_report_form = AbsenceJustificationReportForm.new(
-      unity: unity,
+      unity_id: unity,
       school_calendar_year: school_calendar,
       current_teacher_id: teacher,
       classroom_id: classroom,

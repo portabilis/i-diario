@@ -1,4 +1,4 @@
-<tr class="nested-fields" id="role-<%= f.object.feature %>">
+<tr class="nested-fields" style="display: none;" id="role-<%= f.object.feature %>" <%= access_level_tags(f.object) %> >
   <td>
     <%= f.object.feature_humanize %>
     <%= f.input_field :feature, as: :hidden %>

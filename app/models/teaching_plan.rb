@@ -5,8 +5,6 @@ class TeachingPlan < ActiveRecord::Base
 
   audited
 
-  attr_writer :contents_tags
-
   has_enumeration_for :school_term_type,
     with: SchoolTermTypes,
     create_helpers: true
@@ -21,6 +19,9 @@ class TeachingPlan < ActiveRecord::Base
   validates :school_term, presence: { unless: :yearly?  }
 
   has_and_belongs_to_many :contents, dependent: :destroy
+  accepts_nested_attributes_for :contents, allow_destroy: true
+
+  validate :at_least_one_content_assigned
 
   def contents_tags
     if @contents_tags.present?
@@ -43,5 +44,11 @@ class TeachingPlan < ActiveRecord::Base
     when SchoolTermTypes::SEMESTER
       I18n.t("enumerations.semesters.#{school_term}")
     end
+  end
+
+  private
+
+  def at_least_one_content_assigned
+    errors.add(:contents, :at_least_one_content_assigned) if contents.empty?
   end
 end

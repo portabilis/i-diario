@@ -17,7 +17,8 @@
         <%= render partial: 'lesson_plans/classroom_field', locals: { f: lesson_plan } %>
 
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2, elements: [], required: true %>
+          <%= f.association :discipline, as: :select2_discipline, user: current_user,
+                classroom_id: @discipline_lesson_plan.lesson_plan.classroom_id %>
         </div>
       </div>
 

@@ -38,9 +38,11 @@ $(function() {
         if (examRule.frequency_type == 2 || examRule.allow_frequency_by_discipline) {
           $disciplineDiv.show();
         }else {
+          $("#absence_justification_discipline_id").select2("data", []);
           $disciplineDiv.hide();
         }
       }else {
+        $("#absence_justification_discipline_id").select2("data", []);
         $disciplineDiv.hide();
       }
     });
@@ -111,7 +113,6 @@ $(function() {
 
   if ($classroom.val() != '' && $classroom.val() != 'empty') {
     fetchStudents();
-    fetchDisciplines();
   }
 
   // togglers
@@ -135,6 +136,7 @@ $(function() {
     if (show) {
       $disciplineDiv.show();
     }else {
+      $("#absence_justification_discipline_id").select2("data", []);
       $disciplineDiv.hide();
     }
   }

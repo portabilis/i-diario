@@ -13,8 +13,6 @@ class TestSettingsController < ApplicationController
   def show
    @test_setting = resource
 
-    authorize resource
-
     render json: @test_setting
   end
 

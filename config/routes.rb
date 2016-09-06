@@ -74,8 +74,7 @@ Rails.application.routes.draw do
     root 'dashboard#index'
 
     get '/sandbox', to: 'dashboard#sandbox'
-    get '/current_role/:id', to: 'current_role#set', as: :set_current_role
-    get '/current_role', to: 'current_role#index', as: :current_roles
+    patch '/current_role', to: 'current_role#set', as: :set_current_role
     get '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
     get '/disabled_entity', to: 'pages#disabled_entity'
     get '/new_role_modal_feature', to: 'news#role_modal_feature'
@@ -98,6 +97,7 @@ Rails.application.routes.draw do
         get :history
       end
     end
+    resources  :user_roles, only: [:show]
     resources :***REMOVED***, only: [:index]
     resources :***REMOVED***, only: [:index, :show]
     resources :***REMOVED***_confirmations, except: [:new, :create] do
@@ -218,7 +218,7 @@ Rails.application.routes.draw do
       end
     end
     resources :teacher_avaliations, only: :index
-    resources :daily_notes, only: [:new, :create, :edit, :update, :destroy], concerns: :history
+    resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history
     resources :daily_note_students, only: [:index] do
       collection do
         get :old_notes

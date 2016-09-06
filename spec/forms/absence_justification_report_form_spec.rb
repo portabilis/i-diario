@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe AbsenceJustificationReportForm, type: :model do
   describe "validations" do
 
-    it { expect(subject).to validate_presence_of(:unity) }
+    it { expect(subject).to validate_presence_of(:unity_id) }
     it { expect(subject).to validate_presence_of(:classroom_id) }
     it { expect(subject).to validate_presence_of(:absence_date) }
     it { expect(subject).to validate_presence_of(:absence_date_end) }
@@ -23,7 +23,7 @@ RSpec.describe AbsenceJustificationReportForm, type: :model do
         exam_rule: exam_rule
       )
 
-      subject.unity = unity
+      subject.unity_id = unity.id
       subject.classroom_id = classroom.id
       subject.absence_date = Time.zone.today
       subject.absence_date_end = Time.zone.today + 1
@@ -47,7 +47,7 @@ RSpec.describe AbsenceJustificationReportForm, type: :model do
         exam_rule: exam_rule
       )
 
-      subject.unity = unity
+      subject.unity_id = unity.id
       subject.classroom_id = classroom.id
       subject.absence_date = '04/05/2016'
       subject.absence_date_end = '03/05/2016'

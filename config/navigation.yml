@@ -15,11 +15,6 @@ navigation:
       path: "edit_account_path"
       visible: true
   - ***REMOVED***:
-      type: "current_role"
-      icon: "fa-cogs"
-      path: "current_roles_path"
-      visible: true
-  - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-envelope-o"
       path: "new_contact_school_path"
@@ -204,7 +199,7 @@ navigation:
             path: "avaliations_path"
         - ***REMOVED***:
             type: "daily_notes"
-            path: "new_daily_note_path"
+            path: "daily_notes_path"
         - ***REMOVED***:
             type: "avaliation_exemptions"
             path: "avaliation_exemptions_path"

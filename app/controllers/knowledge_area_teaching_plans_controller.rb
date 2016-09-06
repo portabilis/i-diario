@@ -9,7 +9,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan)
       .includes(:knowledge_areas, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
-      .by_teacher_id(current_teacher.id)
+      .by_grade(current_user_classroom.grade_id)
 
     authorize @knowledge_area_teaching_plans
 
@@ -44,7 +44,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    @knowledge_area_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:contents_tags])
     @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher.id
 
     if @knowledge_area_teaching_plan.save
@@ -71,8 +70,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan.assign_attributes(resource_params)
 
     authorize @knowledge_area_teaching_plan
-
-    @knowledge_area_teaching_plan.teaching_plan.contents = ContentTagConverter::tags_to_contents(params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:contents_tags])
 
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
@@ -119,15 +116,17 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
         :methodology,
         :evaluation,
         :references,
-        :contents_tags,
-        :teacher_id
+        :teacher_id,
+        contents_attributes: [
+          :id,
+          :description,
+          :_destroy
+        ]
       ]
     )
   end
 
   def fetch_collections
-    fetch_unities
-    fetch_grades
     fetch_knowledge_areas
   end
 
@@ -141,9 +140,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_user_unity)
-      .by_teacher(current_teacher)
-      .by_year(current_school_calendar.year)
+    @grades = Grade.where(id: current_user_classroom.grade_id)
       .ordered
   end
 

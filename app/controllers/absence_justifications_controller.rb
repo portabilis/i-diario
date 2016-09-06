@@ -1,14 +1,19 @@
 class AbsenceJustificationsController < ApplicationController
+
+  before_action :require_current_teacher
   before_action :require_current_school_calendar
 
   has_scope :page, default: 1
   has_scope :per, default: 10
 
   def index
-    @unities = Unity.by_teacher(current_teacher.id)
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
-    @absence_justifications = apply_scopes(AbsenceJustification.by_teacher(current_teacher.id)
-                                                               .by_unity(current_user_unity)
+    current_discipline = fetch_current_discipline
+
+    @classrooms = Classroom.where(id: current_user_classroom)
+    @absence_justifications = apply_scopes(AbsenceJustification.by_unity(current_user_unity)
+                                                               .by_classroom(current_user_classroom)
+                                                               .by_discipline_id(current_discipline)
+                                                               .by_teacher(current_teacher)
                                                                .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
                                                                .includes(:student).ordered)
@@ -47,8 +52,6 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification = AbsenceJustification.find(params[:id]).localized
     @absence_justification.unity = current_user_unity
     fetch_collections
-
-    validate_current_user
 
     authorize @absence_justification
   end
@@ -96,13 +99,6 @@ class AbsenceJustificationsController < ApplicationController
 
   private
 
-  def validate_current_user
-    unless @absence_justification.teacher_id.eql?(current_teacher.id)
-      flash[:alert] = t('.current_user_not_allowed')
-      redirect_to root_path
-    end
-  end
-
   def filtering_params(params)
     if params
       params.slice(:by_classroom, :by_student, :by_date)
@@ -114,11 +110,22 @@ class AbsenceJustificationsController < ApplicationController
   protected
 
   def fetch_collections
-    @unities = Unity.by_teacher(current_teacher.id).ordered
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher.id)
+    @unities = Unity.by_teacher(current_teacher_id).ordered
+    @classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher_id)
   end
 
   def configuration
     @configuration ||= IeducarApiConfiguration.current
+  end
+
+  def fetch_current_discipline
+    frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
+    frequency_type_definer.define!
+
+    if frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+      current_user_discipline
+    else
+      nil
+    end
   end
 end

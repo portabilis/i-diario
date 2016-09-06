@@ -15,8 +15,6 @@ $(function () {
   var $school_calendar_step_end_at = $('#avaliation_exemption_school_calendar_step_end_at');
   var $avaliation_date = $('#avaliation_exemption_avaliation_date');
 
-  fetchCourses();
-
   $course.on('change', function(){
     fetchGrades();
   });
@@ -41,6 +39,8 @@ $(function () {
   $avaliation.on('change', function(){
     fetchAvaliationDate();
   });
+
+  fetchAvaliations();
 
   function fetchCourses() {
     var unity_id = $unity.select2('val');

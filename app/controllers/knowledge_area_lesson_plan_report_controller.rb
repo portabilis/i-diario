@@ -1,4 +1,5 @@
 class KnowledgeAreaLessonPlanReportController < ApplicationController
+  before_action :require_current_teacher
 
   def form
     @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(unity_id: current_user_unity.id)
@@ -26,13 +27,6 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
   private
 
   def fetch_collections
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id,
-                                                        Unity.by_unity(current_user.current_user_role.unity.id),
-                                                        @knowledge_area_lesson_plan_report_form.classroom_id,
-                                                        nil)
-    fetcher.fetch!
-    @unities = fetcher.unities
-    @classrooms = fetcher.classrooms
     @number_of_classes = current_school_calendar.number_of_classes
     @knowledge_areas = KnowledgeArea.all
   end

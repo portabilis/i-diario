@@ -8,17 +8,6 @@ $(function () {
       $selectAll***REMOVED*** = $('#select-all-classes'),
       $deselectAll***REMOVED*** = $('#deselect-all-classes');
 
-  var fetchClassrooms = function (params, callback) {
-    if (_.isEmpty(window.classrooms)) {
-      $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
-        window.classrooms = data;
-        callback(window.classrooms);
-      });
-    } else {
-      callback(window.classrooms);
-    }
-  };
-
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
       $.getJSON('/disciplinas?' + $.param(params)).always(function (data) {
@@ -36,38 +25,9 @@ $(function () {
     });
   };
 
-  var $unity = $('#attendance_record_report_form_unity_id');
   var $classroom = $('#attendance_record_report_form_classroom_id');
   var $discipline = $('#attendance_record_report_form_discipline_id');
   var $class_numbers = $('#attendance_record_report_form_class_numbers');
-
-  $unity.on('change', function (e) {
-    var params = {
-      filter: {
-        by_unity: e.val
-      },
-      find_by_current_teacher: true
-    };
-
-    window.classrooms = [];
-    window.disciplines = [];
-
-    $classroom.val('').select2({ data: [] });
-    $discipline.val('').select2({ data: [] });
-    $('#attendance_record_report_form_class_numbers').select2("val", "")
-
-    if (!_.isEmpty(e.val)) {
-      fetchClassrooms(params, function (classrooms) {
-        var selectedClassrooms = _.map(classrooms, function (classroom) {
-          return { id:classroom['id'], text: classroom['description'] };
-        });
-
-        $classroom.select2({
-          data: selectedClassrooms
-        });
-      });
-    }
-  });
 
   var checkExamRule = function(params){
     fetchExamRule(params, function(data){

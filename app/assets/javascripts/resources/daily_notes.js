@@ -94,14 +94,14 @@ $(function () {
 
   $('#daily_note_discipline_id').on('change', function (e) {
     var params = {
-      discipline_id: e.val,
+      discipline_id: $(this).val(),
       classroom_id: $('#daily_note_classroom_id').val()
     };
 
     window.avaliations = [];
     $avaliation.val('').select2({ data: [] });
 
-    if (!_.isEmpty(e.val)) {
+    if (!_.isEmpty($(this).val())) {
       fetchAvaliations(params, function (avaliations) {
         var selectedAvaliations = _.map(avaliations, function (avaliation) {
           return { id: avaliation['id'], text: avaliation['description'] };
@@ -113,6 +113,8 @@ $(function () {
       });
     }
   });
+
+  $('#daily_note_discipline_id').trigger("change");
 
   $('input.string[id^=daily_note_students_attributes][id*=_note]').bind("keypress", function(e) {
     if (e.keyCode == 13) {

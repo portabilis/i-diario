@@ -16,8 +16,8 @@ class UnitiesController < ApplicationController
   end
 
   def show
-    @unities = Unity.all
-    render json:  @unities
+    @unity = Unity.find(params[:id])
+    render json:  @unity
   end
 
   def create

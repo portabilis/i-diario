@@ -115,6 +115,5 @@ $(function () {
   // On load
 
   fetchExamRule();
-  fetchDisciplines();
   fetchStudents();
 });

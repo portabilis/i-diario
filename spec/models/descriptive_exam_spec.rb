@@ -10,6 +10,6 @@ RSpec.describe DescriptiveExam, type: :model do
   end
 
   describe "validations" do
-    it { expect(subject).to validate_presence_of(:classroom) }
+    it { expect(subject).to validate_presence_of(:classroom_id) }
   end
 end

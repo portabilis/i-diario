@@ -14,8 +14,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       )
       .includes(:knowledge_areas, lesson_plan: [:unity, :classroom])
       .filter(filtering_params(params[:search]))
-      .by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher.id)
+      .by_classroom_id(current_user_classroom)
       .uniq
       .ordered
 
@@ -69,7 +68,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
-    @knowledge_area_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(params[:knowledge_area_lesson_plan][:lesson_plan_attributes][:contents_tags])
 
     authorize @knowledge_area_lesson_plan
 
@@ -98,7 +96,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
-    @knowledge_area_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(params[:knowledge_area_lesson_plan][:lesson_plan_attributes][:contents_tags])
 
     authorize @knowledge_area_lesson_plan
 
@@ -150,7 +147,11 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         :bibliography,
         :opinion,
         :teacher_id,
-        :contents_tags
+        contents_attributes: [
+          :id,
+          :description,
+          :_destroy
+        ]
       ]
     )
   end
@@ -174,10 +175,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.by_unity_and_teacher(
-      current_user_unity.id,
-      current_teacher.id
-    )
+    Classroom.where(id: current_user_classroom)
     .ordered
   end
 

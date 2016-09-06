@@ -27,6 +27,11 @@ pt-BR:
         admin: "Admin?"
         teacher: "Professor"
         teacher_id: "Professor"
+        assumed_teacher_id: "Professor"
+        current_user_role_id: "Perfil"
+        current_unity_id: "Unidade"
+        current_classroom_id: "Turma"
+        current_discipline_id: "Disciplina"
 
     errors:
       models:

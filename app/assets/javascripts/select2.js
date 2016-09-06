@@ -1,5 +1,5 @@
 $(document).ready(function(){
-  _.each($('input.select2'), function(element) {
+  _.each($('input.select2, input[class^=select2]'), function(element) {
     $(element).select2({
       formatResult: function(el) {
         return "<div class='select2-user-result'>" + el.name + "</div>";
@@ -12,7 +12,7 @@ $(document).ready(function(){
       allowClear: !$(element).data('hide-empty-element')
     });
 
-    if ($(element).data('multiple') && !$(element).data('without-json-parser')) {
+    if ($(element).data('multiple') && !$(element).data('without-json-parser') && !_.isEmpty($(element).val())){
       $(element).select2("val", JSON.parse($(element).val()));
     }
   });
@@ -20,7 +20,7 @@ $(document).ready(function(){
 
 $(function() {
   // Clear value when select empty element
-  $('input.select2').on('change', function(element) {
+  $('input.select2, input[class^=select2]').on('change', function(element) {
     if (element.val === "empty") {
       $(element.target).select2("val", "");
     }

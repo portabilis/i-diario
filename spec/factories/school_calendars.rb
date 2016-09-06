@@ -11,9 +11,9 @@ FactoryGirl.define do
           .build(attributes_for(
                   :school_calendar_step,
                   start_at: "01/01/#{school_calendar.year}",
-                  end_at: "30/06/#{school_calendar.year}",
-                  start_date_for_posting: "10/06/#{school_calendar.year}",
-                  end_date_for_posting: "30/06/#{school_calendar.year}"
+                  end_at: "31/12/#{school_calendar.year}",
+                  start_date_for_posting: "01/01/#{school_calendar.year}",
+                  end_date_for_posting: "31/12/#{school_calendar.year}"
                 )
           )
       end

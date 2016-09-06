@@ -1,6 +1,25 @@
 class DailyNotesController < ApplicationController
+  has_scope :page, default: 1
+  has_scope :per, default: 10
+
   before_action :require_teacher
   before_action :require_current_school_calendar
+
+  def index
+    @daily_notes = apply_scopes(DailyNote)
+                    .includes(:avaliation)
+                    .by_classroom_id(current_user_classroom)
+                    .by_discipline_id(current_user_discipline)
+                    .order_by_avaliation_test_date
+
+    @classrooms = Classroom.where(id: current_user_classroom)
+    @disciplines = Discipline.where(id: current_user_discipline)
+    @avaliations = Avaliation
+                    .by_classroom_id(current_user_classroom)
+                    .by_discipline_id(current_user_discipline)
+
+    authorize @daily_notes
+  end
 
   def new
     @daily_note = DailyNote.new(
@@ -9,7 +28,6 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    fetch_unities
   end
 
   def create
@@ -18,7 +36,6 @@ class DailyNotesController < ApplicationController
     if @daily_note.valid? && find_or_initialize_resource
       redirect_to edit_daily_note_path(@daily_note)
     else
-      fetch_unities
       render :new
     end
   end
@@ -60,7 +77,7 @@ class DailyNotesController < ApplicationController
     destroy_students_not_found
 
     if @daily_note.save
-      respond_with @daily_note, location: new_daily_note_path
+      respond_with @daily_note, location: daily_notes_path
     else
       render :edit
     end
@@ -72,7 +89,7 @@ class DailyNotesController < ApplicationController
 
     @daily_note.destroy
 
-    respond_with @daily_note, location: new_daily_note_path
+    respond_with @daily_note, location: daily_notes_path
   end
 
   def history
@@ -97,7 +114,6 @@ class DailyNotesController < ApplicationController
       @api_students = remove_duplicated_students(result['alunos'])
     rescue IeducarApi::Base::ApiError => e
       flash[:alert] = e.message
-      fetch_unities
       @api_students = []
       render :new
     end
@@ -105,15 +121,6 @@ class DailyNotesController < ApplicationController
 
   def configuration
     @configuration ||= IeducarApiConfiguration.current
-  end
-
-  def fetch_unities
-    fetcher = UnitiesClassroomsDisciplinesByTeacher.new(current_teacher.id, @daily_note.unity_id, @daily_note.classroom_id, @daily_note.discipline_id)
-    fetcher.fetch!
-    @unities = fetcher.unities
-    @classrooms = fetcher.classrooms
-    @disciplines = fetcher.disciplines
-    @avaliations = fetcher.avaliations
   end
 
   def resource_params

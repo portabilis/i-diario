@@ -1,6 +1,7 @@
 class AvaliationExemption < ActiveRecord::Base
   belongs_to :avaliation
   belongs_to :student
+  belongs_to :unity
 
   audited
   has_associated_audits
@@ -23,17 +24,17 @@ class AvaliationExemption < ActiveRecord::Base
 
   validate :ensure_no_score_for_avaliation
 
-  delegate :unity_id, :discipline_id, :school_calendar_id, :classroom_id, :classroom,
+  delegate :unity_id, :discipline_id, :school_calendar_id, :classroom_id, :classroom, :discipline,
     to: :avaliation, prefix: false, allow_nil: true
   delegate :test_date, to: :avaliation, prefix: true, allow_nil: true
-
   delegate :grade_id, :grade, to: :classroom, prefix: false, allow_nil: true
   delegate :course_id, to: :grade, prefix: false, allow_nil: true
 
   scope :by_unity, lambda { |unity_id| joins(:avaliation).where( avaliations: { unity_id: unity_id } ) }
   scope :by_student, lambda { |student_id| where(student_id: student_id) }
   scope :by_avaliation, lambda { |avaliation_id| where(avaliation_id: avaliation_id) }
-
+  scope :by_classroom, lambda { |classroom_id| where(avaliations: { classroom_id: classroom_id } ) }
+  scope :by_discipline, lambda { |discipline_id| where(avaliations: { discipline_id: discipline_id } ) }
 
   scope :by_grade_description, lambda { |grade_description|
     joins(avaliation: [classroom: :grade])

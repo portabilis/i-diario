@@ -2,7 +2,7 @@ pt-BR:
   activemodel:
     attributes:
       absence_justification_report_form:
-        unity: "Escola"
+        unity_id: "Escola"
         classroom_id: "Turma"
         discipline_id: "Disciplina"
         absence_date: "Data inicial"

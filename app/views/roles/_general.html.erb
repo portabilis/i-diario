@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/roles/edit' %>
+<% end %>
+
 <fieldset>
   <div class="row">
     <div class="col col-sm-4">
@@ -9,7 +13,37 @@
     </div>
 
     <div class="col col-sm-4">
-      <%= f.input :kind, as: :select2, elements: RoleKind.to_select.to_json %>
+      <%= f.input :access_level, as: :select2, elements: AccessLevel.to_select.to_json, disabled: f.object.persisted? %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col col-sm-12">
+      <div class="alert alert-info" id="administrator-role-info" style="display:none;">
+  	     <i class="fa-fw fa fa-info"></i>
+         O nível de acesso <strong> Administrador </strong> não exigirá vínculo com unidades no cadastro de usuários.
+      </div>
+
+      <div class="alert alert-info" id="employee-role-info" style="display:none;">
+  	     <i class="fa-fw fa fa-info"></i>
+         O nível de acesso <strong> Servidor </strong> exigirá vínculo com unidades no cadastro de usuários.
+      </div>
+
+      <div class="alert alert-info" id="teacher-role-info" style="display:none;">
+  	     <i class="fa-fw fa fa-info"></i>
+         O nível de acesso <strong> Professor </strong> exigirá vínculo com unidades e com um professor no cadastro de usuários.
+      </div>
+
+      <div class="alert alert-info" id="parent-role-info" style="display:none;">
+  	     <i class="fa-fw fa fa-info"></i>
+          O nível de acesso <strong> Pais </strong> exigirá vínculo com um ou mais alunos.
+      </div>
+
+      <div class="alert alert-info" id="student-role-info" style="display:none;">
+         <i class="fa-fw fa fa-info"></i>
+         O nível de acesso <strong> Aluno </strong> exigirá vínculo com um aluno no cadastro de usuários.
+      </div>
+
     </div>
   </div>
 
@@ -21,7 +55,17 @@
       </tr>
     </thead>
 
-    <tbody>
+
+    <% if f.object.errors[:permissions].present? %>
+      <div class="alert alert-danger alert-block ">
+        <i class="fa-fw fa fa-times"></i>
+        <span class="help-inline">
+          <%= raw(f.object.errors[:permissions].join("<br />")) %>
+        </span>
+      </div>
+    <% end %>
+
+    <tbody id="role-permissions-tbody">
       <%= f.association :permissions do |p| %>
         <%= render 'permission', f: p %>
       <% end %>

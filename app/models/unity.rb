@@ -58,6 +58,7 @@ class Unity < ActiveRecord::Base
   scope :email, lambda { |email| where("email ILIKE ?", "%#{email}%") }
   scope :responsible, lambda { |responsible| where("responsible ILIKE ?", "%#{responsible}%") }
   scope :by_school_group, lambda { |school_group| joins(:***REMOVED***).where(***REMOVED***_unities: { school_group_id: school_group })  }
+  scope :by_id, lambda { |unity_id| where(id: unity_id) }
 
   def to_s
     name

@@ -8,6 +8,8 @@ class Classroom < ActiveRecord::Base
   belongs_to :grade
   has_many :teacher_discipline_classrooms, dependent: :destroy
 
+  delegate :course_id, :course, to: :grade, prefix: false
+
   validates :description, :api_code, :unity_code, :year, :grade, :period, presence: true
   validates :api_code, uniqueness: true
 

@@ -21,6 +21,7 @@ class ConceptualExam < ActiveRecord::Base
 
   scope :by_unity, lambda { |unity| joins(:classroom).where(classrooms: { unity_id: unity }) }
   scope :by_classroom, lambda { |classroom| where(classroom: classroom) }
+  scope :by_discipline, lambda { |discipline| joins(:conceptual_exam_values).where(conceptual_exam_values: { discipline: discipline } ) }
   scope :by_student_name, lambda { |student_name| joins(:student).where(Student.arel_table[:name].matches("%#{student_name}%")) }
   scope :by_school_calendar_step, lambda { |school_calendar_step| where(school_calendar_step: school_calendar_step) }
   scope :ordered, -> { order(recorded_at: :desc)  }
@@ -32,6 +33,7 @@ class ConceptualExam < ActiveRecord::Base
   validates :recorded_at, presence: true,
     not_in_future: true,
     school_term_day: { school_term: lambda(&:school_calendar_step) }
+  validates :unity_id, presence: true
 
   validate :classroom_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value

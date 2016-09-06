@@ -15,7 +15,8 @@ class DisciplineLessonPlansController < ApplicationController
       .includes(:discipline, lesson_plan: [:unity, :classroom])
       .filter(filtering_params(params[:search]))
       .by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher.id)
+      .by_classroom_id(current_user_classroom)
+      .by_discipline_id(current_user_discipline)
       .uniq
       .ordered
 
@@ -59,26 +60,18 @@ class DisciplineLessonPlansController < ApplicationController
 
     authorize @discipline_lesson_plan
 
-    @unities = fetch_unities
-    @classrooms =  fetch_classrooms
-    @number_of_classes = fetch_numer_of_classes
   end
 
   def create
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.assign_attributes(resource_params)
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
-    @discipline_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(params[:discipline_lesson_plan][:lesson_plan_attributes][:contents_tags])
 
     authorize @discipline_lesson_plan
 
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      @unities = fetch_unities
-      @classrooms =  fetch_classrooms
-      @number_of_classes = fetch_numer_of_classes
-
       render :new
     end
   end
@@ -87,26 +80,17 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
 
     authorize @discipline_lesson_plan
-
-    @unities = fetch_unities
-    @classrooms =  fetch_classrooms
-    @number_of_classes = fetch_numer_of_classes
   end
 
   def update
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
     @discipline_lesson_plan.assign_attributes(resource_params)
-    @discipline_lesson_plan.lesson_plan.contents = ContentTagConverter::tags_to_contents(params[:discipline_lesson_plan][:lesson_plan_attributes][:contents_tags])
 
     authorize @discipline_lesson_plan
 
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      @unities = fetch_unities
-      @classrooms =  fetch_classrooms
-      @number_of_classes = fetch_numer_of_classes
-
       render :edit
     end
   end
@@ -149,7 +133,11 @@ class DisciplineLessonPlansController < ApplicationController
         :bibliography,
         :opinion,
         :teacher_id,
-        :contents_tags
+        contents_attributes: [
+          :id,
+          :description,
+          :_destroy
+        ]
       ]
     )
   end
@@ -173,20 +161,12 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.by_unity_and_teacher(
-      current_user_unity.id,
-      current_teacher.id
-    )
-    .ordered
-  end
-
-  def fetch_disciplines
-    Discipline.by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher.id)
+    Classroom.where(id: current_user_classroom)
       .ordered
   end
 
-  def fetch_numer_of_classes
-    current_school_calendar.number_of_classes
+  def fetch_disciplines
+    Discipline.where(id: current_user_discipline)
+      .ordered
   end
 end

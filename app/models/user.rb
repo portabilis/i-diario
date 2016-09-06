@@ -17,34 +17,36 @@ class User < ActiveRecord::Base
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
+  before_destroy :ensure_has_no_audits
+
   belongs_to :student
   belongs_to :teacher
   belongs_to :current_user_role, class_name: 'UserRole'
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
-  has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id
+  has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
   has_many :***REMOVED***, dependent: :destroy
   has_many :requested_***REMOVED***, class_name: "***REMOVED***Request",
-    foreign_key: :requestor_id
+    foreign_key: :requestor_id, dependent: :restrict_with_error
   has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
-    foreign_key: :responsible_id
+    foreign_key: :responsible_id, dependent: :restrict_with_error
   has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
-    foreign_key: :responsible_id
+    foreign_key: :responsible_id, dependent: :restrict_with_error
   has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
-    foreign_key: :responsible_id
+    foreign_key: :responsible_id, dependent: :restrict_with_error
   has_many :***REMOVED***s, foreign_key: :author_id, dependent: :restrict_with_error
-  has_many :system_notification_targets
-  has_many :message_targets
-  has_many :messages, through: :message_targets
-  has_many :sent_messages, class_name: "Message"
-  has_many :absence_justifications, foreign_key: :author_id, dependent: :restrict_with_error
+  has_many :system_notification_targets, dependent: :destroy
+  has_many :message_targets, dependent: :destroy
+  has_many :messages, through: :message_targets, foreign_key: :author_id, dependent: :destroy
+  has_many :sent_messages, class_name: "Message", foreign_key: :author_id, dependent: :destroy
+  has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
 
-  has_and_belongs_to_many :students
+  has_and_belongs_to_many :students, dependent: :restrict_with_error
 
-  has_many :***REMOVED***
-  has_many :authorization_***REMOVED***
-  has_many :***REMOVED***
-  has_many :user_roles, -> { includes(:role) }, dependent: :restrict_with_error
+  has_many :***REMOVED***, dependent: :restrict_with_error
+  has_many :authorization_***REMOVED***, dependent: :restrict_with_error
+  has_many :***REMOVED***, dependent: :restrict_with_error
+  has_many :user_roles, -> { includes(:role) }, dependent: :destroy
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
@@ -205,6 +207,28 @@ class User < ActiveRecord::Base
     write_attribute(:cpf, value) if value.present?
   end
 
+  def current_unity
+    @current_unity ||= current_user_role.try(:unity) || Unity.find_by_id(current_unity_id)
+  end
+
+  def current_classroom
+    return unless current_classroom_id
+    @current_classroom ||= Classroom.find(current_classroom_id)
+  end
+
+  def current_discipline
+    return unless current_discipline_id
+    @current_discipline ||= Discipline.find(current_discipline_id)
+  end
+
+  def current_teacher
+    if current_user_role.try(:role_teacher?)
+      teacher
+    elsif assumed_teacher_id
+      Teacher.find_by_id(assumed_teacher_id)
+    end
+  end
+
   protected
 
   def email_required?
@@ -220,17 +244,17 @@ class User < ActiveRecord::Base
     user_roles.reject(&:marked_for_destruction?).each do |user_role|
       _role = Role.find(user_role.role_id)
 
-      next if _role.employee?
+      next if _role.teacher?
 
-      case _role.kind.to_s
-      when RoleKind::PARENT
+      case _role.access_level.to_s
+      when AccessLevel::PARENT
         if parent_roles.include?(_role)
           errors.add(:user_roles, :invalid)
           user_role.errors.add(:role_id, :parent_role_taken)
         else
           parent_roles.push(_role)
         end
-      when RoleKind::STUDENT
+      when AccessLevel::STUDENT
         if student_roles.include?(_role)
           errors.add(:user_roles, :invalid)
           user_role.errors.add(:role_id, :student_role_taken)
@@ -246,6 +270,16 @@ class User < ActiveRecord::Base
 
     if email.blank? && cpf.blank?
       errors.add(:base, :must_inform_email_or_cpf)
+    end
+  end
+
+  def ensure_has_no_audits
+    user_id = self.id
+    query = "SELECT COUNT(*) FROM audits WHERE audits.user_id = '#{user_id}'"
+    audits_count = ActiveRecord::Base.connection.execute(query).first.fetch("count").to_i
+    if audits_count > 0
+      errors.add(:base, "")
+      false
     end
   end
 end

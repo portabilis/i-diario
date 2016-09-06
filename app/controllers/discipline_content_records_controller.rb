@@ -8,7 +8,8 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_records = apply_scopes(DisciplineContentRecord)
       .includes(:discipline, content_record: [:classroom])
       .by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher.id)
+      .by_classroom_id(current_user_classroom)
+      .by_discipline_id(current_user_discipline)
 
     authorize @discipline_content_records
   end

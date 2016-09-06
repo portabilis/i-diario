@@ -6,16 +6,22 @@ class UserRole < ActiveRecord::Base
   belongs_to :unity
 
   validates :user, :role, presence: true
-  validates :unity, presence: true, if: :role_employee?
+  validates :unity, presence: true, if: :require_unity?
 
-  delegate :name, :kind_humanize, :employee?, to: :role, prefix: true, allow_nil: true
+  delegate :name, :access_level_humanize, :teacher?, :employee?, to: :role, prefix: true, allow_nil: true
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
   def to_s
-    if role_employee?
-      "#{role_name} - #{unity_name}"
+    if require_unity?
+      "#{role_name} (Nível: #{role_access_level_humanize}) - #{unity_name}"
     else
-      role_kind_humanize
+      "#{role_name} (Nível: #{role_access_level_humanize})"
     end
+  end
+
+  private
+
+  def require_unity?
+    role_teacher? || role_employee?
   end
 end

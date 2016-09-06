@@ -18,9 +18,9 @@ class DescriptiveExam < ActiveRecord::Base
   accepts_nested_attributes_for :students
 
   validates :unity, presence: true
-  validates :classroom, presence: true
-  validates :discipline, presence: true, if: :should_validate_presence_of_discipline
-  validates :school_calendar_step, presence: true, if: :should_validate_presence_of_school_calendar_step
+  validates :classroom_id, presence: true
+  validates :discipline_id, presence: true, if: :should_validate_presence_of_discipline
+  validates :school_calendar_step_id, presence: true, if: :should_validate_presence_of_school_calendar_step
 
   def mark_students_for_removal
     students.each do |student|

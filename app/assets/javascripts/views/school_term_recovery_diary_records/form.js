@@ -198,7 +198,6 @@ $(function () {
 
   // On load
 
-  fetchDisciplines();
   fetchExamRule();
   fetchSchoolCalendarStep();
   loadDecimalMasks();

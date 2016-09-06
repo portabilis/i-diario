@@ -162,7 +162,6 @@ $(function () {
   });
 
   // On load
-  fetchDisciplines();
   fetchAvaliations();
   loadDecimalMasks();
 });

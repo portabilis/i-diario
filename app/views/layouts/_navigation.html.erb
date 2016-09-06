@@ -1,10 +1,14 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/layouts/role_modal' %>
+<% end %>
 <aside id="left-panel">
   <div class="login-info">
     <span>
       <% if user_signed_in? %>
-        <%= link_to edit_account_path, title: 'Editar meus dados' do %>
+        <%= link_to "#", title: 'Editar meus dados', data: { toggle: "modal", target: "#role-modal" } do %>
           <%= gravatar_image_tag current_user.email %>
           <%= content_tag :span, current_user.navigation_display %>
+          <%= content_tag :i, "", class: "fa fa-angle-down" %>
         <% end %>
       <% end %>
     </span>
@@ -13,4 +17,9 @@
   <nav>
     <%= ***REMOVED***s %>
   </nav>
+
 </aside>
+
+<%= render 'layouts/current_role_modal' %>
+
+<%= hidden_field :current_action_, '', value: controller.action_name %>

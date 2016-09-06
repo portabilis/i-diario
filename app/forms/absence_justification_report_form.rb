@@ -1,7 +1,7 @@
 class AbsenceJustificationReportForm
   include ActiveModel::Model
 
-  attr_accessor :unity,
+  attr_accessor :unity_id,
                 :classroom_id,
                 :discipline_id,
                 :absence_date,
@@ -9,9 +9,9 @@ class AbsenceJustificationReportForm
                 :school_calendar_year,
                 :current_teacher_id
 
-  validates :unity,            presence: true
+  validates :unity_id,         presence: true
   validates :classroom_id,     presence: true
-  validates :discipline_id,     presence: true,
+  validates :discipline_id,    presence: true,
                                if: :frequence_type_by_discipline?
   validates(
     :absence_date,
@@ -27,9 +27,9 @@ class AbsenceJustificationReportForm
   validate :must_find_absence
 
   def absence_justification
-    if discipline_id.present?
+    if frequence_type_by_discipline?
       AbsenceJustification.by_teacher(current_teacher_id)
-                          .by_unity(unity)
+                          .by_unity(unity_id)
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
                           .by_discipline_id(discipline_id)
@@ -37,7 +37,7 @@ class AbsenceJustificationReportForm
                           .ordered
     else
       AbsenceJustification.by_teacher(current_teacher_id)
-                          .by_unity(unity)
+                          .by_unity(unity_id)
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
                           .by_date_report(absence_date, absence_date_end)
@@ -45,13 +45,13 @@ class AbsenceJustificationReportForm
     end
   end
 
-  private
-
   def frequence_type_by_discipline?
     frequency_type_definer = FrequencyTypeDefiner.new(classroom, current_teacher_id)
     frequency_type_definer.define!
     frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
   end
+
+  private
 
   def must_find_absence
     return unless errors.blank?

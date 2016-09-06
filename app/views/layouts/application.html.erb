@@ -53,21 +53,7 @@
 
           <%= render 'layouts/system_***REMOVED***' %>
 
-          <% if current_user.roles.present? %>
-            <div id="change-permission" class="btn-group btn-header transparent">
-              <a class="dropdown-toggle" data-toggle="dropdown">
-                <%= "#{t('.current_user_role')} #{current_user.current_user_role}" %>
-                <i class="fa fa-sort-desc"></i>
-              </a>
-              <ul class="dropdown-***REMOVED***">
-                <% current_user.user_roles.each do |user_role| %>
-                  <li>
-                    <%= link_to user_role, set_current_role_path(user_role.id) %>
-                  </li>
-                <% end %>
-              </ul>
-            </div>
-          <% end %>
+
         <% end %>
       </div>
     </header>
