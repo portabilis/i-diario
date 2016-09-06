@@ -1,3 +1,6 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/discipline_lesson_plans/index' %>
+<% end %>
 <div class="widget-body no-padding">
   <%= simple_form_for :search, { url: discipline_lesson_plans_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
     <div class="table-responsive">
@@ -20,7 +23,7 @@
             <th width="20%"><%= DisciplineLessonPlan.human_attribute_name :discipline %>
             <th width="10%"><%= LessonPlan.human_attribute_name :start_at %></th>
             <th width="10%"><%= LessonPlan.human_attribute_name :end_at %></th>
-            <td width="160px"></td>
+            <td width="190px"></td>
           </tr>
         </thead>
 
@@ -41,3 +44,4 @@
     </div>
   <% end %>
 </div>
+<%= render 'copy_discipline_lesson_plan_modal' %>
