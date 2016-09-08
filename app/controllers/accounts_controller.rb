@@ -7,6 +7,7 @@ class AccountsController < ApplicationController
     @user = current_user
 
     if @user.update_with_password(user_params)
+      @user.update_rd_lead
       respond_with @user, location: edit_account_path
     else
       render :edit
