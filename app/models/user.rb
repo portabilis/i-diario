@@ -16,7 +16,6 @@ class User < ActiveRecord::Base
 
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
-  after_save :update_rd_lead
 
   before_destroy :ensure_has_no_audits
 
@@ -247,8 +246,6 @@ class User < ActiveRecord::Base
     roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
   end
 
-  protected
-
   def update_rd_lead
     rdstation_client = RDStation::Client.new('***REMOVED***', '***REMOVED***', 'Usuário no produto Educar+')
 
@@ -263,6 +260,8 @@ class User < ActiveRecord::Base
       :identificador => 'Usuário no produto Educar+'
     })
   end
+
+  protected
 
   def rd_matters
     options = []
