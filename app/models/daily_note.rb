@@ -39,6 +39,7 @@ class DailyNote < ActiveRecord::Base
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_test_date_between, lambda { |start_at, end_at| includes(:avaliation, students: :student).where('avaliations.test_date': start_at.to_date..end_at.to_date) }
   scope :by_avaliation_id, lambda { |avaliation_id| includes(:avaliation).where(avaliation: avaliation_id) }
+  scope :by_school_calendar_step_id, lambda { |school_calendar_step_id| joins(:avaliation).merge(Avaliation.by_school_calendar_step(school_calendar_step_id)) }
 
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
