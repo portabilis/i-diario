@@ -102,6 +102,9 @@ class User < ActiveRecord::Base
   end
 
   def can_show?(feature)
+    if feature == "general_configurations"
+      return admin?
+    end
     return true if admin?
     return unless current_user_role
 
@@ -109,6 +112,9 @@ class User < ActiveRecord::Base
   end
 
   def can_change?(feature)
+    if feature == "general_configurations"
+      return admin?
+    end
     return true if admin?
     return unless current_user_role
 

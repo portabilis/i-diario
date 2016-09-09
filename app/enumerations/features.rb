@@ -9,7 +9,6 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :unities,
                    :users,
-                   :general_configurations,
                    :ieducar_api_configurations,
                    :***REMOVED***,
                    :***REMOVED***,
