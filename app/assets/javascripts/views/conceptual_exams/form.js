@@ -127,7 +127,6 @@ $(function() {
   };
 
   function handleFetchDisciplinesSuccess(disciplines) {
-    console.log(disciplines);
     if (!_.isEmpty(disciplines)) {
       hideNoItemMessage();
 

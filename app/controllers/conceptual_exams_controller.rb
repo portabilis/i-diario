@@ -17,7 +17,6 @@ class ConceptualExamsController < ApplicationController
       .by_unity(current_user_unity)
       .by_classroom(current_user_classroom)
       .ordered
-      # .by_discipline(current_user_discipline)
 
     authorize @conceptual_exams
 
