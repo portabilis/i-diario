@@ -342,6 +342,7 @@ class User < ActiveRecord::Base
   end
 
   def verify_receive_news_fields
+    return unless persisted?
     self.receive_news_related_daily_teacher = false unless can_receive_news_related_daily_teacher?
     self.receive_news_related_***REMOVED*** = false unless can_receive_news_related_***REMOVED***?
     self.receive_news_related_tools_for_parents = false unless can_receive_news_related_tools_for_parents?
