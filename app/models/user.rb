@@ -262,7 +262,7 @@ class User < ActiveRecord::Base
       :"Cargo" => rd_access_level,
       :"Nome" => name,
       :"Telefone fixo" => phone,
-      :"Empresa" => Entity.current.name,
+      :"Empresa" => Entity.current.entity_name,
       :"Permite relacionamento direto no pós-vendas?" => receive_news? ? "Sim" : "Não",
       :"Assuntos de interesse" => rd_matters,
       :identificador => 'Usuário no produto Educar+'
