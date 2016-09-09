@@ -36,7 +36,7 @@ pt-BR:
         receive_news_related_daily_teacher: "Relacionados ao diário do professor"
         receive_news_related_***REMOVED***: "Relacionados ao estoque e alimentação escolar"
         receive_news_related_tools_for_parents: "Relacionados a ferramentas para pais e alunos"
-        receive_news_related_all_matters: "Relacionado a todos os assuntos do produto"
+        receive_news_related_all_matters: "Relacionados a todos os assuntos do produto"
 
     errors:
       models:
@@ -49,3 +49,5 @@ pt-BR:
               incorrect_format: "formato incorreto"
             cpf:
               incorrect_format: "formato incorreto"
+            receive_news:
+              must_fill_receive_news_options: "Por favor, selecione pelo menos uma das opções abaixo."
