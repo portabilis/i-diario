@@ -127,6 +127,7 @@ $(function() {
   };
 
   function handleFetchDisciplinesSuccess(disciplines) {
+    console.log(disciplines);
     if (!_.isEmpty(disciplines)) {
       hideNoItemMessage();
 
@@ -219,7 +220,11 @@ $(function() {
     fetchStudents();
     removeDisciplines();
     fetchDisciplines();
-  }).trigger("change");
+  });
+
+  if($('#current_action_').val() == 'new'){
+    $classroom.trigger('change');
+  }
 
   $recorded_at.on('change', function() {
     fetchStudents();
