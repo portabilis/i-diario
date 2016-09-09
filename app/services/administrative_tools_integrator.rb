@@ -11,19 +11,17 @@ class AdministrativeToolsIntegrator
   end
 
   def request_messages!
-    #FIXME Ajustar funcionalidade pois está quebrando alguns testes de aceitação
-    # begin
-    #   response = RestClient.get endpoint, { params: { product: NOVO_EDUCACAO } }
-    #   JSON.parse(response)
-    # rescue
-    # end
-    []
+    begin
+      response = RestClient.get endpoint, { params: { product: NOVO_EDUCACAO } }
+      JSON.parse(response)
+    rescue
+      []
+    end
   end
 
   private
 
   def endpoint
-    #TODO Mudar assim que for criado um ambiente correto de produção
-    'http://portabilis-adm.herokuapp.com/api/v1/messages'
+    'http://***REMOVED***/api/v1/messages'
   end
 end
