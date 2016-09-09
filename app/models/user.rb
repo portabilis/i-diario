@@ -277,6 +277,7 @@ class User < ActiveRecord::Base
     options << "Educar+ - Gestão de estoque e alimentação escolar" if receive_news_related_***REMOVED***?
     options << "Educar+ - Ferramentas para pais e alunos" if receive_news_related_tools_for_parents?
     options << "Todos os assuntos relacionados ao Educar+" if receive_news_related_all_matters?
+    options << "Nenhum" if options.blank?
     options
   end
 
