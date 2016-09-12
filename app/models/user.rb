@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
   before_destroy :ensure_has_no_audits
-  before_validation :verify_receive_news_fields
+  # before_validation :verify_receive_news_fields
 
   belongs_to :student
   belongs_to :teacher
