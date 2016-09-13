@@ -100,6 +100,12 @@ class DailyNotesController < ApplicationController
     respond_with @daily_note
   end
 
+  def search
+    @daily_notes = apply_scopes(DailyNote)
+
+    render json: @daily_notes
+  end
+
   protected
 
   def fetch_students
