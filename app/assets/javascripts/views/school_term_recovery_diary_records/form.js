@@ -153,6 +153,7 @@ $(function () {
       by_unity_id: unity_id,
       by_discipline_id: discipline_id,
       by_school_calendar_step_id: school_calendar_step_id,
+      with_daily_note_students: true
     };
 
     if (!_.isEmpty(school_calendar_step_id)) {
@@ -166,7 +167,6 @@ $(function () {
   };
 
   function handleFetchCheckPersistedDailyNoteSuccess(data) {
-    console.log(data);
     if(_.isEmpty(data.daily_notes)){
       flashMessages.error('A turma selecionada não possui notas lançadas nesta etapa.');
     } else {

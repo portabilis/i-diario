@@ -40,6 +40,7 @@ class DailyNote < ActiveRecord::Base
   scope :by_test_date_between, lambda { |start_at, end_at| includes(:avaliation, students: :student).where('avaliations.test_date': start_at.to_date..end_at.to_date) }
   scope :by_avaliation_id, lambda { |avaliation_id| includes(:avaliation).where(avaliation: avaliation_id) }
   scope :by_school_calendar_step_id, lambda { |school_calendar_step_id| joins(:avaliation).merge(Avaliation.by_school_calendar_step(school_calendar_step_id)) }
+  scope :with_daily_note_students, lambda { |with_daily_note_student| with_daily_note_students_query(with_daily_note_student) }
 
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
@@ -96,6 +97,14 @@ class DailyNote < ActiveRecord::Base
 
     if avaliation.test_date > Time.zone.today
       errors.add(:avaliation, :must_be_less_than_or_equal_to_today)
+    end
+  end
+
+  def self.with_daily_note_students_query(with_daily_notes)
+    if with_daily_notes
+      DailyNote.where('daily_notes.id in(select daily_note_id from daily_note_students where daily_note_students.note is not null)')
+    else
+      DailyNote.where('daily_notes.id not in(select daily_note_id from daily_note_students where daily_note_students.note is not null)')
     end
   end
 end
