@@ -9,10 +9,10 @@ class KnowledgeAreaLessonPlanClonerForm
     if valid?
       begin
         ActiveRecord::Base.transaction do
-          Classroom.where(id: classroom_ids).each do |classroom|
+          Classroom.where(id: classroom_ids.split(",")).each do |classroom|
             new_lesson_plan = knowledge_area_lesson_plan.dup
             new_lesson_plan.lesson_plan = knowledge_area_lesson_plan.lesson_plan.dup
-            new_lesson_plan.knowledge_area_ids = knowledge_area_lesson_plan.knowledge_area_ids
+            new_lesson_plan.knowledge_areas = knowledge_area_lesson_plan.knowledge_areas
             new_lesson_plan.lesson_plan.contents = knowledge_area_lesson_plan.lesson_plan.contents
             new_lesson_plan.lesson_plan.classroom = classroom
             new_lesson_plan.save!
@@ -22,6 +22,7 @@ class KnowledgeAreaLessonPlanClonerForm
       rescue ActiveRecord::RecordInvalid => e
         message = e.to_s
         message.slice!("A validação falhou: ")
+        message = "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}"
         errors.add(:classroom_ids, message)
         return false
       end
