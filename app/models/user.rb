@@ -18,7 +18,7 @@ class User < ActiveRecord::Base
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
   before_destroy :ensure_has_no_audits
-  # before_validation :verify_receive_news_fields
+  before_validation :verify_receive_news_fields
 
   belongs_to :student
   belongs_to :teacher
@@ -262,7 +262,7 @@ class User < ActiveRecord::Base
       :"Cargo" => rd_access_level,
       :"Nome" => name,
       :"Telefone fixo" => phone,
-      :"Empresa" => Entity.current.entity_name,
+      :"Empresa" => EntityConfiguration.current.entity_name,
       :"Permite relacionamento direto no pós-vendas?" => receive_news? ? "Sim" : "Não",
       :"Assuntos de interesse" => rd_matters,
       :identificador => 'Usuário no produto Educar+'
