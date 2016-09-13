@@ -72,7 +72,7 @@
             </thead>
 
             <tbody id="teaching-plans-contents">
-              <%= teaching_plan_form.simple_fields_for :contents, f.object.contents.sort_by { |content| content.id } do |content| %>
+              <%= teaching_plan_form.simple_fields_for :contents, f.object.contents.sort_by { |content| [content.id ? 0 : 1, content.id] } do |content| %>
                 <%= render 'content_fields', f: content %>
               <% end %>
             </tbody>
