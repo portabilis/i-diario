@@ -16,6 +16,7 @@ class ConceptualExamsController < ApplicationController
       .filter(filtering_params(params[:search]))
       .by_unity(current_user_unity)
       .by_classroom(current_user_classroom)
+      .by_discipline(current_user_discipline)
       .ordered
 
     authorize @conceptual_exams
@@ -50,6 +51,25 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = ConceptualExam.new(resource_params)
 
     authorize @conceptual_exam
+
+    conceptual_exam_values = []
+    conceptual_exam = @conceptual_exam
+
+    @conceptual_exam.conceptual_exam_values.each do |value|
+      conceptual_exam_values << value
+    end
+
+    @conceptual_exam = ConceptualExam.where(
+      classroom: @conceptual_exam.classroom,
+      school_calendar_step: @conceptual_exam.school_calendar_step,
+      student: @conceptual_exam.student
+    ).first_or_create(
+      recorded_at: conceptual_exam.recorded_at,
+      student: conceptual_exam.student
+    ).localized
+
+    @conceptual_exam.unity_id = current_user_unity.id
+    @conceptual_exam.conceptual_exam_values.build(conceptual_exam_values.collect{ |c| c.attributes})
 
     if @conceptual_exam.save
       respond_to_save
