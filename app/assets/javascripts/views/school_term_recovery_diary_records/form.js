@@ -7,6 +7,7 @@ $(function () {
   var flashMessages = new FlashMessages();
   var examRule = null;
   var schoolCalendarStep = null;
+  var $unity = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_unity_id');
   var $classroom = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_classroom_id');
   var $discipline = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
   var $school_calendar_step = $('#school_term_recovery_diary_record_school_calendar_step_id');
@@ -141,6 +142,43 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar os alunos.');
   };
 
+  function checkPersistedDailyNote() {
+    var unity_id = $unity.select2('val');
+    var classroom_id = $classroom.select2('val');
+    var discipline_id = $discipline.select2('val');
+    var school_calendar_step_id = $school_calendar_step.select2('val');
+
+    var filter = {
+      by_classroom_id: classroom_id,
+      by_unity_id: unity_id,
+      by_discipline_id: discipline_id,
+      by_school_calendar_step_id: school_calendar_step_id,
+      with_daily_note_students: true
+    };
+
+    if (!_.isEmpty(school_calendar_step_id)) {
+      $.ajax({
+        url: Routes.search_daily_notes_pt_br_path({ filter: filter,
+                                                    format: 'json' }),
+        success: handleFetchCheckPersistedDailyNoteSuccess,
+        error: handleFetchCheckPersistedDailyNoteError
+      });
+    }
+  };
+
+  function handleFetchCheckPersistedDailyNoteSuccess(data) {
+    if(_.isEmpty(data.daily_notes)){
+      flashMessages.error('A turma selecionada não possui notas lançadas nesta etapa.');
+    } else {
+      flashMessages.pop('');
+      fetchStudentsInRecovery();
+    }
+  };
+
+  function handleFetchCheckPersistedDailyNoteError() {
+    flashMessages.error('Ocorreu um erro ao buscar as notas lançadas para esta turma nesta etapa.');
+  };
+
   function removeStudents() {
     // Remove not persisted students
     $('.nested-fields.dynamic').remove();
@@ -177,18 +215,18 @@ $(function () {
 
   $discipline.on('change', function() {
     removeStudents();
-    fetchStudentsInRecovery();
+    checkPersistedDailyNote();
   });
 
   $school_calendar_step.on('change', function() {
     fetchSchoolCalendarStep();
     removeStudents();
-    fetchStudentsInRecovery();
+    checkPersistedDailyNote();
   });
 
   $recorded_at.on('change', function() {
     removeStudents();
-    fetchStudentsInRecovery();
+    checkPersistedDailyNote();
   });
 
   $submitButton.on('click', function() {
