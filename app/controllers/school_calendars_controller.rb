@@ -92,6 +92,14 @@ class SchoolCalendarsController < ApplicationController
                                                                :end_at,
                                                                :start_date_for_posting,
                                                                :end_date_for_posting,
-                                                               :_destroy])
+                                                               :_destroy],
+                                            classrooms_attributes: [:id,
+                                                                    :classroom,
+                                                                    :_destroy,
+                                            classroom_steps_attributes: [:id,
+                                                               :start_at,
+                                                               :end_at,
+                                                               :start_date_for_posting,
+                                                               :end_date_for_posting]])
   end
 end
