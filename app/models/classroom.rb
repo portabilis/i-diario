@@ -22,6 +22,7 @@ class Classroom < ActiveRecord::Base
   scope :by_teacher_id, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_score_type, lambda { |score_type| where('exam_rules.score_type' => score_type).includes(:exam_rule) }
   scope :ordered, -> { order(arel_table[:description].asc) }
+  scope :by_api_code, lambda { |api_code| where(api_code: api_code)  }
 
   def to_s
     description
