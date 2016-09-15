@@ -54,7 +54,7 @@ module ExamPoster
     end
 
     def teacher
-      @post_data.author.teacher
+      @post_data.author.current_teacher
     end
 
     def same_unity(unity_id)
