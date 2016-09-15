@@ -22,6 +22,7 @@ class KnowledgeAreaLessonPlanClonerForm
       rescue ActiveRecord::RecordInvalid => e
         message = e.to_s
         message.slice!("A validação falhou: ")
+        message.slice!("Áreas de conhecimento ")
         message = "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}"
         errors.add(:classroom_ids, message)
         return false
