@@ -3,7 +3,7 @@
 <% end %>
 
 <div class="widget-body no-padding">
-  <%= simple_form_for @discipline_lesson_plan_report_form, url: discipline_lesson_plan_report_path, method: :post, html: { class: 'smart-form', target: '_new', id: "discipline-lesson-plan-report-form" } do |f| %>
+  <%= simple_form_for @discipline_lesson_plan_report_form, url: discipline_lesson_plan_report_path, method: :post, html: { class: 'smart-form', target: '_blank', id: "discipline-lesson-plan-report-form" } do |f| %>
     <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
       <i class="fa fa-exclamation-circle fa-fw"></i>
       <%= t('.exam_rule_not_found') %>
@@ -42,8 +42,6 @@
           <%= f.input :date_end, as: :date %>
         </div>
       </div>
-
-      <%= hidden_field_tag :report_type %>
     </fieldset>
 
     <footer>
@@ -54,7 +52,7 @@
 				</button>
 				<ul class="dropdown-***REMOVED*** dropdown-***REMOVED***-right">
 					<li>
-            <a href="javascript:void(0);" id="teaching-plan-report">Dos Planos de aula</a>
+            <a href="javascript:void(0);" id="lesson-plan-report">Dos Planos de aula</a>
 					</li>
 					<li>
 						<a href="javascript:void(0);" id="content-record-report">Dos Registros de conteúdo</a>
