@@ -163,7 +163,7 @@ class DisciplineContentRecordReport
     general_information_cells = []
 
     @discipline_content_record.each do |discipline_content_record|
-      date_cell = make_cell(content: discipline_content_record.content_record.record_date.strftime("%d/%m/%Y"), size: 10, align: :left, width: 100)
+      date_cell = make_cell(content: discipline_content_record.content_record.record_date.strftime("%d/%m/%Y"), size: 10, align: :left, width: 60)
       conteudo_cell = make_cell(content: discipline_content_record.content_record.contents_ordered.map(&:to_s).join(", "), size: 10, align: :left)
 
       general_information_cells << [
