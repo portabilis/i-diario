@@ -1,3 +1,3 @@
-class DailyNoteStatus < EnumerateIt::Base
+class DailyNoteStatuses < EnumerateIt::Base
   associate_values :incomplete, :complete
 end
