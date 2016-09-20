@@ -1,0 +1,8 @@
+<% if @form.errors.any? %>
+  $("#discipline_lesson_plan_cloner_form_classroom_ids").closest(".control-group").removeClass("has-danger");
+  $("#discipline_lesson_plan_cloner_form_classroom_ids").closest(".control-group").find("span.help-inline").remove();
+  $("#discipline_lesson_plan_cloner_form_classroom_ids").closest(".control-group").addClass("error");
+  $("#discipline_lesson_plan_cloner_form_classroom_ids").closest(".control-group").append('<span class="help-inline"><%= @form.errors.values.join(",") %></span>');
+<% else %>
+  location.reload();
+<% end %>

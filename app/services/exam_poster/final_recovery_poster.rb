@@ -61,7 +61,7 @@ module ExamPoster
     end
 
     def teacher_discipline_classrooms
-      @post_data.author.teacher.teacher_discipline_classrooms.select do |teacher_discipline_classroom|
+      @post_data.author.current_teacher.teacher_discipline_classrooms.select do |teacher_discipline_classroom|
         valid_unity?(teacher_discipline_classroom.classroom.unity_id) && valid_score_type?(teacher_discipline_classroom.classroom.exam_rule.score_type)
       end
     end

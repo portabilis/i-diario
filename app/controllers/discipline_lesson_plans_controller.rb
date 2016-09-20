@@ -111,6 +111,13 @@ class DisciplineLessonPlansController < ApplicationController
     respond_with @discipline_lesson_plan
   end
 
+  def clone
+    @form = DisciplineLessonPlanClonerForm.new(clone_params)
+    if @form.clone!
+      flash[:success] = "Plano de aula por disciplina copiado com sucesso!"
+    end
+  end
+
   private
 
   def resource_params
@@ -140,6 +147,10 @@ class DisciplineLessonPlansController < ApplicationController
         ]
       ]
     )
+  end
+
+  def clone_params
+    params.require(:discipline_lesson_plan_cloner_form).permit(:classroom_ids, :discipline_lesson_plan_id)
   end
 
   def filtering_params(params)

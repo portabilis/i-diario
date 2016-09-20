@@ -24,7 +24,7 @@ module ExamPoster
     def post_conceptual_exams
       params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 
-      conceptual_exams = ConceptualExam.by_teacher(@post_data.author.teacher)
+      conceptual_exams = ConceptualExam.by_teacher(@post_data.author.current_teacher)
         .by_unity(@post_data.school_calendar_step.school_calendar.unity)
         .by_school_calendar_step(@post_data.school_calendar_step)
 

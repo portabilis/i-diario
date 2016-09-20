@@ -17,3 +17,7 @@ pt-BR:
           attributes:
             base:
               uniqueness_of_discipline_lesson_plan: "Já existe um plano de aula para o período informado"
+        discipline_lesson_plan:
+          attributes:
+            base:
+              uniqueness_of_discipline_lesson_plan: "Já existe um plano de aula para o período informado"

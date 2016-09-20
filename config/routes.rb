@@ -197,8 +197,16 @@ Rails.application.routes.draw do
 
     resources :discipline_teaching_plans, concerns: :history
     resources :knowledge_area_teaching_plans, concerns: :history
-    resources :discipline_lesson_plans, concerns: :history
-    resources :knowledge_area_lesson_plans, concerns: :history
+    resources :discipline_lesson_plans, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
+    resources :knowledge_area_lesson_plans, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
     resources :discipline_content_records, concerns: :history
     resources :knowledge_area_content_records, concerns: :history
     resources :classrooms, only: [:index, :show] do
@@ -218,7 +226,11 @@ Rails.application.routes.draw do
       end
     end
     resources :teacher_avaliations, only: :index
-    resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history
+    resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
+      collection do
+        get :search
+      end
+    end
     resources :daily_note_students, only: [:index] do
       collection do
         get :old_notes
