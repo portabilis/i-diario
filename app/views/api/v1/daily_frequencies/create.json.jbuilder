@@ -6,7 +6,7 @@ if @class_numbers.present?
 
     json.frequencies student[:daily_frequencies].each do |daily_frequency_student|
       json.daily_frequency_id daily_frequency_student.daily_frequency_id
-      json.presence daily_frequency_student.present
+      json.present daily_frequency_student.present
     end
   end
 else
