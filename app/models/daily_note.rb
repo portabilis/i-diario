@@ -47,6 +47,7 @@ class DailyNote < ActiveRecord::Base
 
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
+  scope :order_by_avaliation_test_date_desc, -> { order('avaliations.test_date DESC') }
 
   delegate :status, to: :daily_note_status, prefix: false, allow_nil: true
 
