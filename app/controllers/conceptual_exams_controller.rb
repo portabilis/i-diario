@@ -69,7 +69,9 @@ class ConceptualExamsController < ApplicationController
     ).localized
 
     @conceptual_exam.unity_id = current_user_unity.id
-    @conceptual_exam.conceptual_exam_values.build(conceptual_exam_values.collect{ |c| c.attributes})
+      @conceptual_exam.update_attributes(
+        conceptual_exam_values: conceptual_exam_values
+      )
 
     if @conceptual_exam.save
       respond_to_save
@@ -113,7 +115,12 @@ class ConceptualExamsController < ApplicationController
 
     authorize @conceptual_exam
 
-    @conceptual_exam.destroy
+    current_teacher_disciplines = Discipline.by_teacher_and_classroom(current_teacher.id, current_user_classroom.id)
+    values_to_destroy = ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id).where(discipline_id: current_teacher_disciplines)
+
+    values_to_destroy.each { |value| value.destroy }
+
+    @conceptual_exam.destroy unless ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id).any?
 
     respond_with @conceptual_exam, location: conceptual_exams_path
   end
