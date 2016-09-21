@@ -263,8 +263,8 @@ class User < ActiveRecord::Base
       :"Nome" => name,
       :"Telefone fixo" => phone,
       :"Empresa" => EntityConfiguration.current.entity_name,
-      :"Permite relacionamento direto no pós-vendas?" => receive_news? ? "Sim" : "Não",
-      :"Assuntos de interesse" => rd_matters,
+      :"Permite relacionamento direto no pós-venda?" => receive_news? ? "Sim" : "Não",
+      :"Recebe informações do Educar plus?" => rd_matters,
       :identificador => 'Usuário no produto Educar+'
     })
   end
@@ -273,9 +273,9 @@ class User < ActiveRecord::Base
 
   def rd_matters
     options = []
-    options << "Educar+ - Diário do professor" if receive_news_related_daily_teacher?
-    options << "Educar+ - Gestão de estoque e alimentação escolar" if receive_news_related_***REMOVED***?
-    options << "Educar+ - Ferramentas para pais e alunos" if receive_news_related_tools_for_parents?
+    options << "Diário do professor" if receive_news_related_daily_teacher?
+    options << "***REMOVED*** e alimentação escolar" if receive_news_related_***REMOVED***?
+    options << "Pais e alunos" if receive_news_related_tools_for_parents?
     options << "Todos os assuntos relacionados ao Educar+" if receive_news_related_all_matters?
     options << "Nenhum" if options.blank?
     options

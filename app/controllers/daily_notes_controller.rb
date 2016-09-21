@@ -10,7 +10,7 @@ class DailyNotesController < ApplicationController
                     .includes(:avaliation)
                     .by_classroom_id(current_user_classroom)
                     .by_discipline_id(current_user_discipline)
-                    .order_by_avaliation_test_date
+                    .order_by_avaliation_test_date_desc
 
     @classrooms = Classroom.where(id: current_user_classroom)
     @disciplines = Discipline.where(id: current_user_discipline)
