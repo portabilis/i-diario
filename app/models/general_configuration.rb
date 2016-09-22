@@ -22,6 +22,10 @@ class GeneralConfiguration < ActiveRecord::Base
     self.first.presence || new
   end
 
+  def allows_after_sales_relationship?
+    allows_after_sales_relationship == AfterSaleRelationshipOptions::ALLOWS
+  end
+
   def mark_with_error!(message)
     update_columns(
       backup_status: ApiSynchronizationStatus::ERROR,
