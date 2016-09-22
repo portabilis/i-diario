@@ -9,37 +9,6 @@ $(function() {
   var $schoolTerm = $('#knowledge_area_teaching_plan_teaching_plan_attributes_school_term');
   var flashMessages = new FlashMessages();
 
-  function fetchKnowledgeAreas() {
-    var unity_id = $unity.select2('val');
-    var grade_id = $grade.select2('val');
-
-    $knowledgeAreas.select2({ data: [] });
-
-    if (!_.isEmpty(unity_id) && !_.isEmpty(grade_id)) {
-      $.ajax({
-        url: Routes.knowledge_areas_pt_br_path({
-          by_unity: unity_id,
-          by_grade: grade_id,
-          format: 'json'
-        }),
-        success: handleFetchKnowledgeAreasSuccess,
-        error: handleFetchKnowledgeAreasError
-      });
-    }
-  };
-
-  function handleFetchKnowledgeAreasSuccess(knowledge_areas) {
-    var knowledge_areas = _.map(knowledge_areas, function(knowledge_area) {
-      return { id: knowledge_area.id, text: knowledge_area.description };
-    });
-
-    $knowledgeAreas.select2({ data: knowledge_areas });
-  };
-
-  function handleFetchKnowledgeAreasError() {
-    flashMessages.error('Ocorreu um erro ao buscar as áreas de conhecimento da série selecionada.');
-  };
-
   function updateSchoolTermInput() {
     switch ($schoolTermType.select2('val')) {
       case 'bimester':
@@ -66,11 +35,6 @@ $(function() {
   }
 
   // On change
-
-  $grade.on('change', function() {
-    fetchKnowledgeAreas();
-  });
-  fetchKnowledgeAreas();
 
   $schoolTermType.on('change', function() {
     updateSchoolTermInput();
