@@ -54,6 +54,14 @@ class DailyNoteStudent < ActiveRecord::Base
     daily_note.avaliation.recovery_diary_record.present?
   end
 
+  def exempted?
+    if AvaliationExemption.find_by_student_id(student_id).present?
+      AvaliationExemption.by_student(student_id)
+                         .by_avaliation(daily_note.try(:avaliation_id))
+                         .any?
+    end
+  end
+
   private
 
   def self.by_test_date_between(start_at, end_at)

@@ -2,8 +2,8 @@ pt-BR:
   activerecord:
     models:
       daily_note:
-        one: "Registro diário de notas"
-        other: "Registros diários de notas"
+        one: "Registro diário de avaliação"
+        other: "Registros diários de avaliações"
 
     attributes:
       daily_note:
