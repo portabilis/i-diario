@@ -263,7 +263,7 @@ class User < ActiveRecord::Base
       :"Nome" => name,
       :"Telefone fixo" => phone,
       :"Empresa" => EntityConfiguration.current.entity_name,
-      :"Permite relacionamento direto no pós-venda?" => receive_news? ? "Sim" : "Não",
+      :"Permite relacionamento direto no pós-venda?" => GeneralConfiguration.current.allows_after_sales_relationship? ? "Sim" : "Não",
       :"Recebe informações do Educar plus?" => rd_matters,
       :identificador => 'Usuário no produto Educar+'
     })
