@@ -7,7 +7,9 @@ class ConceptualExamValue < ActiveRecord::Base
   belongs_to :discipline
 
   validates :conceptual_exam, presence: true
-  validates :discipline, presence: true
+  validates :discipline_id, presence: true
+
+  validate :uniqueness_of_discipline
 
   def self.ordered
     joins(
@@ -24,6 +26,13 @@ class ConceptualExamValue < ActiveRecord::Base
 
   def marked_as_invisible?
     @marked_as_invisible
+  end
+
+  private
+  def uniqueness_of_discipline
+    if ConceptualExamValue.find_by(discipline_id: self.discipline_id, conceptual_exam_id: self.conceptual_exam_id).present?
+      errors.add(:value, :already_taken_for_student)
+    end
   end
 
 end

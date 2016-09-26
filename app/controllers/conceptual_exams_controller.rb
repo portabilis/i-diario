@@ -10,8 +10,7 @@ class ConceptualExamsController < ApplicationController
       .includes(
         :student,
         :conceptual_exam_values,
-        classroom: :unity,
-        school_calendar_step: :school_calendar
+        classroom: :unity
       )
       .filter(filtering_params(params[:search]))
       .by_unity(current_user_unity)
@@ -52,12 +51,7 @@ class ConceptualExamsController < ApplicationController
 
     authorize @conceptual_exam
 
-    conceptual_exam_values = []
     conceptual_exam = @conceptual_exam
-
-    @conceptual_exam.conceptual_exam_values.each do |value|
-      conceptual_exam_values << value
-    end
 
     @conceptual_exam = ConceptualExam.where(
       classroom: @conceptual_exam.classroom,
@@ -69,14 +63,14 @@ class ConceptualExamsController < ApplicationController
     ).localized
 
     @conceptual_exam.unity_id = current_user_unity.id
-      @conceptual_exam.update_attributes(
-        conceptual_exam_values: conceptual_exam_values
-      )
+    @conceptual_exam.conceptual_exam_values.build(conceptual_exam.conceptual_exam_values.collect{ |value| value.attributes})
 
     if @conceptual_exam.save
       respond_to_save
     else
       fetch_collections
+      mark_not_existing_disciplines_as_invisible
+      mark_persisted_disciplines_as_invisible
 
       render :new
     end
@@ -195,6 +189,15 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
       discipline_exists = @disciplines.any? do |discipline|
           conceptual_exam_value.discipline.id == discipline.id
+      end
+      conceptual_exam_value.mark_as_invisible unless discipline_exists
+    end
+  end
+
+  def mark_persisted_disciplines_as_invisible
+    @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
+      discipline_exists = @disciplines.any? do |discipline|
+          conceptual_exam_value.new_record?
       end
       conceptual_exam_value.mark_as_invisible unless discipline_exists
     end
