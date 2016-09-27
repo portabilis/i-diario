@@ -30,8 +30,11 @@ class ConceptualExamValue < ActiveRecord::Base
 
   private
   def uniqueness_of_discipline
-    if ConceptualExamValue.find_by(discipline_id: self.discipline_id, conceptual_exam_id: self.conceptual_exam_id).present?
-      errors.add(:value, :already_taken_for_student)
+    conceptual_exam_values = ConceptualExamValue.where(discipline_id: discipline_id, conceptual_exam_id: conceptual_exam_id)
+    conceptual_exam_values = conceptual_exam_values.where.not(id: id) if persisted?
+
+    if conceptual_exam_values.any?
+      conceptual_exam.errors.add(:student, :taken)
     end
   end
 
