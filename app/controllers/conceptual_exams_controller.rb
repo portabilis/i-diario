@@ -99,6 +99,8 @@ class ConceptualExamsController < ApplicationController
       respond_to_save
     else
       fetch_collections
+      mark_not_existing_disciplines_as_invisible
+      mark_persisted_disciplines_as_invisible if @conceptual_exam.conceptual_exam_values.any? { |value| value.new_record? }
 
       render :edit
     end
