@@ -211,7 +211,7 @@ class DisciplineLessonPlanReport
 
     move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
-    text_box("______________________________________________\nCoordenador(a)", size: 10, align: :center, at: [306, cursor], width: 260)
+    text_box("______________________________________________\nAssinatura do(a) coordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
   end
 
   def footer
