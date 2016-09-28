@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    permissions_yes_or_no:
+      read: "Não"
+      change: "Sim"
+      denied: "Sem acesso"
