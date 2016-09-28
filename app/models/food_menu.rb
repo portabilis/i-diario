@@ -16,4 +16,14 @@ class ***REMOVED***Menu < ActiveRecord::Base
 
     errors.add(:food_id, :food_must_have_***REMOVED***) if food.food_***REMOVED***.empty?
   end
+
+  FOOD_COMPOSITION_ATTRIBUTES = [:kilocalories, :proteins, :lipids, :dietary_fiber, :calcium, :magnesium,
+    :iron, :zinc, :vitamin_c, :carbohydrate, :sodium, :phosphor, :potassium]
+
+  FOOD_COMPOSITION_ATTRIBUTES.each do |method|
+      define_method method do
+        (quantity * (food.send(method) || 0.0))
+      end
+  end
+
 end
