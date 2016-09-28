@@ -11,11 +11,12 @@ class DailyNote < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :avaliation
 
+  has_one :daily_note_status
   has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyNoteStudent', dependent: :destroy
 
   accepts_nested_attributes_for :students
 
-  has_enumeration_for :status, with: DailyNoteStatus,  create_helpers: true
+  has_enumeration_for :status, with: DailyNoteStatuses, create_helpers: true
 
   validates :unity, presence: true
   validates :classroom,  presence: true
@@ -23,6 +24,7 @@ class DailyNote < ActiveRecord::Base
   validates :avaliation, presence: true
 
   validate :avaliation_date_must_be_less_than_or_equal_to_today
+
   before_destroy :ensure_not_has_avaliation_recovery
 
   scope :by_unity_classroom_discipline_and_avaliation_test_date_between,
@@ -41,30 +43,13 @@ class DailyNote < ActiveRecord::Base
   scope :by_avaliation_id, lambda { |avaliation_id| includes(:avaliation).where(avaliation: avaliation_id) }
   scope :by_school_calendar_step_id, lambda { |school_calendar_step_id| joins(:avaliation).merge(Avaliation.by_school_calendar_step(school_calendar_step_id)) }
   scope :with_daily_note_students, lambda { |with_daily_note_student| with_daily_note_students_query(with_daily_note_student) }
+  scope :by_status, lambda { |status| joins(:daily_note_status).merge(DailyNoteStatus.by_status(status)) }
 
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
+  scope :order_by_avaliation_test_date_desc, -> { order('avaliations.test_date DESC') }
 
-  def self.by_status(status)
-    incomplete_daily_note_ids = DailyNoteStudent.where('daily_note_students.note is null')
-      .group(:daily_note_id)
-      .pluck(:daily_note_id)
-
-    case status
-    when DailyNoteStatus::INCOMPLETE
-      where(arel_table[:id].in(incomplete_daily_note_ids))
-    when DailyNoteStatus::COMPLETE
-      where.not(arel_table[:id].in(incomplete_daily_note_ids))
-    end
-  end
-
-  def status
-    if students.any? { |daily_note_student| daily_note_student.note.blank? }
-      DailyNoteStatus::INCOMPLETE
-    else
-      DailyNoteStatus::COMPLETE
-    end
-  end
+  delegate :status, to: :daily_note_status, prefix: false, allow_nil: true
 
   private
 

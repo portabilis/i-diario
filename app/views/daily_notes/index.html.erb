@@ -8,7 +8,7 @@
             <td><%= f.input :by_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom') %></td>
             <td><%= f.input :by_discipline_id, as: :select2, elements: @disciplines, label: false, placeholder: t('.by_discipline') %></td>
             <td><%= f.input :by_avaliation_id, as: :select2, elements: @avaliations, label: false, placeholder: t('.by_avaliation') %></td>
-            <td><%= f.input :by_status, as: :select2, elements: DailyNoteStatus.to_select.to_json, label: false, placeholder: t('.by_status') %></td>
+            <td><%= f.input :by_status, as: :select2, elements: DailyNoteStatuses.to_select.to_json, label: false, placeholder: t('.by_status') %></td>
             <td><%= link_to t('.new_html'), new_daily_note_path, class: 'btn btn-primary pull-right' %></td>
           </tr>
 
