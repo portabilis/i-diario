@@ -259,6 +259,12 @@ Rails.application.routes.draw do
     resources :avaliation_exemptions, concerns: :history
     resources :***REMOVED***, concerns: :history
 
+    resources :daily_frequency_students do
+      collection do
+        post :create_or_update
+      end
+    end
+
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
