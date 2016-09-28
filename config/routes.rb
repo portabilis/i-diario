@@ -207,8 +207,16 @@ Rails.application.routes.draw do
         post :clone
       end
     end
-    resources :discipline_content_records, concerns: :history
-    resources :knowledge_area_content_records, concerns: :history
+    resources :discipline_content_records, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
+    resources :knowledge_area_content_records, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
     resources :classrooms, only: [:index, :show] do
       resources :students, only: [:index]
     end

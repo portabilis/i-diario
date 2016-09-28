@@ -78,6 +78,13 @@ class DisciplineContentRecordsController < ApplicationController
     respond_with @discipline_content_record
   end
 
+  def clone
+    @form = DisciplineContentRecordClonerForm.new(clone_params)
+    if @form.clone!
+      flash[:success] = "Registro de conteúdo por disciplina copiado com sucesso!"
+    end
+  end
+
   private
 
   def content_ids
@@ -98,6 +105,10 @@ class DisciplineContentRecordsController < ApplicationController
         :content_ids
       ]
     )
+  end
+
+  def clone_params
+    params.require(:discipline_content_record_cloner_form).permit(:classroom_ids, :discipline_content_record_id)
   end
 
   def contents
