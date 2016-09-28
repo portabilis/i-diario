@@ -4,7 +4,7 @@ $(function () {
   var $classrooms = $("#discipline_lesson_plan_cloner_form_classroom_ids");
   var $disciplineLessonPlan = $("#discipline_lesson_plan_cloner_form_discipline_lesson_plan_id");
 
-  $('a.open_copy_modal').on('click', function(){
+  $(document).on('click', 'a.open_copy_modal', function(){
 
     var $row = $(this).closest('tr');
     var discipline_lesson_plan_id = $(this).data('discipline-lesson-plan-id');
