@@ -219,11 +219,11 @@ class ExamRecordReport
       draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
       draw_text('____________________________', size: 8, at: [117, 0])
 
-      draw_text('Assinatura do(a) coordenador(a):', size: 8, style: :bold, at: [259, 0])
-      draw_text('____________________________', size: 8, at: [388, 0])
+      draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
+      draw_text('____________________________', size: 8, at: [429, 0])
 
-      draw_text('Data:', size: 8, style: :bold, at: [528, 0])
-      draw_text('________________', size: 8, at: [549, 0])
+      draw_text('Data:', size: 8, style: :bold, at: [559, 0])
+      draw_text('________________', size: 8, at: [581, 0])
 
       draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação', size: 8, at: [0, 17])
       draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if self.any_student_with_dependence
