@@ -49,10 +49,10 @@ class DailyNotesController < ApplicationController
 
     @students = []
 
-    @api_students.each do |api_student|
-      if student = Student.find_by(api_code: api_student['id'])
+    @student_ids.each do |student_id|
+      if student = Student.find_by_id(student_id)
         note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
-        note_student.dependence = api_student['dependencia']
+        note_student.dependence = false
         note_student.exempted = student_exempted_from_avaliation?(student.id)
         @students << note_student
       end
@@ -109,20 +109,11 @@ class DailyNotesController < ApplicationController
   protected
 
   def fetch_students
-    begin
-      api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily(
-        { classroom_api_code: @daily_note.classroom.api_code,
-          discipline_api_code: @daily_note.discipline.api_code,
-          date: @daily_note.avaliation.test_date
-        }
-      )
-      @api_students = remove_duplicated_students(result['alunos'])
-    rescue IeducarApi::Base::ApiError => e
-      flash[:alert] = e.message
-      @api_students = []
-      render :new
-    end
+    @student_ids = StudentEnrollment
+      .by_classroom(@daily_note.classroom)
+      .by_date(@daily_note.avaliation.test_date)
+      .ordered
+      .collect(&:student_id)
   end
 
   def configuration
@@ -153,8 +144,8 @@ class DailyNotesController < ApplicationController
     if @daily_note.new_record?
       fetch_students
 
-      @api_students.each do |api_student|
-        if student = Student.find_by(api_code: api_student['id'])
+      @student_ids.each do |student_id|
+        if student = Student.find_by_id(student_id)
           @daily_note.students.build(student_id: student.id, daily_note: @daily_note)
         end
       end
