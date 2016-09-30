@@ -271,6 +271,9 @@ navigation:
         - ***REMOVED***:
             type: "teacher_report_cards"
             path: "teacher_report_cards_path"
+        - ***REMOVED***:
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
 
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"
