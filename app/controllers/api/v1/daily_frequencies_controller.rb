@@ -85,6 +85,7 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
     @student_ids = StudentEnrollment
       .by_classroom(@daily_frequency.classroom)
       .by_date(frequency_date)
+      .active
       .ordered
       .collect(&:student_id)
   end

@@ -112,6 +112,7 @@ class DailyNotesController < ApplicationController
     @student_ids = StudentEnrollment
       .by_classroom(@daily_note.classroom)
       .by_date(@daily_note.avaliation.test_date)
+      .active
       .ordered
       .collect(&:student_id)
   end

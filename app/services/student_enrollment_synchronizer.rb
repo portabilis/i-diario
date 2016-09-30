@@ -51,7 +51,6 @@ class StudentEnrollmentSynchronizer
       student_id: Student.find_by(api_code: record["aluno_id"]).try(:id),
       student_code: record["aluno_id"],
       changed_at: record["data_atualizacao"].to_s,
-      dependence: record["dependencia"],
       active: record["ativo"]
     )
 

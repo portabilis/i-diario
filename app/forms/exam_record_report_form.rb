@@ -22,7 +22,7 @@ class ExamRecordReportForm
       .order_by_avaliation_test_date
   end
 
-  def students
+  def student_ids
     current_students_ids = []
     daily_notes.each { |d| current_students_ids << d.students.map(&:student_id) }
     current_students_ids.flatten!.uniq!
@@ -30,10 +30,11 @@ class ExamRecordReportForm
     student_ids = StudentEnrollment
       .by_classroom(classroom_id)
       .by_student(current_students_ids)
+      .active
       .ordered
       .collect(&:student_id)
 
-    Student.find(student_ids)
+    student_ids
   end
 
   def step
