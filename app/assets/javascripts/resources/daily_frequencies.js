@@ -46,7 +46,7 @@ $(function () {
     });
   };
 
-  var $classroom = $('#daily_frequency_classroom_id');
+  var $classroom  = $('#daily_frequency_classroom_id');
   var $discipline = $('#daily_frequency_discipline_id');
   var $avaliation = $('#daily_frequency_avaliation_id');
 
