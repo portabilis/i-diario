@@ -99,6 +99,7 @@ class AvaliationExemptionsController < ApplicationController
       @student_ids = StudentEnrollment
         .by_classroom(@avaliation_exemption.classroom)
         .by_date(@avaliation_exemption.avaliation.test_date)
+        .active
         .ordered
         .collect(&:student_id)
       @students = Student.where(id: @student_ids)

@@ -3,8 +3,8 @@ require "prawn/measurement_extensions"
 class ExamRecordReport
   include Prawn::View
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
-    new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, student_ids)
+    new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, student_ids)
   end
 
   def initialize
@@ -16,14 +16,14 @@ class ExamRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, student_ids)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
     @school_calendar_step = school_calendar_step
     @test_setting = test_setting
     @daily_notes = daily_notes
-    @students = students
+    @student_ids = student_ids
 
     header
 
@@ -83,9 +83,8 @@ class ExamRecordReport
   def daily_notes_table
     averages = {}
     self.any_student_with_dependence = false
-    students_ids = @students.collect(&:id)
 
-    students_ids.each do |student_id|
+    @student_ids.each do |student_id|
       averages[student_id] = StudentAverageCalculator.new(Student.find(student_id)).calculate(@daily_notes.first.classroom, @daily_notes.first.discipline, @school_calendar_step.id)
     end
 
@@ -124,7 +123,7 @@ class ExamRecordReport
           daily_note_id = daily_note.id
         end
 
-        students_ids.each do |student_id|
+        @student_ids.each do |student_id|
           if exempted_avaliation?(student_id, avaliation_id)
             student_note = ExemptedDailyNoteStudent.new
           else
@@ -234,23 +233,6 @@ class ExamRecordReport
                 align: :right }
     number_pages(string, options)
   end
-
-  # def fetch_students_ids
-  #   students_ids = []
-  #   @daily_notes.each do |daily_note|
-  #     daily_note.students.each do |student|
-  #       students_ids << student.student.id
-  #     end
-  #   end
-  #   students_ids.uniq!
-  #   order_students_by_sequence_and_name(students_ids)
-  # end
-  #
-  # def order_students_by_sequence_and_name(students_ids)
-  #   students = Student.where(id: students_ids).ordered
-  #   students_ids = students.collect(&:id)
-  #   students_ids
-  # end
 
   def exempted_avaliation?(student_id, avaliation_id)
     avaliation_is_exempted = AvaliationExemption

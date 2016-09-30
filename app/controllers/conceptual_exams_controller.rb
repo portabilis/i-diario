@@ -216,6 +216,7 @@ class ConceptualExamsController < ApplicationController
       @student_ids = StudentEnrollment
         .by_classroom(@conceptual_exam.classroom)
         .by_date(@conceptual_exam.recorded_at.to_date.to_s)
+        .active
         .ordered
         .collect(&:student_id)
       @students = Student.where(id: @student_ids)

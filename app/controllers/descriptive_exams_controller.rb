@@ -73,6 +73,7 @@ class DescriptiveExamsController < ApplicationController
     @student_ids = StudentEnrollment
       .by_classroom(@descriptive_exam.classroom)
       .by_date(Time.zone.today)
+      .active
       .ordered
       .collect(&:student_id)
   end

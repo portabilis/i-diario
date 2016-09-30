@@ -115,6 +115,7 @@ class DailyFrequenciesController < ApplicationController
     @student_ids = StudentEnrollment
       .by_classroom(@daily_frequency.classroom)
       .by_date(@daily_frequency.frequency_date)
+      .active
       .ordered
       .collect(&:student_id)
   end
