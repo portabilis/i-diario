@@ -1,4 +1,6 @@
 class DisciplineLessonPlanReportController < ApplicationController
+  DISCIPLINE_LESSON_PLAN_REPORT = "1"
+  DISCIPLINE_CONTENT_RECORD = "2"
 
   before_action :require_current_teacher
 
@@ -11,6 +13,7 @@ class DisciplineLessonPlanReportController < ApplicationController
   def lesson_plan_report
     @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new(resource_params)
     @discipline_lesson_plan_report_form.teacher_id = current_teacher_id
+    @discipline_lesson_plan_report_form.report_type = DISCIPLINE_LESSON_PLAN_REPORT
 
     if @discipline_lesson_plan_report_form.valid?
       lesson_plan_report = DisciplineLessonPlanReport.build(current_entity_configuration,
@@ -31,6 +34,7 @@ class DisciplineLessonPlanReportController < ApplicationController
   def content_record_report
     @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new(resource_params)
     @discipline_lesson_plan_report_form.teacher_id = current_teacher_id
+    @discipline_lesson_plan_report_form.report_type = DISCIPLINE_CONTENT_RECORD
 
     if @discipline_lesson_plan_report_form.valid?
       lesson_plan_report = DisciplineContentRecordReport.build(current_entity_configuration,
