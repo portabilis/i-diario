@@ -83,7 +83,7 @@ class ExamRecordReport
   def daily_notes_table
     averages = {}
     self.any_student_with_dependence = false
-    students_ids = fetch_students_ids
+    students_ids = @students.collect(&:id)
 
     students_ids.each do |student_id|
       averages[student_id] = StudentAverageCalculator.new(Student.find(student_id)).calculate(@daily_notes.first.classroom, @daily_notes.first.discipline, @school_calendar_step.id)
@@ -235,22 +235,22 @@ class ExamRecordReport
     number_pages(string, options)
   end
 
-  def fetch_students_ids
-    students_ids = []
-    @daily_notes.each do |daily_note|
-      daily_note.students.each do |student|
-        students_ids << student.student.id
-      end
-    end
-    students_ids.uniq!
-    order_students_by_name(students_ids)
-  end
-
-  def order_students_by_name(students_ids)
-    students = Student.where(id: students_ids).ordered
-    students_ids = students.collect(&:id)
-    students_ids
-  end
+  # def fetch_students_ids
+  #   students_ids = []
+  #   @daily_notes.each do |daily_note|
+  #     daily_note.students.each do |student|
+  #       students_ids << student.student.id
+  #     end
+  #   end
+  #   students_ids.uniq!
+  #   order_students_by_sequence_and_name(students_ids)
+  # end
+  #
+  # def order_students_by_sequence_and_name(students_ids)
+  #   students = Student.where(id: students_ids).ordered
+  #   students_ids = students.collect(&:id)
+  #   students_ids
+  # end
 
   def exempted_avaliation?(student_id, avaliation_id)
     avaliation_is_exempted = AvaliationExemption
