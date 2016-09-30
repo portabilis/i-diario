@@ -68,7 +68,7 @@
         </ul>
       </div>
 
-
+      <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-right' %>
       <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id)),
                                  method: :delete, data: { confirm: t('.confirm') }, class: 'btn btn-danger' %>
     </footer>
