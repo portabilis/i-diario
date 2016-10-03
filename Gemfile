@@ -32,12 +32,13 @@ gem 'js-routes'
 gem 'active_model_serializers'
 gem 'exception_notification'
 gem 'bulk_insert', '~> 1.0'
+gem "sidekiq-cron", "~> 0.4.0"
 
 gem 'angular_rails_csrf'
 gem 'rack-cors', require: 'rack/cors'
 
 gem 'sinatra', '>= 1.3.0', require: nil
-gem 'sidekiq', '3.4.2'
+gem 'sidekiq', '4.2.2'
 gem 'whenever', require: false
 gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
