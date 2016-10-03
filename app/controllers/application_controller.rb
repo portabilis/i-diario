@@ -85,6 +85,15 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def after_sign_in_path_for(resource_or_scope)
+    if !!current_user.receive_news == current_user.receive_news
+      super
+    else
+      flash[:info] = "É importante que seu cadastro no sistema esteja atualizado. Desta forma você poderá receber novidades sobre o produto. Por favor, atualize aqui suas preferências de e-mail."
+      edit_account_path
+    end
+  end
+
   def check_for_***REMOVED***
     return unless current_user
 

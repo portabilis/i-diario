@@ -197,8 +197,16 @@ Rails.application.routes.draw do
 
     resources :discipline_teaching_plans, concerns: :history
     resources :knowledge_area_teaching_plans, concerns: :history
-    resources :discipline_lesson_plans, concerns: :history
-    resources :knowledge_area_lesson_plans, concerns: :history
+    resources :discipline_lesson_plans, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
+    resources :knowledge_area_lesson_plans, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
     resources :discipline_content_records, concerns: :history
     resources :knowledge_area_content_records, concerns: :history
     resources :classrooms, only: [:index, :show] do
@@ -267,14 +275,17 @@ Rails.application.routes.draw do
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
     get '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#form', as: 'discipline_lesson_plan_report'
-    post '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#report', as: 'discipline_lesson_plan_report'
+    post '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#lesson_plan_report', as: 'discipline_lesson_plan_report'
+    post '/reports/discipline_content_record', to: 'discipline_lesson_plan_report#content_record_report', as: 'discipline_content_record_report'
 
     get '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#form', as: 'knowledge_area_lesson_plan_report'
     post '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#report', as: 'knowledge_area_lesson_plan_report'
 
-
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
+
+    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
+    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
     post '/food_composition', to: 'food_composition#calculate'
   end

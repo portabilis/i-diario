@@ -27,7 +27,15 @@
             <% end %>
           <% end %>
         </div>
-      </div>        
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :allows_after_sales_relationship do %>
+            <%= f.input_field :allows_after_sales_relationship, collection: AfterSaleRelationshipOptions %>
+            <i></i>
+          <% end %>
+        </div>
+      </div>
       <div class="row">
         <div class="col col-sm-4">
           <%= f.association :students_default_role, as: :select2, elements: Role.ordered %>

@@ -9,7 +9,6 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :unities,
                    :users,
-                   :general_configurations,
                    :ieducar_api_configurations,
                    :***REMOVED***,
                    :***REMOVED***,
@@ -66,6 +65,8 @@ class Features < EnumerateIt::Base
                    :knowledge_area_content_records,
                    :***REMOVED***,
                    :teacher_report_cards,
+                   :***REMOVED***,
+                   :ieducar_api_exam_posting_without_restrictions,
                    :***REMOVED***
 
   sort_by :translation

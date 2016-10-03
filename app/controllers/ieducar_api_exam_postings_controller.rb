@@ -6,8 +6,9 @@ class IeducarApiExamPostingsController < ApplicationController
 
   def index
     @school_calendar_steps = SchoolCalendarStep.by_school_calendar_id(current_school_calendar.id)
-                                               .posting_date_after_and_before(Time.zone.today)
                                                .ordered
+
+    @school_calendar_steps = @school_calendar_steps.posting_date_after_and_before(Time.zone.today) unless current_user.can_change?("ieducar_api_exam_posting_without_restrictions")
 
     @school_calendar_steps.each do |step|
       ApiPostingTypes.each_value do |value|
@@ -42,7 +43,7 @@ class IeducarApiExamPostingsController < ApplicationController
   def require_current_posting_step
     return unless current_school_calendar
 
-    unless current_school_calendar.posting_step(Time.zone.today)
+    unless current_user.can_change?("ieducar_api_exam_posting_without_restrictions") || current_school_calendar.posting_step(Time.zone.today)
       flash[:alert] = t('errors.ieducar_api_exam_postings.require_current_posting_step')
 
       redirect_to root_path

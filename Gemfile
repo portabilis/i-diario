@@ -58,6 +58,7 @@ gem 'carrierwave'
 gem 'fog', '~> 1.36'
 
 gem 'activerecord-session_store', github: 'rails/activerecord-session_store'
+gem 'rdstation-ruby-client'
 
 group :development do
   gem 'quiet_assets'

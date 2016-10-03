@@ -66,17 +66,6 @@
       </div>
 
       <div id="content">
-        <% unless current_entity.name == "camposdojordao" || current_entity.name == "santaisabel" %>
-          <div class="alert alert-info fade in">
-            <button class="close" data-dismiss="alert">
-              ×
-            </button>
-            <i class="fa-fw fa fa-info"></i>
-            Temos novidades incríveis para compartilhar com você! A partir do dia <b>06/09</b> estará disponível no sistema a nova seleção de perfil,
-            simples e fácil de usar. <b><%= link_to "Clique aqui", new_role_modal_feature_path, target: "_blank" %></b> e veja como irá funcionar este novo recurso.
-          </div>
-        <% end %>
-
         <div id="flash-messages">
           <%= bootstrap_flash %>
         </div>

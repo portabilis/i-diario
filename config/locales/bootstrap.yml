@@ -14,6 +14,7 @@ pt-BR:
       show_html: "<i class='fa fa-search'></i> "
       edit_html: "<i class='fa fa-pencil'></i> "
       print_html: "<i class='fa fa-print'></i> "
+      copy_html: "<i class='fa fa-files-o'></i> "
       destroy_html: "<i class='fa fa-times'></i> "
     tooltip_links:
       edit: 'Editar'

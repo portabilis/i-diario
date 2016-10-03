@@ -36,7 +36,7 @@ class DisciplineContentRecordReport
   def header
     entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
     organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
-    title =  'Registro de conteúdos por disciplina'
+    title =  'Registros de conteúdos por disciplina'
 
     header_cell = make_cell(
       content: title,
@@ -163,7 +163,7 @@ class DisciplineContentRecordReport
     general_information_cells = []
 
     @discipline_content_record.each do |discipline_content_record|
-      date_cell = make_cell(content: discipline_content_record.content_record.record_date.strftime("%d/%m/%Y"), size: 10, align: :left)
+      date_cell = make_cell(content: discipline_content_record.content_record.record_date.strftime("%d/%m/%Y"), size: 10, align: :left, width: 60)
       conteudo_cell = make_cell(content: discipline_content_record.content_record.contents_ordered.map(&:to_s).join(", "), size: 10, align: :left)
 
       general_information_cells << [
@@ -207,7 +207,7 @@ class DisciplineContentRecordReport
 
     move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
-    text_box("______________________________________________\nCoordenador(a)", size: 10, align: :center, at: [306, cursor], width: 260)
+    text_box("______________________________________________\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
   end
 
   def footer

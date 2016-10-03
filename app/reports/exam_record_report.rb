@@ -93,12 +93,14 @@ class ExamRecordReport
     daily_notes_descriptions = []
     daily_notes_avaliations_ids = []
     daily_notes_ids = []
+    daily_notes_dates = []
 
     @daily_notes.each do |daily_note|
       daily_notes_and_recoveries << daily_note
       if daily_note.avaliation.recovery_diary_record
         daily_notes_and_recoveries << daily_note.avaliation.recovery_diary_record
         daily_notes_descriptions << daily_note.avaliation.to_s
+        daily_notes_dates << daily_note.avaliation.test_date
         daily_notes_avaliations_ids << daily_note.avaliation_id
         daily_notes_ids << daily_note.id
       end
@@ -114,12 +116,12 @@ class ExamRecordReport
 
       daily_notes_slice.each do |daily_note|
         if recovery_record(daily_note)
-          avaliations << make_cell(content: "Rec. #{daily_notes_descriptions[pos]}", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
+          avaliations << make_cell(content: "Rec. #{daily_notes_descriptions[pos]}\n<font size='7'>#{daily_notes_dates[pos].strftime("%d/%m")}</font>", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
           avaliation_id = daily_notes_avaliations_ids[pos]
           daily_note_id = daily_notes_ids[pos]
           pos += 1
         else
-          avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
+          avaliations << make_cell(content: "#{daily_note.avaliation.to_s}\n<font size='7'>#{daily_note.avaliation.test_date.strftime("%d/%m")}</font>", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
           avaliation_id = daily_note.avaliation_id
           daily_note_id = daily_note.id
         end
@@ -154,7 +156,7 @@ class ExamRecordReport
 
       sequential_number_header = make_cell(content: 'Nº', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 15)
       student_name_header = make_cell(content: 'Nome do aluno', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 170)
-      average_header = make_cell(content: 'Média', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
+      average_header = make_cell(content: "Média", size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
 
       first_headers_and_cells = [sequential_number_header, student_name_header].concat(avaliations)
       (10 - avaliations.count).times { first_headers_and_cells << make_cell(content: '', background_color: 'FFFFFF', width: 55) }
@@ -194,7 +196,7 @@ class ExamRecordReport
         data.concat(students_cells_slice)
 
         bounding_box([0, 482], width: bounds.width) do
-          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] }, width: bounds.width) do |t|
+          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2], inline_format: true }, width: bounds.width) do |t|
             t.cells.border_width = 0.25
             t.before_rendering_page do |page|
               page.row(0).border_top_width = 0.25
@@ -217,11 +219,11 @@ class ExamRecordReport
       draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
       draw_text('____________________________', size: 8, at: [117, 0])
 
-      draw_text('Assinatura do(a) coordenador(a):', size: 8, style: :bold, at: [259, 0])
-      draw_text('____________________________', size: 8, at: [388, 0])
+      draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
+      draw_text('____________________________', size: 8, at: [429, 0])
 
-      draw_text('Data:', size: 8, style: :bold, at: [528, 0])
-      draw_text('________________', size: 8, at: [549, 0])
+      draw_text('Data:', size: 8, style: :bold, at: [559, 0])
+      draw_text('________________', size: 8, at: [581, 0])
 
       draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação', size: 8, at: [0, 17])
       draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if self.any_student_with_dependence

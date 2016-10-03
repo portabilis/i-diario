@@ -126,6 +126,13 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     respond_with @knowledge_area_lesson_plan
   end
 
+  def clone
+    @form = KnowledgeAreaLessonPlanClonerForm.new(clone_params)
+    if @form.clone!
+      flash[:success] = "Plano de aula por área de conhecimento copiado com sucesso!"
+    end
+  end
+
   private
 
   def resource_params
@@ -154,6 +161,10 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         ]
       ]
     )
+  end
+
+  def clone_params
+    params.require(:knowledge_area_lesson_plan_cloner_form).permit(:classroom_ids, :knowledge_area_lesson_plan_id)
   end
 
   def filtering_params(params)
