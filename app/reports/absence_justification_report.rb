@@ -249,7 +249,7 @@ class AbsenceJustificationReport
       borders: [:left, :right, :top],
       background_color: 'FFFFFF',
       width: 60,
-      padding: [2, 2, 4, 4], 
+      padding: [2, 2, 4, 4],
     )
 
     headers = [
@@ -334,7 +334,7 @@ class AbsenceJustificationReport
 
     move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
-    text_box("______________________________________________\nCoordenador(a)", size: 10, align: :center, at: [306, cursor], width: 260)
+    text_box("______________________________________________\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
   end
 
   def footer

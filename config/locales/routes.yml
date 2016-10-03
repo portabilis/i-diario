@@ -88,6 +88,7 @@ pt-BR:
     new_role_modal_feature: 'nova-funcionalidade-modal-selecao-de-perfil'
     discipline_lesson_plan: 'planos-de-aulas-por-disciplina'
     discipline_content_record: 'registros-de-conteudos-por-disciplina'
+    ***REMOVED***: '***REMOVED***'
 
     # actions
     edit: 'editar'
