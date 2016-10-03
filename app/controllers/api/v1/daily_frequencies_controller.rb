@@ -23,9 +23,10 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
       @students = []
 
-      @student_ids.each do |student_id|
-        if student = Student.find_by_id(student_id)
-          @students << (@daily_frequency.students.where(student_id: student.id).first || @daily_frequency.students.create(student_id: student.id, dependence: false, present: true))
+      @student_enrollments.each do |student_enrollment|
+        if student = Student.find_by_id(student_enrollment.student_id)
+          dependence = student_has_dependence?(student_enrollment.id, @daily_frequency.discipline_id)
+          @students << (@daily_frequency.students.where(student_id: student.id).first || @daily_frequency.students.create(student_id: student.id, dependence: dependence, present: true))
         end
       end
     end
@@ -35,12 +36,11 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
   def fetch_students
     frequency_date = params[:frequency_date] || Time.zone.today
-    @student_ids = StudentEnrollment
+    @student_enrollments = StudentEnrollment
       .by_classroom(@daily_frequency.classroom)
       .by_date(frequency_date)
       .active
       .ordered
-      .collect(&:student_id)
   end
 
   def configuration
@@ -49,5 +49,12 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
   def current_school_calendar
     CurrentSchoolCalendarFetcher.new(params[:unity_id]).fetch
+  end
+
+  def student_has_dependence?(student_enrollment_id, discipline_id)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment_id)
+      .by_discipline(discipline_id)
+      .any?
   end
 end
