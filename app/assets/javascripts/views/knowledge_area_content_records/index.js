@@ -4,7 +4,7 @@ $(function () {
   var $classrooms = $("#knowledge_area_content_record_cloner_form_classroom_ids");
   var $knowledgeAreaContentRecord = $("#knowledge_area_content_record_cloner_form_knowledge_area_content_record_id");
 
-  $('a.open_copy_modal').on('click', function(){
+  $(document).on('click', 'a.open_copy_modal', function(){
 
     var $row = $(this).closest('tr');
     var knowledge_area_content_record_id = $(this).data('knowledge-area-content-record-id');
