@@ -45,6 +45,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     authorize @knowledge_area_teaching_plan
 
     @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher.id
+    @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
@@ -68,6 +69,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
       .localized
     @knowledge_area_teaching_plan.assign_attributes(resource_params)
+    @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
     authorize @knowledge_area_teaching_plan
 
@@ -145,17 +147,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_knowledge_areas
-    @knowledge_areas = KnowledgeArea.by_unity(current_user_unity)
-      .by_teacher(current_teacher)
-      .ordered
-
-    if @knowledge_area_teaching_plan.present?
-      @knowledge_areas = @knowledge_areas.by_grade(
-          @knowledge_area_teaching_plan.teaching_plan.grade
-        )
-        .ordered
-    end
-
-    @knowledge_areas
+    @knowledge_areas = KnowledgeArea.ordered
   end
 end
