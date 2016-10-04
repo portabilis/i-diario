@@ -39,7 +39,7 @@
 
       <div class="col col-sm-4">
         <%= f.association :student, as: :select2, elements: @students,
-              readonly: @conceptual_exam.persisted? %>
+              readonly: action_name == 'edit' %>
       </div>
     </div>
   </fieldset>
