@@ -84,6 +84,7 @@ pt-BR:
     ***REMOVED***: "***REMOVED***"
     teacher_report_cards: "Boletim do professor"
     ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
 
   enumerations:
     features:
@@ -93,3 +94,4 @@ pt-BR:
       ***REMOVED***_configs: "Configuração da pré-matrícula"
       test_settings: "Configurações de avaliações"
       teacher_report_card: "Boletim do professor"
+      ieducar_api_exam_posting_without_restrictions: "Envio de avaliações sem restrições de datas"

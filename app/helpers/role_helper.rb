@@ -6,4 +6,8 @@ module RoleHelper
     end
     tags
   end
+
+  def permissions(feature)
+    feature == "ieducar_api_exam_posting_without_restrictions" ? PermissionsYesOrNo.to_select.to_json : Permissions.to_select.to_json
+  end
 end

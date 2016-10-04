@@ -6,6 +6,6 @@
   </td>
 
   <td>
-    <%= f.input :permission, as: :select2, elements: Permissions.to_select.to_json, label_html: { class: "hidden" } %>
+    <%= f.input :permission, as: :select2, elements: permissions(f.object.feature), label_html: { class: "hidden" } %>
   </td>
 </tr>
