@@ -51,9 +51,12 @@
     </table>
 
     <footer>
-      <div class="btn-group">
+      <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-right' %>
+      <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id)),
+                                 method: :delete, data: { confirm: t('.confirm') }, class: 'btn btn-danger' %>
+      <div class="btn-group pull-right">
         <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-          <%= t('.print_attendance_report') %> <span class="caret"></span>
+          <%= t('.print') %> <span class="caret"></span>
         </button>
         <ul class="dropdown-***REMOVED***">
           <li>
@@ -68,9 +71,6 @@
         </ul>
       </div>
 
-      <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-right' %>
-      <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id)),
-                                 method: :delete, data: { confirm: t('.confirm') }, class: 'btn btn-danger' %>
     </footer>
   <% end %>
 </div>
