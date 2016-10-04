@@ -34,6 +34,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.recovery_diary_record.unity = current_user_unity
 
     @school_calendar_steps = current_school_calendar.steps
+    @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
 
   def create
@@ -46,6 +47,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
       @school_calendar_steps = current_school_calendar.steps
+      @number_of_decimal_places = current_test_setting.number_of_decimal_places
 
       render :new
     end
@@ -61,6 +63,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     add_missing_students(students_in_recovery)
 
     @school_calendar_steps = current_school_calendar.steps
+    @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
 
   def update
@@ -73,6 +76,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
       @school_calendar_steps = current_school_calendar.steps
+      @number_of_decimal_places = current_test_setting.number_of_decimal_places
 
       render :edit
     end
