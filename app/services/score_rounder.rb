@@ -6,6 +6,7 @@ class ScoreRounder
   end
 
   def round(score)
+    return 0 if score.nil?
     return score if score > 10.0
     score_decimal_part = decimal_part(score)
     rounding_table_id = exam_rule_rounding_table.try(:id)

@@ -39,7 +39,7 @@ module ExamPoster
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline.id, @post_data.school_calendar_step.id)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = school_term_recovery
+            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery)
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.has_warnings?
         end

@@ -86,6 +86,13 @@ RSpec.describe ScoreRounder, type: :service do
       end
     end
 
+    context 'when number is nil' do
+      let(:action) { RoundingTableAction::ABOVE }
+      it "should return zero" do
+        expect(subject.round(nil)).to be(0)
+      end
+    end
+
   end
 
   def stub_exam_rule
