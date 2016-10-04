@@ -6,8 +6,8 @@ module DailyFrequencyHelper
       classroom_id: daily_frequency.classroom_id,
       discipline_id: daily_frequency.discipline_id,
       class_numbers: daily_frequencies.map(&:class_number).join(","),
-      start_at: daily_frequency.frequency_date.at_beginning_of_month,
-      end_at: daily_frequency.frequency_date.end_of_month,
+      start_at: l(daily_frequency.frequency_date.at_beginning_of_month),
+      end_at: l(daily_frequency.frequency_date.end_of_month),
       school_calendar_year: daily_frequency.frequency_date.year,
       current_teacher_id: current_teacher.id
     }
@@ -20,8 +20,8 @@ module DailyFrequencyHelper
       classroom_id: daily_frequency.classroom_id,
       discipline_id: daily_frequency.discipline_id,
       class_numbers: daily_frequencies.map(&:class_number).join(","),
-      start_at: daily_frequency.school_calendar.step(daily_frequency.frequency_date).start_at,
-      end_at: daily_frequency.school_calendar.step(daily_frequency.frequency_date).end_at,
+      start_at: l(daily_frequency.school_calendar.step(daily_frequency.frequency_date).start_at),
+      end_at: l(daily_frequency.school_calendar.step(daily_frequency.frequency_date).end_at),
       school_calendar_year: daily_frequency.frequency_date.year,
       current_teacher_id: current_teacher.id
     }
