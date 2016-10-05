@@ -22,16 +22,15 @@ class StudentEnrollmentSynchronizer
   end
 
   def update_records(collection)
-
     ActiveRecord::Base.transaction do
-      collection.each do |record|
-
-        if student_enrollment = student_enrollments.find_by(api_code: record["matricula_id"])
-          update_existing_student_enrollment(record, student_enrollment)
-        else
-          create_new_student_enrollment(record)
+      if collection.present?
+        collection.each do |record|
+          if student_enrollment = student_enrollments.find_by(api_code: record["matricula_id"])
+            update_existing_student_enrollment(record, student_enrollment)
+          else
+            create_new_student_enrollment(record)
+          end
         end
-
       end
     end
   end
@@ -76,7 +75,6 @@ class StudentEnrollmentSynchronizer
         student_id: Student.find_by(api_code: record["aluno_id"]).try(:id),
         student_code: record["aluno_id"],
         changed_at: record["data_atualizacao"].to_s,
-        dependence: record["dependencia"],
         active: record["ativo"]
       )
     end
