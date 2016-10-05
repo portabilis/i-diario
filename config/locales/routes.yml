@@ -89,6 +89,7 @@ pt-BR:
     discipline_lesson_plan: 'planos-de-aulas-por-disciplina'
     discipline_content_record: 'registros-de-conteudos-por-disciplina'
     ***REMOVED***: '***REMOVED***'
+    partial_score_record: 'registro-de-notas-parciais'
 
     # actions
     edit: 'editar'

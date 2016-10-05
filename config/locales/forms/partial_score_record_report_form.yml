@@ -1,0 +1,15 @@
+pt-BR:
+  activemodel:
+    attributes:
+      partial_score_record_report_form:
+        unity_id: "Escola"
+        classroom_id: "Turma"
+        student_id: "Aluno"
+        school_calendar_step_id: "Etapa"
+
+    errors:
+      models:
+        partial_score_record_report_form:
+          attributes:
+            daily_notes:
+              must_have_daily_note_sudents: "Nenhum resultado foi encontrado para os dados informados"
