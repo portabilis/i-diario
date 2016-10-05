@@ -46,7 +46,7 @@ $(function () {
     });
   };
 
-  var $classroom = $('#daily_frequency_classroom_id');
+  var $classroom  = $('#daily_frequency_classroom_id');
   var $discipline = $('#daily_frequency_discipline_id');
   var $avaliation = $('#daily_frequency_avaliation_id');
 
@@ -163,4 +163,21 @@ $(function () {
   if($classroom.length && $classroom.val().length){
     checkExamRule({classroom_id: $classroom.val()});
   }
+
+  $("[name='daily_frequency_student[][present]']").on("change", function(){
+    var student_id = $(this).closest("td").find("[name='daily_frequency_student[][student_id]']").val();
+    var daily_frequency_id = $(this).closest("td").find("[name='daily_frequency_student[][daily_frequency_id]']").val();
+    var dependence = $(this).closest("td").find("[name='daily_frequency_student[][dependence]']").val();
+    var present = $(this).prop("checked");
+
+    var params = {
+      student_id: student_id,
+      daily_frequency_id: daily_frequency_id,
+      present: present,
+      dependence: dependence
+    };
+
+    $.post(Routes.create_or_update_daily_frequency_students_pt_br_path(), params, function(data){
+    }, "json");
+  });
 });
