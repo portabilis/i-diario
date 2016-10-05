@@ -6,16 +6,25 @@
   <% else %>
     <% @knowledge_area_content_records.each do |knowledge_area_content_record| %>
       <tr>
-        <td><%= knowledge_area_content_record.content_record.classroom %></td>
-        <td>
+        <td class="classroom"><%= knowledge_area_content_record.content_record.classroom %></td>
+        <td class="knowledge_area">
           <% knowledge_area_content_record.knowledge_areas.each do |knowledge_area| %>
             <span class="label label-info label-list">
               <%= knowledge_area.description %>
             </span>
           <% end %>
         </td>
-        <td><%= l(knowledge_area_content_record.content_record.record_date) %></td>
+        <td class="record_date"><%= l(knowledge_area_content_record.content_record.record_date) %></td>
         <td class="actions">
+          <%= link_to(
+                t('helpers.links.copy_html'),
+                '#',
+                class: 'btn btn-primary apply_tooltip open_copy_modal',
+                data: { original_title: t('views.index.tooltips.copy'),
+                        knowledge_area_content_record_id: knowledge_area_content_record.id,
+                        classroom_id: knowledge_area_content_record.classroom.id,
+                        grade_id: knowledge_area_content_record.classroom.grade_id
+                      }) %>
           <%= link_to(
                 t('helpers.links.edit_html'),
                 edit_knowledge_area_content_record_path(knowledge_area_content_record),

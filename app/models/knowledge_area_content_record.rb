@@ -27,7 +27,7 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
 
   validate :uniqueness_of_knowledge_area_content_record
 
-  delegate :contents, to: :content_record
+  delegate :contents, :classroom, to: :content_record
 
   def knowledge_area_ids
     knowledge_areas.collect(&:id).join(',')

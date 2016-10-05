@@ -78,6 +78,13 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     respond_with @knowledge_area_content_record
   end
 
+  def clone
+    @form = KnowledgeAreaContentRecordClonerForm.new(clone_params)
+    if @form.clone!
+      flash[:success] = "Registro de conteúdo por área de conhecimento copiado com sucesso!"
+    end
+  end
+
   private
 
   def content_ids
@@ -98,6 +105,10 @@ class KnowledgeAreaContentRecordsController < ApplicationController
         :content_ids
       ]
     )
+  end
+
+  def clone_params
+    params.require(:knowledge_area_content_record_cloner_form).permit(:classroom_ids, :knowledge_area_content_record_id)
   end
 
   def contents
