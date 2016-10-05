@@ -85,6 +85,7 @@ pt-BR:
     teacher_report_cards: "Boletim do professor"
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
+    partial_score_record_report: "Registro de notas parciais"
 
   enumerations:
     features:
