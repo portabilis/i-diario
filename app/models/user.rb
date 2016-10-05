@@ -255,6 +255,7 @@ class User < ActiveRecord::Base
   end
 
   def update_rd_lead
+    return unless GeneralConfiguration.current.allows_after_sales_relationship?
     rdstation_client = RDStation::Client.new('***REMOVED***', '***REMOVED***', 'Usuário no produto Educar+')
 
     response = rdstation_client.create_lead({
@@ -263,7 +264,6 @@ class User < ActiveRecord::Base
       :"Nome" => name,
       :"Telefone fixo" => phone,
       :"Empresa" => EntityConfiguration.current.entity_name,
-      :"Permite relacionamento direto no pós-venda?" => GeneralConfiguration.current.allows_after_sales_relationship? ? "Sim" : "Não",
       :"Recebe informações do Educar plus?" => rd_matters,
       :identificador => 'Usuário no produto Educar+'
     })
