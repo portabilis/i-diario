@@ -64,7 +64,8 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def status
-    if conceptual_exam_values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
+    values = ConceptualExamValue.where(conceptual_exam_id: id)
+    if values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
       ConceptualExamStatus::INCOMPLETE
     else
       ConceptualExamStatus::COMPLETE
