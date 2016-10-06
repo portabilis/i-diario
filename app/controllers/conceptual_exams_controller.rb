@@ -52,25 +52,25 @@ class ConceptualExamsController < ApplicationController
     authorize @conceptual_exam
 
     conceptual_exam = @conceptual_exam
-
-    @conceptual_exam = ConceptualExam.where(
-      classroom: @conceptual_exam.classroom,
-      school_calendar_step: @conceptual_exam.school_calendar_step,
-      student: @conceptual_exam.student
-    ).first_or_create(
-      recorded_at: conceptual_exam.recorded_at,
-      student: conceptual_exam.student
-    ).localized
-
-    @conceptual_exam.unity_id = current_user_unity.id
-    @conceptual_exam.conceptual_exam_values.build(conceptual_exam.conceptual_exam_values.collect{ |value| value.attributes})
+    #
+    # @conceptual_exam = ConceptualExam.where(
+    #   classroom: @conceptual_exam.classroom,
+    #   school_calendar_step: @conceptual_exam.school_calendar_step,
+    #   student: @conceptual_exam.student
+    # ).first_or_create(
+    #   recorded_at: conceptual_exam.recorded_at,
+    #   student: conceptual_exam.student
+    # ).localized
+    #
+    # @conceptual_exam.unity_id = current_user_unity.id
+    # @conceptual_exam.conceptual_exam_values.build(conceptual_exam.conceptual_exam_values.collect{ |value| value.attributes})
 
     if @conceptual_exam.save
       respond_to_save
     else
       fetch_collections
       mark_not_existing_disciplines_as_invisible
-      mark_persisted_disciplines_as_invisible
+      # mark_persisted_disciplines_as_invisible
 
       render :new
     end
@@ -87,6 +87,7 @@ class ConceptualExamsController < ApplicationController
     add_missing_disciplines
     mark_not_assigned_disciplines_for_destruction
     mark_not_existing_disciplines_as_invisible
+    # raise "a"
   end
 
   def update

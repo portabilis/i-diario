@@ -9,8 +9,6 @@ class ConceptualExamValue < ActiveRecord::Base
   validates :conceptual_exam, presence: true
   validates :discipline_id, presence: true
 
-  validate :uniqueness_of_discipline
-
   def self.ordered
     joins(
       arel_table.join(KnowledgeArea.arel_table, Arel::Nodes::OuterJoin)
@@ -27,15 +25,4 @@ class ConceptualExamValue < ActiveRecord::Base
   def marked_as_invisible?
     @marked_as_invisible
   end
-
-  private
-  def uniqueness_of_discipline
-    conceptual_exam_values = ConceptualExamValue.where(discipline_id: discipline_id, conceptual_exam_id: conceptual_exam_id)
-    conceptual_exam_values = conceptual_exam_values.where.not(id: id) if persisted?
-
-    if conceptual_exam_values.any?
-      conceptual_exam.errors.add(:student, :taken)
-    end
-  end
-
 end
