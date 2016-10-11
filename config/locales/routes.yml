@@ -91,6 +91,7 @@ pt-BR:
     ***REMOVED***: '***REMOVED***'
     terms_dictionaries: 'dicionario-de-termos'
     partial_score_record: 'registro-de-notas-parciais'
+    ***REMOVED***_movements_report: 'movimentos-de-estoque'
 
     # actions
     edit: 'editar'
