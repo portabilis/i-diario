@@ -86,6 +86,7 @@ pt-BR:
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
     partial_score_record_report: "Registro de notas parciais"
+    ***REMOVED***_movements_report: "***REMOVED***"
 
   enumerations:
     features:

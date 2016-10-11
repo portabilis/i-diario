@@ -131,11 +131,19 @@ Rails.application.routes.draw do
       get '***REMOVED***_classes/select'
     end
 
-    resources :***REMOVED***_classes, concerns: :history
+    resources :***REMOVED***_classes, concerns: :history do
+      collection do
+        get :select
+      end
+    end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history do
+      collection do
+        get :select
+      end
+    end
     resources :***REMOVED***, concerns: :history do
       resources :material_request_items, only: [:index]
     end
@@ -303,6 +311,9 @@ Rails.application.routes.draw do
 
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
+
+    get '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#form', as: '***REMOVED***_movements_report'
+    post '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#report', as: '***REMOVED***_movements_report'
 
     post '/food_composition', to: 'food_composition#calculate'
   end
