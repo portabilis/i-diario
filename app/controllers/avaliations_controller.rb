@@ -7,7 +7,7 @@ class AvaliationsController < ApplicationController
   before_action :require_current_teacher
   before_action :require_current_school_calendar
   before_action :require_current_test_setting
-  before_action :set_number_of_classes, only: [:new, :create, :edit, :update]
+  before_action :set_number_of_classes, only: [:new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms]
 
   def index
     current_user_unity_id = current_user_unity.id if current_user_unity
@@ -36,6 +36,22 @@ class AvaliationsController < ApplicationController
     authorize resource
 
     @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+  end
+
+  def multiple_classrooms
+    @avaliation_multiple_creator_form                     = AvaliationMultipleCreatorForm.new
+    @avaliation_multiple_creator_form.school_calendar_id  = current_school_calendar.id
+    @avaliation_multiple_creator_form.test_setting_id     = current_test_setting.id
+    @avaliation_multiple_creator_form.unity_id            = current_user_unity.id
+    @avaliation_multiple_creator_form.test_date           = Time.zone.today
+
+    authorize Avaliation.new
+
+    @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+  end
+
+  def create_multiple_classrooms
+
   end
 
   def create
@@ -103,6 +119,11 @@ class AvaliationsController < ApplicationController
   end
 
   private
+
+  def disciplines_for_multiple_classrooms
+    []
+  end
+  helper_method :disciplines_for_multiple_classrooms
 
   def set_number_of_classes
     @number_of_classes = current_school_calendar.number_of_classes

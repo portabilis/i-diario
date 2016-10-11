@@ -239,6 +239,8 @@ Rails.application.routes.draw do
     resources :avaliations, concerns: :history do
       collection do
         get :search
+        get :multiple_classrooms
+        post :create_multiple_classrooms
       end
     end
     resources :teacher_avaliations, only: :index
