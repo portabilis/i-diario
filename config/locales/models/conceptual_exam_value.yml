@@ -5,3 +5,10 @@ pt-BR:
         discipline: "Componente curricular"
         discipline_id: "Componente curricular"
         value: "Conceito"
+
+    errors:
+      models:
+        conceptual_exam_value:
+          attributes:
+            value:
+              already_taken_for_student: 'já existe um lançamento para este aluno e etapa.'
