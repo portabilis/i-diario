@@ -110,6 +110,7 @@ pt-BR:
     synchronize: 'sincronizar'
     search: 'busca'
     export_selected: 'exportar-selecionados'
+    multiple_classrooms: 'multiplas-turmas'
 
     #***REMOVED***
     access: "acesso"
