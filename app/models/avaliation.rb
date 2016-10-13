@@ -55,6 +55,8 @@ class Avaliation < ActiveRecord::Base
 
   scope :ordered, -> { order(arel_table[:test_date]) }
 
+  attr_accessor :include
+
   def to_s
     !test_setting_test || allow_break_up? ? description : test_setting_test.to_s
   end

@@ -111,6 +111,7 @@ pt-BR:
     search: 'busca'
     export_selected: 'exportar-selecionados'
     multiple_classrooms: 'multiplas-turmas'
+    create_multiple_classrooms: 'criar-multiplas-turmas'
 
     #***REMOVED***
     access: "acesso"

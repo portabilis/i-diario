@@ -40,6 +40,10 @@ class ApplicationPolicy
     create?
   end
 
+  def create_multiple_classrooms?
+    create?
+  end
+
   def update_multiple?
     update?
   end
