@@ -71,6 +71,8 @@ Rails.application.routes.draw do
     resources :***REMOVED***, only: :index
     resources :***REMOVED***, only: :index
 
+    resources :system_***REMOVED***, only: :index
+
     root 'dashboard#index'
 
     get '/sandbox', to: 'dashboard#sandbox'

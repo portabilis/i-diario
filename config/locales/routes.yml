@@ -92,6 +92,7 @@ pt-BR:
     ***REMOVED***: '***REMOVED***'
     partial_score_record: 'registro-de-notas-parciais'
     ***REMOVED***_movements: 'movimentos-de-estoque'
+    system_***REMOVED***: 'notificacoes-do-sistema'
 
     # actions
     edit: 'editar'
