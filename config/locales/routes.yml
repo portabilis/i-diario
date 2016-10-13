@@ -90,6 +90,7 @@ pt-BR:
     discipline_content_record: 'registros-de-conteudos-por-disciplina'
     ***REMOVED***: '***REMOVED***'
     ***REMOVED***_movements: 'movimentos-de-estoque'
+    system_***REMOVED***: 'notificacoes-do-sistema'
 
     # actions
     edit: 'editar'
