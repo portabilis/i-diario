@@ -91,7 +91,7 @@ pt-BR:
     discipline_content_record: 'registros-de-conteudos-por-disciplina'
     ***REMOVED***: '***REMOVED***'
     partial_score_record: 'registro-de-notas-parciais'
-    ***REMOVED***_movements_report: 'movimentos-de-estoque'
+    ***REMOVED***_movements: 'movimentos-de-estoque'
 
     # actions
     edit: 'editar'
