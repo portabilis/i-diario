@@ -8,3 +8,6 @@ pt-BR:
       new_html: "<i class='fa fa-plus'></i> Nova avaliação numérica"
       new_single: "Da turma"
       new_multiple: "De múltiplas turmas"
+    multiple_classrooms:
+      classrooms: "Turmas"
+      no_classroom_found: "Nenhuma turma encontrada"
