@@ -24,3 +24,5 @@ pt-BR:
           attributes:
               test_date:
                 must_be_school_term_day: "deve ser um dia válido para o período escolar selecionado"
+              avaliations:
+                at_least_one_assigned_avaliation: "Ao menos uma avaliação deve ser inserida"

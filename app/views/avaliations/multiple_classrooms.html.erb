@@ -49,10 +49,10 @@
     <fieldset>
       <legend><%= t('.classrooms') %></legend>
 
-      <% if f.object.errors.added? :avaliations %>
+      <% if f.object.errors[:avaliations].present? %>
         <div class="alert alert-danger fade in">
           <i class="fa-fw fa fa-times"></i>
-          <%= f.object.errors[:avaliations].join("<br/>") %>
+          <%= raw f.object.errors[:avaliations].join("<br/>") %>
         </div>
       <% end %>
 
