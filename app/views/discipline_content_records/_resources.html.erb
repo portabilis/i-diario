@@ -6,10 +6,20 @@
   <% else %>
     <% @discipline_content_records.each do |discipline_content_record| %>
       <tr>
-        <td><%= discipline_content_record.content_record.classroom %></td>
-        <td><%= discipline_content_record.discipline %></td>
-        <td><%= l(discipline_content_record.content_record.record_date) %></td>
+        <td class="classroom"><%= discipline_content_record.content_record.classroom %></td>
+        <td class="discipline"><%= discipline_content_record.discipline %></td>
+        <td class="record_date"><%= l(discipline_content_record.content_record.record_date) %></td>
         <td class="actions">
+          <%= link_to(
+                t('helpers.links.copy_html'),
+                '#',
+                class: 'btn btn-primary apply_tooltip open_copy_modal',
+                data: { original_title: t('views.index.tooltips.copy'),
+                        discipline_content_record_id: discipline_content_record.id,
+                        discipline_id: discipline_content_record.discipline_id,
+                        classroom_id: discipline_content_record.content_record.classroom.id,
+                        grade_id: discipline_content_record.content_record.classroom.grade_id
+                      }) %>
           <%= link_to(
                 t('helpers.links.edit_html'),
                 edit_discipline_content_record_path(discipline_content_record),

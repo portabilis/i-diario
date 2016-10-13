@@ -4,3 +4,7 @@ pt-BR:
       destroy: "Excluir"
       confirm: "Essa operação irá excluir este registro do diário de frequência. Você tem certeza?"
       dependence_students_legend: "* Alunos cursando dependência"
+      print: "Imprimir"
+      by_month: "Por mês"
+      by_step: "Por etapa"
+      back: "Voltar"

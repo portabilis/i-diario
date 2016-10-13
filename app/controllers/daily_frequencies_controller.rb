@@ -60,7 +60,7 @@ class DailyFrequenciesController < ApplicationController
 
       @students.each do |student|
         if students_ids.none? { |student_id| student_id == student[:student].id }
-          daily_frequency.students.build(student_id: student[:student].id, dependence: student[:dependence])
+          daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true)
         end
       end
     end

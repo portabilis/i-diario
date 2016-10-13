@@ -1,0 +1,8 @@
+<% if @form.errors.any? %>
+  $("#knowledge_area_content_record_cloner_form_classroom_ids").closest(".control-group").removeClass("has-danger");
+  $("#knowledge_area_content_record_cloner_form_classroom_ids").closest(".control-group").find("span.help-inline").remove();
+  $("#knowledge_area_content_record_cloner_form_classroom_ids").closest(".control-group").addClass("error");
+  $("#knowledge_area_content_record_cloner_form_classroom_ids").closest(".control-group").append('<span class="help-inline"><%= @form.errors.values.join(",") %></span>');
+<% else %>
+  location.reload();
+<% end %>

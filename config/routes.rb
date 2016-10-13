@@ -207,8 +207,16 @@ Rails.application.routes.draw do
         post :clone
       end
     end
-    resources :discipline_content_records, concerns: :history
-    resources :knowledge_area_content_records, concerns: :history
+    resources :discipline_content_records, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
+    resources :knowledge_area_content_records, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
     resources :classrooms, only: [:index, :show] do
       resources :students, only: [:index]
     end
@@ -258,6 +266,12 @@ Rails.application.routes.draw do
     resources :ieducar_api_exam_postings
     resources :avaliation_exemptions, concerns: :history
     resources :***REMOVED***, concerns: :history
+
+    resources :daily_frequency_students do
+      collection do
+        post :create_or_update
+      end
+    end
 
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
