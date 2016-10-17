@@ -19,15 +19,15 @@ $(function () {
     $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_multiple_creator_form_test_setting_id').select2('val')).always(function(data) {
       if (data['test_setting']['exam_setting_type'] == 'general')
       {
-        $('.avaliation_multiple_creator_form_test_setting').hide();
+        $('.avaliation_multiple_creator_form_test_setting_id').hide();
       }
 
       if (data['test_setting']['fix_tests']) {
-        $('.avaliation_multiple_creator_form_test_setting_test').show();
+        $('.avaliation_multiple_creator_form_test_setting_test_id').show();
         $('.avaliation_multiple_creator_form_description').hide();
         $('.avaliation_multiple_creator_form_weight').hide();
       } else {
-        $('.avaliation_multiple_creator_form_test_setting_test').hide();
+        $('.avaliation_multiple_creator_form_test_setting_test_id').hide();
         $('.avaliation_multiple_creator_form_description').show();
         $('.avaliation_multiple_creator_form_weight').hide();
       }
@@ -135,6 +135,16 @@ $(function () {
       });
       $(".avaliation_multiple_creator_form_avaliations_classes .select2").select2({ data: classes_data(), multiple: true });
       $('.datepicker:not([readonly]):not([disabled])').datepicker();
+
+      $('input[data-mask]').on('focus', function () {
+        var input = $(this);
+
+        input.inputmask(input.attr('data-mask'));
+      });
     });
+  });
+
+  $("#select-all").on('change', function(){
+    $(this).closest("table").find("tbody input[type=checkbox]").prop("checked", $(this).prop("checked")).trigger("change");
   });
 });

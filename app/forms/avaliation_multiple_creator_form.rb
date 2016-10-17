@@ -63,7 +63,8 @@ class AvaliationMultipleCreatorForm
 
     @avaliations = []
     value.each do |avaliation_attributes|
-      @avaliations << Avaliation.new(
+      avaliation = Avaliation.new.localized
+      avaliation.assign_attributes(
         include: avaliation_attributes.last['include'] == "1",
         classroom_id: avaliation_attributes.last['classroom_id'],
         test_date: avaliation_attributes.last['test_date'],
@@ -77,6 +78,7 @@ class AvaliationMultipleCreatorForm
         observations: self.observations,
         school_calendar_id: self.school_calendar_id
       )
+      @avaliations << avaliation
     end
   end
 
@@ -111,6 +113,7 @@ class AvaliationMultipleCreatorForm
       if !avaliation.valid?
         msg = avaliation.errors.full_messages.reject{|msg| msg.include?("Data da avaliação") || msg.include?("Aulas")}.first
         errors.add(:avaliations, msg) if msg
+        avaliation.errors.add(:classroom, msg)
       end
     end
   end
