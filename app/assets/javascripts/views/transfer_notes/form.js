@@ -173,6 +173,7 @@ $(function () {
         var html = JST['templates/transfer_notes/current_notes_row'](current_note);
         $('#current-notes-rows').append(html);
       });
+      $('#current-notes-rows input.decimal').inputmask('customDecimal');
 
     }
   };
