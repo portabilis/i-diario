@@ -4,7 +4,7 @@
     <%= f.input :classroom_id, as: :hidden %>
   </td>
   <td>
-    <%= f.object.classroom %>
+    <%= f.input :classroom, as: :string, label: false, disabled: true %>
   </td>
   <td>
     <%= f.input :test_date, as: :date, input_html: { value: f.object.localized.test_date }, label: false %>
