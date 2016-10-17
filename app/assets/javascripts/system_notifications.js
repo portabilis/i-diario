@@ -1,6 +1,6 @@
 $(function () {
   var readAllNotifications = function () {
-    $.getJSON('/system_***REMOVED***/read_all');
+    $.post('/system_***REMOVED***/read_all');
   };
 
   // ACTIVITY

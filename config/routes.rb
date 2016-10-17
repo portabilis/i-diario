@@ -77,7 +77,7 @@ Rails.application.routes.draw do
 
     get '/sandbox', to: 'dashboard#sandbox'
     patch '/current_role', to: 'current_role#set', as: :set_current_role
-    get '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
+    post '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
     get '/disabled_entity', to: 'pages#disabled_entity'
     get '/new_role_modal_feature', to: 'news#role_modal_feature'
 
