@@ -36,6 +36,7 @@
           <%= render 'student_fields', f: student, sequence: sequence %>
         <% end %>
 
+        <% sequence = 0 %>
         <% if @dependence_students && @dependence_students.any? %>
           <%= f.fields_for :students, @dependence_students do |student| %>
             <% sequence += 1 %>
