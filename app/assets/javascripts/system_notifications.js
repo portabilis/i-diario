@@ -1,6 +1,6 @@
 $(function () {
   var readAllNotifications = function () {
-    $.post('/system_***REMOVED***/read_all');
+    $.post(Routes.read_all_***REMOVED***_pt_br_path());
   };
 
   // ACTIVITY
