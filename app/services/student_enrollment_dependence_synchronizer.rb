@@ -11,7 +11,7 @@ class StudentEnrollmentDependenceSynchronizer
 
   def synchronize!
     destroy_records
-    create_records api.fetch(ano: year)["dependencias"]
+    create_records api.fetch(ano: year)["matriculas"]
   end
 
   protected
