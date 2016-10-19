@@ -163,8 +163,15 @@ class ExamRecordReport
 
       students_cells = []
       students = students.sort_by { |(key, value)| value[:dependence] ? 1 : 0 }
-      students.each_with_index do |(key, value), index|
-        sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
+      sequence = 1
+      sequence_reseted = false
+      students.each do |key, value|
+        if(!sequence_reseted && value[:dependence])
+          sequence = 1
+          sequence_reseted = true
+        end
+
+        sequence_cell = make_cell(content: sequence.to_s, align: :center)
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name] }].concat(value[:scores])
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
@@ -176,6 +183,8 @@ class ExamRecordReport
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)
         end
         students_cells << student_cells
+
+        sequence += 1
       end
 
       (10 - students_cells.count).times do

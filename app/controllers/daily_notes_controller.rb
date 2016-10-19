@@ -54,6 +54,8 @@ class DailyNotesController < ApplicationController
         note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
+        note_student.active = student_active_on_date?(student_enrollment)
+        note_student.mark_for_destruction if !note_student.active
         @students << note_student
       end
     end
@@ -61,6 +63,7 @@ class DailyNotesController < ApplicationController
     @normal_students = []
     @dependence_students = []
     @any_exempted_student = any_exempted_student?
+    @any_inactive_student = any_inactive_student?
 
     @students.each do |student|
       @normal_students << student if !student.dependence?
@@ -111,9 +114,15 @@ class DailyNotesController < ApplicationController
   def fetch_student_enrollments
     @student_enrollments = StudentEnrollment
       .by_classroom(@daily_note.classroom)
-      .by_date(@daily_note.avaliation.test_date)
       .active
       .ordered
+  end
+
+  def student_active_on_date?(student_enrollment)
+    StudentEnrollment
+      .where(id: student_enrollment)
+      .by_date(@daily_note.avaliation.test_date)
+      .any?
   end
 
   def configuration
@@ -124,7 +133,7 @@ class DailyNotesController < ApplicationController
     params.require(:daily_note).permit(
       :unity_id, :classroom_id, :discipline_id, :avaliation_id,
       students_attributes: [
-        :id, :student_id, :note, :dependence
+        :id, :student_id, :note, :dependence, :_destroy
       ]
     )
   end
@@ -198,5 +207,15 @@ class DailyNotesController < ApplicationController
       .by_student_enrollment(student_enrollment)
       .by_discipline(discipline)
       .any?
+  end
+
+  def any_inactive_student?
+    any_inactive_student = false
+    if @students
+      @students.each do |student|
+        any_inactive_student = true if !student.active
+      end
+    end
+    any_inactive_student
   end
 end
