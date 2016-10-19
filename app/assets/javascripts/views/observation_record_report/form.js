@@ -67,5 +67,5 @@ $(function () {
     fetchDisciplines();
   });
 
-  $classroom.trigger('change');
+  fetchExamRule();
 });
