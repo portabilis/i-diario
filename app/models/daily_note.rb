@@ -14,7 +14,7 @@ class DailyNote < ActiveRecord::Base
   has_one :daily_note_status
   has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyNoteStudent', dependent: :destroy
 
-  accepts_nested_attributes_for :students
+  accepts_nested_attributes_for :students, allow_destroy: true
 
   has_enumeration_for :status, with: DailyNoteStatuses, create_helpers: true
 

@@ -3,7 +3,7 @@ class DailyNoteStudent < ActiveRecord::Base
 
   audited associated_with: :daily_note, except: :daily_note_id
 
-  attr_accessor :exempted
+  attr_accessor :exempted, :active
 
   belongs_to :daily_note
   belongs_to :student

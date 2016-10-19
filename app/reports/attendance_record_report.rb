@@ -154,21 +154,21 @@ class AttendanceRecordReport
 
       students_cells = []
       students = students.sort_by { |(key, value)| value[:dependence] ? 1 : 0 }
-      students.each_with_index do |(key, value), index|
-        sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
+      sequence = 1
+      sequence_reseted = false
+      students.each do |key, value|
+        if(!sequence_reseted && value[:dependence])
+          sequence = 1
+          sequence_reseted = true
+        end
+
+        sequence_cell = make_cell(content: sequence.to_s, align: :center)
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name], colspan: 2 }].concat(value[:attendances])
         (40 - value[:attendances].count).times { student_cells << nil }
         student_cells << make_cell(content: value[:absences].to_s, align: :center)
         students_cells << student_cells
-      end
 
-      (STUDENTS_BY_PAGE - students_cells.count).times do
-        sequence_cell = make_cell(content: (students_cells.count + 1).to_s, align: :center)
-        attendances = []
-        40.times { attendances << make_cell(content: '', font_style: :bold, align: :center) }
-        student_cells = [sequence_cell, { content: '', colspan: 2 }].concat(attendances)
-        student_cells << make_cell(content: '', align: :center)
-        students_cells << student_cells
+        sequence += 1
       end
 
       sliced_students_cells = students_cells.each_slice(STUDENTS_BY_PAGE).to_a

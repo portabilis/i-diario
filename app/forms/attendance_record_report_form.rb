@@ -60,13 +60,8 @@ class AttendanceRecordReportForm
   end
 
   def student_ids
-    current_students_ids = []
-    daily_frequencies.each { |d| current_students_ids << d.students.map(&:student_id) }
-    current_students_ids.flatten!.uniq!
-
     student_ids = StudentEnrollment
       .by_classroom(classroom_id)
-      .by_student(current_students_ids)
       .active
       .ordered
       .collect(&:student_id)
