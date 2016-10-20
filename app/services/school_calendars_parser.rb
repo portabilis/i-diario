@@ -103,8 +103,18 @@ class SchoolCalendarsParser
       steps_from_classrooms.each_with_index do |classroom_step, classroom_index|
         if school_calendar.classrooms[classroom_index].present?
           classroom_step['etapas'].each_with_index do |step, step_index|
-            update_classrooms_step_start_at(school_calendar, classroom_index, step_index, step)
-            update_classrooms_step_end_at(school_calendar, classroom_index, step_index, step)
+            if school_calendar.classrooms[classroom_index].classroom_steps[step_index]
+              update_classrooms_step_start_at(school_calendar.classrooms[classroom_index], step_index, step)
+              update_classrooms_step_end_at(school_calendar.classrooms[classroom_index], step_index, step)
+            else
+              step = SchoolCalendarClassroomStep.new(
+                start_at: step['data_inicio'],
+                end_at: step['data_fim'],
+                start_date_for_posting: step['data_inicio'],
+                end_date_for_posting: step['data_fim']
+              )
+              school_calendar.classrooms[classroom_index].classroom_steps.build(step.attributes)
+            end
           end
         else
           classroom = SchoolCalendarClassroom.new(
@@ -155,17 +165,17 @@ class SchoolCalendarsParser
     end
   end
 
-  def update_classrooms_step_start_at(school_calendar, classroom_index, step_index, step)
-    if school_calendar.classrooms[classroom_index].classroom_steps[step_index].start_at != Date.parse(step['data_inicio'])
-      school_calendar.classrooms[classroom_index].classroom_steps[step_index].start_at = step['data_inicio']
-      school_calendar.classrooms[classroom_index].classroom_steps[step_index].start_date_for_posting = step['data_inicio']
+  def update_classrooms_step_start_at(school_calendar, step_index, step)
+    if school_calendar.classroom_steps[step_index].start_at != Date.parse(step['data_inicio'])
+      school_calendar.classroom_steps[step_index].start_at = step['data_inicio']
+      school_calendar.classroom_steps[step_index].start_date_for_posting = step['data_inicio']
     end
   end
 
-  def update_classrooms_step_end_at(school_calendar, classroom_index, step_index, step)
-    if school_calendar.classrooms[classroom_index].classroom_steps[step_index].end_at != Date.parse(step['data_fim'])
-      school_calendar.classrooms[classroom_index].classroom_steps[step_index].end_at = step['data_fim']
-      school_calendar.classrooms[classroom_index].classroom_steps[step_index].end_date_for_posting = step['data_fim']
+  def update_classrooms_step_end_at(school_calendar, step_index, step)
+    if school_calendar.classroom_steps[step_index].end_at != Date.parse(step['data_fim'])
+      school_calendar.classroom_steps[step_index].end_at = step['data_fim']
+      school_calendar.classroom_steps[step_index].end_date_for_posting = step['data_fim']
     end
   end
 
