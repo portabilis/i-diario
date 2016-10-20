@@ -142,7 +142,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.where(id: current_user_classroom.grade_id)
+    @grades = Grade.where(id: current_user_classroom.try(:grade_id))
       .ordered
   end
 
