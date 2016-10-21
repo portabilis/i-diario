@@ -1,9 +1,11 @@
 module DailyNoteHelper
-  def student_note_class(student_note)
+  def student_name_class(student_note)
     if student_note.dependence?
-      'warning'
-    elsif student_note.exempted || !student_note.active
-      'desactivated'
+      'dependence-student'
+    elsif student_note.exempted
+      'exempted-student'
+    elsif !student_note.active
+      'inactive-student'
     else
       ''
     end

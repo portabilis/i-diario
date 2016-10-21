@@ -121,6 +121,7 @@ class DailyNotesController < ApplicationController
   def student_active_on_date?(student_enrollment)
     StudentEnrollment
       .where(id: student_enrollment)
+      .by_classroom(@daily_note.classroom)
       .by_date(@daily_note.avaliation.test_date)
       .any?
   end
