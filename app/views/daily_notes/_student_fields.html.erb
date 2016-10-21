@@ -1,4 +1,4 @@
-<tr class="nested-fields <%= student_note_class(f.object) %>">
+<tr class="nested-fields">
   <td>
     <%= sequence %>
     <%= f.hidden_field :id %>
@@ -7,7 +7,9 @@
   </td>
   <td>
     <%= f.input :student_id, as: :hidden %>
-    <%= student_name(f.object) %>
+    <span class="<%= student_name_class(f.object) %>">
+      <%= student_name(f.object) %>
+    </span>
   </td>
 
   <td>
