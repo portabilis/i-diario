@@ -44,14 +44,18 @@
 
           <tr>
             <td colspan="3">
-              <%= t('.dependence_students_legend') %>
+              <span class="daily-note-student-legend">
+                <%= t('.dependence_students_legend') %>
+              </span>
             </td>
           </tr>
         <% end %>
         <% if @any_exempted_student %>
           <tr>
             <td colspan="3">
-              <%= t('.exempted_students_legend') %>
+              <span class="daily-note-student-legend">
+                <%= t('.exempted_students_legend') %>
+              </span>
             </td>
           </tr>
         <% end %>
@@ -59,7 +63,9 @@
         <% if @any_inactive_student %>
           <tr>
             <td colspan="3">
-              <%= t('.inactive_students_legend') %>
+              <span class="daily-note-student-legend">
+                <%= t('.inactive_students_legend') %>
+              </span>
             </td>
           </tr>
         <% end %>
