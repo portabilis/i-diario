@@ -89,6 +89,9 @@ navigation:
         - ***REMOVED***:
             type: "test_settings"
             path: "test_settings_path"
+        - ***REMOVED***:
+            type: "terms_dictionaries"
+            path: "edit_terms_dictionaries_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-bullhorn"
