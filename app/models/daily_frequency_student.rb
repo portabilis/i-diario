@@ -27,6 +27,10 @@ class DailyFrequencyStudent < ActiveRecord::Base
                                                           .includes(:daily_frequency) }
 
   def to_s
-    present ? '.' : 'F'
+    if present?
+      TermsDictionary.current.try(:presence_identifier_character) || '.'
+    else
+      'F'
+    end
   end
 end

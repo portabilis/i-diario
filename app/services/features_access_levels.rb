@@ -4,14 +4,7 @@ class FeaturesAccessLevels
   end
 
   def self.employee_features
-    administrator_features - [
-      :entity_configurations,
-      :general_configurations,
-      :***REMOVED***,
-      :***REMOVED***_configs,
-      :roles,
-      :unities
-    ]
+    administrator_features - admin_only_features
   end
 
   def self.teacher_features
@@ -78,6 +71,19 @@ class FeaturesAccessLevels
       :messages,
       :***REMOVED***,
       :***REMOVED***
+    ]
+  end
+
+  private
+  def self.admin_only_features
+    [
+      :entity_configurations,
+      :general_configurations,
+      :***REMOVED***,
+      :***REMOVED***_configs,
+      :roles,
+      :unities,
+      :terms_dictionaries
     ]
   end
 end
