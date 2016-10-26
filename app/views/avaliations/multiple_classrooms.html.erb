@@ -85,7 +85,7 @@
             </td>
           </tr>
           <% if f.object.avaliations.present? %>
-            <%= f.simple_fields_for :avaliations do |avaliation| %>
+            <%= f.simple_fields_for :avaliations, f.object.avaliations do |avaliation| %>
               <%= render 'avaliation_fields', f: avaliation %>
             <% end %>
           <% end %>

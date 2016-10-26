@@ -14,7 +14,6 @@ class AvaliationMultipleCreatorForm
   validates :description,       presence: true, if: -> { !fix_tests? || allow_break_up? }
   validates :weight,            presence: true, if: :allow_break_up?
   validate :at_least_one_assigned_avaliation
-  validate :validate_avaliations
 
   def initialize(attributes = {})
     @avaliations = []
@@ -22,7 +21,7 @@ class AvaliationMultipleCreatorForm
   end
 
   def valid?
-    super && avaliations.select(&:include).all?(&:valid?)
+    super && add_avaliations_errors_to_classrooms
   end
 
   def save
@@ -108,13 +107,16 @@ class AvaliationMultipleCreatorForm
     test_setting.fix_tests?
   end
 
-  def validate_avaliations
-    avaliations.select(&:include).all? do |avaliation|
+  def add_avaliations_errors_to_classrooms
+    valid = true
+    avaliations.select(&:include).each do |avaliation|
       if !avaliation.valid?
         msg = avaliation.errors.full_messages.reject{|msg| msg.include?("Data da avaliação") || msg.include?("Aulas")}.first
-        errors.add(:avaliations, msg) if msg
+        errors.add(:base, msg) if msg
         avaliation.errors.add(:classroom, msg)
+        valid = false
       end
     end
+    valid
   end
 end
