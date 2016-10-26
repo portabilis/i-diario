@@ -28,8 +28,7 @@ class ConceptualExam < ActiveRecord::Base
 
   validates :classroom,  presence: true
   validates :school_calendar_step, presence: true
-  validates :student, presence: true,
-    uniqueness: { scope: [:classroom_id, :school_calendar_step_id] }
+  validates :student, presence: true
   validates :recorded_at, presence: true,
     not_in_future: true,
     school_term_day: { school_term: lambda(&:school_calendar_step) }
@@ -37,6 +36,7 @@ class ConceptualExam < ActiveRecord::Base
 
   validate :classroom_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value
+  validate :uniqueness_of_student
 
   before_validation :self_assign_to_conceptual_exam_values
 
@@ -64,7 +64,8 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def status
-    if conceptual_exam_values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
+    values = ConceptualExamValue.where(conceptual_exam_id: id)
+    if values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
       ConceptualExamStatus::INCOMPLETE
     else
       ConceptualExamStatus::COMPLETE
@@ -89,5 +90,13 @@ class ConceptualExam < ActiveRecord::Base
 
   def self_assign_to_conceptual_exam_values
     conceptual_exam_values.each { |conceptual_exam_value| conceptual_exam_value.conceptual_exam = self }
+  end
+
+  def uniqueness_of_student
+    discipline_ids = conceptual_exam_values.collect{ |value| value.discipline_id }
+    conceptual_exam = ConceptualExam.joins(:conceptual_exam_values).where(student_id: student_id, classroom_id: classroom_id, school_calendar_step_id: school_calendar_step_id, conceptual_exam_values: { discipline_id: discipline_ids })
+    conceptual_exam = conceptual_exam.where.not(id: id) if persisted?
+
+    errors.add(:student, :taken) if conceptual_exam.any?
   end
 end

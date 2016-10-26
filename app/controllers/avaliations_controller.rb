@@ -1,5 +1,5 @@
 class AvaliationsController < ApplicationController
-  has_scope :page, default: 1
+  has_scope :page, default: 1, only: [:index]
   has_scope :per, default: 10, only: [:index]
 
   respond_to :html, :js, :json
