@@ -1,3 +1,6 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/partial_score_record_report/form' %>
+<% end %>
 <div class="widget-body no-padding">
   <%= simple_form_for @partial_score_record_report_form, url: partial_score_record_report_path, method: :post, html: { class: 'smart-form', target: '_new' } do |f| %>
     <%= f.error_notification unless @partial_score_record_report_form.errors[:daily_note_students].any? %>
@@ -14,7 +17,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :classroom_id, as: :select2_classroom, user: current_user,
+          <%= f.input :classroom_id, as: :select2, elements: classrooms,
                 input_html: { value: @partial_score_record_report_form.classroom_id } %>
         </div>
         <div class="col col-sm-4">

@@ -5,6 +5,7 @@ class PartialScoreRecordReportController < ApplicationController
 
   def form
     @partial_score_record_report_form = PartialScoreRecordReportForm.new
+    @partial_score_record_report_form.classroom_id = current_user.current_classroom_id
   end
 
   def report
@@ -32,11 +33,16 @@ class PartialScoreRecordReportController < ApplicationController
   helper_method :school_calendar_steps
 
   def students
-    @students ||= Student.where(id: DailyNoteStudent.by_classroom_id(current_user.current_classroom_id)
+    @students ||= Student.where(id: DailyNoteStudent.by_classroom_id(@partial_score_record_report_form.classroom_id)
                                                     .by_test_date_between(Date.today.beginning_of_year, Date.today.end_of_year)
                                                     .select(:student_id)).ordered
   end
   helper_method :students
+
+  def classrooms
+    @classrooms ||= Classroom.by_unity(current_user.current_unity.id).by_year(Date.today.year).ordered
+  end
+  helper_method :classrooms
 
   def resource_params
     params.require(:partial_score_record_report_form).permit(:unity_id,

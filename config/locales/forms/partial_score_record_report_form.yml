@@ -11,5 +11,5 @@ pt-BR:
       models:
         partial_score_record_report_form:
           attributes:
-            daily_notes:
-              must_have_daily_note_sudents: "Nenhum resultado foi encontrado para os dados informados"
+            daily_note_students:
+              must_have_daily_note_students: "Nenhum resultado foi encontrado para os dados informados"
