@@ -24,6 +24,7 @@ class PartialScoreRecordReport
     @student = student
     @unity = unity
     @classroom = classroom
+    @show_dispensation = false
 
     header
     identification
@@ -85,6 +86,7 @@ class PartialScoreRecordReport
 
 
     identification_table_data = [
+                        [header_cell],
                         [unity_cell_header],
                         [unity_cell],
                         [student_cell_header, classroom_cell_header],
@@ -112,26 +114,39 @@ class PartialScoreRecordReport
 
     Discipline.by_classroom(@classroom.id).ordered.each do |discipline|
 
-      disciplines[discipline.id] = []
-
       Avaliation.by_unity_id(@unity.id)
                 .by_classroom_id(@classroom.id)
                 .by_discipline_id(discipline.id)
                 .by_test_date_between(@school_calendar_step.start_at, @school_calendar_step.end_at)
-                .ordered
+                .order(:test_date)
                 .each do |avaliation|
 
-
+        student_note = nil
         if exempted_avaliation?(@student.id, avaliation.id)
           student_note = "D"
+          @show_dispensation = true
         else
-          student_note = numeric_parser.localize(
-            DailyNoteStudent.by_avaliation(avaliation.id)
-                            .by_student_id(@student.id)
-                            .first
-                            .try(:note)) || "-"
+
+          student_notes = [
+              DailyNoteStudent.by_avaliation(avaliation.id)
+                              .by_student_id(@student.id)
+                              .first
+                              .try(:note),
+              AvaliationRecoveryDiaryRecord.by_avaliation_id(avaliation.id)
+                              .try(:first)
+                              .try(:recovery_diary_record)
+                              .try(:students)
+                              .try(:by_student_id, @student.id)
+                              .try(:first)
+                              .try(:score)
+          ].compact
+          student_note = numeric_parser.localize(student_notes.max)
+
         end
-        disciplines[discipline.id] << student_note
+        if student_note
+          disciplines[discipline.id] ||= []
+          disciplines[discipline.id] << student_note
+        end
       end
 
     end
@@ -182,13 +197,16 @@ class PartialScoreRecordReport
         page.column(-1).border_right_width = 0.25
       end
     end
+
+    move_down 50
+    text('____________________________', size: 8, align: :center)
+    text('Secretário(a) escolar', size: 10, align: :center)
   end
 
   def footer
     repeat(:all) do
-      draw_text('Secretário(a) escolar', size: 10, at: [250, 40])
-      draw_text('____________________________', size: 8, at: [226, 50])
-      draw_text('Legendas: D - Dispensado da avaliação', size: 8, at: [0, 0])
+      draw_text('Legendas: D - Dispensado da avaliação', size: 8, at: [0, 15]) if @show_dispensation
+      draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
     end
 
     string = "Página <page> de <total>"
