@@ -9,7 +9,7 @@
     <% } else {%>
     <div class="control-group string required transfer_note_daily_note_students_note">
       <div class="controls input">
-        <input class="form-control string required" type="text" name="transfer_note[daily_note_students_attributes][<%= element_id %>][note]" id="transfer_note_daily_note_students_attributes_<%= element_id %>_note" value="<%= note %>">
+        <input class="form-control string required decimal" type="decimal" name="transfer_note[daily_note_students_attributes][<%= element_id %>][note]" id="transfer_note_daily_note_students_attributes_<%= element_id %>_note" value="<%= note %>">
       </div>
     </div>
     <input type="hidden" name="transfer_note[daily_note_students_attributes][<%= element_id %>][id]"
