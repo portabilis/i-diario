@@ -53,7 +53,7 @@ class Avaliation < ActiveRecord::Base
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
 
-  scope :ordered, -> { order(arel_table[:test_date]) }
+  scope :ordered, -> { order(test_date: :desc) }
 
   def to_s
     !test_setting_test || allow_break_up? ? description : test_setting_test.to_s
