@@ -44,7 +44,7 @@ class StudentEnrollmentSynchronizer
   end
 
   def create_new_student_enrollment(record)
-    student_enrollment = student_enrollments.create(
+    student_enrollment = student_enrollments.create!(
       api_code: record["matricula_id"],
       status: record["situacao"],
       student_id: Student.find_by(api_code: record["aluno_id"]).try(:id),
@@ -55,7 +55,7 @@ class StudentEnrollmentSynchronizer
 
     if record["enturmacoes"].present?
       record["enturmacoes"].each do |record_classroom|
-        student_enrollment.student_enrollment_classrooms.create(
+        student_enrollment.student_enrollment_classrooms.create!(
           api_code: record_classroom["sequencial"],
           classroom_id: Classroom.find_by(api_code: record_classroom["turma_id"]).try(:id),
           classroom_code: record_classroom["turma_id"],
@@ -94,7 +94,7 @@ class StudentEnrollmentSynchronizer
       if any_updated_or_new_record
         student_enrollment.student_enrollment_classrooms.destroy_all
         record["enturmacoes"].each do |record_classroom|
-          student_enrollment.student_enrollment_classrooms.create(
+          student_enrollment.student_enrollment_classrooms.create!(
             api_code: record_classroom["sequencial"],
             classroom_id: Classroom.find_by(api_code: record_classroom["turma_id"]).try(:id),
             classroom_code: record_classroom["turma_id"],
@@ -107,7 +107,7 @@ class StudentEnrollmentSynchronizer
       else
         record["enturmacoes"].each do |record_classroom|
           if !student_enrollment.student_enrollment_classrooms.find_by(api_code: record_classroom["sequencial"])
-            student_enrollment.student_enrollment_classrooms.create(
+            student_enrollment.student_enrollment_classrooms.create!(
               api_code: record_classroom["sequencial"],
               classroom_id: Classroom.find_by(api_code: record_classroom["turma_id"]).try(:id),
               classroom_code: record_classroom["turma_id"],
