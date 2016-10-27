@@ -35,7 +35,9 @@ class IeducarSynchronizerWorker
           CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, year)
           TeachersSynchronizer.synchronize!(synchronization, year)
           ExamRulesSynchronizer.synchronize!(synchronization, year)
-          StudentEnrollmentSynchronizer.synchronize!(synchronization, year)
+          Unity.with_api_code.each do |unity|
+            StudentEnrollmentSynchronizer.synchronize!(synchronization, year, unity.api_code)
+          end
           StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, year)
         end
 
