@@ -67,7 +67,8 @@ class Features < EnumerateIt::Base
                    :teacher_report_cards,
                    :***REMOVED***,
                    :ieducar_api_exam_posting_without_restrictions,
-                   :***REMOVED***
+                   :***REMOVED***,
+                   :***REMOVED***_movements_report
 
   sort_by :translation
 end
