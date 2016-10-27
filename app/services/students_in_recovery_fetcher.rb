@@ -36,9 +36,8 @@ class StudentsInRecoveryFetcher
 
   def fetch_students_in_parallel_recovery
     @students = StudentsFetcher.new(
-        @ieducar_api_configuration,
-        classroom.api_code,
-        discipline.api_code,
+        classroom,
+        discipline,
         @date
       )
       .fetch
@@ -68,9 +67,8 @@ class StudentsInRecoveryFetcher
 
     if recovery_exam_rule
       students = StudentsFetcher.new(
-          @ieducar_api_configuration,
-          classroom.api_code,
-          discipline.api_code,
+          classroom,
+          discipline,
           @date
         )
         .fetch

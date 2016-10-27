@@ -45,14 +45,14 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    fetch_students
+    fetch_student_enrollments
 
     @students = []
 
-    @api_students.each do |api_student|
-      if student = Student.find_by(api_code: api_student['id'])
+    @student_enrollments.each do |student_enrollment|
+      if student = Student.find_by_id(student_enrollment.student_id)
         note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
-        note_student.dependence = api_student['dependencia']
+        note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
         @students << note_student
       end
@@ -108,21 +108,12 @@ class DailyNotesController < ApplicationController
 
   protected
 
-  def fetch_students
-    begin
-      api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily(
-        { classroom_api_code: @daily_note.classroom.api_code,
-          discipline_api_code: @daily_note.discipline.api_code,
-          date: @daily_note.avaliation.test_date
-        }
-      )
-      @api_students = remove_duplicated_students(result['alunos'])
-    rescue IeducarApi::Base::ApiError => e
-      flash[:alert] = e.message
-      @api_students = []
-      render :new
-    end
+  def fetch_student_enrollments
+    @student_enrollments = StudentEnrollment
+      .by_classroom(@daily_note.classroom)
+      .by_date(@daily_note.avaliation.test_date)
+      .active
+      .ordered
   end
 
   def configuration
@@ -151,10 +142,10 @@ class DailyNotesController < ApplicationController
     @daily_note = DailyNote.find_or_initialize_by(resource_params)
 
     if @daily_note.new_record?
-      fetch_students
+      fetch_student_enrollments
 
-      @api_students.each do |api_student|
-        if student = Student.find_by(api_code: api_student['id'])
+      @student_enrollments.each do |student_enrollment|
+        if student = Student.find_by_id(student_enrollment.student_id)
           @daily_note.students.build(student_id: student.id, daily_note: @daily_note)
         end
       end
@@ -200,5 +191,12 @@ class DailyNotesController < ApplicationController
       .by_avaliation(avaliation_id)
       .any?
     any_exempted_student
+  end
+
+  def student_has_dependence?(student_enrollment, discipline)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment)
+      .by_discipline(discipline)
+      .any?
   end
 end

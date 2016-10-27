@@ -31,14 +31,14 @@ class DescriptiveExamsController < ApplicationController
 
     authorize @descriptive_exam
 
-    fetch_students
+    fetch_student_enrollments
 
     @students = []
 
-    @api_students.each do |api_student|
-      if student = Student.find_by(api_code: api_student['id'])
+    @student_enrollments.each do |student_enrollment|
+      if student = Student.find_by_id(student_enrollment.student_id)
         exam_student = (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
-        exam_student.dependence = api_student['dependencia']
+        exam_student.dependence = student_has_dependence?(student_enrollment, @descriptive_exam.discipline)
         @students << exam_student
       end
     end
@@ -69,22 +69,12 @@ class DescriptiveExamsController < ApplicationController
 
   protected
 
-  def fetch_students
-    begin
-      api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily(
-        { classroom_api_code: @descriptive_exam.classroom.api_code,
-          discipline_api_code: @descriptive_exam.discipline.try(:api_code),
-          date: Time.zone.today
-        }
-      )
-
-      @api_students = result["alunos"]
-    rescue IeducarApi::Base::ApiError => e
-      flash[:alert] = e.message
-      @api_students = []
-      render :new
-    end
+  def fetch_student_enrollments
+    @student_enrollments = StudentEnrollment
+      .by_classroom(@descriptive_exam.classroom)
+      .by_date(Time.zone.today)
+      .active
+      .ordered
   end
 
   def configuration
@@ -121,5 +111,12 @@ class DescriptiveExamsController < ApplicationController
 
       student.destroy unless student_exists
     end
+  end
+
+  def student_has_dependence?(student_enrollment, discipline)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment)
+      .by_discipline(discipline)
+      .any?
   end
 end
