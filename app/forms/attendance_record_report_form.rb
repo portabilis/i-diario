@@ -56,6 +56,7 @@ class AttendanceRecordReportForm
                    .without_frequency
                    .by_date_between(start_at, end_at)
                    .all_events_for_classroom(classroom)
+                   .where(SchoolCalendarEvent.arel_table[:discipline_id].eq(nil).or(SchoolCalendarEvent.arel_table[:discipline_id].eq(discipline_id)))
                    .ordered
   end
 

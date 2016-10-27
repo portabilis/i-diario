@@ -20,6 +20,8 @@ pt-BR:
         coverage: "Cobertura"
         periods: "Turnos"
         legend: "Legenda"
+        discipline_id: "Disciplina"
+        discipline: "Disciplina"
 
     errors:
       models:
