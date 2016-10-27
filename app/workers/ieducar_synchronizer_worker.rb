@@ -20,6 +20,8 @@ class IeducarSynchronizerWorker
           CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, year)
           TeachersSynchronizer.synchronize!(synchronization, year)
           ExamRulesSynchronizer.synchronize!(synchronization, year)
+          StudentEnrollmentSynchronizer.synchronize!(synchronization, year)
+          StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, year)
         end
 
         synchronization.mark_as_completed!

@@ -7,6 +7,7 @@ class Student < ActiveRecord::Base
 
   has_many :***REMOVED***, dependent: :restrict_with_error
   has_many :student_biometrics
+  has_many :student_enrollments
 
   validates :name, presence: true
   validates :api_code, presence: true, if: :api?

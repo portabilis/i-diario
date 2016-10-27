@@ -27,14 +27,6 @@ class DailyNote < ActiveRecord::Base
 
   before_destroy :ensure_not_has_avaliation_recovery
 
-  scope :by_unity_classroom_discipline_and_avaliation_test_date_between,
-        lambda { |unity_id, classroom_id, discipline_id, start_at, end_at| where(unity_id: unity_id,
-                                                                                 classroom_id: classroom_id,
-                                                                                 discipline_id: discipline_id,
-                                                                                 'avaliations.test_date' => start_at.to_date..end_at.to_date)
-                                                                                    .where.not(students: { id: nil })
-                                                                                    .includes(:avaliation, students: :student) }
-
   scope :by_teacher_id, lambda { |teacher_id| by_teacher_id_query(teacher_id) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
@@ -48,6 +40,7 @@ class DailyNote < ActiveRecord::Base
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
   scope :order_by_avaliation_test_date_desc, -> { order('avaliations.test_date DESC') }
+  scope :order_by_sequence, -> { joins(students: [student: :student_enrollments]).merge(StudentEnrollment.ordered) }
 
   delegate :status, to: :daily_note_status, prefix: false, allow_nil: true
 
