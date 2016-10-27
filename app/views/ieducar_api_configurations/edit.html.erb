@@ -26,7 +26,18 @@
     </fieldset>
 
     <footer>
-      <% if @ieducar_api_configuration.persisted? %>          
+      <% if @ieducar_api_configuration.persisted? %>
+        <% if @ieducar_api_configuration.synchronization_in_progress? %>
+          <%= link_to "#",
+            class: 'btn bg-color-red txt-color-white' do %>
+            <i class="fa fa-cog fa-spin"></i>
+            Sincronizando
+          <% end %>
+        <% else %>
+          <%= link_to "Sincronizar", ieducar_api_configurations_synchronizations_path, method: 'post',
+            class: 'btn bg-color-red txt-color-white' %>
+        <% end %>
+
         <%= link_to 'Histórico', history_ieducar_api_configurations_path, class: 'btn btn-info' %>
       <% end %>
 

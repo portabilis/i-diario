@@ -109,7 +109,9 @@ Rails.application.routes.draw do
     end
     resource :***REMOVED***_configs, only: [:edit, :update], concerns: :history
     resources :***REMOVED***s, concerns: :history
-    resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history
+    resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
+      resources :synchronizations, only: [:index, :create]
+    end
     resource :contact_school, only: [:new, :create]
     resource :notification, only: [:edit, :update], concerns: :history
     resource :general_configurations, only: [:edit, :update], concerns: :history
