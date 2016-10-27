@@ -11,6 +11,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   belongs_to :school_calendar
   belongs_to :grade
   belongs_to :classroom
+  belongs_to :discipline
   has_one :course, through: :grade
   delegate :unity_id, to: :school_calendar
 
@@ -32,6 +33,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :extra_school_without_frequency, -> { where(event_type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY) }
   scope :without_grade, -> { where(arel_table[:grade_id].eq(nil) ) }
   scope :without_classroom, -> { where(arel_table[:classroom_id].eq(nil) ) }
+  scope :without_discipline, -> { where(arel_table[:discipline_id].eq(nil) ) }
   scope :by_period, lambda { |period| where(' ? = ANY (periods)', period) }
   scope :by_date, lambda { |date| where(event_date: date.to_date) }
   scope :by_date_between, lambda { |start_at, end_at| where(event_date: start_at.to_date..end_at.to_date) }
@@ -40,6 +42,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :by_grade, lambda { |grade| where(grade_id: grade) }
   scope :by_classroom, lambda { |classroom| joins(:classroom).where('classrooms.description ILIKE ?', '%'+classroom+'%') }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :all_events_for_classroom, lambda { |classroom| all_events_for_classroom(classroom) }
 
   def to_s
