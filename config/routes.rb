@@ -184,6 +184,9 @@ Rails.application.routes.draw do
     get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
 
     resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***_***REMOVED***s, only: :index
+    resources :***REMOVED***_periods, only: :index
+    resources :***REMOVED***_students, only: :index
 
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
