@@ -30,12 +30,12 @@
       </thead>
       <tbody id="students">
         <% sequence = 0 %>
-
         <%= f.fields_for :students, @normal_students do |student| %>
           <% sequence += 1 %>
           <%= render 'student_fields', f: student, sequence: sequence %>
         <% end %>
 
+        <% sequence = 0 %>
         <% if @dependence_students && @dependence_students.any? %>
           <%= f.fields_for :students, @dependence_students do |student| %>
             <% sequence += 1 %>
@@ -44,14 +44,30 @@
 
           <tr>
             <td colspan="3">
-              <%= t('.dependence_students_legend') %>
+              <span class="daily-note-student-legend">
+                <%= t('.dependence_students_legend') %>
+              </span>
             </td>
           </tr>
         <% end %>
         <% if @any_exempted_student %>
-          <td colspan="3">
-            <%= t('.exempted_students_legend') %>
-          </td>
+          <tr>
+            <td colspan="3">
+              <span class="daily-note-student-legend">
+                <%= t('.exempted_students_legend') %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @any_inactive_student %>
+          <tr>
+            <td colspan="3">
+              <span class="daily-note-student-legend">
+                <%= t('.inactive_students_legend') %>
+              </span>
+            </td>
+          </tr>
         <% end %>
       </tbody>
     </table>
