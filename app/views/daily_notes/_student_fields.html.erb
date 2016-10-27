@@ -1,17 +1,20 @@
-<tr class="nested-fields <%= student_note_class(f.object) %>">
+<tr class="nested-fields">
   <td>
     <%= sequence %>
     <%= f.hidden_field :id %>
     <%= f.hidden_field :dependence %>
+    <%= f.hidden_field :_destroy %>
   </td>
   <td>
     <%= f.input :student_id, as: :hidden %>
-    <%= student_name(f.object) %>
+    <span class="<%= student_name_class(f.object) %>">
+      <%= student_name(f.object) %>
+    </span>
   </td>
 
   <td>
     <%= f.input :note, label_html: { class: 'hidden' },
           input_html: { data: { inputmask: "'digits': #{f.object.daily_note.avaliation.test_setting.number_of_decimal_places}" } },
-          readonly: f.object.exempted %>
+          readonly: f.object.exempted || !f.object.active %>
   </td>
 </tr>
