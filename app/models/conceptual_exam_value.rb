@@ -7,7 +7,7 @@ class ConceptualExamValue < ActiveRecord::Base
   belongs_to :discipline
 
   validates :conceptual_exam, presence: true
-  validates :discipline, presence: true
+  validates :discipline_id, presence: true
 
   def self.ordered
     joins(
@@ -25,5 +25,4 @@ class ConceptualExamValue < ActiveRecord::Base
   def marked_as_invisible?
     @marked_as_invisible
   end
-
 end
