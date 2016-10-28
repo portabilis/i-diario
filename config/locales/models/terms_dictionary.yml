@@ -7,7 +7,7 @@ pt-BR:
 
     attributes:
       terms_dictionary:
-        presence_identifier_character: "Caractér identificador de presença"
+        presence_identifier_character: "Caractere identificador de presença"
 
     errors:
       models:
