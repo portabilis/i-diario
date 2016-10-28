@@ -53,8 +53,8 @@ class DailyNotesController < ApplicationController
       if student = Student.find_by_id(student_enrollment.student_id)
         note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
         note_student.active = student_active_on_date?(student_enrollment)
-        note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline) && !note_student.active
-        note_student.exempted = student_exempted_from_avaliation?(student.id) && !note_student.active
+        note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
+        note_student.exempted = student_exempted_from_avaliation?(student.id)
         note_student.mark_for_destruction if !note_student.active
         @students << note_student
       end
