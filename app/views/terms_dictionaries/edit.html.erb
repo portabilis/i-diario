@@ -1,0 +1,25 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for @terms_dictionaries, url: terms_dictionaries_path, method: :patch, html: { class: "smart-form" } do |f| %>
+  <%= f.error_notification %>
+  <fieldset>
+    <legend>Diário do professor</legend>
+    <div class="row">
+      <div class="col-sm-4">
+        <%= f.input :presence_identifier_character do %>
+          <i class="icon-append fa fa-question-circle"></i>
+          <%= f.input_field :presence_identifier_character,
+            rel: 'popover-hover',
+            :'data-placement' => 'bottom',
+            :'data-content' => t('terms_dictionaries.help.presence_identifier_character'),
+            :'data-toggle'=> 'popover',
+            maxlength: "1" %>
+        <% end %>
+    </div>
+
+  </fieldset>
+  <footer>
+    <%= link_to 'Histórico', history_terms_dictionaries_path, class: 'btn btn-info' %>
+    <%= f.submit "Salvar", class: "btn btn-primary" %>
+  </footer>
+  <% end %>
+</div>

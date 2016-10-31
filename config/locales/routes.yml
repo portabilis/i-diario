@@ -89,6 +89,7 @@ pt-BR:
     discipline_lesson_plan: 'planos-de-aulas-por-disciplina'
     discipline_content_record: 'registros-de-conteudos-por-disciplina'
     ***REMOVED***: '***REMOVED***'
+    terms_dictionaries: 'dicionario-de-termos'
 
     # actions
     edit: 'editar'
