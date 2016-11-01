@@ -15,7 +15,7 @@ $(function () {
 
       $.ajax({
         url: Routes.students_pt_br_path({
-          filter: { by_classroom_id: classroom_id },
+          classroom_id: classroom_id,
           format: 'json'
         }),
         success: fetchStudentsSuccess,
