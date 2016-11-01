@@ -19,7 +19,7 @@ $(function() {
 
     $(element).select2({
       tags: true,
-      tokenSeparators: [','],
+      tokenSeparators: [],
       createSearchChoice: function (term,data) {
 
         if($(data).filter(function(k,obj){
