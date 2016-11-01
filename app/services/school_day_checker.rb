@@ -16,8 +16,14 @@ class SchoolDayChecker
 
     if @classroom_id.present?
       classroom = Classroom.find(@classroom_id)
-      return false if any_classroom_event?(events_by_date_without_frequency, @grade_id, @classroom_id)
-      return true if any_classroom_event?(events_by_date_with_frequency, @grade_id, @classroom_id)
+
+      if @discipline_id.present?
+        return false if any_discipline_event?(events_by_date_without_frequency, @grade_id, @classroom_id, @discipline_id)
+        return true if any_discipline_event?(events_by_date_with_frequency, @grade_id, @classroom_id, @discipline_id)
+      else
+        return false if any_classroom_event?(events_by_date_without_frequency, @grade_id, @classroom_id)
+        return true if any_classroom_event?(events_by_date_with_frequency, @grade_id, @classroom_id)
+      end
 
       return false if any_grade_event?(events_by_date_without_frequency.by_period(classroom.period), @grade_id)
       return true if any_grade_event?(events_by_date_with_frequency.by_period(classroom.period), @grade_id)

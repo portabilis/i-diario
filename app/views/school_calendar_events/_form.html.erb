@@ -3,6 +3,7 @@
   <%= f.input :school_calendar_id, as: :hidden %>
   <%= f.input :unity_id, as: :hidden %>
   <%= f.input :coverage, as: :hidden %>
+  <input id="year" type="hidden" name="year" value="<%= Date.today.year %>" >
 
   <fieldset>
     <% if !@school_calendar_event.coverage_by_unity? %>
@@ -22,6 +23,12 @@
     </div>
     <% end %>
     <div class="row">
+      <% if @school_calendar_event.coverage_by_classroom? %>
+        <div class="col col-sm-4">
+          <%= f.input :discipline_id, as: :select2, elements: disciplines,
+              required: true, empty_element_id: "", empty_element_name: "<option>Todas</option>"  %>
+        </div>
+      <% end %>
       <div class="col col-sm-4">
         <%= f.input :event_date %>
       </div>
@@ -29,21 +36,16 @@
       <div class="col col-sm-4">
         <%= f.input :description %>
       </div>
-      <div class="col col-sm-4">
-        <%= f.input :event_type, as: :select2, elements: EventTypes.to_select.to_json %>
-      </div>
     </div>
 
     <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :event_type, as: :select2, elements: EventTypes.to_select.to_json %>
+      </div>
       <% if !@school_calendar_event.coverage_by_classroom? %>
         <div class="col col-sm-4">
           <%= f.input :periods, as: :select2, multiple: true, elements: PeriodsDecorator.data_for_select2, required: true,
               input_html: { value: f.object.periods.join(','), data: { without_json_parser: true } } %>
-        </div>
-      <% else %>
-        <div class="col col-sm-4">
-          <%= f.input :discipline_id, as: :select2, elements: disciplines,
-              required: true, empty_element_id: "", empty_element_name: "<option>Todas</option>"  %>
         </div>
       <% end %>
       <div class="col col-sm-4 hidden" data-event-legend-container>

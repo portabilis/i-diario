@@ -78,7 +78,8 @@ $(function () {
     var params = {
       filter: {
         by_grade: e.val,
-        by_unity: $unity.val()
+        by_unity: $unity.val(),
+        by_year: $("#year").val()
       }
     };
 
@@ -108,7 +109,7 @@ $(function () {
         by_unity_id: $unity.val()
       }
     };
-    console.log(params);
+
     window.disciplines = [];
 
     $discipline.val('').select2({ data: [] });
@@ -123,7 +124,7 @@ $(function () {
         $discipline.select2({
           data: selectedDisciplines
         });
-        $discipline.select2('val', '');
+        $discipline.val($discipline.find('option:first-child').val()).trigger('change');
       });
     }
   });
