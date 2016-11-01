@@ -167,7 +167,7 @@ $(function () {
 
   $('#discipline_content_record_content_record_attributes_contents_tags').on('change', function(e){
     if(e.val.length){
-      var content_description = e.val[0];
+      var content_description = e.val.join(", ");
       if(content_description.trim().length &&
           !$('input[type=checkbox][data-content_description="'+content_description+'"]').length){
 
