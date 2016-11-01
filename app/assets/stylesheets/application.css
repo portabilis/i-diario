@@ -177,3 +177,13 @@ ul#contents-list li.list-group-item.active{
   font-size: 11px;
   font-style: italic;
 }
+.custom-login-image{
+  position:absolute;
+  top:100px;
+  left:10px;
+}
+@media only screen and (max-width: 1200px) {
+  .custom-login-image{
+    display:none;
+  }
+}
