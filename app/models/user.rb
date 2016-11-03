@@ -54,7 +54,7 @@ class User < ActiveRecord::Base
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
-  validates :password, length: { minimum: 8 }
+  validates :password, length: { minimum: 8 }, allow_blank: true
 
   validates_associated :user_roles
 
