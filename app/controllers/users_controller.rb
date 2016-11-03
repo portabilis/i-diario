@@ -21,6 +21,7 @@ class UsersController < ApplicationController
 
     authorize @user
 
+    params[:user].delete :password if params[:user][:password].blank?
 
     if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
