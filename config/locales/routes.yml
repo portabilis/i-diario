@@ -90,6 +90,7 @@ pt-BR:
     discipline_content_record: 'registros-de-conteudos-por-disciplina'
     ***REMOVED***: '***REMOVED***'
     terms_dictionaries: 'dicionario-de-termos'
+    partial_score_record: 'registro-de-notas-parciais'
 
     # actions
     edit: 'editar'
