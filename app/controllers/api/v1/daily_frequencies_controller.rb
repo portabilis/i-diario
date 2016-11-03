@@ -67,14 +67,13 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
       @students = []
 
-
       @student_enrollments.each do |student_enrollment|
         student = student_enrollment.student
         @students << {
           student_id: student.id,
           student_name: student.name,
-          dependence: student_enrollment.dependence,
-          daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: student_enrollment.dependence, present: true)) }
+          dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id),
+          daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id), present: true)) }
         }
       end
     end
