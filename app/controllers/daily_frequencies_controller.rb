@@ -45,13 +45,14 @@ class DailyFrequenciesController < ApplicationController
 
     authorize @daily_frequency
 
-    fetch_students
+    fetch_student_enrollments
 
     @students = []
 
-    @api_students.each do |api_student|
-      student = Student.find_by(api_code: api_student['id']) || nil
-      @students << { student: student, dependence: api_student['dependencia'] } if student
+    @student_enrollments.each do |student_enrollment|
+      student = Student.find_by_id(student_enrollment.student_id) || nil
+      dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
+      @students << { student: student, dependence: dependence } if student
     end
 
     @daily_frequencies.each do |daily_frequency|
@@ -111,23 +112,12 @@ class DailyFrequenciesController < ApplicationController
 
   protected
 
-  def fetch_students
-    begin
-      api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily(
-        {
-          classroom_api_code: @daily_frequency.classroom.api_code,
-          discipline_api_code: @daily_frequency.discipline.try(:api_code),
-          date: @daily_frequency.frequency_date
-        }
-      )
-
-      @api_students = result['alunos'].uniq
-    rescue IeducarApi::Base::ApiError => e
-      flash[:alert] = e.message
-      @api_students = []
-      redirect_to new_daily_frequency_path
-    end
+  def fetch_student_enrollments
+    @student_enrollments = StudentEnrollment
+      .by_classroom(@daily_frequency.classroom)
+      .by_date(@daily_frequency.frequency_date)
+      .active
+      .ordered
   end
 
   def configuration
@@ -206,5 +196,12 @@ class DailyFrequenciesController < ApplicationController
       daily_frequencies << DailyFrequency.find_or_create_by(params)
     end
     daily_frequencies
+  end
+
+  def student_has_dependence?(student_enrollment, discipline)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment)
+      .by_discipline(discipline)
+      .any?
   end
 end

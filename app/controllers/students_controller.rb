@@ -7,8 +7,7 @@ class StudentsController < ApplicationController
       classroom = Classroom.find(params[:classroom_id])
 
       @students = StudentsFetcher.new(
-        configuration,
-        classroom.api_code,
+        classroom,
         nil,
         date.to_date.to_s,
         params[:start_date]
