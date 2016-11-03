@@ -145,7 +145,15 @@ https://github.com/select2/select2/issues/2412
 .warning{
   color: #869539;
 }
-
+.dependence-student{
+  color: #a90329;
+}
+.exempted-student{
+  color: #101890;
+}
+.inactive-student{
+  color: darkgray;
+}
 .select2-container.form-control {
      height: auto !important;
 }
@@ -174,4 +182,8 @@ ul#contents-list li.list-group-item.active{
   .custom-login-image{
     display:none;
   }
+}
+.daily-note-student-legend{
+  font-size: 11px;
+  font-style: italic;
 }
