@@ -165,3 +165,13 @@ ul#contents-list li.list-group-item.active{
 .margin-left-17px{
   margin-left: 17px;
 }
+.custom-login-image{
+  position:absolute;
+  top:100px;
+  left:10px;
+}
+@media only screen and (max-width: 1200px) {
+  .custom-login-image{
+    display:none;
+  }
+}
