@@ -19,7 +19,9 @@ class IeducarSynchronizerWorker
     entity.using_connection do
       unless synchronization = IeducarApiSynchronization.find_by_id(synchronization_id)
         configuration = IeducarApiConfiguration.current
-        synchronization = configuration.start_synchronization!(User.find_by_id(1))
+        if configuration
+          synchronization = configuration.start_synchronization!(User.find_by_id(1))
+        end
       end
 
       begin
