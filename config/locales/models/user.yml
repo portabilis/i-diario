@@ -8,6 +8,7 @@ pt-BR:
       user:
         name: "Nome"
         email: "E-mail"
+        encrypted_password: "Senha criptografada"
         password: "Senha"
         password_confirmation: "Confirme a senha"
         remember_me: "Lembrar senha"
