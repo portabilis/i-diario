@@ -187,3 +187,7 @@ ul#contents-list li.list-group-item.active{
     display:none;
   }
 }
+.daily-note-student-legend{
+  font-size: 11px;
+  font-style: italic;
+}

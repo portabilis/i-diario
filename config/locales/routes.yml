@@ -94,6 +94,7 @@ pt-BR:
     ***REMOVED***_movements: 'movimentos-de-estoque'
     system_***REMOVED***: 'notificacoes-do-sistema'
     terms_dictionaries: 'dicionario-de-termos'
+    ***REMOVED***_movements_report: 'movimentos-de-estoque'
 
     # actions
     edit: 'editar'
