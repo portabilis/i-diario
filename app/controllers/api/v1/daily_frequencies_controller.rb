@@ -67,16 +67,14 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
       @students = []
 
-
-      @api_students.each do |api_student|
-        if student = Student.find_by(api_code: api_student['id'])
-          @students << {
-            student_id: student.id,
-            student_name: student.name,
-            dependence: api_student['dependencia'],
-            daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: api_student['dependencia'], present: true)) }
-          }
-        end
+      @student_enrollments.each do |student_enrollment|
+        student = student_enrollment.student
+        @students << {
+          student_id: student.id,
+          student_name: student.name,
+          dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id),
+          daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id), present: true)) }
+        }
       end
     end
   end
@@ -84,6 +82,7 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
   def fetch_students
     frequency_date = params[:frequency_date] || Time.zone.today
     @student_enrollments = StudentEnrollment
+      .includes(:student)
       .by_classroom(@daily_frequency.classroom)
       .by_date(frequency_date)
       .active
