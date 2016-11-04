@@ -1,0 +1,48 @@
+<div class="modal fade" tabindex="-1" role="dialog" id="copy-knowledge-area-content-record-modal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span></button>
+        <h4 class="modal-title">Copiar registro de conteúdo por área de conhecimento</h4>
+      </div>
+      <%= simple_form_for KnowledgeAreaContentRecordClonerForm.new, url: clone_knowledge_area_content_records_path, remote: true, html: { class: 'smart-form' } do |f| %>
+      <div class="modal-body">
+        <table class="table table-bordered table-striped table-condensed table-hover">
+          <thead>
+            <tr>
+              <th width="30%"><%= ContentRecord.human_attribute_name :classroom %></th>
+              <th width="40%"><%= KnowledgeAreaContentRecord.human_attribute_name :knowledge_area_ids %>
+              <th width="15%"><%= ContentRecord.human_attribute_name :record_date %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="classroom"></td>
+              <td class="knowledge_area"></td>
+              <td class="record_date"></td>
+            </tr>
+          </tbody>
+        </table>
+        <%= f.input :knowledge_area_content_record_id, as: :hidden %>
+        <div class="row">
+          <div class="col-sm-12">
+              <%= f.input(
+                :classroom_ids,
+                as: :select2,
+                elements: [],
+                multiple: true,
+                input_html: { data: { without_json_parser: true } },
+                wrapper_html: { style: "width: 95%;" }
+              ) %>
+
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary" >Confirmar</button>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>

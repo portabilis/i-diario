@@ -7,17 +7,26 @@
     <% @knowledge_area_lesson_plans.each do |knowledge_area_lesson_plan| %>
       <tr>
         <td><%= knowledge_area_lesson_plan.lesson_plan.unity %></td>
-        <td><%= knowledge_area_lesson_plan.lesson_plan.classroom %></td>
-        <td>
+        <td class="classroom"><%= knowledge_area_lesson_plan.lesson_plan.classroom %></td>
+        <td class="knowledge_area">
           <% knowledge_area_lesson_plan.knowledge_areas.each do |knowledge_area| %>
             <span class="label label-info label-list">
               <%= knowledge_area.description %>
             </span>
           <% end %>
         </td>
-        <td><%= l(knowledge_area_lesson_plan.lesson_plan.start_at) %></td>
-        <td><%= l(knowledge_area_lesson_plan.lesson_plan.end_at) %></td>
+        <td class="start_at"><%= l(knowledge_area_lesson_plan.lesson_plan.start_at) %></td>
+        <td class="end_at"><%= l(knowledge_area_lesson_plan.lesson_plan.end_at) %></td>
         <td class="actions">
+           <%= link_to(
+                t('helpers.links.copy_html'),
+                '#',
+                class: 'btn btn-primary apply_tooltip open_copy_modal',
+                data: { original_title: t('views.index.tooltips.copy'),
+                        knowledge_area_lesson_plan_id: knowledge_area_lesson_plan.id,
+                        classroom_id: knowledge_area_lesson_plan.classroom.id,
+                        grade_id: knowledge_area_lesson_plan.classroom.grade_id
+                      }) %>
           <%= link_to(
                 t('helpers.links.print_html'),
                 knowledge_area_lesson_plan_path(knowledge_area_lesson_plan, format: :pdf),

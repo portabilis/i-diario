@@ -1,0 +1,21 @@
+pt-BR:
+  activerecord:
+    models:
+      terms_dictionary:
+        one: "Dicionário de termos"
+        other: "Dicionários de termos"
+
+    attributes:
+      terms_dictionary:
+        presence_identifier_character: "Caractere identificador de presença"
+
+    errors:
+      models:
+        absence_justification:
+          attributes:
+              absence_date:
+                taken:  'já existe uma justificativa para esta data'
+              absence_date_end:
+                taken:  'já existe uma justificativa para esta data'
+              base:
+                discipline_period_absence: 'Já existe uma justificativa para a disciplina e período informados'

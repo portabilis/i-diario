@@ -35,6 +35,7 @@
 
           <%= render 'student_fields', student: student, sequence: sequence, dependence: false %>
         <% end %>
+        <% sequence = 0 %>
         <% if @dependence_students.any? %>
           <% @dependence_students.each do |student| %>
             <% sequence += 1 %>
@@ -51,9 +52,26 @@
     </table>
 
     <footer>
+      <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-right' %>
       <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id)),
                                  method: :delete, data: { confirm: t('.confirm') }, class: 'btn btn-danger' %>
-      <%= submit_tag 'Salvar', class: 'btn btn-primary' %>
+      <div class="btn-group pull-right">
+        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+          <%= t('.print') %> <span class="caret"></span>
+        </button>
+        <ul class="dropdown-***REMOVED***">
+          <li>
+            <%= link_to(t('.by_month'), attendance_record_report_path(attendance_record_report_form: params_for_print_month(@daily_frequencies)),
+                  method: :post, target: '_new') %>
+
+          </li>
+          <li>
+            <%= link_to(t('.by_step'), attendance_record_report_path(attendance_record_report_form: params_for_print_step(@daily_frequencies)),
+                  method: :post, target: '_new') %>
+          </li>
+        </ul>
+      </div>
+
     </footer>
   <% end %>
 </div>

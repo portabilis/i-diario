@@ -3,8 +3,8 @@ require "prawn/measurement_extensions"
 class ExamRecordReport
   include Prawn::View
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
-    new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, student_ids)
+    new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, student_ids)
   end
 
   def initialize
@@ -16,14 +16,14 @@ class ExamRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, student_ids)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
     @school_calendar_step = school_calendar_step
     @test_setting = test_setting
     @daily_notes = daily_notes
-    @students = students
+    @student_ids = student_ids
 
     header
 
@@ -83,9 +83,8 @@ class ExamRecordReport
   def daily_notes_table
     averages = {}
     self.any_student_with_dependence = false
-    students_ids = fetch_students_ids
 
-    students_ids.each do |student_id|
+    @student_ids.each do |student_id|
       averages[student_id] = StudentAverageCalculator.new(Student.find(student_id)).calculate(@daily_notes.first.classroom, @daily_notes.first.discipline, @school_calendar_step.id)
     end
 
@@ -93,12 +92,14 @@ class ExamRecordReport
     daily_notes_descriptions = []
     daily_notes_avaliations_ids = []
     daily_notes_ids = []
+    daily_notes_dates = []
 
     @daily_notes.each do |daily_note|
       daily_notes_and_recoveries << daily_note
       if daily_note.avaliation.recovery_diary_record
         daily_notes_and_recoveries << daily_note.avaliation.recovery_diary_record
         daily_notes_descriptions << daily_note.avaliation.to_s
+        daily_notes_dates << daily_note.avaliation.test_date
         daily_notes_avaliations_ids << daily_note.avaliation_id
         daily_notes_ids << daily_note.id
       end
@@ -114,17 +115,17 @@ class ExamRecordReport
 
       daily_notes_slice.each do |daily_note|
         if recovery_record(daily_note)
-          avaliations << make_cell(content: "Rec. #{daily_notes_descriptions[pos]}", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
+          avaliations << make_cell(content: "Rec. #{daily_notes_descriptions[pos]}\n<font size='7'>#{daily_notes_dates[pos].strftime("%d/%m")}</font>", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
           avaliation_id = daily_notes_avaliations_ids[pos]
           daily_note_id = daily_notes_ids[pos]
           pos += 1
         else
-          avaliations << make_cell(content: "#{daily_note.avaliation.to_s}", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
+          avaliations << make_cell(content: "#{daily_note.avaliation.to_s}\n<font size='7'>#{daily_note.avaliation.test_date.strftime("%d/%m")}</font>", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
           avaliation_id = daily_note.avaliation_id
           daily_note_id = daily_note.id
         end
 
-        students_ids.each do |student_id|
+        @student_ids.each do |student_id|
           if exempted_avaliation?(student_id, avaliation_id)
             student_note = ExemptedDailyNoteStudent.new
           else
@@ -154,7 +155,7 @@ class ExamRecordReport
 
       sequential_number_header = make_cell(content: 'Nº', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 15)
       student_name_header = make_cell(content: 'Nome do aluno', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 170)
-      average_header = make_cell(content: 'Média', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
+      average_header = make_cell(content: "Média", size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 30)
 
       first_headers_and_cells = [sequential_number_header, student_name_header].concat(avaliations)
       (10 - avaliations.count).times { first_headers_and_cells << make_cell(content: '', background_color: 'FFFFFF', width: 55) }
@@ -162,8 +163,15 @@ class ExamRecordReport
 
       students_cells = []
       students = students.sort_by { |(key, value)| value[:dependence] ? 1 : 0 }
-      students.each_with_index do |(key, value), index|
-        sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
+      sequence = 1
+      sequence_reseted = false
+      students.each do |key, value|
+        if(!sequence_reseted && value[:dependence])
+          sequence = 1
+          sequence_reseted = true
+        end
+
+        sequence_cell = make_cell(content: sequence.to_s, align: :center)
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name] }].concat(value[:scores])
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
@@ -175,6 +183,8 @@ class ExamRecordReport
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)
         end
         students_cells << student_cells
+
+        sequence += 1
       end
 
       (10 - students_cells.count).times do
@@ -194,7 +204,7 @@ class ExamRecordReport
         data.concat(students_cells_slice)
 
         bounding_box([0, 482], width: bounds.width) do
-          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] }, width: bounds.width) do |t|
+          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2], inline_format: true }, width: bounds.width) do |t|
             t.cells.border_width = 0.25
             t.before_rendering_page do |page|
               page.row(0).border_top_width = 0.25
@@ -217,11 +227,11 @@ class ExamRecordReport
       draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
       draw_text('____________________________', size: 8, at: [117, 0])
 
-      draw_text('Assinatura do(a) coordenador(a):', size: 8, style: :bold, at: [259, 0])
-      draw_text('____________________________', size: 8, at: [388, 0])
+      draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
+      draw_text('____________________________', size: 8, at: [429, 0])
 
-      draw_text('Data:', size: 8, style: :bold, at: [528, 0])
-      draw_text('________________', size: 8, at: [549, 0])
+      draw_text('Data:', size: 8, style: :bold, at: [559, 0])
+      draw_text('________________', size: 8, at: [581, 0])
 
       draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação', size: 8, at: [0, 17])
       draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if self.any_student_with_dependence
@@ -233,23 +243,6 @@ class ExamRecordReport
                 size: 8,
                 align: :right }
     number_pages(string, options)
-  end
-
-  def fetch_students_ids
-    students_ids = []
-    @daily_notes.each do |daily_note|
-      daily_note.students.each do |student|
-        students_ids << student.student.id
-      end
-    end
-    students_ids.uniq!
-    order_students_by_name(students_ids)
-  end
-
-  def order_students_by_name(students_ids)
-    students = Student.where(id: students_ids).ordered
-    students_ids = students.collect(&:id)
-    students_ids
   end
 
   def exempted_avaliation?(student_id, avaliation_id)

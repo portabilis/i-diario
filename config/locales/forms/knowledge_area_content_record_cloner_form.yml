@@ -1,0 +1,5 @@
+pt-BR:
+  activemodel:
+    attributes:
+      knowledge_area_content_record_cloner_form:
+        classroom_ids: 'Turmas'

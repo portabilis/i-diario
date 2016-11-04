@@ -5,7 +5,8 @@ pt-BR:
 
     edit:
       dependence_students_legend: "* Alunos cursando dependência"
-      exempted_students_legend: "** Aluno dispensado da avaliação"
+      exempted_students_legend: "** Alunos dispensados da avaliação"
+      inactive_students_legend: "*** Alunos não enturmados"
 
     index:
       new_html: "<i class='fa fa-plus'></i> Novo lançamento"

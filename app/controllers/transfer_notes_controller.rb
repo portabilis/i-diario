@@ -16,13 +16,14 @@ class TransferNotesController < ApplicationController
   def new
     @transfer_note = TransferNote.new(
       unity_id: current_user_unity.id
-    )
+    ).localized
 
     authorize @transfer_note
   end
 
   def create
-    @transfer_note = TransferNote.new(resource_params)
+    @transfer_note = TransferNote.new.localized
+    @transfer_note.assign_attributes(resource_params)
     @transfer_note.teacher = current_teacher
 
     authorize @transfer_note
@@ -40,7 +41,7 @@ class TransferNotesController < ApplicationController
   end
 
   def update
-    @transfer_note = TransferNote.find(params[:id])
+    @transfer_note = TransferNote.find(params[:id]).localized
     @transfer_note.assign_attributes(resource_params)
 
     authorize @transfer_note
@@ -68,12 +69,12 @@ class TransferNotesController < ApplicationController
         unity_id: classroom.unity.id,
         discipline_id: params[:discipline_id],
         avaliation_id: avaliation.id
-      )
+      ).localized
 
       DailyNoteStudent.find_or_initialize_by(
         daily_note_id: daily_note.id,
         student_id: params[:student_id]
-      )
+      ).localized
     end
     render(json: @daily_note_students, include: { daily_notes: [:avaliation] })
   end

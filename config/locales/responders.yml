@@ -165,6 +165,9 @@ pt-BR:
       destroy:
         alert: '%{resource_name} não pode ser apagado pois possui vínculos.'
 
+    terms_dictionaries:
+      <<: *male
+
     school_term_recovery_diary_records:
       create:
         notice: "Recuperação de etapa lançada com sucesso!"

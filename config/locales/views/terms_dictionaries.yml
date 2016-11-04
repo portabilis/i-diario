@@ -1,0 +1,4 @@
+pt-BR:
+  terms_dictionaries:
+    help:
+      presence_identifier_character: 'Esse caractere é exibido nos relatórios para identificar quando o aluno teve presença. Exemplo: Registro de frequência.'

@@ -14,7 +14,7 @@ gem 'foreigner', '1.6.1'
 gem 'devise', '3.5.1'
 gem 'responders', '~> 2.0'
 gem 'has_scope', '0.5.1'
-gem 'enumerate_it', '1.2.8'
+gem 'enumerate_it', '1.3.1'
 gem 'pundit', '0.3.0'
 gem 'i18n_alchemy', '0.2.1', github: 'giustin/i18n_alchemy', branch: 'master'
 gem 'cocoon', '~> 1.2.6'
@@ -32,12 +32,13 @@ gem 'js-routes'
 gem 'active_model_serializers'
 gem 'exception_notification'
 gem 'bulk_insert', '~> 1.0'
+gem "sidekiq-cron", "~> 0.4.0"
 
 gem 'angular_rails_csrf'
 gem 'rack-cors', require: 'rack/cors'
 
 gem 'sinatra', '>= 1.3.0', require: nil
-gem 'sidekiq', '3.4.2'
+gem 'sidekiq', '4.2.2'
 gem 'whenever', require: false
 gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
@@ -58,6 +59,7 @@ gem 'carrierwave'
 gem 'fog', '~> 1.36'
 
 gem 'activerecord-session_store', github: 'rails/activerecord-session_store'
+gem 'rdstation-ruby-client'
 
 group :development do
   gem 'quiet_assets'

@@ -8,6 +8,6 @@ RSpec.describe ConceptualExamValue, type: :model do
 
   describe 'validations' do
     it { expect(subject).to validate_presence_of(:conceptual_exam) }
-    it { expect(subject).to validate_presence_of(:discipline) }
+    it { expect(subject).to validate_presence_of(:discipline_id) }
   end
 end

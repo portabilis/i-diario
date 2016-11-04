@@ -115,7 +115,7 @@ module ExamPoster
     private
 
     def teacher
-      @post_data.author.teacher
+      @post_data.author.current_teacher
     end
   end
 end

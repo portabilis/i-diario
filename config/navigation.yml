@@ -89,6 +89,9 @@ navigation:
         - ***REMOVED***:
             type: "test_settings"
             path: "test_settings_path"
+        - ***REMOVED***:
+            type: "terms_dictionaries"
+            path: "edit_terms_dictionaries_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-bullhorn"
@@ -271,6 +274,15 @@ navigation:
         - ***REMOVED***:
             type: "teacher_report_cards"
             path: "teacher_report_cards_path"
+        - ***REMOVED***:
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
+        - ***REMOVED***:
+            type: "partial_score_record_report"
+            path: "partial_score_record_report_path"
+        - ***REMOVED***:
+            type: "***REMOVED***_movements_report"
+            path: "***REMOVED***_movements_report_path"
 
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"

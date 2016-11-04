@@ -1,0 +1,5 @@
+pt-BR:
+  activemodel:
+    attributes:
+      discipline_lesson_plan_cloner_form:
+        classroom_ids: 'Turmas'

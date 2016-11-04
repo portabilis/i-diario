@@ -116,6 +116,7 @@ Rails.application.routes.draw do
     resource :notification, only: [:edit, :update], concerns: :history
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
+    resource :terms_dictionaries, only: [:edit, :update], concerns: :history
     resources :backup_files, only: [:index, :create]
     resources :unities, concerns: :history do
       collection do
@@ -131,11 +132,19 @@ Rails.application.routes.draw do
       get '***REMOVED***_classes/select'
     end
 
-    resources :***REMOVED***_classes, concerns: :history
+    resources :***REMOVED***_classes, concerns: :history do
+      collection do
+        get :select
+      end
+    end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history do
+      collection do
+        get :select
+      end
+    end
     resources :***REMOVED***, concerns: :history do
       resources :material_request_items, only: [:index]
     end
@@ -197,10 +206,26 @@ Rails.application.routes.draw do
 
     resources :discipline_teaching_plans, concerns: :history
     resources :knowledge_area_teaching_plans, concerns: :history
-    resources :discipline_lesson_plans, concerns: :history
-    resources :knowledge_area_lesson_plans, concerns: :history
-    resources :discipline_content_records, concerns: :history
-    resources :knowledge_area_content_records, concerns: :history
+    resources :discipline_lesson_plans, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
+    resources :knowledge_area_lesson_plans, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
+    resources :discipline_content_records, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
+    resources :knowledge_area_content_records, concerns: :history do
+      collection do
+        post :clone
+      end
+    end
     resources :classrooms, only: [:index, :show] do
       resources :students, only: [:index]
     end
@@ -218,7 +243,11 @@ Rails.application.routes.draw do
       end
     end
     resources :teacher_avaliations, only: :index
-    resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history
+    resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
+      collection do
+        get :search
+      end
+    end
     resources :daily_note_students, only: [:index] do
       collection do
         get :old_notes
@@ -247,6 +276,12 @@ Rails.application.routes.draw do
     resources :avaliation_exemptions, concerns: :history
     resources :***REMOVED***, concerns: :history
 
+    resources :daily_frequency_students do
+      collection do
+        post :create_or_update
+      end
+    end
+
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
@@ -256,6 +291,9 @@ Rails.application.routes.draw do
     get '/reports/exam_record', to: 'exam_record_report#form', as: 'exam_record_report'
     post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
 
+    get '/reports/partial_score_record', to: 'partial_score_record_report#form', as: 'partial_score_record_report'
+    post '/reports/partial_score_record', to: 'partial_score_record_report#report', as: 'exam_record_report'
+
     get '/reports/observation_record', to: 'observation_record_report#form', as: 'observation_record_report'
     post '/reports/observation_record', to: 'observation_record_report#report', as: 'observation_record_report'
 
@@ -263,14 +301,20 @@ Rails.application.routes.draw do
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
     get '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#form', as: 'discipline_lesson_plan_report'
-    post '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#report', as: 'discipline_lesson_plan_report'
+    post '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#lesson_plan_report', as: 'discipline_lesson_plan_report'
+    post '/reports/discipline_content_record', to: 'discipline_lesson_plan_report#content_record_report', as: 'discipline_content_record_report'
 
     get '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#form', as: 'knowledge_area_lesson_plan_report'
     post '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#report', as: 'knowledge_area_lesson_plan_report'
 
-
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
+
+    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
+    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
+
+    get '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#form', as: '***REMOVED***_movements_report'
+    post '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#report', as: '***REMOVED***_movements_report'
 
     post '/food_composition', to: 'food_composition#calculate'
   end

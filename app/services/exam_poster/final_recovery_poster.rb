@@ -31,6 +31,7 @@ module ExamPoster
           @warning_messages += "Não foi possível enviar as recuperações finais da turma #{final_recovery_diary_record.recovery_diary_record.classroom} pois existem alunos sem nota."
         end
 
+        classroom_exam_rule = final_recovery_diary_record.recovery_diary_record.classroom.exam_rule
         classroom_api_code = final_recovery_diary_record.recovery_diary_record.classroom.api_code
         discipline_api_code = final_recovery_diary_record.recovery_diary_record.discipline.api_code
 
@@ -38,7 +39,7 @@ module ExamPoster
           params[classroom_api_code]['turma_id'] = classroom_api_code
           params[classroom_api_code]['alunos'][student.student.api_code]['aluno_id'] = student.student.api_code
           params[classroom_api_code]['alunos'][student.student.api_code]['componentes_curriculares'][discipline_api_code]['componente_curricular_id'] = discipline_api_code
-          params[classroom_api_code]['alunos'][student.student.api_code]['componentes_curriculares'][discipline_api_code]['valor'] = student.score
+          params[classroom_api_code]['alunos'][student.student.api_code]['componentes_curriculares'][discipline_api_code]['valor'] = ScoreRounder.new(classroom_exam_rule).round(student.score)
         end
       end
 
@@ -61,7 +62,7 @@ module ExamPoster
     end
 
     def teacher_discipline_classrooms
-      @post_data.author.teacher.teacher_discipline_classrooms.select do |teacher_discipline_classroom|
+      @post_data.author.current_teacher.teacher_discipline_classrooms.select do |teacher_discipline_classroom|
         valid_unity?(teacher_discipline_classroom.classroom.unity_id) && valid_score_type?(teacher_discipline_classroom.classroom.exam_rule.score_type)
       end
     end

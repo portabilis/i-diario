@@ -1,11 +1,12 @@
 class SchoolDayChecker
-  def initialize(school_calendar, date, grade_id, classroom_id)
+  def initialize(school_calendar, date, grade_id, classroom_id, discipline_id)
     raise ArgumentError unless school_calendar && date
 
     @school_calendar = school_calendar
     @date = date
     @grade_id = grade_id
     @classroom_id = classroom_id
+    @discipline_id = discipline_id
   end
 
   def school_day?
@@ -15,6 +16,12 @@ class SchoolDayChecker
 
     if @classroom_id.present?
       classroom = Classroom.find(@classroom_id)
+
+      if @discipline_id.present?
+        return false if any_discipline_event?(events_by_date_without_frequency, @grade_id, @classroom_id, @discipline_id)
+        return true if any_discipline_event?(events_by_date_with_frequency, @grade_id, @classroom_id, @discipline_id)
+      end
+
       return false if any_classroom_event?(events_by_date_without_frequency, @grade_id, @classroom_id)
       return true if any_classroom_event?(events_by_date_with_frequency, @grade_id, @classroom_id)
 
@@ -41,8 +48,16 @@ class SchoolDayChecker
 
   private
 
+  def any_discipline_event?(query, grade_id, classroom_id, discipline_id)
+    query.by_grade(grade_id)
+         .by_classroom_id(classroom_id)
+         .by_discipline_id(discipline_id)
+         .any?
+  end
+
   def any_classroom_event?(query, grade_id, classroom_id)
     query.by_grade(grade_id)
+         .without_discipline
          .by_classroom_id(classroom_id)
          .any?
   end

@@ -14,6 +14,7 @@ class SchoolCalendarEventsController < ApplicationController
     @school_calendar_event = resource
     @school_calendar_event.coverage = params[:coverage]
     @school_calendar_event.periods = Periods.list
+
     authorize resource
   end
 
@@ -83,6 +84,11 @@ class SchoolCalendarEventsController < ApplicationController
   end
   helper_method :classrooms
 
+  def disciplines
+    @disciplines ||= Discipline.by_unity_id(@school_calendar.unity.id).by_classroom(@school_calendar_event.classroom_id).ordered || []
+  end
+  helper_method :disciplines
+
   def resource
     @school_calendar_event ||= case params[:action]
     when 'new', 'create'
@@ -94,7 +100,7 @@ class SchoolCalendarEventsController < ApplicationController
 
   def resource_params
     params.require(:school_calendar_event).permit(
-      :coverage, :course_id, :grade_id, :classroom_id,
+      :coverage, :course_id, :grade_id, :classroom_id, :discipline_id,
       :description, :event_date, :event_type, :periods, :legend
     )
   end

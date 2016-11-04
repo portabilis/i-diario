@@ -10,8 +10,7 @@ class ConceptualExamsController < ApplicationController
       .includes(
         :student,
         :conceptual_exam_values,
-        classroom: :unity,
-        school_calendar_step: :school_calendar
+        classroom: :unity
       )
       .filter(filtering_params(params[:search]))
       .by_unity(current_user_unity)
@@ -52,10 +51,13 @@ class ConceptualExamsController < ApplicationController
 
     authorize @conceptual_exam
 
+    conceptual_exam = @conceptual_exam
+
     if @conceptual_exam.save
       respond_to_save
     else
       fetch_collections
+      mark_not_existing_disciplines_as_invisible
 
       render :new
     end
@@ -84,6 +86,8 @@ class ConceptualExamsController < ApplicationController
       respond_to_save
     else
       fetch_collections
+      mark_not_existing_disciplines_as_invisible
+      mark_persisted_disciplines_as_invisible if @conceptual_exam.conceptual_exam_values.any? { |value| value.new_record? }
 
       render :edit
     end
@@ -94,7 +98,12 @@ class ConceptualExamsController < ApplicationController
 
     authorize @conceptual_exam
 
-    @conceptual_exam.destroy
+    current_teacher_disciplines = Discipline.by_teacher_and_classroom(current_teacher.id, current_user_classroom.id)
+    values_to_destroy = ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id).where(discipline_id: current_teacher_disciplines)
+
+    values_to_destroy.each { |value| value.destroy }
+
+    @conceptual_exam.destroy unless ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id).any?
 
     respond_with @conceptual_exam, location: conceptual_exams_path
   end
@@ -174,6 +183,15 @@ class ConceptualExamsController < ApplicationController
     end
   end
 
+  def mark_persisted_disciplines_as_invisible
+    @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
+      discipline_exists = @disciplines.any? do |discipline|
+          conceptual_exam_value.new_record?
+      end
+      conceptual_exam_value.mark_as_invisible unless discipline_exists
+    end
+  end
+
   def disciplines_with_assignment
     disciplines = TeacherDisciplineClassroom
       .by_classroom(@conceptual_exam.classroom_id)
@@ -214,17 +232,13 @@ class ConceptualExamsController < ApplicationController
     @students = []
 
     if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present?
-      begin
-        @students = StudentsFetcher.new(
-          configuration,
-          @conceptual_exam.classroom.api_code,
-          date: @conceptual_exam.recorded_at.to_date.to_s
-        )
-        .fetch
-      rescue IeducarApi::Base::ApiError => e
-        flash[:alert] = e.message
-        render :new
-      end
+      @student_ids = StudentEnrollment
+        .by_classroom(@conceptual_exam.classroom)
+        .by_date(@conceptual_exam.recorded_at.to_date.to_s)
+        .active
+        .ordered
+        .collect(&:student_id)
+      @students = Student.where(id: @student_ids)
     end
   end
 

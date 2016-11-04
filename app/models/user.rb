@@ -18,6 +18,7 @@ class User < ActiveRecord::Base
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
   before_destroy :ensure_has_no_audits
+  before_validation :verify_receive_news_fields
 
   belongs_to :student
   belongs_to :teacher
@@ -58,6 +59,7 @@ class User < ActiveRecord::Base
 
   validate :uniqueness_of_student_parent_role
   validate :presence_of_email_or_cpf
+  validate :validate_receive_news_fields
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :email_ordered, -> { order(email: :asc)  }
@@ -102,6 +104,9 @@ class User < ActiveRecord::Base
   end
 
   def can_show?(feature)
+    if feature == "general_configurations"
+      return admin?
+    end
     return true if admin?
     return unless current_user_role
 
@@ -109,6 +114,9 @@ class User < ActiveRecord::Base
   end
 
   def can_change?(feature)
+    if feature == "general_configurations"
+      return admin?
+    end
     return true if admin?
     return unless current_user_role
 
@@ -229,7 +237,58 @@ class User < ActiveRecord::Base
     end
   end
 
+
+  def can_receive_news_related_daily_teacher?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "teacher"].include? access_level}
+  end
+
+  def can_receive_news_related_***REMOVED***?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
+  end
+
+  def can_receive_news_related_tools_for_parents?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "parent", "student"].include? access_level}
+  end
+
+  def can_receive_news_related_all_matters?
+    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
+  end
+
+  def update_rd_lead
+    return unless GeneralConfiguration.current.allows_after_sales_relationship?
+    rdstation_client = RDStation::Client.new('***REMOVED***', '***REMOVED***', 'Usuário no produto Educar+')
+
+    response = rdstation_client.create_lead({
+      :"email" => email,
+      :"Cargo" => rd_access_level,
+      :"Nome" => name,
+      :"Telefone fixo" => phone,
+      :"Empresa" => EntityConfiguration.current.entity_name,
+      :"Recebe informações do Educar plus?" => rd_matters,
+      :identificador => 'Usuário no produto Educar+'
+    })
+  end
+
   protected
+
+  def rd_matters
+    options = []
+    options << "Diário do professor" if receive_news_related_daily_teacher?
+    options << "***REMOVED*** e alimentação escolar" if receive_news_related_***REMOVED***?
+    options << "Pais e alunos" if receive_news_related_tools_for_parents?
+    options << "Todos os assuntos relacionados ao Educar+" if receive_news_related_all_matters?
+    options << "Nenhum" if options.blank?
+    options
+  end
+
+  def rd_access_level
+    access_levels = roles.map(&:access_level).uniq
+    return "administrador" if access_levels.include? "administrator"
+    return "servidor" if access_levels.include? "employee"
+    return "professor" if access_levels.include? "teacher"
+    return "pais" if access_levels.include? "parent"
+    return "alunos" if access_levels.include? "student"
+  end
 
   def email_required?
     false
@@ -280,6 +339,30 @@ class User < ActiveRecord::Base
     if audits_count > 0
       errors.add(:base, "")
       false
+    end
+  end
+
+  def verify_receive_news_fields
+    return true unless persisted?
+    self.receive_news_related_daily_teacher = false unless can_receive_news_related_daily_teacher?
+    self.receive_news_related_***REMOVED*** = false unless can_receive_news_related_***REMOVED***?
+    self.receive_news_related_tools_for_parents = false unless can_receive_news_related_tools_for_parents?
+    self.receive_news_related_all_matters = false unless can_receive_news_related_all_matters?
+
+    if !receive_news?
+      self.receive_news_related_daily_teacher = false
+      self.receive_news_related_***REMOVED*** = false
+      self.receive_news_related_tools_for_parents = false
+      self.receive_news_related_all_matters = false
+    end
+    true
+  end
+
+  def validate_receive_news_fields
+    if receive_news? && !(
+        receive_news_related_daily_teacher? || receive_news_related_***REMOVED***? ||
+         receive_news_related_tools_for_parents? || receive_news_related_all_matters?)
+      errors.add(:receive_news, :must_fill_receive_news_options)
     end
   end
 end

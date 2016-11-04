@@ -6,7 +6,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
   belongs_to :daily_frequency
   belongs_to :student
 
-  delegate :frequency_date, to: :daily_frequency
+  delegate :frequency_date, :class_number, to: :daily_frequency
 
   validates :student, :daily_frequency, presence: true
 
@@ -27,6 +27,10 @@ class DailyFrequencyStudent < ActiveRecord::Base
                                                           .includes(:daily_frequency) }
 
   def to_s
-    present ? '.' : 'F'
+    if present?
+      TermsDictionary.current.try(:presence_identifier_character) || '.'
+    else
+      'F'
+    end
   end
 end

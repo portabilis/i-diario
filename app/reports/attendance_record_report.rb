@@ -5,8 +5,8 @@ class AttendanceRecordReport
 
   STUDENTS_BY_PAGE = 29
 
-  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students, events)
-    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students, events)
+  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_ids, events)
+    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_ids, events)
   end
 
   def initialize
@@ -18,14 +18,14 @@ class AttendanceRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, students, events)
+  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_ids, events)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
     @start_at = start_at
     @end_at = end_at
     @daily_frequencies = daily_frequencies
-    @students = students
+    @student_ids = student_ids
     @events = events
 
     self.legend = "Legenda: N - Não enturmado"
@@ -98,7 +98,6 @@ class AttendanceRecordReport
       days = []
       months = []
       students = {}
-      students_ids = fetch_students_ids
 
       frequencies_and_events_slice.each do |daily_frequency_or_event|
         if event?(daily_frequency_or_event)
@@ -109,7 +108,7 @@ class AttendanceRecordReport
           days << make_cell(content: "#{school_calendar_event.event_date.day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{school_calendar_event.event_date.month}", background_color: 'FFFFFF', align: :center)
 
-          students_ids.each do |student_id|
+          @student_ids.each do |student_id|
             student = Student.find(student_id)
             (students[student_id] ||= {})[:name] = student.name
             students[student_id] = {} if students[student_id].nil?
@@ -121,7 +120,7 @@ class AttendanceRecordReport
           class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
           days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
-          students_ids.each do |student_id|
+          @student_ids.each do |student_id|
             student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id) || NullDailyFrequencyStudent.new
             student = Student.find(student_id)
             (students[student_id] ||= {})[:name] = student.name
@@ -155,21 +154,21 @@ class AttendanceRecordReport
 
       students_cells = []
       students = students.sort_by { |(key, value)| value[:dependence] ? 1 : 0 }
-      students.each_with_index do |(key, value), index|
-        sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
+      sequence = 1
+      sequence_reseted = false
+      students.each do |key, value|
+        if(!sequence_reseted && value[:dependence])
+          sequence = 1
+          sequence_reseted = true
+        end
+
+        sequence_cell = make_cell(content: sequence.to_s, align: :center)
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name], colspan: 2 }].concat(value[:attendances])
         (40 - value[:attendances].count).times { student_cells << nil }
         student_cells << make_cell(content: value[:absences].to_s, align: :center)
         students_cells << student_cells
-      end
 
-      (STUDENTS_BY_PAGE - students_cells.count).times do
-        sequence_cell = make_cell(content: (students_cells.count + 1).to_s, align: :center)
-        attendances = []
-        40.times { attendances << make_cell(content: '', font_style: :bold, align: :center) }
-        student_cells = [sequence_cell, { content: '', colspan: 2 }].concat(attendances)
-        student_cells << make_cell(content: '', align: :center)
-        students_cells << student_cells
+        sequence += 1
       end
 
       sliced_students_cells = students_cells.each_slice(STUDENTS_BY_PAGE).to_a
@@ -213,11 +212,11 @@ class AttendanceRecordReport
       draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
       draw_text('____________________________', size: 8, at: [117, 0])
 
-      draw_text('Assinatura do(a) coordenador(a):', size: 8, style: :bold, at: [259, 0])
-      draw_text('____________________________', size: 8, at: [388, 0])
+      draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
+      draw_text('____________________________', size: 8, at: [429, 0])
 
-      draw_text('Data:', size: 8, style: :bold, at: [528, 0])
-      draw_text('________________', size: 8, at: [549, 0])
+      draw_text('Data:', size: 8, style: :bold, at: [559, 0])
+      draw_text('________________', size: 8, at: [581, 0])
 
       if(self.any_student_with_dependence)
         draw_text('* Alunos cursando dependência', size: 8, at: [0, 47])
@@ -232,23 +231,6 @@ class AttendanceRecordReport
                 size: 8,
                 align: :right }
     number_pages(string, options)
-  end
-
-  def fetch_students_ids
-    students_ids = []
-    @daily_frequencies.each do |daily_frequency|
-      daily_frequency.students.each do |student|
-        students_ids << student.student.id
-      end
-    end
-    students_ids.uniq!
-    order_students_by_name(students_ids)
-  end
-
-  def order_students_by_name(students_ids)
-    students = Student.where(id: students_ids).ordered
-    students_ids = students.collect(&:id)
-    students_ids
   end
 
   def event?(record)

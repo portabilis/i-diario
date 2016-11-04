@@ -56,15 +56,18 @@ class AttendanceRecordReportForm
                    .without_frequency
                    .by_date_between(start_at, end_at)
                    .all_events_for_classroom(classroom)
+                   .where(SchoolCalendarEvent.arel_table[:discipline_id].eq(nil).or(SchoolCalendarEvent.arel_table[:discipline_id].eq(discipline_id)))
                    .ordered
   end
 
-  def students
-    students_ids = []
-    daily_frequencies.each { |d| students_ids << d.students.map(&:student_id) }
-    students_ids.flatten!.uniq!
+  def student_ids
+    student_ids = StudentEnrollment
+      .by_classroom(classroom_id)
+      .active
+      .ordered
+      .collect(&:student_id)
 
-    Student.find(students_ids)
+    student_ids
   end
 
   private

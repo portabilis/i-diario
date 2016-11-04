@@ -25,7 +25,10 @@ class Select2Input < SimpleForm::Inputs::StringInput
   end
 
   def insert_empty_element(elements)
-    empty_element = { id: 'empty', name: '<option></option>', text: '' }
+    options[:empty_element_id] ||= 'empty'
+    options[:empty_element_name] ||= '<option></option>'
+
+    empty_element = { id: options[:empty_element_id], name: options[:empty_element_name], text: '' }
     elements.insert(0, empty_element)
   end
 end
