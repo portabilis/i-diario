@@ -55,15 +55,8 @@ class DailyFrequenciesController < ApplicationController
       @students << { student: student, dependence: dependence } if student
     end
 
-    @daily_frequencies.each do |daily_frequency|
-      students_ids = daily_frequency.students.map(&:student_id)
-
-      @students.each do |student|
-        if students_ids.none? { |student_id| student_id == student[:student].id }
-          daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true)
-        end
-      end
-    end
+    create_unpersisted_students
+    destroy_not_existing_students
 
     @normal_students = []
     @dependence_students = []
@@ -111,6 +104,28 @@ class DailyFrequenciesController < ApplicationController
   end
 
   protected
+
+  def create_unpersisted_students
+    @daily_frequencies.each do |daily_frequency|
+      persisted_student_ids = daily_frequency.students.map(&:student_id)
+
+      @students.each do |student|
+        if persisted_student_ids.none? { |student_id| student_id == student[:student].id }
+          daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true)
+        end
+      end
+    end
+  end
+
+  def destroy_not_existing_students
+    current_students_ids = @students.map{|student| student[:student].id}
+
+    @daily_frequencies.each do |daily_frequency|
+      daily_frequency.students.each do |daily_frequency_student|
+        daily_frequency_student.destroy! unless current_students_ids.include? daily_frequency_student.student.id
+      end
+    end
+  end
 
   def fetch_student_enrollments
     @student_enrollments = StudentEnrollment
