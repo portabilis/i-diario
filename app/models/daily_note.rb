@@ -24,6 +24,7 @@ class DailyNote < ActiveRecord::Base
   validates :avaliation, presence: true
 
   validate :avaliation_date_must_be_less_than_or_equal_to_today
+  validate :avaliation_must_have_test_setting
 
   before_destroy :ensure_not_has_avaliation_recovery
 
@@ -75,6 +76,13 @@ class DailyNote < ActiveRecord::Base
 
     if avaliation.test_date > Time.zone.today
       errors.add(:avaliation, :must_be_less_than_or_equal_to_today)
+    end
+  end
+
+  def avaliation_must_have_test_setting
+    if avaliation.test_setting_test.nil?
+      errors.add(:avaliation, :test_setting_mising_on_avaliation)
+      false
     end
   end
 

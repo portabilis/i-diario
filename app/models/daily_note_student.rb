@@ -14,6 +14,8 @@ class DailyNoteStudent < ActiveRecord::Base
   delegate :classroom, to: :daily_note
   delegate :discipline_id, to: :daily_note
 
+  validate :ensure_avaliation_has_test_setting
+
   validates :student,    presence: true
   validates :daily_note, presence: true
   validates :note, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: lambda { |daily_note_student| daily_note_student.maximum_score } }, allow_blank: true
@@ -35,9 +37,9 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :order_by_discipline_and_date, -> { joins(daily_note: [:discipline, :avaliation]).order(Discipline.arel_table[:description], Avaliation.arel_table[:test_date]) }
 
   def maximum_score
-    return avaliation.test_setting.maximum_score if !avaliation.test_setting.fix_tests
-    return avaliation.weight.to_f if avaliation.test_setting_test.allow_break_up
-    return avaliation.test_setting_test.weight if !avaliation.test_setting_test.allow_break_up
+    return avaliation.test_setting.maximum_score if !avaliation.fix_tests?
+    return avaliation.weight.to_f if avaliation.allow_break_up?
+    return avaliation.test_setting_test.weight if !avaliation.allow_break_up?
   end
 
   def recovered_note
