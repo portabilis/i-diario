@@ -80,7 +80,7 @@ class DailyNote < ActiveRecord::Base
   end
 
   def avaliation_must_have_test_setting
-    if avaliation.test_setting_test.nil?
+    unless avaliation.try(:test_setting_test)
       errors.add(:avaliation, :test_setting_mising_on_avaliation)
       false
     end

@@ -14,8 +14,6 @@ class DailyNoteStudent < ActiveRecord::Base
   delegate :classroom, to: :daily_note
   delegate :discipline_id, to: :daily_note
 
-  validate :ensure_avaliation_has_test_setting
-
   validates :student,    presence: true
   validates :daily_note, presence: true
   validates :note, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: lambda { |daily_note_student| daily_note_student.maximum_score } }, allow_blank: true
