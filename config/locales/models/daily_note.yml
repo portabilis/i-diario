@@ -23,6 +23,7 @@ pt-BR:
           attributes:
               avaliation:
                 must_be_less_than_or_equal_to_today: "a data da avaliação deve ser menor ou igual a data de hoje"
+                test_setting_mising_on_avaliation: "avaliação não possui tipo definido"
 
   errors:
     daily_notes:
