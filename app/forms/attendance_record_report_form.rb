@@ -66,7 +66,7 @@ class AttendanceRecordReportForm
       .active
       .ordered
       .collect(&:student_id)
-      .uniq!
+      .uniq
 
     student_ids
   end
