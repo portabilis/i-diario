@@ -10,6 +10,10 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
     end
   end
 
+  def current_user
+    User.find(user_id)
+  end
+
   protected
 
   def process_one
@@ -102,5 +106,9 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
       .by_student_enrollment(student_enrollment_id)
       .by_discipline(discipline_id)
       .any?
+  end
+
+  def user_id
+    @user_id ||= params[:user_id] || 1
   end
 end
