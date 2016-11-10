@@ -72,6 +72,7 @@ class DescriptiveExamsController < ApplicationController
   def fetch_student_enrollments
     @student_enrollments = StudentEnrollment
       .by_classroom(@descriptive_exam.classroom)
+      .by_discipline(@descriptive_exam.discipline)
       .by_date(Time.zone.today)
       .active
       .ordered
