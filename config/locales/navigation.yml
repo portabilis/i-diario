@@ -88,6 +88,7 @@ pt-BR:
     terms_dictionaries: "Dicionário de termos"
     partial_score_record_report: "Registro de notas parciais"
     ***REMOVED***_movements_report: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
 
   enumerations:
     features:
