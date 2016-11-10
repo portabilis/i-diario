@@ -10,6 +10,10 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
     end
   end
 
+  def current_user
+    User.find(user_id)
+  end
+
   protected
 
   def process_one
@@ -103,5 +107,9 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
   def current_school_calendar
     CurrentSchoolCalendarFetcher.new(params[:unity_id]).fetch
+  end
+
+  def user_id
+    @user_id ||= params[:user_id] || 1
   end
 end
