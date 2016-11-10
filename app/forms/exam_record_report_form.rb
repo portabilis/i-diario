@@ -25,6 +25,7 @@ class ExamRecordReportForm
   def student_ids
     student_ids = StudentEnrollment
       .by_classroom(classroom_id)
+      .by_discipline(discipline_id)
       .active
       .ordered
       .collect(&:student_id)

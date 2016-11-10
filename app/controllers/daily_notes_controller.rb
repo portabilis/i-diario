@@ -45,11 +45,11 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    fetch_student_enrollments
+    students_enrollments = fetch_student_enrollments
 
     @students = []
 
-    @student_enrollments.each do |student_enrollment|
+    students_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
         note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
         note_student.active = student_active_on_date?(student_enrollment)
@@ -112,8 +112,9 @@ class DailyNotesController < ApplicationController
   protected
 
   def fetch_student_enrollments
-    @student_enrollments = StudentEnrollment
+    students_enrollments ||= StudentEnrollment
       .by_classroom(@daily_note.classroom)
+      .by_discipline(@daily_note.discipline)
       .active
       .ordered
   end
@@ -152,9 +153,9 @@ class DailyNotesController < ApplicationController
     @daily_note = DailyNote.find_or_initialize_by(resource_params)
 
     if @daily_note.new_record?
-      fetch_student_enrollments
+      student_enrollments = fetch_student_enrollments
 
-      @student_enrollments.each do |student_enrollment|
+      student_enrollments.each do |student_enrollment|
         if student = Student.find_by_id(student_enrollment.student_id)
           @daily_note.students.build(student_id: student.id, daily_note: @daily_note)
         end

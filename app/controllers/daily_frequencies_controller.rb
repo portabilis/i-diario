@@ -45,11 +45,11 @@ class DailyFrequenciesController < ApplicationController
 
     authorize @daily_frequency
 
-    fetch_student_enrollments
+    student_enrollments = fetch_student_enrollments
 
     @students = []
 
-    @student_enrollments.each do |student_enrollment|
+    student_enrollments.each do |student_enrollment|
       student = Student.find_by_id(student_enrollment.student_id) || nil
       dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
       @students << { student: student, dependence: dependence } if student
@@ -128,11 +128,22 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def fetch_student_enrollments
-    @student_enrollments = StudentEnrollment
+    student_enrollments = StudentEnrollment
       .by_classroom(@daily_frequency.classroom)
+      .by_discipline(@daily_frequency.discipline)
       .by_date(@daily_frequency.frequency_date)
       .active
       .ordered
+  end
+
+  def remove_dependences_in_other_disciplines(students_enrollments)
+    students_enrollments = students_enrollments.reject do |student_enrollment|
+      if student_enrollment.dependences.any?
+        student_enrollment.dependences.none? {|dependence| dependence.discipline_id == @daily_frequency.discipline_id}
+      end
+    end
+
+    students_enrollments
   end
 
   def configuration
