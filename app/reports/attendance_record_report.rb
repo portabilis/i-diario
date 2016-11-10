@@ -103,7 +103,7 @@ class AttendanceRecordReport
         if event?(daily_frequency_or_event)
           school_calendar_event = daily_frequency_or_event
           legend = ", "+school_calendar_event.legend.to_s+" - "+school_calendar_event.description
-          self.legend += legend unless self.legend.include?(legend)n
+          self.legend += legend unless self.legend.include?(legend)
 
           class_numbers << make_cell(content: "", background_color: 'FFFFFF', align: :center)
           days << make_cell(content: "#{school_calendar_event.event_date.day}", background_color: 'FFFFFF', align: :center)
