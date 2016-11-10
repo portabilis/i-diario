@@ -136,16 +136,6 @@ class DailyFrequenciesController < ApplicationController
       .ordered
   end
 
-  def remove_dependences_in_other_disciplines(students_enrollments)
-    students_enrollments = students_enrollments.reject do |student_enrollment|
-      if student_enrollment.dependences.any?
-        student_enrollment.dependences.none? {|dependence| dependence.discipline_id == @daily_frequency.discipline_id}
-      end
-    end
-
-    students_enrollments
-  end
-
   def configuration
     @configuration ||= IeducarApiConfiguration.current
   end
