@@ -1,6 +1,5 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
-  sidekiq_options retry: 1
 
   def perform(entity_id = nil, synchronization_id = nil)
     if entity_id
