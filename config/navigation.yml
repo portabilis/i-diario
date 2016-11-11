@@ -283,6 +283,9 @@ navigation:
         - ***REMOVED***:
             type: "***REMOVED***_movements_report"
             path: "***REMOVED***_movements_report_path"
+        - ***REMOVED***:
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
 
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"
