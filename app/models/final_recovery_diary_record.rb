@@ -9,9 +9,6 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
 
   belongs_to :recovery_diary_record, dependent: :destroy
   belongs_to :school_calendar
-  belongs_to :unity
-  belongs_to :classroom
-  belongs_to :discipline
 
   accepts_nested_attributes_for :recovery_diary_record
 
@@ -25,9 +22,6 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
 
   validates :recovery_diary_record, presence: true
   validates :school_calendar, presence: true
-  validates :unity, presence: true
-  validates :classroom, presence: true
-  validates :discipline, presence: true
   validates :year, presence: true
 
   validate :uniqueness_of_final_recovery_diary_record
