@@ -92,6 +92,7 @@ pt-BR:
     terms_dictionaries: 'dicionario-de-termos'
     partial_score_record: 'registro-de-notas-parciais'
     ***REMOVED***_movements_report: 'movimentos-de-estoque'
+    student_enrollments: 'matriculas-de-alunos'
 
     # actions
     edit: 'editar'

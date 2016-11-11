@@ -97,8 +97,8 @@ class AvaliationExemptionsController < ApplicationController
     @students = []
     if @avaliation_exemption.avaliation.classroom.present?
       @student_ids = StudentEnrollment
-        .by_classroom(@avaliation_exemption.classroom)
-        .by_discipline(@avaliation_exemption.discipline)
+        .by_classroom(current_user_classroom)
+        .by_discipline(current_user_discipline)
         .by_date(@avaliation_exemption.avaliation.test_date)
         .active
         .ordered
