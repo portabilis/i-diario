@@ -96,6 +96,7 @@ pt-BR:
     terms_dictionaries: 'dicionario-de-termos'
     ***REMOVED***_movements_report: 'movimentos-de-estoque'
     ***REMOVED***: '***REMOVED***'
+    student_enrollments: 'matriculas-de-alunos'
 
     # actions
     edit: 'editar'

@@ -233,8 +233,8 @@ class ConceptualExamsController < ApplicationController
 
     if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present?
       @student_ids = StudentEnrollment
-        .by_classroom(@conceptual_exam.classroom)
-        .by_discipline(@conceptual_exam.discipline)
+        .by_classroom(current_user_classroom)
+        .by_discipline(current_user_discipline)
         .by_date(@conceptual_exam.recorded_at.to_date.to_s)
         .active
         .ordered
