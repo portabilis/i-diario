@@ -60,18 +60,32 @@ class AttendanceRecordReportForm
                    .ordered
   end
 
-  def student_ids
-    student_ids = StudentEnrollment
+  def students_enrollments
+    students_enrollments = StudentEnrollment
       .by_classroom(classroom_id)
       .active
       .ordered
-      .collect(&:student_id)
-      .uniq
 
-    student_ids
+    students_enrollments = remove_duplicated_enrollments(students_enrollments)
   end
 
   private
+
+  def remove_duplicated_enrollments(students_enrollments)
+    students_enrollments = students_enrollments.select do |student_enrollment|
+      enrollments_for_student = StudentEnrollment
+        .by_student(student_enrollment.student_id)
+        .by_classroom(classroom_id)
+
+      if enrollments_for_student.count > 1
+        enrollments_for_student.last != student_enrollment
+      else
+        true
+      end
+    end
+
+    students_enrollments
+  end
 
   def global_absence?
     frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)

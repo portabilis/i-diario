@@ -18,7 +18,7 @@ class ExamRecordReportController < ApplicationController
                                                   @exam_record_report_form.step,
                                                   current_test_setting,
                                                   @exam_record_report_form.daily_notes,
-                                                  @exam_record_report_form.student_ids)
+                                                  @exam_record_report_form.students_enrollments)
 
       send_data(exam_record_report.render, filename: 'registro-de-avaliacao.pdf', type: 'application/pdf', disposition: 'inline')
     else

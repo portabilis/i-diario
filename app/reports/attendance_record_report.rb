@@ -5,8 +5,8 @@ class AttendanceRecordReport
 
   STUDENTS_BY_PAGE = 29
 
-  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_ids, events)
-    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_ids, events)
+  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events)
+    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events)
   end
 
   def initialize
@@ -18,14 +18,14 @@ class AttendanceRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_ids, events)
+  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
     @start_at = start_at
     @end_at = end_at
     @daily_frequencies = daily_frequencies
-    @student_ids = student_ids
+    @students_enrollments = student_enrollments
     @events = events
 
     self.legend = "Legenda: N - Não enturmado"
@@ -109,7 +109,8 @@ class AttendanceRecordReport
           days << make_cell(content: "#{school_calendar_event.event_date.day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{school_calendar_event.event_date.month}", background_color: 'FFFFFF', align: :center)
 
-          @student_ids.each do |student_id|
+          @students_enrollments.each do |student_enrollment|
+            student_id = student_enrollment.student_id
             student = Student.find(student_id)
             (students[student_id] ||= {})[:name] = student.name
             students[student_id] = {} if students[student_id].nil?
@@ -121,14 +122,15 @@ class AttendanceRecordReport
           class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
           days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
-          @student_ids.each do |student_id|
+          @students_enrollments.each do |student_enrollment|
+            student_id = student_enrollment.student_id
             student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id) || NullDailyFrequencyStudent.new
             student = Student.find(student_id)
             (students[student_id] ||= {})[:name] = student.name
             students[student_id] = {} if students[student_id].nil?
-            students[student_id][:dependence] = students[student_id][:dependence] || student_frequency.dependence?
+            students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, daily_frequency.discipline_id)
 
-            self.any_student_with_dependence = self.any_student_with_dependence || student_frequency.dependence?
+            self.any_student_with_dependence = self.any_student_with_dependence || student_has_dependence?(student_enrollment, daily_frequency.discipline_id)
             students[student_id][:absences] ||= 0
             if !student_frequency.present
               students[student_id][:absences] = students[student_id][:absences] + 1
@@ -236,5 +238,12 @@ class AttendanceRecordReport
 
   def event?(record)
     record.class.to_s == "SchoolCalendarEvent"
+  end
+
+  def student_has_dependence?(student_enrollment, discipline)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment)
+      .by_discipline(discipline)
+      .any?
   end
 end
