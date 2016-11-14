@@ -21,7 +21,7 @@ class AttendanceRecordReportController < ApplicationController
                                                               @attendance_record_report_form.start_at,
                                                               @attendance_record_report_form.end_at,
                                                               @attendance_record_report_form.daily_frequencies,
-                                                              @attendance_record_report_form.student_ids,
+                                                              @attendance_record_report_form.students_enrollments,
                                                               @attendance_record_report_form.school_calendar_events)
 
       send_data(attendance_record_report.render, filename: 'registro-de-frequencia.pdf', type: 'application/pdf', disposition: 'inline')
