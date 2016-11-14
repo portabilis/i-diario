@@ -285,6 +285,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :student_enrollments, only: [:index]
+
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
