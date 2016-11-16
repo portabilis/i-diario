@@ -4,7 +4,7 @@ module DailyNoteHelper
       'inactive-student'
     elsif student_note.exempted
       'exempted-student'
-    elsif student_note.dependence?
+    elsif student_note.dependence
       'dependence-student'
     else
       ''
@@ -16,7 +16,7 @@ module DailyNoteHelper
       "***#{student_note.student.to_s}"
     elsif student_note.exempted
       "**#{student_note.student.to_s}"
-    elsif student_note.dependence?
+    elsif student_note.dependence
       "*#{student_note.student.to_s}"
     else
       "#{student_note.student.to_s}"

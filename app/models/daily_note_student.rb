@@ -34,10 +34,6 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :ordered, -> { joins(:student, daily_note: :avaliation).order(Avaliation.arel_table[:test_date], Student.arel_table[:name]) }
   scope :order_by_discipline_and_date, -> { joins(daily_note: [:discipline, :avaliation]).order(Discipline.arel_table[:description], Avaliation.arel_table[:test_date]) }
 
-  def dependence?
-    self.dependence
-  end
-
   def maximum_score
     return avaliation.test_setting.maximum_score if !avaliation.test_setting.fix_tests
     return avaliation.weight.to_f if avaliation.test_setting_test.allow_break_up
