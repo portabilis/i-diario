@@ -3,6 +3,8 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   audited associated_with: :daily_frequency, except: :daily_frequency_id
 
+  attr_accessor :dependence
+
   belongs_to :daily_frequency
   belongs_to :student
 
