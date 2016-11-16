@@ -1,0 +1,18 @@
+<h3><%= f.object.classroom %></h3>
+
+<table class="table table-striped table-bordered table-condensed records">
+  <thead>
+    <tr>
+      <th style="width: 22%;"><%= SchoolCalendarClassroomStep.human_attribute_name :start_at %></th>
+      <th style="width: 22%;"><%= SchoolCalendarClassroomStep.human_attribute_name :end_at %></th>
+      <th style="width: 22%;"><%= SchoolCalendarClassroomStep.human_attribute_name :start_date_for_posting %></th>
+      <th style="width: 22%;"><%= SchoolCalendarClassroomStep.human_attribute_name :end_date_for_posting %></th>
+    </tr>
+  </thead>
+
+  <tbody id="school-calendar-classroom-steps">
+    <%= f.simple_fields_for :classroom_steps do |step| %>
+      <%= render 'step_fields', f: step %>
+    <% end %>
+  </tbody>
+</table>
