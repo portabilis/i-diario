@@ -2,14 +2,14 @@ class StudentsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:search_api]
 
   def index
-    if params[:classroom_id] && params[:date]
+    if params[:classroom_id]
+      date = params[:date].present? ? params[:date] : Date.today
       classroom = Classroom.find(params[:classroom_id])
 
       @students = StudentsFetcher.new(
-        configuration,
-        classroom.api_code,
+        classroom,
         nil,
-        params[:date].to_date.to_s,
+        date.to_date.to_s,
         params[:start_date]
       )
       .fetch

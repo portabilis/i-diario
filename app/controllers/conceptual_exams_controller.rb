@@ -232,17 +232,14 @@ class ConceptualExamsController < ApplicationController
     @students = []
 
     if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present?
-      begin
-        @students = StudentsFetcher.new(
-          configuration,
-          @conceptual_exam.classroom.api_code,
-          date: @conceptual_exam.recorded_at.to_date.to_s
-        )
-        .fetch
-      rescue IeducarApi::Base::ApiError => e
-        flash[:alert] = e.message
-        render :new
-      end
+      @student_ids = StudentEnrollment
+        .by_classroom(current_user_classroom)
+        .by_discipline(current_user_discipline)
+        .by_date(@conceptual_exam.recorded_at.to_date.to_s)
+        .active
+        .ordered
+        .collect(&:student_id)
+      @students = Student.where(id: @student_ids)
     end
   end
 

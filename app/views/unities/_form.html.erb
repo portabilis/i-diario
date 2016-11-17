@@ -31,6 +31,7 @@
         <%= f.input :api_code do %>
           <i class="icon-append fa fa-question-circle"></i>
           <%= f.input_field :api_code, rel: 'popover-hover',
+            disabled: @unity.persisted? && @unity.api?,
             :'data-placement' => 'top',
             :'data-content' => t('unity.help.api_code'), :'data-toggle'=> 'popover' %>
         <% end %>

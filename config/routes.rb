@@ -116,6 +116,7 @@ Rails.application.routes.draw do
     resource :notification, only: [:edit, :update], concerns: :history
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
+    resource :terms_dictionaries, only: [:edit, :update], concerns: :history
     resources :backup_files, only: [:index, :create]
     resources :unities, concerns: :history do
       collection do
@@ -181,6 +182,9 @@ Rails.application.routes.draw do
     get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
 
     resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***_***REMOVED***s, only: :index
+    resources :***REMOVED***_periods, only: :index
+    resources :***REMOVED***_students, only: :index
 
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
@@ -281,6 +285,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :student_enrollments, only: [:index]
+
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
@@ -289,6 +295,9 @@ Rails.application.routes.draw do
 
     get '/reports/exam_record', to: 'exam_record_report#form', as: 'exam_record_report'
     post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
+
+    get '/reports/partial_score_record', to: 'partial_score_record_report#form', as: 'partial_score_record_report'
+    post '/reports/partial_score_record', to: 'partial_score_record_report#report', as: 'exam_record_report'
 
     get '/reports/observation_record', to: 'observation_record_report#form', as: 'observation_record_report'
     post '/reports/observation_record', to: 'observation_record_report#report', as: 'observation_record_report'

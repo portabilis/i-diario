@@ -96,15 +96,14 @@ class AvaliationExemptionsController < ApplicationController
   def fetch_students
     @students = []
     if @avaliation_exemption.avaliation.classroom.present?
-      begin
-        @students = StudentsFetcher.new(
-          configuration,
-          @avaliation_exemption.classroom.api_code,
-          nil,
-          @avaliation_exemption.avaliation.test_date.to_s
-        )
-        .fetch
-      end
+      @student_ids = StudentEnrollment
+        .by_classroom(current_user_classroom)
+        .by_discipline(current_user_discipline)
+        .by_date(@avaliation_exemption.avaliation.test_date)
+        .active
+        .ordered
+        .collect(&:student_id)
+      @students = Student.where(id: @student_ids)
     end
   end
 

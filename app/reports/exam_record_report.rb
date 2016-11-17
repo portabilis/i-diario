@@ -3,8 +3,8 @@ require "prawn/measurement_extensions"
 class ExamRecordReport
   include Prawn::View
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
-    new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
+    new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
   end
 
   def initialize
@@ -16,14 +16,14 @@ class ExamRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
     @school_calendar_step = school_calendar_step
     @test_setting = test_setting
     @daily_notes = daily_notes
-    @students = students
+    @students_enrollments = students_enrollments
 
     header
 
@@ -83,10 +83,9 @@ class ExamRecordReport
   def daily_notes_table
     averages = {}
     self.any_student_with_dependence = false
-    students_ids = fetch_students_ids
 
-    students_ids.each do |student_id|
-      averages[student_id] = StudentAverageCalculator.new(Student.find(student_id)).calculate(@daily_notes.first.classroom, @daily_notes.first.discipline, @school_calendar_step.id)
+    @students_enrollments.each do |student_enrollment|
+      averages[student_enrollment.student_id] = StudentAverageCalculator.new(Student.find(student_enrollment.student_id)).calculate(@daily_notes.first.classroom, @daily_notes.first.discipline, @school_calendar_step.id)
     end
 
     daily_notes_and_recoveries = []
@@ -126,8 +125,9 @@ class ExamRecordReport
           daily_note_id = daily_note.id
         end
 
-        students_ids.each do |student_id|
-          if exempted_avaliation?(student_id, avaliation_id)
+        @students_enrollments.each do |student_enrollment|
+          student_id = student_enrollment.student_id
+          if exempted_avaliation?(student_enrollment.student_id, avaliation_id)
             student_note = ExemptedDailyNoteStudent.new
           else
             student_note = DailyNoteStudent
@@ -139,12 +139,12 @@ class ExamRecordReport
 
           student = Student.find(student_id)
 
-          self.any_student_with_dependence = any_student_with_dependence || student_note.dependence?
+          self.any_student_with_dependence = any_student_with_dependence || student_has_dependence?(student_enrollment, daily_note.discipline_id)
 
           (students[student_id] ||= {})[:name] = student.name
 
           students[student_id] = {} if students[student_id].nil?
-          students[student_id][:dependence] = students[student_id][:dependence] || student_note.dependence?
+          students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, daily_note.discipline_id)
 
           if recovery_record(daily_note)
             (students[student_id][:scores] ||= []) << make_cell(content: student_note.recovery_note.to_s, align: :center)
@@ -164,8 +164,15 @@ class ExamRecordReport
 
       students_cells = []
       students = students.sort_by { |(key, value)| value[:dependence] ? 1 : 0 }
-      students.each_with_index do |(key, value), index|
-        sequence_cell = make_cell(content: (index + 1).to_s, align: :center)
+      sequence = 1
+      sequence_reseted = false
+      students.each do |key, value|
+        if(!sequence_reseted && value[:dependence])
+          sequence = 1
+          sequence_reseted = true
+        end
+
+        sequence_cell = make_cell(content: sequence.to_s, align: :center)
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name] }].concat(value[:scores])
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
@@ -177,6 +184,8 @@ class ExamRecordReport
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)
         end
         students_cells << student_cells
+
+        sequence += 1
       end
 
       (10 - students_cells.count).times do
@@ -237,23 +246,6 @@ class ExamRecordReport
     number_pages(string, options)
   end
 
-  def fetch_students_ids
-    students_ids = []
-    @daily_notes.each do |daily_note|
-      daily_note.students.each do |student|
-        students_ids << student.student.id
-      end
-    end
-    students_ids.uniq!
-    order_students_by_name(students_ids)
-  end
-
-  def order_students_by_name(students_ids)
-    students = Student.where(id: students_ids).ordered
-    students_ids = students.collect(&:id)
-    students_ids
-  end
-
   def exempted_avaliation?(student_id, avaliation_id)
     avaliation_is_exempted = AvaliationExemption
       .by_student(student_id)
@@ -264,5 +256,12 @@ class ExamRecordReport
 
   def recovery_record(record)
     record.class.to_s == "RecoveryDiaryRecord"
+  end
+
+  def student_has_dependence?(student_enrollment, discipline)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment)
+      .by_discipline(discipline)
+      .any?
   end
 end

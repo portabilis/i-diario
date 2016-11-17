@@ -26,3 +26,6 @@ job_type :custom_rake, "cd :path && :environment_variable=:environment /usr/loca
 every "40 2 * * *" do
   custom_rake "***REMOVED***s:expire"
 end
+every "0 3 * * *" do
+  custom_rake "ieducar_api:synchronize"
+end
