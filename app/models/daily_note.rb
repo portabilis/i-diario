@@ -24,7 +24,7 @@ class DailyNote < ActiveRecord::Base
   validates :avaliation, presence: true
 
   validate :avaliation_date_must_be_less_than_or_equal_to_today
-  validate :avaliation_must_have_test_setting
+  validate :avaliation_must_have_test_setting_when_fix_tests
 
   before_destroy :ensure_not_has_avaliation_recovery
 
@@ -79,8 +79,8 @@ class DailyNote < ActiveRecord::Base
     end
   end
 
-  def avaliation_must_have_test_setting
-    unless avaliation.try(:test_setting_test)
+  def avaliation_must_have_test_setting_when_fix_tests
+    if avaliation.fix_tests? && !avaliation.try(:test_setting_test)
       errors.add(:avaliation, :test_setting_mising_on_avaliation)
       false
     end
