@@ -102,7 +102,8 @@ class AttendanceRecordReport
       frequencies_and_events_slice.each do |daily_frequency_or_event|
         if event?(daily_frequency_or_event)
           school_calendar_event = daily_frequency_or_event
-          self.legend += ", "+school_calendar_event.legend.to_s+" - "+school_calendar_event.description
+          legend = ", "+school_calendar_event.legend.to_s+" - "+school_calendar_event.description
+          self.legend += legend unless self.legend.include?(legend)
 
           class_numbers << make_cell(content: "", background_color: 'FFFFFF', align: :center)
           days << make_cell(content: "#{school_calendar_event.event_date.day}", background_color: 'FFFFFF', align: :center)
@@ -197,9 +198,12 @@ class AttendanceRecordReport
           end
         end
 
+        text_box(self.legend, size: 8, at: [0, 30], width: 825, height: 20)
         start_new_page if index < sliced_students_cells.count - 1
       end
 
+      text_box(self.legend, size: 8, at: [0, 30], width: 825, height: 20)
+      self.legend = "Legenda: N - Não enturmado"
       start_new_page if index < sliced_frequencies_and_events.count - 1
     end
   end
@@ -223,8 +227,6 @@ class AttendanceRecordReport
       if(self.any_student_with_dependence)
         draw_text('* Alunos cursando dependência', size: 8, at: [0, 47])
       end
-
-      text_box(self.legend, size: 8, at: [0, 30], width: 825, height: 20)
     end
 
     string = "Página <page> de <total>"
