@@ -28,7 +28,7 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
 
   validate :uniqueness_of_avaliation_recovery_diary_record
   validate :recovery_date_should_be_greater_or_equal_avaliation_date, if: :dates_are_set?
-  validate :avaliation_must_have_test_setting
+  validate :avaliation_must_have_test_setting_when_fix_tests
 
   before_validation :self_assign_to_recovery_diary_record
 
@@ -81,8 +81,8 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
     end
   end
 
-  def avaliation_must_have_test_setting
-    unless avaliation.try(:test_setting_test)
+  def avaliation_must_have_test_setting_when_fix_tests
+    if avaliation.fix_tests? && !avaliation.try(:test_setting_test)
       errors.add(:avaliation, :test_setting_mising_on_avaliation)
       false
     end
