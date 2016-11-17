@@ -21,6 +21,7 @@ class UsersController < ApplicationController
 
     authorize @user
 
+    params[:user].delete :password if params[:user][:password].blank?
 
     if @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
@@ -71,7 +72,7 @@ class UsersController < ApplicationController
   def user_params
     params.require(:user).permit(
       :first_name, :last_name, :phone, :email, :cpf, :login, :status,
-      :authorize_email_and_sms, :student_id, :teacher_id,
+      :authorize_email_and_sms, :student_id, :teacher_id, :password,
       :user_roles_attributes => [
         :id, :role_id, :unity_id, :_destroy
       ]

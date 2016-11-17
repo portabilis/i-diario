@@ -70,7 +70,8 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :terms_dictionaries,
                    :partial_score_record_report,
-                   :***REMOVED***_movements_report
+                   :***REMOVED***_movements_report,
+                   :can_change_user_password
 
   sort_by :translation
 end
