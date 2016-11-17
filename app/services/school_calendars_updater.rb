@@ -28,19 +28,20 @@ class SchoolCalendarsUpdater
       end
 
       school_calendar_params['classrooms'].each_with_index do |classroom_params, classroom_index|
-        if school_calendar.classrooms[classroom_index].present?
+        if SchoolCalendarClassroom.by_classroom_id(classroom_params['id']).first
+          classroom = school_calendar.classrooms.by_classroom_id(classroom_params['id']).first
           classroom_params['steps'].each_with_index do |step_params, step_index|
-            if school_calendar.classrooms[classroom_index].classroom_steps[step_index]
-              school_calendar.classrooms[classroom_index].classroom_steps[step_index].start_at = step_params['start_at']
-              school_calendar.classrooms[classroom_index].classroom_steps[step_index].start_date_for_posting = step_params['start_date_for_posting']
-              school_calendar.classrooms[classroom_index].classroom_steps[step_index].end_at = step_params['end_at']
-              school_calendar.classrooms[classroom_index].classroom_steps[step_index].end_date_for_posting = step_params['end_date_for_posting']
+            if classroom.classroom_steps.any?
+              classroom.classroom_steps[step_index].start_at = step_params['start_at']
+              classroom.classroom_steps[step_index].start_date_for_posting = step_params['start_date_for_posting']
+              classroom.classroom_steps[step_index].end_at = step_params['end_at']
+              classroom.classroom_steps[step_index].end_date_for_posting = step_params['end_date_for_posting']
             else
               step = SchoolCalendarClassroomStep.new(
-                start_at: step_params['start_at'],
-                end_at: step_params['end_at'],
-                start_date_for_posting: step_params['start_date_for_posting'],
-                end_date_for_posting: step_params['end_date_for_posting']
+              start_at: step_params['start_at'],
+              end_at: step_params['end_at'],
+              start_date_for_posting: step_params['start_date_for_posting'],
+              end_date_for_posting: step_params['end_date_for_posting']
               )
               school_calendar.classrooms[classroom_index].classroom_steps.build(step.attributes)
             end
