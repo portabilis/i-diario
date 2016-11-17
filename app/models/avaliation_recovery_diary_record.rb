@@ -82,7 +82,7 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def avaliation_must_have_test_setting_when_fix_tests
-    if avaliation.fix_tests? && !avaliation.try(:test_setting_test)
+    if avaliation.try(:fix_tests?) && !avaliation.try(:test_setting_test)
       errors.add(:avaliation, :test_setting_mising_on_avaliation)
       false
     end
