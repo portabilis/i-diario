@@ -46,12 +46,6 @@ class SchoolCalendarsUpdater
               school_calendar.classrooms[classroom_index].classroom_steps.build(step.attributes)
             end
           end
-        # if school_calendar.classrooms[classroom_index].present?
-        #   classroom_params['steps'].each_with_index do |step_params, step_index|
-        #     if school_calendar.classrooms[classroom_index].classroom_steps[step_index]
-        #     else
-        #     end
-        #   end
         else
           classroom = SchoolCalendarClassroom.new(
             classroom: Classroom.find_by_id(classroom_params['id'])
