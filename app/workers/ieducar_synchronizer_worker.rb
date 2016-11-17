@@ -1,11 +1,26 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
-  def perform(entity_id, synchronization_id)
-    entity = Entity.find(entity_id)
+  def perform(entity_id = nil, synchronization_id = nil)
+    if entity_id
+      entity = Entity.find(entity_id)
+      perform_for_entity(entity, synchronization_id)
+    else
+      all_entities.each do |entity|
+        perform_for_entity(entity, synchronization_id)
+      end
+    end
+  end
 
+  private
+
+  def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
-      synchronization = IeducarApiSynchronization.find(synchronization_id)
+      unless synchronization = IeducarApiSynchronization.find_by_id(synchronization_id)
+        configuration = IeducarApiConfiguration.current
+        break unless configuration.persisted?
+        synchronization = configuration.start_synchronization!(User.first)
+      end
 
       begin
         KnowledgeAreasSynchronizer.synchronize!(synchronization)
@@ -20,6 +35,10 @@ class IeducarSynchronizerWorker
           CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, year)
           TeachersSynchronizer.synchronize!(synchronization, year)
           ExamRulesSynchronizer.synchronize!(synchronization, year)
+          Unity.with_api_code.each do |unity|
+            StudentEnrollmentSynchronizer.synchronize!(synchronization, year, unity.api_code)
+          end
+          StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, year)
         end
 
         synchronization.mark_as_completed!
@@ -33,12 +52,15 @@ class IeducarSynchronizerWorker
     end
   end
 
-  private
-
   def years_to_synchronize
     Unity.with_api_code.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }
       .uniq
       .reject(&:blank?)
       .sort
   end
+
+  def all_entities
+    Entity.all
+  end
+
 end

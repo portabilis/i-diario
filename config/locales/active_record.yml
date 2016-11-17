@@ -33,7 +33,7 @@ pt-BR:
       taken: "já está em uso"
       too_long: ! "é muito longo (máximo: %{count} caracteres)"
       too_short: ! "é muito curto (mínimo: %{count} caracteres)"
-      wrong_length: "não possui o tamanho esperado (%{count} caracteres)"
+      wrong_length: "não possui o tamanho esperado (%{count} caractere(s))"
       incorrect_format: "formato incorreto"
       invalid_email: "use apenas letras (a-z), números e pontos."
       invalid_url: "formato de url inválido"

@@ -3,13 +3,16 @@ class DailyNoteStudent < ActiveRecord::Base
 
   audited associated_with: :daily_note, except: :daily_note_id
 
-  attr_accessor :exempted
+  attr_accessor :exempted, :active, :dependence
 
   belongs_to :daily_note
   belongs_to :student
   belongs_to :transfer_note
 
   delegate :avaliation, to: :daily_note
+  delegate :unity, to: :daily_note
+  delegate :classroom, to: :daily_note
+  delegate :discipline_id, to: :daily_note
 
   validates :student,    presence: true
   validates :daily_note, presence: true
@@ -29,6 +32,11 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :by_test_date_between, lambda { |start_at, end_at| by_test_date_between(start_at, end_at) }
   scope :by_avaliation, lambda { |avaliation| joins(:daily_note).where(daily_notes: { avaliation_id: avaliation }) }
   scope :ordered, -> { joins(:student, daily_note: :avaliation).order(Avaliation.arel_table[:test_date], Student.arel_table[:name]) }
+  scope :order_by_discipline_and_date, -> { joins(daily_note: [:discipline, :avaliation]).order(Discipline.arel_table[:description], Avaliation.arel_table[:test_date]) }
+
+  def dependence?
+    self.dependence
+  end
 
   def maximum_score
     return avaliation.test_setting.maximum_score if !avaliation.test_setting.fix_tests

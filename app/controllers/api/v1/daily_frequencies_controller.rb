@@ -10,6 +10,10 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
     end
   end
 
+  def current_user
+    User.find(user_id)
+  end
+
   protected
 
   def process_one
@@ -32,9 +36,10 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
       @students = []
 
-      @api_students.each do |api_student|
-        if student = Student.find_by(api_code: api_student['id'])
-          @students << (@daily_frequency.students.where(student_id: student.id).first || @daily_frequency.students.create(student_id: student.id, dependence: api_student['dependencia'], present: true))
+      @student_enrollments.each do |student_enrollment|
+        if student = Student.find_by_id(student_enrollment.student_id)
+          dependence = student_has_dependence?(student_enrollment.id, @daily_frequency.discipline_id)
+          @students << (@daily_frequency.students.where(student_id: student.id).first || @daily_frequency.students.create(student_id: student.id, dependence: dependence, present: true))
         end
       end
     end
@@ -66,35 +71,27 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
       @students = []
 
-
-      @api_students.each do |api_student|
-        if student = Student.find_by(api_code: api_student['id'])
-          @students << {
-            student_id: student.id,
-            student_name: student.name,
-            dependence: api_student['dependencia'],
-            daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: api_student['dependencia'], present: true)) }
-          }
-        end
+      @student_enrollments.each do |student_enrollment|
+        student = student_enrollment.student
+        @students << {
+          student_id: student.id,
+          student_name: student.name,
+          dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id),
+          daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id), present: true)) }
+        }
       end
     end
   end
 
   def fetch_students
-    begin
-      api = IeducarApi::Students.new(configuration.to_api)
-      result = api.fetch_for_daily(
-        {
-          classroom_api_code: @daily_frequency.classroom.api_code,
-          discipline_api_code: @daily_frequency.discipline.try(:api_code),
-          date: params[:frequency_date] || Time.zone.today
-        }
-      )
-
-      @api_students = result["alunos"]
-    rescue IeducarApi::Base::ApiError => e
-      @api_students = []
-    end
+    frequency_date = params[:frequency_date] || Time.zone.today
+    @student_enrollments = StudentEnrollment
+      .includes(:student)
+      .by_classroom(@daily_frequency.classroom)
+      .by_discipline(@daily_frequency.discipline)
+      .by_date(frequency_date)
+      .active
+      .ordered
   end
 
   def configuration
@@ -103,5 +100,16 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
   def current_school_calendar
     CurrentSchoolCalendarFetcher.new(params[:unity_id]).fetch
+  end
+
+  def student_has_dependence?(student_enrollment_id, discipline_id)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment_id)
+      .by_discipline(discipline_id)
+      .any?
+  end
+
+  def user_id
+    @user_id ||= params[:user_id] || 1
   end
 end

@@ -164,9 +164,9 @@ $(function () {
 
   $('#knowledge_area_content_record_content_record_attributes_contents_tags').on('change', function(e){
     if(e.val.length){
-      var content_description = e.val[0];
+      var content_description = e.val.join(", ");
       if(content_description.trim().length &&
-          !$('input[type=checkbox][data-content_description="'+content_description+'"').length){
+          !$('input[type=checkbox][data-content_description="'+content_description+'"]').length){
 
         var html = JST['templates/knowledge_area_content_records/contents_list_manual_item']({
           description: content_description
@@ -174,7 +174,7 @@ $(function () {
         $('#contents-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
       }else{
-        $('input[type=checkbox][data-content_description="'+content_description+'"').prop('checked', true)
+        $('input[type=checkbox][data-content_description="'+content_description+'"]').prop('checked', true)
                                                                                     .trigger('change');
       }
     }

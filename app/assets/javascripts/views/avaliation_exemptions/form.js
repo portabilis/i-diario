@@ -218,11 +218,21 @@ $(function () {
 
   function fetchStudents() {
     var classroom_id = $classroom.select2('val');
+    var discipline_id = $discipline.select2('val');
     var avaliation_date = $('#avaliation_exemption_avaliation_date').val();
+
+    var filter = {
+      by_classroom: classroom_id,
+      by_date: avaliation_date,
+      by_discipline: discipline_id
+    };
 
     if (!_.isEmpty(classroom_id) && !_.isEmpty(avaliation_date)) {
       $.ajax({
-        url: Routes.classroom_students_pt_br_path({ classroom_id: classroom_id, date: avaliation_date, format: 'json' }),
+        url: Routes.student_enrollments_pt_br_path({
+          filter: filter,
+          format: 'json'
+        }),
         success: handleFetchStudentsSuccess,
         error: handleFetchStudentsError
       });
@@ -230,8 +240,8 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(students) {
-    var selectedStudents = _.map(students['students'], function(student) {
-      return { id: student['id'], text: student['name'] };
+    var selectedStudents = _.map(students.student_enrollments, function(student_enrollment) {
+      return { id: student_enrollment.student.id, text: student_enrollment.student.name };
     });
 
     $student.select2({ data: selectedStudents });

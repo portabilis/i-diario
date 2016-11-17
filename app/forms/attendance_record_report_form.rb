@@ -56,18 +56,36 @@ class AttendanceRecordReportForm
                    .without_frequency
                    .by_date_between(start_at, end_at)
                    .all_events_for_classroom(classroom)
+                   .where(SchoolCalendarEvent.arel_table[:discipline_id].eq(nil).or(SchoolCalendarEvent.arel_table[:discipline_id].eq(discipline_id)))
                    .ordered
   end
 
-  def students
-    students_ids = []
-    daily_frequencies.each { |d| students_ids << d.students.map(&:student_id) }
-    students_ids.flatten!.uniq!
+  def students_enrollments
+    students_enrollments = StudentEnrollment
+      .by_classroom(classroom_id)
+      .active
+      .ordered
 
-    Student.find(students_ids)
+    students_enrollments = remove_duplicated_enrollments(students_enrollments)
   end
 
   private
+
+  def remove_duplicated_enrollments(students_enrollments)
+    students_enrollments = students_enrollments.select do |student_enrollment|
+      enrollments_for_student = StudentEnrollment
+        .by_student(student_enrollment.student_id)
+        .by_classroom(classroom_id)
+
+      if enrollments_for_student.count > 1
+        enrollments_for_student.last != student_enrollment
+      else
+        true
+      end
+    end
+
+    students_enrollments
+  end
 
   def global_absence?
     frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)

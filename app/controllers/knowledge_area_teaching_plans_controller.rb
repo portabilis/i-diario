@@ -10,6 +10,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
       .includes(:knowledge_areas, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
       .by_grade(current_user_classroom.try(:grade_id))
+      .by_teacher_id(current_teacher)
 
     authorize @knowledge_area_teaching_plans
 
@@ -142,7 +143,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.where(id: current_user_classroom.grade_id)
+    @grades = Grade.where(id: current_user_classroom.try(:grade_id))
       .ordered
   end
 
