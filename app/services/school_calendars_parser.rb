@@ -101,21 +101,30 @@ class SchoolCalendarsParser
       end
       steps_from_classrooms = school_calendar_from_api['etapas_de_turmas'].nil? ? [] : school_calendar_from_api['etapas_de_turmas']
       steps_from_classrooms.each_with_index do |classroom_step, classroom_index|
-        if school_calendar.classrooms[classroom_index].present?
+        if SchoolCalendarClassroom.by_classroom_api_code(classroom_step['turma_id']).first
+          classroom = school_calendar.classrooms.by_classroom_api_code(classroom_step['turma_id']).first
           classroom_step['etapas'].each_with_index do |step, step_index|
-            if school_calendar.classrooms[classroom_index].classroom_steps[step_index]
-              update_classrooms_step_start_at(school_calendar.classrooms[classroom_index], step_index, step)
-              update_classrooms_step_end_at(school_calendar.classrooms[classroom_index], step_index, step)
+            if classroom.classroom_steps.any?
+              update_classrooms_step_start_at(classroom, step_index, step)
+              update_classrooms_step_end_at(classroom, step_index, step)
             else
               step = SchoolCalendarClassroomStep.new(
-                start_at: step['data_inicio'],
-                end_at: step['data_fim'],
-                start_date_for_posting: step['data_inicio'],
-                end_date_for_posting: step['data_fim']
+              start_at: step['data_inicio'],
+              end_at: step['data_fim'],
+              start_date_for_posting: step['data_inicio'],
+              end_date_for_posting: step['data_fim']
               )
-              school_calendar.classrooms[classroom_index].classroom_steps.build(step.attributes)
+              school_calendar.classrooms.by_classroom_api_code(classroom_step['turma_id']).first.classroom_steps.build(step.attributes)
             end
           end
+
+          # classroom_step['etapas'].each_with_index do |step, step_index|
+          #   if school_calendar.classrooms[classroom_index].classroom_steps[step_index]
+          #     update_classrooms_step_start_at(school_calendar.classrooms[classroom_index], step_index, step)
+          #     update_classrooms_step_end_at(school_calendar.classrooms[classroom_index], step_index, step)
+          #   else
+          #   end
+          # end
         else
           classroom = SchoolCalendarClassroom.new(
             classroom: Classroom.by_api_code(classroom_step['turma_id']).first
