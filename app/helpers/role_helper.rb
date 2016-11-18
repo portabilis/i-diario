@@ -1,4 +1,5 @@
 module RoleHelper
+  FEATURES_YES_OR_NO = ["can_change_user_password", "ieducar_api_exam_posting_without_restrictions"]
   def access_level_tags(role_permission)
     tags = ""
     AccessLevel.list.each do |access_level|
@@ -8,6 +9,6 @@ module RoleHelper
   end
 
   def permissions(feature)
-    feature == "ieducar_api_exam_posting_without_restrictions" ? PermissionsYesOrNo.to_select.to_json : Permissions.to_select.to_json
+    FEATURES_YES_OR_NO.include?(feature) ? PermissionsYesOrNo.to_select.to_json : Permissions.to_select.to_json
   end
 end
