@@ -8,6 +8,7 @@ $(function() {
   var $student = $('#conceptual_exam_student_id');
   var $examRuleNotFoundAlert = $('#exam-rule-not-found-alert');
   var $examRuleNotAllowConcept = $('#exam-rule-not-allow-concept');
+  var $discipline = $('#user_current_discipline_id');
   var flashMessages = new FlashMessages();
 
   function fetchClassrooms() {
@@ -77,14 +78,24 @@ $(function() {
   function fetchStudents() {
     var classroom_id = $classroom.select2('val');
     var recorded_at = $recorded_at.val();
+    var discipline_id = $discipline.select2('val');
 
     window.studentPreviouslySelected = $student.select2('val');
     $student.select2('val', '');
     $student.select2({ data: [] });
 
+    var filter = {
+      by_classroom: classroom_id,
+      by_date: recorded_at,
+      by_discipline: discipline_id
+    };
+
     if (!_.isEmpty(classroom_id) && !_.isEmpty(recorded_at)) {
       $.ajax({
-        url: Routes.classroom_students_pt_br_path({ classroom_id: classroom_id, date: recorded_at, format: 'json' }),
+        url: Routes.student_enrollments_pt_br_path({
+          filter: filter,
+          format: 'json'
+        }),
         success: handleFetchStudentsSuccess,
         error: handleFetchStudentsError
       });
@@ -94,12 +105,12 @@ $(function() {
   function handleFetchStudentsSuccess(data) {
     var studentPreviouslySelectedExists = false;
 
-    var students = _.map(data.students, function(student) {
-      if (student.id == window.studentPreviouslySelected) {
+    var students = _.map(data.student_enrollments, function(student_enrollment) {
+      if (student_enrollment.student_id == window.studentPreviouslySelected) {
         studentPreviouslySelectedExists = true;
       }
 
-      return { id: student.id, text: student.name };
+      return { id: student_enrollment.student_id, text: student_enrollment.student.name };
     });
 
     $student.select2({ data: students });

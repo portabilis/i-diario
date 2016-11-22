@@ -22,14 +22,16 @@ class ExamRecordReportForm
       .order_by_avaliation_test_date
   end
 
-  def student_ids
-    student_ids = StudentEnrollment
+  def students_enrollments
+    students_enrollments ||= StudentEnrollment
       .by_classroom(classroom_id)
+      .by_discipline(discipline_id)
       .active
       .ordered
-      .collect(&:student_id)
 
-    student_ids
+    students_enrollments = remove_duplicated_enrollments(students_enrollments)
+
+    students_enrollments
   end
 
   def step
@@ -46,5 +48,21 @@ class ExamRecordReportForm
     if daily_notes.count == 0
       errors.add(:daily_notes, :must_have_daily_notes)
     end
+  end
+
+  def remove_duplicated_enrollments(students_enrollments)
+    students_enrollments = students_enrollments.select do |student_enrollment|
+      enrollments_for_student = StudentEnrollment
+        .by_student(student_enrollment.student_id)
+        .by_classroom(classroom_id)
+
+      if enrollments_for_student.count > 1
+        enrollments_for_student.last != student_enrollment
+      else
+        true
+      end
+    end
+
+    students_enrollments
   end
 end

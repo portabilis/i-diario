@@ -41,6 +41,8 @@ class AuditDecorator
       I18n.t "boolean.#{value}"
     elsif value.is_a?(Date) || value.is_a?(Time)
       I18n.l value
+    elsif field == :encrypted_password
+      "*********"
     elsif field.match(/_id/) && association.present?
       # Sometimes the record used in the relation doesn't exist anymore
       begin

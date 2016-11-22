@@ -3,6 +3,8 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   audited associated_with: :daily_frequency, except: :daily_frequency_id
 
+  attr_accessor :dependence
+
   belongs_to :daily_frequency
   belongs_to :student
 
@@ -11,6 +13,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
   validates :student, :daily_frequency, presence: true
 
   scope :absences, -> { where("COALESCE(daily_frequency_students.present, 'f') = 'f' ")}
+  scope :presents, -> { where("daily_frequency_students.present = 't' ")}
   scope :general_by_classroom_student_date_between,
         lambda { |classroom_id, student_id, start_at, end_at| where(
                                                        'daily_frequencies.classroom_id' => classroom_id,

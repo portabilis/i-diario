@@ -182,6 +182,9 @@ Rails.application.routes.draw do
     get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
 
     resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***_***REMOVED***s, only: :index
+    resources :***REMOVED***_periods, only: :index
+    resources :***REMOVED***_students, only: :index
 
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
@@ -282,6 +285,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :student_enrollments, only: [:index]
+
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
@@ -315,6 +320,7 @@ Rails.application.routes.draw do
 
     get '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#form', as: '***REMOVED***_movements_report'
     post '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#report', as: '***REMOVED***_movements_report'
+    get '/reports/***REMOVED***_movements/:id', to: '***REMOVED***_movements_report#show', as: '***REMOVED***_movements_report_viewer'
 
     post '/food_composition', to: 'food_composition#calculate'
   end

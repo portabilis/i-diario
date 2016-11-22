@@ -19,12 +19,13 @@ RSpec.describe ExamRecordReport, type: :report do
     unity = create(:unity)
     daily_note = create(:daily_note, avaliation: avaliation, classroom: classroom)
     student = create(:student)
+    student_enrollment = create(:student_enrollment, student: student)
     teacher = create(:teacher)
     test_setting = create(:test_setting)
     daily_note_student = create(:daily_note_student, daily_note: daily_note, student: student)
 
     daily_notes = DailyNote.all
-    students = Student.where(id: student.id)
+    student_enrollments = StudentEnrollment.where(id: student.id)
 
     subject = ExamRecordReport.build(
       entity_configuration,

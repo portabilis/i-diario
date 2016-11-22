@@ -9,4 +9,14 @@ class Api::V1::DailyFrequencyStudentsController < Api::V1::BaseController
 
     respond_with daily_frequency_student
   end
+
+  def current_user
+    User.find(user_id)
+  end
+
+  protected
+
+  def user_id
+    @user_id ||= params[:user_id] || 1
+  end
 end
