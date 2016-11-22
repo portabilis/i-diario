@@ -45,7 +45,30 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    fetch_student_list
+    students_enrollments = reject_duplicated_students(fetch_student_enrollments)
+
+    @students = []
+
+    students_enrollments.each do |student_enrollment|
+      if student = Student.find_by_id(student_enrollment.student_id)
+        note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
+        note_student.active = student_active_on_date?(student_enrollment)
+        note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
+        note_student.exempted = student_exempted_from_avaliation?(student.id)
+        note_student.mark_for_destruction if !note_student.active
+        @students << note_student
+      end
+    end
+
+    @normal_students = []
+    @dependence_students = []
+    @any_exempted_student = any_exempted_student?
+    @any_inactive_student = any_inactive_student?
+
+    @students.each do |student|
+      @normal_students << student if !student.dependence?
+      @dependence_students << student if student.dependence?
+    end
   end
 
   def update
@@ -182,6 +205,25 @@ class DailyNotesController < ApplicationController
 
       student.destroy unless student_exists || student.transfer_note.present?
     end
+  end
+
+  def remove_duplicated_students(students)
+    unique_student_ids = []
+    unique_students = []
+    students.each do |student|
+      unique_students << student unless unique_student_ids.include? student["id"]
+      unique_student_ids << student["id"]
+    end
+    unique_students
+  end
+
+  def reject_duplicated_students(student_enrollments)
+    unique_student_enrollments = []
+    student_enrollments.each do |student_enrollment|
+      student_enrollments_for_student = student_enrollments.by_student(student_enrollment.student_id)
+      unique_student_enrollments << student_enrollments_for_student.last
+    end
+    unique_student_enrollments.uniq
   end
 
   def student_exempted_from_avaliation?(student_id)
