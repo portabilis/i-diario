@@ -45,7 +45,7 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    students_enrollments = fetch_student_enrollments
+    students_enrollments = reject_duplicated_students(fetch_student_enrollments)
 
     @students = []
 
@@ -185,6 +185,15 @@ class DailyNotesController < ApplicationController
       unique_student_ids << student["id"]
     end
     unique_students
+  end
+
+  def reject_duplicated_students(student_enrollments)
+    unique_student_enrollments = []
+    student_enrollments.each do |student_enrollment|
+      student_enrollments_for_student = student_enrollments.by_student(student_enrollment.student_id)
+      unique_student_enrollments << student_enrollments_for_student.last
+    end
+    unique_student_enrollments.uniq
   end
 
   def student_exempted_from_avaliation?(student_id)
