@@ -55,7 +55,11 @@ class DailyNotesController < ApplicationController
         note_student.active = student_active_on_date?(student_enrollment)
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
-        note_student.mark_for_destruction if !note_student.active
+        if !note_student.active
+          next if !student_displayable_as_inactive?(student_enrollment)
+          note_student.mark_for_destruction
+        end
+
         @students << note_student
       end
     end
@@ -124,6 +128,15 @@ class DailyNotesController < ApplicationController
       .where(id: student_enrollment)
       .by_classroom(@daily_note.classroom)
       .by_date(@daily_note.avaliation.test_date)
+      .any?
+  end
+
+  def student_displayable_as_inactive?(student_enrollment)
+    StudentEnrollment
+      .where(id: student_enrollment)
+      .by_classroom(@daily_note.classroom)
+      .by_discipline(@daily_note.discipline)
+      .show_as_inactive
       .any?
   end
 
