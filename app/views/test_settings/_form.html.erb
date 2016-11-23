@@ -1,5 +1,10 @@
 <%= simple_form_for @test_setting, html: { class: "smart-form" } do |f| %>
-  <%= f.error_notification %>
+  <% if f.object.errors[:base].present? %>
+    <div class="alert alert-danger fade in">
+      <i class="fa-fw fa fa-times"></i>
+        <%= f.object.errors[:base].first %>
+    </div>
+  <% end %>
 
   <fieldset>
     <div class="row">
