@@ -173,6 +173,7 @@ class DailyNotesController < ApplicationController
       .where(id: student_enrollment)
       .by_classroom(@daily_note.classroom)
       .by_discipline(@daily_note.discipline)
+      .show_as_inactive
       .any?
   end
 
