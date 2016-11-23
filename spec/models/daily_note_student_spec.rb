@@ -5,8 +5,7 @@ RSpec.describe DailyNoteStudent, type: :model do
   let(:unity) { create(:unity) }
   let(:classroom) { create(:classroom, unity: unity) }
   let(:school_calendar) { create(:school_calendar_with_one_step, year: 2014) }
-  let(:test_setting_test) { create(:test_setting_test) }
-  let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_date: '2014-02-06', test_setting_test: test_setting_test) }
+  let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_date: '2014-02-06') }
   let(:daily_note) { create(:daily_note, unity: unity, classroom: classroom, discipline: discipline, avaliation: avaliation) }
   subject(:daily_note_student) { build(:daily_note_student, daily_note: daily_note) }
 
@@ -21,8 +20,7 @@ RSpec.describe DailyNoteStudent, type: :model do
 
     context 'when test_setting with no fixed tests' do
       let(:test_setting) { create(:test_setting, fix_tests: false) }
-      let(:test_setting_test) { create(:test_setting_test) }
-      let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_setting: test_setting, test_date: '2014-02-06', test_setting_test: test_setting_test) }
+      let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_setting: test_setting, test_date: '2014-02-06') }
       let(:daily_note) { create(:daily_note, unity: unity, classroom: classroom, discipline: discipline, avaliation: avaliation) }
       subject { build(:daily_note_student, daily_note: daily_note) }
 

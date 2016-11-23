@@ -11,6 +11,8 @@ class TestSetting < ActiveRecord::Base
   has_many :avaliations, dependent: :restrict_with_error
   has_many :tests, class_name: 'TestSettingTest', dependent: :destroy
 
+  before_update :ensure_has_no_avaliation_associated
+
   accepts_nested_attributes_for :tests, reject_if: :all_blank, allow_destroy: true
 
   validates :exam_setting_type, presence: true
@@ -79,5 +81,23 @@ class TestSetting < ActiveRecord::Base
     tests_weight = tests.to_a.select { |test| !test.marked_for_destruction? && test.weight }.sum(&:weight)
 
     errors.add(:tests, :tests_weight_equal_maximum_score) if tests_weight != maximum_score
+  end
+
+  def ensure_has_no_avaliation_associated
+    if fix_tests?
+      if has_any_change_on_test_settings? && avaliations.any?
+        errors.add(:base, :has_avaliation_associated)
+        false
+      end
+    else
+      if self.changed? && avaliations.any?
+        errors.add(:base, :has_avaliation_associated)
+        false
+      end
+    end
+  end
+
+  def has_any_change_on_test_settings?
+    self.try(:tests).any?(&:changed?)
   end
 end

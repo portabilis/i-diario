@@ -23,6 +23,8 @@ pt-BR:
             tests:
               at_least_one_assigned_test: "É necessário pelo menos uma avaliação"
               tests_weight_equal_maximum_score: "A soma dos pesos das avaliações deve resultar no mesmo valor da nota máxima"
+            base:
+              has_avaliation_associated: "Não é possível modificar as configurações de Avaliações numéricas pois existem avaliações vinculadas"
 
   test_settings:
     form:

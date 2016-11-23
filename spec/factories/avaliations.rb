@@ -9,6 +9,5 @@ FactoryGirl.define do
     classroom
     association :school_calendar, factory: :school_calendar_with_one_step
     test_setting
-    test_setting_test
   end
 end
