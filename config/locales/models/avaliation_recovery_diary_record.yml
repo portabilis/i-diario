@@ -10,4 +10,3 @@ pt-BR:
           attributes:
               avaliation:
                 uniqueness_of_avaliation_recovery_diary_record: 'já existe um lançamento de recuperação para esta avaliação'
-                test_setting_mising_on_avaliation: "avaliação não possui tipo definido"
