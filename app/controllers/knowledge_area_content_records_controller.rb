@@ -48,6 +48,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def update
     @knowledge_area_content_record = KnowledgeAreaContentRecord.find(params[:id]).localized
     @knowledge_area_content_record.assign_attributes(resource_params)
+    @knowledge_area_content_record.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
     @knowledge_area_content_record.content_record.content_ids = content_ids
 
