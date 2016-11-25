@@ -52,6 +52,7 @@ class Avaliation < ActiveRecord::Base
                                                 .where('avaliations.description ILIKE ? OR test_setting_tests.description ILIKE ?', "%#{description}%", "%#{description}%") }
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
+  scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
 
   scope :ordered, -> { order(test_date: :desc) }
 
@@ -91,6 +92,11 @@ class Avaliation < ActiveRecord::Base
   def self.by_school_calendar_step_query(school_calendar_step_id)
     school_calendar_step = SchoolCalendarStep.find(school_calendar_step_id)
     self.by_test_date_between(school_calendar_step.start_at, school_calendar_step.end_at)
+  end
+
+  def self.by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)
+    school_calendar_classroom_step = SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
+    self.by_test_date_between(school_calendar_classroom_step.start_at, school_calendar_classroom_step.end_at)
   end
 
   def is_school_term_day?

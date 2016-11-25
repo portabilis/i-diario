@@ -9,6 +9,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   belongs_to :recovery_diary_record, dependent: :destroy
   belongs_to :school_calendar_step, -> { includes(:school_calendar) }
+  belongs_to :school_calendar_classroom_step
 
   accepts_nested_attributes_for :recovery_diary_record
 
@@ -22,12 +23,14 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   scope :ordered, -> { joins(:recovery_diary_record).order(RecoveryDiaryRecord.arel_table[:recorded_at].desc) }
 
   validates :recovery_diary_record, presence: true
-  validates :school_calendar_step, presence: true
+  validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
+  validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
 
   validate :uniqueness_of_school_term_recovery_diary_record
   validate :recovery_type_must_allow_recovery_for_classroom
   validate :recovery_type_must_allow_recovery_for_school_calendar_step
-  validate :recorded_at_must_be_school_calendar_step_day
+  validate :recorded_at_must_be_school_calendar_step_day, unless: :school_calendar_classroom_step
+  validate :recorded_at_must_be_school_calendar_classroom_step_day, unless: :school_calendar_step
   validate :uniqueness_of_recorded_at
 
   before_validation :self_assign_to_recovery_diary_record
@@ -40,6 +43,15 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
       .fetch
 
     school_calendar_steps.map(&:id)
+  end
+
+  def school_calendar_classroom_steps_ids
+    school_calendar_classroom_steps = RecoverySchoolCalendarClassroomStepsFetcher.new(
+      school_calendar_step_id,
+      recovery_diary_record.classroom_id
+    ).fetch
+
+    school_calendar_classroom_steps.map(&:id)
   end
 
   private
@@ -95,6 +107,15 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     return unless recovery_diary_record && recovery_diary_record.recorded_at && school_calendar_step
 
     unless school_calendar_step == school_calendar_step.school_calendar.step(recovery_diary_record.recorded_at)
+      errors.add(:recovery_diary_record, :recorded_at_must_be_school_calendar_step_day)
+      recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_school_calendar_step_day)
+    end
+  end
+
+  def recorded_at_must_be_school_calendar_classroom_step_day
+    return unless recovery_diary_record && recovery_diary_record.recorded_at && school_calendar_classroom_step
+
+    unless school_calendar_classroom_step == school_calendar_classroom_step.school_calendar_classroom.classroom_step(recovery_diary_record.recorded_at)
       errors.add(:recovery_diary_record, :recorded_at_must_be_school_calendar_step_day)
       recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_school_calendar_step_day)
     end

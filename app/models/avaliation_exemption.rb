@@ -67,6 +67,15 @@ class AvaliationExemption < ActiveRecord::Base
     school_calendar_step
   end
 
+  def school_calendar_classroom_step
+    school_calendar_classroom_step = SchoolCalendarClassroomStep
+      .by_school_calendar_id(school_calendar_id)
+      .started_after_and_before(avaliation_test_date)
+      .first
+      .try(:id)
+    school_calendar_classroom_step
+  end
+
   def ensure_no_score_for_avaliation
     daily_note_student = DailyNoteStudent
     .by_student_id(student_id)

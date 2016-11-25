@@ -11,6 +11,7 @@ class ConceptualExam < ActiveRecord::Base
 
   belongs_to :classroom
   belongs_to :school_calendar_step
+  belongs_to :school_calendar_classroom_step
   belongs_to :student
   has_many :conceptual_exam_values, -> { includes(:conceptual_exam, discipline: :knowledge_area) },
     dependent: :destroy
@@ -27,8 +28,10 @@ class ConceptualExam < ActiveRecord::Base
   scope :ordered, -> { order(recorded_at: :desc)  }
 
   validates :classroom,  presence: true
-  validates :school_calendar_step, presence: true
-  validates :student, presence: true
+  validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
+  validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
+  validates :student, presence: true,
+    uniqueness: { scope: [:classroom_id, :school_calendar_step_id] }
   validates :recorded_at, presence: true,
     not_in_future: true,
     school_term_day: { school_term: lambda(&:school_calendar_step) }

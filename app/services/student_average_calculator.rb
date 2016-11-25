@@ -5,7 +5,7 @@ class StudentAverageCalculator
 
   def calculate(classroom_id, discipline_id, school_calendar_step_id)
     result = 0.0
-    step = SchoolCalendarStep.find(school_calendar_step_id)
+    step = SchoolCalendarClassroomStep.find(school_calendar_step_id) || SchoolCalendarStep.find(school_calendar_step_id)
     daily_note_students = DailyNoteStudent.by_student_id(@student.id)
       .by_discipline_id(discipline_id)
       .by_classroom_id(classroom_id)

@@ -1,5 +1,11 @@
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/transfer_notes/form' %>
+<% if school_calendar_classroom_steps.any? %>
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/transfer_notes/form_classroom_steps' %>
+  <% end %>
+<% else %>
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/transfer_notes/form' %>
+  <% end %>
 <% end %>
 
 
@@ -24,7 +30,11 @@
 
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.input :school_calendar_step_id, as: :select2, elements: school_calendar_steps, readonly: f.object.persisted? %>
+        <% if school_calendar_classroom_steps.any? %>
+          <%= f.input :school_calendar_classroom_step_id, as: :select2, elements: school_calendar_classroom_steps, readonly: f.object.persisted? %>
+        <% else %>
+          <%= f.input :school_calendar_step_id, as: :select2, elements: school_calendar_steps, readonly: f.object.persisted? %>
+        <% end %>
       </div>
 
       <div class="col col-sm-4">

@@ -9,6 +9,7 @@ $(function () {
   var $year = $('#avaliation_exemption_school_calendar_year');
   var $discipline = $('#avaliation_exemption_discipline_id');
   var $school_calendar_step = $('#avaliation_exemption_school_calendar_step');
+  var $school_calendar_classroom_step = $('#avaliation_exemption_school_calendar_classroom_step');
   var $avaliation = $('#avaliation_exemption_avaliation_id');
   var $student = $('#avaliation_exemption_student_id');
   var $school_calendar_step_start_at = $('#avaliation_exemption_school_calendar_step_start_at');
@@ -36,11 +37,15 @@ $(function () {
     fetchAvaliations();
   });
 
+  $school_calendar_classroom_step.on('change', function(){
+    fetchAvaliations();
+  });
+
   $avaliation.on('change', function(){
     fetchAvaliationDate();
   });
 
-  fetchAvaliations();
+  // fetchAvaliations();
 
   function fetchCourses() {
     var unity_id = $unity.select2('val');
@@ -167,18 +172,35 @@ $(function () {
     var classroom_id = $classroom.select2('val');
     var discipline_id = $discipline.select2('val');
     var school_calendar_step_id = $school_calendar_step.select2('val');
+    var school_calendar_classroom_step_id = $school_calendar_classroom_step.select2('val');
 
-    if (!_.isEmpty(classroom_id) && !_.isEmpty(discipline_id) && !_.isEmpty(school_calendar_step_id)) {
-      var filter = {
-        by_classroom_id: classroom_id,
-        by_discipline_id: discipline_id,
-        by_school_calendar_step: school_calendar_step_id
-      };
-      $.ajax({
-        url: Routes.search_avaliations_pt_br_path({ filter: filter, format: 'json' }),
-        success: handleFetchAvaliationsSuccess,
-        error: handleFetchAvaliationsError
-      });
+
+    if (!_.isEmpty(school_calendar_classroom_step_id)) {
+      if (!_.isEmpty(classroom_id) && !_.isEmpty(discipline_id) && !_.isEmpty(school_calendar_classroom_step_id)) {
+        var filter = {
+          by_classroom_id: classroom_id,
+          by_discipline_id: discipline_id,
+          by_school_calendar_classroom_step: school_calendar_classroom_step_id
+        };
+        $.ajax({
+          url: Routes.search_avaliations_pt_br_path({ filter: filter, format: 'json' }),
+          success: handleFetchAvaliationsSuccess,
+          error: handleFetchAvaliationsError
+        });
+      }
+    }else {
+      if (!_.isEmpty(classroom_id) && !_.isEmpty(discipline_id) && !_.isEmpty(school_calendar_step_id)) {
+        var filter = {
+          by_classroom_id: classroom_id,
+          by_discipline_id: discipline_id,
+          by_school_calendar_step: school_calendar_step_id
+        };
+        $.ajax({
+          url: Routes.search_avaliations_pt_br_path({ filter: filter, format: 'json' }),
+          success: handleFetchAvaliationsSuccess,
+          error: handleFetchAvaliationsError
+        });
+      }
     }
   };
 
