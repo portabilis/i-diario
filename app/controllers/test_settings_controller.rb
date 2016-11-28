@@ -41,13 +41,16 @@ class TestSettingsController < ApplicationController
   end
 
   def update
-    resource.assign_attributes resource_params
+    test_setting_updater = TestSettingUpdater.new(test_setting: resource, params: resource_params)
 
     authorize resource
 
-    if resource.save
-      respond_with resource, location: test_settings_path
+    test_setting = test_setting_updater.update!
+
+    if test_setting.valid?
+      respond_with test_setting, location: test_settings_path
     else
+      test_setting.reload
       render :edit
     end
   end
