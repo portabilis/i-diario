@@ -5,6 +5,8 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   attr_accessor :dependence
 
+  before_save :nullify_presence_for_inactive_students
+
   belongs_to :daily_frequency
   belongs_to :student
 
@@ -35,5 +37,9 @@ class DailyFrequencyStudent < ActiveRecord::Base
     else
       'F'
     end
+  end
+
+  def nullify_presence_for_inactive_students
+    self.present = nil if !self.active
   end
 end
