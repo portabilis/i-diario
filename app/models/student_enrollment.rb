@@ -8,6 +8,7 @@ class StudentEnrollment < ActiveRecord::Base
   scope :by_discipline, lambda {|discipline_id| by_discipline_query(discipline_id)}
   scope :by_student, lambda { |student_id| where(student_id: student_id) }
   scope :by_date, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date(date)) }
+  scope :by_date_range, lambda { |start_at, end_at| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_range(start_at, end_at)) }
   scope :by_date_not_before, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_not_before(date)) }
   scope :show_as_inactive, lambda { joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.show_as_inactive) }
   scope :active, -> { where(active: 1) }

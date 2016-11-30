@@ -12,9 +12,10 @@
         <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
         <%= f.hidden_field :student_id, value: student.id %>
         <%= f.hidden_field :dependence, value: dependence %>
+        <%= f.hidden_field :active, value: active %>
 
-        <label class="checkbox">
-          <%= f.check_box :present %>
+        <label class="checkbox <%= active ? "" : "state-disabled" %>">
+          <%= f.check_box :present, disabled: !active %>
           <i></i>
         </label>
       </td>

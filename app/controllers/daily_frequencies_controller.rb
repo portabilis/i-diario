@@ -52,7 +52,8 @@ class DailyFrequenciesController < ApplicationController
     student_enrollments.each do |student_enrollment|
       student = Student.find_by_id(student_enrollment.student_id) || nil
       dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
-      @students << { student: student, dependence: dependence } if student
+      active = student_active_on_date?(student_enrollment)
+      @students << { student: student, dependence: dependence, active: active } if student
     end
 
     create_unpersisted_students
@@ -62,8 +63,8 @@ class DailyFrequenciesController < ApplicationController
     @dependence_students = []
 
     @students.each do |student|
-      @normal_students << student[:student] if !student[:dependence]
-      @dependence_students << student[:student] if student[:dependence]
+      @normal_students << student if !student[:dependence]
+      @dependence_students << student if student[:dependence]
     end
   end
 
@@ -128,16 +129,19 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def fetch_student_enrollments
-    student_enrollments = StudentEnrollment
-      .by_classroom(@daily_frequency.classroom)
-      .by_discipline(@daily_frequency.discipline)
-      .by_date(@daily_frequency.frequency_date)
-      .active
-      .ordered
+    StudentEnrollmentsList.new(classroom: @daily_frequency.classroom,
+                               discipline: @daily_frequency.discipline,
+                               date: @daily_frequency.frequency_date,
+                               search_type: :by_date)
+                          .student_enrollments
   end
 
-  def configuration
-    @configuration ||= IeducarApiConfiguration.current
+  def student_active_on_date?(student_enrollment)
+    StudentEnrollment
+      .where(id: student_enrollment)
+      .by_classroom(@daily_frequency.classroom)
+      .by_date(@daily_frequency.frequency_date)
+      .any?
   end
 
   def fetch_avaliations

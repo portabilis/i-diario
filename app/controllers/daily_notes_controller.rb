@@ -45,19 +45,15 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    students_enrollments = fetch_student_enrollments
+    student_enrollments = fetch_student_enrollments
 
     @students = []
-
-    students_enrollments.each do |student_enrollment|
+    student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
         note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
         note_student.active = student_active_on_date?(student_enrollment)
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
-        if !note_student.active
-          next if !student_displayable_as_inactive?(student_enrollment)
-        end
 
         @students << note_student
       end
@@ -115,6 +111,14 @@ class DailyNotesController < ApplicationController
 
   protected
 
+  def fetch_student_enrollments
+    StudentEnrollmentsList.new(classroom: @daily_note.classroom,
+                               discipline: @daily_note.discipline,
+                               date: @daily_note.avaliation.test_date,
+                               search_type: :by_date)
+                          .student_enrollments
+  end
+
   def reload_students_list
     students_enrollments = fetch_student_enrollments
 
@@ -148,16 +152,6 @@ class DailyNotesController < ApplicationController
       @normal_students << student if !student.dependence
       @dependence_students << student if student.dependence
     end
-  end
-
-  def fetch_student_enrollments
-    students_enrollments ||= StudentEnrollment
-      .by_classroom(@daily_note.classroom)
-      .by_discipline(@daily_note.discipline)
-      .active
-      .ordered
-
-    reject_duplicated_students(students_enrollments)
   end
 
   def student_active_on_date?(student_enrollment)
@@ -225,15 +219,6 @@ class DailyNotesController < ApplicationController
 
       student.destroy unless student_exists || student.transfer_note.present?
     end
-  end
-
-  def reject_duplicated_students(student_enrollments)
-    unique_student_enrollments = []
-    student_enrollments.each do |student_enrollment|
-      student_enrollments_for_student = student_enrollments.by_student(student_enrollment.student_id)
-      unique_student_enrollments << student_enrollments_for_student.last
-    end
-    unique_student_enrollments.uniq
   end
 
   def student_exempted_from_avaliation?(student_id)
