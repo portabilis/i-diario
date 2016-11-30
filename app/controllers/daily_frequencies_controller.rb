@@ -62,21 +62,12 @@ class DailyFrequenciesController < ApplicationController
     @normal_students = []
     @dependence_students = []
 
+    @any_inactive_student = any_inactive_student?
+
     @students.each do |student|
       @normal_students << student if !student[:dependence]
       @dependence_students << student if student[:dependence]
     end
-  end
-
-  def update_multiple
-    authorize DailyFrequency.new
-
-    daily_frequency_updater = DailyFrequencyUpdater.new
-    daily_frequency_updater.update(daily_frequency_student_params[:daily_frequency_student])
-
-    flash[:success] = t 'daily_frequencies.success'
-
-    redirect_to new_daily_frequency_path
   end
 
   def destroy_multiple
@@ -112,7 +103,7 @@ class DailyFrequenciesController < ApplicationController
 
       @students.each do |student|
         if persisted_student_ids.none? { |student_id| student_id == student[:student].id }
-          daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true)
+          daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true, active: student[:active])
         end
       end
     end
@@ -158,7 +149,7 @@ class DailyFrequenciesController < ApplicationController
 
   def daily_frequency_student_params
     params.permit(
-      daily_frequency_student: [:daily_frequency_id, :student_id, :present, :dependence]
+      daily_frequency_student: [:daily_frequency_id, :student_id, :present, :dependence, :active]
     )
   end
 
@@ -223,5 +214,15 @@ class DailyFrequenciesController < ApplicationController
       .by_student_enrollment(student_enrollment)
       .by_discipline(discipline)
       .any?
+  end
+
+  def any_inactive_student?
+    any_inactive_student = false
+    if @students
+      @students.each do |student|
+        any_inactive_student = true if !student[:active]
+      end
+    end
+    any_inactive_student
   end
 end

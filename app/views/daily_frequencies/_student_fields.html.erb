@@ -1,9 +1,11 @@
-<tr class="nested-fields <%= dependence ? 'warning' : '' %>">
+<tr class="nested-fields">
   <td>
     <%= sequence %>
   </td>
   <td>
-    <%= "#{dependence ? '* ' : ''}#{student.to_s}" %>
+    <span class="<%= frequency_student_name_class(dependence, active) %>">
+      <%= frequency_student_name(student, dependence, active) %>
+    </span>
   </td>
 
   <% @daily_frequencies.each do |daily_frequency| %>

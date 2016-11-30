@@ -41,13 +41,29 @@
             <% sequence += 1 %>
             <%= render 'student_fields', student: dependence_student[:student], sequence: sequence, dependence: true, active: dependence_student[:active] %>
           <% end %>
+        <% end %>
 
+
+        <% if @dependence_students.any? %>
           <tr>
             <td colspan="<%= 2 + @daily_frequencies.count %>">
-              <%= t('.dependence_students_legend') %>
+              <span class="daily-note-student-legend">
+                <%= t('.dependence_students_legend') %>
+              </span>
             </td>
           </tr>
         <% end %>
+
+        <% if @any_inactive_student %>
+          <tr>
+            <td colspan="<%= 2 + @daily_frequencies.count %>">
+              <span class="daily-note-student-legend">
+                <%= t('.inactive_students_legend') %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+
       </tbody>
     </table>
 
