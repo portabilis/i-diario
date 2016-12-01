@@ -1,0 +1,18 @@
+.error-header {
+  padding-top: 2em;
+  text-align: center;
+}
+
+.error-details {
+  text-align: justify;
+  font-size: 1.5em;
+  line-height: 1.2em;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.error-actions {
+  margin-top: 1em;
+}

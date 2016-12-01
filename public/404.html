@@ -1,67 +1,43 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>The page you were looking for doesn't exist (404)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-  body {
-    background-color: #EFEFEF;
-    color: #2E2F30;
-    text-align: center;
-    font-family: arial, sans-serif;
-    margin: 0;
-  }
+  <head>
+    <title>Página não encontrada (404) - Educar+</title>
 
-  div.dialog {
-    width: 95%;
-    max-width: 33em;
-    margin: 4em auto 0;
-  }
+    <meta charset="utf-8" />
 
-  div.dialog > div {
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #BBB;
-    border-top: #B00100 solid 4px;
-    border-top-left-radius: 9px;
-    border-top-right-radius: 9px;
-    background-color: white;
-    padding: 7px 12% 0;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
+    <link href="/assets/bootstrap_and_overrides.css?body=1" media="screen" rel="stylesheet" type="text/css">
+    <link href="/assets/smartadmin_and_overrides.css?body=1" media="screen" rel="stylesheet" type="text/css">
+    <link href="/assets/error_pages.css?body=1" media="screen" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.js"></script>
 
-  h1 {
-    font-size: 100%;
-    color: #730E15;
-    line-height: 1.5em;
-  }
+  </head>
 
-  div.dialog > p {
-    margin: 0 0 1em;
-    padding: 1em;
-    background-color: #F7F7F7;
-    border: 1px solid #CCC;
-    border-right-color: #999;
-    border-left-color: #999;
-    border-bottom-color: #999;
-    border-bottom-left-radius: 4px;
-    border-bottom-right-radius: 4px;
-    border-top-color: #DADADA;
-    color: #666;
-    box-shadow: 0 3px 8px rgba(50, 50, 50, 0.17);
-  }
-  </style>
-</head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="error-header">
+          <h1>Oops!</h1>
+          <h2>404 - Página não encontrada :(</h2>
+        </div>
+      </div>
 
-<body>
-  <!-- This file lives in public/404.html -->
-  <div class="dialog">
-    <div>
-      <h1>The page you were looking for doesn't exist.</h1>
-      <p>You may have mistyped the address or the page may have moved.</p>
+      <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 error-details">
+          <p>Desculpe, mas a página que você solicitou não foi encontrada. Utilize os botões abaixo para voltar a página anterior ou solicitar ajuda a nossa equipe de suporte.</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-sm-4 col-sm-offset-2 error-actions">
+          <a href="javascript:history.back()" class="btn btn-primary btn-lg" style="width: 100%;">Voltar para a página anterior</a>
+        </div>
+        <div class="col-sm-4 error-actions">
+          <a href="#" class="btn btn-default btn-lg error-page-support-button" style="width: 100%;">Solicitar ajuda a nossa equipe de suporte</a>
+        </div>
+      </div>
     </div>
-    <p>If you are the application owner check the logs for more information.</p>
-  </div>
-</body>
+
+    <script type="text/javascript" src="/assets/error_pages.js?body=1"></script>
+  </body>
 </html>
+
