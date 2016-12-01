@@ -32,9 +32,11 @@
     <%= render '/layouts/not_logged_header' %>
 
     <div id="main" role="main">
-      <a href="https://www.google.com.br/#q=novembro+azul+2016" target="_blank">
-        <img src="https://s3-us-west-2.amazonaws.com/portabilis2/public/novembro_azul/novembro-azul.jpg" width="55px" height="100px" class="custom-login-image" />
-      </a>
+      <% if Date.today.month == 11 %>
+        <a href="https://www.google.com.br/#q=novembro+azul+<%= "#{Date.today.year}" %>" target="_blank">
+          <img src="https://s3-us-west-2.amazonaws.com/portabilis2/public/novembro_azul/novembro-azul.jpg" width="55px" height="100px" class="custom-login-image" />
+        </a>
+      <% end %>
       <div id="content" class="container">
         <div class="row">
 
