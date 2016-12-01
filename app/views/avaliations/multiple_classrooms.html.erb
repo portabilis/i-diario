@@ -1,0 +1,104 @@
+<div class="widget-body no-padding">
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/avaliations/multiple_classrooms' %>
+    <script type="text/javascript">
+      window.number_of_classes = <%= @number_of_classes %>;
+    </script>
+  <% end %>
+
+  <%= simple_form_for @avaliation_multiple_creator_form, url: create_multiple_classrooms_avaliations_path, html: { class: "smart-form" } do |f| %>
+    <%= f.error_notification %>
+    <%= f.input :school_calendar_id, as: :hidden %>
+
+    <fieldset>
+        <div class="row hidden">
+          <div class="col col-sm-4">
+            <%= f.input :test_setting_id, as: :select2, elements: @test_settings %>
+          </div>
+        </div>
+
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :unity_id, as: :select2_unity, user: current_user %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :discipline_id, as: :select2, elements: disciplines_for_multiple_classrooms %>
+        </div>
+        <div class="col col-sm-4">
+          <%= f.input :test_setting_test_id, as: :select2, elements: @avaliation_multiple_creator_form.test_setting.tests, required: true %>
+        </div>
+      </div>
+
+      <div class="row">
+
+        <div class="col col-sm-4">
+          <%= f.input :description, required: true %>
+        </div>
+
+        <div class="col col-sm-4">
+            <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': #{@avaliation_multiple_creator_form.test_setting.number_of_decimal_places}" } } %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-12">
+          <%= f.input :observations, as: :text %>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend><%= t('.classrooms') %></legend>
+
+      <% if f.object.errors[:avaliations].present? %>
+        <div class="alert alert-danger fade in">
+          <i class="fa-fw fa fa-times"></i>
+          <%= raw f.object.errors[:avaliations].join("<br/>") %>
+        </div>
+      <% end %>
+
+
+      <table class="table table-striped table-bordered table-condensed records">
+        <thead>
+          <tr>
+            <th width="5%">
+              <div class="control-group boolean optional">
+                <div class="controls input">
+                  <input value="0" type="hidden" name="select-all">
+                  <label class="checkbox">
+                    <input class="boolean optional" type="checkbox" value="1" name="select-all" id="select-all">
+                    <i></i>
+                  </label>
+                </div>
+              </div>
+            </th>
+            <th><%= Avaliation.human_attribute_name(:classroom) %></th>
+            <th width="25%"><%= Avaliation.human_attribute_name(:test_date) %></th>
+            <th width="25%"><%= Avaliation.human_attribute_name(:classes) %></th>
+          </tr>
+        </thead>
+
+        <tbody id="avaliations">
+          <tr>
+            <td class="no_item_found" colspan="4" style="<%= @avaliation_multiple_creator_form.avaliations.empty? ? 'display: table-cell;' : 'display: none;' %>" >
+              <%= t('.no_classroom_found') %>
+            </td>
+          </tr>
+          <% if f.object.avaliations.present? %>
+            <%= f.simple_fields_for :avaliations, f.object.avaliations do |avaliation| %>
+              <%= render 'avaliation_fields', f: avaliation %>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+    </fieldset>
+
+    <footer>
+      <%= link_to(t('views.form.back'), avaliations_path, class: 'btn btn-default') %>
+
+      <%= link_to(t('views.form.history'), history_avaliation_path(@avaliation), class: 'btn btn-info') if @avaliation_multiple_creator_form.persisted? %>
+
+      <%= f.submit(t('views.form.save'), class: 'btn btn-primary') %>
+    </footer>
+  <% end %>
+</div>

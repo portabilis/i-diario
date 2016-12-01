@@ -10,6 +10,7 @@ class DisciplineContentRecordsController < ApplicationController
       .by_unity_id(current_user_unity.id)
       .by_classroom_id(current_user_classroom)
       .by_discipline_id(current_user_discipline)
+      .ordered
 
     authorize @discipline_content_records
   end

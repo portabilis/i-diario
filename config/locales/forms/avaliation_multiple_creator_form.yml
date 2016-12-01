@@ -1,0 +1,28 @@
+pt-BR:
+  activemodel:
+    attributes:
+      avaliation_multiple_creator_form:
+        school_calendar: "Calendário letivo"
+        school_calendar_id: "Calendário letivo"
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        test_setting: "Configuração de avaliação"
+        test_setting_id: "Configuração de avaliação"
+        description: "Descrição"
+        test_setting_test_id: "Tipo de avaliação"
+        test_setting_test: "Tipo de avaliação"
+        weight: "Peso"
+        observations: "Observações"
+
+    errors:
+      models:
+        avaliation_multiple_creator_form:
+          attributes:
+              test_date:
+                must_be_school_term_day: "deve ser um dia válido para o período escolar selecionado"
+              avaliations:
+                at_least_one_assigned_avaliation: "Turma não pode ficar em branco"

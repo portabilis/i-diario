@@ -24,8 +24,10 @@ $(function () {
   var handleFetchContentsSuccess = function(data){
     if (!_.isEmpty(data.contents)) {
       _.each(data.contents, function(content) {
-        var html = JST['templates/discipline_content_records/contents_list_item'](content);
-        $('#contents-list').append(html);
+        if(!$('input[type=checkbox][data-content_description="'+content.description+'"]').length){
+          var html = JST['templates/discipline_content_records/contents_list_item'](content);
+          $('#contents-list').append(html);
+        }
       });
       $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
     }
