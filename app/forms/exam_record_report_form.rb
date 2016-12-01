@@ -23,13 +23,13 @@ class ExamRecordReportForm
   end
 
   def students_enrollments
-    students_enrollments ||= StudentEnrollment
-      .by_classroom(classroom_id)
-      .by_discipline(discipline_id)
-      .active
-      .ordered
+    student_enrollments_list = StudentEnrollmentsList.new(classroom: classroom_id,
+                                                          discipline: discipline_id,
+                                                          start_at: step.start_at,
+                                                          end_at: step.end_at,
+                                                          search_type: :by_date_range)
 
-    students_enrollments = remove_duplicated_enrollments(students_enrollments)
+    students_enrollments = remove_duplicated_enrollments(student_enrollments_list.student_enrollments)
 
     students_enrollments
   end
