@@ -44,7 +44,7 @@ class StudentEnrollmentsList
   def reject_duplicated_students(student_enrollments)
     unique_student_enrollments = []
     student_enrollments.each do |student_enrollment|
-      student_enrollments_for_student = student_enrollments.by_student(student_enrollment.student_id)
+      student_enrollments_for_student = student_enrollments.by_student(student_enrollment.student_id).active
       unique_student_enrollments << student_enrollments_for_student.last
     end
     unique_student_enrollments.uniq
