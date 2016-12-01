@@ -45,7 +45,18 @@ class StudentEnrollmentsList
     unique_student_enrollments = []
     student_enrollments.each do |student_enrollment|
       student_enrollments_for_student = student_enrollments.by_student(student_enrollment.student_id)
-      unique_student_enrollments << student_enrollments_for_student.last
+
+      if student_enrollments_for_student.count > 1
+        any_active_enrollment = false
+        student_enrollments_for_student.each do |student_enrollment_for_student|
+          if student_active_on_date?(student_enrollment_for_student)
+            unique_student_enrollments << student_enrollment_for_student
+            any_active_enrollment = true
+          end
+        end
+      end
+
+      unique_student_enrollments << student_enrollments_for_student.last unless any_active_enrollment
     end
     unique_student_enrollments.uniq
   end
