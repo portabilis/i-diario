@@ -8,7 +8,7 @@ module ExamPoster
       post_by_classrooms.each do |classroom_id, classroom_score|
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
-            api.send_post(notas: { classroom_id => { student_id => { discipline_id => discipline_score } } }, etapa: @post_data.school_calendar_step.to_number, resource: 'notas')
+            api.send_post(notas: { classroom_id => { student_id => { discipline_id => discipline_score } } }, etapa: @post_data.step.to_number, resource: 'notas')
           end
         end
       end
@@ -30,14 +30,14 @@ module ExamPoster
           next if !correct_score_type(classroom.exam_rule.score_type)
           next if !same_unity(classroom.unity_id)
 
-          teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, @post_data.school_calendar_step)
+          teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, @post_data.step)
           teacher_score_fetcher.fetch!
 
           student_scores = teacher_score_fetcher.scores
 
           student_scores.each do |student_score|
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
-            value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline.id, @post_data.school_calendar_step.id)
+            value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline.id, @post_data.step.id)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery)
           end
@@ -58,7 +58,7 @@ module ExamPoster
     end
 
     def same_unity(unity_id)
-      unity_id == @post_data.school_calendar_step.school_calendar.unity_id
+      unity_id == @post_data.step.school_calendar.unity_id
     end
 
     def correct_score_type(score_type)
@@ -66,11 +66,19 @@ module ExamPoster
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
+      if has_classroom_steps
+        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
+          .by_classroom_id(classroom)
+          .by_discipline_id(discipline)
+          .by_school_calendar_classroom_step_id(@post_data.step)
+          .first
+      else
+        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
         .by_classroom_id(classroom)
         .by_discipline_id(discipline)
-        .by_school_calendar_step_id(@post_data.school_calendar_step)
+        .by_school_calendar_step_id(@post_data.step)
         .first
+      end
 
       return unless school_term_recovery_diary_record
 
@@ -80,6 +88,10 @@ module ExamPoster
         .first
 
       student_recovery.try(:score)
+    end
+
+    def has_classroom_steps
+      SchoolCalendarClassroomStep.find(@post_data.step)
     end
   end
 end

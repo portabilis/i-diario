@@ -22,6 +22,7 @@ class ConceptualExamsController < ApplicationController
 
     fetch_classrooms
     fetch_school_calendar_steps
+    fetch_school_calendar_classroom_steps
   end
 
   def new
@@ -141,6 +142,7 @@ class ConceptualExamsController < ApplicationController
       :by_classroom,
       :by_student_name,
       :by_school_calendar_step,
+      :by_school_calendar_classroom_step,
       :by_status
     )
   end

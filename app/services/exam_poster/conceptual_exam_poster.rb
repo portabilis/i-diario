@@ -8,7 +8,7 @@ module ExamPoster
       post_conceptual_exams.each do |classroom_id, conceptual_exam_classroom|
         conceptual_exam_classroom.each do |student_id, conceptual_exam_student|
           conceptual_exam_student.each do |discipline_id, conceptual_exam_discipline|
-            api.send_post( notas: { classroom_id => { student_id => { discipline_id => conceptual_exam_discipline } } }, etapa: @post_data.school_calendar_step.to_number, resource: 'notas' )
+            api.send_post( notas: { classroom_id => { student_id => { discipline_id => conceptual_exam_discipline } } }, etapa: @post_data.step.to_number, resource: 'notas' )
           end
         end
       end
@@ -24,9 +24,16 @@ module ExamPoster
     def post_conceptual_exams
       params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 
-      conceptual_exams = ConceptualExam.by_teacher(@post_data.author.current_teacher)
-        .by_unity(@post_data.school_calendar_step.school_calendar.unity)
-        .by_school_calendar_step(@post_data.school_calendar_step)
+      if has_classroom_steps
+        conceptual_exams = ConceptualExam.by_teacher(@post_data.author.current_teacher)
+          .by_unity(@post_data.step.school_calendar.unity)
+          .by_school_calendar_classroom_step(@post_data.step)
+      else
+        conceptual_exams = ConceptualExam.by_teacher(@post_data.author.current_teacher)
+          .by_unity(@post_data.step.school_calendar.unity)
+          .by_school_calendar_step(@post_data.step)
+      end
+
 
       conceptual_exams.each do |conceptual_exam|
         conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
@@ -45,6 +52,10 @@ module ExamPoster
       end
 
       params
+    end
+
+    def has_classroom_steps
+      SchoolCalendarClassroomStep.find(@post_data.step)
     end
   end
 end

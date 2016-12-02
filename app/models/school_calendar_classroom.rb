@@ -15,4 +15,8 @@ class SchoolCalendarClassroom < ActiveRecord::Base
   def classroom_step(date)
     classroom_steps.all.started_after_and_before(date).first
   end
+
+  def posting_classroom_step(date)
+    classroom_steps.all.posting_date_after_and_before(date).first
+  end
 end
