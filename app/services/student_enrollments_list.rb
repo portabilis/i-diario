@@ -49,16 +49,29 @@ class StudentEnrollmentsList
       if student_enrollments_for_student.count > 1
         any_active_enrollment = false
         student_enrollments_for_student.each do |student_enrollment_for_student|
-          if student_active_on_date?(student_enrollment_for_student)
+          if student_active?(student_enrollment_for_student)
             unique_student_enrollments << student_enrollment_for_student
             any_active_enrollment = true
+            break
           end
         end
-      end
 
-      unique_student_enrollments << student_enrollments_for_student.last unless any_active_enrollment
+        if !any_active_enrollment
+          unique_student_enrollments << student_enrollments_for_student.show_as_inactive.first
+        end
+      else
+        unique_student_enrollments << student_enrollment
+      end
     end
     unique_student_enrollments.uniq
+  end
+
+  def student_active?(student_enrollment)
+    if search_type == :by_date
+      student_active_on_date?(student_enrollment)
+    elsif search_type == :by_date_range
+      student_active_on_date_range?(student_enrollment)
+    end
   end
 
   def student_active_on_date?(student_enrollment)
@@ -66,6 +79,7 @@ class StudentEnrollmentsList
       .where(id: student_enrollment)
       .by_classroom(classroom)
       .by_date(date)
+      .active
       .any?
   end
 
@@ -74,6 +88,7 @@ class StudentEnrollmentsList
       .where(id: student_enrollment)
       .by_classroom(classroom)
       .by_date_range(start_at, end_at)
+      .active
       .any?
   end
 
@@ -82,6 +97,7 @@ class StudentEnrollmentsList
       .where(id: student_enrollment)
       .by_classroom(classroom)
       .by_discipline(discipline)
+      .active
       .show_as_inactive
       .any?
   end
