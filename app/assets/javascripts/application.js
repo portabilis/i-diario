@@ -50,4 +50,5 @@
 //= require raphael.min
 //= require morris
 //= require select2-tags
+//= require form_errors
 //= require_tree ./resources

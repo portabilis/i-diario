@@ -61,12 +61,15 @@ class AttendanceRecordReportForm
   end
 
   def students_enrollments
-    students_enrollments = StudentEnrollment
-      .by_classroom(classroom_id)
-      .active
-      .ordered
+    student_enrollments_list = StudentEnrollmentsList.new(classroom: classroom_id,
+                                                          discipline: discipline_id,
+                                                          start_at: start_at,
+                                                          end_at: end_at,
+                                                          search_type: :by_date_range)
 
-    students_enrollments = remove_duplicated_enrollments(students_enrollments)
+    students_enrollments = remove_duplicated_enrollments(student_enrollments_list.student_enrollments)
+
+    students_enrollments
   end
 
   private

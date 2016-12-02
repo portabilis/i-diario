@@ -133,7 +133,8 @@ class ExamRecordReport
             student_note = DailyNoteStudent
             .find_by(
               student_id: student_id,
-              daily_note_id: daily_note_id
+              daily_note_id: daily_note_id,
+              active: true
             ) || NullDailyNoteStudent.new
           end
 
