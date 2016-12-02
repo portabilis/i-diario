@@ -16,6 +16,6 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
               student_enrollment_classrooms.joined_at <= ?
             ELSE
               student_enrollment_classrooms.joined_at <= ? AND student_enrollment_classrooms.left_at >= ?
-            END)", end_at, end_at, start_at)
+            END)", end_at.to_date, end_at.to_date, start_at.to_date)
   end
 end
