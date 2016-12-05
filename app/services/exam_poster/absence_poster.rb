@@ -7,14 +7,14 @@ module ExamPoster
     def post!
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
-          api.send_post(faltas: { classroom_id => { student_id => student_absence } }, etapa: @post_data.school_calendar_step.to_number, resource: 'faltas-geral')
+          api.send_post(faltas: { classroom_id => { student_id => student_absence } }, etapa: @post_data.step.to_number, resource: 'faltas-geral')
         end
       end
 
       post_by_discipline_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|
-            api.send_post(faltas: { classroom_id => { student_id => { discipline_id => discipline_absence } } }, etapa: @post_data.school_calendar_step.to_number, resource: 'faltas-por-componente')
+            api.send_post(faltas: { classroom_id => { student_id => { discipline_id => discipline_absence } } }, etapa: @post_data.step.to_number, resource: 'faltas-por-componente')
           end
         end
       end
@@ -32,7 +32,7 @@ module ExamPoster
       absences = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next if classroom.unity_id != @post_data.school_calendar_step.school_calendar.unity_id
+        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
 
         daily_frequencies = DailyFrequency
@@ -64,7 +64,7 @@ module ExamPoster
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-          next if teacher_discipline_classroom.classroom.unity_id != @post_data.school_calendar_step.school_calendar.unity_id
+          next if teacher_discipline_classroom.classroom.unity_id != @post_data.step.school_calendar.unity_id
           next if classroom.exam_rule.frequency_type != FrequencyTypes::BY_DISCIPLINE
 
           discipline = teacher_discipline_classroom.discipline
@@ -99,11 +99,11 @@ module ExamPoster
     private
 
     def step_start_at
-      @post_data.school_calendar_step.start_at
+      @post_data.step.start_at
     end
 
     def step_end_at
-      @post_data.school_calendar_step.end_at
+      @post_data.step.end_at
     end
 
     def teacher

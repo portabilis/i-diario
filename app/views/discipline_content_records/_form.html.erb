@@ -27,7 +27,7 @@
 
       <div class="row">
         <div class="col col-sm-4">
-          <%= content_record.input :record_date, as: :date, readonly: f.object.persisted? %>
+          <%= content_record.input :record_date, as: :date %>
         </div>
       </div>
 
@@ -44,7 +44,7 @@
           <ul class="list-group checked-list-box" id="contents-list">
 
             <% contents.each do |content| %>
-              <li class="list-group-item">
+              <li class="list-group-item manual">
                 <%= check_box_tag("discipline_content_record[content_record_attributes][content_ids][]", content.id, content.id.in?(@discipline_content_record.contents.collect(&:id)),
                       hidden: true, :"data-content_description" => content.to_s ) %>
                 <span style="margin-left: 5px;"><%= content %></span>

@@ -15,8 +15,10 @@ class AvaliationExemption < ActiveRecord::Base
             :grade_id,
             :classroom_id,
             :discipline_id,
-            :school_calendar_step,
             presence: true
+
+  validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
+  validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
 
   validates :student_id,
     presence: true,

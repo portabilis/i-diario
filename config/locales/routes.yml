@@ -93,6 +93,7 @@ pt-BR:
     terms_dictionaries: 'dicionario-de-termos'
     partial_score_record: 'registro-de-notas-parciais'
     ***REMOVED***_movements_report: 'movimentos-de-estoque'
+    ***REMOVED***: '***REMOVED***'
     student_enrollments: 'matriculas-de-alunos'
 
     # actions
@@ -115,6 +116,8 @@ pt-BR:
     synchronize: 'sincronizar'
     search: 'busca'
     export_selected: 'exportar-selecionados'
+    multiple_classrooms: 'multiplas-turmas'
+    create_multiple_classrooms: 'criar-multiplas-turmas'
 
     #***REMOVED***
     access: "acesso"

@@ -18,6 +18,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   scope :by_classroom_id, lambda { |classroom_id| joins(:recovery_diary_record).where(recovery_diary_records: { classroom_id: classroom_id }) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:recovery_diary_record).where(recovery_diary_records: { discipline_id: discipline_id }) }
   scope :by_school_calendar_step_id, lambda { |school_calendar_step_id| where(school_calendar_step_id: school_calendar_step_id) }
+  scope :by_school_calendar_classroom_step_id, lambda { |school_calendar_classroom_step_id| where(school_calendar_classroom_step_id: school_calendar_classroom_step_id)   }
   scope :by_recorded_at, lambda { |recorded_at| joins(:recovery_diary_record).where(recovery_diary_records: { recorded_at: recorded_at }) }
 
   scope :ordered, -> { joins(:recovery_diary_record).order(RecoveryDiaryRecord.arel_table[:recorded_at].desc) }
@@ -52,6 +53,10 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     ).fetch
 
     school_calendar_classroom_steps.map(&:id)
+  end
+
+  def step
+    self.school_calendar_classroom_step || self.school_calendar_step
   end
 
   private

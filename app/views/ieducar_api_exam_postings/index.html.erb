@@ -1,19 +1,39 @@
 <div class="widget-body">
-  <% @school_calendar_steps.each do |step| %>
-    <legend><%= step.to_s %></legend>
+  <% if @school_calendar_classroom_steps.any? %>
+    <% @school_calendar_classroom_steps.each do |step| %>
+      <legend><%= step.to_s %></legend>
 
-    <div class="table-responsive">
-      <table class="table table-bordered table-striped table-condensed table-hover">
-        <thead>
-          <tr>
-            <th>Tipo</th>
-            <th>Situação</th>
-            <th width="2%"></th>
-          </tr>
-        </thead>
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-condensed table-hover">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Situação</th>
+              <th width="2%"></th>
+            </tr>
+          </thead>
 
-        <%= render 'resources', step: step %>
-      </table>
-    </div>
+          <%= render 'classroom_steps_resources', step: step %>
+        </table>
+      </div>
+    <% end %>
+  <% else %>
+    <% @school_calendar_steps.each do |step| %>
+      <legend><%= step.to_s %></legend>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-condensed table-hover">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Situação</th>
+              <th width="2%"></th>
+            </tr>
+          </thead>
+
+          <%= render 'resources', step: step %>
+        </table>
+      </div>
+    <% end %>
   <% end %>
 </div>

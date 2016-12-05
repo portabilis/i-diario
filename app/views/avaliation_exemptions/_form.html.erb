@@ -1,5 +1,11 @@
-<% content_for :js do %>
+<% if @school_calendar_classroom_steps.any? %>
+  <% content_for :js do %>
+  <%= javascript_include_tag 'views/avaliation_exemptions/form_classroom_steps' %>
+  <% end %>
+<% else %>
+  <% content_for :js do %>
   <%= javascript_include_tag 'views/avaliation_exemptions/form' %>
+  <% end %>
 <% end %>
 
 <fieldset>

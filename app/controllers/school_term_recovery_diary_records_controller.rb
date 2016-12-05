@@ -61,12 +61,12 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     authorize @school_term_recovery_diary_record
 
-    students_in_recovery = fetch_students_in_recovery
+    @school_calendar_classroom_steps = fetch_school_calendar_classroom_steps
+    students_in_recovery = @school_calendar_classroom_steps.any? ? fetch_students_in_recovery_by_classroom_step : fetch_students_in_recovery
     mark_students_not_in_recovery_for_destruction(students_in_recovery)
     add_missing_students(students_in_recovery)
 
     @school_calendar_steps = current_school_calendar.steps
-    @school_calendar_classroom_steps = fetch_school_calendar_classroom_steps
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
 
@@ -100,6 +100,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def resource_params
     params.require(:school_term_recovery_diary_record).permit(
       :school_calendar_step_id,
+      :school_calendar_classroom_step_id,
       recovery_diary_record_attributes: [
         :id,
         :unity_id,
@@ -122,9 +123,15 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       :by_classroom_id,
       :by_discipline_id,
       :by_school_calendar_step_id,
+      :by_school_calendar_step_id,
       :by_recorded_at
     )
   end
+
+  def decimal_places
+    @school_term_recovery_diary_record.step.test_setting.number_of_decimal_places
+  end
+  helper_method :decimal_places
 
   def fetch_school_calendar_classroom_steps
     SchoolCalendarClassroomStep.by_classroom(current_user_classroom)
@@ -150,6 +157,17 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       @school_term_recovery_diary_record.recovery_diary_record.classroom_id,
       @school_term_recovery_diary_record.recovery_diary_record.discipline_id,
       @school_term_recovery_diary_record.school_calendar_step_id,
+      @school_term_recovery_diary_record.recovery_diary_record.recorded_at
+    )
+    .fetch
+  end
+
+  def fetch_students_in_recovery_by_classroom_step
+    StudentsInRecoveryByClassroomStepFetcher.new(
+      api_configuration,
+      @school_term_recovery_diary_record.recovery_diary_record.classroom_id,
+      @school_term_recovery_diary_record.recovery_diary_record.discipline_id,
+      @school_term_recovery_diary_record.school_calendar_classroom_step_id,
       @school_term_recovery_diary_record.recovery_diary_record.recorded_at
     )
     .fetch

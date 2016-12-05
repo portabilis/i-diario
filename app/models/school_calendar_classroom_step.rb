@@ -15,6 +15,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   scope :by_classroom, lambda { |classroom| joins(school_calendar_classroom: [:school_calendar]).where(school_calendar_classrooms: { classroom_id: classroom })   }
   scope :by_school_calendar_id, lambda { |school_calendar_id| joins(:school_calendar_classroom).where(school_calendar_classrooms: { school_calendar_id: school_calendar_id })   }
   scope :started_after_and_before, lambda { |date| where(arel_table[:start_at].lteq(date)).where(arel_table[:end_at].gteq(date)) }
+  scope :posting_date_after_and_before, lambda { |date| where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date))) }
 
   def to_s
     "#{school_term} (#{localized.start_at} a #{localized.end_at})"
@@ -50,7 +51,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
 
   def test_setting
     TestSetting.where(
-      TestSetting.arel_table[:year].eq(school_calendar.year)
+      TestSetting.arel_table[:year].eq(school_calendar_classroom.school_calendar.year)
         .and(TestSetting.arel_table[:exam_setting_type].eq(ExamSettingTypes::GENERAL)
                .or(TestSetting.arel_table[:school_term].eq(school_calendar.school_term(start_at)))
         )
@@ -59,13 +60,13 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
     .first
   end
 
-  private
-
   def school_calendar
     if school_calendar_classroom.present?
       school_calendar_classroom.school_calendar
     end
   end
+
+  private
 
   def start_at_must_be_in_school_calendar_year
     return if errors[:start_at].any? || school_calendar_classroom.school_calendar.errors[:year].any?

@@ -23,7 +23,7 @@ class DisciplineLessonPlanReportController < ApplicationController
                                                               current_teacher)
 
 
-      send_data(lesson_plan_report.render, filename: 'planos-de-aula-por-disciplina.pdf', type: 'application/pdf', disposition: 'inline')
+      send_data(lesson_plan_report.render, filename: 'registros-de-conteudo-por-disciplina-planos-de-aula.pdf', type: 'application/pdf', disposition: 'inline')
     else
       @discipline_lesson_plan_report_form
       fetch_collections

@@ -4,21 +4,36 @@ class ExamRecordReportForm
   attr_accessor :unity_id,
                 :classroom_id,
                 :discipline_id,
-                :school_calendar_step_id
+                :school_calendar_step_id,
+                :school_calendar_classroom_step_id
 
   validates :unity_id,      presence: true
   validates :classroom_id,  presence: true
   validates :discipline_id, presence: true
-  validates :school_calendar_step_id, presence: true
+  validates :school_calendar_step_id, presence: true, unless: :school_calendar_classroom_step_id
+  validates :school_calendar_classroom_step_id, presence: true, unless: :school_calendar_step_id
 
   validate :must_have_daily_notes
 
   def daily_notes
+    return unless step
+
     @daily_notes = DailyNote
       .by_unity_id(unity_id)
       .by_classroom_id(classroom_id)
       .by_discipline_id(discipline_id)
       .by_test_date_between(step.start_at, step.end_at)
+      .order_by_avaliation_test_date
+  end
+
+  def daily_notes_classroom_steps
+    return unless classroom_step
+
+    @daily_notes = DailyNote
+      .by_unity_id(unity_id)
+      .by_classroom_id(classroom_id)
+      .by_discipline_id(discipline_id)
+      .by_test_date_between(classroom_step.start_at, classroom_step.end_at)
       .order_by_avaliation_test_date
   end
 
@@ -40,12 +55,20 @@ class ExamRecordReportForm
     SchoolCalendarStep.find(school_calendar_step_id)
   end
 
+  def classroom_step
+    return unless school_calendar_classroom_step_id
+
+    SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
+  end
+
   private
 
   def must_have_daily_notes
     return unless errors.blank?
 
-    if daily_notes.count == 0
+    notes = daily_notes_classroom_steps || daily_notes
+
+    if notes.count == 0
       errors.add(:daily_notes, :must_have_daily_notes)
     end
   end
