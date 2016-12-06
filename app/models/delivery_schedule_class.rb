@@ -16,6 +16,8 @@ class ***REMOVED***Class < ActiveRecord::Base
   delegate :start_date, :end_date, to: :delivery_schedule
 
   scope :by_***REMOVED***_class_id, lambda { |***REMOVED***_class_id| where(***REMOVED***_class_id: ***REMOVED***_class_id) }
+  scope :by_date_between, lambda { |start_at, end_at| where(date: start_at.to_date..end_at.to_date) }
+  scope :by_unity_id, lambda { |unity_id| joins(:delivery_schedule).merge(***REMOVED***.by_unities(unity_id)) }
 
   def fill_repeat_default
     self.repeat = 'never' if self.repeat.blank?

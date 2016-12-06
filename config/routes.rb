@@ -330,6 +330,9 @@ Rails.application.routes.draw do
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
+    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
+    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
+
     post '/food_composition', to: 'food_composition#calculate'
   end
 end
