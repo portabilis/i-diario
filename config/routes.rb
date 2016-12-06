@@ -164,6 +164,7 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :courses, only: [:index]
     resources :lectures, only: [:index]
+    resources :***REMOVED***, concerns: :history
 
     resources :grades, only: [:index] do
       member do
