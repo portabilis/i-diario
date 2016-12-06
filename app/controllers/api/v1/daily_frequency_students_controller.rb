@@ -5,7 +5,8 @@ class Api::V1::DailyFrequencyStudentsController < Api::V1::BaseController
 
   def update
     daily_frequency_student = DailyFrequencyStudent.find(params[:id])
-    daily_frequency_student.update(present: params[:present])
+    # the active: true is a workahound to fix https://sprint.ly/product/37978/item/876
+    daily_frequency_student.update(present: params[:present], active: true)
 
     respond_with daily_frequency_student
   end
