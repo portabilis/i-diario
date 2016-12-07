@@ -3,7 +3,9 @@ class DailyNoteStudent < ActiveRecord::Base
 
   audited associated_with: :daily_note, except: :daily_note_id
 
-  attr_accessor :exempted, :active, :dependence
+  attr_accessor :exempted, :dependence
+
+  before_save :nullify_notes_for_inactive_students
 
   belongs_to :daily_note
   belongs_to :student
@@ -31,12 +33,9 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :not_including_classroom_id, lambda { |classroom_id| joins(:daily_note).where(DailyNote.arel_table[:classroom_id].not_eq(classroom_id) ) }
   scope :by_test_date_between, lambda { |start_at, end_at| by_test_date_between(start_at, end_at) }
   scope :by_avaliation, lambda { |avaliation| joins(:daily_note).where(daily_notes: { avaliation_id: avaliation }) }
+  scope :active, -> { where(active: true) }
   scope :ordered, -> { joins(:student, daily_note: :avaliation).order(Avaliation.arel_table[:test_date], Student.arel_table[:name]) }
   scope :order_by_discipline_and_date, -> { joins(daily_note: [:discipline, :avaliation]).order(Discipline.arel_table[:description], Avaliation.arel_table[:test_date]) }
-
-  def dependence?
-    self.dependence
-  end
 
   def maximum_score
     return avaliation.test_setting.maximum_score if !avaliation.test_setting.fix_tests
@@ -83,5 +82,9 @@ class DailyNoteStudent < ActiveRecord::Base
         .join_sources
     )
     .where(avaliations: { test_date: start_at.to_date..end_at.to_date })
+  end
+
+  def nullify_notes_for_inactive_students
+    self.note = nil if !self.active
   end
 end

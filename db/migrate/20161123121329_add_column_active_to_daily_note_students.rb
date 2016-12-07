@@ -1,0 +1,5 @@
+class AddColumnActiveToDailyNoteStudents < ActiveRecord::Migration
+  def change
+    add_column :daily_note_students, :active, :boolean
+  end
+end

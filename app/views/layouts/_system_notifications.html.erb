@@ -9,7 +9,7 @@
       <% last_system_***REMOVED***.each do |notification| %>
         <li>
           <span>
-            <%= link_to system_notification_path(notification), class: "msg" do %>
+            <%= link_to system_notification_path(notification), class: "msg", target: (notification.open_link_in_new_tab? ? "_blank" : "_self") do %>
               <span class="from"><%= notification.title %><i class="icon-paperclip"></i></span>
               <time><%= distance_of_time_in_words_to_now notification.created_at %></time>
               <span class="subject"></span>

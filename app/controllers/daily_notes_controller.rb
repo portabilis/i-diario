@@ -46,17 +46,16 @@ class DailyNotesController < ApplicationController
 
     authorize @daily_note
 
-    students_enrollments = fetch_student_enrollments
+    student_enrollments = fetch_student_enrollments
 
     @students = []
-
-    students_enrollments.each do |student_enrollment|
+    student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
         note_student = (@daily_note.students.where(student_id: student.id).first || @daily_note.students.build(student_id: student.id, student: student))
         note_student.active = student_active_on_date?(student_enrollment)
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
-        note_student.mark_for_destruction if !note_student.active
+
         @students << note_student
       end
     end
@@ -67,8 +66,8 @@ class DailyNotesController < ApplicationController
     @any_inactive_student = any_inactive_student?
 
     @students.each do |student|
-      @normal_students << student if !student.dependence?
-      @dependence_students << student if student.dependence?
+      @normal_students << student if !student.dependence
+      @dependence_students << student if student.dependence
     end
   end
 
@@ -83,6 +82,7 @@ class DailyNotesController < ApplicationController
     if @daily_note.save
       respond_with @daily_note, location: daily_notes_path
     else
+      reload_students_list
       render :edit
     end
   end
@@ -113,11 +113,46 @@ class DailyNotesController < ApplicationController
   protected
 
   def fetch_student_enrollments
-    students_enrollments ||= StudentEnrollment
-      .by_classroom(@daily_note.classroom)
-      .by_discipline(@daily_note.discipline)
-      .active
-      .ordered
+    StudentEnrollmentsList.new(classroom: @daily_note.classroom,
+                               discipline: @daily_note.discipline,
+                               date: @daily_note.avaliation.test_date,
+                               search_type: :by_date)
+                          .student_enrollments
+  end
+
+  def reload_students_list
+    students_enrollments = fetch_student_enrollments
+
+    @students = []
+
+    @daily_note.students.each_with_index do |note_student, index|
+      if student = Student.find_by_id(note_student.student_id)
+        student_enrollment = StudentEnrollment
+          .by_student(note_student.student_id)
+          .by_classroom(@daily_note.classroom_id)
+          .by_discipline(@daily_note.discipline_id)
+          .active
+          .first
+
+        note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
+        note_student.exempted = student_exempted_from_avaliation?(student.id)
+        if !note_student.active
+          next if !student_displayable_as_inactive?(student_enrollment)
+        end
+
+        @students << note_student
+      end
+    end
+
+    @normal_students = []
+    @dependence_students = []
+    @any_exempted_student = any_exempted_student?
+    @any_inactive_student = any_inactive_student?
+
+    @students.each do |student|
+      @normal_students << student if !student.dependence
+      @dependence_students << student if student.dependence
+    end
   end
 
   def student_active_on_date?(student_enrollment)
@@ -125,6 +160,15 @@ class DailyNotesController < ApplicationController
       .where(id: student_enrollment)
       .by_classroom(@daily_note.classroom)
       .by_date(@daily_note.avaliation.test_date)
+      .any?
+  end
+
+  def student_displayable_as_inactive?(student_enrollment)
+    StudentEnrollment
+      .where(id: student_enrollment)
+      .by_classroom(@daily_note.classroom)
+      .by_discipline(@daily_note.discipline)
+      .show_as_inactive
       .any?
   end
 
@@ -136,7 +180,7 @@ class DailyNotesController < ApplicationController
     params.require(:daily_note).permit(
       :unity_id, :classroom_id, :discipline_id, :avaliation_id,
       students_attributes: [
-        :id, :student_id, :note, :dependence, :_destroy
+        :id, :student_id, :note, :active, :_destroy
       ]
     )
   end
@@ -176,16 +220,6 @@ class DailyNotesController < ApplicationController
 
       student.destroy unless student_exists || student.transfer_note.present?
     end
-  end
-
-  def remove_duplicated_students(students)
-    unique_student_ids = []
-    unique_students = []
-    students.each do |student|
-      unique_students << student unless unique_student_ids.include? student["id"]
-      unique_student_ids << student["id"]
-    end
-    unique_students
   end
 
   def student_exempted_from_avaliation?(student_id)

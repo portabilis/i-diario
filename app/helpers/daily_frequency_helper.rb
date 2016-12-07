@@ -29,4 +29,24 @@ module DailyFrequencyHelper
       current_teacher_id: current_teacher.id
     }
   end
+
+  def frequency_student_name_class(dependence, active)
+    if !active
+      'inactive-student'
+    elsif dependence
+      'dependence-student'
+    else
+      ''
+    end
+  end
+
+  def frequency_student_name(student, dependence, active)
+    if !active
+      "**#{student.to_s}"
+    elsif dependence
+      "*#{student.to_s}"
+    else
+      "#{student.to_s}"
+    end
+  end
 end

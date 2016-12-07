@@ -95,6 +95,7 @@ pt-BR:
     ***REMOVED***_movements_report: 'movimentos-de-estoque'
     ***REMOVED***: '***REMOVED***'
     student_enrollments: 'matriculas-de-alunos'
+    system_***REMOVED***: 'notificacoes-do-sistema'
 
     # actions
     edit: 'editar'
