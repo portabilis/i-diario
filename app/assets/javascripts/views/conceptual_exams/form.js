@@ -79,25 +79,41 @@ $(function() {
     var classroom_id = $classroom.select2('val');
     var recorded_at = $recorded_at.val();
     var discipline_id = $discipline.select2('val');
+    var school_calendar_step_id = $school_calendar_step.select2('val');
+    var start_at = '';
+    var end_at = '';
 
     window.studentPreviouslySelected = $student.select2('val');
     $student.select2('val', '');
     $student.select2({ data: [] });
 
-    var filter = {
-      by_classroom: classroom_id,
-      by_date: recorded_at,
-      by_discipline: discipline_id
-    };
+    if(school_calendar_step_id){
+      $.when(
+        $.get(
+          Routes.school_calendar_step_pt_br_path(school_calendar_step_id)
+        ).done(function(data){
+          start_at = data.school_calendar_step.start_at;
+          end_at = data.school_calendar_step.end_at;
+        })
 
-    if (!_.isEmpty(classroom_id) && !_.isEmpty(recorded_at)) {
-      $.ajax({
-        url: Routes.student_enrollments_pt_br_path({
-          filter: filter,
-          format: 'json'
-        }),
-        success: handleFetchStudentsSuccess,
-        error: handleFetchStudentsError
+      ).then(function(){
+        var filter = {
+          classroom: classroom_id,
+          start_at: start_at,
+          end_at: end_at,
+          discipline: discipline_id
+        };
+
+        if (!_.isEmpty(classroom_id) && !_.isEmpty(start_at) && !_.isEmpty(end_at)) {
+          $.ajax({
+            url: Routes.by_date_range_student_enrollments_lists_pt_br_path({
+              filter: filter,
+              format: 'json'
+            }),
+            success: handleFetchStudentsSuccess,
+            error: handleFetchStudentsError
+          });
+        }
       });
     }
   };
@@ -105,7 +121,7 @@ $(function() {
   function handleFetchStudentsSuccess(data) {
     var studentPreviouslySelectedExists = false;
 
-    var students = _.map(data.student_enrollments, function(student_enrollment) {
+    var students = _.map(data.student_enrollments_lists, function(student_enrollment) {
       if (student_enrollment.student_id == window.studentPreviouslySelected) {
         studentPreviouslySelectedExists = true;
       }
@@ -227,7 +243,6 @@ $(function() {
 
   $classroom.on('change', function() {
     fetchExamRule();
-    fetchStudents();
     removeDisciplines();
     fetchDisciplines();
   });
@@ -236,7 +251,7 @@ $(function() {
     $classroom.trigger('change');
   }
 
-  $recorded_at.on('change', function() {
+  $school_calendar_step.on('change', function() {
     fetchStudents();
   });
 });
