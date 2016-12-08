@@ -290,6 +290,12 @@ Rails.application.routes.draw do
     end
 
     resources :student_enrollments, only: [:index]
+    resources :student_enrollments_lists, only: [:index] do
+      collection do
+        get :by_date
+        get :by_date_range
+      end
+    end
 
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'

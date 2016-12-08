@@ -232,13 +232,15 @@ class ConceptualExamsController < ApplicationController
     @students = []
 
     if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present?
-      @student_ids = StudentEnrollment
-        .by_classroom(current_user_classroom)
-        .by_discipline(current_user_discipline)
-        .by_date(@conceptual_exam.recorded_at.to_date.to_s)
-        .active
-        .ordered
-        .collect(&:student_id)
+      @student_ids = StudentEnrollmentsList.new(
+        classroom: current_user_classroom,
+        discipline: current_user_discipline,
+        start_at: @conceptual_exam.school_calendar_step.start_at,
+        end_at: @conceptual_exam.school_calendar_step.end_at,
+        search_type: :by_date_range
+      ).student_enrollments
+     .collect(&:student_id)
+
       @students = Student.where(id: @student_ids)
     end
   end
