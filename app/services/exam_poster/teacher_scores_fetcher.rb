@@ -20,6 +20,7 @@ class TeacherScoresFetcher
     daily_notes = DailyNote.by_classroom_id(@classroom.id)
       .by_discipline_id(@discipline.id)
       .by_test_date_between(@school_calendar_step.start_at, @school_calendar_step.end_at)
+      .active
 
     validate_exam_quantity(number_of_exams)
     validate_exam_quantity_for_fix_test(number_of_exams)
@@ -35,7 +36,7 @@ class TeacherScoresFetcher
         student.id,
         @school_calendar_step.start_at,
         @school_calendar_step.end_at
-      )
+      ).active
 
       pending_exams = student_exams.select { |e| e.note.blank? }
 
