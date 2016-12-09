@@ -59,7 +59,7 @@
     </header>
 
     <%= render 'layouts/navigation' %>
-    <% if user_signed_in? && @show_survey_invitation && survey_link(current_entity.name) %>
+    <% if user_signed_in? && @show_survey_invitation && survey_link(current_entity.name) && !Rails.env.test? %>
       <%= render 'layouts/survey_invitation_modal' %>
     <% end %>
 
