@@ -1,6 +1,6 @@
 class ***REMOVED***Class < ActiveRecord::Base
   acts_as_copy_target
-  audited associated_with: :delivery_schedule
+  audited associated_with: :delivery_schedule, except: :delivery_schedule_id
 
   after_initialize :fill_repeat_default
 
