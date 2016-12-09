@@ -81,12 +81,12 @@ class DescriptiveExamsController < ApplicationController
   protected
 
   def fetch_student_enrollments
-    @student_enrollments = StudentEnrollment
-      .by_classroom(@descriptive_exam.classroom)
-      .by_discipline(@descriptive_exam.discipline)
-      .by_date(Time.zone.today)
-      .active
-      .ordered
+    @student_enrollments = StudentEnrollmentsList.new(classroom: @descriptive_exam.classroom,
+                                                     discipline: @descriptive_exam.discipline,
+                                                     start_at: @descriptive_exam.school_calendar_step.start_at,
+                                                     end_at: @descriptive_exam.school_calendar_step.end_at,
+                                                     search_type: :by_date_range)
+                                                .student_enrollments
   end
 
   def configuration

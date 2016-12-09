@@ -37,6 +37,7 @@ class DailyNote < ActiveRecord::Base
   scope :by_school_calendar_classroom_step_id, lambda { |school_calendar_classroom_step_id| joins(:avaliation).merge(Avaliation.by_school_calendar_classroom_step(school_calendar_classroom_step_id))   }
   scope :with_daily_note_students, lambda { |with_daily_note_student| with_daily_note_students_query(with_daily_note_student) }
   scope :by_status, lambda { |status| joins(:daily_note_status).merge(DailyNoteStatus.by_status(status)) }
+  scope :active, -> { joins(:students).merge(DailyNoteStudent.active) }
 
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
