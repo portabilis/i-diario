@@ -59,6 +59,9 @@
     </header>
 
     <%= render 'layouts/navigation' %>
+    <% if user_signed_in? && @show_survey_invitation && survey_link(current_entity.name) %>
+      <%= render 'layouts/survey_invitation_modal' %>
+    <% end %>
 
     <div id="main" role="main">
       <div id="ribbon">
