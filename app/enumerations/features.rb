@@ -73,6 +73,7 @@ class Features < EnumerateIt::Base
                    :terms_dictionaries,
                    :can_change_user_password,
                    :***REMOVED***,
+                   :***REMOVED***,
                    :***REMOVED***
 
   sort_by :translation
