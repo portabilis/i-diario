@@ -98,6 +98,7 @@ pt-BR:
     system_***REMOVED***: 'notificacoes-do-sistema'
     ***REMOVED***: '***REMOVED***'
     ***REMOVED***: '***REMOVED***'
+    student_enrollments_list: 'lista-de-alunos-matriculados'
 
     # actions
     edit: 'editar'
@@ -121,6 +122,8 @@ pt-BR:
     export_selected: 'exportar-selecionados'
     multiple_classrooms: 'multiplas-turmas'
     create_multiple_classrooms: 'criar-multiplas-turmas'
+    by_date: 'por-data'
+    by_date_range: 'por-periodo'
 
     #***REMOVED***
     access: "acesso"
