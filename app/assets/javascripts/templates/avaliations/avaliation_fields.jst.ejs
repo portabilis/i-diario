@@ -1,0 +1,34 @@
+<tr class="nested-fields dynamic">
+  <td>
+    <div class="control-group boolean optional avaliation_multiple_creator_form_avaliations_include">
+      <div class="controls input"><input value="0" type="hidden" name="avaliation_multiple_creator_form[avaliations_attributes][<%= element_id %>][include]">
+      <label class="checkbox"><input class="boolean optional" type="checkbox" value="1" name="avaliation_multiple_creator_form[avaliations_attributes][<%= element_id %>][include]" id="avaliation_multiple_creator_form_avaliations_attributes_<%= element_id %>_include"><i></i></label></div>
+    </div>
+    <div class="control-group hidden avaliation_multiple_creator_form_avaliations_classroom_id">
+      <div class="controls input"><input class="hidden" type="hidden" value="<%= classroom_id %>" name="avaliation_multiple_creator_form[avaliations_attributes][<%= element_id %>][classroom_id]" id="avaliation_multiple_creator_form_avaliations_attributes_<%= element_id %>_classroom_id"></div>
+    </div>
+  </td>
+  <td>
+    <div class="control-group string required disabled">
+      <div class="controls input">
+        <input class="form-control string disabled" disabled="disabled" type="text" value="<%= classroom_name %>" />
+      </div>
+    </div>
+  </td>
+  <td>
+    <div class="control-group date required avaliation_multiple_creator_form_avaliations_test_date">
+      <div class="controls input">
+        <div class="icon-addon">
+          <label for="test_date" class="fa fa-calendar"></label>
+          <input class="string input-small form-control datepicker date required" size="10" type="text" data-mask="99/99/9999" name="avaliation_multiple_creator_form[avaliations_attributes][<%= element_id %>][test_date]" id="avaliation_multiple_creator_form_avaliations_attributes_<%= element_id %>_test_date"></div>
+      </div>
+    </div>
+  </td>
+  <td>
+    <div class="control-group select2 required avaliation_multiple_creator_form_avaliations_classes">
+      <div class="controls input">
+        <input value="" data-without-json-parser="true"  data-multiple="true" class="select2 required" type="hidden" style="width: 100%;" name="avaliation_multiple_creator_form[avaliations_attributes][<%= element_id %>][classes]" id="avaliation_multiple_creator_form_avaliations_attributes_<%= element_id %>_classes" tabindex="-1">
+      </div>
+    </div>
+  </td>
+</tr>

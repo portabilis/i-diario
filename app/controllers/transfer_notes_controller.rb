@@ -140,7 +140,8 @@ class TransferNotesController < ApplicationController
         :id,
         :student_id,
         :daily_note_id,
-        :note
+        :note,
+        :active
       ]
     )
   end

@@ -1,0 +1,16 @@
+<tr class="nested-fields">
+  <td>
+    <%= f.input :include, as: :boolean, label: false %>
+    <%= f.input :classroom_id, as: :hidden %>
+  </td>
+  <td>
+    <%= f.input :classroom, as: :string, label: false, disabled: true %>
+  </td>
+  <td>
+    <%= f.input :test_date, as: :date, input_html: { value: f.object.localized.test_date }, label: false %>
+  </td>
+
+  <td>
+    <%= f.input :classes, as: :select2, elements: number_of_classes_elements(@number_of_classes), multiple: true, input_html: { value: f.object.classes.join(','), data: { without_json_parser: true } }, label: false %>
+  </td>
+</tr>

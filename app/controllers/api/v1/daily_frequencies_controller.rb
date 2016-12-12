@@ -39,7 +39,7 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
       @student_enrollments.each do |student_enrollment|
         if student = Student.find_by_id(student_enrollment.student_id)
           dependence = student_has_dependence?(student_enrollment.id, @daily_frequency.discipline_id)
-          @students << (@daily_frequency.students.where(student_id: student.id).first || @daily_frequency.students.create(student_id: student.id, dependence: dependence, present: true))
+          @students << (@daily_frequency.students.where(student_id: student.id).first || @daily_frequency.students.create(student_id: student.id, dependence: dependence, present: true, active: true))
         end
       end
     end
@@ -77,7 +77,7 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
           student_id: student.id,
           student_name: student.name,
           dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id),
-          daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id), present: true)) }
+          daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id), present: true, active: true)) }
         }
       end
     end

@@ -13,7 +13,21 @@
             </td>
             <td></td>
             <td><%= f.input :by_description, label: false, placeholder: t('.by_description') %></td>
-            <td><%= link_to t('.new_html'), new_avaliation_path, class: "btn btn-primary pull-right" %></td>
+            <td class="actions" style="width: 160px;">
+              <div class="btn-group">
+                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+                  <%= t('.new_html') %> <span class="caret"></span>
+                </button>
+                <ul class="dropdown-***REMOVED***">
+                  <li>
+                    <%= link_to t('.new_single'), new_avaliation_path %>
+                  </li>
+                  <li>
+                    <%= link_to t('.new_multiple'), multiple_classrooms_avaliations_path %>
+                  </li>
+                </ul>
+              </div>
+            </td>
           </tr>
           <tr>
             <th><%= Avaliation.human_attribute_name :unity %></th>

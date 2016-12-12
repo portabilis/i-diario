@@ -71,11 +71,13 @@ Rails.application.routes.draw do
     resources :***REMOVED***, only: :index
     resources :***REMOVED***, only: :index
 
+    resources :system_***REMOVED***, only: :index
+
     root 'dashboard#index'
 
     get '/sandbox', to: 'dashboard#sandbox'
     patch '/current_role', to: 'current_role#set', as: :set_current_role
-    get '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
+    post '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
     get '/disabled_entity', to: 'pages#disabled_entity'
     get '/new_role_modal_feature', to: 'news#role_modal_feature'
 
@@ -243,6 +245,8 @@ Rails.application.routes.draw do
     resources :avaliations, concerns: :history do
       collection do
         get :search
+        get :multiple_classrooms
+        post :create_multiple_classrooms
       end
     end
     resources :teacher_avaliations, only: :index
@@ -286,6 +290,12 @@ Rails.application.routes.draw do
     end
 
     resources :student_enrollments, only: [:index]
+    resources :student_enrollments_lists, only: [:index] do
+      collection do
+        get :by_date
+        get :by_date_range
+      end
+    end
 
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
@@ -321,6 +331,9 @@ Rails.application.routes.draw do
     get '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#form', as: '***REMOVED***_movements_report'
     post '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#report', as: '***REMOVED***_movements_report'
     get '/reports/***REMOVED***_movements/:id', to: '***REMOVED***_movements_report#show', as: '***REMOVED***_movements_report_viewer'
+
+    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
+    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
     post '/food_composition', to: 'food_composition#calculate'
   end
