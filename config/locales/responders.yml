@@ -47,14 +47,6 @@ pt-BR:
       confirm:
         notice: 'Candidatura confirmada com sucesso.'
 
-    actions:
-       <<: *female
- 
-     users:
-       <<: *male
-       destroy:
-         alert: '%{resource_name} não pode ser apagado pois possui vínculos.'
-
     devise:
       passwords:
         create:
@@ -62,6 +54,14 @@ pt-BR:
       unlocks:
         create:
           alert: "E-mail não encontrado."
+
+    actions:
+      <<: *female
+
+    users:
+      <<: *male
+      destroy:
+        alert: '%{resource_name} não pode ser apagado pois possui vínculos.'
 
     accounts:
       <<: *male
