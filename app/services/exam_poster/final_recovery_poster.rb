@@ -6,7 +6,6 @@ module ExamPoster
 
     def post!
       params = build_params
-      # params.each { |key, value| api.send_post(notas: { key => value }) }
 
       params.each do |classroom_id, classroom_score|
         classroom_score.each do |student_id, student_score|

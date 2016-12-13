@@ -60,13 +60,11 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
     authorize @final_recovery_diary_record
 
-    @final_recovery_diary_record.recovery_diary_record.students.each do |record_student|
-      record_student.student = StudentInFinalRecoveryDecorator.new(record_student.student)
-    end
-
     students_in_final_recovery = fetch_students_in_final_recovery
-    mark_students_not_in_final_recovery_for_destruction(students_in_final_recovery)
     add_missing_students(students_in_final_recovery)
+    @final_recovery_diary_record.recovery_diary_record.students.each do |record_student|
+      record_student.student = fetch_student_in_final_recovery(record_student.student.id)
+    end
 
     @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
   end
@@ -150,21 +148,22 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       )
   end
 
-  def mark_students_not_in_final_recovery_for_destruction(students_in_final_recovery)
-    @final_recovery_diary_record.recovery_diary_record.students.each do |student|
-      is_student_in_final_recovery = students_in_final_recovery.any? do |student_in_final_recovery|
-        student.student.id == student_in_final_recovery.id
-      end
+  def fetch_student_in_final_recovery(student_id)
+    return unless @final_recovery_diary_record.recovery_diary_record.classroom_id && @final_recovery_diary_record.recovery_diary_record.discipline_id
 
-      student.mark_for_destruction if is_student_in_final_recovery
-    end
+    StudentInFinalRecoveryFetcher.new(api_configuration)
+      .fetch(
+        @final_recovery_diary_record.recovery_diary_record.classroom_id,
+        @final_recovery_diary_record.recovery_diary_record.discipline_id,
+        student_id
+      )
   end
 
   def add_missing_students(students_in_final_recovery)
+    current_students_ids = @final_recovery_diary_record.recovery_diary_record.students.map(&:student_id)
+
     students_missing = students_in_final_recovery.select do |student_in_final_recovery|
-      @final_recovery_diary_record.recovery_diary_record.students do |student|
-        student.student.id == student_in_final_recovery.id
-      end
+      !current_students_ids.include?(student_in_final_recovery.id)
     end
 
     students_missing.each do |student_missing|

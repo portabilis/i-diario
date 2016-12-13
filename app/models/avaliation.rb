@@ -57,6 +57,8 @@ class Avaliation < ActiveRecord::Base
 
   attr_accessor :include
 
+  attr_accessor :include
+
   def to_s
     !test_setting_test || allow_break_up? ? description : test_setting_test.to_s
   end

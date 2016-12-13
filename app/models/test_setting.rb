@@ -12,6 +12,8 @@ class TestSetting < ActiveRecord::Base
   has_many :avaliations, dependent: :restrict_with_error
   has_many :tests, class_name: 'TestSettingTest', dependent: :destroy
 
+  before_update :ensure_has_no_avaliation_associated
+
   accepts_nested_attributes_for :tests, reject_if: :all_blank, allow_destroy: true
 
   scope :ordered, -> { order(year: :desc) }
@@ -45,5 +47,4 @@ class TestSetting < ActiveRecord::Base
       false
     end
   end
-
 end

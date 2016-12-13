@@ -85,10 +85,13 @@ pt-BR:
     teacher_report_cards: "Boletim do professor"
     ***REMOVED***: "***REMOVED***"
     ***REMOVED***: "***REMOVED***"
-    terms_dictionaries: "Dicionário de termos"
     partial_score_record_report: "Registro de notas parciais"
     ***REMOVED***_movements_report: "***REMOVED***"
+    terms_dictionaries: "Dicionário de termos"
     ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+    ***REMOVED***: "***REMOVED***"
+
 
   enumerations:
     features:
