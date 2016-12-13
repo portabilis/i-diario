@@ -41,12 +41,12 @@ class TestSettingsController < ApplicationController
   end
 
   def update
-    test_setting_form = TestSettingForm.new(resource, resource_params)
+    resource.assign_attributes resource_params
 
     authorize resource
 
-    if test_setting_form.save
-      respond_with test_setting_form, location: test_settings_path
+    if resource.save
+      respond_with resource, location: test_settings_path
     else
       render :edit
     end

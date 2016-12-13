@@ -16,6 +16,8 @@ class TestSetting < ActiveRecord::Base
 
   scope :ordered, -> { order(year: :desc) }
 
+  validate :can_update_test_setting?, on: :update
+
   def to_s
     if school_term.nil?
       year
@@ -34,6 +36,13 @@ class TestSetting < ActiveRecord::Base
       I18n.t("enumerations.trimesters.#{school_term}")
     when school_term.end_with?(SchoolTermTypes::SEMESTER)
       I18n.t("enumerations.semesters.#{school_term}")
+    end
+  end
+
+  def can_update_test_setting?
+    if !TestSettingUpdatePolicy.can_update?(self)
+      errors.add(:base, :has_avaliation_associated)
+      false
     end
   end
 
