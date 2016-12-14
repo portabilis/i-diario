@@ -2,7 +2,7 @@
   <%= javascript_include_tag 'views/partial_score_record_report/form' %>
 <% end %>
 <div class="widget-body no-padding">
-  <%= simple_form_for @partial_score_record_report_form, url: partial_score_record_report_path, method: :post, html: { class: 'smart-form', target: '_new' } do |f| %>
+  <%= simple_form_for @partial_score_record_report_form, url: partial_score_record_report_path, method: :post, html: { class: 'smart-form', target: '_blank' } do |f| %>
     <%= f.error_notification unless @partial_score_record_report_form.errors[:daily_note_students].any? %>
 
     <div class="alert alert-danger <%= 'hidden' unless @partial_score_record_report_form.errors[:daily_note_students].any? %>">

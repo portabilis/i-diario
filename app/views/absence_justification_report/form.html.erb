@@ -2,7 +2,7 @@
   <%= javascript_include_tag 'views/absence_justification_report/form' %>
 <% end %>
 
-<%= simple_form_for @absence_justification_report_form, url: absence_justification_report_path, method: :post, html: { class: "smart-form", target: '_new' } do |f| %>
+<%= simple_form_for @absence_justification_report_form, url: absence_justification_report_path, method: :post, html: { class: "smart-form", target: '_blank' } do |f| %>
   <%= f.error_notification unless @absence_justification_report_form.errors[:base].any? %>
   <div class="alert alert-danger <%= 'hidden' unless @absence_justification_report_form.errors[:base].any? %>">
     <i class="fa fa-exclamation-circle fa-fw"></i>
