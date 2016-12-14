@@ -15,12 +15,16 @@ class TestSettingUpdatePolicy
   attr_reader :test_setting
 
   def check_allowed_changes_on_test_setting
-    if has_any_change_on_test_setting?
+    if has_any_change_on_test_setting? && has_any_avaliation_associated?
       if changed.any?{ |changed_field| !allowed_fields_to_change_on_test_setting.include?(changed_field) }
         return false
       end
     end
     true
+  end
+
+  def has_any_avaliation_associated?
+    test_setting.avaliations.any?
   end
 
   def check_allowed_changes_on_tests
