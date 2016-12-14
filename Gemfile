@@ -74,7 +74,7 @@ end
 group :test do
   gem 'turnip', '~> 1.3', '>= 1.3.1'
   gem 'capybara', '~> 2.5'
-  gem 'poltergeist', '~> 1.8'
+  gem 'poltergeist', '~> 1.8.1'
   gem 'shoulda-matchers', '~> 3.0', '>= 3.0.1'
   gem 'vcr', '~> 3.0'
   gem 'webmock', '~> 1.22', '>= 1.22.3'

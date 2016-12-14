@@ -83,10 +83,14 @@ class DescriptiveExamsController < ApplicationController
   def fetch_student_enrollments
     @student_enrollments = StudentEnrollmentsList.new(classroom: @descriptive_exam.classroom,
                                                      discipline: @descriptive_exam.discipline,
-                                                     start_at: @descriptive_exam.school_calendar_step.start_at,
-                                                     end_at: @descriptive_exam.school_calendar_step.end_at,
+                                                     start_at: calendar_step.start_at,
+                                                     end_at: calendar_step.end_at,
                                                      search_type: :by_date_range)
                                                 .student_enrollments
+  end
+
+  def calendar_step
+    @descriptive_exam.school_calendar_step || current_school_calendar.steps.started_after_and_before(Time.zone.today).first
   end
 
   def configuration

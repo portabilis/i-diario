@@ -21,6 +21,7 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :check_for_***REMOVED***
   before_action :check_for_current_user_role
+  before_action :check_for_survey_invitation
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -86,6 +87,7 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource_or_scope)
+    session[:show_survey_invitation] = true
     if !!current_user.receive_news == current_user.receive_news
       super
     else
@@ -221,6 +223,13 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_discipline
 
   private
+
+  def check_for_survey_invitation
+    if session[:show_survey_invitation]
+      session[:show_survey_invitation] = false
+      @show_survey_invitation = true
+    end
+  end
 
   def disabled_entity_page?
     controller_name.eql?('pages') && action_name.eql?('disabled_entity')

@@ -1,0 +1,23 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'survey_invitation_modal' %>
+<% end %>
+
+<div class="modal fade" tabindex="-1" role="dialog" id="survey_invitation_modal" aria-hidden="hide">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span></button>
+        <h4 class="modal-title">Pesquisa de satisfação</h4>
+      </div>
+      <div class="modal-body" style="text-align: left;">
+        <p>Caro usuário(a), a Secretaria Municipal de Educação e a Portabilis Tecnologia convidam você a responder a uma pesquisa de satisfação referente ao projeto Diário eletrônico do professor.</p>
+        <p>Levará apenas 3 minutos para responder. Contamos com você! :)</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Não, obrigado</button>
+        <%= link_to "Participar da pesquisa", survey_link(current_entity.name),
+              target: "_blank", class: "btn btn-primary", id: "survey_invitation_link" %>
+      </div>
+    </div>
+  </div>
+</div>

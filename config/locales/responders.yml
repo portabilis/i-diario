@@ -47,6 +47,14 @@ pt-BR:
       confirm:
         notice: 'Candidatura confirmada com sucesso.'
 
+    devise:
+      passwords:
+        create:
+          alert: "E-mail não encontrado."
+      unlocks:
+        create:
+          alert: "E-mail não encontrado."
+
     actions:
       <<: *female
 
