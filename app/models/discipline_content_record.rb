@@ -25,8 +25,10 @@ class DisciplineContentRecord < ActiveRecord::Base
   validates :discipline, presence: true
 
   validate :uniqueness_of_discipline_content_record
+  validate :ensure_is_school_day
 
-  delegate :contents, to: :content_record
+  delegate :contents, :record_date, :classroom, to: :content_record
+  delegate :grade, to: :classroom
 
   private
 
@@ -45,4 +47,12 @@ class DisciplineContentRecord < ActiveRecord::Base
     end
   end
 
+  def ensure_is_school_day
+    return unless content_record.present? && record_date
+
+    unless content_record.school_calendar.school_day?(record_date, grade, classroom, discipline)
+      errors.add(:base, "")
+      content_record.errors.add(:record_date, :not_school_calendar_day)
+    end
+  end
 end
