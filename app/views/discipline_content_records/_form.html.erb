@@ -2,7 +2,7 @@
   <%= javascript_include_tag 'views/discipline_content_records/form' %>
 <% end %>
 
-<%= simple_form_for @discipline_content_record, html: { class: 'smart-form', target: '_blank' } do |f| %>
+<%= simple_form_for @discipline_content_record, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
   <%= f.simple_fields_for :content_record, @discipline_content_record.content_record.localized do |content_record| %>
