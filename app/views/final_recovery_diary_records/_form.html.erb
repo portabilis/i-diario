@@ -1,4 +1,4 @@
-<%= simple_form_for @final_recovery_diary_record, html: { class: 'smart-form' } do |f| %>
+<%= simple_form_for @final_recovery_diary_record, html: { class: 'smart-form', target: '_blank' } do |f| %>
   <%= f.error_notification %>
 
   <%= f.simple_fields_for :recovery_diary_record, @final_recovery_diary_record.recovery_diary_record.localized do |recovery_diary_record| %>

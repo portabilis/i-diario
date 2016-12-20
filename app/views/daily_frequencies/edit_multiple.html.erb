@@ -78,12 +78,12 @@
         <ul class="dropdown-***REMOVED***">
           <li>
             <%= link_to(t('.by_month'), attendance_record_report_path(attendance_record_report_form: params_for_print_month(@daily_frequencies)),
-                  method: :post, target: '_new') %>
+                  method: :post, target: '_blank') %>
 
           </li>
           <li>
             <%= link_to(t('.by_step'), attendance_record_report_path(attendance_record_report_form: params_for_print_step(@daily_frequencies)),
-                  method: :post, target: '_new') %>
+                  method: :post, target: '_blank') %>
           </li>
         </ul>
       </div>
