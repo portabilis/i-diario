@@ -6,9 +6,6 @@ class DailyNote < ActiveRecord::Base
 
   include Audit
 
-  belongs_to :unity
-  belongs_to :classroom
-  belongs_to :discipline
   belongs_to :avaliation
 
   has_one :daily_note_status
@@ -28,9 +25,9 @@ class DailyNote < ActiveRecord::Base
   before_destroy :ensure_not_has_avaliation_recovery
 
   scope :by_teacher_id, lambda { |teacher_id| by_teacher_id_query(teacher_id) }
-  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
-  scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
-  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_unity_id, lambda { |unity_id| joins(:avaliation).merge(Avaliation.by_unity_id(classroom_id))}
+  scope :by_classroom_id, lambda { |classroom_id| joins(:avaliation).merge(Avaliation.by_classroom_id(classroom_id))}
+  scope :by_discipline_id, lambda { |discipline_id| joins(:avaliation).merge(Avaliation.by_discipline_id(discipline_id))}
   scope :by_test_date_between, lambda { |start_at, end_at| includes(:avaliation, students: :student).where('avaliations.test_date': start_at.to_date..end_at.to_date) }
   scope :by_avaliation_id, lambda { |avaliation_id| includes(:avaliation).where(avaliation: avaliation_id) }
   scope :by_school_calendar_step_id, lambda { |school_calendar_step_id| joins(:avaliation).merge(Avaliation.by_school_calendar_step(school_calendar_step_id)) }
@@ -44,6 +41,8 @@ class DailyNote < ActiveRecord::Base
   scope :order_by_sequence, -> { joins(students: [student: :student_enrollments]).merge(StudentEnrollment.ordered) }
 
   delegate :status, to: :daily_note_status, prefix: false, allow_nil: true
+  delegate :classroom, :classroom_id, :discipline, :discipline_id, to: :avaliation, allow_nil: true
+  delegate :unity, :unity_id, to: :classroom, allow_nil: true
 
   private
 

@@ -40,7 +40,7 @@ class Avaliation < ActiveRecord::Base
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
-  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :by_unity_id, lambda { |unity_id| joins(:unity).merge(Classroom.by_unity(unity_id))}
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_test_date, lambda { |test_date| where(test_date: test_date) }
