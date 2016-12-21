@@ -26,8 +26,10 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   validates :knowledge_area_ids, presence: true
 
   validate :uniqueness_of_knowledge_area_content_record
+  validate :ensure_is_school_day
 
-  delegate :contents, :classroom, to: :content_record
+  delegate :contents, :classroom, :record_date, to: :content_record
+  delegate :grade, to: :classroom
 
   def knowledge_area_ids
     knowledge_areas.collect(&:id).join(',')
@@ -47,6 +49,15 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
 
     if knowledge_area_content_records.any?
       errors.add(:knowledge_area_ids, :knowledge_area_in_use)
+    end
+  end
+
+  def ensure_is_school_day
+    return unless content_record.present? && record_date
+
+    unless content_record.school_calendar.school_day?(record_date, grade, classroom)
+      errors.add(:base, "")
+      content_record.errors.add(:record_date, :not_school_calendar_day)
     end
   end
 
