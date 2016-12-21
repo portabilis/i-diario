@@ -59,7 +59,7 @@ class IeducarApiExamPostingsController < ApplicationController
   end
 
   def classroom_steps
-    SchoolCalendarClassroomStep.by_classroom(current_user_classroom)
+    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom)
   end
 
   def require_current_posting_step

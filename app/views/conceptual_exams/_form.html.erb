@@ -1,7 +1,12 @@
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/conceptual_exams/form' %>
+<% if @school_calendar_classroom_steps.any? %>
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/conceptual_exams/form_classroom_steps' %>
+  <% end %>
+<% else %>
+    <% content_for :js do %>
+      <%= javascript_include_tag 'views/conceptual_exams/form' %>
+    <% end %>
 <% end %>
-
 
 <%= simple_form_for @conceptual_exam, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>

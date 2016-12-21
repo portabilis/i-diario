@@ -243,8 +243,8 @@ class ConceptualExamsController < ApplicationController
       @student_ids = StudentEnrollmentsList.new(
         classroom: current_user_classroom,
         discipline: current_user_discipline,
-        start_at: @conceptual_exam.school_calendar_step.start_at,
-        end_at: @conceptual_exam.school_calendar_step.end_at,
+        start_at: @conceptual_exam.step.start_at,
+        end_at: @conceptual_exam.step.end_at,
         search_type: :by_date_range
       ).student_enrollments
      .collect(&:student_id)

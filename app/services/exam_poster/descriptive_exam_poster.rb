@@ -48,8 +48,14 @@ module ExamPoster
       teacher.classrooms.uniq.each do |classroom|
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.opinion_type != OpinionTypes::BY_STEP
+        next unless step_exists_for_classroom?(classroom)
 
-        exams = has_classroom_steps ? DescriptiveExamStudent.by_classroom_and_classroom_step(classroom, @post_data.step.id) : DescriptiveExamStudent.by_classroom_and_step(classroom, @post_data.step.id)
+        if has_classroom_steps(classroom)
+          exams = DescriptiveExamStudent.by_classroom_and_classroom_step(classroom, get_step(classroom).id)
+        else
+          exams = DescriptiveExamStudent.by_classroom_and_step(classroom, get_step(classroom).id)
+        end
+
         exams.each do |exam|
           descriptive_exams[classroom.api_code][exam.student.api_code]["valor"] = exam.value
         end
@@ -102,24 +108,20 @@ module ExamPoster
 
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.opinion_type != OpinionTypes::BY_STEP_AND_DISCIPLINE
+        next unless step_exists_for_classroom?(classroom)
 
-        exams = has_classroom_steps ? DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, @post_data.step.id) : DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, @post_data.step.id)
+        if has_classroom_steps(classroom)
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, get_step(classroom).id)
+        else
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, get_step(classroom).id)
+        end
+
         exams.each do |exam|
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]["valor"] = exam.value
         end
       end
 
       descriptive_exams
-    end
-
-    private
-
-    def teacher
-      @post_data.author.current_teacher
-    end
-
-    def has_classroom_steps
-      SchoolCalendarClassroomStep.find(@post_data.step)
     end
   end
 end

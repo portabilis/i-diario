@@ -65,10 +65,6 @@ class StudentsInRecoveryByClassroomStepFetcher
       recovery_diary_record.steps.last.eql?(school_calendar_classroom_step.to_number)
     end
 
-    p "*********************"
-    p school_calendar_classroom_steps.count
-    p "*********************"
-
     if recovery_exam_rule
       students = StudentsFetcher.new(
           classroom,

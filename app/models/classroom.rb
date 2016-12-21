@@ -7,6 +7,7 @@ class Classroom < ActiveRecord::Base
   belongs_to :exam_rule
   belongs_to :grade
   has_many :teacher_discipline_classrooms, dependent: :destroy
+  has_one :calendar, class_name: 'SchoolCalendarClassroom'
 
   delegate :course_id, :course, to: :grade, prefix: false
 

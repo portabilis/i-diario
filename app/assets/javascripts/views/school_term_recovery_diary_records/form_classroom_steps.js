@@ -81,7 +81,6 @@ $(function () {
 
   function handleFetchSchoolCalendarStepSuccess(data) {
     schoolCalendarStep = data;
-    console.log(schoolCalendarStep);
     loadDecimalMasks();
   };
 
@@ -111,13 +110,6 @@ $(function () {
         success: handleFetchStudentsInRecoverySuccess,
         error: handleFetchStudentsInRecoveryError
       });
-      console.log(Routes.in_recovery_classroom_steps_students_pt_br_path({
-          classroom_id: classroom_id,
-          discipline_id: discipline_id,
-          school_calendar_classroom_step_id: school_calendar_classroom_step_id,
-          date: recorded_at,
-          format: 'json'
-        }));
     }
   };
 

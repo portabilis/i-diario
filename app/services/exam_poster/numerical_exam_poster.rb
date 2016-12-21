@@ -29,15 +29,16 @@ module ExamPoster
 
           next if !correct_score_type(classroom.exam_rule.score_type)
           next if !same_unity(classroom.unity_id)
+          next unless step_exists_for_classroom?(classroom)
 
-          teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, @post_data.step)
+          teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, get_step(classroom))
           teacher_score_fetcher.fetch!
 
           student_scores = teacher_score_fetcher.scores
 
           student_scores.each do |student_score|
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
-            value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline.id, @post_data.step.id)
+            value = StudentAverageCalculator.new(student_score).calculate(classroom.id, discipline.id, get_step(classroom).id)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery)
           end
@@ -53,10 +54,6 @@ module ExamPoster
       IeducarApi::PostExams.new(@post_data.to_api)
     end
 
-    def teacher
-      @post_data.author.current_teacher
-    end
-
     def same_unity(unity_id)
       unity_id == @post_data.step.school_calendar.unity_id
     end
@@ -66,17 +63,17 @@ module ExamPoster
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      if has_classroom_steps
+      if has_classroom_steps(classroom)
         school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
           .by_classroom_id(classroom)
           .by_discipline_id(discipline)
-          .by_school_calendar_classroom_step_id(@post_data.step)
+          .by_school_calendar_classroom_step_id(get_step(classroom))
           .first
       else
         school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
         .by_classroom_id(classroom)
         .by_discipline_id(discipline)
-        .by_school_calendar_step_id(@post_data.step)
+        .by_school_calendar_step_id(get_step(classroom))
         .first
       end
 
@@ -88,10 +85,6 @@ module ExamPoster
         .first
 
       student_recovery.try(:score)
-    end
-
-    def has_classroom_steps
-      SchoolCalendarClassroomStep.find(@post_data.step)
     end
   end
 end
