@@ -1,0 +1,16 @@
+pt-BR:
+  activerecord:
+    models:
+      delivery_schedule_class:
+        one: "Classe de cronograma de entrega"
+        other: "***REMOVED*** de cronograma de entrega"
+
+    attributes:
+      delivery_schedule_class:
+        delivery_schedule_id: "Cronograma de entrega"
+        ***REMOVED***_class_id: "Classe"
+        delivery_schedule: "Cronograma de entrega"
+        ***REMOVED***_class: "Classe"
+        date: "Data"
+        ***REMOVED***_class: "Classe"
+        repeat: "Repetição"
