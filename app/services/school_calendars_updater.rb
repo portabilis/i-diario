@@ -32,10 +32,10 @@ class SchoolCalendarsUpdater
           classroom = school_calendar.classrooms.by_classroom_id(classroom_params['id']).first
           classroom_params['steps'].each_with_index do |step_params, step_index|
             if classroom.classroom_steps.any?
-              classroom.classroom_steps[step_index].start_at = step_params['start_at']
-              classroom.classroom_steps[step_index].start_date_for_posting = step_params['start_date_for_posting']
-              classroom.classroom_steps[step_index].end_at = step_params['end_at']
-              classroom.classroom_steps[step_index].end_date_for_posting = step_params['end_date_for_posting']
+              school_calendar.classrooms[classroom_index].classroom_steps[step_index].start_at = step_params['start_at']
+              school_calendar.classrooms[classroom_index].classroom_steps[step_index].start_date_for_posting = step_params['start_date_for_posting']
+              school_calendar.classrooms[classroom_index].classroom_steps[step_index].end_at = step_params['end_at']
+              school_calendar.classrooms[classroom_index].classroom_steps[step_index].end_date_for_posting = step_params['end_date_for_posting']
             else
               step = SchoolCalendarClassroomStep.new(
               start_at: step_params['start_at'],
@@ -43,7 +43,7 @@ class SchoolCalendarsUpdater
               start_date_for_posting: step_params['start_date_for_posting'],
               end_date_for_posting: step_params['end_date_for_posting']
               )
-              school_calendar.classrooms[classroom_index].classroom_steps.build(step.attributes)
+              school_calendar.classrooms.by_classroom_id(classroom_params['id']).first.classroom_steps.build(step.attributes)
             end
           end
         else

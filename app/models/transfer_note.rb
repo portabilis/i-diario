@@ -11,6 +11,7 @@ class TransferNote < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :discipline
   belongs_to :school_calendar_step
+  belongs_to :school_calendar_classroom_step
   belongs_to :student
   belongs_to :teacher
   has_many :daily_note_students, dependent: :destroy
@@ -19,11 +20,13 @@ class TransferNote < ActiveRecord::Base
   validates :unity_id,  presence: true
   validates :classroom_id,  presence: true
   validates :discipline_id, presence: true
-  validates :school_calendar_step_id, presence: true
+  validates :school_calendar_step_id, presence: true, unless: :school_calendar_classroom_step_id
+  validates :school_calendar_classroom_step_id, presence: true, unless: :school_calendar_step_id
   validates :transfer_date, presence: true, date: { not_in_future: true }
   validates :student_id, presence: true
   validates :teacher, presence: true
-  validate :transfer_date_must_be_in_step
+  validate :transfer_date_must_be_in_step, unless: :school_calendar_classroom_step_id
+  validate :transfer_date_must_be_in_classroom_step, unless: :school_calendar_step_id
   validate :at_least_one_daily_note_student
 
   scope :by_classroom_description, lambda { |description| joins(:classroom).where('classrooms.description ILIKE ?', "%#{description}%" ) }
@@ -42,6 +45,11 @@ class TransferNote < ActiveRecord::Base
   def transfer_date_must_be_in_step
     return unless transfer_date.present? && school_calendar_step.present?
     errors.add(:transfer_date, :must_be_in_step) unless school_calendar_step.school_calendar_step_day?(transfer_date)
+  end
+
+  def transfer_date_must_be_in_classroom_step
+    return unless transfer_date.present? && school_calendar_classroom_step.present?
+    errors.add(:transfer_date, :must_be_in_step) unless school_calendar_classroom_step.school_calendar_step_day?(transfer_date)
   end
 
   private

@@ -10,21 +10,21 @@
   </td>
 
   <td>
-    <span class="current-average" data-inputmask="'digits': <%= @school_term_recovery_diary_record.school_calendar_step.test_setting.number_of_decimal_places %>">
+    <span class="current-average" data-inputmask="'digits': <%= decimal_places %>">
       <% # FIXME: Need to find a better solution to format the scores based on the configuration. :( %>
       <%= number_with_precision(
             f.object.student.average(
               @school_term_recovery_diary_record.recovery_diary_record.classroom_id,
               @school_term_recovery_diary_record.recovery_diary_record.discipline_id,
-              @school_term_recovery_diary_record.school_calendar_step
+              @school_term_recovery_diary_record.school_calendar_classroom_step || @school_term_recovery_diary_record.school_calendar_step
             ),
-            precision: @school_term_recovery_diary_record.school_calendar_step.test_setting.number_of_decimal_places
+            precision: decimal_places
           ) %>
     </span>
   </td>
 
   <td>
     <%= f.input :score, label: false,
-        input_html: decimal_input_mask(@school_term_recovery_diary_record.school_calendar_step.test_setting.number_of_decimal_places) %>
+        input_html: decimal_input_mask(decimal_places) %>
   </td>
 </tr>
