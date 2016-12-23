@@ -66,12 +66,14 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :teacher_report_cards,
                    :***REMOVED***,
-                   :ieducar_api_exam_posting_without_restrictions,
                    :***REMOVED***,
-                   :terms_dictionaries,
+                   :ieducar_api_exam_posting_without_restrictions,
                    :partial_score_record_report,
                    :***REMOVED***_movements_report,
+                   :terms_dictionaries,
                    :can_change_user_password,
+                   :***REMOVED***,
+                   :***REMOVED***,
                    :***REMOVED***
 
   sort_by :translation

@@ -40,7 +40,7 @@ class Avaliation < ActiveRecord::Base
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
-  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :by_unity_id, lambda { |unity_id| joins(:classroom).joins(:unity).merge(Classroom.by_unity(unity_id))}
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_test_date, lambda { |test_date| where(test_date: test_date) }
@@ -53,8 +53,11 @@ class Avaliation < ActiveRecord::Base
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
+  scope :not_including_classroom_id, lambda { |classroom_id| where(arel_table[:classroom_id].not_eq(classroom_id) ) }
 
   scope :ordered, -> { order(test_date: :desc) }
+
+  attr_accessor :include
 
   attr_accessor :include
 

@@ -6,7 +6,7 @@ RSpec.describe DailyNoteStudent, type: :model do
   let(:classroom) { create(:classroom, unity: unity) }
   let(:school_calendar) { create(:school_calendar_with_one_step, year: 2014) }
   let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_date: '2014-02-06') }
-  let(:daily_note) { create(:daily_note, unity: unity, classroom: classroom, discipline: discipline, avaliation: avaliation) }
+  let(:daily_note) { create(:daily_note, avaliation: avaliation) }
   subject(:daily_note_student) { build(:daily_note_student, daily_note: daily_note) }
 
   describe 'associations' do
@@ -21,7 +21,7 @@ RSpec.describe DailyNoteStudent, type: :model do
     context 'when test_setting with no fixed tests' do
       let(:test_setting) { create(:test_setting, fix_tests: false) }
       let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_setting: test_setting, test_date: '2014-02-06') }
-      let(:daily_note) { create(:daily_note, unity: unity, classroom: classroom, discipline: discipline, avaliation: avaliation) }
+      let(:daily_note) { create(:daily_note, avaliation: avaliation) }
       subject { build(:daily_note_student, daily_note: daily_note) }
 
       it { expect(subject).to validate_numericality_of(:note).is_greater_than_or_equal_to(0)

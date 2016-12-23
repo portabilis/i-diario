@@ -30,13 +30,12 @@ class TeacherScoresFetcher
     students = Student.find(student_ids)
 
     @scores = students.each do |student|
-      student_exams = DailyNoteStudent.by_classroom_discipline_student_and_avaliation_test_date_between(
-        @classroom,
-        @discipline,
-        student.id,
-        @school_calendar_step.start_at,
-        @school_calendar_step.end_at
-      ).active
+      student_exams = DailyNoteStudent
+        .by_classroom_id(@classroom)
+        .by_discipline_id(@discipline)
+        .by_student_id(student.id)
+        .by_test_date_between(@school_calendar_step.start_at, @school_calendar_step.end_at)
+        .active
 
       pending_exams = student_exams.select { |e| e.note.blank? }
 

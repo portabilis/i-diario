@@ -17,7 +17,7 @@ RSpec.describe ExamRecordReport, type: :report do
     avaliation = create(:avaliation, school_calendar: school_calendar, test_date: "04/01/2016")
     classroom = create(:classroom)
     unity = create(:unity)
-    daily_note = create(:daily_note, avaliation: avaliation, classroom: classroom)
+    daily_note = create(:daily_note, avaliation: avaliation)
     student = create(:student)
     student_enrollment = create(:student_enrollment, student: student)
     teacher = create(:teacher)

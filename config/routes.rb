@@ -165,6 +165,7 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :courses, only: [:index]
     resources :lectures, only: [:index]
+    resources :***REMOVED***, concerns: :history
 
     resources :grades, only: [:index] do
       member do
@@ -335,6 +336,9 @@ Rails.application.routes.draw do
     get '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#form', as: '***REMOVED***_movements_report'
     post '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#report', as: '***REMOVED***_movements_report'
     get '/reports/***REMOVED***_movements/:id', to: '***REMOVED***_movements_report#show', as: '***REMOVED***_movements_report_viewer'
+
+    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
+    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'

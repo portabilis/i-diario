@@ -23,9 +23,7 @@ class DailyNotesController < ApplicationController
   end
 
   def new
-    @daily_note = DailyNote.new(
-      unity: current_user_unity
-    )
+    @daily_note = DailyNote.new
 
     authorize @daily_note
 
@@ -178,7 +176,7 @@ class DailyNotesController < ApplicationController
 
   def resource_params
     params.require(:daily_note).permit(
-      :unity_id, :classroom_id, :discipline_id, :avaliation_id,
+      :avaliation_id,
       students_attributes: [
         :id, :student_id, :note, :active, :_destroy
       ]

@@ -45,5 +45,4 @@ class TestSetting < ActiveRecord::Base
       false
     end
   end
-
 end

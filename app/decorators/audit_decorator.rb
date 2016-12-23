@@ -52,7 +52,7 @@ class AuditDecorator
           relation
         end
 
-        class_name.capitalize.to_s.constantize.find(value)
+        class_name.to_s.constantize.find(value)
       rescue
         value
       end
