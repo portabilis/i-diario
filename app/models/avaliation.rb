@@ -8,7 +8,6 @@ class Avaliation < ActiveRecord::Base
 
   before_destroy :try_destroy_daily_notes
 
-  belongs_to :unity
   belongs_to :classroom
   belongs_to :discipline
   belongs_to :school_calendar
@@ -40,7 +39,7 @@ class Avaliation < ActiveRecord::Base
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
-  scope :by_unity_id, lambda { |unity_id| joins(:classroom).joins(:unity).merge(Classroom.by_unity(unity_id))}
+  scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id))}
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_test_date, lambda { |test_date| where(test_date: test_date) }
@@ -55,6 +54,8 @@ class Avaliation < ActiveRecord::Base
   scope :not_including_classroom_id, lambda { |classroom_id| where(arel_table[:classroom_id].not_eq(classroom_id) ) }
 
   scope :ordered, -> { order(test_date: :desc) }
+
+  delegate :unity, :unity_id, to: :classroom, allow_nil: true
 
   attr_accessor :include
 

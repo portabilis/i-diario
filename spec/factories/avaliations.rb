@@ -4,7 +4,6 @@ FactoryGirl.define do
     classes      '1'
     description  'Avaliation description'
 
-    unity
     discipline
     classroom
     association :school_calendar, factory: :school_calendar_with_one_step
