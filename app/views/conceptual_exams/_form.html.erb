@@ -1,7 +1,12 @@
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/conceptual_exams/form' %>
+<% if @school_calendar_classroom_steps.any? %>
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/conceptual_exams/form_classroom_steps' %>
+  <% end %>
+<% else %>
+    <% content_for :js do %>
+      <%= javascript_include_tag 'views/conceptual_exams/form' %>
+    <% end %>
 <% end %>
-
 
 <%= simple_form_for @conceptual_exam, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
@@ -28,11 +33,17 @@
       <div class="col col-sm-4">
         <%= f.association :classroom, as: :select2_classroom, user: current_user %>
       </div>
-
-      <div class="col col-sm-4">
-        <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps,
-              readonly: @conceptual_exam.persisted? %>
-      </div>
+      <% if @school_calendar_classroom_steps.any? %>
+          <div class="col col-sm-4">
+            <%= f.association :school_calendar_classroom_step, as: :select2, elements: @school_calendar_classroom_steps,
+            readonly: @conceptual_exam.persisted? %>
+          </div>
+        <% else %>
+          <div class="col col-sm-4">
+            <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps,
+            readonly: @conceptual_exam.persisted? %>
+          </div>
+      <% end %>
     </div>
 
     <div class="row">
