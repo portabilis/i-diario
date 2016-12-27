@@ -12,7 +12,7 @@ class AvaliationsController < ApplicationController
   def index
     current_user_unity_id = current_user_unity.id if current_user_unity
 
-    @avaliations = apply_scopes(Avaliation).includes(:unity, :classroom, :discipline, :test_setting_test)
+    @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
                                            .by_unity_id(current_user_unity_id)
                                            .by_classroom_id(current_user_classroom)
                                            .by_discipline_id(current_user_discipline)
@@ -30,7 +30,6 @@ class AvaliationsController < ApplicationController
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
     @avaliation.test_setting    = current_test_setting
-    @avaliation.unity           = current_user_unity
     @avaliation.test_date       = Time.zone.today
 
     authorize resource
@@ -42,7 +41,6 @@ class AvaliationsController < ApplicationController
     @avaliation_multiple_creator_form                     = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id  = current_school_calendar.id
     @avaliation_multiple_creator_form.test_setting_id     = current_test_setting.id
-    @avaliation_multiple_creator_form.unity_id            = current_user_unity.id
     @avaliation_multiple_creator_form.discipline_id       = current_user_discipline.id
     @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id)
 
@@ -161,7 +159,6 @@ class AvaliationsController < ApplicationController
 
   def resource_params
     params.require(:avaliation).permit(:test_setting_id,
-                                       :unity_id,
                                        :classroom_id,
                                        :discipline_id,
                                        :test_date,

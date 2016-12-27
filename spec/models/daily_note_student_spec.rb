@@ -2,10 +2,9 @@ require 'rails_helper'
 
 RSpec.describe DailyNoteStudent, type: :model do
   let(:discipline) { create(:discipline) }
-  let(:unity) { create(:unity) }
-  let(:classroom) { create(:classroom, unity: unity) }
+  let(:classroom) { create(:classroom) }
   let(:school_calendar) { create(:school_calendar_with_one_step, year: 2014) }
-  let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_date: '2014-02-06') }
+  let(:avaliation) { create(:avaliation, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_date: '2014-02-06') }
   let(:daily_note) { create(:daily_note, avaliation: avaliation) }
   subject(:daily_note_student) { build(:daily_note_student, daily_note: daily_note) }
 
@@ -20,7 +19,7 @@ RSpec.describe DailyNoteStudent, type: :model do
 
     context 'when test_setting with no fixed tests' do
       let(:test_setting) { create(:test_setting, fix_tests: false) }
-      let(:avaliation) { create(:avaliation, unity: unity, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_setting: test_setting, test_date: '2014-02-06') }
+      let(:avaliation) { create(:avaliation, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_setting: test_setting, test_date: '2014-02-06') }
       let(:daily_note) { create(:daily_note, avaliation: avaliation) }
       subject { build(:daily_note_student, daily_note: daily_note) }
 
@@ -31,8 +30,7 @@ RSpec.describe DailyNoteStudent, type: :model do
 
     context 'when test_setting with fixed tests and that do not allow break up' do
       let(:test_setting_with_fixed_tests_that_do_not_allow_break_up) { FactoryGirl.create(:test_setting_with_fixed_tests) }
-      let(:avaliation) { create(:avaliation, unity: unity,
-                                             classroom: classroom,
+      let(:avaliation) { create(:avaliation, classroom: classroom,
                                              discipline: discipline,
                                              school_calendar: school_calendar,
                                              test_setting: test_setting_with_fixed_tests_that_do_not_allow_break_up,
@@ -48,8 +46,7 @@ RSpec.describe DailyNoteStudent, type: :model do
 
     context 'when test_setting with fixed tests and that allow break up' do
       let(:test_setting_with_fixed_tests_that_allow_break_up) { FactoryGirl.create(:test_setting_with_fixed_tests_that_allow_break_up) }
-      let(:avaliation) { create(:avaliation, unity: unity,
-                                             classroom: classroom,
+      let(:avaliation) { create(:avaliation, classroom: classroom,
                                              discipline: discipline,
                                              school_calendar: school_calendar,
                                              test_setting: test_setting_with_fixed_tests_that_allow_break_up,
