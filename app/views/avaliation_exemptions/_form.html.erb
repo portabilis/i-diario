@@ -1,5 +1,11 @@
-<% content_for :js do %>
+<% if @school_calendar_classroom_steps.any? %>
+  <% content_for :js do %>
+  <%= javascript_include_tag 'views/avaliation_exemptions/form_classroom_steps' %>
+  <% end %>
+<% else %>
+  <% content_for :js do %>
   <%= javascript_include_tag 'views/avaliation_exemptions/form' %>
+  <% end %>
 <% end %>
 
 <fieldset>
@@ -34,7 +40,11 @@
     </div>
 
     <div class="col col-sm-4">
-      <%= f.input :school_calendar_step, as: :select2, elements: @school_calendar_steps, readonly: f.object.persisted? %>
+      <% if @school_calendar_classroom_steps.any? %>
+        <%= f.input :school_calendar_classroom_step, as: :select2, elements: @school_calendar_classroom_steps, readonly: f.object.persisted? %>
+      <% else %>
+        <%= f.input :school_calendar_step, as: :select2, elements: @school_calendar_steps, readonly: f.object.persisted? %>
+      <% end %>
     </div>
   </div>
 
