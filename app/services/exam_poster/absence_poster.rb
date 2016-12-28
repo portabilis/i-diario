@@ -7,14 +7,16 @@ module ExamPoster
     def post!
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
-          api.send_post(faltas: { classroom_id => { student_id => student_absence } }, etapa: @post_data.school_calendar_step.to_number, resource: 'faltas-geral')
+          # p "Classroom: #{classroom_id}  Student: #{student_id} Absences: #{student_absence} #{@post_data.step.to_number}"
+          api.send_post(faltas: { classroom_id => { student_id => student_absence } }, etapa: @post_data.step.to_number, resource: 'faltas-geral')
         end
       end
 
       post_by_discipline_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|
-            api.send_post(faltas: { classroom_id => { student_id => { discipline_id => discipline_absence } } }, etapa: @post_data.school_calendar_step.to_number, resource: 'faltas-por-componente')
+            # p "Classroom: #{classroom_id}  Student: #{student_id} Absences: #{student_absence} Discipline #{discipline_id} #{@post_data.step.to_number}"
+            api.send_post(faltas: { classroom_id => { student_id => { discipline_id => discipline_absence } } }, etapa: @post_data.step.to_number, resource: 'faltas-por-componente')
           end
         end
       end
@@ -32,12 +34,13 @@ module ExamPoster
       absences = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next if classroom.unity_id != @post_data.school_calendar_step.school_calendar.unity_id
+        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
+        next unless step_exists_for_classroom?(classroom)
 
         daily_frequencies = DailyFrequency
           .by_classroom_id(classroom.id)
-          .by_frequency_date_between(step_start_at, step_end_at)
+          .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
           .general_frequency
 
         students = fetch_students(daily_frequencies)
@@ -46,8 +49,8 @@ module ExamPoster
           daily_frequency_students = DailyFrequencyStudent.general_by_classroom_student_date_between(
             classroom,
             student.id,
-            step_start_at,
-            step_end_at
+            step_start_at(classroom),
+            step_end_at(classroom)
           )
           value = daily_frequency_students.absences.count
           absences[classroom.api_code][student.api_code]['valor'] = value
@@ -64,14 +67,15 @@ module ExamPoster
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-          next if teacher_discipline_classroom.classroom.unity_id != @post_data.school_calendar_step.school_calendar.unity_id
+          next if teacher_discipline_classroom.classroom.unity_id != @post_data.step.school_calendar.unity_id
           next if classroom.exam_rule.frequency_type != FrequencyTypes::BY_DISCIPLINE
+          next unless step_exists_for_classroom?(classroom)
 
           discipline = teacher_discipline_classroom.discipline
 
           daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
             .by_discipline_id(discipline.id)
-            .by_frequency_date_between(step_start_at, step_end_at)
+            .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
 
           if daily_frequencies.any?
             students = fetch_students(daily_frequencies)
@@ -81,8 +85,8 @@ module ExamPoster
                 classroom.id,
                 discipline.id,
                 student.id,
-                step_start_at,
-                step_end_at
+                step_start_at(classroom),
+                step_end_at(classroom)
               )
 
               if daily_frequency_students.any?
@@ -98,16 +102,50 @@ module ExamPoster
 
     private
 
-    def step_start_at
-      @post_data.school_calendar_step.start_at
+    def step_start_at(classroom)
+      step_start_at = @post_data.step.start_at
+      if classroom.calendar
+        classroom.calendar.classroom_steps.each do |classroom_step|
+          if classroom_step.to_number == @post_data.step.to_number
+            step_start_at = classroom_step.start_at
+            break
+          end
+        end
+      else
+        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_school_day(Time.zone.today).first
+
+        school_calendar.steps.each do |school_step|
+          if school_step.to_number == @post_data.step.to_number
+            step_start_at = school_step.start_at
+            break
+          end
+        end
+      end
+
+      step_start_at
     end
 
-    def step_end_at
-      @post_data.school_calendar_step.end_at
-    end
+    def step_end_at(classroom)
+      step_end_at = @post_data.step.end_at
+      if classroom.calendar
+        classroom.calendar.classroom_steps.each do |classroom_step|
+          if classroom_step.to_number == @post_data.step.to_number
+            step_end_at = classroom_step.end_at
+            break
+          end
+        end
+      else
+        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_school_day(Time.zone.today).first
 
-    def teacher
-      @post_data.author.current_teacher
+        school_calendar.steps.each do |school_step|
+          if school_step.to_number == @post_data.step.to_number
+            step_end_at = school_step.end_at
+            break
+          end
+        end
+      end
+
+      step_end_at
     end
 
     def fetch_students(daily_frequencies)

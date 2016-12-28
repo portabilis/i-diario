@@ -15,8 +15,10 @@ class AvaliationExemption < ActiveRecord::Base
             :grade_id,
             :classroom_id,
             :discipline_id,
-            :school_calendar_step,
             presence: true
+
+  validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
+  validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
 
   validates :student_id,
     presence: true,
@@ -65,6 +67,15 @@ class AvaliationExemption < ActiveRecord::Base
       .first
       .try(:id)
     school_calendar_step
+  end
+
+  def school_calendar_classroom_step
+    school_calendar_classroom_step = SchoolCalendarClassroomStep
+      .by_school_calendar_id(school_calendar_id)
+      .started_after_and_before(avaliation_test_date)
+      .first
+      .try(:id)
+    school_calendar_classroom_step
   end
 
   def ensure_no_score_for_avaliation
