@@ -6,6 +6,9 @@ if Rails.env.production? || Rails.env.staging?
       exception_recipients: %w(
           gabriel@portabilis.com.br
           victor@portabilis.com.br
+          caroline@portabilis.com.br
+          kellyn@portabilis.com.br
+          eliezer@portabilis.com.br
         )
 
     }
