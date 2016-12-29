@@ -36,7 +36,7 @@ class SchoolCalendar < ActiveRecord::Base
   scope :ordered, -> { joins(:unity).order(year: :desc).order('unities.name') }
 
   def to_s
-    year
+    "#{year}"
   end
 
   def school_day?(date, grade_id = nil, classroom_id = nil, discipline_id = nil)
