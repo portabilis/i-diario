@@ -6,7 +6,6 @@ class AvaliationExemptionsController < ApplicationController
 
   def index
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
-      .by_unity(current_user_unity)
       .by_classroom(current_user_classroom)
       .by_discipline(current_user_discipline)
 
@@ -15,7 +14,6 @@ class AvaliationExemptionsController < ApplicationController
 
   def new
     @avaliation_exemption = AvaliationExemption.new
-    @current_user_unity_id = current_user_unity.id
     @school_calendar_year = current_school_calendar.year
     @school_calendar_steps = current_school_calendar.steps
     @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id)
@@ -50,7 +48,6 @@ class AvaliationExemptionsController < ApplicationController
     if @avaliation_exemption.update_attributes(avaliation_exemption_params)
       respond_with @avaliation_exemption, location: avaliation_exemptions_path
     else
-      @current_user_unity_id = current_user_unity.id
       @school_calendar_year = current_school_calendar.year
       fetch_collections
       render :edit

@@ -44,7 +44,8 @@ class SchoolCalendarsParser
         )
       end
 
-      school_calendar_from_api['etapas_de_turmas'].each do |classroom_step|
+      steps_from_classrooms = get_school_calendar_classroom_steps(school_calendar_from_api['etapas_de_turmas'])
+      steps_from_classrooms.each do |classroom_step|
         classroom = SchoolCalendarClassroom.new(
           classroom: Classroom.by_api_code(classroom_step['turma_id']).first
         )
@@ -99,21 +100,23 @@ class SchoolCalendarsParser
           )
         end
       end
-      steps_from_classrooms = school_calendar_from_api['etapas_de_turmas'].nil? ? [] : school_calendar_from_api['etapas_de_turmas']
+
+      steps_from_classrooms = get_school_calendar_classroom_steps(school_calendar_from_api['etapas_de_turmas'])
       steps_from_classrooms.each_with_index do |classroom_step, classroom_index|
-        if SchoolCalendarClassroom.by_classroom_api_code(classroom_step['turma_id']).first
+        school_calendar_classroom = SchoolCalendarClassroom.by_classroom_api_code(classroom_step['turma_id']).first
+        if school_calendar_classroom
           classroom_step['etapas'].each_with_index do |step, step_index|
-            if SchoolCalendarClassroom.by_classroom_api_code(classroom_step['turma_id']).first.classroom_steps.any?
-              update_classrooms_step_start_at(school_calendar, classroom_index, step_index, step)
-              update_classrooms_step_end_at(school_calendar, classroom_index, step_index, step)
+            if school_calendar_classroom.classroom_steps.any?
+              update_classrooms_step_start_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
+              update_classrooms_step_end_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
             else
               step = SchoolCalendarClassroomStep.new(
-              start_at: step['data_inicio'],
-              end_at: step['data_fim'],
-              start_date_for_posting: step['data_inicio'],
-              end_date_for_posting: step['data_fim']
+                start_at: step['data_inicio'],
+                end_at: step['data_fim'],
+                start_date_for_posting: step['data_inicio'],
+                end_date_for_posting: step['data_fim']
               )
-              school_calendar.classrooms.by_classroom_api_code(classroom_step['turma_id']).first.classroom_steps.build(step.attributes)
+              school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }.classroom_steps.build(step.attributes)
             end
           end
         else
@@ -165,17 +168,17 @@ class SchoolCalendarsParser
     end
   end
 
-  def update_classrooms_step_start_at(school_calendar, classroom, step_index, step)
-    if school_calendar.classrooms[classroom].classroom_steps[step_index].start_at != Date.parse(step['data_inicio'])
-      school_calendar.classrooms[classroom].classroom_steps[step_index].start_at = step['data_inicio']
-      school_calendar.classrooms[classroom].classroom_steps[step_index].start_date_for_posting = step['data_inicio']
+  def update_classrooms_step_start_at(school_calendar_classroom, step_index, step)
+    if school_calendar_classroom.classroom_steps[step_index].start_at != Date.parse(step['data_inicio'])
+      school_calendar_classroom.classroom_steps[step_index].start_at = step['data_inicio']
+      school_calendar_classroom.classroom_steps[step_index].start_date_for_posting = step['data_inicio']
     end
   end
 
-  def update_classrooms_step_end_at(school_calendar, classroom, step_index, step)
-    if school_calendar.classrooms[classroom].classroom_steps[step_index].end_at != Date.parse(step['data_fim'])
-      school_calendar.classrooms[classroom].classroom_steps[step_index].end_at = step['data_fim']
-      school_calendar.classrooms[classroom].classroom_steps[step_index].end_date_for_posting = step['data_fim']
+  def update_classrooms_step_end_at(school_calendar_classroom, step_index, step)
+    if school_calendar_classroom.classroom_steps[step_index].end_at != Date.parse(step['data_fim'])
+      school_calendar_classroom.classroom_steps[step_index].end_at = step['data_fim']
+      school_calendar_classroom.classroom_steps[step_index].end_date_for_posting = step['data_fim']
     end
   end
 
@@ -189,5 +192,11 @@ class SchoolCalendarsParser
       need = true if classroom.classroom_steps.any?(&:new_record?) || classroom.classroom_steps.any?(&:changed?)
     end
     need
+  end
+
+  private
+
+  def get_school_calendar_classroom_steps(classroom_steps)
+    classroom_steps.nil? ? [] : classroom_steps
   end
 end

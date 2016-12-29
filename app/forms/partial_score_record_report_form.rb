@@ -4,12 +4,14 @@ class PartialScoreRecordReportForm
   attr_accessor :unity_id,
                 :classroom_id,
                 :student_id,
-                :school_calendar_step_id
+                :school_calendar_step_id,
+                :school_calendar_classroom_step_id
 
   validates :unity_id,      presence: true
   validates :classroom_id,  presence: true
   validates :student_id, presence: true
-  validates :school_calendar_step_id, presence: true
+  validates :school_calendar_step_id, presence: true, unless: :school_calendar_classroom_step_id
+  validates :school_calendar_classroom_step_id, presence: true, unless: :school_calendar_step_id
 
   validate :must_have_daily_note_students
 
@@ -22,9 +24,13 @@ class PartialScoreRecordReportForm
   end
 
   def step
-    return unless school_calendar_step_id
+    return unless school_calendar_step_id || school_calendar_classroom_step_id
 
-    @step ||= SchoolCalendarStep.find(school_calendar_step_id)
+    if classroom.calendar
+      @step ||= SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
+    else
+      @step ||= SchoolCalendarStep.find(school_calendar_step_id)
+    end
   end
 
   def student

@@ -37,7 +37,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   end
 
   def school_term
-    school_term = school_calendar.school_term(start_at).to_s
+    school_term = school_calendar_classroom.school_term(start_at).to_s
 
     case
     when school_term.end_with?(SchoolTermTypes::BIMESTER)
