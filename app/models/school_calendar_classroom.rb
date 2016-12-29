@@ -21,4 +21,13 @@ class SchoolCalendarClassroom < ActiveRecord::Base
   def posting_classroom_step(date)
     classroom_steps.all.posting_date_after_and_before(date).first
   end
+
+  def school_term(date)
+    school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters }
+
+    index_of_step = classroom_steps.find_index(classroom_step(date))
+
+    school_term = school_terms[classroom_steps.count]
+    school_term.key_for(index_of_step)
+  end
 end

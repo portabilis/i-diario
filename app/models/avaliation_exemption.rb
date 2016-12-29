@@ -35,8 +35,8 @@ class AvaliationExemption < ActiveRecord::Base
   scope :by_unity, lambda { |unity_id| joins(:avaliation).where( avaliations: { unity_id: unity_id } ) }
   scope :by_student, lambda { |student_id| where(student_id: student_id) }
   scope :by_avaliation, lambda { |avaliation_id| where(avaliation_id: avaliation_id) }
-  scope :by_classroom, lambda { |classroom_id| where(avaliations: { classroom_id: classroom_id } ) }
-  scope :by_discipline, lambda { |discipline_id| where(avaliations: { discipline_id: discipline_id } ) }
+  scope :by_classroom, lambda { |classroom_id| joins(:avaliation).where(avaliations: { classroom_id: classroom_id } ) }
+  scope :by_discipline, lambda { |discipline_id| joins(:avaliation).where(avaliations: { discipline_id: discipline_id } ) }
 
   scope :by_grade_description, lambda { |grade_description|
     joins(avaliation: [classroom: :grade])

@@ -5,7 +5,6 @@ class CurrentSchoolCalendarFetcher
 
   def fetch
     SchoolCalendar.by_unity_id(@unity)
-      .by_school_day(Time.zone.today)
       .first
   end
 end

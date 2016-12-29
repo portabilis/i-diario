@@ -22,7 +22,7 @@ class SchoolCalendarsCreator
 
       school_calendar_params['classrooms'].each do |classroom_params|
         classroom = SchoolCalendarClassroom.new(
-          classroom: classroom_params['id']
+          classroom: Classroom.find_by_id(classroom_params['id'])
         )
 
         steps = []
