@@ -64,15 +64,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def create
-    @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
-    begin
-      resource_params[:lesson_plan_attributes][:start_at].to_date
-      resource_params[:lesson_plan_attributes][:end_at].to_date
-    rescue ArgumentError
-      flash[:alert] = "Data inválida inserida"
-      redirect_to :back
-      return
-    end
+    @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
