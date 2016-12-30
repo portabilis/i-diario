@@ -20,9 +20,9 @@ class TestSetting < ActiveRecord::Base
 
   def to_s
     if school_term.nil?
-      year
+      "#{year}"
     else
-      school_term_humanize
+      "#{school_term_humanize}"
     end
   end
 
