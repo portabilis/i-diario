@@ -63,15 +63,7 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def create
-    @discipline_lesson_plan = DisciplineLessonPlan.new.localized
-    begin
-      resource_params[:lesson_plan_attributes][:start_at].to_date
-      resource_params[:lesson_plan_attributes][:end_at].to_date
-    rescue ArgumentError
-      flash[:alert] = "Data inválida inserida"
-      redirect_to :back
-      return
-    end
+    @discipline_lesson_plan = DisciplineLessonPlan.new
     @discipline_lesson_plan.assign_attributes(resource_params)
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
 
@@ -80,6 +72,7 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
+      # raise "a"
       render :new
     end
   end
