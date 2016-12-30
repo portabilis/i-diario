@@ -191,3 +191,7 @@ ul#contents-list li.list-group-item.active{
   font-size: 11px;
   font-style: italic;
 }
+
+#content-page {
+  overflow-x: auto;
+}
