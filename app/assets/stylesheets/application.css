@@ -190,4 +190,5 @@ ul#contents-list li.list-group-item.active{
 
 #content-page {
   overflow-x: auto;
+  padding-right: 14px;
 }
