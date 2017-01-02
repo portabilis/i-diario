@@ -40,7 +40,7 @@ module ExamPoster
             if school_term_recovery
               value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline.id, @post_data.school_calendar_step.id)
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery)
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery) if school_term_recovery
             end
           end
 
