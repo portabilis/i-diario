@@ -64,7 +64,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def create
-    @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
+    @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
