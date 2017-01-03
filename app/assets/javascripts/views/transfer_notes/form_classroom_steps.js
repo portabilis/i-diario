@@ -165,6 +165,7 @@ $(function () {
   };
 
   function handlefetchStudentCurrentNotesSuccess(data) {
+    console.log(data);
     if (!_.isEmpty(data.transfer_notes)) {
       $('.no_current_notes_found').hide();
       var element_counter = 0;
