@@ -91,9 +91,6 @@ class TransferNotesController < ApplicationController
 
     @daily_note_students = avaliations.map do |avaliation|
       daily_note = DailyNote.find_or_create_by!(
-        classroom_id: classroom.id,
-        unity_id: classroom.unity.id,
-        discipline_id: params[:discipline_id],
         avaliation_id: avaliation.id
       ).localized
 
@@ -165,6 +162,7 @@ class TransferNotesController < ApplicationController
       :classroom_id,
       :discipline_id,
       :school_calendar_step_id,
+      :school_calendar_classroom_step_id,
       :transfer_date,
       :student_id,
       daily_note_students_attributes: [

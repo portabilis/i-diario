@@ -24,23 +24,6 @@ class SchoolCalendarClassroomStepSetter
     entity = Entity.find_by_name(name)
     if entity
       entity.using_connection do
-        # school_calendar_classrooms = SchoolCalendarClassroom.all
-        # classroom_ids = []
-        # school_calendar_classrooms.each do |school_calendar_classroom|
-        #   school_name = school_calendar_classroom.school_calendar.unity.name
-        #   school_steps = school_calendar_classroom.school_calendar.steps.count
-        #   classroom_description = school_calendar_classroom.classroom.description
-        #   classroom_steps = school_calendar_classroom.classroom_steps.count
-        #   next if school_steps == classroom_steps
-        #
-        #   classroom_ids << school_calendar_classroom.classroom_id
-        #   p "Escola: #{school_name} - Etapas: #{school_steps} / Turma: #{classroom_description} - Etapas: #{classroom_steps} - ID: #{school_calendar_classroom.classroom_id}"
-        #   p "*****************************"
-        # end
-        #
-        # p classroom_ids
-
-
         classroom_ids = SchoolCalendarClassroom.all.collect(&:classroom_id)
 
         conceptual_exams = ConceptualExam.where(classroom_id: classroom_ids)

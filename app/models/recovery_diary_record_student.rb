@@ -47,7 +47,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
       recovery_exam_rule.maximum_score
     else
       recovery_diary_record.school_term_recovery_diary_record
-        .school_calendar_step
+        .step
         .test_setting.maximum_score
     end
   end

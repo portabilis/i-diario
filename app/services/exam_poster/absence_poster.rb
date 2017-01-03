@@ -7,7 +7,6 @@ module ExamPoster
     def post!
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
-          # p "Classroom: #{classroom_id}  Student: #{student_id} Absences: #{student_absence} #{@post_data.step.to_number}"
           api.send_post(faltas: { classroom_id => { student_id => student_absence } }, etapa: @post_data.step.to_number, resource: 'faltas-geral')
         end
       end
@@ -15,7 +14,6 @@ module ExamPoster
       post_by_discipline_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|
-            # p "Classroom: #{classroom_id}  Student: #{student_id} Absences: #{student_absence} Discipline #{discipline_id} #{@post_data.step.to_number}"
             api.send_post(faltas: { classroom_id => { student_id => { discipline_id => discipline_absence } } }, etapa: @post_data.step.to_number, resource: 'faltas-por-componente')
           end
         end
