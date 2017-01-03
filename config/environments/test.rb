@@ -36,4 +36,7 @@ Rails.application.configure do
 
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
+
+  # Freeze time
+  Timecop.travel(Time.local(2017, 3, 1, 0, 0, 0))
 end
