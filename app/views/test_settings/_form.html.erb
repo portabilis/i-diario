@@ -31,7 +31,7 @@
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :fix_tests %>
+        <%= f.input :average_calculation_type, as: :select2, elements: AverageCalculationTypes.to_select.to_json %>
       </div>
     </div>
   </fieldset>
