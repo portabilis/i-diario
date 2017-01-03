@@ -86,6 +86,7 @@ group :test do
   gem 'pry', '~> 0.10.3'
   gem 'faker', '~> 1.6', '>= 1.6.1'
   gem 'cpf_faker', '~> 1.3'
+  gem 'timecop'
 end
 
 gem 'newrelic_rpm'
