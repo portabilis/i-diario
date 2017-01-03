@@ -21,7 +21,7 @@ class Signup
   validate :uniqueness_of_email
   validate :presence_of_email_or_document
 
-  validates_format_of :document, with: /\d{3}.\d{3}.\d{3}-\d{2}/, message: 'formato incorreto'
+  validates_format_of :document, with: /\d{3}.\d{3}.\d{3}-\d{2}/, message: :incorrect_format
 
   def employee_role?
     employee_role == '1'
