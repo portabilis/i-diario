@@ -10,4 +10,12 @@ class WeekdaysDecorator
       { id: index.to_s, name: day_name, text: day_name }
     end.to_json
   end
+
+  def self.data_for_select2_filter
+    data = [{ id: 'empty', name: '<option></option>' }]
+    I18n.t('date.day_names').each_with_index.map do |day_name, index|
+      data << { id: index.to_s, name: day_name }
+    end
+    data.to_json
+  end
 end

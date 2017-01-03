@@ -51,5 +51,4 @@
 //= require morris
 //= require select2-tags
 //= require form_errors
-//= require ***REMOVED***
 //= require_tree ./resources
