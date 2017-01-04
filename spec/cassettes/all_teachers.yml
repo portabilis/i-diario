@@ -80,4 +80,44 @@ http_interactions:
       string: '{"servidores":[],"oper":"get","resource":"servidores-disciplinas-turmas","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Thu, 21 Jan 2016 19:20:25 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Servidor?access_key=***REMOVED***&ano=2017&instituicao_id=1&oper=get&resource=servidores-disciplinas-turmas&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Jan 2017 11:26:32 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=5ptoh36vhbl7cipu709t00v7a5; expires=Thu, 05-Jan-2017 11:26:32 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '105'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"servidores":[],"oper":"get","resource":"servidores-disciplinas-turmas","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:35:25 GMT
 recorded_with: VCR 3.0.0

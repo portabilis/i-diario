@@ -392,4 +392,64 @@ http_interactions:
         - 4","escola_id":"703025"}],"oper":"get","resource":"turmas-por-escola","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Thu, 21 Jan 2016 19:20:21 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=***REMOVED***&ano=2017&instituicao_id=1&oper=get&resource=turmas-por-escola&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Jan 2017 11:26:31 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=kqibmvvj1c5t2q6jrkvrtgkju1; expires=Thu, 05-Jan-2017 11:26:31 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '2300'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"turmas":[{"id":"5182","nome":"1\u00ba Ano 1","escola_id":"124370","turno_id":"1"},{"id":"5183","nome":"1\u00ba
+        ano 2","escola_id":"124370","turno_id":"2"},{"id":"5184","nome":"2\u00ba Ano
+        1","escola_id":"124370","turno_id":"1"},{"id":"5185","nome":"2\u00ba Ano 2","escola_id":"124370","turno_id":"2"},{"id":"5201","nome":"3\u00ba
+        Ano 1","escola_id":"124370","turno_id":"1"},{"id":"5195","nome":"3\u00ba Ano
+        2","escola_id":"124370","turno_id":"2"},{"id":"5186","nome":"4\u00ba Ano 1","escola_id":"124370","turno_id":"1"},{"id":"5187","nome":"4\u00ba
+        Ano 2","escola_id":"124370","turno_id":"2"},{"id":"5188","nome":"5\u00ba Ano
+        1","escola_id":"124370","turno_id":"1"},{"id":"5180","nome":"5\u00ba Ano 2","escola_id":"124370","turno_id":"2"},{"id":"5189","nome":"6\u00ba
+        Ano 1","escola_id":"124370","turno_id":"1"},{"id":"5191","nome":"6\u00ba Ano
+        2","escola_id":"124370","turno_id":"2"},{"id":"5194","nome":"6\u00baano3","escola_id":"124370","turno_id":"2"},{"id":"5190","nome":"7\u00ba
+        Ano 1","escola_id":"124370","turno_id":"1"},{"id":"5197","nome":"7\u00ba Ano
+        2","escola_id":"124370","turno_id":"1"},{"id":"5196","nome":"7\u00ba ano 3","escola_id":"124370","turno_id":"2"},{"id":"5181","nome":"8\u00ba
+        Ano 1","escola_id":"124370","turno_id":"1"},{"id":"5177","nome":"8\u00ba Ano
+        2","escola_id":"124370","turno_id":"2"},{"id":"5192","nome":"9\u00ba Ano 1","escola_id":"124370","turno_id":"1"},{"id":"5193","nome":"9\u00ba
+        Ano 2","escola_id":"124370","turno_id":"2"},{"id":"5176","nome":"N\u00edvel
+        III Integral-M","escola_id":"124370","turno_id":"1"},{"id":"5199","nome":"N\u00edvel
+        III integral-V","escola_id":"124370","turno_id":"2"},{"id":"5178","nome":"n\u00edvel
+        III-vesp.","escola_id":"124370","turno_id":"2"},{"id":"5179","nome":"Pr\u00e9
+        1","escola_id":"124370","turno_id":"2"},{"id":"5200","nome":"Pr\u00e9 integral-M","escola_id":"124370","turno_id":"1"},{"id":"5198","nome":"pr\u00e9
+        integral-V","escola_id":"124370","turno_id":"2"},{"id":"5173","nome":"Turma
+        - 1","escola_id":"703025","turno_id":"1"},{"id":"5174","nome":"Turma - 2","escola_id":"703025","turno_id":"1"},{"id":"5175","nome":"Turma
+        - 3","escola_id":"703025","turno_id":"2"},{"id":"5172","nome":"Turma - 4","escola_id":"703025","turno_id":"2"}],"oper":"get","resource":"turmas-por-escola","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:35:23 GMT
 recorded_with: VCR 3.0.0
