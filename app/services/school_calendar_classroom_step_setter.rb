@@ -32,6 +32,7 @@ class SchoolCalendarClassroomStepSetter
         school_term_recovery_diary_records = SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom_ids)
 
         conceptual_exams.each do |conceptual_exam|
+          next unless conceptual_exam.school_calendar_step
           school_steps = conceptual_exam.school_calendar_step.school_calendar.steps
           classroom_steps = find_classroom_steps(conceptual_exam.classroom_id)
           if same_number_steps?(school_steps, classroom_steps)
@@ -44,6 +45,7 @@ class SchoolCalendarClassroomStepSetter
         end
 
         descriptive_exams.each do |descriptive_exam|
+          next unless descriptive_exam.school_calendar_step
           school_steps = descriptive_exam.school_calendar_step.school_calendar.steps
           classroom_steps = find_classroom_steps(descriptive_exam.classroom_id)
           if same_number_steps?(school_steps, classroom_steps)
@@ -56,6 +58,7 @@ class SchoolCalendarClassroomStepSetter
         end
 
         transfer_notes.each do |transfer_note|
+          next unless transfer_note.school_calendar_step
           school_steps = transfer_note.school_calendar_step.school_calendar.steps
           classroom_steps = find_classroom_steps(transfer_note.classroom_id)
           if same_number_steps?(school_steps, classroom_steps)
@@ -68,6 +71,7 @@ class SchoolCalendarClassroomStepSetter
         end
 
         school_term_recovery_diary_records.each do |school_term_recovery_diary_record|
+          next unless school_term_recovery_diary_record.school_calendar_step.school_calendar
           school_steps = school_term_recovery_diary_record.school_calendar_step.school_calendar.steps
           classroom_steps = find_classroom_steps(school_term_recovery_diary_record.recovery_diary_record.classroom_id)
           if same_number_steps?(school_steps, classroom_steps)
