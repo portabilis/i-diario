@@ -1,16 +1,16 @@
 $(function() {
   var $itemSettingTests = $("#item_setting_tests"),
-      $fixTests = $("#test_setting_fix_tests"),
+      $averageCalculationType = $("#test_setting_average_calculation_type"),
       $numberOfDecimalPlaces = $('#test_setting_number_of_decimal_places');
 
-  toggleItemSettingsTests($fixTests.prop('checked'));
+  toggleItemSettingsTests($averageCalculationType.select2("val"));
 
-  $fixTests.on('change', function() {
-    toggleItemSettingsTests($fixTests.prop('checked'));
+  $averageCalculationType.on('change', function() {
+    toggleItemSettingsTests($averageCalculationType.select2("val"));
   });
 
-  function toggleItemSettingsTests(show) {
-    if (show) {
+  function toggleItemSettingsTests(averageCalculationType) {
+    if (averageCalculationType === "arithmetic") {
       $itemSettingTests.show();
     } else {
       $itemSettingTests.hide();
