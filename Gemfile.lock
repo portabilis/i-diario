@@ -156,10 +156,9 @@ GEM
     commonjs (0.2.7)
     concurrent-ruby (1.0.2)
     connection_pool (2.2.0)
+    cpf_cnpj (0.3.0)
     cpf_faker (1.3.0)
       clipboard
-    cpf_validator (0.2.0)
-      activemodel (>= 3.0)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
     database_cleaner (1.5.1)
@@ -552,8 +551,8 @@ DEPENDENCIES
   capybara-screenshot
   carrierwave
   cocoon (~> 1.2.6)
+  cpf_cnpj
   cpf_faker (~> 1.3)
-  cpf_validator (= 0.2.0)
   database_cleaner (~> 1.5, >= 1.5.1)
   decore!
   devise (= 3.5.1)
@@ -611,5 +610,8 @@ DEPENDENCIES
   webmock (~> 1.22, >= 1.22.3)
   whenever
 
+RUBY VERSION
+   ruby 2.2.3p173
+
 BUNDLED WITH
-   1.11.2
+   1.13.6
