@@ -65,7 +65,7 @@ class SchoolCalendarClassroomStepSetter
             transfer_note.school_calendar_classroom_step_id = find_same_number_step(classroom_steps, transfer_note)
           else
             transfer_date = transfer_note.transfer_date
-            transfer_note.school_calendar_classroom_step_id = classroom_steps.started_after_and_before(created_at).first.id
+            transfer_note.school_calendar_classroom_step_id = classroom_steps.started_after_and_before(transfer_date).first.id
           end
            transfer_note.save(validate: false)
         end
