@@ -37,7 +37,7 @@ $(function () {
     $country.val('');
 
     $.ajax({
-      url: 'http://cep.correiocontrol.com.br/'+ zipCode +'.json',
+      url: 'https://viacep.com.br/ws/'+ zipCode +'/json',
       dataType: 'json',
       timeout: 5000
     }).fail(function() {
