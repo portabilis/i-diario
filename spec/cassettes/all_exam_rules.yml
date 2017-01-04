@@ -80,4 +80,44 @@ http_interactions:
       string: '{"regras":[{"id":"3","tabela_arredondamento_id":"6","tipo_nota":"2","tipo_presenca":"1","parecer_descritivo":"3","tipo_recuperacao":"0","media_recuperacao_paralela":null,"nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"4613"},{"turma_id":"4671"},{"turma_id":"4674"},{"turma_id":"4660"},{"turma_id":"4662"},{"turma_id":"4659"},{"turma_id":"4661"},{"turma_id":"4618"},{"turma_id":"4623"},{"turma_id":"4669"},{"turma_id":"4670"},{"turma_id":"4614"},{"turma_id":"4617"},{"turma_id":"4663"},{"turma_id":"4664"},{"turma_id":"4665"},{"turma_id":"4672"},{"turma_id":"4673"},{"turma_id":"4619"},{"turma_id":"4620"},{"turma_id":"4666"},{"turma_id":"4667"},{"turma_id":"4668"}]},{"id":"1","tabela_arredondamento_id":"3","tipo_nota":"1","tipo_presenca":"2","parecer_descritivo":"3","tipo_recuperacao":"1","media_recuperacao_paralela":"7.000","nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"4633"},{"turma_id":"4642"},{"turma_id":"4647"},{"turma_id":"4658"},{"turma_id":"4634"},{"turma_id":"4640"},{"turma_id":"4648"},{"turma_id":"4635"},{"turma_id":"4641"},{"turma_id":"4649"},{"turma_id":"4650"},{"turma_id":"4637"},{"turma_id":"4638"},{"turma_id":"4639"},{"turma_id":"4651"}]},{"id":"7","tabela_arredondamento_id":"4","tipo_nota":"2","tipo_presenca":"1","parecer_descritivo":"0","tipo_recuperacao":"0","media_recuperacao_paralela":null,"nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"4616"},{"turma_id":"4621"},{"turma_id":"4622"}]},{"id":"4","tabela_arredondamento_id":"5","tipo_nota":"1","tipo_presenca":"1","parecer_descritivo":"3","tipo_recuperacao":"0","media_recuperacao_paralela":null,"nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"4627"},{"turma_id":"4631"},{"turma_id":"4632"},{"turma_id":"4657"},{"turma_id":"4636"},{"turma_id":"4643"},{"turma_id":"4644"},{"turma_id":"4645"},{"turma_id":"4626"},{"turma_id":"4646"},{"turma_id":"4653"},{"turma_id":"4654"},{"turma_id":"4624"},{"turma_id":"4629"},{"turma_id":"4630"},{"turma_id":"4625"},{"turma_id":"4628"},{"turma_id":"4652"},{"turma_id":"4655"},{"turma_id":"4656"}]}],"oper":"get","resource":"regras","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Thu, 21 Jan 2016 19:20:22 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=***REMOVED***&ano=2017&instituicao_id=1&oper=get&resource=regras&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 04 Jan 2017 11:26:32 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=j3ued9qd40dstv3kgs79t34i67; expires=Thu, 05-Jan-2017 11:26:32 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '1568'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"regras":[{"id":"7","tabela_arredondamento_id":"4","tipo_nota":"2","tipo_presenca":"1","parecer_descritivo":"2","tipo_recuperacao":"0","media_recuperacao_paralela":null,"nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"5176"},{"turma_id":"5178"},{"turma_id":"5199"},{"turma_id":"5179"},{"turma_id":"5198"},{"turma_id":"5200"}]},{"id":"3","tabela_arredondamento_id":"2","tipo_nota":"2","tipo_presenca":"1","parecer_descritivo":"3","tipo_recuperacao":"0","media_recuperacao_paralela":null,"nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"5174"},{"turma_id":"5175"},{"turma_id":"5173"},{"turma_id":"5172"}]},{"id":"1","tabela_arredondamento_id":"5","tipo_nota":"1","tipo_presenca":"2","parecer_descritivo":"0","tipo_recuperacao":"1","media_recuperacao_paralela":"7.000","nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"5189"},{"turma_id":"5191"},{"turma_id":"5194"},{"turma_id":"5190"},{"turma_id":"5196"},{"turma_id":"5197"},{"turma_id":"5177"},{"turma_id":"5181"},{"turma_id":"5192"},{"turma_id":"5193"}]},{"id":"4","tabela_arredondamento_id":"5","tipo_nota":"1","tipo_presenca":"1","parecer_descritivo":"3","tipo_recuperacao":"1","media_recuperacao_paralela":"10.000","nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"5182"},{"turma_id":"5183"},{"turma_id":"5184"},{"turma_id":"5185"},{"turma_id":"5195"},{"turma_id":"5201"},{"turma_id":"5186"},{"turma_id":"5187"},{"turma_id":"5180"},{"turma_id":"5188"}]}],"oper":"get","resource":"regras","msgs":[],"any_error_msg":false}'
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:35:24 GMT
 recorded_with: VCR 3.0.0

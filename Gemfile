@@ -87,6 +87,7 @@ group :test do
   gem 'faker', '~> 1.6', '>= 1.6.1'
   gem 'cpf_faker', '~> 1.3'
   gem 'timecop'
+  gem 'simplecov', :require => false
 end
 
 gem 'newrelic_rpm'
