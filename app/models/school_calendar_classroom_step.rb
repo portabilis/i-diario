@@ -26,6 +26,10 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
     (school_calendar_classroom.classroom_steps.ordered.index(self) || 0) + 1
   end
 
+  def school_calendar_id
+    school_calendar_classroom.school_calendar_id
+  end
+
   def school_calendar_step_day?(date)
     step_from_date = school_calendar_classroom.classroom_step(date)
 
