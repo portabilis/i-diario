@@ -7,6 +7,7 @@ $(function() {
 
   $averageCalculationType.on('change', function() {
     toggleItemSettingsTests($averageCalculationType.select2("val"));
+    toggleAverageCalculationInfo($averageCalculationType.select2("val"));
   });
 
   function toggleItemSettingsTests(averageCalculationType) {
@@ -50,4 +51,18 @@ $(function() {
   }
 
   updateTestSettingSchoolTermInput();
+  toggleAverageCalculationInfo($averageCalculationType.select2("val"));
+
+  function toggleAverageCalculationInfo(average_calculation_type){
+    hideAllAverageCalculationInfo();
+    var averageCalculationTypeElementId = average_calculation_type + '-calculation-info';
+    $averageCalculationTypeElement = $('#' + averageCalculationTypeElementId);
+    $averageCalculationTypeElement.removeClass('hidden');
+  }
+
+  function hideAllAverageCalculationInfo(){
+    $(".calculation-info").each(function(){
+      $(this).addClass('hidden');
+    });
+  }
 });
