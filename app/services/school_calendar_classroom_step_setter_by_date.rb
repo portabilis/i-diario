@@ -1,4 +1,4 @@
-class SchoolCalendarClassroomStepSetter
+class SchoolCalendarClassroomStepSetterByDate
   attr_reader :name,
               :status
 

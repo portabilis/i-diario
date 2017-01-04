@@ -280,13 +280,22 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_next_conceptual_exam
+    fetch_school_calendar_classroom_steps
     next_student = fetch_next_student
 
-    next_conceptual_exam = ConceptualExam.find_or_initialize_by(
+    conceptual_exam_with_school_step = ConceptualExam.find_or_initialize_by(
       classroom_id: @conceptual_exam.classroom_id,
       school_calendar_step_id: @conceptual_exam.school_calendar_step_id,
       student_id: next_student.id
     )
+
+    conceptual_exam_with_classroom_step = ConceptualExam.find_or_initialize_by(
+      classroom_id: @conceptual_exam.classroom_id,
+      school_calendar_classroom_step_id: @conceptual_exam.school_calendar_classroom_step_id,
+      student_id: next_student.id
+    )
+
+    next_conceptual_exam = @school_calendar_classroom_steps.any? ? conceptual_exam_with_classroom_step : conceptual_exam_with_school_step
     next_conceptual_exam.recorded_at = @conceptual_exam.recorded_at
 
     next_conceptual_exam
