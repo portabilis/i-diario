@@ -71,7 +71,7 @@ class SchoolCalendarClassroomStepSetter
         end
 
         school_term_recovery_diary_records.each do |school_term_recovery_diary_record|
-          next unless school_term_recovery_diary_record.school_calendar_step.school_calendar
+          next unless school_term_recovery_diary_record.school_calendar_step
           school_steps = school_term_recovery_diary_record.school_calendar_step.school_calendar.steps
           classroom_steps = find_classroom_steps(school_term_recovery_diary_record.recovery_diary_record.classroom_id)
           if same_number_steps?(school_steps, classroom_steps)
