@@ -17,7 +17,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :classroom_id, as: :select2, elements: classrooms,
+          <%= f.input :classroom_id, as: :select2_classroom, user: current_user, elements: classrooms,
                 input_html: { value: @partial_score_record_report_form.classroom_id } %>
         </div>
         <div class="col col-sm-4">
@@ -27,7 +27,7 @@
 
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.input :school_calendar_step_id, as: :select2, elements: school_calendar_steps, input_html: { value: @partial_score_record_report_form.school_calendar_step_id } %>
+          <%= f.input :school_calendar_step_id, as: :select2, elements: school_calendar_steps_ordered, input_html: { value: @partial_score_record_report_form.school_calendar_step_id } %>
         </div>
       </div>
     </fieldset>
