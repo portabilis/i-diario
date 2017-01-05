@@ -65,6 +65,14 @@ class SchoolCalendar < ActiveRecord::Base
     real_school_term.to_sym == school_term.to_sym
   end
 
+  def first_day
+    steps.reorder(start_at: :asc).first.start_at
+  end
+
+  def last_day
+    steps.reorder(start_at: :desc).first.end_at
+  end
+
   private
 
   def self.by_school_day(date)
