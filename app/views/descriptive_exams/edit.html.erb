@@ -9,6 +9,9 @@
       <% if @descriptive_exam.school_calendar_step.present? %>
         <th><%= DescriptiveExam.human_attribute_name :school_calendar_step %></th>
       <% end %>
+      <% if @descriptive_exam.school_calendar_classroom_step.present? %>
+        <th><%= DescriptiveExam.human_attribute_name :school_calendar_classroom_step %></th>
+      <% end %>
     </thead>
     <tbody style="border-bottom: 1px solid #ccc;">
       <td><%= @descriptive_exam.unity %></td>
@@ -18,6 +21,9 @@
       <% end %>
       <% if @descriptive_exam.school_calendar_step.present? %>
         <td><%= @descriptive_exam.school_calendar_step %></td>
+      <% end %>
+      <% if @descriptive_exam.school_calendar_classroom_step.present? %>
+        <td><%= @descriptive_exam.school_calendar_classroom_step %></td>
       <% end %>
     </tbody>
   </table>
