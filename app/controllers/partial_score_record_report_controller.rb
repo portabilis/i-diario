@@ -28,13 +28,18 @@ class PartialScoreRecordReportController < ApplicationController
   private
 
   def school_calendar_steps
-    @school_calendar_steps ||= SchoolCalendarStep.where(school_calendar: current_school_calendar).ordered
+    @school_calendar_steps ||= SchoolCalendarStep.where(school_calendar: current_school_calendar)
   end
   helper_method :school_calendar_steps
 
+  def school_calendar_steps_ordered
+    school_calendar_steps.ordered
+  end
+  helper_method :school_calendar_steps_ordered
+
   def students
     @students ||= Student.where(id: DailyNoteStudent.by_classroom_id(@partial_score_record_report_form.classroom_id)
-                                                    .by_test_date_between(Date.today.beginning_of_year, Date.today.end_of_year)
+                                                    .by_test_date_between(current_school_calendar.first_day, current_school_calendar.last_day)
                                                     .select(:student_id)).ordered
   end
   helper_method :students
