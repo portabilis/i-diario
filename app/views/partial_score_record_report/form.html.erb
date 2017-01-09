@@ -17,7 +17,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :classroom_id, as: :select2_classroom, user: current_user, elements: classrooms,
+          <%= f.input :classroom_id, as: :select2, elements: classrooms,
                 input_html: { value: @partial_score_record_report_form.classroom_id } %>
         </div>
         <div class="col col-sm-4">
