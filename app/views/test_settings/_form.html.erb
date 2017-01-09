@@ -1,3 +1,18 @@
+<p class="alert alert-info calculation-info hidden" id="arithmetic-calculation-info">
+  <i class="fa-fw fa fa-info"></i>
+  <%= t('.arithmetic_calculation_info_html') %>
+</p>
+
+<p class="alert alert-info calculation-info hidden" id="sum-calculation-info">
+  <i class="fa-fw fa fa-info"></i>
+    <%= t('.sum_calculation_info_html') %>
+</p>
+
+<p class="alert alert-info calculation-info hidden" id="arithmetic_and_sum-calculation-info">
+  <i class="fa-fw fa fa-info"></i>
+    <%= t('.arithmetic_and_sum_calculation_info_html') %>
+</p>
+
 <%= simple_form_for @test_setting, html: { class: "smart-form" } do |f| %>
   <% if f.object.errors[:base].present? %>
     <div class="alert alert-danger fade in">
@@ -31,7 +46,7 @@
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :fix_tests %>
+        <%= f.input :average_calculation_type, as: :select2, elements: AverageCalculationTypes.to_select.to_json %>
       </div>
     </div>
   </fieldset>
