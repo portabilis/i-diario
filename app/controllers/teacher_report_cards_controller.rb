@@ -1,5 +1,6 @@
 class TeacherReportCardsController < ApplicationController
   before_action :require_current_teacher
+  before_action :require_current_school_calendar
 
   def form
     @teacher_report_card_form = TeacherReportCardForm.new(unity_id: current_user_unity.id)
@@ -20,7 +21,7 @@ class TeacherReportCardsController < ApplicationController
       classroom = Classroom.find(@teacher_report_card_form.classroom_id)
       grade = classroom.grade
       course = grade.course
-      year = Date.today.year
+      year = current_school_calendar.year
 
       report = teacher_report_card.build({
         unity_id: unity.api_code,
