@@ -45,7 +45,7 @@ class PartialScoreRecordReportController < ApplicationController
   helper_method :students
 
   def classrooms
-    @classrooms ||= Classroom.by_unity(current_user.current_unity.id).by_year(Date.today.year).ordered
+    @classrooms ||= Classroom.by_unity(current_user.current_unity.id).by_year(current_school_calendar.year).ordered
   end
   helper_method :classrooms
 
