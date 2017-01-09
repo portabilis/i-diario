@@ -89,7 +89,7 @@
         </tr>
       </thead>
       <tbody id="current-notes-rows">
-        <%= f.simple_fields_for :daily_note_students do |daily_note_student| %>
+        <%= f.simple_fields_for :daily_note_students, @students_ordered do |daily_note_student| %>
           <%= render 'current_notes_rows', f: daily_note_student %>
         <% end %>
       </tbody>
