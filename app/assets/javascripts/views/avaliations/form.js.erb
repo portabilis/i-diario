@@ -98,13 +98,13 @@ $(function () {
       }
 
       switch (data.test_setting.average_calculation_type) {
-        case "arithmetic":
+        case "sum":
           $('.avaliation_test_setting_test').show();
           $('.avaliation_description').hide();
           $('.avaliation_weight').hide();
           break;
 
-        case "sum":
+        case "arithmetic":
           $('.avaliation_test_setting_test').hide();
           $('.avaliation_description').show();
           $('.avaliation_weight').hide();
