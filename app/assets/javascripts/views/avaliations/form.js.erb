@@ -117,7 +117,7 @@ $(function () {
           break;
 
         default:
-          console.log("Behavior not yet implemented for this average calculation type");
+          console.log("Behavior not yet implemented for this average calculation type: " + data.test_setting.average_calculation_type);
       }
 
       $weight_input.attr('data-inputmask', "'digits': " + (parseInt(data['test_setting']['number_of_decimal_places']) || 0));

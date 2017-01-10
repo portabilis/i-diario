@@ -42,7 +42,8 @@ class AvaliationsController < ApplicationController
     @avaliation_multiple_creator_form.school_calendar_id  = current_school_calendar.id
     @avaliation_multiple_creator_form.test_setting_id     = current_test_setting.id
     @avaliation_multiple_creator_form.discipline_id       = current_user_discipline.id
-    @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id)
+    @avaliation_multiple_creator_form.unity_id       = current_user_unity.id
+    @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
 
     authorize Avaliation.new
 
