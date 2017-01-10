@@ -7,9 +7,12 @@ class IeducarApiExamPosting < ActiveRecord::Base
 
   belongs_to :ieducar_api_configuration
   belongs_to :school_calendar_step
+  belongs_to :school_calendar_classroom_step
   belongs_to :author, class_name: 'User'
 
-  validates :ieducar_api_configuration, :school_calendar_step, presence: true
+  validates :ieducar_api_configuration, presence: true
+  validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
+  validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
 
   delegate :to_api, to: :ieducar_api_configuration
 
@@ -48,5 +51,9 @@ class IeducarApiExamPosting < ActiveRecord::Base
       status: ApiSynchronizationStatus::COMPLETED,
       message: message
     )
+  end
+
+  def step
+    self.school_calendar_classroom_step || self.school_calendar_step
   end
 end

@@ -1,7 +1,12 @@
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/school_term_recovery_diary_records/form' %>
+<% if @school_calendar_classroom_steps.any? %>
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/school_term_recovery_diary_records/form_classroom_steps' %>
+  <% end %>
+<% else %>
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/school_term_recovery_diary_records/form' %>
+  <% end %>
 <% end %>
-
 
 <%= simple_form_for @school_term_recovery_diary_record, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
@@ -27,7 +32,11 @@
 
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+          <% if @school_calendar_classroom_steps.any? %>
+            <%= f.association :school_calendar_classroom_step, as: :select2, elements: @school_calendar_classroom_steps %>
+          <% else %>
+            <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+          <% end %>
         </div>
 
         <div class="col col-sm-4">
