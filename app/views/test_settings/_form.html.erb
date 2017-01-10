@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/test_settings/form' %>
+<% end %>
+
 <p class="alert alert-info calculation-info hidden" id="arithmetic-calculation-info">
   <i class="fa-fw fa fa-info"></i>
   <%= t('.arithmetic_calculation_info_html') %>
