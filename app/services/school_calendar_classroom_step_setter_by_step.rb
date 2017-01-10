@@ -36,6 +36,7 @@ class SchoolCalendarClassroomStepSetterByStep
 
           school_calendar_classroom_steps = find_classroom_steps(conceptual_exam.classroom_id)
           conceptual_exam.school_calendar_classroom_step_id = find_same_number_step(school_calendar_classroom_steps, conceptual_exam)
+          conceptual_exam.save(validate: false)
         end
 
         descriptive_exams.each do |descriptive_exam|
@@ -43,6 +44,7 @@ class SchoolCalendarClassroomStepSetterByStep
 
           school_calendar_classroom_steps = find_classroom_steps(descriptive_exam.classroom_id)
           descriptive_exam.school_calendar_classroom_step_id = find_same_number_step(school_calendar_classroom_steps, descriptive_exam)
+          descriptive_exam.save(validate: false)
         end
         
         transfer_notes.each do |transfer_note|
@@ -50,6 +52,7 @@ class SchoolCalendarClassroomStepSetterByStep
 
           school_calendar_classroom_steps = find_classroom_steps(transfer_note.classroom_id)
           transfer_note.school_calendar_classroom_step_id = find_same_number_step(school_calendar_classroom_steps, transfer_note)
+          transfer_note.save(validate: false)
         end
 
         school_term_recovery_diary_records.each do |school_term_recovery_diary_record|
@@ -57,6 +60,7 @@ class SchoolCalendarClassroomStepSetterByStep
 
           school_calendar_classroom_steps = find_classroom_steps(school_term_recovery_diary_record.recovery_diary_record.classroom_id)
           school_term_recovery_diary_record.school_calendar_classroom_step_id = find_same_number_step(school_calendar_classroom_steps, school_term_recovery_diary_record)
+          school_term_recovery_diary_record.save(validate: false)
         end
       end
 
@@ -66,7 +70,7 @@ class SchoolCalendarClassroomStepSetterByStep
   end
 
   def find_same_number_step(classroom_steps, record)
-    classroom_steps.select { |step| step.to_number == record.school_calendar_step.to_number}.first.try(:id)
+    classroom_steps.detect { |step| step.to_number == record.school_calendar_step.to_number}.try(:id)
   end
 
   def find_classroom_steps(classroom_id)
