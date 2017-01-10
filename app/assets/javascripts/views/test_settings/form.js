@@ -11,7 +11,7 @@ $(function() {
   });
 
   function toggleItemSettingsTests(averageCalculationType) {
-    if (averageCalculationType === "arithmetic") {
+    if (averageCalculationType === "sum") {
       $itemSettingTests.show();
     } else {
       $itemSettingTests.hide();
