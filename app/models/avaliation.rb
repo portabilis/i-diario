@@ -55,6 +55,7 @@ class Avaliation < ActiveRecord::Base
   scope :not_including_classroom_id, lambda { |classroom_id| where(arel_table[:classroom_id].not_eq(classroom_id) ) }
 
   scope :ordered, -> { order(test_date: :desc) }
+  scope :ordered_asc, -> { order(:test_date) }
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
 
