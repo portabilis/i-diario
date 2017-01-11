@@ -12,7 +12,7 @@ class StudentAverageCalculator
       .by_test_date_between(step.start_at, step.end_at)
       .active
 
-    if step.test_setting.presence && step.test_setting.fix_tests?
+    if step.test_setting.presence && step.test_setting.sum_calculation_type?
       result = score_sum(daily_note_students)
     else
       result = calculate_average(score_sum(daily_note_students), daily_notes_count(daily_note_students))

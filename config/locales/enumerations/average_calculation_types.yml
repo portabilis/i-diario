@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    average_calculation_types:
+      arithmetic: "Aritmética"
+      sum: "Somatório"
+      arithmetic_and_sum: "Somatório e aritmética"

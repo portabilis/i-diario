@@ -35,9 +35,7 @@ class DailyNoteStudent < ActiveRecord::Base
   end
 
   def maximum_score
-    return avaliation.test_setting.maximum_score if !avaliation.fix_tests?
-    return avaliation.weight.to_f if avaliation.allow_break_up?
-    return avaliation.test_setting_test.weight if !avaliation.allow_break_up?
+    MaximumScoreFetcher.new(avaliation).maximum_score
   end
 
   def recovered_note
