@@ -30,7 +30,6 @@ class DescriptiveExamsController < ApplicationController
       end
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
-      raise "a"
       set_school_calendar_steps
       set_school_calendar_classroom_steps
       render :new
