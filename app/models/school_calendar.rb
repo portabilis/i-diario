@@ -13,9 +13,11 @@ class SchoolCalendar < ActiveRecord::Base
   belongs_to :unity
 
   has_many :steps, -> { includes(:school_calendar).ordered },  class_name: 'SchoolCalendarStep',  dependent: :destroy
+  has_many :classrooms, class_name: 'SchoolCalendarClassroom', dependent: :destroy
   has_many :events, class_name: 'SchoolCalendarEvent', dependent: :destroy
 
   accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :classrooms, reject_if: :all_blank, allow_destroy: true
 
   validates :year, presence: true,
                    uniqueness: { scope: :unity_id }
@@ -61,6 +63,14 @@ class SchoolCalendar < ActiveRecord::Base
   def school_term_day?(school_term, date)
     real_school_term = school_term(date)
     real_school_term.to_sym == school_term.to_sym
+  end
+
+  def first_day
+    steps.reorder(start_at: :asc).first.start_at
+  end
+
+  def last_day
+    steps.reorder(start_at: :desc).first.end_at
   end
 
   private

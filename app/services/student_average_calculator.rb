@@ -5,7 +5,7 @@ class StudentAverageCalculator
 
   def calculate(classroom_id, discipline_id, school_calendar_step_id)
     result = 0.0
-    step = SchoolCalendarStep.find(school_calendar_step_id)
+    step = step_fetcher(classroom_id, school_calendar_step_id)
     daily_note_students = DailyNoteStudent.by_student_id(@student.id)
       .by_discipline_id(discipline_id)
       .by_classroom_id(classroom_id)
@@ -49,5 +49,16 @@ class StudentAverageCalculator
       daily_notes_count += 1 unless avaliation_is_exempted
     end
     daily_notes_count
+  end
+
+  private
+
+  def step_fetcher(classroom_id, step_id)
+    classroom = Classroom.find(classroom_id)
+    if classroom.calendar
+      SchoolCalendarClassroomStep.find(step_id)
+    else
+      SchoolCalendarStep.find(step_id)
+    end
   end
 end

@@ -39,7 +39,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
         .find do |recovery_exam_rule|
           recovery_exam_rule.steps.last.eql?(
             recovery_diary_record.school_term_recovery_diary_record
-              .school_calendar_step
+              .step
               .to_number
           )
         end
@@ -47,7 +47,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
       recovery_exam_rule.maximum_score
     else
       recovery_diary_record.school_term_recovery_diary_record
-        .school_calendar_step
+        .step
         .test_setting.maximum_score
     end
   end

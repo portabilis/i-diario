@@ -44,6 +44,24 @@ class SchoolCalendarsParser
         )
       end
 
+      steps_from_classrooms = get_school_calendar_classroom_steps(school_calendar_from_api['etapas_de_turmas'])
+      steps_from_classrooms.each do |classroom_step|
+        classroom = SchoolCalendarClassroom.new(
+          classroom: Classroom.by_api_code(classroom_step['turma_id']).first
+        )
+        steps = []
+        classroom_step['etapas'].each do |step|
+          steps << SchoolCalendarClassroomStep.new(
+            start_at: step['data_inicio'],
+            end_at: step['data_fim'],
+            start_date_for_posting: step['data_inicio'],
+            end_date_for_posting: step['data_fim']
+          )
+        end
+
+        school_calendar.classrooms.build(classroom.attributes).classroom_steps.build(steps.collect{ |step| step.attributes })
+      end
+
       school_calendar
     end
   end
@@ -83,7 +101,43 @@ class SchoolCalendarsParser
         end
       end
 
-      need_to_synchronize = school_calendar.changed? || school_calendar.steps.any?(&:new_record?) || school_calendar.steps.any?(&:changed?)
+      steps_from_classrooms = get_school_calendar_classroom_steps(school_calendar_from_api['etapas_de_turmas'])
+      steps_from_classrooms.each_with_index do |classroom_step, classroom_index|
+        school_calendar_classroom = SchoolCalendarClassroom.by_classroom_api_code(classroom_step['turma_id']).first
+        if school_calendar_classroom
+          classroom_step['etapas'].each_with_index do |step, step_index|
+            if school_calendar_classroom.classroom_steps.any?
+              update_classrooms_step_start_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
+              update_classrooms_step_end_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
+            else
+              step = SchoolCalendarClassroomStep.new(
+                start_at: step['data_inicio'],
+                end_at: step['data_fim'],
+                start_date_for_posting: step['data_inicio'],
+                end_date_for_posting: step['data_fim']
+              )
+              school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }.classroom_steps.build(step.attributes)
+            end
+          end
+        else
+          classroom = SchoolCalendarClassroom.new(
+            classroom: Classroom.by_api_code(classroom_step['turma_id']).first
+          )
+          steps = []
+          classroom_step['etapas'].each do |step|
+            steps << SchoolCalendarClassroomStep.new(
+              start_at: step['data_inicio'],
+              end_at: step['data_fim'],
+              start_date_for_posting: step['data_inicio'],
+              end_date_for_posting: step['data_fim']
+            )
+          end
+
+          school_calendar.classrooms.build(classroom.attributes).classroom_steps.build(steps.collect{ |step| step.attributes })
+        end
+      end
+
+      need_to_synchronize = school_calendar_need_synchronization?(school_calendar) || school_calendar_classroom_step_need_synchronization?(school_calendar.classrooms)
       school_calendars_to_synchronize << school_calendar if need_to_synchronize
     end
 
@@ -112,5 +166,37 @@ class SchoolCalendarsParser
       school_calendar.steps[index].end_at = step['data_fim']
       school_calendar.steps[index].end_date_for_posting = step['data_fim']
     end
+  end
+
+  def update_classrooms_step_start_at(school_calendar_classroom, step_index, step)
+    if school_calendar_classroom.classroom_steps[step_index].start_at != Date.parse(step['data_inicio'])
+      school_calendar_classroom.classroom_steps[step_index].start_at = step['data_inicio']
+      school_calendar_classroom.classroom_steps[step_index].start_date_for_posting = step['data_inicio']
+    end
+  end
+
+  def update_classrooms_step_end_at(school_calendar_classroom, step_index, step)
+    if school_calendar_classroom.classroom_steps[step_index].end_at != Date.parse(step['data_fim'])
+      school_calendar_classroom.classroom_steps[step_index].end_at = step['data_fim']
+      school_calendar_classroom.classroom_steps[step_index].end_date_for_posting = step['data_fim']
+    end
+  end
+
+  def school_calendar_need_synchronization?(school_calendar)
+    school_calendar.changed? || school_calendar.steps.any?(&:new_record?) || school_calendar.steps.any?(&:changed?) || school_calendar.classrooms.any?(&:new_record?)
+  end
+
+  def school_calendar_classroom_step_need_synchronization?(school_calendar_classroom)
+    need = false
+    school_calendar_classroom.each do |classroom|
+      need = true if classroom.classroom_steps.any?(&:new_record?) || classroom.classroom_steps.any?(&:changed?)
+    end
+    need
+  end
+
+  private
+
+  def get_school_calendar_classroom_steps(classroom_steps)
+    classroom_steps.nil? ? [] : classroom_steps
   end
 end

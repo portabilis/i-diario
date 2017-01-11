@@ -8,20 +8,30 @@ class DescriptiveExamsController < ApplicationController
     authorize @descriptive_exam
 
     set_school_calendar_steps
+    set_school_calendar_classroom_steps
   end
 
   def create
     @descriptive_exam = DescriptiveExam.new(resource_params)
 
     if(@descriptive_exam.valid?)
-      @descriptive_exam = DescriptiveExam.find_or_create_by(
+      if @descriptive_exam.school_calendar_classroom_step_id
+        @descriptive_exam = DescriptiveExam.find_or_create_by(
+          classroom: @descriptive_exam.classroom,
+          school_calendar_classroom_step_id: @descriptive_exam.school_calendar_classroom_step_id,
+          discipline_id: @descriptive_exam.discipline_id
+        )
+      else
+        @descriptive_exam = DescriptiveExam.find_or_create_by(
           classroom: @descriptive_exam.classroom,
           school_calendar_step_id: @descriptive_exam.school_calendar_step_id,
           discipline_id: @descriptive_exam.discipline_id
-      )
+        )
+      end
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
       set_school_calendar_steps
+      set_school_calendar_classroom_steps
       render :new
     end
   end
@@ -88,7 +98,7 @@ class DescriptiveExamsController < ApplicationController
 
   def resource_params
     params.require(:descriptive_exam).permit(
-      :classroom_id, :discipline_id, :school_calendar_step_id,
+      :classroom_id, :discipline_id, :school_calendar_step_id, :school_calendar_classroom_step_id,
       students_attributes: [
         :id, :student_id, :value, :dependence
       ]
@@ -104,6 +114,10 @@ class DescriptiveExamsController < ApplicationController
 
   def set_school_calendar_steps
     @school_calendar_steps =  current_school_calendar.steps.ordered || {}
+  end
+
+  def set_school_calendar_classroom_steps
+    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id) || {}
   end
 
   private

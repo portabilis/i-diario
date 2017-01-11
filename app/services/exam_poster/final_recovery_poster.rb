@@ -54,7 +54,7 @@ module ExamPoster
       final_recovery_diary_records = []
 
       teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-        final_recovery_diary_record = FinalRecoveryDiaryRecord.by_school_calendar_id(@post_data.school_calendar_step.school_calendar_id)
+        final_recovery_diary_record = FinalRecoveryDiaryRecord.by_school_calendar_id(@post_data.step.school_calendar_id)
           .by_classroom_id(teacher_discipline_classroom.classroom.id)
           .by_discipline_id(teacher_discipline_classroom.discipline.id)
           .first
@@ -72,7 +72,7 @@ module ExamPoster
     end
 
     def valid_unity?(unity_id)
-      unity_id == @post_data.school_calendar_step.school_calendar.unity_id
+      unity_id == @post_data.step.school_calendar.unity_id
     end
 
     def valid_score_type?(score_type)

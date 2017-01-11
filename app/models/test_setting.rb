@@ -46,7 +46,7 @@ class TestSetting < ActiveRecord::Base
       false
     end
   end
-
+ 
   def sum_calculation_type?
     average_calculation_type == AverageCalculationTypes::SUM
   end
