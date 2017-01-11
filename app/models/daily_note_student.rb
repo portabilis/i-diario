@@ -31,9 +31,7 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :order_by_discipline_and_date, -> { joins(daily_note: [:discipline, :avaliation]).order(Discipline.arel_table[:description], Avaliation.arel_table[:test_date]) }
 
   def maximum_score
-    return avaliation.test_setting.maximum_score if !avaliation.test_setting.fix_tests
-    return avaliation.weight.to_f if avaliation.test_setting_test.allow_break_up
-    return avaliation.test_setting_test.weight if !avaliation.test_setting_test.allow_break_up
+    MaximumScoreFetcher.new(avaliation).maximum_score
   end
 
   def recovered_note
