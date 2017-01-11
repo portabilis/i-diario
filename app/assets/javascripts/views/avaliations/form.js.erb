@@ -93,19 +93,31 @@ $(function () {
 
   var updateFieldsBasedOnTestSetting = function() {
     $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_test_setting_id').select2('val')).always(function(data) {
-      if (data['test_setting']['exam_setting_type'] == 'general')
-      {
+      if (data.test_setting.exam_setting_type == 'general'){
         $('.avaliation_test_setting').hide();
       }
 
-      if (data['test_setting']['fix_tests']) {
-        $('.avaliation_test_setting_test').show();
-        $('.avaliation_description').hide();
-        $('.avaliation_weight').hide();
-      } else {
-        $('.avaliation_test_setting_test').hide();
-        $('.avaliation_description').show();
-        $('.avaliation_weight').hide();
+      switch (data.test_setting.average_calculation_type) {
+        case "sum":
+          $('.avaliation_test_setting_test').show();
+          $('.avaliation_description').hide();
+          $('.avaliation_weight').hide();
+          break;
+
+        case "arithmetic":
+          $('.avaliation_test_setting_test').hide();
+          $('.avaliation_description').show();
+          $('.avaliation_weight').hide();
+          break;
+
+        case "arithmetic_and_sum":
+          $('.avaliation_description').show();
+          $('.avaliation_weight').show();
+          $('.avaliation_test_setting_test').hide();
+          break;
+
+        default:
+          console.log("Behavior not yet implemented for this average calculation type: " + data.test_setting.average_calculation_type);
       }
 
       $weight_input.attr('data-inputmask', "'digits': " + (parseInt(data['test_setting']['number_of_decimal_places']) || 0));
@@ -152,7 +164,7 @@ $(function () {
     }
 
     $.getJSON('/test_setting_tests/' + $test_setting_input.select2('val')).always(function(data) {
-      if (data['allow_break_up']) {
+      if (data.allow_break_up) {
         $('.avaliation_description').show();
         $('.avaliation_weight').show();
       } else {

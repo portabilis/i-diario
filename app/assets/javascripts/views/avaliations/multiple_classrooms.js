@@ -17,19 +17,32 @@ $(function () {
 
   var updateFieldsBasedOnTestSetting = function() {
     $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_multiple_creator_form_test_setting_id').select2('val')).always(function(data) {
-      if (data['test_setting']['exam_setting_type'] == 'general')
+      if (data.test_setting.exam_setting_type == 'general')
       {
         $('.avaliation_multiple_creator_form_test_setting_id').hide();
       }
 
-      if (data['test_setting']['fix_tests']) {
-        $('.avaliation_multiple_creator_form_test_setting_test_id').show();
-        $('.avaliation_multiple_creator_form_description').hide();
-        $('.avaliation_multiple_creator_form_weight').hide();
-      } else {
-        $('.avaliation_multiple_creator_form_test_setting_test_id').hide();
-        $('.avaliation_multiple_creator_form_description').show();
-        $('.avaliation_multiple_creator_form_weight').hide();
+      switch (data.test_setting.average_calculation_type) {
+        case "sum":
+          $('.avaliation_multiple_creator_form_test_setting_test_id').show();
+          $('.avaliation_multiple_creator_form_description').hide();
+          $('.avaliation_multiple_creator_form_weight').hide();
+          break;
+
+        case "arithmetic":
+          $('.avaliation_multiple_creator_form_test_setting_test_id').hide();
+          $('.avaliation_multiple_creator_form_description').show();
+          $('.avaliation_multiple_creator_form_weight').hide();
+          break;
+
+        case "arithmetic_and_sum":
+          $('.avaliation_multiple_creator_form_description').show();
+          $('.avaliation_multiple_creator_form_weight').show();
+          $('.avaliation_multiple_creator_form_test_setting_test_id').hide();
+          break;
+
+        default:
+          console.log("Behavior not yet implemented for this average calculation type: " + data.test_setting.average_calculation_type);
       }
 
       $weight_input.attr('data-inputmask', "'digits': " + (parseInt(data['test_setting']['number_of_decimal_places']) || 0));
@@ -76,7 +89,7 @@ $(function () {
     }
 
     $.getJSON('/test_setting_tests/' + $test_setting_input.select2('val')).always(function(data) {
-      if (data['allow_break_up']) {
+      if (data.allow_break_up) {
         $('.avaliation_multiple_creator_form_description').show();
         $('.avaliation_multiple_creator_form_weight').show();
       } else {

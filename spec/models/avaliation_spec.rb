@@ -53,11 +53,11 @@ RSpec.describe Avaliation, type: :model do
       end
     end
 
-    context 'when configuration with fixed tests' do
-      let(:test_setting_with_fixed_tests) { FactoryGirl.create(:test_setting_with_fixed_tests) }
+    context 'when configuration with sum calculation type' do
+      let(:test_setting_with_sum_calculation_type) { FactoryGirl.create(:test_setting_with_sum_calculation_type) }
       subject { FactoryGirl.build(:avaliation, test_date: '03/02/2015',
                                                school_calendar: school_calendar,
-                                               test_setting: test_setting_with_fixed_tests) }
+                                               test_setting: test_setting_with_sum_calculation_type) }
 
       it { expect(subject).to validate_presence_of(:test_setting_test) }
 
@@ -75,12 +75,12 @@ RSpec.describe Avaliation, type: :model do
       end
     end
 
-    context 'when configuration with fixed tests that allow break up' do
-      let(:test_setting_with_fixed_tests_that_allow_break_up) { FactoryGirl.create(:test_setting_with_fixed_tests_that_allow_break_up) }
+    context 'when configuration with sum calculation type that allow break up' do
+      let(:test_setting_with_sum_calculation_type_that_allow_break_up) { FactoryGirl.create(:test_setting_with_sum_calculation_type_that_allow_break_up) }
       subject { FactoryGirl.build(:avaliation, school_calendar: school_calendar,
                                                test_date: '03/02/2015',
-                                               test_setting: test_setting_with_fixed_tests_that_allow_break_up,
-                                               test_setting_test: test_setting_with_fixed_tests_that_allow_break_up.tests.first) }
+                                               test_setting: test_setting_with_sum_calculation_type_that_allow_break_up,
+                                               test_setting_test: test_setting_with_sum_calculation_type_that_allow_break_up.tests.first) }
 
       it { expect(subject).to validate_presence_of(:description) }
       it { expect(subject).to validate_presence_of(:weight) }
@@ -139,9 +139,9 @@ RSpec.describe Avaliation, type: :model do
       end
     end
 
-    context 'when configuration with not fixed tests' do
-      let(:test_setting_with_not_fixed_tests) { FactoryGirl.create(:test_setting, fix_tests: false) }
-      subject { FactoryGirl.build(:avaliation, test_setting: test_setting_with_not_fixed_tests) }
+    context 'when configuration with arithmetic calculation type' do
+      let(:test_setting_with_arithmetic_calculation_type) { FactoryGirl.create(:test_setting, average_calculation_type: AverageCalculationTypes::ARITHMETIC) }
+      subject { FactoryGirl.build(:avaliation, test_setting: test_setting_with_arithmetic_calculation_type) }
 
       it { expect(subject).to validate_presence_of(:description) }
     end

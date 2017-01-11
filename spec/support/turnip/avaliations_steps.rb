@@ -39,7 +39,7 @@ module Turnip
       # TODO: Refatorar
       TestSettingTest.delete_all
       TestSetting.delete_all
-      @test_setting = FactoryGirl.build(:test_setting, year: Time.zone.today.year, maximum_score: 10, fix_tests: true)
+      @test_setting = FactoryGirl.build(:test_setting, year: Time.zone.today.year, maximum_score: 10, average_calculation_type: AverageCalculationTypes::SUM)
       @test = @test_setting.tests.build(FactoryGirl.attributes_for(:test_setting_test, weight: @test_setting.maximum_score, allow_break_up: false))
       @test_setting.save
     end
@@ -48,7 +48,7 @@ module Turnip
       # TODO: Refatorar
       TestSettingTest.delete_all
       TestSetting.delete_all
-      @test_setting = FactoryGirl.build(:test_setting, year: Time.zone.today.year, maximum_score: 10, fix_tests: true)
+      @test_setting = FactoryGirl.build(:test_setting, year: Time.zone.today.year, maximum_score: 10, average_calculation_type: AverageCalculationTypes::SUM)
       @test = @test_setting.tests.build(FactoryGirl.attributes_for(:test_setting_test, weight: @test_setting.maximum_score, allow_break_up: true))
       @test_setting.save
     end
