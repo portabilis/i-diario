@@ -61,6 +61,34 @@ class StudentsController < ApplicationController
     )
   end
 
+  def in_recovery_classroom_steps
+    @students = StudentsInRecoveryByClassroomStepFetcher.new(
+        configuration,
+        params[:classroom_id],
+        params[:discipline_id],
+        params[:school_calendar_classroom_step_id],
+        params[:date].to_date.to_s
+      )
+      .fetch
+
+      school_calendar_classroom_steps = RecoverySchoolCalendarClassroomStepsFetcher.new(
+          params[:school_calendar_classroom_step_id],
+          params[:classroom_id]
+        )
+        .fetch
+
+    school_calendar_classroom_step = SchoolCalendarClassroomStep.find(params[:school_calendar_classroom_step_id])
+
+    render(
+      json: @students,
+      each_serializer: StudentInRecoveryClassroomStepSerializer,
+      discipline_id: params[:discipline_id],
+      classroom_id: params[:classroom_id],
+      school_calendar_classroom_step_id: school_calendar_classroom_step.id,
+      number_of_decimal_places: school_calendar_classroom_step.test_setting.number_of_decimal_places
+    )
+  end
+
   def in_final_recovery
     @students = StudentsInFinalRecoveryFetcher.new(configuration)
       .fetch(

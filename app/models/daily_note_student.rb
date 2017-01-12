@@ -28,7 +28,11 @@ class DailyNoteStudent < ActiveRecord::Base
   scope :by_avaliation, lambda { |avaliation| joins(:daily_note).merge(DailyNote.by_avaliation_id(avaliation)) }
   scope :active, -> { where(active: true) }
   scope :ordered, -> { joins(:student, daily_note: :avaliation).order(Avaliation.arel_table[:test_date], Student.arel_table[:name]) }
-  scope :order_by_discipline_and_date, -> { joins(daily_note: [avaliation: :discipline]).order('disciplines.description, avaliations.test_date') }
+  scope :order_by_discipline_and_date, -> { joins(daily_note: [avaliation: [:discipline]]).order(Discipline.arel_table[:description], Avaliation.arel_table[:test_date]) }
+
+  def dependence?
+    self.dependence
+  end
 
   def maximum_score
     MaximumScoreFetcher.new(avaliation).maximum_score

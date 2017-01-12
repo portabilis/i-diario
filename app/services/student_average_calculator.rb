@@ -55,4 +55,15 @@ class StudentAverageCalculator
     end
     daily_notes_count
   end
+
+  private
+
+  def step_fetcher(classroom_id, step_id)
+    classroom = Classroom.find(classroom_id)
+    if classroom.calendar
+      SchoolCalendarClassroomStep.find(step_id)
+    else
+      SchoolCalendarStep.find(step_id)
+    end
+  end
 end
