@@ -33,9 +33,9 @@
       <div class="row">
         <div class="col col-sm-4">
           <% if @school_calendar_classroom_steps.any? %>
-            <%= f.association :school_calendar_classroom_step, as: :select2, elements: @school_calendar_classroom_steps %>
+            <%= f.association :school_calendar_classroom_step, as: :select2, elements: @school_calendar_classroom_steps, required: true %>
           <% else %>
-            <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps %>
+            <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps, required: true %>
           <% end %>
         </div>
 
