@@ -37,6 +37,11 @@ class PartialScoreRecordReportController < ApplicationController
   end
   helper_method :school_calendar_steps_ordered
 
+  def school_calendar_classroom_steps
+    @school_calendar_classroom_steps ||= SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id)
+  end
+  helper_method :school_calendar_classroom_steps
+
   def students
     @students ||= Student.where(id: DailyNoteStudent.by_classroom_id(@partial_score_record_report_form.classroom_id)
                                                     .by_test_date_between(current_school_calendar.first_day, current_school_calendar.last_day)
@@ -53,6 +58,7 @@ class PartialScoreRecordReportController < ApplicationController
     params.require(:partial_score_record_report_form).permit(:unity_id,
                                                             :classroom_id,
                                                             :student_id,
-                                                            :school_calendar_step_id)
+                                                            :school_calendar_step_id,
+                                                            :school_calendar_classroom_step_id)
   end
 end

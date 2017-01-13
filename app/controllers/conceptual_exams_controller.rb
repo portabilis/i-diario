@@ -22,6 +22,7 @@ class ConceptualExamsController < ApplicationController
 
     fetch_classrooms
     fetch_school_calendar_steps
+    fetch_school_calendar_classroom_steps
   end
 
   def new
@@ -123,6 +124,7 @@ class ConceptualExamsController < ApplicationController
       :unity_id,
       :classroom_id,
       :school_calendar_step_id,
+      :school_calendar_classroom_step_id,
       :recorded_at,
       :student_id,
       conceptual_exam_values_attributes: [
@@ -140,6 +142,7 @@ class ConceptualExamsController < ApplicationController
       :by_classroom,
       :by_student_name,
       :by_school_calendar_step,
+      :by_school_calendar_classroom_step,
       :by_status
     )
   end
@@ -206,6 +209,7 @@ class ConceptualExamsController < ApplicationController
     fetch_unities_classrooms_disciplines_by_teacher
     fetch_school_calendar_steps
     fetch_students
+    fetch_school_calendar_classroom_steps
   end
 
   def fetch_unities_classrooms_disciplines_by_teacher
@@ -228,6 +232,10 @@ class ConceptualExamsController < ApplicationController
     @school_calendar_steps = current_school_calendar.steps
   end
 
+  def fetch_school_calendar_classroom_steps
+    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id)
+  end
+
   def fetch_students
     @students = []
 
@@ -235,8 +243,8 @@ class ConceptualExamsController < ApplicationController
       @student_ids = StudentEnrollmentsList.new(
         classroom: current_user_classroom,
         discipline: current_user_discipline,
-        start_at: @conceptual_exam.school_calendar_step.start_at,
-        end_at: @conceptual_exam.school_calendar_step.end_at,
+        start_at: @conceptual_exam.step.start_at,
+        end_at: @conceptual_exam.step.end_at,
         search_type: :by_date_range
       ).student_enrollments
      .collect(&:student_id)
@@ -272,13 +280,22 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_next_conceptual_exam
+    fetch_school_calendar_classroom_steps
     next_student = fetch_next_student
 
-    next_conceptual_exam = ConceptualExam.find_or_initialize_by(
+    conceptual_exam_with_school_step = ConceptualExam.find_or_initialize_by(
       classroom_id: @conceptual_exam.classroom_id,
       school_calendar_step_id: @conceptual_exam.school_calendar_step_id,
       student_id: next_student.id
     )
+
+    conceptual_exam_with_classroom_step = ConceptualExam.find_or_initialize_by(
+      classroom_id: @conceptual_exam.classroom_id,
+      school_calendar_classroom_step_id: @conceptual_exam.school_calendar_classroom_step_id,
+      student_id: next_student.id
+    )
+
+    next_conceptual_exam = @school_calendar_classroom_steps.any? ? conceptual_exam_with_classroom_step : conceptual_exam_with_school_step
     next_conceptual_exam.recorded_at = @conceptual_exam.recorded_at
 
     next_conceptual_exam

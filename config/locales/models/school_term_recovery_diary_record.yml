@@ -4,6 +4,8 @@ pt-BR:
       school_term_recovery_diary_record:
         school_calendar_step: "Etapa"
         school_calendar_step_id: "Etapa"
+        school_calendar_classroom_step: "Etapa da Turma"
+        school_calendar_classroom_step_id: "Etapa da Turma"
 
     errors:
       models:

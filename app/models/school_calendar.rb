@@ -13,9 +13,11 @@ class SchoolCalendar < ActiveRecord::Base
   belongs_to :unity
 
   has_many :steps, -> { includes(:school_calendar).ordered },  class_name: 'SchoolCalendarStep',  dependent: :destroy
+  has_many :classrooms, class_name: 'SchoolCalendarClassroom', dependent: :destroy
   has_many :events, class_name: 'SchoolCalendarEvent', dependent: :destroy
 
   accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
+  accepts_nested_attributes_for :classrooms, reject_if: :all_blank, allow_destroy: true
 
   validates :year, presence: true,
                    uniqueness: { scope: :unity_id }
