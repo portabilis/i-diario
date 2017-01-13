@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/descriptive_exams/form' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <%= simple_form_for @descriptive_exam, html: { class: "smart-form" } do |f| %>
   <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
