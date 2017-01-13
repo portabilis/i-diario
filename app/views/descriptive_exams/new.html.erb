@@ -24,7 +24,7 @@
           <%= f.input :classroom_id, as: :select2_classroom, user: current_user %>
         </div>
 
-        <div class="col col-sm-4" data-descriptive-exam-discipline-container>
+        <div class="col col-sm-4 hidden" data-descriptive-exam-discipline-container>
           <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
                 classroom_id: @descriptive_exam.classroom_id %>
         </div>
