@@ -22,7 +22,7 @@ class DescriptiveExam < ActiveRecord::Base
   validates :classroom_id, presence: true
   validates :discipline_id, presence: true, if: :should_validate_presence_of_discipline
   validates :school_calendar_step_id, presence: true, if: :should_validate_presence_of_school_calendar_step
-  validates :school_calendar_classroom_step_id, presence: true, unless: :school_calendar_step_id
+  validates :school_calendar_classroom_step_id, presence: true, if: :should_validate_presence_of_classroom_school_calendar_step
 
   def mark_students_for_removal
     students.each do |student|
@@ -42,5 +42,9 @@ class DescriptiveExam < ActiveRecord::Base
     return unless exam_rule
 
     [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? exam_rule.opinion_type && school_calendar_classroom_step_id.blank?
+  end
+
+  def should_validate_presence_of_classroom_school_calendar_step
+    should_validate_presence_of_school_calendar_step && !school_calendar_step_id
   end
 end
