@@ -37,6 +37,7 @@ class TransferNotesController < ApplicationController
 
   def edit
     @transfer_note = TransferNote.find(params[:id]).localized
+    @students_ordered = @transfer_note.daily_note_students.ordered
     authorize @transfer_note
   end
 
@@ -62,12 +63,10 @@ class TransferNotesController < ApplicationController
                             .by_discipline_id(params[:discipline_id])
                             .by_teacher(current_teacher.id)
                             .by_test_date_between(school_calendar_step.start_at, params[:transfer_date])
+                            .ordered_asc
 
     @daily_note_students = avaliations.map do |avaliation|
       daily_note = DailyNote.find_or_create_by!(
-        classroom_id: classroom.id,
-        unity_id: classroom.unity.id,
-        discipline_id: params[:discipline_id],
         avaliation_id: avaliation.id
       ).localized
 

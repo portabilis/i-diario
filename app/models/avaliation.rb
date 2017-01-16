@@ -55,6 +55,7 @@ class Avaliation < ActiveRecord::Base
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
 
   scope :ordered, -> { order(test_date: :desc) }
+  scope :ordered_asc, -> { order(:test_date) }
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
 
