@@ -106,7 +106,7 @@ class SchoolCalendarsParser
         school_calendar_classroom = SchoolCalendarClassroom.by_classroom_api_code(classroom_step['turma_id']).first
         if school_calendar_classroom
           classroom_step['etapas'].each_with_index do |step, step_index|
-            if school_calendar_classroom.classroom_steps.any?
+            if school_calendar_classroom.classroom_steps[step_index]
               update_classrooms_step_start_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
               update_classrooms_step_end_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
             else

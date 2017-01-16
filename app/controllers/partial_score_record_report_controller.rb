@@ -32,6 +32,7 @@ class PartialScoreRecordReportController < ApplicationController
   end
   helper_method :school_calendar_steps
 
+
   def school_calendar_steps_ordered
     school_calendar_steps.ordered
   end
