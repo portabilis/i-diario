@@ -31,7 +31,7 @@ class SchoolCalendarsUpdater
         school_calendar_classroom = SchoolCalendarClassroom.by_classroom_id(classroom_params['id']).first
         if school_calendar_classroom
           classroom_params['steps'].each_with_index do |step_params, step_index|
-            if school_calendar_classroom.classroom_steps.any?
+            if school_calendar_classroom.classroom_steps[step_index]
               update_school_calendar_classroom_steps(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step_params)
             else
               step = SchoolCalendarClassroomStep.new(
