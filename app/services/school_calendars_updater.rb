@@ -27,6 +27,41 @@ class SchoolCalendarsUpdater
         end
       end
 
+      school_calendar_params['classrooms'].each_with_index do |classroom_params, classroom_index|
+        school_calendar_classroom = SchoolCalendarClassroom.by_classroom_id(classroom_params['id']).first
+        if school_calendar_classroom
+          classroom_params['steps'].each_with_index do |step_params, step_index|
+            if school_calendar_classroom.classroom_steps[step_index]
+              update_school_calendar_classroom_steps(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step_params)
+            else
+              step = SchoolCalendarClassroomStep.new(
+              start_at: step_params['start_at'],
+              end_at: step_params['end_at'],
+              start_date_for_posting: step_params['start_date_for_posting'],
+              end_date_for_posting: step_params['end_date_for_posting']
+              )
+              school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }.classroom_steps.build(step.attributes)
+            end
+          end
+        else
+          classroom = SchoolCalendarClassroom.new(
+            classroom: Classroom.find_by_id(classroom_params['id'])
+          )
+
+          steps = []
+          classroom_params['steps'].each_with_index do |step_params, index|
+            steps << SchoolCalendarClassroomStep.new(
+              start_at: step_params['start_at'],
+              end_at: step_params['end_at'],
+              start_date_for_posting: step_params['start_date_for_posting'],
+              end_date_for_posting: step_params['end_date_for_posting']
+            )
+          end
+
+          school_calendar.classrooms.build(classroom.attributes).classroom_steps.build(steps.collect{ |step| step.attributes })
+        end
+      end
+
       school_calendar.save!
     end
   end
@@ -37,5 +72,12 @@ class SchoolCalendarsUpdater
 
   def selected_school_calendars_to_update
     school_calendars.select { |school_calendar| school_calendar['unity_id'].present? && school_calendar['school_calendar_id'].present? }
+  end
+
+  def update_school_calendar_classroom_steps(school_calendar_classroom, step_index, step_params)
+    school_calendar_classroom.classroom_steps[step_index].start_at = step_params['start_at']
+    school_calendar_classroom.classroom_steps[step_index].start_date_for_posting = step_params['start_date_for_posting']
+    school_calendar_classroom.classroom_steps[step_index].end_at = step_params['end_at']
+    school_calendar_classroom.classroom_steps[step_index].end_date_for_posting = step_params['end_date_for_posting']
   end
 end

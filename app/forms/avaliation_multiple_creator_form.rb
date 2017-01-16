@@ -10,8 +10,8 @@ class AvaliationMultipleCreatorForm
   validates :discipline_id,        presence: true
   validates :school_calendar_id,   presence: true
   validates :test_setting_id,      presence: true
-  validates :test_setting_test_id, presence: true, if: :fix_tests?
-  validates :description,       presence: true, if: -> { !fix_tests? || allow_break_up? }
+  validates :test_setting_test_id, presence: true, if: :sum_calculation_type?
+  validates :description,       presence: true, if: -> { !sum_calculation_type? || allow_break_up? }
   validates :weight,            presence: true, if: :allow_break_up?
   validate :at_least_one_assigned_avaliation
 
@@ -69,7 +69,6 @@ class AvaliationMultipleCreatorForm
         test_date: avaliation_attributes.last['test_date'],
         classes: avaliation_attributes.last['classes'],
         test_setting_id: self.test_setting_id,
-        unity_id: self.unity_id,
         discipline_id: self.discipline_id,
         test_setting_test_id: self.test_setting_test_id,
         description: self.description,
@@ -81,9 +80,14 @@ class AvaliationMultipleCreatorForm
     end
   end
 
-  def load_avaliations!(teacher_id)
-    return unless discipline_id.present? && teacher_id.present? && unity_id.present?
-    classrooms = Classroom.by_unity_and_teacher(unity_id, teacher_id).by_teacher_discipline(discipline_id).by_year(Date.today.year).ordered
+  def load_avaliations!(teacher_id, school_calendar_year)
+    return unless discipline_id.present? && teacher_id.present?
+    classrooms = Classroom
+      .by_unity_and_teacher(unity_id, teacher_id)
+      .by_teacher_discipline(discipline_id)
+      .by_year(school_calendar_year)
+      .ordered
+
     @avaliations = []
     classrooms.each do |classroom|
       @avaliations << Avaliation.new(
@@ -102,9 +106,17 @@ class AvaliationMultipleCreatorForm
     test_setting_test && test_setting_test.allow_break_up
   end
 
-  def fix_tests?
-    return false if test_setting.nil?
-    test_setting.fix_tests?
+  def average_calculation_type
+    return "" if test_setting.nil?
+    test_setting.average_calculation_type
+  end
+
+  def sum_calculation_type?
+    average_calculation_type == "sum"
+  end
+
+  def arithmetic_and_sum_calculation_type?
+    average_calculation_type == "arithmetic_and_sum"
   end
 
   def add_avaliations_errors_to_classrooms

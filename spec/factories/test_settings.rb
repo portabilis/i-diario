@@ -4,10 +4,10 @@ FactoryGirl.define do
     sequence(:year) { |n| 2020 + n }
     maximum_score 10
     number_of_decimal_places 2
-    fix_tests false
+    average_calculation_type AverageCalculationTypes::ARITHMETIC
 
-    factory :test_setting_with_fixed_tests do |test_setting|
-      fix_tests true
+    factory :test_setting_with_sum_calculation_type do |test_setting|
+      average_calculation_type AverageCalculationTypes::SUM
 
       after(:build) do |test_setting|
         test_setting.tests.build(attributes_for(:test_setting_test, weight: test_setting.maximum_score,
@@ -15,8 +15,8 @@ FactoryGirl.define do
       end
     end
 
-    factory :test_setting_with_fixed_tests_that_allow_break_up do |test_setting|
-      fix_tests true
+    factory :test_setting_with_sum_calculation_type_that_allow_break_up do |test_setting|
+      average_calculation_type AverageCalculationTypes::SUM
 
       after(:build) do |test_setting|
         test_setting.tests.build(attributes_for(:test_setting_test, weight: test_setting.maximum_score,

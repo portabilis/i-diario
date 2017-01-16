@@ -86,7 +86,7 @@ class TestSettingsController < ApplicationController
                                          :school_term,
                                          :maximum_score,
                                          :number_of_decimal_places,
-                                         :fix_tests,
+                                         :average_calculation_type,
                                          tests_attributes: [:id,
                                                             :description,
                                                             :weight,

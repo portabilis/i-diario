@@ -13,7 +13,7 @@ pt-BR:
         year: "Ano"
         maximum_score: "Nota máxima"
         number_of_decimal_places: "Número de casas decimais"
-        fix_tests: "Fixar avaliações"
+        average_calculation_type: "Cálculo de média"
         responsible_id: "Responsável"
 
     errors:

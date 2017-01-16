@@ -44,6 +44,14 @@
       </table>
     </fieldset>
 
+    <fieldset id="school_calendar_classroom_steps">
+      <legend>Etapas específicas</legend>
+
+      <%= f.simple_fields_for :classrooms, @school_calendar.classrooms.ordered_by_grade.ordered_by_description do |classroom| %>
+        <%= render 'classroom_fields', f: classroom %>
+      <% end %>
+    </fieldset>
+
     <footer>
       <%= link_to t('views.form.back'), school_calendars_path, class: "btn btn-default" %>
 
