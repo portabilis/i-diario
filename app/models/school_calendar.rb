@@ -33,6 +33,7 @@ class SchoolCalendar < ActiveRecord::Base
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_unity_api_code, lambda { |unity_api_code| joins(:unity).where(unities: { api_code: unity_api_code }) }
   scope :by_school_day, lambda { |date| by_school_day(date) }
+  scope :by_school_day_classroom_steps, lambda { |date, classroom| by_school_day_classroom_steps(date, classroom) }
   scope :ordered, -> { joins(:unity).order(year: :desc).order('unities.name') }
 
   def to_s
@@ -78,6 +79,12 @@ class SchoolCalendar < ActiveRecord::Base
   def self.by_school_day(date)
     joins(:steps).where(SchoolCalendarStep.arel_table[:start_at].lteq(date.to_date))
       .where(SchoolCalendarStep.arel_table[:end_at].gteq(date.to_date))
+  end
+
+  def self.by_school_day_classroom_steps(date, classroom)
+    joins(:classrooms).where(SchoolCalendarClassroom.arel_table[:classroom_id].eq(classroom.id))
+    .joins(classrooms: :classroom_steps).where(SchoolCalendarClassroomStep.arel_table[:start_at].lteq(date.to_date))
+      .where(SchoolCalendarClassroomStep.arel_table[:end_at].gteq(date.to_date))
   end
 
   def at_least_one_assigned_step

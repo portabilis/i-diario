@@ -21,7 +21,7 @@ class ContentRecord < ActiveRecord::Base
   validate :at_least_one_content
 
   def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity).fetch
+    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
   end
 
   def unity

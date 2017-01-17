@@ -164,7 +164,7 @@ class ApplicationController < ActionController::Base
   def current_school_calendar
     return if current_user.admin? && current_user_unity.blank?
 
-    CurrentSchoolCalendarFetcher.new(current_user_unity).fetch
+    CurrentSchoolCalendarFetcher.new(current_user_unity, current_user_classroom).fetch
   end
 
   def current_school_calendar_classroom
