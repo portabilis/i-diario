@@ -16,6 +16,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   scope :absences, -> { where("COALESCE(daily_frequency_students.present, 'f') = 'f' ")}
   scope :presents, -> { where("daily_frequency_students.present = 't' ")}
+  scope :active, -> { where(active: true) }
   scope :general_by_classroom_student_date_between,
         lambda { |classroom_id, student_id, start_at, end_at| where(
                                                        'daily_frequencies.classroom_id' => classroom_id,
