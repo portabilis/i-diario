@@ -15,11 +15,14 @@ class Signup
   validates :password_confirmation, presence: true
   validates :student_code, presence: true, if: :require_student_code?
 
+  validates_format_of :document, with: /\d{3}.\d{3}.\d{3}-\d{2}/, message: :incorrect_format, unless: -> { document.blank? }
+
   validate :presence_of_default_roles
   validate :presence_of_role
   validate :uniqueness_of_document
   validate :uniqueness_of_email
   validate :presence_of_email_or_document
+  validate :valid_cpf, unless: -> { document.blank? }
 
   def employee_role?
     employee_role == '1'
@@ -122,6 +125,12 @@ class Signup
       RoleKind::STUDENT
     else
       RoleKind::EMPLOYEE
+    end
+  end
+
+  def valid_cpf
+    unless CPF.valid?(document)
+      errors.add(:document, :invalid)
     end
   end
 

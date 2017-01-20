@@ -17,7 +17,7 @@ class PartialScoreRecordReportForm
     @daily_note_students ||= DailyNoteStudent.includes(:daily_note)
                                              .by_classroom_id(classroom_id)
                                              .by_student_id(student_id)
-                                             .by_test_date_between(step.start_at,step.end_at)
+                                             .by_test_date_between(step.school_calendar.first_day, step.school_calendar.last_day)
                                              .order_by_discipline_and_date
   end
 
