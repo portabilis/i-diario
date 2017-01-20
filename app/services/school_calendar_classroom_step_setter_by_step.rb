@@ -66,14 +66,15 @@ class SchoolCalendarClassroomStepSetterByStep
           transfer_note.save(validate: false)
           transfer_notes_to_keep << transfer_note.id if transfer_note.school_calendar_classroom_step_id
         end
-        
+
         transfer_notes.where.not(id: transfer_notes_to_keep).destroy_all
 
         school_term_recovery_diary_records.each do |school_term_recovery_diary_record|
           next unless school_term_recovery_diary_record.school_calendar_step_id
 
           school_calendar_classroom_steps = find_classroom_steps(school_term_recovery_diary_record.recovery_diary_record.classroom_id)
-          school_term_recovery_diary_record.school_calendar_classroom_step_id = find_same_number_step(school_calendar_classroom_steps, school_term_recovery_diary_record)
+          recorded_at = school_term_recovery_diary_record.recovery_diary_record.recorded_at
+          school_term_recovery_diary_record.school_calendar_classroom_step_id = school_calendar_classroom_steps.started_after_and_before(recorded_at).first.try(:id)
           school_term_recovery_diary_record.save(validate: false)
           school_term_recovery_diary_records_to_keep << school_term_recovery_diary_record.id if school_term_recovery_diary_record.school_calendar_classroom_step_id
         end

@@ -71,10 +71,9 @@ class SchoolCalendarClassroomStepSetterByFirstAndThirdStep
 
         school_term_recovery_diary_records.each do |school_term_recovery_diary_record|
           next unless school_term_recovery_diary_record.school_calendar_step
-          school_term_recovery_diary_records_to_erase << school_term_recovery_diary_record.school_calendar_step.id if second_or_fourth_step?(school_term_recovery_diary_record)
-          next unless first_or_third_step?(school_term_recovery_diary_record)
           classroom_steps = find_classroom_steps(school_term_recovery_diary_record.recovery_diary_record.classroom_id)
-          school_term_recovery_diary_record.school_calendar_classroom_step_id = find_same_number_step(classroom_steps, school_term_recovery_diary_record)
+          recorded_at = school_term_recovery_diary_record.recovery_diary_record.recorded_at
+          school_term_recovery_diary_record.school_calendar_classroom_step_id = classroom_steps.started_after_and_before(recorded_at).first.try(:id)
           school_term_recovery_diary_record.save(validate: false)
         end
 

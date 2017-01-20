@@ -72,6 +72,7 @@ class AvaliationExemption < ActiveRecord::Base
   def school_calendar_classroom_step
     school_calendar_classroom_step = SchoolCalendarClassroomStep
       .by_school_calendar_id(school_calendar_id)
+      .by_classroom(classroom)
       .started_after_and_before(avaliation_test_date)
       .first
       .try(:id)
