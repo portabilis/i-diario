@@ -83,9 +83,9 @@ module ExamPoster
                 classroom.id,
                 discipline.id,
                 student.id,
-                step_start_at(classroom),
-                step_end_at(classroom)
-              )
+                step_start_at,
+                step_end_at
+              ).active
 
               if daily_frequency_students.any?
                 value = daily_frequency_students.absences.count
