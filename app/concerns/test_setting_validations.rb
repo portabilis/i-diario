@@ -6,6 +6,7 @@ module TestSettingValidations
   included do
     validates :exam_setting_type, presence: true
     validates :year, presence: true
+    validates :average_calculation_type, presence: true
     validates :school_term, presence: { if: :by_school_term?  }
     validates :maximum_score, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 1000 }
     validates :number_of_decimal_places, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3 }
