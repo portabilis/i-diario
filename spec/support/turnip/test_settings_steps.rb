@@ -59,7 +59,7 @@ module Turnip
       fill_in 'Número de casas decimais', with: '2'
 
       # Clica no checkbox 'Fixar avaliações'
-      fill_in_select2 'Cálculo de média', with: "sum"
+      fill_in_select2 'Cálculo da média', with: "sum"
 
       click_on 'Adicionar avaliação'
 
