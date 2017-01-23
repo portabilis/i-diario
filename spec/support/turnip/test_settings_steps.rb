@@ -59,12 +59,7 @@ module Turnip
       fill_in 'Nota máxima', with: '10'
       fill_in 'Número de casas decimais', with: '2'
 
-<<<<<<< Updated upstream
-      # Clica no checkbox 'Fixar avaliações'
-      fill_in_select2 'Cálculo de média', with: "sum"
-=======
       fill_in_select2 'Cálculo da média', with: "sum"
->>>>>>> Stashed changes
 
       click_on 'Adicionar avaliação'
 
