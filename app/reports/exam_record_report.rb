@@ -25,9 +25,7 @@ class ExamRecordReport
     @daily_notes = daily_notes
     @students_enrollments = students_enrollments
 
-    header
-
-    daily_notes_table
+    content
 
     footer
 
@@ -51,7 +49,7 @@ class ExamRecordReport
     entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
     organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
 
-    entity_organ_and_unity_cell = make_cell(content: "#{entity_name}\n#{organ_name}\n#{@daily_notes.first.unity.name}", size: 12, leading: 1.5, align: :center, valign: :center, rowspan: 4, padding: [6, 0, 8, 0])
+    entity_organ_and_unity_cell = make_cell(content: "#{entity_name}\n#{organ_name}\n#{@daily_notes.first.unity.name}", size: 12, leading: 1.5, align: :center, valign: :center, rowspan: 4, padding: [6, 2, 8, 2])
     classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     year_header = make_cell(content: 'Ano letivo', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     step_header = make_cell(content: 'Etapa', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
@@ -69,14 +67,12 @@ class ExamRecordReport
                         [discipline_header, teacher_header],
                         [discipline_cell, teacher_cell]]
 
-    repeat(:all) do
-      table(first_table_data, width: bounds.width) do
-        cells.border_width = 0.25
-        row(0).border_top_width = 0.25
-        row(-1).border_bottom_width = 0.25
-        column(0).border_left_width = 0.25
-        column(-1).border_right_width = 0.25
-      end
+    table(first_table_data, width: bounds.width, header: true) do
+      cells.border_width = 0.25
+      row(0).border_top_width = 0.25
+      row(-1).border_bottom_width = 0.25
+      column(0).border_left_width = 0.25
+      column(-1).border_right_width = 0.25
     end
   end
 
@@ -205,15 +201,15 @@ class ExamRecordReport
         ]
         data.concat(students_cells_slice)
 
-        bounding_box([0, 482], width: bounds.width) do
-          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2], inline_format: true }, width: bounds.width) do |t|
-            t.cells.border_width = 0.25
-            t.before_rendering_page do |page|
-              page.row(0).border_top_width = 0.25
-              page.row(-1).border_bottom_width = 0.25
-              page.column(0).border_left_width = 0.25
-              page.column(-1).border_right_width = 0.25
-            end
+        move_down 8
+
+        table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2], inline_format: true }, width: bounds.width) do |t|
+          t.cells.border_width = 0.25
+          t.before_rendering_page do |page|
+            page.row(0).border_top_width = 0.25
+            page.row(-1).border_bottom_width = 0.25
+            page.column(0).border_left_width = 0.25
+            page.column(-1).border_right_width = 0.25
           end
         end
 
@@ -222,6 +218,11 @@ class ExamRecordReport
 
       start_new_page if index < sliced_daily_notes_and_recoveries.count - 1
     end
+  end
+
+  def content
+    header
+    daily_notes_table
   end
 
   def footer
