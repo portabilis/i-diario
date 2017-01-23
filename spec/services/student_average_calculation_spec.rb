@@ -136,6 +136,21 @@ RSpec.describe StudentAverageCalculator, type: :service do
         expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(10.0)
       end
     end
+
+    context "with one exempted avaliation" do
+      let(:avaliation_3_exempted?) { true }
+      let(:recovered_note_1) { 9.0 }
+      let(:recovered_note_2) { 8.0 }
+      let(:recovered_note_3) { nil }
+      let(:weight_avaliation_1) { 10 }
+      let(:weight_avaliation_2) { 10 }
+      let(:weight_avaliation_3) { 10 }
+
+      before { allow(score_rounder).to receive(:round).with(8.5).and_return(8.5) }
+      it "should not consider the exempted avaliation weight" do
+        expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(8.5)
+      end
+    end
   end
 
   def stub_school_calendar_step

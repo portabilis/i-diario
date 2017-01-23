@@ -26,7 +26,7 @@ class StudentAverageCalculator
   def weight_sum(daily_note_students)
     sum = 0
     daily_note_students.each do |daily_note_student|
-      sum += daily_note_student.daily_note.avaliation.weight
+      sum += daily_note_student.daily_note.avaliation.weight unless avaliation_exempted?(daily_note_student.daily_note.avaliation)
     end
     sum
   end
@@ -50,10 +50,13 @@ class StudentAverageCalculator
   def daily_notes_count(daily_note_students)
     daily_notes_count = 0
     daily_note_students.each do |daily_note_student|
-      avaliation_is_exempted = StudentAvaliationExemptionQuery.new(@student).is_exempted(daily_note_student.daily_note.avaliation)
-      daily_notes_count += 1 unless avaliation_is_exempted
+      daily_notes_count += 1 unless avaliation_exempted?(daily_note_student.daily_note.avaliation)
     end
     daily_notes_count
+  end
+
+  def avaliation_exempted?(avaliation)
+    StudentAvaliationExemptionQuery.new(@student).is_exempted(avaliation)
   end
 
   private
