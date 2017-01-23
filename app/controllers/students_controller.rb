@@ -51,7 +51,7 @@ class StudentsController < ApplicationController
 
     school_calendar_step = SchoolCalendarStep.find(params[:school_calendar_step_id])
     discipline = Discipline.find(params[:discipline_id])
-    classroom = Classroom.find(params[:discipline_id])
+    classroom = Classroom.find(params[:classroom_id])
 
     render(
       json: @students,
