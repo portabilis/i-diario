@@ -123,13 +123,13 @@ class AttendanceRecordReportForm
   def start_at_must_be_in_school_calendar_year
     return if errors[:start_at].any?
 
-    errors.add(:start_at, :must_be_in_school_calendar_year) if start_at.to_date.year != school_calendar_year.to_i
+    errors.add(:start_at, I18n.t('errors.messages.not_school_calendar_day')) unless school_calendar.school_day?(start_at.to_date)
   end
 
   def end_at_must_be_in_school_calendar_year
     return if errors[:end_at].any?
 
-    errors.add(:end_at, :must_be_in_school_calendar_year) if end_at.to_date.year != school_calendar_year.to_i
+    errors.add(:end_at, I18n.t('errors.messages.not_school_calendar_day')) unless school_calendar.school_day?(end_at.to_date)
   end
 
   def must_have_daily_frequencies
