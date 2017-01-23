@@ -7,7 +7,6 @@ class ScoreRounder
 
   def round(score)
     return 0 if score.nil?
-    return score if score > 10.0
     score_decimal_part = decimal_part(score)
     rounding_table_id = exam_rule_rounding_table.try(:id)
     rounding_table_value = RoundingTableValue.find_by(rounding_table_id: rounding_table_id, label: score_decimal_part)
@@ -42,7 +41,7 @@ class ScoreRounder
   end
 
   def round_to_exact_decimal(score, exact_decimal_place)
-    (score.floor.to_s + "." + exact_decimal_place.to_s).to_f
+    "#{score.floor}.#{exact_decimal_place}".to_f
   end
 
   def round_to_above(score)
@@ -54,11 +53,10 @@ class ScoreRounder
   end
 
   def truncate_score(score)
-    return 10.0 if score == 10
     parts = score.to_s.split(".")
-    decimal_part = parts.count > 1 ? parts[1][0].to_s : 0
-    integer_part = parts.count > 1 ? parts[0][0].to_s : 0
-    (integer_part + "." + decimal_part).to_f
+    integer_part = parts[0]
+    decimal_part = parts[1][0]
+    "#{integer_part}.#{decimal_part}".to_f
   end
 
 end

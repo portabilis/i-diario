@@ -12,8 +12,8 @@ pt-BR:
         classroom_id: "Turma"
         school_calendar_step: "Etapa"
         school_calendar_step_id: "Etapa"
-        school_calendar_classroom_step: "Etapa de turma"
-        school_calendar_classroom_step_id: "Etapa de turma"
+        school_calendar_classroom_step: "Etapa da Turma"
+        school_calendar_classroom_step_id: "Etapa da Turma"
         student: "Aluno"
         student_id: "Aluno"
         recorded_at: 'Data'

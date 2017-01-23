@@ -36,12 +36,12 @@
       <% if @school_calendar_classroom_steps.any? %>
           <div class="col col-sm-4">
             <%= f.association :school_calendar_classroom_step, as: :select2, elements: @school_calendar_classroom_steps,
-            readonly: @conceptual_exam.persisted? %>
+            readonly: @conceptual_exam.persisted?, required: true %>
           </div>
         <% else %>
           <div class="col col-sm-4">
             <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps,
-            readonly: @conceptual_exam.persisted? %>
+            readonly: @conceptual_exam.persisted?, required: true %>
           </div>
       <% end %>
     </div>

@@ -28,11 +28,11 @@
       <div class="row">
         <% if @school_calendar_classroom_steps.any? %>
         <div class="col col-sm-4 hidden" data-descriptive-exam-step-container>
-          <%= f.input :school_calendar_classroom_step_id, as: :select2, elements: @school_calendar_classroom_steps %>
+          <%= f.input :school_calendar_classroom_step_id, as: :select2, elements: @school_calendar_classroom_steps, required: true %>
         </div>
         <% else %>
         <div class="col col-sm-4 hidden" data-descriptive-exam-step-container>
-          <%= f.input :school_calendar_step_id, as: :select2, elements: @school_calendar_steps %>
+          <%= f.input :school_calendar_step_id, as: :select2, elements: @school_calendar_steps, , required: true %>
         </div>
         <% end %>
       </div>

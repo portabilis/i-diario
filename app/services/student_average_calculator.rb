@@ -3,24 +3,32 @@ class StudentAverageCalculator
     @student = student
   end
 
-  def calculate(classroom_id, discipline_id, school_calendar_step_id)
+  def calculate(classroom, discipline, school_calendar_step)
     result = 0.0
-    step = step_fetcher(classroom_id, school_calendar_step_id)
-    daily_note_students = DailyNoteStudent.by_student_id(@student.id)
-      .by_discipline_id(discipline_id)
-      .by_classroom_id(classroom_id)
-      .by_test_date_between(step.start_at, step.end_at)
-      .active
 
-    if step.test_setting.presence && step.test_setting.sum_calculation_type?
-      result = score_sum(daily_note_students)
-    else
-      result = calculate_average(score_sum(daily_note_students), daily_notes_count(daily_note_students))
+    daily_note_students = StudentNotesQuery.new(@student, discipline, classroom, school_calendar_step.start_at, school_calendar_step.end_at).daily_note_students
+    if daily_note_students.any?
+      if school_calendar_step.test_setting.sum_calculation_type?
+        result = score_sum(daily_note_students)
+      elsif school_calendar_step.test_setting.arithmetic_and_sum_calculation_type?
+        result = (score_sum(daily_note_students) / (weight_sum(daily_note_students) / school_calendar_step.test_setting.maximum_score))
+      else
+        result = calculate_average(score_sum(daily_note_students), daily_notes_count(daily_note_students))
+      end
     end
-    #TODO Modificar classe para receber objetos e não ids (Classroom, Discipline, SchoolCalendarStep)
-    classroom = Classroom.find(classroom_id)
 
-    ScoreRounder.new(classroom.exam_rule).round(result)
+    result = ScoreRounder.new(classroom.exam_rule).round(result)
+    result
+  end
+
+  private
+
+  def weight_sum(daily_note_students)
+    sum = 0
+    daily_note_students.each do |daily_note_student|
+      sum += daily_note_student.daily_note.avaliation.weight unless avaliation_exempted?(daily_note_student.daily_note.avaliation)
+    end
+    sum
   end
 
   def score_sum(daily_note_students)
@@ -42,13 +50,13 @@ class StudentAverageCalculator
   def daily_notes_count(daily_note_students)
     daily_notes_count = 0
     daily_note_students.each do |daily_note_student|
-      avaliation_is_exempted = AvaliationExemption
-        .by_student(@student.id)
-        .by_avaliation(daily_note_student.daily_note.avaliation_id)
-        .any?
-      daily_notes_count += 1 unless avaliation_is_exempted
+      daily_notes_count += 1 unless avaliation_exempted?(daily_note_student.daily_note.avaliation)
     end
     daily_notes_count
+  end
+
+  def avaliation_exempted?(avaliation)
+    StudentAvaliationExemptionQuery.new(@student).is_exempted(avaliation)
   end
 
   private
