@@ -1,5 +1,5 @@
 class StudentAvaliationExemptionQuery
-  def initialize(student, avaliation)
+  def initialize(student)
     @student = student
   end
 
@@ -12,5 +12,5 @@ class StudentAvaliationExemptionQuery
 
   private
 
-  attr_accessor :student, :avaliation
+  attr_accessor :student
 end
