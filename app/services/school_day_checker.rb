@@ -42,7 +42,12 @@ class SchoolDayChecker
       return true if any_global_event?(events_by_date_with_frequency)
     end
 
-    return false if @school_calendar.step(@date).nil?
+    if classroom.calendar
+      return false if classroom.calendar.classroom_step(@date).nil?
+    else
+      return false if @school_calendar.step(@date).nil?
+    end
+
     ![0, 6].include? @date.wday
   end
 
@@ -73,5 +78,9 @@ class SchoolDayChecker
     query.without_grade
          .without_classroom
          .any?
+  end
+
+  def classroom
+    @classroom ||= Classroom.find(@classroom_id)
   end
 end

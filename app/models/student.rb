@@ -31,8 +31,8 @@ class Student < ActiveRecord::Base
     name
   end
 
-  def average(classroom, discipline, school_calendar_step)
+  def average(classroom, discipline, step)
     StudentAverageCalculator.new(self)
-      .calculate(classroom, discipline, school_calendar_step)
+      .calculate(classroom, discipline, step)
   end
 end
