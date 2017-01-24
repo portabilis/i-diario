@@ -6,13 +6,14 @@ module TestSettingValidations
   included do
     validates :exam_setting_type, presence: true
     validates :year, presence: true
+    validates :average_calculation_type, presence: true
     validates :school_term, presence: { if: :by_school_term?  }
     validates :maximum_score, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 1000 }
     validates :number_of_decimal_places, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3 }
 
     validate :uniqueness_of_general_test_setting,        if: :general?
     validate :uniqueness_of_by_school_term_test_setting, if: :by_school_term?
-    validate :at_least_one_assigned_test, if: :fix_tests?
+    validate :at_least_one_assigned_test, if: :arithmetic?
     validate :tests_weight_equal_maximum_score, if: :should_validate_tests_weight?
     validate :ensure_can_destroy_test_settings
   end
@@ -42,7 +43,7 @@ module TestSettingValidations
   end
 
   def should_validate_tests_weight?
-    fix_tests? && tests.any? { |test| !test.marked_for_destruction? } && maximum_score
+    arithmetic? && tests.any? { |test| !test.marked_for_destruction? } && maximum_score
   end
 
   def tests_weight_equal_maximum_score

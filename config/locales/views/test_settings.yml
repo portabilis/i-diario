@@ -5,5 +5,8 @@ pt-BR:
       allow_break_up_info_html: "Caso a opção <strong>Permitir desmembrar</strong> seja selecionada, o professor poderá cadastrar para cada avaliação fixada, uma ou mais avaliações limitadas ao peso configurado."
       add_test: "Adicionar avaliação"
       no_item_found: "Nenhuma avaliação"
+      arithmetic_calculation_info_html: "<strong>Aritmética</strong>: Permite que o professor cadastre quantas avaliações desejar. A média do aluno será a soma de todas as notas dividida pela quantidade de avaliações cadastradas."
+      sum_calculation_info_html: "<strong>Somatório</strong>: Permite que o professor cadastre apenas as avaliações definidas abaixo. A média do aluno será a soma das notas lançadas para estas avaliações."
+      arithmetic_and_sum_calculation_info_html: "<strong>Somatório e aritmética</strong>: Permite que o professor cadastre quantas avaliações desejar, definindo para cada uma um peso. A média do aluno será a soma das notas / (Soma de pesos / Nota máxima)."
     test_fields:
       remove: "Remover"

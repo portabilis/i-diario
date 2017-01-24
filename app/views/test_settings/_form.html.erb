@@ -1,99 +1,123 @@
-<%= simple_form_for @test_setting, html: { class: "smart-form" } do |f| %>
-  <% if f.object.errors[:base].present? %>
-    <div class="alert alert-danger fade in">
-      <i class="fa-fw fa fa-times"></i>
-        <%= f.object.errors[:base].first %>
-    </div>
-  <% end %>
+<div id="flash-messages">
+  <p class="alert alert-info calculation-info hidden" id="arithmetic-calculation-info">
+    <i class="fa-fw fa fa-info"></i>
+    <%= t('.arithmetic_calculation_info_html') %>
+  </p>
 
-  <fieldset>
-    <div class="row">
-      <div class="col col-sm-3">
-        <%= f.input :exam_setting_type, as: :select2, elements: ExamSettingTypes.to_select.to_json %>
+  <p class="alert alert-info calculation-info hidden" id="sum-calculation-info">
+    <i class="fa-fw fa fa-info"></i>
+      <%= t('.sum_calculation_info_html') %>
+  </p>
+
+  <p class="alert alert-info calculation-info hidden" id="arithmetic_and_sum-calculation-info">
+    <i class="fa-fw fa fa-info"></i>
+      <%= t('.arithmetic_and_sum_calculation_info_html') %>
+  </p>
+</div>
+
+<div class="widget-body no-padding">
+
+  <%= simple_form_for @test_setting, html: { class: "smart-form" } do |f| %>
+    <% if f.object.errors[:base].present? %>
+      <div class="alert alert-danger fade in">
+        <i class="fa-fw fa fa-times"></i>
+          <%= f.object.errors[:base].first %>
       </div>
-
-      <div class="col col-sm-3">
-        <%= f.input :year, input_html: { max_length: 4 } %>
-      </div>
-
-      <div id="test_setting_school_term_div" class="col col-sm-3">
-        <%= f.input :school_term, as: :select2, elements: (Bimesters.to_select + Trimesters.to_select + Semesters.to_select).uniq.to_json, required: true %>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col col-sm-3">
-        <%= f.input :maximum_score %>
-      </div>
-
-      <div class="col col-sm-3">
-        <%= f.input :number_of_decimal_places %>
-      </div>
-
-      <div class="col col-sm-3">
-        <%= f.input :fix_tests %>
-      </div>
-    </div>
-  </fieldset>
-
-  <fieldset id="item_setting_tests">
-    <legend><%= t('.tests') %></legend>
-
-    <p class="alert alert-info">
-      <i class="fa-fw fa fa-info"></i>
-      <%= t('.allow_break_up_info_html') %>
-    </p>
-
-    <div>
-      <% if f.object.errors[:tests].any? %>
-        <div class="alert alert-danger fade in">
-          <i class="fa-fw fa fa-times"></i>
-          <% f.object.errors[:tests].each do |error| %>
-            <%= error %><br/>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
-
-    <table class="table table-striped table-bordered table-condensed records">
-      <thead>
-        <tr>
-          <th><%= TestSettingTest.human_attribute_name :description %></th>
-          <th><%= TestSettingTest.human_attribute_name :weight %></th>
-          <th width="50px"><%= TestSettingTest.human_attribute_name :allow_break_up %></th>
-          <th width="50px"></th>
-        </tr>
-      </thead>
-
-      <tbody id="test-settings-tests">
-        <tr>
-          <td class="no_item_found" colspan="5" style="<%= @test_setting.tests.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
-        </tr>
-
-        <%= f.association :tests do |p| %>
-          <%= render 'test_fields', f: p %>
-        <% end %>
-      </tbody>
-
-      <tfoot class="links">
-        <tr>
-          <td colspan="5">
-            <%= link_to_add_association t('.add_test'), f, :tests, 'data-association-insertion-method': 'append',
-                                                                   'data-association-insertion-node':   '#test-settings-tests',
-                                                                   class: 'btn btn-success btn-sm' %>
-          </td>
-        </tr>
-      </tfoot>
-    </table>
-  </fieldset>
-
-  <footer>
-    <%= link_to t('views.form.back'), test_settings_path, class: "btn btn-default" %>
-
-    <% if @test_setting.persisted? %>
-      <%= link_to t('views.form.history'), history_test_setting_path(@test_setting), class: 'btn btn-info' %>
     <% end %>
 
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
-  </footer>
-<% end %>
+    <fieldset>
+      <% content_for :js do %>
+        <%= javascript_include_tag 'views/test_settings/form' %>
+      <% end %>
+
+      <div class="row">
+        <div class="col col-sm-3">
+          <%= f.input :exam_setting_type, as: :select2, elements: ExamSettingTypes.to_select.to_json %>
+        </div>
+
+        <div class="col col-sm-3">
+          <%= f.input :year, input_html: { max_length: 4 } %>
+        </div>
+
+        <div id="test_setting_school_term_div" class="col col-sm-3">
+          <%= f.input :school_term, as: :select2, elements: (Bimesters.to_select + Trimesters.to_select + Semesters.to_select).uniq.to_json, required: true %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-3">
+          <%= f.input :maximum_score %>
+        </div>
+
+        <div class="col col-sm-3">
+          <%= f.input :number_of_decimal_places %>
+        </div>
+
+        <div class="col col-sm-3">
+          <%= f.input :average_calculation_type, as: :select2, elements: AverageCalculationTypes.to_select.to_json %>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset id="item_setting_tests">
+      <legend><%= t('.tests') %></legend>
+
+      <p class="alert alert-info">
+        <i class="fa-fw fa fa-info"></i>
+        <%= t('.allow_break_up_info_html') %>
+      </p>
+
+      <div>
+        <% if f.object.errors[:tests].any? %>
+          <div class="alert alert-danger fade in">
+            <i class="fa-fw fa fa-times"></i>
+            <% f.object.errors[:tests].each do |error| %>
+              <%= error %><br/>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <table class="table table-striped table-bordered table-condensed records">
+        <thead>
+          <tr>
+            <th><%= TestSettingTest.human_attribute_name :description %></th>
+            <th><%= TestSettingTest.human_attribute_name :weight %></th>
+            <th width="50px"><%= TestSettingTest.human_attribute_name :allow_break_up %></th>
+            <th width="50px"></th>
+          </tr>
+        </thead>
+
+        <tbody id="test-settings-tests">
+          <tr>
+            <td class="no_item_found" colspan="5" style="<%= @test_setting.tests.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+          </tr>
+
+          <%= f.association :tests do |p| %>
+            <%= render 'test_fields', f: p %>
+          <% end %>
+        </tbody>
+
+        <tfoot class="links">
+          <tr>
+            <td colspan="5">
+              <%= link_to_add_association t('.add_test'), f, :tests, 'data-association-insertion-method': 'append',
+                                                                     'data-association-insertion-node':   '#test-settings-tests',
+                                                                     class: 'btn btn-success btn-sm' %>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </fieldset>
+
+    <footer>
+      <%= link_to t('views.form.back'), test_settings_path, class: "btn btn-default" %>
+
+      <% if @test_setting.persisted? %>
+        <%= link_to t('views.form.history'), history_test_setting_path(@test_setting), class: 'btn btn-info' %>
+      <% end %>
+
+      <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>
