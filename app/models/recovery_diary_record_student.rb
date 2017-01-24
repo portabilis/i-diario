@@ -57,16 +57,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
   end
 
   def maximum_score_for_avaliation_recovery
-    if avaliation.fix_tests?
-      test_setting_test = TestSettingTest.find_by(id: avaliation.test_setting_test_id, test_setting_id: avaliation.test_setting_id)
-      if test_setting_test.allow_break_up?
-        avaliation.weight
-      else
-        test_setting_test.weight
-      end
-    else
-      recovery_diary_record.avaliation_recovery_diary_record.avaliation.test_setting.maximum_score
-    end
+    MaximumScoreFetcher.new(avaliation).maximum_score
   end
 
   def avaliation

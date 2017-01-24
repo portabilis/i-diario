@@ -40,6 +40,8 @@ pt-BR:
                 uniqueness_of_avaliation:
                   one: "já existe uma avaliação para a aula informada"
                   other: "já existe uma avaliação para uma das aulas informadas"
+              weight:
+                cant_be_greater_than: "não pode ser maior que %{value}"
 
   errors:
     avaliations:

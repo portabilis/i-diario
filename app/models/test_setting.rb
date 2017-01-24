@@ -46,5 +46,16 @@ class TestSetting < ActiveRecord::Base
       false
     end
   end
+ 
+  def sum_calculation_type?
+    average_calculation_type == AverageCalculationTypes::SUM
+  end
 
+  def arithmetic_calculation_type?
+    average_calculation_type == AverageCalculationTypes::ARITHMETIC
+  end
+
+  def arithmetic_and_sum_calculation_type?
+    average_calculation_type == AverageCalculationTypes::ARITHMETIC_AND_SUM
+  end
 end

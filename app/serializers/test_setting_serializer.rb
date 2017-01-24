@@ -1,3 +1,3 @@
 class TestSettingSerializer < ActiveModel::Serializer
-  attributes :id, :exam_setting_type, :fix_tests, :number_of_decimal_places
+  attributes :id, :exam_setting_type, :average_calculation_type, :number_of_decimal_places
 end

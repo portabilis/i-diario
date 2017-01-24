@@ -27,15 +27,16 @@ class Avaliation < ActiveRecord::Base
   validates :classes,           presence: true
   validates :school_calendar,   presence: true
   validates :test_setting,      presence: true
-  validates :test_setting_test, presence: true, if: :fix_tests?
-  validates :description,       presence: true, if: -> { !fix_tests? || allow_break_up? }
+  validates :test_setting_test, presence: true, if: :sum_calculation_type?
+  validates :description,       presence: true, if: -> { !sum_calculation_type? || allow_break_up? }
   validates :weight,            presence: true, if: :allow_break_up?
 
   validate :uniqueness_of_avaliation
-  validate :unique_test_setting_test_per_step,    if: -> { fix_tests? && !allow_break_up? }
+  validate :unique_test_setting_test_per_step,    if: -> { sum_calculation_type? && !allow_break_up? }
   validate :test_setting_test_weight_available,   if: :allow_break_up?
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
   validate :is_school_term_day?
+  validate :weight_not_greater_than_test_setting_maximum_score, if: :arithmetic_and_sum_calculation_type?
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
@@ -51,13 +52,15 @@ class Avaliation < ActiveRecord::Base
                                                 .where('avaliations.description ILIKE ? OR test_setting_tests.description ILIKE ?', "%#{description}%", "%#{description}%") }
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
-  scope :not_including_classroom_id, lambda { |classroom_id| where(arel_table[:classroom_id].not_eq(classroom_id) ) }
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
+  scope :not_including_classroom_id, lambda { |classroom_id| where(arel_table[:classroom_id].not_eq(classroom_id) ) }
 
   scope :ordered, -> { order(test_date: :desc) }
   scope :ordered_asc, -> { order(:test_date) }
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
+
+  attr_accessor :include
 
   attr_accessor :include
 
@@ -83,9 +86,17 @@ class Avaliation < ActiveRecord::Base
     end.to_json
   end
 
-  def fix_tests?
-    return false if test_setting.nil?
-    test_setting.fix_tests?
+  def average_calculation_type
+    return "" if test_setting.nil?
+    test_setting.average_calculation_type
+  end
+
+  def sum_calculation_type?
+    average_calculation_type == "sum"
+  end
+
+  def arithmetic_and_sum_calculation_type?
+    average_calculation_type == "arithmetic_and_sum"
   end
 
   def allow_break_up?
@@ -169,5 +180,13 @@ class Avaliation < ActiveRecord::Base
   def try_destroy_daily_notes
     can_destroy_daily_notes = !daily_notes.any? { |daily_note| daily_note.students.any? { |daily_note_student| daily_note_student.note } }
     daily_notes.destroy_all if can_destroy_daily_notes
+  end
+
+  def weight_not_greater_than_test_setting_maximum_score
+    return unless test_setting
+
+    if weight > test_setting.maximum_score
+      errors.add(:weight, :cant_be_greater_than, value: test_setting.maximum_score)
+    end
   end
 end

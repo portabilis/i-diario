@@ -13,7 +13,7 @@ module TestSettingValidations
 
     validate :uniqueness_of_general_test_setting,        if: :general?
     validate :uniqueness_of_by_school_term_test_setting, if: :by_school_term?
-    validate :at_least_one_assigned_test, if: :arithmetic?
+    validate :at_least_one_assigned_test, if: :sum?
     validate :tests_weight_equal_maximum_score, if: :should_validate_tests_weight?
     validate :ensure_can_destroy_test_settings
   end
@@ -43,7 +43,7 @@ module TestSettingValidations
   end
 
   def should_validate_tests_weight?
-    arithmetic? && tests.any? { |test| !test.marked_for_destruction? } && maximum_score
+    sum? && tests.any? { |test| !test.marked_for_destruction? } && maximum_score
   end
 
   def tests_weight_equal_maximum_score
