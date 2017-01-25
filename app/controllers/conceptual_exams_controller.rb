@@ -264,18 +264,25 @@ class ConceptualExamsController < ApplicationController
   def respond_with_next_conceptual_exam
     next_conceptual_exam = fetch_next_conceptual_exam
 
-    if next_conceptual_exam.new_record?
+    if !next_conceptual_exam
       respond_with(
         @conceptual_exam,
-        location: new_conceptual_exam_path(
-          conceptual_exam: next_conceptual_exam.attributes
-        )
+        location: new_conceptual_exam_path
       )
     else
-      respond_with(
-        @conceptual_exam,
-        location: edit_conceptual_exam_path(next_conceptual_exam)
-      )
+      if next_conceptual_exam.new_record?
+        respond_with(
+          @conceptual_exam,
+          location: new_conceptual_exam_path(
+            conceptual_exam: next_conceptual_exam.attributes
+          )
+        )
+      else
+        respond_with(
+          @conceptual_exam,
+          location: edit_conceptual_exam_path(next_conceptual_exam)
+        )
+      end
     end
   end
 
@@ -283,32 +290,37 @@ class ConceptualExamsController < ApplicationController
     fetch_school_calendar_classroom_steps
     next_student = fetch_next_student
 
-    conceptual_exam_with_school_step = ConceptualExam.find_or_initialize_by(
-      classroom_id: @conceptual_exam.classroom_id,
-      school_calendar_step_id: @conceptual_exam.school_calendar_step_id,
-      student_id: next_student.id
-    )
+    if next_student
+      conceptual_exam_with_school_step = ConceptualExam.find_or_initialize_by(
+        classroom_id: @conceptual_exam.classroom_id,
+        school_calendar_step_id: @conceptual_exam.school_calendar_step_id,
+        student_id: next_student.id
+      )
 
-    conceptual_exam_with_classroom_step = ConceptualExam.find_or_initialize_by(
-      classroom_id: @conceptual_exam.classroom_id,
-      school_calendar_classroom_step_id: @conceptual_exam.school_calendar_classroom_step_id,
-      student_id: next_student.id
-    )
+      conceptual_exam_with_classroom_step = ConceptualExam.find_or_initialize_by(
+        classroom_id: @conceptual_exam.classroom_id,
+        school_calendar_classroom_step_id: @conceptual_exam.school_calendar_classroom_step_id,
+        student_id: next_student.id
+      )
 
-    next_conceptual_exam = @school_calendar_classroom_steps.any? ? conceptual_exam_with_classroom_step : conceptual_exam_with_school_step
-    next_conceptual_exam.recorded_at = @conceptual_exam.recorded_at
+      next_conceptual_exam = @school_calendar_classroom_steps.any? ? conceptual_exam_with_classroom_step : conceptual_exam_with_school_step
+      next_conceptual_exam.recorded_at = @conceptual_exam.recorded_at
+      next_conceptual_exam
+    end
 
-    next_conceptual_exam
   end
 
   def fetch_next_student
-    @students = fetch_students
-    next_student_index = (@students.find_index(@conceptual_exam.student) || 0) + 1
+    @students = nil
 
-    if next_student_index == @students.length
-      next_student_index = 0
+    if @students
+      next_student_index = @students.find_index(@conceptual_exam.student) + 1
+
+      if next_student_index == @students.length
+        next_student_index = 0
+      end
+
+      @students[next_student_index]
     end
-
-    @students[next_student_index]
   end
 end
