@@ -42,7 +42,7 @@ class SchoolDayChecker
       return true if any_global_event?(events_by_date_with_frequency)
     end
 
-    if classroom.calendar
+    if classroom.try(:calendar)
       return false if classroom.calendar.classroom_step(@date).nil?
     else
       return false if @school_calendar.step(@date).nil?
