@@ -49,17 +49,13 @@ class StudentsController < ApplicationController
       )
       .fetch
 
-    school_calendar_step = SchoolCalendarStep.find(params[:school_calendar_step_id])
-    discipline = Discipline.find(params[:discipline_id])
-    classroom = Classroom.find(params[:classroom_id])
-
     render(
       json: @students,
       each_serializer: StudentInRecoverySerializer,
       discipline: discipline,
       classroom: classroom,
-      school_calendar_step: school_calendar_step,
-      number_of_decimal_places: school_calendar_step.test_setting.number_of_decimal_places
+      school_calendar_step: school_step,
+      number_of_decimal_places: step.test_setting.number_of_decimal_places
     )
   end
 
@@ -79,15 +75,13 @@ class StudentsController < ApplicationController
         )
         .fetch
 
-    school_calendar_classroom_step = SchoolCalendarClassroomStep.find(params[:school_calendar_classroom_step_id])
-
     render(
       json: @students,
       each_serializer: StudentInRecoveryClassroomStepSerializer,
-      discipline_id: params[:discipline_id],
-      classroom_id: params[:classroom_id],
-      school_calendar_classroom_step_id: school_calendar_classroom_step.id,
-      number_of_decimal_places: school_calendar_classroom_step.test_setting.number_of_decimal_places
+      discipline: discipline,
+      classroom: classroom,
+      school_calendar_classroom_step: classroom_step,
+      number_of_decimal_places: classroom_step.test_setting.number_of_decimal_places
     )
   end
 
@@ -108,5 +102,21 @@ class StudentsController < ApplicationController
 
   def configuration
     IeducarApiConfiguration.current
+  end
+
+  def classroom
+    Classroom.find(params[:classroom_id])
+  end
+
+  def school_step
+    SchoolCalendarStep.find(params[:school_calendar_step_id])
+  end
+
+  def classroom_step
+    SchoolCalendarClassroomStep.find(params[:school_calendar_classroom_step_id])
+  end
+
+  def discipline
+    Discipline.find(params[:discipline_id])
   end
 end

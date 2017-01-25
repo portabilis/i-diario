@@ -3,15 +3,15 @@ class StudentAverageCalculator
     @student = student
   end
 
-  def calculate(classroom, discipline, school_calendar_step)
+  def calculate(classroom, discipline, step)
     result = 0.0
 
-    daily_note_students = StudentNotesQuery.new(@student, discipline, classroom, school_calendar_step.start_at, school_calendar_step.end_at).daily_note_students
+    daily_note_students = StudentNotesQuery.new(@student, discipline, classroom, step.start_at, step.end_at).daily_note_students
     if daily_note_students.any?
-      if school_calendar_step.test_setting.sum_calculation_type?
+      if step.test_setting.sum_calculation_type?
         result = score_sum(daily_note_students)
-      elsif school_calendar_step.test_setting.arithmetic_and_sum_calculation_type?
-        result = (score_sum(daily_note_students) / (weight_sum(daily_note_students) / school_calendar_step.test_setting.maximum_score))
+      elsif step.test_setting.arithmetic_and_sum_calculation_type?
+        result = (score_sum(daily_note_students) / (weight_sum(daily_note_students) / step.test_setting.maximum_score))
       else
         result = calculate_average(score_sum(daily_note_students), daily_notes_count(daily_note_students))
       end

@@ -167,12 +167,6 @@ class ApplicationController < ActionController::Base
     CurrentSchoolCalendarFetcher.new(current_user_unity, current_user_classroom).fetch
   end
 
-  def current_school_calendar_classroom
-    return if current_user.admin? && current_user_unity.blank?
-
-    SchoolCalendarClassroom.by_classroom(current_user_classroom).first
-  end
-
   def current_test_setting
     CurrentTestSettingFetcher.new(current_school_calendar).fetch
   end

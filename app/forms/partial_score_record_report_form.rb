@@ -19,7 +19,7 @@ class PartialScoreRecordReportForm
     @daily_note_students ||= DailyNoteStudent.includes(:daily_note)
                                              .by_classroom_id(classroom_id)
                                              .by_student_id(student_id)
-                                             .by_test_date_between(step.school_calendar.first_day, step.school_calendar.last_day)
+                                             .by_test_date_between(school_calendar.first_day, school_calendar.last_day)
                                              .order_by_discipline_and_date
   end
 
@@ -30,6 +30,14 @@ class PartialScoreRecordReportForm
       @step ||= SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
     else
       @step ||= SchoolCalendarStep.find(school_calendar_step_id)
+    end
+  end
+
+  def school_calendar
+    if classroom.calendar
+      step.school_calendar_classroom
+    else
+      step.school_calendar
     end
   end
 
