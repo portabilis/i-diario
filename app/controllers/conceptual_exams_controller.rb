@@ -256,42 +256,54 @@ class ConceptualExamsController < ApplicationController
   def respond_with_next_conceptual_exam
     next_conceptual_exam = fetch_next_conceptual_exam
 
-    if next_conceptual_exam.new_record?
+    if !next_conceptual_exam
       respond_with(
         @conceptual_exam,
-        location: new_conceptual_exam_path(
-          conceptual_exam: next_conceptual_exam.attributes
-        )
+        location: new_conceptual_exam_path
       )
     else
-      respond_with(
-        @conceptual_exam,
-        location: edit_conceptual_exam_path(next_conceptual_exam)
-      )
+      if next_conceptual_exam.new_record?
+        respond_with(
+          @conceptual_exam,
+          location: new_conceptual_exam_path(
+            conceptual_exam: next_conceptual_exam.attributes
+          )
+        )
+      else
+        respond_with(
+          @conceptual_exam,
+          location: edit_conceptual_exam_path(next_conceptual_exam)
+        )
+      end
     end
   end
 
   def fetch_next_conceptual_exam
     next_student = fetch_next_student
 
-    next_conceptual_exam = ConceptualExam.find_or_initialize_by(
-      classroom_id: @conceptual_exam.classroom_id,
-      school_calendar_step_id: @conceptual_exam.school_calendar_step_id,
-      student_id: next_student.id
-    )
-    next_conceptual_exam.recorded_at = @conceptual_exam.recorded_at
+    if next_student
+      next_conceptual_exam = ConceptualExam.find_or_initialize_by(
+        classroom_id: @conceptual_exam.classroom_id,
+        school_calendar_step_id: @conceptual_exam.school_calendar_step_id,
+        student_id: next_student.id
+      )
+      next_conceptual_exam.recorded_at = @conceptual_exam.recorded_at
+    end
 
     next_conceptual_exam
   end
 
   def fetch_next_student
     @students = fetch_students
-    next_student_index = (@students.find_index(@conceptual_exam.student) || 0) + 1
 
-    if next_student_index == @students.length
-      next_student_index = 0
+    if @students
+      next_student_index = @students.find_index(@conceptual_exam.student) + 1
+
+      if next_student_index == @students.length
+        next_student_index = 0
+      end
+
+      @students[next_student_index]
     end
-
-    @students[next_student_index]
   end
 end
