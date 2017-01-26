@@ -22,7 +22,7 @@ class TransferNote < ActiveRecord::Base
   validates :discipline_id, presence: true
   validates :school_calendar_step_id, presence: true, unless: :school_calendar_classroom_step_id
   validates :school_calendar_classroom_step_id, presence: true, unless: :school_calendar_step_id
-  validates :transfer_date, presence: true, date: { not_in_future: true }
+  validates :transfer_date, presence: true, date: { not_in_future: true }, school_calendar_day: true
   validates :student_id, presence: true
   validates :teacher, presence: true
   validate :transfer_date_must_be_in_step, unless: :school_calendar_classroom_step_id
@@ -38,9 +38,7 @@ class TransferNote < ActiveRecord::Base
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id ) }
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).where(classrooms: { unity_id: unity_id }) }
 
-  def unity_id
-    classroom.try(:unity_id) || @unity_id
-  end
+  delegate :unity, :unity_id, to: :classroom, allow_nil: true
 
   def transfer_date_must_be_in_step
     return unless transfer_date.present? && school_calendar_step.present?
@@ -50,6 +48,10 @@ class TransferNote < ActiveRecord::Base
   def transfer_date_must_be_in_classroom_step
     return unless transfer_date.present? && school_calendar_classroom_step.present?
     errors.add(:transfer_date, :must_be_in_step) unless school_calendar_classroom_step.school_calendar_step_day?(transfer_date)
+  end
+
+  def school_calendar
+    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
   end
 
   private
