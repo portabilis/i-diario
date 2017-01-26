@@ -89,7 +89,15 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def calendar_step
-    @descriptive_exam.school_calendar_step || current_school_calendar.steps.started_after_and_before(Time.zone.today).first
+    @descriptive_exam.step || current_school_calendar_steps.started_after_and_before(Time.zone.today).first
+  end
+
+  def current_school_calendar_steps
+    if current_user_classroom.calendar
+      current_school_calendar.classrooms.where(classroom_id: current_user_classroom).classroom_steps
+    else
+      current_school_calendar.steps
+    end
   end
 
   def configuration

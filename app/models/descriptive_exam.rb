@@ -30,6 +30,10 @@ class DescriptiveExam < ActiveRecord::Base
     end
   end
 
+  def step
+    school_calendar_classroom_step || school_calendar_step
+  end
+
   private
 
   def should_validate_presence_of_discipline
