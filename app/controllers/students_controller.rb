@@ -55,7 +55,7 @@ class StudentsController < ApplicationController
       discipline: discipline,
       classroom: classroom,
       school_calendar_step: school_step,
-      number_of_decimal_places: step.test_setting.number_of_decimal_places
+      number_of_decimal_places: school_step.test_setting.number_of_decimal_places
     )
   end
 
