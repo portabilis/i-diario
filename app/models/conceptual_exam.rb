@@ -106,7 +106,7 @@ class ConceptualExam < ActiveRecord::Base
 
   def uniqueness_of_student
     discipline_ids = conceptual_exam_values.collect{ |value| value.discipline_id }
-    conceptual_exam = ConceptualExam.joins(:conceptual_exam_values).where(student_id: student_id, classroom_id: classroom_id, school_calendar_step_id: school_calendar_step_id, conceptual_exam_values: { discipline_id: discipline_ids })
+    conceptual_exam = ConceptualExam.joins(:conceptual_exam_values).where(student_id: student_id, classroom_id: classroom_id, school_calendar_step_id: school_calendar_step_id, school_calendar_classroom_step_id: school_calendar_classroom_step_id, conceptual_exam_values: { discipline_id: discipline_ids })
     conceptual_exam = conceptual_exam.where.not(id: id) if persisted?
 
     errors.add(:student, :taken) if conceptual_exam.any?

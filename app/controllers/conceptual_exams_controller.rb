@@ -239,7 +239,7 @@ class ConceptualExamsController < ApplicationController
   def fetch_students
     @students = []
 
-    if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present? && @conceptual_exam.school_calendar_step.present?
+    if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present? && @conceptual_exam.step.present?
       @student_ids = StudentEnrollmentsList.new(
         classroom: current_user_classroom,
         discipline: current_user_discipline,
@@ -311,7 +311,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_next_student
-    @students = nil
+    @students = fetch_students
 
     if @students
       next_student_index = @students.find_index(@conceptual_exam.student) + 1
