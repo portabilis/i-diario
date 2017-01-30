@@ -25,6 +25,7 @@
 //= require decimals
 //= require educacao
 //= require select2
+//= require select2_remote
 //= require cocoon
 //= require cocoon-nested-inputs
 //= require jquery-file-upload/vendor/jquery.ui.widget
