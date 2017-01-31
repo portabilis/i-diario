@@ -109,8 +109,7 @@ class ApplicationController < ActionController::Base
   def check_for_current_user_role
     return unless current_user
 
-    if current_user.current_user_role.blank?
-      current_user.update_attribute(:current_user_role_id, nil)
+    if !valid_current_role?
       flash.now[:warning] = t("current_role.check.warning")
     end
   end
@@ -213,6 +212,19 @@ class ApplicationController < ActionController::Base
     current_user.try(:current_discipline)
   end
   helper_method :current_user_discipline
+
+  def valid_current_role?
+    CurrentRoleForm.new(
+      current_user_id: current_user.id,
+      current_user_role_id: current_user.current_user_role_id,
+      teacher_id: current_user.teacher_id,
+      current_classroom_id: current_user.current_classroom_id,
+      current_discipline_id: current_user.current_discipline_id,
+      current_unity_id: current_user.current_unity_id,
+      assumed_teacher_id: current_user.assumed_teacher_id
+    ).valid?
+  end
+  helper_method :valid_current_role?
 
   private
 

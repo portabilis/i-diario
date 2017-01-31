@@ -15,7 +15,7 @@
       $("form#user-role").render_form_errors('user', data.responseJSON);
   });
 
-  $("#role-modal").on('show.bs.modal', function(){
+  $("#role-modal").on('shown.bs.modal', function(){
     $('#user_current_user_role_id').val(window.user.current_user_role_id);
     $('#user_current_unity_id').val(window.user.current_unity_id);
     $('#user_assumed_teacher_id').val(window.user.assumed_teacher_id);
@@ -170,6 +170,13 @@
   $('#user_current_user_role_id').on('change', function(){
 
     var user_role_id = $(this).val();
+
+    if(_.isEmpty(user_role_id)){
+      $('#no-role-selected-alert').removeClass('hidden');
+    }else{
+      $('#no-role-selected-alert').addClass('hidden');
+    }
+
     if(valueSelected($(this))){
       $.ajax({
         url: Routes.user_role_pt_br_path( user_role_id, {
