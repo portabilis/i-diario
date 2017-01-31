@@ -4,7 +4,7 @@ class SchoolCalendarsUpdater
   end
 
   def initialize(school_calendars)
-    self.school_calendars = school_calendars
+    @school_calendars = school_calendars
   end
 
   def update!

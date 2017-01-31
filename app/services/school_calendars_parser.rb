@@ -1,6 +1,6 @@
 class SchoolCalendarsParser
   def initialize(configuration)
-    self.configuration = configuration
+    @configuration = configuration
   end
 
   def parse!

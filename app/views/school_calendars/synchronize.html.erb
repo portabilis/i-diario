@@ -1,7 +1,7 @@
 <% flash.now[:info] = t('.info') if @school_calendars.any? %>
 
 <div class="widget-body no-padding">
-  <%= simple_form_for :synchronize, { url: create_and_update_batch_school_calendars_path } do |f| %>
+  <%= simple_form_for :synchronize, { url: create_and_update_batch_school_calendars_path, method: :post } do |f| %>
     <div class="table-responsive">
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
