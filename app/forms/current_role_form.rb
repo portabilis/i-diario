@@ -4,7 +4,6 @@ class CurrentRoleForm
   attr_accessor :current_user_id,
                 :current_user_role_id,
                 :teacher_id,
-                :current_unity_id,
                 :current_classroom_id,
                 :current_discipline_id,
                 :id,
@@ -26,7 +25,6 @@ class CurrentRoleForm
     @params[:current_classroom_id] = @params[:current_discipline_id] = nil unless require_allocation?
     @params[:current_unity_id] = nil unless require_unity?
     current_user.update_attributes(@params)
-    current_user.save!
   end
 
   private
@@ -51,12 +49,12 @@ class CurrentRoleForm
     access_level == AccessLevel::TEACHER || user_teacher
   end
 
-  def require_unity?
+  def is_admin?
     access_level == AccessLevel::ADMINISTRATOR
   end
 
-  def is_admin?
-    access_level == AccessLevel::ADMINISTRATOR
+  def require_unity?
+    is_admin?
   end
 
 end
