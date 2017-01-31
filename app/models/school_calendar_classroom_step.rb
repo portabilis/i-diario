@@ -36,7 +36,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
     if !step_from_date.eql?(self)
       false
     else
-      school_calendar.school_day?(date)
+      school_calendar.school_day?(date, nil, school_calendar_classroom.classroom)
     end
   end
 
