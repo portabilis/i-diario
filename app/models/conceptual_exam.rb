@@ -35,7 +35,7 @@ class ConceptualExam < ActiveRecord::Base
     uniqueness: { scope: [:classroom_id, :school_calendar_step_id] }
   validates :recorded_at, presence: true,
     not_in_future: true,
-    school_term_day: { school_term: lambda(&:school_calendar_step) }
+    school_term_day: { school_term: lambda(&:step) }
   validates :unity_id, presence: true
 
   validate :classroom_must_have_conceptual_exam_score_type
@@ -107,7 +107,7 @@ class ConceptualExam < ActiveRecord::Base
   def uniqueness_of_student
     discipline_ids = conceptual_exam_values.collect{ |value| value.discipline_id }
     conceptual_exam = ConceptualExam.joins(:conceptual_exam_values).where(student_id: student_id, classroom_id: classroom_id, conceptual_exam_values: { discipline_id: discipline_ids })
-    if classroom.calendar
+    if classroom.try(:calendar)
       conceptual_exam = conceptual_exam.where(school_calendar_classroom_step_id: school_calendar_classroom_step_id)
     else
       conceptual_exam = conceptual_exam.where(school_calendar_step_id: school_calendar_step_id)
