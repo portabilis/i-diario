@@ -31,8 +31,7 @@ class ConceptualExam < ActiveRecord::Base
   validates :classroom,  presence: true
   validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
   validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
-  validates :student, presence: true,
-    uniqueness: { scope: [:classroom_id, :school_calendar_step_id] }
+  validates :student, presence: true
   validates :recorded_at, presence: true,
     not_in_future: true,
     school_term_day: { school_term: lambda(&:step) }
