@@ -38,9 +38,21 @@ module ExamPoster
           student_scores.each do |student_score|
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             if school_term_recovery
-              value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.school_calendar_step)
+              value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.step)
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery) if school_term_recovery
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery)
+            end
+          end
+
+          students_only_with_recovery_fetcher = StudentOnlyWithRecoveryFetcher.new(teacher, classroom, discipline, @post_data.step)
+          students_only_with_recovery_fetcher.fetch!
+          students_without_daily_notes = students_only_with_recovery_fetcher.recoveries
+
+          students_without_daily_notes.each do |student_recovery|
+            student = student_recovery.student
+            score = student_recovery.try(:score)
+            if score
+              scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(score)
             end
           end
 
