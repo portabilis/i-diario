@@ -3,10 +3,10 @@ test_setting_a:
   year: 2015
   maximum_score: 10
   number_of_decimal_places: 2
-  fix_tests: true
+  average_calculation_type: "sum"
 test_setting_b:
   exam_setting_type: 'general'
   year: 2014
   maximum_score: 10
   number_of_decimal_places: 2
-  fix_tests: false
+  average_calculation_type: "arithmetic"

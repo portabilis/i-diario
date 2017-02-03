@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/descriptive_exams/form' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <%= simple_form_for @descriptive_exam, html: { class: "smart-form" } do |f| %>
   <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
@@ -26,9 +30,15 @@
         </div>
       </div>
       <div class="row">
+        <% if @school_calendar_classroom_steps.any? %>
         <div class="col col-sm-4 hidden" data-descriptive-exam-step-container>
-          <%= f.input :school_calendar_step_id, as: :select2, elements: @school_calendar_steps %>
+          <%= f.input :school_calendar_classroom_step_id, as: :select2, elements: @school_calendar_classroom_steps, required: true %>
         </div>
+        <% else %>
+        <div class="col col-sm-4 hidden" data-descriptive-exam-step-container>
+          <%= f.input :school_calendar_step_id, as: :select2, elements: @school_calendar_steps, required: true %>
+        </div>
+        <% end %>
       </div>
 
     </fieldset>

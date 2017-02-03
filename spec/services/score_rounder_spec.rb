@@ -72,6 +72,7 @@ RSpec.describe ScoreRounder, type: :service do
         expect(subject.round(0.0)).to be(0.0)
       end
     end
+
     context 'when number is 10.0' do
       let(:action) { RoundingTableAction::ABOVE }
       it "should not round at all" do
@@ -80,9 +81,10 @@ RSpec.describe ScoreRounder, type: :service do
     end
 
     context 'when number is greater than 10.0' do
+      let(:label) { "3" }
       let(:action) { RoundingTableAction::ABOVE }
-      it "should return the same score" do
-        expect(subject.round(12.3)).to be(12.3)
+      it "should round to above normally" do
+        expect(subject.round(12.3)).to be(13.0)
       end
     end
 

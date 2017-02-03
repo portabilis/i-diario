@@ -8,6 +8,7 @@ class TestSetting < ActiveRecord::Base
   include TestSettingValidations
 
   has_enumeration_for :exam_setting_type, with: ExamSettingTypes, create_helpers: true
+  has_enumeration_for :average_calculation_type, with: AverageCalculationTypes, create_helpers: true
 
   has_many :avaliations, dependent: :restrict_with_error
   has_many :tests, class_name: 'TestSettingTest', dependent: :destroy
@@ -45,5 +46,16 @@ class TestSetting < ActiveRecord::Base
       false
     end
   end
+ 
+  def sum_calculation_type?
+    average_calculation_type == AverageCalculationTypes::SUM
+  end
 
+  def arithmetic_calculation_type?
+    average_calculation_type == AverageCalculationTypes::ARITHMETIC
+  end
+
+  def arithmetic_and_sum_calculation_type?
+    average_calculation_type == AverageCalculationTypes::ARITHMETIC_AND_SUM
+  end
 end
