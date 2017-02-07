@@ -1,5 +1,4 @@
 class PartialScoreRecordReportController < ApplicationController
-  before_action :require_current_teacher
   before_action :require_current_school_calendar
   before_action :require_current_test_setting
 
