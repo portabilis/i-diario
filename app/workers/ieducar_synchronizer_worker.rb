@@ -30,10 +30,10 @@ class IeducarSynchronizerWorker
         ***REMOVED***sSynchronizer.synchronize!(synchronization)
         RoundingTablesSynchronizer.synchronize!(synchronization)
         RecoveryExamRulesSynchronizer.synchronize!(synchronization)
+        TeachersSynchronizer.synchronize!(synchronization, years_to_synchronize)
 
         years_to_synchronize.each do |year|
           CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, year)
-          TeachersSynchronizer.synchronize!(synchronization, year)
           ExamRulesSynchronizer.synchronize!(synchronization, year)
           Unity.with_api_code.each do |unity|
             StudentEnrollmentSynchronizer.synchronize!(synchronization, year, unity.api_code)
@@ -54,9 +54,9 @@ class IeducarSynchronizerWorker
 
   def years_to_synchronize
     Unity.with_api_code.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }
-      .uniq
-      .reject(&:blank?)
-      .sort
+         .uniq
+         .reject(&:blank?)
+         .sort
   end
 
   def all_entities

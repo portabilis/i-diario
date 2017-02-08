@@ -9,8 +9,14 @@ class Teacher < ActiveRecord::Base
   validates :api_code, uniqueness: true
 
   scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id)}
+  scope :active, -> { active_query }
 
   scope :order_by_name, -> { order(name: :asc) }
+
+  def self.active_query
+    active_teacher_ids = TeacherDisciplineClassroom.all.pluck(&:teacher_id).uniq
+    self.where(id: active_teacher_ids)
+  end
 
   def self.search(value)
     relation = all
