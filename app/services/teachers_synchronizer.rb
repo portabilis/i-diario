@@ -34,6 +34,7 @@ class TeachersSynchronizer
           )
         end
         update_discipline_classrooms(record['disciplinas_turmas'], teacher)
+        clear_inactive_teacher_allocations_from_users(teacher)
       end
     end
   end
@@ -71,6 +72,23 @@ class TeachersSynchronizer
         end
       end
     end
+  end
+
+  def clear_inactive_teacher_allocations_from_users(teacher)
+    users_allocated = User.where(teacher_id: teacher)
+    users_assumed = User.where(assumed_teacher_id: teacher)
+    users = users_allocated + users_assumed
+
+    users.each do |user|
+      classroom = user.current_classroom
+
+      has_teacher_allocation = discipline_classrooms.where(classroom_id: classroom, active: true, year: year).any?
+
+      if !has_teacher_allocation
+        user.clear_allocation
+      end
+    end
+
   end
 
   def teachers(klass = Teacher)

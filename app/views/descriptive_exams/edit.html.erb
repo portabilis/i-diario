@@ -9,6 +9,9 @@
       <% if @descriptive_exam.school_calendar_step.present? %>
         <th><%= DescriptiveExam.human_attribute_name :school_calendar_step %></th>
       <% end %>
+      <% if @descriptive_exam.school_calendar_classroom_step.present? %>
+        <th><%= DescriptiveExam.human_attribute_name :school_calendar_classroom_step %></th>
+      <% end %>
     </thead>
     <tbody style="border-bottom: 1px solid #ccc;">
       <td><%= @descriptive_exam.unity %></td>
@@ -18,6 +21,9 @@
       <% end %>
       <% if @descriptive_exam.school_calendar_step.present? %>
         <td><%= @descriptive_exam.school_calendar_step %></td>
+      <% end %>
+      <% if @descriptive_exam.school_calendar_classroom_step.present? %>
+        <td><%= @descriptive_exam.school_calendar_classroom_step %></td>
       <% end %>
     </tbody>
   </table>
@@ -48,7 +54,13 @@
           <% sequence += 1 %>
             <%= render 'student_fields', f: student, sequence: sequence %>
           <% end %>
-          <tr><td colspan="3">* Alunos em dependência</td></tr>
+          <tr>
+            <td colspan="3">
+              <span class="descriptive-exam-student-legend">
+                * Alunos cursando dependência
+              </span>
+            </td>
+          </tr>
         <% end %>
       </tbody>
     </table>

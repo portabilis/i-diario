@@ -270,6 +270,14 @@ class User < ActiveRecord::Base
     })
   end
 
+  def clear_allocation
+    update_attribute(:current_user_role_id, nil)
+    update_attribute(:current_classroom_id, nil)
+    update_attribute(:current_discipline_id, nil)
+    update_attribute(:current_unity_id, nil)
+    update_attribute(:assumed_teacher_id, nil)
+  end
+
   protected
 
   def rd_matters

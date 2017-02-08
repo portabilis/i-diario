@@ -11,6 +11,7 @@ john_doe:
   kind: 'employee'
   students: bary_allen, bruce_wayne, miss_marvel
   admin: true
+  current_user_role: users_permission
 
 mary_jane:
   email: "mary_jane@example.com"
@@ -25,3 +26,4 @@ mary_jane:
   student: bary_allen
   authorize_email_and_sms: false
   admin: false
+  current_user_role: users_permission

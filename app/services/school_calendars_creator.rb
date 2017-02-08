@@ -4,7 +4,7 @@ class SchoolCalendarsCreator
   end
 
   def initialize(school_calendars)
-    self.school_calendars = school_calendars
+    @school_calendars = school_calendars
   end
 
   def create!
@@ -18,6 +18,24 @@ class SchoolCalendarsCreator
                                     end_at: step_params['end_at'],
                                     start_date_for_posting: step_params['start_date_for_posting'],
                                     end_date_for_posting: step_params['end_date_for_posting'])
+      end
+
+      school_calendar_params['classrooms'].each do |classroom_params|
+        classroom = SchoolCalendarClassroom.new(
+          classroom: Classroom.find_by_id(classroom_params['id'])
+        )
+
+        steps = []
+        classroom_params['steps'].each do |step_params|
+          steps << SchoolCalendarClassroomStep.new(
+            start_at: step_params['start_at'],
+            end_at: step_params['end_at'],
+            start_date_for_posting: step_params['start_date_for_posting'],
+            end_date_for_posting: step_params['end_date_for_posting']
+          )
+        end
+
+        school_calendar.classrooms.build(classroom.attributes).classroom_steps.build(steps.collect{ |step| step.attributes })
       end
 
       school_calendar.save!

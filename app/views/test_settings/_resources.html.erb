@@ -11,7 +11,7 @@
         <td><%= test_setting.school_term_humanize %></td>
         <td><%= test_setting.maximum_score %></td>
         <td><%= test_setting.number_of_decimal_places %></td>
-        <td><%= t_boolean test_setting.fix_tests %></td>
+        <td><%= test_setting.average_calculation_type_humanize %></td>
         <td class="actions">
           <%= link_to t('views.index.edit'), edit_test_setting_path(test_setting),
             class: "btn btn-success" %>
