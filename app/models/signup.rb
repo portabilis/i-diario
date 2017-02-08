@@ -24,6 +24,8 @@ class Signup
   validate :presence_of_email_or_document
   validate :valid_cpf, unless: -> { document.blank? }
 
+  validates_format_of :document, with: /\d{3}.\d{3}.\d{3}-\d{2}/, message: :incorrect_format, unless: -> { document.blank? }
+
   def employee_role?
     employee_role == '1'
   end

@@ -28,7 +28,7 @@ class AvaliationsTestSettingUpdater
         avaliations.each do |avaliation|
           test_setting = get_test_setting(avaliation)
           avaliation.test_setting = test_setting
-          avaliation.test_setting_test = test_setting.tests.first if test_setting.fix_tests && test_setting.tests.count == 1
+          avaliation.test_setting_test = test_setting.tests.first if test_setting.sum_calculation_type? && test_setting.tests.count == 1
           avaliation.save(validate: false)
         end
       end

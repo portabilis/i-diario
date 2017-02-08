@@ -83,8 +83,8 @@ RSpec.describe TestSetting, type: :model do
       end
     end
 
-    context 'when fixed tests' do
-      before { subject.fix_tests = true }
+    context 'when sum calculation type' do
+      before { subject.average_calculation_type = AverageCalculationTypes::SUM }
 
       it 'validates at least one assigned test' do
         subject.tests = []
@@ -94,6 +94,7 @@ RSpec.describe TestSetting, type: :model do
       end
 
       context 'when there are assigned tests' do
+        before { subject.average_calculation_type = AverageCalculationTypes::SUM }
         it 'validates tests weight equal maximum score' do
           subject.maximum_score = 100
           subject.tests << FactoryGirl.build(:test_setting_test, weight: 10)

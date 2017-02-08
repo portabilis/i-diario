@@ -59,7 +59,7 @@ class TeacherScoresFetcher
   end
 
   def validate_exam_quantity_for_fix_test(number_of_exams)
-    return unless current_test_setting.fix_tests?
+    return unless current_test_setting.sum_calculation_type?
     if number_of_exams < current_test_setting.tests.count
       @warning_messages << "Não foi possível enviar as avaliações numéricas da turma #{@classroom} pois não foram cadastradas todas as avaliações numéricas da configuração de avaliações numéricas para a disciplina #{@discipline}."
     end

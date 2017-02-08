@@ -6,7 +6,7 @@ class AvaliationExemptionsController < ApplicationController
 
   def index
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
-      .by_unity(current_user_unity)
+      .includes(:avaliation)
       .by_classroom(current_user_classroom)
       .by_discipline(current_user_discipline)
 
@@ -15,9 +15,9 @@ class AvaliationExemptionsController < ApplicationController
 
   def new
     @avaliation_exemption = AvaliationExemption.new
-    @current_user_unity_id = current_user_unity.id
     @school_calendar_year = current_school_calendar.year
     @school_calendar_steps = current_school_calendar.steps
+    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id)
     authorize @avaliation_exemption
   end
 
@@ -49,7 +49,6 @@ class AvaliationExemptionsController < ApplicationController
     if @avaliation_exemption.update_attributes(avaliation_exemption_params)
       respond_with @avaliation_exemption, location: avaliation_exemptions_path
     else
-      @current_user_unity_id = current_user_unity.id
       @school_calendar_year = current_school_calendar.year
       fetch_collections
       render :edit
@@ -86,6 +85,7 @@ class AvaliationExemptionsController < ApplicationController
     fetch_avaliations
     fetch_students
     fetch_school_calendar_steps
+    fetch_school_calendar_classroom_steps
   end
 
   def fetch_avaliations
@@ -109,6 +109,10 @@ class AvaliationExemptionsController < ApplicationController
 
   def fetch_school_calendar_steps
     @school_calendar_steps ||= SchoolCalendarStep.by_school_calendar_id(@avaliation_exemption.school_calendar_id)
+  end
+
+  def fetch_school_calendar_classroom_steps
+    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id)
   end
 
   def configuration

@@ -5,6 +5,6 @@ class Api::V1::SchoolCalendarsController < Api::V1::BaseController
     unity_id = params[:unity_id]
     return unless unity_id
 
-    render json: CurrentSchoolCalendarFetcher.new(unity_id).fetch
+    render json: CurrentSchoolCalendarFetcher.new(unity_id, nil).fetch
   end
 end

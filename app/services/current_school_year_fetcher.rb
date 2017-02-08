@@ -14,6 +14,6 @@ class CurrentSchoolYearFetcher
   end
 
   def current_school_calendar_fetcher
-    @current_school_calendar_fetcher ||= CurrentSchoolCalendarFetcher.new(@unity)
+    @current_school_calendar_fetcher ||= CurrentSchoolCalendarFetcher.new(@unity, nil)
   end
 end

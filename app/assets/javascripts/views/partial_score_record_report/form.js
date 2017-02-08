@@ -37,4 +37,6 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar os alunos!')
   };
 
+  // on load
+  fetchStudents();
 });
