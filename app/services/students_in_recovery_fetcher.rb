@@ -44,7 +44,7 @@ class StudentsInRecoveryFetcher
 
     if classroom.exam_rule.parallel_recovery_average
       @students = @students.select do |student|
-        average = student.average(classroom.id, discipline.id, school_calendar_step.id)
+        average = student.average(classroom, discipline, school_calendar_step)
         average < classroom.exam_rule.parallel_recovery_average
       end
     end
@@ -75,8 +75,8 @@ class StudentsInRecoveryFetcher
 
       @students = students.select do |student|
         sum_averages = 0
-        school_calendar_steps.each do |s|
-          sum_averages = sum_averages + student.average(@classroom_id, @discipline_id, s.id)
+        school_calendar_steps.each do |step|
+          sum_averages = sum_averages + student.average(classroom, discipline, step)
         end
         average = sum_averages / school_calendar_steps.count
 

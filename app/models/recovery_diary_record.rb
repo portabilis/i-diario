@@ -30,7 +30,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   before_validation :self_assign_to_students
 
   def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity).fetch
+    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
   end
 
   private

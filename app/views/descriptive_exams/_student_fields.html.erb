@@ -1,4 +1,4 @@
-<tr class="nested-fields <%= f.object.dependence? ? 'warning' : '' %>">
+<tr class="nested-fields">
   <td>
     <%= sequence %>
     <%= f.hidden_field :id %>
@@ -6,7 +6,9 @@
   </td>
   <td>
     <%= f.input :student_id, as: :hidden %>
-    <%= f.object.student.api_code + ' - ' + f.object.student.to_s + (f.object.dependence? ? '*' : '') %>
+    <span class="<%= student_name_class(f.object) %>">
+      <%= student_name(f.object) %>
+    </span>
   </td>
 
   <td>

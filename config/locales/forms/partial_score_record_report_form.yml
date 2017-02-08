@@ -6,6 +6,7 @@ pt-BR:
         classroom_id: "Turma"
         student_id: "Aluno"
         school_calendar_step_id: "Etapa"
+        school_calendar_classroom_step_id: "Etapa da turma"
 
     errors:
       models:

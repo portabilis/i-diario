@@ -7,7 +7,7 @@ module ExamPoster
     def post!
       post_by_step.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, descriptive_exam|
-          api.send_post(pareceres: { classroom_id => { student_id => descriptive_exam } }, etapa: @post_data.school_calendar_step.to_number, resource: 'pareceres-por-etapa-geral')
+          api.send_post(pareceres: { classroom_id => { student_id => descriptive_exam } }, etapa: @post_data.step.to_number, resource: 'pareceres-por-etapa-geral')
         end
       end
 
@@ -28,7 +28,7 @@ module ExamPoster
       post_by_step_and_discipline.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, student_descriptive_exam|
           student_descriptive_exam.each do |discipline_id, discipline_descriptive_exam|
-            api.send_post(pareceres: { classroom_id => { student_id => { discipline_id => discipline_descriptive_exam } } }, etapa: @post_data.school_calendar_step.to_number, resource: 'pareceres-por-etapa-e-componente')
+            api.send_post(pareceres: { classroom_id => { student_id => { discipline_id => discipline_descriptive_exam } } }, etapa: @post_data.step.to_number, resource: 'pareceres-por-etapa-e-componente')
           end
         end
       end
@@ -46,10 +46,16 @@ module ExamPoster
       descriptive_exams = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next if classroom.unity_id != @post_data.school_calendar_step.school_calendar.unity_id
+        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.opinion_type != OpinionTypes::BY_STEP
+        next unless step_exists_for_classroom?(classroom)
 
-        exams = DescriptiveExamStudent.by_classroom_and_step(classroom, @post_data.school_calendar_step.id)
+        if has_classroom_steps(classroom)
+          exams = DescriptiveExamStudent.by_classroom_and_classroom_step(classroom, get_step(classroom).id)
+        else
+          exams = DescriptiveExamStudent.by_classroom_and_step(classroom, get_step(classroom).id)
+        end
+
         exams.each do |exam|
           descriptive_exams[classroom.api_code][exam.student.api_code]["valor"] = exam.value
         end
@@ -62,7 +68,7 @@ module ExamPoster
       descriptive_exams = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next if classroom.unity_id != @post_data.school_calendar_step.school_calendar.unity_id
+        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.opinion_type != OpinionTypes::BY_YEAR
 
         exams = DescriptiveExamStudent.by_classroom(classroom)
@@ -81,7 +87,7 @@ module ExamPoster
         classroom = teacher_discipline_classroom.classroom
         discipline = teacher_discipline_classroom.discipline
 
-        next if classroom.unity_id != @post_data.school_calendar_step.school_calendar.unity_id
+        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.opinion_type != OpinionTypes::BY_YEAR_AND_DISCIPLINE
 
         exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline)
@@ -100,22 +106,22 @@ module ExamPoster
         classroom = teacher_discipline_classroom.classroom
         discipline = teacher_discipline_classroom.discipline
 
-        next if classroom.unity_id != @post_data.school_calendar_step.school_calendar.unity_id
+        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.opinion_type != OpinionTypes::BY_STEP_AND_DISCIPLINE
+        next unless step_exists_for_classroom?(classroom)
 
-        exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, @post_data.school_calendar_step.id)
+        if has_classroom_steps(classroom)
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, get_step(classroom).id)
+        else
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, get_step(classroom).id)
+        end
+
         exams.each do |exam|
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]["valor"] = exam.value
         end
       end
 
       descriptive_exams
-    end
-
-    private
-
-    def teacher
-      @post_data.author.current_teacher
     end
   end
 end

@@ -17,8 +17,8 @@ RSpec.describe DailyNoteStudent, type: :model do
     it { expect(subject).to validate_presence_of(:student) }
     it { expect(subject).to validate_presence_of(:daily_note) }
 
-    context 'when test_setting with no fixed tests' do
-      let(:test_setting) { create(:test_setting, fix_tests: false) }
+    context 'when test_setting with arithmetic calculation type tests' do
+      let(:test_setting) { create(:test_setting, average_calculation_type: AverageCalculationTypes::ARITHMETIC) }
       let(:avaliation) { create(:avaliation, classroom: classroom, discipline: discipline, school_calendar: school_calendar, test_setting: test_setting, test_date: '2014-02-06') }
       let(:daily_note) { create(:daily_note, avaliation: avaliation) }
       subject { build(:daily_note_student, daily_note: daily_note) }
@@ -28,13 +28,13 @@ RSpec.describe DailyNoteStudent, type: :model do
                                                              .allow_nil }
     end
 
-    context 'when test_setting with fixed tests and that do not allow break up' do
-      let(:test_setting_with_fixed_tests_that_do_not_allow_break_up) { FactoryGirl.create(:test_setting_with_fixed_tests) }
+    context 'when test_setting with sum calculation type and that do not allow break up' do
+      let(:test_setting_with_sum_calculation_type) { FactoryGirl.create(:test_setting_with_sum_calculation_type) }
       let(:avaliation) { create(:avaliation, classroom: classroom,
                                              discipline: discipline,
                                              school_calendar: school_calendar,
-                                             test_setting: test_setting_with_fixed_tests_that_do_not_allow_break_up,
-                                             test_setting_test: test_setting_with_fixed_tests_that_do_not_allow_break_up.tests.first,
+                                             test_setting: test_setting_with_sum_calculation_type,
+                                             test_setting_test: test_setting_with_sum_calculation_type.tests.first,
                                              weight: nil,
                                              test_date: '2014-02-06') }
       subject { build(:daily_note_student, daily_note: daily_note) }
@@ -44,14 +44,14 @@ RSpec.describe DailyNoteStudent, type: :model do
                                                              .allow_nil }
     end
 
-    context 'when test_setting with fixed tests and that allow break up' do
-      let(:test_setting_with_fixed_tests_that_allow_break_up) { FactoryGirl.create(:test_setting_with_fixed_tests_that_allow_break_up) }
+    context 'when test_setting with sum calculation type and that allow break up' do
+      let(:test_setting_with_sum_calculation_type_that_allow_break_up) { FactoryGirl.create(:test_setting_with_sum_calculation_type_that_allow_break_up) }
       let(:avaliation) { create(:avaliation, classroom: classroom,
                                              discipline: discipline,
                                              school_calendar: school_calendar,
-                                             test_setting: test_setting_with_fixed_tests_that_allow_break_up,
-                                             test_setting_test: test_setting_with_fixed_tests_that_allow_break_up.tests.first,
-                                             weight: test_setting_with_fixed_tests_that_allow_break_up.tests.first.weight / 2,
+                                             test_setting: test_setting_with_sum_calculation_type_that_allow_break_up,
+                                             test_setting_test: test_setting_with_sum_calculation_type_that_allow_break_up.tests.first,
+                                             weight: test_setting_with_sum_calculation_type_that_allow_break_up.tests.first.weight / 2,
                                              test_date: '2014-02-06') }
       subject { build(:daily_note_student, daily_note: daily_note) }
 

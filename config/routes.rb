@@ -63,6 +63,7 @@ Rails.application.routes.draw do
       collection do
         get :search_api
         get :in_recovery, path: '/in_recovery/classrooms/:classroom_id/disciplines/:discipline_id/school_calendar_steps/:school_calendar_step_id'
+        get :in_recovery_classroom_steps, path: '/in_recovery/classrooms/:classroom_id/disciplines/:discipline_id/school_calendar_classroom_steps/:school_calendar_classroom_step_id'
         get :in_final_recovery, path: '/in_final_recovery/classrooms/:classroom_id/disciplines/:discipline_id'
       end
     end
@@ -209,6 +210,7 @@ Rails.application.routes.draw do
       end
     end
     resources :school_calendar_steps, only: [:show]
+    resources :school_calendar_classroom_steps, only: [:show]
 
     resources :discipline_teaching_plans, concerns: :history
     resources :knowledge_area_teaching_plans, concerns: :history
@@ -259,6 +261,7 @@ Rails.application.routes.draw do
     resources :daily_note_students, only: [:index] do
       collection do
         get :old_notes
+        get :old_notes_classroom_steps
         get :dependence
       end
     end
@@ -266,6 +269,7 @@ Rails.application.routes.draw do
     resources :transfer_notes, concerns: :history do
       collection do
         get :current_notes
+        get :current_notes_classroom_steps
       end
     end
     resources :final_recovery_diary_records, concerns: :history
