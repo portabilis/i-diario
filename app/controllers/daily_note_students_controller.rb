@@ -1,6 +1,6 @@
 class DailyNoteStudentsController < ApplicationController
 
-  respond_to :json, only: [:index, :old_notes]
+  respond_to :json, only: [:index, :old_notes, :dependence]
 
   def index
     @daily_note_students = apply_scopes(DailyNoteStudent).ordered
@@ -28,5 +28,59 @@ class DailyNoteStudentsController < ApplicationController
       }
     end
     respond_with old_notes: @old_notes
+  end
+
+  def dependence
+    @daily_note_students = apply_scopes(DailyNoteStudent).ordered
+
+    @students = []
+    @normal_students = []
+    @dependence_students = []
+
+    @daily_note_students.each do |note_student|
+      classroom = note_student.daily_note.classroom
+      discipline = note_student.daily_note.discipline
+      student_enrollment = StudentEnrollment.by_classroom(classroom).by_discipline(discipline).by_student(note_student.student_id).active.first
+      note_student.dependence = student_has_dependence?(student_enrollment, discipline)
+
+      @normal_students << note_student unless note_student.dependence
+      @dependence_students << note_student if note_student.dependence
+    end
+
+    sequence = 0
+    @normal_students.each do |note_student|
+      sequence += 1
+      @students << {
+        sequence: sequence,
+        id: note_student.student_id,
+        name: note_student.student.name,
+        note: note_student.note,
+        dependence: note_student.dependence
+      }
+    end
+
+    sequence = 0
+    @dependence_students.each do |note_student|
+      sequence += 1
+      @students << {
+        sequence: sequence,
+        id: note_student.student_id,
+        name: note_student.student.name,
+        note: note_student.note,
+        dependence: note_student.dependence
+      }
+    end
+
+    respond_with @students
+  end
+
+  private
+
+
+  def student_has_dependence?(student_enrollment, discipline)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment)
+      .by_discipline(discipline)
+      .any?
   end
 end

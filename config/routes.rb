@@ -259,6 +259,7 @@ Rails.application.routes.draw do
     resources :daily_note_students, only: [:index] do
       collection do
         get :old_notes
+        get :dependence
       end
     end
     resources :school_term_recovery_diary_records, concerns: :history
