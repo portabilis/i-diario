@@ -10,8 +10,10 @@ class TeachersSynchronizer
 
   def synchronize!
 
+    inactive_all_alocations_prior_to(years[0]) if years.any?
+
     years.each do |year|
-      inactivate_all_allocations_for_year(year)
+      inactivate_all_allocations_for(year)
       update_records(api.fetch(ano: year)['servidores'], year)
     end
   end
@@ -92,7 +94,11 @@ class TeachersSynchronizer
     teacher
   end
 
-  def inactivate_all_allocations_for_year(year)
+  def inactivate_all_allocations_for(year)
     discipline_classrooms.where(year: year).update_all(active: false)
+  end
+
+  def inactive_all_alocations_prior_to(year)
+    discipline_classrooms.where('year < ?', year).update_all(active: false)
   end
 end

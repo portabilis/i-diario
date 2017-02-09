@@ -14,8 +14,8 @@ class Teacher < ActiveRecord::Base
   scope :order_by_name, -> { order(name: :asc) }
 
   def self.active_query
-    active_teacher_ids = TeacherDisciplineClassroom.all.pluck(&:teacher_id).uniq
-    self.where(id: active_teacher_ids)
+    active_teacher_ids = TeacherDisciplineClassroom.where(active: true).collect(&:teacher_id).uniq
+    where(id: active_teacher_ids)
   end
 
   def self.search(value)
