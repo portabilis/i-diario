@@ -17,7 +17,7 @@ class AvaliationExemptionsController < ApplicationController
     @avaliation_exemption = AvaliationExemption.new
     @school_calendar_year = current_school_calendar.year
     @school_calendar_steps = current_school_calendar.steps
-    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id)
+    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom)
     authorize @avaliation_exemption
   end
 
@@ -112,7 +112,7 @@ class AvaliationExemptionsController < ApplicationController
   end
 
   def fetch_school_calendar_classroom_steps
-    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id)
+    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom)
   end
 
   def configuration
