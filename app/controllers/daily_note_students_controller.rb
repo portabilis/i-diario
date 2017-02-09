@@ -59,14 +59,18 @@ class DailyNoteStudentsController < ApplicationController
     @normal_students = []
     @dependence_students = []
 
-    @daily_note_students.each do |note_student|
-      classroom = note_student.daily_note.classroom
-      discipline = note_student.daily_note.discipline
-      student_enrollment = StudentEnrollment.by_classroom(classroom).by_discipline(discipline).by_student(note_student.student_id).active.first
-      note_student.dependence = student_has_dependence?(student_enrollment, discipline)
+    daily_note = @daily_note_students.first.daily_note
 
-      @normal_students << note_student unless note_student.dependence
-      @dependence_students << note_student if note_student.dependence
+    student_enrollments = fetch_student_enrollments(daily_note.classroom, daily_note.discipline, daily_note.avaliation.test_date)
+
+    student_enrollments.each do |student_enrollment|
+      if student = Student.find_by_id(student_enrollment.student_id)
+        note_student = @daily_note_students.where(student_id: student.id).first
+        note_student.dependence = student_has_dependence?(student_enrollment, daily_note.discipline)
+
+        @normal_students << note_student unless note_student.dependence
+        @dependence_students << note_student if note_student.dependence
+      end
     end
 
     sequence = 0
@@ -104,5 +108,13 @@ class DailyNoteStudentsController < ApplicationController
       .by_student_enrollment(student_enrollment)
       .by_discipline(discipline)
       .any?
+  end
+
+  def fetch_student_enrollments(classroom, discipline, date)
+    StudentEnrollmentsList.new(classroom: classroom,
+                               discipline: discipline,
+                               date: date,
+                               search_type: :by_date)
+                          .student_enrollments
   end
 end

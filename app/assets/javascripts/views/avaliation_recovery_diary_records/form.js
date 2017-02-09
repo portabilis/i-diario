@@ -91,6 +91,7 @@ $(function () {
       hideNoItemMessage();
 
       var last_item = _.last(daily_note_students);
+      $('#recovery-diary-record-students').children("tr").remove();
 
       _.each(daily_note_students, function(daily_note_student) {
         var element_id = new Date().getTime() + element_counter++

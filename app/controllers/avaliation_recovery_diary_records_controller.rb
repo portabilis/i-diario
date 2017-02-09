@@ -196,19 +196,14 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def reload_students_list
-    students_enrollments = fetch_student_enrollments
+    student_enrollments = fetch_student_enrollments
 
     @students = []
 
-    @avaliation_recovery_diary_record.recovery_diary_record.students.each_with_index do |note_student, index|
-      if student = Student.find_by_id(note_student.student_id)
-        student_enrollment = StudentEnrollment
-          .by_student(note_student.student_id)
-          .by_classroom(@avaliation_recovery_diary_record.recovery_diary_record.classroom_id)
-          .by_discipline(@avaliation_recovery_diary_record.recovery_diary_record.discipline_id)
-          .active
-          .first
-
+    student_enrollments.each do |student_enrollment|
+      if student = Student.find_by_id(student_enrollment.student_id)
+        recovery_diary_record = @avaliation_recovery_diary_record.recovery_diary_record
+        note_student = (recovery_diary_record.students.where(student_id: student.id).first || recovery_diary_record.students.build(student_id: student.id, student: student))
         note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
 
         @students << note_student
