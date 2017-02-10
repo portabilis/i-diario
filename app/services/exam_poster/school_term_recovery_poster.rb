@@ -46,7 +46,7 @@ module ExamPoster
 
           students_only_with_recovery_fetcher = StudentOnlyWithRecoveryFetcher.new(teacher, classroom, discipline, @post_data.step)
           students_only_with_recovery_fetcher.fetch!
-          students_without_daily_notes = students_only_with_recovery_fetcher.recoveries
+          students_without_daily_notes = students_only_with_recovery_fetcher.recoveries || []
 
           students_without_daily_notes.each do |student_recovery|
             student = student_recovery.student
