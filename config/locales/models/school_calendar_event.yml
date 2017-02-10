@@ -8,7 +8,8 @@ pt-BR:
     attributes:
       school_calendar_event:
         school_calendar_id: "Calendário letivo"
-        event_date: "Data"
+        start_date: "Data inicial"
+        end_date: "Data final"
         description: "Descrição"
         event_type: "Tipo"
         course: "Curso"
@@ -27,7 +28,9 @@ pt-BR:
       models:
         school_calendar_event:
           attributes:
-            event_date:
+            start_date:
+              already_exists_event_in_this_date: "Já existe um evento cadastrado de outro tipo nesta data"
+            end_date:
               already_exists_event_in_this_date: "Já existe um evento cadastrado de outro tipo nesta data"
 
   school_calendar_events:

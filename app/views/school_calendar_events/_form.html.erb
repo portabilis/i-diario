@@ -30,15 +30,20 @@
         </div>
       <% end %>
       <div class="col col-sm-4">
-        <%= f.input :event_date %>
+        <%= f.input :start_date %>
       </div>
 
       <div class="col col-sm-4">
-        <%= f.input :description %>
+        <%= f.input :end_date %>
       </div>
+
     </div>
 
     <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :description %>
+      </div>
+      
       <div class="col col-sm-4">
         <%= f.input :event_type, as: :select2, elements: EventTypes.to_select.to_json %>
       </div>
