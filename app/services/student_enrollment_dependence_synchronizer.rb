@@ -1,22 +1,24 @@
 class StudentEnrollmentDependenceSynchronizer
 
-  def self.synchronize!(synchronization, year)
-    new(synchronization, year).synchronize!
+  def self.synchronize!(synchronization, years)
+    new(synchronization, years).synchronize!
   end
 
-  def initialize(synchronization, year)
+  def initialize(synchronization, years)
     self.synchronization = synchronization
-    self.year = year
+    self.years = years
   end
 
   def synchronize!
     destroy_records
-    create_records api.fetch(ano: year)["matriculas"]
+    years.each do |year|
+      create_records api.fetch(ano: year)["matriculas"]
+    end
   end
 
   protected
 
-  attr_accessor :synchronization, :year
+  attr_accessor :synchronization, :years
 
   def api
     IeducarApi::StudentEnrollmentDependences.new(synchronization.to_api)
