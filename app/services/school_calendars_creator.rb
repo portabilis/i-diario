@@ -20,7 +20,9 @@ class SchoolCalendarsCreator
                                     end_date_for_posting: step_params['end_date_for_posting'])
       end
 
-      school_calendar_params['classrooms'].each do |classroom_params|
+      calendars_for_classrooms = school_calendar_params['classrooms'] || []
+
+      calendars_for_classrooms.each do |classroom_params|
         classroom = SchoolCalendarClassroom.new(
           classroom: Classroom.find_by_id(classroom_params['id'])
         )
