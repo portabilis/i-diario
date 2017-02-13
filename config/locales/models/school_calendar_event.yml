@@ -8,6 +8,7 @@ pt-BR:
     attributes:
       school_calendar_event:
         school_calendar_id: "Calendário letivo"
+        duration: "Duração"
         start_date: "Data inicial"
         end_date: "Data final"
         description: "Descrição"

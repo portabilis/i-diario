@@ -6,7 +6,7 @@
   <% else %>
     <% @school_calendar_events.each do |school_calendar_event| %>
       <tr>
-        <td><%= l school_calendar_event.start_date %></td>
+        <td><%= school_calendar_event.duration %></td>
         <td><%= school_calendar_event.description %></td>
         <td><%= school_calendar_event.event_type_humanize %></td>
         <td><%= school_calendar_event.grade %></td>

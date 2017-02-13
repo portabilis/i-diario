@@ -38,8 +38,8 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :without_classroom, -> { where(arel_table[:classroom_id].eq(nil) ) }
   scope :without_discipline, -> { where(arel_table[:discipline_id].eq(nil) ) }
   scope :by_period, lambda { |period| where(' ? = ANY (periods)', period) }
-  scope :by_date, lambda { |date| where(start_date: date.to_date) }
-  scope :by_date_between, lambda { |start_at, end_at| where(start_date: start_at.to_date..end_at.to_date) }
+  scope :by_date, lambda { |date| where('start_date <= ? and end_date >= ?', date, date) }
+  scope :by_date_between, lambda { |start_at, end_at| where('start_date >= ? and end_date <= ?', start_at.to_date, end_at.to_date) }
   scope :by_description, lambda { |description| where('description ILIKE ?', '%'+description+'%') }
   scope :by_type, lambda { |type| where(event_type: type) }
   scope :by_grade, lambda { |grade| where(grade_id: grade) }
@@ -50,6 +50,10 @@ class SchoolCalendarEvent < ActiveRecord::Base
 
   def to_s
     description
+  end
+
+  def duration
+    "#{I18n.l(start_date)} à #{I18n.l(end_date)}"
   end
 
   def periods=(periods)
