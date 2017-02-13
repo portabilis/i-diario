@@ -102,7 +102,7 @@ RSpec.describe SchoolCalendar, type: :model do
                           start_date_for_posting: '2020-02-15',
                           end_date_for_posting: '2020-05-01')
       subject.save!
-      subject.events.create(event_date: '2020-04-25', description: 'Dia extra letivo', event_type: EventTypes::EXTRA_SCHOOL)
+      subject.events.create(start_date: '2020-04-25', end_date: '2020-04-25', description: 'Dia extra letivo', event_type: EventTypes::EXTRA_SCHOOL)
     end
 
     context 'when the date is school day with a holiday event' do
