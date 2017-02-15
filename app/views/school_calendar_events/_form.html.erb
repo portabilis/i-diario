@@ -6,59 +6,12 @@
   <input id="year" type="hidden" name="year" value="<%= Date.today.year %>" >
 
   <fieldset>
-    <% if !@school_calendar_event.coverage_by_unity? %>
-    <div class="row">
-      <div class="col col-sm-4">
-        <%= f.input :course_id, as: :select2, elements: courses, required: true %>
-      </div>
-
-      <div class="col col-sm-4">
-        <%= f.association :grade, as: :select2, elements: grades, required: true %>
-      </div>
-      <% if @school_calendar_event.coverage_by_classroom? %>
-        <div class="col col-sm-4">
-          <%= f.association :classroom, as: :select2, elements: classrooms, required: true %>
-        </div>
-      <% end %>
-    </div>
-    <% end %>
-    <div class="row">
-      <% if @school_calendar_event.coverage_by_classroom? %>
-        <div class="col col-sm-4">
-          <%= f.input :discipline_id, as: :select2, elements: disciplines,
-              required: true, empty_element_id: "", empty_element_name: "<option>Todas</option>"  %>
-        </div>
-      <% end %>
-      <div class="col col-sm-4">
-        <%= f.input :start_date %>
-      </div>
-
-      <div class="col col-sm-4">
-        <%= f.input :end_date %>
-      </div>
-
-    </div>
-
-    <div class="row">
-      <div class="col col-sm-4">
-        <%= f.input :description %>
-      </div>
-      
-      <div class="col col-sm-4">
-        <%= f.input :event_type, as: :select2, elements: EventTypes.to_select.to_json %>
-      </div>
-      <% if !@school_calendar_event.coverage_by_classroom? %>
-        <div class="col col-sm-4">
-          <%= f.input :periods, as: :select2, multiple: true, elements: PeriodsDecorator.data_for_select2, required: true,
-              input_html: { value: f.object.periods.join(','), data: { without_json_parser: true } } %>
-        </div>
-      <% end %>
-      <div class="col col-sm-4 hidden" data-event-legend-container>
-        <%= f.input :legend, input_html: { maxlength: 1 }, required: true %>
-      </div>
-    </div>
-
-
+    <%case
+      when @school_calendar_event.coverage_by_unity?%><%= render 'school_fields', f: f %>
+      <% when @school_calendar_event.coverage_by_course?%><%= render 'course_fields', f: f %>
+      <% when @school_calendar_event.coverage_by_grade?%><%= render 'grade_fields', f: f %>
+      <% when @school_calendar_event.coverage_by_classroom?%><%= render 'classroom_fields', f: f %>
+    <%end%>
   </fieldset>
 
   <footer>
