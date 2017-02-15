@@ -102,9 +102,6 @@ class AttendanceRecordReport
       frequencies_and_events_slice.each do |daily_frequency_or_event|
         if event?(daily_frequency_or_event)
           school_calendar_event = daily_frequency_or_event
-          start_date = I18n.l school_calendar_event.start_date
-          end_date = I18n.l school_calendar_event.end_date
-          school_calendar_event_description = start_date == end_date ? school_calendar_event.description : "#{school_calendar_event.description} (#{start_date} - #{end_date})"
           legend = ", "+school_calendar_event.legend.to_s+" - "+school_calendar_event_description
           self.legend += legend unless self.legend.include?(legend)
 

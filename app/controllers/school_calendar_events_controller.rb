@@ -94,7 +94,7 @@ class SchoolCalendarEventsController < ApplicationController
       school_calendar.events.new
     when 'edit', 'update', 'destroy', 'history'
       school_calendar.events.find(params[:id])
-    end.localized
+    end
   end
 
   def resource_params
