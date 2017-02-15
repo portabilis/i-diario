@@ -54,6 +54,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       @school_calendar_steps = current_school_calendar.steps
       @student_notes = fetch_student_notes
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
+      reload_students_list
 
       render :new
     end
@@ -72,6 +73,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     @classrooms = fetch_classrooms
     @school_calendar_steps = current_school_calendar.steps
     @avaliations = fetch_avaliations
+    reload_students_list
 
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
@@ -90,6 +92,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       @school_calendar_steps = current_school_calendar.steps
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
       @student_notes = fetch_student_notes
+      reload_students_list
 
       render :edit
     end
@@ -182,5 +185,44 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       .by_discipline_id(@avaliation_recovery_diary_record.recovery_diary_record.discipline_id)
       .by_classroom_id(@avaliation_recovery_diary_record.recovery_diary_record.classroom_id)
       .ordered
+  end
+
+  def fetch_student_enrollments
+    StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
+                               discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
+                               date: @avaliation_recovery_diary_record.avaliation.test_date,
+                               search_type: :by_date)
+                          .student_enrollments
+  end
+
+  def reload_students_list
+    student_enrollments = fetch_student_enrollments
+
+    @students = []
+
+    student_enrollments.each do |student_enrollment|
+      if student = Student.find_by_id(student_enrollment.student_id)
+        recovery_diary_record = @avaliation_recovery_diary_record.recovery_diary_record
+        note_student = (recovery_diary_record.students.where(student_id: student.id).first || recovery_diary_record.students.build(student_id: student.id, student: student))
+        note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
+
+        @students << note_student
+      end
+    end
+
+    @normal_students = []
+    @dependence_students = []
+
+    @students.each do |student|
+      @normal_students << student if !student.dependence
+      @dependence_students << student if student.dependence
+    end
+  end
+
+  def student_has_dependence?(student_enrollment, discipline)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment)
+      .by_discipline(discipline)
+      .any?
   end
 end

@@ -1,6 +1,6 @@
 class DailyNoteStudentsController < ApplicationController
 
-  respond_to :json, only: [:index, :old_notes]
+  respond_to :json, only: [:index, :old_notes, :dependence]
 
   def index
     @daily_note_students = apply_scopes(DailyNoteStudent).ordered
@@ -50,5 +50,71 @@ class DailyNoteStudentsController < ApplicationController
       }
     end
     render json: @old_notes
+  end
+
+  def dependence
+    @daily_note_students = apply_scopes(DailyNoteStudent).ordered
+
+    @students = []
+    @normal_students = []
+    @dependence_students = []
+
+    daily_note = @daily_note_students.first.daily_note
+
+    student_enrollments = fetch_student_enrollments(daily_note.classroom, daily_note.discipline, daily_note.avaliation.test_date)
+
+    student_enrollments.each do |student_enrollment|
+      if student = Student.find_by_id(student_enrollment.student_id)
+        note_student = @daily_note_students.where(student_id: student.id).first
+        note_student.dependence = student_has_dependence?(student_enrollment, daily_note.discipline)
+
+        @normal_students << note_student unless note_student.dependence
+        @dependence_students << note_student if note_student.dependence
+      end
+    end
+
+    sequence = 0
+    @normal_students.each do |note_student|
+      sequence += 1
+      @students << {
+        sequence: sequence,
+        id: note_student.student_id,
+        name: note_student.student.name,
+        note: note_student.note,
+        dependence: note_student.dependence
+      }
+    end
+
+    sequence = 0
+    @dependence_students.each do |note_student|
+      sequence += 1
+      @students << {
+        sequence: sequence,
+        id: note_student.student_id,
+        name: note_student.student.name,
+        note: note_student.note,
+        dependence: note_student.dependence
+      }
+    end
+
+    respond_with @students
+  end
+
+  private
+
+
+  def student_has_dependence?(student_enrollment, discipline)
+    StudentEnrollmentDependence
+      .by_student_enrollment(student_enrollment)
+      .by_discipline(discipline)
+      .any?
+  end
+
+  def fetch_student_enrollments(classroom, discipline, date)
+    StudentEnrollmentsList.new(classroom: classroom,
+                               discipline: discipline,
+                               date: date,
+                               search_type: :by_date)
+                          .student_enrollments
   end
 end

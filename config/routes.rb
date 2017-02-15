@@ -263,6 +263,7 @@ Rails.application.routes.draw do
       collection do
         get :old_notes
         get :old_notes_classroom_steps
+        get :dependence
       end
     end
     resources :school_term_recovery_diary_records, concerns: :history
