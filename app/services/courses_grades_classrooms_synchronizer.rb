@@ -1,16 +1,14 @@
 class CoursesGradesClassroomsSynchronizer
-  def self.synchronize!(synchronization, year)
-    new(synchronization, year).synchronize!
+  def self.synchronize!(synchronization)
+    new(synchronization).synchronize!
   end
 
-  def initialize(synchronization, year)
+  def initialize(synchronization)
     self.synchronization = synchronization
-    self.year = year
   end
 
   def synchronize!
-    update_records api.fetch(ano: year,
-                             escola_id: unities,
+    update_records api.fetch(escola_id: unities,
                              get_series: true,
                              get_turmas: true)["cursos"]
   end
@@ -76,7 +74,7 @@ class CoursesGradesClassroomsSynchronizer
           unity_code: record["escola_id"],
           period: record["turma_turno_id"],
           grade: grade,
-          year: year
+          year: record["ano"]
         )
       end
     end
