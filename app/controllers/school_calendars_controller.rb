@@ -60,8 +60,10 @@ class SchoolCalendarsController < ApplicationController
       else
         redirect_to synchronize_school_calendars_path, alert: t('.alert')
       end
-    rescue ActiveRecord::RecordInvalid => invalid
-      redirect_to synchronize_school_calendars_path, alert: t('.error_on_unity', unity_name: invalid.record.unity.name)
+    rescue SchoolCalendarsCreator::InvalidSchoolCalendarError => error
+      redirect_to synchronize_school_calendars_path, alert: error.to_s
+    rescue SchoolCalendarsCreator::InvalidClassroomCalendarError => error
+      redirect_to synchronize_school_calendars_path, alert: error.to_s
     rescue
       redirect_to synchronize_school_calendars_path, alert: t('.alert')
     end

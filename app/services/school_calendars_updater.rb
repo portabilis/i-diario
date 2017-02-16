@@ -35,10 +35,10 @@ class SchoolCalendarsUpdater
               update_school_calendar_classroom_steps(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step_params)
             else
               step = SchoolCalendarClassroomStep.new(
-              start_at: step_params['start_at'],
-              end_at: step_params['end_at'],
-              start_date_for_posting: step_params['start_date_for_posting'],
-              end_date_for_posting: step_params['end_date_for_posting']
+                start_at: step_params['start_at'],
+                end_at: step_params['end_at'],
+                start_date_for_posting: step_params['start_date_for_posting'],
+                end_date_for_posting: step_params['end_date_for_posting']
               )
               school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }.classroom_steps.build(step.attributes)
             end
