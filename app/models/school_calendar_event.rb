@@ -182,6 +182,6 @@ class SchoolCalendarEvent < ActiveRecord::Base
   def start_at_must_be_less_than_or_equal_to_end_at
     return unless start_date && end_date
 
-    errors.add(:end_date, "deve ser maior ou igual a data inicial") if start_date.to_date > end_date.to_date
+    errors.add(:end_date, "deve ser maior ou igual a Data inicial") if start_date.to_date > end_date.to_date
   end
 end
