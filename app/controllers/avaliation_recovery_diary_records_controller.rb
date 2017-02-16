@@ -205,13 +205,14 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
         recovery_diary_record = @avaliation_recovery_diary_record.recovery_diary_record
         note_student = (recovery_diary_record.students.where(student_id: student.id).first || recovery_diary_record.students.build(student_id: student.id, student: student))
         note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
-
+        note_student.active = student_active_on_date?(student_enrollment)
         @students << note_student
       end
     end
 
     @normal_students = []
     @dependence_students = []
+    @any_inactive_student = any_inactive_student?
 
     @students.each do |student|
       @normal_students << student if !student.dependence
@@ -224,5 +225,23 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       .by_student_enrollment(student_enrollment)
       .by_discipline(discipline)
       .any?
+  end
+
+  def student_active_on_date?(student_enrollment)
+    StudentEnrollment
+      .where(id: student_enrollment)
+      .by_classroom(@avaliation_recovery_diary_record.recovery_diary_record.classroom)
+      .by_date(@avaliation_recovery_diary_record.avaliation.test_date)
+      .any?
+  end
+
+  def any_inactive_student?
+    any_inactive_student = false
+    if @students
+      @students.each do |student|
+        any_inactive_student = true if !student.active
+      end
+    end
+    any_inactive_student
   end
 end

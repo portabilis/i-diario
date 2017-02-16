@@ -96,12 +96,27 @@ $(function () {
       _.each(daily_note_students, function(daily_note_student) {
         var element_id = new Date().getTime() + element_counter++
 
+        var student_situation;
+        var student_name;
+
+        if (!daily_note_student.active) {
+          student_situation = 'inactive-student';
+          student_name = '***' + daily_note_student.name
+        } else if (daily_note_student.dependence) {
+            student_situation = 'dependence-student';
+            student_name = '*' + daily_note_student.name
+        } else {
+            student_situation = '';
+            student_name = daily_note_student.name
+        }
+
         var html = JST['templates/avaliation_recovery_diary_records/student_fields']({
             sequence: daily_note_student.sequence,
             id: daily_note_student.id,
-            name: daily_note_student.name,
+            name: student_name,
             note: daily_note_student.note,
-            dependence: daily_note_student.dependence,
+            student_situation: student_situation,
+            active: daily_note_student.active,
             element_id: element_id
           });
 

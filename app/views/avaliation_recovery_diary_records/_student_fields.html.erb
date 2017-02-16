@@ -9,8 +9,8 @@
     <% end %>
 
     <%= f.input :student_id, as: :hidden %>
-    <span class="<%= f.object.dependence ? 'dependence-student' : '' %>">
-      <%= f.object.dependence ? "*"+f.object.student.name : f.object.student.name %>
+    <span class="<%= recovery_diary_record_student_name_class(f.object) %>">
+      <%= recovery_diary_record_student_name(f.object) %>
     </span>
   </td>
 
@@ -20,6 +20,6 @@
 
   <td>
     <%= f.input :score, label: false,
-          input_html: decimal_input_mask(@number_of_decimal_places) %>
+          input_html: decimal_input_mask(@number_of_decimal_places), readonly: !f.object.active %>
   </td>
 </tr>

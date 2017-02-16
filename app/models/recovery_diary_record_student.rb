@@ -1,6 +1,7 @@
 class RecoveryDiaryRecordStudent < ActiveRecord::Base
 
   attr_accessor :dependence
+  attr_accessor :active
 
   belongs_to :recovery_diary_record
   belongs_to :student

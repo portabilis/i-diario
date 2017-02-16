@@ -67,6 +67,7 @@ class DailyNoteStudentsController < ApplicationController
       if student = Student.find_by_id(student_enrollment.student_id)
         note_student = @daily_note_students.where(student_id: student.id).first
         note_student.dependence = student_has_dependence?(student_enrollment, daily_note.discipline)
+        note_student.active = student_active_on_date?(student_enrollment, daily_note.classroom, daily_note.avaliation.test_date)
 
         @normal_students << note_student unless note_student.dependence
         @dependence_students << note_student if note_student.dependence
@@ -81,7 +82,8 @@ class DailyNoteStudentsController < ApplicationController
         id: note_student.student_id,
         name: note_student.student.name,
         note: note_student.note,
-        dependence: note_student.dependence
+        dependence: note_student.dependence,
+        active: note_student.active
       }
     end
 
@@ -93,7 +95,8 @@ class DailyNoteStudentsController < ApplicationController
         id: note_student.student_id,
         name: note_student.student.name,
         note: note_student.note,
-        dependence: note_student.dependence
+        dependence: note_student.dependence,
+        active: note_student.active
       }
     end
 
@@ -107,6 +110,14 @@ class DailyNoteStudentsController < ApplicationController
     StudentEnrollmentDependence
       .by_student_enrollment(student_enrollment)
       .by_discipline(discipline)
+      .any?
+  end
+
+  def student_active_on_date?(student_enrollment, classroom, test_date)
+    StudentEnrollment
+      .where(id: student_enrollment)
+      .by_classroom(classroom)
+      .by_date(test_date)
       .any?
   end
 

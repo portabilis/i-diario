@@ -9,8 +9,8 @@
       </div>
     </div>
 
-    <span class="<%= dependence ? 'dependence-student' : '' %>">
-      <%= dependence ? '*'+name : name %>
+    <span class="<%= student_situation %>">
+      <%= name %>
     </span>
   </td>
 
@@ -24,7 +24,11 @@
         Nota
       </label>
       <div class="controls input">
-        <input class="string decimal form-control decimal form-control decimal optional" type="decimal" name="avaliation_recovery_diary_record[recovery_diary_record_attributes][students_attributes][<%= element_id %>][score]" id="avaliation_recovery_diary_record_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score">
+        <% if(active){ %>
+          <input class="string decimal form-control decimal form-control decimal optional" type="decimal" name="avaliation_recovery_diary_record[recovery_diary_record_attributes][students_attributes][<%= element_id %>][score]" id="avaliation_recovery_diary_record_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score">
+        <% } else { %>
+          <input readonly="readonly" class="string decimal form-control decimal form-control decimal optional" type="decimal" name="avaliation_recovery_diary_record[recovery_diary_record_attributes][students_attributes][<%= element_id %>][score]" id="avaliation_recovery_diary_record_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score">
+        <% } %>
       </div>
     </div>
   </td>
