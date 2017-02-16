@@ -62,13 +62,6 @@ RSpec.describe SchoolCalendar, type: :model do
     #                                                                     .is_less_than_or_equal_to(10)
     #                                                                     .only_integer }
 
-    it 'should require at least one assigned step' do
-      subject.steps = []
-
-      expect(subject).to_not be_valid
-      expect(subject.errors.messages[:steps]).to include('É necessário adicionar pelo menos uma etapa')
-    end
-
     it 'should not have conflicting school terms with other school calendars from the same unity' do
       existing_school_calendar = build(:school_calendar, year: 2020)
       existing_school_calendar.steps.build(
