@@ -17,6 +17,8 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   scope :started_after_and_before, lambda { |date| where(arel_table[:start_at].lteq(date)).where(arel_table[:end_at].gteq(date)) }
   scope :posting_date_after_and_before, lambda { |date| where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date))) }
 
+  delegate :classroom, to: :school_calendar_classroom
+
   def to_s
     "#{school_term} (#{localized.start_at} a #{localized.end_at})"
   end
