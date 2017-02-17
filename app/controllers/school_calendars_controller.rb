@@ -64,6 +64,10 @@ class SchoolCalendarsController < ApplicationController
       redirect_to synchronize_school_calendars_path, alert: error.to_s
     rescue SchoolCalendarsCreator::InvalidClassroomCalendarError => error
       redirect_to synchronize_school_calendars_path, alert: error.to_s
+    rescue SchoolCalendarsUpdater::InvalidSchoolCalendarError => error
+      redirect_to synchronize_school_calendars_path, alert: error.to_s
+    rescue SchoolCalendarsUpdater::InvalidClassroomCalendarError => error
+      redirect_to synchronize_school_calendars_path, alert: error.to_s
     rescue
       redirect_to synchronize_school_calendars_path, alert: t('.alert')
     end

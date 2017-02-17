@@ -26,7 +26,6 @@ class SchoolCalendarsCreator
         rescue ActiveRecord::RecordInvalid => invalid
           raise InvalidClassroomCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_classroom', unity_name: invalid.record.classroom.unity.name, classroom_name: invalid.record.classroom.description)
         end
-
       end
     end
   end
