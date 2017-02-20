@@ -6,3 +6,7 @@
     <%= link_to "Acessar", new_user_session_path, :class => 'navbar-link'  %>
   <% end %>
 </p>
+
+<% if current_teacher %>
+  <%= render 'teacher_dashboard', teacher: current_teacher%>
+<% end %>
