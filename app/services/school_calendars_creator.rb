@@ -1,4 +1,6 @@
 class SchoolCalendarsCreator
+  class InvalidSchoolCalendarError < StandardError;end
+  class InvalidClassroomCalendarError < StandardError; end
   def self.create!(school_calendars)
     new(school_calendars).create!
   end
@@ -8,39 +10,23 @@ class SchoolCalendarsCreator
   end
 
   def create!
-    selected_school_calendars_to_create.each do |school_calendar_params|
-      school_calendar = SchoolCalendar.new(year: school_calendar_params['year'],
-                                           unity_id: school_calendar_params['unity_id'],
-                                           number_of_classes: school_calendar_params['number_of_classes'])
-
-      school_calendar_params['steps'].each do |step_params|
-        school_calendar.steps.build(start_at: step_params['start_at'],
-                                    end_at: step_params['end_at'],
-                                    start_date_for_posting: step_params['start_date_for_posting'],
-                                    end_date_for_posting: step_params['end_date_for_posting'])
-      end
-
-      calendars_for_classrooms = school_calendar_params['classrooms'] || []
-
-      calendars_for_classrooms.each do |classroom_params|
-        classroom = SchoolCalendarClassroom.new(
-          classroom: Classroom.find_by_id(classroom_params['id'])
-        )
-
-        steps = []
-        classroom_params['steps'].each do |step_params|
-          steps << SchoolCalendarClassroomStep.new(
-            start_at: step_params['start_at'],
-            end_at: step_params['end_at'],
-            start_date_for_posting: step_params['start_date_for_posting'],
-            end_date_for_posting: step_params['end_date_for_posting']
-          )
+    ActiveRecord::Base.transaction do
+      selected_school_calendars_to_create.each do |school_calendar_param|
+        begin
+          school_calendar = create_school_calendar!(school_calendar_param)
+          school_calendar_steps = school_calendar_param['steps'] || []
+          create_school_calendar_steps!(school_calendar_steps, school_calendar)
+        rescue ActiveRecord::RecordInvalid => invalid
+          raise InvalidSchoolCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_unity', unity_name: invalid.record.unity.name)
         end
 
-        school_calendar.classrooms.build(classroom.attributes).classroom_steps.build(steps.collect{ |step| step.attributes })
+        begin
+          calendars_for_classrooms = school_calendar_param['classrooms'] || []
+          create_school_calendar_classroom!(calendars_for_classrooms, school_calendar)
+        rescue ActiveRecord::RecordInvalid => invalid
+          raise InvalidClassroomCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_classroom', unity_name: invalid.record.classroom.unity.name, classroom_name: invalid.record.classroom.description)
+        end
       end
-
-      school_calendar.save!
     end
   end
 
@@ -50,5 +36,45 @@ class SchoolCalendarsCreator
 
   def selected_school_calendars_to_create
     school_calendars.select { |school_calendar| school_calendar['unity_id'].present? && school_calendar['school_calendar_id'].blank? }
+  end
+
+  def create_school_calendar!(school_calendar_param)
+    school_calendar = SchoolCalendar.create!(year: school_calendar_param['year'],
+                                             unity_id: school_calendar_param['unity_id'],
+                                             number_of_classes: school_calendar_param['number_of_classes'])
+    school_calendar
+  end
+
+  def create_school_calendar_steps!(school_calendar_steps, school_calendar)
+    school_calendar_steps.each do |step_params|
+      SchoolCalendarStep.create!(school_calendar: school_calendar,
+                                 start_at: step_params['start_at'],
+                                 end_at: step_params['end_at'],
+                                 start_date_for_posting: step_params['start_date_for_posting'],
+                                 end_date_for_posting: step_params['end_date_for_posting'])
+    end
+  end
+
+  def create_school_calendar_classroom!(calendars_for_classrooms, school_calendar)
+    calendars_for_classrooms.each do |classroom_params|
+      school_calendar_classroom = SchoolCalendarClassroom.create!(
+        school_calendar: school_calendar,
+        classroom: Classroom.find_by_id(classroom_params['id'])
+      )
+      classroom_steps = classroom_params['steps'] || []
+      create_school_calendar_classroom_steps!(classroom_steps, school_calendar_classroom)
+    end
+  end
+
+  def create_school_calendar_classroom_steps!(classroom_steps, school_calendar_classroom)
+    classroom_steps.each do |step_params|
+      SchoolCalendarClassroomStep.create!(
+        school_calendar_classroom: school_calendar_classroom,
+        start_at: step_params['start_at'],
+        end_at: step_params['end_at'],
+        start_date_for_posting: step_params['start_date_for_posting'],
+        end_date_for_posting: step_params['end_date_for_posting']
+      )
+    end
   end
 end

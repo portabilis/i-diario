@@ -7,7 +7,8 @@ RSpec.describe SchoolCalendarEvent, :type => :model do
   end
 
   describe "validations" do
-    it { should validate_presence_of :event_date }
+    it { should validate_presence_of :start_date }
+    it { should validate_presence_of :end_date }
     it { should validate_presence_of :description }
     it { should validate_presence_of :event_type }
   end
