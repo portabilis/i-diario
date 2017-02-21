@@ -246,19 +246,23 @@ $(function () {
 
   function fetchAvaliationDate() {
     var avaliation_id = $avaliation.select2('val');
+    var filter = {
+      by_id: avaliation_id
+    }
 
     if (!_.isEmpty(avaliation_id)) {
 
       $.ajax({
-        url: '/avaliacoes/' + avaliation_id,
+        url: Routes.search_avaliations_pt_br_path({ filter: filter, format: 'json' }),
         success: handleFetchAvaliationDateSuccess,
         error: handleFetchAvaliationDateError
       });
     }
   };
 
-  function handleFetchAvaliationDateSuccess(avaliation) {
-    $avaliation_date.val(avaliation['avaliation'].test_date)
+  function handleFetchAvaliationDateSuccess(avaliations) {
+    var avaliation = avaliations.avaliations[0]
+    $avaliation_date.val(avaliation.test_date)
     fetchStudents();
   };
 
