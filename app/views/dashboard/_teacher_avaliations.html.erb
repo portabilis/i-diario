@@ -1,0 +1,36 @@
+<h2> Próximas avaliações </h2>
+<hr />
+<div class="table-responsive">
+  <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
+    <thead>
+      <tr>
+        <th><%= Avaliation.human_attribute_name :description %></th>
+        <th><%= Avaliation.human_attribute_name :classroom %></th>
+        <th><%= Avaliation.human_attribute_name :discipline %></th>
+        <th><%= Avaliation.human_attribute_name :test_date %></th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="resources-tbody">
+      <% if @teacher_avaliations.any? %>
+        <% @teacher_avaliations.each do |avaliation|%>
+          <tr>
+            <td><%= avaliation.description %></td>
+            <td><%= avaliation.classroom %></td>
+            <td><%= avaliation.discipline %></td>
+            <td><%= avaliation.test_date_humanized %></td>
+            <td> <%= link_to "Editar", edit_avaliation_path(avaliation), target: "_blank" %>
+                <% if avaliation.test_date.today? %>
+                | <%= link_to "Diário de notas", daily_notes_path(daily_note: { avaliation_id: avaliation.id }), target: "_blank", method: :post %>
+                <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+      <tr>
+        <td class="no_record_found" colspan="5">Nenhuma avaliação definida para os próximos dias.</td>
+      </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
