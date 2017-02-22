@@ -29,11 +29,13 @@ class SchoolCalendarsUpdater
 
 
         begin
-          school_calendar_params['classrooms'].each_with_index do |classroom_params, classroom_index|
+          school_calendar_classrooms = school_calendar_params['classrooms'] || []
+          school_calendar_classrooms.each_with_index do |classroom_params, classroom_index|
             school_calendar_classroom = SchoolCalendarClassroom.by_classroom_id(classroom_params['id']).first
 
             if school_calendar_classroom
-              classroom_params['steps'].each_with_index do |step_params, step_index|
+              school_calendar_classroom_steps = classroom_params['steps'] || []
+              school_calendar_classroom_steps.each_with_index do |step_params, step_index|
                 if school_calendar_classroom.classroom_steps[step_index]
                   update_school_calendar_classroom_steps!(school_calendar_classroom, step_index, step_params)
                 else
@@ -42,7 +44,7 @@ class SchoolCalendarsUpdater
               end
             else
 
-              school_calendar_classroom = create_school_calendar_classroom!(classroom_params)
+              school_calendar_classroom = create_school_calendar_classroom!(classroom_params, school_calendar)
               classroom_params['steps'].each do |step_params|
                 create_school_calendar_classroom_steps!(school_calendar_classroom, step_params)
               end
@@ -90,8 +92,9 @@ class SchoolCalendarsUpdater
     )
   end
 
-  def create_school_calendar_classroom!(classroom_params)
+  def create_school_calendar_classroom!(classroom_params, school_calendar)
     school_calendar_classroom = SchoolCalendarClassroom.create!(
+      school_calendar: school_calendar,
       classroom: Classroom.find_by_id(classroom_params['id'])
     )
   end

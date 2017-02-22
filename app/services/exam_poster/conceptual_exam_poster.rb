@@ -24,17 +24,18 @@ module ExamPoster
     def post_conceptual_exams
       params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 
-      teacher.classrooms.uniq.each do |classroom|
+      classrooms_ids = teacher.classrooms.uniq
+      classrooms_ids.each do |classroom|
         next unless step_exists_for_classroom?(classroom)
-        
+
         if has_classroom_steps(classroom)
-          conceptual_exams = ConceptualExam.by_teacher(@post_data.author.current_teacher)
-          .by_unity(@post_data.step.school_calendar.unity)
-          .by_school_calendar_classroom_step(get_step(classroom))
+          conceptual_exams = ConceptualExam.by_classroom(classroom)
+                                           .by_unity(@post_data.step.school_calendar.unity)
+                                           .by_school_calendar_classroom_step(get_step(classroom))
         else
-          conceptual_exams = ConceptualExam.by_teacher(@post_data.author.current_teacher)
-          .by_unity(@post_data.step.school_calendar.unity)
-          .by_school_calendar_step(get_step(classroom))
+          conceptual_exams = ConceptualExam.by_classroom(classroom)
+                                           .by_unity(@post_data.step.school_calendar.unity)
+                                           .by_school_calendar_step(get_step(classroom))
         end
 
         conceptual_exams.each do |conceptual_exam|
