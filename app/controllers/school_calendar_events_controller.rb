@@ -32,7 +32,6 @@ class SchoolCalendarEventsController < ApplicationController
 
   def edit
     @school_calendar_event = resource
-    @school_calendar_event.course_id = @school_calendar_event.course.try(:id)
 
     authorize resource
   end
@@ -95,13 +94,13 @@ class SchoolCalendarEventsController < ApplicationController
       school_calendar.events.new
     when 'edit', 'update', 'destroy', 'history'
       school_calendar.events.find(params[:id])
-    end.localized
+    end
   end
 
   def resource_params
     params.require(:school_calendar_event).permit(
       :coverage, :course_id, :grade_id, :classroom_id, :discipline_id,
-      :description, :event_date, :event_type, :periods, :legend
+      :description, :start_date, :end_date, :event_type, :periods, :legend
     )
   end
 

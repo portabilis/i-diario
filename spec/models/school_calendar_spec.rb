@@ -62,13 +62,6 @@ RSpec.describe SchoolCalendar, type: :model do
     #                                                                     .is_less_than_or_equal_to(10)
     #                                                                     .only_integer }
 
-    it 'should require at least one assigned step' do
-      subject.steps = []
-
-      expect(subject).to_not be_valid
-      expect(subject.errors.messages[:steps]).to include('É necessário adicionar pelo menos uma etapa')
-    end
-
     it 'should not have conflicting school terms with other school calendars from the same unity' do
       existing_school_calendar = build(:school_calendar, year: 2020)
       existing_school_calendar.steps.build(
@@ -102,7 +95,7 @@ RSpec.describe SchoolCalendar, type: :model do
                           start_date_for_posting: '2020-02-15',
                           end_date_for_posting: '2020-05-01')
       subject.save!
-      subject.events.create(event_date: '2020-04-25', description: 'Dia extra letivo', event_type: EventTypes::EXTRA_SCHOOL)
+      subject.events.create(start_date: '2020-04-25', end_date: '2020-04-25', description: 'Dia extra letivo', event_type: EventTypes::EXTRA_SCHOOL)
     end
 
     context 'when the date is school day with a holiday event' do

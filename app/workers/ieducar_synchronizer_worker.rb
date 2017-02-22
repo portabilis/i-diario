@@ -31,10 +31,10 @@ class IeducarSynchronizerWorker
         RoundingTablesSynchronizer.synchronize!(synchronization)
         RecoveryExamRulesSynchronizer.synchronize!(synchronization)
         TeachersSynchronizer.synchronize!(synchronization, years_to_synchronize)
+        CoursesGradesClassroomsSynchronizer.synchronize!(synchronization)
         StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, years_to_synchronize)
 
         years_to_synchronize.each do |year|
-          CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, year)
           ExamRulesSynchronizer.synchronize!(synchronization, year)
           Unity.with_api_code.each do |unity|
             StudentEnrollmentSynchronizer.synchronize!(synchronization, year, unity.api_code)
