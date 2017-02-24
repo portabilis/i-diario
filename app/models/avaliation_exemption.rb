@@ -21,22 +21,29 @@ class AvaliationExemption < ActiveRecord::Base
   validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
 
   validates :student_id,
-    presence: true,
-    uniqueness: { scope: [:avaliation_id] }
+            presence: true,
+            uniqueness: { scope: [:avaliation_id] }
 
   validate :ensure_no_score_for_avaliation
 
-  delegate :unity_id, :discipline_id, :school_calendar_id, :classroom_id, :classroom, :discipline,
-    to: :avaliation, prefix: false, allow_nil: true
+  delegate :unity_id, :discipline_id, :school_calendar_id, :classroom_id, 
+           :classroom, :discipline,
+           to: :avaliation, prefix: false, allow_nil: true
   delegate :test_date, to: :avaliation, prefix: true, allow_nil: true
   delegate :grade_id, :grade, to: :classroom, prefix: false, allow_nil: true
   delegate :course_id, to: :grade, prefix: false, allow_nil: true
 
-  scope :by_unity, lambda { |unity_id| joins(:avaliation).where( avaliations: { unity_id: unity_id } ) }
+  scope :by_unity, lambda { |unity_id| joins(:avaliation).merge(Avaliation.by_unity_id(unity_id))}
   scope :by_student, lambda { |student_id| where(student_id: student_id) }
   scope :by_avaliation, lambda { |avaliation_id| where(avaliation_id: avaliation_id) }
-  scope :by_classroom, lambda { |classroom_id| joins(:avaliation).where(avaliations: { classroom_id: classroom_id } ) }
-  scope :by_discipline, lambda { |discipline_id| joins(:avaliation).where(avaliations: { discipline_id: discipline_id } ) }
+
+  scope :by_classroom, (lambda do |classroom_id|
+    joins(:avaliation).where(avaliations: { classroom_id: classroom_id }) if classroom_id
+  end)
+
+  scope :by_discipline, (lambda do |discipline_id|
+    joins(:avaliation).where(avaliations: { discipline_id: discipline_id }) if discipline_id
+  end)
 
   scope :by_grade_description, lambda { |grade_description|
     joins(avaliation: [classroom: :grade])
