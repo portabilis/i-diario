@@ -76,6 +76,10 @@ Rails.application.routes.draw do
 
     root 'dashboard#index'
 
+    namespace :dashboard do
+      resources :teacher_next_avaliations, only: [:show]
+    end
+
     get '/sandbox', to: 'dashboard#sandbox'
     patch '/current_role', to: 'current_role#set', as: :set_current_role
     post '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***

@@ -1,0 +1,11 @@
+<tr>
+  <td><%= description %></td>
+  <td><%= classroom %></td>
+  <td><%= discipline %></td>
+  <td><%= test_date %></td>
+  <td><a href="<%= url_to_edit %>" target="_blank">Editar</a>
+    <% if(test_date_today) { %>
+      | <a href="<%= url_to_post %>" target="_blank" rel="nofollow" data-method="post">Diário de avaliações</a>
+    <% } %>
+  </td>
+</tr>

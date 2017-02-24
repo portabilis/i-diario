@@ -103,11 +103,15 @@ class Avaliation < ActiveRecord::Base
   end
 
   def test_date_humanized
-    if test_date.today?
-      "Hoje"
+    if test_date_today
+      'Hoje'
     else
       I18n.l test_date, format: :week_day
     end
+  end
+
+  def test_date_today
+    test_date.today?
   end
 
   private
