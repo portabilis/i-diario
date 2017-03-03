@@ -71,6 +71,8 @@ class SchoolCalendarStep < ActiveRecord::Base
       I18n.t("enumerations.trimesters.#{school_term}")
     when school_term.end_with?(SchoolTermTypes::SEMESTER)
       I18n.t("enumerations.semesters.#{school_term}")
+    when school_term.end_with?(SchoolTermTypes::YEARLY)
+      I18n.t("enumerations.year.#{school_term}")
     end
   end
 
