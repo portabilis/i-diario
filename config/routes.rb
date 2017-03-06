@@ -153,6 +153,9 @@ Rails.application.routes.draw do
     end
     resources :***REMOVED***, concerns: :history do
       resources :material_request_authorization_items, only: [:index]
+      collection do
+        get :filtered_***REMOVED***
+      end
     end
     resources :***REMOVED***, concerns: :history do
       resources :material_exit_items, only: [:index]
