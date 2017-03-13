@@ -6,10 +6,11 @@ class AvaliationExemptionsController < ApplicationController
 
   def index
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
-      .includes(:avaliation)
-      .by_classroom(current_user_classroom)
-      .by_discipline(current_user_discipline)
-
+                             .includes(:avaliation)
+                             .by_unity(current_user_unity)
+                             .by_classroom(current_user_classroom)
+                             .by_discipline(current_user_discipline)
+ 
     authorize @avaliation_exemptions
   end
 

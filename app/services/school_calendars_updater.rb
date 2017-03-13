@@ -108,4 +108,12 @@ class SchoolCalendarsUpdater
       end_date_for_posting: step_params['end_date_for_posting']
     )
   end
+
+  def create_school_calendar_step!(school_calendar, step_params)
+    SchoolCalendarStep.create!(school_calendar: school_calendar,
+                                start_at: step_params['start_at'],
+                                end_at: step_params['end_at'],
+                                start_date_for_posting: step_params['start_date_for_posting'],
+                                end_date_for_posting: step_params['end_date_for_posting'])
+  end
 end
