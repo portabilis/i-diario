@@ -4,6 +4,11 @@ class SchoolCalendarStep < ActiveRecord::Base
   audited associated_with: :school_calendar, except: :school_calendar_id
 
   belongs_to :school_calendar
+  has_many :descriptive_exams, dependent: :restrict_with_exception
+  has_many :ieducar_api_exam_postings, dependent: :restrict_with_exception
+  has_many :conceptual_exams, dependent: :restrict_with_exception
+  has_many :transfer_notes, dependent: :restrict_with_exception
+  has_many :school_term_recovery_diary_records, dependent: :restrict_with_exception
 
   validates :start_at, :end_at, :start_date_for_posting, :end_date_for_posting, presence: true
 

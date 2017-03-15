@@ -1,5 +1,9 @@
 pt-BR:
   activerecord:
+    models:
+      school_term_recovery_diary_record:
+        one: "Recuperação de etapas da turma"
+        other: "Recuperação de etapas da turma"
     attributes:
       school_term_recovery_diary_record:
         school_calendar_step: "Etapa"

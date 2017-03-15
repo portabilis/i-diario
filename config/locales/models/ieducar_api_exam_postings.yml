@@ -1,0 +1,6 @@
+pt-BR:
+  activerecord:
+    models:
+      ieducar_api_exam_posting:
+        one: "Postagem de exames do i-educar"
+        other: "Postagens de exames do i-educar"

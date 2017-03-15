@@ -33,7 +33,12 @@ class SchoolCalendarsController < ApplicationController
   def destroy
     authorize resource
 
-    resource.destroy
+    resource_destroyer = ResourceDestroyer.new.destroy(resource)
+
+    if resource_destroyer.has_error?
+      flash[:error] = resource_destroyer.error_message
+      flash[:notice] = ""
+    end
 
     respond_with resource, location: school_calendars_path
   end
