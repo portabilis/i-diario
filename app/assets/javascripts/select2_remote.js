@@ -1,4 +1,8 @@
-function createAllSelect2Remote(all = false) {
+function createAllSelect2Remote() {
+  createAllSelect2Remote(false);
+}
+
+function createAllSelect2Remote(all) {
   _.each($('input.select2_remote, input[class^=select2_remote]'), function(element) {
     if (all || (!all && element.value == "")) {
       $(element).select2({
