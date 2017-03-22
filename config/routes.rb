@@ -78,9 +78,9 @@ Rails.application.routes.draw do
 
     namespace :dashboard do
       resources :teacher_next_avaliations, only: [:show]
+      resources :teacher_work_done_chart, only: [:index]
     end
 
-    get '/sandbox', to: 'dashboard#sandbox'
     patch '/current_role', to: 'current_role#set', as: :set_current_role
     post '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
     get '/disabled_entity', to: 'pages#disabled_entity'
