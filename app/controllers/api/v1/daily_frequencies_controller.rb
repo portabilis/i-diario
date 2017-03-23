@@ -99,7 +99,9 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
   end
 
   def current_school_calendar
-    CurrentSchoolCalendarFetcher.new(params[:unity_id], params[:classroom_id]).fetch
+    unity = Unity.find_by_id(params[:unity_id])
+    classroom = Classroom.find_by_id(params[:classroom_id])
+    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
   end
 
   def student_has_dependence?(student_enrollment_id, discipline_id)
