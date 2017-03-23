@@ -15,3 +15,5 @@ pt-BR:
       note: Nota da avaliação
       avaliation_recovery: Nota da recuperação
       avaliation: "Avaliação"
+      dependence_students_legend: "* Alunos cursando dependência"
+      inactive_students_legend: "*** Alunos não enturmados"

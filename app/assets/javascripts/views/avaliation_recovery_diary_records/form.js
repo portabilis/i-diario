@@ -71,7 +71,7 @@ $(function () {
 
     if (!_.isEmpty(avaliation_id)){
       $.ajax({
-        url: Routes.daily_note_students_pt_br_path({
+        url: Routes.dependence_daily_note_students_pt_br_path({
             filter: {
                 by_avaliation: avaliation_id
             },
@@ -90,17 +90,42 @@ $(function () {
 
       hideNoItemMessage();
 
+      var last_item = _.last(daily_note_students);
+      $('#recovery-diary-record-students').children("tr").remove();
+
       _.each(daily_note_students, function(daily_note_student) {
         var element_id = new Date().getTime() + element_counter++
 
+        var student_situation;
+        var student_name;
+
+        if (!daily_note_student.active) {
+          student_situation = 'inactive-student';
+          student_name = '***' + daily_note_student.name
+        } else if (daily_note_student.dependence) {
+            student_situation = 'dependence-student';
+            student_name = '*' + daily_note_student.name
+        } else {
+            student_situation = '';
+            student_name = daily_note_student.name
+        }
+
         var html = JST['templates/avaliation_recovery_diary_records/student_fields']({
-            id: daily_note_student.student.id,
-            name: daily_note_student.student.name,
+            sequence: daily_note_student.sequence,
+            id: daily_note_student.id,
+            name: student_name,
             note: daily_note_student.note,
+            student_situation: student_situation,
+            active: daily_note_student.active,
             element_id: element_id
           });
 
+        var legend = JST['templates/avaliation_recovery_diary_records/footer'];
+
         $('#recovery-diary-record-students').append(html);
+        if (last_item == daily_note_student) {
+          $('#recovery-diary-record-students').append(legend);
+        }
       });
 
       loadDecimalMasks();
