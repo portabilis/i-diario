@@ -14,6 +14,7 @@
       <div class="row">
         <div class="col col-sm-4">
           <%= f.input :unity_id, as: :select2_unity, user: current_user %>
+          <%= f.hidden_field :school_calendar_year %>
         </div>
 
         <div class="col col-sm-4">
@@ -26,12 +27,11 @@
       </div>
 
       <div class="row">
-        <div class="col col-sm-4">
-          <% if school_calendar_classroom_steps.any? %>
-            <%= f.input :school_calendar_classroom_step_id, as: :select2, elements: school_calendar_classroom_steps, input_html: { value: @partial_score_record_report_form.school_calendar_classroom_step_id }, required: true %>
-          <% else %>
-            <%= f.input :school_calendar_step_id, as: :select2, elements: school_calendar_steps_ordered, input_html: { value: @partial_score_record_report_form.school_calendar_step_id } %>
-          <% end %>
+        <div class="col col-sm-4 hidden" school-step-container>
+          <%= f.input :school_calendar_step_id, as: :select2, elements: school_calendar_steps_ordered, input_html: { value: @partial_score_record_report_form.school_calendar_step_id }, required: true %>
+        </div>
+        <div class="col col-sm-4 hidden" classroom-step-container>
+          <%= f.input :school_calendar_classroom_step_id, as: :select2, elements: school_calendar_classroom_steps, input_html: { value: @partial_score_record_report_form.school_calendar_classroom_step_id }, required: true %>
         </div>
       </div>
     </fieldset>

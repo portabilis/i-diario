@@ -5,7 +5,8 @@ class PartialScoreRecordReportForm
                 :classroom_id,
                 :student_id,
                 :school_calendar_step_id,
-                :school_calendar_classroom_step_id
+                :school_calendar_classroom_step_id,
+                :school_calendar_year
 
   validates :unity_id,      presence: true
   validates :classroom_id,  presence: true

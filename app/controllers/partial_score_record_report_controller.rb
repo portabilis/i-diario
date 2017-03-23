@@ -5,6 +5,7 @@ class PartialScoreRecordReportController < ApplicationController
   def form
     @partial_score_record_report_form = PartialScoreRecordReportForm.new
     @partial_score_record_report_form.classroom_id = current_user.current_classroom_id
+    @partial_score_record_report_form.school_calendar_year = current_school_calendar.year 
   end
 
   def report

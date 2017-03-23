@@ -213,8 +213,8 @@ Rails.application.routes.draw do
         end
       end
     end
-    resources :school_calendar_steps, only: [:show]
-    resources :school_calendar_classroom_steps, only: [:show]
+    resources :school_calendar_steps, only: [:show, :index]
+    resources :school_calendar_classroom_steps, only: [:show, :index]
 
     resources :discipline_teaching_plans, concerns: :history
     resources :knowledge_area_teaching_plans, concerns: :history
