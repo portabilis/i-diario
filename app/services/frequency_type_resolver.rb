@@ -39,6 +39,6 @@ class FrequencyTypeResolver
   attr_reader :classroom, :teacher
 
   def current_year
-    CurrentSchoolYearFetcher.new(@classroom.unity_id).fetch
+    CurrentSchoolYearFetcher.new(@classroom.unity).fetch
   end
 end
