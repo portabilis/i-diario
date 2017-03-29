@@ -1,0 +1,24 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/dashboard/teacher_next_avaliations' %>
+<% end %>
+<h2> Próximas avaliações </h2>
+<hr />
+
+<div class="table-responsive">
+  <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
+    <thead>
+      <tr>
+        <th width="30%"><%= Avaliation.human_attribute_name :description %></th>
+        <th width="15%"><%= Avaliation.human_attribute_name :classroom %></th>
+        <th width="15%"><%= Avaliation.human_attribute_name :discipline %></th>
+        <th width="15%"><%= Avaliation.human_attribute_name :test_date %></th>
+        <th width="25%"></th>
+      </tr>
+    </thead>
+    <tbody id="teacher-next-avaliations">
+      <tr>
+        <td class="no_record_found" colspan="5">Nenhuma avaliação definida para os próximos dias.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

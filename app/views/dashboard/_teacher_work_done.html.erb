@@ -1,0 +1,11 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/dashboard/teacher_work_done_chart' %>
+<% end %>
+<h2> Trabalho concluído
+  <%= select_tag 'school_calendar_step', options_for_select(@school_calendar_steps_options, @current_school_calendar_step), class: 'input-sm pull-right' %>
+</h2>
+<hr />
+
+<div style="width:350px;height:350px;">
+  <canvas id="teacher-work-done-chart" width="400" height="400"></canvas>
+</div>
