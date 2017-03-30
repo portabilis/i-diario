@@ -56,6 +56,7 @@ class Avaliation < ActiveRecord::Base
   scope :not_including_classroom_id, lambda { |classroom_id| where(arel_table[:classroom_id].not_eq(classroom_id) ) }
   scope :by_id, lambda { |id| where(id: id)   }
   scope :by_test_date_after, lambda { |date| where("test_date >= ?", date) }
+  scope :by_status, lambda { |status| joins(:daily_notes).merge(DailyNote.by_status(status)) }
 
   scope :ordered, -> { order(test_date: :desc) }
   scope :ordered_asc, -> { order(:test_date) }

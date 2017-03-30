@@ -1,8 +1,18 @@
 <%= hidden_field_tag "current_teacher_id", current_teacher.try(:id) %>
-
-<div class="col col-sm-6">
-  <%= render 'teacher_next_avaliations' %>
+<div class="row">
+  <div class="col col-sm-12">
+    <%= render 'teacher_next_avaliations' %>
+  </div>
 </div>
-<div class="col col-sm-6">
-  <%= render 'teacher_work_done' %>
+<div class="row">
+  <div class="col col-sm-12">
+    <%= render 'teacher_pending_avaliations' %>
+  </div>
+</div>
+<div class="row">
+  <div class="col col-sm-3"></div>
+  <div class="col col-sm-6">
+    <%= render 'teacher_work_done' %>
+  </div>
+  <div class="col col-sm-3"></div>
 </div>
