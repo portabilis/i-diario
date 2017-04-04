@@ -11,7 +11,7 @@ class Classroom < ActiveRecord::Base
 
   delegate :course_id, :course, to: :grade, prefix: false
 
-  validates :description, :api_code, :unity_code, :year, :grade, :period, presence: true
+  validates :description, :api_code, :unity_code, :year, :grade, presence: true
   validates :api_code, uniqueness: true
 
   scope :by_unity_and_teacher, lambda { |unity_id, teacher_id| joins(:teacher_discipline_classrooms).where(unity_id: unity_id, teacher_discipline_classrooms: { teacher_id: teacher_id}).uniq }
