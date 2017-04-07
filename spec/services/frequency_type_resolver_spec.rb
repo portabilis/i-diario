@@ -10,6 +10,7 @@ RSpec.describe FrequencyTypeResolver, type: :service do
   let(:classroom) { double(:classroom) }
   let(:teacher) { double(:teacher) }
   let(:teacher_discipline_classroom) { nil }
+  let(:unity) { double(:unity) }
 
 
   before do
@@ -61,7 +62,7 @@ RSpec.describe FrequencyTypeResolver, type: :service do
   def stub_classroom
     allow(classroom).to receive(:exam_rule).and_return(exam_rule)
     allow(classroom).to receive(:id).and_return(2)
-    allow(classroom).to receive(:unity_id).and_return(3)
+    allow(classroom).to receive(:unity).and_return(unity)
   end
 
   def stub_teacher
@@ -85,7 +86,7 @@ RSpec.describe FrequencyTypeResolver, type: :service do
   def stub_current_school_year_fetcher
     stub_const('CurrentSchoolYearFetcher', Class.new)
     allow(CurrentSchoolYearFetcher).to(
-      receive(:new).with(3).and_return(current_school_calendar_fetcher)
+      receive(:new).with(unity).and_return(current_school_calendar_fetcher)
     )
     allow(current_school_calendar_fetcher).to receive(:fetch).and_return(2016)
   end

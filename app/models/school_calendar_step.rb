@@ -20,6 +20,8 @@ class SchoolCalendarStep < ActiveRecord::Base
   validate :end_date_less_than_start_date_for_posting
 
   scope :by_school_calendar_id, lambda { |school_calendar_id| where(school_calendar_id: school_calendar_id) }
+  scope :by_unity, lambda { |unity_id| joins(:school_calendar).where(school_calendars: { unity_id: unity_id } ) }
+  scope :by_year, lambda { |year| joins(:school_calendar).where(school_calendars: { year: year } ) }
   scope :started_after_and_before, lambda { |date| where(arel_table[:start_at].lteq(date)).
                                                   where(arel_table[:end_at].gteq(date)) }
   scope :posting_date_after_and_before, lambda { |date| where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date))) }
@@ -76,6 +78,8 @@ class SchoolCalendarStep < ActiveRecord::Base
       I18n.t("enumerations.trimesters.#{school_term}")
     when school_term.end_with?(SchoolTermTypes::SEMESTER)
       I18n.t("enumerations.semesters.#{school_term}")
+    when school_term.end_with?(SchoolTermTypes::YEARLY)
+      I18n.t("enumerations.year.#{school_term}")
     end
   end
 

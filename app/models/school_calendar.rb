@@ -52,7 +52,7 @@ class SchoolCalendar < ActiveRecord::Base
   end
 
   def school_term(date)
-    school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters }
+    school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters, 1 => Year }
 
     index_of_step = steps.find_index(step(date))
 

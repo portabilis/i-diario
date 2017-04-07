@@ -55,6 +55,7 @@ class Avaliation < ActiveRecord::Base
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
   scope :not_including_classroom_id, lambda { |classroom_id| where(arel_table[:classroom_id].not_eq(classroom_id) ) }
   scope :by_test_date_after, lambda { |date| where("test_date >= ?", date) }
+  scope :by_id, lambda { |id| where(id: id)   }
 
   scope :ordered, -> { order(test_date: :desc) }
   scope :ordered_asc, -> { order(:test_date) }

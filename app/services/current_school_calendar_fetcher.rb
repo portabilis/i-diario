@@ -5,22 +5,18 @@ class CurrentSchoolCalendarFetcher
   end
 
   def fetch
-    if has_classroom_steps?(@classroom)
-      SchoolCalendar.by_unity_id(@unity)
-      .by_school_day_classroom_steps(Time.zone.today, @classroom)
-      .first
+    if has_classroom_steps?
+      SchoolCalendarClassroomQuery.new(unity, classroom).school_calendar
     else
-      SchoolCalendar.by_unity_id(@unity)
-      .by_school_day(Time.zone.today)
-      .first
+      SchoolCalendarQuery.new(unity).school_calendar
     end
   end
 
   private
+  attr_accessor :unity, :classroom
 
-  def has_classroom_steps?(classroom)
+  def has_classroom_steps?
     return false if classroom.nil?
-    classroom = Classroom.find(classroom)
     classroom.calendar
   end
 end

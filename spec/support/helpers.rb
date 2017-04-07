@@ -59,6 +59,14 @@ module Helpers
     end
   end
 
+  def fill_in_select2_remote(selector, options={})
+    field = page.find_field selector
+
+    page.execute_script %{
+      $('##{field[:id]}').parent().next().val('#{options[:with]}');
+    }
+  end
+
   def check_in_collection(text)
     find('label.checkbox', text: text).trigger('click') unless find('label.checkbox', text: text).find('input').checked?
   end

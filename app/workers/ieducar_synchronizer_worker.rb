@@ -32,13 +32,13 @@ class IeducarSynchronizerWorker
         RecoveryExamRulesSynchronizer.synchronize!(synchronization)
         TeachersSynchronizer.synchronize!(synchronization, years_to_synchronize)
         CoursesGradesClassroomsSynchronizer.synchronize!(synchronization)
+        StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, years_to_synchronize)
 
         years_to_synchronize.each do |year|
           ExamRulesSynchronizer.synchronize!(synchronization, year)
           Unity.with_api_code.each do |unity|
             StudentEnrollmentSynchronizer.synchronize!(synchronization, year, unity.api_code)
           end
-          StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, year)
         end
 
         synchronization.mark_as_completed!

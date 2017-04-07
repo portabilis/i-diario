@@ -116,7 +116,8 @@ class ExamRecordReport
           daily_note_id = daily_notes_ids[pos]
           pos += 1
         else
-          avaliations << make_cell(content: "#{daily_note.avaliation.to_s}\n<font size='7'>#{daily_note.avaliation.test_date.strftime("%d/%m")}</font>", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
+          content = "#{daily_note.avaliation.to_s}\n<font size='7'>#{daily_note.avaliation.test_date.strftime("%d/%m")}</font>\n<font size='7'>#{daily_note.avaliation.try(:weight)}</font>"
+          avaliations << make_cell(content: content, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
           avaliation_id = daily_note.avaliation_id
           daily_note_id = daily_note.id
         end

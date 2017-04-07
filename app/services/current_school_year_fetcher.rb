@@ -10,10 +10,8 @@ class CurrentSchoolYearFetcher
   private
 
   def current_school_calendar
-    @current_school_calendar ||= current_school_calendar_fetcher.fetch
+    @current_school_calendar ||= CurrentSchoolCalendarFetcher.new(unity, nil).fetch
   end
 
-  def current_school_calendar_fetcher
-    @current_school_calendar_fetcher ||= CurrentSchoolCalendarFetcher.new(@unity, nil)
-  end
+  attr_accessor :unity
 end
