@@ -5,6 +5,7 @@ class AccountsController < ApplicationController
 
   def update
     @user = current_user
+    @user.has_to_validate_receive_news_fields = true
 
     if @user.update_with_password(user_params)
       @user.update_rd_lead
