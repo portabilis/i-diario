@@ -82,7 +82,7 @@ $(function(){
         ]
       };
     teacherWorkDoneChart = new Chart(ctx,{
-      type: 'pie',
+      type: 'doughnut',
       data: data,
       options: {
         animation:{
