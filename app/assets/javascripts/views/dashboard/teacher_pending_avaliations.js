@@ -32,7 +32,7 @@ $(function(){
     $('#teacher-pending-avaliations').html("");
 
     if(_.isEmpty(data.teacher_pending_avaliations)){
-      $('#teacher-pending-avaliations').append("<tr><td class=no_record_found colspan=5>Nenhuma avaliação pendente encontrada.</td></tr>")  
+      $('#teacher-pending-avaliations').append("<tr><td class=no_record_found colspan=5>Nenhuma avaliação pendente.</td></tr>")  
     }
     _.each(data.teacher_pending_avaliations, function(avaliation) {
       var html = JST['templates/teacher_dashboard/teacher_pending_avaliations']({
