@@ -32,6 +32,7 @@ gem 'js-routes'
 gem 'active_model_serializers'
 gem 'exception_notification'
 gem 'bulk_insert', '~> 1.0'
+gem 'aws-sdk', '~> 2'
 gem "paperclip", "~> 5.0.0"
 
 gem 'angular_rails_csrf'

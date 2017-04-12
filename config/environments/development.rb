@@ -47,7 +47,7 @@ Rails.application.configure do
     Bullet.rails_logger = true
   end
 
-  # Papaerclip configuration
+  # Paperclip configuration
   Paperclip::Attachment.default_options[:storage] = :fog
   Paperclip::Attachment.default_options[:fog_credentials] = { provider: "Local", local_root: "#{Rails.root}/public/system"}
   Paperclip::Attachment.default_options[:fog_directory] = ""

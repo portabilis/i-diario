@@ -10,6 +10,8 @@ class DisciplineLessonPlan < ActiveRecord::Base
   belongs_to :lesson_plan
   belongs_to :discipline
 
+  before_destroy :remove_attachments
+
   delegate :contents, :classroom, to: :lesson_plan
 
   accepts_nested_attributes_for :lesson_plan
@@ -57,4 +59,8 @@ class DisciplineLessonPlan < ActiveRecord::Base
     end
   end
 
+  def remove_attachments
+    lesson_plan.lesson_plan_attachments.each { |lesson_plan_attachment| lesson_plan_attachment.attachment = nil }
+    lesson_plan.save
+  end
 end

@@ -17,4 +17,12 @@ Rails.application.configure do
   config.active_support.deprecation = :log
 
   config.action_mailer.default_url_options = { :host => 'clientetest.portabilis.com.br' }
+
+  # Paperclip configuration
+  config.paperclip_defaults = {
+    storage: :s3,
+    s3_region: 'us-east-1',
+    bucket: '***REMOVED***',
+    s3_credentials: "#{Rails.root}/config/aws.yml"
+  }
 end
