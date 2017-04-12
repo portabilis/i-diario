@@ -19,7 +19,7 @@ class SystemNotificationRouter
     when "***REMOVED***"
       routes.***REMOVED***_movements_report_viewer_path(object.source)
     when "***REMOVED***Request"
-      routes.edit_material_request_path(object.source)
+      routes.material_request_path(object.source, format: :pdf)
     else
       ""
     end
