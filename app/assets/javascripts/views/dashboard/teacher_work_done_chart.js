@@ -3,9 +3,39 @@ $(function(){
   var chartContainerElement = $("#chart-container");
   var noInfoChartElement = $("#no-info-chart");
   var flashMessages = new FlashMessages();
+  var teacherWorkDoneChart = undefined;
 
   $schoolCalendarStepElement = $('#school_calendar_step');
-  $schoolCalendarStepElement.on('change', mountWorkDoneChart);
+  $schoolCalendarStepElement.on('change', updateWorkDoneChart);
+
+  function updateWorkDoneChart(){
+    var teacherId = $('#current_teacher_id').val();
+    var schoolCalendarStepId = $('#school_calendar_step').val();
+    $.ajax({
+      url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
+        { 
+          format: 'json', 
+          teacher_id: teacherId, 
+          school_calendar_step_id: schoolCalendarStepId
+        }
+      ),
+      success: handleUpdateTeacherWOrkDoneChartSuccess,
+      error: handleFetchTeacherWorkDoneChartError
+    });
+  }
+
+  function handleUpdateTeacherWOrkDoneChartSuccess(teacher_notes){
+    if(teacher_notes.pending_notes_count == 0 && teacher_notes.completed_notes_count == 0){
+      noInfoChartElement.show();
+      $('#teacher-work-done-chart').hide();
+      return;
+    }
+    noInfoChartElement.hide();
+    $('#teacher-work-done-chart').show();
+    teacherWorkDoneChart.data.datasets[0].data[0] = teacher_notes.completed_notes_count;
+    teacherWorkDoneChart.data.datasets[0].data[1] = teacher_notes.pending_notes_count;
+    teacherWorkDoneChart.update();
+  }
 
   function mountWorkDoneChart(){
     var teacherId = $('#current_teacher_id').val();
@@ -24,8 +54,7 @@ $(function(){
   }
 
   function handleFetchTeacherWorkDoneChartSuccess(teacher_notes) {
-
-    if(teacher_notes.not_nil_notes == 0 && teacher_notes.nil_notes == 0){
+    if(teacher_notes.pending_notes_count == 0 && teacher_notes.completed_notes_count == 0){
       noInfoChartElement.show();
       $('#teacher-work-done-chart').hide();
       return;
@@ -39,7 +68,7 @@ $(function(){
       ],
       datasets: [
           {
-            data: [teacher_notes.not_nil_notes, teacher_notes.nil_notes],
+            data: [teacher_notes.completed_notes_count, teacher_notes.pending_notes_count],
             backgroundColor: [
                 "#36A2EB",
                 "#FF6384"
@@ -52,13 +81,30 @@ $(function(){
           }
         ]
       };
-    var avaliationsNotDonePieChart = new Chart(ctx,{
+    teacherWorkDoneChart = new Chart(ctx,{
       type: 'pie',
       data: data,
       options: {
         animation:{
             animateScale:true
-        }
+        },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var dataset = data.datasets[tooltipItem.datasetIndex];
+
+              var total = dataset.data.reduce(function(previousValue, currentValue, currentIndex, array) {
+                return previousValue + currentValue;
+              });
+
+              var currentValue = dataset.data[tooltipItem.index];
+
+              var percentage = Math.floor(((currentValue/total) * 100)+0.5);
+
+              return " " + currentValue + " (" + percentage + "%)";
+            }
+          }
+        } 
       }
     });
   };

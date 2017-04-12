@@ -10,6 +10,7 @@ class StudentEnrollmentsList
     @start_at = params.fetch(:start_at, nil)
     @end_at = params.fetch(:end_at, nil)
     @search_type = params.fetch(:search_type, :by_date)
+    @show_inactive = params.fetch(:show_inactive, true)
     ensure_has_valid_params
   end
 
@@ -19,7 +20,7 @@ class StudentEnrollmentsList
 
   private
 
-  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type
+  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -105,9 +106,11 @@ class StudentEnrollmentsList
   def remove_not_displayable_students(students_enrollments)
     students_enrollments.reject do |student_enrollment|
       if search_type == :by_date
-        !student_active_on_date?(student_enrollment) && !student_displayable_as_inactive?(student_enrollment)
+        (!student_active_on_date?(student_enrollment) && !student_displayable_as_inactive?(student_enrollment)) ||
+        (student_displayable_as_inactive?(student_enrollment) && !show_inactive)
       elsif search_type == :by_date_range
-        !student_active_on_date_range?(student_enrollment) && !student_displayable_as_inactive?(student_enrollment)
+        (!student_active_on_date_range?(student_enrollment) && !student_displayable_as_inactive?(student_enrollment)) ||
+        (student_displayable_as_inactive?(student_enrollment) && !show_inactive)
       end
     end
   end
