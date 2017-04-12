@@ -18,6 +18,8 @@ class SystemNotificationRouter
       routes.message_path(object.source_id)
     when "***REMOVED***"
       routes.***REMOVED***_movements_report_viewer_path(object.source)
+    when "***REMOVED***Request"
+      routes.edit_material_request_path(object.source)
     else
       ""
     end
