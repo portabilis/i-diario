@@ -2,6 +2,7 @@ class LessonPlanAttachment < ActiveRecord::Base
   belongs_to :lesson_plan
 
   has_attached_file :attachment,
+                    validate_media_type: false,
                     url: "/:class/#{Entity.current.try(:name)}/:id/:basename.:extension",
                     path: "/:class/#{Entity.current.try(:name)}/:id/:basename.:extension"
   validates_attachment_file_name :attachment, matches: [/png\z/, /jpeg\z/, /jpg\z/, /gif\z/, /pdf\z/, /odt\z/,
