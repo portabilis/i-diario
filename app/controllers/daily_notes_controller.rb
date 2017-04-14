@@ -3,7 +3,7 @@ class DailyNotesController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_teacher
-  before_action :require_current_school_calendar, only: [:index, :new]
+  before_action :require_current_school_calendar
 
   def index
     @daily_notes = apply_scopes(DailyNote)
