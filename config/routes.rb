@@ -77,7 +77,7 @@ Rails.application.routes.draw do
     root 'dashboard#index'
 
     namespace :dashboard do
-      resources :teacher_next_avaliations, only: [:show]
+      resources :teacher_next_avaliations, only: [:index]
       resources :teacher_pending_avaliations, only: [:index]
       resources :teacher_work_done_chart, only: [:index]
     end
