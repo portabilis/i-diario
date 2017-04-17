@@ -71,9 +71,10 @@
 <div class="row textarea">
   <div class="col col-sm-12">
     <legend>Anexos</legend>
-    <i>
+    <div class="alert alert-info fade in">
+      <i class="fa-fw fa fa-info"></i>
       Somente arquivos nos formatos jpeg, jpg, png, gif, pdf, odt, doc, docx, ods, xls, xlsx, odp, ppt, pptx, odg, xml, csv. Tamanho máximo por arquivo: 512KB
-    </i>
+    </div>
     <br>
     <% if f.object.errors[:lesson_plan_attachments].present? %>
       <div class="alert alert-danger alert-block ">

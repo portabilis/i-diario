@@ -9,4 +9,6 @@ class LessonPlanAttachment < ActiveRecord::Base
                                                         /doc\z/, /docx\z/, /ods\z/, /xls\z/, /xlsx\z/, /odp\z/,
                                                         /ppt\z/, /pptx\z/, /odg\z/, /xml\z/, /csv\z/]
   validates_with AttachmentSizeValidator, attributes: :attachment, less_than: 512.kilobytes
+
+  validates :attachment, presence: true
 end
