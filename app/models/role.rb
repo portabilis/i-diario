@@ -1,6 +1,7 @@
 class Role < ActiveRecord::Base
   audited
   has_associated_audits
+  acts_as_copy_target
 
   include Audit
 
