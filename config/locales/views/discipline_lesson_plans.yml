@@ -9,3 +9,5 @@ pt-BR:
       remove: "Remover"
     lesson_plan_attachment_fields:
       remove: "Remover"
+    lesson_plan_attachment_show:
+      remove: "Remover"

@@ -6,6 +6,27 @@ $(function () {
   var $discipline = $('#discipline_lesson_plan_discipline_id');
   var $classes = $('#discipline_lesson_plan_classes');
   var $classes_div = $('.discipline_lesson_plan_classes');
+  var $lesson_plan_attachment = $('#lesson_plan_attachment');
+
+  $(".lesson_plan_attachment").on('change', onChangeFileElement);
+
+  function onChangeFileElement(){
+    // escopado para permitir arquivos menores que 3MB(3145728 bytes)
+    if (this.files[0].size > 3145728) {
+      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").find('span').remove();
+      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").addClass("error");
+      $(this).after('<span class="help-inline">tamanho máximo por arquivo: 3 MB</span>');
+      $(this).val("");
+    }else {
+      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").removeClass("error");
+      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").addClass("alert-success");
+      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").find('span').remove();
+    }
+  }
+
+  $('#discipline_lesson_plan').on('cocoon:after-insert', function(e, item) {
+    $(item).find('input.file').on('change', onChangeFileElement);
+  });
 
   function classroomChangeHandler() {
     var classroom_id = $classroom.select2('val');

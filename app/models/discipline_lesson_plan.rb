@@ -60,7 +60,7 @@ class DisciplineLessonPlan < ActiveRecord::Base
   end
 
   def remove_attachments
-    lesson_plan.lesson_plan_attachments.each { |lesson_plan_attachment| lesson_plan_attachment.attachment = nil }
+    lesson_plan.lesson_plan_attachments.each { |lesson_plan_attachment| lesson_plan_attachment.destroy }
     lesson_plan.save
   end
 end
