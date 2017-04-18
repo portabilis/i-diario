@@ -19,7 +19,6 @@ $(function () {
       $(this).val("");
     }else {
       $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").removeClass("error");
-      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").addClass("alert-success");
       $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").find('span').remove();
     }
   }
