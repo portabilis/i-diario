@@ -26,7 +26,7 @@ gem 'uri_validator'
 gem "cpf_cnpj"
 gem 'prawn', '~> 2.1.0', github: 'portabilis/prawn', branch: 'master'
 gem 'prawn-table', '0.2.2'
-gem 'audited-activerecord', git: 'git://github.com/ricardohsd/audited.git'
+gem 'audited-activerecord', git: 'https://github.com/portabilis/audited.git'
 gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.git'
 gem 'js-routes'
 gem 'active_model_serializers'

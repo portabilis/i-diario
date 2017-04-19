@@ -3,7 +3,8 @@ class ContentRecord < ActiveRecord::Base
 
   acts_as_copy_target
 
-  audited
+  audited associated_with: [:discipline_content_record, :knowledge_area_content_record]
+  has_associated_audits
 
   belongs_to :classroom
   belongs_to :teacher
@@ -11,6 +12,7 @@ class ContentRecord < ActiveRecord::Base
   attr_writer :contents_tags
 
   has_one :discipline_content_record
+  has_one :knowledge_area_content_record
   has_and_belongs_to_many :contents, dependent: :destroy
   accepts_nested_attributes_for :contents
 

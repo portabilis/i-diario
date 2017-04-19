@@ -17,16 +17,6 @@ GIT
       ttfunk (~> 1.4.0)
 
 GIT
-  remote: git://github.com/ricardohsd/audited.git
-  revision: af01b051d1ae46de1d06abd8c4abfac5b018c8c2
-  specs:
-    audited (4.0.0.rc1)
-      rails-observers (~> 0.1.2)
-    audited-activerecord (4.0.0.rc1)
-      activerecord (~> 4.0)
-      audited (= 4.0.0.rc1)
-
-GIT
   remote: git://github.com/samuelsimoes/backbone-nested-attributes.git
   revision: 77799673a842de59690970517a970665b7760cc6
   specs:
@@ -47,6 +37,16 @@ GIT
   specs:
     decore (0.1.0)
       activesupport (>= 3.2.0)
+
+GIT
+  remote: https://github.com/portabilis/audited.git
+  revision: aeca407e44b52083c41172fe2db11fd3b99ca4eb
+  specs:
+    audited (4.0.0.rc1)
+      rails-observers (~> 0.1.2)
+    audited-activerecord (4.0.0.rc1)
+      activerecord (~> 4.0)
+      audited (= 4.0.0.rc1)
 
 GIT
   remote: https://github.com/portabilis/zenvia-ruby

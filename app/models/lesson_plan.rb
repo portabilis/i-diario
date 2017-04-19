@@ -5,7 +5,7 @@ class LessonPlan < ActiveRecord::Base
 
   attr_writer :contents_tags
 
-  audited
+  audited associated_with: [:discipline_lesson_plan, :knowledge_area_lesson_plan]
 
   belongs_to :school_calendar
   belongs_to :unity

@@ -3,7 +3,7 @@ class TeachingPlan < ActiveRecord::Base
 
   acts_as_copy_target
 
-  audited
+  audited associated_with: [:discipline_teaching_plan, :knowledge_area_teaching_plan]
 
   has_enumeration_for :school_term_type,
     with: SchoolTermTypes,
@@ -16,9 +16,12 @@ class TeachingPlan < ActiveRecord::Base
   validates :unity, presence: true
   validates :grade, presence: true
   validates :school_term_type, presence: true
-  validates :school_term, presence: { unless: :yearly?  }
+  validates :school_term, presence: { unless: :yearly? }
 
   has_and_belongs_to_many :contents, dependent: :destroy
+  has_one :discipline_teaching_plan
+  has_one :knowledge_area_teaching_plan
+
   accepts_nested_attributes_for :contents, allow_destroy: true
 
   validate :at_least_one_content_assigned
