@@ -22,6 +22,7 @@ pt-BR:
       default: ! "%d/%m/%Y"
       long: ! "%d de %B de %Y"
       short: ! "%d de %B"
+      week_day: ! "%A, %d de %B"
 
     abbr_day_names:
     - "Dom"
