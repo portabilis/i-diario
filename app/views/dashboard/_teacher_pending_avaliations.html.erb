@@ -1,0 +1,33 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/dashboard/teacher_pending_avaliations' %>
+<% end %>
+
+<legend> Avaliações pendentes </legend>
+
+ <div class="row">
+  <div class="col col-sm-4">
+   <%= select_tag 'school_calendar_step', options_for_select(@school_calendar_steps_options, @current_school_calendar_step),
+                 class: 'input-sm pull-left form-control', id: "school_calendar_step_pending_avaliations" %>
+  </div>
+  <div class="col col-sm-8">
+  </div>
+</div>                 
+
+<div class="table-responsive">
+  <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
+    <thead>
+      <tr>
+        <th><%= Avaliation.human_attribute_name :description %></th>
+        <th><%= Avaliation.human_attribute_name :classroom %></th>
+        <th><%= Avaliation.human_attribute_name :discipline %></th>
+        <th width="180px"><%= Avaliation.human_attribute_name :test_date %></th>
+        <th width="234px"></th>
+      </tr>
+    </thead>
+    <tbody id="teacher-pending-avaliations">
+      <tr>
+        <td class="no_record_found" colspan="5">Nenhuma avaliação pendente.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
