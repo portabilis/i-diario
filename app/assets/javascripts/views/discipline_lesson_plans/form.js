@@ -13,13 +13,13 @@ $(function () {
   function onChangeFileElement(){
     // escopado para permitir arquivos menores que 3MB(3145728 bytes)
     if (this.files[0].size > 3145728) {
-      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").find('span').remove();
-      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").addClass("error");
+      $(this).closest(".control-group").find('span').remove();
+      $(this).closest(".control-group").addClass("error");
       $(this).after('<span class="help-inline">tamanho máximo por arquivo: 3 MB</span>');
       $(this).val("");
     }else {
-      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").removeClass("error");
-      $(".discipline_lesson_plan_lesson_plan_lesson_plan_attachments_attachment").find('span').remove();
+      $(this).closest(".control-group").removeClass("error");
+      $(this).closest(".control-group").find('span').remove();
     }
   }
 
