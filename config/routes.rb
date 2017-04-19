@@ -178,7 +178,11 @@ Rails.application.routes.draw do
 
     resources :schools, only: [:index]
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history do
+      collection do
+        get :search
+      end
+    end
     resources :authorization_***REMOVED***, concerns: :history
 
     resources :moved_***REMOVED***, only: [:index]
