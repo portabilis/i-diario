@@ -143,6 +143,7 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history do
       collection do
         get :select
