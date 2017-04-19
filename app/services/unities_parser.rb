@@ -28,20 +28,16 @@ class UnitiesParser
           phone = nil
           phone = "(#{record["ddd"]}) #{record["phone"]}" if record["phone"].present?
 
-          address = nil
-
-          if record["cep"].present? && record["numero"].present?
-            address = Address.new(
-              street: record["logradouro"],
-              zip_code: format_cep(record["cep"]),
-              number: record["numero"],
-              complement: record["complemento"],
-              neighborhood: record["bairro"],
-              city: record["municipio"],
-              state: record["uf"].downcase,
-              country: "Brasil"
-            )
-          end
+          address = Address.new(
+            street: record["logradouro"],
+            zip_code: format_cep(record["cep"]),
+            number: record["numero"],
+            complement: record["complemento"],
+            neighborhood: record["bairro"],
+            city: record["municipio"],
+            state: record["uf"].downcase,
+            country: "Brasil"
+          )
 
           new_unities << unities.new(
             api: true,
