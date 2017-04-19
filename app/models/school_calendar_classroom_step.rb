@@ -1,4 +1,5 @@
 class SchoolCalendarClassroomStep < ActiveRecord::Base
+  acts_as_copy_target
   belongs_to :school_calendar_classroom
 
   scope :ordered, -> { order(arel_table[:start_at]) }

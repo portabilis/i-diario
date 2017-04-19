@@ -17,7 +17,7 @@ pt-BR:
         discipline_id: "Disciplina"
         test_setting: "Configuração de avaliação"
         test_setting_id: "Configuração de avaliação"
-        test_date: "Data da avaliação"
+        test_date: "Data"
         classes: "Aulas"
         description: "Descrição"
         test_setting_test_id: "Tipo de avaliação"

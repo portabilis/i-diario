@@ -1,0 +1,22 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/dashboard/teacher_work_done_chart' %>
+<% end %>
+
+<legend>Percentual de lançamentos</legend>
+
+<div class="row">
+  <div class="col col-sm-4">
+    <%= select_tag 'school_calendar_step', options_for_select(@school_calendar_steps_options, @current_school_calendar_step),
+                    class: 'input-sm pull-left form-control' %>
+  </div>
+
+  <div class="col col-sm-8">
+  </div>
+</div>
+
+<div id="chart-container" class="row">
+  <canvas id="teacher-work-done-chart"></canvas>
+  <p id="no-info-chart">
+    Nenhuma informação a ser apresentada.
+  </p>
+</div>

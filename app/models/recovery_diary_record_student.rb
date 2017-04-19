@@ -1,4 +1,5 @@
 class RecoveryDiaryRecordStudent < ActiveRecord::Base
+  acts_as_copy_target
 
   attr_accessor :dependence
   attr_accessor :active
