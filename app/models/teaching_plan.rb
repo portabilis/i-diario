@@ -3,7 +3,7 @@ class TeachingPlan < ActiveRecord::Base
 
   acts_as_copy_target
 
-  audited associated_with: [:discipline_teaching_plan, :knowledge_area_teaching_plan]
+  audited
 
   has_enumeration_for :school_term_type,
     with: SchoolTermTypes,

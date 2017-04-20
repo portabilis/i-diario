@@ -1,4 +1,8 @@
 class Content < ActiveRecord::Base
+  include Audit
+
+  audited
+
   acts_as_copy_target
 
   has_and_belongs_to_many :teaching_plans, dependent: :destroy
