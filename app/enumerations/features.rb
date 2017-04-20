@@ -21,6 +21,7 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :***REMOVED***,
                    :***REMOVED***,
+                   :***REMOVED***,
                    :moved_***REMOVED***,
                    :***REMOVED***,
                    :***REMOVED***,
