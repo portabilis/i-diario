@@ -26,7 +26,7 @@ class UnitiesParser
       unless unities.exists?(api_code: record["cod_escola"])
         if record["nome"].present?
           phone = nil
-          phone = "(#{record["ddd"]}) #{record["phone"]}" if record["phone"].present?
+          phone = "(#{record["ddd"]}) #{record["fone"]}" if record["fone"].present?
 
           address = Address.new(
             street: record["logradouro"],
