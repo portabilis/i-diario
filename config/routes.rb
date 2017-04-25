@@ -71,6 +71,7 @@ Rails.application.routes.draw do
     resources :teachers, only: :index
     resources :***REMOVED***, only: :index
     resources :***REMOVED***, only: :index
+    resources :***REMOVED***_movements, only: :index
 
     resources :system_***REMOVED***, only: :index
 

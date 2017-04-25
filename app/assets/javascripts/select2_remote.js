@@ -54,6 +54,7 @@ function createAllSelect2Remote(all) {
 
   // Clear value when select empty element
   $('input.select2_remote, input[class^=select2_remote]').on('change', function(element) {
+    console.log("oi");
     if (element.val === "empty") {
       $(element.target).select2("val", "");
     }

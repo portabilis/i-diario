@@ -139,6 +139,9 @@ navigation:
         - ***REMOVED***:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
+        - ***REMOVED***:
+            type: "***REMOVED***_movements"
+            path: "***REMOVED***_movements_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-retweet"
