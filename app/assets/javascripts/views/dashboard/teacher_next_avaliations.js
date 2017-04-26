@@ -1,18 +1,12 @@
 $(function(){
   "use strict";
 
-  var $teacher = $('#current_teacher_id');
-
   function fetchTeacherNextAvaliations() {
-    var teacher_id = $teacher.val();
-
-    if (!_.isEmpty(teacher_id)){
-      $.ajax({
-        url: Routes.dashboard_teacher_next_avaliation_pt_br_path(teacher_id),
-        success: handleFetchTeacherNextAvaliationsSuccess,
-        error: handleFetchTeacherNextAvaliationsError
-      });
-    }
+    $.ajax({
+      url: Routes.dashboard_teacher_next_avaliations_pt_br_path(),
+      success: handleFetchTeacherNextAvaliationsSuccess,
+      error: handleFetchTeacherNextAvaliationsError
+    });
   };
 
   function handleFetchTeacherNextAvaliationsSuccess(data) {

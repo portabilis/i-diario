@@ -9,13 +9,11 @@ $(function(){
   $schoolCalendarStepElement.on('change', updateWorkDoneChart);
 
   function updateWorkDoneChart(){
-    var teacherId = $('#current_teacher_id').val();
     var schoolCalendarStepId = $('#school_calendar_step').val();
     $.ajax({
       url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
         { 
-          format: 'json', 
-          teacher_id: teacherId, 
+          format: 'json',
           school_calendar_step_id: schoolCalendarStepId
         }
       ),
@@ -38,13 +36,11 @@ $(function(){
   }
 
   function mountWorkDoneChart(){
-    var teacherId = $('#current_teacher_id').val();
     var schoolCalendarStepId = $('#school_calendar_step').val();
     $.ajax({
       url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
         { 
-          format: 'json', 
-          teacher_id: teacherId, 
+          format: 'json',
           school_calendar_step_id: schoolCalendarStepId
         }
       ),
@@ -110,7 +106,7 @@ $(function(){
   };
 
   function handleFetchTeacherWorkDoneChartError() {
-    flashMessages.error('Ocorreu um erro ao buscar os dados para preencher o gráfico de trabalho realizado.');
+    flashMessages.error('Ocorreu um erro ao gerar o gráfico.');
   };
 
   mountWorkDoneChart();

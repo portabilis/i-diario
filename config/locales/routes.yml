@@ -22,6 +22,7 @@ pt-BR:
     registrations: 'registro'
     students: 'alunos'
     ***REMOVED***: 'materiais'
+    ***REMOVED***: 'tipos-de-materiais'
     ***REMOVED***: 'requisicoes-de-materiais'
     material_request_items: 'items-de-requisicoes-de-materiais'
     ***REMOVED***: 'autorizacoes-de-requisicoes-de-materiais'

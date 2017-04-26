@@ -39,4 +39,7 @@ Rails.application.configure do
 
   # Freeze time
   Timecop.travel(Time.local(2017, 3, 1, 0, 0, 0))
+
+  # Added so we can use urls in mailer templates
+  config.action_mailer.default_url_options = { host: "localhost:3000" }
 end

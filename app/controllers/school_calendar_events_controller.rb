@@ -31,7 +31,7 @@ class SchoolCalendarEventsController < ApplicationController
   end
 
   def edit
-    @school_calendar_event = resource
+    @school_calendar_event = resource.localized
 
     authorize resource
   end

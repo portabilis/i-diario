@@ -4,20 +4,17 @@ $(function(){
   var flashMessages = new FlashMessages();
 
   var $schoolCalendarStepElement = $('#school_calendar_step_pending_avaliations');
-  var $teacherElement = $('#current_teacher_id');
 
   $schoolCalendarStepElement.on('change', fetchTeacherPendingAvaliations);
 
   function fetchTeacherPendingAvaliations() {
-    var teacherId = $teacherElement.val();
     var schoolCalendarStepId = $schoolCalendarStepElement.val();
 
-    if (!_.isEmpty(teacherId)){
+    if (!_.isEmpty(schoolCalendarStepId)){
       $.ajax({
         url: Routes.dashboard_teacher_pending_avaliations_pt_br_path(
           { 
-            format: 'json', 
-            teacher_id: teacherId, 
+            format: 'json',
             school_calendar_step_id: schoolCalendarStepId
           }
         ),
