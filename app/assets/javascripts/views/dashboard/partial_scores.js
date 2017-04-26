@@ -12,10 +12,6 @@ $(function(){
     var $scoresTbody = $(this).closest(".parent-dashboard-partial-scores-container")
                               .find(".parent_partial_scores_tbody")
                               .first();
-    console.log("fetchPartialScores Called!");
-    console.log("fetchPartialScores studentId:"+studentId);
-    console.log("fetchPartialScores classroomId:"+classroomId);
-    console.log("fetchPartialScores schoolCalendarStepId:"+schoolCalendarStepId);
 
     if (!_.isEmpty(studentId) && !_.isEmpty(schoolCalendarStepId)){
       $.ajax({
@@ -54,6 +50,8 @@ $(function(){
       $scoresTbody.append(html);
     });
 
+    makeColumnsWidth($scoresTbody.closest('.parent-dashboard-partial-scores-container'));
+
   }
 
   function handleFetchPartialScoresError() {
@@ -62,8 +60,24 @@ $(function(){
 
   $.each($parentSchoolCalendarStep, function(){
     $(this).on('change', fetchPartialScores).trigger("change");
-    console.log("loop");
-    console.log($(this));
   });
-  console.log("partial_scores loaded");
+
+  var makeColumnsWidth = function($container){
+    var headerCells = $container.find('thead')[0].rows[0].cells;
+    var dataCells = $container.find('tbody')[0].rows[0].cells;
+
+    var scrollbarWidth = $container.find('.table-responsive')[1].offsetWidth - $container.find('.table-responsive')[1].clientWidth;
+
+    if(dataCells.length > 1){
+      for (var i = 0; i < dataCells.length; i++){
+        var cellWidth = i == dataCells.length-1 ? dataCells[i].offsetWidth+scrollbarWidth : dataCells[i].offsetWidth;
+        headerCells[i].style.width = cellWidth + 'px';
+
+      }
+    }
+  }
+
+  $.each($(".parent-dashboard-partial-scores-container"), function(){
+    makeColumnsWidth($(this));
+  });
 });
