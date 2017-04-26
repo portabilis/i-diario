@@ -25,7 +25,7 @@ class StudentPartialScoresFetcher
       response << {
         avaliation: "#{avaliation}",
         date: I18n.l(avaliation.test_date, format: :week_day),
-        discipline: "#{avaliation.discipline.mb_chars.upcase.to_s}",
+        discipline: "#{avaliation.discipline.to_s.mb_chars.upcase}",
         weight: numeric_parser.localize(MaximumScoreFetcher.new(avaliation).maximum_score),
         score: numeric_parser.localize(score)
       }
