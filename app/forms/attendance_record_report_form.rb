@@ -50,12 +50,24 @@ class AttendanceRecordReportForm
   end
 
   def school_calendar_events
-    school_calendar.events
+    events_by_day = []
+    events = school_calendar.events
                    .without_frequency
                    .by_date_between(start_at, end_at)
                    .all_events_for_classroom(classroom)
                    .where(SchoolCalendarEvent.arel_table[:discipline_id].eq(nil).or(SchoolCalendarEvent.arel_table[:discipline_id].eq(discipline_id)))
                    .ordered
+
+    events.each do |event|
+      (event.start_date..event.end_date).each do |date|
+        events_by_day << {
+          date: date,
+          legend: event.legend,
+          description: event.description
+        }
+      end
+    end
+    events_by_day
   end
 
   def students_enrollments
