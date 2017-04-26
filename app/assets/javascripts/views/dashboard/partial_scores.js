@@ -36,7 +36,7 @@ $(function(){
     $scoresTbody.html("");
 
     if(_.isEmpty(data.student_partial_scores)){
-      $scoresTbody.append("<tr><td class=no_record_found colspan=5>Nenhuma avaliação cadastrada.</td></tr>")
+      $scoresTbody.append("<tr><td class=no_record_found colspan=5>Nenhuma avaliação definida para a etapa selecionada.</td></tr>")
     }
 
     _.each(data.student_partial_scores, function(record) {
