@@ -52,4 +52,6 @@
 //= require morris
 //= require select2-tags
 //= require form_errors
+//= require bootstrap-select
+//= require bootstrap-select-pt_BR
 //= require_tree ./resources

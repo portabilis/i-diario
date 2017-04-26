@@ -255,6 +255,12 @@ class User < ActiveRecord::Base
     roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
   end
 
+  def can_publish?
+    current_user_role.try(:role_teacher?) ||
+      current_user_role.try(:role_employee?) ||
+      current_user_role.try(:role_administrator?)
+  end
+
   def update_rd_lead
     return unless GeneralConfiguration.current.allows_after_sales_relationship?
     rdstation_client = RDStation::Client.new('***REMOVED***', '***REMOVED***', 'Usuário no produto Educar+')

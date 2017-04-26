@@ -16,6 +16,7 @@
  *= require jNotify.jquery.css
  *= require educacao
  *= require morris
+ *= require bootstrap-select
  *= require jquery-file-upload/jquery.fileupload
  *= require_tree ./resources
  *= require_self
@@ -199,4 +200,20 @@ ul#contents-list li.list-group-item.active{
 #content-page {
   overflow-x: auto;
   padding-right: 14px;
+}
+
+/* clearfix  */
+.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected {
+  border: 0 !important;
+}
+.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected:before {
+  content: "";
+  display: table;
+  clear: both;
+}
+.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected:after {
+  content: "";
+  display: table;
+  clear: both;
+  border: 0;
 }
