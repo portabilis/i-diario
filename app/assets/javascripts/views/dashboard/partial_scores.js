@@ -72,7 +72,6 @@ $(function(){
       for (var i = 0; i < dataCells.length; i++){
         var cellWidth = i == dataCells.length-1 ? dataCells[i].offsetWidth+scrollbarWidth : dataCells[i].offsetWidth;
         headerCells[i].style.width = cellWidth + 'px';
-
       }
     }
   }
@@ -80,4 +79,10 @@ $(function(){
   $.each($(".parent-dashboard-partial-scores-container"), function(){
     makeColumnsWidth($(this));
   });
+
+  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    var target = $(e.target).attr("href") // activated tab
+    makeColumnsWidth($(target).find(".parent-dashboard-partial-scores-container"));
+  });
+
 });
