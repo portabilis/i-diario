@@ -31,6 +31,10 @@ class Student < ActiveRecord::Base
     name
   end
 
+  def first_name
+    name.blank? ? "" : name.split(" ")[0]
+  end
+
   def average(classroom, discipline, step)
     StudentAverageCalculator.new(self)
       .calculate(classroom, discipline, step)
