@@ -1,0 +1,5 @@
+pt-BR:
+  activerecord:
+    attributes:
+      observation_diary_record_note_student:
+        student_id: "Aluno"

@@ -1,7 +1,7 @@
 class TransferNote < ActiveRecord::Base
   include Audit
 
-  audited
+  audited except: [:teacher_id]
   has_associated_audits
   acts_as_copy_target
 

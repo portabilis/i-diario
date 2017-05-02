@@ -2,7 +2,8 @@ class ObservationDiaryRecordNoteStudent < ActiveRecord::Base
   include Audit
 
   acts_as_copy_target
-  audited
+  audited except: [:observation_diary_record_note_id],
+          associated_with: :observation_diary_record_note
 
   belongs_to :observation_diary_record_note
   belongs_to :student
