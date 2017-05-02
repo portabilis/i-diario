@@ -1,4 +1,5 @@
 class SchoolCalendarClassroom < ActiveRecord::Base
+  acts_as_copy_target
   belongs_to :school_calendar
   belongs_to :classroom
 

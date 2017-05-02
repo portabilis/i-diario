@@ -76,7 +76,12 @@ Rails.application.routes.draw do
 
     root 'dashboard#index'
 
-    get '/sandbox', to: 'dashboard#sandbox'
+    namespace :dashboard do
+      resources :teacher_next_avaliations, only: [:index]
+      resources :teacher_pending_avaliations, only: [:index]
+      resources :teacher_work_done_chart, only: [:index]
+    end
+
     patch '/current_role', to: 'current_role#set', as: :set_current_role
     post '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
     get '/disabled_entity', to: 'pages#disabled_entity'
@@ -140,6 +145,7 @@ Rails.application.routes.draw do
         get :select
       end
     end
+    resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history

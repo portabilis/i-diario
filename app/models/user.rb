@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
 
-  attr_accessor :credentials
+  attr_accessor :credentials, :has_to_validate_receive_news_fields
 
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
@@ -60,7 +60,7 @@ class User < ActiveRecord::Base
 
   validate :uniqueness_of_student_parent_role
   validate :presence_of_email_or_cpf
-  validate :validate_receive_news_fields
+  validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :email_ordered, -> { order(email: :asc)  }
@@ -276,6 +276,10 @@ class User < ActiveRecord::Base
     update_attribute(:current_discipline_id, nil)
     update_attribute(:current_unity_id, nil)
     update_attribute(:assumed_teacher_id, nil)
+  end
+
+  def has_to_validate_receive_news_fields?
+    has_to_validate_receive_news_fields == true || has_to_validate_receive_news_fields == 'true'
   end
 
   protected
