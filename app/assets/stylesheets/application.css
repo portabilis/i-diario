@@ -200,3 +200,12 @@ ul#contents-list li.list-group-item.active{
   overflow-x: auto;
   padding-right: 14px;
 }
+
+.dropup .dropdown-***REMOVED***, .navbar-fixed-bottom .dropdown .dropdown-***REMOVED*** {
+  margin-bottom: -8px;
+}
+
+.dropup .dropdown-***REMOVED*** {
+  -webkit-box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);
+}
