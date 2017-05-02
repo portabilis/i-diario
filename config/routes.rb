@@ -78,6 +78,7 @@ Rails.application.routes.draw do
     root 'dashboard#index'
 
     namespace :dashboard do
+      resources :student_partial_scores, only: [:index]
       resources :teacher_next_avaliations, only: [:index]
       resources :teacher_pending_avaliations, only: [:index]
       resources :teacher_work_done_chart, only: [:index]
@@ -146,6 +147,7 @@ Rails.application.routes.draw do
         get :select
       end
     end
+    resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history

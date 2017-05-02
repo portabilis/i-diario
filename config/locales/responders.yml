@@ -85,6 +85,9 @@ pt-BR:
 
     ***REMOVED***:
       <<: *male
+    
+    ***REMOVED***:
+      <<: *male
 
     ***REMOVED***:
       <<: *male

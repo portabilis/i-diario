@@ -12,6 +12,7 @@ class DisciplineLessonPlanClonerForm
           Classroom.where(id: classroom_ids.split(",")).each do |classroom|
             new_lesson_plan = discipline_lesson_plan.dup
             new_lesson_plan.lesson_plan = discipline_lesson_plan.lesson_plan.dup
+            new_lesson_plan.lesson_plan.unity = classroom.unity
             new_lesson_plan.lesson_plan.contents = discipline_lesson_plan.lesson_plan.contents
             new_lesson_plan.lesson_plan.classroom = classroom
             new_lesson_plan.save!

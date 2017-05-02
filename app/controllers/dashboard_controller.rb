@@ -1,8 +1,14 @@
 class DashboardController < ApplicationController
 
+  before_filter :load_parent_dashboard_info, only: :index, if: :current_user_is_parent?
+
   def index
     fill_in_school_calendar_select_options
     fetch_current_school_calendar_step if @school_calendar_steps_options.any?
+  end
+
+  def load_parent_dashboard_info
+    @panels = ParentDashboardBuilder.new(current_user, Date.today).build
   end
 
   private

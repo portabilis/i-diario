@@ -134,6 +134,9 @@ navigation:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
         - ***REMOVED***:
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
+        - ***REMOVED***:
             type: "moved_***REMOVED***"
             path: "moved_***REMOVED***_path"
         - ***REMOVED***:
