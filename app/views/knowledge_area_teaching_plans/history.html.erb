@@ -12,9 +12,9 @@
         </thead>
         <tbody>
           <legend> Plano de ensino </legend>
-            <% resource.teaching_plan.all_audits.each do |audit| %>
-              <%= render 'discipline_teaching_plans/history/history', record: AuditDecorator.new(audit) %>
-            <% end %>
+          <% resource.teaching_plan.all_audits.each do |audit| %>
+            <%= render 'knowledge_area_teaching_plans/history/history', record: AuditDecorator.new(audit) %>
+          <% end %>
         </tbody>
       </table>
     </div>

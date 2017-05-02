@@ -5,7 +5,8 @@ class LessonPlan < ActiveRecord::Base
 
   attr_writer :contents_tags
 
-  audited
+  audited except: [:teacher_id, :old_contents]
+  has_associated_audits
 
   belongs_to :school_calendar
   belongs_to :unity
@@ -13,7 +14,9 @@ class LessonPlan < ActiveRecord::Base
 
   has_one :discipline_lesson_plan
   has_one :knowledge_area_lesson_plan
-  has_and_belongs_to_many :contents, dependent: :restrict
+
+  has_many :contents_lesson_plans, dependent: :destroy
+  has_many :contents, through: :contents_lesson_plans
   accepts_nested_attributes_for :contents, allow_destroy: true
 
   validates :school_calendar, presence: true

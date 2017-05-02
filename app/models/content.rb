@@ -2,12 +2,13 @@ class Content < ActiveRecord::Base
   include Audit
 
   audited
+  has_associated_audits
 
   acts_as_copy_target
 
-  has_and_belongs_to_many :teaching_plans, dependent: :destroy
-  has_and_belongs_to_many :lesson_plans, dependent: :restrict
-  has_and_belongs_to_many :content_records, dependent: :restrict
+  has_many :teaching_plans, dependent: :restrict_with_error
+  has_many :lesson_plans, dependent: :restrict_with_error
+  has_many :content_records, dependent: :restrict_with_error
 
   validates :description, presence: true
 

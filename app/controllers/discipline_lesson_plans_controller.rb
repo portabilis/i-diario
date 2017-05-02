@@ -72,7 +72,6 @@ class DisciplineLessonPlansController < ApplicationController
     if @discipline_lesson_plan.save
       respond_with @discipline_lesson_plan, location: discipline_lesson_plans_path
     else
-      # raise "a"
       render :new
     end
   end

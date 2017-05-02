@@ -40,7 +40,7 @@ GIT
 
 GIT
   remote: https://github.com/portabilis/audited.git
-  revision: 4ff84deb9c89cf3166d50ca42f2219503bfa53db
+  revision: aeca407e44b52083c41172fe2db11fd3b99ca4eb
   specs:
     audited (4.0.0.rc1)
       rails-observers (~> 0.1.2)

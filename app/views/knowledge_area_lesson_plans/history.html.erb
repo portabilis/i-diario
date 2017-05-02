@@ -11,10 +11,9 @@
           </tr>
         </thead>
         <tbody>
-          <legend> Plano de ensino </legend>
-            <% resource.teaching_plan.all_audits.each do |audit| %>
-              <%= render 'discipline_teaching_plans/history/history', record: AuditDecorator.new(audit) %>
-            <% end %>
+          <% resource.lesson_plan.all_audits.each do |audit| %>
+            <%= render 'knowledge_area_lesson_plans/history/history', record: AuditDecorator.new(audit) %>
+          <% end %>
         </tbody>
       </table>
     </div>

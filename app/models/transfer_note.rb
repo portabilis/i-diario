@@ -1,10 +1,9 @@
 class TransferNote < ActiveRecord::Base
-  acts_as_copy_target
+  include Audit
 
   audited
   has_associated_audits
-
-  include Audit
+  acts_as_copy_target
 
   attr_writer :unity_id
 

@@ -31,6 +31,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
     @knowledge_area_content_record.content_record.content_ids = content_ids
 
+    # raise params.to_json
+
     authorize @knowledge_area_content_record
 
     if @knowledge_area_content_record.save

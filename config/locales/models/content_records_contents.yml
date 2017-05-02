@@ -1,0 +1,5 @@
+pt-BR:
+  activerecord:
+    attributes:
+      content_records_content:
+        content_id: "Conteúdo"

@@ -11,10 +11,10 @@
           </tr>
         </thead>
         <tbody>
-          <legend> Plano de ensino </legend>
-            <% resource.teaching_plan.all_audits.each do |audit| %>
-              <%= render 'discipline_teaching_plans/history/history', record: AuditDecorator.new(audit) %>
-            <% end %>
+          <legend> Plano de aula </legend>
+          <% resource.content_record.all_audits.each do |audit| %>
+            <%= render 'discipline_content_records/history/history', record: AuditDecorator.new(audit) %>
+          <% end %>
         </tbody>
       </table>
     </div>
@@ -23,3 +23,4 @@
       Nenhuma alteração realizada.
     </div>
   <% end %>
+  </div>

@@ -1,7 +1,7 @@
 <tr>
   <td><%= AuditedAction.t record.action %></td>
   <td class="history-changes">
-    <%= render "#{record.action}", record: record %>
+    <%= render "discipline_teaching_plans/history/#{record.action}", record: record %>
   </td>
   <td><%= record.user %></td>
   <td><%= I18n.l record.created_at, format: :compressed %></td>

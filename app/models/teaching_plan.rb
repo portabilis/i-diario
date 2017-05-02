@@ -1,13 +1,15 @@
 class TeachingPlan < ActiveRecord::Base
   include Audit
 
+  audited except: [:old_contents, :teacher_id]
+  has_associated_audits
   acts_as_copy_target
 
-  audited
-
   has_enumeration_for :school_term_type,
-    with: SchoolTermTypes,
-    create_helpers: true
+                      with: SchoolTermTypes,
+                      create_helpers: true
+  has_enumeration_for :school_term,
+                      with: SchoolTerms
 
   belongs_to :unity
   belongs_to :grade
@@ -18,7 +20,9 @@ class TeachingPlan < ActiveRecord::Base
   validates :school_term_type, presence: true
   validates :school_term, presence: { unless: :yearly? }
 
-  has_and_belongs_to_many :contents, dependent: :destroy
+  has_many :contents, through: :contents_teaching_plans
+  has_many :contents_teaching_plans, dependent: :destroy
+
   has_one :discipline_teaching_plan
   has_one :knowledge_area_teaching_plan
 

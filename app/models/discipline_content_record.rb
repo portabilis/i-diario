@@ -1,10 +1,8 @@
 class DisciplineContentRecord < ActiveRecord::Base
   include Audit
 
-  acts_as_copy_target
-
   audited
-  has_associated_audits
+  acts_as_copy_target
 
   belongs_to :content_record
   accepts_nested_attributes_for :content_record

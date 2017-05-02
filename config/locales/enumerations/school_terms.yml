@@ -1,0 +1,13 @@
+pt-BR:
+  enumerations:
+    school_terms:
+      first_bimester: "1º Bimestre"
+      second_bimester: "2º Bimestre"
+      third_bimester: "3º Bimestre"
+      fourth_bimester: "4º Bimestre"
+      first_trimester: "1º Trimestre"
+      second_trimester: "2º Trimestre"
+      third_trimester: "3º Trimestre"
+      first_semester: "1º Semestre"
+      second_semester: "2º Semestre"
+      yearly: "Anual"
