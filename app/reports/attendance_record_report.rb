@@ -86,10 +86,18 @@ class AttendanceRecordReport
 
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
 
+    # p '**************'
+    # p @events
+    # p '**************'
+    # p '**************'
+    # p @events.count
+    # p '**************'
+
+    # raise
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
-      event?(obj) ? obj.start_date : obj.frequency_date
+      daily_frequency?(obj) ? obj.frequency_date : obj[:date]
     end
     sliced_frequencies_and_events = frequencies_and_events.each_slice(40).to_a
 
@@ -100,26 +108,7 @@ class AttendanceRecordReport
       students = {}
 
       frequencies_and_events_slice.each do |daily_frequency_or_event|
-        if event?(daily_frequency_or_event)
-          school_calendar_event = daily_frequency_or_event
-          legend = ", "+school_calendar_event.legend.to_s+" - "+school_calendar_event.description
-          self.legend += legend unless self.legend.include?(legend)
-
-          (school_calendar_event.start_date..school_calendar_event.end_date).each do |date|
-            class_numbers << make_cell(content: "", background_color: 'FFFFFF', align: :center)
-            days << make_cell(content: "#{date.day}", background_color: 'FFFFFF', align: :center)
-            months << make_cell(content: "#{date.month}", background_color: 'FFFFFF', align: :center)
-
-            @students_enrollments.each do |student_enrollment|
-              student_id = student_enrollment.student_id
-              student = Student.find(student_id)
-              (students[student_id] ||= {})[:name] = student.name
-              students[student_id] = {} if students[student_id].nil?
-              students[student_id][:absences] ||= 0
-              (students[student_id][:attendances] ||= []) << make_cell(content: "#{school_calendar_event.legend}", align: :center)
-            end
-          end
-        else
+        if daily_frequency?(daily_frequency_or_event)
           daily_frequency = daily_frequency_or_event
           class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
           days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
@@ -138,6 +127,23 @@ class AttendanceRecordReport
               students[student_id][:absences] = students[student_id][:absences] + 1
             end
           (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
+          end
+        else
+          school_calendar_event = daily_frequency_or_event
+          legend = ", "+school_calendar_event[:legend].to_s+" - "+school_calendar_event[:description]
+          self.legend += legend unless self.legend.include?(legend)
+
+          class_numbers << make_cell(content: "", background_color: 'FFFFFF', align: :center)
+          days << make_cell(content: "#{school_calendar_event[:date].day}", background_color: 'FFFFFF', align: :center)
+          months << make_cell(content: "#{school_calendar_event[:date].month}", background_color: 'FFFFFF', align: :center)
+
+          @students_enrollments.each do |student_enrollment|
+            student_id = student_enrollment.student_id
+            student = Student.find(student_id)
+            (students[student_id] ||= {})[:name] = student.name
+            students[student_id] = {} if students[student_id].nil?
+            students[student_id][:absences] ||= 0
+            (students[student_id][:attendances] ||= []) << make_cell(content: "#{school_calendar_event[:legend]}", align: :center)
           end
         end
       end
@@ -241,6 +247,10 @@ class AttendanceRecordReport
 
   def event?(record)
     record.class.to_s == "SchoolCalendarEvent"
+  end
+
+  def daily_frequency?(record)
+    record.is_a? DailyFrequency
   end
 
   def student_has_dependence?(student_enrollment, discipline)
