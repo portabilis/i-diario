@@ -20,8 +20,8 @@ class TeachingPlan < ActiveRecord::Base
   validates :school_term_type, presence: true
   validates :school_term, presence: { unless: :yearly? }
 
-  has_many :contents, through: :contents_teaching_plans
   has_many :contents_teaching_plans, dependent: :destroy
+  has_many :contents, through: :contents_teaching_plans
 
   has_one :discipline_teaching_plan
   has_one :knowledge_area_teaching_plan
