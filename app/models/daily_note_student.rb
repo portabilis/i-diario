@@ -1,7 +1,7 @@
 class DailyNoteStudent < ActiveRecord::Base
   acts_as_copy_target
 
-  audited associated_with: :daily_note, except: :daily_note_id
+  audited associated_with: :daily_note, except: [:daily_note_id, :active, :transfer_note_id]
 
   attr_accessor :exempted, :dependence
 
