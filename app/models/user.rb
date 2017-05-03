@@ -288,6 +288,11 @@ class User < ActiveRecord::Base
     has_to_validate_receive_news_fields == true || has_to_validate_receive_news_fields == 'true'
   end
 
+  def current_access_level
+    return unless current_user_role
+    current_user_role.role.access_level
+  end
+
   protected
 
   def rd_matters
