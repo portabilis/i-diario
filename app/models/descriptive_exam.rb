@@ -1,11 +1,11 @@
 class DescriptiveExam < ActiveRecord::Base
+  include Audit
+
   acts_as_copy_target
 
   audited
   has_associated_audits
   before_save :mark_students_for_removal
-
-  include Audit
 
   belongs_to :classroom
   belongs_to :discipline

@@ -286,7 +286,7 @@ Rails.application.routes.draw do
     resources :final_recovery_diary_records, concerns: :history
     resources :avaliation_recovery_diary_records, concerns: :history
     resources :conceptual_exams, concerns: :history
-    resources :descriptive_exams, only: [:new, :create, :edit, :update]
+    resources :descriptive_exams, only: [:new, :create, :edit, :update], concerns: :history
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
         get :edit_multiple
