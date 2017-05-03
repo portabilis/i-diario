@@ -1,7 +1,9 @@
 <table class="table table-striped records">
   <thead>
     <tr>
-      <th>Aluno</th>
+      <% if record.auditable.respond_to?(:student) %>
+        <th>Aluno</th>
+      <% end %>
       <th>Campo</th>
       <th>Antigo valor</th>
       <th>Novo valor</th>
@@ -10,7 +12,9 @@
   <% record.audited_changes.each do |key, values| %>
     <tbody>
       <tr>
-        <td><%= record.auditable.student.name %></td>
+        <% if record.auditable.respond_to?(:student) %>
+          <td><%= record.auditable.student.name %></td>
+        <% end %>
         <td>
           <%= record.human_attribute_name key %>
         </td>
