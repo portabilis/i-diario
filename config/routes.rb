@@ -294,6 +294,8 @@ Rails.application.routes.draw do
         delete :destroy_multiple
       end
     end
+    get 'daily_frequency/history_multiple', to: 'daily_frequencies#history_multiple', as: 'history_multiple_daily_frequency'
+
     resources :absence_justifications, concerns: :history
     resources :observation_diary_records, expect: :show, concerns: :history
     resources :ieducar_api_exam_postings

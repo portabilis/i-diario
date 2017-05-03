@@ -12,6 +12,7 @@ pt-BR:
         discipline_id: "Disciplina"
         frequency_date: "Data"
         class_number: "Aula"
+        school_calendar_id: "Calendário"
     errors:
       models:
         daily_frequency:

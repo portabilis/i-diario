@@ -1,7 +1,7 @@
 class DailyFrequencyStudent < ActiveRecord::Base
   acts_as_copy_target
 
-  audited associated_with: :daily_frequency, except: :daily_frequency_id
+  audited associated_with: :daily_frequency, except: [:daily_frequency_id, :active]
 
   attr_accessor :dependence
 
