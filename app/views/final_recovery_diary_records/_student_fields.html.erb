@@ -11,7 +11,7 @@
 
   <td>
     <span class="needed_score">
-      <%= f.object.student.needed_score unless f.object.marked_for_destruction? %>
+      <%= f.object.student.try(:needed_score) unless f.object.marked_for_destruction? %>
     </span>
   </td>
 
