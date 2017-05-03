@@ -222,3 +222,7 @@ a.parent-dashboard-basic-info-links {
 .gray{
   color: #737373;
 }
+
+.up-down-accordion {
+  float: right;
+}
