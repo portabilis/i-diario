@@ -1,3 +1,5 @@
-<% if current_teacher %>
+<% if current_user_is_parent? %>
+  <%= render 'parent_dashboard' %>
+<% elsif current_teacher %>
   <%= render 'teacher_dashboard', teacher: current_teacher %>
 <% end %>

@@ -217,3 +217,26 @@ ul#contents-list li.list-group-item.active{
   clear: both;
   border: 0;
 }
+
+.ratio {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    height: 0;
+    padding-bottom: 100%;
+    position: relative;
+    width: 100%;
+}
+.parent-dashboard-avatar{
+  height: 90px;
+  width: 90px;
+}
+a.parent-dashboard-basic-info-links {
+  text-decoration: none;
+  cursor: pointer;
+  color: #FFF;
+}
+.gray{
+  color: #737373;
+}
