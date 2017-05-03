@@ -4,6 +4,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   acts_as_copy_target
 
   audited
+  has_associated_audits
 
   belongs_to :unity
   belongs_to :classroom, -> { includes(:exam_rule) }
