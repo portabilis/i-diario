@@ -34,8 +34,6 @@ class DisciplineContentRecordsController < ApplicationController
 
     authorize @discipline_content_record
 
-    raise params.to_json
-
     if @discipline_content_record.save
       respond_with @discipline_content_record, location: discipline_content_records_path
     else
