@@ -3,7 +3,7 @@ $(function(){
   var chartContainerElement = $("#chart-container");
   var noInfoChartElement = $("#no-info-chart");
   var flashMessages = new FlashMessages();
-  var teacherWorkDoneChart = undefined;
+  var teacherWorkDoneChart = Chart(ctx, null);
 
   $schoolCalendarStepElement = $('#school_calendar_step');
   $schoolCalendarStepElement.on('change', updateWorkDoneChart);
@@ -12,7 +12,7 @@ $(function(){
     var schoolCalendarStepId = $('#school_calendar_step').val();
     $.ajax({
       url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
-        { 
+        {
           format: 'json',
           school_calendar_step_id: schoolCalendarStepId
         }
@@ -39,7 +39,7 @@ $(function(){
     var schoolCalendarStepId = $('#school_calendar_step').val();
     $.ajax({
       url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
-        { 
+        {
           format: 'json',
           school_calendar_step_id: schoolCalendarStepId
         }
@@ -68,7 +68,7 @@ $(function(){
             backgroundColor: [
                 "#36A2EB",
                 "#FF6384"
-                
+
             ],
             hoverBackgroundColor: [
                 "#36A2EB",
@@ -100,7 +100,7 @@ $(function(){
               return " " + currentValue + " (" + percentage + "%)";
             }
           }
-        } 
+        }
       }
     });
   };
