@@ -10,16 +10,18 @@ $(function(){
 
   function updateWorkDoneChart(){
     var schoolCalendarStepId = $('#school_calendar_step').val();
-    $.ajax({
-      url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
-        { 
-          format: 'json',
-          school_calendar_step_id: schoolCalendarStepId
-        }
-      ),
-      success: handleUpdateTeacherWOrkDoneChartSuccess,
-      error: handleFetchTeacherWorkDoneChartError
-    });
+    if (!_.isEmpty(schoolCalendarStepId)) {
+      $.ajax({
+        url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
+          {
+            format: 'json',
+            school_calendar_step_id: schoolCalendarStepId
+          }
+        ),
+        success: handleUpdateTeacherWOrkDoneChartSuccess,
+        error: handleFetchTeacherWorkDoneChartError
+      });
+    }
   }
 
   function handleUpdateTeacherWOrkDoneChartSuccess(teacher_notes){
@@ -37,16 +39,18 @@ $(function(){
 
   function mountWorkDoneChart(){
     var schoolCalendarStepId = $('#school_calendar_step').val();
-    $.ajax({
-      url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
-        { 
-          format: 'json',
-          school_calendar_step_id: schoolCalendarStepId
-        }
-      ),
-      success: handleFetchTeacherWorkDoneChartSuccess,
-      error: handleFetchTeacherWorkDoneChartError
-    });
+    if (!_.isEmpty(schoolCalendarStepId)) {
+      $.ajax({
+        url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
+          {
+            format: 'json',
+            school_calendar_step_id: schoolCalendarStepId
+          }
+        ),
+        success: handleFetchTeacherWorkDoneChartSuccess,
+        error: handleFetchTeacherWorkDoneChartError
+      });
+    }
   }
 
   function handleFetchTeacherWorkDoneChartSuccess(teacher_notes) {
@@ -68,7 +72,6 @@ $(function(){
             backgroundColor: [
                 "#36A2EB",
                 "#FF6384"
-                
             ],
             hoverBackgroundColor: [
                 "#36A2EB",
@@ -100,7 +103,7 @@ $(function(){
               return " " + currentValue + " (" + percentage + "%)";
             }
           }
-        } 
+        }
       }
     });
   };
