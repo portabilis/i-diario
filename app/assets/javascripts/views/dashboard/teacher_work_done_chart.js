@@ -3,7 +3,7 @@ $(function(){
   var chartContainerElement = $("#chart-container");
   var noInfoChartElement = $("#no-info-chart");
   var flashMessages = new FlashMessages();
-  var teacherWorkDoneChart = Chart(ctx, null);
+  var teacherWorkDoneChart = null;
 
   $schoolCalendarStepElement = $('#school_calendar_step');
   $schoolCalendarStepElement.on('change', updateWorkDoneChart);
