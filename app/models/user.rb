@@ -257,6 +257,7 @@ class User < ActiveRecord::Base
 
   def update_rd_lead
     return unless GeneralConfiguration.current.allows_after_sales_relationship?
+    return unless Rails.env.production?
     rdstation_client = RDStation::Client.new('***REMOVED***', '***REMOVED***', 'Usuário no produto Educar+')
 
     response = rdstation_client.create_lead({
