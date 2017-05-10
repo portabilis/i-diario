@@ -86,6 +86,10 @@ form.smart-form .control-group.error label{
   color: #b94a48;
 }
 
+abbr {
+  color: #b94a48;
+}
+
 #page_entries_info{
   font-weight: bold;
   font-style: italic;
