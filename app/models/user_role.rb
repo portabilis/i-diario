@@ -1,4 +1,5 @@
 class UserRole < ActiveRecord::Base
+  acts_as_copy_target
   audited associated_with: :user, only: [:role_id, :unity_id]
 
   belongs_to :user
@@ -8,7 +9,7 @@ class UserRole < ActiveRecord::Base
   validates :user, :role, presence: true
   validates :unity, presence: true, if: :require_unity?
 
-  delegate :name, :access_level_humanize, :administrator?, :teacher?, :employee?, to: :role, prefix: true, allow_nil: true
+  delegate :name, :access_level_humanize, :administrator?, :teacher?, :employee?, :parent?, to: :role, prefix: true, allow_nil: true
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
   def to_s

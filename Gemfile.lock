@@ -49,6 +49,12 @@ GIT
       activesupport (>= 3.2.0)
 
 GIT
+  remote: https://github.com/portabilis/zenvia-ruby
+  revision: 3ddce8e147d02a7deafd56adaedd7f35184ce0a7
+  specs:
+    zenvia-ruby (0.1.7)
+
+GIT
   remote: https://github.com/ricardohsd/activerecord-connections.git
   revision: b2a704ff10c447f37635eaa0a447ffb4747b1694
   specs:
@@ -597,9 +603,10 @@ DEPENDENCIES
   web-console (~> 2.0)
   webmock (~> 1.22, >= 1.22.3)
   whenever
+  zenvia-ruby!
 
 RUBY VERSION
-   ruby 2.2.3p173
+   ruby 2.2.6p396
 
 BUNDLED WITH
-   1.13.6
+   1.14.6

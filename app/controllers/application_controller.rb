@@ -226,6 +226,12 @@ class ApplicationController < ActionController::Base
   end
   helper_method :valid_current_role?
 
+  def current_user_is_parent?
+    current_user && current_user.current_user_role && current_user.current_user_role.role_parent?
+  end
+  helper_method :current_user_is_parent?
+
+
   private
 
   def disabled_entity_page?

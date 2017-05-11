@@ -26,22 +26,18 @@ class UnitiesParser
       unless unities.exists?(api_code: record["cod_escola"])
         if record["nome"].present?
           phone = nil
-          phone = "(#{record["ddd"]}) #{record["phone"]}" if record["phone"].present?
+          phone = "(#{record["ddd"]}) #{record["fone"]}" if record["fone"].present?
 
-          address = nil
-
-          if record["cep"].present? && record["numero"].present?
-            address = Address.new(
-              street: record["logradouro"],
-              zip_code: format_cep(record["cep"]),
-              number: record["numero"],
-              complement: record["complemento"],
-              neighborhood: record["bairro"],
-              city: record["municipio"],
-              state: record["uf"].downcase,
-              country: "Brasil"
-            )
-          end
+          address = Address.new(
+            street: record["logradouro"],
+            zip_code: format_cep(record["cep"]),
+            number: record["numero"],
+            complement: record["complemento"],
+            neighborhood: record["bairro"],
+            city: record["municipio"],
+            state: record["uf"].downcase,
+            country: "Brasil"
+          )
 
           new_unities << unities.new(
             api: true,

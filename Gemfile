@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 # '~> <version>' is used to limit versions in the same release, eg: "~> 2.1" is like as ">= 2.1 and < 3.0"
 
-ruby '2.2.3'
+ruby '2.2.6'
 
 gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
@@ -58,6 +58,8 @@ gem 'carrierwave'
 gem 'fog', '~> 1.36'
 
 gem 'rdstation-ruby-client'
+
+gem "zenvia-ruby", git: "https://github.com/portabilis/zenvia-ruby"
 
 group :development do
   gem 'quiet_assets'

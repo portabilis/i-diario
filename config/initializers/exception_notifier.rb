@@ -9,6 +9,7 @@ if Rails.env.production? || Rails.env.staging?
           caroline@portabilis.com.br
           kellyn@portabilis.com.br
           eliezer@portabilis.com.br
+          lucas@portabilis.com.br
         )
 
     }
