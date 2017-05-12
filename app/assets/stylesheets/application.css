@@ -86,6 +86,10 @@ form.smart-form .control-group.error label{
   color: #b94a48;
 }
 
+abbr {
+  color: #b94a48;
+}
+
 #page_entries_info{
   font-weight: bold;
   font-style: italic;
@@ -199,4 +203,30 @@ ul#contents-list li.list-group-item.active{
 #content-page {
   overflow-x: auto;
   padding-right: 14px;
+}
+.ratio {
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    height: 0;
+    padding-bottom: 100%;
+    position: relative;
+    width: 100%;
+}
+.parent-dashboard-avatar{
+  height: 90px;
+  width: 90px;
+}
+a.parent-dashboard-basic-info-links {
+  text-decoration: none;
+  cursor: pointer;
+  color: #FFF;
+}
+.gray{
+  color: #737373;
+}
+
+.up-down-accordion {
+  float: right;
 }

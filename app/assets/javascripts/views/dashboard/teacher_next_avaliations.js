@@ -11,11 +11,11 @@ $(function(){
 
   function handleFetchTeacherNextAvaliationsSuccess(data) {
     if(!_.isEmpty(data.teacher_next_avaliations)){
-      $('#teacher-next-avaliations').html("");  
+      $('#teacher-next-avaliations').html("");
     }
     _.each(data.teacher_next_avaliations, function(avaliation) {
       var html = JST['templates/teacher_dashboard/teacher_next_avaliations']({
-        description: avaliation.description,
+        description: avaliation.to_s,
         classroom: avaliation.classroom.description,
         discipline: avaliation.discipline.description,
         test_date: avaliation.test_date_humanized,

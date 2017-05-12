@@ -21,6 +21,7 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :***REMOVED***,
                    :***REMOVED***,
+                   :***REMOVED***,
                    :moved_***REMOVED***,
                    :***REMOVED***,
                    :***REMOVED***,
@@ -74,7 +75,8 @@ class Features < EnumerateIt::Base
                    :can_change_user_password,
                    :***REMOVED***,
                    :***REMOVED***,
-                   :***REMOVED***
+                   :***REMOVED***,
+                   :***REMOVED***_movements
 
   sort_by :translation
 end
