@@ -2,7 +2,7 @@
   <%= javascript_include_tag 'views/discipline_lesson_plans/form' %>
 <% end %>
 
-<%= simple_form_for @discipline_lesson_plan, html: { class: 'smart-form' } do |f| %>
+<%= simple_form_for @discipline_lesson_plan, html: { class: 'smart-form', id: 'discipline_lesson_plan' } do |f| %>
   <%= f.error_notification %>
 
   <%= f.simple_fields_for :lesson_plan, @discipline_lesson_plan.lesson_plan.localized do |lesson_plan| %>

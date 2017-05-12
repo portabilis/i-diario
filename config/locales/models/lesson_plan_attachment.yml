@@ -1,0 +1,10 @@
+pt-BR:
+  activerecord:
+    errors:
+      models:
+        lesson_plan_attachment:
+          attributes:
+            attachment:
+              in_between: "deve ter entre %{min} e %{max}"
+              spoofed_media_type: "tem uma extensão que não corresponde ao seu conteúdo"
+              less_than: "tamanho máximo por arquivo: %{count}"

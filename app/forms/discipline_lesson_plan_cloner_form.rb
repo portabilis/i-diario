@@ -15,6 +15,9 @@ class DisciplineLessonPlanClonerForm
             new_lesson_plan.lesson_plan.unity = classroom.unity
             new_lesson_plan.lesson_plan.contents = discipline_lesson_plan.lesson_plan.contents
             new_lesson_plan.lesson_plan.classroom = classroom
+            discipline_lesson_plan.lesson_plan.lesson_plan_attachments.each do |lesson_plan_attachment|
+              new_lesson_plan.lesson_plan.lesson_plan_attachments << LessonPlanAttachment.new(attachment: lesson_plan_attachment.attachment)
+            end
             new_lesson_plan.save!
           end
           return true

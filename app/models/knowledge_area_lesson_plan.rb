@@ -9,6 +9,8 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
 
   belongs_to :lesson_plan, dependent: :destroy
 
+  before_destroy :remove_attachments
+
   has_many :knowledge_area_lesson_plan_knowledge_areas, dependent: :destroy
   has_many :knowledge_areas, through: :knowledge_area_lesson_plan_knowledge_areas
 
@@ -59,5 +61,10 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
           .lteq(date)
           .and(LessonPlan.arel_table[:end_at].gteq(date))
       )
+  end
+
+  def remove_attachments
+    lesson_plan.lesson_plan_attachments.each { |lesson_plan_attachment| lesson_plan_attachment.attachment = nil }
+    lesson_plan.save
   end
 end

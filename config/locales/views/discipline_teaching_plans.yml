@@ -8,5 +8,10 @@ pt-BR:
       by_school_term_type: "Filtrar tipo de período escolar"
     form:
       add_content: "Adicionar conteúdo"
+      add_attachment: "Adicionar anexo"
     content_fields:
+      remove: "Remover"
+    lesson_plan_attachment_fields:
+      remove: "Remover"
+    lesson_plan_attachment_show:
       remove: "Remover"
