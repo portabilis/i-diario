@@ -77,6 +77,14 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
+  def history
+    @descriptive_exam = DescriptiveExam.find(params[:id])
+
+    authorize @descriptive_exam
+
+    respond_with @descriptive_exam
+  end
+
   protected
 
   def fetch_student_enrollments

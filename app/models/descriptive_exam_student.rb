@@ -1,7 +1,7 @@
 class DescriptiveExamStudent < ActiveRecord::Base
   acts_as_copy_target
 
-  audited associated_with: :descriptive_exam, except: :descriptive_exam_id
+  audited associated_with: :descriptive_exam, except: [:descriptive_exam_id, :dependence]
 
   belongs_to :descriptive_exam
   belongs_to :student

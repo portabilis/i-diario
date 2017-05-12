@@ -94,6 +94,14 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
   end
 
+  def history
+    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id])
+
+    authorize @final_recovery_diary_record
+
+    respond_with @final_recovery_diary_record
+  end
+
   private
 
   def resource_params

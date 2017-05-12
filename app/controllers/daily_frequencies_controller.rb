@@ -95,6 +95,12 @@ class DailyFrequenciesController < ApplicationController
     respond_with @daily_frequency
   end
 
+  def history_multiple
+    @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
+
+    respond_with @daily_frequencies
+  end
+
   protected
 
   def create_unpersisted_students
