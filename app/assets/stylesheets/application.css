@@ -16,6 +16,7 @@
  *= require jNotify.jquery.css
  *= require educacao
  *= require morris
+ *= require bootstrap-select
  *= require jquery-file-upload/jquery.fileupload
  *= require_tree ./resources
  *= require_self
@@ -204,6 +205,59 @@ ul#contents-list li.list-group-item.active{
   overflow-x: auto;
   padding-right: 14px;
 }
+
+/* clearfix  */
+.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected {
+  border: 0 !important;
+}
+.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected:before {
+  content: "";
+  display: table;
+  clear: both;
+}
+.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected:after {
+  content: "";
+  display: table;
+  clear: both;
+  border: 0;
+}
+
+.bootstrap-select.open > .dropdown-***REMOVED***{
+ -o-transition-property: none;
+ -moz-transition-property: none;
+ -ms-transition-property: none;
+ -webkit-transition-property: none;
+ transition-property: none;
+ -o-transform: none;
+ -moz-transform: none;
+ -ms-transform: none;
+ -webkit-transform: none;
+ transform: none;
+ -webkit-animation: none;
+ -moz-animation: none;
+ -o-animation: none;
+ -ms-animation: none;
+ animation: none;
+}
+
+.bootstrap-select.open > .dropdown-***REMOVED***.open > .dropdown-***REMOVED***{
+ -o-transition-property: none;
+ -moz-transition-property: none;
+ -ms-transition-property: none;
+ -webkit-transition-property: none;
+ transition-property: none;
+ -o-transform: none;
+ -moz-transform: none;
+ -ms-transform: none;
+ -webkit-transform: none;
+ transform: none;
+ -webkit-animation: none;
+ -moz-animation: none;
+ -o-animation: none;
+ -ms-animation: none;
+ animation: none;
+}
+
 .ratio {
     background-position: center center;
     background-repeat: no-repeat;
@@ -226,7 +280,6 @@ a.parent-dashboard-basic-info-links {
 .gray{
   color: #737373;
 }
-
 .up-down-accordion {
   float: right;
 }
