@@ -1,5 +1,5 @@
 <div class="widget-body">
-  <% if resource.all_audits.exists? %>
+  <% if resource.content_record.all_audits.exists? %>
     <div class="table-responsive">
       <table class="table table-bordered table-only-inner-bordered" id="history">
         <thead>
@@ -11,7 +11,6 @@
           </tr>
         </thead>
         <tbody>
-          <legend> Plano de aula </legend>
           <% resource.content_record.all_audits.each do |audit| %>
             <%= render 'discipline_content_records/history/history', record: AuditDecorator.new(audit) %>
           <% end %>
