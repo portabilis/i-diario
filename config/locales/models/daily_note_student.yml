@@ -5,3 +5,5 @@ pt-BR:
         student: "Aluno"
         student_id: "Aluno"
         note: "Nota"
+        transfer_note_id: "Nota de transferência"
+        active: "Ativo"
