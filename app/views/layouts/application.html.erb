@@ -16,6 +16,7 @@
     <%= stylesheet_link_tag "application", :media => "all" %>
 
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
+    <script type="text/javascript" src="https://assets.freshdesk.com/widget/freshwidget.js"></script>
 
     <%= favicon_link_tag  %>
   </head>
@@ -100,23 +101,5 @@
 
     <%= javascript_include_tag "application" %>
     <%= yield :js %>
-
-    <!-- widget freshdesk -->
-    <script type="text/javascript" src="https://assets.freshdesk.com/widget/freshwidget.js"></script>
-    <script type="text/javascript">
-      FreshWidget.init("", {
-        "queryString": "&widgetType=popup",
-        "utf8": "✓",
-        "widgetType": "popup",
-        "buttonType": "text",
-        "buttonText": "Suporte",
-        "buttonColor": "white",
-        "buttonBg": "#004c93",
-        "alignment": "4",
-        "offset": "235px",
-        "formHeight": "500px",
-        "url": "http://suporte.portabilis.com.br"
-      });
-    </script>
   </body>
 </html>
