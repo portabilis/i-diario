@@ -11,8 +11,8 @@ class PartialScoreRecordReportForm
   validates :unity_id,      presence: true
   validates :classroom_id,  presence: true
   validates :student_id, presence: true
-  validates :school_calendar_step_id, presence: true, unless: :school_calendar_classroom_step_id
-  validates :school_calendar_classroom_step_id, presence: true, unless: :school_calendar_step_id
+  validates :school_calendar_step_id, presence: true, if: :should_validate_presence_of_school_calendar_step
+  validates :school_calendar_classroom_step_id, presence: true, if: :should_validate_presence_of_classroom_school_calendar_step
 
   validate :must_have_daily_note_students
 
@@ -68,5 +68,13 @@ class PartialScoreRecordReportForm
     if daily_note_students.count == 0
       errors.add(:daily_note_students, :must_have_daily_note_students)
     end
+  end
+
+  def should_validate_presence_of_school_calendar_step
+    school_calendar_classroom_step_id.blank?
+  end
+
+  def should_validate_presence_of_classroom_school_calendar_step
+    school_calendar_step_id.blank?
   end
 end
