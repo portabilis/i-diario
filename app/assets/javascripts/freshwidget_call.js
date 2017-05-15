@@ -6,7 +6,7 @@ FreshWidget.init("", {
     "buttonText": "Suporte",
     "buttonColor": "white",
     "buttonBg": "#004c93",
-    "alignment": "4",
+    "alignment": "2",
     "offset": "235px",
     "formHeight": "500px",
     "url": "http://suporte.portabilis.com.br"
