@@ -52,4 +52,5 @@
 //= require morris
 //= require select2-tags
 //= require form_errors
+//= require widget_helpdesk
 //= require_tree ./resources
