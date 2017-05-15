@@ -152,8 +152,8 @@ class PartialScoreRecordReport
     end
 
 
-    number_of_scores = disciplines.map{|i,hash| hash.length}.max
-    header_cell = make_cell(content: 'Informações gerais', size: 12, font_style: :bold, height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2+number_of_scores)
+    number_of_scores = disciplines.map{|i,hash| hash.length}.max || 1
+    header_cell = make_cell(content: 'Informações gerais', size: 12, font_style: :bold, height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2 + number_of_scores)
     subheader_cells << make_cell(content: 'Disciplina', align: :left, size: 8, font_style: :bold, width: 156, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4])
     number_of_scores.times do
       subheader_cells << make_cell(content: 'Nota', align: :center, size: 8, font_style: :bold, borders: [:top, :right, :bottom], padding: [2, 2, 4, 4])
