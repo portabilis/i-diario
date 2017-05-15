@@ -9,5 +9,5 @@ FreshWidget.init("", {
     "alignment": "3",
     "offset": "235px",
     "formHeight": "500px",
-    "url": "https://suporte.portabilis.com.br"
+    "url": "https://portabilis.freshdesk.com"
 });
