@@ -1,0 +1,24 @@
+<table class="table table-striped records">
+  <thead>
+    <tr>
+      <th>Campo</th>
+      <th>Valor</th>
+    </tr>
+  </thead>
+  <% record.audited_changes.each do |key, values| %>
+    <tbody>
+      <tr>
+        <td>
+          <%= record.human_attribute_name key %>
+        </td>
+        <td><%= raw record.parse(key.to_sym, values, :first) %></td>
+      </tr>
+    <% end %>
+    <% if record.auditable.respond_to?(:daily_note) %>
+    <tr>
+      <td>Avaliação:</td>
+      <td><%= record.auditable.daily_note.avaliation.to_s %></td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>

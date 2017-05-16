@@ -1,0 +1,25 @@
+<div class="widget-body">
+  <% if resource.content_record.all_audits.exists? %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered" id="history">
+        <thead>
+          <tr>
+            <th>Ação</th>
+            <th>Alterações</th>
+            <th>Autor</th>
+            <th>Data</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% resource.content_record.all_audits.each do |audit| %>
+            <%= render 'discipline_content_records/history/history', record: AuditDecorator.new(audit) %>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="alert alert-warning alert-dismissable">
+      Nenhuma alteração realizada.
+    </div>
+  <% end %>
+  </div>

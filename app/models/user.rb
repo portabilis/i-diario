@@ -255,6 +255,12 @@ class User < ActiveRecord::Base
     roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
   end
 
+  def can_publish?
+    current_user_role.try(:role_teacher?) ||
+      current_user_role.try(:role_employee?) ||
+      current_user_role.try(:role_administrator?)
+  end
+
   def update_rd_lead
     return unless GeneralConfiguration.current.allows_after_sales_relationship?
     return unless Rails.env.production?
@@ -281,6 +287,11 @@ class User < ActiveRecord::Base
 
   def has_to_validate_receive_news_fields?
     has_to_validate_receive_news_fields == true || has_to_validate_receive_news_fields == 'true'
+  end
+
+  def current_access_level
+    return unless current_user_role
+    current_user_role.role.access_level
   end
 
   protected

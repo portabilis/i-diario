@@ -1,0 +1,5 @@
+pt-BR:
+  activerecord:
+    attributes:
+      contents_lesson_plan:
+        content_id: "Conteúdo"

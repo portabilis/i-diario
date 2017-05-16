@@ -1,10 +1,10 @@
 class DisciplineTeachingPlan < ActiveRecord::Base
   include Audit
 
-  acts_as_copy_target
-
   audited
   has_associated_audits
+
+  acts_as_copy_target
 
   belongs_to :teaching_plan, dependent: :destroy
   belongs_to :discipline

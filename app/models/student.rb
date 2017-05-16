@@ -39,4 +39,8 @@ class Student < ActiveRecord::Base
     StudentAverageCalculator.new(self)
       .calculate(classroom, discipline, step)
   end
+
+  def classrooms
+    Classroom.joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).uniq
+  end
 end

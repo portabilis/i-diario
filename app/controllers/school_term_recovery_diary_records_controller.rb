@@ -95,6 +95,14 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
   end
 
+    def history
+    @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id])
+
+    authorize @school_term_recovery_diary_record
+
+    respond_with @school_term_recovery_diary_record
+  end
+
   private
 
   def resource_params

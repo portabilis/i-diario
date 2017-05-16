@@ -1,16 +1,12 @@
 class KnowledgeAreaContentRecord < ActiveRecord::Base
   include Audit
 
-  acts_as_copy_target
-
   audited
-  has_associated_audits
+  acts_as_copy_target
 
   belongs_to :content_record, dependent: :destroy
   accepts_nested_attributes_for :content_record
   has_and_belongs_to_many :knowledge_areas
-
-  belongs_to :knowledge_area
 
   scope :by_unity_id, lambda { |unity_id| joins(content_record: :classroom).where(Classroom.arel_table[:unity_id].eq(unity_id) ) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:content_record).where(content_records: { teacher_id: teacher_id }) }

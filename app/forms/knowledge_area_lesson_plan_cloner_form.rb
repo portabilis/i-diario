@@ -16,6 +16,9 @@ class KnowledgeAreaLessonPlanClonerForm
             new_lesson_plan.knowledge_areas = knowledge_area_lesson_plan.knowledge_areas
             new_lesson_plan.lesson_plan.contents = knowledge_area_lesson_plan.lesson_plan.contents
             new_lesson_plan.lesson_plan.classroom = classroom
+            knowledge_area_lesson_plan.lesson_plan.lesson_plan_attachments.each do |lesson_plan_attachment|
+              new_lesson_plan.lesson_plan.lesson_plan_attachments << LessonPlanAttachment.new(attachment: lesson_plan_attachment.attachment)
+            end
             new_lesson_plan.save!
           end
           return true

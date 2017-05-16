@@ -8,6 +8,7 @@ class Classroom < ActiveRecord::Base
   belongs_to :grade
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_one :calendar, class_name: 'SchoolCalendarClassroom'
+  has_many :student_enrollment_classrooms
 
   delegate :course_id, :course, to: :grade, prefix: false
 
@@ -27,6 +28,7 @@ class Classroom < ActiveRecord::Base
   scope :by_api_code, lambda { |api_code| where(api_code: api_code)  }
   scope :by_teacher_discipline, lambda { |discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { discipline_id: discipline_id }).uniq }
   scope :by_api_code, lambda { |api_code| where(api_code: api_code)  }
+  scope :by_id, lambda { |id| where(id: id)  }
 
   def to_s
     description

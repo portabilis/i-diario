@@ -46,5 +46,5 @@ $(function(){
     clearTimeout(typingTimer);
   });
 
-  $('form.filterable_search_form select, form.filterable_search_form input.select2, form.filterable_search_form input.datepicker').on('change', filterableSearch);
+  $('form.filterable_search_form select, form.filterable_search_form input.select2, input.select2_remote, form.filterable_search_form input.datepicker').on('change', filterableSearch);
 })

@@ -1,10 +1,9 @@
 class DisciplineContentRecord < ActiveRecord::Base
   include Audit
 
+  audited associated_with: :content_record,
+          except: [:content_record_id]
   acts_as_copy_target
-
-  audited
-  has_associated_audits
 
   belongs_to :content_record
   accepts_nested_attributes_for :content_record

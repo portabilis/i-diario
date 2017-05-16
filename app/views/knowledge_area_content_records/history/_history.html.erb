@@ -1,0 +1,8 @@
+  <tr>
+    <td><%= AuditedAction.t record.action %></td>
+    <td class="history-changes">
+      <%= render "knowledge_area_content_records/history/#{record.action}", record: record %>
+    </td>
+    <td><%= record.user %></td>
+    <td><%= I18n.l record.created_at, format: :compressed %></td>
+  </tr>

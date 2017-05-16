@@ -1,9 +1,9 @@
 class ContentRecord < ActiveRecord::Base
   include Audit
+  audited except: [:teacher_id]
+  has_associated_audits
 
   acts_as_copy_target
-
-  audited
 
   belongs_to :classroom
   belongs_to :teacher
@@ -11,7 +11,9 @@ class ContentRecord < ActiveRecord::Base
   attr_writer :contents_tags
 
   has_one :discipline_content_record
-  has_and_belongs_to_many :contents, dependent: :destroy
+  has_one :knowledge_area_content_record
+  has_many :content_records_contents, dependent: :destroy
+  has_many :contents, through: :content_records_contents
   accepts_nested_attributes_for :contents
 
   validates :unity_id, presence: true

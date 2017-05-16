@@ -66,6 +66,9 @@
     </table>
 
     <footer>
+      <%= link_to t('views.form.history'),
+                    history_descriptive_exam_path(@descriptive_exam),
+                    class: 'btn btn-info' %>
       <%= f.submit 'Salvar', class: 'btn btn-primary' %>
     </footer>
   <% end %>
