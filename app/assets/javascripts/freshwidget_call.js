@@ -3,7 +3,7 @@ FreshWidget.init("", {
     "utf8": "✓",
     "widgetType": "popup",
     "buttonType": "text",
-    "buttonText": "Suporte",
+    "buttonText": "Precisa de ajuda? Clique aqui",
     "buttonColor": "white",
     "buttonBg": "#004c93",
     "alignment": "3",
