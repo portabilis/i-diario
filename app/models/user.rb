@@ -217,7 +217,7 @@ class User < ActiveRecord::Base
   end
 
   def current_unity
-    @current_unity ||= current_user_role.try(:unity) || Unity.find_by_id(current_unity_id)
+    @current_unity ||= Unity.find_by_id(current_unity_id) || current_user_role.try(:unity) 
   end
 
   def current_classroom
