@@ -66,6 +66,7 @@ class ApplicationController < ActionController::Base
   end
 
   def check_entity_status
+    load_status_administrative_tools
     if current_entity.disabled
       redirect_to disabled_entity_path unless disabled_entity_page?
     end
@@ -233,6 +234,16 @@ class ApplicationController < ActionController::Base
 
 
   private
+
+  def load_status_administrative_tools
+    administrative_tools_informations = AdministrativeToolsIntegrator::Informations.new(current_entity.name)
+    informations = administrative_tools_informations.fetch_informations
+
+    return if informations.nil?
+
+    current_entity.disabled = !informations['active_on_new_education']
+    current_entity.save
+  end
 
   def disabled_entity_page?
     controller_name.eql?('pages') && action_name.eql?('disabled_entity')
