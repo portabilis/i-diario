@@ -283,3 +283,9 @@ a.parent-dashboard-basic-info-links {
 .up-down-accordion {
   float: right;
 }
+
+.dropup .dropdown-***REMOVED*** {
+  margin-bottom: -8px;
+  -webkit-box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);
+}

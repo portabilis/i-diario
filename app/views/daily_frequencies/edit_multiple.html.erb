@@ -71,11 +71,12 @@
       <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-right' %>
       <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id)),
                                  method: :delete, data: { confirm: t('.confirm') }, class: 'btn btn-danger' %>
+
       <%= link_to t('views.form.history'),
                     history_multiple_daily_frequency_path(daily_frequencies_ids: @daily_frequencies.map(&:id)),
                     class: 'btn btn-info' %>
 
-      <div class="btn-group pull-right">
+      <div class="btn-group pull-right dropup">
         <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
           <%= t('.print') %> <span class="caret"></span>
         </button>
