@@ -36,6 +36,8 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   before_validation :self_assign_to_recovery_diary_record
 
+  delegate :classroom_id, :discipline_id, :recorded_at, to: :recovery_diary_record
+
   def school_calendar_steps_ids
     school_calendar_steps = RecoverySchoolCalendarStepsFetcher.new(
       school_calendar_step_id,

@@ -9,6 +9,7 @@ class StudentsFetcher
   def fetch
     student_enrollments = StudentEnrollment
       .by_classroom(@classroom)
+      .by_discipline(@discipline)
       .by_date(@date)
 
     if @start_date
