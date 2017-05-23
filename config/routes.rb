@@ -166,6 +166,9 @@ Rails.application.routes.draw do
       end
     end
     resources :***REMOVED***, concerns: :history do
+      collection do
+        get :get_***REMOVED***_by_kind
+      end
       resources :material_exit_items, only: [:index]
     end
     resources :***REMOVED***, concerns: :history
