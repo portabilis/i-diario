@@ -11,6 +11,7 @@ class StudentsFetcher
       .by_classroom(@classroom)
       .by_discipline(@discipline)
       .by_date(@date)
+      .active
 
     if @start_date
       student_enrollments = student_enrollments
