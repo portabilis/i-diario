@@ -12,7 +12,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         LessonPlan.arel_table[:start_at],
         LessonPlan.arel_table[:end_at]
       )
-      .includes(:knowledge_areas, lesson_plan: [:unity, :classroom])
+      .includes(:knowledge_areas, lesson_plan: [:classroom])
       .filter(filtering_params(params[:search]))
       .by_classroom_id(current_user_classroom)
       .uniq
