@@ -11,7 +11,7 @@ class StudentAverageCalculator
       if step.test_setting.sum_calculation_type?
         result = score_sum(daily_note_students)
       elsif step.test_setting.arithmetic_and_sum_calculation_type?
-        result = (score_sum(daily_note_students) / (weight_sum(daily_note_students) / step.test_setting.maximum_score))
+        result = calculate_average(score_sum(daily_note_students), calculate_average(weight_sum(daily_note_students), step.test_setting.maximum_score))
       else
         result = calculate_average(score_sum(daily_note_students), daily_notes_count(daily_note_students))
       end
