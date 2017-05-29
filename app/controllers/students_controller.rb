@@ -43,12 +43,6 @@ class StudentsController < ApplicationController
       )
       .fetch
 
-    school_calendar_steps = RecoverySchoolCalendarStepsFetcher.new(
-        params[:school_calendar_step_id],
-        params[:classroom_id]
-      )
-      .fetch
-
     render(
       json: @students,
       each_serializer: StudentInRecoverySerializer,
@@ -68,12 +62,6 @@ class StudentsController < ApplicationController
         params[:date].to_date.to_s
       )
       .fetch
-
-      school_calendar_classroom_steps = RecoverySchoolCalendarClassroomStepsFetcher.new(
-          params[:school_calendar_classroom_step_id],
-          params[:classroom_id]
-        )
-        .fetch
 
     render(
       json: @students,
