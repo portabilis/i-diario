@@ -192,7 +192,7 @@ class Avaliation < ActiveRecord::Base
 
   def try_destroy_daily_notes
     can_destroy_daily_notes = !daily_notes.any? { |daily_note| daily_note.students.any? { |daily_note_student| daily_note_student.note } }
-    daily_notes.destroy_all if can_destroy_daily_notes
+    daily_notes.each(&:destroy) if can_destroy_daily_notes
   end
 
   def weight_not_greater_than_test_setting_maximum_score
