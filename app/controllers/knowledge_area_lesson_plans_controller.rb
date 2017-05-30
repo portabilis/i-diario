@@ -51,7 +51,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
     @knowledge_area_lesson_plan.build_lesson_plan
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
-    @knowledge_area_lesson_plan.lesson_plan.unity = current_user_unity
     @knowledge_area_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @knowledge_area_lesson_plan.lesson_plan.start_at = Time.zone.today
     @knowledge_area_lesson_plan.lesson_plan.end_at = Time.zone.today
