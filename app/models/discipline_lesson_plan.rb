@@ -16,7 +16,7 @@ class DisciplineLessonPlan < ActiveRecord::Base
 
   accepts_nested_attributes_for :lesson_plan
 
-  scope :by_unity_id, lambda { |unity_id| joins(:lesson_plan).where(lesson_plans: { unity_id: unity_id }) }
+  scope :by_unity_id, lambda { |unity_id| joins(:lesson_plan).merge(LessonPlan.by_unity_id(unity_id)) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:lesson_plan).where(lesson_plans: { teacher_id: teacher_id }) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:lesson_plan).where(lesson_plans: { classroom_id: classroom_id }) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }

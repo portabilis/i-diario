@@ -12,7 +12,7 @@ class DisciplineLessonPlansController < ApplicationController
         LessonPlan.arel_table[:start_at],
         LessonPlan.arel_table[:end_at]
       )
-      .includes(:discipline, lesson_plan: [:unity, :classroom])
+      .includes(:discipline, lesson_plan: [:classroom])
       .filter(filtering_params(params[:search]))
       .by_unity_id(current_user_unity.id)
       .by_classroom_id(current_user_classroom)
@@ -54,7 +54,6 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan.build_lesson_plan
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @discipline_lesson_plan.lesson_plan.teacher_id = current_teacher.id
-    @discipline_lesson_plan.lesson_plan.unity = current_user_unity
     @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
     @discipline_lesson_plan.lesson_plan.end_at = Time.zone.today
 

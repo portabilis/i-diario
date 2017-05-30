@@ -9,7 +9,6 @@ class LessonPlan < ActiveRecord::Base
   has_associated_audits
 
   belongs_to :school_calendar
-  belongs_to :unity
   belongs_to :classroom
 
   has_one :discipline_lesson_plan
@@ -30,6 +29,10 @@ class LessonPlan < ActiveRecord::Base
 
   validate :crescent_date_range
   validate :at_least_one_assigned_content
+
+  delegate :unity, :unity_id, to: :classroom
+
+  scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id)) }
 
   def contents_tags
     if @contents_tags.present?
