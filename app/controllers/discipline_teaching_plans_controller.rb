@@ -11,6 +11,7 @@ class DisciplineTeachingPlansController < ApplicationController
       .by_unity(current_user_unity)
       .by_grade(current_user_classroom.try(:grade))
       .by_discipline(current_user_discipline)
+      .by_teacher_id(current_teacher.id)
 
     authorize @discipline_teaching_plans
 
