@@ -5,7 +5,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
   audited
   has_associated_audits
 
-  attr_accessor :unity_id
+  attr_accessor :unity_id, :date_copy
 
   delegate :unity, to: :classroom, allow_nil: true
 
@@ -37,6 +37,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
   )
   validates :notes, presence: true
   validates :unity_id, presence: true
+  validate :date_valid
 
   before_validation :self_assign_to_notes
 
@@ -54,5 +55,18 @@ class ObservationDiaryRecord < ActiveRecord::Base
     return unless classroom && teacher
 
     FrequencyTypeResolver.new(classroom, teacher).by_discipline?
+  end
+
+  # necessario pois quando inserida uma data invalida, o controller considera
+  # o valor de date como nil e a mensagem mostrada é a de que não pode
+  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
+  def date_valid
+    return if date_copy.nil?
+    begin
+      date_copy.to_date
+    rescue ArgumentError
+      errors[:date].clear
+      errors.add(:date, "deve ser uma data válida")
+    end
   end
 end

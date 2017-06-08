@@ -6,6 +6,8 @@ class SchoolCalendarEvent < ActiveRecord::Base
 
   include Audit
 
+  attr_accessor :start_date_copy, :end_date_copy
+
   belongs_to :school_calendar
   belongs_to :grade
   belongs_to :classroom
@@ -23,7 +25,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validates :course, presence: true, if: :should_validate_course?
   validates :classroom, presence: true, if: :should_validate_classroom?
   validates :legend, presence: true, exclusion: {in: %w(F f N n .) }, if: :should_validate_legend?
-  validate :start_at_must_be_less_than_or_equal_to_end_at
+  validate :no_retroactive_dates, :start_date_valid, :end_date_valid
   validate :uniquenesss_of_start_at_in_grade
   validate :uniquenesss_of_end_at_in_grade
   validate :uniquenesss_of_start_at_in_classroom
@@ -179,9 +181,35 @@ class SchoolCalendarEvent < ActiveRecord::Base
     errors.add(:end_date, :already_exists_event_in_this_date) if query.any?
   end
 
-  def start_at_must_be_less_than_or_equal_to_end_at
+  def no_retroactive_dates
     return unless start_date && end_date
 
-    errors.add(:end_date, "deve ser maior ou igual a Data inicial") if start_date.to_date > end_date.to_date
+    if start_date > end_date
+      errors.add(:start_date, 'não pode ser maior que a Data final')
+      errors.add(:end_date, 'deve ser maior ou igual a Data inicial')
+    end
+  end
+
+  # necessario pois quando inserida uma data invalida, o controller considera
+  # o valor de start_date e end_date como nil e a mensagem mostrada é a de que não pode
+  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
+  def start_date_valid
+    return if start_date_copy.nil?
+    begin
+      start_date_copy.to_date
+    rescue ArgumentError
+      errors[:start_date].clear
+      errors.add(:start_date, "deve ser uma data válida")
+    end
+  end
+
+  def end_date_valid
+    return if end_date_copy.nil?
+    begin
+      end_date_copy.to_date
+    rescue ArgumentError
+      errors[:end_date].clear
+      errors.add(:end_date, "deve ser uma data válida")
+    end
   end
 end

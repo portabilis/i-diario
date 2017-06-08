@@ -5,6 +5,8 @@ class ContentRecord < ActiveRecord::Base
 
   acts_as_copy_target
 
+  attr_accessor :record_date_copy
+
   belongs_to :classroom
   belongs_to :teacher
   attr_writer :unity_id
@@ -18,9 +20,9 @@ class ContentRecord < ActiveRecord::Base
 
   validates :unity_id, presence: true
   validates :classroom, presence: true
-  validates :record_date, presence: true
+  validates :record_date, presence: true, school_calendar_day: true
   validates :teacher, presence: true
-  validate :at_least_one_content
+  validate :at_least_one_content, :record_date_valid
 
   def school_calendar
     CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
@@ -50,6 +52,19 @@ class ContentRecord < ActiveRecord::Base
   def at_least_one_content
     if content_ids.blank?
       errors.add(:contents, :at_least_one_content)
+    end
+  end
+
+  # necessario pois quando inserida uma data invalida, o controller considera
+  # o valor de record_date como nil e a mensagem mostrada é a de que não pode
+  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
+  def record_date_valid
+    return if record_date_copy.nil?
+    begin
+      record_date_copy.to_date
+    rescue ArgumentError
+      errors[:record_date].clear
+      errors.add(:record_date, "deve ser uma data válida")
     end
   end
 end

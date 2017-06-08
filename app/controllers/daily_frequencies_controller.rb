@@ -18,6 +18,7 @@ class DailyFrequenciesController < ApplicationController
   def create
     @daily_frequency = DailyFrequency.new(resource_params)
     @daily_frequency.school_calendar = current_school_calendar
+    @daily_frequency.frequency_date_copy = resource_params[:frequency_date]
     @class_numbers = params[:class_numbers].split(',')
     @discipline = params[:daily_frequency][:discipline_id]
 
@@ -42,6 +43,7 @@ class DailyFrequenciesController < ApplicationController
   def edit_multiple
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number.includes(:students)
     @daily_frequency = @daily_frequencies.first
+    @daily_frequency.frequency_date_copy = resource_params[:frequency_date]
 
     authorize @daily_frequency
 

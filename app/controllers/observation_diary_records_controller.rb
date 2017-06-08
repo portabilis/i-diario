@@ -24,6 +24,7 @@ class ObservationDiaryRecordsController < ApplicationController
 
   def create
     @observation_diary_record = ObservationDiaryRecord.new(resource_params)
+    @observation_diary_record.date_copy = resource_params[:date]
 
     authorize @observation_diary_record
 
@@ -41,8 +42,9 @@ class ObservationDiaryRecordsController < ApplicationController
   end
 
   def update
-    @observation_diary_record = ObservationDiaryRecord.find(params[:id]).localized
+    @observation_diary_record = ObservationDiaryRecord.find(params[:id])
     @observation_diary_record.assign_attributes(resource_params)
+    @observation_diary_record.date_copy = resource_params[:date]
 
     authorize @observation_diary_record
 

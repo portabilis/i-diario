@@ -7,7 +7,7 @@ class ConceptualExam < ActiveRecord::Base
   audited
   has_associated_audits
 
-  attr_accessor :unity_id
+  attr_accessor :unity_id, :recorded_at_copy
 
   belongs_to :classroom
   belongs_to :school_calendar_step
@@ -34,12 +34,14 @@ class ConceptualExam < ActiveRecord::Base
   validates :student, presence: true
   validates :recorded_at, presence: true,
     not_in_future: true,
-    school_term_day: { school_term: lambda(&:step) }
+    school_term_day: { school_term: lambda(&:step),
+    school_calendar_day: true }
   validates :unity_id, presence: true
 
   validate :classroom_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
+  validate :recorded_at_valid
 
   before_validation :self_assign_to_conceptual_exam_values
 
@@ -114,5 +116,18 @@ class ConceptualExam < ActiveRecord::Base
     conceptual_exam = conceptual_exam.where.not(id: id) if persisted?
 
     errors.add(:student, :taken) if conceptual_exam.any?
+  end
+
+  # necessario pois quando inserida uma data invalida, o controller considera
+  # o valor de recorded_at e end_date como nil e a mensagem mostrada é a de que não pode
+  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
+  def recorded_at_valid
+    return if recorded_at_copy.nil?
+    begin
+      recorded_at_copy.to_date
+    rescue ArgumentError
+      errors[:recorded_at].clear
+      errors.add(:recorded_at, "deve ser uma data válida")
+    end
   end
 end

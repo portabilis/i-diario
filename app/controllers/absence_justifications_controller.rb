@@ -37,6 +37,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification.teacher = current_teacher
     @absence_justification.unity = current_user_unity
     @absence_justification.school_calendar = current_school_calendar
+    set_copy_dates
 
     authorize @absence_justification
 
@@ -60,6 +61,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification = AbsenceJustification.find(params[:id])
     @absence_justification.assign_attributes resource_params
     @absence_justification.school_calendar = current_school_calendar if @absence_justification.persisted? && @absence_justification.school_calendar.blank?
+    set_copy_dates
     fetch_collections
 
     authorize @absence_justification
@@ -127,5 +129,10 @@ class AbsenceJustificationsController < ApplicationController
     else
       nil
     end
+  end
+
+  def set_copy_dates
+    @absence_justification.absence_date_copy = resource_params[:absence_date]
+    @absence_justification.absence_date_end_copy = resource_params[:absence_date_end]
   end
 end

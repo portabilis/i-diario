@@ -49,6 +49,7 @@ class ConceptualExamsController < ApplicationController
 
   def create
     @conceptual_exam = ConceptualExam.new(resource_params)
+    @conceptual_exam.recorded_at_copy = resource_params[:recorded_at]
 
     authorize @conceptual_exam
 
@@ -67,6 +68,7 @@ class ConceptualExamsController < ApplicationController
   def edit
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
     @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
+    @conceptual_exam.recorded_at_copy = resource_params[:recorded_at] 
 
     authorize @conceptual_exam
 

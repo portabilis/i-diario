@@ -53,7 +53,7 @@ class AvaliationsController < ApplicationController
   def create_multiple_classrooms
     authorize Avaliation.new
 
-    @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new(params[:avaliation_multiple_creator_form]).localized
+    @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new(params[:avaliation_multiple_creator_form])
 
     if @avaliation_multiple_creator_form.save
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
@@ -64,8 +64,9 @@ class AvaliationsController < ApplicationController
   end
 
   def create
-    resource.localized.assign_attributes(resource_params)
+    resource.assign_attributes(resource_params)
     resource.school_calendar = current_school_calendar
+    resource.test_date_copy = resource_params[:test_date]
 
     authorize resource
 
@@ -80,6 +81,7 @@ class AvaliationsController < ApplicationController
 
   def edit
     @avaliation = resource
+    resource.test_date_copy = resource_params[:test_date]
 
     authorize @avaliation
 

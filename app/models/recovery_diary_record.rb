@@ -6,6 +6,8 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   audited
   has_associated_audits
 
+  attr_accessor :recorded_at_copy
+
   belongs_to :unity
   belongs_to :classroom, -> { includes(:exam_rule) }
   belongs_to :discipline
@@ -27,6 +29,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   validate :at_least_one_assigned_student
   validate :recorded_at_must_be_less_than_or_equal_to_today
+  validate :recorded_at_valid
 
   before_validation :self_assign_to_students
 
@@ -50,5 +53,18 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   def self_assign_to_students
     students.each { |student| student.recovery_diary_record = self }
+  end
+
+  # necessario pois quando inserida uma data invalida, o controller considera
+  # o valor de recorded_at como nil e a mensagem mostrada é a de que não pode
+  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
+  def recorded_at_valid
+    return if recorded_at_copy.nil?
+    begin
+      recorded_at_copy.to_date
+    rescue ArgumentError
+      errors[:recorded_at].clear
+      errors.add(:recorded_at, "deve ser uma data válida")
+    end
   end
 end

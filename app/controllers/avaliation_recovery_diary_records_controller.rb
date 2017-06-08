@@ -41,8 +41,9 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def create
-    @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new.localized
+    @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new
     @avaliation_recovery_diary_record.assign_attributes(resource_params)
+    @avaliation_recovery_diary_record.recovery_diary_record.recorded_at_copy = resource_params[:recovery_diary_record_attributes][:recorded_at]
 
     authorize @avaliation_recovery_diary_record
 
@@ -81,6 +82,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   def update
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id]).localized
     @avaliation_recovery_diary_record.assign_attributes(resource_params)
+    @avaliation_recovery_diary_record.recovery_diary_record.recorded_at_copy = resource_params[:recovery_diary_record_attributes][:recorded_at]
 
     authorize @avaliation_recovery_diary_record
 
@@ -188,6 +190,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_student_enrollments
+    return unless @avaliation_recovery_diary_record.avaliation
     StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
                                discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
                                date: @avaliation_recovery_diary_record.avaliation.test_date,
@@ -196,6 +199,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def reload_students_list
+    return unless fetch_student_enrollments
     student_enrollments = fetch_student_enrollments
 
     @students = []

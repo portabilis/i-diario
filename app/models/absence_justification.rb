@@ -6,6 +6,8 @@ class AbsenceJustification < ActiveRecord::Base
   include Audit
   include Filterable
 
+  attr_accessor :absence_date_copy, :absence_date_end_copy
+
   belongs_to :student
   belongs_to :unity
   belongs_to :classroom
@@ -25,7 +27,8 @@ class AbsenceJustification < ActiveRecord::Base
   validates :justification,    presence: true
 
   validate :period_absence
-  validate :absence_date_cannot_be_greater_than_absence_date_end
+  validate :no_retroactive_dates
+  validate :absence_date_valid, :absence_date_end_valid
 
   scope :ordered, -> { order(absence_date: :desc) }
 
@@ -53,9 +56,12 @@ class AbsenceJustification < ActiveRecord::Base
     )
   end
 
-  def absence_date_cannot_be_greater_than_absence_date_end
-    if (absence_date.present? && absence_date_end.present?)
-      errors.add(:absence_date, "Data inicial não pode ser maior que a final") if absence_date > absence_date_end
+  def no_retroactive_dates
+    return if absence_date.nil? || absence_date_end.nil?
+
+    if absence_date > absence_date_end
+      errors.add(:absence_date, 'não pode ser maior que a Data final')
+      errors.add(:absence_date_end, 'deve ser maior ou igual a Data inicial')
     end
   end
 
@@ -78,5 +84,28 @@ class AbsenceJustification < ActiveRecord::Base
     frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)
     frequency_type_definer.define!
     frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+  end
+
+  # necessario pois quando inserida uma data invalida, o controller considera
+  # o valor de absence_date e absence_date_end como nil e a mensagem mostrada é a de que não pode
+  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
+  def absence_date_valid
+    return if absence_date_copy.nil?
+    begin
+      absence_date_copy.to_date
+    rescue ArgumentError
+      errors[:absence_date].clear
+      errors.add(:absence_date, "deve ser uma data válida")
+    end
+  end
+
+  def absence_date_end_valid
+    return if absence_date_end_copy.nil?
+    begin
+      absence_date_end_copy.to_date
+    rescue ArgumentError
+      errors[:absence_date_end].clear
+      errors.add(:absence_date_end, "deve ser uma data válida")
+    end
   end
 end
