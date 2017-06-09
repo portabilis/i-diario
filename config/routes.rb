@@ -40,6 +40,7 @@ Rails.application.routes.draw do
         resources :daily_frequencies, only: [:create]
         resources :***REMOVED***, only: [:create]
         resources :daily_frequency_students, only: [:update]
+        resources :classroom_students, only: [:index]
       end
     end
 
