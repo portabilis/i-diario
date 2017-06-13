@@ -70,7 +70,6 @@ $(function () {
   function fetchStudents() {
     var avaliation_id = $avaliation.select2('val');
     var recorded_at = $recorded_at.val();
-    console.log(recorded_at);
 
     if (!_.isEmpty(avaliation_id) && !_.isEmpty(recorded_at)){
       $.ajax({
@@ -192,7 +191,6 @@ $(function () {
     fetchAvaliations();
   });
   $avaliation.on('change', function() {
-    console.log($recorded_at.val());
     if (!_.isEmpty($recorded_at.val())) {
       removeStudents();
       fetchStudents();
@@ -200,7 +198,6 @@ $(function () {
   });
 
   $recorded_at.on('change', function() {
-    console.log("oi");
     if (!_.isEmpty($avaliation.select2('val'))) {
       removeStudents();
       fetchStudents();
