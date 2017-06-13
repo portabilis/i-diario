@@ -5,6 +5,7 @@ $(function () {
   var $classroom = $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_classroom_id');
   var $discipline = $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
   var $avaliation = $('#avaliation_recovery_diary_record_avaliation_id');
+  var $recorded_at = $('#avaliation_recovery_diary_record_recovery_diary_record_attributes_recorded_at');
 
   function fetchDisciplines() {
     var classroom_id = $classroom.select2('val');
@@ -68,12 +69,17 @@ $(function () {
 
   function fetchStudents() {
     var avaliation_id = $avaliation.select2('val');
+    var recorded_at = $recorded_at.val();
+    console.log(recorded_at);
 
-    if (!_.isEmpty(avaliation_id)){
+    if (!_.isEmpty(avaliation_id) && !_.isEmpty(recorded_at)){
       $.ajax({
         url: Routes.dependence_daily_note_students_pt_br_path({
             filter: {
                 by_avaliation: avaliation_id
+            },
+            search: {
+                recorded_at: recorded_at
             },
             format: 'json'
           }),
@@ -186,8 +192,19 @@ $(function () {
     fetchAvaliations();
   });
   $avaliation.on('change', function() {
-    removeStudents();
-    fetchStudents();
+    console.log($recorded_at.val());
+    if (!_.isEmpty($recorded_at.val())) {
+      removeStudents();
+      fetchStudents();
+    }
+  });
+
+  $recorded_at.on('change', function() {
+    console.log("oi");
+    if (!_.isEmpty($avaliation.select2('val'))) {
+      removeStudents();
+      fetchStudents();
+    }
   });
 
   // On load
