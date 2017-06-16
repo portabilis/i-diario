@@ -2,6 +2,15 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
   respond_to :json
 
+
+  def index
+    @daily_frequencies = DailyFrequency
+      .by_classroom_id(params[:classroom_id])
+      .by_discipline_id(params[:discipline_id])
+
+    respond_with @daily_frequencies
+  end
+
   def create
     if params[:class_numbers].present?
       process_multiple
