@@ -12,14 +12,17 @@ module ExamPoster
     end
 
     def step_exists_for_classroom?(classroom)
-      return true unless classroom.calendar
-
       step_exists = false
-      classroom.calendar.classroom_steps.each do |classroom_step|
-        if classroom_step.to_number == @post_data.step.to_number
-          step_exists = true
-          break
+      if classroom.calendar
+        classroom.calendar.classroom_steps.each do |classroom_step|
+          if classroom_step.to_number == @post_data.step.to_number
+            step_exists = true
+            break
+          end
         end
+      else
+        step_exists = SchoolCalendar.by_unity_id(classroom.unity_id).by_school_day(Time.zone.today).empty?
+        step_exists = !step_exists
       end
       step_exists
     end
