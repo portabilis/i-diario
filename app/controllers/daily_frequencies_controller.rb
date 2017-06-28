@@ -43,7 +43,6 @@ class DailyFrequenciesController < ApplicationController
   def edit_multiple
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number.includes(:students)
     @daily_frequency = @daily_frequencies.first
-    @daily_frequency.frequency_date_copy = resource_params[:frequency_date]
 
     authorize @daily_frequency
 
