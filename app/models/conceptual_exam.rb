@@ -119,7 +119,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def ensure_is_school_day
-    return unless recorded_at
+    return unless recorded_at && school_calendar
 
     unless school_calendar.school_day?(recorded_at, classroom.grade, classroom, nil)
       errors.add(:recorded_at, :not_school_calendar_day)
@@ -127,7 +127,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def school_calendar
-    CurrentSchoolCalendarFetcher.new(classroom.unity, classroom).fetch
+    CurrentSchoolCalendarFetcher.new(classroom.try(:unity), classroom).fetch
   end
 
   # necessario pois quando inserida uma data invalida, o controller considera
