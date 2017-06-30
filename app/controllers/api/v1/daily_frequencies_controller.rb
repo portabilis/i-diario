@@ -73,6 +73,8 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
         end
       end
     end
+
+    render json: @daily_frequency
   end
 
   def process_multiple
