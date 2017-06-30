@@ -36,6 +36,7 @@ class DailyFrequenciesController < ApplicationController
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
     else
       fetch_avaliations
+      clear_invalid_date
       render :new
     end
   end
@@ -231,5 +232,13 @@ class DailyFrequenciesController < ApplicationController
       end
     end
     any_inactive_student
+  end
+
+  def clear_invalid_date
+    begin
+      resource_params[:frequency_date].to_date
+    rescue ArgumentError
+      @daily_frequency.frequency_date = ''
+    end
   end
 end

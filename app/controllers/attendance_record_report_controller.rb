@@ -28,6 +28,7 @@ class AttendanceRecordReportController < ApplicationController
     else
       @attendance_record_report_form.school_calendar_year = current_school_calendar.year
       fetch_collections
+      clear_invalid_dates
       render :form
     end
   end
@@ -48,5 +49,19 @@ class AttendanceRecordReportController < ApplicationController
                                                           :end_at,
                                                           :school_calendar_year,
                                                           :current_teacher_id)
+  end
+
+  def clear_invalid_dates
+    begin
+      resource_params[:start_at].to_date
+    rescue ArgumentError
+      @attendance_record_report_form.start_at = ''
+    end
+
+    begin
+      resource_params[:end_at].to_date
+    rescue ArgumentError
+      @attendance_record_report_form.end_date = ''
+    end
   end
 end

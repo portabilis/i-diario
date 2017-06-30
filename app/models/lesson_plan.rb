@@ -28,7 +28,7 @@ class LessonPlan < ActiveRecord::Base
   validates :start_at, presence: true, school_calendar_day: true
   validates :end_at, presence: true, school_calendar_day: true
 
-  validate :crescent_date_range
+  validate :no_retroactive_dates
   validate :at_least_one_assigned_content
   validate :start_at_valid, :end_at_valid
 
@@ -50,12 +50,12 @@ class LessonPlan < ActiveRecord::Base
 
   private
 
-  def crescent_date_range
-    return if start_at.nil? or end_at.nil?
+  def no_retroactive_dates
+    return if start_at.nil? || end_at.nil?
+
     if start_at > end_at
-      errors.add(:start_at)
-      errors.add(:end_at)
-      errors.add(:base, :crescent_date_range)
+      errors.add(:start_at, 'não pode ser maior que a Data final')
+      errors.add(:end_at, 'deve ser maior ou igual a Data inicial')
     end
   end
 

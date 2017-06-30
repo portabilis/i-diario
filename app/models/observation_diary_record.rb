@@ -65,6 +65,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
     begin
       date_copy.to_date
     rescue ArgumentError
+      date = ''
       errors[:date].clear
       errors.add(:date, "deve ser uma data válida")
     end

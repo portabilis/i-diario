@@ -60,6 +60,11 @@ class ConceptualExamsController < ApplicationController
     else
       fetch_collections
       mark_not_existing_disciplines_as_invisible
+      begin
+        resource_params[:recorded_at].to_date
+      rescue ArgumentError
+        @conceptual_exam.recorded_at = ''
+      end
 
       render :new
     end
@@ -68,7 +73,7 @@ class ConceptualExamsController < ApplicationController
   def edit
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
     @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
-    @conceptual_exam.recorded_at_copy = resource_params[:recorded_at] 
+    @conceptual_exam.recorded_at_copy = resource_params[:recorded_at]
 
     authorize @conceptual_exam
 

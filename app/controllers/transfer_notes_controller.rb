@@ -32,6 +32,7 @@ class TransferNotesController < ApplicationController
     if @transfer_note.save
       respond_with @transfer_note, location: transfer_notes_path
     else
+      clear_invalid_date
       render :new
     end
   end
@@ -52,6 +53,7 @@ class TransferNotesController < ApplicationController
     if @transfer_note.save
       respond_with @transfer_note, location: transfer_notes_path
     else
+      clear_invalid_date
       render :new
     end
   end
@@ -174,5 +176,13 @@ class TransferNotesController < ApplicationController
         :active
       ]
     )
+  end
+
+  def clear_invalid_date
+    begin
+      resource_params[:transfer_date].to_date
+    rescue ArgumentError
+      @transfer_note.transfer_date = ''
+    end
   end
 end

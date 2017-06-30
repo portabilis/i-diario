@@ -3,6 +3,8 @@ class SchoolCalendarStep < ActiveRecord::Base
 
   audited associated_with: :school_calendar, except: :school_calendar_id
 
+  attr_accessor :start_date_for_posting_copy, :end_date_for_posting_copy
+
   belongs_to :school_calendar
   has_many :descriptive_exams, dependent: :restrict_with_exception
   has_many :ieducar_api_exam_postings, dependent: :restrict_with_exception
@@ -18,6 +20,7 @@ class SchoolCalendarStep < ActiveRecord::Base
 
   validate :dates_for_posting_less_than_start_date
   validate :end_date_less_than_start_date_for_posting
+  validate :start_date_for_posting_valid, :end_date_for_posting_valid
 
   scope :by_school_calendar_id, lambda { |school_calendar_id| where(school_calendar_id: school_calendar_id) }
   scope :by_unity, lambda { |unity_id| joins(:school_calendar).where(school_calendars: { unity_id: unity_id } ) }
@@ -127,6 +130,29 @@ class SchoolCalendarStep < ActiveRecord::Base
   def end_date_less_than_start_date_for_posting
     if start_date_for_posting && end_date_for_posting
       errors.add(:end_date_for_posting, :must_be_greater_than_start_date_for_posting) if end_date_for_posting < start_date_for_posting
+    end
+  end
+
+  # necessario pois quando inserida uma data invalida, o controller considera
+  # o valor de start_date_for_posting e end_date_for_posting como nil e a mensagem mostrada é a de que não pode
+  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
+  def start_date_for_posting_valid
+    return if start_date_for_posting_copy.nil?
+    begin
+      start_date_for_posting_copy.to_date
+    rescue ArgumentError
+      errors[:start_date_for_posting].clear
+      errors.add(:start_date_for_posting, "deve ser uma data válida")
+    end
+  end
+
+  def end_date_for_posting_valid
+    return if end_date_for_posting_copy.nil?
+    begin
+      end_date_for_posting_copy.to_date
+    rescue ArgumentError
+      errors[:end_date_for_posting].clear
+      errors.add(:end_date_for_posting, "deve ser uma data válida")
     end
   end
 end

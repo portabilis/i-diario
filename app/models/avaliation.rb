@@ -199,7 +199,7 @@ class Avaliation < ActiveRecord::Base
   end
 
   def weight_not_greater_than_test_setting_maximum_score
-    return unless test_setting
+    return unless test_setting && weight
 
     if weight > test_setting.maximum_score
       errors.add(:weight, :cant_be_greater_than, value: test_setting.maximum_score)

@@ -31,6 +31,11 @@ class ObservationDiaryRecordsController < ApplicationController
     if @observation_diary_record.save
       respond_with @observation_diary_record, location: observation_diary_records_path
     else
+      begin
+        resource_params[:date].to_date
+      rescue ArgumentError
+        @observation_diary_record.date = ''
+      end
       render :new
     end
   end

@@ -41,7 +41,7 @@ class ConceptualExam < ActiveRecord::Base
   validate :classroom_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
-  validate :recorded_at_valid
+  validate :recorded_at_valid, :ensure_is_school_day
 
   before_validation :self_assign_to_conceptual_exam_values
 
@@ -116,6 +116,18 @@ class ConceptualExam < ActiveRecord::Base
     conceptual_exam = conceptual_exam.where.not(id: id) if persisted?
 
     errors.add(:student, :taken) if conceptual_exam.any?
+  end
+
+  def ensure_is_school_day
+    return unless recorded_at
+
+    unless school_calendar.school_day?(recorded_at, classroom.grade, classroom, nil)
+      errors.add(:recorded_at, :not_school_calendar_day)
+    end
+  end
+
+  def school_calendar
+    CurrentSchoolCalendarFetcher.new(classroom.unity, classroom).fetch
   end
 
   # necessario pois quando inserida uma data invalida, o controller considera
