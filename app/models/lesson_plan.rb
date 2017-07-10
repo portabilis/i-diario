@@ -33,6 +33,12 @@ class LessonPlan < ActiveRecord::Base
   delegate :unity, :unity_id, to: :classroom
 
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id)) }
+  scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }
+  scope :current, -> { where("current_date BETWEEN start_at and end_at") }
+
+  def to_s
+    discipline_lesson_plan.discipline.to_s
+  end
 
   def contents_tags
     if @contents_tags.present?

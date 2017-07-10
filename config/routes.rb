@@ -42,6 +42,7 @@ Rails.application.routes.draw do
         resources :daily_frequency_students, only: [:update]
         resources :classroom_students, only: [:index]
         resources :teacher_allocations, only: [:index]
+        resources :lesson_plans, only: [:index]
       end
     end
 
