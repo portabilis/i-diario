@@ -3,8 +3,7 @@ class Api::V1::LessonPlansController < Api::V1::BaseController
 
   def index
     return unless params[:teacher_id]
-    @lesson_plans = LessonPlan.by_teacher_id(params[:teacher_id])
-                              .current
-                              .includes(classroom: :unity)
+    @unities = Unity.by_teacher(params[:teacher_id]).ordered.uniq
+    @teacher_id = params[:teacher_id]
   end
 end
