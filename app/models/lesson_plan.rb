@@ -38,7 +38,8 @@ class LessonPlan < ActiveRecord::Base
   scope :ordered, -> { joins(:classroom).order('description ASC') }
 
   def to_s
-    discipline_lesson_plan.discipline.to_s
+    return discipline_lesson_plan.discipline.to_s if discipline_lesson_plan
+    return knowledge_area_lesson_plan.knowledge_areas.first.to_s if knowledge_area_lesson_plan
   end
 
   def contents_tags
