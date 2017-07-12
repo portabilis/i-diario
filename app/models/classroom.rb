@@ -33,4 +33,8 @@ class Classroom < ActiveRecord::Base
   def to_s
     description
   end
+
+  def period_humanized
+    Periods.t(period)
+  end
 end
