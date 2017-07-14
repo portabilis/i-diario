@@ -58,6 +58,8 @@ class TeachingPlan < ActiveRecord::Base
       I18n.t("enumerations.trimesters.#{school_term}")
     when SchoolTermTypes::SEMESTER
       I18n.t("enumerations.semesters.#{school_term}")
+    when SchoolTermTypes::YEARLY
+      I18n.t("enumerations.year.yearly")
     end
   end
 
