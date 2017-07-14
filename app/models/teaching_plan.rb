@@ -30,6 +30,14 @@ class TeachingPlan < ActiveRecord::Base
 
   validate :at_least_one_content_assigned
 
+  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }
+
+  def to_s
+    return discipline_teaching_plan.discipline.to_s if discipline_teaching_plan
+    return knowledge_area_teaching_plan.knowledge_areas.first.to_s if knowledge_area_teaching_plan
+  end
+
   def contents_tags
     if @contents_tags.present?
       ContentTagConverter::tags_to_json(@contents_tags)

@@ -43,6 +43,7 @@ Rails.application.routes.draw do
         resources :classroom_students, only: [:index]
         resources :teacher_allocations, only: [:index]
         resources :lesson_plans, only: [:index]
+        resources :teaching_plans, only: [:index]
       end
     end
 
