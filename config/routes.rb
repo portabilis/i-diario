@@ -174,7 +174,11 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***s, concerns: :history
+    resources :***REMOVED***s, concerns: :history do
+      member do
+        post :clone
+      end
+    end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :courses, only: [:index]

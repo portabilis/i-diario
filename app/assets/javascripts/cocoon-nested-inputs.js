@@ -27,7 +27,6 @@ $(function() {
 
   function loadSelect2Inputs() {
     _.each($('.nested-fields input.select2'), function(element) {
-      console.log($(element).data('elements'));
       $(element).select2({
         formatResult: function(el) {
           return "<div class='select2-user-result'>" + el.name + "</div>";
@@ -35,7 +34,8 @@ $(function() {
         formatSelection: function(el) {
           return el.name;
         },
-        data: $(element).data('elements')
+        data: $(element).data('elements'),
+        multiple: $(element).data('multiple')
       })
       .on('change', function(e) {
         var measuringUnit = get***REMOVED***FromSelectedItem(e);
