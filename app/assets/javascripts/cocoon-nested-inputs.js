@@ -27,6 +27,7 @@ $(function() {
 
   function loadSelect2Inputs() {
     _.each($('.nested-fields input.select2'), function(element) {
+      console.log($(element).data('elements'));
       $(element).select2({
         formatResult: function(el) {
           return "<div class='select2-user-result'>" + el.name + "</div>";
@@ -48,11 +49,11 @@ $(function() {
   }
 
   function get***REMOVED***FromSelectedItem(e) {
-    return $(e.target)
-      .data('elements')
-      .filter(function(element) {
-        return element.id == e.val
-      })[0].measuring_unit;
+    return ($(e.target)
+          .data('elements')
+          .filter(function(element) {
+            return element.id == e.val
+          })[0]||{})['measuring_unit'];
   }
 
   function loadDecimalMasks() {
