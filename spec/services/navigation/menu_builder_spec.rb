@@ -21,8 +21,8 @@ describe Navigation::MenuBuilder, :type => :service do
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
 
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul><li class="">.+Tipos de cardápios.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+Tipos de cardápios.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+***REMOVED***.+<ul><li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
 
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+Configurações.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
@@ -59,8 +59,8 @@ describe Navigation::MenuBuilder, :type => :service do
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
 
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul><li class="">.+Tipos de cardápios.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+Tipos de cardápios.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+***REMOVED***.+<ul><li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
 
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+Configurações.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
@@ -97,8 +97,8 @@ describe Navigation::MenuBuilder, :type => :service do
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
 
         expect(html).to match /<ul>.+***REMOVED***.+<li class="open">.+***REMOVED***.+<ul style="display: block;">.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul style="display: block;"><li class="">.+Tipos de cardápios.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul style="display: block;">.+Tipos de cardápios.+<li class="current">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+***REMOVED***.+<ul style="display: block;"><li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+***REMOVED***.+<ul style="display: block;">.+***REMOVED***.+<li class="current">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+***REMOVED***.+<ul style="display: block;">.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
 
         expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+Configurações.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
