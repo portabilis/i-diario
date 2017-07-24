@@ -14,6 +14,28 @@ class StockMovementCalc
     entrances - exits
   end
 
+  def self.convert_grams_to_consumption_unit(material_id, quantity)
+    self.convert_quantity_to_consumption_unit(material_id, quantity, "g")
+  end
+
+  def self.convert_quantity_to_consumption_unit(material_id, quantity, unit)
+    material = ***REMOVED***.find(material_id)
+
+    return quantity unless material.consumption_unit
+
+    conversion = material.consumption_unit.units_conversions.by_unit(unit).first
+
+    return quantity unless conversion
+
+    if conversion.calc = 'm'
+      quantity = conversion.quantity * quantity.to_f
+    else
+      quantity = conversion.quantity / quantity.to_f
+    end
+
+    quantity
+  end
+
   def self.convert_storage_unit_to_consumption_unit(material_id, quantity)
     material = ***REMOVED***.find(material_id)
     unit = material.consumption_unit.unit
@@ -87,7 +109,7 @@ class StockMovementCalc
     exits.joins(%Q(
       INNER JOIN ***REMOVED*** AS me
               ON material_exit_items.material_exit_id = me.id
-      INNER JOIN ***REMOVED*** AS m
+      INNER JOIN ***REMOVED***consumption_unit AS m
               ON material_exit_items.material_id = m.id
              AND m.active
       INNER JOIN ***REMOVED*** AS mu
