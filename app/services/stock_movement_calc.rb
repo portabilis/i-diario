@@ -14,6 +14,34 @@ class StockMovementCalc
     entrances - exits
   end
 
+  def self.convert_storage_unit_to_consumption_unit(material_id, quantity)
+    material = ***REMOVED***.find(material_id)
+    unit = material.consumption_unit.unit
+    conversion = material.measuring_unit.units_conversions.by_unit(unit).first
+
+    if conversion.calc = 'm'
+      quantity = conversion.quantity * quantity.to_f
+    else
+      quantity = conversion.quantity / quantity.to_f
+    end
+
+    quantity
+  end
+
+  def self.convert_consumption_unit_to_storage_unit(material_id, quantity)
+    material = ***REMOVED***.find(material_id)
+    unit = material.measuring_unit.unit
+    conversion = material.measuring_unit.units_conversions.by_unit(unit).first
+
+    if conversion.calc = 'm'
+      quantity = quantity.to_f / conversion.quantity
+    else
+      quantity = quantity.to_f * conversion.quantity
+    end
+
+    quantity
+  end
+
   def self.***REMOVED***(unity_id, material_id, start_date, end_date)
     entrances = ***REMOVED***.by_material_id(material_id)
                                     .by_unity_id(unity_id)
@@ -46,6 +74,7 @@ class StockMovementCalc
                 ) AS td_conversion_base
     )).select(%Q(
       me.entered_at AS date,
+      me.created_at AS created_at,
       'Entrada' AS movement_type,
       td_conversion_base.quantity AS quantity
     ))
@@ -83,6 +112,7 @@ class StockMovementCalc
                 ) AS td_conversion_base
     )).select(%Q(
       me.exited_at AS date,
+      me.created_at AS created_at,
       'Saída' AS movement_type,
       td_conversion_base.quantity AS quantity
     ))
