@@ -128,7 +128,7 @@ class StockMovementCalc
     exits.joins(%Q(
       INNER JOIN ***REMOVED*** AS me
               ON material_exit_items.material_exit_id = me.id
-      INNER JOIN ***REMOVED***consumption_unit AS m
+      INNER JOIN ***REMOVED*** AS m
               ON material_exit_items.material_id = m.id
              AND m.active
       INNER JOIN ***REMOVED*** AS mu
