@@ -14,8 +14,27 @@ class StockMovementCalc
     entrances - exits
   end
 
+  def self.convert_grams_to_storage_unit(material_id, quantity)
+    self.convert_quantity_to_storage_unit(material_id, quantity, UnitOfMeasurements::G)
+  end
+
+  def self.convert_quantity_to_storage_unit(material_id, quantity, unit)
+    material = ***REMOVED***.find(material_id)
+    conversion = material.measuring_unit.units_conversions.by_unit(unit).first
+
+    return quantity unless conversion
+
+    if conversion.calc = CalcOfMeasurements::M
+      quantity = conversion.quantity * quantity.to_f
+    else
+      quantity = conversion.quantity / quantity.to_f
+    end
+
+    quantity
+  end
+
   def self.convert_grams_to_consumption_unit(material_id, quantity)
-    self.convert_quantity_to_consumption_unit(material_id, quantity, "g")
+    self.convert_quantity_to_consumption_unit(material_id, quantity, UnitOfMeasurements::G)
   end
 
   def self.convert_quantity_to_consumption_unit(material_id, quantity, unit)
@@ -27,7 +46,7 @@ class StockMovementCalc
 
     return quantity unless conversion
 
-    if conversion.calc = 'm'
+    if conversion.calc = CalcOfMeasurements::M
       quantity = conversion.quantity * quantity.to_f
     else
       quantity = conversion.quantity / quantity.to_f
@@ -41,7 +60,7 @@ class StockMovementCalc
     unit = material.consumption_unit.unit
     conversion = material.measuring_unit.units_conversions.by_unit(unit).first
 
-    if conversion.calc = 'm'
+    if conversion.calc = CalcOfMeasurements::M
       quantity = conversion.quantity * quantity.to_f
     else
       quantity = conversion.quantity / quantity.to_f
@@ -55,7 +74,7 @@ class StockMovementCalc
     unit = material.measuring_unit.unit
     conversion = material.measuring_unit.units_conversions.by_unit(unit).first
 
-    if conversion.calc = 'm'
+    if conversion.calc = CalcOfMeasurements::M
       quantity = quantity.to_f / conversion.quantity
     else
       quantity = quantity.to_f * conversion.quantity
