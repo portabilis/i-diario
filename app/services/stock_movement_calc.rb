@@ -27,10 +27,11 @@ class StockMovementCalc
 
     return quantity unless conversion
 
+    # Faz o inverso
     if conversion.calc = CalcOfMeasurements::M
-      quantity = conversion.quantity * quantity.to_f
-    else
       quantity = conversion.quantity / quantity.to_f
+    else
+      quantity = conversion.quantity * quantity.to_f
     end
 
     quantity
