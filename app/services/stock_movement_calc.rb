@@ -1,7 +1,9 @@
 class StockMovementCalc
   def self.balance(unity_id, material_id, start_date)
-    entrances = ***REMOVED***(unity_id, material_id, '1900-01-01', start_date.to_date-1).sum(:quantity)
-    exits = ***REMOVED***(unity_id, material_id, '1900-01-01', start_date.to_date-1).sum(:quantity)
+    entrances = ***REMOVED***(unity_id, material_id, '1900-01-01', start_date.to_date-1).map(&:quantity).sum(:quantity)
+    entrances = 0 if entrances.eql?(:quantity)
+    exits = ***REMOVED***(unity_id, material_id, '1900-01-01', start_date.to_date-1).map(&:quantity).sum(:quantity)
+    exits = 0 if exits.eql?(:quantity)
 
     entrances - exits
   end
@@ -9,7 +11,8 @@ class StockMovementCalc
   def self.consumption_balance(unity_id, material_id)
     entrances = ***REMOVED***_consumption(unity_id, material_id).map(&:quantity).sum(:quantity)
     entrances = 0 if entrances.eql?(:quantity)
-    exits = ***REMOVED***_consumption(unity_id, material_id).sum(:quantity)
+    exits = ***REMOVED***_consumption(unity_id, material_id).map(&:quantity).sum(:quantity)
+    exits = 0 if exits.eql?(:quantity)
 
     entrances - exits
   end
