@@ -143,7 +143,7 @@ class StockMovementCalc
              AND uc.unit = mu.unit
       INNER JOIN units_conversions AS uc_base
               ON uc_base.measuring_unit_id = mu_base.id
-             AND uc_base.unit = mu_base.unit,
+             AND uc_base.unit = mu.unit,
         LATERAL (SELECT CASE uc.calc
                             WHEN 'm' THEN (material_exit_items.quantity * uc.quantity)
                             WHEN 'd' THEN (material_exit_items.quantity / uc.quantity)
@@ -180,7 +180,7 @@ class StockMovementCalc
             AND uc.unit = mu.unit
       INNER JOIN units_conversions AS uc_base
               ON uc_base.measuring_unit_id = mu_base.id
-            AND uc_base.unit = mu_base.unit,
+            AND uc_base.unit = mu.unit,
         LATERAL (SELECT CASE uc.calc
                             WHEN 'm' THEN (material_entrance_items.quantity * uc.quantity)
                             WHEN 'd' THEN (material_entrance_items.quantity / uc.quantity)
