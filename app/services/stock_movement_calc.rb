@@ -29,9 +29,9 @@ class StockMovementCalc
 
     # Faz o inverso
     if conversion.calc = CalcOfMeasurements::M
-      quantity = conversion.quantity / quantity.to_f
+      quantity = quantity.to_f / conversion.quantity
     else
-      quantity = conversion.quantity * quantity.to_f
+      quantity = quantity.to_f * conversion.quantity
     end
 
     quantity
