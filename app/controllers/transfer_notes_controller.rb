@@ -22,7 +22,7 @@ class TransferNotesController < ApplicationController
   end
 
   def create
-    @transfer_note = TransferNote.new
+    @transfer_note = TransferNote.new.localized
     @transfer_note.assign_attributes(resource_params)
     @transfer_note.teacher = current_teacher
     @transfer_note.transfer_date_copy = resource_params[:transfer_date]
@@ -44,7 +44,7 @@ class TransferNotesController < ApplicationController
   end
 
   def update
-    @transfer_note = TransferNote.find(params[:id])
+    @transfer_note = TransferNote.find(params[:id]).localized
     @transfer_note.assign_attributes(resource_params)
     @transfer_note.transfer_date_copy = resource_params[:transfer_date]
 

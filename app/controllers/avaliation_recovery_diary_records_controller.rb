@@ -41,7 +41,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def create
-    @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new
+    @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new.localized
     @avaliation_recovery_diary_record.assign_attributes(resource_params)
     @avaliation_recovery_diary_record.recovery_diary_record.recorded_at_copy = resource_params[:recovery_diary_record_attributes][:recorded_at]
 
