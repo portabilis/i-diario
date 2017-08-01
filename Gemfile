@@ -72,6 +72,7 @@ group :development do
   gem 'puma'
   gem 'mina-sidekiq'
   gem 'web-console', '~> 2.0'
+  gem 'pry-byebug'
 end
 
 group :test do
