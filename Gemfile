@@ -73,6 +73,7 @@ group :development do
   gem 'mina-sidekiq'
   gem 'web-console', '~> 2.0'
   gem 'pry-byebug'
+  gem 'pry-remote'
 end
 
 group :test do
