@@ -38,8 +38,12 @@ Rails.application.routes.draw do
         resources :teacher_disciplines, only: [:index]
         resources :school_calendars, only: [:index]
         resources :daily_frequencies, only: [:create, :index]
+        resources :daily_frequency_students, only: [:update] do
+          collection do
+            post :update_or_create
+          end
+        end
         resources :***REMOVED***, only: [:create]
-        resources :daily_frequency_students, only: [:update]
         resources :classroom_students, only: [:index]
         resources :teacher_allocations, only: [:index]
         resources :lesson_plans, only: [:index]
