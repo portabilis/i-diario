@@ -17,9 +17,9 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
     end
 
     @daily_frequencies = @daily_frequencies
-      .by_frequency_date_between(10.days.ago, Date.today)
       .order_by_frequency_date
       .order_by_class_number
+      .limit(10)
 
     respond_with @daily_frequencies
   end
