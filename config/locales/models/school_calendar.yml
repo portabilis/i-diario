@@ -20,4 +20,3 @@ pt-BR:
           attributes:
             steps:
               at_least_one_step: "É necessário adicionar pelo menos uma etapa"
-              must_not_have_conflicting_steps: "Existem datas conflitantes com um calendário letivo existente para a unidade informada"
