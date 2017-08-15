@@ -23,6 +23,8 @@ pt-BR:
                 required_when_not_global_absence: "não pode ser branco em falta por disciplina"
               class_number:
                 required_when_not_global_absence: "não pode ser branco em falta por disciplina"
+              base:
+                frequency_type_must_be_valid: "frequência deve ser global ou por disciplina"
 
   errors:
     daily_frequencies:

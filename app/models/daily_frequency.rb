@@ -18,6 +18,7 @@ class DailyFrequency < ActiveRecord::Base
   validates :frequency_date, presence: true, school_calendar_day: true
 
   validate :frequency_date_must_be_less_than_or_equal_to_today
+  validate :frequency_must_be_global_or_discipline
 
   scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
         lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at| where(unity_id: unity_id,
@@ -52,6 +53,13 @@ class DailyFrequency < ActiveRecord::Base
 
     if frequency_date > Time.zone.today
       errors.add(:frequency_date, :must_be_less_than_or_equal_to_today)
+    end
+  end
+
+  def frequency_must_be_global_or_discipline
+    if discipline && !class_number ||
+       !discipline && class_number
+       errors.add(:base, :frequency_type_must_be_valid)
     end
   end
 end
