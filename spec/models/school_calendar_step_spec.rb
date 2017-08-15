@@ -80,8 +80,6 @@ RSpec.describe SchoolCalendarStep, type: :model do
       subject.start_date_for_posting = '2021-01-20'
       subject.end_date_for_posting = '2021-10-10'
 
-      subject.valid?
-
       expect(subject).to_not be_valid
       expect(subject.errors.messages[:start_at]).to include('A data informada não pode ser um dia letivo em outro calendário escolar')
     end
@@ -102,8 +100,6 @@ RSpec.describe SchoolCalendarStep, type: :model do
       subject.end_at = '2021-01-20'
       subject.start_date_for_posting = '2020-07-20'
       subject.end_date_for_posting = '2021-01-20'
-
-      subject.valid?
 
       expect(subject).to_not be_valid
       expect(subject.errors.messages[:end_at]).to include('A data informada não pode ser um dia letivo em outro calendário escolar')
