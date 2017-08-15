@@ -62,6 +62,52 @@ RSpec.describe SchoolCalendarStep, type: :model do
       expect(subject).to_not be_valid
       expect(subject.errors.messages[:end_at]).to include('não pode maior que 28/02/2021')
     end
+
+    it 'start_at date should not have conflicting school terms with other school calendars from the same unity' do
+      existing_school_calendar = build(:school_calendar, year: 2020)
+      existing_school_calendar.steps.build(
+        start_at: '2020-02-15',
+        end_at: '2021-01-30',
+        start_date_for_posting: '2020-02-15',
+        end_date_for_posting: '2021-01-30'
+      )
+      existing_school_calendar.save!
+
+      school_calendar = build(:school_calendar, year: 2021, unity: existing_school_calendar.unity)
+      subject.school_calendar = school_calendar
+      subject.start_at = '2021-01-20'
+      subject.end_at = '2021-10-10'
+      subject.start_date_for_posting = '2021-01-20'
+      subject.end_date_for_posting = '2021-10-10'
+
+      subject.valid?
+
+      expect(subject).to_not be_valid
+      expect(subject.errors.messages[:start_at]).to include('A data informada não pode ser um dia letivo em outro calendário escolar')
+    end
+
+    it 'end_at date should not have conflicting school terms with other school calendars from the same unity' do
+      existing_school_calendar = build(:school_calendar, year: 2021)
+      existing_school_calendar.steps.build(
+        start_at: '2021-01-15',
+        end_at: '2021-07-19',
+        start_date_for_posting: '2021-01-15',
+        end_date_for_posting: '2021-07-19'
+      )
+      existing_school_calendar.save!
+
+      school_calendar = build(:school_calendar, year: 2020, unity: existing_school_calendar.unity)
+      subject.school_calendar = school_calendar
+      subject.start_at = '2020-07-20'
+      subject.end_at = '2021-01-20'
+      subject.start_date_for_posting = '2020-07-20'
+      subject.end_date_for_posting = '2021-01-20'
+
+      subject.valid?
+
+      expect(subject).to_not be_valid
+      expect(subject.errors.messages[:end_at]).to include('A data informada não pode ser um dia letivo em outro calendário escolar')
+    end
   end
 
   describe "#to_s" do
