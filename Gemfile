@@ -39,7 +39,7 @@ gem 'angular_rails_csrf'
 gem 'rack-cors', require: 'rack/cors'
 
 gem 'sinatra', '>= 1.3.0', require: nil
-gem 'sidekiq', '4.2.2'
+gem 'sidekiq', '< 6'
 gem 'whenever', require: false
 gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
@@ -69,9 +69,11 @@ group :development do
   gem 'better_errors', '~> 1.1.0'
   gem 'binding_of_caller', '~> 0.7.2'
   gem 'bullet', '~> 4.14.0'
-  gem 'puma'
+  gem 'puma', '~> 3.9.1'
   gem 'mina-sidekiq'
   gem 'web-console', '~> 2.0'
+  gem 'pry-byebug'
+  gem 'pry-remote'
 end
 
 group :test do

@@ -45,10 +45,14 @@ class DescriptiveExam < ActiveRecord::Base
   def should_validate_presence_of_school_calendar_step
     return unless exam_rule
 
-    [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? exam_rule.opinion_type && school_calendar_classroom_step_id.blank?
+    by_step = [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? exam_rule.opinion_type
+    by_step && !school_calendar_classroom_step_id
   end
 
   def should_validate_presence_of_classroom_school_calendar_step
-    should_validate_presence_of_school_calendar_step && !school_calendar_step_id
+    return unless exam_rule
+
+    by_step = [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? exam_rule.opinion_type
+    by_step && !school_calendar_step_id
   end
 end
