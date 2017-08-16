@@ -4,8 +4,6 @@ class StudentEnrollment < ActiveRecord::Base
   has_many :student_enrollment_classrooms
   has_many :dependences, class_name: "StudentEnrollmentDependence"
 
-  validates :student_id,  presence: true
-
   scope :by_classroom, lambda { |classroom_id| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_classroom(classroom_id)) }
   scope :by_discipline, lambda {|discipline_id| by_discipline_query(discipline_id)}
   scope :by_student, lambda { |student_id| where(student_id: student_id) }
