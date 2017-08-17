@@ -78,6 +78,7 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :***REMOVED***_movements,
                    :***REMOVED***,
+                   :***REMOVED***,
                    :***REMOVED***
 
   sort_by :translation

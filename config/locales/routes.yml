@@ -107,6 +107,7 @@ pt-BR:
     ***REMOVED***_movements: 'movimentacoes-de-estoque'
     ***REMOVED***: '***REMOVED***'
     ***REMOVED***: 'empenhos'
+    ***REMOVED***: 'contratos'
 
     # actions
     edit: 'editar'
