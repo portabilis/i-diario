@@ -13,7 +13,6 @@ class TeachersSynchronizer
     inactive_all_alocations_prior_to(years[0]) if years.any?
 
     years.each do |year|
-      inactivate_all_allocations_for(year)
       update_records(api.fetch(ano: year)['servidores'], year)
     end
   end
@@ -28,23 +27,24 @@ class TeachersSynchronizer
 
   def update_records(collection, year)
     ActiveRecord::Base.transaction do
-
       collection.each do |record|
         teacher = update_or_create_teacher(record)
-        update_discipline_classrooms(record['disciplinas_turmas'], teacher, year)
+        record_id = record['id']
+        update_discipline_classrooms(record['disciplinas_turmas'], teacher, year, record_id)
       end
+      inactivate_all_inexisting_allocations(collection, year)
     end
   end
 
-  def update_discipline_classrooms(collection, teacher, year)
+  def update_discipline_classrooms(collection, teacher, year, record_id)
     return unless teacher
 
     # inactivate all records and activate when find
     # teacher.teacher_discipline_classrooms.update_all(active: false)
 
     collection.each do |record|
-
-      if discipline_classroom = discipline_classrooms.unscoped.where(teacher_api_code: teacher.api_code,
+      if discipline_classroom = discipline_classrooms.unscoped.where(api_code: record_id,
+                                                                    teacher_api_code: teacher.api_code,
                                                                     discipline_api_code: record['disciplina_id'],
                                                                     classroom_api_code: record['turma_id'],
                                                                     year: year,
@@ -57,6 +57,7 @@ class TeachersSynchronizer
         )
       else
         discipline_classrooms.create!(
+          api_code: record_id,
           year: year,
           active: true,
           teacher_id: teacher.id,
@@ -71,21 +72,13 @@ class TeachersSynchronizer
     end
   end
 
-  def clear_inactive_teacher_allocations_from_users(teacher)
-    users_allocated = User.where(teacher_id: teacher)
-    users_assumed = User.where(assumed_teacher_id: teacher)
-    users = users_allocated + users_assumed
+  def inactivate_all_inexisting_allocations(collection, year)
+    allocation_ids = collection.map{ |value| value['id'] }
 
-    users.each do |user|
-      classroom = user.current_classroom
+    allocations = discipline_classrooms.where(year: year)
+                                       .where.not(api_code: allocation_ids)
 
-      has_teacher_allocation = discipline_classrooms.where(classroom_id: classroom, active: true, year: year).any?
-
-      if !has_teacher_allocation
-        user.clear_allocation
-      end
-    end
-
+    allocations.update_all(active: false)
   end
 
   def teachers(klass = Teacher)
@@ -99,12 +92,12 @@ class TeachersSynchronizer
   private
 
   def update_or_create_teacher(record)
-    teacher = teachers.find_by(api_code: record['id'])
+    teacher = teachers.find_by(api_code: record['servidor_id'])
     if teacher
       teacher.update(name: record['name'])
     elsif record['name'].present?
       teacher = teachers.create!(
-        api_code: record['id'],
+        api_code: record['servidor_id'],
         name: record['name']
       )
     end

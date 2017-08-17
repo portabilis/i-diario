@@ -73,7 +73,7 @@ module Turnip
     end
 
     step "deverei ver a mensagem de acesso solicitado" do
-      sleep 3
+      sleep 5
       expect(page).to have_content "Notificamos o responsável da sua unidade escolar sobre sua solicitação. Em breve você receberá um e-mail com o seu acesso."
     end
 
