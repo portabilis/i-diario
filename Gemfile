@@ -62,7 +62,7 @@ gem 'fog', '~> 1.36'
 gem 'rdstation-ruby-client'
 
 gem "zenvia-ruby", git: "https://github.com/portabilis/zenvia-ruby"
-
+gem 'pry-byebug'
 group :development do
   gem 'quiet_assets'
   gem 'mina', '0.3.7'
@@ -72,7 +72,7 @@ group :development do
   gem 'puma', '~> 3.9.1'
   gem 'mina-sidekiq'
   gem 'web-console', '~> 2.0'
-  gem 'pry-byebug'
+  #gem 'pry-byebug'
   gem 'pry-remote'
 end
 
