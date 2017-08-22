@@ -69,10 +69,11 @@ group :development do
   gem 'better_errors', '~> 1.1.0'
   gem 'binding_of_caller', '~> 0.7.2'
   gem 'bullet', '~> 4.14.0'
-  gem 'puma'
+  gem 'puma', '~> 3.9.1'
   gem 'mina-sidekiq'
   gem 'web-console', '~> 2.0'
   gem 'pry-byebug'
+  gem 'pry-remote'
 end
 
 group :test do

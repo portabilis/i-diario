@@ -405,7 +405,10 @@ GEM
     pry-byebug (3.4.2)
       byebug (~> 9.0)
       pry (~> 0.10)
-    puma (2.15.3)
+    pry-remote (0.1.8)
+      pry (~> 0.9)
+      slop (~> 3.0)
+    puma (3.9.1)
     pundit (0.3.0)
       activesupport (>= 3.0.0)
     quiet_assets (1.1.0)
@@ -601,7 +604,8 @@ DEPENDENCIES
   prawn-table (= 0.2.2)
   pry (~> 0.10.3)
   pry-byebug
-  puma
+  pry-remote
+  puma (~> 3.9.1)
   pundit (= 0.3.0)
   quiet_assets
   rack-cors
@@ -635,4 +639,4 @@ RUBY VERSION
    ruby 2.2.6p396
 
 BUNDLED WITH
-   1.15.2
+   1.15.3

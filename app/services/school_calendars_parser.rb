@@ -169,6 +169,7 @@ class SchoolCalendarsParser
   end
 
   def update_classrooms_step_start_at(school_calendar_classroom, step_index, step)
+    return unless school_calendar_classroom
     if school_calendar_classroom.classroom_steps[step_index].start_at != Date.parse(step['data_inicio'])
       school_calendar_classroom.classroom_steps[step_index].start_at = step['data_inicio']
       school_calendar_classroom.classroom_steps[step_index].start_date_for_posting = step['data_inicio']
@@ -176,6 +177,7 @@ class SchoolCalendarsParser
   end
 
   def update_classrooms_step_end_at(school_calendar_classroom, step_index, step)
+    return unless school_calendar_classroom
     if school_calendar_classroom.classroom_steps[step_index].end_at != Date.parse(step['data_fim'])
       school_calendar_classroom.classroom_steps[step_index].end_at = step['data_fim']
       school_calendar_classroom.classroom_steps[step_index].end_date_for_posting = step['data_fim']
