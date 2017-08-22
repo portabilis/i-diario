@@ -190,7 +190,11 @@ Rails.application.routes.draw do
         get :search
       end
     end
-    resources :***REMOVED***, concerns: :history, except: :show
+    resources :***REMOVED***, concerns: :history, except: :show do
+      collection do
+        get :search
+      end
+    end
 
     resources :grades, only: [:index] do
       member do
