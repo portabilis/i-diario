@@ -1,5 +1,5 @@
 FreshWidget.init("", {
-    "queryString": "&widgetType=popup",
+    "queryString": "&widgetType=popup&submitTitle=Enviar+solicitação",
     "utf8": "✓",
     "widgetType": "popup",
     "buttonType": "text",
