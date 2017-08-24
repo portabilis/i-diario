@@ -34,7 +34,8 @@ $(function() {
         formatSelection: function(el) {
           return el.name;
         },
-        data: $(element).data('elements')
+        data: $(element).data('elements'),
+        multiple: $(element).data('multiple')
       })
       .on('change', function(e) {
         var measuringUnit = get***REMOVED***FromSelectedItem(e);
@@ -48,11 +49,11 @@ $(function() {
   }
 
   function get***REMOVED***FromSelectedItem(e) {
-    return $(e.target)
-      .data('elements')
-      .filter(function(element) {
-        return element.id == e.val
-      })[0].measuring_unit;
+    return ($(e.target)
+          .data('elements')
+          .filter(function(element) {
+            return element.id == e.val
+          })[0]||{})['measuring_unit'];
   }
 
   function loadDecimalMasks() {
