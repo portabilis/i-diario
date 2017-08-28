@@ -21,7 +21,7 @@ class DailyFrequenciesController < ApplicationController
     @class_numbers = params[:class_numbers].split(',')
     @discipline = params[:daily_frequency][:discipline_id]
 
-    if (@daily_frequency.valid? and validate_class_numbers and validate_discipline)
+    if validate_class_numbers && validate_discipline && @daily_frequency.valid?
       @daily_frequencies = []
 
       absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
