@@ -18,11 +18,10 @@ class DailyFrequenciesController < ApplicationController
   def create
     @daily_frequency = DailyFrequency.new(resource_params)
     @daily_frequency.school_calendar = current_school_calendar
-    @daily_frequency.class_number = params[:class_numbers].first
     @class_numbers = params[:class_numbers].split(',')
     @discipline = params[:daily_frequency][:discipline_id]
 
-    if validate_class_numbers && validate_discipline && @daily_frequency.valid?
+    if (@daily_frequency.valid? and validate_class_numbers and validate_discipline)
       @daily_frequencies = []
 
       absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
