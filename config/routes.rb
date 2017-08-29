@@ -174,7 +174,11 @@ Rails.application.routes.draw do
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***s, concerns: :history
+    resources :***REMOVED***s, concerns: :history do
+      member do
+        post :clone
+      end
+    end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :courses, only: [:index]
@@ -195,6 +199,7 @@ Rails.application.routes.draw do
 
     resources :moved_***REMOVED***, only: [:index]
     get '/unities/:unity_id/moved_***REMOVED***/:material_id', to: 'moved_***REMOVED***#show', as: 'unity_moved_material'
+    get '/unities/:unity_id/moved_***REMOVED***/:material_id/get_consumption_balance', to: 'moved_***REMOVED***#get_consumption_balance', as: 'get_consumption_balance'
 
     resources :***REMOVED***, only: [:index, :new, :create]
     get '/***REMOVED***/entrances/:id', to: '***REMOVED***#show_entrance', as: 'inventory_adjustment_entrance'
