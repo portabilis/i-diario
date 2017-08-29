@@ -171,7 +171,12 @@ Rails.application.routes.draw do
       end
       resources :material_exit_items, only: [:index]
     end
-    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history do
+      collection do
+        get :filtered_***REMOVED***
+        get :data_by_commitment
+      end
+    end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***s, concerns: :history do
