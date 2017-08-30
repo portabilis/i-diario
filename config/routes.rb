@@ -220,6 +220,7 @@ Rails.application.routes.draw do
     get '/***REMOVED***/entrances/:id', to: '***REMOVED***#show_entrance', as: 'inventory_adjustment_entrance'
     get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
     get '/***REMOVED***/get_***REMOVED***', to: '***REMOVED***#get_***REMOVED***_for_select2_remote', as: 'get_all_***REMOVED***'
+    get '/***REMOVED***/get_filtered_***REMOVED***', to: '***REMOVED***#get_filtered_***REMOVED***_for_select2_remote', as: 'get_filtered_***REMOVED***'
 
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***_***REMOVED***s, only: :index
