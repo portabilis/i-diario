@@ -88,6 +88,28 @@ class StockMovementCalc
     quantity
   end
 
+  def self.convert_any_unit_to_any_unit(current_unit, convert_unit, quantity)
+    current_unit = ***REMOVED***.find(current_unit)
+    conversion = current_unit.units_conversions.by_unit(current_unit.unit).first
+
+    if conversion.calc = CalcOfMeasurements::M
+      quantity = quantity.to_f * conversion.quantity
+    else
+      quantity = quantity.to_f / conversion.quantity
+    end
+
+    convert_unit = ***REMOVED***.find(convert_unit)
+    conversion = convert_unit.units_conversions.by_unit(current_unit.unit).first
+
+    if conversion.calc = CalcOfMeasurements::M
+      quantity = quantity.to_f / conversion.quantity
+    else
+      quantity = quantity.to_f * conversion.quantity
+    end
+
+    quantity
+  end
+
   def self.***REMOVED***(unity_id, material_id, start_date, end_date)
     entrances = ***REMOVED***.by_material_id(material_id)
                                     .by_unity_id(unity_id)
