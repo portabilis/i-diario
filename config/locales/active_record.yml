@@ -21,6 +21,7 @@ pt-BR:
       not_a_number: "não é um número"
       not_an_integer: "não é um número inteiro"
       invalid_date: "não é válido"
+      must_be_a_valid_date: "deve ser uma data válida"
       not_in_future: "deve ser menor ou igual a data de hoje"
       not_school_calendar_day: "deve ser um dia letivo"
       not_school_term_day: "deve ser um dia letivo da etapa informada"
