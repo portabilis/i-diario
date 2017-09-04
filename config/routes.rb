@@ -171,7 +171,12 @@ Rails.application.routes.draw do
       end
       resources :material_exit_items, only: [:index]
     end
-    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history do
+      collection do
+        get :filtered_***REMOVED***
+        get :data_by_commitment
+      end
+    end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***s, concerns: :history do
@@ -185,8 +190,16 @@ Rails.application.routes.draw do
     resources :lectures, only: [:index]
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history, except: :show
-    resources :***REMOVED***, concerns: :history, except: :show
+    resources :***REMOVED***, concerns: :history, except: :show do
+      collection do
+        get :search
+      end
+    end
+    resources :***REMOVED***, concerns: :history, except: :show do
+      collection do
+        get :search
+      end
+    end
 
     resources :grades, only: [:index] do
       member do
@@ -207,6 +220,7 @@ Rails.application.routes.draw do
     get '/***REMOVED***/entrances/:id', to: '***REMOVED***#show_entrance', as: 'inventory_adjustment_entrance'
     get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
     get '/***REMOVED***/get_***REMOVED***', to: '***REMOVED***#get_***REMOVED***_for_select2_remote', as: 'get_all_***REMOVED***'
+    get '/***REMOVED***/get_filtered_***REMOVED***', to: '***REMOVED***#get_filtered_***REMOVED***_for_select2_remote', as: 'get_filtered_***REMOVED***'
 
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***_***REMOVED***s, only: :index
