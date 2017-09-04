@@ -1,6 +1,8 @@
 namespace :migration do
   desc "Migrate ***REMOVED***s and Menus"
   task ***REMOVED***_and_***REMOVED***s: :environment do
+    puts "Iniciando migration"
+
     Entity.all.each do |entity|
       entity.using_connection do
         Menu.all.each do |***REMOVED***|
@@ -12,10 +14,13 @@ namespace :migration do
           )
 
           ***REMOVED***.food_***REMOVED***s.each do |food_***REMOVED***|
+            quantity = ActiveRecord::Base.connection.select_values(
+              "select quantity from food_***REMOVED***s where ***REMOVED***_id = #{food_***REMOVED***.***REMOVED***_id} and food_id = #{food_***REMOVED***.food_id}")[0].to_f
+
             recipe.ingredients.new(
               material: food_***REMOVED***.food.food_***REMOVED***.first.material,
               food: food_***REMOVED***.food,
-              gross_weight: (food_***REMOVED***.quantity * 100),
+              gross_weight: (quantity * 100),
               created_at: food_***REMOVED***.created_at,
               updated_at: food_***REMOVED***.updated_at
             )
@@ -38,5 +43,7 @@ namespace :migration do
         end
       end
     end
+
+    puts "Migration finalizada"
   end
 end
