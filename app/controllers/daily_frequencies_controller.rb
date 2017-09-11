@@ -19,6 +19,7 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = DailyFrequency.new(resource_params)
     @daily_frequency.school_calendar = current_school_calendar
     @class_numbers = params[:class_numbers].split(',')
+    @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]
 
     if validate_class_numbers && validate_discipline && @daily_frequency.valid?
