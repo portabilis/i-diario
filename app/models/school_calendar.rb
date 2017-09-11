@@ -24,8 +24,6 @@ class SchoolCalendar < ActiveRecord::Base
   validates :number_of_classes, presence: true,
                                 numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
 
-  validate :must_not_have_conflicting_steps
-
   validates_associated :steps
 
   scope :by_year, lambda { |year| where(year: year) }
@@ -84,16 +82,6 @@ class SchoolCalendar < ActiveRecord::Base
     joins(:classrooms).where(SchoolCalendarClassroom.arel_table[:classroom_id].eq(classroom.id))
     .joins(classrooms: :classroom_steps).where(SchoolCalendarClassroomStep.arel_table[:start_at].lteq(date.to_date))
       .where(SchoolCalendarClassroomStep.arel_table[:end_at].gteq(date.to_date))
-  end
-
-  def must_not_have_conflicting_steps
-    exist_conflicting_steps = steps.any? do |step|
-      SchoolCalendar.by_unity_id(unity_id).where.not(id: id).any? do |school_calendar|
-        school_calendar.school_day?(step.start_at) || school_calendar.school_day?(step.end_at)
-      end
-    end
-
-    errors.add(:steps, :must_not_have_conflicting_steps) if exist_conflicting_steps
   end
 
   def self_assign_to_steps
