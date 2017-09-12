@@ -224,6 +224,7 @@ Rails.application.routes.draw do
 
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***_***REMOVED***s, only: :index
+    resources :***REMOVED***_***REMOVED***, only: :index
     resources :***REMOVED***_periods, only: :index
     resources :***REMOVED***_students, only: :index
 
