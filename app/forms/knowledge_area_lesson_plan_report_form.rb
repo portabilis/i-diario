@@ -9,8 +9,7 @@ class KnowledgeAreaLessonPlanReportForm
                 :date_end,
                 :knowledge_area_lesson_plan
 
-  validates :unity_id,
-    :classroom_id,
+  validates :classroom_id,
     :date_start,
     :date_end,
     presence: true
@@ -21,8 +20,7 @@ class KnowledgeAreaLessonPlanReportForm
   validate :must_have_knowledge_area_lesson_plan
 
   def knowledge_area_lesson_plan
-    relation = KnowledgeAreaLessonPlan.by_unity_id(unity_id)
-      .by_classroom_id(classroom_id)
+    relation = KnowledgeAreaLessonPlan.by_classroom_id(classroom_id)
       .by_date_range(date_start.to_date, date_end.to_date)
       .by_teacher_id(teacher_id)
       .order(LessonPlan.arel_table[:start_at].asc)
