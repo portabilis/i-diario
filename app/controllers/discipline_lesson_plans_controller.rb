@@ -15,7 +15,7 @@ class DisciplineLessonPlansController < ApplicationController
       .includes(:discipline, lesson_plan: [:classroom])
       .filter(filtering_params(params[:search]))
       .by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher.id)
+      .by_teacher_id(current_teacher)
       .by_classroom_id(current_user_classroom)
       .by_discipline_id(current_user_discipline)
       .uniq
