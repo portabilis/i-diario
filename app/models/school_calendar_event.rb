@@ -38,6 +38,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :without_grade, -> { where(arel_table[:grade_id].eq(nil) ) }
   scope :without_classroom, -> { where(arel_table[:classroom_id].eq(nil) ) }
   scope :without_discipline, -> { where(arel_table[:discipline_id].eq(nil) ) }
+  scope :without_course, -> { where(arel_table[:course_id].eq(nil) ) }
   scope :by_period, lambda { |period| where(' ? = ANY (periods)', period) }
   scope :by_date, lambda { |date| where('start_date <= ? and end_date >= ?', date, date) }
   scope :by_date_between, lambda { |start_at, end_at| where('start_date >= ? and end_date <= ?', start_at.to_date, end_at.to_date) }
@@ -47,6 +48,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :by_classroom, lambda { |classroom| joins(:classroom).where('classrooms.description ILIKE ?', '%'+classroom+'%') }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_course, lambda { |course_id| where(course_id: course_id) }
   scope :all_events_for_classroom, lambda { |classroom| all_events_for_classroom(classroom) }
 
   def to_s
