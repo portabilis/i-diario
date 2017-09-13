@@ -369,5 +369,7 @@ Rails.application.routes.draw do
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
     post '/food_composition', to: 'food_composition#calculate'
+
+    resources :data_exportations, only: [:index, :create]
   end
 end

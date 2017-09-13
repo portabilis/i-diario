@@ -106,6 +106,7 @@ pt-BR:
     student_enrollments_list: 'lista-de-alunos-matriculados'
     ***REMOVED***_movements: 'movimentacoes-de-estoque'
     ***REMOVED***: '***REMOVED***'
+    data_exportations: 'dados-de-exportacao'
 
     # actions
     edit: 'editar'
