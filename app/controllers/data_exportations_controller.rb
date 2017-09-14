@@ -2,7 +2,7 @@ class DataExportationsController < ApplicationController
   def index
     @data_exportation = DataExportation.new.current
 
-    authorize @data_exportation
+    authorize DataExportation
   end
 
   def create
