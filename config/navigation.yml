@@ -81,6 +81,9 @@ navigation:
             type: "general_configurations"
             path: "edit_general_configurations_path"
         - ***REMOVED***:
+            type: "data_exportations"
+            path: "data_exportations_path"
+        - ***REMOVED***:
             type: "ieducar_api_configurations"
             path: "edit_ieducar_api_configurations_path"
         - ***REMOVED***:

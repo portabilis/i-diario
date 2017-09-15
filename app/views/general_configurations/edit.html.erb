@@ -11,22 +11,6 @@
             <i></i>
           <% end %>
         </div>
-
-        <div class="col col-sm-6">
-          <%= f.input :backup_file do %>
-            <% if f.object.completed? %>
-              <%= link_to 'Fazer download', f.object.backup_file_url %>
-            <% elsif f.object.started? %>
-              <span class="label label-info">
-                Backup está sendo gerado.
-              </span>
-            <% elsif f.object.error? %>
-              <span class="label label-danger" title="<%= f.object.error_message %>">
-                Erro ao processar o backup.
-              </span>
-            <% end %>
-          <% end %>
-        </div>
       </div>
       <div class="row">
         <div class="col col-sm-6">
@@ -51,17 +35,6 @@
 
     <footer>
       <% if @general_configuration.persisted? %>
-        <% if @general_configuration.started? %>
-          <%= link_to "#",
-            class: 'btn bg-color-red txt-color-white' do %>
-            <i class="fa fa-cog fa-spin"></i>
-            Exportando dados
-          <% end %>
-        <% else %>
-          <%= link_to "Exportar dados", backup_files_path, method: 'post',
-            class: 'btn bg-color-red txt-color-white' %>
-        <% end %>
-
         <%= link_to 'Histórico', history_general_configurations_path, class: 'btn btn-info' %>
       <% end %>
 
