@@ -20,7 +20,6 @@ class SchoolCalendarsController < ApplicationController
 
   def update
     resource.assign_attributes resource_params
-    set_dates_copy
 
     authorize resource
 
@@ -113,14 +112,5 @@ class SchoolCalendarsController < ApplicationController
                                                                :end_at,
                                                                :start_date_for_posting,
                                                                :end_date_for_posting]])
-  end
-
-  def set_dates_copy
-    @school_calendar.steps.each do |step|
-      resource_params[:steps_attributes].each do |attribute|
-        step.start_date_for_posting_copy = attribute.second[:start_date_for_posting]
-        step.end_date_for_posting_copy = attribute.second[:end_date_for_posting]
-      end
-    end
   end
 end

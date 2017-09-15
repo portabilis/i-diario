@@ -67,7 +67,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
-    set_copy_dates
 
     authorize @knowledge_area_lesson_plan
 
@@ -96,7 +95,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id])
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
-    set_copy_dates
 
     authorize @knowledge_area_lesson_plan
 
@@ -198,10 +196,5 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
   def fetch_knowledge_area
     KnowledgeArea.all
-  end
-
-  def set_copy_dates
-    @knowledge_area_lesson_plan.lesson_plan.start_at_copy = resource_params[:lesson_plan_attributes][:start_at]
-    @knowledge_area_lesson_plan.lesson_plan.end_at_copy = resource_params[:lesson_plan_attributes][:end_at]
   end
 end

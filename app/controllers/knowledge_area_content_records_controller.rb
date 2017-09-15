@@ -28,8 +28,6 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record = KnowledgeAreaContentRecord.new(resource_params)
     @knowledge_area_content_record.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_content_record.content_record.teacher = current_teacher
-    @knowledge_area_content_record.content_record.record_date_copy = resource_params[:content_record_attributes][:record_date]
-
     @knowledge_area_content_record.content_record.content_ids = content_ids
 
     authorize @knowledge_area_content_record
@@ -51,8 +49,6 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record = KnowledgeAreaContentRecord.find(params[:id])
     @knowledge_area_content_record.assign_attributes(resource_params)
     @knowledge_area_content_record.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
-    @knowledge_area_content_record.content_record.record_date_copy = resource_params[:content_record_attributes][:record_date]
-
     @knowledge_area_content_record.content_record.content_ids = content_ids
 
     authorize @knowledge_area_content_record

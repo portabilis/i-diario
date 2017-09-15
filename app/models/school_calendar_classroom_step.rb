@@ -4,6 +4,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
 
   scope :ordered, -> { order(arel_table[:start_at]) }
 
+  validates_date :start_date_for_posting, :end_date_for_posting
   validates :start_at, :end_at, :start_date_for_posting, :end_date_for_posting, presence: true
 
   validate :start_at_must_be_in_school_calendar_year, if: :school_calendar

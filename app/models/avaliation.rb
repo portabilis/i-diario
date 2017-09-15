@@ -22,6 +22,7 @@ class Avaliation < ActiveRecord::Base
   has_many :daily_notes, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
 
+  validates_date :test_date
   validates :unity,             presence: true
   validates :classroom,         presence: true
   validates :discipline,        presence: true
@@ -39,7 +40,6 @@ class Avaliation < ActiveRecord::Base
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
   validate :is_school_term_day?
   validate :weight_not_greater_than_test_setting_maximum_score, if: :arithmetic_and_sum_calculation_type?
-  validate :test_date_valid
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
@@ -203,19 +203,6 @@ class Avaliation < ActiveRecord::Base
 
     if weight > test_setting.maximum_score
       errors.add(:weight, :cant_be_greater_than, value: test_setting.maximum_score)
-    end
-  end
-
-  # necessario pois quando inserida uma data invalida, o controller considera
-  # o valor de test_date como nil e a mensagem mostrada é a de que não pode
-  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
-  def test_date_valid
-    return if test_date_copy.nil?
-    begin
-      test_date_copy.to_date
-    rescue ArgumentError
-      errors[:test_date].clear
-      errors.add(:test_date, "deve ser uma data válida")
     end
   end
 end

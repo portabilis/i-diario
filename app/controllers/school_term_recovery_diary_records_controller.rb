@@ -42,7 +42,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def create
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.new.localized
     @school_term_recovery_diary_record.assign_attributes(resource_params)
-    @school_term_recovery_diary_record.recovery_diary_record.recorded_at_copy = resource_params[:recovery_diary_record_attributes][:recorded_at]
 
     authorize @school_term_recovery_diary_record
 
@@ -74,7 +73,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def update
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
     @school_term_recovery_diary_record.assign_attributes(resource_params)
-    @school_term_recovery_diary_record.recovery_diary_record.recorded_at_copy = resource_params[:recovery_diary_record_attributes][:recorded_at]
 
     authorize @school_term_recovery_diary_record
 

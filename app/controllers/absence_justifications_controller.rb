@@ -37,13 +37,13 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification.teacher = current_teacher
     @absence_justification.unity = current_user_unity
     @absence_justification.school_calendar = current_school_calendar
-    set_copy_dates
 
     authorize @absence_justification
 
     if @absence_justification.save
       respond_with @absence_justification, location: absence_justifications_path
     else
+      clear_invalid_dates
       fetch_collections
       render :new
     end
@@ -61,7 +61,6 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification = AbsenceJustification.find(params[:id])
     @absence_justification.assign_attributes resource_params
     @absence_justification.school_calendar = current_school_calendar if @absence_justification.persisted? && @absence_justification.school_calendar.blank?
-    set_copy_dates
     fetch_collections
 
     authorize @absence_justification
@@ -69,6 +68,7 @@ class AbsenceJustificationsController < ApplicationController
     if @absence_justification.save
       respond_with @absence_justification, location: absence_justifications_path
     else
+      clear_invalid_dates
       render :edit
       fetch_collections
     end
@@ -131,8 +131,17 @@ class AbsenceJustificationsController < ApplicationController
     end
   end
 
-  def set_copy_dates
-    @absence_justification.absence_date_copy = resource_params[:absence_date]
-    @absence_justification.absence_date_end_copy = resource_params[:absence_date_end]
+  def clear_invalid_dates
+    begin
+      resource_params[:absence_date].to_date
+    rescue ArgumentError
+      @absence_justification.absence_date = ''
+    end
+
+    begin
+      resource_params[:absence_date_end].to_date
+    rescue ArgumentError
+      @absence_justification.absence_date_end = ''
+    end
   end
 end

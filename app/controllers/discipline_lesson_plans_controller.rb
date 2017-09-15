@@ -65,7 +65,6 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan = DisciplineLessonPlan.new
     @discipline_lesson_plan.assign_attributes(resource_params)
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
-    set_copy_dates
 
     authorize @discipline_lesson_plan
 
@@ -85,7 +84,6 @@ class DisciplineLessonPlansController < ApplicationController
   def update
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id])
     @discipline_lesson_plan.assign_attributes(resource_params)
-    set_copy_dates
 
     authorize @discipline_lesson_plan
 
@@ -185,10 +183,5 @@ class DisciplineLessonPlansController < ApplicationController
   def fetch_disciplines
     Discipline.where(id: current_user_discipline)
       .ordered
-  end
-
-  def set_copy_dates
-    @discipline_lesson_plan.lesson_plan.start_at_copy = resource_params[:lesson_plan_attributes][:start_at]
-    @discipline_lesson_plan.lesson_plan.end_at_copy = resource_params[:lesson_plan_attributes][:end_at]
   end
 end

@@ -4,7 +4,6 @@ class LessonPlan < ActiveRecord::Base
   acts_as_copy_target
 
   attr_writer :contents_tags
-  attr_accessor :start_at_copy, :end_at_copy
 
   audited except: [:teacher_id, :old_contents]
   has_associated_audits
@@ -22,6 +21,7 @@ class LessonPlan < ActiveRecord::Base
   accepts_nested_attributes_for :contents, allow_destroy: true
   accepts_nested_attributes_for :lesson_plan_attachments, allow_destroy: true
 
+  validates_date :start_at, :end_at
   validates :school_calendar, presence: true
   validates :unity, presence: true
   validates :classroom, presence: true
@@ -30,7 +30,6 @@ class LessonPlan < ActiveRecord::Base
 
   validate :no_retroactive_dates
   validate :at_least_one_assigned_content
-  validate :start_at_valid, :end_at_valid
 
   delegate :unity, :unity_id, to: :classroom
 
@@ -61,28 +60,5 @@ class LessonPlan < ActiveRecord::Base
 
   def at_least_one_assigned_content
     errors.add(:contents, :at_least_one_content) if contents.empty?
-  end
-
-  # necessario pois quando inserida uma data invalida, o controller considera
-  # o valor de start_at e end_at como nil e a mensagem mostrada é a de que não pode
-  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
-  def start_at_valid
-    return if start_at_copy.nil?
-    begin
-      start_at_copy.to_date
-    rescue ArgumentError
-      errors[:start_at].clear
-      errors.add(:start_at, "deve ser uma data válida")
-    end
-  end
-
-  def end_at_valid
-    return if end_at_copy.nil?
-    begin
-      end_at_copy.to_date
-    rescue ArgumentError
-      errors[:end_at].clear
-      errors.add(:end_at, "deve ser uma data válida")
-    end
   end
 end

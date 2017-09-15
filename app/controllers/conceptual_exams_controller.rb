@@ -57,6 +57,7 @@ class ConceptualExamsController < ApplicationController
     if @conceptual_exam.save
       respond_to_save
     else
+      clear_invalid_dates
       fetch_collections
       mark_not_existing_disciplines_as_invisible
 
@@ -86,6 +87,7 @@ class ConceptualExamsController < ApplicationController
     if @conceptual_exam.save
       respond_to_save
     else
+      clear_invalid_dates
       fetch_collections
       mark_not_existing_disciplines_as_invisible
       mark_persisted_disciplines_as_invisible if @conceptual_exam.conceptual_exam_values.any? { |value| value.new_record? }
@@ -321,6 +323,14 @@ class ConceptualExamsController < ApplicationController
       end
 
       @students[next_student_index]
+    end
+  end
+
+  def clear_invalid_dates
+    begin
+      resource_params[:recorded_at].to_date
+    rescue ArgumentError
+      @conceptual_exam.recorded_at = ''
     end
   end
 end

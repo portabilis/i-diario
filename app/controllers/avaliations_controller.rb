@@ -66,7 +66,6 @@ class AvaliationsController < ApplicationController
   def create
     resource.assign_attributes(resource_params)
     resource.school_calendar = current_school_calendar
-    resource.test_date_copy = resource_params[:test_date]
 
     authorize resource
 
@@ -81,7 +80,6 @@ class AvaliationsController < ApplicationController
 
   def edit
     @avaliation = resource
-    resource.test_date_copy = resource_params[:test_date]
 
     authorize @avaliation
 

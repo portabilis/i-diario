@@ -18,7 +18,6 @@ class DailyFrequenciesController < ApplicationController
   def create
     @daily_frequency = DailyFrequency.new(resource_params)
     @daily_frequency.school_calendar = current_school_calendar
-    @daily_frequency.frequency_date_copy = resource_params[:frequency_date]
     @class_numbers = params[:class_numbers].split(',')
     @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]

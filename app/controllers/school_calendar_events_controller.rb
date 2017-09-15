@@ -20,7 +20,6 @@ class SchoolCalendarEventsController < ApplicationController
 
   def create
     resource.assign_attributes resource_params
-    set_dates_copy
 
     authorize resource
 
@@ -40,7 +39,6 @@ class SchoolCalendarEventsController < ApplicationController
 
   def update
     resource.assign_attributes resource_params
-    set_dates_copy
 
     authorize resource
 
@@ -110,11 +108,6 @@ class SchoolCalendarEventsController < ApplicationController
 
   def school_calendar
     @school_calendar = SchoolCalendar.find(params[:school_calendar_id])
-  end
-
-  def set_dates_copy
-    resource.start_date_copy = resource_params[:start_date]
-    resource.end_date_copy = resource_params[:end_date]
   end
 
   def clear_invalid_dates

@@ -61,7 +61,7 @@ class AttendanceRecordReportController < ApplicationController
     begin
       resource_params[:end_at].to_date
     rescue ArgumentError
-      @attendance_record_report_form.end_date = ''
+      @attendance_record_report_form.end_at = ''
     end
   end
 end

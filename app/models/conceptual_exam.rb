@@ -7,7 +7,7 @@ class ConceptualExam < ActiveRecord::Base
   audited
   has_associated_audits
 
-  attr_accessor :unity_id, :recorded_at_copy
+  attr_accessor :unity_id
 
   belongs_to :classroom
   belongs_to :school_calendar_step
@@ -28,6 +28,7 @@ class ConceptualExam < ActiveRecord::Base
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step| where(school_calendar_classroom_step: school_calendar_classroom_step)   }
   scope :ordered, -> { order(recorded_at: :desc)  }
 
+  validates_date :recorded_at
   validates :classroom,  presence: true
   validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
   validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
@@ -41,7 +42,7 @@ class ConceptualExam < ActiveRecord::Base
   validate :classroom_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
-  validate :recorded_at_valid, :ensure_is_school_day
+  validate :ensure_is_school_day
 
   before_validation :self_assign_to_conceptual_exam_values
 
@@ -128,18 +129,5 @@ class ConceptualExam < ActiveRecord::Base
 
   def school_calendar
     CurrentSchoolCalendarFetcher.new(classroom.try(:unity), classroom).fetch
-  end
-
-  # necessario pois quando inserida uma data invalida, o controller considera
-  # o valor de recorded_at e end_date como nil e a mensagem mostrada é a de que não pode
-  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
-  def recorded_at_valid
-    return if recorded_at_copy.nil?
-    begin
-      recorded_at_copy.to_date
-    rescue ArgumentError
-      errors[:recorded_at].clear
-      errors.add(:recorded_at, "deve ser uma data válida")
-    end
   end
 end

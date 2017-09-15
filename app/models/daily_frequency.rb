@@ -6,8 +6,6 @@ class DailyFrequency < ActiveRecord::Base
 
   include Audit
 
-  attr_accessor :frequency_date_copy
-
   belongs_to :unity
   belongs_to :classroom
   belongs_to :discipline
@@ -16,10 +14,11 @@ class DailyFrequency < ActiveRecord::Base
   has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyFrequencyStudent', dependent: :destroy
   accepts_nested_attributes_for :students, allow_destroy: true
 
+  validates_date :frequency_date
   validates :unity, :classroom, :school_calendar, presence: true
   validates :frequency_date, presence: true, school_calendar_day: true
 
-  validate :frequency_date_must_be_less_than_or_equal_to_today, :frequency_date_valid
+  validate :frequency_date_must_be_less_than_or_equal_to_today
   validate :frequency_must_be_global_or_discipline
 
   scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
@@ -57,17 +56,6 @@ class DailyFrequency < ActiveRecord::Base
       errors.add(:frequency_date, :must_be_less_than_or_equal_to_today)
     end
   end
-
-  # necessario pois quando inserida uma data invalida, o controller considera
-  # o valor de frequency_date como nil e a mensagem mostrada é a de que não pode
-  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
-  def frequency_date_valid
-    return if frequency_date_copy.nil?
-    begin
-      frequency_date_copy.to_date
-    rescue ArgumentError
-      errors[:frequency_date].clear
-      errors.add(:frequency_date, "deve ser uma data válida")
 
   def frequency_must_be_global_or_discipline
     if discipline && !class_number ||
