@@ -8,7 +8,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
   has_many :synchronizations, class_name: "IeducarApiSynchronization"
 
   validates :url, :token, :secret_token, :unity_code, presence: true
-  validates :url, uri: { protocols: %w(http https), message: :invalid_url }, allow_blank: true
+  validates :url, format: { with: /^(http|https):\/\/[a-z0-9.:]+$/, multiline: true, message: "URL inválida" }, allow_blank: true
 
   def self.current
     self.first.presence || new
