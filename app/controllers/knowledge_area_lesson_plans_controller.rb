@@ -15,6 +15,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       .includes(:knowledge_areas, lesson_plan: [:classroom])
       .filter(filtering_params(params[:search]))
       .by_classroom_id(current_user_classroom)
+      .by_teacher_id(current_teacher)
       .uniq
       .ordered
 
