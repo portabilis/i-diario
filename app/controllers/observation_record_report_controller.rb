@@ -31,6 +31,7 @@ class ObservationRecordReportController < ApplicationController
         disposition: 'inline'
       )
     else
+      clear_invalid_dates
       render :form
     end
   end
@@ -46,5 +47,19 @@ class ObservationRecordReportController < ApplicationController
       :start_at,
       :end_at
     )
+  end
+
+  def clear_invalid_dates
+    begin
+      resource_params[:start_at].to_date
+    rescue ArgumentError
+      @observation_record_report_form.start_at = ''
+    end
+
+    begin
+      resource_params[:end_at].to_date
+    rescue ArgumentError
+      @observation_record_report_form.end_at = ''
+    end
   end
 end

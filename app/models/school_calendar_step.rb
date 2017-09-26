@@ -10,6 +10,7 @@ class SchoolCalendarStep < ActiveRecord::Base
   has_many :transfer_notes, dependent: :restrict_with_exception
   has_many :school_term_recovery_diary_records, dependent: :restrict_with_exception
 
+  validates_date :start_date_for_posting, :end_date_for_posting
   validates :start_at, :end_at, :start_date_for_posting, :end_date_for_posting, presence: true
 
   validate :start_at_must_be_in_school_calendar_year, if: :school_calendar

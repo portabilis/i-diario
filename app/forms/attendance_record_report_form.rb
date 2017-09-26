@@ -22,7 +22,7 @@ class AttendanceRecordReportForm
 
   validate :start_at_must_be_a_valid_date
   validate :end_at_must_be_a_valid_date
-  validate :start_at_must_be_less_than_or_equal_to_end_at
+  validate :no_retroactive_dates
   validate :must_have_daily_frequencies
 
   def daily_frequencies
@@ -122,11 +122,12 @@ class AttendanceRecordReportForm
     end
   end
 
-  def start_at_must_be_less_than_or_equal_to_end_at
-    return if errors[:start_at].any? || errors[:end_at].any?
+  def no_retroactive_dates
+    return if start_at.nil? || end_at.nil?
 
-    if start_at.to_date > end_at.to_date
-      errors.add(:start_at, :start_at_must_be_less_than_or_equal_to_end_at)
+    if start_at > end_at
+      errors.add(:start_at, 'não pode ser maior que a Data final')
+      errors.add(:end_at, 'deve ser maior ou igual a Data inicial')
     end
   end
 

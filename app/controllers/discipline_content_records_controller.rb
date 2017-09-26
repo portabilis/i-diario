@@ -28,9 +28,8 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def create
-    @discipline_content_record = DisciplineContentRecord.new(resource_params).localized
+    @discipline_content_record = DisciplineContentRecord.new(resource_params)
     @discipline_content_record.content_record.teacher = current_teacher
-
     @discipline_content_record.content_record.content_ids = content_ids
 
     authorize @discipline_content_record
@@ -49,9 +48,8 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def update
-    @discipline_content_record = DisciplineContentRecord.find(params[:id]).localized
+    @discipline_content_record = DisciplineContentRecord.find(params[:id])
     @discipline_content_record.assign_attributes(resource_params)
-
     @discipline_content_record.content_record.content_ids = content_ids
 
     authorize @discipline_content_record

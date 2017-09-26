@@ -23,6 +23,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
   scope :by_date, -> date { where(date: date) }
   scope :ordered, -> { order(date: :desc) }
 
+  validates_date :date
   validates :school_calendar, presence: true
   validates :teacher, presence: true
   validates :classroom, presence: true

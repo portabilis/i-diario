@@ -53,7 +53,7 @@ RSpec.describe AbsenceJustificationReportForm, type: :model do
       subject.absence_date_end = '03/05/2016'
 
       expect(subject).to_not be_valid
-      expect(subject.errors.messages[:absence_date]).to include("deve ser menor ou igual a Data final")
+      expect(subject.errors.messages[:absence_date]).to include("não pode ser maior que a Data final")
     end
   end
 end

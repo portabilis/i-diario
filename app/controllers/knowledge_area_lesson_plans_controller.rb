@@ -93,7 +93,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def update
-    @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id]).localized
+    @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id])
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 

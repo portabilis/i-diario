@@ -1,7 +1,7 @@
 pt-BR:
   errors:
     messages:
-      invalid_date: "não é uma data válida"
+      invalid_date: "deve ser uma data válida"
       invalid_time: "não é uma hora válida"
       invalid_datetime: "não é uma data/hora válida"
       is_at: "deve ser %{restriction}"

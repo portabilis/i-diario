@@ -16,15 +16,16 @@ class AbsenceJustificationReportForm
   validates(
     :absence_date,
     presence: true,
-    date: { less_than_or_equal_to: :absence_date_end, not_in_future: true }
+    date: { not_in_future: true }
   )
   validates(
     :absence_date_end,
     presence: true,
-    date: { greater_than_or_equal_to: :absence_date, not_in_future: true }
+    date: { not_in_future: true }
   )
 
   validate :must_find_absence
+  validate :no_retroactive_dates
 
   def absence_justification
     if frequence_type_by_discipline?
@@ -52,6 +53,15 @@ class AbsenceJustificationReportForm
   end
 
   private
+
+  def no_retroactive_dates
+    return if absence_date.nil? || absence_date_end.nil?
+
+    if absence_date > absence_date_end
+      errors.add(:absence_date, 'não pode ser maior que a Data final')
+      errors.add(:absence_date_end, 'deve ser maior ou igual a Data inicial')
+    end
+  end
 
   def must_find_absence
     return unless errors.blank?

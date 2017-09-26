@@ -20,6 +20,7 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
       send_data(knowledge_area_lesson_plan_report.render, filename: 'registo-de-conteudo-por-areas-de-conhecimento.pdf', type: 'application/pdf', disposition: 'inline')
     else
       @knowledge_area_lesson_plan_report_form
+      clear_invalid_dates
       fetch_collections
       render :form
     end
@@ -39,5 +40,19 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
                                                           :date_start,
                                                           :date_end,
                                                           :knowledge_area_id)
+  end
+
+  def clear_invalid_dates
+    begin
+      resource_params[:date_start].to_date
+    rescue ArgumentError
+      @knowledge_area_lesson_plan_report_form.date_start = ''
+    end
+
+    begin
+      resource_params[:date_end].to_date
+    rescue ArgumentError
+      @knowledge_area_lesson_plan_report_form.date_end = ''
+    end
   end
 end

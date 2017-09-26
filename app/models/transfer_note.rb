@@ -6,6 +6,7 @@ class TransferNote < ActiveRecord::Base
   acts_as_copy_target
 
   attr_writer :unity_id
+  attr_accessor :transfer_date_copy
 
   belongs_to :classroom
   belongs_to :discipline
@@ -26,7 +27,7 @@ class TransferNote < ActiveRecord::Base
   validates :teacher, presence: true
   validate :transfer_date_must_be_in_step, unless: :school_calendar_classroom_step_id
   validate :transfer_date_must_be_in_classroom_step, unless: :school_calendar_step_id
-  validate :at_least_one_daily_note_student
+  validate :at_least_one_daily_note_student, :transfer_date_valid
 
   scope :by_classroom_description, lambda { |description| joins(:classroom).where('classrooms.description ILIKE ?', "%#{description}%" ) }
   scope :by_discipline_description, lambda { |description| joins(:discipline).where('disciplines.description ILIKE ?', "%#{description}%" ) }
@@ -58,6 +59,19 @@ class TransferNote < ActiveRecord::Base
   def at_least_one_daily_note_student
     if daily_note_students.reject{|dns| dns.note.blank?}.empty?
       errors.add(:daily_note_students, :at_least_one_daily_note_student)
+    end
+  end
+
+  # necessario pois quando inserida uma data invalida, o controller considera
+  # o valor de transfer_date como nil e a mensagem mostrada é a de que não pode
+  # ficar em branco, quando deve mostrar a de que foi inserida uma data invalida
+  def transfer_date_valid
+    return if transfer_date_copy.nil?
+    begin
+      transfer_date_copy.to_date
+    rescue ArgumentError
+      errors[:transfer_date].clear
+      errors.add(:transfer_date, "deve ser uma data válida")
     end
   end
 end

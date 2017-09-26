@@ -83,7 +83,7 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def update
-    @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id]).localized
+    @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id])
     @discipline_lesson_plan.assign_attributes(resource_params)
 
     authorize @discipline_lesson_plan
