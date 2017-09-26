@@ -1,5 +1,4 @@
 class Api::V1::DailyFrequenciesController < Api::V1::BaseController
-
   respond_to :json
 
   def index
@@ -17,6 +16,8 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
 
     @daily_frequencies = @daily_frequencies
       .order_by_frequency_date
+      .order_by_unity
+      .order_by_classroom
       .order_by_class_number
       .limit(10)
 
@@ -79,7 +80,7 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
       classroom_id: classroom.id,
       discipline_id: params[:discipline_id],
       frequency_date: params[:frequency_date],
-      school_calendar: current_school_calendar
+      school_calendar: current_school_calendar,
     }
 
     @class_numbers = params[:class_numbers].split(",")
@@ -98,30 +99,16 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
       fetch_students
       @student_enrollments.each do |student_enrollment|
         student = student_enrollment.student
-        @daily_frequencies.map do |daily_frequency| 
-          (daily_frequency.students.where(student_id: student.id).first || 
+        @daily_frequencies.map do |daily_frequency|
+          (daily_frequency.students.where(student_id: student.id).first ||
            daily_frequency.students.create(student_id: student.id,
-                                           dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id), 
+                                           dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id),
                                            present: true,
                                            active: true))
         end
       end
 
-
       render json: @daily_frequencies
-
-
-      # @students = []
-
-      # @student_enrollments.each do |student_enrollment|
-      #   student = student_enrollment.student
-      #   @students << {
-      #     student_id: student.id,
-      #     student_name: student.name,
-      #     dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id),
-      #     daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id), present: true, active: true)) }
-      #   }
-      # end
     end
   end
 
