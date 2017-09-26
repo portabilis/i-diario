@@ -11,6 +11,7 @@ class DisciplineContentRecordsController < ApplicationController
       .by_unity_id(current_user_unity.id)
       .by_classroom_id(current_user_classroom)
       .by_discipline_id(current_user_discipline)
+      .by_teacher_id(current_teacher)
       .ordered
 
     authorize @discipline_content_records
@@ -27,9 +28,8 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def create
-    @discipline_content_record = DisciplineContentRecord.new(resource_params).localized
+    @discipline_content_record = DisciplineContentRecord.new(resource_params)
     @discipline_content_record.content_record.teacher = current_teacher
-
     @discipline_content_record.content_record.content_ids = content_ids
 
     authorize @discipline_content_record
@@ -48,9 +48,8 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def update
-    @discipline_content_record = DisciplineContentRecord.find(params[:id]).localized
+    @discipline_content_record = DisciplineContentRecord.find(params[:id])
     @discipline_content_record.assign_attributes(resource_params)
-
     @discipline_content_record.content_record.content_ids = content_ids
 
     authorize @discipline_content_record

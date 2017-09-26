@@ -22,6 +22,7 @@ class AbsenceJustificationReportController < ApplicationController
                                                                       @absence_justification_report_form)
       send_data(absence_justification_report.render, filename: 'registro-de-justificativa-de-faltas.pdf', type: 'application/pdf', disposition: 'inline')
     else
+      clear_invalid_dates
       render :form
     end
   end
@@ -55,5 +56,19 @@ class AbsenceJustificationReportController < ApplicationController
                                                               :absence_date_end,
                                                               :school_calendar_year,
                                                               :current_teacher_id)
+  end
+
+  def clear_invalid_dates
+    begin
+      resource_params[:absence_date].to_date
+    rescue ArgumentError
+      @absence_justification_report_form.absence_date = ''
+    end
+
+    begin
+      resource_params[:absence_date_end].to_date
+    rescue ArgumentError
+      @absence_justification_report_form.absence_date_end = ''
+    end
   end
 end

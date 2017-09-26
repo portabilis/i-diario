@@ -13,6 +13,7 @@ class AbsenceJustification < ActiveRecord::Base
   belongs_to :school_calendar
   belongs_to :teacher
 
+  validates_date :absence_date, :absence_date_end
   validates :teacher,          presence: true
   validates :student_id,       presence: true
   validates :unity,            presence: true
@@ -25,7 +26,7 @@ class AbsenceJustification < ActiveRecord::Base
   validates :justification,    presence: true
 
   validate :period_absence
-  validate :absence_date_cannot_be_greater_than_absence_date_end
+  validate :no_retroactive_dates
 
   scope :ordered, -> { order(absence_date: :desc) }
 
@@ -53,9 +54,12 @@ class AbsenceJustification < ActiveRecord::Base
     )
   end
 
-  def absence_date_cannot_be_greater_than_absence_date_end
-    if (absence_date.present? && absence_date_end.present?)
-      errors.add(:absence_date, "Data inicial não pode ser maior que a final") if absence_date > absence_date_end
+  def no_retroactive_dates
+    return if absence_date.nil? || absence_date_end.nil?
+
+    if absence_date > absence_date_end
+      errors.add(:absence_date, 'não pode ser maior que a Data final')
+      errors.add(:absence_date_end, 'deve ser maior ou igual a Data inicial')
     end
   end
 

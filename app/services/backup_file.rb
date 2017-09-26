@@ -25,7 +25,7 @@ class BackupFile
   end
 
   def files
-    @files ||= [
+    [
       BackupFile::AbsenceJustifications.new,
       BackupFile::Addresses.new,
       BackupFile::***REMOVED***s.new,
