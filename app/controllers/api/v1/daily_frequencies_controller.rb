@@ -15,7 +15,7 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
     end
 
     @daily_frequencies = @daily_frequencies
-      .order_by_frequency_date
+      .order_by_frequency_date_desc
       .order_by_unity
       .order_by_classroom
       .order_by_class_number
