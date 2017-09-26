@@ -35,7 +35,7 @@ class UnitiesParser
             complement: record["complemento"],
             neighborhood: record["bairro"],
             city: record["municipio"],
-            state: record["uf"].downcase,
+            state: record["uf"].try(&:downcase),
             country: "Brasil"
           )
 
