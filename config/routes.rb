@@ -175,6 +175,7 @@ Rails.application.routes.draw do
       collection do
         get :filtered_***REMOVED***
         get :data_by_commitment
+        get :measuring_unit_by_material_id
       end
     end
     resources :***REMOVED***, concerns: :history
