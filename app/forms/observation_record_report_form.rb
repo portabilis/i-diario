@@ -21,10 +21,6 @@ class ObservationRecordReportForm
   validates :discipline_id, absence: true, unless: :require_discipline?
   validates :start_at, presence: true, date: true, not_in_future: true, timeliness: { on_or_before: :end_at, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
   validates :end_at, presence: true, date: true, not_in_future: true, timeliness: { on_or_after: :start_at, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
-
-
-
-
   validates :observation_diary_records, presence: true, if: :require_observation_diary_records?
 
   def teacher
@@ -79,14 +75,5 @@ class ObservationRecordReportForm
 
   def require_observation_diary_records?
     errors.blank?
-  end
-
-  def no_retroactive_dates
-    return if start_at.nil? || end_at.nil?
-
-    if start_at > end_at
-      errors.add(:start_at, 'não pode ser maior que a Data final')
-      errors.add(:end_at, 'deve ser maior ou igual a Data inicial')
-    end
   end
 end
