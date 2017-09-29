@@ -19,7 +19,6 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
       .order_by_unity
       .order_by_classroom
       .order_by_class_number
-      .limit(10)
 
     respond_with @daily_frequencies
   end
