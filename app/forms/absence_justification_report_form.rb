@@ -9,23 +9,15 @@ class AbsenceJustificationReportForm
                 :school_calendar_year,
                 :current_teacher_id
 
+  validates :absence_date, presence: true, date: true, timeliness: { before: :absence_date_end, type: :date, before_message: 'não pode ser maior que a Data final' }
+  validates :absence_date_end, presence: true, date: true, timeliness: { on_or_after: :absence_date, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
   validates :unity_id,         presence: true
   validates :classroom_id,     presence: true
   validates :discipline_id,    presence: true,
                                if: :frequence_type_by_discipline?
-  validates(
-    :absence_date,
-    presence: true,
-    date: { not_in_future: true }
-  )
-  validates(
-    :absence_date_end,
-    presence: true,
-    date: { not_in_future: true }
-  )
+
 
   validate :must_find_absence
-  validate :no_retroactive_dates
 
   def absence_justification
     if frequence_type_by_discipline?
@@ -53,15 +45,6 @@ class AbsenceJustificationReportForm
   end
 
   private
-
-  def no_retroactive_dates
-    return if absence_date.nil? || absence_date_end.nil?
-
-    if absence_date > absence_date_end
-      errors.add(:absence_date, 'não pode ser maior que a Data final')
-      errors.add(:absence_date_end, 'deve ser maior ou igual a Data inicial')
-    end
-  end
 
   def must_find_absence
     return unless errors.blank?
