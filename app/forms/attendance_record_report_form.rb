@@ -11,7 +11,7 @@ class AttendanceRecordReportForm
                 :current_teacher_id,
                 :school_calendar
 
-  validates :start_at, presence: true, date: true, timeliness: { before: :end_at, type: :date, before_message: 'não pode ser maior que a Data final' }
+  validates :start_at, presence: true, date: true, timeliness: { on_or_before: :end_at, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
   validates :end_at, presence: true, date: true, timeliness: { on_or_after: :start_at, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
   validates :unity_id,       presence: true
   validates :classroom_id,   presence: true

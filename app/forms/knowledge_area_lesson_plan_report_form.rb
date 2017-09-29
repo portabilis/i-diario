@@ -10,7 +10,7 @@ class KnowledgeAreaLessonPlanReportForm
                 :knowledge_area_lesson_plan
 
 
-  validates :date_start, presence: true, date: true, timeliness: { before: :date_end, type: :date, before_message: 'não pode ser maior que a Data final' }
+  validates :date_start, presence: true, date: true, timeliness: { on_or_before: :date_end, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
   validates :date_end, presence: true, date: true, timeliness: { on_or_after: :date_start, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
   validates :classroom_id,
             presence: true
