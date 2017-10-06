@@ -47,6 +47,12 @@ Rails.application.routes.draw do
         resources :classroom_students, only: [:index]
         resources :teacher_allocations, only: [:index]
         resources :lesson_plans, only: [:index]
+        resources :content_records, only: [:index] do
+          collection do
+            get :lesson_plans
+            post :sync
+          end
+        end
         resources :teaching_plans, only: [:index]
       end
     end

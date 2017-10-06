@@ -32,6 +32,7 @@ class TeachingPlan < ActiveRecord::Base
 
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }
+  scope :by_year, lambda { |year| where( year: year ) }
 
   def to_s
     return discipline_teaching_plan.discipline.to_s if discipline_teaching_plan
