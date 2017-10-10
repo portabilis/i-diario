@@ -24,5 +24,7 @@ json.unities @unities do |unity|
       knowledge_areas = lesson_plan.knowledge_area_lesson_plan.knowledge_areas
     end
     json.knowledge_areas knowledge_areas
+    json.start_at lesson_plan.start_at
+    json.end_at lesson_plan.end_at
   end
 end
