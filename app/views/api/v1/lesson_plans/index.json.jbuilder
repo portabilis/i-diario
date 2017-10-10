@@ -12,7 +12,7 @@ json.unities @unities do |unity|
     json.description lesson_plan.to_s
     json.classroom_name lesson_plan.classroom.to_s
     json.period lesson_plan.classroom.period_humanized
-    json.contents lesson_plan.contents
+    json.contents lesson_plan.contents.order_by_id
     json.objectives lesson_plan.objectives
     json.resources lesson_plan.resources
     json.evaluation lesson_plan.evaluation
