@@ -6,6 +6,7 @@ json.unities @unities do |unity|
   json.unity_name unity.to_s
   json.plans teaching_plans do |teaching_plan|
     json.id teaching_plan.id
+    json.year teaching_plan.year
     json.unity_name unity.to_s
     json.description teaching_plan.to_s
     json.grade_name teaching_plan.grade.to_s
