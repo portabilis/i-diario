@@ -28,6 +28,7 @@ class DisciplineLessonPlanReportController < ApplicationController
     else
       @discipline_lesson_plan_report_form
       fetch_collections
+      clear_invalid_dates
       render :form
     end
   end
@@ -48,6 +49,7 @@ class DisciplineLessonPlanReportController < ApplicationController
     else
       @discipline_lesson_plan_report_form
       fetch_collections
+      clear_invalid_dates
       render :form
     end
   end
@@ -64,5 +66,19 @@ class DisciplineLessonPlanReportController < ApplicationController
                                                           :discipline_id,
                                                           :date_start,
                                                           :date_end)
+  end
+
+  def clear_invalid_dates
+    begin
+      resource_params[:date_start].to_date
+    rescue ArgumentError
+      @discipline_lesson_plan_report_form.date_start = ''
+    end
+
+    begin
+      resource_params[:date_end].to_date
+    rescue ArgumentError
+      @discipline_lesson_plan_report_form.date_end = ''
+    end
   end
 end

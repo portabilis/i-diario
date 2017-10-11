@@ -16,7 +16,9 @@ class SchoolDayChecker
 
     if @classroom_id.present?
       classroom = Classroom.find(@classroom_id)
+      grade = Grade.find(@grade_id)
 
+      # binding.pry
       if @discipline_id.present?
         return false if any_discipline_event?(events_by_date_without_frequency, @grade_id, @classroom_id, @discipline_id)
         return true if any_discipline_event?(events_by_date_with_frequency, @grade_id, @classroom_id, @discipline_id)
@@ -27,6 +29,8 @@ class SchoolDayChecker
 
       return false if any_grade_event?(events_by_date_without_frequency.by_period(classroom.period), @grade_id)
       return true if any_grade_event?(events_by_date_with_frequency.by_period(classroom.period), @grade_id)
+      return false if any_course_event?(events_by_date_without_frequency.by_period(classroom.period), grade.course_id)
+      return true if any_course_event?(events_by_date_without_frequency.by_period(classroom.period), grade.course_id)
 
       return false if any_global_event?(events_by_date_without_frequency.by_period(classroom.period))
       return true if any_global_event?(events_by_date_with_frequency.by_period(classroom.period))
@@ -73,9 +77,16 @@ class SchoolDayChecker
          .any?
   end
 
+  def any_course_event?(query, course_id)
+    query.by_course(course_id)
+         .without_grade
+         .without_classroom
+         .any?
+  end
 
   def any_global_event?(query)
-    query.without_grade
+    query.without_course
+         .without_grade
          .without_classroom
          .any?
   end

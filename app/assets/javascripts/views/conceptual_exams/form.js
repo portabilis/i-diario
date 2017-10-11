@@ -157,17 +157,14 @@ $(function() {
     if (!_.isEmpty(disciplines)) {
       hideNoItemMessage();
 
-      disciplines.sort(function(a, b) {
-        return a.knowledge_area_description.localeCompare(b.knowledge_area_description);
-      });
+      _.sortBy(disciplines, 'knowledge_area_sequence');
 
       var element_counter = 0;
-      var disciplines***REMOVED***edByKnowledgeArea = _.groupBy(disciplines, function(discipline) {
-        return discipline.knowledge_area_description;
-      });
+      var disciplines***REMOVED***edByKnowledgeArea = _.groupBy(disciplines, 'knowledge_area_sequence');
 
       _.each(disciplines***REMOVED***edByKnowledgeArea, function(disciplines, knowledge_area_description) {
-        var knowledgeAreaTableRowHtml = '<tr class="knowledge-area-table-row"><td class="knowledge-area-table-data" colspan="2"><strong>' + knowledge_area_description + '</strong></td></tr>';
+        var knowledge_area = disciplines[0].knowledge_area_description;
+        var knowledgeAreaTableRowHtml = '<tr class="knowledge-area-table-row"><td class="knowledge-area-table-data" colspan="2"><strong>' + knowledge_area + '</strong></td></tr>';
         $('#conceptual_exam_values').append(knowledgeAreaTableRowHtml);
 
         _.each(disciplines, function(discipline) {

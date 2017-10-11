@@ -30,6 +30,11 @@ class ObservationDiaryRecordsController < ApplicationController
     if @observation_diary_record.save
       respond_with @observation_diary_record, location: observation_diary_records_path
     else
+      begin
+        resource_params[:date].to_date
+      rescue ArgumentError
+        @observation_diary_record.date = ''
+      end
       render :new
     end
   end
@@ -41,7 +46,7 @@ class ObservationDiaryRecordsController < ApplicationController
   end
 
   def update
-    @observation_diary_record = ObservationDiaryRecord.find(params[:id]).localized
+    @observation_diary_record = ObservationDiaryRecord.find(params[:id])
     @observation_diary_record.assign_attributes(resource_params)
 
     authorize @observation_diary_record

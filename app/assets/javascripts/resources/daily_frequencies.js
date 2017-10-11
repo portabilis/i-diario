@@ -92,6 +92,7 @@ $(function () {
         }else{
           $globalAbsence.val(1);
           $disciplineAbsenceFields.hide();
+          $discipline.val('').select2({ data: [] })
         }
 
       }else{

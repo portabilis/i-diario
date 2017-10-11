@@ -26,6 +26,7 @@ class SchoolCalendarEventsController < ApplicationController
     if resource.save
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
+      clear_invalid_dates
       render :new
     end
   end
@@ -44,6 +45,7 @@ class SchoolCalendarEventsController < ApplicationController
     if resource.save
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
+      clear_invalid_dates
       render :edit
     end
   end
@@ -106,5 +108,19 @@ class SchoolCalendarEventsController < ApplicationController
 
   def school_calendar
     @school_calendar = SchoolCalendar.find(params[:school_calendar_id])
+  end
+
+  def clear_invalid_dates
+    begin
+      resource_params[:start_date].to_date
+    rescue ArgumentError
+      @school_calendar_event.start_date = ''
+    end
+
+    begin
+      resource_params[:end_date].to_date
+    rescue ArgumentError
+      @school_calendar_event.end_date = ''
+    end
   end
 end

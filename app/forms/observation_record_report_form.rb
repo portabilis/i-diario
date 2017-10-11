@@ -19,16 +19,8 @@ class ObservationRecordReportForm
   validates :classroom_id, presence: true
   validates :discipline_id, presence: true, if: :require_discipline?
   validates :discipline_id, absence: true, unless: :require_discipline?
-  validates(
-    :start_at,
-    presence: true,
-    date: { less_than_or_equal_to: :end_at, not_in_future: true }
-  )
-  validates(
-    :end_at,
-    presence: true,
-    date: { greater_than_or_equal_to: :start_at, not_in_future: true }
-  )
+  validates :start_at, presence: true, date: true, not_in_future: true, timeliness: { on_or_before: :end_at, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
+  validates :end_at, presence: true, date: true, not_in_future: true, timeliness: { on_or_after: :start_at, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
   validates :observation_diary_records, presence: true, if: :require_observation_diary_records?
 
   def teacher

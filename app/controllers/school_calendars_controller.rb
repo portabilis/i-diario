@@ -92,7 +92,7 @@ class SchoolCalendarsController < ApplicationController
       SchoolCalendar.new
     when 'edit', 'update', 'destroy'
       SchoolCalendar.find(params[:id])
-    end.localized
+    end
   end
 
   def resource_params

@@ -11,6 +11,8 @@ class AttendanceRecordReportForm
                 :current_teacher_id,
                 :school_calendar
 
+  validates :start_at, presence: true, date: true, timeliness: { on_or_before: :end_at, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
+  validates :end_at, presence: true, date: true, timeliness: { on_or_after: :start_at, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
   validates :unity_id,       presence: true
   validates :classroom_id,   presence: true
   validates :discipline_id,  presence: true, unless: :global_absence?
@@ -19,10 +21,6 @@ class AttendanceRecordReportForm
   validates :end_at,         presence: true
   validates :school_calendar_year, presence: true
   validates :school_calendar, presence: true
-
-  validate :start_at_must_be_a_valid_date
-  validate :end_at_must_be_a_valid_date
-  validate :start_at_must_be_less_than_or_equal_to_end_at
   validate :must_have_daily_frequencies
 
   def daily_frequencies
@@ -100,34 +98,6 @@ class AttendanceRecordReportForm
     frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)
     frequency_type_definer.define!
     frequency_type_definer.frequency_type == FrequencyTypes::GENERAL
-  end
-
-  def start_at_must_be_a_valid_date
-    return if errors[:start_at].any?
-
-    begin
-      start_at.to_date
-    rescue ArgumentError
-      errors.add(:start_at, :must_be_a_valid_date)
-    end
-  end
-
-  def end_at_must_be_a_valid_date
-    return if errors[:end_at].any?
-
-    begin
-      end_at.to_date
-    rescue ArgumentError
-      errors.add(:end_at, :must_be_a_valid_date)
-    end
-  end
-
-  def start_at_must_be_less_than_or_equal_to_end_at
-    return if errors[:start_at].any? || errors[:end_at].any?
-
-    if start_at.to_date > end_at.to_date
-      errors.add(:start_at, :start_at_must_be_less_than_or_equal_to_end_at)
-    end
   end
 
   def must_have_daily_frequencies

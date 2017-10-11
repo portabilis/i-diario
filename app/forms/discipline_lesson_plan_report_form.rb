@@ -10,17 +10,14 @@ class DisciplineLessonPlanReportForm
                 :teacher_id,
                 :report_type
 
+  validates :date_start, presence: true, date: true, timeliness: { on_or_before: :date_end, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
+  validates :date_end, presence: true, date: true, timeliness: { on_or_after: :date_start, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
   validates :unity_id,
     :classroom_id,
     :discipline_id,
-    :date_start,
-    :date_end,
     :teacher_id,
     presence: true
 
-  validate :date_start_must_be_a_valid_date
-  validate :date_end_must_be_a_valid_date
-  validate :start_at_must_be_less_than_or_equal_to_end_at
   validate :must_have_records
 
   def discipline_lesson_plan
@@ -42,34 +39,6 @@ class DisciplineLessonPlanReportForm
   end
 
   private
-
-  def date_start_must_be_a_valid_date
-    return if errors[:date_start].any?
-
-    begin
-      date_start.to_date
-    rescue ArgumentError
-      errors.add(:date_start, :date_start_must_be_a_valid_date)
-    end
-  end
-
-  def date_end_must_be_a_valid_date
-    return if errors[:date_end].any?
-
-    begin
-      date_end.to_date
-    rescue ArgumentError
-      errors.add(:date_end, :date_end_must_be_a_valid_date)
-    end
-  end
-
-  def start_at_must_be_less_than_or_equal_to_end_at
-    return if errors[:date_start].any? || errors[:date_end].any?
-
-    if date_start.to_date > date_end.to_date
-      errors.add(:date_start, :date_start_must_be_less_than_or_equal_to_end_at)
-    end
-  end
 
   def must_have_records
     return unless errors.blank?
