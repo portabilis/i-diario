@@ -1,4 +1,4 @@
-class Api::V1::TeachingPlansController < Api::V1::BaseController
+class Api::V2::LessonPlansController < Api::V2::BaseController
   respond_to :json
 
   def index

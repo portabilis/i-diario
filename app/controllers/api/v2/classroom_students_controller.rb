@@ -1,5 +1,5 @@
 # encoding: utf-8
-class Api::V1::ClassroomStudentsController < Api::V1::BaseController
+class Api::V2::ClassroomStudentsController < Api::V2::BaseController
   respond_to :json
 
   def index

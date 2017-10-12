@@ -1,6 +1,27 @@
-class Api::V1::DailyFrequenciesController < Api::V1::BaseController
-
+class Api::V2::DailyFrequenciesController < Api::V2::BaseController
   respond_to :json
+
+  def index
+    frequency_type_resolver = FrequencyTypeResolver.new(classroom, teacher)
+
+    if frequency_type_resolver.general?
+      @daily_frequencies = DailyFrequency
+        .by_classroom_id(params[:classroom_id])
+        .general_frequency
+    else
+      @daily_frequencies = DailyFrequency
+        .by_classroom_id(params[:classroom_id])
+        .by_discipline_id(params[:discipline_id])
+    end
+
+    @daily_frequencies = @daily_frequencies
+      .order_by_frequency_date_desc
+      .order_by_unity
+      .order_by_classroom
+      .order_by_class_number
+
+    respond_with @daily_frequencies
+  end
 
   def create
     if params[:class_numbers].present?
@@ -11,15 +32,19 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
   end
 
   def current_user
-    User.find(user_id)
+    @current_user ||= User.find(user_id)
   end
 
   protected
 
+  def teacher
+    @teacher ||= Teacher.find_by_id(params[:teacher_id])
+  end
+
   def process_one
     frequency_params = {
-      unity_id: params[:unity_id],
-      classroom_id: params[:classroom_id],
+      unity_id: unity.id,
+      classroom_id: classroom.id,
       discipline_id: params[:discipline_id],
       frequency_date: params[:frequency_date],
       class_number: params[:class_number],
@@ -27,9 +52,7 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
     }
     @daily_frequency = DailyFrequency.new(frequency_params)
 
-    unless @daily_frequency.valid?
-      render json: @daily_frequency.errors.full_messages, status: 422
-    else
+    if @daily_frequency.valid?
       @daily_frequency = DailyFrequency.find_or_create_by(frequency_params)
 
       fetch_students
@@ -42,13 +65,18 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
           @students << (@daily_frequency.students.where(student_id: student.id).first || @daily_frequency.students.create(student_id: student.id, dependence: dependence, present: true, active: true))
         end
       end
+
+      render json: @daily_frequency
+    else
+      render json: @daily_frequency.errors.full_messages, status: 422
     end
+
   end
 
   def process_multiple
     frequency_params = {
-      unity_id: params[:unity_id],
-      classroom_id: params[:classroom_id],
+      unity_id: unity.id,
+      classroom_id: classroom.id,
       discipline_id: params[:discipline_id],
       frequency_date: params[:frequency_date],
       class_number: params[:class_numbers].first,
@@ -69,18 +97,18 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
       end
 
       fetch_students
-
-      @students = []
-
       @student_enrollments.each do |student_enrollment|
         student = student_enrollment.student
-        @students << {
-          student_id: student.id,
-          student_name: student.name,
-          dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id),
-          daily_frequencies: @daily_frequencies.map{ |daily_frequency| (daily_frequency.students.where(student_id: student.id).first || daily_frequency.students.create(student_id: student.id, dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id), present: true, active: true)) }
-        }
+        @daily_frequencies.map do |daily_frequency|
+          (daily_frequency.students.where(student_id: student.id).first ||
+           daily_frequency.students.create(student_id: student.id,
+                                           dependence: student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id),
+                                           present: true,
+                                           active: true))
+        end
       end
+
+      render json: @daily_frequencies
     end
   end
 
@@ -100,9 +128,15 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
   end
 
   def current_school_calendar
-    unity = Unity.find_by_id(params[:unity_id])
-    classroom = Classroom.find_by_id(params[:classroom_id])
-    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
+    @current_school_calendar ||= CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
+  end
+
+  def classroom
+    @classroom ||= Classroom.find_by_id(params[:classroom_id])
+  end
+
+  def unity
+    @unity ||= classroom.unity
   end
 
   def student_has_dependence?(student_enrollment_id, discipline_id)
