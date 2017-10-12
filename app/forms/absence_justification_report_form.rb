@@ -9,20 +9,13 @@ class AbsenceJustificationReportForm
                 :school_calendar_year,
                 :current_teacher_id
 
+  validates :absence_date, presence: true, date: true, not_in_future: true, timeliness: { on_or_before: :absence_date_end, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
+  validates :absence_date_end, presence: true, date: true, not_in_future: true, timeliness: { on_or_after: :absence_date, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
   validates :unity_id,         presence: true
   validates :classroom_id,     presence: true
   validates :discipline_id,    presence: true,
                                if: :frequence_type_by_discipline?
-  validates(
-    :absence_date,
-    presence: true,
-    date: { less_than_or_equal_to: :absence_date_end, not_in_future: true }
-  )
-  validates(
-    :absence_date_end,
-    presence: true,
-    date: { greater_than_or_equal_to: :absence_date, not_in_future: true }
-  )
+
 
   validate :must_find_absence
 

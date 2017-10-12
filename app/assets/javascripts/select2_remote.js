@@ -3,11 +3,15 @@ function createAllSelect2Remote() {
 }
 
 function createAllSelect2Remote(all) {
-  _.each($('input.select2_remote, input[class^=select2_remote]'), function(element) {
+  createSelect2Remote(all, '', '');
+}
+
+function createSelect2Remote(all, items, url) {
+  _.each($((items != '') ? items : 'input.select2_remote, input[class^=select2_remote]'), function(element) {
     if (all || (!all && element.value == "")) {
       $(element).select2({
         ajax: {
-          url: $(element).data('data-url'),
+          url: (url != '') ? url : $(element).data('data-url'),
           delay: 250,
           dataType: "json",
           type: "GET",

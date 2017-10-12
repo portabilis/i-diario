@@ -14,7 +14,7 @@ class DisciplinesController < ApplicationController
     end
 
     @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
-      .ordered
+      .order_by_sequence
   end
 
   def search

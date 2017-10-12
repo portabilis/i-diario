@@ -14,6 +14,7 @@ class Content < ActiveRecord::Base
 
   scope :by_description, lambda { |description| where(' contents.description ILIKE ? ', '%'+description+'%') }
   scope :ordered, -> { order(arel_table[:description].asc) }
+  scope :order_by_id, -> { order(id: :asc) }
 
   def to_s
     description

@@ -19,7 +19,6 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
       .order_by_unity
       .order_by_classroom
       .order_by_class_number
-      .limit(10)
 
     respond_with @daily_frequencies
   end
@@ -80,7 +79,8 @@ class Api::V1::DailyFrequenciesController < Api::V1::BaseController
       classroom_id: classroom.id,
       discipline_id: params[:discipline_id],
       frequency_date: params[:frequency_date],
-      school_calendar: current_school_calendar,
+      class_number: params[:class_numbers].first,
+      school_calendar: current_school_calendar
     }
 
     @class_numbers = params[:class_numbers].split(",")

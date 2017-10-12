@@ -10,10 +10,13 @@ class SchoolCalendarStep < ActiveRecord::Base
   has_many :transfer_notes, dependent: :restrict_with_exception
   has_many :school_term_recovery_diary_records, dependent: :restrict_with_exception
 
+  validates_date :start_date_for_posting, :end_date_for_posting
   validates :start_at, :end_at, :start_date_for_posting, :end_date_for_posting, presence: true
 
   validate :start_at_must_be_in_school_calendar_year, if: :school_calendar
   validate :end_at_must_be_valid, if: :school_calendar
+  validate :start_at_must_not_have_conflicting_date, if: :school_calendar
+  validate :end_at_must_not_have_conflicting_date, if: :school_calendar
   validate :start_at_must_be_less_than_end_at
 
   validate :dates_for_posting_less_than_start_date
@@ -128,5 +131,19 @@ class SchoolCalendarStep < ActiveRecord::Base
     if start_date_for_posting && end_date_for_posting
       errors.add(:end_date_for_posting, :must_be_greater_than_start_date_for_posting) if end_date_for_posting < start_date_for_posting
     end
+  end
+
+  def start_at_must_not_have_conflicting_date
+    exist_conflicting_steps = SchoolCalendar.by_unity_id(unity).where.not(id: school_calendar_id).any? do |school_calendar|
+      school_calendar.school_day?(start_at)
+    end
+    errors.add(:start_at, :must_not_have_conflicting_steps) if exist_conflicting_steps
+  end
+
+  def end_at_must_not_have_conflicting_date
+    exist_conflicting_steps = SchoolCalendar.by_unity_id(unity).where.not(id: school_calendar_id).any? do |school_calendar|
+      school_calendar.school_day?(end_at)
+    end
+    errors.add(:end_at, :must_not_have_conflicting_steps) if exist_conflicting_steps
   end
 end

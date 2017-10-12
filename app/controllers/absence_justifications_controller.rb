@@ -43,6 +43,7 @@ class AbsenceJustificationsController < ApplicationController
     if @absence_justification.save
       respond_with @absence_justification, location: absence_justifications_path
     else
+      clear_invalid_dates
       fetch_collections
       render :new
     end
@@ -67,6 +68,7 @@ class AbsenceJustificationsController < ApplicationController
     if @absence_justification.save
       respond_with @absence_justification, location: absence_justifications_path
     else
+      clear_invalid_dates
       render :edit
       fetch_collections
     end
@@ -126,6 +128,20 @@ class AbsenceJustificationsController < ApplicationController
       current_user_discipline
     else
       nil
+    end
+  end
+
+  def clear_invalid_dates
+    begin
+      resource_params[:absence_date].to_date
+    rescue ArgumentError
+      @absence_justification.absence_date = ''
+    end
+
+    begin
+      resource_params[:absence_date_end].to_date
+    rescue ArgumentError
+      @absence_justification.absence_date_end = ''
     end
   end
 end

@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       Accept:
-      - ! '*/*; q=0.5, application/xml'
+      - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       User-Agent:
@@ -37,8 +37,64 @@ http_interactions:
       - application/json; charset=UTF-8
     body:
       encoding: US-ASCII
-      string: ! '{"alunos":[{"aluno_id":"544","nome_aluno":"ADRIANO ROQUE"},{"aluno_id":"1932","nome_aluno":"ABNER
+      string: '{"alunos":[{"aluno_id":"544","nome_aluno":"ADRIANO ROQUE"},{"aluno_id":"1932","nome_aluno":"ABNER
         ROCHA"}],"oper":"get","resource":"alunos_by_guardian_cpf","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Mon, 06 Oct 2014 13:25:21 GMT
-recorded_with: VCR 2.9.3
+- request:
+    method: get
+    uri: http://***REMOVED***/api/v1/customers/prefeitura
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.4.6 (Ubuntu)
+      Date:
+      - Tue, 15 Aug 2017 13:57:32 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Etag:
+      - W/"b1230f2775e1cbedb38c510c16fd810b"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - d69ef691-e41c-4439-8439-9f78464c9e0f
+      X-Runtime:
+      - '0.005005'
+      Vary:
+      - Origin
+    body:
+      encoding: UTF-8
+      string: '{"id":71,"slug":"prefeitura","active_on_ieducar":false,"active_on_new_education":true,"ieducar_image":{"url":"https://apps-core-images.s3.amazonaws.com/administrative_tools/uploads/customer/ieducar_image/71/tux.png"},"ieducar_entity_name":"Prefeitura
+        Municipal do Tux","ieducar_login_footer":"\u003cp\u003ePortabilis Tecnologia
+        - suporte@portabilis.com.br - \u003ca class=\"light\" href=\"http://suporte.portabilis.com.br\"
+        target=\"_blank\"\u003e Obter Suporte \u003c/a\u003e\u003c/p\u003e\r\n","ieducar_external_footer":"\u003cp\u003eConhe\u0026ccedil;a
+        mais sobre o i-Educar e a Portabilis, acesse nosso \u003ca href=\"http://b***REMOVED***\"\u003eblog\u003c/a\u003e\u003c/p\u003e\r\n","ieducar_internal_footer":"\u003cp\u003eConhe\u0026ccedil;a
+        mais sobre o i-Educar e a Portabilis, \u003ca href=\"http://b***REMOVED***\"
+        target=\"_blank\"\u003eacesse nosso blog\u003c/a\u003e \u0026nbsp;\u0026nbsp;\u0026nbsp;
+        \u0026copy; Portabilis - Todos os direitos reservados\u003c/p\u003e\r\n","facebook_url":"https://www.facebook.com/portabilis","twitter_url":"https://twitter.com/portabilis","linkedin_url":"https://www.linkedin.com/company/portabilis-tecnologia","created_at":"2017-05-17T13:12:35.083Z","updated_at":"2017-05-25T17:28:35.263Z","ieducar_suspension_message_id":null,"new_education_suspension_message_id":null,"ieducar_show_onboarding":false,"new_education_show_onboarding":false}'
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:00:36 GMT
+recorded_with: VCR 3.0.3

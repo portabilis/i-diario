@@ -19,9 +19,10 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = DailyFrequency.new(resource_params)
     @daily_frequency.school_calendar = current_school_calendar
     @class_numbers = params[:class_numbers].split(',')
+    @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]
 
-    if (@daily_frequency.valid? and validate_class_numbers and validate_discipline)
+    if validate_class_numbers && validate_discipline && @daily_frequency.valid?
       @daily_frequencies = []
 
       absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
@@ -35,6 +36,7 @@ class DailyFrequenciesController < ApplicationController
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
     else
       fetch_avaliations
+      clear_invalid_date
       render :new
     end
   end
@@ -230,5 +232,13 @@ class DailyFrequenciesController < ApplicationController
       end
     end
     any_inactive_student
+  end
+
+  def clear_invalid_date
+    begin
+      resource_params[:frequency_date].to_date
+    rescue ArgumentError
+      @daily_frequency.frequency_date = ''
+    end
   end
 end

@@ -25,7 +25,6 @@ RSpec.describe ObservationRecordReportForm do
     it do
       expect(subject).to(
         validate_date_of(:start_at)
-          .is_less_than_or_equal_to(:end_at)
           .is_not_in_future
       )
     end

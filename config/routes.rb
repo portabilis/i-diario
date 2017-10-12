@@ -185,15 +185,36 @@ Rails.application.routes.draw do
       end
       resources :material_exit_items, only: [:index]
     end
+    resources :***REMOVED***, concerns: :history do
+      collection do
+        get :filtered_***REMOVED***
+        get :data_by_commitment
+        get :measuring_unit_by_material_id
+      end
+    end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***s, concerns: :history
+    resources :***REMOVED***s, concerns: :history do
+      member do
+        post :clone
+      end
+    end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
     resources :courses, only: [:index]
     resources :lectures, only: [:index]
     resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history, except: :show do
+      collection do
+        get :search
+      end
+    end
+    resources :***REMOVED***, concerns: :history, except: :show do
+      collection do
+        get :search
+      end
+    end
 
     resources :grades, only: [:index] do
       member do
@@ -203,19 +224,26 @@ Rails.application.routes.draw do
 
     resources :schools, only: [:index]
     resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
+    resources :***REMOVED***, concerns: :history do
+      collection do
+        get :search
+      end
+    end
     resources :authorization_***REMOVED***, concerns: :history
 
     resources :moved_***REMOVED***, only: [:index]
     get '/unities/:unity_id/moved_***REMOVED***/:material_id', to: 'moved_***REMOVED***#show', as: 'unity_moved_material'
+    get '/unities/:unity_id/moved_***REMOVED***/:material_id/get_consumption_balance', to: 'moved_***REMOVED***#get_consumption_balance', as: 'get_consumption_balance'
 
     resources :***REMOVED***, only: [:index, :new, :create]
     get '/***REMOVED***/entrances/:id', to: '***REMOVED***#show_entrance', as: 'inventory_adjustment_entrance'
     get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
     get '/***REMOVED***/get_***REMOVED***', to: '***REMOVED***#get_***REMOVED***_for_select2_remote', as: 'get_all_***REMOVED***'
+    get '/***REMOVED***/get_filtered_***REMOVED***', to: '***REMOVED***#get_filtered_***REMOVED***_for_select2_remote', as: 'get_filtered_***REMOVED***'
 
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***_***REMOVED***s, only: :index
+    resources :***REMOVED***_***REMOVED***, only: :index
     resources :***REMOVED***_periods, only: :index
     resources :***REMOVED***_students, only: :index
 
@@ -376,5 +404,7 @@ Rails.application.routes.draw do
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
     post '/food_composition', to: 'food_composition#calculate'
+
+    resources :data_exportations, only: [:index, :create]
   end
 end

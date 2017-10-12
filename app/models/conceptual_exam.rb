@@ -28,18 +28,21 @@ class ConceptualExam < ActiveRecord::Base
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step| where(school_calendar_classroom_step: school_calendar_classroom_step)   }
   scope :ordered, -> { order(recorded_at: :desc)  }
 
+  validates_date :recorded_at
   validates :classroom,  presence: true
   validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
   validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
   validates :student, presence: true
   validates :recorded_at, presence: true,
     not_in_future: true,
-    school_term_day: { school_term: lambda(&:step) }
+    school_term_day: { school_term: lambda(&:step),
+    school_calendar_day: true }
   validates :unity_id, presence: true
 
   validate :classroom_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
+  validate :ensure_is_school_day
 
   before_validation :self_assign_to_conceptual_exam_values
 
@@ -114,5 +117,17 @@ class ConceptualExam < ActiveRecord::Base
     conceptual_exam = conceptual_exam.where.not(id: id) if persisted?
 
     errors.add(:student, :taken) if conceptual_exam.any?
+  end
+
+  def ensure_is_school_day
+    return unless recorded_at && school_calendar
+
+    unless school_calendar.school_day?(recorded_at, classroom.grade, classroom, nil)
+      errors.add(:recorded_at, :not_school_calendar_day)
+    end
+  end
+
+  def school_calendar
+    CurrentSchoolCalendarFetcher.new(classroom.try(:unity), classroom).fetch
   end
 end

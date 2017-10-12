@@ -9,20 +9,15 @@ class KnowledgeAreaLessonPlanReportForm
                 :date_end,
                 :knowledge_area_lesson_plan
 
-  validates :unity_id,
-    :classroom_id,
-    :date_start,
-    :date_end,
-    presence: true
 
-  validate :date_start_must_be_a_valid_date
-  validate :date_end_must_be_a_valid_date
-  validate :start_at_must_be_less_than_or_equal_to_end_at
+  validates :date_start, presence: true, date: true, timeliness: { on_or_before: :date_end, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
+  validates :date_end, presence: true, date: true, timeliness: { on_or_after: :date_start, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
+  validates :classroom_id,
+            presence: true
   validate :must_have_knowledge_area_lesson_plan
 
   def knowledge_area_lesson_plan
-    relation = KnowledgeAreaLessonPlan.by_unity_id(unity_id)
-      .by_classroom_id(classroom_id)
+    relation = KnowledgeAreaLessonPlan.by_classroom_id(classroom_id)
       .by_date_range(date_start.to_date, date_end.to_date)
       .by_teacher_id(teacher_id)
       .order(LessonPlan.arel_table[:start_at].asc)
@@ -33,34 +28,6 @@ class KnowledgeAreaLessonPlanReportForm
   end
 
   private
-
-  def date_start_must_be_a_valid_date
-    return if errors[:date_start].any?
-
-    begin
-      date_start.to_date
-    rescue ArgumentError
-      errors.add(:date_start, :date_start_must_be_a_valid_date)
-    end
-  end
-
-  def date_end_must_be_a_valid_date
-    return if errors[:date_end].any?
-
-    begin
-      date_end.to_date
-    rescue ArgumentError
-      errors.add(:date_end, :date_end_must_be_a_valid_date)
-    end
-  end
-
-  def start_at_must_be_less_than_or_equal_to_end_at
-    return if errors[:date_start].any? || errors[:date_end].any?
-
-    if date_start.to_date > date_end.to_date
-      errors.add(:date_start, :date_start_must_be_less_than_or_equal_to_end_at)
-    end
-  end
 
   def must_have_knowledge_area_lesson_plan
     return unless errors.blank?

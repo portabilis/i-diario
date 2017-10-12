@@ -188,6 +188,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_student_enrollments
+    return unless @avaliation_recovery_diary_record.avaliation
     StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
                                discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
                                date: @avaliation_recovery_diary_record.avaliation.test_date,
@@ -196,6 +197,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def reload_students_list
+    return unless fetch_student_enrollments
     student_enrollments = fetch_student_enrollments
 
     @students = []

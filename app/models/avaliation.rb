@@ -6,6 +6,8 @@ class Avaliation < ActiveRecord::Base
 
   include Audit
 
+  attr_accessor :test_date_copy
+
   before_destroy :try_destroy_daily_notes
 
   belongs_to :classroom
@@ -20,6 +22,7 @@ class Avaliation < ActiveRecord::Base
   has_many :daily_notes, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
 
+  validates_date :test_date
   validates :unity,             presence: true
   validates :classroom,         presence: true
   validates :discipline,        presence: true
@@ -196,7 +199,7 @@ class Avaliation < ActiveRecord::Base
   end
 
   def weight_not_greater_than_test_setting_maximum_score
-    return unless test_setting
+    return unless test_setting && weight
 
     if weight > test_setting.maximum_score
       errors.add(:weight, :cant_be_greater_than, value: test_setting.maximum_score)

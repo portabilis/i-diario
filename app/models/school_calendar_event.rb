@@ -16,6 +16,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   has_enumeration_for :event_type, with: EventTypes
   has_enumeration_for :coverage, with: EventCoverageType
 
+  validates_date :start_date, :end_date
   validates :description, :event_type, :start_date, :end_date, :school_calendar_id, presence: true
   validates :periods, presence: true, unless: :coverage_by_classroom?
   validates :course, presence: true, if: :should_validate_grade?
@@ -23,7 +24,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validates :course, presence: true, if: :should_validate_course?
   validates :classroom, presence: true, if: :should_validate_classroom?
   validates :legend, presence: true, exclusion: {in: %w(F f N n .) }, if: :should_validate_legend?
-  validate :start_at_must_be_less_than_or_equal_to_end_at
+  validate :no_retroactive_dates
   validate :uniquenesss_of_start_at_in_grade
   validate :uniquenesss_of_end_at_in_grade
   validate :uniquenesss_of_start_at_in_classroom
@@ -38,6 +39,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :without_grade, -> { where(arel_table[:grade_id].eq(nil) ) }
   scope :without_classroom, -> { where(arel_table[:classroom_id].eq(nil) ) }
   scope :without_discipline, -> { where(arel_table[:discipline_id].eq(nil) ) }
+  scope :without_course, -> { where(arel_table[:course_id].eq(nil) ) }
   scope :by_period, lambda { |period| where(' ? = ANY (periods)', period) }
   scope :by_date, lambda { |date| where('start_date <= ? and end_date >= ?', date, date) }
   scope :by_date_between, lambda { |start_at, end_at| where('start_date >= ? and end_date <= ?', start_at.to_date, end_at.to_date) }
@@ -47,6 +49,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :by_classroom, lambda { |classroom| joins(:classroom).where('classrooms.description ILIKE ?', '%'+classroom+'%') }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_course, lambda { |course_id| where(course_id: course_id) }
   scope :all_events_for_classroom, lambda { |classroom| all_events_for_classroom(classroom) }
 
   def to_s
@@ -179,9 +182,12 @@ class SchoolCalendarEvent < ActiveRecord::Base
     errors.add(:end_date, :already_exists_event_in_this_date) if query.any?
   end
 
-  def start_at_must_be_less_than_or_equal_to_end_at
+  def no_retroactive_dates
     return unless start_date && end_date
 
-    errors.add(:end_date, "deve ser maior ou igual a Data inicial") if start_date.to_date > end_date.to_date
+    if start_date > end_date
+      errors.add(:start_date, 'não pode ser maior que a Data final')
+      errors.add(:end_date, 'deve ser maior ou igual a Data inicial')
+    end
   end
 end

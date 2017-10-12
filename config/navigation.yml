@@ -47,6 +47,9 @@ navigation:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
         - ***REMOVED***:
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
+        - ***REMOVED***:
             type: "***REMOVED***s"
             path: "***REMOVED***s_path"
         - ***REMOVED***:
@@ -77,6 +80,9 @@ navigation:
         - ***REMOVED***:
             type: "general_configurations"
             path: "edit_general_configurations_path"
+        - ***REMOVED***:
+            type: "data_exportations"
+            path: "data_exportations_path"
         - ***REMOVED***:
             type: "ieducar_api_configurations"
             path: "edit_ieducar_api_configurations_path"
@@ -145,6 +151,16 @@ navigation:
         - ***REMOVED***:
             type: "***REMOVED***_movements"
             path: "***REMOVED***_movements_path"
+  - ***REMOVED***:
+      type: "***REMOVED***"
+      icon: "fa-briefcase"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
+        - ***REMOVED***:
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-retweet"

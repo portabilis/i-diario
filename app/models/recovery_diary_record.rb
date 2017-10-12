@@ -20,6 +20,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   has_one :final_recovery_diary_record
   has_one :avaliation_recovery_diary_record
 
+  validates_date :recorded_at
   validates :unity, presence: true
   validates :classroom, presence: true
   validates :discipline, presence: true

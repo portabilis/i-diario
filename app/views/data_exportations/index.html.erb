@@ -1,0 +1,41 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for @data_exportation,
+  url: data_exportations_path, method: :patch, html: { class: "smart-form" } do |f| %>
+    <%= f.error_notification %>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :backup_file do %>
+            <% if f.object.completed? %>
+              <%= link_to 'Fazer download', f.object.backup_file_url %>
+            <% elsif f.object.started? %>
+              <span class="label label-info">
+                Backup está sendo gerado.
+              </span>
+            <% elsif f.object.error? %>
+              <span class="label label-danger" title="<%= f.object.error_message %>">
+                Erro ao processar o backup.
+              </span>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </fieldset>
+
+    <footer>
+      <% if @data_exportation.persisted? %>
+        <% if @data_exportation.started? %>
+          <%= link_to "#",
+            class: 'btn bg-color-red txt-color-white' do %>
+            <i class="fa fa-cog fa-spin"></i>
+            Exportando dados
+          <% end %>
+        <% else %>
+          <%= link_to "Exportar dados", data_exportations_path, method: 'post',
+            class: 'btn bg-color-red txt-color-white' %>
+        <% end %>
+      <% end %>
+    </footer>
+  <% end %>
+</div>

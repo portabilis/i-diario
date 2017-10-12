@@ -38,7 +38,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def create
-    @final_recovery_diary_record = FinalRecoveryDiaryRecord.new.localized
+    @final_recovery_diary_record = FinalRecoveryDiaryRecord.new
     @final_recovery_diary_record.assign_attributes(resource_params)
 
     authorize @final_recovery_diary_record
@@ -70,7 +70,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def update
-    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
+    @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id])
     @final_recovery_diary_record.assign_attributes(resource_params)
 
     authorize @final_recovery_diary_record
