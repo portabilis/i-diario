@@ -46,7 +46,7 @@ class LessonPlan < ActiveRecord::Base
 
   def to_s
     return discipline_lesson_plan.discipline.to_s if discipline_lesson_plan
-    return knowledge_area_lesson_plan.knowledge_areas.first.to_s if knowledge_area_lesson_plan
+    return knowledge_area_lesson_plan.knowledge_areas.ordered.first.to_s if knowledge_area_lesson_plan
   end
 
   def contents_tags

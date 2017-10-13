@@ -21,7 +21,7 @@ json.unities @unities do |unity|
     json.activities lesson_plan.activities
 
     if lesson_plan.knowledge_area_lesson_plan
-      knowledge_areas = lesson_plan.knowledge_area_lesson_plan.knowledge_areas
+      knowledge_areas = lesson_plan.knowledge_area_lesson_plan.knowledge_areas.ordered
     end
     json.knowledge_areas knowledge_areas
     json.start_at lesson_plan.start_at

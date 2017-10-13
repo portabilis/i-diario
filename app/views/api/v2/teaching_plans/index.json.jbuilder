@@ -24,7 +24,7 @@ json.unities @unities do |unity|
     if teaching_plan.discipline_teaching_plan
       discipline_id = teaching_plan.discipline_teaching_plan.discipline_id
     elsif teaching_plan.knowledge_area_teaching_plan
-      knowledge_areas = teaching_plan.knowledge_area_teaching_plan.knowledge_areas
+      knowledge_areas = teaching_plan.knowledge_area_teaching_plan.knowledge_areas.ordered
     end
     json.knowledge_areas knowledge_areas
     json.discipline_id discipline_id
