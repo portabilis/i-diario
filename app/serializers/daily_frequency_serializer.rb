@@ -1,6 +1,6 @@
 class DailyFrequencySerializer < ActiveModel::Serializer
   attributes :id, :unity_id, :unity_name, :classroom_id, :classroom_name,
-             :frequency_date, :discipline_id, :class_number
+             :frequency_date, :discipline_id, :discipline_name, :class_number
 
   has_many :students
 
@@ -10,5 +10,9 @@ class DailyFrequencySerializer < ActiveModel::Serializer
 
   def classroom_name
     object.classroom.description
+  end
+
+  def discipline_name
+    object.discipline.try(:description)
   end
 end
