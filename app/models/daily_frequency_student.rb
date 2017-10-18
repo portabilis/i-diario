@@ -10,7 +10,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
   belongs_to :daily_frequency
   belongs_to :student
 
-  delegate :frequency_date, :class_number, to: :daily_frequency
+  delegate :frequency_date, :class_number, :classroom_id, to: :daily_frequency
 
   validates :student, :daily_frequency, presence: true
 
@@ -41,6 +41,14 @@ class DailyFrequencyStudent < ActiveRecord::Base
     else
       'F'
     end
+  end
+
+  def sequence
+    StudentEnrollmentClassroom.by_classroom(classroom_id)
+                              .by_date(frequency_date)
+                              .by_student(student_id)
+                              .first
+                              .try(:sequence)
   end
 
   def nullify_presence_for_inactive_students
