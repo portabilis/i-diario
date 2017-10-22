@@ -32,8 +32,22 @@ class LessonPlan < ActiveRecord::Base
   validate :at_least_one_assigned_content
 
   delegate :unity, :unity_id, to: :classroom
+  delegate :grade, :grade_id, to: :classroom
 
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id)) }
+  scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }
+  scope :current, -> { where("current_date BETWEEN start_at and end_at") }
+  scope :ordered, -> { joins(:classroom).order('description ASC') }
+
+  def self.fromLastDays days
+    start_date = (Date.today - days.days).to_date
+    where('start_at <= current_date AND end_at >= ? ', start_date)
+  end
+
+  def to_s
+    return discipline_lesson_plan.discipline.to_s if discipline_lesson_plan
+    return knowledge_area_lesson_plan.knowledge_areas.ordered.first.to_s if knowledge_area_lesson_plan
+  end
 
   def contents_tags
     if @contents_tags.present?

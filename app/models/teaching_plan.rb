@@ -30,6 +30,15 @@ class TeachingPlan < ActiveRecord::Base
 
   validate :at_least_one_content_assigned
 
+  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }
+  scope :by_year, lambda { |year| where( year: year ) }
+
+  def to_s
+    return discipline_teaching_plan.discipline.to_s if discipline_teaching_plan
+    return knowledge_area_teaching_plan.knowledge_areas.ordered.first.to_s if knowledge_area_teaching_plan
+  end
+
   def contents_tags
     if @contents_tags.present?
       ContentTagConverter::tags_to_json(@contents_tags)
@@ -50,6 +59,8 @@ class TeachingPlan < ActiveRecord::Base
       I18n.t("enumerations.trimesters.#{school_term}")
     when SchoolTermTypes::SEMESTER
       I18n.t("enumerations.semesters.#{school_term}")
+    when SchoolTermTypes::YEARLY
+      I18n.t("enumerations.year.yearly")
     end
   end
 

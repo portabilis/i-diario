@@ -35,13 +35,17 @@ class DailyFrequency < ActiveRecord::Base
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_frequency_date, lambda { |frequency_date| where(frequency_date: frequency_date.to_date) }
   scope :by_frequency_date_between, lambda { |start_at, end_at| where(frequency_date: start_at.to_date..end_at.to_date) }
   scope :by_class_number, lambda { |class_number| where(class_number: class_number) }
   scope :general_frequency, lambda { where(discipline_id: nil, class_number: nil) }
 
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_frequency_date, -> { order(:frequency_date) }
+  scope :order_by_frequency_date_desc, -> { order(frequency_date: :desc) }
   scope :order_by_class_number, -> { order(:class_number) }
+  scope :order_by_unity, -> { order(:unity_id) }
+  scope :order_by_classroom, -> { order(:classroom_id) }
 
   def build_or_find_by_student student
     students.where(student_id: student.id).first || students.build(student_id: student.id, present: 1)

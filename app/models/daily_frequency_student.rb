@@ -10,13 +10,16 @@ class DailyFrequencyStudent < ActiveRecord::Base
   belongs_to :daily_frequency
   belongs_to :student
 
-  delegate :frequency_date, :class_number, to: :daily_frequency
+  delegate :frequency_date, :class_number, :classroom_id, to: :daily_frequency
 
   validates :student, :daily_frequency, presence: true
 
   scope :absences, -> { where("COALESCE(daily_frequency_students.present, 'f') = 'f' ")}
   scope :presents, -> { where("daily_frequency_students.present = 't' ")}
   scope :active, -> { where(active: true) }
+  scope :by_classroom_id, lambda { |classroom_id| joins(:daily_frequency).merge(DailyFrequency.by_classroom_id(classroom_id)) }
+  scope :by_discipline_id, lambda { |discipline_id| joins(:daily_frequency).merge(DailyFrequency.by_discipline_id(discipline_id)) }
+  scope :by_frequency_date, lambda { |frequency_date| joins(:daily_frequency).merge(DailyFrequency.by_frequency_date(frequency_date)) }
   scope :general_by_classroom_student_date_between,
         lambda { |classroom_id, student_id, start_at, end_at| where(
                                                        'daily_frequencies.classroom_id' => classroom_id,
@@ -38,6 +41,14 @@ class DailyFrequencyStudent < ActiveRecord::Base
     else
       'F'
     end
+  end
+
+  def sequence
+    StudentEnrollmentClassroom.by_classroom(classroom_id)
+                              .by_date(frequency_date)
+                              .by_student(student_id)
+                              .first
+                              .try(:sequence)
   end
 
   def nullify_presence_for_inactive_students

@@ -41,6 +41,31 @@ Rails.application.routes.draw do
         resources :***REMOVED***, only: [:create]
         resources :daily_frequency_students, only: [:update]
       end
+      namespace :v2 do
+        resources :***REMOVED***, only: [:create]
+        resources :exam_rules, only: [:index]
+        resources :teacher_unities, only: [:index]
+        resources :teacher_classrooms, only: [:index]
+        resources :teacher_disciplines, only: [:index]
+        resources :school_calendars, only: [:index]
+        resources :daily_frequencies, only: [:create, :index]
+        resources :daily_frequency_students, only: [:update] do
+          collection do
+            post :update_or_create
+          end
+        end
+        resources :***REMOVED***, only: [:create]
+        resources :classroom_students, only: [:index]
+        resources :teacher_allocations, only: [:index]
+        resources :lesson_plans, only: [:index]
+        resources :content_records, only: [:index] do
+          collection do
+            get :lesson_plans
+            post :sync
+          end
+        end
+        resources :teaching_plans, only: [:index]
+      end
     end
 
     concern :history do
