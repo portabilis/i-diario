@@ -25,10 +25,11 @@ class ExamRulesSynchronizer
       collection.each do |record|
 
         exam_rule = nil
+        score_type = record["tipo_nota"] == "3" ? "1" : record["tipo_nota"]
 
         if exam_rule = exam_rules.find_by(api_code: record["id"])
           exam_rule.update(
-            score_type: record["tipo_nota"],
+            score_type: score_type,
             frequency_type: record["tipo_presenca"],
             recovery_type: record["tipo_recuperacao"],
             parallel_recovery_average: record["media_recuperacao_paralela"],
@@ -40,7 +41,7 @@ class ExamRulesSynchronizer
         else
           exam_rule = exam_rules.create(
             api_code: record["id"],
-            score_type: record["tipo_nota"],
+            score_type: score_type,
             frequency_type: record["tipo_presenca"],
             recovery_type: record["tipo_recuperacao"],
             parallel_recovery_average: record["media_recuperacao_paralela"],
