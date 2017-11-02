@@ -59,7 +59,8 @@ module ExamPoster
     end
 
     def correct_score_type(score_type)
-      score_type == ScoreTypes::NUMERIC
+      score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
+      score_types.include? score_type
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
