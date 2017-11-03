@@ -67,11 +67,12 @@ $(function() {
   };
 
   function examRuleIsValid(examRule) {
-    if (examRule.score_type != '2' || examRule.score_type != '3') {
+    var correct_score_type = examRule.score_type == '2' || examRule.score_type == '3'
+    if (correct_score_type) {
+      return true;
+    } else {
       flashMessages.error('A turma informada não possui uma regra de avaliação conceitual.');
       return false;
-    } else {
-      return true;
     }
   }
 
