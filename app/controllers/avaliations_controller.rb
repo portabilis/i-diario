@@ -27,6 +27,8 @@ class AvaliationsController < ApplicationController
   end
 
   def new
+    redirect_to avaliations_path, alert: "A disciplina selecionada não possui nota numérica" if teacher_discipline_score_type == DisciplineScoreTypes::CONCEPT
+
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
     @avaliation.test_setting    = current_test_setting

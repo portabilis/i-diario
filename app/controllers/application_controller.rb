@@ -232,6 +232,12 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user_is_parent?
 
+  def teacher_discipline_score_type
+    return DisciplineScoreTypes::NUMERIC if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC
+    return DisciplineScoreTypes::CONCEPT if current_user_classroom.exam_rule.score_type == ScoreTypes::CONCEPT
+    TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+  end
+
 
   private
 
