@@ -1,6 +1,6 @@
 var entity = window.location.hostname
 
-if (entity.includes('clientetest3')) {
+if (entity.match(/clientetest3/)) {
   FreshWidget.init("",
       {"queryString": "&widgetType=popup&formTitle=Suporte+ao+Usu%C3%A1rio&submitTitle=Enviar&submitThanks=Obrigado%2C+j%C3%A1+registramos+sua+solicita%C3%A7%C3%A3o.+Em+breve+entraremos+em+contato.&searchArea=no",
       "utf8": "✓",
