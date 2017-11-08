@@ -13,7 +13,7 @@ if (entity.match(/clientetest3/)) {
       "offset": "235px",
       "submitThanks": "Obrigado, já registramos sua solicitação. Em breve entraremos em contato.",
       "formHeight": "500px",
-      "url": "https://suporte.***REMOVED***.com.br"}
+      "url": "http://suporte.***REMOVED***.com.br"}
   );
 } else {
   FreshWidget.init("", {

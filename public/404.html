@@ -33405,20 +33405,38 @@ aside#left-panel{
     </div>
 
     <script type="text/javascript">
-      FreshWidget.init("", {
-          "queryString": "&searchArea=no&widgetType=popup&formTitle=Suporte+ao+Usu%C3%A1rio+Portabilis&submitTitle=Enviar+solicitação&submitThanks=Obrigado%2C+j%C3%A1+registramos+sua+solicita%C3%A7%C3%A3o.+Em+breve+entraremos+em+contato.",
-          "widgetType": "popup",
-          "buttonType": "text",
-          "buttonText": "Precisa de ajuda? Clique aqui",
-          "buttonColor": "white",
-          "buttonBg": "#004c93",
-          "alignment": "3",
-          "offset": "-2000px",
-          "submitThanks": "Obrigado, já registramos sua solicitação. Em breve entraremos em contato.",
-          "formHeight": "500px",
-          "url": "https://portabilis.freshdesk.com"
-      });
+      var entity = window.location.hostname
 
+      if (entity.match(/clientetest3/)) {
+        FreshWidget.init("",
+            {"queryString": "&widgetType=popup&formTitle=Suporte+ao+Usu%C3%A1rio&submitTitle=Enviar&submitThanks=Obrigado%2C+j%C3%A1+registramos+sua+solicita%C3%A7%C3%A3o.+Em+breve+entraremos+em+contato.&searchArea=no",
+            "utf8": "✓",
+            "widgetType": "popup",
+            "buttonType": "text",
+            "buttonText": "Precisa de ajuda? Clique aqui",
+            "buttonColor": "white",
+            "buttonBg": "#0ac336",
+            "alignment": "3",
+            "offset": "235px",
+            "submitThanks": "Obrigado, já registramos sua solicitação. Em breve entraremos em contato.",
+            "formHeight": "500px",
+            "url": "http://suporte.***REMOVED***.com.br"}
+        );
+      } else {
+        FreshWidget.init("", {
+            "queryString": "&searchArea=no&widgetType=popup&formTitle=Suporte+ao+Usu%C3%A1rio+Portabilis&submitTitle=Enviar+solicitação&submitThanks=Obrigado%2C+j%C3%A1+registramos+sua+solicita%C3%A7%C3%A3o.+Em+breve+entraremos+em+contato.",
+            "widgetType": "popup",
+            "buttonType": "text",
+            "buttonText": "Precisa de ajuda? Clique aqui",
+            "buttonColor": "white",
+            "buttonBg": "#004c93",
+            "alignment": "3",
+            "offset": "-2000px",
+            "submitThanks": "Obrigado, já registramos sua solicitação. Em breve entraremos em contato.",
+            "formHeight": "500px",
+            "url": "https://portabilis.freshdesk.com"
+        });
+      }
       document.getElementsByClassName("error-page-support-button")[0].onclick = function() {
         FreshWidget.show();
         return false;
@@ -33426,4 +33444,3 @@ aside#left-panel{
     </script>
   </body>
 </html>
-
