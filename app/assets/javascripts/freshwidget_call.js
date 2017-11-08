@@ -13,7 +13,7 @@ if (entity.match(/jacarei/)) {
       "offset": "235px",
       "submitThanks": "Obrigado, já registramos sua solicitação. Em breve entraremos em contato.",
       "formHeight": "500px",
-      "url": "http://suporte.***REMOVED***.com.br"}
+      "url": "https://***REMOVED***brasil.freshdesk.com"}
   );
 } else {
   FreshWidget.init("", {
