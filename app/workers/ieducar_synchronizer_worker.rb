@@ -30,7 +30,7 @@ class IeducarSynchronizerWorker
         ***REMOVED***sSynchronizer.synchronize!(synchronization)
         RoundingTablesSynchronizer.synchronize!(synchronization)
         RecoveryExamRulesSynchronizer.synchronize!(synchronization)
-        TeachersSynchronizer.synchronize!(synchronization, years_to_synchronize)
+        TeachersSynchronizer.synchronize!(synchronization)
         CoursesGradesClassroomsSynchronizer.synchronize!(synchronization)
         StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, years_to_synchronize)
 

@@ -30,6 +30,7 @@ class Unity < ActiveRecord::Base
   has_many :classrooms, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, through: :classrooms, dependent: :restrict_with_error
   has_many :user_roles
+  has_many :school_calendars
 
   has_and_belongs_to_many :***REMOVED***
   has_and_belongs_to_many :***REMOVED***

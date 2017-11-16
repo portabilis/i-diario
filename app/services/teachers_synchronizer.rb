@@ -1,18 +1,25 @@
 class TeachersSynchronizer
-  def self.synchronize!(synchronization, year)
-    new(synchronization, year).synchronize!
+  def self.synchronize!(synchronization)
+    new(synchronization).synchronize!
   end
 
-  def initialize(synchronization, years)
+  def initialize(synchronization)
     self.synchronization = synchronization
-    self.years = years
   end
 
   def synchronize!
 
-    inactive_all_alocations_prior_to(years[0]) if years.any?
+    # inactive_all_alocations_prior_to(years[0]) if years.any?
+    years = Unity.with_api_code.map{ |unity| unity.school_calendars.map(&:year) }
+                 .reject(&:blank?)
+                 .flatten
+                 .uniq
+                 .sort
 
-    years.each do |year|
+
+    years_to_synchronize = TeacherDisciplineClassroom.by_year(years.last - 1).any? ? [years.last] : years
+
+    years_to_synchronize.each do |year|
       update_records(api.fetch(ano: year)['servidores'], year)
     end
   end
@@ -57,8 +64,6 @@ class TeachersSynchronizer
         tdc.update!(score_type: turma['tipo_nota'])
       end
     end
-
-    destroy_inexisting_teacher_discipline_classrooms(existing_ids)
   end
 
   private
