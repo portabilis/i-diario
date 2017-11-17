@@ -222,7 +222,8 @@ class ApplicationController < ActionController::Base
       current_classroom_id: current_user.current_classroom_id,
       current_discipline_id: current_user.current_discipline_id,
       current_unity_id: current_user.current_unity_id,
-      assumed_teacher_id: current_user.assumed_teacher_id
+      assumed_teacher_id: current_user.assumed_teacher_id,
+      current_school_year: current_user.current_school_year
     ).valid?
   end
   helper_method :valid_current_role?

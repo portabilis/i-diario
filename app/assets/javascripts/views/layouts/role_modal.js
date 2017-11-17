@@ -72,9 +72,6 @@
     unity_id = String(unity_id);
 
     if(!_.isEmpty(unity_id)){
-
-      console.log('oi');
-
       $.ajax({
         url: Routes.years_from_unity_school_calendars_pt_br_path({
             filter: filter,
@@ -87,8 +84,6 @@
   }
 
   function handleFetchYearsSuccess(data){
-    console.log('cheguei');
-    console.log(data);
     var selectedYears = _.map(data.school_calendars, function(year) {
       return { id: year['id'], text: year['name'] };
     });
@@ -154,11 +149,9 @@
 
   function handleFetchClassroomsSuccess(data){
     var selectedClassrooms = _.map(data, function(classroom) {
-      console.log(classroom['id']);
       return { id: classroom['id'], text: classroom['description'] };
     });
 
-    console.log('-----------------');
     if(_.isEmpty(selectedClassrooms)){
       $('#user_current_classroom_id').val("");
     }
@@ -266,8 +259,6 @@
     var unity_id = $(this).val();
 
     fetchYears(unity_id);
-    // fetchTeachers(unity_id, $('#current_school_year').val());
-    // checkUnityType(unity_id);
 
     var emptyElements = insertEmptyElement([]);
 
@@ -422,8 +413,6 @@
 
     $('#classroom-field').show();
     $('#discipline-field').show();
-
-    console.log($('#user_teacher_id').val());
 
     fetchClassroomsByTeacherAndUnity($('#user_teacher_id').val(), unity_id, $('#user_current_school_year').val());
 

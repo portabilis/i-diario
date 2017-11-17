@@ -8,9 +8,10 @@ class CurrentRoleForm
                 :current_discipline_id,
                 :id,
                 :current_unity_id,
-                :assumed_teacher_id
+                :assumed_teacher_id,
+                :current_school_year
 
-  validates :current_user_role_id, presence: true
+  validates :current_user_role_id, :current_school_year, presence: true
   validates :current_classroom_id, :current_discipline_id,  presence: true, if: :require_allocation?
   validates :current_unity_id,  presence: true, if: :require_unity?
 
