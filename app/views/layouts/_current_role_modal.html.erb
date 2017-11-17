@@ -16,6 +16,9 @@
           <div id="unity-field">
             <%= f.input :current_unity_id, as: :select2, elements: [], required: true %>
           </div>
+          <div id="school-year-field">
+            <%= f.input :current_school_year, as: :select2, elements: [], required: true %>
+          </div>
           <div id="assumed-teacher-field">
             <%= f.input :assumed_teacher_id, as: :select2, elements: [] %>
           </div>
@@ -41,4 +44,5 @@
   window.user.assumed_teacher_id = <%= current_user.assumed_teacher_id || "undefined" %>;
   window.user.current_classroom_id = <%= current_user.current_classroom_id || "undefined" %>;
   window.user.current_discipline_id = <%= current_user.current_discipline_id || "undefined" %>;
+  window.user.current_school_year = <%= current_user.current_school_year || "undefined" %>;
 </script>
