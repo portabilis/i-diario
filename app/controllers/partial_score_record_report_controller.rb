@@ -5,7 +5,7 @@ class PartialScoreRecordReportController < ApplicationController
   def form
     @partial_score_record_report_form = PartialScoreRecordReportForm.new
     @partial_score_record_report_form.classroom_id = current_user.current_classroom_id
-    @partial_score_record_report_form.school_calendar_year = current_school_calendar.year
+    @partial_score_record_report_form.school_calendar_year = current_user_school_calendar.year
   end
 
   def report
@@ -13,7 +13,7 @@ class PartialScoreRecordReportController < ApplicationController
 
     if @partial_score_record_report_form.valid?
       partial_score_record_report = PartialScoreRecordReport.build(current_entity_configuration,
-                                                  current_school_calendar.year,
+                                                  current_user_school_calendar.year,
                                                   @partial_score_record_report_form.step,
                                                   @partial_score_record_report_form.student,
                                                   @partial_score_record_report_form.unity,
@@ -29,7 +29,7 @@ class PartialScoreRecordReportController < ApplicationController
   private
 
   def school_calendar_steps
-    @school_calendar_steps ||= SchoolCalendarStep.where(school_calendar: current_school_calendar)
+    @school_calendar_steps ||= SchoolCalendarStep.where(school_calendar: current_user_school_calendar)
   end
   helper_method :school_calendar_steps
 
@@ -46,13 +46,13 @@ class PartialScoreRecordReportController < ApplicationController
 
   def students
     @students ||= Student.where(id: DailyNoteStudent.by_classroom_id(@partial_score_record_report_form.classroom_id)
-                                                    .by_test_date_between(current_school_calendar.first_day, current_school_calendar.last_day)
+                                                    .by_test_date_between(current_user_school_calendar.first_day, current_user_school_calendar.last_day)
                                                     .select(:student_id)).ordered
   end
   helper_method :students
 
   def classrooms
-    @classrooms ||= Classroom.by_unity(current_user.current_unity).by_year(current_school_calendar.year).ordered
+    @classrooms ||= Classroom.by_unity(current_user.current_unity).by_year(current_user_school_calendar.year).ordered
   end
   helper_method :classrooms
 

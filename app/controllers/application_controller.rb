@@ -214,6 +214,16 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user_discipline
 
+  def current_user_school_year
+    current_user.try(:current_school_year)
+  end
+  helper_method :current_user_school_year
+
+  def current_user_school_calendar
+    SchoolCalendar.find_by(unity: current_user_unity, year: current_user_school_year)
+  end
+  helper_method :current_user_school_calendar
+
   def valid_current_role?
     CurrentRoleForm.new(
       current_user_id: current_user.id,

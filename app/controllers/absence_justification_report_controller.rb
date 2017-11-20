@@ -5,14 +5,14 @@ class AbsenceJustificationReportController < ApplicationController
   def form
     @absence_justification_report_form = AbsenceJustificationReportForm.new
     @absence_justification_report_form.unity_id = current_user_unity.id
-    @absence_justification_report_form.school_calendar_year = current_school_calendar
+    @absence_justification_report_form.school_calendar_year = current_user_school_calendar
     @absence_justification_report_form.current_teacher_id = current_teacher
   end
 
   def report
     @absence_justification_report_form = AbsenceJustificationReportForm.new(resource_params)
     @absence_justification_report_form.unity_id = current_user_unity.id
-    @absence_justification_report_form.school_calendar_year = current_school_calendar,
+    @absence_justification_report_form.school_calendar_year = current_user_school_calendar,
     @absence_justification_report_form.current_teacher_id = current_teacher
 
     if @absence_justification_report_form.valid?
@@ -33,7 +33,7 @@ class AbsenceJustificationReportController < ApplicationController
     if @absence_justification_report_form.frequence_type_by_discipline?
       @absence_justifications = AbsenceJustification.by_teacher(current_teacher)
                                                     .by_unity(current_user_unity.id)
-                                                    .by_school_calendar_report(current_school_calendar)
+                                                    .by_school_calendar_report(current_user_school_calendar)
                                                     .by_classroom(@absence_justification_report_form.classroom_id)
                                                     .by_discipline_id(@absence_justification_report_form.discipline_id)
                                                     .by_date_report(@absence_justification_report_form.absence_date, @absence_justification_report_form.absence_date_end)
@@ -41,7 +41,7 @@ class AbsenceJustificationReportController < ApplicationController
     else
       @absence_justifications = AbsenceJustification.by_teacher(current_teacher)
                                                     .by_unity(current_user_unity.id)
-                                                    .by_school_calendar_report(current_school_calendar)
+                                                    .by_school_calendar_report(current_user_school_calendar)
                                                     .by_classroom(@absence_justification_report_form.classroom_id)
                                                     .by_date_report(@absence_justification_report_form.absence_date, @absence_justification_report_form.absence_date_end)
                                                     .order(absence_date: :asc)
