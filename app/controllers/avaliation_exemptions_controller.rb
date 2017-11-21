@@ -2,7 +2,7 @@ class AvaliationExemptionsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_school_calendar
+   
 
   def index
     @avaliation_exemptions = apply_scopes(AvaliationExemption)

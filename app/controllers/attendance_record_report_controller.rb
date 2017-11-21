@@ -1,6 +1,6 @@
 class AttendanceRecordReportController < ApplicationController
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
+   
 
   def form
     @attendance_record_report_form = AttendanceRecordReportForm.new(

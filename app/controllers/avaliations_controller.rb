@@ -5,7 +5,7 @@ class AvaliationsController < ApplicationController
   respond_to :html, :js, :json
 
   before_action :require_current_teacher, except: [:search]
-  before_action :require_current_school_calendar
+   
   before_action :require_current_test_setting
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms]
 
