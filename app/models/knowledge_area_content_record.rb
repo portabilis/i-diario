@@ -13,8 +13,8 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   scope :by_classroom_id, lambda { |classroom_id| joins(:content_record).where(content_records: { classroom_id: classroom_id }) }
   scope :by_knowledge_area_id, lambda { |knowledge_area_id| joins(:knowledge_areas)
                                                             .where(knowledge_areas: {id: knowledge_area_id } )}
-  scope :by_classroom_description, lambda { |description| joins(content_record: :classroom).where('classrooms.description ILIKE ?', "%#{description}%" ) }
-  scope :by_knowledge_area_description, lambda { |description| joins(:knowledge_areas).where('knowledge_areas.description ILIKE ?', "%#{description}%" ) }
+  scope :by_classroom_description, lambda { |description| joins(content_record: :classroom).where('unaccent(classrooms.description) ILIKE unaccent(?)', "%#{description}%" ) }
+  scope :by_knowledge_area_description, lambda { |description| joins(:knowledge_areas).where('unaccent(knowledge_areas.description) ILIKE unaccent(?)', "%#{description}%" ) }
   scope :by_date, lambda { |date| joins(:content_record).where(content_records: { record_date: date.to_date }) }
   scope :ordered, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date].desc) }
 
