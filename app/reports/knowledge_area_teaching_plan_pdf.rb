@@ -52,7 +52,7 @@ class KnowledgeAreaTeachingPlanPdf
         vposition: :center
       )
     rescue
-      entity_logo_cell = make_cell(content: 'aaaa', width: 70, rowspan: 4)
+      entity_logo_cell = make_cell(content: '', width: 70, rowspan: 4)
     end
 
     entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
@@ -96,7 +96,7 @@ class KnowledgeAreaTeachingPlanPdf
       height: 20,
       padding: [2, 2, 4, 4],
       align: :center,
-      colspan: 6
+      colspan: 7
     )
 
     @class_plan_header_cell = make_cell(
@@ -120,17 +120,17 @@ class KnowledgeAreaTeachingPlanPdf
 
     knowledge_area_descriptions = (knowledge_areas.map { |descriptions| descriptions}.join(", "))    
 
-    @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 6)
-    @unity_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 6)
+    @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 7)
+    @unity_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 7)
 
-    @knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
-    @knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 3)
+    @knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 3)
 
-    @classroom_header = make_cell(content: 'Série', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @classroom_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.grade.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @classroom_header = make_cell(content: 'Série', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 4)
+    @classroom_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.grade.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
 
-    @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @teacher_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 3)
+    @teacher_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 3)
 
     @year_header = make_cell(content: 'Ano', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
     @year_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
@@ -159,10 +159,10 @@ class KnowledgeAreaTeachingPlanPdf
       [@general_information_header_cell],
       [@unity_header],
       [@unity_cell],
-      [@knowledge_area_header, @classroom_header, @teacher_header],
-      [@knowledge_area_cell, @classroom_cell, @teacher_cell],
-      [@year_header, @period_header],
-      [@year_cell, @period_cell]
+      [@knowledge_area_header, @classroom_header],
+      [@knowledge_area_cell, @classroom_cell],
+      [@teacher_header, @year_header, @period_header],
+      [@teacher_cell, @year_cell, @period_cell]
     ]
 
     table(general_information_table_data, width: bounds.width) do
@@ -196,7 +196,7 @@ class KnowledgeAreaTeachingPlanPdf
   end
 
   def body
-    bounding_box([0, 712], width: bounds.width, height: 700) do
+    bounding_box([0, 727], width: bounds.width, height: 700) do
       general_information
       class_plan      
     end
