@@ -53,11 +53,11 @@ class Unity < ActiveRecord::Base
   scope :by_unity, -> unity { where(id: unity) }
 
   #search scopes
-  scope :search_name, lambda { |search_name| where("name ILIKE ?", "%#{search_name}%") }
+  scope :search_name, lambda { |search_name| where("unaccent(name) ILIKE unaccent(?)", "%#{search_name}%") }
   scope :unit_type, lambda { |unit_type| where(unit_type: unit_type) }
-  scope :phone, lambda { |phone| where("phone ILIKE ?", "%#{phone}%") }
-  scope :email, lambda { |email| where("email ILIKE ?", "%#{email}%") }
-  scope :responsible, lambda { |responsible| where("responsible ILIKE ?", "%#{responsible}%") }
+  scope :phone, lambda { |phone| where("unaccent(phone) ILIKE unaccent(?)", "%#{phone}%") }
+  scope :email, lambda { |email| where("unaccent(email) ILIKE unaccent(?)", "%#{email}%") }
+  scope :responsible, lambda { |responsible| where("unaccent(responsible) ILIKE unaccent(?)", "%#{responsible}%") }
   scope :by_school_group, lambda { |school_group| joins(:***REMOVED***).where(***REMOVED***_unities: { school_group_id: school_group })  }
   scope :by_id, lambda { |unity_id| where(id: unity_id) }
 
