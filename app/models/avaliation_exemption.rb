@@ -49,22 +49,22 @@ class AvaliationExemption < ActiveRecord::Base
 
   scope :by_grade_description, lambda { |grade_description|
     joins(avaliation: [classroom: :grade])
-    .where('unaccent(grades.description) ILIKE unaccent(?)', "%#{grade_description}%" )
+    .where('grades.description ILIKE ?', "%#{grade_description}%" )
   }
 
   scope :by_classroom_description, lambda { |classroom_description|
     joins(avaliation: :classroom)
-    .where('unaccent(classrooms.description) ILIKE unaccent(?)', "%#{classroom_description}%" )
+    .where('classrooms.description ILIKE ?', "%#{classroom_description}%" )
   }
 
   scope :by_student_name, lambda { |student_name|
     joins(:student)
-    .where('unaccent(students.name) ILIKE unaccent(?)', "%#{student_name}%" )
+    .where('students.name ILIKE ?', "%#{student_name}%" )
   }
 
   scope :by_avaliation_description, lambda { |avaliation_description|
     joins(:avaliation)
-    .where('unaccent(avaliations.description) ILIKE unaccent(?)', "%#{avaliation_description}%" )
+    .where('avaliations.description ILIKE ?', "%#{avaliation_description}%" )
   }
 
   scope :by_created_at, lambda { |created_at| where('avaliation_exemptions.created_at::DATE = ?', created_at.to_date) }

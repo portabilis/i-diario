@@ -33,7 +33,7 @@ class AbsenceJustification < ActiveRecord::Base
   # search scopes
   scope :by_teacher, lambda { |teacher_id| where(teacher_id: teacher_id)  }
   scope :by_classroom, lambda { |classroom_id| where("classroom_id = ? OR classroom_id IS NULL", classroom_id) }
-  scope :by_student, lambda { |student| joins(:student).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student}%") }
+  scope :by_student, lambda { |student| joins(:student).where('students.name ILIKE ?', "%#{student}%") }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_date_range, lambda { |absence_date, absence_date_end| where("absence_date <= ? AND absence_date_end >= ?", absence_date_end, absence_date) }
