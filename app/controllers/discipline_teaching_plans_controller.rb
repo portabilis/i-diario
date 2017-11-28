@@ -26,6 +26,22 @@ class DisciplineTeachingPlansController < ApplicationController
     authorize @discipline_teaching_plan
 
     fetch_collections
+
+    respond_with @discipline_teaching_plans do |format|
+      format.pdf do
+        discipline_teaching_plan_pdf = DisciplineTeachingPlanPdf.build(
+          current_entity_configuration,
+          @discipline_teaching_plan
+        )
+
+        send_data(
+          discipline_teaching_plan_pdf.render,
+          filename: 'planos-de-ensino-por-disciplina.pdf',
+          type: 'application/pdf',
+          disposition: 'inline'
+        )
+      end
+    end
   end
 
   def new
