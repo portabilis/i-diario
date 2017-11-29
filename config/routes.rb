@@ -373,6 +373,14 @@ Rails.application.routes.draw do
       end
     end
 
+    # module :reports do
+    #   module :knowledge_area_content_record do
+    #     collection do
+    #       post :content_record_report
+    #     end
+    #   end
+    # end
+
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
@@ -396,7 +404,8 @@ Rails.application.routes.draw do
     post '/reports/discipline_content_record', to: 'discipline_lesson_plan_report#content_record_report', as: 'discipline_content_record_report'
 
     get '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#form', as: 'knowledge_area_lesson_plan_report'
-    post '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#report', as: 'knowledge_area_lesson_plan_report'
+    post '/reports/knowledge_area_lesson_plan', to: 'knowledge_area_lesson_plan_report#lesson_plan_report', as: 'knowledge_area_lesson_plan_report'
+    post '/reports/knowledge_area_content_record', to: 'knowledge_area_lesson_plan_report#content_record_report', as: 'knowledge_area_content_record_report'
 
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'

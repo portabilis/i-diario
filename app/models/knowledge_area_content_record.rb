@@ -16,6 +16,7 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   scope :by_classroom_description, lambda { |description| joins(content_record: :classroom).where('classrooms.description ILIKE ?', "%#{description}%" ) }
   scope :by_knowledge_area_description, lambda { |description| joins(:knowledge_areas).where('knowledge_areas.description ILIKE ?', "%#{description}%" ) }
   scope :by_date, lambda { |date| joins(:content_record).where(content_records: { record_date: date.to_date }) }
+  scope :by_date_range, lambda { |start_at, end_at| joins(:content_record).where("record_date <= ? AND record_date >= ?", end_at, start_at) }
   scope :ordered, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date].desc) }
 
   validates :content_record, presence: true
