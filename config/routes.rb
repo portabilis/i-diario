@@ -373,14 +373,6 @@ Rails.application.routes.draw do
       end
     end
 
-    # module :reports do
-    #   module :knowledge_area_content_record do
-    #     collection do
-    #       post :content_record_report
-    #     end
-    #   end
-    # end
-
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
