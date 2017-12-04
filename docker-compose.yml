@@ -38,8 +38,8 @@ services:
     ports:
       - "4000:4000"
     depends_on:
-      - ssh-agent-novo-educacao
-      - postgres-novo-educacao
-      - redis-novo-educacao
+      - ssh-agent
+      - postgres
+      - redis
     environment:
       - SSH_AUTH_SOCK=/.ssh-agent/socket
