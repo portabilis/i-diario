@@ -25,4 +25,6 @@ Rails.application.configure do
     bucket: '***REMOVED***',
     s3_credentials: "#{Rails.root}/config/aws.yml"
   }
+
+  config.logger = GELF::Logger.new("***REMOVED***", 12203, "WAN", facility: "novo-educacao-staging")
 end
