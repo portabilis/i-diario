@@ -23,22 +23,17 @@ class KnowledgeAreaContentRecordReport
     @knowledge_area_content_records = knowledge_area_content_records
     @current_teacher = current_teacher
     attributes
-
     header
     body
     footer
-
     self
   end
-
-  protected
 
   private
 
   def header
-
-    entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
-    organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
+    entity_name = @entity_configuration.try(:entity_name).to_s
+    organ_name = @entity_configuration.try(:organ_name).to_s
     title = 'Registros de conteúdos por áreas de conhecimento - Registros de conteúdo'
 
     header_cell = make_cell(
@@ -74,8 +69,6 @@ class KnowledgeAreaContentRecordReport
       rowspan: 4,
       padding: [6, 0, 8, 0]
     )
-
-
 
     table_data = [
       [header_cell],
@@ -133,7 +126,6 @@ class KnowledgeAreaContentRecordReport
     @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
   end
 
-
   def identification
     title_identification = [
       [@identification_header_cell]
@@ -164,7 +156,6 @@ class KnowledgeAreaContentRecordReport
   end
 
   def general_information
-
     title_general_information = [
       [@general_information_header_cell]
     ]
@@ -189,11 +180,8 @@ class KnowledgeAreaContentRecordReport
         conteudo_cell
       ]
     end
-
-
     general_information_table_data = [general_information_headers]
     general_information_table_data.concat(general_information_cells)
-
     move_down 8
 
     table(title_general_information, width: bounds.width, header: true) do
@@ -223,7 +211,6 @@ class KnowledgeAreaContentRecordReport
 
   def signatures
     start_new_page if cursor < 45
-
     move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
     text_box("______________________________________________\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)

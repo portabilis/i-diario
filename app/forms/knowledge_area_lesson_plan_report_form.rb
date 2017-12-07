@@ -40,14 +40,16 @@ class KnowledgeAreaLessonPlanReportForm
   def must_have_knowledge_area_lesson_plan
     return unless errors.blank?
 
-    if report_type == ContentRecordReportTypes::LESSON_PLAN
-      if knowledge_area_lesson_plan.count == 0
-        errors.add(:knowledge_area_lesson_plan, :must_have_knowledge_area_lesson_plan)
-      end
-    else
-      if knowledge_area_content_record.count == 0
-        errors.add(:knowledge_area_lesson_plan, :must_have_knowledge_area_lesson_plan)
-      end
+    if invalid_lesson_plan? || invalid_content_record?
+      errors.add(:knowledge_area_lesson_plan, :must_have_knowledge_area_lesson_plan)
     end
+  end
+
+  def invalid_lesson_plan?
+    report_type == ContentRecordReportTypes::LESSON_PLAN && knowledge_area_lesson_plan.count == 0
+  end
+
+  def invalid_content_record?
+    report_type == ContentRecordReportTypes::CONTENT_RECORD && knowledge_area_content_record.count == 0
   end
 end
