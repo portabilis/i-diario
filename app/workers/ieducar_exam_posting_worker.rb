@@ -29,6 +29,7 @@ class IeducarExamPostingWorker
         posting.mark_as_completed! 'Envio realizado com sucesso!'
 
       rescue IeducarApi::Base::ApiError => e
+        raise e if e.message.include? 'Request Timeout'
         posting.mark_as_error!(e.message)
       rescue Exception => e
         posting.mark_as_error!('Ocorreu um erro desconhecido.')

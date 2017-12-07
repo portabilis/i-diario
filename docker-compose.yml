@@ -1,22 +1,45 @@
-postgres:
-  image: postgres:9.4
-  environment:
-    - POSTGRES_PASSWORD=postgres
-  ports:
-    - "5430:5432"
+version: "3"
 
-redis:
-  image: redis
-  ports:
-    - "6379"
+volumes:
+  dot_ssh:
+  socket_dir:
 
-app:
-  build: .
-  command: bundle exec rails s -p 3000 -b '0.0.0.0'
-  volumes:
-    - .:/app
-  ports:
-    - "3000:3000"
-  links:
-    - postgres
-    - redis
+services:
+  ssh-agent: # https://github.com/nardeas/docker-ssh-agent
+    container_name: ssh-agent-novo-educacao
+    image: nardeas/ssh-agent:latest
+    volumes:
+      - "dot_ssh:/root/.ssh"
+      - "socket_dir:/.ssh-agent"
+    environment:
+      - SSH_AUTH_SOCK=/.ssh-agent/socket
+
+  postgres:
+    image: postgres:9.4-alpine
+    container_name: postgres94-novo-educacao
+    volumes:
+      - /private/etc/website/pg94/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=postgres
+
+  redis:
+    image: redis:alpine
+    container_name: redis-novo-educacao
+
+  app:
+    build: .
+    container_name: novo-educacao
+    command: /bin/bash
+    tty: true
+    volumes:
+      - .:/app
+      - "dot_ssh:/root/.ssh"
+      - "socket_dir:/.ssh-agent"
+    ports:
+      - "4000:4000"
+    depends_on:
+      - ssh-agent
+      - postgres
+      - redis
+    environment:
+      - SSH_AUTH_SOCK=/.ssh-agent/socket

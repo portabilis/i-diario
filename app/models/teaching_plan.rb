@@ -13,6 +13,7 @@ class TeachingPlan < ActiveRecord::Base
 
   belongs_to :unity
   belongs_to :grade
+  belongs_to :teacher
 
   validates :year, presence: true
   validates :unity, presence: true
