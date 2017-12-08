@@ -25,6 +25,12 @@
                 class: 'btn btn-info apply_tooltip',
                 data: { original_title: t('views.index.tooltips.show') }) %>
           <%= link_to(
+                t('helpers.links.print_html'),
+                knowledge_area_teaching_plan_path(knowledge_area_teaching_plan, format: :pdf),
+                class: 'btn btn-info apply_tooltip',
+                target: '_blank',
+                data: { original_title: t('views.index.tooltips.print') }) %>
+          <%= link_to(
                 t('helpers.links.edit_html'),
                 edit_knowledge_area_teaching_plan_path(knowledge_area_teaching_plan),
                 class: 'btn btn-success apply_tooltip',
