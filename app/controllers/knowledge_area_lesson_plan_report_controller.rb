@@ -7,17 +7,39 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
     fetch_collections
   end
 
-  def report
+  def lesson_plan_report
     @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(resource_params)
+    @knowledge_area_lesson_plan_report_form.report_type = ContentRecordReportTypes::LESSON_PLAN
 
     if @knowledge_area_lesson_plan_report_form.valid?
       knowledge_area_lesson_plan_report = KnowledgeAreaLessonPlanReport.build(current_entity_configuration,
-                                                              @knowledge_area_lesson_plan_report_form.date_start,
-                                                              @knowledge_area_lesson_plan_report_form.date_end,
-                                                              @knowledge_area_lesson_plan_report_form.knowledge_area_lesson_plan,
-                                                              current_teacher)
+                                                                              @knowledge_area_lesson_plan_report_form.date_start,
+                                                                              @knowledge_area_lesson_plan_report_form.date_end,
+                                                                              @knowledge_area_lesson_plan_report_form.knowledge_area_lesson_plan,
+                                                                              current_teacher)
 
-      send_data(knowledge_area_lesson_plan_report.render, filename: 'registo-de-conteudo-por-areas-de-conhecimento.pdf', type: 'application/pdf', disposition: 'inline')
+      send_data(knowledge_area_lesson_plan_report.render, filename: 'registo-de-conteudo-por-areas-de-conhecimento-planos-de-aula.pdf', type: 'application/pdf', disposition: 'inline')
+    else
+      @knowledge_area_lesson_plan_report_form
+      clear_invalid_dates
+      fetch_collections
+      render :form
+    end
+  end
+
+  def content_record_report
+    @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(resource_params)
+    @knowledge_area_lesson_plan_report_form.report_type = ContentRecordReportTypes::CONTENT_RECORD
+
+    if @knowledge_area_lesson_plan_report_form.valid?
+      knowledge_area_lesson_plan_report = KnowledgeAreaContentRecordReport.build(current_entity_configuration,
+                                                                                 @knowledge_area_lesson_plan_report_form.date_start,
+                                                                                 @knowledge_area_lesson_plan_report_form.date_end,
+                                                                                 @knowledge_area_lesson_plan_report_form.knowledge_area_content_record,
+                                                                                 current_teacher)
+      send_data(knowledge_area_lesson_plan_report.render, filename:'registo-de-conteudo-por-areas-de-conhecimento-registros-de-conteudo.pdf',
+                                                          type: 'application/pdf',
+                                                          disposition: 'inline')
     else
       @knowledge_area_lesson_plan_report_form
       clear_invalid_dates
@@ -35,11 +57,11 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
 
   def resource_params
     params.require(:knowledge_area_lesson_plan_report_form).permit(:unity_id,
-                                                          :teacher_id,
-                                                          :classroom_id,
-                                                          :date_start,
-                                                          :date_end,
-                                                          :knowledge_area_id)
+                                                                   :teacher_id,
+                                                                   :classroom_id,
+                                                                   :date_start,
+                                                                   :date_end,
+                                                                   :knowledge_area_id)
   end
 
   def clear_invalid_dates
