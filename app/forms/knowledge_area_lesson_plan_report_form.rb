@@ -7,7 +7,8 @@ class KnowledgeAreaLessonPlanReportForm
                 :knowledge_area_id,
                 :date_start,
                 :date_end,
-                :knowledge_area_lesson_plan
+                :knowledge_area_lesson_plan,
+                :report_type
 
 
   validates :date_start, presence: true, date: true, timeliness: { on_or_before: :date_end, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
@@ -18,12 +19,19 @@ class KnowledgeAreaLessonPlanReportForm
 
   def knowledge_area_lesson_plan
     relation = KnowledgeAreaLessonPlan.by_classroom_id(classroom_id)
-      .by_date_range(date_start.to_date, date_end.to_date)
-      .by_teacher_id(teacher_id)
-      .order(LessonPlan.arel_table[:start_at].asc)
-
+                                      .by_date_range(date_start.to_date, date_end.to_date)
+                                      .by_teacher_id(teacher_id)
+                                      .order(LessonPlan.arel_table[:start_at].asc)
     relation = relation.by_knowledge_area_id(knowledge_area_id) if knowledge_area_id.present?
+    relation
+  end
 
+  def knowledge_area_content_record
+    relation = KnowledgeAreaContentRecord.by_classroom_id(classroom_id)
+                                         .by_date_range(date_start.to_date, date_end.to_date)
+                                         .by_teacher_id(teacher_id)
+                                         .order(ContentRecord.arel_table[:record_date].asc)
+    relation = relation.by_knowledge_area_id(knowledge_area_id) if knowledge_area_id.present?
     relation
   end
 
@@ -32,8 +40,16 @@ class KnowledgeAreaLessonPlanReportForm
   def must_have_knowledge_area_lesson_plan
     return unless errors.blank?
 
-    if knowledge_area_lesson_plan.count == 0
+    if invalid_lesson_plan? || invalid_content_record?
       errors.add(:knowledge_area_lesson_plan, :must_have_knowledge_area_lesson_plan)
     end
+  end
+
+  def invalid_lesson_plan?
+    report_type == ContentRecordReportTypes::LESSON_PLAN && knowledge_area_lesson_plan.count == 0
+  end
+
+  def invalid_content_record?
+    report_type == ContentRecordReportTypes::CONTENT_RECORD && knowledge_area_content_record.count == 0
   end
 end
