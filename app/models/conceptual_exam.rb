@@ -91,7 +91,9 @@ class ConceptualExam < ActiveRecord::Base
   def classroom_must_have_conceptual_exam_score_type
     return if classroom.blank?
 
-    if classroom.exam_rule.score_type != ScoreTypes::CONCEPT
+    permited_score_types = [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT]
+
+    unless permited_score_types.include? classroom.exam_rule.score_type
       errors.add(:classroom, :classroom_must_have_conceptual_exam_score_type)
     end
   end

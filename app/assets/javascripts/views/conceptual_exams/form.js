@@ -56,7 +56,7 @@ $(function() {
   function handleFetchExamRuleSuccess(data) {
     if (examRuleIsValid(data.exam_rule)) {
       window.examRule = data.exam_rule;
-      window.roundingTableValues = _.map(data.exam_rule.rounding_table.rounding_table_values, function(rounding_table_value) {
+      window.roundingTableValues = _.map(data.exam_rule.conceptual_rounding_table.rounding_table_values, function(rounding_table_value) {
         return { id: rounding_table_value.value, text: rounding_table_value.to_s };
       });
     }
@@ -67,11 +67,12 @@ $(function() {
   };
 
   function examRuleIsValid(examRule) {
-    if (examRule.score_type != '2') {
+    var correct_score_type = examRule.score_type == '2' || examRule.score_type == '3'
+    if (correct_score_type) {
+      return true;
+    } else {
       flashMessages.error('A turma informada não possui uma regra de avaliação conceitual.');
       return false;
-    } else {
-      return true;
     }
   }
 

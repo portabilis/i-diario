@@ -3,9 +3,9 @@ class ConceptualExamValueDecorator
   include Decore::Proxy
 
   def data_for_select2
-    if conceptual_exam.classroom.exam_rule.rounding_table.present?
-      conceptual_exam.classroom.exam_rule
-        .rounding_table
+    rounding_table = conceptual_exam.classroom.exam_rule.conceptual_rounding_table
+    if rounding_table.present?
+      rounding_table
         .rounding_table_values
         .map do |rounding_table_value|
         {

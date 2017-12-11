@@ -26,6 +26,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def new
+    redirect_to conceptual_exams_path, alert: "A disciplina selecionada não possui nota conceitual" if teacher_discipline_score_type == DisciplineScoreTypes::NUMERIC
     @conceptual_exam = ConceptualExam.new(
       unity_id: current_user_unity.id,
       recorded_at: Time.zone.today

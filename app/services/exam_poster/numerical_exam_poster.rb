@@ -21,7 +21,9 @@ module ExamPoster
       classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq
 
       classroom_ids.each do |classroom|
-        teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
+        teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
+                                               .where(classroom_id: classroom)
+                                               .where(score_type: [DisciplineScoreTypes::NUMERIC, nil])
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom
@@ -59,7 +61,8 @@ module ExamPoster
     end
 
     def correct_score_type(score_type)
-      score_type == ScoreTypes::NUMERIC
+      score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
+      score_types.include? score_type
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)

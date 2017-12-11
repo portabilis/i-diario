@@ -48,6 +48,14 @@ class TeachersSynchronizer
         teacher_discipline_classrooms.destroy_all
         create_discipline_classrooms(record, year, teacher)
       end
+
+      record['disciplinas_turmas'].each do |turma|
+        next if turma['tipo_nota'].nil?
+        tdc = TeacherDisciplineClassroom.find_by(teacher_api_code: record['servidor_id'],
+                                         discipline_api_code: turma['disciplina_id'],
+                                         api_code: record['id'])
+        tdc.update!(score_type: turma['tipo_nota'])
+      end
     end
 
     destroy_inexisting_teacher_discipline_classrooms(existing_ids)

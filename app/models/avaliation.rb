@@ -142,7 +142,9 @@ class Avaliation < ActiveRecord::Base
   end
 
   def classroom_score_type_must_be_numeric
-    unless classroom.exam_rule && classroom.exam_rule.score_type == ScoreTypes::NUMERIC
+    return if classroom.exam_rule.nil?
+    right_score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
+    unless right_score_types.include? classroom.exam_rule.score_type
       errors.add(:classroom, :classroom_score_type_must_be_numeric)
     end
   end

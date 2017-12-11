@@ -9,6 +9,7 @@ class ExamRule < ActiveRecord::Base
   has_enumeration_for :recovery_type, with: RecoveryTypes
 
   belongs_to :rounding_table
+  belongs_to :rounding_table_concept, class_name: 'RoundingTable'
   has_many :recovery_exam_rules
 
   validates :api_code,
@@ -22,4 +23,12 @@ class ExamRule < ActiveRecord::Base
 
   scope :by_id, lambda { |id| where id: id }
   scope :by_frequency_type, lambda { |frequency_type| where frequency_type: frequency_type }
+
+  def conceptual_rounding_table
+    if rounding_table_concept
+      rounding_table_concept
+    else
+      rounding_table
+    end
+  end
 end
