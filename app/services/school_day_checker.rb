@@ -18,7 +18,6 @@ class SchoolDayChecker
       classroom = Classroom.find(@classroom_id)
       grade = Grade.find(@grade_id)
 
-      # binding.pry
       if @discipline_id.present?
         return false if any_discipline_event?(events_by_date_without_frequency, @grade_id, @classroom_id, @discipline_id)
         return true if any_discipline_event?(events_by_date_with_frequency, @grade_id, @classroom_id, @discipline_id)
