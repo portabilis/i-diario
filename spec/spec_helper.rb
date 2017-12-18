@@ -24,8 +24,11 @@ RSpec.configure do |config|
   config.before(:example, type: :feature) do
     fixture_path = "#{Rails.root}/spec/fixtures"
     fixtures = Dir["#{fixture_path}/**/*.yml"].map { |f| File.basename(f, '.yml') }
-
     ActiveRecord::FixtureSet.create_fixtures(fixture_path, fixtures)
+  end
+
+  config.after :each do |example|
+    page.driver.restart if defined?(page.driver.restart)
   end
 
   config.after(:all) do
