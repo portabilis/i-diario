@@ -1,5 +1,9 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/knowledge_area_lesson_plan_report/form' %>
+<% end %>
+
 <div class="widget-body no-padding">
-  <%= simple_form_for @knowledge_area_lesson_plan_report_form, url: knowledge_area_lesson_plan_report_path, method: :post, html: { class: 'smart-form', target: '_blank' } do |f| %>
+  <%= simple_form_for @knowledge_area_lesson_plan_report_form, url: knowledge_area_lesson_plan_report_path, method: :post, html: { class: 'smart-form', target: '_blank', id: "knowledge-area-lesson-plan-report-form" } do |f| %>
     <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
       <i class="fa fa-exclamation-circle fa-fw"></i>
       <%= t('.exam_rule_not_found') %>
@@ -42,7 +46,20 @@
     </fieldset>
 
     <footer>
-      <%= f.submit 'Imprimir', class: 'btn btn-primary' %>
+      <div class="btn-group pull-right dropup">
+        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+          Imprimir
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-***REMOVED*** dropdown-***REMOVED***-right">
+          <li>
+            <a href="javascript:void(0);" id="lesson-plan-report">Dos Planos de aula</a>
+          </li>
+          <li>
+            <a href="javascript:void(0);" id="content-record-report">Dos Registros de conteúdo</a>
+          </li>
+        </ul>
+      </div>
     </footer>
   <% end %>
 </div>

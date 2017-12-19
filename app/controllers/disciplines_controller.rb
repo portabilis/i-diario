@@ -13,8 +13,14 @@ class DisciplinesController < ApplicationController
       params[:by_classroom] = params[:classroom_id]
     end
 
-    @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
+    if Classroom.find(params[:classroom_id]).exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+      @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
+      .by_score_type(DisciplineScoreTypes::CONCEPT)
       .order_by_sequence
+    else
+      @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
+      .order_by_sequence
+    end
   end
 
   def search

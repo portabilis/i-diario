@@ -52,7 +52,7 @@ class Avaliation < ActiveRecord::Base
   scope :by_description, lambda { |description| joins(arel_table.join(TestSettingTest.arel_table, Arel::Nodes::OuterJoin)
                                                                 .on(TestSettingTest.arel_table[:id]
                                                                 .eq(arel_table[:test_setting_test_id])).join_sources)
-                                                .where('avaliations.description ILIKE ? OR test_setting_tests.description ILIKE ?', "%#{description}%", "%#{description}%") }
+                                                .where('unaccent(avaliations.description) ILIKE unaccent(?) OR unaccent(test_setting_tests.description) ILIKE unaccent(?)', "%#{description}%", "%#{description}%") }
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
@@ -142,7 +142,9 @@ class Avaliation < ActiveRecord::Base
   end
 
   def classroom_score_type_must_be_numeric
-    unless classroom.exam_rule && classroom.exam_rule.score_type == ScoreTypes::NUMERIC
+    return if classroom.exam_rule.nil?
+    right_score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
+    unless right_score_types.include? classroom.exam_rule.score_type
       errors.add(:classroom, :classroom_score_type_must_be_numeric)
     end
   end
