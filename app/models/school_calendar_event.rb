@@ -43,10 +43,10 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :by_period, lambda { |period| where(' ? = ANY (periods)', period) }
   scope :by_date, lambda { |date| where('start_date <= ? and end_date >= ?', date, date) }
   scope :by_date_between, lambda { |start_at, end_at| where('start_date >= ? and end_date <= ?', start_at.to_date, end_at.to_date) }
-  scope :by_description, lambda { |description| where('description ILIKE ?', '%'+description+'%') }
+  scope :by_description, lambda { |description| where('unaccent(description) ILIKE unaccent(?)', '%'+description+'%') }
   scope :by_type, lambda { |type| where(event_type: type) }
   scope :by_grade, lambda { |grade| where(grade_id: grade) }
-  scope :by_classroom, lambda { |classroom| joins(:classroom).where('classrooms.description ILIKE ?', '%'+classroom+'%') }
+  scope :by_classroom, lambda { |classroom| joins(:classroom).where('unaccent(classrooms.description) ILIKE unaccent(?)', '%'+classroom+'%') }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_course, lambda { |course_id| where(course_id: course_id) }
