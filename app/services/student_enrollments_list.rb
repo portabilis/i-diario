@@ -11,6 +11,7 @@ class StudentEnrollmentsList
     @end_at = params.fetch(:end_at, nil)
     @search_type = params.fetch(:search_type, :by_date)
     @show_inactive = params.fetch(:show_inactive, true)
+    @show_inactive_outside_step = params.fetch(:show_inactive_outside_step, true)
     ensure_has_valid_params
   end
 
@@ -20,7 +21,7 @@ class StudentEnrollmentsList
 
   private
 
-  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive
+  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive, :show_inactive_outside_step
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -61,7 +62,7 @@ class StudentEnrollmentsList
           unique_student_enrollments << student_enrollments_for_student.show_as_inactive.first
         end
       else
-        unique_student_enrollments << student_enrollment
+        unique_student_enrollments << student_enrollment if show_inactive_outside_step || student_active?(student_enrollment)
       end
     end
     unique_student_enrollments.uniq
