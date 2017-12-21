@@ -92,6 +92,7 @@ class DescriptiveExamsController < ApplicationController
                                                      discipline: @descriptive_exam.discipline,
                                                      start_at: calendar_step.start_at,
                                                      end_at: calendar_step.end_at,
+                                                     show_inactive_outside_step: false,
                                                      search_type: :by_date_range)
                                                 .student_enrollments
   end
