@@ -202,7 +202,7 @@ class KnowledgeAreaLessonPlanPdf
 
     class_plan_table_data << [@class_plan_header_cell]
 
-    @content_cell.each do |c|
+    @content_cell.each do |content|
       class_plan_table_data << [content]
     end
 
