@@ -243,7 +243,7 @@ class ApplicationController < ActionController::Base
   def load_status_administrative_tools
     administrative_tools_informations = AdministrativeToolsIntegrator::Informations.new(current_entity.name)
     return if administrative_tools_informations.nil?
-    current_entity.disabled = !administrative_tools_informations.active_on_new_education
+    current_entity.disabled = !administrative_tools_informations.active_on_new_education?
     current_entity.save
   end
 
