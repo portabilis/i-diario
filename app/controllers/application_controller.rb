@@ -238,16 +238,12 @@ class ApplicationController < ActionController::Base
     TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
   end
 
-
   private
 
   def load_status_administrative_tools
     administrative_tools_informations = AdministrativeToolsIntegrator::Informations.new(current_entity.name)
-    informations = administrative_tools_informations.fetch_informations
-
-    return if informations.nil?
-
-    current_entity.disabled = !informations['active_on_new_education']
+    return if administrative_tools_informations.nil?
+    current_entity.disabled = !administrative_tools_informations.active_on_new_education
     current_entity.save
   end
 
