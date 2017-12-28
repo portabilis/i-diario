@@ -153,8 +153,10 @@ class KnowledgeAreaLessonPlanPdf
     @knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
     @knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
-    conteudo_cell_content = inline_formated_cell_header('Conteúdos') + (@knowledge_area_lesson_plan.lesson_plan.contents.present? ? @knowledge_area_lesson_plan.lesson_plan.contents_ordered.map(&:to_s).join(", ") : '-')
-    @conteudo_cell = make_cell(content:  conteudo_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    @content_cell = []
+    @knowledge_area_lesson_plan.lesson_plan.contents_ordered.each do |content|
+      @content_cell << make_cell(content: content.to_s, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    end
 
     objective_cell_content = inline_formated_cell_header('Objetivos') + (@knowledge_area_lesson_plan.lesson_plan.objectives.present? ? @knowledge_area_lesson_plan.lesson_plan.objectives : '-')
     @objective_cell = make_cell(content: objective_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
@@ -196,9 +198,15 @@ class KnowledgeAreaLessonPlanPdf
   end
 
   def class_plan
-    class_plan_table_data = [
-      [@class_plan_header_cell],
-      [@conteudo_cell],
+    class_plan_table_data = []
+
+    class_plan_table_data << [@class_plan_header_cell]
+
+    @content_cell.each do |content|
+      class_plan_table_data << [content]
+    end
+
+    class_plan_table_data += [
       [@activitie_cell],
       [@objective_cell],
       [@resource_cell],
