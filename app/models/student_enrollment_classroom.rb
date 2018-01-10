@@ -10,6 +10,17 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :by_grade, lambda { |grade_id| joins(:classroom).where(classrooms: { grade_id: grade_id })   }
   scope :by_student, lambda { |student_id| joins(student_enrollment: :student).where(students: { id: student_id })   }
 
+  def delete_invalid_presence_record
+    if left_classroom?
+      DailyFrequency.by_unity_classroom_and_frequency_date_between(classroom.unity_id, classroom_id,
+                                                                                       left_at,
+                                                                                       Time.zone.now).has_frequency_for_student(student_enrollment.student_id)
+                                                                                                     .each do |daily_frequency|
+        daily_frequency.build_or_find_by_student(student_enrollment.student).destroy
+      end
+    end
+  end
+
   private
 
   def self.by_date_range_query(start_at, end_at)
@@ -19,5 +30,9 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
             ELSE
               student_enrollment_classrooms.joined_at <= ? AND student_enrollment_classrooms.left_at >= ?
             END)", end_at.to_date, end_at.to_date, start_at.to_date)
+  end
+
+  def left_classroom?
+    !left_at.blank?
   end
 end

@@ -65,7 +65,7 @@ class StudentEnrollmentSynchronizer
           changed_at: record_classroom["data_atualizacao"].to_s,
           sequence: record_classroom["sequencial_fechamento"],
           show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"]
-        )
+        ).delete_invalid_presence_record
       end
     end
   end
@@ -105,7 +105,7 @@ class StudentEnrollmentSynchronizer
             changed_at: record_classroom["data_atualizacao"].to_s,
             sequence: record_classroom["sequencial_fechamento"],
             show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"]
-          )
+          ).delete_invalid_presence_record
         end
       else
         record["enturmacoes"].each do |record_classroom|
@@ -119,7 +119,7 @@ class StudentEnrollmentSynchronizer
               changed_at: record_classroom["data_atualizacao"].to_s,
               sequence: record_classroom["sequencial_fechamento"],
               show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"]
-            )
+            ).delete_invalid_presence_record
           end
         end
       end
