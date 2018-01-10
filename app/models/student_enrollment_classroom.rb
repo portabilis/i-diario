@@ -16,7 +16,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
                                                                                        left_at,
                                                                                        Time.zone.now).has_frequency_for_student(student_enrollment.student_id)
                                                                                                      .each do |daily_frequency|
-        daily_frequency.build_or_find_by_student(student_enrollment.student).destroy
+        daily_frequency.find_by_student(student_enrollment.student.id).destroy
       end
     end
   end

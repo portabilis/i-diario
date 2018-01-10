@@ -51,6 +51,10 @@ class DailyFrequency < ActiveRecord::Base
   scope :order_by_unity, -> { order(:unity_id) }
   scope :order_by_classroom, -> { order(:classroom_id) }
 
+  def find_by_student(student_id)
+    students.find_by_student_id(student_id)
+  end
+
   def build_or_find_by_student student
     students.where(student_id: student.id).first || students.build(student_id: student.id, present: 1)
   end
