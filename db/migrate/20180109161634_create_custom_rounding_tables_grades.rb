@@ -6,8 +6,8 @@ class CreateCustomRoundingTablesGrades < ActiveRecord::Migration
     end
 
     add_index :custom_rounding_tables_grades, :custom_rounding_table_id,
-      :name => 'idx_custom_rounding_tables_grades_on_custom_rounding_table_id'
+      name: 'idx_custom_rounding_tables_grades_on_custom_rounding_table_id'
     add_index :custom_rounding_tables_grades, :grade_id,
-      :name => 'idx_custom_rounding_tables_grades_on_grade_id'
+      name: 'idx_custom_rounding_tables_grades_on_grade_id'
   end
 end
