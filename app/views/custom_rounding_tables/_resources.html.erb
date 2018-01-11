@@ -1,0 +1,29 @@
+<tbody id='resources-tbody'>
+  <% if @custom_rounding_tables.empty? %>
+    <tr>
+      <td class='no_record_found' colspan='7'><%= t('views.index.no_record_found') %></td>
+    </tr>
+  <% else %>
+    <% @custom_rounding_tables.each do |custom_rounding_table| %>
+      <tr>
+        <td>
+          <%= link_to custom_rounding_table, edit_custom_rounding_table_path(custom_rounding_table) %>
+        </td>
+        <td>
+          <%= custom_rounding_table.decorator.unities_labels %>
+        </td>
+        <td>
+          <%= custom_rounding_table.decorator.grades_labels %>
+        </td>
+        <td>
+          <%= custom_rounding_table.year %>
+        </td>
+        <td class='actions'>
+          <%= link_to 'Editar', edit_custom_rounding_table_path(custom_rounding_table), class: 'btn btn-success' %>
+          <%= link_to 'Excluir', custom_rounding_table_path(custom_rounding_table), class: 'btn btn-danger',
+            method: :delete, data: { confirm: 'Tem certeza?' } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>
