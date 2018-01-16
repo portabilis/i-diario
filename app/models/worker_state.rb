@@ -1,7 +1,7 @@
 class WorkerState < ActiveRecord::Base
   belongs_to :user
 
-  validates :kind, :user, presence: true
+  validates :job_id, :kind, :user, presence: true
 
   def mark_with_error!(message)
     update_columns(

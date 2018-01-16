@@ -83,12 +83,14 @@ class SchoolCalendarsController < ApplicationController
   private
 
   def set_school_calendar_classroom_step
-    worker = WorkerState.where(kind: 'SchoolCalendarSetterByStepWorker').first_or_initialize
-    worker.status = ApiSynchronizationStatus::STARTED
-    worker.user = current_user
-    worker.save!
+    job_id = SchoolCalendarSetterByStepWorker.perform_async(current_entity.id, params[:synchronize], current_user.id)
 
-    SchoolCalendarSetterByStepWorker.perform_async(current_entity.id, params[:synchronize], current_user.id)
+    WorkerState.create(
+      user: current_user,
+      job_id: job_id,
+      kind: 'SchoolCalendarSetterByStepWorker',
+      status: ApiSynchronizationStatus::STARTED
+    )
   end
 
   def filtering_params(params)

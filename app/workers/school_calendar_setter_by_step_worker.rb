@@ -5,7 +5,7 @@ class SchoolCalendarSetterByStepWorker
     entity = Entity.find(entity_id)
 
     entity.using_connection do
-      worker = WorkerState.where(kind: 'SchoolCalendarSetterByStepWorker').first
+      worker = WorkerState.find_by(job_id: self.jid)
 
       begin
         SchoolCalendarClassroomStepSetter.set_school_calendar_classroom_step(school_calendars)
@@ -14,6 +14,8 @@ class SchoolCalendarSetterByStepWorker
 
         notify_on_message(user_id)
       rescue Exception => e
+        Honeybadger.notify(e)
+
         worker.mark_with_error!(e.message)
       end
     end
