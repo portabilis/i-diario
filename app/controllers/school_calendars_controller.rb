@@ -61,6 +61,8 @@ class SchoolCalendarsController < ApplicationController
   def create_and_update_batch
     begin
       if SchoolCalendarsCreator.create!(params[:synchronize]) && SchoolCalendarsUpdater.update!(params[:synchronize])
+        set_school_calendar_classroom_step
+
         redirect_to school_calendars_path, notice: t('.notice')
       else
         redirect_to synchronize_school_calendars_path, alert: t('.alert')
@@ -79,6 +81,15 @@ class SchoolCalendarsController < ApplicationController
   end
 
   private
+
+  def set_school_calendar_classroom_step
+    worker = WorkerState.where(kind: 'SchoolCalendarSetterByStepWorker').first_or_initialize
+    worker.status = ApiSynchronizationStatus::STARTED
+    worker.user = current_user
+    worker.save!
+
+    SchoolCalendarSetterByStepWorker.perform_async(current_entity.id, params[:synchronize], current_user.id)
+  end
 
   def filtering_params(params)
     params = {} unless params
