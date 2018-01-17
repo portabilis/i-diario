@@ -70,9 +70,9 @@ class User < ActiveRecord::Base
   scope :by_unity_id, lambda { |unity_id| joins(:user_roles).where(user_roles: { unity_id: unity_id }) }
 
   #search scopes
-  scope :full_name, lambda { |full_name| where("first_name || ' ' || last_name ILIKE ?", "%#{full_name}%")}
-  scope :email, lambda { |email| where("email ILIKE ?", "%#{email}%")}
-  scope :login, lambda { |login| where("login ILIKE ?", "%#{login}%")}
+  scope :full_name, lambda { |full_name| where("unaccent(first_name || ' ' || last_name) ILIKE unaccent(?)", "%#{full_name}%")}
+  scope :email, lambda { |email| where("unaccent(email) ILIKE unaccent(?)", "%#{email}%")}
+  scope :login, lambda { |login| where("unaccent(login) ILIKE unaccent(?)", "%#{login}%")}
   scope :status, lambda { |status| where status: status }
 
   def self.to_csv

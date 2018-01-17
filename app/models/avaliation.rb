@@ -52,7 +52,7 @@ class Avaliation < ActiveRecord::Base
   scope :by_description, lambda { |description| joins(arel_table.join(TestSettingTest.arel_table, Arel::Nodes::OuterJoin)
                                                                 .on(TestSettingTest.arel_table[:id]
                                                                 .eq(arel_table[:test_setting_test_id])).join_sources)
-                                                .where('avaliations.description ILIKE ? OR test_setting_tests.description ILIKE ?', "%#{description}%", "%#{description}%") }
+                                                .where('unaccent(avaliations.description) ILIKE unaccent(?) OR unaccent(test_setting_tests.description) ILIKE unaccent(?)', "%#{description}%", "%#{description}%") }
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
