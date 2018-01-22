@@ -17,6 +17,10 @@ FactoryGirl.define do
                 )
           )
       end
+
+      factory :current_school_calendar_with_one_step do
+        year { Time.zone.today.year }
+      end
     end
   end
 end
