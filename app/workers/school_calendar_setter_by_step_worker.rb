@@ -26,8 +26,8 @@ class SchoolCalendarSetterByStepWorker
   def notify_on_message(user_id)
     SystemNotificationCreator.create!(
       generic: true,
-      title: 'Ajustes realizados com sucesso',
-      description: 'Os ajustes referente as etapas de turmas dos calendários letivos sincronizados foram realizados com sucesso.',
+      title: I18n.t('school_calendar_setter_by_step_worker.title'),
+      description: I18n.t('school_calendar_setter_by_step_worker.description'),
       users: [User.find(user_id)]
     )
   end
