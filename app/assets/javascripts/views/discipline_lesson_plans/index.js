@@ -1,26 +1,29 @@
 $(function () {
   'use strict';
 
-  var $classrooms = $("#discipline_lesson_plan_cloner_form_classroom_ids");
+  let selectedClassrooms;
+  let start_at;
+  let end_at;
   var $disciplineLessonPlan = $("#discipline_lesson_plan_cloner_form_discipline_lesson_plan_id");
 
-  $(document).on('click', 'a.open_copy_modal', function(){
+  $('form').on('cocoon:before-insert', function(e, item) {
+    item.fadeIn();
+  }).on('cocoon:after-insert', function(e, item) {
+    loadSelect2Inputs();
+  });
 
+  $(document).on('click', 'a.open_copy_modal', function() {
     var $row = $(this).closest('tr');
     var discipline_lesson_plan_id = $(this).data('discipline-lesson-plan-id');
     var discipline_id = $(this).data('discipline-id');
     var classroom_id = $(this).data('classroom-id');
     var grade_id = $(this).data('grade-id');
 
-    $classrooms.select2("val", "");
     $disciplineLessonPlan.val(discipline_lesson_plan_id);
-    $classrooms.closest(".control-group").removeClass("error");
-    $classrooms.closest(".control-group").find("span.help-inline").remove();
-
     var classroom = $row.find(".classroom").text();
     var discipline = $row.find(".discipline").text();
-    var start_at = $row.find(".start_at").text();
-    var end_at = $row.find(".end_at").text();
+    start_at = $row.find(".start_at").text();
+    end_at = $row.find(".end_at").text();
 
     $("#copy-discipline-lesson-plan-modal table tbody td.classroom").text(classroom);
     $("#copy-discipline-lesson-plan-modal table tbody td.discipline").text(discipline);
@@ -38,12 +41,23 @@ $(function () {
     };
 
     $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
-      var selectedClassrooms = _.map(data, function(classroom) {
-        return { id: classroom['id'], text: classroom['description'] };
-      });
-
-      $classrooms.select2({ data: selectedClassrooms, multiple: true });
+      selectedClassrooms = _.map(data, function(classroom) { return { id: classroom['id'], text: classroom['description'] }; });
     });
-
   });
+
+  function loadSelect2Inputs() {
+    _.each($('.nested-fields input.select2'), function(element) {
+      $(element).select2({ data: selectedClassrooms, multiple: false });
+    });
+    _.each($(".nested-fields input[name*='start_at']"), function(element) {
+      if ($(element).val() == "") {
+        $(element).val(start_at);
+      }
+    });
+    _.each($(".nested-fields input[name*='end_at']"), function(element) {
+      if ($(element).val() == "") {
+        $(element).val(end_at);
+      }
+    });
+  }
 });

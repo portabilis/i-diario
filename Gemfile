@@ -34,6 +34,7 @@ gem 'exception_notification'
 gem 'bulk_insert', '~> 1.0'
 gem 'aws-sdk', '~> 2'
 gem "paperclip", "~> 5.1.0"
+gem 'activerecord-tableless', '~> 2.0'
 
 gem 'angular_rails_csrf'
 gem 'rack-cors', require: 'rack/cors'

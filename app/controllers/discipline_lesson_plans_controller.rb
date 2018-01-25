@@ -155,7 +155,16 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def clone_params
-    params.require(:discipline_lesson_plan_cloner_form).permit(:classroom_ids, :discipline_lesson_plan_id)
+    params.require(:discipline_lesson_plan_cloner_form).permit(:discipline_lesson_plan_id,
+                                                               :discipline,
+                                                               :classroom,
+                                                               :start_at,
+                                                               :end_at,
+                                                               discipline_lesson_plan_item_cloner_form_attributes: [
+                                                                 :classroom_id,
+                                                                 :start_at,
+                                                                 :end_at
+                                                                ])
   end
 
   def filtering_params(params)

@@ -1,8 +1,30 @@
 <% if @form.errors.any? %>
-  $("#discipline_lesson_plan_cloner_form_classroom_ids").closest(".control-group").removeClass("has-danger");
-  $("#discipline_lesson_plan_cloner_form_classroom_ids").closest(".control-group").find("span.help-inline").remove();
-  $("#discipline_lesson_plan_cloner_form_classroom_ids").closest(".control-group").addClass("error");
-  $("#discipline_lesson_plan_cloner_form_classroom_ids").closest(".control-group").append('<span class="help-inline"><%= @form.errors.values.join(",") %></span>');
+    function removeErrors(element){
+      $(element).removeClass("error");
+      $(element).find("span.help-inline").remove();
+    }
+
+    function addErrors(element){
+      $(element).addClass("error");
+      $(element).append('<span class="help-inline"><%= t("errors.messages.blank") %></span>');
+    }
+
+    _.each($(".nested-fields .control-group.date"), function(element) {
+      removeErrors(element);
+
+      if ($(element).find("input").val().trim() == "") {
+        addErrors(element);
+      }
+    });
+
+    _.each($(".nested-fields .discipline_lesson_plan_cloner_form_discipline_lesson_plan_item_cloner_form_classroom_id"), function(element) {
+      removeErrors(element);
+
+      if ($(element).find("input.required.select2-offscreen").val().trim() == "") {
+        $(".nested-fields div[style*='display']").css("display", "");
+        addErrors(element);
+      }
+    });
 <% else %>
   location.reload();
 <% end %>
