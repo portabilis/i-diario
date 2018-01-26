@@ -161,6 +161,7 @@ class DisciplineLessonPlansController < ApplicationController
                                                                :start_at,
                                                                :end_at,
                                                                discipline_lesson_plan_item_cloner_form_attributes: [
+                                                                 :uuid,
                                                                  :classroom_id,
                                                                  :start_at,
                                                                  :end_at

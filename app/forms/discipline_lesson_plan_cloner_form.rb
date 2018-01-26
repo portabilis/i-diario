@@ -4,7 +4,7 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
   attr_accessor :discipline, :classroom, :start_at, :end_at, :discipline_lesson_plan_id
 
   validates :discipline_lesson_plan_id, presence: true
-  has_many :discipline_lesson_plan_item_cloner_form
+  has_many :discipline_lesson_plan_item_cloner_form, inverse_of: :discipline_lesson_plan_cloner_form
   accepts_nested_attributes_for :discipline_lesson_plan_item_cloner_form, :allow_destroy => true
 
   def clone!
@@ -12,7 +12,8 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
       begin
         ActiveRecord::Base.transaction do
           @classrooms = Classroom.where(id: discipline_lesson_plan_item_cloner_form.map(&:classroom_id).uniq)
-          discipline_lesson_plan_item_cloner_form.each do |item|
+          discipline_lesson_plan_item_cloner_form.each_with_index do |item, index|
+            @current_item_index = index;
             new_lesson_plan = discipline_lesson_plan.dup
             new_lesson_plan.lesson_plan = discipline_lesson_plan.lesson_plan.dup
             new_lesson_plan.lesson_plan.contents = discipline_lesson_plan.lesson_plan.contents
@@ -29,7 +30,8 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
       rescue ActiveRecord::RecordInvalid => e
         message = e.to_s
         message.slice!("A validação falhou: ")
-        errors.add(:classroom_ids, messmessage = "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}")
+        errors.add(:classroom_id, "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}")
+        discipline_lesson_plan_item_cloner_form[@current_item_index].errors.add(:classroom_id, message)
         return false
       end
     end

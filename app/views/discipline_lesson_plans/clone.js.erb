@@ -1,37 +1,22 @@
 <% if @form.errors.any?  %>
-    var errors = '<%= @form.errors.values.join(',') %>';
-
-    function removeErrors(element){
-      $(element).removeClass("error");
-      $(element).children("span.help-inline").remove();
-    }
-
     function addErrors(element, text){
       $(element).addClass("error");
       $(element).append('<span class="help-inline error">' + text + '</span>');
     }
-    var modalBody = $('.modal-body');
-    removeErrors(modalBody);
 
-    <% if @form.valid? %>
-      addErrors(modalBody, errors);
-    <% else %>
-      _.each($(".nested-fields .control-group.date"), function(element) {
-        removeErrors(element);
+    $(".nested-fields div[style*='display']").css("display", "");
+    $(".error").removeClass("error");
+    $("span.help-inline").remove();
 
-        if ($(element).find("input").val().trim() == "") {
-          addErrors(element, '<%= t("errors.messages.blank") %>');
-        }
-      });
 
-      _.each($(".nested-fields .discipline_lesson_plan_cloner_form_discipline_lesson_plan_item_cloner_form_classroom_id"), function(element) {
-        removeErrors(element);
-
-        if ($(element).find("input.required.select2-offscreen").val().trim() == "") {
-          $(".nested-fields div[style*='display']").css("display", "");
-          addErrors(element, '<%= t("errors.messages.blank") %>');
-        }
-      });
+    <% @form.discipline_lesson_plan_item_cloner_form.each do |item| %>
+      var uuid = '<%= item.uuid %>';
+      <% item.errors.each do |field, message| %>
+        var field = '<%= field %>';
+        var message = '<%= message %>';
+        var element = $('.' + uuid).find("[class*='"+field+"']");
+        addErrors(element, message);
+      <% end %>
     <% end %>
 <% else %>
   location.reload();
