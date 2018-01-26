@@ -1,30 +1,38 @@
-<% if @form.errors.any? %>
+<% if @form.errors.any?  %>
+    var errors = '<%= @form.errors.values.join(',') %>';
+
     function removeErrors(element){
       $(element).removeClass("error");
-      $(element).find("span.help-inline").remove();
+      $(element).children("span.help-inline").remove();
     }
 
-    function addErrors(element){
+    function addErrors(element, text){
       $(element).addClass("error");
-      $(element).append('<span class="help-inline"><%= t("errors.messages.blank") %></span>');
+      $(element).append('<span class="help-inline error">' + text + '</span>');
     }
+    var modalBody = $('.modal-body');
+    removeErrors(modalBody);
 
-    _.each($(".nested-fields .control-group.date"), function(element) {
-      removeErrors(element);
+    <% if @form.valid? %>
+      addErrors(modalBody, errors);
+    <% else %>
+      _.each($(".nested-fields .control-group.date"), function(element) {
+        removeErrors(element);
 
-      if ($(element).find("input").val().trim() == "") {
-        addErrors(element);
-      }
-    });
+        if ($(element).find("input").val().trim() == "") {
+          addErrors(element, '<%= t("errors.messages.blank") %>');
+        }
+      });
 
-    _.each($(".nested-fields .discipline_lesson_plan_cloner_form_discipline_lesson_plan_item_cloner_form_classroom_id"), function(element) {
-      removeErrors(element);
+      _.each($(".nested-fields .discipline_lesson_plan_cloner_form_discipline_lesson_plan_item_cloner_form_classroom_id"), function(element) {
+        removeErrors(element);
 
-      if ($(element).find("input.required.select2-offscreen").val().trim() == "") {
-        $(".nested-fields div[style*='display']").css("display", "");
-        addErrors(element);
-      }
-    });
+        if ($(element).find("input.required.select2-offscreen").val().trim() == "") {
+          $(".nested-fields div[style*='display']").css("display", "");
+          addErrors(element, '<%= t("errors.messages.blank") %>');
+        }
+      });
+    <% end %>
 <% else %>
   location.reload();
 <% end %>

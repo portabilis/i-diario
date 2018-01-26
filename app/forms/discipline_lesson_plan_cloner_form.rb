@@ -29,7 +29,6 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
       rescue ActiveRecord::RecordInvalid => e
         message = e.to_s
         message.slice!("A validação falhou: ")
-        message = "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}"
         errors.add(:classroom_ids, messmessage = "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}")
         return false
       end
