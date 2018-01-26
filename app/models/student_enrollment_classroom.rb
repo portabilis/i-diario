@@ -12,13 +12,14 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
 
   def delete_invalid_presence_record
     if left_classroom?
-      DailyFrequency.by_unity_classroom_and_frequency_date_between(classroom.unity_id, classroom_id,
-                                                                                       left_at,
-                                                                                       Time.zone.now).has_frequency_for_student(student_enrollment.student_id)
-                                                                                                     .each do |daily_frequency|
+      daily_frequencies = DailyFrequency.by_unity_classroom_and_frequency_date_between(classroom.unity_id,
+                                                                                       classroom_id,
+                                                                                       left_at).has_frequency_for_student(student_enrollment.student_id)
+      daily_frequencies.each do |daily_frequency|
         daily_frequency.find_by_student(student_enrollment.student.id).destroy
       end
     end
+    true
   end
 
   private
@@ -33,6 +34,6 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   end
 
   def left_classroom?
-    !left_at.blank?
+    left_at.present?
   end
 end

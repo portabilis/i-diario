@@ -22,11 +22,11 @@ class DailyFrequency < ActiveRecord::Base
   validate :frequency_must_be_global_or_discipline
 
   scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
-        lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at| where(unity_id: unity_id,
-                                                                                               classroom_id: classroom_id,
-                                                                                               discipline_id: discipline_id,
-                                                                                               class_number: class_number,
-                                                                                               frequency_date: start_at.to_date..end_at.to_date).includes(students: :student) }
+        lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at=Time.zone.now| where(unity_id: unity_id,
+                                                                                                             classroom_id: classroom_id,
+                                                                                                             discipline_id: discipline_id,
+                                                                                                             class_number: class_number,
+                                                                                                             frequency_date: start_at.to_date..end_at.to_date).includes(students: :student) }
   scope :by_unity_classroom_and_frequency_date_between,
         lambda { |unity_id, classroom_id, start_at, end_at| where(unity_id: unity_id,
                                                                   classroom_id: classroom_id,
