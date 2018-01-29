@@ -8,7 +8,6 @@
     $(".error").removeClass("error");
     $("span.help-inline").remove();
 
-
     <% @form.discipline_lesson_plan_item_cloner_form.each do |item| %>
       var uuid = '<%= item.uuid %>';
       <% item.errors.each do |field, message| %>
