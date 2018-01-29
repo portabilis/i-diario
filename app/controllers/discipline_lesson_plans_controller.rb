@@ -156,10 +156,6 @@ class DisciplineLessonPlansController < ApplicationController
 
   def clone_params
     params.require(:discipline_lesson_plan_cloner_form).permit(:discipline_lesson_plan_id,
-                                                               :discipline,
-                                                               :classroom,
-                                                               :start_at,
-                                                               :end_at,
                                                                discipline_lesson_plan_item_cloner_form_attributes: [
                                                                  :uuid,
                                                                  :classroom_id,

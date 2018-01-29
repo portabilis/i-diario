@@ -1,11 +1,11 @@
 class DisciplineLessonPlanClonerForm < ActiveRecord::Base
   has_no_table
 
-  attr_accessor :discipline, :classroom, :start_at, :end_at, :discipline_lesson_plan_id
+  attr_accessor :discipline_lesson_plan_id
 
   validates :discipline_lesson_plan_id, presence: true
-  has_many :discipline_lesson_plan_item_cloner_form, inverse_of: :discipline_lesson_plan_cloner_form
-  accepts_nested_attributes_for :discipline_lesson_plan_item_cloner_form, :allow_destroy => true
+  has_many :discipline_lesson_plan_item_cloner_form
+  accepts_nested_attributes_for :discipline_lesson_plan_item_cloner_form, allow_destroy: true
 
   def clone!
     if valid?
