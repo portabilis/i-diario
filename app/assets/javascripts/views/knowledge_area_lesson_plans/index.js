@@ -1,9 +1,9 @@
 $(function () {
   'use strict';
 
-  let selectedClassrooms;
-  let start_at;
-  let end_at;
+  var selectedClassrooms;
+  var start_at;
+  var end_at;
   var $knowledgeAreaLessonPlan = $("#knowledge_area_lesson_plan_cloner_form_knowledge_area_lesson_plan_id");
 
   $('form').on('cocoon:before-insert', function(e, item) {

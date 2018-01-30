@@ -1,8 +1,8 @@
 $(function () {
   'use strict';
 
-  let selectedClassrooms;
-  let record_date;
+  var selectedClassrooms;
+  var record_date;
   var $knowledgeAreaContentRecord = $("#knowledge_area_content_record_cloner_form_knowledge_area_content_record_id");
 
   $('form').on('cocoon:before-insert', function(e, item) {
