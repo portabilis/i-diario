@@ -13,7 +13,7 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
         ActiveRecord::Base.transaction do
           @classrooms = Classroom.where(id: discipline_lesson_plan_item_cloner_form.map(&:classroom_id).uniq)
           discipline_lesson_plan_item_cloner_form.each_with_index do |item, index|
-            @current_item_index = index;
+            @current_item_index = index
             new_lesson_plan = discipline_lesson_plan.dup
             new_lesson_plan.lesson_plan = discipline_lesson_plan.lesson_plan.dup
             new_lesson_plan.lesson_plan.contents = discipline_lesson_plan.lesson_plan.contents
