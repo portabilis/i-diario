@@ -24,6 +24,10 @@ FactoryGirl.define do
           recovery_diary_record.students << recovery_diary_record_student
         end
       end
+
+      factory :current_recovery_diary_record_with_students do
+        recorded_at { Time.zone.today }
+      end
     end
   end
 end
