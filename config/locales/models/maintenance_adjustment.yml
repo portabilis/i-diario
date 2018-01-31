@@ -1,0 +1,26 @@
+pt-BR:
+  activerecord:
+    models:
+      maintenance_adjustment:
+        one: 'Manutenção/Ajuste'
+        other: 'Manutenção/Ajustes'
+
+    attributes:
+      maintenance_adjustment:
+        year: 'Ano'
+        kind: 'Tipo'
+        unities: 'Escolas'
+        status: 'Status'
+        observations: 'Observações'
+
+  maintenance_adjustments:
+    index:
+      new_html: "<i class='fa fa-plus'></i> Novo ajuste"
+      by_kind: 'Filtrar tipo'
+      by_unity: 'Filtrar escola'
+      by_year: 'Filtrar ano'
+      by_status: 'Filtrar status'
+    create: &notice
+      notice: 'Os ajustes solicitados estão sendo realizados e você receberá uma mensagem quando terminar.'
+    update:
+      <<: *notice
