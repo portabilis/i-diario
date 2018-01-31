@@ -20,7 +20,7 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   scope :by_school_term_type, lambda { |school_term_type| joins(:teaching_plan).where(teaching_plans: { school_term_type: school_term_type }) }
   scope :by_school_term, lambda { |school_term| joins(:teaching_plan).where(teaching_plans: { school_term: school_term }) }
   scope :by_knowledge_area, lambda { |knowledge_area| by_knowledge_area(knowledge_area) }
-  scope :by_teacher_id, lambda { |teacher_id| joins(:teaching_plan).where(teaching_plans: { teacher_id: teacher_id})  }
+  scope :by_teacher_id, lambda { |teacher_id| joins(:teaching_plan).where(teaching_plans: { teacher_id: [teacher_id, nil]})  }
 
   validates :teaching_plan, presence: true
   validates :knowledge_area_ids, presence: true
