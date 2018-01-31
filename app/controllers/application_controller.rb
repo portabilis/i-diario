@@ -243,7 +243,6 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user_is_employee_or_administrator?
 
-
   private
 
   def load_status_administrative_tools
