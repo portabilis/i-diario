@@ -48,7 +48,7 @@ class AbsenceAdjustmentsService
       end
     end
 
-    daily_frequencies_to_destroy.destroy_all
+    daily_frequencies_to_destroy.each(&:destroy)
   end
 
   def adjust_general_to_by_discipline
@@ -62,7 +62,8 @@ class AbsenceAdjustmentsService
       teacher_user_id = Audited::Adapters::ActiveRecord::Audit.where(auditable_type: 'DailyFrequency',
                                                                      auditable_id: daily_frequency.id).first.user_id
       teacher_id = Teacher.find(User.find(teacher_user_id).teacher_id)
-      discipline_id = daily_frequency.classroom.teacher_discipline_classrooms.where(teacher_id: teacher_id).first.discipline_id
+      discipline_id = daily_frequency.classroom.teacher_discipline_classrooms.where(teacher_id: teacher_id).first.discipline_id ||
+                      daily_frequency.classroom.teacher_discipline_classrooms.first.discipline_id
 
       daily_frequency.update_columns(
         discipline_id: discipline_id,
