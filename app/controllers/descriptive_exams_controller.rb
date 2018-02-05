@@ -103,7 +103,7 @@ class DescriptiveExamsController < ApplicationController
 
   def current_school_calendar_steps
     if current_user_classroom.calendar
-      current_school_calendar.classrooms.where(classroom_id: current_user_classroom).classroom_steps
+      current_school_calendar.classrooms.where(classroom_id: current_user_classroom).first.classroom_steps
     else
       current_school_calendar.steps
     end
