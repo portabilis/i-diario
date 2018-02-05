@@ -28,7 +28,6 @@ $(function () {
     }
   };
 
-
   function fetchStudents() {
     var classroom_id = $classroom.select2('val');
     var transfer_date = $transferDate.val();
@@ -205,8 +204,6 @@ $(function () {
     return false;
   });
 
-  // On change
-
   $classroom.on('change', function() {
     fetchDisciplines();
     fetchStudents();
@@ -243,7 +240,7 @@ $(function () {
     fetchStudentCurrentNotes();
   });
 
-  // On load
+  fetchSchoolCalendarStep();
   fetchStudentOldNotes();
   if(!$('form[id^=edit_transfer_note]').length){
     fetchStudentCurrentNotes();
