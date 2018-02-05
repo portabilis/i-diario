@@ -16,9 +16,6 @@ class MaintenanceAdjustmentsController < ApplicationController
     authorize @maintenance_adjustment
   end
 
-  def edit
-  end
-
   def create
     @maintenance_adjustment = MaintenanceAdjustment.new(maintenance_adjustment_params)
     authorize @maintenance_adjustment
@@ -58,9 +55,7 @@ class MaintenanceAdjustmentsController < ApplicationController
 
   def maintenance_adjustment_params
     _params = params.require(:maintenance_adjustment).permit(:year, :kind, :observations, :status, :unity_ids)
-
     _params[:unity_ids] = _params[:unity_ids].split(",")
-
     _params
   end
 

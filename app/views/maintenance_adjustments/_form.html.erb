@@ -13,7 +13,6 @@
         <span id='info_description'></span>
       </p>
     </div>
-
     <div class='row'>
       <div class='col col-sm-2'>
           <%= f.hidden_field :status %>
@@ -27,7 +26,6 @@
             input_html: { value: f.object.unity_ids.join(','), data: { without_json_parser: true } } %>
       </div>
     </div>
-
     <div class='row'>
       <div class='col col-sm-12'>
         <%= f.input :observations %>

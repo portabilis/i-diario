@@ -101,7 +101,6 @@ pt-BR:
     administrative: "Administrativo"
     maintenance_adjustments: "Manutenção/Ajustes"
 
-
   enumerations:
     features:
       <<: *navigation

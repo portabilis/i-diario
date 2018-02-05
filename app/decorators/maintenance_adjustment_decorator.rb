@@ -6,8 +6,8 @@ class MaintenanceAdjustmentDecorator
   def unities_labels
     return unless component.unities
 
-    component.unities.map do |u|
-      content_tag(:p, content_tag(:span, u, class: 'label label-info label-list'))
+    component.unities.map do |unity|
+      content_tag(:p, content_tag(:span, unity, class: 'label label-info label-list'))
     end.join.html_safe
   end
 
