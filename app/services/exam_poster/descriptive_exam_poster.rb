@@ -57,9 +57,9 @@ module ExamPoster
         next unless step_exists_for_classroom?(classroom)
 
         if has_classroom_steps(classroom)
-          exams = DescriptiveExamStudent.by_classroom_and_classroom_step(classroom, get_step(classroom).id).order(updated_at: :asc)
+          exams = DescriptiveExamStudent.by_classroom_and_classroom_step(classroom, get_step(classroom).id).ordered
         else
-          exams = DescriptiveExamStudent.by_classroom_and_step(classroom, get_step(classroom).id).order(updated_at: :asc)
+          exams = DescriptiveExamStudent.by_classroom_and_step(classroom, get_step(classroom).id).ordered
         end
 
         exams.each do |exam|
@@ -77,7 +77,7 @@ module ExamPoster
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.opinion_type != OpinionTypes::BY_YEAR
 
-        exams = DescriptiveExamStudent.by_classroom(classroom).order(updated_at: :asc)
+        exams = DescriptiveExamStudent.by_classroom(classroom).ordered
         exams.each do |exam|
           descriptive_exams[classroom.api_code][exam.student.api_code]["valor"] = exam.value
         end
@@ -96,7 +96,7 @@ module ExamPoster
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next if classroom.exam_rule.opinion_type != OpinionTypes::BY_YEAR_AND_DISCIPLINE
 
-        exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).order(updated_at: :asc)
+        exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).ordered
         exams.each do |exam|
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]["valor"] = exam.value
         end
@@ -117,9 +117,9 @@ module ExamPoster
         next unless step_exists_for_classroom?(classroom)
 
         if has_classroom_steps(classroom)
-          exams = DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, get_step(classroom).id).order(updated_at: :asc)
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, get_step(classroom).id).ordered
         else
-          exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, get_step(classroom).id).order(updated_at: :asc)
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, get_step(classroom).id).ordered
         end
 
         exams.each do |exam|
