@@ -90,7 +90,7 @@ class TeachersSynchronizer
 
   def update_or_create_teacher(record)
     teacher = teachers.find_by(api_code: record['servidor_id'])
-    active = (record['ativo'] == '1')
+    active = (record['ativo'] == IeducarBooleanState::ACTIVE)
 
     if teacher
       teacher.update_columns(
