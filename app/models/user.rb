@@ -48,6 +48,7 @@ class User < ActiveRecord::Base
   has_many :authorization_***REMOVED***, dependent: :restrict_with_error
   has_many :***REMOVED***, dependent: :restrict_with_error
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
+  has_many :worker_states, dependent: :destroy
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
@@ -217,7 +218,7 @@ class User < ActiveRecord::Base
   end
 
   def current_unity
-    @current_unity ||= Unity.find_by_id(current_unity_id) || current_user_role.try(:unity) 
+    @current_unity ||= Unity.find_by_id(current_unity_id) || current_user_role.try(:unity)
   end
 
   def current_classroom
