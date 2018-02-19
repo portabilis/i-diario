@@ -7,7 +7,7 @@ class DisciplineLessonPlan < ActiveRecord::Base
   audited
   has_associated_audits
 
-  belongs_to :lesson_plan
+  belongs_to :lesson_plan, dependent: :destroy
   belongs_to :discipline
 
   before_destroy :remove_attachments
