@@ -7,13 +7,4 @@ namespace :entity do
 
     puts school_calendar_classroom_step_setter_by_date.status
   end
-
-  desc "Set School Calendar Classroom Step By Step"
-  task set_classroom_step_by_step: :environment do |t|
-    school_calendar_classroom_step_setter_by_step = SchoolCalendarClassroomStepSetterByStep.new(ENV)
-
-    school_calendar_classroom_step_setter_by_step.set
-
-    puts school_calendar_classroom_step_setter_by_step.status
-  end
 end

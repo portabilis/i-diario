@@ -30,10 +30,11 @@ gem 'audited-activerecord', git: 'https://github.com/portabilis/audited.git'
 gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.git'
 gem 'js-routes'
 gem 'active_model_serializers'
-gem 'exception_notification'
 gem 'bulk_insert', '~> 1.0'
 gem 'aws-sdk', '~> 2'
 gem "paperclip", "~> 5.1.0"
+
+gem 'honeybadger', '~> 3.1'
 
 gem 'angular_rails_csrf'
 gem 'rack-cors', require: 'rack/cors'
