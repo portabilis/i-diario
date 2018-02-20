@@ -17,6 +17,8 @@ services:
   postgres:
     image: postgres:9.4-alpine
     container_name: postgres94-novo-educacao
+    ports:
+      - "5432:5432"
     volumes:
       - /private/etc/website/pg94/data:/var/lib/postgresql/data
     environment:
