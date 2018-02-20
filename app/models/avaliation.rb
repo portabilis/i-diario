@@ -32,7 +32,7 @@ class Avaliation < ActiveRecord::Base
   validates :test_setting,      presence: true
   validates :test_setting_test, presence: true, if: :sum_calculation_type?
   validates :description,       presence: true, if: -> { !sum_calculation_type? || allow_break_up? }
-  validates :weight,            presence: true, if: :allow_break_up?
+  validates :weight,            presence: true, if: :should_validate_weight?
 
   validate :uniqueness_of_avaliation
   validate :unique_test_setting_test_per_step,    if: -> { sum_calculation_type? && !allow_break_up? }
@@ -117,6 +117,10 @@ class Avaliation < ActiveRecord::Base
 
   def test_date_today
     test_date.today?
+  end
+
+  def should_validate_weight?
+    allow_break_up? || arithmetic_and_sum_calculation_type?
   end
 
   private
