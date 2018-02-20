@@ -94,9 +94,8 @@ class SchoolCalendarsController < ApplicationController
 
       User.by_current_unity_id(item[:unity_id]).each do |user|
         classroom_year = Classroom.find_by_id(user.current_classroom_id).try(:year)
-        exists_classroom_step = SchoolCalendarClassroomStep.by_classroom(user.current_classroom_id).any?
 
-        if classroom_year && current_year != classroom_year && !exists_classroom_step
+        if classroom_year && current_year != classroom_year && SchoolCalendarClassroomStep.by_classroom(user.current_classroom_id).empty?
           user.update_columns(
             current_classroom_id: nil,
             current_discipline_id: nil
