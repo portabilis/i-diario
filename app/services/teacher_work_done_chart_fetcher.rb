@@ -24,6 +24,7 @@ class TeacherWorkDoneChartFetcher
       students = StudentEnrollmentsList.new(classroom: classroom,
                                  discipline: discipline,
                                  date: avaliation.test_date,
+                                 show_inactive: false,
                                  search_type: :by_date)
                             .student_enrollments
       all_daily_note_students_count += students.count
