@@ -19,6 +19,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
   scope :active, -> { where(active: true) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:daily_frequency).merge(DailyFrequency.by_classroom_id(classroom_id)) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_frequency).merge(DailyFrequency.by_discipline_id(discipline_id)) }
+  scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_frequency_date, lambda { |frequency_date| joins(:daily_frequency).merge(DailyFrequency.by_frequency_date(frequency_date)) }
   scope :general_by_classroom_student_date_between,
         lambda { |classroom_id, student_id, start_at, end_at| where(

@@ -17,14 +17,21 @@ class SchoolCalendarsCreator
           school_calendar_steps = school_calendar_param['steps'] || []
           create_school_calendar_steps!(school_calendar_steps, school_calendar)
         rescue ActiveRecord::RecordInvalid => invalid
-          raise InvalidSchoolCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_unity', unity_name: invalid.record.unity.name)
+          message = invalid.to_s
+          message.slice!("A validação falhou: ")
+          raise InvalidSchoolCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_unity', unity_name: invalid.record.unity.name,
+                                                                                                               error_message: message)
         end
 
         begin
           calendars_for_classrooms = school_calendar_param['classrooms'] || []
           create_school_calendar_classroom!(calendars_for_classrooms, school_calendar)
         rescue ActiveRecord::RecordInvalid => invalid
-          raise InvalidClassroomCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_classroom', unity_name: invalid.record.classroom.unity.name, classroom_name: invalid.record.classroom.description)
+          message = invalid.to_s
+          message.slice!("A validação falhou: ")
+          raise InvalidClassroomCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_classroom', unity_name: invalid.record.classroom.unity.name,
+                                                                                                                      classroom_name: invalid.record.classroom.description,
+                                                                                                                      error_message: message)
         end
       end
     end
