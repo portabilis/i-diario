@@ -61,6 +61,7 @@ class SchoolCalendarsController < ApplicationController
   def create_and_update_batch
     begin
       if SchoolCalendarsCreator.create!(params[:synchronize]) && SchoolCalendarsUpdater.update!(params[:synchronize])
+        set_classroom_and_discipline_for_users
         set_school_calendar_classroom_step
 
         redirect_to school_calendars_path, notice: t('.notice')
@@ -81,6 +82,47 @@ class SchoolCalendarsController < ApplicationController
   end
 
   private
+
+  def set_classroom_and_discipline_for_users
+    set_classroom_and_discipline_by_school_calendars
+    set_classroom_and_discipline_by_school_calendar_classrooms
+  end
+
+  def set_classroom_and_discipline_by_school_calendars
+    params[:synchronize].each do |item|
+      current_year = SchoolCalendar.by_unity_id(item[:unity_id]).by_school_day(Date.today).first.try(:year)
+
+      User.by_current_unity_id(item[:unity_id]).each do |user|
+        classroom_year = Classroom.find_by_id(user.current_classroom_id).try(:year)
+
+        if classroom_year && current_year != classroom_year && SchoolCalendarClassroomStep.by_classroom(user.current_classroom_id).empty?
+          user.update_columns(
+            current_classroom_id: nil,
+            current_discipline_id: nil
+          )
+        end
+      end
+    end
+  end
+
+  def set_classroom_and_discipline_by_school_calendar_classrooms
+    params[:synchronize].each do |item|
+      current_classroom_ids = SchoolCalendarClassroom.by_unity_id(item[:unity_id]).joins(:classroom_steps)
+                                                     .merge(SchoolCalendarClassroomStep.by_school_day(Date.today))
+                                                     .map(&:classroom_id)
+
+      User.by_current_unity_id(item[:unity_id]).each do |user|
+        exists_classroom_step = SchoolCalendarClassroomStep.by_classroom(user.current_classroom_id).any?
+
+        if exists_classroom_step && !current_classroom_ids.include?(user.current_classroom_id)
+          user.update_columns(
+            current_classroom_id: nil,
+            current_discipline_id: nil
+          )
+        end
+      end
+    end
+  end
 
   def set_school_calendar_classroom_step
     job_id = SchoolCalendarSetterByStepWorker.perform_async(current_entity.id, params[:synchronize], current_user.id)
