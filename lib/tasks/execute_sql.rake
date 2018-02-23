@@ -20,7 +20,15 @@ namespace :execute_sql do
       entity.using_connection do
         msg = entity.id.to_s + "-" + entity.name + ": "
 
-        if ActiveRecord::Base.connection.execute("UPDATE ieducar_api_synchronizations SET status = 'completed' WHERE status = 'started';")
+        command = <<-SQL
+          UPDATE ieducar_api_synchronizations
+             SET status = 'error',
+                 error_message = 'Erro desconhecido, tente novamente.',
+                 notified = FALSE
+           WHERE status = 'started';
+        SQL
+
+        if ActiveRecord::Base.connection.execute(command)
           puts msg + "Executado com sucesso!"
         else
           puts msg + "Erro ao executar!"
