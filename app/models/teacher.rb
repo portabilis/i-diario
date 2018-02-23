@@ -51,6 +51,6 @@ class Teacher < ActiveRecord::Base
   private
 
   def filter_current_teachers_by_year(year)
-    joins(:teacher_discipline_classrooms).merge(TeacherDisciplineClassroom.joins(:classroom).merge(Classroom.where(year: 2018)))
+    joins(:teacher_discipline_classrooms).merge(TeacherDisciplineClassroom.joins(:classroom).merge(Classroom.where(year: year)))
   end
 end
