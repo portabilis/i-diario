@@ -11,4 +11,23 @@ namespace :execute_sql do
       end
     end
   end
+
+  desc 'Execute update to reset api synchronizer'
+  task reset_api_synchronizer: :environment do
+    puts "Iniciando o reset da api synchronizer"
+
+    Entity.all.each do |entity|
+      entity.using_connection do
+        msg = entity.id.to_s + "-" + entity.name + ": "
+
+        if ActiveRecord::Base.connection.execute("UPDATE ieducar_api_synchronizations SET status = 'completed' WHERE status = 'started';")
+          puts msg + "Executado com sucesso!"
+        else
+          puts msg + "Erro ao executar!"
+        end
+      end
+    end
+
+    puts "Finalizado o reset da api synchronizer"
+  end
 end
