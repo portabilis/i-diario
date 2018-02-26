@@ -28,9 +28,9 @@ class DailyFrequency < ActiveRecord::Base
                                                                                                              class_number: class_number,
                                                                                                              frequency_date: start_at.to_date..end_at.to_date).includes(students: :student) }
   scope :by_unity_classroom_and_frequency_date_between,
-        lambda { |unity_id, classroom_id, start_at, end_at| where(unity_id: unity_id,
-                                                                  classroom_id: classroom_id,
-                                                                  frequency_date: start_at.to_date..end_at.to_date).includes(students: :student) }
+        lambda { |unity_id, classroom_id, start_at, end_at = Time.zone.now| where(unity_id: unity_id,
+                                                                                  classroom_id: classroom_id,
+                                                                                  frequency_date: start_at.to_date..end_at.to_date).includes(students: :student) }
 
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
