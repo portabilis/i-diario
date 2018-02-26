@@ -60,9 +60,11 @@ class SchoolCalendarsController < ApplicationController
 
   def create_and_update_batch
     begin
-      if SchoolCalendarsCreator.create!(params[:synchronize]) && SchoolCalendarsUpdater.update!(params[:synchronize])
-        set_assigned_teacher_for_users
-        set_classroom_and_discipline_for_users
+      school_calendars = SchoolCalendarsCreator.create!(params[:synchronize]) && SchoolCalendarsUpdater.update!(params[:synchronize])
+
+      if school_calendars
+        set_assigned_teacher_for_users(school_calendars)
+        set_classroom_and_discipline_for_users(school_calendars)
         set_school_calendar_classroom_step
 
         redirect_to school_calendars_path, notice: t('.notice')
@@ -84,13 +86,13 @@ class SchoolCalendarsController < ApplicationController
 
   private
 
-  def set_assigned_teacher_for_users
-    set_assigned_teacher_by_school_calendars
-    set_assigned_teacher_by_school_calendar_classrooms
+  def set_assigned_teacher_for_users(school_calendars)
+    set_assigned_teacher_by_school_calendars(school_calendars)
+    set_assigned_teacher_by_school_calendar_classrooms(school_calendars)
   end
 
-  def set_assigned_teacher_by_school_calendars
-    params[:synchronize].each do |item|
+  def set_assigned_teacher_by_school_calendars(school_calendars)
+    school_calendars.each do |item|
       current_year = SchoolCalendar.by_unity_id(item[:unity_id]).by_school_day(Date.today).first.try(:year)
 
       User.by_current_unity_id(item[:unity_id]).each do |user|
@@ -109,8 +111,8 @@ class SchoolCalendarsController < ApplicationController
     end
   end
 
-  def set_assigned_teacher_by_school_calendar_classrooms
-    params[:synchronize].each do |item|
+  def set_assigned_teacher_by_school_calendar_classrooms(school_calendars)
+    school_calendars.each do |item|
       current_classroom_ids = SchoolCalendarClassroom.by_unity_id(item[:unity_id]).joins(:classroom_steps)
                                                      .merge(SchoolCalendarClassroomStep.by_school_day(Date.today))
                                                      .map(&:classroom_id)
@@ -126,13 +128,13 @@ class SchoolCalendarsController < ApplicationController
     end
   end
 
-  def set_classroom_and_discipline_for_users
-    set_classroom_and_discipline_by_school_calendars
-    set_classroom_and_discipline_by_school_calendar_classrooms
+  def set_classroom_and_discipline_for_users(school_calendars)
+    set_classroom_and_discipline_by_school_calendars(school_calendars)
+    set_classroom_and_discipline_by_school_calendar_classrooms(school_calendars)
   end
 
-  def set_classroom_and_discipline_by_school_calendars
-    params[:synchronize].each do |item|
+  def set_classroom_and_discipline_by_school_calendars(school_calendars)
+    school_calendars.each do |item|
       current_year = SchoolCalendar.by_unity_id(item[:unity_id]).by_school_day(Date.today).first.try(:year)
 
       User.by_current_unity_id(item[:unity_id]).each do |user|
@@ -148,8 +150,8 @@ class SchoolCalendarsController < ApplicationController
     end
   end
 
-  def set_classroom_and_discipline_by_school_calendar_classrooms
-    params[:synchronize].each do |item|
+  def set_classroom_and_discipline_by_school_calendar_classrooms(school_calendars)
+    school_calendars.each do |item|
       current_classroom_ids = SchoolCalendarClassroom.by_unity_id(item[:unity_id]).joins(:classroom_steps)
                                                      .merge(SchoolCalendarClassroomStep.by_school_day(Date.today))
                                                      .map(&:classroom_id)
