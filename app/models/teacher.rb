@@ -44,13 +44,11 @@ class Teacher < ActiveRecord::Base
       .uniq
   end
 
-  def to_s
-    name
+  def self.filter_current_teachers_by_year(year)
+    joins(:teacher_discipline_classrooms).merge(TeacherDisciplineClassroom.joins(:classroom).merge(Classroom.where(year: year)))
   end
 
-  private
-
-  def filter_current_teachers_by_year(year)
-    joins(:teacher_discipline_classrooms).merge(TeacherDisciplineClassroom.joins(:classroom).merge(Classroom.where(year: year)))
+  def to_s
+    name
   end
 end
