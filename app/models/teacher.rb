@@ -9,6 +9,7 @@ class Teacher < ActiveRecord::Base
   validates :api_code, uniqueness: true
 
   scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id)}
+  scope :by_year, lambda { |year| filter_current_teachers_by_year(year) }
   scope :active, -> { active_query }
 
   scope :order_by_name, -> { order(name: :asc) }
@@ -45,5 +46,11 @@ class Teacher < ActiveRecord::Base
 
   def to_s
     name
+  end
+
+  private
+
+  def filter_current_teachers_by_year(year)
+    joins(:teacher_discipline_classrooms).merge(TeacherDisciplineClassroom.joins(:classroom).merge(Classroom.where(year: year)))
   end
 end
