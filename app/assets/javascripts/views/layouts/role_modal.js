@@ -37,6 +37,7 @@
       $.ajax({
         url: Routes.teachers_pt_br_path({
             filter: filter,
+            find_by_current_year: true,
             format: 'json'
         }),
         success: handleFetchTeachersSuccess,
