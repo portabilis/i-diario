@@ -33,6 +33,7 @@ class IeducarSynchronizerWorker
         TeachersSynchronizer.synchronize!(synchronization, years_to_synchronize)
         CoursesGradesClassroomsSynchronizer.synchronize!(synchronization)
         StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, years_to_synchronize)
+        SpecificStepsSynchronizer.synchronize!(synchronization)
 
         years_to_synchronize.each do |year|
           ExamRulesSynchronizer.synchronize!(synchronization, year)
