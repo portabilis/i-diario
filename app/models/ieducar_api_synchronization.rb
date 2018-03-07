@@ -35,4 +35,8 @@ class IeducarApiSynchronization < ActiveRecord::Base
   def notified!
     update_column :notified, true
   end
+
+  def set_job_id!(job_id)
+    update_column :job_id, job_id
+  end
 end

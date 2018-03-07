@@ -1,22 +1,9 @@
-class StudentEnrollmentSynchronizer
-
-  def self.synchronize!(synchronization, year, unity_api_code)
-    new(synchronization, year, unity_api_code).synchronize!
-  end
-
-  def initialize(synchronization, year, unity_api_code)
-    self.synchronization = synchronization
-    self.year = year
-    self.unity_api_code = unity_api_code
-  end
-
+class StudentEnrollmentSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch(ano: year, escola: unity_api_code)["matriculas"]
+    update_records api.fetch(ano: years.first, escola: unity_api_code)["matriculas"]
   end
 
   protected
-
-  attr_accessor :synchronization, :year, :unity_api_code
 
   def api
     IeducarApi::StudentEnrollments.new(synchronization.to_api)
@@ -34,6 +21,8 @@ class StudentEnrollmentSynchronizer
         end
       end
     end
+
+    finish_worker('StudentEnrollmentSynchronizer-' << years.first << '-' << unity_api_code)
   end
 
   def student_enrollments(klass = StudentEnrollment)

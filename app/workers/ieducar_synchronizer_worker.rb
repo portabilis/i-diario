@@ -20,48 +20,58 @@ class IeducarSynchronizerWorker
         configuration = IeducarApiConfiguration.current
         break unless configuration.persisted?
         synchronization = configuration.start_synchronization!(User.first)
+        synchronization.job_id = self.jid unless synchronization.job_id
       end
 
-      begin
-        KnowledgeAreasSynchronizer.synchronize!(synchronization)
-        DisciplinesSynchronizer.synchronize!(synchronization)
-        StudentsSynchronizer.synchronize!(synchronization)
-        DeficienciesSynchronizer.synchronize!(synchronization)
-        ***REMOVED***sSynchronizer.synchronize!(synchronization)
-        RoundingTablesSynchronizer.synchronize!(synchronization)
-        RecoveryExamRulesSynchronizer.synchronize!(synchronization)
-        TeachersSynchronizer.synchronize!(synchronization, years_to_synchronize)
-        CoursesGradesClassroomsSynchronizer.synchronize!(synchronization)
-        StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, years_to_synchronize)
-        SpecificStepsSynchronizer.synchronize!(synchronization)
+      worker_batch = WorkerBatch.create!(main_job_id: synchronization.job_id)
 
-        years_to_synchronize.each do |year|
-          ExamRulesSynchronizer.synchronize!(synchronization, year)
-          Unity.with_api_code.each do |unity|
-            StudentEnrollmentSynchronizer.synchronize!(synchronization, year, unity.api_code)
-          end
+      total_count = 0
+      total_count += call_and_count_worker(KnowledgeAreasSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
+      total_count += call_and_count_worker(DisciplinesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
+      total_count += call_and_count_worker(StudentsSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
+      total_count += call_and_count_worker(DeficienciesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
+      total_count += call_and_count_worker(***REMOVED***sSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
+      total_count += call_and_count_worker(RoundingTablesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
+      total_count += call_and_count_worker(RecoveryExamRulesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
+      total_count += call_and_count_worker_by_years(TeachersSynchronizerWorker, entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+      total_count += call_and_count_worker(CoursesGradesClassroomsSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
+      total_count += call_and_count_worker_by_years(StudentEnrollmentDependenceSynchronizerWorker, entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+      total_count += SpecificStepClassroomsSynchronizer.synchronize!(entity.id, synchronization.id, worker_batch.id)
+
+      years_to_synchronize.each do |year|
+        total_count += call_and_count_worker_by_years(ExamRulesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id, [year])
+
+        Unity.with_api_code.each do |unity|
+          total_count += call_and_count_worker_by_years(StudentEnrollmentSynchronizerWorker, entity.id, synchronization.id, worker_batch.id, [year], unity.api_code)
         end
+      end
 
+      worker_batch.set_total_workers!(total_count)
+      worker_batch.reload
+
+      if worker_batch.all_workers_finished?
         synchronization.mark_as_completed!
-      rescue IeducarApi::Base::ApiError => e
-        synchronization.mark_as_error!(e.message)
-      rescue Exception => exception
-        synchronization.mark_as_error!('Ocorreu um erro desconhecido.')
-
-        raise exception
       end
     end
   end
 
   def years_to_synchronize
-    Unity.with_api_code.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }
-         .uniq
-         .reject(&:blank?)
-         .sort
+    @years ||= Unity.with_api_code.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }.uniq.reject(&:blank?).sort
   end
 
   def all_entities
     Entity.all
   end
 
+  def call_and_count_worker(worker, entity_id, synchronization_id, worker_batch_id)
+    worker.perform_async(entity_id, synchronization_id, worker_batch_id)
+
+    1
+  end
+
+  def call_and_count_worker_by_years(worker, entity_id, synchronization_id, worker_batch_id, years, unity_api_code = nil)
+    worker.perform_async(entity_id, synchronization_id, worker_batch_id, years, unity_api_code)
+
+    1
+  end
 end

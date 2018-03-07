@@ -1,19 +1,9 @@
-class KnowledgeAreasSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
-  end
-
-  def initialize(synchronization)
-    self.synchronization = synchronization
-  end
-
+class KnowledgeAreasSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["areas"]
   end
 
   protected
-
-  attr_accessor :synchronization
 
   def api
     IeducarApi::KnowledgeAreas.new(synchronization.to_api)
@@ -36,6 +26,8 @@ class KnowledgeAreasSynchronizer
         end
       end
     end
+
+    finish_worker('KnowledgeAreasSynchronizer')
   end
 
   def knowledge_areas(klass = KnowledgeArea)

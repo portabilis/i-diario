@@ -1,22 +1,13 @@
-class TeachersSynchronizer
-  def self.synchronize!(synchronization, year)
-    new(synchronization, year).synchronize!
-  end
-
-  def initialize(synchronization, years)
-    self.synchronization = synchronization
-    self.years = years
-  end
-
+class TeachersSynchronizer < BaseSynchronizer
   def synchronize!
     years.each do |year|
       update_records(api.fetch(ano: year)['servidores'], year)
     end
+
+    finish_worker('TeachersSynchronizer')
   end
 
   protected
-
-  attr_accessor :synchronization, :years
 
   def api
     IeducarApi::Teachers.new(synchronization.to_api)

@@ -1,19 +1,9 @@
-class RecoveryExamRulesSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
-  end
-
-  def initialize(synchronization)
-    self.synchronization = synchronization
-  end
-
+class RecoveryExamRulesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["regras-recuperacao"]
   end
 
   protected
-
-  attr_accessor :synchronization
 
   def api
     IeducarApi::RecoveryExamRules.new(synchronization.to_api)
@@ -45,6 +35,8 @@ class RecoveryExamRulesSynchronizer
         end
       end
     end
+
+    finish_worker('RecoveryExamRulesSynchronizer')
   end
 
   def recovery_exam_rules(klass = RecoveryExamRule)

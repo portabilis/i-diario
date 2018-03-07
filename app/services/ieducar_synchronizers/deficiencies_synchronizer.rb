@@ -1,19 +1,9 @@
-class DeficienciesSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
-  end
-
-  def initialize(synchronization)
-    self.synchronization = synchronization
-  end
-
+class DeficienciesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["deficiencias"]
   end
 
   protected
-
-  attr_accessor :synchronization
 
   def api
     IeducarApi::Deficiencies.new(synchronization.to_api)
@@ -32,6 +22,8 @@ class DeficienciesSynchronizer
         end
       end
     end
+
+    finish_worker('DeficienciesSynchronizer')
   end
 
   def deficiencies(klass = Deficiency)

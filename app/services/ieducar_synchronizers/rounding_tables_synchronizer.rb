@@ -1,19 +1,9 @@
-class RoundingTablesSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
-  end
-
-  def initialize(synchronization)
-    self.synchronization = synchronization
-  end
-
+class RoundingTablesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["tabelas"]
   end
 
   protected
-
-  attr_accessor :synchronization
 
   def api
     IeducarApi::RoundingTables.new(synchronization.to_api)
@@ -49,6 +39,8 @@ class RoundingTablesSynchronizer
         end
       end
     end
+
+    finish_worker('RoundingTablesSynchronizer')
   end
 
   def rounding_tables(klass = RoundingTable)
