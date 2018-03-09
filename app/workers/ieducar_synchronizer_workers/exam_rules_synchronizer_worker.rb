@@ -1,7 +1,7 @@
 class ExamRulesSynchronizerWorker
   include Sidekiq::Worker
 
-  def perform(entity_id, synchronization_id, worker_batch_id, years, api_code)
+  def perform(entity_id, synchronization_id, worker_batch_id, years)
     Entity.find(entity_id).using_connection do
       synchronization = IeducarApiSynchronization.find(synchronization_id)
       worker_batch = WorkerBatch.find(worker_batch_id)

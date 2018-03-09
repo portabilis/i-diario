@@ -1,6 +1,8 @@
 class ExamRulesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch(ano: years.first)["regras"]
+
+    finish_worker('ExamRulesSynchronizer-' << years.first)
   end
 
   protected
@@ -51,8 +53,6 @@ class ExamRulesSynchronizer < BaseSynchronizer
         end
       end
     end
-
-    finish_worker('ExamRulesSynchronizer-' << years.first)
   end
 
   def exam_rules(klass = ExamRule)

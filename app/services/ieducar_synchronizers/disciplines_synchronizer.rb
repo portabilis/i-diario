@@ -1,6 +1,8 @@
 class DisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["disciplinas"]
+
+    finish_worker('DisciplinesSynchronizer')
   end
 
   protected
@@ -28,8 +30,6 @@ class DisciplinesSynchronizer < BaseSynchronizer
         end
       end
     end
-
-    finish_worker('DisciplinesSynchronizer')
   end
 
   def disciplines(klass = Discipline)

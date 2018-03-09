@@ -13,9 +13,7 @@ class SpecificStepClassroomsSynchronizer
     specific_step_classrooms_api.each do |turma|
       classroom_id = Classroom.find_by_api_code(turma['turma_id']).try(:id)
 
-      if classroom_id
-        SpecificStepsSynchronizerWorker.perform_async(entity_id, synchronization_id, worker_batch_id, classroom_id, turma['turma_id'])
-      end
+      SpecificStepsSynchronizerWorker.perform_async(entity_id, synchronization_id, worker_batch_id, classroom_id, turma['turma_id'])
     end
 
     specific_step_classrooms_api.count

@@ -1,6 +1,8 @@
 class KnowledgeAreasSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["areas"]
+
+    finish_worker('KnowledgeAreasSynchronizer')
   end
 
   protected
@@ -26,8 +28,6 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
         end
       end
     end
-
-    finish_worker('KnowledgeAreasSynchronizer')
   end
 
   def knowledge_areas(klass = KnowledgeArea)

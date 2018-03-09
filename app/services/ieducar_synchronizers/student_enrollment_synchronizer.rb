@@ -1,6 +1,8 @@
 class StudentEnrollmentSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch(ano: years.first, escola: unity_api_code)["matriculas"]
+
+    finish_worker('StudentEnrollmentSynchronizer-' << years.first << '-' << unity_api_code)
   end
 
   protected
@@ -21,8 +23,6 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         end
       end
     end
-
-    finish_worker('StudentEnrollmentSynchronizer-' << years.first << '-' << unity_api_code)
   end
 
   def student_enrollments(klass = StudentEnrollment)
