@@ -1,6 +1,8 @@
 class DeficienciesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["deficiencias"]
+
+    finish_worker('DeficienciesSynchronizer')
   end
 
   protected
@@ -22,8 +24,6 @@ class DeficienciesSynchronizer < BaseSynchronizer
         end
       end
     end
-
-    finish_worker('DeficienciesSynchronizer')
   end
 
   def deficiencies(klass = Deficiency)

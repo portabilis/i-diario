@@ -15,11 +15,12 @@ class BaseSynchronizer
   attr_accessor :synchronization, :worker_batch, :years, :unity_api_code
 
   def finish_worker(synchronizer)
-    worker_batch.reload
-    worker_batch.done_worker!(synchronizer)
+    worker_batch.with_lock do
+      worker_batch.done_worker!(synchronizer)
 
-    if worker_batch.all_workers_finished?
-      synchronization.mark_as_completed!
+      if worker_batch.all_workers_finished?
+        synchronization.mark_as_completed!
+      end
     end
   end
 end

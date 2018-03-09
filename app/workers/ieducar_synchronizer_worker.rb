@@ -23,34 +23,70 @@ class IeducarSynchronizerWorker
         synchronization.job_id = self.jid unless synchronization.job_id
       end
 
-      worker_batch = WorkerBatch.create!(main_job_id: synchronization.job_id)
+      worker_batch = WorkerBatch.create!(main_job_class: 'IeducarSynchronizerWorker', main_job_id: synchronization.job_id)
 
-      total_count = 0
-      total_count += call_and_count_worker(KnowledgeAreasSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
-      total_count += call_and_count_worker(DisciplinesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
-      total_count += call_and_count_worker(StudentsSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
-      total_count += call_and_count_worker(DeficienciesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
-      total_count += call_and_count_worker(***REMOVED***sSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
-      total_count += call_and_count_worker(RoundingTablesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
-      total_count += call_and_count_worker(RecoveryExamRulesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
-      total_count += call_and_count_worker_by_years(TeachersSynchronizerWorker, entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
-      total_count += call_and_count_worker(CoursesGradesClassroomsSynchronizerWorker, entity.id, synchronization.id, worker_batch.id)
-      total_count += call_and_count_worker_by_years(StudentEnrollmentDependenceSynchronizerWorker, entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
-      total_count += SpecificStepClassroomsSynchronizer.synchronize!(entity.id, synchronization.id, worker_batch.id)
+      total = []
+
+      increment_total(total) do
+        KnowledgeAreasSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+      end
+
+      increment_total(total) do
+        DisciplinesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+      end
+
+      increment_total(total) do
+        StudentsSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+      end
+
+      increment_total(total) do
+        DeficienciesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+      end
+
+      increment_total(total) do
+        ***REMOVED***sSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+      end
+
+      increment_total(total) do
+        RoundingTablesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+      end
+
+      increment_total(total) do
+        RecoveryExamRulesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+      end
+
+      increment_total(total) do
+        TeachersSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+      end
+
+      increment_total(total) do
+        CoursesGradesClassroomsSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+      end
+
+      increment_total(total) do
+        StudentEnrollmentDependenceSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+      end
+
+      total << SpecificStepClassroomsSynchronizer.synchronize!(entity.id, synchronization.id, worker_batch.id)
 
       years_to_synchronize.each do |year|
-        total_count += call_and_count_worker_by_years(ExamRulesSynchronizerWorker, entity.id, synchronization.id, worker_batch.id, [year])
+        increment_total(total) do
+          ExamRulesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, [year])
+        end
 
         Unity.with_api_code.each do |unity|
-          total_count += call_and_count_worker_by_years(StudentEnrollmentSynchronizerWorker, entity.id, synchronization.id, worker_batch.id, [year], unity.api_code)
+          increment_total(total) do
+            StudentEnrollmentSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, [year], unity.api_code)
+          end
         end
       end
 
-      worker_batch.set_total_workers!(total_count)
-      worker_batch.reload
+      worker_batch.with_lock do
+        worker_batch.set_total_workers!(total.sum)
 
-      if worker_batch.all_workers_finished?
-        synchronization.mark_as_completed!
+        if worker_batch.all_workers_finished?
+          synchronization.mark_as_completed!
+        end
       end
     end
   end
@@ -63,15 +99,9 @@ class IeducarSynchronizerWorker
     Entity.all
   end
 
-  def call_and_count_worker(worker, entity_id, synchronization_id, worker_batch_id)
-    worker.perform_async(entity_id, synchronization_id, worker_batch_id)
+  def increment_total(total, &block)
+    total << 1
 
-    1
-  end
-
-  def call_and_count_worker_by_years(worker, entity_id, synchronization_id, worker_batch_id, years, unity_api_code = nil)
-    worker.perform_async(entity_id, synchronization_id, worker_batch_id, years, unity_api_code)
-
-    1
+    block.call
   end
 end
