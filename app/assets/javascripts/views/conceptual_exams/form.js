@@ -144,10 +144,17 @@ $(function() {
 
   function fetchDisciplines() {
     var classroom_id = $classroom.select2('val');
+    var school_calendar_step_id = $school_calendar_step.select2('val');
 
-    if (!_.isEmpty(classroom_id)) {
+    if (!_.isEmpty(classroom_id) && !_.isEmpty(school_calendar_step_id)) {
       $.ajax({
-        url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        url: Routes.disciplines_pt_br_path(
+          {
+            classroom_id: classroom_id,
+            school_calendar_step_id: school_calendar_step_id,
+            format: 'json'
+          }
+        ),
         success: handleFetchDisciplinesSuccess,
         error: handleFetchDisciplinesError
       });
@@ -162,6 +169,8 @@ $(function() {
 
       var element_counter = 0;
       var disciplines***REMOVED***edByKnowledgeArea = _.groupBy(disciplines, 'knowledge_area_sequence');
+
+      $('#conceptual_exam_values').html('');
 
       _.each(disciplines***REMOVED***edByKnowledgeArea, function(disciplines, knowledge_area_description) {
         var knowledge_area = disciplines[0].knowledge_area_description;
@@ -251,5 +260,6 @@ $(function() {
 
   $school_calendar_step.on('change', function() {
     fetchStudents();
+    fetchDisciplines();
   });
 });

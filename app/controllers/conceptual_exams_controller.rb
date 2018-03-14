@@ -222,7 +222,16 @@ class ConceptualExamsController < ApplicationController
     )
     fetcher.fetch!
 
-    @disciplines = fetcher.disciplines
+    step_id = @conceptual_exam.school_calendar_step_id || @conceptual_exam.school_calendar_classroom_step_id
+
+    if step_id
+      disciplines_by_step = DisciplinesByStepNumber.discipline_ids(@conceptual_exam.classroom_id, step_id)
+      @disciplines = fetcher.disciplines.where(id: disciplines_by_step)
+    else
+      @disciplines = fetcher.disciplines
+    end
+
+    @disciplines
   end
 
   def fetch_classrooms

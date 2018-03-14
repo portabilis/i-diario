@@ -13,6 +13,12 @@ class DisciplinesController < ApplicationController
       params[:by_classroom] = params[:classroom_id]
     end
 
+    step_id = params[:school_calendar_step_id] || params[:school_calendar_classroom_step_id]
+
+    if step_id
+      disciplines_by_step = DisciplinesByStepNumber.discipline_ids(params[:classroom_id], step_id)
+    end
+
     if Classroom.find(params[:classroom_id]).exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
       @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
       .by_score_type(DisciplineScoreTypes::CONCEPT)
@@ -20,6 +26,10 @@ class DisciplinesController < ApplicationController
     else
       @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
       .order_by_sequence
+    end
+
+    if disciplines_by_step
+      @disciplines = @disciplines.where(id: disciplines_by_step)
     end
   end
 
