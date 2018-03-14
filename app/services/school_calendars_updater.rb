@@ -24,7 +24,9 @@ class SchoolCalendarsUpdater
             end
           end
         rescue ActiveRecord::RecordInvalid => invalid
-          raise InvalidSchoolCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_unity', unity_name: invalid.record.unity.name)
+          message = invalid.to_s
+          message.slice!("A validação falhou: ")
+          raise InvalidSchoolCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_unity', unity_name: invalid.record.unity.name, error_message: message)
         end
 
 

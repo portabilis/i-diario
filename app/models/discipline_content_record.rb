@@ -5,7 +5,7 @@ class DisciplineContentRecord < ActiveRecord::Base
           except: [:content_record_id]
   acts_as_copy_target
 
-  belongs_to :content_record
+  belongs_to :content_record, dependent: :destroy
   accepts_nested_attributes_for :content_record
 
   belongs_to :discipline
@@ -14,8 +14,8 @@ class DisciplineContentRecord < ActiveRecord::Base
   scope :by_teacher_id, lambda { |teacher_id| joins(:content_record).where(content_records: { teacher_id: teacher_id }) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:content_record).where(content_records: { classroom_id: classroom_id }) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id )}
-  scope :by_classroom_description, lambda { |description| joins(content_record: :classroom).where('classrooms.description ILIKE ?', "%#{description}%" ) }
-  scope :by_discipline_description, lambda { |description| joins(:discipline).where('disciplines.description ILIKE ?', "%#{description}%" ) }
+  scope :by_classroom_description, lambda { |description| joins(content_record: :classroom).where('unaccent(classrooms.description) ILIKE unaccent(?)', "%#{description}%" ) }
+  scope :by_discipline_description, lambda { |description| joins(:discipline).where('unaccent(disciplines.description) ILIKE unaccent(?)', "%#{description}%" ) }
   scope :by_date, lambda { |date| joins(:content_record).where(content_records: { record_date: date.to_date }) }
   scope :by_date_range, lambda { |start_at, end_at| joins(:content_record).where("content_records.record_date <= ? AND content_records.record_date >= ?", end_at, start_at) }
   scope :ordered, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date].desc) }

@@ -9,8 +9,9 @@
       <% last_system_***REMOVED***.each do |notification| %>
         <li>
           <span>
-            <%= link_to system_notification_path(notification), class: "msg", target: (notification.open_link_in_new_tab? ? "_blank" : "_self") do %>
-              <span class="from"><%= notification.title %><i class="icon-paperclip"></i></span>
+            <%= link_to_if_and_else !notification.is_generic?, system_notification_path(notification),
+              class: "msg", target: (notification.open_link_in_new_tab? ? "_blank" : "_self") do %>
+              <span class="from" style="display: block;"><%= notification.title %><i class="icon-paperclip"></i></span>
               <time><%= distance_of_time_in_words_to_now notification.created_at %></time>
               <span class="subject"></span>
               <span class="msg-body"><%= notification.description %></span>
