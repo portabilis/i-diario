@@ -35,7 +35,7 @@ class SpecificStepsSynchronizer < BaseSynchronizer
       if discipline_id
         if specific_step = SpecificStep.find_by(classroom_id: classroom_id, discipline_id: discipline_id)
           if specific_step.ieducar_updated_at != ieducar_updated_at
-            specific_step.update_columns(
+            specific_step.update_attributes(
               used_steps: used_steps,
               ieducar_updated_at: ieducar_updated_at
             )
