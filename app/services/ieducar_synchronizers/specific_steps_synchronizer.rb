@@ -33,21 +33,8 @@ class SpecificStepsSynchronizer < BaseSynchronizer
       discipline_id = Discipline.find_by_api_code(discipline_api_id).try(:id)
 
       if discipline_id
-        if specific_step = SpecificStep.find_by(classroom_id: classroom_id, discipline_id: discipline_id)
-          if specific_step.ieducar_updated_at != ieducar_updated_at
-            specific_step.update_attributes(
-              used_steps: used_steps,
-              ieducar_updated_at: ieducar_updated_at
-            )
-          end
-        else
-          SpecificStep.create!(
-            classroom_id: classroom_id,
-            discipline_id: discipline_id,
-            used_steps: used_steps,
-            ieducar_updated_at: ieducar_updated_at
-          )
-        end
+        specific_step = SpecificStep.find_or_create_by!(classroom_id: classroom_id, discipline_id: discipline_id)
+        specific_step.update_attribute(:used_steps, used_steps)
       end
     end
   end
