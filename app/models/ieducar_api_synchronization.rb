@@ -22,21 +22,21 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def mark_as_error!(message)
-    update_columns(
+    update_attributes(
       status: ApiSynchronizationStatus::ERROR,
       error_message: message
     )
   end
 
   def mark_as_completed!
-    update_column :status, ApiSynchronizationStatus::COMPLETED
+    update_attribute(:status, ApiSynchronizationStatus::COMPLETED)
   end
 
   def notified!
-    update_column :notified, true
+    update_attribute(:notified, true)
   end
 
   def set_job_id!(job_id)
-    update_column :job_id, job_id
+    update_attribute(:job_id, job_id)
   end
 end

@@ -82,7 +82,7 @@ class IeducarSynchronizerWorker
       end
 
       worker_batch.with_lock do
-        worker_batch.set_total_workers!(total.sum)
+        worker_batch.update_attribute(:total_workers, total.sum)
 
         if worker_batch.all_workers_finished?
           synchronization.mark_as_completed!
