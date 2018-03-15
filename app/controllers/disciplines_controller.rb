@@ -13,10 +13,13 @@ class DisciplinesController < ApplicationController
       params[:by_classroom] = params[:classroom_id]
     end
 
-    step_id = params[:school_calendar_step_id] || params[:school_calendar_classroom_step_id]
+    calendar_step_id = params[:school_calendar_step_id]
+    classroom_step_id = params[:school_calendar_classroom_step_id]
 
-    if step_id
-      disciplines_by_step = DisciplinesByStepNumber.discipline_ids(params[:classroom_id], step_id)
+    if calendar_step_id || classroom_step_id
+      disciplines_by_step_number = DisciplinesByStepNumber.new(params[:classroom_id])
+      disciplines_by_step = disciplines_by_step_number.discipline_ids_by_classroom_step(classroom_step_id) if classroom_step_id
+      disciplines_by_step = disciplines_by_step_number.discipline_ids_by_calendar_step(calendar_step_id) unless disciplines_by_step
     end
 
     if Classroom.find(params[:classroom_id]).exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
