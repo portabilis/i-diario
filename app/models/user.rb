@@ -48,6 +48,7 @@ class User < ActiveRecord::Base
   has_many :authorization_***REMOVED***, dependent: :restrict_with_error
   has_many :***REMOVED***, dependent: :restrict_with_error
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
+  has_many :worker_states, dependent: :destroy
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
@@ -68,6 +69,7 @@ class User < ActiveRecord::Base
   scope :with_phone, -> { where(arel_table[:phone].not_eq(nil)).where(arel_table[:phone].not_eq("")) }
   scope :admin, -> { where(arel_table[:admin].eq(true)) }
   scope :by_unity_id, lambda { |unity_id| joins(:user_roles).where(user_roles: { unity_id: unity_id }) }
+  scope :by_current_unity_id, lambda { |unity_id| where(current_unity_id: unity_id) }
 
   #search scopes
   scope :full_name, lambda { |full_name| where("unaccent(first_name || ' ' || last_name) ILIKE unaccent(?)", "%#{full_name}%")}
@@ -217,7 +219,7 @@ class User < ActiveRecord::Base
   end
 
   def current_unity
-    @current_unity ||= Unity.find_by_id(current_unity_id) || current_user_role.try(:unity) 
+    @current_unity ||= Unity.find_by_id(current_unity_id) || current_user_role.try(:unity)
   end
 
   def current_classroom

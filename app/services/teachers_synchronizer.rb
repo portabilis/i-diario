@@ -9,9 +9,6 @@ class TeachersSynchronizer
   end
 
   def synchronize!
-
-    inactive_all_alocations_prior_to(years[0]) if years.any?
-
     years.each do |year|
       update_records(api.fetch(ano: year)['servidores'], year)
     end
@@ -57,8 +54,6 @@ class TeachersSynchronizer
         tdc.update!(score_type: turma['tipo_nota'])
       end
     end
-
-    destroy_inexisting_teacher_discipline_classrooms(existing_ids)
   end
 
   private

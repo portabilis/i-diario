@@ -7,7 +7,7 @@ class ClassroomsController < ApplicationController
       return unless teacher_id
     end
     if params[:find_by_current_year]
-      year = current_school_calendar.year
+      year = current_school_calendar.try(:year)
     end
     score_type = params[:score_type]
 
