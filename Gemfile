@@ -45,6 +45,7 @@ gem 'whenever', require: false
 gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
 gem 'postgres-copy'
+gem 'activerecord-session_store'
 
 # Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.2'
