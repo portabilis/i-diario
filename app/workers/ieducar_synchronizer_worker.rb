@@ -28,55 +28,67 @@ class IeducarSynchronizerWorker
       total = []
 
       increment_total(total) do
-        KnowledgeAreasSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        #KnowledgeAreasSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        KnowledgeAreasSynchronizer.synchronize!(synchronization, worker_batch)
       end
 
       increment_total(total) do
-        DisciplinesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        #DisciplinesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        DisciplinesSynchronizer.synchronize!(synchronization, worker_batch)
       end
 
       increment_total(total) do
-        StudentsSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        #StudentsSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        StudentsSynchronizer.synchronize!(synchronization, worker_batch)
       end
 
       increment_total(total) do
-        DeficienciesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        #DeficienciesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        DeficienciesSynchronizer.synchronize!(synchronization, worker_batch)
       end
 
       increment_total(total) do
-        ***REMOVED***sSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        #***REMOVED***sSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        ***REMOVED***sSynchronizer.synchronize!(synchronization, worker_batch)
       end
 
       increment_total(total) do
-        RoundingTablesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        #RoundingTablesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        RoundingTablesSynchronizer.synchronize!(synchronization, worker_batch)
       end
 
       increment_total(total) do
-        RecoveryExamRulesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        #RecoveryExamRulesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        RecoveryExamRulesSynchronizer.synchronize!(synchronization, worker_batch)
       end
 
       increment_total(total) do
-        TeachersSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+        #TeachersSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+        TeachersSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
       end
 
       increment_total(total) do
-        CoursesGradesClassroomsSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        #CoursesGradesClassroomsSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, worker_batch)
       end
 
       increment_total(total) do
-        StudentEnrollmentDependenceSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+        #StudentEnrollmentDependenceSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+        StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
       end
 
       total << SpecificStepClassroomsSynchronizer.synchronize!(entity.id, synchronization.id, worker_batch.id)
 
       years_to_synchronize.each do |year|
         increment_total(total) do
-          ExamRulesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, [year])
+          #ExamRulesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, [year])
+          ExamRulesSynchronizer.synchronize!(synchronization, worker_batch, [year])
         end
 
         Unity.with_api_code.each do |unity|
           increment_total(total) do
-            StudentEnrollmentSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, [year], unity.api_code)
+            #StudentEnrollmentSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, [year], unity.api_code)
+            StudentEnrollmentSynchronizer.synchronize!(synchronization, worker_batch, [year], unity.api_code)
           end
         end
       end
