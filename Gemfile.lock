@@ -106,6 +106,12 @@ GEM
       activemodel (= 4.2.3)
       activesupport (= 4.2.3)
       arel (~> 6.0)
+    activerecord-session_store (1.1.1)
+      actionpack (>= 4.0)
+      activerecord (>= 4.0)
+      multi_json (~> 1.11, >= 1.11.2)
+      rack (>= 1.5.2, < 3)
+      railties (>= 4.0)
     activesupport (4.2.3)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
@@ -558,6 +564,7 @@ PLATFORMS
 DEPENDENCIES
   active_model_serializers
   activerecord-connections!
+  activerecord-session_store
   angular_rails_csrf
   audited-activerecord!
   aws-sdk (~> 2)
@@ -637,4 +644,4 @@ RUBY VERSION
    ruby 2.2.6p396
 
 BUNDLED WITH
-   1.15.3
+   1.16.1
