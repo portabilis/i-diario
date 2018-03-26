@@ -27,7 +27,7 @@ namespace :execute_sql do
                  notified = FALSE,
                  updated_at = now()
            WHERE status = 'started'
-             AND created_at <= NOW() - '1 day'::INTERVAL;
+             AND created_at <= NOW() - '1 hour'::INTERVAL;
         SQL
 
         if ActiveRecord::Base.connection.execute(command)
