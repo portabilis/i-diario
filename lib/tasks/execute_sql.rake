@@ -24,8 +24,10 @@ namespace :execute_sql do
           UPDATE ieducar_api_synchronizations
              SET status = 'error',
                  error_message = 'Erro desconhecido, tente novamente.',
-                 notified = FALSE
-           WHERE status = 'started';
+                 notified = FALSE,
+                 updated_at = now()
+           WHERE status = 'started'
+             AND created_at <= NOW() - '1 day'::INTERVAL;
         SQL
 
         if ActiveRecord::Base.connection.execute(command)
