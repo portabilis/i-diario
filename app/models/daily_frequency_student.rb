@@ -45,6 +45,14 @@ class DailyFrequencyStudent < ActiveRecord::Base
   end
 
   def sequence
+    return super if super.present?
+
+    update_column(:sequence, student_enrollment_sequence)
+
+    super
+  end
+
+  def student_enrollment_sequence
     StudentEnrollmentClassroom.by_classroom(classroom_id)
                               .by_date(frequency_date)
                               .by_student(student_id)
