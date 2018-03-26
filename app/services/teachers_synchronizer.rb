@@ -30,6 +30,7 @@ class TeachersSynchronizer
 
   def update_discipline_classrooms(collection, year)
     existing_ids = []
+
     collection.each do |record|
       existing_ids << record['id']
       teacher = update_or_create_teacher(record)
@@ -54,12 +55,14 @@ class TeachersSynchronizer
         tdc.update!(score_type: turma['tipo_nota'])
       end
     end
+
+    destroy_inexisting_teacher_discipline_classrooms(year, existing_ids)
   end
 
   private
 
-  def destroy_inexisting_teacher_discipline_classrooms(existing_ids)
-    discipline_classrooms.where.not(api_code: existing_ids).destroy_all
+  def destroy_inexisting_teacher_discipline_classrooms(year, existing_ids)
+    discipline_classrooms.where(year: year).where.not(api_code: existing_ids).destroy_all
   end
 
   def create_discipline_classrooms(collection, year, teacher)
