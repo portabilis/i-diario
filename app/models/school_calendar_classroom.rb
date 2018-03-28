@@ -29,8 +29,9 @@ class SchoolCalendarClassroom < ActiveRecord::Base
 
     index_of_step = classroom_steps.find_index(classroom_step(date))
 
-    school_term = school_terms[classroom_steps.count]
-    school_term.key_for(index_of_step)
+    if school_term = school_terms[classroom_steps.count]
+      school_term.key_for(index_of_step)
+    end
   end
 
   def first_day
