@@ -60,7 +60,11 @@ class SchoolCalendarsController < ApplicationController
 
   def create_and_update_batch
     begin
-      if SchoolCalendarsCreator.create!(params[:synchronize]) && SchoolCalendarsUpdater.update!(params[:synchronize])
+      school_calendars = SchoolCalendarsCreator.create!(params[:synchronize]) && SchoolCalendarsUpdater.update!(params[:synchronize])
+
+      if school_calendars
+        set_assigned_teacher_for_users(school_calendars)
+        set_classroom_and_discipline_for_users(school_calendars)
         set_school_calendar_classroom_step
 
         redirect_to school_calendars_path, notice: t('.notice')
@@ -81,6 +85,89 @@ class SchoolCalendarsController < ApplicationController
   end
 
   private
+
+  def set_assigned_teacher_for_users(school_calendars)
+    set_assigned_teacher_by_school_calendars(school_calendars)
+    set_assigned_teacher_by_school_calendar_classrooms(school_calendars)
+  end
+
+  def set_assigned_teacher_by_school_calendars(school_calendars)
+    school_calendars.each do |item|
+      current_year = SchoolCalendar.by_unity_id(item[:unity_id]).by_school_day(Date.today).first.try(:year)
+
+      User.by_current_unity_id(item[:unity_id]).each do |user|
+        classrooms_in_school_calendar_classrooms = SchoolCalendarClassroom.joins(:classroom)
+                                                                          .merge(Classroom.where(year: current_year))
+                                                                          .map(&:classroom_id)
+        teacher_current_classroom = TeacherDisciplineClassroom.joins(:classroom)
+                                                              .merge(Classroom.where(year: current_year))
+                                                              .where.not(classroom_id: classrooms_in_school_calendar_classrooms)
+                                                              .where(teacher_id: user.assumed_teacher_id)
+
+        if teacher_current_classroom.blank?
+          user.update_column(:assumed_teacher_id, nil)
+        end
+      end
+    end
+  end
+
+  def set_assigned_teacher_by_school_calendar_classrooms(school_calendars)
+    school_calendars.each do |item|
+      current_classroom_ids = SchoolCalendarClassroom.by_unity_id(item[:unity_id]).joins(:classroom_steps)
+                                                     .merge(SchoolCalendarClassroomStep.by_school_day(Date.today))
+                                                     .map(&:classroom_id)
+
+      User.by_current_unity_id(item[:unity_id]).each do |user|
+        teacher_current_classroom = TeacherDisciplineClassroom.where.not(classroom_id: current_classroom_ids)
+                                                              .where(teacher_id: user.assumed_teacher_id)
+
+        if teacher_current_classroom.blank? && SchoolCalendarClassroomStep.by_classroom(user.current_classroom_id).any?
+          user.update_column(:assumed_teacher_id, nil)
+        end
+      end
+    end
+  end
+
+  def set_classroom_and_discipline_for_users(school_calendars)
+    set_classroom_and_discipline_by_school_calendars(school_calendars)
+    set_classroom_and_discipline_by_school_calendar_classrooms(school_calendars)
+  end
+
+  def set_classroom_and_discipline_by_school_calendars(school_calendars)
+    school_calendars.each do |item|
+      current_year = SchoolCalendar.by_unity_id(item[:unity_id]).by_school_day(Date.today).first.try(:year)
+
+      User.by_current_unity_id(item[:unity_id]).each do |user|
+        classroom_year = Classroom.find_by_id(user.current_classroom_id).try(:year)
+
+        if classroom_year && current_year != classroom_year && SchoolCalendarClassroomStep.by_classroom(user.current_classroom_id).empty?
+          user.update_columns(
+            current_classroom_id: nil,
+            current_discipline_id: nil
+          )
+        end
+      end
+    end
+  end
+
+  def set_classroom_and_discipline_by_school_calendar_classrooms(school_calendars)
+    school_calendars.each do |item|
+      current_classroom_ids = SchoolCalendarClassroom.by_unity_id(item[:unity_id]).joins(:classroom_steps)
+                                                     .merge(SchoolCalendarClassroomStep.by_school_day(Date.today))
+                                                     .map(&:classroom_id)
+
+      User.by_current_unity_id(item[:unity_id]).each do |user|
+        exists_classroom_step = SchoolCalendarClassroomStep.by_classroom(user.current_classroom_id).any?
+
+        if exists_classroom_step && !current_classroom_ids.include?(user.current_classroom_id)
+          user.update_columns(
+            current_classroom_id: nil,
+            current_discipline_id: nil
+          )
+        end
+      end
+    end
+  end
 
   def set_school_calendar_classroom_step
     job_id = SchoolCalendarSetterByStepWorker.perform_async(current_entity.id, params[:synchronize], current_user.id)
