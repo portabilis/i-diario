@@ -29,13 +29,16 @@ class SchoolCalendarsUpdater
           raise InvalidSchoolCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_unity', unity_name: invalid.record.unity.name, error_message: message)
         end
 
-
         begin
+          school_calendar_classroom_ids_marked_for_destruction = []
+
           school_calendar_classrooms = school_calendar_params['classrooms'] || []
           school_calendar_classrooms.each_with_index do |classroom_params, classroom_index|
             school_calendar_classroom = SchoolCalendarClassroom.by_classroom_id(classroom_params['id']).first
 
             if school_calendar_classroom
+              school_calendar_classroom_ids_marked_for_destruction << school_calendar_classroom.id if classroom_params['_destroy'] == 'true'
+
               school_calendar_classroom_steps = classroom_params['steps'] || []
               school_calendar_classroom_steps.each_with_index do |step_params, step_index|
                 if school_calendar_classroom.classroom_steps[step_index]
@@ -45,7 +48,6 @@ class SchoolCalendarsUpdater
                 end
               end
             else
-
               school_calendar_classroom = create_school_calendar_classroom!(classroom_params, school_calendar)
               classroom_params['steps'].each do |step_params|
                 create_school_calendar_classroom_steps!(school_calendar_classroom, step_params)
@@ -53,6 +55,7 @@ class SchoolCalendarsUpdater
             end
           end
 
+          destroy_school_calendar_classrooms_marked_for_destruction(school_calendar, school_calendar_classroom_ids_marked_for_destruction)
         rescue ActiveRecord::RecordInvalid => invalid
           raise InvalidClassroomCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_classroom', unity_name: invalid.record.classroom.unity.name, classroom_name: invalid.record.classroom.description)
         end
@@ -117,5 +120,9 @@ class SchoolCalendarsUpdater
                                 end_at: step_params['end_at'],
                                 start_date_for_posting: step_params['start_date_for_posting'],
                                 end_date_for_posting: step_params['end_date_for_posting'])
+  end
+
+  def destroy_school_calendar_classrooms_marked_for_destruction(school_calendar, school_calendar_classroom_ids_marked_for_destruction)
+    school_calendar.classrooms.where(id: school_calendar_classroom_ids_marked_for_destruction).destroy_all
   end
 end
