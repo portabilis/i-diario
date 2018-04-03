@@ -45,11 +45,10 @@ class Unity < ActiveRecord::Base
   validate :uniqueness_of_equipments
 
   scope :ordered, -> { order(arel_table[:name].asc) }
-  scope :by_api_codes, lambda { |codes|
-    where(arel_table[:api_code].in(codes))
-  }
+  scope :by_api_codes, -> (codes) { where(arel_table[:api_code].in(codes)) }
   scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }
-  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
+  scope :by_teacher, -> (teacher_id) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
+  scope :by_year, -> (year) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { year: year }).uniq }
   scope :by_unity, -> unity { where(id: unity) }
 
   #search scopes
