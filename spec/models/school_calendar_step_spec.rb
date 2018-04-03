@@ -54,15 +54,6 @@ RSpec.describe SchoolCalendarStep, type: :model do
       expect(subject.errors.messages[:end_date_for_posting]).to include("não pode ser menor que a data inicial para postagem")
     end
 
-    it "validates that end_at is less than February 28th from school_calendar next year" do
-      school_calendar = build(:school_calendar, year: 2020)
-      subject.school_calendar = school_calendar
-      subject.end_at = "01/01/2022"
-
-      expect(subject).to_not be_valid
-      expect(subject.errors.messages[:end_at]).to include('não pode maior que 28/02/2021')
-    end
-
     it 'start_at date should not have conflicting school terms with other school calendars from the same unity' do
       existing_school_calendar = build(:school_calendar, year: 2020)
       existing_school_calendar.steps.build(

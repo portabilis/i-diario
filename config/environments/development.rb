@@ -41,8 +41,8 @@ Rails.application.configure do
 
   # Bullet configuration
   config.after_initialize do
-    Bullet.enable = false
-    Bullet.alert = true
+    Bullet.enable = true
+    Bullet.alert = false
     Bullet.console = true
     Bullet.rails_logger = true
   end

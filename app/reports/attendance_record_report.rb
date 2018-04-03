@@ -86,14 +86,6 @@ class AttendanceRecordReport
 
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
 
-    # p '**************'
-    # p @events
-    # p '**************'
-    # p '**************'
-    # p @events.count
-    # p '**************'
-
-    # raise
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
     frequencies_and_events = frequencies_and_events.sort_by do |obj|

@@ -34,4 +34,8 @@ RSpec.configure do |config|
   config.after(:all) do
     FileUtils.rm_rf(Dir["#{Rails.root}/public/uploads/test"])
   end
+
+  config.after :each do |example|
+    page.driver.restart if defined?(page.driver.restart)
+  end
 end

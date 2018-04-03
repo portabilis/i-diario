@@ -5,6 +5,7 @@ pt-BR:
       require_current_teacher_discipline_classrooms: "É necessário ter turmas vinculadas ao professor atual para acessar esta funcionalidade"
       require_current_school_calendar: "É necessário o cadastro de um calendário letivo no ano atual para acessar esse cadastro"
       require_current_test_setting: "É necessário o cadastro de uma configuração de avaliação no ano atual para acessar esse cadastro"
+      school_calendar_steps_more_than_limit: "Verificamos que o calendário letivo da escola: %{unity}, possui uma quantidade de etapas acima do permitido."
   ieducar_api:
     error:
       messages:

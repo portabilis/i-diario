@@ -92,6 +92,7 @@ class DescriptiveExamsController < ApplicationController
                                                      discipline: @descriptive_exam.discipline,
                                                      start_at: calendar_step.start_at,
                                                      end_at: calendar_step.end_at,
+                                                     show_inactive_outside_step: false,
                                                      search_type: :by_date_range)
                                                 .student_enrollments
   end
@@ -102,7 +103,7 @@ class DescriptiveExamsController < ApplicationController
 
   def current_school_calendar_steps
     if current_user_classroom.calendar
-      current_school_calendar.classrooms.where(classroom_id: current_user_classroom).classroom_steps
+      current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom).classroom_steps
     else
       current_school_calendar.steps
     end

@@ -9,9 +9,6 @@ class TeachersSynchronizer
   end
 
   def synchronize!
-
-    inactive_all_alocations_prior_to(years[0]) if years.any?
-
     years.each do |year|
       update_records(api.fetch(ano: year)['servidores'], year)
     end
@@ -33,6 +30,7 @@ class TeachersSynchronizer
 
   def update_discipline_classrooms(collection, year)
     existing_ids = []
+
     collection.each do |record|
       existing_ids << record['id']
       teacher = update_or_create_teacher(record)
@@ -58,13 +56,13 @@ class TeachersSynchronizer
       end
     end
 
-    destroy_inexisting_teacher_discipline_classrooms(existing_ids)
+    destroy_inexisting_teacher_discipline_classrooms(year, existing_ids)
   end
 
   private
 
-  def destroy_inexisting_teacher_discipline_classrooms(existing_ids)
-    discipline_classrooms.where.not(api_code: existing_ids).destroy_all
+  def destroy_inexisting_teacher_discipline_classrooms(year, existing_ids)
+    discipline_classrooms.where(year: year).where.not(api_code: existing_ids).destroy_all
   end
 
   def create_discipline_classrooms(collection, year, teacher)

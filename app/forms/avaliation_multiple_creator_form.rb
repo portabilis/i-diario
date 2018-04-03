@@ -12,7 +12,7 @@ class AvaliationMultipleCreatorForm
   validates :test_setting_id,      presence: true
   validates :test_setting_test_id, presence: true, if: :sum_calculation_type?
   validates :description,       presence: true, if: -> { !sum_calculation_type? || allow_break_up? }
-  validates :weight,            presence: true, if: :allow_break_up?
+  validates :weight,            presence: true, if: :should_validate_weight?
   validate :at_least_one_assigned_avaliation
 
   def initialize(attributes = {})
@@ -117,6 +117,10 @@ class AvaliationMultipleCreatorForm
 
   def arithmetic_and_sum_calculation_type?
     average_calculation_type == "arithmetic_and_sum"
+  end
+
+  def should_validate_weight?
+    allow_break_up? || arithmetic_and_sum_calculation_type?
   end
 
   def add_avaliations_errors_to_classrooms
