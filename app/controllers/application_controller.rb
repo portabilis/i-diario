@@ -1,6 +1,8 @@
 require "application_responder"
 
 class ApplicationController < ActionController::Base
+  MAX_STEPS_FOR_SCHOOL_CALENDAR = 4
+
   self.responder = ApplicationResponder
   respond_to :html
 
@@ -186,7 +188,11 @@ class ApplicationController < ActionController::Base
   end
 
   def require_current_school_calendar
-    unless current_school_calendar
+    school_calendar = current_school_calendar
+
+    if school_calendar
+      require_valid_school_calendar(school_calendar)
+    else
       flash[:alert] = t('errors.general.require_current_school_calendar')
       redirect_to root_path
     end
@@ -195,6 +201,13 @@ class ApplicationController < ActionController::Base
   def require_current_test_setting
     unless current_test_setting
       flash[:alert] = t('errors.general.require_current_test_setting')
+      redirect_to root_path
+    end
+  end
+
+  def require_valid_school_calendar(school_calendar)
+    if school_calendar.steps.count > MAX_STEPS_FOR_SCHOOL_CALENDAR
+      flash[:alert] = I18n.t('errors.general.school_calendar_steps_more_than_limit', unity: current_user_unity)
       redirect_to root_path
     end
   end
