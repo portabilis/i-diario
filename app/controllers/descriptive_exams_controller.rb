@@ -6,7 +6,6 @@ class DescriptiveExamsController < ApplicationController
     @descriptive_exam = DescriptiveExam.new
 
     authorize @descriptive_exam
-
     set_school_calendar_steps
     set_school_calendar_classroom_steps
   end
@@ -19,13 +18,15 @@ class DescriptiveExamsController < ApplicationController
         @descriptive_exam = DescriptiveExam.find_or_create_by(
           classroom: @descriptive_exam.classroom,
           school_calendar_classroom_step_id: @descriptive_exam.school_calendar_classroom_step_id,
-          discipline_id: @descriptive_exam.discipline_id
+          discipline_id: @descriptive_exam.discipline_id,
+          opinion_type: @descriptive_exam.opinion_type
         )
       else
         @descriptive_exam = DescriptiveExam.find_or_create_by(
           classroom: @descriptive_exam.classroom,
           school_calendar_step_id: @descriptive_exam.school_calendar_step_id,
-          discipline_id: @descriptive_exam.discipline_id
+          discipline_id: @descriptive_exam.discipline_id,
+          opinion_type: @descriptive_exam.opinion_type
         )
       end
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
@@ -85,11 +86,17 @@ class DescriptiveExamsController < ApplicationController
     respond_with @descriptive_exam
   end
 
+  def opinion_types
+    set_opinion_types(Classroom.find(params[:classroom_id]))
+    render json: @opinion_types.to_json
+  end
+
   protected
 
   def fetch_student_enrollments
     @student_enrollments = StudentEnrollmentsList.new(classroom: @descriptive_exam.classroom,
                                                      discipline: @descriptive_exam.discipline,
+                                                     opinion_type: @descriptive_exam.opinion_type,
                                                      start_at: calendar_step.start_at,
                                                      end_at: calendar_step.end_at,
                                                      show_inactive_outside_step: false,
@@ -115,7 +122,8 @@ class DescriptiveExamsController < ApplicationController
 
   def resource_params
     params.require(:descriptive_exam).permit(
-      :classroom_id, :discipline_id, :school_calendar_step_id, :school_calendar_classroom_step_id,
+      :classroom_id, :discipline_id, :school_calendar_step_id,
+      :school_calendar_classroom_step_id, :opinion_type,
       students_attributes: [
         :id, :student_id, :value, :dependence
       ]
@@ -137,7 +145,27 @@ class DescriptiveExamsController < ApplicationController
     @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id) || {}
   end
 
-  private
+  def set_opinion_types(classroom)
+    @opinion_types = []
+    return unless classroom.is_a?(Classroom)
+
+    if classroom.exam_rule.allow_descriptive_exam?
+      @opinion_types << {
+        id: classroom.exam_rule.opinion_type,
+        text: 'Regular'
+      }
+    end
+
+    if classroom.exam_rule.differentiated_exam_rule &&
+       classroom.exam_rule.differentiated_exam_rule.allow_descriptive_exam? &&
+       classroom.exam_rule.opinion_type != classroom.exam_rule.differentiated_exam_rule.opinion_type
+
+      @opinion_types << {
+        id: classroom.exam_rule.differentiated_exam_rule.opinion_type,
+        text: 'Aluno com deficiência'
+      }
+    end
+  end
 
   def destroy_students_not_found
     @descriptive_exam.students.each do |student|

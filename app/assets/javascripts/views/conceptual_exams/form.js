@@ -40,13 +40,18 @@ $(function() {
 
   function fetchExamRule() {
     var classroom_id = $classroom.select2('val');
+    var student_id = $student.select2('val');
 
     window.examRule = null;
     window.roundingTableValues = null;
 
-    if (!_.isEmpty(classroom_id)) {
+    if (!_.isEmpty(classroom_id) && !_.isEmpty(student_id)) {
       $.ajax({
-        url: Routes.exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        url: Routes.exam_rules_pt_br_path({
+          classroom_id: classroom_id,
+          student_id: student_id,
+          format: 'json'
+        }),
         success: handleFetchExamRuleSuccess,
         error: handleFetchExamRuleError
       });
@@ -59,11 +64,12 @@ $(function() {
       window.roundingTableValues = _.map(data.exam_rule.conceptual_rounding_table.rounding_table_values, function(rounding_table_value) {
         return { id: rounding_table_value.value, text: rounding_table_value.to_s };
       });
+      loadSelect2ForConceptualExamValues();
     }
   };
 
   function handleFetchExamRuleError() {
-    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
+    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação do aluno selecionada.');
   };
 
   function examRuleIsValid(examRule) {
@@ -71,7 +77,7 @@ $(function() {
     if (correct_score_type) {
       return true;
     } else {
-      flashMessages.error('A turma informada não possui uma regra de avaliação conceitual.');
+      flashMessages.error('O aluno informado não possui uma regra de avaliação conceitual.');
       return false;
     }
   }
@@ -102,7 +108,8 @@ $(function() {
           classroom: classroom_id,
           start_at: start_at,
           end_at: end_at,
-          discipline: discipline_id
+          discipline: discipline_id,
+          score_type: 'concept'
         };
 
         if (!_.isEmpty(classroom_id) && !_.isEmpty(start_at) && !_.isEmpty(end_at)) {
@@ -239,17 +246,17 @@ $(function() {
     fetchClassrooms();
   });
 
-  $classroom.on('change', function() {
-    fetchExamRule();
-    removeDisciplines();
-    fetchDisciplines();
-  });
-
   if($('#current_action_').val() == 'new'){
-    $classroom.trigger('change');
+    $student.trigger('change');
   }
 
   $school_calendar_step.on('change', function() {
     fetchStudents();
+  });
+
+  $student.on('change', function(){
+    fetchExamRule();
+    removeDisciplines();
+    fetchDisciplines();
   });
 });

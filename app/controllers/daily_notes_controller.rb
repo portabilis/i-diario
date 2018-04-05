@@ -114,6 +114,7 @@ class DailyNotesController < ApplicationController
     StudentEnrollmentsList.new(classroom: @daily_note.classroom,
                                discipline: @daily_note.discipline,
                                date: @daily_note.avaliation.test_date,
+                               score_type: 'numeric',
                                search_type: :by_date)
                           .student_enrollments
   end

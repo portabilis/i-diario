@@ -3,7 +3,13 @@ class ConceptualExamValueDecorator
   include Decore::Proxy
 
   def data_for_select2
-    rounding_table = conceptual_exam.classroom.exam_rule.conceptual_rounding_table
+    exam_rule = conceptual_exam.classroom.exam_rule
+
+    if conceptual_exam.student.try(:uses_differentiated_exam_rule)
+      exam_rule = exam_rule.differentiated_exam_rule || exam_rule
+    end
+
+    rounding_table = exam_rule.conceptual_rounding_table
     if rounding_table.present?
       rounding_table
         .rounding_table_values
