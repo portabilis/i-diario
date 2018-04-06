@@ -41,6 +41,8 @@ class IeducarSynchronizerWorker
           end
         end
 
+        StudentEnrollmentExemptedDisciplinesSynchronizer.synchronize!(synchronization)
+
         synchronization.mark_as_completed!
       rescue IeducarApi::Base::ApiError => e
         synchronization.mark_as_error!(e.message)
