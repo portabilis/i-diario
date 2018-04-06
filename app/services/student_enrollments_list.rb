@@ -13,7 +13,7 @@ class StudentEnrollmentsList
     @show_inactive = params.fetch(:show_inactive, true)
     @show_inactive_outside_step = params.fetch(:show_inactive_outside_step, true)
     @score_type = params.fetch(:score_type, 'both') || 'both'
-    @opinion_type = params.fetch(:opinion_type, :nil)
+    @opinion_type = params.fetch(:opinion_type, nil)
     ensure_has_valid_params
   end
 
