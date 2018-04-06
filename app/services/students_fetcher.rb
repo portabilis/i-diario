@@ -1,5 +1,5 @@
 class StudentsFetcher
-  def initialize(classroom, discipline = nil, date = Time.zone.today, start_date = nil, score_type = 'both')
+  def initialize(classroom, discipline = nil, date = Time.zone.today, start_date = nil, score_type = StudentEnrollmentScoreTypeFilters::BOTH)
     @classroom = classroom
     @discipline = discipline
     @date = date

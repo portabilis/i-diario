@@ -24,19 +24,19 @@ class StudentEnrollment < ActiveRecord::Base
   end
 
   def self.by_score_type_query(score_type, classroom_id)
-    return where(nil) if score_type == 'both'
+    return where(nil) if score_type == StudentEnrollmentScoreTypeFilters::BOTH
     classroom = Classroom.find(classroom_id)
     exam_rule = classroom.exam_rule
     differentiated_exam_rule = exam_rule.differentiated_exam_rule || exam_rule
 
     allowed_score_types = [ScoreTypes::NUMERIC_AND_CONCEPT]
-    allowed_score_types << (score_type == 'concept' ? ScoreTypes::CONCEPT : ScoreTypes::NUMERIC)
+    allowed_score_types << (score_type == StudentEnrollmentScoreTypeFilters::CONCEPT ? ScoreTypes::CONCEPT : ScoreTypes::NUMERIC)
 
     exam_rule_included = allowed_score_types.include?(exam_rule.score_type)
     differentiated_exam_rule_included = allowed_score_types.include?(differentiated_exam_rule.score_type)
 
     return where(nil) if exam_rule_included && differentiated_exam_rule_included
-    return where('1=2') unless exam_rule_included || differentiated_exam_rule_included
+    return none unless exam_rule_included || differentiated_exam_rule_included
     return joins(:student).where(students: {uses_differentiated_exam_rule: differentiated_exam_rule_included})
   end
 
@@ -50,7 +50,7 @@ class StudentEnrollment < ActiveRecord::Base
     differentiated_exam_rule_included = differentiated_exam_rule.opinion_type == opinion_type
 
     return where(nil) if exam_rule_included && differentiated_exam_rule_included
-    return where('1=2') unless exam_rule_included || differentiated_exam_rule_included
+    return none unless exam_rule_included || differentiated_exam_rule_included
     return joins(:student).where(students: {uses_differentiated_exam_rule: differentiated_exam_rule_included})
   end
 end
