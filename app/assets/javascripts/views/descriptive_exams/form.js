@@ -68,10 +68,6 @@ $(function () {
     }
   });
 
-  $opinionType.on('change', function(){
-
-  });
-
   var checkOpinionTypes = function(params){
     fetchOpinionTypes(params, function(opnion_types){
       var opinionTypes = opnion_types;
