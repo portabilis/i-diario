@@ -8,19 +8,32 @@ class StudentsInRecoveryFetcher
   end
 
   def fetch
-    case classroom.exam_rule.recovery_type
-    when RecoveryTypes::PARALLEL
-      @students = fetch_students_in_parallel_recovery
-    when RecoveryTypes::SPECIFIC
-      @students = fetch_students_in_specific_recovery
+    @students = []
+    if classroom.exam_rule.differentiated_exam_rule.blank? || classroom.exam_rule.differentiated_exam_rule.recovery_type == classroom.exam_rule.recovery_type
+
+      @students += fetch_by_recovery_type(classroom.exam_rule.recovery_type)
     else
-      @students = []
+      @students += fetch_by_recovery_type(classroom.exam_rule.recovery_type, false)
+      @students += fetch_by_recovery_type(classroom.exam_rule.differentiated_exam_rule.recovery_type, true)
     end
+    @students.uniq!
 
     @students
   end
 
   private
+
+  def fetch_by_recovery_type(recovery_type, differentiated = nil)
+    case recovery_type
+    when RecoveryTypes::PARALLEL
+      students = fetch_students_in_parallel_recovery(differentiated)
+    when RecoveryTypes::SPECIFIC
+      students = fetch_students_in_specific_recovery(differentiated)
+    else
+      students = []
+    end
+    students
+  end
 
   def classroom
     Classroom.find(@classroom_id)
@@ -34,8 +47,8 @@ class StudentsInRecoveryFetcher
     SchoolCalendarStep.find(@school_calendar_step_id)
   end
 
-  def fetch_students_in_parallel_recovery
-    @students = StudentsFetcher.new(
+  def fetch_students_in_parallel_recovery(differentiated = nil)
+    students = StudentsFetcher.new(
         classroom,
         discipline,
         @date
@@ -43,17 +56,17 @@ class StudentsInRecoveryFetcher
       .fetch
 
     if classroom.exam_rule.parallel_recovery_average
-      @students = @students.select do |student|
+      students = students.select do |student|
         average = student.average(classroom, discipline, school_calendar_step)
         average < classroom.exam_rule.parallel_recovery_average
       end
     end
 
-    @students
+    filter_differentiated_students(students, differentiated)
   end
 
-  def fetch_students_in_specific_recovery
-    @students = []
+  def fetch_students_in_specific_recovery(differentiated = nil)
+    students = []
 
     school_calendar_steps = RecoverySchoolCalendarStepsFetcher.new(
       @school_calendar_step_id,
@@ -73,7 +86,7 @@ class StudentsInRecoveryFetcher
         )
         .fetch
 
-      @students = students.select do |student|
+      students = students.select do |student|
         sum_averages = 0
         school_calendar_steps.each do |step|
           sum_averages = sum_averages + student.average(classroom, discipline, step)
@@ -84,6 +97,16 @@ class StudentsInRecoveryFetcher
       end
     end
 
-    @students
+    filter_differentiated_students(students, differentiated)
+  end
+
+  def filter_differentiated_students(students, differentiated)
+    if differentiated == !!differentiated
+      students = students.select do |student|
+        students.uses_differentiated_exam_rule == differentiated
+      end
+    end
+
+    students
   end
 end

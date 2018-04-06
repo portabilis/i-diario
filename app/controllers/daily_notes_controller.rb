@@ -130,6 +130,7 @@ class DailyNotesController < ApplicationController
           .by_student(note_student.student_id)
           .by_classroom(@daily_note.classroom_id)
           .by_discipline(@daily_note.discipline_id)
+          .by_score_type('numeric',@daily_note.classroom_id)
           .active
           .first
 
