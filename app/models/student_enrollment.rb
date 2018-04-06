@@ -2,7 +2,8 @@ class StudentEnrollment < ActiveRecord::Base
   belongs_to :student
 
   has_many :student_enrollment_classrooms
-  has_many :dependences, class_name: "StudentEnrollmentDependence"
+  has_many :dependences, class_name: 'StudentEnrollmentDependence'
+  has_many :exempted_disciplines, class_name: 'StudentEnrollmentExemptedDiscipline'
 
   scope :by_classroom, lambda { |classroom_id| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_classroom(classroom_id)) }
   scope :by_discipline, lambda {|discipline_id| by_discipline_query(discipline_id)}

@@ -53,6 +53,7 @@ class DailyNotesController < ApplicationController
         note_student.active = student_active_on_date?(student_enrollment)
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
+        note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_note)
 
         @students << note_student
       end
@@ -62,6 +63,7 @@ class DailyNotesController < ApplicationController
     @dependence_students = []
     @any_exempted_student = any_exempted_student?
     @any_inactive_student = any_inactive_student?
+    @any_exempted_students_from_discipline = any_exempted_students_from_discipline?
 
     @students.each do |student|
       @normal_students << student if !student.dependence
@@ -254,5 +256,23 @@ class DailyNotesController < ApplicationController
       end
     end
     any_inactive_student
+  end
+
+  def student_exempted_from_discipline?(student_enrollment, daily_note)
+    discipline_id = daily_note.discipline.id
+    test_date = daily_note.avaliation.test_date
+    step_number = daily_note.avaliation.school_calendar.step(test_date).to_number
+
+    student_enrollment.exempted_disciplines.where(discipline_id: discipline_id)
+                                           .where("? = ANY(string_to_array(steps, ',')::integer[])", step_number)
+                                           .any?
+  end
+
+  def any_exempted_students_from_discipline?
+    (@students || []).each do |student|
+      return true if student.exempted_from_discipline
+    end
+
+    false
   end
 end
