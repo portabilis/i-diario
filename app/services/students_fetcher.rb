@@ -1,9 +1,10 @@
 class StudentsFetcher
-  def initialize(classroom, discipline = nil, date = Time.zone.today, start_date = nil)
+  def initialize(classroom, discipline = nil, date = Time.zone.today, start_date = nil, score_type = 'both')
     @classroom = classroom
     @discipline = discipline
     @date = date
     @start_date = start_date
+    @score_type = score_type
   end
 
   def fetch
@@ -11,6 +12,7 @@ class StudentsFetcher
       .by_classroom(@classroom)
       .by_discipline(@discipline)
       .by_date(@date)
+      .by_score_type(@score_type, @classroom)
       .active
 
     if @start_date
