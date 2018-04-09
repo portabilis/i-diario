@@ -50,10 +50,12 @@ class DescriptiveExamsController < ApplicationController
       if student = Student.find_by_id(student_enrollment.student_id)
         exam_student = (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
         exam_student.dependence = student_has_dependence?(student_enrollment, @descriptive_exam.discipline)
+        exam_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @descriptive_exam)
         @students << exam_student
       end
     end
 
+    @any_exempted_students_from_discipline = any_exempted_students_from_discipline?
     @normal_students = []
     @dependence_students = []
 
@@ -182,5 +184,26 @@ class DescriptiveExamsController < ApplicationController
       .by_student_enrollment(student_enrollment)
       .by_discipline(discipline)
       .any?
+  end
+
+  def student_exempted_from_discipline?(student_enrollment, descriptive_exam)
+    if discipline_id = descriptive_exam.discipline.try(&:id)
+      step_number = descriptive_exam.school_calendar_classroom_step.try(:to_number)
+      step_number = descriptive_exam.school_calendar_step.to_number unless step_number
+
+      student_enrollment.exempted_disciplines.where(discipline_id: discipline_id)
+                                             .where("? = ANY(string_to_array(steps, ',')::integer[])", step_number)
+                                             .any?
+    else
+      false
+    end
+  end
+
+  def any_exempted_students_from_discipline?
+    (@students || []).each do |student|
+      return true if student.exempted_from_discipline
+    end
+
+    false
   end
 end
