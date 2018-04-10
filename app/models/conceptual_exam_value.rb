@@ -3,6 +3,8 @@ class ConceptualExamValue < ActiveRecord::Base
 
   audited associated_with: :conceptual_exam, except: :conceptual_exam_id
 
+  attr_accessor :exempted_discipline
+
   belongs_to :conceptual_exam
   belongs_to :discipline
 
