@@ -285,6 +285,9 @@ $(function () {
       $.ajax({
         url: Routes.student_enrollments_pt_br_path({
           filter: filter,
+          school_calendar_step_id: $school_calendar_step.val(),
+          school_calendar_classroom_step_id: $school_calendar_classroom_step.val(),
+          exclude_exempted_disciplines: true,
           score_type: 'numeric',
           format: 'json'
         }),

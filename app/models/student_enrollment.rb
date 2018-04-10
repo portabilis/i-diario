@@ -13,6 +13,7 @@ class StudentEnrollment < ActiveRecord::Base
   scope :by_date, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date(date)) }
   scope :by_date_range, lambda { |start_at, end_at| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_range(start_at, end_at)) }
   scope :by_date_not_before, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_not_before(date)) }
+  scope :exclude_exempted_disciplines, lambda { |discipline_id, step_number| exclude_exempted_disciplines(discipline_id, step_number) }
   scope :show_as_inactive, lambda { joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.show_as_inactive) }
   scope :active, -> { where(active: 1) }
   scope :ordered, -> { joins(:student, :student_enrollment_classrooms).order('sequence ASC, students.name ASC') }
@@ -53,5 +54,13 @@ class StudentEnrollment < ActiveRecord::Base
     return where(nil) if exam_rule_included && differentiated_exam_rule_included
     return where('1=2') unless exam_rule_included || differentiated_exam_rule_included
     return joins(:student).where(students: {uses_differentiated_exam_rule: differentiated_exam_rule_included})
+  end
+
+  def self.exclude_exempted_disciplines(discipline_id, step_number)
+    exempted_discipline_ids = StudentEnrollmentExemptedDiscipline.where(discipline_id: discipline_id)
+                                                                 .where("? = ANY(string_to_array(steps, ',')::integer[])", step_number)
+                                                                 .map(&:student_enrollment_id)
+                                                                 .uniq
+    where.not(id: exempted_discipline_ids)
   end
 end
