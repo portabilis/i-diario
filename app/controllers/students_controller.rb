@@ -11,7 +11,7 @@ class StudentsController < ApplicationController
         nil,
         date.to_date.to_s,
         params[:start_date],
-        params[:score_type] || 'both'
+        params[:score_type] || StudentEnrollmentScoreTypeFilters::BOTH
       )
       .fetch
 

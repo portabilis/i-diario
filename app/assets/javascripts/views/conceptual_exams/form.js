@@ -69,7 +69,7 @@ $(function() {
   };
 
   function handleFetchExamRuleError() {
-    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação do aluno selecionada.');
+    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação do aluno selecionado.');
   };
 
   function examRuleIsValid(examRule) {

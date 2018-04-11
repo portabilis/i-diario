@@ -24,7 +24,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def new
-    redirect_to conceptual_exams_path, alert: "A disciplina selecionada não possui nota conceitual" unless [teacher_differentiated_discipline_score_type, teacher_discipline_score_type].any? {|dct| dct != DisciplineScoreTypes::NUMERIC }
+    redirect_to conceptual_exams_path, alert: "A disciplina selecionada não possui nota conceitual" unless [teacher_differentiated_discipline_score_type, teacher_discipline_score_type].any? {|discipline_score_type| discipline_score_type != DisciplineScoreTypes::NUMERIC }
     @conceptual_exam = ConceptualExam.new(
       unity_id: current_user_unity.id,
       recorded_at: Time.zone.today
@@ -260,7 +260,7 @@ class ConceptualExamsController < ApplicationController
       discipline: current_user_discipline,
       start_at: start_at,
       end_at: end_at,
-      score_type: 'concept',
+      score_type: StudentEnrollmentScoreTypeFilters::CONCEPT,
       search_type: :by_date_range
     ).student_enrollments
   end

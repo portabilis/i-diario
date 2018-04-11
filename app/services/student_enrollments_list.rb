@@ -12,7 +12,7 @@ class StudentEnrollmentsList
     @search_type = params.fetch(:search_type, :by_date)
     @show_inactive = params.fetch(:show_inactive, true)
     @show_inactive_outside_step = params.fetch(:show_inactive_outside_step, true)
-    @score_type = params.fetch(:score_type, 'both') || 'both'
+    @score_type = params.fetch(:score_type, StudentEnrollmentScoreTypeFilters::BOTH) || StudentEnrollmentScoreTypeFilters::BOTH
     @opinion_type = params.fetch(:opinion_type, nil)
     ensure_has_valid_params
   end

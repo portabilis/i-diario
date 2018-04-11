@@ -116,7 +116,7 @@ class DailyNotesController < ApplicationController
     StudentEnrollmentsList.new(classroom: @daily_note.classroom,
                                discipline: @daily_note.discipline,
                                date: @daily_note.avaliation.test_date,
-                               score_type: 'numeric',
+                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
                                search_type: :by_date)
                           .student_enrollments
   end
@@ -132,7 +132,7 @@ class DailyNotesController < ApplicationController
           .by_student(note_student.student_id)
           .by_classroom(@daily_note.classroom_id)
           .by_discipline(@daily_note.discipline_id)
-          .by_score_type('numeric',@daily_note.classroom_id)
+          .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC,@daily_note.classroom_id)
           .active
           .first
 
