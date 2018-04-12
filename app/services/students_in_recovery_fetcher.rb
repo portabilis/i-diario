@@ -51,7 +51,10 @@ class StudentsInRecoveryFetcher
     students = StudentsFetcher.new(
         classroom,
         discipline,
-        @date
+        @date,
+        nil,
+        StudentEnrollmentScoreTypeFilters::BOTH,
+        school_calendar_step.to_number
       )
       .fetch
 
@@ -82,7 +85,10 @@ class StudentsInRecoveryFetcher
       students = StudentsFetcher.new(
           classroom,
           discipline,
-          @date
+          @date,
+          nil,
+          StudentEnrollmentScoreTypeFilters::BOTH,
+          school_calendar_step.to_number
         )
         .fetch
 

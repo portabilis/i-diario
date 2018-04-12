@@ -65,6 +65,9 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     students_in_recovery = @school_calendar_classroom_steps.any? ? fetch_students_in_recovery_by_classroom_step : fetch_students_in_recovery
     mark_students_not_in_recovery_for_destruction(students_in_recovery)
     add_missing_students(students_in_recovery)
+    mark_students_exempted_from_discipline(students_in_recovery)
+
+    @any_exempted_students_from_discipline = any_exempted_students_from_discipline?
 
     @school_calendar_steps = current_school_calendar.steps
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
@@ -205,5 +208,19 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def api_configuration
     IeducarApiConfiguration.current
+  end
+
+  def mark_students_exempted_from_discipline(students_in_recovery)
+    @school_term_recovery_diary_record.recovery_diary_record.students.each do |student|
+      student.student.exempted_from_discipline = students_in_recovery.find { |item| item.id ==  student.student_id }.exempted_from_discipline
+    end
+  end
+
+  def any_exempted_students_from_discipline?
+    @school_term_recovery_diary_record.recovery_diary_record.students.each do |student|
+      return true if student.student.exempted_from_discipline
+    end
+
+    false
   end
 end

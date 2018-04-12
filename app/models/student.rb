@@ -9,6 +9,8 @@ class Student < ActiveRecord::Base
   has_many :student_biometrics
   has_many :student_enrollments
 
+  attr_accessor :exempted_from_discipline
+
   validates :name, presence: true
   validates :api_code, presence: true, if: :api?
 
