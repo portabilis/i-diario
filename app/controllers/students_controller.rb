@@ -5,13 +5,16 @@ class StudentsController < ApplicationController
     if params[:classroom_id]
       date = params[:date].present? ? params[:date] : Date.today
       classroom = Classroom.find(params[:classroom_id])
+      step_number = SchoolCalendarClassroomStep.find(params[:school_calendar_classroom_step_id]).to_number if params[:school_calendar_classroom_step_id].present?
+      step_number = SchoolCalendarStep.find(params[:school_calendar_step_id]).to_number unless step_number
 
       @students = StudentsFetcher.new(
         classroom,
-        nil,
+        Discipline.find(params[:discipline_id]),
         date.to_date.to_s,
         params[:start_date],
-        params[:score_type] || StudentEnrollmentScoreTypeFilters::BOTH
+        params[:score_type] || StudentEnrollmentScoreTypeFilters::BOTH,
+        step_number
       )
       .fetch
 

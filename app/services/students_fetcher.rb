@@ -25,12 +25,16 @@ class StudentsFetcher
 
     students = Student.where(id: student_ids)
 
-    students.each do |student|
-      student_enrollment = student_enrollments.find_by_student_id(student.id)
-      exempted_from_discipline = student_enrollment.exempted_disciplines.by_discipline(@discipline.id)
-                                                                        .by_step_number(@step_number)
-                                                                        .any?
-      student.exempted_from_discipline = exempted_from_discipline
+    if @discipline.present? && @step_number.present?
+      students.each do |student|
+        student_enrollment = student_enrollments.find_by_student_id(student.id)
+        exempted_from_discipline = student_enrollment.exempted_disciplines.by_discipline(@discipline.id)
+                                                                          .by_step_number(@step_number)
+                                                                          .any?
+        student.exempted_from_discipline = exempted_from_discipline
+      end
     end
+
+    students
   end
 end
