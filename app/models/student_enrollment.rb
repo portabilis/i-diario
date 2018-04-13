@@ -57,8 +57,8 @@ class StudentEnrollment < ActiveRecord::Base
   end
 
   def self.exclude_exempted_disciplines(discipline_id, step_number)
-    exempted_discipline_ids = StudentEnrollmentExemptedDiscipline.where(discipline_id: discipline_id)
-                                                                 .where("? = ANY(string_to_array(steps, ',')::integer[])", step_number)
+    exempted_discipline_ids = StudentEnrollmentExemptedDiscipline.by_discipline(discipline_id)
+                                                                 .by_step_number(step_number)
                                                                  .map(&:student_enrollment_id)
                                                                  .uniq
     where.not(id: exempted_discipline_ids)

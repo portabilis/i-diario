@@ -10,7 +10,7 @@ class StudentsController < ApplicationController
 
       @students = StudentsFetcher.new(
         classroom,
-        Discipline.find(params[:discipline_id]),
+        Discipline.find_by_id(params[:discipline_id]),
         date.to_date.to_s,
         params[:start_date],
         params[:score_type] || StudentEnrollmentScoreTypeFilters::BOTH,

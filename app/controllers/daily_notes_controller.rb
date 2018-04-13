@@ -263,8 +263,8 @@ class DailyNotesController < ApplicationController
     test_date = daily_note.avaliation.test_date
     step_number = daily_note.avaliation.school_calendar.step(test_date).to_number
 
-    student_enrollment.exempted_disciplines.where(discipline_id: discipline_id)
-                                           .where("? = ANY(string_to_array(steps, ',')::integer[])", step_number)
+    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                           .by_step_number(step_number)
                                            .any?
   end
 

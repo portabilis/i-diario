@@ -128,7 +128,7 @@ class ConceptualExamsController < ApplicationController
       item[:student_id] == params[:student_id].to_i
     end.exempted_disciplines
 
-    render json:exempted_disciplines.where("? = ANY(string_to_array(steps, ',')::integer[])", step.to_number)
+    render json:exempted_disciplines.by_step_number(step.to_number)
   end
 
   private
@@ -359,8 +359,8 @@ class ConceptualExamsController < ApplicationController
     step_number = @conceptual_exam.school_calendar_classroom_step.try(:to_number)
     step_number = @conceptual_exam.school_calendar_step.to_number unless step_number
 
-    exempted_disciplines.where(discipline_id: discipline_id)
-                        .where("? = ANY(string_to_array(steps, ',')::integer[])", step_number)
+    exempted_disciplines.by_discipline(discipline_id)
+                        .by_step_number(step_number)
                         .any?
   end
 

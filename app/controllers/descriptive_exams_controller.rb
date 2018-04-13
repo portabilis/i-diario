@@ -191,8 +191,8 @@ class DescriptiveExamsController < ApplicationController
       step_number = descriptive_exam.school_calendar_classroom_step.try(:to_number)
       step_number = descriptive_exam.school_calendar_step.to_number unless step_number
 
-      student_enrollment.exempted_disciplines.where(discipline_id: discipline_id)
-                                             .where("? = ANY(string_to_array(steps, ',')::integer[])", step_number)
+      student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                             .by_step_number(step_number)
                                              .any?
     else
       false
