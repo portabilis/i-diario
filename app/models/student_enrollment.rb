@@ -2,7 +2,8 @@ class StudentEnrollment < ActiveRecord::Base
   belongs_to :student
 
   has_many :student_enrollment_classrooms
-  has_many :dependences, class_name: "StudentEnrollmentDependence"
+  has_many :dependences, class_name: 'StudentEnrollmentDependence'
+  has_many :exempted_disciplines, class_name: 'StudentEnrollmentExemptedDiscipline'
 
   scope :by_classroom, lambda { |classroom_id| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_classroom(classroom_id)) }
   scope :by_discipline, lambda {|discipline_id| by_discipline_query(discipline_id)}
@@ -52,5 +53,13 @@ class StudentEnrollment < ActiveRecord::Base
     return where(nil) if exam_rule_included && differentiated_exam_rule_included
     return none unless exam_rule_included || differentiated_exam_rule_included
     return joins(:student).where(students: {uses_differentiated_exam_rule: differentiated_exam_rule_included})
+  end
+
+  def self.exclude_exempted_disciplines(discipline_id, step_number)
+    exempted_discipline_ids = StudentEnrollmentExemptedDiscipline.by_discipline(discipline_id)
+                                                                 .by_step_number(step_number)
+                                                                 .map(&:student_enrollment_id)
+                                                                 .uniq
+    where.not(id: exempted_discipline_ids)
   end
 end

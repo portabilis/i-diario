@@ -2,11 +2,14 @@
   <td>
     <div class="control-group hidden conceptual_exam_conceptual_exam_values_discipline_id">
       <div class="controls input">
-        <input class="hidden" type="hidden" name="conceptual_exam[conceptual_exam_values_attributes][<%= element_id %>][discipline_id]" id="conceptual_exam_conceptual_exam_values_attributes_<%= element_id %>_student_id" value=<%= discipline_id %>>
+        <input class="hidden" type="hidden" name="conceptual_exam[conceptual_exam_values_attributes][<%= element_id %>][discipline_id]" id="conceptual_exam_conceptual_exam_values_attributes_<%= element_id %>_discipline_id" value=<%= discipline_id %>>
+        <input class="hidden" type="hidden" name="conceptual_exam[conceptual_exam_values_attributes][<%= element_id %>][exempted_discipline]" id="conceptual_exam_conceptual_exam_values_attributes_<%= element_id %>_exempted_discipline" value='false'>
       </div>
     </div>
 
-    <%= discipline_description %>
+    <span class="discipline_description">
+      <%= discipline_description %>
+    </span>
   </td>
 
   <td>

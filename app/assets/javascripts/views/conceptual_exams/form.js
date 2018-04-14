@@ -189,6 +189,7 @@ $(function() {
       });
 
       loadSelect2ForConceptualExamValues();
+      disableDisciplinesAccordingToExemptedDisciplines();
     }
   };
 
@@ -226,6 +227,7 @@ $(function() {
     // Hide persisted disciplines and sets _destroy = true
     $('.nested-fields.existing').hide();
     $('.nested-fields.existing [id$=_destroy]').val(true);
+    $('.exempted_students_from_discipline_legend').addClass('hidden');
 
     showNoItemMessage();
   }
@@ -240,6 +242,47 @@ $(function() {
     }
   }
 
+  function disableDisciplinesAccordingToExemptedDisciplines() {
+    var conceptual_exam_school_calendar_step_id = $school_calendar_step.select2('val');
+    var student_id = $student.select2('val');
+
+    if (!_.isEmpty(conceptual_exam_school_calendar_step_id) && !_.isEmpty(student_id)) {
+      $.ajax({
+        url: Routes.exempted_disciplines_conceptual_exams_pt_br_path(
+          {
+            conceptual_exam_school_calendar_step_id: conceptual_exam_school_calendar_step_id,
+            student_id: student_id,
+            format: 'json'
+          }
+        ),
+        success: disableDisciplinesAccordingToExemptedDisciplinesSuccess,
+        error: disableDisciplinesAccordingToExemptedDisciplinesError
+      });
+    }
+  }
+
+  function disableDisciplinesAccordingToExemptedDisciplinesSuccess(data) {
+    var exempted_disciplines = data.conceptual_exams;
+
+    $('tr input[id$=discipline_id]').each(function() {
+      var discipline_id = $(this).val();
+
+      if(exempted_disciplines.filter(function(item) { return item.discipline_id == discipline_id }).length > 0) {
+        var item = $(this).closest('tr');
+        var description = item.find('.discipline_description');
+        description.html('*' + description.html().trim());
+        description.addClass('exempted-student-from-discipline');
+        item.find('input[id$=_value]').attr('readonly','readonly');
+        item.find('input[id$=_exempted_discipline]').val('true');
+        $('.exempted_students_from_discipline_legend').removeClass('hidden');
+      }
+    });
+  }
+
+  function disableDisciplinesAccordingToExemptedDisciplinesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as disciplinas dispensadas.');
+  };
+
   // On change
 
   $unity.on('change', function() {
@@ -252,6 +295,9 @@ $(function() {
 
   $school_calendar_step.on('change', function() {
     fetchStudents();
+
+    $student.select2('val', '');
+    removeDisciplines();
   });
 
   $student.on('change', function(){
