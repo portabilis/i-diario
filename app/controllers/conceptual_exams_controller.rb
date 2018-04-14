@@ -19,13 +19,12 @@ class ConceptualExamsController < ApplicationController
 
     authorize @conceptual_exams
 
-    fetch_classrooms
     fetch_school_calendar_steps
     fetch_school_calendar_classroom_steps
   end
 
   def new
-    redirect_to conceptual_exams_path, alert: "A disciplina selecionada não possui nota conceitual" if teacher_discipline_score_type == DisciplineScoreTypes::NUMERIC
+    redirect_to conceptual_exams_path, alert: "A disciplina selecionada não possui nota conceitual" unless [teacher_differentiated_discipline_score_type, teacher_discipline_score_type].any? {|discipline_score_type| discipline_score_type != DisciplineScoreTypes::NUMERIC }
     @conceptual_exam = ConceptualExam.new(
       unity_id: current_user_unity.id,
       recorded_at: Time.zone.today
@@ -225,11 +224,6 @@ class ConceptualExamsController < ApplicationController
     @disciplines = fetcher.disciplines
   end
 
-  def fetch_classrooms
-    @classrooms = Classroom.where(id: current_user_classroom)
-    .by_score_type(ScoreTypes::CONCEPT)
-  end
-
   def fetch_school_calendar_steps
     @school_calendar_steps = current_school_calendar.steps
   end
@@ -247,6 +241,7 @@ class ConceptualExamsController < ApplicationController
         discipline: current_user_discipline,
         start_at: @conceptual_exam.step.start_at,
         end_at: @conceptual_exam.step.end_at,
+        score_type: StudentEnrollmentScoreTypeFilters::CONCEPT,
         search_type: :by_date_range
       ).student_enrollments
      .collect(&:student_id)

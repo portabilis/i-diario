@@ -285,6 +285,7 @@ $(function () {
       $.ajax({
         url: Routes.student_enrollments_pt_br_path({
           filter: filter,
+          score_type: 'numeric',
           format: 'json'
         }),
         success: handleFetchStudentsSuccess,

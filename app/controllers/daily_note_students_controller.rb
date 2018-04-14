@@ -125,6 +125,7 @@ class DailyNoteStudentsController < ApplicationController
     StudentEnrollmentsList.new(classroom: classroom,
                                discipline: discipline,
                                date: date,
+                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
                                search_type: :by_date)
                           .student_enrollments
   end

@@ -44,7 +44,8 @@ $(function () {
         data: {
           classroom_id: classroom_id,
           date: transfer_date,
-          start_date: schoolCalendarStep.start_at
+          start_date: schoolCalendarStep.start_at,
+          score_type: 'numeric'
         },
         success: handleFetchStudentsSuccess,
         error: handleFetchStudentsError
