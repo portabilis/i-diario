@@ -63,7 +63,7 @@ class DailyNotesController < ApplicationController
     @dependence_students = []
     @any_exempted_student = any_exempted_student?
     @any_inactive_student = any_inactive_student?
-    @any_exempted_students_from_discipline = any_exempted_students_from_discipline?
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
 
     @students.each do |student|
       @normal_students << student if !student.dependence
@@ -268,11 +268,7 @@ class DailyNotesController < ApplicationController
                                            .any?
   end
 
-  def any_exempted_students_from_discipline?
-    (@students || []).each do |student|
-      return true if student.exempted_from_discipline
-    end
-
-    false
+  def any_student_exempted_from_discipline?
+    (@students || []).any?(&:exempted_from_discipline)
   end
 end

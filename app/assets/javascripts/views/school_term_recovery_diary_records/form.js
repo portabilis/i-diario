@@ -90,7 +90,7 @@ $(function () {
     var students = data.students
     if (!_.isEmpty(students)) {
       var element_counter = 0;
-      var any_exempted_students_from_discipline = false;
+      var any_student_exempted_from_discipline = false;
 
       hideNoItemMessage();
 
@@ -107,13 +107,13 @@ $(function () {
           });
 
         if (student.exempted_from_discipline) {
-          any_exempted_students_from_discipline = true;
+          any_student_exempted_from_discipline = true;
         }
 
         $('#recovery-diary-record-students').append(html);
       });
 
-      if (any_exempted_students_from_discipline) {
+      if (any_student_exempted_from_discipline) {
         $('.exempted_students_from_discipline_legend').removeClass('hidden');
       }
 

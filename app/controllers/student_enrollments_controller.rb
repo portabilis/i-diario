@@ -6,8 +6,8 @@ class StudentEnrollmentsController < ApplicationController
     end
 
     if params[:exclude_exempted_disciplines].present?
-      step = SchoolCalendarClassroomStep.find(params[:school_calendar_classroom_step_id]) if params[:school_calendar_classroom_step_id].present?
-      step = SchoolCalendarStep.find(params[:school_calendar_step_id]) unless step
+      step ||= SchoolCalendarClassroomStep.find_by_id(params[:school_calendar_classroom_step_id])
+      step ||= SchoolCalendarStep.find(params[:school_calendar_step_id])
       student_enrollments = student_enrollments.exclude_exempted_disciplines(params[:filter][:by_discipline], step.to_number)
     end
 

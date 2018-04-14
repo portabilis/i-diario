@@ -27,7 +27,7 @@ class StudentsFetcher
 
     if @discipline.present? && @step_number.present?
       students.each do |student|
-        student_enrollment = student_enrollments.find_by_student_id(student.id)
+        student_enrollment = student_enrollments.find { |enrollment| enrollment.student_id == student.id }
         exempted_from_discipline = student_enrollment.exempted_disciplines.by_discipline(@discipline.id)
                                                                           .by_step_number(@step_number)
                                                                           .any?

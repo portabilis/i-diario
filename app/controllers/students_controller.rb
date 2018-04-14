@@ -5,8 +5,8 @@ class StudentsController < ApplicationController
     if params[:classroom_id]
       date = params[:date].present? ? params[:date] : Date.today
       classroom = Classroom.find(params[:classroom_id])
-      step_number = SchoolCalendarClassroomStep.find(params[:school_calendar_classroom_step_id]).to_number if params[:school_calendar_classroom_step_id].present?
-      step_number = SchoolCalendarStep.find(params[:school_calendar_step_id]).to_number unless step_number
+      step_number ||= SchoolCalendarClassroomStep.find_by_id(params[:school_calendar_classroom_step_id]).try(:to_number)
+      step_number ||= SchoolCalendarStep.find(params[:school_calendar_step_id]).to_number
 
       @students = StudentsFetcher.new(
         classroom,

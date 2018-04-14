@@ -76,7 +76,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     reload_students_list
 
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
-    @any_exempted_students_from_discipline = any_exempted_students_from_discipline?
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
   end
 
   def update
@@ -259,11 +259,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
                                            .any?
   end
 
-  def any_exempted_students_from_discipline?
-    (@students || []).each do |student|
-      return true if student.exempted_from_discipline
-    end
-
-    false
+  def any_student_exempted_from_discipline?
+    (@students || []).any?(&:exempted_from_discipline)
   end
 end

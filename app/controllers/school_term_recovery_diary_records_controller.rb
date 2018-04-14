@@ -67,7 +67,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     add_missing_students(students_in_recovery)
     mark_students_exempted_from_discipline(students_in_recovery)
 
-    @any_exempted_students_from_discipline = any_exempted_students_from_discipline?
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
 
     @school_calendar_steps = current_school_calendar.steps
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
@@ -216,11 +216,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     end
   end
 
-  def any_exempted_students_from_discipline?
-    @school_term_recovery_diary_record.recovery_diary_record.students.each do |student|
-      return true if student.student.exempted_from_discipline
-    end
-
-    false
+  def any_student_exempted_from_discipline?
+    @school_term_recovery_diary_record.recovery_diary_record.students.any?(&:exempted_from_discipline)
   end
 end

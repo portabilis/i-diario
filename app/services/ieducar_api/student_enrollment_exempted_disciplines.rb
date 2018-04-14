@@ -1,4 +1,3 @@
-
 module IeducarApi
   class StudentEnrollmentExemptedDisciplines < Base
     def fetch(params = {})

@@ -55,7 +55,7 @@ class DescriptiveExamsController < ApplicationController
       end
     end
 
-    @any_exempted_students_from_discipline = any_exempted_students_from_discipline?
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
     @normal_students = []
     @dependence_students = []
 
@@ -188,22 +188,18 @@ class DescriptiveExamsController < ApplicationController
 
   def student_exempted_from_discipline?(student_enrollment, descriptive_exam)
     if discipline_id = descriptive_exam.discipline.try(&:id)
-      step_number = descriptive_exam.school_calendar_classroom_step.try(:to_number)
-      step_number = descriptive_exam.school_calendar_step.to_number unless step_number
+      step_number ||= descriptive_exam.school_calendar_classroom_step.try(:to_number)
+      step_number ||= descriptive_exam.school_calendar_step.to_number
 
-      student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                             .by_step_number(step_number)
-                                             .any?
-    else
-      false
-    end
-  end
-
-  def any_exempted_students_from_discipline?
-    (@students || []).each do |student|
-      return true if student.exempted_from_discipline
+      return student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                                    .by_step_number(step_number)
+                                                    .any?
     end
 
     false
+  end
+
+  def any_student_exempted_from_discipline?
+    (@students || []).any?(&:exempted_from_discipline)
   end
 end

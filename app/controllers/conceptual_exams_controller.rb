@@ -77,7 +77,7 @@ class ConceptualExamsController < ApplicationController
     mark_not_existing_disciplines_as_invisible
     mark_exempted_disciplines
 
-    @any_exempted_students_from_discipline = any_exempted_students_from_discipline?
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
   end
 
   def update
@@ -122,9 +122,11 @@ class ConceptualExamsController < ApplicationController
   end
 
   def exempted_disciplines
-    step = SchoolCalendarStep.find(params[:conceptual_exam_school_calendar_step_id]) if params[:conceptual_exam_school_calendar_step_id].present?
-    step = SchoolCalendarClassroomStep.find(params[:conceptual_exam_school_calendar_classroom_step_id]) unless step.present?
-    exempted_disciplines = student_enrollments(step.start_at, step.end_at).find do |item|
+    step ||= SchoolCalendarClassroomStep.find_by_id(params[:conceptual_exam_school_calendar_classroom_step_id])
+    step ||= SchoolCalendarStep.find(params[:conceptual_exam_school_calendar_step_id])
+    @student_enrollments ||= student_enrollments(step.start_at, step.end_at)
+
+    exempted_disciplines = @student_enrollments.find do |item|
       item[:student_id] == params[:student_id].to_i
     end.exempted_disciplines
 
@@ -211,7 +213,8 @@ class ConceptualExamsController < ApplicationController
   end
 
   def mark_exempted_disciplines
-    exempted_disciplines = student_enrollments.find { |item| item[:student_id] == @conceptual_exam.student_id }.exempted_disciplines
+    @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
+    exempted_disciplines = @student_enrollments.find { |item| item[:student_id] == @conceptual_exam.student_id }.exempted_disciplines
 
     @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
       conceptual_exam_value.exempted_discipline = student_exempted_from_discipline?(conceptual_exam_value.discipline_id, exempted_disciplines)
@@ -254,8 +257,8 @@ class ConceptualExamsController < ApplicationController
     @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id)
   end
 
-  def student_enrollments(start_at = @conceptual_exam.step.start_at, end_at = @conceptual_exam.step.end_at)
-    @student_enrollments ||= StudentEnrollmentsList.new(
+  def student_enrollments(start_at, end_at)
+    StudentEnrollmentsList.new(
       classroom: current_user_classroom,
       discipline: current_user_discipline,
       start_at: start_at,
@@ -270,7 +273,8 @@ class ConceptualExamsController < ApplicationController
     @students = []
 
     if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present? && @conceptual_exam.step.present?
-      @student_ids = student_enrollments.collect(&:student_id)
+      @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
+      @student_ids = @student_enrollments.collect(&:student_id)
 
       @students = Student.where(id: @student_ids)
     end
@@ -356,19 +360,15 @@ class ConceptualExamsController < ApplicationController
   end
 
   def student_exempted_from_discipline?(discipline_id, exempted_disciplines)
-    step_number = @conceptual_exam.school_calendar_classroom_step.try(:to_number)
-    step_number = @conceptual_exam.school_calendar_step.to_number unless step_number
+    step_number ||= @conceptual_exam.school_calendar_classroom_step.try(:to_number)
+    step_number ||= @conceptual_exam.school_calendar_step.to_number
 
     exempted_disciplines.by_discipline(discipline_id)
                         .by_step_number(step_number)
                         .any?
   end
 
-  def any_exempted_students_from_discipline?
-    @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
-      return true if conceptual_exam_value.exempted_discipline
-    end
-
-    false
+  def any_student_exempted_from_discipline?
+    @conceptual_exam.conceptual_exam_values.any?(&:exempted_discipline)
   end
 end
