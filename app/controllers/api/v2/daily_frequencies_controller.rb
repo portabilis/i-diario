@@ -19,6 +19,7 @@ class Api::V2::DailyFrequenciesController < Api::V2::BaseController
       .order_by_unity
       .order_by_classroom
       .order_by_class_number
+      .includes(:unity, :classroom, :discipline, :students)
 
     respond_with @daily_frequencies
   end

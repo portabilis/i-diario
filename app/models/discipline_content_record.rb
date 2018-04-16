@@ -5,7 +5,7 @@ class DisciplineContentRecord < ActiveRecord::Base
           except: [:content_record_id]
   acts_as_copy_target
 
-  belongs_to :content_record
+  belongs_to :content_record, dependent: :destroy
   accepts_nested_attributes_for :content_record
 
   belongs_to :discipline

@@ -76,7 +76,7 @@ module ExamPoster
     end
 
     def valid_score_type?(score_type)
-      score_type == ScoreTypes::NUMERIC
+      score_type == ScoreTypes::NUMERIC || score_type == ScoreTypes::NUMERIC_AND_CONCEPT
     end
   end
 end
