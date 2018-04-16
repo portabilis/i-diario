@@ -8,15 +8,17 @@ class CustomRoundingTable < ActiveRecord::Base
   has_many :custom_rounding_table_values, dependent: :destroy
 
   has_and_belongs_to_many :unities
+  has_and_belongs_to_many :courses, join_table: 'custom_rounding_tables_courses'
   has_and_belongs_to_many :grades
 
   accepts_nested_attributes_for :custom_rounding_table_values, allow_destroy: true
 
   validates :name, uniqueness: true
-  validates :name, :year, :unities, :grades, presence: true
+  validates :name, :year, :unities, :courses, :grades, presence: true
 
   scope :by_name, lambda { |name| where('name ilike ?', "%#{name}%") }
   scope :by_unity, lambda { |unity_id| joins(:unities).where(custom_rounding_tables_unities: { unity_id: unity_id }) }
+  scope :by_course, lambda { |course_id| joins(:courses).where(custom_rounding_tables_courses: { course_id: course_id }) }
   scope :by_grade, lambda { |grade_id| joins(:grades).where(custom_rounding_tables_grades: { grade_id: grade_id }) }
   scope :by_year, lambda { |year| where(year: year) }
   scope :ordered, -> { order(:name) }

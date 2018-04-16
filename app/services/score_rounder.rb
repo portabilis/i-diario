@@ -12,7 +12,7 @@ class ScoreRounder
     score_decimal_part = decimal_part(score)
 
     rounding_table_value =
-      custom_rounding_table_value(score_decimal_part) || default_rounding_table_value(score_decimal_part)
+      custom_rounding_table_value(score_decimal_part)
 
     rounded_score = score
     if rounding_table_value
@@ -37,12 +37,6 @@ class ScoreRounder
   attr_accessor :exam_rule
 
   delegate :rounding_table, to: :exam_rule, prefix: true, allow_nil: true
-
-  def default_rounding_table_value(score_decimal_part)
-    rounding_table_id = exam_rule_rounding_table.try(:id)
-
-    RoundingTableValue.find_by(rounding_table_id: rounding_table_id, label: score_decimal_part)
-  end
 
   def custom_rounding_table_value(score_decimal_part)
     if rounding_table_id = custom_rounding_table_id

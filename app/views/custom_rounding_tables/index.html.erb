@@ -4,13 +4,16 @@
       <table class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover' id='resources'>
         <thead>
           <tr>
-            <td style='width: 35%;'>
+            <td style='width: 25%;'>
               <%= f.input :by_name, label: false, placeholder: t('.by_name') %>
             </td>
-            <td style='width: 35%;'>
+            <td style='width: 30%;'>
               <%= f.input :by_unity, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity') %>
             </td>
-            <td style='width: 20%;'>
+            <td style='width: 23%;'>
+              <%= f.input :by_course, as: :select2, elements: @courses, label: false, placeholder: t('.by_course') %>
+            </td>
+            <td style='width: 12%;'>
               <%= f.input :by_grade, as: :select2, elements: @grades, label: false, placeholder: t('.by_grade') %>
             </td>
             <td style='width: 10%;'>
@@ -21,6 +24,7 @@
           <tr>
             <th><%= CustomRoundingTable.human_attribute_name :name %></th>
             <th><%= CustomRoundingTable.human_attribute_name :unities %></th>
+            <th><%= CustomRoundingTable.human_attribute_name :courses %></th>
             <th><%= CustomRoundingTable.human_attribute_name :grades %></th>
             <th><%= CustomRoundingTable.human_attribute_name :year %></th>
             <th></th>
@@ -30,7 +34,7 @@
         <%= render 'resources' %>
 
         <tfoot id='paginator' class='remote'>
-          <td colspan='5'>
+          <td colspan='6'>
             <div id='page_entries_info' class='pull-left hidden-xs'>
               <%= page_entries_info @custom_rounding_tables %>
             </div>

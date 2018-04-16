@@ -1,6 +1,6 @@
 class CustomRoundingTablesController < ApplicationController
   before_action :set_custom_rounding_table, only: [:edit, :update, :destroy, :history]
-  before_action :fetch_unities, :fetch_grades, except: [:history]
+  before_action :fetch_unities, :fetch_courses, :fetch_grades, except: [:history]
 
   has_scope :page, default: 1
   has_scope :per, default: 10
@@ -23,6 +23,11 @@ class CustomRoundingTablesController < ApplicationController
   end
 
   def edit
+    @custom_rounding_table = CustomRoundingTable.find(params[:id])
+
+    authorize @avaliation_recovery_diary_record
+
+    fetch_filtered_grades
   end
 
   def create
@@ -63,10 +68,11 @@ class CustomRoundingTablesController < ApplicationController
     end
 
     def custom_rounding_table_params
-      _params = params.require(:custom_rounding_table).permit(:name, :year, :unity_ids, :grade_ids,
+      _params = params.require(:custom_rounding_table).permit(:name, :year, :unity_ids, :course_ids, :grade_ids,
         custom_rounding_table_values_attributes: [:id, :custom_rounding_table_id, :label, :action, :exact_decimal_place])
 
       _params[:unity_ids] = _params[:unity_ids].split(",")
+      _params[:course_ids] = _params[:course_ids].split(",")
       _params[:grade_ids] = _params[:grade_ids].split(",")
 
       _params
@@ -76,7 +82,15 @@ class CustomRoundingTablesController < ApplicationController
       @unities = Unity.ordered
     end
 
+    def fetch_courses
+      @courses = Course.ordered
+    end
+
     def fetch_grades
       @grades = Grade.ordered
+    end
+
+    def fetch_filtered_grades
+      @filtered_grades = Grade.by_course(@custom_rounding_table.course_ids).ordered
     end
 end

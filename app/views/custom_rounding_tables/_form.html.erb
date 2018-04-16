@@ -21,7 +21,14 @@
           input_html: { value: f.object.unity_ids.join(','), data: { without_json_parser: true } } %>
       </div>
       <div class='col col-sm-6'>
-        <%= f.association :grades, as: :select2, elements: @grades, multiple: true,
+        <%= f.association :courses, as: :select2, elements: @courses, multiple: true,
+          input_html: { value: f.object.course_ids.join(','), data: { without_json_parser: true } } %>
+      </div>
+    </div>
+
+    <div class='row'>
+      <div class='col col-sm-6'>
+        <%= f.association :grades, as: :select2, elements: @filtered_grades, multiple: true,
           input_html: { value: f.object.grade_ids.join(','), data: { without_json_parser: true } } %>
       </div>
     </div>
