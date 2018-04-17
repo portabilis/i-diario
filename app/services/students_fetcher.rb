@@ -22,6 +22,6 @@ class StudentsFetcher
 
     student_ids = student_enrollments.ordered.collect(&:student_id)
 
-    Student.where(id: student_ids)
+    Student.where(id: student_ids).ordered
   end
 end
