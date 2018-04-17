@@ -9,6 +9,7 @@ class ExamRule < ActiveRecord::Base
   has_enumeration_for :recovery_type, with: RecoveryTypes
 
   belongs_to :rounding_table
+  belongs_to :differentiated_exam_rule, class_name: 'ExamRule'
   belongs_to :rounding_table_concept, class_name: 'RoundingTable'
   has_many :recovery_exam_rules
 
