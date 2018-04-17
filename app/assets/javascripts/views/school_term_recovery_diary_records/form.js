@@ -5,7 +5,6 @@ $(function () {
   var dateRegex = '^(?:(?:31(\\/)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/)(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$';
 
   var flashMessages = new FlashMessages();
-  var examRule = null;
   var schoolCalendarStep = null;
   var $unity = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_unity_id');
   var $classroom = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_classroom_id');
@@ -42,31 +41,6 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
   };
 
-  function fetchExamRule() {
-    var classroom_id = $classroom.select2('val');
-
-    if (!_.isEmpty(classroom_id)) {
-      $.ajax({
-        url: Routes.exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
-        success: handleFetchExamRuleSuccess,
-        error: handleFetchExamRuleError
-      });
-    }
-  };
-
-  function handleFetchExamRuleSuccess(data) {
-    examRule = data.exam_rule;
-    if (!$.isEmptyObject(examRule) && examRule.recovery_type === 0) {
-      flashMessages.error('A turma selecionada está configurada para não permitir o lançamento de recuperações de etapas.');
-    } else {
-      flashMessages.pop('');
-    }
-  };
-
-  function handleFetchExamRuleError() {
-    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
-  };
-
   function fetchSchoolCalendarStep() {
     var school_calendar_step_id = $school_calendar_step.select2('val');
 
@@ -97,8 +71,7 @@ $(function () {
     if (!_.isEmpty(classroom_id) &&
         !_.isEmpty(discipline_id) &&
         !_.isEmpty(school_calendar_step_id) &&
-        !_.isEmpty(recorded_at.match(dateRegex)) &&
-        examRule.recovery_type !== 0) {
+        !_.isEmpty(recorded_at.match(dateRegex))) {
       $.ajax({
         url: Routes.in_recovery_students_pt_br_path({
             classroom_id: classroom_id,
@@ -209,7 +182,6 @@ $(function () {
 
   $classroom.on('change', function() {
     fetchDisciplines();
-    fetchExamRule();
     removeStudents();
   });
 
@@ -236,7 +208,6 @@ $(function () {
 
   // On load
 
-  fetchExamRule();
   fetchSchoolCalendarStep();
   loadDecimalMasks();
 });

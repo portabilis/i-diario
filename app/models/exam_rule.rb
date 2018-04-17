@@ -25,6 +25,10 @@ class ExamRule < ActiveRecord::Base
   scope :by_id, lambda { |id| where id: id }
   scope :by_frequency_type, lambda { |frequency_type| where frequency_type: frequency_type }
 
+  def allow_descriptive_exam?
+    ["2", "3", "5", "6"].include?(opinion_type)
+  end
+
   def conceptual_rounding_table
     if rounding_table_concept
       rounding_table_concept
