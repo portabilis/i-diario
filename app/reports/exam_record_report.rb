@@ -124,7 +124,7 @@ class ExamRecordReport
 
         @students_enrollments.each do |student_enrollment|
           student_id = student_enrollment.student_id
-          if exempted_avaliation?(student_enrollment.student_id, avaliation_id)
+          if exempted_avaliation?(student_enrollment.student_id, avaliation_id) || exempted_from_discipline?(student_enrollment, daily_note)
             student_note = ExemptedDailyNoteStudent.new
           else
             student_note = DailyNoteStudent
@@ -237,7 +237,7 @@ class ExamRecordReport
       draw_text('Data:', size: 8, style: :bold, at: [559, 0])
       draw_text('________________', size: 8, at: [581, 0])
 
-      draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação', size: 8, at: [0, 17])
+      draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação ou da disciplina', size: 8, at: [0, 17])
       draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if self.any_student_with_dependence
     end
 
@@ -255,6 +255,16 @@ class ExamRecordReport
       .by_avaliation(avaliation_id)
       .any?
     avaliation_is_exempted
+  end
+
+  def exempted_from_discipline?(student_enrollment, daily_note)
+    discipline_id = daily_note.discipline.id
+    test_date = daily_note.avaliation.test_date
+    step_number = daily_note.avaliation.school_calendar.step(test_date).to_number
+
+    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                           .by_step_number(step_number)
+                                           .any?
   end
 
   def recovery_record(record)
