@@ -26,7 +26,8 @@ class StudentsSynchronizer
           student.update(
             name: record["nome_aluno"],
             avatar_url: record["foto_aluno"],
-            birth_date: record["data_nascimento"]
+            birth_date: record["data_nascimento"],
+            uses_differentiated_exam_rule: record["utiliza_regra_diferenciada"]
           )
         elsif record["nome_aluno"].present?
           students.create!(
@@ -34,7 +35,8 @@ class StudentsSynchronizer
             name: record["nome_aluno"],
             avatar_url: record["foto_aluno"],
             birth_date: record["data_nascimento"],
-            api: true
+            api: true,
+            uses_differentiated_exam_rule: record["utiliza_regra_diferenciada"]
           )
         end
       end
