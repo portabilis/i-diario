@@ -76,6 +76,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     reload_students_list
 
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
   end
 
   def update
@@ -208,6 +209,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
         note_student = (recovery_diary_record.students.where(student_id: student.id).first || recovery_diary_record.students.build(student_id: student.id, student: student))
         note_student.dependence = student_has_dependence?(student_enrollment, @avaliation_recovery_diary_record.recovery_diary_record.discipline)
         note_student.active = student_active_on_date?(student_enrollment)
+        note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, recovery_diary_record, @avaliation_recovery_diary_record)
         @students << note_student
       end
     end
@@ -245,5 +247,19 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       end
     end
     any_inactive_student
+  end
+
+  def student_exempted_from_discipline?(student_enrollment, recovery_diary_record, avaliation_recovery_diary_record)
+    discipline_id = recovery_diary_record.discipline.id
+    test_date = avaliation_recovery_diary_record.avaliation.test_date
+    step_number = avaliation_recovery_diary_record.avaliation.school_calendar.step(test_date).to_number
+
+    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                           .by_step_number(step_number)
+                                           .any?
+  end
+
+  def any_student_exempted_from_discipline?
+    (@students || []).any?(&:exempted_from_discipline)
   end
 end

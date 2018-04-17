@@ -1,6 +1,8 @@
 module DailyNoteHelper
   def daily_note_student_name_class(student_note)
-    if !student_note.active
+    if student_note.exempted_from_discipline
+      'exempted-student-from-discipline'
+    elsif !student_note.active
       'inactive-student'
     elsif student_note.exempted
       'exempted-student'
@@ -12,7 +14,9 @@ module DailyNoteHelper
   end
 
   def daily_note_student_name(student_note)
-    if !student_note.active
+    if student_note.exempted_from_discipline
+      "****#{student_note.student.to_s}"
+    elsif !student_note.active
       "***#{student_note.student.to_s}"
     elsif student_note.exempted
       "**#{student_note.student.to_s}"

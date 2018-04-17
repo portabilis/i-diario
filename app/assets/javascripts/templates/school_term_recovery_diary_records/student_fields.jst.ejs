@@ -6,7 +6,13 @@
       </div>
     </div>
 
-    <%= name %>
+    <% if(exempted_from_discipline) { %>
+      <span class="exempted-student-from-discipline">
+        *<%= name %>
+      </span>
+    <% } else { %>
+      <%= name %>
+    <% } %>
   </td>
 
   <td>
@@ -21,7 +27,10 @@
         Nota
       </label>
       <div class="controls input">
-        <input class="string decimal form-control decimal form-control decimal optional" type="decimal" name="school_term_recovery_diary_record[recovery_diary_record_attributes][students_attributes][<%= element_id %>][score]" id="school_term_recovery_diary_record_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score">
+        <input class="string decimal form-control decimal form-control decimal optional" type="decimal"
+          name="school_term_recovery_diary_record[recovery_diary_record_attributes][students_attributes][<%= element_id %>][score]"
+          id="school_term_recovery_diary_record_recovery_diary_record_attributes_students_attributes_<%= element_id %>_score"
+          <% if(exempted_from_discipline) { %> readonly <% } %>>
       </div>
     </div>
   </td>

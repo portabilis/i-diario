@@ -99,7 +99,10 @@ $(function () {
         var student_situation;
         var student_name;
 
-        if (!daily_note_student.active) {
+        if (daily_note_student.exempted_from_discipline) {
+          student_situation = 'exempted-student-from-discipline';
+          student_name = '****' + daily_note_student.name
+        } else if (!daily_note_student.active) {
           student_situation = 'inactive-student';
           student_name = '***' + daily_note_student.name
         } else if (daily_note_student.dependence) {
@@ -117,7 +120,8 @@ $(function () {
             note: daily_note_student.note,
             student_situation: student_situation,
             active: daily_note_student.active,
-            element_id: element_id
+            element_id: element_id,
+            exempted_from_discipline: daily_note_student.exempted_from_discipline
           });
 
         var legend = JST['templates/avaliation_recovery_diary_records/footer'];
