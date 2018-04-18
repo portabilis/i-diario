@@ -1,11 +1,12 @@
 require "prawn/measurement_extensions"
+require 'action_view'
 
 class PartialScoreRecordReport
   include Prawn::View
-  include I18n::Alchemy::NumericParser
+  include ActionView::Helpers::NumberHelper
 
-  def self.build(entity_configuration, year, school_calendar_step, student, unity, classroom)
-    new.build(entity_configuration, year, school_calendar_step, student, unity, classroom)
+  def self.build(entity_configuration, year, school_calendar_step, student, unity, classroom, test_setting)
+    new.build(entity_configuration, year, school_calendar_step, student, unity, classroom, test_setting)
   end
 
   def initialize
@@ -17,13 +18,14 @@ class PartialScoreRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, year, school_calendar_step, student, unity, classroom)
+  def build(entity_configuration, year, school_calendar_step, student, unity, classroom, test_setting)
     @entity_configuration = entity_configuration
     @year = year
     @school_calendar_step = school_calendar_step
     @student = student
     @unity = unity
     @classroom = classroom
+    @test_setting = test_setting
     @show_dispensation = false
 
     header
@@ -140,7 +142,7 @@ class PartialScoreRecordReport
                               .try(:first)
                               .try(:score)
           ].compact
-          student_note = numeric_parser.localize(student_notes.max)
+          student_note = localize_score(student_notes.max)
 
         end
         if student_note
@@ -217,8 +219,9 @@ class PartialScoreRecordReport
     number_pages(string, options)
   end
 
-  def numeric_parser
-    I18n::Alchemy::NumericParser
+  def localize_score(value)
+    return value unless value.is_a? Numeric
+    number_with_precision(value, precision: @test_setting.number_of_decimal_places||1)
   end
 
   def absences_count(discipline_id)
