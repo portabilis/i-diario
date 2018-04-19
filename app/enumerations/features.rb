@@ -80,7 +80,8 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :data_exportations,
                    :***REMOVED***,
-                   :***REMOVED***
+                   :***REMOVED***,
+                   :custom_rounding_tables
 
   sort_by :translation
 end

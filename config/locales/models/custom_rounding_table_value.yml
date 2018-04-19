@@ -1,0 +1,10 @@
+pt-BR:
+  activerecord:
+    models:
+      custom_rounding_table_value: 'Notas para arredondamento'
+
+    attributes:
+      custom_rounding_table_value:
+        label: 'Casa decimal'
+        action: 'Ação'
+        exact_decimal_place: 'Casa decimal exata'

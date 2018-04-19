@@ -242,6 +242,8 @@ Rails.application.routes.draw do
     end
     resources :authorization_***REMOVED***, concerns: :history
 
+    resources :custom_rounding_tables, concerns: :history, except: :show
+
     resources :moved_***REMOVED***, only: [:index]
     get '/unities/:unity_id/moved_***REMOVED***/:material_id', to: 'moved_***REMOVED***#show', as: 'unity_moved_material'
     get '/unities/:unity_id/moved_***REMOVED***/:material_id/get_consumption_balance', to: 'moved_***REMOVED***#get_consumption_balance', as: 'get_consumption_balance'
