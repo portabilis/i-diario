@@ -259,11 +259,13 @@ class ExamRecordReport
 
   def exempted_from_discipline?(student_enrollment, daily_note)
     discipline_id = daily_note.discipline.id
-    test_date ||= daily_note.try(:recorded_at)
+    test_date = daily_note.try(:recorded_at)
     test_date ||= daily_note.try(:avaliation).try(:test_date)
 
-    school_calendar ||= daily_note.try(:school_calendar)
+    school_calendar = daily_note.try(:school_calendar)
     school_calendar ||= daily_note.try(:avaliation).try(:school_calendar)
+
+    return false if school_calendar.blank? || test_date.blank?
 
     step_number = school_calendar.step(test_date).to_number
 
