@@ -118,7 +118,13 @@ RSpec.describe ScoreRounder, type: :service do
       stub_emtpy_custom_rounding_table
     end
 
-    it_behaves_like 'round'
+    it "should return the same score truncated" do
+      expect(subject.round(2.008)).to be(2.0)
+      expect(subject.round(12.3)).to be(12.3)
+      expect(subject.round(8.555)).to be(8.5)
+      expect(subject.round(5.912)).to be(5.9)
+      expect(subject.round(9.8)).to be(9.8)
+    end
   end
 
   def stub_rounding_table_value
