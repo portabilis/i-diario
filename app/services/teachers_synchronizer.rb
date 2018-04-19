@@ -41,18 +41,19 @@ class TeachersSynchronizer
       )
 
       max_changed_at = teacher_discipline_classrooms.maximum(:changed_at)
+      discipline_classrooms = record['disciplinas_turmas']
 
-      if !max_changed_at || record['updated_at'] > max_changed_at
+      if !max_changed_at || record['updated_at'] > max_changed_at || teacher_discipline_classrooms.count != discipline_classrooms.count
         teacher_discipline_classrooms.destroy_all
         create_discipline_classrooms(record, year, teacher)
       end
 
-      record['disciplinas_turmas'].each do |turma|
-        next if turma['tipo_nota'].nil?
-        tdc = TeacherDisciplineClassroom.find_by(teacher_api_code: record['servidor_id'],
-                                         discipline_api_code: turma['disciplina_id'],
-                                         api_code: record['id'])
-        tdc.update!(score_type: turma['tipo_nota'])
+      discipline_classrooms.each do |discipline_classroom|
+        next if discipline_classroom['tipo_nota'].nil?
+        teacher_discipline_classroom = TeacherDisciplineClassroom.find_by(teacher_api_code: record['servidor_id'],
+                                                                          discipline_api_code: discipline_classroom['disciplina_id'],
+                                                                          api_code: record['id'])
+        teacher_discipline_classroom.update!(score_type: discipline_classroom['tipo_nota'])
       end
     end
 
@@ -66,18 +67,18 @@ class TeachersSynchronizer
   end
 
   def create_discipline_classrooms(collection, year, teacher)
-    collection['disciplinas_turmas'].each do |record|
+    collection['disciplinas_turmas'].each do |discipline_classroom|
       discipline_classrooms.create!(
         api_code: collection['id'],
         year: year,
         active: true,
         teacher_id: teacher.id,
         teacher_api_code: teacher.api_code,
-        discipline_id: Discipline.find_by(api_code: record['disciplina_id']).try(:id),
-        discipline_api_code: record['disciplina_id'],
-        classroom_id: Classroom.find_by(api_code: record['turma_id']).try(:id),
-        classroom_api_code: record['turma_id'],
-        allow_absence_by_discipline: record['permite_lancar_faltas_componente'],
+        discipline_id: Discipline.find_by(api_code: discipline_classroom['disciplina_id']).try(:id),
+        discipline_api_code: discipline_classroom['disciplina_id'],
+        classroom_id: Classroom.find_by(api_code: discipline_classroom['turma_id']).try(:id),
+        classroom_api_code: discipline_classroom['turma_id'],
+        allow_absence_by_discipline: discipline_classroom['permite_lancar_faltas_componente'],
         changed_at: collection['updated_at']
       )
     end
