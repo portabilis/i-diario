@@ -37,7 +37,7 @@ class DailyFrequenciesCreator
     @student_enrollments.each do |student_enrollment|
       student = student_enrollment.student
       dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
-      @daily_frequencies.map do |daily_frequency|
+      @daily_frequencies.each do |daily_frequency|
         (daily_frequency.students.where(student_id: student.id).first ||
          daily_frequency.students.create(student_id: student.id,
                                          dependence: dependence,
