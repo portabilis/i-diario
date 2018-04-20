@@ -36,7 +36,7 @@ class DailyFrequenciesCreator
 
     @student_enrollments.each do |student_enrollment|
       student = student_enrollment.student
-      dependence = student_has_dependence?(student_enrollment.id, @daily_frequencies[0].discipline_id)
+      dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
       @daily_frequencies.map do |daily_frequency|
         (daily_frequency.students.where(student_id: student.id).first ||
          daily_frequency.students.create(student_id: student.id,
@@ -51,11 +51,15 @@ class DailyFrequenciesCreator
     frequency_date = @params[:frequency_date] || Time.zone.today
     @student_enrollments = StudentEnrollment
       .includes(:student)
-      .by_classroom(@daily_frequencies[0].classroom)
-      .by_discipline(@daily_frequencies[0].discipline)
+      .by_classroom(first_daily_frequency.classroom)
+      .by_discipline(first_daily_frequency.discipline)
       .by_date(frequency_date)
       .active
       .ordered
+  end
+
+  def first_daily_frequency
+    @first_daily_frequency ||= @daily_frequencies[0]
   end
 
   def student_has_dependence?(student_enrollment_id, discipline_id)
