@@ -17,7 +17,7 @@ class DisciplinesController < ApplicationController
     classroom_step_id = params[:school_calendar_classroom_step_id]
 
     if calendar_step_id || classroom_step_id
-      disciplines_by_step_number = DisciplinesByStepNumber.new(params[:classroom_id])
+      disciplines_by_step_number = ExemptedDisciplinesInStep.new(params[:classroom_id])
       disciplines_by_step = disciplines_by_step_number.discipline_ids_by_classroom_step(classroom_step_id) if classroom_step_id
       disciplines_by_step = disciplines_by_step_number.discipline_ids_by_calendar_step(calendar_step_id) unless disciplines_by_step
     end
@@ -32,7 +32,7 @@ class DisciplinesController < ApplicationController
     end
 
     if disciplines_by_step
-      @disciplines = @disciplines.where(id: disciplines_by_step)
+      @disciplines = @disciplines.where.not(id: disciplines_by_step)
     end
   end
 

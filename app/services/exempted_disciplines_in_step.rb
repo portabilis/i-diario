@@ -1,4 +1,4 @@
-class DisciplinesByStepNumber
+class ExemptedDisciplinesInStep
   def initialize(classroom_id)
     @classroom_id = classroom_id
   end
@@ -17,6 +17,6 @@ class DisciplinesByStepNumber
 
   def fetch_disciplines(step_number)
     SpecificStep.where(classroom_id: @classroom_id)
-                .where("? = ANY(string_to_array(used_steps, ',')::integer[])", step_number)
+                .where("? <> ANY(string_to_array(used_steps, ',')::integer[])", step_number)
   end
 end
