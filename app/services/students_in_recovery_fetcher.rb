@@ -109,7 +109,7 @@ class StudentsInRecoveryFetcher
   def filter_differentiated_students(students, differentiated)
     if differentiated == !!differentiated
       students = students.select do |student|
-        students.uses_differentiated_exam_rule == differentiated
+        student.uses_differentiated_exam_rule == differentiated
       end
     end
 

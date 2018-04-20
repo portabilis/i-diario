@@ -193,6 +193,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
                                discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
                                date: @avaliation_recovery_diary_record.avaliation.test_date,
+                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
                                search_type: :by_date)
                           .student_enrollments
   end
