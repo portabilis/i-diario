@@ -80,14 +80,22 @@ class RemoveDuplicatedDailyFrequenciesAndAddUniqueIndexs < ActiveRecord::Migrati
                 student_id = cur.student_id;
         END LOOP;
 
-        IF to_regclass('public.daily_frequency_students_daily_frequency_id_student_id_idx') IS NOT NULL THEN
+        IF EXISTS ( SELECT 1
+                    FROM pg_class
+                    JOIN pg_namespace ON (pg_namespace.oid = pg_class.relnamespace)
+                    WHERE pg_class.relname = 'daily_frequency_students_daily_frequency_id_student_id_idx' AND
+                          pg_namespace.nspname = 'public' ) THEN
           DROP INDEX daily_frequency_students_daily_frequency_id_student_id_idx;
         END IF;
 
         CREATE UNIQUE INDEX daily_frequency_students_daily_frequency_id_student_id_idx ON
           daily_frequency_students (daily_frequency_id, student_id);
 
-        IF to_regclass('public.daily_frequencies_unique_idx') IS NOT NULL THEN
+          IF EXISTS ( SELECT 1
+                      FROM pg_class
+                      JOIN pg_namespace ON (pg_namespace.oid = pg_class.relnamespace)
+                      WHERE pg_class.relname = 'daily_frequencies_unique_idx' AND
+                            pg_namespace.nspname = 'public' ) THEN
           DROP INDEX daily_frequencies_unique_idx;
         END IF;
 
