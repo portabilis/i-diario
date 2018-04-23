@@ -100,5 +100,5 @@ class RemoveDuplicatedDailyFrequenciesAndAddUniqueIndexs < ActiveRecord::Migrati
 
       DROP FUNCTION public.remove_duplicated_daily_frequencies_and_create_indexes();
     SQL
-  END
-END
+  end
+end
