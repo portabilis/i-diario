@@ -142,6 +142,7 @@ $(function() {
     if (studentPreviouslySelectedExists) {
       $student.select2('val', window.studentPreviouslySelected);
       window.studentPreviouslySelected = null;
+      $student.trigger('change');
     }
   };
 
