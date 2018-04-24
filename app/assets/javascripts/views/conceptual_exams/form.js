@@ -270,7 +270,7 @@ $(function() {
       if(exempted_disciplines.filter(function(item) { return item.discipline_id == discipline_id }).length > 0) {
         var item = $(this).closest('tr');
         var description = item.find('.discipline_description');
-        description.html('*' + description.html().trim());
+        description.html('****' + description.html().trim());
         description.addClass('exempted-student-from-discipline');
         item.find('input[id$=_value]').attr('readonly','readonly');
         item.find('input[id$=_exempted_discipline]').val('true');

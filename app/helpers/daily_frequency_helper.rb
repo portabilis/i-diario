@@ -53,21 +53,25 @@ module DailyFrequencyHelper
     daily_frequency.school_calendar.classrooms.by_classroom(daily_frequency.classroom_id).first.classroom_step(daily_frequency.frequency_date)
   end
 
-  def frequency_student_name_class(dependence, active)
+  def frequency_student_name_class(dependence, active, exempted_from_discipline)
     if !active
       'inactive-student'
     elsif dependence
       'dependence-student'
+    elsif exempted_from_discipline
+      'exempted-student-from-discipline'
     else
       ''
     end
   end
 
-  def frequency_student_name(student, dependence, active)
+  def frequency_student_name(student, dependence, active, exempted_from_discipline)
     if !active
       "**#{student.to_s}"
     elsif dependence
       "*#{student.to_s}"
+    elsif exempted_from_discipline
+      "****#{student.to_s}"
     else
       "#{student.to_s}"
     end
