@@ -1,31 +1,21 @@
-class StudentEnrollmentDependenceSynchronizer
-
-  def self.synchronize!(synchronization, years)
-    new(synchronization, years).synchronize!
-  end
-
-  def initialize(synchronization, years)
-    self.synchronization = synchronization
-    self.years = years
-  end
-
+class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
   def synchronize!
     destroy_records
+
     years.each do |year|
       create_records api.fetch(ano: year)["matriculas"]
     end
+
+    finish_worker('StudentEnrollmentDependenceSynchronizer')
   end
 
   protected
-
-  attr_accessor :synchronization, :years
 
   def api
     IeducarApi::StudentEnrollmentDependences.new(synchronization.to_api)
   end
 
   def create_records(collection)
-
     ActiveRecord::Base.transaction do
       if collection.present?
         collection.each do |record|

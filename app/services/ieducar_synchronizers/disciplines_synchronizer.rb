@@ -1,19 +1,11 @@
-class DisciplinesSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
-  end
-
-  def initialize(synchronization)
-    self.synchronization = synchronization
-  end
-
+class DisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["disciplinas"]
+
+    finish_worker('DisciplinesSynchronizer')
   end
 
   protected
-
-  attr_accessor :synchronization
 
   def api
     IeducarApi::Disciplines.new(synchronization.to_api)

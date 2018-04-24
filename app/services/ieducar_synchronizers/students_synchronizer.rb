@@ -1,19 +1,11 @@
-class StudentsSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
-  end
-
-  def initialize(synchronization)
-    self.synchronization = synchronization
-  end
-
+class StudentsSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["alunos"]
+
+    finish_worker('StudentsSynchronizer')
   end
 
   protected
-
-  attr_accessor :synchronization
 
   def api
     IeducarApi::Students.new(synchronization.to_api)

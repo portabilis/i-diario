@@ -1,21 +1,13 @@
-class CoursesGradesClassroomsSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
-  end
-
-  def initialize(synchronization)
-    self.synchronization = synchronization
-  end
-
+class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch(escola_id: unities,
                              get_series: true,
                              get_turmas: true)["cursos"]
+
+    finish_worker('CoursesGradesClassroomsSynchronizer')
   end
 
   protected
-
-  attr_accessor :synchronization, :year
 
   def api
     IeducarApi::Lectures.new(synchronization.to_api)
