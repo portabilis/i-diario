@@ -13,7 +13,7 @@ module DescriptiveExamHelper
     if student_note.dependence
       "*#{student_note.student.api_code} - #{student_note.student.to_s}"
     elsif student_note.exempted_from_discipline
-      "**#{student_note.student.api_code} - #{student_note.student.to_s}"
+      "****#{student_note.student.api_code} - #{student_note.student.to_s}"
     else
       "#{student_note.student.api_code} - #{student_note.student.to_s}"
     end

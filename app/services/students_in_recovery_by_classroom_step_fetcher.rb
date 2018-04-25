@@ -54,7 +54,8 @@ class StudentsInRecoveryByClassroomStepFetcher
         @date,
         nil,
         StudentEnrollmentScoreTypeFilters::BOTH,
-        school_calendar_classroom_step.to_number
+        school_calendar_classroom_step.to_number,
+        true
       )
       .fetch
 
@@ -88,7 +89,8 @@ class StudentsInRecoveryByClassroomStepFetcher
           @date,
           nil,
           StudentEnrollmentScoreTypeFilters::BOTH,
-          school_calendar_classroom_step.to_number
+          school_calendar_classroom_step.to_number,
+          true
         )
         .fetch
 

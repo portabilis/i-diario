@@ -274,6 +274,7 @@ $(function() {
         description.html('****' + description.html().trim());
         description.addClass('exempted-student-from-discipline');
         item.find('input[id$=_value]').attr('readonly','readonly');
+        item.find('input[id$=_destroy]').val('true');
         item.find('input[id$=_exempted_discipline]').val('true');
         $('.exempted_students_from_discipline_legend').removeClass('hidden');
       }

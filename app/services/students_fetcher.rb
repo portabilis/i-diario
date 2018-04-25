@@ -1,11 +1,12 @@
 class StudentsFetcher
-  def initialize(classroom, discipline = nil, date = Time.zone.today, start_date = nil, score_type = StudentEnrollmentScoreTypeFilters::BOTH, step_number = nil)
+  def initialize(classroom, discipline = nil, date = Time.zone.today, start_date = nil, score_type = StudentEnrollmentScoreTypeFilters::BOTH, step_number = nil, remove_exempted_from_discipline = false)
     @classroom = classroom
     @discipline = discipline
     @date = date
     @start_date = start_date
     @score_type = score_type
     @step_number = step_number
+    @remove_exempted_from_discipline = remove_exempted_from_discipline
   end
 
   def fetch
@@ -33,6 +34,7 @@ class StudentsFetcher
                                                                           .any?
         student.exempted_from_discipline = exempted_from_discipline
       end
+      students.to_a.reject!(&:exempted_from_discipline) if @remove_exempted_from_discipline
     end
 
     students
