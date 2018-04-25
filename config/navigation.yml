@@ -317,6 +317,9 @@ navigation:
         - ***REMOVED***:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
+        - ***REMOVED***:
+            type: "***REMOVED***"
+            path: "***REMOVED***_path"
 
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"

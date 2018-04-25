@@ -111,6 +111,7 @@ pt-BR:
     ***REMOVED***: 'empenhos'
     ***REMOVED***: 'contratos'
     custom_rounding_tables: 'tabelas-de-arredondamento'
+    distributed: 'distribuidos'
 
     # actions
     edit: 'editar'
