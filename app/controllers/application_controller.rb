@@ -10,6 +10,7 @@ class ApplicationController < ActionController::Base
   include Pundit
   skip_around_filter :set_locale_from_url
   around_action :handle_customer
+  before_action :set_honeybadger_context
 
   respond_to :html, :json
 
@@ -275,5 +276,14 @@ class ApplicationController < ActionController::Base
 
   def disabled_entity_page?
     controller_name.eql?('pages') && action_name.eql?('disabled_entity')
+  end
+
+  def set_honeybadger_context
+    Honeybadger.context(
+      entity: current_entity.try(:name),
+      classroom_id: params[:classroom_id],
+      teacher_id: params[:teacher_id],
+      discipline_id: params[:discipline_id]
+    )
   end
 end
