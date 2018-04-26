@@ -70,9 +70,9 @@
           <td class="no_item_found" colspan="2" style="<%= f.object.conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
         </tr>
         <% @conceptual_exam.conceptual_exam_values
-             .sort_by { |conceptual_exam_value| conceptual_exam_value.discipline.sequence }
+             .sort_by { |conceptual_exam_value| conceptual_exam_value.discipline.sequence.to_i }
              .group_by { |conceptual_exam_value| conceptual_exam_value.discipline.knowledge_area }
-             .sort_by { |knowledge_area, conceptual_exam_values| knowledge_area.sequence }
+             .sort_by { |knowledge_area, conceptual_exam_values| knowledge_area.sequence.to_i }
              .each do |knowledge_area, conceptual_exam_values| %>
           <% if conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).any? %>
             <tr class="knowledge-area-table-row">
