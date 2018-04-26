@@ -3,6 +3,8 @@ class DescriptiveExamStudent < ActiveRecord::Base
 
   audited associated_with: :descriptive_exam, except: [:descriptive_exam_id, :dependence]
 
+  attr_accessor :exempted_from_discipline
+
   belongs_to :descriptive_exam
   belongs_to :student
 

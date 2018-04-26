@@ -159,6 +159,9 @@ https://github.com/select2/select2/issues/2412
 .inactive-student{
   color: darkgray;
 }
+.exempted-student-from-discipline{
+  color: #869539;
+}
 .select2-container.form-control {
      height: auto !important;
 }

@@ -28,7 +28,9 @@ class ExamRulesSynchronizer < BaseSynchronizer
             rounding_table_id: RoundingTable.find_by(api_code: record["tabela_arredondamento_id"]).try(:id),
             rounding_table_api_code: record["tabela_arredondamento_id"],
             rounding_table_concept_id: RoundingTable.find_by(api_code: record["tabela_arredondamento_id_conceitual"]).try(:id),
-            rounding_table_concept_api_code: record["tabela_arredondamento_id_conceitual"]
+            rounding_table_concept_api_code: record["tabela_arredondamento_id_conceitual"],
+            differentiated_exam_rule_api_code: record["regra_diferenciada_id"],
+            differentiated_exam_rule_id: ExamRule.find_by(api_code: record["regra_diferenciada_id"]).try(:id)
           )
         else
           exam_rule = exam_rules.create(
@@ -42,7 +44,9 @@ class ExamRulesSynchronizer < BaseSynchronizer
             rounding_table_id: RoundingTable.find_by(api_code: record["tabela_arredondamento_id"]).try(:id),
             rounding_table_api_code: record["tabela_arredondamento_id"],
             rounding_table_concept_id: RoundingTable.find_by(api_code: record["tabela_arredondamento_id_conceitual"]).try(:id),
-            rounding_table_concept_api_code: record["tabela_arredondamento_id_conceitual"]
+            rounding_table_concept_api_code: record["tabela_arredondamento_id_conceitual"],
+            differentiated_exam_rule_api_code: record["regra_diferenciada_id"],
+            differentiated_exam_rule_id: ExamRule.find_by(api_code: record["regra_diferenciada_id"]).try(:id)
           )
         end
 
