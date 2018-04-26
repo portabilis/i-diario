@@ -1,19 +1,11 @@
-class StudentEnrollmentExemptedDisciplinesSynchronizer
-  def self.synchronize!(synchronization)
-    new(synchronization).synchronize!
-  end
-
-  def initialize(synchronization)
-    self.synchronization = synchronization
-  end
-
+class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch["dispensas"]
+
+    finish_worker('StudentEnrollmentExemptedDisciplinesSynchronizer')
   end
 
   protected
-
-  attr_accessor :synchronization
 
   def api
     IeducarApi::StudentEnrollmentExemptedDisciplines.new(synchronization.to_api)
