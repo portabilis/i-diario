@@ -4,10 +4,6 @@ require 'date'
 require 'app/services/weeks_in_period_counter'
 
 RSpec.describe WeeksInPeriodCounter, type: :service do
-  described_class do
-    WeekInPeriodCounter
-  end
-
   describe '.count' do
     it "should count weeks with weekday in period" do
       expect(described_class::count(Date.new(2018,4,13), Date.new(2018,4,13))).to be(1)
