@@ -53,16 +53,20 @@ module ExamPoster
 
       teacher.classrooms.uniq.each do |classroom|
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
-        next if classroom.exam_rule.opinion_type != OpinionTypes::BY_STEP
         next unless step_exists_for_classroom?(classroom)
 
         if has_classroom_steps(classroom)
-          exams = DescriptiveExamStudent.by_classroom_and_classroom_step(classroom, get_step(classroom).id).ordered
+          exams = DescriptiveExamStudent.includes(:student)
+                                        .by_classroom_and_classroom_step(classroom, get_step(classroom).id)
+                                        .ordered
         else
-          exams = DescriptiveExamStudent.by_classroom_and_step(classroom, get_step(classroom).id).ordered
+          exams = DescriptiveExamStudent.includes(:student)
+                                        .by_classroom_and_step(classroom, get_step(classroom).id)
+                                        .ordered
         end
 
         exams.each do |exam|
+          next unless valid_opinion_type?(exam.student.uses_differentiated_exam_rule, OpinionTypes::BY_STEP, classroom.exam_rule)
           descriptive_exams[classroom.api_code][exam.student.api_code]["valor"] = exam.value
         end
       end
@@ -75,10 +79,10 @@ module ExamPoster
 
       teacher.classrooms.uniq.each do |classroom|
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
-        next if classroom.exam_rule.opinion_type != OpinionTypes::BY_YEAR
 
         exams = DescriptiveExamStudent.by_classroom(classroom).ordered
         exams.each do |exam|
+          next unless valid_opinion_type?(exam.student.uses_differentiated_exam_rule, OpinionTypes::BY_YEAR, classroom.exam_rule)
           descriptive_exams[classroom.api_code][exam.student.api_code]["valor"] = exam.value
         end
       end
@@ -94,10 +98,10 @@ module ExamPoster
         discipline = teacher_discipline_classroom.discipline
 
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
-        next if classroom.exam_rule.opinion_type != OpinionTypes::BY_YEAR_AND_DISCIPLINE
 
         exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).ordered
         exams.each do |exam|
+          next unless valid_opinion_type?(exam.student.uses_differentiated_exam_rule, OpinionTypes::BY_YEAR_AND_DISCIPLINE, classroom.exam_rule)
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]["valor"] = exam.value
         end
       end
@@ -113,7 +117,6 @@ module ExamPoster
         discipline = teacher_discipline_classroom.discipline
 
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
-        next if classroom.exam_rule.opinion_type != OpinionTypes::BY_STEP_AND_DISCIPLINE
         next unless step_exists_for_classroom?(classroom)
 
         if has_classroom_steps(classroom)
@@ -123,11 +126,16 @@ module ExamPoster
         end
 
         exams.each do |exam|
+          next unless valid_opinion_type?(exam.student.uses_differentiated_exam_rule, OpinionTypes::BY_STEP_AND_DISCIPLINE, classroom.exam_rule)
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]["valor"] = exam.value
         end
       end
 
       descriptive_exams
+    end
+    def valid_opinion_type?(differentiated, opinion_type, exam_rule)
+      exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
+      exam_rule.opinion_type == opinion_type
     end
   end
 end

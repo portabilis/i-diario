@@ -93,6 +93,10 @@ class IeducarSynchronizerWorker
         end
       end
 
+      increment_total(total) do
+        StudentEnrollmentExemptedDisciplinesSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
       worker_batch.with_lock do
         worker_batch.update_attribute(:total_workers, total.sum)
 

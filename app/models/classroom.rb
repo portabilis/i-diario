@@ -37,4 +37,10 @@ class Classroom < ActiveRecord::Base
   def period_humanized
     Periods.t(period)
   end
+
+  def has_differentiated_students?
+    student_enrollment_classrooms.joins(student_enrollment: :student )
+                                 .where(students: { uses_differentiated_exam_rule: true } )
+                                 .exists?
+  end
 end

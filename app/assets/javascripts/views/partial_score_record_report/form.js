@@ -22,6 +22,7 @@ $(function () {
       $.ajax({
         url: Routes.students_pt_br_path({
           classroom_id: classroom_id,
+          score_type: 'numeric',
           format: 'json'
         }),
         success: fetchStudentsSuccess,

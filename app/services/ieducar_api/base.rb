@@ -11,6 +11,8 @@ module IeducarApi
       self.secret_key = options.delete(:secret_key)
       self.unity_id = options.delete(:unity_id)
 
+      Honeybadger.context(url: url, unity_id: unity_id)
+
       raise ApiError.new("É necessário informar a url de acesso: url") if url.blank?
       raise ApiError.new("É necessário informar a chave de acesso: access_key") if access_key.blank?
       raise ApiError.new("É necessário informar a chave secreta: secret_key") if secret_key.blank?

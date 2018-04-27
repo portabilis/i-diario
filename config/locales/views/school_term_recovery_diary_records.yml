@@ -11,3 +11,4 @@ pt-BR:
       students: "Alunos"
       no_item_found: "Nenhum aluno"
       current_average: "Média atual"
+      exempted_students_from_discipline_legend: "**** Alunos dispensados da disciplina"

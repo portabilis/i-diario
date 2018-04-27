@@ -113,7 +113,6 @@ class PartialScoreRecordReport
     subheader_cells = []
 
     Discipline.by_classroom(@classroom.id).ordered.each do |discipline|
-
       Avaliation.by_unity_id(@unity.id)
                 .by_classroom_id(@classroom.id)
                 .by_discipline_id(discipline.id)
@@ -163,12 +162,18 @@ class PartialScoreRecordReport
     data = [ subheader_cells ]
 
     disciplines.each do |discipline_id, scores|
+      exempted_from_discipline = exempted_from_discipline?(discipline_id)
+      @show_dispensation = true if exempted_from_discipline
       row = []
       discipline = Discipline.find(discipline_id)
       row << make_cell(content: discipline.to_s, align: :left, size: 10, width: 156, borders: [:left, :right, :bottom], padding: [4, 4, 4, 4])
 
       number_of_scores.times do |i|
-        score = scores[i] || "-"
+        if exempted_from_discipline
+          score = "D"
+        else
+          score = scores[i] || "-"
+        end
 
         row << make_cell(content: score, align: :left, size: 10, borders: [:right, :bottom], padding: [4, 4, 4, 4])
       end
@@ -205,7 +210,7 @@ class PartialScoreRecordReport
 
   def footer
     repeat(:all) do
-      draw_text('Legendas: D - Dispensado da avaliação', size: 8, at: [0, 15]) if @show_dispensation
+      draw_text('Legendas: D - Dispensado da avaliação ou disciplina', size: 8, at: [0, 15]) if @show_dispensation
       draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
     end
 
@@ -238,5 +243,20 @@ class PartialScoreRecordReport
       .by_student(student_id)
       .by_avaliation(avaliation_id)
       .any?
+  end
+
+  def student_enrollment
+    @student_enrollment ||= StudentEnrollment.by_student(@student.id)
+                                             .by_date_range(@school_calendar_step.start_at, @school_calendar_step.end_at)
+                                             .first
+  end
+
+  def exempted_from_discipline?(discipline_id)
+    return false unless student_enrollment
+    step_number = @school_calendar_step.to_number
+
+    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                           .by_step_number(step_number)
+                                           .any?
   end
 end
