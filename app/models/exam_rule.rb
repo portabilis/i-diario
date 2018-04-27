@@ -9,6 +9,7 @@ class ExamRule < ActiveRecord::Base
   has_enumeration_for :recovery_type, with: RecoveryTypes
 
   belongs_to :rounding_table
+  belongs_to :differentiated_exam_rule, class_name: 'ExamRule'
   belongs_to :rounding_table_concept, class_name: 'RoundingTable'
   has_many :recovery_exam_rules
 
@@ -23,6 +24,10 @@ class ExamRule < ActiveRecord::Base
 
   scope :by_id, lambda { |id| where id: id }
   scope :by_frequency_type, lambda { |frequency_type| where frequency_type: frequency_type }
+
+  def allow_descriptive_exam?
+    ["2", "3", "5", "6"].include?(opinion_type)
+  end
 
   def conceptual_rounding_table
     if rounding_table_concept

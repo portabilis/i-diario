@@ -1,0 +1,26 @@
+pt-BR:
+  activerecord:
+    models:
+      custom_rounding_table:
+        one: 'Tabela de arredondamento'
+        other: 'Tabelas de arredondamento'
+
+    attributes:
+      custom_rounding_table:
+        name: 'Nome'
+        unity: 'Escola'
+        unities: 'Escolas'
+        course: 'Curso'
+        courses: 'Cursos'
+        grade: 'Série'
+        grades: 'Séries'
+        year: 'Ano letivo'
+
+  custom_rounding_tables:
+    index:
+      new_html: "<i class='fa fa-plus'></i> Nova tabela"
+      by_name: 'Filtrar nome'
+      by_unity: 'Filtrar escola'
+      by_course: 'Filtrar curso'
+      by_grade: 'Filtrar série'
+      by_year: 'Filtrar ano letivo'

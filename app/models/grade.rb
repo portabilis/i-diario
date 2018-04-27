@@ -4,6 +4,8 @@ class Grade < ActiveRecord::Base
   belongs_to :course
   has_many :classrooms
 
+  has_and_belongs_to_many :custom_rounding_tables
+
   scope :by_unity, lambda { |unity| by_unity(unity) }
   scope :by_course, lambda { |course_id| where(course_id: course_id) }
   scope :by_teacher, lambda { |teacher| by_teacher(teacher) }

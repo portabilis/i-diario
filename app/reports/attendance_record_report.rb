@@ -5,8 +5,8 @@ class AttendanceRecordReport
 
   STUDENTS_BY_PAGE = 29
 
-  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events)
-    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events)
+  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
+    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
   end
 
   def initialize
@@ -18,7 +18,7 @@ class AttendanceRecordReport
                                     bottom_margin: 5.mm)
   end
 
-  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events)
+  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -27,8 +27,9 @@ class AttendanceRecordReport
     @daily_frequencies = daily_frequencies
     @students_enrollments = student_enrollments
     @events = events
+    @school_calendar = school_calendar
 
-    self.legend = "Legenda: N - Não enturmado"
+    self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
 
     content
 
@@ -107,7 +108,11 @@ class AttendanceRecordReport
           months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
           @students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
-            student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id, active: true) || NullDailyFrequencyStudent.new
+            if exempted_from_discipline?(student_enrollment, daily_frequency)
+              student_frequency = ExemptedDailyFrequencyStudent.new
+            else
+              student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id, active: true) || NullDailyFrequencyStudent.new
+            end
             student = Student.find(student_id)
             (students[student_id] ||= {})[:name] = student.name
             students[student_id] = {} if students[student_id].nil?
@@ -203,7 +208,7 @@ class AttendanceRecordReport
       end
 
       text_box(self.legend, size: 8, at: [0, 30], width: 825, height: 20)
-      self.legend = "Legenda: N - Não enturmado"
+      self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
       start_new_page if index < sliced_frequencies_and_events.count - 1
     end
   end
@@ -250,5 +255,16 @@ class AttendanceRecordReport
       .by_student_enrollment(student_enrollment)
       .by_discipline(discipline)
       .any?
+  end
+
+  def exempted_from_discipline?(student_enrollment, daily_frequency)
+    return false unless daily_frequency.discipline_id.present?
+
+    discipline_id = daily_frequency.discipline_id
+    step_number = @school_calendar.step(daily_frequency.frequency_date).to_number
+
+    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                           .by_step_number(step_number)
+                                           .any?
   end
 end

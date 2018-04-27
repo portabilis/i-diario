@@ -30,11 +30,12 @@ gem 'audited-activerecord', git: 'https://github.com/portabilis/audited.git'
 gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.git'
 gem 'js-routes'
 gem 'active_model_serializers'
-gem 'exception_notification'
 gem 'bulk_insert', '~> 1.0'
 gem 'aws-sdk', '~> 2'
 gem "paperclip", "~> 5.1.0"
 gem 'activerecord-tableless', '~> 2.0'
+
+gem 'honeybadger', '~> 3.1'
 
 gem 'angular_rails_csrf'
 gem 'rack-cors', require: 'rack/cors'
@@ -45,6 +46,7 @@ gem 'whenever', require: false
 gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
 gem 'postgres-copy'
+gem 'activerecord-session_store'
 
 # Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.2'
@@ -71,7 +73,7 @@ group :development do
   gem 'binding_of_caller', '~> 0.7.2'
   gem 'bullet', '~> 4.14.0'
   gem 'puma', '~> 3.9.1'
-  gem 'mina-sidekiq'
+  gem 'mina-sidekiq', '~> 0.4.1'
   gem 'web-console', '~> 2.0'
   gem 'pry-byebug'
   gem 'pry-remote'

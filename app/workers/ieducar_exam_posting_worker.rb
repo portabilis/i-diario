@@ -1,6 +1,8 @@
 class IeducarExamPostingWorker
   include Sidekiq::Worker
 
+  sidekiq_options retry: false, queue: :exam_posting
+
   def perform(entity_id, posting_id)
     entity = Entity.find(entity_id)
 
@@ -29,12 +31,16 @@ class IeducarExamPostingWorker
         posting.mark_as_completed! 'Envio realizado com sucesso!'
 
       rescue IeducarApi::Base::ApiError => e
-        raise e if e.message.include? 'Request Timeout'
-        posting.mark_as_error!(e.message)
+        if e.message.include? 'Request Timeout'
+          IeducarExamPostingWorker.perform_async(entity_id, posting_id)
+        else
+          posting.mark_as_error!('Ocorreu um erro desconhecido.')
+        end
+
+        raise e
       rescue Exception => e
         posting.mark_as_error!('Ocorreu um erro desconhecido.')
         raise e
-
       end
     end
   end

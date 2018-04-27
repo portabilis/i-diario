@@ -155,13 +155,6 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   helper_method :classrooms
 
   def knowledge_areas
-    #@knowledge_areas = []
-
-    #if @knowledge_area_content_record.content_record.classroom.present?
-    #  @knowledge_areas = KnowledgeArea.by_teacher(current_teacher.id)
-    #                              .by_grade(@knowledge_area_content_record.content_record.classroom.grade.id)
-    #                              .ordered
-    #end
     @knowledge_areas = KnowledgeArea.ordered
   end
   helper_method :knowledge_areas

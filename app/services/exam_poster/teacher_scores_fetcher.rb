@@ -37,7 +37,7 @@ class TeacherScoresFetcher
         .by_test_date_between(@school_calendar_step.start_at, @school_calendar_step.end_at)
         .active
 
-      pending_exams = student_exams.select { |e| e.note.blank? }
+      pending_exams = student_exams.select { |e| e.note.blank? && !e.exempted? }
 
       if pending_exams.any?
         pending_exams_string = pending_exams.map { |e| e.daily_note.avaliation.description_to_teacher }.join(', ')

@@ -108,6 +108,12 @@ GEM
       arel (~> 6.0)
     activerecord-tableless (2.0.0)
       activerecord (>= 3.0.0, < 5.0.0)
+    activerecord-session_store (1.1.1)
+      actionpack (>= 4.0)
+      activerecord (>= 4.0)
+      multi_json (~> 1.11, >= 1.11.2)
+      rack (>= 1.5.2, < 3)
+      railties (>= 4.0)
     activesupport (4.2.3)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
@@ -185,9 +191,6 @@ GEM
     enumerate_it (1.3.1)
       activesupport (>= 3.0.0)
     erubis (2.7.0)
-    exception_notification (4.1.1)
-      actionmailer (>= 3.0.4)
-      activesupport (>= 3.0.4)
     excon (0.45.4)
     execjs (2.6.0)
     factory_girl (4.5.0)
@@ -321,6 +324,7 @@ GEM
     has_scope (0.5.1)
     hashdiff (0.2.3)
     hashery (2.1.1)
+    honeybadger (3.1.2)
     httparty (0.14.0)
       multi_xml (>= 0.5.2)
     i18n (0.7.0)
@@ -360,7 +364,7 @@ GEM
     mina (0.3.7)
       open4 (~> 1.3.4)
       rake
-    mina-sidekiq (0.3.1)
+    mina-sidekiq (0.4.1)
       mina
     mini_portile (0.6.2)
     minitest (5.8.3)
@@ -563,6 +567,7 @@ DEPENDENCIES
   active_model_serializers
   activerecord-connections!
   activerecord-tableless (~> 2.0)
+  activerecord-session_store
   angular_rails_csrf
   audited-activerecord!
   aws-sdk (~> 2)
@@ -582,13 +587,13 @@ DEPENDENCIES
   devise (= 3.5.1)
   ejs (~> 1.1, >= 1.1.1)
   enumerate_it (= 1.3.1)
-  exception_notification
   factory_girl_rails (~> 4.5)
   faker (~> 1.6, >= 1.6.1)
   fog (~> 1.36)
   foreigner (= 1.6.1)
   handlebars_assets (= 0.17.1)
   has_scope (= 0.5.1)
+  honeybadger (~> 3.1)
   i18n_alchemy (= 0.2.1)!
   jbuilder (~> 2.2.2)
   js-routes
@@ -596,7 +601,7 @@ DEPENDENCIES
   less-rails (= 2.7.0)
   mask_validator (= 0.2.1)
   mina (= 0.3.7)
-  mina-sidekiq
+  mina-sidekiq (~> 0.4.1)
   newrelic_rpm
   paperclip (~> 5.1.0)
   pdf-inspector

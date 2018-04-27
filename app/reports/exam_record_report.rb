@@ -95,7 +95,7 @@ class ExamRecordReport
       if daily_note.avaliation.recovery_diary_record
         daily_notes_and_recoveries << daily_note.avaliation.recovery_diary_record
         daily_notes_descriptions << daily_note.avaliation.to_s
-        daily_notes_dates << daily_note.avaliation.test_date
+        daily_notes_dates << daily_note.test_date
         daily_notes_avaliations_ids << daily_note.avaliation_id
         daily_notes_ids << daily_note.id
       end
@@ -116,7 +116,7 @@ class ExamRecordReport
           daily_note_id = daily_notes_ids[pos]
           pos += 1
         else
-          content = "#{daily_note.avaliation.to_s}\n<font size='7'>#{daily_note.avaliation.test_date.strftime("%d/%m")}</font>\n<font size='7'>#{daily_note.avaliation.try(:weight)}</font>"
+          content = "#{daily_note.avaliation.to_s}\n<font size='7'>#{daily_note.test_date.strftime("%d/%m")}</font>\n<font size='7'>#{daily_note.avaliation.try(:weight)}</font>"
           avaliations << make_cell(content: content, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
           avaliation_id = daily_note.avaliation_id
           daily_note_id = daily_note.id
@@ -124,8 +124,12 @@ class ExamRecordReport
 
         @students_enrollments.each do |student_enrollment|
           student_id = student_enrollment.student_id
-          if exempted_avaliation?(student_enrollment.student_id, avaliation_id)
+          exemped_from_discipline = exempted_from_discipline?(student_enrollment, daily_note)
+          if exemped_from_discipline ||
+             exempted_avaliation?(student_enrollment.student_id, avaliation_id)
+
             student_note = ExemptedDailyNoteStudent.new
+            averages[student_enrollment.student_id] = "D" if exemped_from_discipline
           else
             student_note = DailyNoteStudent
             .find_by(
@@ -237,7 +241,7 @@ class ExamRecordReport
       draw_text('Data:', size: 8, style: :bold, at: [559, 0])
       draw_text('________________', size: 8, at: [581, 0])
 
-      draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação', size: 8, at: [0, 17])
+      draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação ou da disciplina', size: 8, at: [0, 17])
       draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if self.any_student_with_dependence
     end
 
@@ -255,6 +259,17 @@ class ExamRecordReport
       .by_avaliation(avaliation_id)
       .any?
     avaliation_is_exempted
+  end
+
+  def exempted_from_discipline?(student_enrollment, daily_note)
+    discipline_id = daily_note.discipline.id
+
+    test_date = daily_note.test_date
+    step_number = daily_note.school_calendar.step(test_date).to_number
+
+    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                           .by_step_number(step_number)
+                                           .any?
   end
 
   def recovery_record(record)
