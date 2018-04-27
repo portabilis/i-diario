@@ -68,12 +68,16 @@ class Api::V2::ContentRecordsController < Api::V2::BaseController
 
     if content_ids.present?
       @content_record.content_ids = content_ids
-      @content_record.save!
+      begin
+        @content_record.save!
+      rescue ActiveRecord::RecordInvalid => exception
+        Honeybadger.notify(exception)
+
+        true
+      end
     elsif @content_record.persisted?
       @content_record.destroy!
     end
-  rescue ActiveRecord::RecordInvalid => exception
-    Honeybadger.notify(exception)
   end
 
 end
