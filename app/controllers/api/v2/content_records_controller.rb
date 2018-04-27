@@ -72,6 +72,8 @@ class Api::V2::ContentRecordsController < Api::V2::BaseController
     elsif @content_record.persisted?
       @content_record.destroy
     end
+
+    true
   end
 
 end
