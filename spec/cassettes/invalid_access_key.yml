@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       Accept:
-      - ! '*/*; q=0.5, application/xml'
+      - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       User-Agent:
@@ -37,8 +37,49 @@ http_interactions:
       - application/json; charset=UTF-8
     body:
       encoding: US-ASCII
-      string: ! '{"oper":"get","resource":"todos-alunos","msgs":[{"msg":"Chave de
-        acesso inv\u00e1lida!","type":"error"}],"any_error_msg":true}'
+      string: '{"oper":"get","resource":"todos-alunos","msgs":[{"msg":"Chave de acesso
+        inv\u00e1lida!","type":"error"}],"any_error_msg":true}'
     http_version: 
   recorded_at: Thu, 11 Sep 2014 20:32:36 GMT
-recorded_with: VCR 2.9.3
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Aluno?access_key=invalid&instituicao_id=1&oper=get&resource=todos-alunos&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 30 Apr 2018 21:31:26 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=muqjg27uqcgh0td2j9favubf84; expires=Tue, 01-May-2018 21:31:26 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '126'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"oper":"get","resource":"todos-alunos","msgs":[{"msg":"Chave de acesso
+        inv\u00e1lida!","type":"error"}],"any_error_msg":true}'
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:01:20 GMT
+recorded_with: VCR 3.0.0
