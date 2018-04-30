@@ -27,6 +27,7 @@ $(function () {
     $("#copy-knowledge-area-content-record-modal table tbody td.classroom").text(classroom);
     $("#copy-knowledge-area-content-record-modal table tbody td.knowledge_area").html(knowledge_area);
     $("#copy-knowledge-area-content-record-modal table tbody td.record_date").text(record_date);
+    $('.remove_fields').click();
     $("#copy-knowledge-area-content-record-modal").modal('show');
 
     var params = {

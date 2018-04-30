@@ -28,6 +28,7 @@ $(function () {
     $("#copy-discipline-content-record-modal table tbody td.classroom").text(classroom);
     $("#copy-discipline-content-record-modal table tbody td.discipline").text(discipline);
     $("#copy-discipline-content-record-modal table tbody td.record_date").text(record_date);
+    $('.remove_fields').click();
     $("#copy-discipline-content-record-modal").modal('show');
 
     var params = {

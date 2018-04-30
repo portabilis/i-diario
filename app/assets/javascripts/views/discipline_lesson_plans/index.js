@@ -31,6 +31,7 @@ $(function () {
     $("#copy-discipline-lesson-plan-modal table tbody td.discipline").text(discipline);
     $("#copy-discipline-lesson-plan-modal table tbody td.start_at").text(start_at);
     $("#copy-discipline-lesson-plan-modal table tbody td.end_at").text(end_at);
+    $('.remove_fields').click();
     $("#copy-discipline-lesson-plan-modal").modal('show');
 
     var params = {

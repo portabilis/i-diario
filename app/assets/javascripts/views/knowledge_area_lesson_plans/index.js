@@ -30,6 +30,7 @@ $(function () {
     $("#copy-knowledge-area-lesson-plan-modal table tbody td.knowledge_area").html(knowledge_area);
     $("#copy-knowledge-area-lesson-plan-modal table tbody td.start_at").text(start_at);
     $("#copy-knowledge-area-lesson-plan-modal table tbody td.end_at").text(end_at);
+    $('.remove_fields').click();
     $("#copy-knowledge-area-lesson-plan-modal").modal('show');
 
     var params = {
