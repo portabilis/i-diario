@@ -10,8 +10,8 @@ class ContentRecord < ActiveRecord::Base
   attr_writer :unity_id
   attr_writer :contents_tags
 
-  has_one :discipline_content_record, dependent: :destroy
-  has_one :knowledge_area_content_record, dependent: :destroy
+  has_one :discipline_content_record, dependent: :delete
+  has_one :knowledge_area_content_record, dependent: :delete
   has_many :content_records_contents, dependent: :destroy
   has_many :contents, through: :content_records_contents
   accepts_nested_attributes_for :contents
