@@ -30,7 +30,8 @@ $(function () {
     var params = {
       filter: {
         by_grade: grade_id,
-        different_than: classroom_id
+        different_than: classroom_id,
+        by_year: start_at.substring(6,10)
       },
       find_by_current_teacher: true
     };
