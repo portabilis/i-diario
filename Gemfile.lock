@@ -106,6 +106,8 @@ GEM
       activemodel (= 4.2.3)
       activesupport (= 4.2.3)
       arel (~> 6.0)
+    activerecord-tableless (2.0.0)
+      activerecord (>= 3.0.0, < 5.0.0)
     activerecord-session_store (1.1.1)
       actionpack (>= 4.0)
       activerecord (>= 4.0)
@@ -571,6 +573,7 @@ PLATFORMS
 DEPENDENCIES
   active_model_serializers
   activerecord-connections!
+  activerecord-tableless (~> 2.0)
   activerecord-session_store
   angular_rails_csrf
   audited-activerecord!
