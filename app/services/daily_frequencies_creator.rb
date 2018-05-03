@@ -11,10 +11,8 @@ class DailyFrequenciesCreator
   end
 
   def find_or_create!
-    ActiveRecord::Base.transaction do
-      find_or_create_daily_frequencies
-      find_or_create_daily_frequency_students
-    end
+    find_or_create_daily_frequencies
+    find_or_create_daily_frequency_students
     true
   end
 
@@ -46,12 +44,19 @@ class DailyFrequenciesCreator
       student = student_enrollment.student
       dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
       @daily_frequencies.each do |daily_frequency|
-        (daily_frequency.students.where(student_id: student.id).first ||
-         daily_frequency.students.create(student_id: student.id,
-                                         dependence: dependence,
-                                         present: true,
-                                         active: true))
+        find_or_create_daily_frequency_student(daily_frequency, student, dependence)
       end
+    end
+  end
+
+  def find_or_create_daily_frequency_student(daily_frequency, student, dependence)
+    begin
+      daily_frequency.students.find_or_create_by(student_id: student.id) do |daily_frequency_student|
+        daily_frequency_student.dependence = dependence
+        daily_frequency_student.present = true
+        daily_frequency_student.active = true
+      end
+    rescue ActiveRecord::RecordNotUnique
     end
   end
 
