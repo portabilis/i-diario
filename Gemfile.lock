@@ -106,14 +106,14 @@ GEM
       activemodel (= 4.2.3)
       activesupport (= 4.2.3)
       arel (~> 6.0)
-    activerecord-tableless (2.0.0)
-      activerecord (>= 3.0.0, < 5.0.0)
     activerecord-session_store (1.1.1)
       actionpack (>= 4.0)
       activerecord (>= 4.0)
       multi_json (~> 1.11, >= 1.11.2)
       rack (>= 1.5.2, < 3)
       railties (>= 4.0)
+    activerecord-tableless (2.0.0)
+      activerecord (>= 3.0.0, < 5.0.0)
     activesupport (4.2.3)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
@@ -573,8 +573,8 @@ PLATFORMS
 DEPENDENCIES
   active_model_serializers
   activerecord-connections!
-  activerecord-tableless (~> 2.0)
   activerecord-session_store
+  activerecord-tableless (~> 2.0)
   angular_rails_csrf
   audited-activerecord!
   aws-sdk (~> 2)
