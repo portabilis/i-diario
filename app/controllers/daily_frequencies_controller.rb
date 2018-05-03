@@ -123,7 +123,10 @@ class DailyFrequenciesController < ApplicationController
 
       @students.each do |student|
         if persisted_student_ids.none? { |student_id| student_id == student[:student].id }
-          daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true, active: student[:active])
+          begin
+            daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true, active: student[:active])
+          rescue ActiveRecord::RecordNotUnique
+          end
         end
       end
     end

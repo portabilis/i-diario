@@ -1,7 +1,9 @@
 require "prawn/measurement_extensions"
+require 'action_view'
 
 class ExamRecordReport
   include Prawn::View
+  include ActionView::Helpers::NumberHelper
 
   def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
     new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
@@ -149,9 +151,9 @@ class ExamRecordReport
           students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, daily_note.discipline_id)
 
           if recovery_record(daily_note)
-            (students[student_id][:scores] ||= []) << make_cell(content: student_note.recovery_note.to_s, align: :center)
+            (students[student_id][:scores] ||= []) << make_cell(content: localize_score(student_note.recovery_note), align: :center)
           else
-            (students[student_id][:scores] ||= []) << make_cell(content: student_note.note.to_s, align: :center)
+            (students[student_id][:scores] ||= []) << make_cell(content: localize_score(student_note.note), align: :center)
           end
         end
       end
@@ -180,7 +182,7 @@ class ExamRecordReport
 
         (10 - data_column_count).times { student_cells << nil }
         if daily_notes_slice == sliced_daily_notes_and_recoveries.last
-          average = averages[key]
+          average = localize_score(averages[key])
           student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)
         else
           student_cells << make_cell(content: '-', font_style: :bold, align: :center)
@@ -274,6 +276,11 @@ class ExamRecordReport
 
   def recovery_record(record)
     record.class.to_s == "RecoveryDiaryRecord"
+  end
+
+  def localize_score(value)
+    return value unless value.is_a? Numeric
+    number_with_precision(value, precision: @test_setting.number_of_decimal_places||1)
   end
 
   def student_has_dependence?(student_enrollment, discipline)

@@ -5,7 +5,7 @@ class SchoolCalendarSetterByStepWorker
     entity = Entity.find(entity_id)
 
     entity.using_connection do
-      worker = WorkerState.find_by(job_id: self.jid)
+      worker = WorkerState.find_by!(job_id: self.jid)
 
       begin
         SchoolCalendarClassroomStepSetter.set_school_calendar_classroom_step(school_calendars)

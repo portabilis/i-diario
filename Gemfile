@@ -67,6 +67,8 @@ gem 'rdstation-ruby-client'
 gem "zenvia-ruby", git: "https://github.com/portabilis/zenvia-ruby"
 
 group :development do
+  gem 'spring'
+  gem 'spring-commands-rspec'
   gem 'quiet_assets'
   gem 'mina', '0.3.7'
   gem 'better_errors', '~> 1.1.0'
@@ -80,6 +82,7 @@ group :development do
 end
 
 group :test do
+  gem 'business_time'
   gem 'turnip', '~> 1.3', '>= 1.3.1'
   gem 'capybara', '~> 2.5'
   gem 'poltergeist', '~> 1.8.1'

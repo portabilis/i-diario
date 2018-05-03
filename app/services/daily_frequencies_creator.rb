@@ -24,10 +24,18 @@ class DailyFrequenciesCreator
     @daily_frequencies = []
     if @class_numbers.present?
       @class_numbers.each do |class_number|
-        @daily_frequencies << DailyFrequency.find_or_create_by(@params.merge({class_number: class_number}))
+        @daily_frequencies << find_or_create_daily_frequency(@params.merge({class_number: class_number}))
       end
     else
-      @daily_frequencies << DailyFrequency.find_or_create_by(@params)
+      @daily_frequencies << find_or_create_daily_frequency(@params)
+    end
+  end
+
+  def find_or_create_daily_frequency(params)
+    begin
+      DailyFrequency.find_or_create_by(params)
+    rescue ActiveRecord::RecordNotUnique
+      DailyFrequency.find_by(params)
     end
   end
 
