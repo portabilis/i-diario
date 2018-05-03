@@ -14,28 +14,24 @@ class Api::V2::DailyFrequencyStudentsController < Api::V2::BaseController
   def update_or_create
     daily_frequency_student = nil
 
-    ActiveRecord::Base.transaction do
+    creator = DailyFrequenciesCreator.new({
+      unity: unity,
+      classroom_id: params[:classroom_id],
+      frequency_date: params[:frequency_date],
+      class_number: params[:class_number],
+      discipline_id: params[:discipline_id],
+      school_calendar: current_school_calendar
+    })
+    creator.find_or_create!
 
-      creator = DailyFrequenciesCreator.new({
-        unity: unity,
-        classroom_id: params[:classroom_id],
-        frequency_date: params[:frequency_date],
-        class_number: params[:class_number],
-        discipline_id: params[:discipline_id],
-        school_calendar: current_school_calendar
-      })
-      creator.find_or_create!
+    daily_frequency = creator.daily_frequencies[0]
 
-      daily_frequency = creator.daily_frequencies[0]
+    daily_frequency_student = DailyFrequencyStudent
+                              .find_or_create_by(daily_frequency_id: daily_frequency.id,
+                                                 student_id: params[:student_id],
+                                                 active: true)
 
-      daily_frequency_student = DailyFrequencyStudent
-                                .find_or_create_by(daily_frequency_id: daily_frequency.id,
-                                                   student_id: params[:student_id],
-                                                   active: true)
-
-      daily_frequency_student.update(present: params[:present])
-
-    end
+    daily_frequency_student.update(present: params[:present])
 
     respond_with daily_frequency_student
   end
