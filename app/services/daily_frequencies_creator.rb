@@ -4,6 +4,7 @@ class DailyFrequenciesCreator
   def initialize(params, class_numbers = nil)
     @params = params
     @class_numbers = class_numbers
+    @params[:frequency_date] ||= Time.zone.today
   end
 
   def self.find_or_create!(params, class_numbers)
@@ -31,7 +32,7 @@ class DailyFrequenciesCreator
 
   def find_or_create_daily_frequency(params)
     begin
-      DailyFrequency.find_or_create_by(params)
+      DailyFrequency.find_or_create_by!(params)
     rescue ActiveRecord::RecordNotUnique
       DailyFrequency.find_by(params)
     end
@@ -61,12 +62,11 @@ class DailyFrequenciesCreator
   end
 
   def fetch_student_enrollments
-    frequency_date = @params[:frequency_date] || Time.zone.today
     @student_enrollments = StudentEnrollment
       .includes(:student)
       .by_classroom(first_daily_frequency.classroom)
       .by_discipline(first_daily_frequency.discipline)
-      .by_date(frequency_date)
+      .by_date(@params[:frequency_date])
       .active
       .ordered
   end
