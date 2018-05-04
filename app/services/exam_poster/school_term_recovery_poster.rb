@@ -40,7 +40,7 @@ module ExamPoster
             if school_term_recovery
               value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.step)
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery)
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom).round(school_term_recovery)
             end
           end
 
@@ -52,7 +52,7 @@ module ExamPoster
             student = student_recovery.student
             score = student_recovery.try(:score)
             if score
-              scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(score)
+              scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom).round(score)
             end
           end
 

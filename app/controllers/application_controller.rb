@@ -10,6 +10,7 @@ class ApplicationController < ActionController::Base
   include Pundit
   skip_around_filter :set_locale_from_url
   around_action :handle_customer
+  before_action :set_honeybadger_context
 
   respond_to :html, :json
 
@@ -251,6 +252,15 @@ class ApplicationController < ActionController::Base
     TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
   end
 
+  def teacher_differentiated_discipline_score_type
+    exam_rule = current_user_classroom.exam_rule
+    differentiated_exam_rule = exam_rule.differentiated_exam_rule
+    return teacher_discipline_score_type unless differentiated_exam_rule.present?
+    return teacher_discipline_score_type unless current_user_classroom.has_differentiated_students?
+    return DisciplineScoreTypes::NUMERIC if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC
+    return DisciplineScoreTypes::CONCEPT if differentiated_exam_rule.score_type == ScoreTypes::CONCEPT
+    TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+  end
 
   private
 
@@ -266,5 +276,14 @@ class ApplicationController < ActionController::Base
 
   def disabled_entity_page?
     controller_name.eql?('pages') && action_name.eql?('disabled_entity')
+  end
+
+  def set_honeybadger_context
+    Honeybadger.context(
+      entity: current_entity.try(:name),
+      classroom_id: params[:classroom_id],
+      teacher_id: params[:teacher_id],
+      discipline_id: params[:discipline_id]
+    )
   end
 end

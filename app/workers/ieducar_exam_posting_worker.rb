@@ -1,7 +1,7 @@
 class IeducarExamPostingWorker
   include Sidekiq::Worker
 
-  sidekiq_options retry: false
+  sidekiq_options retry: false, queue: :exam_posting
 
   def perform(entity_id, posting_id)
     entity = Entity.find(entity_id)

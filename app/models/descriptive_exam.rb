@@ -13,13 +13,13 @@ class DescriptiveExam < ActiveRecord::Base
   belongs_to :school_calendar_classroom_step
 
   delegate :unity, to: :classroom, allow_nil: true
-  delegate :exam_rule, to: :classroom, allow_nil: true
 
   has_many :students, class_name: 'DescriptiveExamStudent', dependent: :destroy
   accepts_nested_attributes_for :students
 
   validates :unity, presence: true
   validates :classroom_id, presence: true
+  validates :opinion_type, presence: true
   validates :discipline_id, presence: true, if: :should_validate_presence_of_discipline
   validates :school_calendar_step_id, presence: true, if: :should_validate_presence_of_school_calendar_step
   validates :school_calendar_classroom_step_id, presence: true, if: :should_validate_presence_of_classroom_school_calendar_step
@@ -37,22 +37,22 @@ class DescriptiveExam < ActiveRecord::Base
   private
 
   def should_validate_presence_of_discipline
-    return unless exam_rule
+    return unless opinion_type
 
-    [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include? exam_rule.opinion_type
+    [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include? opinion_type
   end
 
   def should_validate_presence_of_school_calendar_step
-    return unless exam_rule
+    return unless opinion_type
 
-    by_step = [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? exam_rule.opinion_type
+    by_step = [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? opinion_type
     by_step && !school_calendar_classroom_step_id
   end
 
   def should_validate_presence_of_classroom_school_calendar_step
-    return unless exam_rule
+    return unless opinion_type
 
-    by_step = [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? exam_rule.opinion_type
+    by_step = [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? opinion_type
     by_step && !school_calendar_step_id
   end
 end

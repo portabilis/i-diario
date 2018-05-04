@@ -42,6 +42,7 @@ class ExamRecordReportForm
                                discipline: discipline_id,
                                start_at: classroom_step.try(:start_at) || step.start_at,
                                end_at: classroom_step.try(:end_at) || step.end_at,
+                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
                                search_type: :by_date_range)
                           .student_enrollments
   end

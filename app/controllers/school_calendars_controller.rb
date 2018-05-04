@@ -170,7 +170,7 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def set_school_calendar_classroom_step
-    job_id = SchoolCalendarSetterByStepWorker.perform_async(current_entity.id, params[:synchronize], current_user.id)
+    job_id = SchoolCalendarSetterByStepWorker.perform_in(10.seconds, current_entity.id, params[:synchronize], current_user.id)
 
     WorkerState.create(
       user: current_user,

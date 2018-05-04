@@ -32,14 +32,14 @@
         <% sequence = 0 %>
         <% @normal_students.each do |normal_student| %>
           <% sequence += 1 %>
-          <%= render 'student_fields', student: normal_student[:student], sequence: sequence, dependence: false, active: normal_student[:active]  %>
+          <%= render 'student_fields', exempted_from_discipline: normal_student[:exempted_from_discipline], student: normal_student[:student], sequence: sequence, dependence: false, active: normal_student[:active]  %>
         <% end %>
 
         <% sequence = 0 %>
         <% if @dependence_students.any? %>
           <% @dependence_students.each do |dependence_student| %>
             <% sequence += 1 %>
-            <%= render 'student_fields', student: dependence_student[:student], sequence: sequence, dependence: true, active: dependence_student[:active] %>
+            <%= render 'student_fields', exempted_from_discipline: dependence_student[:exempted_from_discipline], student: dependence_student[:student], sequence: sequence, dependence: true, active: dependence_student[:active] %>
           <% end %>
         <% end %>
 
@@ -59,6 +59,16 @@
             <td colspan="<%= 2 + @daily_frequencies.count %>">
               <span class="daily-note-student-legend">
                 <%= t('.inactive_students_legend') %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
+
+        <% if @any_exempted_from_discipline %>
+          <tr>
+            <td colspan="<%= 2 + @daily_frequencies.count %>">
+              <span class="daily-note-student-legend">
+                <%= t('.exempted_students_from_discipline_legend') %>
               </span>
             </td>
           </tr>

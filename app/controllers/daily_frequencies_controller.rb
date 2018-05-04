@@ -51,11 +51,23 @@ class DailyFrequenciesController < ApplicationController
 
     @students = []
 
+    @any_exempted_from_discipline = false
+
     student_enrollments.each do |student_enrollment|
       student = Student.find_by_id(student_enrollment.student_id) || nil
+      next unless student
+
       dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
+      exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
+      @any_exempted_from_discipline ||= exempted_from_discipline
       active = student_active_on_date?(student_enrollment)
-      @students << { student: student, dependence: dependence, active: active } if student
+
+      @students << {
+        student: student,
+        dependence: dependence,
+        active: active,
+        exempted_from_discipline: exempted_from_discipline
+      }
     end
 
     create_unpersisted_students
@@ -111,7 +123,10 @@ class DailyFrequenciesController < ApplicationController
 
       @students.each do |student|
         if persisted_student_ids.none? { |student_id| student_id == student[:student].id }
-          daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true, active: student[:active])
+          begin
+            daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true, active: student[:active])
+          rescue ActiveRecord::RecordNotUnique
+          end
         end
       end
     end
@@ -222,6 +237,17 @@ class DailyFrequenciesController < ApplicationController
       .by_student_enrollment(student_enrollment)
       .by_discipline(discipline)
       .any?
+  end
+
+  def student_exempted_from_discipline?(student_enrollment, daily_frequency)
+    return false unless daily_frequency.discipline_id.present?
+    discipline_id = daily_frequency.discipline.id
+    frequency_date = daily_frequency.frequency_date
+    step_number = daily_frequency.school_calendar.step(frequency_date).to_number
+
+    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                           .by_step_number(step_number)
+                                           .any?
   end
 
   def any_inactive_student?
