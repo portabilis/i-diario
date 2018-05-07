@@ -25,7 +25,8 @@ class Api::V2::DailyFrequenciesController < Api::V2::BaseController
   end
 
   def create
-    @class_numbers = Array(params[:class_number] || params[:class_numbers].split(","))
+    @class_numbers = Array(params[:class_number] || (params[:class_numbers] && params[:class_numbers].split(",")))
+    @class_numbers = [nil] if @class_numbers.blank?
 
     frequency_params = {
       unity_id: unity.id,
