@@ -20,4 +20,22 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     expect { creator.find_or_create! }.to change { DailyFrequency.count }
   end
 
+  it 'does not create frequencies when frequency_date argument is not a valid one' do
+    school_calendar = create(:school_calendar_with_one_step, unity: classroom.unity, year: Date.current.year)
+    frequency_start_at = Date.parse("#{school_calendar.year}-01-01")
+    student_enrollment = create(:student_enrollment)
+    classroom.student_enrollments << student_enrollment
+    student_enrollment_classroom = classroom.student_enrollment_classrooms.first
+    student_enrollment_classroom.update_attribute(:joined_at, frequency_start_at - 1.day)
+
+    creator = described_class.new({
+      unity: classroom.unity,
+      classroom_id: classroom.id,
+      school_calendar: school_calendar,
+      frequency_date: frequency_start_at - 1.day
+    })
+
+    expect { creator.find_or_create! }.to_not change { DailyFrequency.count }
+  end
+
 end
