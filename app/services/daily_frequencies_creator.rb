@@ -3,7 +3,7 @@ class DailyFrequenciesCreator
 
   def initialize(params, class_numbers = [nil])
     @params = params
-    @class_numbers = class_numbers
+    @class_numbers = Array(params.delete(:class_number) || class_numbers)
     @params[:frequency_date] ||= Time.zone.today
   end
 
