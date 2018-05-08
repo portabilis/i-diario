@@ -37,19 +37,13 @@ class Api::V2::DailyFrequenciesController < Api::V2::BaseController
       school_calendar: current_school_calendar
     }
 
-    @daily_frequency = DailyFrequency.new(frequency_params)
+    creator = DailyFrequenciesCreator.new(frequency_params, @class_numbers)
+    creator.find_or_create!
 
-    if @daily_frequency.valid?
-      creator = DailyFrequenciesCreator.new(frequency_params, @class_numbers)
-      creator.find_or_create!
-
-      if params[:class_numbers].present?
-        render json: creator.daily_frequencies
-      else
-        render json: creator.daily_frequencies[0]
-      end
+    if params[:class_numbers].present?
+      render json: creator.daily_frequencies
     else
-      render json: @daily_frequency.errors.full_messages, status: 422
+      render json: creator.daily_frequencies[0]
     end
   end
 
