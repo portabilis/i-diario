@@ -11,56 +11,49 @@ RSpec.describe UnityEquipment, :type => :model do
     it { should validate_presence_of :code }
     it { should validate_presence_of :biometric_type }
 
-    it 'should save when there is only one record' do
+    it 'saves when there is only one record' do
       unity = FactoryGirl.create(:unity)
-      unity_equipment = UnityEquipment.new(
-        unity: unity,
-        biometric_type: BiometricTypes::SAGEM,
-        code: '001'
-      )
+      unity_equipment = FactoryGirl.create(:unity_equipment)
+      unity_equipment.unity = unity
+
       expect(unity_equipment.save).to eq true
     end
 
-    it 'should accept non numeric characters on code' do
+    it 'accepts non numeric characters on code' do
       unity = FactoryGirl.create(:unity)
-      unity_equipment = UnityEquipment.new(
-        unity: unity,
-        biometric_type: BiometricTypes::SAGEM,
-        code: 'PQR-45'
-      )
+      unity_equipment = FactoryGirl.create(:unity_equipment)
+      unity_equipment.unity = unity
+      unity_equipment.code = 'PQR-45'
+
       expect(unity_equipment.save).to eq true
     end
 
-    it 'should validate uniquiness of code and unity' do
+    it 'validates uniquiness of code and unity' do
       unity = FactoryGirl.create(:unity)
-      unity_equipment = UnityEquipment.new(
-        unity: unity,
-        biometric_type: BiometricTypes::SAGEM,
-        code: '001'
-      )
+      unity_equipment = FactoryGirl.create(:unity_equipment)
+      unity_equipment.unity = unity
       unity_equipment.save!
 
-      same_unity_equipment = UnityEquipment.new(
-        unity: unity,
-        biometric_type: BiometricTypes::SAGEM,
-        code: '001'
-      )
-      expect(same_unity_equipment.valid?).to eq false
+      same_unity_equipment = FactoryGirl.create(:unity_equipment)
+      same_unity_equipment.unity = unity
+      same_unity_equipment.code = unity_equipment.code
+      same_unity_equipment.valid?
 
-      different_unity_equipment = UnityEquipment.new(
-        unity: unity,
-        biometric_type: BiometricTypes::SAGEM,
-        code: '002'
-      )
-      expect(different_unity_equipment.valid?).to eq true
+      expect(same_unity_equipment.errors[:code]).to include('já está em uso')
+
+      different_unity_equipment = FactoryGirl.create(:unity_equipment)
+      different_unity_equipment.unity = unity
+      different_unity_equipment.valid?
+
+      expect(different_unity_equipment.errors[:code]).to be_empty
 
       other_unity = FactoryGirl.create(:unity)
-      other_unity_equipment = UnityEquipment.new(
-        unity: other_unity,
-        biometric_type: BiometricTypes::SAGEM,
-        code: '001'
-      )
-      expect(other_unity_equipment.valid?).to eq true
+      other_unity_equipment = FactoryGirl.create(:unity_equipment)
+      other_unity_equipment.unity = other_unity
+      other_unity_equipment.code = unity_equipment.code
+      other_unity_equipment.valid?
+
+      expect(different_unity_equipment.errors[:code]).to be_empty
     end
   end
 end
