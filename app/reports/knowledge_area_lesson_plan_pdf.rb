@@ -158,21 +158,6 @@ class KnowledgeAreaLessonPlanPdf
       @content_cell << make_cell(content: content.to_s, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
     end
 
-    objective_cell_content = inline_formated_cell_header('Objetivos') + (@knowledge_area_lesson_plan.lesson_plan.objectives.present? ? @knowledge_area_lesson_plan.lesson_plan.objectives : '-')
-    @objective_cell = make_cell(content: objective_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    resource_cell_content = inline_formated_cell_header('Recursos') + (@knowledge_area_lesson_plan.lesson_plan.resources.present? ? @knowledge_area_lesson_plan.lesson_plan.resources : '-')
-    @resource_cell = make_cell(content: resource_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    evaluation_cell_content = inline_formated_cell_header('Avaliação') + (@knowledge_area_lesson_plan.lesson_plan.evaluation.present? ? @knowledge_area_lesson_plan.lesson_plan.evaluation : '-')
-    @evaluation_cell = make_cell(content: evaluation_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    bibliography_cell_content = inline_formated_cell_header('Referências') + (@knowledge_area_lesson_plan.lesson_plan.bibliography.present? ? @knowledge_area_lesson_plan.lesson_plan.bibliography : '-')
-    @bibliography_cell = make_cell(content: bibliography_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    activitie_cell_content = inline_formated_cell_header('Atividades/metodologia') + (@knowledge_area_lesson_plan.lesson_plan.activities.present? ? @knowledge_area_lesson_plan.lesson_plan.activities : '-' )
-    @activitie_cell = make_cell(content: activitie_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
     opinion_cell_content = inline_formated_cell_header('Parecer') + @knowledge_area_lesson_plan.lesson_plan.opinion.to_s
     @opinion_cell = make_cell(content: opinion_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
   end
@@ -206,14 +191,6 @@ class KnowledgeAreaLessonPlanPdf
       class_plan_table_data << [content]
     end
 
-    class_plan_table_data += [
-      [@activitie_cell],
-      [@objective_cell],
-      [@resource_cell],
-      [@evaluation_cell],
-      [@bibliography_cell]
-    ]
-
     move_down @gap
     table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
       cells.border_width = 0.25
@@ -222,6 +199,30 @@ class KnowledgeAreaLessonPlanPdf
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+
+    text_box_truncate('Atividades/metodologia', (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
+    text_box_truncate('Objetivos', (@knowledge_area_lesson_plan.lesson_plan.objectives || '-'))
+    text_box_truncate('Recursos', (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
+    text_box_truncate('Avaliação', (@knowledge_area_lesson_plan.lesson_plan.evaluation || '-'))
+    text_box_truncate('Referências', (@knowledge_area_lesson_plan.lesson_plan.bibliography || '-'))
+  end
+
+  def text_box_truncate(title, information)
+    start_new_page if cursor < 45
+
+    draw_text(title, size: 8, style: :bold, at: [5, cursor - 10])
+
+    begin
+      text_height = height_of(information, width: bounds.width - 10, size: 10) + 30
+      box_height = (text_height > cursor ? cursor : text_height)
+
+      bounding_box([0, cursor], width: bounds.width, height: box_height - 5) do
+        stroke_bounds
+        information = text_box(information, width: bounds.width - 10, overflow: :truncate, size: 10, at: [5, box_height - 20])
+      end
+
+      start_new_page unless information.blank?
+    end while !information.blank?
   end
 
   def additional_information
@@ -243,7 +244,7 @@ class KnowledgeAreaLessonPlanPdf
   end
 
   def body
-    bounding_box([0, 728], width: bounds.width, height: 700) do
+    bounding_box([0, cursor - @gap], width: bounds.width, height: cursor - 20) do
       identification
       class_plan
       additional_information
