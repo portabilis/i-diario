@@ -1,9 +1,9 @@
 class DailyFrequenciesCreator
   attr_reader :daily_frequencies
 
-  def initialize(params, class_numbers = nil)
+  def initialize(params, class_numbers = [nil])
     @params = params
-    @class_numbers = class_numbers
+    @class_numbers = Array(params.delete(:class_number) || class_numbers)
     @params[:frequency_date] ||= Time.zone.today
   end
 
@@ -20,28 +20,23 @@ class DailyFrequenciesCreator
   private
 
   def find_or_create_daily_frequencies
-    @daily_frequencies = []
-    if @class_numbers.present?
-      @class_numbers.each do |class_number|
-        @daily_frequencies << find_or_create_daily_frequency(@params.merge({class_number: class_number}))
-      end
-    else
-      @daily_frequencies << find_or_create_daily_frequency(@params)
-    end
+    @daily_frequencies =
+      @class_numbers.map do |class_number|
+        daily_frequency = find_or_create_daily_frequency(@params.merge({class_number: class_number}))
+        daily_frequency if daily_frequency.persisted?
+      end.compact
   end
 
   def find_or_create_daily_frequency(params)
     begin
-      DailyFrequency.find_or_create_by!(params)
+      DailyFrequency.find_or_create_by(params)
     rescue ActiveRecord::RecordNotUnique
       DailyFrequency.find_by(params)
     end
   end
 
   def find_or_create_daily_frequency_students
-    fetch_student_enrollments
-
-    @student_enrollments.each do |student_enrollment|
+    student_enrollments.each do |student_enrollment|
       student = student_enrollment.student
       dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
       @daily_frequencies.each do |daily_frequency|
@@ -61,14 +56,19 @@ class DailyFrequenciesCreator
     end
   end
 
-  def fetch_student_enrollments
-    @student_enrollments = StudentEnrollment
-      .includes(:student)
-      .by_classroom(first_daily_frequency.classroom)
-      .by_discipline(first_daily_frequency.discipline)
-      .by_date(@params[:frequency_date])
-      .active
-      .ordered
+  def student_enrollments
+    @student_enrollments ||=
+      if first_daily_frequency.blank?
+        []
+      else
+        StudentEnrollment
+          .includes(:student)
+          .by_classroom(first_daily_frequency.classroom)
+          .by_discipline(first_daily_frequency.discipline)
+          .by_date(@params[:frequency_date])
+          .active
+          .ordered
+      end
   end
 
   def first_daily_frequency

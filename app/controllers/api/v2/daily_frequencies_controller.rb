@@ -25,10 +25,25 @@ class Api::V2::DailyFrequenciesController < Api::V2::BaseController
   end
 
   def create
+    @class_numbers = Array(params[:class_number] || (params[:class_numbers] && params[:class_numbers].split(",")))
+    @class_numbers = [nil] if @class_numbers.blank?
+
+    frequency_params = {
+      unity_id: unity.id,
+      classroom_id: classroom.id,
+      discipline_id: params[:discipline_id],
+      frequency_date: params[:frequency_date],
+      class_number: @class_numbers.first,
+      school_calendar: current_school_calendar
+    }
+
+    creator = DailyFrequenciesCreator.new(frequency_params, @class_numbers)
+    creator.find_or_create!
+
     if params[:class_numbers].present?
-      process_multiple
+      render json: creator.daily_frequencies
     else
-      process_one
+      render json: creator.daily_frequencies[0]
     end
   end
 
@@ -40,50 +55,6 @@ class Api::V2::DailyFrequenciesController < Api::V2::BaseController
 
   def teacher
     @teacher ||= Teacher.find_by_id(params[:teacher_id])
-  end
-
-  def process_one
-    frequency_params = {
-      unity_id: unity.id,
-      classroom_id: classroom.id,
-      discipline_id: params[:discipline_id],
-      frequency_date: params[:frequency_date],
-      class_number: params[:class_number],
-      school_calendar: current_school_calendar
-    }
-    @daily_frequency = DailyFrequency.new(frequency_params)
-
-    if @daily_frequency.valid?
-      creator = DailyFrequenciesCreator.new(frequency_params)
-      creator.find_or_create!
-      render json: creator.daily_frequencies[0]
-    else
-      render json: @daily_frequency.errors.full_messages, status: 422
-    end
-
-  end
-
-  def process_multiple
-    frequency_params = {
-      unity_id: unity.id,
-      classroom_id: classroom.id,
-      discipline_id: params[:discipline_id],
-      frequency_date: params[:frequency_date],
-      class_number: params[:class_numbers].first,
-      school_calendar: current_school_calendar
-    }
-
-    @class_numbers = params[:class_numbers].split(",")
-
-    @daily_frequency = DailyFrequency.new(frequency_params)
-
-    unless @daily_frequency.valid?
-      render json: @daily_frequency.errors.full_messages, status: 422
-    else
-      creator = DailyFrequenciesCreator.new(frequency_params, @class_numbers)
-      creator.find_or_create!
-      render json: creator.daily_frequencies
-    end
   end
 
   def configuration
