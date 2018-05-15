@@ -5,7 +5,7 @@ class Teacher < ActiveRecord::Base
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_many :classrooms, through: :teacher_discipline_classrooms
 
-  validates :name, :api_code, presence: true
+  validates :name, :api_code, :active, presence: true
   validates :api_code, uniqueness: true
 
   scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id)}
@@ -16,7 +16,7 @@ class Teacher < ActiveRecord::Base
 
   def self.active_query
     active_teacher_ids = TeacherDisciplineClassroom.where(active: true).collect(&:teacher_id).uniq
-    where(id: active_teacher_ids)
+    where(id: active_teacher_ids, active: true)
   end
 
   def self.search(value)
