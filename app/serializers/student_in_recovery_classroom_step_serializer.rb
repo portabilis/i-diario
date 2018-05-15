@@ -1,5 +1,5 @@
 class StudentInRecoveryClassroomStepSerializer < StudentSerializer
-  attributes :average
+  attributes :average, :exempted_from_discipline
 
   def average
     "%.#{@serialization_options[:number_of_decimal_places]}f" % student_recovery_average

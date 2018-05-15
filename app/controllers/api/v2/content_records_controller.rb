@@ -35,15 +35,14 @@ class Api::V2::ContentRecordsController < Api::V2::BaseController
 
     query = ContentRecord.where(teacher_id: teacher_id, classroom_id: classroom_id, record_date: record_date)
 
-    if discipline_id
-      query = query.joins(:discipline_content_record)
-                                        .where(discipline_content_records: { discipline_id: discipline_id } )
-    elsif knowledge_areas
-      query = query.joins(:knowledge_area_content_record)
-                   .where(knowledge_area_content_records: { discipline_id: discipline_id } )
-    end
-
-    @content_record = query.first
+    @content_record =
+      if discipline_id
+        query.joins(:discipline_content_record)
+          .find_by(discipline_content_records: { discipline_id: discipline_id } )
+      elsif knowledge_areas
+        query.joins(:knowledge_area_content_record)
+          .find_by(knowledge_area_content_records: { discipline_id: discipline_id } )
+      end
 
     if !@content_record
       @content_record = ContentRecord.new
@@ -68,10 +67,12 @@ class Api::V2::ContentRecordsController < Api::V2::BaseController
 
     if content_ids.present?
       @content_record.content_ids = content_ids
-      @content_record.save!
+      @content_record.save
     elsif @content_record.persisted?
-      @content_record.destroy!
+      @content_record.destroy
     end
+
+    true
   end
 
 end

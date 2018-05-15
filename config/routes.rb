@@ -344,8 +344,16 @@ Rails.application.routes.draw do
     end
     resources :final_recovery_diary_records, concerns: :history
     resources :avaliation_recovery_diary_records, concerns: :history
-    resources :conceptual_exams, concerns: :history
-    resources :descriptive_exams, only: [:new, :create, :edit, :update], concerns: :history
+    resources :conceptual_exams, concerns: :history do
+      collection do
+        get :exempted_disciplines
+      end
+    end
+    resources :descriptive_exams, only: [:new, :create, :edit, :update], concerns: :history do
+      collection do
+        get :opinion_types
+      end
+    end
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
         get :edit_multiple
