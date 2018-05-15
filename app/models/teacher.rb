@@ -41,6 +41,7 @@ class Teacher < ActiveRecord::Base
           .join_sources
       )
       .where(classrooms: { unity_id: unity_id })
+      .active
       .uniq
   end
 
