@@ -222,7 +222,7 @@ class KnowledgeAreaLessonPlanPdf
       end
 
       start_new_page unless information.blank?
-    end while !information.blank?
+    end while information.present?
   end
 
   def additional_information
