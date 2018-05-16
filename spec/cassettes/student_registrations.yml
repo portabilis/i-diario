@@ -54,7 +54,7 @@ http_interactions:
         Motta Cardoso","situacao":"Aprovado","ano":"2011","turma_id":"49","turma_nome":"Pr\u00e9
         Escolar I \" B \"","escola_nome":"E.e.b.m 12 De Maio","curso_nome":"Educa\u00e7\u00e3o
         Infantil","serie_nome":"Pr\u00e9-escolar 1 (4 Anos)","ultima_enturmacao":"","data_entrada":"02\/03\/2011","data_saida":[],"user_can_access":false,"transferencia_em_aberto":false}],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Tue, 25 Nov 2014 18:47:50 GMT
 - request:
     method: get
@@ -94,7 +94,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"matriculas":[],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Wed, 18 Nov 2015 12:26:25 GMT
 - request:
     method: get
@@ -179,7 +179,7 @@ http_interactions:
         Ana Cl\u00e1udia Picksius","situacao":"Em andamento","ano":"2015","turma_id":"4098","turma_nome":"3\u00ba
         Ano 2","escola_nome":"Emeb Pref. Frederico Lampe","curso_nome":"Ensino Fundamental
         - 1\u00ba A 5\u00ba","serie_nome":"3\u00ba Ano","ultima_enturmacao":"","data_entrada":"17\/09\/2015","data_saida":"24\/09\/2015","user_can_access":false,"user_can_change_date":false,"codigo_situacao":"3","user_can_change_situacao":false,"transferencia_em_aberto":false,"dependencia":"f"}],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Wed, 18 Nov 2015 12:55:38 GMT
 - request:
     method: get
@@ -273,11 +273,11 @@ http_interactions:
         Ana Cl\u00e1udia Picksius","situacao":"Em andamento","ano":"2015","turma_id":"4098","turma_nome":"3\u00ba
         Ano 2","escola_nome":"Emeb Pref. Frederico Lampe","curso_nome":"Ensino Fundamental
         - 1\u00ba A 5\u00ba","serie_nome":"3\u00ba Ano","ultima_enturmacao":"","data_entrada":"17\/09\/2015","data_saida":"24\/09\/2015","user_can_access":false,"user_can_change_date":false,"codigo_situacao":"3","user_can_change_situacao":false,"transferencia_em_aberto":false,"dependencia":"f"}],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Wed, 18 Nov 2015 13:38:33 GMT
 - request:
     method: get
-    uri: http://***REMOVED***/api/v1/customers/prefeitura
+    uri: https://***REMOVED***/api/v1/customers/prefeitura
     body:
       encoding: US-ASCII
       string: ''
@@ -329,6 +329,6 @@ http_interactions:
         mais sobre o i-Educar e a Portabilis, \u003ca href=\"http://b***REMOVED***\"
         target=\"_blank\"\u003eacesse nosso blog\u003c/a\u003e \u0026nbsp;\u0026nbsp;\u0026nbsp;
         \u0026copy; Portabilis - Todos os direitos reservados\u003c/p\u003e\r\n","facebook_url":"https://www.facebook.com/portabilis","twitter_url":"https://twitter.com/portabilis","linkedin_url":"https://www.linkedin.com/company/portabilis-tecnologia","created_at":"2017-05-17T13:12:35.083Z","updated_at":"2017-05-25T17:28:35.263Z","ieducar_suspension_message_id":null,"new_education_suspension_message_id":null,"ieducar_show_onboarding":false,"new_education_show_onboarding":false}'
-    http_version: 
+    http_version:
   recorded_at: Wed, 01 Mar 2017 03:31:00 GMT
 recorded_with: VCR 3.0.3
