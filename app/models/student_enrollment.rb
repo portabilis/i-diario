@@ -19,8 +19,13 @@ class StudentEnrollment < ActiveRecord::Base
 
   def self.by_discipline_query(discipline_id)
     unless discipline_id.blank?
-      joins("LEFT JOIN student_enrollment_dependences on(student_enrollment_dependences.student_enrollment_id = student_enrollments.id)")
-      .where("(student_enrollment_dependences.discipline_id = ? OR student_enrollment_dependences.discipline_id is null)", discipline_id)
+      where("(not exists(select 1
+                           from student_enrollment_dependences
+                          where student_enrollment_dependences.student_enrollment_id = student_enrollments.id) OR
+                  exists(select 1
+                           from student_enrollment_dependences
+                          where student_enrollment_dependences.student_enrollment_id = student_enrollments.id and
+                                student_enrollment_dependences.discipline_id = #{discipline_id}))")
     end
   end
 
