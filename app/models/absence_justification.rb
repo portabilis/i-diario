@@ -73,8 +73,9 @@ class AbsenceJustification < ActiveRecord::Base
 
     if absence_justifications.any?
       errors.add(:base, :discipline_period_absence) if frequence_type_by_discipline?
-      errors.add(:absence_date, "Já existe justificativa para essa data")
-      errors.add(:absence_date_end, "Já existe justificativa para essa data")
+      errors.add(:base, :general_period_absence, teacher: absence_justifications.first.teacher.name) unless frequence_type_by_discipline?
+      errors.add(:absence_date, :taken)
+      errors.add(:absence_date_end, :taken)
     end
   end
 
