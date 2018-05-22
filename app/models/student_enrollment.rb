@@ -48,11 +48,11 @@ class StudentEnrollment < ActiveRecord::Base
 
   def self.by_opinion_type_query(opinion_type, classroom_id)
     return where(nil) unless opinion_type.present? && classroom_id.present?
-    classroo app/models/student_enrollment.rbm = Classroom.find(classroom_id)
-    exam_rul app/models/student_enrollment.rbe = classroom.exam_rule
-    differen app/models/student_enrollment.rbtiated_exam_rule = exam_rule.differentiated_exam_rule || exam_rule
- app/models/student_enrollment.rb
-    exam_rul app/models/student_enrollment.rbe_included = exam_rule.opinion_type == opinion_type
+    classroom = Classroom.find(classroom_id)
+    exam_rule = classroom.exam_rule
+    differentiated_exam_rule = exam_rule.differentiated_exam_rule || exam_rule
+
+    exam_rule_included = exam_rule.opinion_type == opinion_type
     differentiated_exam_rule_included = differentiated_exam_rule.opinion_type == opinion_type
 
     return where(nil) if exam_rule_included && differentiated_exam_rule_included
