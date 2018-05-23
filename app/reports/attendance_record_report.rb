@@ -111,9 +111,10 @@ class AttendanceRecordReport
             if exempted_from_discipline?(student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
             else
-              student_frequency = DailyFrequencyStudent.find_by(student_id: student_id, daily_frequency_id: daily_frequency.id, active: true) || NullDailyFrequencyStudent.new
+              student_frequency = daily_frequency.students.select{ |student| student.student_id == student_id && student.active == true }.first
+              student_frequency ||= NullDailyFrequencyStudent.new
             end
-            student = Student.find(student_id)
+            student = student_enrollment.student
             (students[student_id] ||= {})[:name] = student.name
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, daily_frequency.discipline_id)
@@ -136,7 +137,7 @@ class AttendanceRecordReport
 
           @students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
-            student = Student.find(student_id)
+            student = student_enrollment.student
             (students[student_id] ||= {})[:name] = student.name
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:absences] ||= 0
@@ -250,11 +251,8 @@ class AttendanceRecordReport
     record.is_a? DailyFrequency
   end
 
-  def student_has_dependence?(student_enrollment, discipline)
-    StudentEnrollmentDependence
-      .by_student_enrollment(student_enrollment)
-      .by_discipline(discipline)
-      .any?
+  def student_has_dependence?(student_enrollment, discipline_id)
+    student_enrollment.dependences.any? { |dependence| dependence.discipline_id == discipline_id  }
   end
 
   def exempted_from_discipline?(student_enrollment, daily_frequency)
