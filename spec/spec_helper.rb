@@ -38,4 +38,17 @@ RSpec.configure do |config|
   config.after :each do |example|
     page.driver.restart if defined?(page.driver.restart)
   end
+
+  if Bullet.enable? && ENV['BULLET']
+    config.before(:each) do
+      Bullet.raise = true
+      Bullet.start_request
+    end
+
+    config.after(:each) do
+      Bullet.perform_out_of_channel_***REMOVED*** if Bullet.notification?
+      Bullet.end_request
+      Bullet.raise = false
+    end
+  end
 end
