@@ -7,7 +7,6 @@ class SchoolCalendarSynchronizerService
     @school_calendar = school_calendar
   end
 
-
   def synchronize
     school_calendar = SchoolCalendarsCreator.create!(@school_calendar) || SchoolCalendarsUpdater.update!(@school_calendar)
 

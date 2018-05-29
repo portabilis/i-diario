@@ -28,7 +28,7 @@ class SchoolCalendarStep < ActiveRecord::Base
   scope :started_after_and_before, lambda { |date| where(arel_table[:start_at].lteq(date)).
                                                   where(arel_table[:end_at].gteq(date)) }
   scope :posting_date_after_and_before, lambda { |date| where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date))) }
-  scope :ordered, -> { order(arel_table[:start_at]) }
+  scope :ordered, -> { order(:start_at) }
   scope :inactive, -> { where(active: false) }
   scope :active, -> { where(active: true) }
 

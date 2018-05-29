@@ -8,8 +8,6 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   has_many :transfer_notes, dependent: :restrict_with_exception
   has_many :school_term_recovery_diary_records, dependent: :restrict_with_exception
 
-  scope :ordered, -> { order(arel_table[:start_at]) }
-
   validates_date :start_date_for_posting, :end_date_for_posting
   validates :start_at, :end_at, :start_date_for_posting, :end_date_for_posting, presence: true
 
@@ -25,6 +23,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   scope :started_after_and_before, lambda { |date| where(arel_table[:start_at].lteq(date)).where(arel_table[:end_at].gteq(date)) }
   scope :posting_date_after_and_before, lambda { |date| where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date))) }
   scope :by_step_year, lambda { |year| where('extract(year from start_at) = ?', year) }
+  scope :ordered, -> { order(:start_at) }
   scope :inactive, -> { where(active: false) }
   scope :active, -> { where(active: true) }
 

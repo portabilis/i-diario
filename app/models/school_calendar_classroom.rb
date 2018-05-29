@@ -3,7 +3,7 @@ class SchoolCalendarClassroom < ActiveRecord::Base
   belongs_to :school_calendar
   belongs_to :classroom
 
-  has_many :classroom_steps, -> { where(active: true).order(:start_at) }, class_name: 'SchoolCalendarClassroomStep', dependent: :destroy
+  has_many :classroom_steps, -> { active.ordered }, class_name: 'SchoolCalendarClassroomStep', dependent: :destroy
 
   accepts_nested_attributes_for :classroom_steps, reject_if: :all_blank, allow_destroy: true
 
