@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://botucat.ieducar.com.br/module/Api/Aluno
+    body:
+      encoding: UTF-8
+      string: resource=todos-alunos&oper=post&access_key=***REMOVED***&secret_key=***REMOVED***&instituicao_id=1
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      Content-Length:
+      - '132'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 30 Apr 2018 21:31:28 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=2187t6ls5asa41e8nek3bf37b4; expires=Tue, 01-May-2018 21:31:28 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '127'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"oper":"post","resource":"todos-alunos","msgs":[{"msg":"Chave de acesso
+        inv\u00e1lida!","type":"error"}],"any_error_msg":true}'
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:01:21 GMT
+recorded_with: VCR 3.0.0

@@ -12,6 +12,6 @@
   </td>
 
   <td>
-    <%= f.input :value, label_html: { class: 'hidden' } %>
+    <%= f.input :value, label_html: { class: 'hidden' }, readonly: f.object.exempted_from_discipline %>
   </td>
 </tr>

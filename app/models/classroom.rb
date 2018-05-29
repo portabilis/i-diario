@@ -9,6 +9,7 @@ class Classroom < ActiveRecord::Base
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_one :calendar, class_name: 'SchoolCalendarClassroom'
   has_many :student_enrollment_classrooms
+  has_many :student_enrollments, through: :student_enrollment_classrooms
 
   delegate :course_id, :course, to: :grade, prefix: false
 
@@ -37,5 +38,11 @@ class Classroom < ActiveRecord::Base
 
   def period_humanized
     Periods.t(period)
+  end
+
+  def has_differentiated_students?
+    student_enrollment_classrooms.joins(student_enrollment: :student )
+                                 .where(students: { uses_differentiated_exam_rule: true } )
+                                 .exists?
   end
 end

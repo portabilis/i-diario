@@ -36,11 +36,13 @@ module ExamPoster
           student_scores = teacher_score_fetcher.scores
 
           student_scores.each do |student_score|
+            next if exempted_discipline(classroom.id, discipline.id, student_score.id)
+
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             if school_term_recovery
               value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.step)
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery)
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom).round(school_term_recovery)
             end
           end
 
@@ -50,9 +52,12 @@ module ExamPoster
 
           students_without_daily_notes.each do |student_recovery|
             student = student_recovery.student
+
+            next if exempted_discipline(classroom.id, discipline.id, student.id)
+
             score = student_recovery.try(:score)
             if score
-              scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(score)
+              scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom).round(score)
             end
           end
 
@@ -98,6 +103,22 @@ module ExamPoster
         .first
 
       student_recovery.try(:score)
+    end
+
+    def exempted_discipline(classroom_id, discipline_id, student_id)
+      student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
+                                                               .by_student(student_id)
+                                                               .active
+                                                               .first
+
+      if student_enrollment_classroom.present?
+        return student_enrollment_classroom.student_enrollment
+                                           .exempted_disciplines
+                                           .where("? = ANY(string_to_array(steps, ',')::integer[])", @post_data.step.to_number)
+                                           .any?
+      end
+
+      false
     end
   end
 end

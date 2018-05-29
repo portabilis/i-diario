@@ -1,0 +1,14 @@
+<tr class="nested-fields">
+  <td>
+    <%= f.hidden_field :id %>
+    <%= f.input :label, input_html: { readonly: 'readonly' }, label_html: { class: 'hidden' } %>
+  </td>
+
+  <td>
+    <%= f.input :action, as: :select2, elements: RoundingTableAction.to_select.to_json, label_html: { class: 'hidden' } %>
+  </td>
+
+  <td>
+    <%= f.input :exact_decimal_place, label_html: { class: 'hidden' } %>
+  </td>
+</tr>

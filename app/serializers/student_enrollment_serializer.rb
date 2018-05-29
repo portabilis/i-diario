@@ -4,6 +4,6 @@ class StudentEnrollmentSerializer < ActiveModel::Serializer
   has_one :student
 
   def sequence
-    object.student_enrollment_classrooms.first.try(:sequence)
+    object.student_enrollment_classrooms.by_date(Date.today).first.try(:sequence)
   end
 end

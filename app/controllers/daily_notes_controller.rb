@@ -53,6 +53,7 @@ class DailyNotesController < ApplicationController
         note_student.active = student_active_on_date?(student_enrollment)
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
+        note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_note)
 
         @students << note_student
       end
@@ -62,6 +63,7 @@ class DailyNotesController < ApplicationController
     @dependence_students = []
     @any_exempted_student = any_exempted_student?
     @any_inactive_student = any_inactive_student?
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
 
     @students.each do |student|
       @normal_students << student if !student.dependence
@@ -114,6 +116,7 @@ class DailyNotesController < ApplicationController
     StudentEnrollmentsList.new(classroom: @daily_note.classroom,
                                discipline: @daily_note.discipline,
                                date: @daily_note.avaliation.test_date,
+                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
                                search_type: :by_date)
                           .student_enrollments
   end
@@ -129,6 +132,7 @@ class DailyNotesController < ApplicationController
           .by_student(note_student.student_id)
           .by_classroom(@daily_note.classroom_id)
           .by_discipline(@daily_note.discipline_id)
+          .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC,@daily_note.classroom_id)
           .active
           .first
 
@@ -252,5 +256,19 @@ class DailyNotesController < ApplicationController
       end
     end
     any_inactive_student
+  end
+
+  def student_exempted_from_discipline?(student_enrollment, daily_note)
+    discipline_id = daily_note.discipline.id
+    test_date = daily_note.avaliation.test_date
+    step_number = daily_note.avaliation.school_calendar.step(test_date).to_number
+
+    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
+                                           .by_step_number(step_number)
+                                           .any?
+  end
+
+  def any_student_exempted_from_discipline?
+    (@students || []).any?(&:exempted_from_discipline)
   end
 end
