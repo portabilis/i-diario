@@ -16,6 +16,7 @@ class Student < ActiveRecord::Base
 
   scope :api, -> { where(arel_table[:api].eq(true)) }
   scope :ordered, -> { order(:name) }
+  scope :order_by_sequence, -> { joins(:student_enrollments).merge(StudentEnrollment.ordered) }
 
   def self.search(value)
     relation = all

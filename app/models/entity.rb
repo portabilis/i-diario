@@ -13,6 +13,8 @@ class Entity < ActiveRecord::Base
   end
 
   def using_connection(&block)
+    Honeybadger.context(entity: { name: name, id: id })
+
     ActiveRecord::Base.using_connection(id, connection_spec, &block)
   end
 

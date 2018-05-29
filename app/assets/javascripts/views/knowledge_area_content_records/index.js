@@ -1,28 +1,33 @@
 $(function () {
   'use strict';
 
-  var $classrooms = $("#knowledge_area_content_record_cloner_form_classroom_ids");
+  var selectedClassrooms;
+  var record_date;
   var $knowledgeAreaContentRecord = $("#knowledge_area_content_record_cloner_form_knowledge_area_content_record_id");
 
-  $(document).on('click', 'a.open_copy_modal', function(){
+  $('form').on('cocoon:before-insert', function(e, item) {
+    item.fadeIn();
+  }).on('cocoon:after-insert', function(e, item) {
+    loadSelect2Inputs();
+    setDefaultDates();
+    generateItemUuid();
+  });
 
+  $(document).on('click', 'a.open_copy_modal', function(){
     var $row = $(this).closest('tr');
     var knowledge_area_content_record_id = $(this).data('knowledge-area-content-record-id');
     var classroom_id = $(this).data('classroom-id');
     var grade_id = $(this).data('grade-id');
 
-    $classrooms.select2("val", "");
     $knowledgeAreaContentRecord.val(knowledge_area_content_record_id);
-    $classrooms.closest(".control-group").removeClass("error");
-    $classrooms.closest(".control-group").find("span.help-inline").remove();
-
     var classroom = $row.find(".classroom").text();
     var knowledge_area = $row.find(".knowledge_area").html();
-    var record_date = $row.find(".record_date").text();
+    record_date = $row.find(".record_date").text();
 
     $("#copy-knowledge-area-content-record-modal table tbody td.classroom").text(classroom);
     $("#copy-knowledge-area-content-record-modal table tbody td.knowledge_area").html(knowledge_area);
     $("#copy-knowledge-area-content-record-modal table tbody td.record_date").text(record_date);
+    $('.remove_fields').click();
     $("#copy-knowledge-area-content-record-modal").modal('show');
 
     var params = {
@@ -35,12 +40,32 @@ $(function () {
     };
 
     $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
-      var selectedClassrooms = _.map(data, function(classroom) {
-        return { id: classroom['id'], text: classroom['description'] };
+      selectedClassrooms = _.map(data, function(classroom) { return { id: classroom['id'], text: classroom['description'] };
       });
-
-      $classrooms.select2({ data: selectedClassrooms, multiple: true });
     });
-
   });
+
+  function loadSelect2Inputs() {
+    _.each($('.nested-fields input.select2'), function(element) {
+      $(element).select2({ data: selectedClassrooms, multiple: false });
+    });
+    $(".nested-fields div[style*='display']").css("display", "");
+  }
+
+  function setDefaultDates() {
+    _.each($(".nested-fields input[name*='record_date']"), function(element) {
+      if ($(element).val() == "") {
+        $(element).val(record_date);
+      }
+    });
+  }
+
+  function generateItemUuid() {
+    _.each($('.has-no-id'), function(element) {
+      var uuid = Math.random().toString(36).substring(2);
+      $(element).addClass(uuid);
+      $(element).removeClass("has-no-id");
+      $(element).find("input[name*='uuid']").val(uuid);
+    });
+  }
 });

@@ -108,7 +108,12 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def clone_params
-    params.require(:knowledge_area_content_record_cloner_form).permit(:classroom_ids, :knowledge_area_content_record_id)
+    params.require(:knowledge_area_content_record_cloner_form).permit(:knowledge_area_content_record_id,
+                                                                      knowledge_area_content_record_item_cloner_form_attributes: [
+                                                                        :uuid,
+                                                                        :classroom_id,
+                                                                        :record_date
+                                                                      ])
   end
 
   def contents
