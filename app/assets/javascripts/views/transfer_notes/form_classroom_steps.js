@@ -45,7 +45,10 @@ $(function () {
         data: {
           classroom_id: classroom_id,
           date: transfer_date,
-          start_date: schoolCalendarClassroomStep.start_at
+          start_date: schoolCalendarClassroomStep.start_at,
+          score_type: 'numeric',
+          discipline_id: $discipline.select2('val'),
+          school_calendar_step_id: schoolCalendarStep.id
         },
         success: handleFetchStudentsSuccess,
         error: handleFetchStudentsError
@@ -66,7 +69,11 @@ $(function () {
   };
 
   function handleFetchStudentsSuccess(data) {
-    var selectedStudents = _.map(data.students, function(student) {
+    var filteredSelectedStudents = data.students.filter(function(student) {
+      return !student['exempted_from_discipline'];
+    });
+
+    var selectedStudents = _.map(filteredSelectedStudents, function(student) {
       return { id: student['id'], text: student['name'] };
     });
 

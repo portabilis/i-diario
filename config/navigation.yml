@@ -101,6 +101,9 @@ navigation:
         - ***REMOVED***:
             type: "terms_dictionaries"
             path: "edit_terms_dictionaries_path"
+        - ***REMOVED***:
+            type: "custom_rounding_tables"
+            path: "custom_rounding_tables_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-bullhorn"
