@@ -1,8 +1,22 @@
-<% if @form.errors.any? %>
-  $("#knowledge_area_content_record_cloner_form_classroom_ids").closest(".control-group").removeClass("has-danger");
-  $("#knowledge_area_content_record_cloner_form_classroom_ids").closest(".control-group").find("span.help-inline").remove();
-  $("#knowledge_area_content_record_cloner_form_classroom_ids").closest(".control-group").addClass("error");
-  $("#knowledge_area_content_record_cloner_form_classroom_ids").closest(".control-group").append('<span class="help-inline"><%= @form.errors.values.join(",") %></span>');
+<% if @form.errors.any?  %>
+    function addErrors(element, text){
+      $(element).addClass("error");
+      $(element).append('<span class="help-inline error">' + text + '</span>');
+    }
+
+    $(".nested-fields div[style*='display']").css("display", "");
+    $(".error").removeClass("error");
+    $("span.help-inline").remove();
+
+    <% @form.knowledge_area_content_record_item_cloner_form.each do |item| %>
+      var uuid = '<%= item.uuid %>';
+      <% item.errors.each do |field, message| %>
+        var field = '<%= field %>';
+        var message = '<%= message %>';
+        var element = $('.' + uuid).find("[class*='"+field+"']");
+        addErrors(element, message);
+      <% end %>
+    <% end %>
 <% else %>
   location.reload();
 <% end %>

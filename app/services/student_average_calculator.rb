@@ -17,7 +17,7 @@ class StudentAverageCalculator
       end
     end
 
-    result = ScoreRounder.new(classroom.exam_rule).round(result)
+    result = ScoreRounder.new(classroom).round(result)
     result
   end
 

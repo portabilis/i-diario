@@ -33,6 +33,7 @@ class Unity < ActiveRecord::Base
 
   has_and_belongs_to_many :***REMOVED***
   has_and_belongs_to_many :***REMOVED***
+  has_and_belongs_to_many :custom_rounding_tables
 
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
 

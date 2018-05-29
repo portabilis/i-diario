@@ -20,6 +20,7 @@ class PartialScoreRecordReportForm
     @daily_note_students ||= DailyNoteStudent.includes(:daily_note)
                                              .by_classroom_id(classroom_id)
                                              .by_student_id(student_id)
+                                             .exclude_discipline_ids(exempted_disciplines)
                                              .by_test_date_between(school_calendar.first_day, school_calendar.last_day)
                                              .order_by_discipline_and_date
   end
@@ -61,6 +62,19 @@ class PartialScoreRecordReportForm
   end
 
   private
+
+  def exempted_disciplines
+    return [] unless step
+    StudentEnrollmentExemptedDiscipline.
+      by_student_enrollment(
+        StudentEnrollment.by_student(student_id)
+                     .by_date_range(step.start_at, step.end_at)
+                     .joins(:exempted_disciplines)
+                     .pluck(:id)
+      ).
+      by_step_number(step.to_number)
+      .pluck(:discipline_id)
+  end
 
   def must_have_daily_note_students
     return unless errors.blank?

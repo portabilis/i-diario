@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       Accept:
-      - ! '*/*; q=0.5, application/xml'
+      - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       User-Agent:
@@ -16,41 +16,29 @@ http_interactions:
   response:
     status:
       code: 404
-      message: !binary |-
-        Tm90IEZvdW5k
+      message: Not Found
     headers:
-      !binary "RGF0ZQ==":
-      - !binary |-
-        RnJpLCAxMiBTZXAgMjAxNCAxNDoyOTo0NiBHTVQ=
-      !binary "U2VydmVy":
-      - !binary |-
-        QXBhY2hl
-      !binary "U2V0LUNvb2tpZQ==":
-      - !binary |-
-        Q0FLRVBIUD0zMjY1YjI2OGY2YjI3MGNlYmMzOGJmN2EzMTYzMDJiYTsgZXhw
-        aXJlcz1Nb24sIDI5LVNlcC0yMDE0IDA2OjI5OjQ2IEdNVDsgcGF0aD0v
-      - !binary |-
-        Q2FrZUNvb2tpZVtsYW5nXT1RMkZyWlElM0QlM0QuWUNrSDsgZXhwaXJlcz1G
-        cmksIDI4LUF1Zy0yMDE1IDE0OjI5OjQ2IEdNVDsgcGF0aD0v
-      !binary "UDNw":
-      - !binary |-
-        Q1A9Ik5PSSBBRE0gREVWIFBTQWkgQ09NIE5BViBPVVIgT1RSbyBTVFAgSU5E
-        IERFTSI=
-      !binary "VmFyeQ==":
-      - !binary |-
-        QWNjZXB0LUVuY29kaW5n
-      !binary "Q29udGVudC1FbmNvZGluZw==":
-      - !binary |-
-        Z3ppcA==
-      !binary "Q29udGVudC1MZW5ndGg=":
-      - !binary |-
-        Mjc3OQ==
-      !binary "Q29ubmVjdGlvbg==":
-      - !binary |-
-        Y2xvc2U=
-      !binary "Q29udGVudC1UeXBl":
-      - !binary |-
-        dGV4dC9odG1sOyBjaGFyc2V0PXV0Zi04
+      Date:
+      - Fri, 12 Sep 2014 14:29:46 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - CAKEPHP=3265b268f6b270cebc38bf7a316302ba; expires=Mon, 29-Sep-2014 06:29:46
+        GMT; path=/
+      - CakeCookie[lang]=Q2FrZQ%3D%3D.YCkH; expires=Fri, 28-Aug-2015 14:29:46 GMT;
+        path=/
+      P3p:
+      - CP="NOI ADM DEV PSAi COM NAV OUR OTRo STP IND DEM"
+      Vary:
+      - Accept-Encoding
+      Content-Encoding:
+      - gzip
+      Content-Length:
+      - '2779'
+      Connection:
+      - close
+      Content-Type:
+      - text/html; charset=utf-8
     body:
       encoding: ASCII-8BIT
       string: !binary |-
@@ -118,4 +106,45 @@ http_interactions:
         ufpHB9zpXJmv0mPDJDt2IPSFmz2Ztv+R81/PGxJ4oyMAAA==
     http_version: 
   recorded_at: Fri, 12 Sep 2014 14:29:46 GMT
-recorded_with: VCR 2.9.3
+- request:
+    method: get
+    uri: https://botucat.ieducar.com.br/module/Api/Aluno?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=todos-alunos&secret_key=***REMOVED***
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 30 Apr 2018 21:31:22 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=e4m3hhcuatdnvtieu44fencpm5; expires=Tue, 01-May-2018 21:31:22 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '126'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"oper":"get","resource":"todos-alunos","msgs":[{"msg":"Chave de acesso
+        inv\u00e1lida!","type":"error"}],"any_error_msg":true}'
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:01:16 GMT
+recorded_with: VCR 3.0.0

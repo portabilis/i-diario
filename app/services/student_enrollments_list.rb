@@ -12,6 +12,8 @@ class StudentEnrollmentsList
     @search_type = params.fetch(:search_type, :by_date)
     @show_inactive = params.fetch(:show_inactive, true)
     @show_inactive_outside_step = params.fetch(:show_inactive_outside_step, true)
+    @score_type = params.fetch(:score_type, StudentEnrollmentScoreTypeFilters::BOTH) || StudentEnrollmentScoreTypeFilters::BOTH
+    @opinion_type = params.fetch(:opinion_type, nil)
     ensure_has_valid_params
   end
 
@@ -21,7 +23,7 @@ class StudentEnrollmentsList
 
   private
 
-  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive, :show_inactive_outside_step
+  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive, :show_inactive_outside_step, :score_type, :opinion_type
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -35,8 +37,13 @@ class StudentEnrollmentsList
     students_enrollments ||= StudentEnrollment
       .by_classroom(classroom)
       .by_discipline(discipline)
+      .by_score_type(score_type, classroom)
+      .includes(:student)
+      .includes(:dependences)
       .active
       .ordered
+
+    students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
 
     students_enrollments = reject_duplicated_students(students_enrollments)
     students_enrollments = remove_not_displayable_students(students_enrollments)

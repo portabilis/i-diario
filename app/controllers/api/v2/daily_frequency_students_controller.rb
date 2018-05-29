@@ -12,22 +12,32 @@ class Api::V2::DailyFrequencyStudentsController < Api::V2::BaseController
   end
 
   def update_or_create
-    daily_frequency = DailyFrequency
-                      .find_or_create_by(unity: unity,
-                                         classroom_id: params[:classroom_id],
-                                         frequency_date: params[:frequency_date],
-                                         class_number: params[:class_number],
-                                         discipline_id: params[:discipline_id],
-                                         school_calendar: current_school_calendar)
+    daily_frequency_student = nil
 
-    daily_frequency_student = DailyFrequencyStudent
-                              .find_or_create_by(daily_frequency_id: daily_frequency.id,
-                                                 student_id: params[:student_id],
-                                                 active: true)
+    creator = DailyFrequenciesCreator.new({
+      unity: unity,
+      classroom_id: params[:classroom_id],
+      frequency_date: params[:frequency_date],
+      class_number: params[:class_number],
+      discipline_id: params[:discipline_id],
+      school_calendar: current_school_calendar
+    })
+    creator.find_or_create!
 
-    daily_frequency_student.update(present: params[:present])
+    daily_frequency = creator.daily_frequencies[0]
 
-    respond_with daily_frequency_student
+    if daily_frequency
+      daily_frequency_student = DailyFrequencyStudent
+        .find_or_create_by(daily_frequency_id: daily_frequency.id,
+                           student_id: params[:student_id],
+                           active: true)
+
+      daily_frequency_student.update(present: params[:present])
+
+      respond_with daily_frequency_student
+    else
+      render json: []
+    end
   end
 
   def current_user

@@ -16,6 +16,7 @@ pt-BR:
         school_calendar_step_id: "Etapa"
         school_calendar_classroom_step: "Etapa da turma"
         school_calendar_classroom_step_id: "Etapa da turma"
+        opinion_type: "Tipo"
 
   errors:
     descriptive_exams:

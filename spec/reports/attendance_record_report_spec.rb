@@ -19,7 +19,8 @@ RSpec.describe AttendanceRecordReport, type: :report do
       "01/01/2016",
       daily_frequencies,
       students,
-      school_calendar.events.by_date_between("01/01/2016", "01/01/2016").extra_school_without_frequency
+      school_calendar.events.by_date_between("01/01/2016", "01/01/2016").extra_school_without_frequency,
+      school_calendar
     ).render
 
     expect(subject).to be_truthy

@@ -28,6 +28,7 @@ class DailyNote < ActiveRecord::Base
   scope :by_unity_id, lambda { |unity_id| joins(:avaliation).merge(Avaliation.by_unity_id(unity_id))}
   scope :by_classroom_id, lambda { |classroom_id| joins(:avaliation).merge(Avaliation.by_classroom_id(classroom_id))}
   scope :by_discipline_id, lambda { |discipline_id| joins(:avaliation).merge(Avaliation.by_discipline_id(discipline_id))}
+  scope :exclude_discipline_ids, lambda { |discipline_ids| joins(:avaliation).merge(Avaliation.exclude_discipline_ids(discipline_ids))}
   scope :by_test_date_between, lambda { |start_at, end_at| includes(:avaliation, students: :student).where('avaliations.test_date': start_at.to_date..end_at.to_date) }
   scope :by_avaliation_id, lambda { |avaliation_id| joins(:avaliation).where(avaliation: avaliation_id) }
   scope :by_school_calendar_step_id, lambda { |school_calendar_step_id| joins(:avaliation).merge(Avaliation.by_school_calendar_step(school_calendar_step_id)) }
@@ -45,6 +46,7 @@ class DailyNote < ActiveRecord::Base
   delegate :status, to: :daily_note_status, prefix: false, allow_nil: true
   delegate :classroom, :classroom_id, :discipline, :discipline_id, to: :avaliation, allow_nil: true
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
+  delegate :test_date, :school_calendar, to: :avaliation
 
   private
 
