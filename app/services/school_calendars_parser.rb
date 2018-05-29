@@ -78,6 +78,7 @@ class SchoolCalendarsParser
 
   def build_existing_school_calendars(school_calendars_from_api)
     school_calendars_to_synchronize = []
+    existing_school_calendar_step_ids = []
     existing_school_calendars_from_api = fetch_existing_school_calendars_from_api(school_calendars_from_api)
 
     existing_school_calendars_from_api.each do |school_calendar_from_api|
@@ -88,7 +89,11 @@ class SchoolCalendarsParser
       school_calendar = SchoolCalendar.by_year(year).by_unity_api_code(unity_api_code).first
 
       school_calendar_from_api['etapas'].each_with_index do |step, index|
-        if school_calendar.steps[index].present?
+        school_calendar_step = school_calendar.steps[index]
+
+        if school_calendar_step.present?
+          existing_school_calendar_step_ids << school_calendar_step.id
+
           update_step_start_at(school_calendar, index, step)
           update_step_end_at(school_calendar, index, step)
         else
@@ -101,7 +106,12 @@ class SchoolCalendarsParser
         end
       end
 
+      school_calendar.steps.each do |step|
+        step.mark_for_destruction unless existing_school_calendar_step_ids.include?(step.id)
+      end
+
       existing_school_calendar_classroom_ids = []
+      existing_school_calendar_classroom_step_ids = []
 
       steps_from_classrooms = get_school_calendar_classroom_steps(school_calendar_from_api['etapas_de_turmas'])
       steps_from_classrooms.each_with_index do |classroom_step, classroom_index|
@@ -110,7 +120,10 @@ class SchoolCalendarsParser
           existing_school_calendar_classroom_ids << school_calendar_classroom.id
 
           classroom_step['etapas'].each_with_index do |step, step_index|
-            if school_calendar_classroom.classroom_steps[step_index]
+            existing_school_calendar_classroom_step = school_calendar_classroom.classroom_steps[step_index]
+
+            if existing_school_calendar_classroom_step.present?
+              existing_school_calendar_classroom_step_ids << existing_school_calendar_classroom_step.id
               update_classrooms_step_start_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
               update_classrooms_step_end_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
             else
@@ -143,6 +156,10 @@ class SchoolCalendarsParser
 
       school_calendar.classrooms.each do |classroom|
         classroom.mark_for_destruction unless existing_school_calendar_classroom_ids.include?(classroom.id)
+
+        classroom.classroom_steps.each do |step|
+          step.mark_for_destruction unless existing_school_calendar_classroom_step_ids.include?(step.id)
+        end
       end
 
       need_to_synchronize = school_calendar_need_synchronization?(school_calendar) || school_calendar_classroom_step_need_synchronization?(school_calendar.classrooms)
