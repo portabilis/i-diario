@@ -197,7 +197,7 @@ RSpec.describe StudentAverageCalculator, type: :service do
   def stub_score_rounder
     stub_const('ScoreRounder', Class.new)
     allow(ScoreRounder).to(
-      receive(:new).with(exam_rule).and_return(score_rounder)
+      receive(:new).with(classroom).and_return(score_rounder)
     )
   end
 

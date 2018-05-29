@@ -7,6 +7,7 @@ pt-BR:
       new_html: "<i class='fa fa-plus'></i> Novo plano de aula"
     content_fields:
       remove: "Remover"
+      add_item: "Adicionar"
     lesson_plan_attachment_fields:
       remove: "Remover"
     lesson_plan_attachment_show:

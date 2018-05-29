@@ -6,7 +6,9 @@
     <% end %>
 
     <%= f.input :student_id, as: :hidden %>
-    <%= f.object.student.name %>
+    <span class="<%= school_term_recovery_diary_record_student_name_class(f.object) %>">
+      <%= school_term_recovery_diary_record_student_name(f.object) %>
+    </span>
   </td>
 
   <td>
@@ -23,6 +25,7 @@
 
   <td>
     <%= f.input :score, label: false,
-        input_html: decimal_input_mask(decimal_places) %>
+        input_html: decimal_input_mask(decimal_places),
+        readonly: f.object.student.exempted_from_discipline %>
   </td>
 </tr>

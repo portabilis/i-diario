@@ -1,20 +1,26 @@
-class KnowledgeAreaLessonPlanClonerForm
-  include ActiveModel::Model
+class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
+  has_no_table
 
-  attr_accessor :classroom_ids, :knowledge_area_lesson_plan_id
+  attr_accessor :knowledge_area_lesson_plan_id
 
-  validates :knowledge_area_lesson_plan_id, :classroom_ids, presence: true
+  validates :knowledge_area_lesson_plan_id,  presence: true
+  has_many :knowledge_area_lesson_plan_item_cloner_form
+  accepts_nested_attributes_for :knowledge_area_lesson_plan_item_cloner_form, :allow_destroy => true
 
   def clone!
     if valid?
       begin
         ActiveRecord::Base.transaction do
-          Classroom.where(id: classroom_ids.split(",")).each do |classroom|
+          @classrooms = Classroom.where(id: knowledge_area_lesson_plan_item_cloner_form.map(&:classroom_id).uniq)
+          knowledge_area_lesson_plan_item_cloner_form.each_with_index do |item, index|
+            @current_item_index = index
             new_lesson_plan = knowledge_area_lesson_plan.dup
             new_lesson_plan.lesson_plan = knowledge_area_lesson_plan.lesson_plan.dup
             new_lesson_plan.knowledge_areas = knowledge_area_lesson_plan.knowledge_areas
             new_lesson_plan.lesson_plan.contents = knowledge_area_lesson_plan.lesson_plan.contents
-            new_lesson_plan.lesson_plan.classroom = classroom
+            new_lesson_plan.lesson_plan.start_at = item.start_at
+            new_lesson_plan.lesson_plan.end_at = item.end_at
+            new_lesson_plan.lesson_plan.classroom = @classrooms.find_by_id(item.classroom_id)
             knowledge_area_lesson_plan.lesson_plan.lesson_plan_attachments.each do |lesson_plan_attachment|
               new_lesson_plan.lesson_plan.lesson_plan_attachments << LessonPlanAttachment.new(attachment: lesson_plan_attachment.attachment)
             end
@@ -26,8 +32,8 @@ class KnowledgeAreaLessonPlanClonerForm
         message = e.to_s
         message.slice!("A validação falhou: ")
         message.slice!("Áreas de conhecimento ")
-        message = "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}"
-        errors.add(:classroom_ids, message)
+        errors.add(:classroom_id, "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}")
+        knowledge_area_lesson_plan_item_cloner_form[@current_item_index].errors.add(:classroom_id, message)
         return false
       end
     end

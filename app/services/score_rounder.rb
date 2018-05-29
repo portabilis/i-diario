@@ -1,28 +1,32 @@
 class ScoreRounder
 
-  def initialize(exam_rule)
-    raise ArgumentError unless exam_rule
-    @exam_rule = exam_rule
+  def initialize(classroom)
+    raise ArgumentError unless classroom.exam_rule
+    @exam_rule = classroom.exam_rule
+    @classroom = classroom
   end
 
   def round(score)
-    return 0 if score.nil?
+    return 0.0 if score.nil?
+
     score_decimal_part = decimal_part(score)
-    rounding_table_id = exam_rule_rounding_table.try(:id)
-    rounding_table_value = RoundingTableValue.find_by(rounding_table_id: rounding_table_id, label: score_decimal_part)
+
+    rounding_table_value =
+      custom_rounding_table_value(score_decimal_part)
 
     rounded_score = score
     if rounding_table_value
-      case rounding_table_value.action
-      when RoundingTableAction::NONE
-        rounded_score = score
-      when RoundingTableAction::BELOW
-        rounded_score = round_to_below(score)
-      when RoundingTableAction::ABOVE
-        rounded_score = round_to_above(score)
-      when RoundingTableAction::SPECIFIC
-        rounded_score = round_to_exact_decimal(score, rounding_table_value.exact_decimal_place)
-      end
+      rounded_score =
+        case rounding_table_value.action
+        when RoundingTableAction::NONE
+          score
+        when RoundingTableAction::BELOW
+          round_to_below(score)
+        when RoundingTableAction::ABOVE
+          round_to_above(score)
+        when RoundingTableAction::SPECIFIC
+          round_to_exact_decimal(score, rounding_table_value.exact_decimal_place)
+        end
     end
 
     truncate_score(rounded_score.to_f)
@@ -33,6 +37,19 @@ class ScoreRounder
   attr_accessor :exam_rule
 
   delegate :rounding_table, to: :exam_rule, prefix: true, allow_nil: true
+
+  def custom_rounding_table_value(score_decimal_part)
+    if rounding_table_id = custom_rounding_table_id
+      CustomRoundingTableValue.
+        find_by(custom_rounding_table_id: rounding_table_id, label: score_decimal_part)
+    end
+  end
+
+  def custom_rounding_table_id
+    CustomRoundingTable.by_year(@classroom.year).
+      by_unity(@classroom.unity_id).
+      by_grade(@classroom.grade_id).first.try(:id)
+  end
 
   def decimal_part(value)
     parts = value.to_s.split(".")

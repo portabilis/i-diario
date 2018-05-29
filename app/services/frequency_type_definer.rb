@@ -2,9 +2,10 @@ class FrequencyTypeDefiner
 
   attr_reader :frequency_type
 
-  def initialize(classroom, teacher)
+  def initialize(classroom, teacher, exam_rule = nil)
     @classroom = classroom
     @teacher = teacher
+    @exam_rule = exam_rule || classroom.try(:exam_rule)
   end
 
   def define!
@@ -13,11 +14,11 @@ class FrequencyTypeDefiner
     end
 
     if !@teacher
-      @frequency_type = @classroom.exam_rule.frequency_type
+      @frequency_type = @exam_rule.frequency_type
       return
     end
 
-    if @classroom.exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
+    if @exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
       @frequency_type = FrequencyTypes::BY_DISCIPLINE
       return
     end

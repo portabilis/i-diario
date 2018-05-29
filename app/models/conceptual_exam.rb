@@ -39,7 +39,7 @@ class ConceptualExam < ActiveRecord::Base
     school_calendar_day: true }
   validates :unity_id, presence: true
 
-  validate :classroom_must_have_conceptual_exam_score_type
+  validate :student_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
   validate :ensure_is_school_day
@@ -74,7 +74,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def status
-    values = ConceptualExamValue.where(conceptual_exam_id: id)
+    values = ConceptualExamValue.where(conceptual_exam_id: id, exempted_discipline: false)
     if values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
       ConceptualExamStatus::INCOMPLETE
     else
@@ -88,13 +88,14 @@ class ConceptualExam < ActiveRecord::Base
 
   private
 
-  def classroom_must_have_conceptual_exam_score_type
-    return if classroom.blank?
+  def student_must_have_conceptual_exam_score_type
+    return if student.blank? || classroom.blank?
 
     permited_score_types = [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT]
-
-    unless permited_score_types.include? classroom.exam_rule.score_type
-      errors.add(:classroom, :classroom_must_have_conceptual_exam_score_type)
+    exam_rule = classroom.exam_rule
+    exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if student.uses_differentiated_exam_rule
+    unless permited_score_types.include? exam_rule.score_type
+      errors.add(:student, :classroom_must_have_conceptual_exam_score_type)
     end
   end
 
