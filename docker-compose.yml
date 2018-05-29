@@ -20,7 +20,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - /private/etc/website/pg94/data:/var/lib/postgresql/data
+      - /var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=postgres
 

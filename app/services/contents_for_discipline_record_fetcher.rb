@@ -13,17 +13,19 @@ class ContentsForDisciplineRecordFetcher
                                        .by_teacher_id(@teacher.id)
                                        .by_date(@date)
 
-    if lesson_plans.any?
+    if lesson_plans.exists?
       @contents = lesson_plans.map(&:contents)
     end
 
-    teaching_plans = DisciplineTeachingPlan.by_grade(@classroom.grade.id)
-                                           .by_discipline(@discipline.id)
-                                           .by_year(@date.to_date.year)
-                                           .by_teacher_id(@teacher.id)
+    if @contents.blank?
+      teaching_plans = DisciplineTeachingPlan.by_grade(@classroom.grade.id).
+        by_discipline(@discipline.id).
+        by_year(@date.to_date.year).
+        by_teacher_id(@teacher.id)
 
-    if @contents.blank? && teaching_plans.any?
-      @contents = teaching_plans.map(&:contents)
+      if teaching_plans.exists?
+        @contents = teaching_plans.map(&:contents)
+      end
     end
 
     @contents.uniq.flatten
