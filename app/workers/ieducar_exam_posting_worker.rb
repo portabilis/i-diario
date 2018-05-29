@@ -34,7 +34,7 @@ class IeducarExamPostingWorker
         if e.message.include? 'Request Timeout'
           IeducarExamPostingWorker.perform_async(entity_id, posting_id)
         else
-          posting.mark_as_error!('Ocorreu um erro desconhecido.')
+          posting.mark_as_error!('Ocorreu um erro desconhecido.', e.message)
         end
 
         raise e

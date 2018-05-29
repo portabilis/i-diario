@@ -38,6 +38,8 @@ class StudentEnrollmentsList
       .by_classroom(classroom)
       .by_discipline(discipline)
       .by_score_type(score_type, classroom)
+      .includes(:student)
+      .includes(:dependences)
       .active
       .ordered
 

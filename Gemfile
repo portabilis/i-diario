@@ -33,6 +33,7 @@ gem 'active_model_serializers'
 gem 'bulk_insert', '~> 1.0'
 gem 'aws-sdk', '~> 2'
 gem "paperclip", "~> 5.1.0"
+gem 'activerecord-tableless', '~> 2.0'
 
 gem 'honeybadger', '~> 3.1'
 
@@ -66,11 +67,12 @@ gem 'rdstation-ruby-client'
 gem "zenvia-ruby", git: "https://github.com/portabilis/zenvia-ruby"
 
 group :development do
+  gem 'spring'
+  gem 'spring-commands-rspec'
   gem 'quiet_assets'
   gem 'mina', '0.3.7'
   gem 'better_errors', '~> 1.1.0'
   gem 'binding_of_caller', '~> 0.7.2'
-  gem 'bullet', '~> 4.14.0'
   gem 'puma', '~> 3.9.1'
   gem 'mina-sidekiq', '~> 0.4.1'
   gem 'web-console', '~> 2.0'
@@ -79,6 +81,7 @@ group :development do
 end
 
 group :test do
+  gem 'business_time'
   gem 'turnip', '~> 1.3', '>= 1.3.1'
   gem 'capybara', '~> 2.5'
   gem 'poltergeist', '~> 1.8.1'
@@ -95,6 +98,10 @@ group :test do
   gem 'cpf_faker', '~> 1.3'
   gem 'timecop'
   gem 'simplecov', :require => false
+end
+
+group :test, :development do
+  gem 'bullet'
 end
 
 gem 'newrelic_rpm'

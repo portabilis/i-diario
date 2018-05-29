@@ -109,7 +109,12 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def clone_params
-    params.require(:discipline_content_record_cloner_form).permit(:classroom_ids, :discipline_content_record_id)
+    params.require(:discipline_content_record_cloner_form).permit(:discipline_content_record_id,
+                                                                  discipline_content_record_item_cloner_form_attributes: [
+                                                                    :uuid,
+                                                                    :classroom_id,
+                                                                    :record_date
+                                                                  ])
   end
 
   def contents

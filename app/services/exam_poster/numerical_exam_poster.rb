@@ -38,7 +38,9 @@ module ExamPoster
           student_scores = teacher_score_fetcher.scores
 
           student_scores.each do |student_score|
+            next if exempted_discipline(classroom.id, discipline.id, student_score.id)
             next if !correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
+
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.step)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
@@ -89,6 +91,22 @@ module ExamPoster
         .first
 
       student_recovery.try(:score)
+    end
+
+    def exempted_discipline(classroom_id, discipline_id, student_id)
+      student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
+                                                               .by_student(student_id)
+                                                               .active
+                                                               .first
+
+      if student_enrollment_classroom.present?
+        return student_enrollment_classroom.student_enrollment
+                                           .exempted_disciplines
+                                           .where("? = ANY(string_to_array(steps, ',')::integer[])", @post_data.step.to_number)
+                                           .any?
+      end
+
+      false
     end
   end
 end
