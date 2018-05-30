@@ -35,7 +35,7 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Time.local(Date.today.year, 9, 1, 0, 0, 0)) do
+        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
           school_calendar_step_id = school_calendar.steps.last.id
 
           expect(conceptual_exam.school_calendar_step_id).to eq(school_calendar_step_id)
@@ -61,7 +61,7 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Time.local(Date.today.year, 9, 1, 0, 0, 0)) do
+        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
           conceptual_exam_step = conceptual_exam.school_calendar_step
           transfer_note_step = transfer_note.school_calendar_step
           school_term_recovery_diary_record_step = school_term_recovery_diary_record.school_calendar_step
@@ -180,7 +180,7 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Time.local(Date.today.year, 9, 1, 0, 0, 0)) do
+        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
           classroom_step_id = school_calendar_classroom.classroom_steps.last.id
 
           expect(conceptual_exam.school_calendar_classroom_step_id).to eq(classroom_step_id)
@@ -206,7 +206,7 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Time.local(Date.today.year, 9, 1, 0, 0, 0)) do
+        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
           conceptual_exam_step = conceptual_exam.school_calendar_classroom_step
           transfer_note_step = transfer_note.school_calendar_classroom_step
           school_term_recovery_diary_record_step = school_term_recovery_diary_record.school_calendar_classroom_step
