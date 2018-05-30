@@ -73,7 +73,6 @@ group :development do
   gem 'mina', '0.3.7'
   gem 'better_errors', '~> 1.1.0'
   gem 'binding_of_caller', '~> 0.7.2'
-  gem 'bullet', '~> 4.14.0'
   gem 'puma', '~> 3.9.1'
   gem 'mina-sidekiq', '~> 0.4.1'
   gem 'web-console', '~> 2.0'
@@ -99,6 +98,10 @@ group :test do
   gem 'cpf_faker', '~> 1.3'
   gem 'timecop'
   gem 'simplecov', :require => false
+end
+
+group :test, :development do
+  gem 'bullet'
 end
 
 gem 'newrelic_rpm'
