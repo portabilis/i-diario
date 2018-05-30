@@ -22,13 +22,11 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
         school_calendars['steps'].last['_destroy'] = 'true'
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        school_calendar_steps = SchoolCalendarStep.by_school_calendar_id(school_calendars['school_calendar_id'])
-        expect(school_calendar_steps.count).to be(2)
+        expect(school_calendar.steps.count).to be(2)
 
         updater.update!
 
-        school_calendar_steps.reload
-        expect(school_calendar_steps.count).to be(1)
+        expect(school_calendar.steps.count).to be(1)
       end
 
       it 'needs to move related items to other step' do
@@ -38,34 +36,21 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
         Timecop.freeze(Time.local(Date.today.year, 9, 1, 0, 0, 0)) do
-          conceptual_exam
-          descriptive_exam
-          transfer_note
-          school_term_recovery_diary_record
+          school_calendar_step_id = school_calendar.steps.last.id
 
-          school_calendar_step_id = SchoolCalendarStep.by_school_calendar_id(school_calendars['school_calendar_id']).last.id
-          conceptual_exam_step = ConceptualExam.first
-          descriptive_exam_step = DescriptiveExam.first
-          transfer_note_step = TransferNote.first
-          school_term_recovery_diary_record_step = SchoolTermRecoveryDiaryRecord.first
-
-          expect(conceptual_exam_step.school_calendar_step_id).to eq(school_calendar_step_id)
-          expect(descriptive_exam_step.school_calendar_step_id).to eq(school_calendar_step_id)
-          expect(transfer_note_step.school_calendar_step_id).to eq(school_calendar_step_id)
-          expect(school_term_recovery_diary_record_step.school_calendar_step_id).to eq(school_calendar_step_id)
+          expect(conceptual_exam.school_calendar_step_id).to eq(school_calendar_step_id)
+          expect(descriptive_exam.school_calendar_step_id).to eq(school_calendar_step_id)
+          expect(transfer_note.school_calendar_step_id).to eq(school_calendar_step_id)
+          expect(school_term_recovery_diary_record.school_calendar_step_id).to eq(school_calendar_step_id)
 
           updater.update!
 
-          school_calendar_step_id = SchoolCalendarStep.by_school_calendar_id(school_calendars['school_calendar_id']).first.id
-          conceptual_exam_step.reload
-          descriptive_exam_step.reload
-          transfer_note_step.reload
-          school_term_recovery_diary_record_step.reload
+          school_calendar_step_id = school_calendar.steps.last.id
 
-          expect(conceptual_exam_step.school_calendar_step_id).to eq(school_calendar_step_id)
-          expect(descriptive_exam_step.school_calendar_step_id).to eq(school_calendar_step_id)
-          expect(transfer_note_step.school_calendar_step_id).to eq(school_calendar_step_id)
-          expect(school_term_recovery_diary_record_step.school_calendar_step_id).to eq(school_calendar_step_id)
+          expect(conceptual_exam.school_calendar_step_id).to eq(school_calendar_step_id)
+          expect(descriptive_exam.school_calendar_step_id).to eq(school_calendar_step_id)
+          expect(transfer_note.school_calendar_step_id).to eq(school_calendar_step_id)
+          expect(school_term_recovery_diary_record.school_calendar_step_id).to eq(school_calendar_step_id)
         end
       end
 
@@ -77,13 +62,9 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
         Timecop.freeze(Time.local(Date.today.year, 9, 1, 0, 0, 0)) do
-          conceptual_exam
-          transfer_note
-          school_term_recovery_diary_record
-
-          conceptual_exam_step = ConceptualExam.first.school_calendar_step
-          transfer_note_step = TransferNote.first.school_calendar_step
-          school_term_recovery_diary_record_step = SchoolTermRecoveryDiaryRecord.first.school_calendar_step
+          conceptual_exam_step = conceptual_exam.school_calendar_step
+          transfer_note_step = transfer_note.school_calendar_step
+          school_term_recovery_diary_record_step = school_term_recovery_diary_record.school_calendar_step
 
           expect(conceptual_exam_step.active).to be true
           expect(transfer_note_step.active).to be true
@@ -91,9 +72,9 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
 
           updater.update!
 
-          new_conceptual_exam_step = ConceptualExam.first.school_calendar_step
-          new_transfer_note_step = TransferNote.first.school_calendar_step
-          new_school_term_recovery_diary_record_step = SchoolTermRecoveryDiaryRecord.first.school_calendar_step
+          new_conceptual_exam_step = conceptual_exam.reload.school_calendar_step
+          new_transfer_note_step = transfer_note.reload.school_calendar_step
+          new_school_term_recovery_diary_record_step = school_term_recovery_diary_record.reload.school_calendar_step
 
           expect(new_conceptual_exam_step.active).to be false
           expect(new_transfer_note_step.active).to be false
@@ -112,21 +93,18 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        descriptive_exam
+        school_calendar_step = school_calendar.steps.last
 
-        school_calendar_step = SchoolCalendarStep.by_school_calendar_id(school_calendars['school_calendar_id']).last
-        descriptive_exam_step = DescriptiveExam.first
-
-        expect(descriptive_exam_step.school_calendar_step_id).to eq(school_calendar_step.id)
-        expect(descriptive_exam_step.school_calendar_step.active).to be true
+        expect(descriptive_exam.school_calendar_step_id).to eq(school_calendar_step.id)
+        expect(descriptive_exam.school_calendar_step.active).to be true
 
         updater.update!
 
-        school_calendar_step = SchoolCalendarStep.by_school_calendar_id(school_calendars['school_calendar_id']).first
-        descriptive_exam_step.reload
+        school_calendar_step = school_calendar.steps.first
+        descriptive_exam.reload
 
-        expect(descriptive_exam_step.school_calendar_step_id).not_to eq(school_calendar_step.id)
-        expect(descriptive_exam_step.school_calendar_step.active).to be false
+        expect(descriptive_exam.school_calendar_step_id).not_to eq(school_calendar_step.id)
+        expect(descriptive_exam.school_calendar_step.active).to be false
       end
 
       def school_calendars
@@ -189,15 +167,11 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
         school_calendars['classrooms'].first['steps'].last['_destroy'] = 'true'
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        school_calendar_steps = SchoolCalendarClassroom.by_school_calendar_id(school_calendars['school_calendar_id'])
-                                                       .by_classroom_id(school_calendars['classrooms'].first['id'])
-                                                       .first.classroom_steps
-        expect(school_calendar_steps.count).to be(2)
+        expect(school_calendar_classroom.classroom_steps.count).to be(2)
 
         updater.update!
 
-        school_calendar_steps.reload
-        expect(school_calendar_steps.count).to be(1)
+        expect(school_calendar_classroom.classroom_steps.count).to be(1)
       end
 
       it 'needs to move related items to other classroom_step' do
@@ -207,38 +181,21 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
         Timecop.freeze(Time.local(Date.today.year, 9, 1, 0, 0, 0)) do
-          conceptual_exam
-          descriptive_exam
-          transfer_note
-          school_term_recovery_diary_record
+          classroom_step_id = school_calendar_classroom.classroom_steps.last.id
 
-          classroom_step_id = SchoolCalendarClassroom.by_school_calendar_id(school_calendars['school_calendar_id'])
-                                                     .by_classroom_id(school_calendars['classrooms'].first['id'])
-                                                     .first.classroom_steps.last.id
-          conceptual_exam_step = ConceptualExam.first
-          descriptive_exam_step = DescriptiveExam.first
-          transfer_note_step = TransferNote.first
-          school_term_recovery_diary_record_step = SchoolTermRecoveryDiaryRecord.first
-
-          expect(conceptual_exam_step.school_calendar_classroom_step_id).to eq(classroom_step_id)
-          expect(descriptive_exam_step.school_calendar_classroom_step_id).to eq(classroom_step_id)
-          expect(transfer_note_step.school_calendar_classroom_step_id).to eq(classroom_step_id)
-          expect(school_term_recovery_diary_record_step.school_calendar_classroom_step_id).to eq(classroom_step_id)
+          expect(conceptual_exam.school_calendar_classroom_step_id).to eq(classroom_step_id)
+          expect(descriptive_exam.school_calendar_classroom_step_id).to eq(classroom_step_id)
+          expect(transfer_note.school_calendar_classroom_step_id).to eq(classroom_step_id)
+          expect(school_term_recovery_diary_record.school_calendar_classroom_step_id).to eq(classroom_step_id)
 
           updater.update!
 
-          classroom_step_id = SchoolCalendarClassroom.by_school_calendar_id(school_calendars['school_calendar_id'])
-                                                     .by_classroom_id(school_calendars['classrooms'].first['id'])
-                                                     .first.classroom_steps.first.id
-          conceptual_exam_step.reload
-          descriptive_exam_step.reload
-          transfer_note_step.reload
-          school_term_recovery_diary_record_step.reload
+          classroom_step_id = school_calendar_classroom.classroom_steps.first.id
 
-          expect(conceptual_exam_step.school_calendar_classroom_step_id).to eq(classroom_step_id)
-          expect(descriptive_exam_step.school_calendar_classroom_step_id).to eq(classroom_step_id)
-          expect(transfer_note_step.school_calendar_classroom_step_id).to eq(classroom_step_id)
-          expect(school_term_recovery_diary_record_step.school_calendar_classroom_step_id).to eq(classroom_step_id)
+          expect(conceptual_exam.reload.school_calendar_classroom_step_id).to eq(classroom_step_id)
+          expect(descriptive_exam.reload.school_calendar_classroom_step_id).to eq(classroom_step_id)
+          expect(transfer_note.reload.school_calendar_classroom_step_id).to eq(classroom_step_id)
+          expect(school_term_recovery_diary_record.reload.school_calendar_classroom_step_id).to eq(classroom_step_id)
         end
       end
 
@@ -250,13 +207,9 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
         Timecop.freeze(Time.local(Date.today.year, 9, 1, 0, 0, 0)) do
-          conceptual_exam
-          transfer_note
-          school_term_recovery_diary_record
-
-          conceptual_exam_step = ConceptualExam.first.school_calendar_classroom_step
-          transfer_note_step = TransferNote.first.school_calendar_classroom_step
-          school_term_recovery_diary_record_step = SchoolTermRecoveryDiaryRecord.first.school_calendar_classroom_step
+          conceptual_exam_step = conceptual_exam.school_calendar_classroom_step
+          transfer_note_step = transfer_note.school_calendar_classroom_step
+          school_term_recovery_diary_record_step = school_term_recovery_diary_record.school_calendar_classroom_step
 
           expect(conceptual_exam_step.active).to be true
           expect(transfer_note_step.active).to be true
@@ -264,9 +217,9 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
 
           updater.update!
 
-          new_conceptual_exam_step = ConceptualExam.first.school_calendar_classroom_step
-          new_transfer_note_step = TransferNote.first.school_calendar_classroom_step
-          new_school_term_recovery_diary_record_step = SchoolTermRecoveryDiaryRecord.first.school_calendar_classroom_step
+          new_conceptual_exam_step = conceptual_exam.reload.school_calendar_classroom_step
+          new_transfer_note_step = transfer_note.reload.school_calendar_classroom_step
+          new_school_term_recovery_diary_record_step = school_term_recovery_diary_record.reload.school_calendar_classroom_step
 
           expect(new_conceptual_exam_step.active).to be false
           expect(new_transfer_note_step.active).to be false
@@ -285,25 +238,18 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        descriptive_exam
+        classroom_step = school_calendar_classroom.classroom_steps.last
 
-        classroom_step = SchoolCalendarClassroom.by_school_calendar_id(school_calendars['school_calendar_id'])
-                                                .by_classroom_id(school_calendars['classrooms'].first['id'])
-                                                .first.classroom_steps.last
-        descriptive_exam_step = DescriptiveExam.first
-
-        expect(descriptive_exam_step.school_calendar_classroom_step_id).to eq(classroom_step.id)
-        expect(descriptive_exam_step.school_calendar_classroom_step.active).to be true
+        expect(descriptive_exam.school_calendar_classroom_step_id).to eq(classroom_step.id)
+        expect(descriptive_exam.school_calendar_classroom_step.active).to be true
 
         updater.update!
 
-        classroom_step = SchoolCalendarClassroom.by_school_calendar_id(school_calendars['school_calendar_id'])
-                                                .by_classroom_id(school_calendars['classrooms'].first['id'])
-                                                .first.classroom_steps.first
-        descriptive_exam_step.reload
+        classroom_step = school_calendar_classroom.classroom_steps.first
+        descriptive_exam.reload
 
-        expect(descriptive_exam_step.school_calendar_classroom_step_id).not_to eq(classroom_step.id)
-        expect(descriptive_exam_step.school_calendar_classroom_step.active).to be false
+        expect(descriptive_exam.school_calendar_classroom_step_id).not_to eq(classroom_step.id)
+        expect(descriptive_exam.school_calendar_classroom_step.active).to be false
       end
 
       def school_calendars
