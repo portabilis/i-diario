@@ -24,7 +24,7 @@ class StudentsFetcher
 
     student_ids = student_enrollments.ordered.collect(&:student_id)
 
-    students = Student.where(id: student_ids).order_by_sequence
+    students = Student.where(id: student_ids).order_by_sequence(@classroom)
 
     if @discipline.present? && @step_number.present?
       students.each do |student|
