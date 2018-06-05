@@ -1,0 +1,5 @@
+pt-BR:
+  school_calendar_synchronizer_worker:
+    title: 'Sincronização de calendários letivos'
+    success: "Calendário letivo da escola %{unity} sincronizado com sucesso."
+    error: "Ocorreu um erro desconhecido ao sincronizar o calendário letivo da escola %{unity}."
