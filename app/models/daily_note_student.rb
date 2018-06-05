@@ -3,7 +3,7 @@ class DailyNoteStudent < ActiveRecord::Base
 
   audited associated_with: [:daily_note, :transfer_note], except: [:daily_note_id, :transfer_note_id, :active]
 
-  attr_accessor :exempted, :dependence
+  attr_accessor :exempted, :dependence, :exempted_from_discipline
 
   before_save :nullify_notes_for_inactive_students
 
@@ -22,6 +22,7 @@ class DailyNoteStudent < ActiveRecord::Base
 
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_note).merge(DailyNote.by_discipline_id(discipline_id)) }
+  scope :exclude_discipline_ids, lambda { |discipline_ids| joins(:daily_note).merge((DailyNote.exclude_discipline_ids(discipline_ids))) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:daily_note).merge(DailyNote.by_classroom_id(classroom_id)) }
   scope :not_including_classroom_id, lambda { |classroom_id| joins(:daily_note).merge(DailyNote.not_including_classroom_id(classroom_id)) }
   scope :by_test_date_between, lambda { |start_at, end_at| by_test_date_between(start_at, end_at) }

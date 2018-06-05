@@ -34,8 +34,6 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   validate :recorded_at_must_be_school_calendar_classroom_step_day, unless: :school_calendar_step
   validate :uniqueness_of_recorded_at
 
-  before_validation :self_assign_to_recovery_diary_record
-
   delegate :classroom_id, :discipline_id, :recorded_at, to: :recovery_diary_record
 
   def school_calendar_steps_ids
@@ -59,6 +57,10 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   def step
     self.school_calendar_classroom_step || self.school_calendar_step
+  end
+
+  def recorded_at
+    recovery_diary_record.recorded_at
   end
 
   private
@@ -125,12 +127,6 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     unless school_calendar_classroom_step == school_calendar_classroom_step.school_calendar_classroom.classroom_step(recovery_diary_record.recorded_at)
       errors.add(:recovery_diary_record, :recorded_at_must_be_school_calendar_step_day)
       recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_school_calendar_step_day)
-    end
-  end
-
-  def self_assign_to_recovery_diary_record
-    if recovery_diary_record && !recovery_diary_record.school_term_recovery_diary_record
-      recovery_diary_record.school_term_recovery_diary_record = self
     end
   end
 

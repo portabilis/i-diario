@@ -12,7 +12,7 @@
         <%= simple_form_for @current_user, remote: true, url: set_current_role_path, html: { method: :patch, class: "simple_form smart-form", id: "user-role" } do |f| %>
           <%= f.hidden_field :id, value: f.object.id %>
           <%= f.hidden_field :teacher_id, value: f.object.teacher_id %>
-          <%= f.input :current_user_role_id, as: :select2, elements: @current_user.user_roles, required: true %>
+          <%= f.input :current_user_role_id, as: :select2, elements: @current_user.user_roles.includes(:unity), required: true %>
           <div id="unity-field">
             <%= f.input :current_unity_id, as: :select2, elements: [], required: true %>
           </div>

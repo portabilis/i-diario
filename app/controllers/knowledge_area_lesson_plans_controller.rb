@@ -169,7 +169,13 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def clone_params
-    params.require(:knowledge_area_lesson_plan_cloner_form).permit(:classroom_ids, :knowledge_area_lesson_plan_id)
+    params.require(:knowledge_area_lesson_plan_cloner_form).permit(:knowledge_area_lesson_plan_id,
+                                                                   knowledge_area_lesson_plan_item_cloner_form_attributes: [
+                                                                     :uuid,
+                                                                     :classroom_id,
+                                                                     :start_at,
+                                                                     :end_at
+                                                                    ])
   end
 
   def filtering_params(params)

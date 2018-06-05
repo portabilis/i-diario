@@ -19,6 +19,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
   scope :active, -> { where(active: true) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:daily_frequency).merge(DailyFrequency.by_classroom_id(classroom_id)) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_frequency).merge(DailyFrequency.by_discipline_id(discipline_id)) }
+  scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_frequency_date, lambda { |frequency_date| joins(:daily_frequency).merge(DailyFrequency.by_frequency_date(frequency_date)) }
   scope :general_by_classroom_student_date_between,
         lambda { |classroom_id, student_id, start_at, end_at| where(
@@ -44,6 +45,14 @@ class DailyFrequencyStudent < ActiveRecord::Base
   end
 
   def sequence
+    return super if super.present?
+
+    update_column(:sequence, student_enrollment_sequence)
+
+    super
+  end
+
+  def student_enrollment_sequence
     StudentEnrollmentClassroom.by_classroom(classroom_id)
                               .by_date(frequency_date)
                               .by_student(student_id)

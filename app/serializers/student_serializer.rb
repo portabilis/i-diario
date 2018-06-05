@@ -1,3 +1,3 @@
 class StudentSerializer < ActiveModel::Serializer
-  attributes :id, :name
+  attributes :id, :name, :exempted_from_discipline
 end

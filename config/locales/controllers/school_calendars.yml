@@ -4,7 +4,5 @@ pt-BR:
       by_year: "Filtrar ano"
       by_unity_id: "Filtrar escola"
     create_and_update_batch:
-      notice: "Calendários letivos sincronizados com sucesso."
-      alert:  "Ocorreu um erro ao sincronizar os calendários letivos. Por favor, tente novamente."
-      error_on_unity: "Ocorreu um erro ao sincronizar o calendário letivo da escola %{unity_name}. Por favor, verifique os dados no i-Educar e tente novamente."
-      error_on_classroom: "Ocorreu um erro ao sincronizar o calendário letivo da escola %{unity_name} na turma %{classroom_name}. Por favor, verifique os dados no i-Educar e tente novamente."
+      notice: "Os calendários letivos estão sendo sincronizados e você será notificado quando terminar."
+      school_calendar_is_synchronizing: "O calendário letivo da escola %{unity} já está sendo sincronizado."

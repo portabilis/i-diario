@@ -10,7 +10,7 @@ class AvaliationExemptionsController < ApplicationController
                              .by_unity(current_user_unity)
                              .by_classroom(current_user_classroom)
                              .by_discipline(current_user_discipline)
- 
+
     authorize @avaliation_exemptions
   end
 
@@ -101,6 +101,7 @@ class AvaliationExemptionsController < ApplicationController
         .by_classroom(current_user_classroom)
         .by_discipline(current_user_discipline)
         .by_date(@avaliation_exemption.avaliation.test_date)
+        .by_score_type(StudentEnrollmentScoreTypeFilters::NUMERIC, current_user_classroom)
         .active
         .ordered
         .collect(&:student_id)

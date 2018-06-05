@@ -1,5 +1,5 @@
-require 'simplecov'
-SimpleCov.start 'rails'
+# require 'simplecov'
+# SimpleCov.start 'rails'
 ENV["RAILS_ENV"] ||= 'test'
 require File.expand_path("../../config/environment", __FILE__)
 require 'rspec/rails'
@@ -24,11 +24,31 @@ RSpec.configure do |config|
   config.before(:example, type: :feature) do
     fixture_path = "#{Rails.root}/spec/fixtures"
     fixtures = Dir["#{fixture_path}/**/*.yml"].map { |f| File.basename(f, '.yml') }
-
     ActiveRecord::FixtureSet.create_fixtures(fixture_path, fixtures)
+  end
+
+  config.after :each do |example|
+    page.driver.restart if defined?(page.driver.restart)
   end
 
   config.after(:all) do
     FileUtils.rm_rf(Dir["#{Rails.root}/public/uploads/test"])
+  end
+
+  config.after :each do |example|
+    page.driver.restart if defined?(page.driver.restart)
+  end
+
+  if Bullet.enable? && ENV['BULLET']
+    config.before(:each) do
+      Bullet.raise = true
+      Bullet.start_request
+    end
+
+    config.after(:each) do
+      Bullet.perform_out_of_channel_***REMOVED*** if Bullet.notification?
+      Bullet.end_request
+      Bullet.raise = false
+    end
   end
 end

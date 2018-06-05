@@ -43,7 +43,7 @@ module ExamPoster
         discipline_api_code = final_recovery_diary_record.recovery_diary_record.discipline.api_code
 
         final_recovery_diary_record.recovery_diary_record.students.each do |student|
-          params[classroom_api_code][student.student.api_code][discipline_api_code]['nota'] = ScoreRounder.new(classroom_exam_rule).round(student.score)
+          params[classroom_api_code][student.student.api_code][discipline_api_code]['nota'] = ScoreRounder.new(final_recovery_diary_record.recovery_diary_record.classroom).round(student.score)
         end
       end
 
@@ -76,7 +76,7 @@ module ExamPoster
     end
 
     def valid_score_type?(score_type)
-      score_type == ScoreTypes::NUMERIC
+      score_type == ScoreTypes::NUMERIC || score_type == ScoreTypes::NUMERIC_AND_CONCEPT
     end
   end
 end

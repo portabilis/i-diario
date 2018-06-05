@@ -17,7 +17,8 @@ class PartialScoreRecordReportController < ApplicationController
                                                   @partial_score_record_report_form.step,
                                                   @partial_score_record_report_form.student,
                                                   @partial_score_record_report_form.unity,
-                                                  @partial_score_record_report_form.classroom)
+                                                  @partial_score_record_report_form.classroom,
+                                                  current_test_setting)
 
       send_data(partial_score_record_report.render, filename: 'registro-de-notas-parciais.pdf', type: 'application/pdf', disposition: 'inline')
     else

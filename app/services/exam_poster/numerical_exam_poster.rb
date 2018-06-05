@@ -29,7 +29,6 @@ module ExamPoster
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
 
-          next if !correct_score_type(classroom.exam_rule.score_type)
           next if !same_unity(classroom.unity_id)
           next unless step_exists_for_classroom?(classroom)
 
@@ -39,10 +38,13 @@ module ExamPoster
           student_scores = teacher_score_fetcher.scores
 
           student_scores.each do |student_score|
+            next if exempted_discipline(classroom.id, discipline.id, student_score.id)
+            next if !correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
+
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.step)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom.exam_rule).round(school_term_recovery) if school_term_recovery
+            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom).round(school_term_recovery) if school_term_recovery
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.has_warnings?
         end
@@ -60,9 +62,10 @@ module ExamPoster
       unity_id == @post_data.step.school_calendar.unity_id
     end
 
-    def correct_score_type(score_type)
+    def correct_score_type(differentiated, exam_rule)
+      exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
       score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
-      score_types.include? score_type
+      score_types.include? exam_rule.score_type
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
@@ -88,6 +91,22 @@ module ExamPoster
         .first
 
       student_recovery.try(:score)
+    end
+
+    def exempted_discipline(classroom_id, discipline_id, student_id)
+      student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
+                                                               .by_student(student_id)
+                                                               .active
+                                                               .first
+
+      if student_enrollment_classroom.present?
+        return student_enrollment_classroom.student_enrollment
+                                           .exempted_disciplines
+                                           .where("? = ANY(string_to_array(steps, ',')::integer[])", @post_data.step.to_number)
+                                           .any?
+      end
+
+      false
     end
   end
 end

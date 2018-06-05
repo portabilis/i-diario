@@ -24,12 +24,15 @@
           <%= f.input :classroom_id, as: :select2_classroom, user: current_user %>
         </div>
 
+        <div class="col col-sm-4 hidden" data-opinion-type-container>
+          <%= f.input :opinion_type, as: :select2, elements: [] %>
+        </div>
+      </div>
+      <div class="row">
         <div class="col col-sm-4 hidden" data-descriptive-exam-discipline-container>
           <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
                 classroom_id: @descriptive_exam.classroom_id %>
         </div>
-      </div>
-      <div class="row">
         <% if @school_calendar_classroom_steps.any? %>
         <div class="col col-sm-4 hidden" data-descriptive-exam-step-container>
           <%= f.input :school_calendar_classroom_step_id, as: :select2, elements: @school_calendar_classroom_steps, required: true %>

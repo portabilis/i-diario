@@ -18,13 +18,13 @@ class DisciplineLessonPlanReportController < ApplicationController
 
     if @discipline_lesson_plan_report_form.valid?
       lesson_plan_report = DisciplineLessonPlanReport.build(current_entity_configuration,
-                                                              @discipline_lesson_plan_report_form.date_start,
-                                                              @discipline_lesson_plan_report_form.date_end,
-                                                              @discipline_lesson_plan_report_form.discipline_lesson_plan,
-                                                              current_teacher)
-
-
-      send_data(lesson_plan_report.render, filename: 'registros-de-conteudo-por-disciplina-planos-de-aula.pdf', type: 'application/pdf', disposition: 'inline')
+                                                            @discipline_lesson_plan_report_form.date_start,
+                                                            @discipline_lesson_plan_report_form.date_end,
+                                                            @discipline_lesson_plan_report_form.discipline_lesson_plan,
+                                                            current_teacher)
+      send_data(lesson_plan_report.render, filename: 'registros-de-conteudo-por-disciplina-planos-de-aula.pdf',
+                                           type: 'application/pdf',
+                                           disposition: 'inline')
     else
       @discipline_lesson_plan_report_form
       fetch_collections
@@ -40,12 +40,13 @@ class DisciplineLessonPlanReportController < ApplicationController
 
     if @discipline_lesson_plan_report_form.valid?
       lesson_plan_report = DisciplineContentRecordReport.build(current_entity_configuration,
-                                                              @discipline_lesson_plan_report_form.date_start,
-                                                              @discipline_lesson_plan_report_form.date_end,
-                                                              @discipline_lesson_plan_report_form.discipline_content_record,
-                                                              current_teacher)
-
-      send_data(lesson_plan_report.render, filename: 'registros-de-conteudo-por-disciplina.pdf', type: 'application/pdf', disposition: 'inline')
+                                                               @discipline_lesson_plan_report_form.date_start,
+                                                               @discipline_lesson_plan_report_form.date_end,
+                                                               @discipline_lesson_plan_report_form.discipline_content_record,
+                                                               current_teacher)
+      send_data(lesson_plan_report.render, filename: 'registros-de-conteudo-por-disciplina.pdf',
+                                           type: 'application/pdf',
+                                           disposition: 'inline')
     else
       @discipline_lesson_plan_report_form
       fetch_collections
@@ -61,11 +62,10 @@ class DisciplineLessonPlanReportController < ApplicationController
   end
 
   def resource_params
-    params.require(:discipline_lesson_plan_report_form).permit(:unity_id,
-                                                          :classroom_id,
-                                                          :discipline_id,
-                                                          :date_start,
-                                                          :date_end)
+    params.require(:discipline_lesson_plan_report_form).permit(:unity_id, :classroom_id,
+                                                                          :discipline_id,
+                                                                          :date_start,
+                                                                          :date_end)
   end
 
   def clear_invalid_dates

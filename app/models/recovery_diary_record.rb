@@ -35,6 +35,10 @@ class RecoveryDiaryRecord < ActiveRecord::Base
     CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
   end
 
+  def test_date
+    recorded_at
+  end
+
   private
 
   def at_least_one_assigned_student

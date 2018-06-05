@@ -34,6 +34,7 @@ class Unity < ActiveRecord::Base
 
   has_and_belongs_to_many :***REMOVED***
   has_and_belongs_to_many :***REMOVED***
+  has_and_belongs_to_many :custom_rounding_tables
 
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
 
@@ -46,19 +47,18 @@ class Unity < ActiveRecord::Base
   validate :uniqueness_of_equipments
 
   scope :ordered, -> { order(arel_table[:name].asc) }
-  scope :by_api_codes, lambda { |codes|
-    where(arel_table[:api_code].in(codes))
-  }
+  scope :by_api_codes, -> (codes) { where(arel_table[:api_code].in(codes)) }
   scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }
-  scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
+  scope :by_teacher, -> (teacher_id) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
+  scope :by_year, -> (year) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { year: year }).uniq }
   scope :by_unity, -> unity { where(id: unity) }
 
   #search scopes
-  scope :search_name, lambda { |search_name| where("name ILIKE ?", "%#{search_name}%") }
+  scope :search_name, lambda { |search_name| where("unaccent(name) ILIKE unaccent(?)", "%#{search_name}%") }
   scope :unit_type, lambda { |unit_type| where(unit_type: unit_type) }
-  scope :phone, lambda { |phone| where("phone ILIKE ?", "%#{phone}%") }
-  scope :email, lambda { |email| where("email ILIKE ?", "%#{email}%") }
-  scope :responsible, lambda { |responsible| where("responsible ILIKE ?", "%#{responsible}%") }
+  scope :phone, lambda { |phone| where("unaccent(phone) ILIKE unaccent(?)", "%#{phone}%") }
+  scope :email, lambda { |email| where("unaccent(email) ILIKE unaccent(?)", "%#{email}%") }
+  scope :responsible, lambda { |responsible| where("unaccent(responsible) ILIKE unaccent(?)", "%#{responsible}%") }
   scope :by_school_group, lambda { |school_group| joins(:***REMOVED***).where(***REMOVED***_unities: { school_group_id: school_group })  }
   scope :by_id, lambda { |unity_id| where(id: unity_id) }
 

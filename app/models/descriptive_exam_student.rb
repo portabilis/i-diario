@@ -3,6 +3,8 @@ class DescriptiveExamStudent < ActiveRecord::Base
 
   audited associated_with: :descriptive_exam, except: [:descriptive_exam_id, :dependence]
 
+  attr_accessor :exempted_from_discipline
+
   belongs_to :descriptive_exam
   belongs_to :student
 
@@ -35,6 +37,8 @@ class DescriptiveExamStudent < ActiveRecord::Base
                                                               'descriptive_exams.discipline_id' => discipline_id,
                                                               'descriptive_exams.school_calendar_classroom_step_id' => classroom_step_id)
                                                         .includes(:descriptive_exam) }
+
+  scope :ordered, -> { order(:updated_at) }
 
   validates :descriptive_exam, :student, presence: true
 end

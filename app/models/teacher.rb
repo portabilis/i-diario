@@ -5,18 +5,18 @@ class Teacher < ActiveRecord::Base
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_many :classrooms, through: :teacher_discipline_classrooms
 
-  validates :name, :api_code, presence: true
+  validates :name, :api_code, :active, presence: true
   validates :api_code, uniqueness: true
 
   scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id)}
-  scope :by_year, lambda { |year| by_year(year)}
+  scope :by_year, lambda { |year| filter_current_teachers_by_year(year) }
   scope :active, -> { active_query }
 
   scope :order_by_name, -> { order(name: :asc) }
 
   def self.active_query
     active_teacher_ids = TeacherDisciplineClassroom.where(active: true).collect(&:teacher_id).uniq
-    where(id: active_teacher_ids)
+    where(id: active_teacher_ids, active: true)
   end
 
   def self.search(value)
@@ -41,20 +41,12 @@ class Teacher < ActiveRecord::Base
           .join_sources
       )
       .where(classrooms: { unity_id: unity_id })
+      .active
       .uniq
   end
 
-  def self.by_year(year)
-    joins(:teacher_discipline_classrooms).joins(
-        arel_table.join(Classroom.arel_table)
-          .on(
-            Classroom.arel_table[:id]
-              .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
-          )
-          .join_sources
-      )
-      .where(classrooms: { year: year })
-      .uniq
+  def self.filter_current_teachers_by_year(year)
+    joins(:teacher_discipline_classrooms).merge(TeacherDisciplineClassroom.joins(:classroom).merge(Classroom.where(year: year)))
   end
 
   def to_s

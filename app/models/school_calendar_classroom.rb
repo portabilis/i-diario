@@ -3,13 +3,15 @@ class SchoolCalendarClassroom < ActiveRecord::Base
   belongs_to :school_calendar
   belongs_to :classroom
 
-  has_many :classroom_steps, -> { order(:start_at) }, class_name: 'SchoolCalendarClassroomStep', dependent: :destroy
+  has_many :classroom_steps, -> { active.ordered }, class_name: 'SchoolCalendarClassroomStep', dependent: :destroy
 
   accepts_nested_attributes_for :classroom_steps, reject_if: :all_blank, allow_destroy: true
 
+  scope :by_unity_id, lambda { |unity_id| joins(:school_calendar).where(school_calendars: { unity_id: unity_id }) }
   scope :by_classroom, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_classroom_api_code, lambda { |api_code| joins(:classroom).where(classrooms: { api_code: api_code }) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :by_school_calendar_id, lambda { |school_calendar_id| where(school_calendar_id: school_calendar_id) }
   scope :ordered_by_grade, -> { joins(:classroom).joins('inner join grades on (classrooms.grade_id = grades.id)').order('grades.course_id') }
   scope :ordered_by_description, -> { joins(:classroom).order('classrooms.description') }
 
@@ -28,8 +30,9 @@ class SchoolCalendarClassroom < ActiveRecord::Base
 
     index_of_step = classroom_steps.find_index(classroom_step(date))
 
-    school_term = school_terms[classroom_steps.count]
-    school_term.key_for(index_of_step)
+    if school_term = school_terms[classroom_steps.count]
+      school_term.key_for(index_of_step)
+    end
   end
 
   def first_day

@@ -49,7 +49,6 @@ pt-BR:
     school_calendar_events: 'eventos'
     discipline_teaching_plans: 'planos-de-ensino-por-disciplina'
     knowledge_area_teaching_plans: 'planos-de-ensino-por-areas-de-conhecimento'
-    knowledge_area_lesson_plans: 'planos-de-aula-por-areas-de-conhecimento'
     avaliations: 'avaliacoes'
     daily_notes: 'diario-de-avaliacoes'
     daily_note_students: 'alunos-do-diario-de-notas'
@@ -68,6 +67,9 @@ pt-BR:
     observation_record: 'registro-de-observacoes'
     exam_record: 'registro-de-avaliacoes'
     knowledge_area_lesson_plan: 'planos-de-aula-por-areas-de-conhecimento'
+    knowledge_area_lesson_plans: 'planos-de-aula-por-areas-de-conhecimento'
+    knowledge_area_content_record: 'registros-de-conteudos-por-areas-de-conhecimento'
+    knowledge_area_content_records: 'registros-de-conteudos-por-areas-de-conhecimento'
     ***REMOVED***: '***REMOVED***'
     ieducar_api_exam_postings: 'envio-de-avaliacoes'
     in_recovery: 'em-recuperacao'
@@ -81,7 +83,6 @@ pt-BR:
     courses: 'courses'
     transfer_notes: 'notas-de-transferencia'
     current_notes: 'notas-atuais'
-    knowledge_area_content_records: 'registros-de-conteudos-por-area-de-conhecimento'
     contents: 'conteudos'
     user_roles: 'permissoes-do-usuario'
     teacher_report_cards: 'boletim-do-professor'
@@ -109,6 +110,7 @@ pt-BR:
     data_exportations: 'exportacao-de-dados'
     ***REMOVED***: 'empenhos'
     ***REMOVED***: 'contratos'
+    custom_rounding_tables: 'tabelas-de-arredondamento'
 
     # actions
     edit: 'editar'

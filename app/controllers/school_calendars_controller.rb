@@ -59,23 +59,25 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def create_and_update_batch
-    begin
-      if SchoolCalendarsCreator.create!(params[:synchronize]) && SchoolCalendarsUpdater.update!(params[:synchronize])
-        redirect_to school_calendars_path, notice: t('.notice')
+    selected_school_calendars(params[:synchronize]).each do |school_calendar|
+      unity = Unity.find(school_calendar[:unity_id])
+
+      if school_calendar_is_synchronizing(unity.id)
+        redirect_to synchronize_school_calendars_path, alert: t('.school_calendar_is_synchronizing', unity: unity.name) unless performed?
       else
-        redirect_to synchronize_school_calendars_path, alert: t('.alert')
+        job_id = SchoolCalendarSynchronizerWorker.perform_in(10.seconds, current_entity.id, school_calendar, current_user.id)
+
+        WorkerState.create(
+          user: current_user,
+          job_id: job_id,
+          kind: 'SchoolCalendarSynchronizerWorker',
+          status: ApiSynchronizationStatus::STARTED,
+          uuid: unity.id
+        )
       end
-    rescue SchoolCalendarsCreator::InvalidSchoolCalendarError => error
-      redirect_to synchronize_school_calendars_path, alert: error.to_s
-    rescue SchoolCalendarsCreator::InvalidClassroomCalendarError => error
-      redirect_to synchronize_school_calendars_path, alert: error.to_s
-    rescue SchoolCalendarsUpdater::InvalidSchoolCalendarError => error
-      redirect_to synchronize_school_calendars_path, alert: error.to_s
-    rescue SchoolCalendarsUpdater::InvalidClassroomCalendarError => error
-      redirect_to synchronize_school_calendars_path, alert: error.to_s
-    rescue
-      redirect_to synchronize_school_calendars_path, alert: t('.alert')
     end
+
+    redirect_to school_calendars_path, notice: t('.notice') unless performed?
   end
 
   def years_from_unity
@@ -95,6 +97,14 @@ class SchoolCalendarsController < ApplicationController
   end
 
   private
+
+  def selected_school_calendars(school_calendars)
+    school_calendars.select { |school_calendar| school_calendar[:unity_id].present? }
+  end
+
+  def school_calendar_is_synchronizing(unity_id)
+    WorkerState.where(kind: 'SchoolCalendarSynchronizerWorker', status: ApiSynchronizationStatus::STARTED, uuid: unity_id).any?
+  end
 
   def filtering_params(params)
     params = {} unless params

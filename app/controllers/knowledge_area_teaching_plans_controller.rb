@@ -25,6 +25,22 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     authorize @knowledge_area_teaching_plan
 
     fetch_collections
+
+    respond_with @knowledge_area_teaching_plan do |format|
+      format.pdf do
+        knowledge_area_teaching_plan_pdf = KnowledgeAreaTeachingPlanPdf.build(
+          current_entity_configuration,
+          @knowledge_area_teaching_plan
+        )
+
+        send_data(
+          knowledge_area_teaching_plan_pdf.render,
+          filename: 'planos-de-ensino-por-areas-de-conhecimento.pdf',
+          type: 'application/pdf',
+          disposition: 'inline'
+        )
+      end
+    end
   end
 
   def new

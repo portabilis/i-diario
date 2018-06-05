@@ -1,31 +1,40 @@
 class SchoolCalendarsCreator
   class InvalidSchoolCalendarError < StandardError;end
   class InvalidClassroomCalendarError < StandardError; end
-  def self.create!(school_calendars)
-    new(school_calendars).create!
+  def self.create!(school_calendar)
+    new(school_calendar).create!
   end
 
-  def initialize(school_calendars)
-    @school_calendars = school_calendars
+  def initialize(school_calendar)
+    @school_calendar = school_calendar
   end
 
   def create!
     ActiveRecord::Base.transaction do
-      selected_school_calendars_to_create.each do |school_calendar_param|
+      if @school_calendar['school_calendar_id'].blank?
         begin
-          school_calendar = create_school_calendar!(school_calendar_param)
-          school_calendar_steps = school_calendar_param['steps'] || []
+          school_calendar = create_school_calendar!(@school_calendar)
+          school_calendar_steps = @school_calendar['steps'] || []
           create_school_calendar_steps!(school_calendar_steps, school_calendar)
         rescue ActiveRecord::RecordInvalid => invalid
-          raise InvalidSchoolCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_unity', unity_name: invalid.record.unity.name)
+          message = invalid.to_s
+          message.slice!("A validação falhou: ")
+          raise InvalidSchoolCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_unity', unity_name: invalid.record.unity.name,
+                                                                                                               error_message: message)
         end
 
         begin
-          calendars_for_classrooms = school_calendar_param['classrooms'] || []
+          calendars_for_classrooms = @school_calendar['classrooms'] || []
           create_school_calendar_classroom!(calendars_for_classrooms, school_calendar)
         rescue ActiveRecord::RecordInvalid => invalid
-          raise InvalidClassroomCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_classroom', unity_name: invalid.record.classroom.unity.name, classroom_name: invalid.record.classroom.description)
+          message = invalid.to_s
+          message.slice!("A validação falhou: ")
+          raise InvalidClassroomCalendarError, I18n.t('.school_calendars.create_and_update_batch.error_on_classroom', unity_name: invalid.record.classroom.unity.name,
+                                                                                                                      classroom_name: invalid.record.classroom.description,
+                                                                                                                      error_message: message)
         end
+
+        @school_calendar
       end
     end
   end
@@ -34,14 +43,10 @@ class SchoolCalendarsCreator
 
   attr_accessor :school_calendars
 
-  def selected_school_calendars_to_create
-    school_calendars.select { |school_calendar| school_calendar['unity_id'].present? && school_calendar['school_calendar_id'].blank? }
-  end
-
-  def create_school_calendar!(school_calendar_param)
-    school_calendar = SchoolCalendar.create!(year: school_calendar_param['year'],
-                                             unity_id: school_calendar_param['unity_id'],
-                                             number_of_classes: school_calendar_param['number_of_classes'])
+  def create_school_calendar!(school_calendar)
+    school_calendar = SchoolCalendar.create!(year: school_calendar['year'],
+                                             unity_id: school_calendar['unity_id'],
+                                             number_of_classes: school_calendar['number_of_classes'])
     school_calendar
   end
 

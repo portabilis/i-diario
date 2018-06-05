@@ -32,7 +32,7 @@ class Avaliation < ActiveRecord::Base
   validates :test_setting,      presence: true
   validates :test_setting_test, presence: true, if: :sum_calculation_type?
   validates :description,       presence: true, if: -> { !sum_calculation_type? || allow_break_up? }
-  validates :weight,            presence: true, if: :allow_break_up?
+  validates :weight,            presence: true, if: :should_validate_weight?
 
   validate :uniqueness_of_avaliation
   validate :unique_test_setting_test_per_step,    if: -> { sum_calculation_type? && !allow_break_up? }
@@ -46,13 +46,14 @@ class Avaliation < ActiveRecord::Base
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id))}
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :exclude_discipline_ids, lambda { |discipline_ids| where.not(discipline_id: discipline_ids) }
   scope :by_test_date, lambda { |test_date| where(test_date: test_date) }
   scope :by_test_date_between, lambda { |start_at, end_at| where(test_date: start_at.to_date..end_at.to_date) }
   scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
   scope :by_description, lambda { |description| joins(arel_table.join(TestSettingTest.arel_table, Arel::Nodes::OuterJoin)
                                                                 .on(TestSettingTest.arel_table[:id]
                                                                 .eq(arel_table[:test_setting_test_id])).join_sources)
-                                                .where('avaliations.description ILIKE ? OR test_setting_tests.description ILIKE ?', "%#{description}%", "%#{description}%") }
+                                                .where('unaccent(avaliations.description) ILIKE unaccent(?) OR unaccent(test_setting_tests.description) ILIKE unaccent(?)', "%#{description}%", "%#{description}%") }
   scope :by_test_setting_test_id, lambda { |test_setting_test_id| where(test_setting_test_id: test_setting_test_id) }
   scope :by_school_calendar_step, lambda { |school_calendar_step_id| by_school_calendar_step_query(school_calendar_step_id) }
   scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step_id| by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)   }
@@ -117,6 +118,10 @@ class Avaliation < ActiveRecord::Base
 
   def test_date_today
     test_date.today?
+  end
+
+  def should_validate_weight?
+    allow_break_up? || arithmetic_and_sum_calculation_type?
   end
 
   private

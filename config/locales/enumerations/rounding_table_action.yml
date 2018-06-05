@@ -1,0 +1,7 @@
+pt-BR:
+  enumerations:
+    rounding_table_action:
+      none: 'Não utilizar arredondamento para esta casa decimal'
+      below: 'Arredondar para o número inteiro imediatamente inferior'
+      above: 'Arredondar para o número inteiro imediatamente superior'
+      specific: 'Arredondar para a casa decimal específica'

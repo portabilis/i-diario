@@ -9,9 +9,10 @@ class SystemNotificationCreator
 
   def create!
     users = attributes.delete(:users)
+    attributes[:generic] ||= false
 
     raise "Users can't be blank" if users.blank?
-    raise "Source can't be blank" if attributes[:source].blank?
+    raise "Source can't be blank" if attributes[:source].blank? && !attributes[:generic]
 
     ActiveRecord::Base.transaction do
       notification = SystemNotification.create!(attributes)

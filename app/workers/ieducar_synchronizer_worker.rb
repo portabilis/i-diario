@@ -7,7 +7,7 @@ class IeducarSynchronizerWorker
       perform_for_entity(entity, synchronization_id)
     else
       all_entities.each do |entity|
-        perform_for_entity(entity, synchronization_id)
+        IeducarSynchronizerWorker.perform_async(entity.id, synchronization_id)
       end
     end
   end
@@ -20,47 +20,104 @@ class IeducarSynchronizerWorker
         configuration = IeducarApiConfiguration.current
         break unless configuration.persisted?
         synchronization = configuration.start_synchronization!(User.first)
+        synchronization.job_id = self.jid unless synchronization.job_id
       end
 
-      begin
-        KnowledgeAreasSynchronizer.synchronize!(synchronization)
-        DisciplinesSynchronizer.synchronize!(synchronization)
-        StudentsSynchronizer.synchronize!(synchronization)
-        DeficienciesSynchronizer.synchronize!(synchronization)
-        ***REMOVED***sSynchronizer.synchronize!(synchronization)
-        RoundingTablesSynchronizer.synchronize!(synchronization)
-        RecoveryExamRulesSynchronizer.synchronize!(synchronization)
-        TeachersSynchronizer.synchronize!(synchronization)
-        CoursesGradesClassroomsSynchronizer.synchronize!(synchronization)
-        StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, years_to_synchronize)
+      worker_batch = WorkerBatch.create!(main_job_class: 'IeducarSynchronizerWorker', main_job_id: synchronization.job_id)
 
-        years_to_synchronize.each do |year|
-          ExamRulesSynchronizer.synchronize!(synchronization, year)
-          Unity.with_api_code.each do |unity|
-            StudentEnrollmentSynchronizer.synchronize!(synchronization, year, unity.api_code)
-          end
+      total = []
+
+      increment_total(total) do
+        #KnowledgeAreasSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        KnowledgeAreasSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
+      increment_total(total) do
+        #DisciplinesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        DisciplinesSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
+      increment_total(total) do
+        #StudentsSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        StudentsSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
+      increment_total(total) do
+        #DeficienciesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        DeficienciesSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
+      increment_total(total) do
+        #***REMOVED***sSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        ***REMOVED***sSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
+      increment_total(total) do
+        #RoundingTablesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        RoundingTablesSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
+      increment_total(total) do
+        #RecoveryExamRulesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        RecoveryExamRulesSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
+      increment_total(total) do
+        #TeachersSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+        TeachersSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
+      end
+
+      increment_total(total) do
+        #CoursesGradesClassroomsSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id)
+        CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
+      increment_total(total) do
+        #StudentEnrollmentDependenceSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, years_to_synchronize)
+        StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
+      end
+
+      total << SpecificStepClassroomsSynchronizer.synchronize!(entity.id, synchronization.id, worker_batch.id)
+
+      years_to_synchronize.each do |year|
+        increment_total(total) do
+          #ExamRulesSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, [year])
+          ExamRulesSynchronizer.synchronize!(synchronization, worker_batch, [year])
         end
 
-        synchronization.mark_as_completed!
-      rescue IeducarApi::Base::ApiError => e
-        synchronization.mark_as_error!(e.message)
-      rescue Exception => exception
-        synchronization.mark_as_error!('Ocorreu um erro desconhecido.')
+        Unity.with_api_code.each do |unity|
+          increment_total(total) do
+            #StudentEnrollmentSynchronizerWorker.perform_async(entity.id, synchronization.id, worker_batch.id, [year], unity.api_code)
+            StudentEnrollmentSynchronizer.synchronize!(synchronization, worker_batch, [year], unity.api_code)
+          end
+        end
+      end
 
-        raise exception
+      increment_total(total) do
+        StudentEnrollmentExemptedDisciplinesSynchronizer.synchronize!(synchronization, worker_batch)
+      end
+
+      worker_batch.with_lock do
+        worker_batch.update_attribute(:total_workers, total.sum)
+
+        if worker_batch.all_workers_finished?
+          synchronization.mark_as_completed!
+        end
       end
     end
   end
 
   def years_to_synchronize
-    Unity.with_api_code.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }
-         .uniq
-         .reject(&:blank?)
-         .sort
+    @years ||= Unity.with_api_code.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }.uniq.reject(&:blank?).sort
   end
 
   def all_entities
     Entity.all
   end
 
+  def increment_total(total, &block)
+    total << 1
+
+    block.call
+  end
 end
