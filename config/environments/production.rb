@@ -50,6 +50,10 @@ Rails.application.configure do
   # Use a different logger for distributed setups.
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
+  config.lograge.enabled = true
+  config.lograge.formatter = Lograge::Formatters::Graylog2.new
+  config.logger = GELF::Logger.new("***REMOVED***", 12203, "WAN", facility: "novo-educacao-production")
+
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
