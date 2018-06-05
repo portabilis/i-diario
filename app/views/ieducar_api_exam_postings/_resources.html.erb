@@ -8,26 +8,27 @@
       </td>
 
       <td>
-        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting") %>
-          <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").status == ApiPostingStatus::STARTED %>
+        <% api_posting = instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting") %>
+        <% if api_posting %>
+          <% if api_posting.status == ApiPostingStatus::STARTED %>
             <i class="fa fa-cog fa-spin"></i> Enviando
           <% else %>
-            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").message.present? %>
+            <% if api_posting.message.present? %>
               <p class="success">
                 <i class="fa fa-check"></i>
-                <%= instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").message %>
+                <%= api_posting.message %>
               </p>
             <% end %>
 
-            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").error_message.present? %>
+            <% if api_posting.error_message.present? %>
               <p class="danger">
                 <i class="fa fa-times"></i>
-                <%= instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").error_message %>
+                <%= current_user.admin? && api_posting.full_error_message.present? ? api_posting.full_error_message : api_posting.error_message %>
               </p>
             <% end %>
 
-            <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").warning_message.present? %>
-            <% instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").warning_message.each do |message| %>
+            <% if api_posting.warning_message.present? %>
+            <% api_posting.warning_message.each do |message| %>
               <p class="warning">
                 <i class="fa fa-exclamation-triangle"></i>
                   <%= message %>
@@ -41,7 +42,7 @@
       </td>
 
       <td>
-        <% if instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting") && instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting").synchronization_in_progress? %>
+        <% if api_posting && api_posting.synchronization_in_progress? %>
             <%= link_to 'Enviar', '#', class: 'btn bg-color-red txt-color-white disabled' %>
         <% else %>
           <%= link_to 'Enviar', ieducar_api_exam_postings_path(school_calendar_step_id: step.id, post_type: value.last),

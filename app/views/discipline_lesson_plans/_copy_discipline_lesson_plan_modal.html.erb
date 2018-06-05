@@ -5,45 +5,56 @@
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span></button>
         <h4 class="modal-title">Copiar plano de aula por disciplina</h4>
       </div>
-      <%= simple_form_for DisciplineLessonPlanClonerForm.new, url: clone_discipline_lesson_plans_path, remote: true, html: { class: 'smart-form' } do |f| %>
-      <div class="modal-body">
-        <table class="table table-bordered table-striped table-condensed table-hover">
-          <thead>
-            <tr>
-              <th width="30%"><%= LessonPlan.human_attribute_name :classroom %></th>
-              <th width="40%"><%= DisciplineLessonPlan.human_attribute_name :discipline %>
-              <th width="15%"><%= LessonPlan.human_attribute_name :start_at %></th>
-              <th width="15%"><%= LessonPlan.human_attribute_name :end_at %></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="classroom"></td>
-              <td class="discipline"></td>
-              <td class="start_at"></td>
-              <td class="end_at"></td>
-            </tr>
-          </tbody>
-        </table>
-        <%= f.input :discipline_lesson_plan_id, as: :hidden %>
-        <div class="row">
-          <div class="col-sm-12">
-              <%= f.input(
-                :classroom_ids,
-                as: :select2,
-                elements: [],
-                multiple: true,
-                input_html: { data: { without_json_parser: true } },
-                wrapper_html: { style: "width: 95%;" }
-              ) %>
-
-          </div>
+      <%= simple_form_for DisciplineLessonPlanClonerForm.new, url: clone_discipline_lesson_plans_path, remote: true, html: { class: 'smart-form', id: 'discipline-lesson-copy-form' } do |f| %>
+        <div class="modal-body">
+          <table class="table table-bordered table-striped table-condensed table-hover">
+            <thead>
+              <tr>
+                <th width="30%"><%= LessonPlan.human_attribute_name :classroom %></th>
+                <th width="40%"><%= DisciplineLessonPlan.human_attribute_name :discipline %>
+                <th width="15%"><%= LessonPlan.human_attribute_name :start_at %></th>
+                <th width="15%"><%= LessonPlan.human_attribute_name :end_at %></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="classroom"></td>
+                <td class="discipline"></td>
+                <td class="start_at"></td>
+                <td class="end_at"></td>
+              </tr>
+            </tbody>
+          </table>
+          <%= f.input :discipline_lesson_plan_id, as: :hidden %>
+          <table class="table table-striped table-bordered table-condensed records">
+            <thead>
+              <tr>
+                <th width="40%"><%= LessonPlan.human_attribute_name :classroom %></th>
+                <th width="25%"><%= LessonPlan.human_attribute_name :start_at %></th>
+                <th width="25%"><%= LessonPlan.human_attribute_name :end_at %></th>
+                <th width="10%"></th>
+              </tr>
+            </thead>
+            <tbody id="discipline-lesson-plan-modal-items">
+              <%= f.simple_fields_for :discipline_lesson_plan_item_cloner_form do |item| %>
+                <%= render 'discipline_lesson_plan_item_cloner_form_fields.html', f: item %>
+              <% end %>
+            </tbody>
+            <tfoot class="links">
+              <tr>
+                <td colspan="4">
+                  <%= link_to_add_association t('discipline_lesson_plans.content_fields.add_item'), f, :discipline_lesson_plan_item_cloner_form,
+                    class: 'btn btn-success btn-sm', "data-association-insertion-method": "append",
+                                                      "data-association-insertion-node": "#discipline-lesson-plan-modal-items" %>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-        <button type="submit" class="btn btn-primary" >Confirmar</button>
-      </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary" >Confirmar</button>
+        </div>
       <% end %>
     </div>
   </div>
