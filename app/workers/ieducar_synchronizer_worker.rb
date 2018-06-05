@@ -7,7 +7,7 @@ class IeducarSynchronizerWorker
       perform_for_entity(entity, synchronization_id)
     else
       all_entities.each do |entity|
-        perform_for_entity(entity, synchronization_id)
+        IeducarSynchronizerWorker.perform_async(entity.id, synchronization_id)
       end
     end
   end
