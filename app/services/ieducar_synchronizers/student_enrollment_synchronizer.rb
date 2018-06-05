@@ -62,10 +62,10 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   end
 
   def update_existing_student_enrollment(record, student_enrollment)
-    if record["data_atualizacao"].to_s > student_enrollment.changed_at.to_s
+    if record["data_atualizacao"].blank? || student_enrollment.changed_at.blank? || record["data_atualizacao"].to_s > student_enrollment.changed_at.to_s
       student_enrollment.update(
         status: record["situacao"],
-        student_id: Student.find_by(api_code: record["aluno_id"]).try(:id),
+        student_id: Student.find_by!(api_code: record["aluno_id"]).id,
         student_code: record["aluno_id"],
         changed_at: record["data_atualizacao"].to_s,
         active: record["ativo"]
