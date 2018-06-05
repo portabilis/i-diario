@@ -8,7 +8,9 @@ class SchoolCalendarClassroomStepSetter
   end
 
   def set_school_calendar_classroom_step
-    classroom_ids = SchoolCalendarClassroom.joins(:school_calendar).where(school_calendars: { unity_id: selected_unities }).map(&:classroom_id)
+    classroom_ids = SchoolCalendarClassroom.joins(:school_calendar)
+                                           .where(school_calendars: { unity_id: @school_calendars['unity_id'] })
+                                           .map(&:classroom_id)
 
     add_school_calendar_classroom_step_id(ConceptualExam.where(classroom_id: classroom_ids, school_calendar_classroom_step_id: nil))
     add_school_calendar_classroom_step_id(DescriptiveExam.where(classroom_id: classroom_ids, school_calendar_classroom_step_id: nil))
@@ -48,10 +50,6 @@ class SchoolCalendarClassroomStepSetter
     end
 
     items.where.not(id: items_to_keep).destroy_all
-  end
-
-  def selected_unities
-    @school_calendars.select { |school_calendar| school_calendar['unity_id'].present? }.map { |item| item['unity_id'].to_i }
   end
 
   def find_same_number_step(classroom_steps, record)

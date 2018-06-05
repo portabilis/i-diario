@@ -8,11 +8,13 @@ RSpec.configure do |config|
   config.before(:each, type: :form) { DatabaseCleaner.start }
   config.before(:each, type: :service) { DatabaseCleaner.start }
   config.before(:each, type: :controller) { DatabaseCleaner.start }
+  config.before(:each, type: :worker) { DatabaseCleaner.start }
 
   config.after(:each, type: :model) { DatabaseCleaner.clean }
   config.after(:each, type: :form) { DatabaseCleaner.clean }
   config.after(:each, type: :service) { DatabaseCleaner.clean }
   config.after(:each, type: :controller) { DatabaseCleaner.clean }
+  config.after(:each, type: :worker) { DatabaseCleaner.clean }
 
   config.after(:example, type: :feature) { DatabaseCleaner.clean_with(:truncation) }
 end

@@ -1,0 +1,12 @@
+<tr class="nested-fields has-no-id">
+  <td>
+    <%= f.input :classroom_id, as: :select2, label: false %>
+  </td>
+  <td>
+    <%= f.input :record_date, as: :date, label: false %>
+  </td>
+  <td class="actions">
+    <%= f.hidden_field :uuid %>
+    <%= link_to_remove_association t('discipline_content_records.content_fields.remove'), f, class: 'btn btn-danger btn-sm' %>
+  </td>
+</tr>

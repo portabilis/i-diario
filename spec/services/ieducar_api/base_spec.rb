@@ -2,7 +2,7 @@
 require 'spec_helper'
 
 RSpec.describe IeducarApi::Base, :type => :service do
-  let(:url) { "http://test.ieducar.com.br" }
+  let(:url) { "https://test.ieducar.com.br" }
   let(:access_key) { "***REMOVED***" }
   let(:secret_key) { "***REMOVED***" }
   let(:unity_id) { 1 }
@@ -62,7 +62,7 @@ RSpec.describe IeducarApi::Base, :type => :service do
 
           expect(result.keys).to include "alunos"
 
-          expect(result["alunos"].size).to eq 100
+          expect(result["alunos"].size).to eq 117573
         end
       end
     end
@@ -85,7 +85,7 @@ RSpec.describe IeducarApi::Base, :type => :service do
     end
 
     it "returns an error when providing an invalid url" do
-      subject = IeducarApi::Base.new(url: "http://botucat.ieduca.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+      subject = IeducarApi::Base.new(url: "https://botucat.ieduca.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
 
       expect {
         subject.fetch(path: path, resource: resource)
@@ -93,12 +93,12 @@ RSpec.describe IeducarApi::Base, :type => :service do
     end
 
     it "returns an error when providing an invalid client url" do
-      subject = IeducarApi::Base.new(url: "http://botucat.ieducar.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+      subject = IeducarApi::Base.new(url: "https://botucat.ieducar.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
 
       VCR.use_cassette("wrong_client_url") do
         expect {
           subject.fetch(path: path, resource: resource)
-        }.to raise_error("URL do i-Educar informada não é válida.")
+        }.to raise_error("Chave de acesso inválida!")
       end
     end
 
@@ -109,6 +109,77 @@ RSpec.describe IeducarApi::Base, :type => :service do
         expect {
           subject.fetch(path: path, resource: "errado")
         }.to raise_error("Operação 'get' não implementada para o recurso 'errado'")
+      end
+    end
+  end
+
+  describe "#send_post" do
+    subject do
+      IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+    end
+
+    let(:path) { "module/Api/Diario" }
+    let(:resource) { "faltas-geral" }
+    let(:classroom_id) { 1 }
+    let(:student_id) { 2 }
+    let(:step) { 3 }
+
+    context "ensure obligatory options" do
+      it "requires path" do
+        expect {
+          subject.send_post
+        }.to raise_error("É necessário informar o caminho de acesso: path")
+      end
+
+      it "requires resource" do
+        expect {
+          subject.send_post(path: path)
+        }.to raise_error("É necessário informar o recurso de acesso: resource")
+      end
+    end
+  end
+
+  context "with wrong options" do
+    let(:path) { "module/Api/Aluno" }
+    let(:resource) { "todos-alunos" }
+
+    context "invalid keys" do
+      it "returns an error when providing an invalid access_key" do
+        subject = IeducarApi::Base.new(url: url, access_key: "invalid", secret_key: secret_key, unity_id: unity_id)
+
+        VCR.use_cassette("post_invalid_access_key") do
+          expect {
+            subject.send_post(path: path, resource: resource)
+          }.to raise_error("Chave de acesso inválida!")
+        end
+      end
+    end
+
+    it "returns an error when providing an invalid url" do
+      subject = IeducarApi::Base.new(url: "https://botucat.ieduca.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+
+      expect {
+        subject.send_post(path: path, resource: resource)
+      }.to raise_error("URL do i-Educar informada não é válida.")
+    end
+
+    it "returns an error when providing an invalid client url" do
+      subject = IeducarApi::Base.new(url: "https://botucat.ieducar.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+
+      VCR.use_cassette("post_wrong_client_url") do
+        expect {
+          subject.send_post(path: path, resource: resource)
+        }.to raise_error("Chave de acesso inválida!")
+      end
+    end
+
+    it "returns an error when providing an invalid resource" do
+      subject = IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+
+      VCR.use_cassette("post_wrong_resource") do
+        expect {
+          subject.send_post(path: path, resource: "errado")
+        }.to raise_error("Operação 'post' não implementada para o recurso 'errado'")
       end
     end
   end

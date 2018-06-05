@@ -14,7 +14,7 @@ RSpec.describe SchoolCalendarClassroomStepSetter, type: :service do
                                                    recovery_diary_record: recovery_diary_record) }
 
   subject do
-    SchoolCalendarClassroomStepSetter.new([school_calendar])
+    SchoolCalendarClassroomStepSetter.new(school_calendar)
   end
 
   describe '#set_school_calendar_classroom_step' do

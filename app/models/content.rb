@@ -12,7 +12,7 @@ class Content < ActiveRecord::Base
 
   validates :description, presence: true
 
-  scope :by_description, lambda { |description| where(' unaccent(contents.description) ILIKE unaccent(?) ', '%'+description+'%') }
+  scope :by_description, lambda { |description| where('f_unaccent(contents.description) ILIKE f_unaccent(?) ', '%'+description+'%') }
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_id, -> { order(id: :asc) }
 
