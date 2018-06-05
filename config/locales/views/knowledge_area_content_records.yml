@@ -5,3 +5,6 @@ pt-BR:
       by_knowledge_area_description: "Filtrar área de conhecimento"
       by_date: "Filtrar data"
       new_html: "<i class='fa fa-plus'></i> Novo registro de conteúdo"
+    content_fields:
+      remove: "Remover"
+      add_item: "Adicionar"

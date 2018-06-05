@@ -5,4 +5,6 @@ class RoundingTableAction < EnumerateIt::Base
     above: 2,
     specific: 3
   )
+
+  sort_by :value
 end

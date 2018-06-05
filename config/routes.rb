@@ -243,6 +243,8 @@ Rails.application.routes.draw do
     end
     resources :authorization_***REMOVED***, concerns: :history
 
+    resources :custom_rounding_tables, concerns: :history, except: :show
+
     resources :moved_***REMOVED***, only: [:index]
     get '/unities/:unity_id/moved_***REMOVED***/:material_id', to: 'moved_***REMOVED***#show', as: 'unity_moved_material'
     get '/unities/:unity_id/moved_***REMOVED***/:material_id/get_consumption_balance', to: 'moved_***REMOVED***#get_consumption_balance', as: 'get_consumption_balance'
@@ -343,8 +345,16 @@ Rails.application.routes.draw do
     end
     resources :final_recovery_diary_records, concerns: :history
     resources :avaliation_recovery_diary_records, concerns: :history
-    resources :conceptual_exams, concerns: :history
-    resources :descriptive_exams, only: [:new, :create, :edit, :update], concerns: :history
+    resources :conceptual_exams, concerns: :history do
+      collection do
+        get :exempted_disciplines
+      end
+    end
+    resources :descriptive_exams, only: [:new, :create, :edit, :update], concerns: :history do
+      collection do
+        get :opinion_types
+      end
+    end
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
         get :edit_multiple

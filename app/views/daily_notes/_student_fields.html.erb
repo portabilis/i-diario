@@ -3,7 +3,7 @@
     <%= sequence %>
     <%= f.hidden_field :id %>
     <%= f.hidden_field :active %>
-    <%= f.hidden_field :_destroy %>
+    <%= f.hidden_field :_destroy, value: (f.object.exempted_from_discipline ? true : nil) %>
   </td>
   <td>
     <%= f.input :student_id, as: :hidden %>
@@ -15,6 +15,6 @@
   <td>
     <%= f.input :note, label_html: { class: 'hidden' },
           input_html: { data: { inputmask: "'digits': #{f.object.daily_note.avaliation.test_setting.number_of_decimal_places}" } },
-          readonly: f.object.exempted || !f.object.active %>
+          readonly: f.object.exempted || !f.object.active || f.object.exempted_from_discipline %>
   </td>
 </tr>

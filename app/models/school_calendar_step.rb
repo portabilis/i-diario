@@ -5,7 +5,7 @@ class SchoolCalendarStep < ActiveRecord::Base
 
   belongs_to :school_calendar
   has_many :descriptive_exams, dependent: :restrict_with_exception
-  has_many :ieducar_api_exam_postings, dependent: :restrict_with_exception
+  has_many :ieducar_api_exam_postings, dependent: :destroy
   has_many :conceptual_exams, dependent: :restrict_with_exception
   has_many :transfer_notes, dependent: :restrict_with_exception
   has_many :school_term_recovery_diary_records, dependent: :restrict_with_exception
@@ -14,7 +14,6 @@ class SchoolCalendarStep < ActiveRecord::Base
   validates :start_at, :end_at, :start_date_for_posting, :end_date_for_posting, presence: true
 
   validate :start_at_must_be_in_school_calendar_year, if: :school_calendar
-  validate :end_at_must_be_valid, if: :school_calendar
   validate :start_at_must_not_have_conflicting_date, if: :school_calendar
   validate :end_at_must_not_have_conflicting_date, if: :school_calendar
   validate :start_at_must_be_less_than_end_at
@@ -25,10 +24,13 @@ class SchoolCalendarStep < ActiveRecord::Base
   scope :by_school_calendar_id, lambda { |school_calendar_id| where(school_calendar_id: school_calendar_id) }
   scope :by_unity, lambda { |unity_id| joins(:school_calendar).where(school_calendars: { unity_id: unity_id } ) }
   scope :by_year, lambda { |year| joins(:school_calendar).where(school_calendars: { year: year } ) }
+  scope :by_step_year, lambda { |year| where('extract(year from start_at) = ?', year) }
   scope :started_after_and_before, lambda { |date| where(arel_table[:start_at].lteq(date)).
                                                   where(arel_table[:end_at].gteq(date)) }
   scope :posting_date_after_and_before, lambda { |date| where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date))) }
-  scope :ordered, -> { order(arel_table[:start_at]) }
+  scope :ordered, -> { order(:start_at) }
+  scope :inactive, -> { where(active: false) }
+  scope :active, -> { where(active: true) }
 
   delegate :unity, to: :school_calendar
 
@@ -103,13 +105,6 @@ class SchoolCalendarStep < ActiveRecord::Base
     return if errors[:start_at].any? || school_calendar.errors[:year].any?
 
     errors.add(:start_at, :must_be_in_school_calendar_year) if start_at.to_date.year != school_calendar.year.to_i
-  end
-
-  def end_at_must_be_valid
-    return if errors[:end_at].any? || school_calendar.errors[:year].any?
-
-    valid_date = "28/02/#{school_calendar.year.to_i + 1}"
-    errors.add(:end_at, :end_at_must_be_valid, valid_date: valid_date) if end_at.to_date > valid_date.to_date
   end
 
   def start_at_must_be_less_than_end_at

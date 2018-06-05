@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://test.ieducar.com.br/module/Api/Aluno
+    body:
+      encoding: UTF-8
+      string: resource=errado&oper=post&access_key=***REMOVED***&secret_key=***REMOVED***&instituicao_id=1
+    headers:
+      Accept:
+      - "*/*; q=0.5, application/xml"
+      Accept-Encoding:
+      - gzip, deflate
+      Content-Length:
+      - '126'
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 30 Apr 2018 21:31:29 GMT
+      Server:
+      - Apache
+      Set-Cookie:
+      - PHPSESSID=dj8jdpmhjoo2coi3ai8flmedj0; expires=Tue, 01-May-2018 21:31:29 GMT;
+        path=/
+      Expires:
+      - Thu, 19 Nov 1981 08:52:00 GMT
+      Cache-Control:
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '162'
+      Content-Type:
+      - application/json; charset=UTF-8
+    body:
+      encoding: UTF-8
+      string: '{"oper":"post","resource":"errado","msgs":[{"msg":"Opera\u00e7\u00e3o
+        ''post'' n\u00e3o implementada para o recurso ''errado''","type":"error"}],"any_error_msg":true}'
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:01:22 GMT
+recorded_with: VCR 3.0.0

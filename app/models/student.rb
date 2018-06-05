@@ -9,11 +9,14 @@ class Student < ActiveRecord::Base
   has_many :student_biometrics
   has_many :student_enrollments
 
+  attr_accessor :exempted_from_discipline
+
   validates :name, presence: true
   validates :api_code, presence: true, if: :api?
 
   scope :api, -> { where(arel_table[:api].eq(true)) }
   scope :ordered, -> { order(:name) }
+  scope :order_by_sequence, -> { joins(:student_enrollments).merge(StudentEnrollment.ordered) }
 
   def self.search(value)
     relation = all

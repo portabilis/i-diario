@@ -12,7 +12,7 @@ class SchoolCalendar < ActiveRecord::Base
 
   belongs_to :unity
 
-  has_many :steps, -> { includes(:school_calendar).ordered },  class_name: 'SchoolCalendarStep',  dependent: :destroy
+  has_many :steps, -> { active.includes(:school_calendar).ordered },  class_name: 'SchoolCalendarStep',  dependent: :destroy
   has_many :classrooms, class_name: 'SchoolCalendarClassroom', dependent: :destroy
   has_many :events, class_name: 'SchoolCalendarEvent', dependent: :destroy
 
@@ -54,8 +54,9 @@ class SchoolCalendar < ActiveRecord::Base
 
     index_of_step = steps.find_index(step(date))
 
-    school_term = school_terms[steps.count]
-    school_term.key_for(index_of_step)
+    if school_term = school_terms[steps.count]
+      school_term.key_for(index_of_step)
+    end
   end
 
   def school_step(step)
@@ -63,8 +64,9 @@ class SchoolCalendar < ActiveRecord::Base
 
     index_of_step = steps.find_index(step)
 
-    school_term = school_terms[steps.count]
-    school_term.key_for(index_of_step)
+    if school_term = school_terms[steps.count]
+      school_term.key_for(index_of_step)
+    end
   end
 
   def school_term_day?(school_term, date)
