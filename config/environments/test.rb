@@ -42,4 +42,10 @@ Rails.application.configure do
 
   # Added so we can use urls in mailer templates
   config.action_mailer.default_url_options = { host: "localhost:3000" }
+
+  # Bullet configuration
+  config.after_initialize do
+    Bullet.enable = true
+    Bullet.bullet_logger = true
+  end
 end

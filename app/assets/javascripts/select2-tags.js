@@ -38,7 +38,7 @@ $(function() {
       ajax: {
         dataType: "json",
         url: $(element).data('url'),
-        delay: 250,
+        delay: 1000,
         data: function (term, page) {
           var query = {
             filter: {

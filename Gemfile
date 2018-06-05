@@ -8,6 +8,9 @@ gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
+gem "gelf"
+gem "lograge"
+
 gem 'simple_form', '3.1.0'
 gem 'pg', '0.17.1'
 gem 'foreigner', '1.6.1'
@@ -73,7 +76,6 @@ group :development do
   gem 'mina', '0.3.7'
   gem 'better_errors', '~> 1.1.0'
   gem 'binding_of_caller', '~> 0.7.2'
-  gem 'bullet', '~> 4.14.0'
   gem 'puma', '~> 3.9.1'
   gem 'mina-sidekiq', '~> 0.4.1'
   gem 'web-console', '~> 2.0'
@@ -99,6 +101,10 @@ group :test do
   gem 'cpf_faker', '~> 1.3'
   gem 'timecop'
   gem 'simplecov', :require => false
+end
+
+group :test, :development do
+  gem 'bullet'
 end
 
 gem 'newrelic_rpm'
