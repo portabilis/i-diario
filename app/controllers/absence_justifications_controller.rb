@@ -1,7 +1,7 @@
 class AbsenceJustificationsController < ApplicationController
 
   before_action :require_current_teacher
-   
+
 
   has_scope :page, default: 1
   has_scope :per, default: 10
@@ -14,7 +14,7 @@ class AbsenceJustificationsController < ApplicationController
                                                                .by_classroom(current_user_classroom)
                                                                .by_discipline_id(current_discipline)
                                                                .by_teacher(current_teacher)
-                                                               .by_school_calendar(current_user_school_calendar)
+                                                               .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
                                                                .includes(:student).ordered)
 

@@ -1,6 +1,6 @@
 class ExamRecordReportController < ApplicationController
   before_action :require_current_teacher
-   
+
   before_action :require_current_test_setting
 
   def form
@@ -45,7 +45,7 @@ class ExamRecordReportController < ApplicationController
   end
 
   def fetch_collections
-    @school_calendar_steps = SchoolCalendarStep.where(school_calendar: current_user_school_calendar).ordered
+    @school_calendar_steps = SchoolCalendarStep.where(school_calendar: current_school_calendar).ordered
     @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id).ordered
   end
 
