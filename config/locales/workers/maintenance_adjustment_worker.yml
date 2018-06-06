@@ -1,0 +1,4 @@
+pt-BR:
+  maintenance_adjustment_worker:
+    title: 'Ajustes realizados com sucesso'
+    description: 'Os ajustes solicitados foram realizados com sucesso.'
