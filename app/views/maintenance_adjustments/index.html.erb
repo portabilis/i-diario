@@ -1,0 +1,49 @@
+<div class='widget-body no-padding'>
+  <%= simple_form_for :filter, { url: maintenance_adjustments_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class='table-responsive'>
+      <table class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover' id='resources'>
+        <thead>
+          <tr>
+            <td>
+              <%= f.input :by_kind, as: :select2, elements: MaintenanceAdjustmentKinds.to_select.to_json,
+                label: false, placeholder: t('.by_kind') %>
+            </td>
+            <td>
+              <%= f.input :by_unity, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity') %>
+            </td>
+            <td>
+              <%= f.input :by_year, as: :integer, label: false, placeholder: t('.by_year') %>
+            </td>
+            <td>
+              <%= f.input :by_status, as: :select2, elements: MaintenanceAdjustmentStatus.to_select.to_json,
+                label: false, placeholder: t('.by_status') %>
+            </td>
+            <td class='actions' style='min-width: 155px;'>
+              <%= link_to t('.new_html'), new_maintenance_adjustment_path, class: 'btn btn-primary' %>
+            </td>
+          </tr>
+          <tr>
+            <th style='width: 30%;'><%= MaintenanceAdjustment.human_attribute_name :kind %></th>
+            <th style='width: 50%;'><%= MaintenanceAdjustment.human_attribute_name :unities %></th>
+            <th style='width: 10%;'><%= MaintenanceAdjustment.human_attribute_name :year %></th>
+            <th style='width: 10%;'><%= MaintenanceAdjustment.human_attribute_name :status %></th>
+            <td></td>
+          </tr>
+        </thead>
+
+        <%= render 'resources' %>
+
+        <tfoot id='paginator' class='remote'>
+          <td colspan='5'>
+            <div id='page_entries_info' class='pull-left hidden-xs'>
+              <%= page_entries_info @maintenance_adjustments %>
+            </div>
+            <div class='pull-right'>
+              <%= paginate @maintenance_adjustments %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>
