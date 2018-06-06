@@ -108,7 +108,7 @@ class IeducarSynchronizerWorker
   end
 
   def years_to_synchronize
-    @years ||= Unity.with_api_code.map { |unity| CurrentSchoolYearFetcher.new(unity).fetch }.uniq.reject(&:blank?).sort
+    @years ||= Unity.with_api_code.joins(:school_calendars).pluck('school_calendars.year').uniq.reject(&:blank?).sort
   end
 
   def all_entities
