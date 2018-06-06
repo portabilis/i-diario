@@ -30,6 +30,7 @@ class Classroom < ActiveRecord::Base
   scope :by_teacher_discipline, lambda { |discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { discipline_id: discipline_id }).uniq }
   scope :by_api_code, lambda { |api_code| where(api_code: api_code)  }
   scope :by_id, lambda { |id| where(id: id)  }
+  scope :with_grade, -> { where.not(grade: nil)   }
 
   def to_s
     description
