@@ -59,6 +59,10 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     self.school_calendar_classroom_step || self.school_calendar_step
   end
 
+  def recorded_at
+    recovery_diary_record.recorded_at
+  end
+
   private
 
   def self.by_teacher_id_query(teacher_id)

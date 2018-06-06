@@ -54,6 +54,10 @@ class TransferNote < ActiveRecord::Base
     CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
   end
 
+  def recorded_at
+    transfer_date
+  end
+
   private
 
   def at_least_one_daily_note_student
