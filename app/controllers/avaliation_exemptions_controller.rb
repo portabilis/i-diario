@@ -2,8 +2,6 @@ class AvaliationExemptionsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-   
-
   def index
     @avaliation_exemptions = apply_scopes(AvaliationExemption)
                              .includes(:avaliation)

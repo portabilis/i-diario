@@ -3,7 +3,6 @@ class DisciplineLessonPlansController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-   
 
   def index
     @discipline_lesson_plans = apply_scopes(DisciplineLessonPlan)

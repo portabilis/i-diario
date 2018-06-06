@@ -1,6 +1,5 @@
 class TeacherReportCardsController < ApplicationController
   before_action :require_current_teacher
-   
 
   def form
     @teacher_report_card_form = TeacherReportCardForm.new(unity_id: current_user_unity.id)

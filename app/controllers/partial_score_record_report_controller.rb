@@ -1,5 +1,4 @@
 class PartialScoreRecordReportController < ApplicationController
-
   before_action :require_current_test_setting
 
   def form

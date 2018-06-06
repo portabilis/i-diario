@@ -3,7 +3,6 @@ class DailyNotesController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_teacher
-   
 
   def index
     @daily_notes = apply_scopes(DailyNote)

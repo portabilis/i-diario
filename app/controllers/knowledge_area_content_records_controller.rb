@@ -3,7 +3,6 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-   
 
   def index
     @knowledge_area_content_records = apply_scopes(KnowledgeAreaContentRecord)

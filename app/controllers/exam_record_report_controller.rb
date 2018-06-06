@@ -1,6 +1,5 @@
 class ExamRecordReportController < ApplicationController
   before_action :require_current_teacher
-
   before_action :require_current_test_setting
 
   def form
