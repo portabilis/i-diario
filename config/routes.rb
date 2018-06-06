@@ -226,6 +226,7 @@ Rails.application.routes.draw do
         get :search
       end
     end
+    resources :maintenance_adjustments, concerns: :history, except: :show
 
     resources :grades, only: [:index] do
       member do

@@ -32,6 +32,7 @@ class Unity < ActiveRecord::Base
   has_many :user_roles
   has_many :school_calendars
 
+  has_and_belongs_to_many :maintenance_adjustments
   has_and_belongs_to_many :***REMOVED***
   has_and_belongs_to_many :***REMOVED***
   has_and_belongs_to_many :custom_rounding_tables
