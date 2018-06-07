@@ -1,0 +1,29 @@
+<tbody id='resources-tbody'>
+  <% if @maintenance_adjustments.empty? %>
+    <tr>
+      <td class='no_record_found' colspan='7'><%= t('views.index.no_record_found') %></td>
+    </tr>
+  <% else %>
+    <% @maintenance_adjustments.each do |maintenance_adjustment| %>
+      <tr>
+        <td>
+          <%= link_to maintenance_adjustment, edit_maintenance_adjustment_path(maintenance_adjustment) %>
+        </td>
+        <td>
+          <%= maintenance_adjustment.decorator.unities_labels %>
+        </td>
+        <td>
+          <%= maintenance_adjustment.year %>
+        </td>
+        <td>
+          <%= maintenance_adjustment.decorator.status_labels %>
+        </td>
+        <td class='actions'>
+          <%= link_to t('views.index.edit'), edit_maintenance_adjustment_path(maintenance_adjustment), class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'), maintenance_adjustment_path(maintenance_adjustment), class: 'btn btn-danger',
+            method: :delete, data: { confirm: t('views.index.confirm') } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

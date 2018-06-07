@@ -30,3 +30,5 @@ config/secrets.yml
 # rbenv ruby version file
 .ruby-version
 .ruby-gemset
+
+db/structure.sql
