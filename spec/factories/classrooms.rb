@@ -10,9 +10,17 @@ FactoryGirl.define do
     exam_rule
     grade
 
-    factory :classroom_numeric_and_concept do
+    trait :current do
       year { Time.zone.today.year }
+    end
+
+    factory :classroom_numeric_and_concept do
+      current
       association :exam_rule, factory: :exam_rule_numeric_and_concept
+    end
+
+    trait :by_discipline do
+      association :exam_rule, factory: :exam_rule_by_discipline
     end
   end
 end
