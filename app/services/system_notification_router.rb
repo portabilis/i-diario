@@ -23,6 +23,8 @@ class SystemNotificationRouter
       routes.material_request_path(object.source, format: :pdf)
     when "***REMOVED***"
       routes.edit_service_request_path(object.source)
+    when "MaintenanceAdjustment"
+      routes.maintenance_adjustments_path
     else
       ""
     end

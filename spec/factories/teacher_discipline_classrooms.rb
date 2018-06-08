@@ -10,5 +10,9 @@ FactoryGirl.define do
     teacher
     classroom
     discipline
+
+    trait :current do
+      year { Time.zone.today.year }
+    end
   end
 end

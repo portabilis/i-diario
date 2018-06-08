@@ -12,7 +12,7 @@ class SchoolCalendar < ActiveRecord::Base
 
   belongs_to :unity
 
-  has_many :steps, -> { includes(:school_calendar).ordered },  class_name: 'SchoolCalendarStep',  dependent: :destroy
+  has_many :steps, -> { active.includes(:school_calendar).ordered },  class_name: 'SchoolCalendarStep',  dependent: :destroy
   has_many :classrooms, class_name: 'SchoolCalendarClassroom', dependent: :destroy
   has_many :events, class_name: 'SchoolCalendarEvent', dependent: :destroy
 

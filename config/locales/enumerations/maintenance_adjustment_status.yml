@@ -1,0 +1,7 @@
+pt-BR:
+  enumerations:
+    maintenance_adjustment_status:
+      completed: 'Completo'
+      in_progress: 'Em andamento'
+      pending: 'Pendente'
+      error: 'Erro'
