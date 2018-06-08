@@ -9,9 +9,10 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan)
       .includes(:knowledge_areas, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
+      .by_teacher_id_or_is_null(current_teacher.try(:id))
 
-    @knowledge_area_teaching_plans = @knowledge_area_teaching_plans.by_grade(current_user_classroom.try(:grade_id))
-                                      .by_teacher_id(current_teacher.try(:id)) unless current_user_is_employee_or_administrator?
+    @knowledge_area_teaching_plans = @knowledge_area_teaching_plans
+      .by_grade(current_user_classroom.try(:grade_id)) unless current_user_is_employee_or_administrator?
 
     authorize @knowledge_area_teaching_plans
 

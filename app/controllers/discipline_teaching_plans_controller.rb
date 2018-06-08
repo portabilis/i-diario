@@ -9,10 +9,10 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plans = apply_scopes(DisciplineTeachingPlan)
       .includes(:discipline, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
+      .by_teacher_id_or_is_null(current_teacher.try(:id))
 
     @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.try(:grade))
-                                 .by_discipline(current_user_discipline)
-                                 .by_teacher_id(current_teacher.try(:id)) unless current_user_is_employee_or_administrator?
+      .by_discipline(current_user_discipline) unless current_user_is_employee_or_administrator?
 
     authorize @discipline_teaching_plans
 

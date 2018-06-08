@@ -27,6 +27,9 @@
                     label: false, placeholder: t('.by_school_term_type') %>
             </td>
             <td>
+              <%= f.input :by_author, as: :select2, elements: PlansAuthors.to_select.to_json, label: false, placeholder: t('.by_author') %>
+            </td>
+            <td>
               <%= link_to t('.new_html'), new_discipline_teaching_plan_path,
                     class: 'btn btn-primary pull-right' %>
             </td>
@@ -39,6 +42,7 @@
             <th><%= DisciplineTeachingPlan.human_attribute_name :discipline %></th>
             <th><%= TeachingPlan.human_attribute_name :school_term_type %></th>
             <th><%= TeachingPlan.human_attribute_name :school_term %></th>
+            <th><%= DisciplineTeachingPlan.human_attribute_name :author %></th>
             <th width="153px"></th>
           </tr>
         </thead>
@@ -46,7 +50,7 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="7">
+          <td colspan="8">
             <div id="page_entries_info" class="pull-left hidden-xs">
               <%= page_entries_info @discipline_teaching_plans %>
             </div>
