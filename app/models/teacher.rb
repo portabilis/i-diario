@@ -7,6 +7,7 @@ class Teacher < ActiveRecord::Base
 
   validates :name, :api_code, presence: true
   validates :api_code, uniqueness: true
+  validates :active, inclusion: { in: [true, false] }
 
   scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id)}
   scope :by_year, lambda { |year| filter_current_teachers_by_year(year) }
