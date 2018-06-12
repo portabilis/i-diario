@@ -5,12 +5,8 @@ RSpec.describe Teacher, :type => :model do
     it { should validate_presence_of :name }
     it { should validate_presence_of :api_code }
 
-    it '' do
-      subject.name = "Valdite Santos"
-      subject.api_code = "245145"
-      subject.active = false
-
-      expect(subject.valid?).to be(true)
-    end
+    it { expect(subject).to allow_value(true).for :active }
+    it { expect(subject).to allow_value(false).for :active }
+    it { expect(subject).to_not allow_value(nil).for :active }
   end
 end
