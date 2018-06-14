@@ -38,7 +38,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   def to_s
     if present?
-      TermsDictionary.current.try(:presence_identifier_character) || '.'
+      TermsDictionary.cached_current.try(:presence_identifier_character) || '.'
     else
       'F'
     end
