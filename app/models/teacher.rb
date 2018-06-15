@@ -5,8 +5,9 @@ class Teacher < ActiveRecord::Base
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_many :classrooms, through: :teacher_discipline_classrooms
 
-  validates :name, :api_code, :active, presence: true
+  validates :name, :api_code, presence: true
   validates :api_code, uniqueness: true
+  validates :active, inclusion: { in: [true, false] }
 
   scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id)}
   scope :by_year, lambda { |year| filter_current_teachers_by_year(year) }
