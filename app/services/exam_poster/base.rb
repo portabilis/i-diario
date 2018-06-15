@@ -19,10 +19,6 @@ module ExamPoster
       end
     end
 
-    def has_classroom_steps(classroom)
-      classroom.calendar
-    end
-
     def teacher
       @post_data.author.current_teacher
     end
