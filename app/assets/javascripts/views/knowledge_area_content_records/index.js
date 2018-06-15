@@ -36,11 +36,12 @@ $(function () {
         different_than: classroom_id,
         by_year: record_date.substring(6,10)
       },
-      find_by_current_teacher: true
+      find_by_current_teacher: true,
+      include_unity: true
     };
 
     $.getJSON(Routes.classrooms_pt_br_path(params)).always(function (data) {
-      selectedClassrooms = _.map(data, function(classroom) { return { id: classroom['id'], text: classroom['description'] };
+      selectedClassrooms = _.map(data, function(classroom) { return { id: classroom['id'], text: classroom['description']+' - '+classroom['unity']['name'] };
       });
     });
   });
