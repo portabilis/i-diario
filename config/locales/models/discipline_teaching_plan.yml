@@ -11,3 +11,10 @@ pt-BR:
         teaching_plan_id: "Plano de ensino"
         discipline: "Disciplina"
         discipline_id: "Disciplina"
+        author: "Autor"
+    errors:
+      models:
+        discipline_teaching_plan:
+          attributes:
+            base:
+              uniqueness_of_discipline_teaching_plan: "Já existe um plano de ensino para o período informado"

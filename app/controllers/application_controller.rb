@@ -252,6 +252,11 @@ class ApplicationController < ActionController::Base
     TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
   end
 
+  def current_user_is_employee_or_administrator?
+    current_user.current_user_role.role_employee? || (current_user.current_user_role.role_administrator? && !current_user.assumed_teacher_id)
+  end
+  helper_method :current_user_is_employee_or_administrator?
+
   def teacher_differentiated_discipline_score_type
     exam_rule = current_user_classroom.exam_rule
     differentiated_exam_rule = exam_rule.differentiated_exam_rule
