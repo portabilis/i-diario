@@ -5,6 +5,7 @@
 
 <%= simple_form_for @discipline_teaching_plan, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
+  <%= render 'base_errors', f: f %>
 
   <%= f.simple_fields_for :teaching_plan, @discipline_teaching_plan.teaching_plan do |teaching_plan_form| %>
     <%= teaching_plan_form.hidden_field :id %>

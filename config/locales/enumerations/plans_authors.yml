@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    plans_authors:
+      my_plans: "Meus planos"
+      others: "Outros"

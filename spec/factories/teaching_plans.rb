@@ -6,6 +6,7 @@ FactoryGirl.define do
     contents {[FactoryGirl.create(:content)]}
     unity
     grade
+    teacher
   end
 
   factory :teaching_plan_without_contents, class: TeachingPlan do

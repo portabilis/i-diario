@@ -6,6 +6,7 @@ pt-BR:
       by_grade: "Filtrar série"
       by_knowledge_area: "Filtrar área de conhecimento"
       by_school_term_type: "Filtrar tipo de período escolar"
+      by_author: "Filtrar autor"
     form:
       add_content: "Adicionar conteúdo"
       add_attachment: "Adicionar anexo"
