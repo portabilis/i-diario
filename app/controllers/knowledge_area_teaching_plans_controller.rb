@@ -3,14 +3,16 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_school_calendar
-  before_action :require_current_teacher
+  before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
 
   def index
     @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan)
       .includes(:knowledge_areas, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
-      .by_grade(current_user_classroom.try(:grade_id))
-      .by_teacher_id(current_teacher)
+      .by_teacher_id_or_is_null(current_teacher.try(:id))
+
+    @knowledge_area_teaching_plans = @knowledge_area_teaching_plans
+      .by_grade(current_user_classroom.try(:grade_id)) unless current_user_is_employee_or_administrator?
 
     authorize @knowledge_area_teaching_plans
 
@@ -61,7 +63,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     authorize @knowledge_area_teaching_plan
 
-    @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher.id
+    @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher.id unless current_user_is_employee_or_administrator?
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
     if @knowledge_area_teaching_plan.save
@@ -159,8 +161,11 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.where(id: current_user_classroom.try(:grade_id))
+    @grades = Grade.by_unity(current_user_unity)
+      .by_year(current_school_calendar.year)
       .ordered
+    @grades = @grades.where(id: current_user_classroom.try(:grade_id))
+                     .ordered unless current_user_is_employee_or_administrator?
   end
 
   def fetch_knowledge_areas
