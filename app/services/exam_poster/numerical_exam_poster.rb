@@ -32,7 +32,7 @@ module ExamPoster
           next if !same_unity(classroom.unity_id)
           next unless step_exists_for_classroom?(classroom)
 
-          teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, get_step(classroom))
+          teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, @post_data.step)
           teacher_score_fetcher.fetch!
 
           student_scores = teacher_score_fetcher.scores
@@ -73,13 +73,13 @@ module ExamPoster
         school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
           .by_classroom_id(classroom)
           .by_discipline_id(discipline)
-          .by_school_calendar_classroom_step_id(get_step(classroom))
+          .by_school_calendar_classroom_step_id(@post_data.step)
           .first
       else
         school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
         .by_classroom_id(classroom)
         .by_discipline_id(discipline)
-        .by_school_calendar_step_id(get_step(classroom))
+        .by_school_calendar_step_id(@post_data.step)
         .first
       end
 
