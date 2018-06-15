@@ -26,7 +26,7 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
           dispensed_disciplines.update_attribute(:steps, record["etapas"])
 
           dispensed_discipline_ids_to_keep << dispensed_disciplines.id
-          remove_dispensed_exams(student_enrollment, discipline_id)
+          remove_dispensed_exams_and_frequencies(student_enrollment, discipline_id, record["etapas"].split(','))
         end
       end
 
@@ -34,22 +34,40 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
     end
   end
 
-  def remove_dispensed_exams(student_enrollment, discipline_id)
-    start_date = Date.today.beginning_of_year
-    end_date = Date.today.end_of_year
+  def remove_dispensed_exams_and_frequencies(student_enrollment, discipline_id, steps)
+    classroom = student_enrollment.student_enrollment_classrooms.first.classroom
+    return unless classroom.present?
+    school_calendar = CurrentSchoolCalendarFetcher.new(classroom.unity, classroom).fetch
+    return unless school_calendar.present?
 
-    DailyNoteStudent.by_student_id(student_enrollment.student_id)
-                    .by_discipline_id(discipline_id)
-                    .by_test_date_between(start_date, end_date)
-                    .delete_all
+    steps.each do |step_number|
 
-    student_conceptual_exams = ConceptualExam.where(student_id: student_enrollment.student_id)
-                                              .where(recorded_at: start_date..end_date)
-                                              .pluck(:id)
+      step = school_calendar.steps.ordered[step_number.to_i]
 
-    ConceptualExamValue.where(discipline_id: discipline_id)
-                       .where(conceptual_exam_id: student_conceptual_exams)
-                       .delete_all
+      next unless step
+
+      start_date = step.start_at
+      end_date = step.end_at
+
+      DailyNoteStudent.by_student_id(student_enrollment.student_id)
+                      .by_discipline_id(discipline_id)
+                      .by_test_date_between(start_date, end_date)
+                      .delete_all
+
+      student_conceptual_exams = ConceptualExam.where(student_id: student_enrollment.student_id)
+                                                .where(recorded_at: start_date..end_date)
+                                                .pluck(:id)
+
+      ConceptualExamValue.where(discipline_id: discipline_id)
+                         .where(conceptual_exam_id: student_conceptual_exams)
+                         .delete_all
+
+      DailyFrequencyStudent.by_student_id(student_enrollment.student_id)
+                           .by_discipline_id(discipline_id)
+                           .by_frequency_date_between(start_date, end_date)
+                           .delete_all
+    end
+
   end
 
   def destroy_inexisting_dispensed_disciplines(dispensed_discipline_ids_to_keep)

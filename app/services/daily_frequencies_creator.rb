@@ -66,6 +66,7 @@ class DailyFrequenciesCreator
           .by_classroom(first_daily_frequency.classroom)
           .by_discipline(first_daily_frequency.discipline)
           .by_date(@params[:frequency_date])
+          .exclude_exempted_disciplines(first_daily_frequency.discipline_id, step_number)
           .active
           .ordered
       end
@@ -80,5 +81,9 @@ class DailyFrequenciesCreator
       .by_student_enrollment(student_enrollment_id)
       .by_discipline(discipline_id)
       .any?
+  end
+
+  def step_number
+    @step_number ||= first_daily_frequency.school_calendar.step(first_daily_frequency.frequency_date).try(:to_number) || 0
   end
 end
