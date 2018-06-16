@@ -124,9 +124,12 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     date = @knowledge_area_content_record.content_record.record_date
     if teacher && classroom && knowledge_areas && date
       @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_areas, date).fetch
+      @contents.each { |content| content.is_editable = false }
     end
     if @knowledge_area_content_record.content_record.contents
-      @contents << @knowledge_area_content_record.content_record.contents_ordered
+      contents = @knowledge_area_content_record.content_record.contents_ordered
+      contents.each { |content| content.is_editable = true }
+      @contents << contents
     end
     @contents.flatten.uniq
   end

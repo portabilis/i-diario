@@ -10,6 +10,8 @@ class Content < ActiveRecord::Base
   has_many :lesson_plans, dependent: :restrict_with_error
   has_many :content_records, dependent: :restrict_with_error
 
+  attr_accessor :is_editable
+
   validates :description, presence: true
 
   scope :by_description, lambda { |description| where('f_unaccent(contents.description) ILIKE f_unaccent(?) ', '%'+description+'%') }
