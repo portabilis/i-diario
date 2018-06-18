@@ -8,13 +8,44 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
 
   context "Validations" do
     it { should validate_presence_of :url }
-    it { should validate_presence_of :token }
-    it { should validate_presence_of :secret_token }
     it { should validate_presence_of :unity_code }
 
     it { should allow_value('http://ieducar.com.br', 'https://ieducar.com', 'https://10.0.0.1').for(:url) }
     it { should_not allow_value('ftp://ieducar.com').for(:url).
       with_message("formato de url inválido") }
+
+    context 'on production' do
+      before do
+        Rails.stub_chain(:env, production?: true)
+      end
+
+      it { should validate_presence_of :token }
+      it { should validate_presence_of :secret_token }
+    end
+  end
+
+  describe '#token' do
+    it 'returns default value when not in production' do
+      expect(subject.token).to eq '***REMOVED***'
+    end
+
+    it 'does not return default value when in production' do
+      Rails.stub_chain(:env, production?: true)
+
+      expect(subject.token).to_not eq '***REMOVED***'
+    end
+  end
+
+  describe '#secret_token' do
+    it 'returns default value when not in production' do
+      expect(subject.secret_token).to eq '***REMOVED***'
+    end
+
+    it 'does not return default value when in production' do
+      Rails.stub_chain(:env, production?: true)
+
+      expect(subject.secret_token).to_not eq '***REMOVED***'
+    end
   end
 
   describe ".current" do
@@ -61,8 +92,8 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
   describe "#to_api" do
     it "returns config to be used in the api" do
       url = "http://teste.com.br"
-      token = "123abc"
-      secret_token = "abc123"
+      token = "***REMOVED***"
+      secret_token = "***REMOVED***"
       unity_code = "123"
 
       subject.url = url
