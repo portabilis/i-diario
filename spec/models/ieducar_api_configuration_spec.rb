@@ -8,13 +8,20 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
 
   context "Validations" do
     it { should validate_presence_of :url }
-    it { should validate_presence_of :token }
-    it { should validate_presence_of :secret_token }
     it { should validate_presence_of :unity_code }
 
     it { should allow_value('http://ieducar.com.br', 'https://ieducar.com', 'https://10.0.0.1').for(:url) }
     it { should_not allow_value('ftp://ieducar.com').for(:url).
       with_message("formato de url inválido") }
+
+    context 'on production' do
+      before do
+        Rails.stub_chain(:env, production?: true)
+      end
+
+      it { should validate_presence_of :token }
+      it { should validate_presence_of :secret_token }
+    end
   end
 
   describe '#token' do
