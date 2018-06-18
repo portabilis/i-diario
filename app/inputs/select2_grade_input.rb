@@ -21,7 +21,7 @@ class Select2GradeInput < Select2Input
     elsif user.current_teacher.present?
       grades = user.current_teacher.classrooms.map(&:grade).uniq
     elsif user.current_unity.present?
-      grades = user.current_unity.classrooms.map(&:grade).uniq
+      grades = user.current_unity.classrooms.with_grade.map(&:grade).uniq
     end
 
     options[:elements] = grades
