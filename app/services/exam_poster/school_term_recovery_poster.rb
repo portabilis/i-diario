@@ -29,6 +29,7 @@ module ExamPoster
 
           next if !correct_score_type(classroom.exam_rule.score_type)
           next if !same_unity(classroom.unity_id)
+          next unless step_exists_for_classroom?(classroom)
 
           teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, get_step(classroom))
           teacher_score_fetcher.fetch!
