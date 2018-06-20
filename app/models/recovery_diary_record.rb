@@ -20,6 +20,10 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   has_one :final_recovery_diary_record
   has_one :avaliation_recovery_diary_record
 
+  scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_student_id, lambda { |student_id| joins(:students).where(recovery_diary_record_students: { student_id: student_id }) }
+
   validates_date :recorded_at
   validates :unity, presence: true
   validates :classroom, presence: true

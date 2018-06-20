@@ -5,7 +5,6 @@ require 'app/services/student_average_calculator'
 require 'app/queries/student_notes_query'
 
 RSpec.describe StudentAverageCalculator, type: :service do
-
   let(:student) { double(:student) }
   let(:classroom) { double(:classroom) }
   let(:discipline) { double(:discipline) }
@@ -21,10 +20,18 @@ RSpec.describe StudentAverageCalculator, type: :service do
   let(:score_rounder) { double(:score_rounder) }
   let(:student_avaliation_exemption_query) { double(:student_avaliation_exemption_query) }
   let(:maximum_score) { double(:maximum_score) }
+  let(:score_1) { double(:score_1) }
+  let(:score_2) { double(:score_2) }
+  let(:students_1) { double(:students_1) }
+  let(:students_2) { double(:students_2) }
+  let(:student_1) { double(:student_1) }
+  let(:student_2) { double(:student_2) }
 
   let(:daily_note_student_1) { double(:daily_note_student_1) }
   let(:daily_note_student_2) { double(:daily_note_student_2) }
   let(:daily_note_student_3) { double(:daily_note_student_3) }
+  let(:recovery_diary_record_1) { double(:recovery_diary_record_1) }
+  let(:recovery_diary_record_2) { double(:recovery_diary_record_2) }
   let(:daily_note_1) { double(:daily_note_student_1) }
   let(:daily_note_2) { double(:daily_note_student_2) }
   let(:daily_note_3) { double(:daily_note_student_3) }
@@ -43,7 +50,8 @@ RSpec.describe StudentAverageCalculator, type: :service do
   let(:recovered_note_1) { nil }
   let(:recovered_note_2) { nil }
   let(:recovered_note_3) { nil }
-  let(:daily_note_students) { nil }
+  let(:daily_note_students) { [] }
+  let(:recovery_diary_records) { [] }
 
   subject do
     StudentAverageCalculator.new(student)
@@ -59,7 +67,10 @@ RSpec.describe StudentAverageCalculator, type: :service do
     stub_daily_note_student_1
     stub_daily_note_student_2
     stub_daily_note_student_3
+    stub_recovery_diary_record_1
+    stub_recovery_diary_record_2
     stub_avaliations
+    stub_student
   end
 
   describe '#calculate' do
@@ -70,85 +81,96 @@ RSpec.describe StudentAverageCalculator, type: :service do
       let(:daily_note_students) { [daily_note_student_1, daily_note_student_2] }
 
       before { allow(score_rounder).to receive(:round).with(11.0).and_return(11.0) }
-      it "should work" do
-        expect(subject.calculate(classroom, discipline, school_calendar_step)).not_to eq(nil)
-      end
 
       it "should calculate the average correctly" do
         expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(11.0)
       end
     end
 
-  context 'when the calculation type is arithmetic' do
-    let(:recovered_note_1) { 9.0 }
-    let(:recovered_note_2) { 8.0 }
-    let(:recovered_note_3) { 10.0 }
-    let(:arithmetic_calculation_type?) { true }
-    let(:daily_note_students) { [daily_note_student_1, daily_note_student_2, daily_note_student_3] }
+    context 'when the calculation type is arithmetic' do
+      let(:recovered_note_1) { 9.0 }
+      let(:recovered_note_2) { 8.0 }
+      let(:recovered_note_3) { 10.0 }
+      let(:arithmetic_calculation_type?) { true }
+      let(:daily_note_students) { [daily_note_student_1, daily_note_student_2, daily_note_student_3] }
 
-    before { allow(score_rounder).to receive(:round).with(9.0).and_return(9.0) }
+      before { allow(score_rounder).to receive(:round).with(9.0).and_return(9.0) }
 
-    it "should calculate the average correctly" do
-      expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(9.0)
-    end
+      it "should calculate the average correctly" do
+        expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(9.0)
+      end
 
       context 'with one exempted avaliation' do
         let(:avaliation_3_exempted?) { true }
         let(:recovered_note_3) { nil }
 
-        let(:daily_note_students) { [daily_note_student_1, daily_note_student_2, daily_note_student_3] }
         before { allow(score_rounder).to receive(:round).with(8.5).and_return(8.5) }
+
         it "should not consider the exempted avaliation" do
           expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(8.5)
         end
       end
     end
-  end
 
-  context "when the calculation type is arithmetic and sum" do
-    let(:recovered_note_1) { 9.0 }
-    let(:recovered_note_2) { 8.0 }
-    let(:recovered_note_3) { 10.0 }
-    let(:arithmetic_and_sum_calculation_type?) { true }
-    let(:daily_note_students) { [daily_note_student_1, daily_note_student_2, daily_note_student_3] }
-    let(:weight_avaliation_1) { 10 }
-    let(:weight_avaliation_2) { 10 }
-    let(:weight_avaliation_3) { 10 }
-    let(:maximum_score) { 10 }
-    before { allow(score_rounder).to receive(:round).with(9.0).and_return(9.0) }
-    it "should work" do
-      expect(subject.calculate(classroom, discipline, school_calendar_step)).not_to eq(nil)
-    end
-    it "should calculate correctly" do
-      expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(9.0)
-    end
-
-    context "having avaliations with different weights" do
+    context "when the calculation type is arithmetic and sum" do
       let(:recovered_note_1) { 9.0 }
       let(:recovered_note_2) { 8.0 }
       let(:recovered_note_3) { 10.0 }
-
-      let(:weight_avaliation_1) { 9.0 }
-      let(:weight_avaliation_2) { 8.0 }
-      let(:weight_avaliation_3) { 10.0 }
-      before { allow(score_rounder).to receive(:round).with(10.0).and_return(10.0) }
-      it "should return the max note" do
-        expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(10.0)
-      end
-    end
-
-    context "with one exempted avaliation" do
-      let(:avaliation_3_exempted?) { true }
-      let(:recovered_note_1) { 9.0 }
-      let(:recovered_note_2) { 8.0 }
-      let(:recovered_note_3) { nil }
+      let(:arithmetic_and_sum_calculation_type?) { true }
+      let(:daily_note_students) { [daily_note_student_1, daily_note_student_2, daily_note_student_3] }
       let(:weight_avaliation_1) { 10 }
       let(:weight_avaliation_2) { 10 }
       let(:weight_avaliation_3) { 10 }
+      let(:maximum_score) { 10 }
 
-      before { allow(score_rounder).to receive(:round).with(8.5).and_return(8.5) }
-      it "should not consider the exempted avaliation weight" do
-        expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(8.5)
+      before { allow(score_rounder).to receive(:round).with(9.0).and_return(9.0) }
+
+      it "should calculate correctly" do
+        expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(9.0)
+      end
+
+      context "having avaliations with different weights" do
+        let(:recovered_note_1) { 9.0 }
+        let(:recovered_note_2) { 8.0 }
+        let(:recovered_note_3) { 10.0 }
+        let(:weight_avaliation_1) { 9.0 }
+        let(:weight_avaliation_2) { 8.0 }
+        let(:weight_avaliation_3) { 10.0 }
+
+        before { allow(score_rounder).to receive(:round).with(10.0).and_return(10.0) }
+
+        it "should return the max note" do
+          expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(10.0)
+        end
+      end
+
+      context "with one exempted avaliation" do
+        let(:avaliation_3_exempted?) { true }
+        let(:recovered_note_1) { 9.0 }
+        let(:recovered_note_2) { 8.0 }
+        let(:recovered_note_3) { nil }
+        let(:weight_avaliation_1) { 10 }
+        let(:weight_avaliation_2) { 10 }
+        let(:weight_avaliation_3) { 10 }
+
+        before { allow(score_rounder).to receive(:round).with(8.5).and_return(8.5) }
+
+        it "should not consider the exempted avaliation weight" do
+          expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(8.5)
+        end
+      end
+    end
+
+    context 'when the calculation type is sum and have no daily_note_student' do
+      let(:score_1) { 9.0 }
+      let(:score_2) { 2.0 }
+      let(:sum_calculation_type?) { true }
+      let(:recovery_diary_records) { [recovery_diary_record_1, recovery_diary_record_2] }
+
+      before { allow(score_rounder).to receive(:round).with(11.0).and_return(11.0) }
+
+      it "calculates average using recovery_diary_records without daily_note_student" do
+        expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(11.0)
       end
     end
   end
@@ -167,6 +189,7 @@ RSpec.describe StudentAverageCalculator, type: :service do
       receive(:new).with(student, discipline, classroom, start_at, end_at).and_return(student_notes_query)
     )
     allow(student_notes_query).to receive(:daily_note_students).and_return(daily_note_students)
+    allow(student_notes_query).to receive(:recovery_diary_records).and_return(recovery_diary_records)
   end
 
   def stub_test_setting
@@ -192,6 +215,18 @@ RSpec.describe StudentAverageCalculator, type: :service do
     allow(daily_note_student_3).to receive(:recovered_note).and_return(recovered_note_3)
     allow(daily_note_student_3).to receive(:daily_note).and_return(daily_note_3)
     allow(daily_note_3).to receive(:avaliation).and_return(avaliation_3)
+  end
+
+  def stub_recovery_diary_record_1
+    allow(recovery_diary_record_1).to receive(:students).and_return(students_1)
+    allow(students_1).to receive(:find_by_student_id).and_return(student_1)
+    allow(student_1).to receive(:score).and_return(score_1)
+  end
+
+  def stub_recovery_diary_record_2
+    allow(recovery_diary_record_2).to receive(:students).and_return(students_2)
+    allow(students_2).to receive(:find_by_student_id).and_return(student_2)
+    allow(student_2).to receive(:score).and_return(score_2)
   end
 
   def stub_score_rounder
@@ -225,5 +260,9 @@ RSpec.describe StudentAverageCalculator, type: :service do
     allow(avaliation_1).to receive(:weight).and_return(weight_avaliation_1)
     allow(avaliation_2).to receive(:weight).and_return(weight_avaliation_2)
     allow(avaliation_3).to receive(:weight).and_return(weight_avaliation_3)
+  end
+
+  def stub_student
+    allow(student).to receive(:id).and_return(student_1)
   end
 end
