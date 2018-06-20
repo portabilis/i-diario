@@ -42,11 +42,11 @@ module ExamPoster
         if has_classroom_steps(classroom)
           conceptual_exams = ConceptualExam.by_classroom(classroom)
                                            .by_unity(@post_data.step.school_calendar.unity)
-                                           .by_school_calendar_classroom_step(@post_data.step)
+                                           .by_school_calendar_classroom_step(get_step(classroom))
         else
           conceptual_exams = ConceptualExam.by_classroom(classroom)
                                            .by_unity(@post_data.step.school_calendar.unity)
-                                           .by_school_calendar_step(@post_data.step)
+                                           .by_school_calendar_step(get_step(classroom))
         end
 
         conceptual_exams.each do |conceptual_exam|
