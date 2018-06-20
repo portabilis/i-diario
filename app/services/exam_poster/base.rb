@@ -21,10 +21,6 @@ module ExamPoster
       end
     end
 
-    def has_classroom_steps(classroom)
-      classroom.calendar
-    end
-
     def get_step(classroom)
       raise InvalidClassroomError if invalid_classroom_year?(classroom)
 
