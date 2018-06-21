@@ -20,7 +20,7 @@ module ExamPoster
     end
 
     def teacher
-      @post_data.author.current_teacher
+      @post_data.teacher || @post_data.author.current_teacher
     end
   end
 end
