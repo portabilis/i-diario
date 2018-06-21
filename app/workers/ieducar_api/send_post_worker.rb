@@ -11,7 +11,7 @@ module Ieducar
         posting = IeducarApiExamPosting.find(posting_id)
         worker_batch = WorkerBatch.find(worker_batch_id)
 
-        IeducarApi::PostExams.new(posting.to_api).send_post(params)
+        IeducarApi::PostExams.new(posting.to_api).send_post(params.with_indifferent_access)
 
         worker_batch.with_lock do
           worker_batch.update_attributes!(
