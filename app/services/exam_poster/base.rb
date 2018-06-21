@@ -4,14 +4,20 @@ module ExamPoster
 
     attr_accessor :warning_messages
 
-    def initialize(post_data)
+    def initialize(post_data, entity_id = nil, batch = nil)
       @post_data = post_data
+      @entity_id = entity_id
+      @worker_batch = batch
       @warning_messages = []
     end
 
     def post!
       raise NotImplementedError
     end
+
+    private
+
+    attr_reader :worker_batch, :entity_id
 
     def step_exists_for_classroom?(classroom)
       return false if invalid_classroom_year?(classroom)
