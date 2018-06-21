@@ -2,15 +2,16 @@ class DisciplineTeachingPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_teacher
+  before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
 
   def index
     @discipline_teaching_plans = apply_scopes(DisciplineTeachingPlan)
       .includes(:discipline, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
-      .by_grade(current_user_classroom.try(:grade))
-      .by_discipline(current_user_discipline)
-      .by_teacher_id(current_teacher.id)
+      .by_teacher_id_or_is_null(current_teacher.try(:id))
+
+    @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.try(:grade))
+      .by_discipline(current_user_discipline) unless current_user_is_employee_or_administrator?
 
     authorize @discipline_teaching_plans
 
@@ -61,7 +62,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
     authorize @discipline_teaching_plan
 
-    @discipline_teaching_plan.teaching_plan.teacher_id = current_teacher.id
+    @discipline_teaching_plan.teaching_plan.teacher_id = current_teacher.id unless current_user_is_employee_or_administrator?
 
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
@@ -160,14 +161,19 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def fetch_grades
     @grades = Grade.by_unity(current_user_unity)
-      .by_teacher(current_teacher)
       .by_year(current_school_calendar.year)
       .ordered
+
+    @grades = @grades.by_teacher(current_teacher) unless current_user_is_employee_or_administrator?
   end
 
   def fetch_disciplines
-    @disciplines = Discipline.where(id: current_user_discipline)
+    if current_user_is_employee_or_administrator?
+      @disciplines = Discipline.by_unity_id(current_user_unity)
+    else
+      @disciplines = Discipline.where(id: current_user_discipline)
       .ordered
+    end
 
     if @discipline_teaching_plan.present?
       @disciplines = @disciplines.by_grade(

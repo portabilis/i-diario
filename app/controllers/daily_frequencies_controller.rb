@@ -121,6 +121,7 @@ class DailyFrequenciesController < ApplicationController
       persisted_student_ids = daily_frequency.students.map(&:student_id)
 
       @students.each do |student|
+        next if student[:exempted_from_discipline]
         if persisted_student_ids.none? { |student_id| student_id == student[:student].id }
           begin
             daily_frequency.students.create(student_id: student[:student].id, dependence: student[:dependence], present: true, active: student[:active])
