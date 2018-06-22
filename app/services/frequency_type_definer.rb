@@ -1,5 +1,4 @@
 class FrequencyTypeDefiner
-
   attr_reader :frequency_type
 
   def initialize(classroom, teacher, exam_rule = nil)
@@ -9,33 +8,21 @@ class FrequencyTypeDefiner
   end
 
   def define!
-    if !@classroom
-      return
-    end
+    return if @classroom.blank? || @exam_rule.blank?
 
-    if !@teacher
-      @frequency_type = @exam_rule.frequency_type
-      return
-    end
+    return if @teacher.blank? && @frequency_type = @exam_rule.frequency_type
 
-    if @exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
-      @frequency_type = FrequencyTypes::BY_DISCIPLINE
-      return
-    end
+    return if @exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE && @frequency_type = FrequencyTypes::BY_DISCIPLINE
 
-    allow_absence_by_discipline_record = TeacherDisciplineClassroom
-        .find_by(teacher_id: @teacher.id,
-                 classroom_id: @classroom.id,
-                 year: current_year,
-                 allow_absence_by_discipline: 1,
-                 active: true)
+    allow_absence_by_discipline_record = TeacherDisciplineClassroom.find_by(
+      teacher_id: @teacher.id,
+      classroom_id: @classroom.id,
+      year: current_year,
+      allow_absence_by_discipline: 1,
+      active: true
+    )
 
-    if allow_absence_by_discipline_record
-      @frequency_type = FrequencyTypes::BY_DISCIPLINE
-    else
-      @frequency_type = FrequencyTypes::GENERAL
-    end
-
+    @frequency_type = allow_absence_by_discipline_record ? FrequencyTypes::BY_DISCIPLINE : FrequencyTypes::GENERAL
   end
 
   def current_year
