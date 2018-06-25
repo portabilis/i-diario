@@ -13,13 +13,15 @@ RSpec.describe IeducarApiSynchronization, :type => :model do
   describe "#mark_as_error!" do
     it "should mark synchronization as error and set the error message" do
       message = double
+      full_error_message = double
 
       expect(subject).to receive(:update_columns).with(
         status: ApiSynchronizationStatus::ERROR,
-        error_message: message
+        error_message: message,
+        full_error_message: full_error_message,
       )
 
-      subject.mark_as_error!(message)
+      subject.mark_as_error!(message, full_error_message)
     end
   end
 
