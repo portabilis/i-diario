@@ -55,13 +55,13 @@ module ExamPoster
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
 
-        if has_classroom_steps(classroom)
+        if classroom.calendar
           exams = DescriptiveExamStudent.includes(:student)
-                                        .by_classroom_and_classroom_step(classroom, get_step(classroom).id)
+                                        .by_classroom_and_classroom_step(classroom, @post_data.step.id)
                                         .ordered
         else
           exams = DescriptiveExamStudent.includes(:student)
-                                        .by_classroom_and_step(classroom, get_step(classroom).id)
+                                        .by_classroom_and_step(classroom, @post_data.step.id)
                                         .ordered
         end
 
@@ -119,10 +119,10 @@ module ExamPoster
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
 
-        if has_classroom_steps(classroom)
-          exams = DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, get_step(classroom).id).ordered
+        if classroom.calendar
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, @post_data.step.id).ordered
         else
-          exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, get_step(classroom).id).ordered
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, @post_data.step.id).ordered
         end
 
         exams.each do |exam|
