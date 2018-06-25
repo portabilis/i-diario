@@ -1,6 +1,8 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
+  sidekiq_options unique: :until_and_while_executing, retry: 5
+
   def perform(entity_id = nil, synchronization_id = nil)
     if entity_id
       entity = Entity.find(entity_id)
