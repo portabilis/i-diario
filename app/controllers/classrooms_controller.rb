@@ -12,6 +12,9 @@ class ClassroomsController < ApplicationController
     score_type = params[:score_type]
 
     @classrooms = apply_scopes(Classroom).ordered
+    if params[:include_unity]
+      @classrooms = @classrooms.includes(:unity)
+    end
     @classrooms = @classrooms.by_teacher_id(teacher_id) if teacher_id
     @classrooms = @classrooms.by_score_type(ScoreTypes.value_for(score_type.upcase)) if score_type
     @classrooms = @classrooms.by_year(year) if year
