@@ -10,13 +10,7 @@
         <td><%= avaliation.classroom %></td>
         <td><%= avaliation.discipline %></td>
         <td><%= l(avaliation.test_date) %></td>
-        <td>
-          <% avaliation.classes.each do |class_number| %>
-            <span class="label label-info label-list">
-              <%= class_number %>
-            </span>
-          <% end %>
-        </td>
+        <td><%= avaliation.current_step %></td>
         <td><%= avaliation %></td>
         <td class="actions">
           <%= link_to t('views.index.edit'), edit_avaliation_path(avaliation), class: 'btn btn-success' %>
