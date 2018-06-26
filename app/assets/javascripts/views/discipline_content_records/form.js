@@ -178,11 +178,13 @@ $(function () {
         });
         $('#contents-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
-        $('.discipline_content_record_content_record_contents_tags .select2-input').val("");
       }else{
-        $('input[type=checkbox][data-content_description="'+content_description+'"]').prop('checked', true)
-                                                                                    .trigger('change');
+        var content_input = $('input[type=checkbox][data-content_description="'+content_description+'"]');
+        content_input.closest('li').show();
+        content_input.prop('checked', true).trigger('change');
       }
+
+      $('.discipline_content_record_content_record_contents_tags .select2-input').val("");
     }
     $(this).select2('val', '');
   });
@@ -197,3 +199,22 @@ $(function () {
       }
   }
 });
+
+function hideContentRecord(content) {
+  content.find("input[type=checkbox]").prop('checked', true);
+  content.hide();
+}
+
+function editContentRecord(id) {
+  var content = $('#' + id);
+  var inputAddContent = $('.discipline_content_record_content_record_contents_tags .select2-input')
+  inputAddContent.val(content.find("input[type=checkbox]").data('content_description'));
+  inputAddContent.trigger('click');
+  inputAddContent.focus();
+  hideContentRecord(content);
+}
+
+function removeContentRecord(id) {
+  var content = $('#' + id);
+  hideContentRecord(content);
+}
