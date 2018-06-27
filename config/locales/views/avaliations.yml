@@ -5,6 +5,7 @@ pt-BR:
       by_discipline_id: "Filtrar disciplina"
       by_test_date: "Filtrar data"
       by_description: "Filtrar descrição"
+      by_step_id: "Filtrar etapa"
       new_html: "<i class='fa fa-plus'></i> Nova avaliação numérica"
       new_single: "Da turma"
       new_multiple: "De múltiplas turmas"

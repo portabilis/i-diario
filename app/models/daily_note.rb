@@ -48,6 +48,16 @@ class DailyNote < ActiveRecord::Base
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
   delegate :test_date, :school_calendar, to: :avaliation
 
+  def current_step
+    return unless avaliation.school_calendar
+
+    school_calendar_classroom = avaliation.school_calendar.classrooms.find_by_classroom_id(classroom.id)
+
+    return school_calendar_classroom.classroom_step(test_date) if school_calendar_classroom.present?
+
+    avaliation.school_calendar.step(test_date)
+  end
+
   private
 
   def self.by_teacher_id_query(teacher_id)

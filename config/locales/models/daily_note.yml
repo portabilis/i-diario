@@ -15,6 +15,7 @@ pt-BR:
         discipline_id: "Disciplina"
         avaliation: "Avaliação"
         avaliation_id: "Avaliação"
+        step: "Etapa"
         status: "Situação"
 
     errors:
