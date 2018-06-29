@@ -1,21 +1,25 @@
 module ExamPoster
   class FinalRecoveryPoster < Base
-    def self.post!(post_data)
-      new(post_data).post!
-    end
 
-    def post!
+    private
+
+    def generate_requests
       params = build_params
-
       params.each do |classroom_id, classroom_score|
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
-            api.send_post(notas: { classroom_id => { student_id => { discipline_id => discipline_score } } })
+            self.requests << {
+              notas: {
+                classroom_id => {
+                  student_id => {
+                    discipline_id => discipline_score
+                  }
+                }
+              }
+            }
           end
         end
       end
-
-      return { warning_messages: @warning_messages }
     end
 
     private

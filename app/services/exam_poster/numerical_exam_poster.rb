@@ -1,15 +1,13 @@
 module ExamPoster
   class NumericalExamPoster < Base
-    def self.post!(post_data, entity_id = nil, worker_batch = nil)
-      new(post_data, entity_id, worker_batch).post!
-    end
 
-    def post!
-      requests = []
+    private
+
+    def generate_requests
       post_by_classrooms.each do |classroom_id, classroom_score|
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
-            requests << {
+            self.requests << {
               etapa: @post_data.step.to_number,
               resource: 'notas',
               notas: {
@@ -23,13 +21,6 @@ module ExamPoster
           end
         end
       end
-
-      worker_batch.update_attributes!(total_workers: requests.count)
-      requests.each do |request|
-        Ieducar::SendPostWorker.perform_async(entity_id, @post_data.id, request, worker_batch.id)
-      end
-
-      return { warning_messages: @warning_messages }
     end
 
     def post_by_classrooms
@@ -68,8 +59,6 @@ module ExamPoster
       end
       return scores
     end
-
-    private
 
     def same_unity(unity_id)
       unity_id == @post_data.step.school_calendar.unity_id

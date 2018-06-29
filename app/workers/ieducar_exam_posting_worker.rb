@@ -19,15 +19,15 @@ class IeducarExamPostingWorker
           when ApiPostingTypes::NUMERICAL_EXAM
             ExamPoster::NumericalExamPoster.post!(posting, entity_id, worker_batch)
           when ApiPostingTypes::CONCEPTUAL_EXAM
-            ExamPoster::ConceptualExamPoster.post!(posting)
+            ExamPoster::ConceptualExamPoster.post!(posting, entity_id, worker_batch)
           when ApiPostingTypes::DESCRIPTIVE_EXAM
-            ExamPoster::DescriptiveExamPoster.post!(posting)
+            ExamPoster::DescriptiveExamPoster.post!(posting, entity_id, worker_batch)
           when ApiPostingTypes::ABSENCE
-            ExamPoster::AbsencePoster.post!(posting)
+            ExamPoster::AbsencePoster.post!(posting, entity_id, worker_batch)
           when ApiPostingTypes::FINAL_RECOVERY
-            ExamPoster::FinalRecoveryPoster.post!(posting)
+            ExamPoster::FinalRecoveryPoster.post!(posting, entity_id, worker_batch)
           when ApiPostingTypes::SCHOOL_TERM_RECOVERY
-            ExamPoster::SchoolTermRecoveryPoster.post!(posting)
+            ExamPoster::SchoolTermRecoveryPoster.post!(posting, entity_id, worker_batch)
           end
 
         posting.mark_as_warning!(messages[:warning_messages]) if !messages[:warning_messages].empty?
