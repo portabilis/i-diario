@@ -54,7 +54,9 @@ module Ieducar
 
     def api(posting)
       case posting.post_type
-      when ApiPostingTypes::NUMERICAL_EXAM || ApiPostingTypes::CONCEPTUAL_EXAM
+      when ApiPostingTypes::NUMERICAL_EXAM
+        IeducarApi::PostExams.new(posting.to_api)
+      when ApiPostingTypes::CONCEPTUAL_EXAM
         IeducarApi::PostExams.new(posting.to_api)
       when ApiPostingTypes::DESCRIPTIVE_EXAM
         IeducarApi::PostDescriptiveExams.new(posting.to_api)
