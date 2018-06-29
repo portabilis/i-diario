@@ -1,21 +1,8 @@
-require "prawn/measurement_extensions"
-
-class AttendanceRecordReport
-  include Prawn::View
-
+class AttendanceRecordReport < BaseReport
   STUDENTS_BY_PAGE = 29
 
   def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
-    new.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
-  end
-
-  def initialize
-    @document = Prawn::Document.new(page_size: 'A4',
-                                    page_layout: :landscape,
-                                    left_margin: 5.mm,
-                                    right_margin: 5.mm,
-                                    top_margin: 5.mm,
-                                    bottom_margin: 5.mm)
+    new(:landscape).build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
   end
 
   def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
@@ -31,8 +18,8 @@ class AttendanceRecordReport
 
     self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
 
+    header
     content
-
     footer
 
     self
@@ -73,12 +60,14 @@ class AttendanceRecordReport
                         [discipline_header, teacher_header],
                         [discipline_cell, teacher_cell]]
 
-    table(first_table_data, width: bounds.width, header: true) do
-      cells.border_width = 0.25
-      row(0).border_top_width = 0.25
-      row(-1).border_bottom_width = 0.25
-      column(0).border_left_width = 0.25
-      column(-1).border_right_width = 0.25
+    page_header do
+      table(first_table_data, width: bounds.width, header: true) do
+        cells.border_width = 0.25
+        row(0).border_top_width = 0.25
+        row(-1).border_bottom_width = 0.25
+        column(0).border_left_width = 0.25
+        column(-1).border_right_width = 0.25
+      end
     end
   end
 
@@ -192,15 +181,16 @@ class AttendanceRecordReport
         column_widths = { 0 => 20, 1 => 140, 43 => 30 }
         (3..42).each { |i| column_widths[i] = 13 }
 
-        move_down 8
-
-        table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] }, column_widths: column_widths, width: bounds.width) do |t|
-          t.cells.border_width = 0.25
-          t.before_rendering_page do |page|
-            page.row(0).border_top_width = 0.25
-            page.row(-1).border_bottom_width = 0.25
-            page.column(0).border_left_width = 0.25
-            page.column(-1).border_right_width = 0.25
+        page_content do
+          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] },
+                column_widths: column_widths, width: bounds.width) do |t|
+            t.cells.border_width = 0.25
+            t.before_rendering_page do |page|
+              page.row(0).border_top_width = 0.25
+              page.row(-1).border_bottom_width = 0.25
+              page.column(0).border_left_width = 0.25
+              page.column(-1).border_right_width = 0.25
+            end
           end
         end
 
@@ -215,32 +205,26 @@ class AttendanceRecordReport
   end
 
   def content
-    header
     daily_frequencies_table
   end
 
   def footer
-    repeat(:all) do
-      draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
-      draw_text('____________________________', size: 8, at: [117, 0])
+    page_footer do
+      repeat(:all) do
+        draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
+        draw_text('____________________________', size: 8, at: [117, 0])
 
-      draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
-      draw_text('____________________________', size: 8, at: [429, 0])
+        draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
+        draw_text('____________________________', size: 8, at: [429, 0])
 
-      draw_text('Data:', size: 8, style: :bold, at: [559, 0])
-      draw_text('________________', size: 8, at: [581, 0])
+        draw_text('Data:', size: 8, style: :bold, at: [559, 0])
+        draw_text('________________', size: 8, at: [581, 0])
 
-      if(self.any_student_with_dependence)
-        draw_text('* Alunos cursando dependência', size: 8, at: [0, 47])
+        if(self.any_student_with_dependence)
+          draw_text('* Alunos cursando dependência', size: 8, at: [0, 47])
+        end
       end
     end
-
-    string = "Página <page> de <total>"
-    options = { at: [bounds.right - 150, 6],
-                width: 150,
-                size: 8,
-                align: :right }
-    number_pages(string, options)
   end
 
   def event?(record)
