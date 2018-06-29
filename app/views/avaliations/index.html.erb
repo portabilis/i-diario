@@ -11,7 +11,7 @@
               <%= f.input :by_test_date, as: :date, label: false,
                     placeholder: t('.by_test_date') %>
             </td>
-            <td></td>
+            <td><%= f.input :by_step_id, as: :select2, elements: @steps, label: false, placeholder: t('.by_step_id') %></td>
             <td><%= f.input :by_description, label: false, placeholder: t('.by_description') %></td>
             <td class="actions" style="width: 160px;">
               <div class="btn-group">
@@ -34,7 +34,7 @@
             <th><%= Avaliation.human_attribute_name :classroom %></th>
             <th><%= Avaliation.human_attribute_name :discipline %></th>
             <th><%= Avaliation.human_attribute_name :test_date %></th>
-            <th><%= Avaliation.human_attribute_name :classes %></th>
+            <th><%= Avaliation.human_attribute_name :step %></th>
             <th><%= Avaliation.human_attribute_name :description %></th>
             <td width="190px"></td>
           </tr>
