@@ -69,10 +69,6 @@ module ExamPoster
 
     protected
 
-    def api
-      IeducarApi::PostDescriptiveExams.new(@post_data.to_api)
-    end
-
     def post_by_step
       descriptive_exams = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
 

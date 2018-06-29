@@ -19,7 +19,7 @@ module Ieducar
         return if posting.error?
 
         begin
-          IeducarApi::PostExams.new(posting.to_api).send_post(params)
+          api(posting).send_post(params)
         rescue Exception => e
           if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
             posting.add_warning!("Componente curricular '#{discipline(params)}' não existe para a turma '#{classroom(params)}'")
@@ -50,6 +50,21 @@ module Ieducar
 
       @classrooms ||= {}
       @classrooms[classroom_id] ||= Classroom.find_by(api_code: classroom_id).description
+    end
+
+    def api(posting)
+      case posting.post_type
+      when ApiPostingTypes::NUMERICAL_EXAM || ApiPostingTypes::CONCEPTUAL_EXAM
+        IeducarApi::PostExams.new(posting.to_api)
+      when ApiPostingTypes::DESCRIPTIVE_EXAM
+        IeducarApi::PostDescriptiveExams.new(posting.to_api)
+      when ApiPostingTypes::ABSENCE
+        IeducarApi::PostAbsences.new(posting.to_api)
+      when ApiPostingTypes::FINAL_RECOVERY
+        IeducarApi::FinalRecoveries.new(posting.to_api)
+      when ApiPostingTypes::SCHOOL_TERM_RECOVERY
+        IeducarApi::PostRecoveries.new(posting.to_api)
+      end
     end
   end
 end

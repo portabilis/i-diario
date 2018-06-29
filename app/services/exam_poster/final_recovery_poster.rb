@@ -24,10 +24,6 @@ module ExamPoster
 
     private
 
-    def api
-      IeducarApi::FinalRecoveries.new(@post_data.to_api)
-    end
-
     def build_params
       params = Hash.new{ |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 

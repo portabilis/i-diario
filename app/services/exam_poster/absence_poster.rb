@@ -39,10 +39,6 @@ module ExamPoster
 
     protected
 
-    def api
-      IeducarApi::PostAbsences.new(@post_data.to_api)
-    end
-
     def post_general_classrooms
       absences = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 

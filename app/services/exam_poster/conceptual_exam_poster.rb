@@ -25,10 +25,6 @@ module ExamPoster
 
     private
 
-    def api
-      IeducarApi::PostExams.new(@post_data.to_api)
-    end
-
     def post_conceptual_exams
       params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 

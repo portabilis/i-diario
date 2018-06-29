@@ -77,10 +77,6 @@ module ExamPoster
 
     private
 
-    def api
-      IeducarApi::PostRecoveries.new(@post_data.to_api)
-    end
-
     def same_unity(unity_id)
       unity_id == @post_data.step.school_calendar.unity_id
     end
