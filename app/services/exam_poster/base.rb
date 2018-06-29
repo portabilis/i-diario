@@ -2,7 +2,7 @@ module ExamPoster
   class Base
     class InvalidClassroomError < StandardError; end
 
-    attr_accessor :warning_messages
+    attr_accessor :warning_messages, :requests
 
     def initialize(post_data, entity_id = nil, batch = nil)
       @post_data = post_data
@@ -24,12 +24,13 @@ module ExamPoster
         Ieducar::SendPostWorker.perform_async(entity_id, @post_data.id, request, worker_batch.id)
       end
 
-      return { warning_messages: @warning_messages }
+      @post_data.add_warning!(@warning_messages)
+      @post_data.mark_as_warning! if worker_batch.lock!.all_workers_finished?
     end
 
     private
 
-    attr_reader :worker_batch, :entity_id, :requests
+    attr_reader :worker_batch, :entity_id
 
     def step_exists_for_classroom?(classroom)
       return false if invalid_classroom_year?(classroom)

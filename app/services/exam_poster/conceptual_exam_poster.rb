@@ -7,31 +7,17 @@ module ExamPoster
       post_conceptual_exams.each do |classroom_id, conceptual_exam_classroom|
         conceptual_exam_classroom.each do |student_id, conceptual_exam_student|
           conceptual_exam_student.each do |discipline_id, conceptual_exam_discipline|
-          self.requests << {
-            etapa: @post_data.step.to_number,
-            resource: 'notas',
-            notas: {
-              classroom_id => {
-                student_id => {
-                  discipline_id => conceptual_exam_discipline
+            self.requests << {
+              etapa: @post_data.step.to_number,
+              resource: 'notas',
+              notas: {
+                classroom_id => {
+                  student_id => {
+                    discipline_id => conceptual_exam_discipline
+                  }
                 }
               }
             }
-          }
-
-            # begin
-            #   api.send_post( notas: { classroom_id => { student_id => { discipline_id => conceptual_exam_discipline } } },
-            #                  etapa: @post_data.step.to_number, resource: 'notas' )
-            # rescue Exception => e
-            #   if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
-            #     discipline = Discipline.find_by(api_code: discipline_id).description
-            #     classroom = Classroom.find_by(api_code: classroom_id).description
-            #     # TODO tratar
-            #     @warning_messages << "Componente curricular '#{discipline}' não existe para a turma '#{classroom}'"
-            #   end
-            #
-            #   raise e
-            # end
           end
         end
       end

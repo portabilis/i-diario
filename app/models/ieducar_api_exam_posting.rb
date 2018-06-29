@@ -41,11 +41,17 @@ class IeducarApiExamPosting < ActiveRecord::Base
     )
   end
 
-  def mark_as_warning!(message)
-    update_columns(
-      status: ApiSynchronizationStatus::WARNING,
-      warning_message: message
-    )
+  def mark_as_warning!(message = nil)
+    self.status = ApiSynchronizationStatus::WARNING
+    self.warning_message = message if message
+    self.save!
+  end
+
+  def add_warning!(messages)
+    with_lock do
+      self.warning_message += Array(messages)
+      save
+    end
   end
 
   def mark_as_completed!(message)
