@@ -16,13 +16,4 @@ class WorkerBatch < ActiveRecord::Base
       end
     end
   end
-
-  def self.finish!(worker_batch_id, done_info)
-    worker_batch = WorkerBatch.find(worker_batch_id)
-    worker_batch.with_lock do
-      if block_given? && worker_batch.all_workers_finished?
-        yield
-      end
-    end
-  end
 end
