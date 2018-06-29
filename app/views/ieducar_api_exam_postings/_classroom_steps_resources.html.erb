@@ -17,7 +17,7 @@
           <% if api_posting.status == ApiPostingStatus::STARTED %>
             <i class="fa fa-cog fa-spin"></i> Enviando
             <% if worker_batch = api_posting.worker_batch %>
-              (<span id='ieducar-posting-done-percentage' data-url='<%= done_percentage_ieducar_api_exam_posting_pt_br_path(api_posting.id) %>'><%= worker_batch.done_percentage %></span>%)
+              (<span class='ieducar-posting-done-percentage' data-url='<%= done_percentage_ieducar_api_exam_posting_pt_br_path(api_posting.id) %>'><%= worker_batch.done_percentage %></span>%)
             <% end %>
           <% else %>
             <% if api_posting.message.present? %>
