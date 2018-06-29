@@ -7,13 +7,13 @@ module ExamPoster
     def initialize(post_data, entity_id = nil, batch = nil)
       @post_data = post_data
       @entity_id = entity_id
-      @worker_batch = batch
+      @worker_batch = post_data.worker_batch
       @warning_messages = []
       @requests = []
     end
 
-    def self.post!(post_data, entity_id = nil, worker_batch = nil)
-      new(post_data, entity_id, worker_batch).post!
+    def self.post!(post_data, entity_id = nil)
+      new(post_data, entity_id).post!
     end
 
     def post!
@@ -21,7 +21,7 @@ module ExamPoster
 
       worker_batch.update_attributes!(total_workers: requests.count)
       requests.each do |request|
-        Ieducar::SendPostWorker.perform_async(entity_id, @post_data.id, request, worker_batch.id)
+        Ieducar::SendPostWorker.perform_async(entity_id, @post_data.id, request)
       end
 
       @post_data.add_warning!(@warning_messages)

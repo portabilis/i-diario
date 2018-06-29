@@ -16,12 +16,24 @@ class IeducarApiExamPostingsController < ApplicationController
     ieducar_api_exam_posting.teacher = current_user.current_teacher
     ieducar_api_exam_posting.status = ApiSynchronizationStatus::STARTED
     ieducar_api_exam_posting.ieducar_api_configuration = IeducarApiConfiguration.current
-
     ieducar_api_exam_posting.save!
 
-    IeducarExamPostingWorker.perform_async(current_entity.id, ieducar_api_exam_posting.id)
+
+    jid = IeducarExamPostingWorker.perform_async(current_entity.id, ieducar_api_exam_posting.id)
+
+    WorkerBatch.create!(
+      main_job_class: 'IeducarExamPostingWorker',
+      main_job_id: jid,
+      stateable: ieducar_api_exam_posting
+    )
 
     redirect_to ieducar_api_exam_postings_path
+  end
+
+  def done_percentage
+    posting = IeducarApiExamPosting.find(params[:id])
+
+    render json: { percentage: posting.worker_batch.done_percentage }
   end
 
   protected

@@ -11,6 +11,8 @@ class IeducarApiExamPosting < ActiveRecord::Base
   belongs_to :author, class_name: 'User'
   belongs_to :teacher
 
+  has_one :worker_batch, as: :stateable
+
   validates :ieducar_api_configuration, presence: true
   validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
   validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step

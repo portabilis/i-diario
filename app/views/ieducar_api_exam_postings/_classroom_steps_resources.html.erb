@@ -1,4 +1,8 @@
 <tbody>
+  <% content_for :js do %>
+    <%= render 'percentage_refresh' %>
+  <% end %>
+
   <% ApiPostingTypes.to_a.each do |value| %>
     <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != step.school_calendar_classroom.classroom_steps.to_a.last %>
 
@@ -12,6 +16,9 @@
         <% if api_posting %>
           <% if api_posting.status == ApiPostingStatus::STARTED %>
             <i class="fa fa-cog fa-spin"></i> Enviando
+            <% if worker_batch = api_posting.worker_batch %>
+              (<span id='ieducar-posting-done-percentage' data-url='<%= done_percentage_ieducar_api_exam_posting_pt_br_path(api_posting.id) %>'><%= worker_batch.done_percentage %></span>%)
+            <% end %>
           <% else %>
             <% if api_posting.message.present? %>
               <p class="success">

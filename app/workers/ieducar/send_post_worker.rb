@@ -13,8 +13,8 @@ module Ieducar
       end
     end
 
-    def perform(entity_id, posting_id, params, worker_batch_id)
-      performer(entity_id, posting_id, params, worker_batch_id) do |posting, params, worker_batch_id|
+    def perform(entity_id, posting_id, params)
+      performer(entity_id, posting_id, params) do |posting, params|
         params = params.with_indifferent_access
         return if posting.error?
 
@@ -28,7 +28,7 @@ module Ieducar
           raise e
         end
 
-        WorkerBatch.increment(worker_batch_id, params) do
+        posting.worker_batch.increment(params) do
           if posting.warning_message.any?
             posting.mark_as_warning!
           else

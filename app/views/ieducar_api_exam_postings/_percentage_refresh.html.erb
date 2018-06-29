@@ -1,0 +1,19 @@
+<script type="text/javascript">
+  function refreshDonePercentage() {
+    $("#ieducar-posting-done-percentage").each(function() {
+      var $percetage = $(this);
+      $.ajax({
+        beforeSend: function () {},
+        complete: function () {},
+        url: $percetage.data('url'),
+        success: function(data) {
+          $percetage.text(data.percentage);
+        }
+      });
+    });
+  };
+
+  setInterval(function() {
+    refreshDonePercentage();
+  }, 10000);
+</script>

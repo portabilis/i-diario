@@ -20,24 +20,20 @@ class IeducarExamPostingWorker
 
     entity.using_connection do
       posting = IeducarApiExamPosting.find(posting_id)
-      worker_batch = WorkerBatch.find_or_create_by!(
-        main_job_class: 'IeducarExamPostingWorker',
-        main_job_id: self.jid
-      )
 
       case posting.post_type
       when ApiPostingTypes::NUMERICAL_EXAM
-        ExamPoster::NumericalExamPoster.post!(posting, entity_id, worker_batch)
+        ExamPoster::NumericalExamPoster.post!(posting, entity_id)
       when ApiPostingTypes::CONCEPTUAL_EXAM
-        ExamPoster::ConceptualExamPoster.post!(posting, entity_id, worker_batch)
+        ExamPoster::ConceptualExamPoster.post!(posting, entity_id)
       when ApiPostingTypes::DESCRIPTIVE_EXAM
-        ExamPoster::DescriptiveExamPoster.post!(posting, entity_id, worker_batch)
+        ExamPoster::DescriptiveExamPoster.post!(posting, entity_id)
       when ApiPostingTypes::ABSENCE
-        ExamPoster::AbsencePoster.post!(posting, entity_id, worker_batch)
+        ExamPoster::AbsencePoster.post!(posting, entity_id)
       when ApiPostingTypes::FINAL_RECOVERY
-        ExamPoster::FinalRecoveryPoster.post!(posting, entity_id, worker_batch)
+        ExamPoster::FinalRecoveryPoster.post!(posting, entity_id)
       when ApiPostingTypes::SCHOOL_TERM_RECOVERY
-        ExamPoster::SchoolTermRecoveryPoster.post!(posting, entity_id, worker_batch)
+        ExamPoster::SchoolTermRecoveryPoster.post!(posting, entity_id)
       end
     end
   end
