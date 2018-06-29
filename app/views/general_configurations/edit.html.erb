@@ -21,6 +21,11 @@
         </div>
       </div>
       <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :display_header_on_all_reports_pages, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
         <div class="col col-sm-4">
           <%= f.association :students_default_role, as: :select2, elements: Role.ordered %>
         </div>
