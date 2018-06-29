@@ -50,7 +50,7 @@ class IeducarApiExamPosting < ActiveRecord::Base
   def add_warning!(messages)
     with_lock do
       self.warning_message += Array(messages)
-      save
+      save!
     end
   end
 
