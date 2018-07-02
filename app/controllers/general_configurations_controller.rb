@@ -30,7 +30,12 @@ class GeneralConfigurationsController < ApplicationController
 
   def permitted_attributes
     params.require(:general_configuration).permit(
-      :security_level, :students_default_role_id, :employees_default_role_id, :parents_default_role_id, :allows_after_sales_relationship
-      )
+      :security_level,
+      :students_default_role_id,
+      :employees_default_role_id,
+      :parents_default_role_id,
+      :allows_after_sales_relationship,
+      :display_header_on_all_reports_pages
+    )
   end
 end

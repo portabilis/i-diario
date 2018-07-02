@@ -1,19 +1,6 @@
-require "prawn/measurement_extensions"
-
-class KnowledgeAreaContentRecordReport
-  include Prawn::View
-
+class KnowledgeAreaContentRecordReport < BaseReport
   def self.build(entity_configuration, date_start, date_end, knowledge_area_content_records, current_teacher)
     new.build(entity_configuration, date_start, date_end, knowledge_area_content_records, current_teacher)
-  end
-
-  def initialize
-    @document = Prawn::Document.new(page_size: 'A4',
-                                    page_layout: :portrait,
-                                    left_margin: 5.mm,
-                                    right_margin: 5.mm,
-                                    top_margin: 5.mm,
-                                    bottom_margin: 5.mm)
   end
 
   def build(entity_configuration, date_start, date_end, knowledge_area_content_records, current_teacher)
@@ -23,9 +10,11 @@ class KnowledgeAreaContentRecordReport
     @knowledge_area_content_records = knowledge_area_content_records
     @current_teacher = current_teacher
     attributes
+
     header
     body
     footer
+
     self
   end
 
@@ -78,7 +67,7 @@ class KnowledgeAreaContentRecordReport
       ]
     ]
 
-    repeat(:all) do
+    page_header do
       table(table_data, width: bounds.width) do
         cells.border_width = 0.25
         row(0).border_top_width = 0.25
@@ -153,6 +142,8 @@ class KnowledgeAreaContentRecordReport
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+
+    move_down GAP
   end
 
   def general_information
@@ -180,9 +171,9 @@ class KnowledgeAreaContentRecordReport
         conteudo_cell
       ]
     end
+
     general_information_table_data = [general_information_headers]
     general_information_table_data.concat(general_information_cells)
-    move_down 8
 
     table(title_general_information, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -202,7 +193,7 @@ class KnowledgeAreaContentRecordReport
   end
 
   def body
-    bounding_box([0, 712], width: bounds.width, height: 700) do
+    page_content do
       identification
       general_information
       signatures
@@ -214,18 +205,5 @@ class KnowledgeAreaContentRecordReport
     move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
     text_box("______________________________________________\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
-  end
-
-  def footer
-    repeat(:all) do
-      draw_text("Data e hora: #{DateTime.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
-    end
-
-    string = "Página <page> de <total>"
-    options = { at: [bounds.right - 150, 6],
-                width: 150,
-                size: 8,
-                align: :right }
-    number_pages(string, options)
   end
 end
