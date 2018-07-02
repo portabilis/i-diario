@@ -1,13 +1,10 @@
-class ObservationRecordReport < BaseReport
-
-  protected
-
+class ObservationRecordReport < BaseReportOld
   def title
     t(:title)
   end
 
   def body
-    bounding_box([0, 712], width: bounds.width, height: 700) do
+    page_content do
       identification
       general_information
       signatures
@@ -62,6 +59,8 @@ class ObservationRecordReport < BaseReport
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+
+    move_down GAP
   end
 
   def general_information
@@ -101,8 +100,6 @@ class ObservationRecordReport < BaseReport
         ]
       end
     end
-
-    move_down 8
 
     table(title_general_information, width: bounds.width, header: true) do
       cells.border_width = 0.25

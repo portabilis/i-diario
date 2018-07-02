@@ -32,3 +32,6 @@ config/secrets.yml
 .ruby-gemset
 
 db/structure.sql
+
+# File to backport support new postgres to rails 4
+config/initializers/backport_pg_10_support_to_rails_4.rb
