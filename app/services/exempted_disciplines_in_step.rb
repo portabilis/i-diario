@@ -18,5 +18,6 @@ class ExemptedDisciplinesInStep
   def fetch_disciplines(step_number)
     SpecificStep.where(classroom_id: @classroom_id)
                 .where("not (? = ANY(string_to_array(used_steps, ',')::integer[]))", step_number)
+                .where.not(used_steps: '')
   end
 end
