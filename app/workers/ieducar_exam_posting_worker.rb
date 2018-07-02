@@ -39,7 +39,7 @@ class IeducarExamPostingWorker
 
         raise e
       rescue Exception => e
-        posting.mark_as_error!('Ocorreu um erro desconhecido.')
+        posting.mark_as_error!('Ocorreu um erro desconhecido.', e.message)
         raise e
       end
     end
