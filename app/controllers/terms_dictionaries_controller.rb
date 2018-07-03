@@ -35,6 +35,6 @@ class TermsDictionariesController < ApplicationController
   end
 
   def clear_cache_current_terms_dictionary
-    Rails.cache.delete('current_terms_dictionary')
+    Rails.cache.delete("#{current_entity.id}_current_terms_dictionary")
   end
 end
