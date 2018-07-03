@@ -63,11 +63,11 @@ class StudentAverageCalculator
     count = 0
 
     daily_note_students.each do |daily_note_student|
-      count += 1 unless avaliation_exempted?(daily_note_student.daily_note.avaliation)
+      count += 1 if daily_note_student.recovered_note
     end
 
     recovery_diary_records.each do |recovery_diary_record|
-      count += 1 unless avaliation_exempted?(recovery_diary_record.avaliation)
+      count += 1 if recovery_diary_record.students.find_by_student_id(student.id).try(&:score)
     end
 
     count
