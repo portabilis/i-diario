@@ -15,6 +15,8 @@ $(function(){
 
     if (!_.isEmpty(studentId) && !_.isEmpty(schoolCalendarStepId)){
       $.ajax({
+        beforeSend: function () {},
+        complete: function () {},
         url: Routes.dashboard_student_partial_scores_pt_br_path(
           {
             format: 'json',
