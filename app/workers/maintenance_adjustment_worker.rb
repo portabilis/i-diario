@@ -8,19 +8,25 @@ class MaintenanceAdjustmentWorker
       maintenance_adjustment = MaintenanceAdjustment.find(maintenance_adjustment_id)
 
       begin
-        maintenance_adjustment.update_column(:status, MaintenanceAdjustmentStatus::IN_PROGRESS)
+        maintenance_adjustment.update_attribute(:status, MaintenanceAdjustmentStatus::IN_PROGRESS)
 
         case maintenance_adjustment.kind
           when MaintenanceAdjustmentKinds::ABSENCE_ADJUSTMENTS then AbsenceAdjustmentsService.adjust(unities, maintenance_adjustment.year)
         end
 
-        maintenance_adjustment.update_column(:status, MaintenanceAdjustmentStatus::COMPLETED)
+        maintenance_adjustment.update_attributes(
+          status: MaintenanceAdjustmentStatus::COMPLETED,
+          error_message: ''
+        )
 
         notify_on_message(maintenance_adjustment, user_id)
       rescue Exception => e
         Honeybadger.notify(e)
 
-        maintenance_adjustment.update_column(:status, MaintenanceAdjustmentStatus::ERROR)
+        maintenance_adjustment.update_attributes(
+          status: MaintenanceAdjustmentStatus::ERROR,
+          error_message: e.message
+        )
       end
     end
   end

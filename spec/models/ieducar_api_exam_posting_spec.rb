@@ -15,7 +15,7 @@ RSpec.describe IeducarApiExamPosting, :type => :model do
   describe "#mark_as_error!" do
     it "should mark synchronization as error and set the error message" do
       message = double
-      full_error_message = Faker::Lorem.word
+      full_error_message = double
 
       expect(subject).to receive(:update_columns).with(
         status: ApiSynchronizationStatus::ERROR,

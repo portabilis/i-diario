@@ -12,6 +12,16 @@ class AvaliationsController < ApplicationController
   def index
     current_user_unity_id = current_user_unity.id if current_user_unity
 
+    if params[:filter].present? && params[:filter][:by_step_id].present?
+      step_id = params[:filter].delete(:by_step_id)
+
+      if current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom.id)
+        params[:filter][:by_school_calendar_classroom_step] = step_id
+      else
+        params[:filter][:by_school_calendar_step] = step_id
+      end
+    end
+
     @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
                                            .by_unity_id(current_user_unity_id)
                                            .by_classroom_id(current_user_classroom)
@@ -22,6 +32,7 @@ class AvaliationsController < ApplicationController
 
     @classrooms = Classroom.where(id: current_user_classroom)
     @disciplines = Discipline.where(id: current_user_discipline)
+    @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
 
     respond_with @avaliations
   end
