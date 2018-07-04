@@ -1,7 +1,10 @@
+require 'action_view'
 require 'prawn/measurement_extensions'
 
 class BaseReport
   include Prawn::View
+  include I18n::Alchemy::NumericParser
+  include ActionView::Helpers::NumberHelper
 
   GAP = 8.freeze
 
@@ -65,5 +68,17 @@ class BaseReport
 
   def inline_formated_cell_header(text)
     "<font size='8'><b>#{text}</b></font>\n"
+  end
+
+  def numeric_parser
+    I18n::Alchemy::NumericParser
+  end
+
+  def numeric_precision(value, precision: 2)
+    number_with_precision(value, precision: precision)
+  end
+
+  def numeric_truncate_precision(value, precision: 2)
+    value.truncate(precision)
   end
 end
