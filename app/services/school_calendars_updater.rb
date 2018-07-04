@@ -31,7 +31,7 @@ class SchoolCalendarsUpdater
     @school_calendar_steps = {}
     school_calendar_steps_ids_marked_for_destruction = []
 
-    @school_calendar['steps'].each_with_index do |step_params, index|
+    (@school_calendar['steps'] || []).each_with_index do |step_params, index|
       school_calendar_step = school_calendar.steps[index]
 
       if school_calendar_step.present?
@@ -53,15 +53,13 @@ class SchoolCalendarsUpdater
     school_calendar_classroom_ids_marked_for_destruction = []
     school_calendar_classroom_steps_ids_marked_for_destruction = []
 
-    school_calendar_classrooms = @school_calendar['classrooms'] || []
-    school_calendar_classrooms.each_with_index do |classroom_params, classroom_index|
+    (@school_calendar['classrooms'] || []).each_with_index do |classroom_params, classroom_index|
       school_calendar_classroom = SchoolCalendarClassroom.by_classroom_id(classroom_params['id']).first
 
       if school_calendar_classroom.present?
         school_calendar_classroom_ids_marked_for_destruction << school_calendar_classroom.id if classroom_params['_destroy'] == 'true'
 
-        school_calendar_classroom_steps = classroom_params['steps'] || []
-        school_calendar_classroom_steps.each_with_index do |step_params, step_index|
+        (classroom_params['steps'] || []).each_with_index do |step_params, step_index|
           school_calendar_classroom_step = school_calendar_classroom.classroom_steps[step_index]
 
           if school_calendar_classroom_step.present?
@@ -79,8 +77,8 @@ class SchoolCalendarsUpdater
       else
         school_calendar_classroom = create_school_calendar_classroom!(classroom_params, school_calendar)
 
-        classroom_params['steps'].each do |step_params|
-          create_school_calendar_classroom_steps!(school_calendar_classroom, step_params)
+        (classroom_params['steps'] || []).each do |step_params|
+          create_school_calendar_classroom_step!(school_calendar_classroom, step_params)
         end
       end
 
@@ -136,10 +134,10 @@ class SchoolCalendarsUpdater
 
   def create_school_calendar_step!(school_calendar, step_params)
     SchoolCalendarStep.create!(school_calendar: school_calendar,
-                                start_at: step_params['start_at'],
-                                end_at: step_params['end_at'],
-                                start_date_for_posting: step_params['start_date_for_posting'],
-                                end_date_for_posting: step_params['end_date_for_posting'])
+                               start_at: step_params['start_at'],
+                               end_at: step_params['end_at'],
+                               start_date_for_posting: step_params['start_date_for_posting'],
+                               end_date_for_posting: step_params['end_date_for_posting'])
   end
 
   def destroy_school_calendar_steps_marked_for_destruction(school_calendar, school_calendar_steps_ids_marked_for_destruction)

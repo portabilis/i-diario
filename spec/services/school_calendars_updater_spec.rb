@@ -54,6 +54,38 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
         end
       end
 
+      it 'needs to create a new step and move related items for this step' do
+        new_school_calendar_step = school_calendars['steps'].last.clone
+        new_school_calendar_step['id'] = new_school_calendar_step['id'] + 1
+        new_school_calendar_step['start_at'] = Date.new(Date.today.year, 9, 1)
+        new_school_calendar_step['start_date_for_posting'] = Date.new(Date.today.year, 9, 1)
+        school_calendars['steps'].first['end_at'] = Date.new(Date.today.year, 4, 30)
+        school_calendars['steps'].last['start_at'] = Date.new(Date.today.year, 5, 1)
+        school_calendars['steps'].last['end_at'] = Date.new(Date.today.year, 8, 31)
+        school_calendars['steps'].last['start_date_for_posting'] = Date.new(Date.today.year, 5, 1)
+        school_calendars['steps'] << new_school_calendar_step
+
+        updater = SchoolCalendarsUpdater.new(school_calendars)
+
+        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
+          school_calendar_step_id = school_calendar.steps.last.id
+
+          expect(conceptual_exam.school_calendar_step_id).to eq school_calendar_step_id
+          expect(transfer_note.school_calendar_step_id).to eq school_calendar_step_id
+          expect(school_term_recovery_diary_record.school_calendar_step_id).to eq school_calendar_step_id
+
+          updater.update!
+
+          new_school_calendar_step_id = school_calendar.reload.steps.last.id
+
+          expect(new_school_calendar_step_id).not_to eq school_calendar_step_id
+
+          expect(conceptual_exam.reload.school_calendar_step_id).to eq new_school_calendar_step_id
+          expect(transfer_note.reload.school_calendar_step_id).to eq new_school_calendar_step_id
+          expect(school_term_recovery_diary_record.reload.school_calendar_step_id).to eq new_school_calendar_step_id
+        end
+      end
+
       it 'needs to create a new inactivate step and move unrelated items' do
         school_calendars['steps'].first['end_at'] = Date.new(Date.today.year, 8, 31)
         school_calendars['steps'].last['start_at'] = Date.new(Date.today.year, 9, 2)
@@ -196,6 +228,41 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
           expect(descriptive_exam.reload.school_calendar_classroom_step_id).to eq(classroom_step_id)
           expect(transfer_note.reload.school_calendar_classroom_step_id).to eq(classroom_step_id)
           expect(school_term_recovery_diary_record.reload.school_calendar_classroom_step_id).to eq(classroom_step_id)
+        end
+      end
+
+      it 'needs to create a new classroom_step and move related items for this classroom_step' do
+        new_school_calendar_classroom_step = school_calendars['classrooms'].first['steps'].last.clone
+        new_school_calendar_classroom_step['id'] = new_school_calendar_classroom_step['id'] + 1
+        new_school_calendar_classroom_step['start_at'] = Date.new(Date.today.year, 9, 1)
+        new_school_calendar_classroom_step['start_date_for_posting'] = Date.new(Date.today.year, 9, 1)
+        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.today.year, 4, 30)
+        school_calendars['classrooms'].first['steps'].last['start_at'] = Date.new(Date.today.year, 5, 1)
+        school_calendars['classrooms'].first['steps'].last['end_at'] = Date.new(Date.today.year, 8, 31)
+        school_calendars['classrooms'].first['steps'].last['start_date_for_posting'] = Date.new(Date.today.year, 5, 1)
+        school_calendars['classrooms'].first['steps'] << new_school_calendar_classroom_step
+
+        updater = SchoolCalendarsUpdater.new(school_calendars)
+
+        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
+          school_calendar_classroom_step_id = school_calendar_classroom.classroom_steps.last.id
+
+          expect(school_calendar_classroom.classroom_steps.count).to eq 2
+
+          expect(conceptual_exam.school_calendar_classroom_step_id).to eq school_calendar_classroom_step_id
+          expect(transfer_note.school_calendar_classroom_step_id).to eq school_calendar_classroom_step_id
+          expect(school_term_recovery_diary_record.school_calendar_classroom_step_id).to eq school_calendar_classroom_step_id
+
+          updater.update!
+
+          new_school_calendar_classroom_step_id = school_calendar_classroom.reload.classroom_steps.last.id
+
+          expect(school_calendar_classroom.classroom_steps.count).to eq 3
+          expect(new_school_calendar_classroom_step_id).not_to eq school_calendar_classroom_step_id
+
+          expect(conceptual_exam.reload.school_calendar_classroom_step_id).to eq new_school_calendar_classroom_step_id
+          expect(transfer_note.reload.school_calendar_classroom_step_id).to eq new_school_calendar_classroom_step_id
+          expect(school_term_recovery_diary_record.reload.school_calendar_classroom_step_id).to eq new_school_calendar_classroom_step_id
         end
       end
 
