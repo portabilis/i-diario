@@ -9,6 +9,7 @@ class IeducarApiExamPosting < ActiveRecord::Base
   belongs_to :school_calendar_step
   belongs_to :school_calendar_classroom_step
   belongs_to :author, class_name: 'User'
+  belongs_to :teacher
 
   validates :ieducar_api_configuration, presence: true
   validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step

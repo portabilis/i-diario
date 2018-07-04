@@ -32,7 +32,6 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   validate :recovery_type_must_allow_recovery_for_school_calendar_step
   validate :recorded_at_must_be_school_calendar_step_day, unless: :school_calendar_classroom_step
   validate :recorded_at_must_be_school_calendar_classroom_step_day, unless: :school_calendar_step
-  validate :uniqueness_of_recorded_at
 
   delegate :classroom_id, :discipline_id, :recorded_at, to: :recovery_diary_record
 
@@ -59,6 +58,10 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     self.school_calendar_classroom_step || self.school_calendar_step
   end
 
+  def recorded_at
+    recovery_diary_record.recorded_at
+  end
+
   private
 
   def self.by_teacher_id_query(teacher_id)
@@ -83,11 +86,16 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     return unless recovery_diary_record
 
     relation = SchoolTermRecoveryDiaryRecord.by_classroom_id(recovery_diary_record.classroom_id)
-      .by_discipline_id(recovery_diary_record.discipline_id)
-      .by_school_calendar_step_id(school_calendar_step_id)
+                                            .by_discipline_id(recovery_diary_record.discipline_id)
+                                            .by_school_calendar_step_id(school_calendar_step_id)
+                                            .by_school_calendar_classroom_step_id(school_calendar_classroom_step_id)
+
     relation = relation.where.not(id: id) if persisted?
 
-    errors.add(:school_calendar_step, :uniqueness_of_school_term_recovery_diary_record) if relation.any?
+    if relation.any?
+      errors.add(:school_calendar_step, :uniqueness_of_school_term_recovery_diary_record) if school_calendar_step_id.present?
+      errors.add(:school_calendar_classroom_step, :uniqueness_of_school_term_recovery_diary_record) if school_calendar_classroom_step_id.present?
+    end
   end
 
   def recovery_type_must_allow_recovery_for_classroom
@@ -123,14 +131,6 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     unless school_calendar_classroom_step == school_calendar_classroom_step.school_calendar_classroom.classroom_step(recovery_diary_record.recorded_at)
       errors.add(:recovery_diary_record, :recorded_at_must_be_school_calendar_step_day)
       recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_school_calendar_step_day)
-    end
-  end
-
-  def uniqueness_of_recorded_at
-    return unless recovery_diary_record
-    relation = RecoveryDiaryRecord.find_by(unity_id: recovery_diary_record.unity_id, classroom_id: recovery_diary_record.classroom_id, discipline_id: recovery_diary_record.discipline_id)
-    if relation
-      recovery_diary_record.errors.add(:recorded_at, :uniqueness)
     end
   end
 end

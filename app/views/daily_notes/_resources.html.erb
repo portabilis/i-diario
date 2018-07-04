@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @daily_notes.empty? %>
     <tr>
-      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="8"><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @daily_notes.each do |daily_note| %>
@@ -10,6 +10,7 @@
         <td><%= daily_note.classroom %></td>
         <td><%= daily_note.discipline %></td>
         <td><%= daily_note.avaliation %></td>
+        <td><%= daily_note.current_step %></td>
         <td>
           <span class="<%= conceptual_exam_label(daily_note.status) %>">
             <%= daily_note.status_humanize %>

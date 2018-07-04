@@ -229,6 +229,7 @@ Rails.application.routes.draw do
         get :search
       end
     end
+    resources :maintenance_adjustments, concerns: :history, except: :show
 
     resources :grades, only: [:index] do
       member do
@@ -249,7 +250,7 @@ Rails.application.routes.draw do
 
     resources :moved_***REMOVED***, only: [:index]
     get '/unities/:unity_id/moved_***REMOVED***/:material_id', to: 'moved_***REMOVED***#show', as: 'unity_moved_material'
-    get '/unities/:unity_id/moved_***REMOVED***/:material_id/get_consumption_balance', to: 'moved_***REMOVED***#get_consumption_balance', as: 'get_consumption_balance'
+    get '/unities/:unity_id/moved_***REMOVED***/:material_id/current_balance', to: 'moved_***REMOVED***#current_balance', as: 'current_balance'
 
     resources :***REMOVED***, only: [:index, :new, :create]
     get '/***REMOVED***/entrances/:id', to: '***REMOVED***#show_entrance', as: 'inventory_adjustment_entrance'

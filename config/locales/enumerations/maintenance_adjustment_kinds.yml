@@ -1,0 +1,4 @@
+pt-BR:
+  enumerations:
+    maintenance_adjustment_kinds:
+      absence_adjustments: 'Ajustes de faltas'

@@ -125,9 +125,12 @@ class DisciplineContentRecordsController < ApplicationController
     date = @discipline_content_record.content_record.record_date
     if teacher && classroom && discipline && date
       @contents = ContentsForDisciplineRecordFetcher.new(teacher, classroom, discipline, date).fetch
+      @contents.each { |content| content.is_editable = false }
     end
     if @discipline_content_record.content_record.contents
-      @contents << @discipline_content_record.content_record.contents_ordered
+      contents = @discipline_content_record.content_record.contents_ordered
+      contents.each { |content| content.is_editable = true }
+      @contents << contents
     end
     @contents.flatten.uniq
   end

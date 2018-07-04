@@ -22,6 +22,8 @@ class Select2DisciplineInput < Select2Input
       disciplines = Discipline.by_grade(options[:grade_id]).by_teacher_id(user.current_teacher.id)
     elsif user.current_teacher.present? && options[:classroom_id]
       disciplines = Discipline.by_classroom(options[:classroom_id]).by_teacher_id(user.current_teacher.id)
+    elsif user.current_unity.present? && options[:grade_id]
+      disciplines = Discipline.by_unity_id(user.current_unity.id).by_grade(options[:grade_id])
     end
 
     options[:elements] = disciplines

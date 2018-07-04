@@ -20,7 +20,8 @@ RSpec.describe DisciplineTeachingPlan, type: :model do
         year: another_discipline_teaching_plan.teaching_plan.year,
         unity: another_discipline_teaching_plan.teaching_plan.unity,
         grade: another_discipline_teaching_plan.teaching_plan.grade,
-        school_term: another_discipline_teaching_plan.teaching_plan.school_term
+        school_term: another_discipline_teaching_plan.teaching_plan.school_term,
+        teacher: another_discipline_teaching_plan.teaching_plan.teacher
       )
       subject = build(
         :discipline_teaching_plan,
@@ -29,7 +30,7 @@ RSpec.describe DisciplineTeachingPlan, type: :model do
       )
 
       expect(subject).to_not be_valid
-      expect(subject.errors.messages[:discipline]).to include('já está em uso')
+      expect(subject.errors.messages[:base]).to include('Já existe um plano de ensino para o período informado')
     end
   end
 end

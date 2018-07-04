@@ -105,7 +105,12 @@ class ApplicationController < ActionController::Base
       flash.now[:notice] = t("ieducar_api_synchronization.completed")
       synchronization.notified!
     elsif synchronization = current_user.synchronizations.last_error
-      flash.now[:alert] = t("ieducar_api_synchronization.error", error: synchronization.error_message)
+      flash.now[:alert] = t(
+        "ieducar_api_synchronization.error",
+        error: current_user.admin? && synchronization.full_error_message.present? ?
+               synchronization.full_error_message :
+               synchronization.error_message
+      )
       synchronization.notified!
     end
   end
@@ -251,6 +256,11 @@ class ApplicationController < ActionController::Base
     return DisciplineScoreTypes::CONCEPT if current_user_classroom.exam_rule.score_type == ScoreTypes::CONCEPT
     TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
   end
+
+  def current_user_is_employee_or_administrator?
+    current_user.current_user_role.role_employee? || (current_user.current_user_role.role_administrator? && !current_user.assumed_teacher_id)
+  end
+  helper_method :current_user_is_employee_or_administrator?
 
   def teacher_differentiated_discipline_score_type
     exam_rule = current_user_classroom.exam_rule

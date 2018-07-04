@@ -8,6 +8,9 @@ gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
+gem "gelf"
+gem "lograge"
+
 gem 'simple_form', '3.1.0'
 gem 'pg', '0.17.1'
 gem 'foreigner', '1.6.1'
@@ -42,6 +45,7 @@ gem 'rack-cors', require: 'rack/cors'
 
 gem 'sinatra', '>= 1.3.0', require: nil
 gem 'sidekiq', '< 6'
+gem 'sidekiq-unique-jobs', '~> 4.0.18'
 gem 'whenever', require: false
 gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'

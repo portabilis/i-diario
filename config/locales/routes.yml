@@ -110,6 +110,7 @@ pt-BR:
     data_exportations: 'exportacao-de-dados'
     ***REMOVED***: 'empenhos'
     ***REMOVED***: 'contratos'
+    maintenance_adjustments: 'manutencao-ajustes'
     custom_rounding_tables: 'tabelas-de-arredondamento'
     distributed: 'distribuidos'
 

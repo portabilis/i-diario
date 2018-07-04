@@ -65,6 +65,16 @@ navigation:
             type: "***REMOVED***"
             path: "***REMOVED***_path"
   - ***REMOVED***:
+      type: "administrative"
+      icon: "fa-tasks"
+      sub***REMOVED***s:
+        - ***REMOVED***:
+            type: "general_configurations"
+            path: "edit_general_configurations_path"
+        - ***REMOVED***:
+            type: "maintenance_adjustments"
+            path: "maintenance_adjustments_path"
+  - ***REMOVED***:
       type: "configurations"
       icon: "fa-cog"
       sub***REMOVED***s:
@@ -77,9 +87,6 @@ navigation:
         - ***REMOVED***:
             type: "users"
             path: "users_path"
-        - ***REMOVED***:
-            type: "general_configurations"
-            path: "edit_general_configurations_path"
         - ***REMOVED***:
             type: "data_exportations"
             path: "data_exportations_path"

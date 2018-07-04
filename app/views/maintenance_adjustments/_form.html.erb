@@ -1,0 +1,51 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/maintenance_adjustments/form' %>
+<% end %>
+
+<%= simple_form_for @maintenance_adjustment, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div>
+      <% if f.object.error_message.present? %>
+        <p class='alert alert-danger'>
+          <i class='fa-fw fa fa-times'></i>
+          <span><%= f.object.error_message %></span>
+        </p>
+      <% end %>
+      <p id='maintenance_adjustment_info' class='alert alert-info hidden'>
+        <i class='fa-fw fa fa-info'></i>
+        <strong id='info_title'></strong>
+        <span id='info_description'></span>
+      </p>
+    </div>
+    <div class='row'>
+      <div class='col col-sm-2'>
+          <%= f.hidden_field :status %>
+          <%= f.input :year, as: :integer %>
+      </div>
+      <div class='col col-sm-4'>
+          <%= f.input :kind, as: :select2, elements: MaintenanceAdjustmentKinds.to_select.to_json %>
+      </div>
+      <div class='col col-sm-6'>
+          <%= f.association :unities, as: :select2, elements: @unities, multiple: true,
+            input_html: { value: f.object.unity_ids.join(','), data: { without_json_parser: true } } %>
+      </div>
+    </div>
+    <div class='row'>
+      <div class='col col-sm-12'>
+        <%= f.input :observations %>
+      </div>
+    </div>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), maintenance_adjustments_path, class: 'btn btn-default' %>
+
+    <% if @maintenance_adjustment.persisted? %>
+      <%= link_to t('views.form.history'), history_maintenance_adjustment_path(@maintenance_adjustment), class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.button :submit, t('views.form.adjust'), class: 'btn btn-primary' %>
+  </footer>
+<% end %>

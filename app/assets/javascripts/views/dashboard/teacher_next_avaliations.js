@@ -3,6 +3,8 @@ $(function(){
 
   function fetchTeacherNextAvaliations() {
     $.ajax({
+      beforeSend: function () {},
+      complete: function () {},
       url: Routes.dashboard_teacher_next_avaliations_pt_br_path(),
       success: handleFetchTeacherNextAvaliationsSuccess,
       error: handleFetchTeacherNextAvaliationsError

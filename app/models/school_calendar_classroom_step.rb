@@ -1,8 +1,12 @@
 class SchoolCalendarClassroomStep < ActiveRecord::Base
   acts_as_copy_target
-  belongs_to :school_calendar_classroom
 
-  scope :ordered, -> { order(arel_table[:start_at]) }
+  belongs_to :school_calendar_classroom
+  has_many :descriptive_exams, dependent: :restrict_with_exception
+  has_many :ieducar_api_exam_postings, dependent: :destroy
+  has_many :conceptual_exams, dependent: :restrict_with_exception
+  has_many :transfer_notes, dependent: :restrict_with_exception
+  has_many :school_term_recovery_diary_records, dependent: :restrict_with_exception
 
   validates_date :start_date_for_posting, :end_date_for_posting
   validates :start_at, :end_at, :start_date_for_posting, :end_date_for_posting, presence: true
@@ -18,6 +22,10 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   scope :by_school_calendar_id, lambda { |school_calendar_id| joins(:school_calendar_classroom).where(school_calendar_classrooms: { school_calendar_id: school_calendar_id })   }
   scope :started_after_and_before, lambda { |date| where(arel_table[:start_at].lteq(date)).where(arel_table[:end_at].gteq(date)) }
   scope :posting_date_after_and_before, lambda { |date| where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date))) }
+  scope :by_step_year, lambda { |year| where('extract(year from start_at) = ?', year) }
+  scope :ordered, -> { order(:start_at) }
+  scope :inactive, -> { where(active: false) }
+  scope :active, -> { where(active: true) }
 
   delegate :classroom, to: :school_calendar_classroom
 
