@@ -83,7 +83,7 @@ class AvaliationsController < ApplicationController
     authorize resource
 
     if resource.save
-      respond_with resource, location: avaliations_path
+      respond_to_save
     else
       @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
 
@@ -106,7 +106,7 @@ class AvaliationsController < ApplicationController
     authorize @avaliation
 
     if resource.save
-      respond_with @avaliation, location: avaliations_path
+      respond_to_save
     else
       @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
 
@@ -141,6 +141,16 @@ class AvaliationsController < ApplicationController
   end
 
   private
+
+  def respond_to_save
+    if params[:commit] == I18n.t('avaliations.form.save_and_edit_daily_notes')
+      creator = DailyNoteCreator.new({ avaliation_id: resource.id })
+      creator.find_or_create!
+      redirect_to edit_daily_note_path(creator.daily_note)
+    else
+      respond_with resource, location: avaliations_path
+    end
+  end
 
   def disciplines_for_multiple_classrooms
     @disciplines_for_multiple_classrooms ||= Discipline.by_unity_id(current_user_unity.id)
