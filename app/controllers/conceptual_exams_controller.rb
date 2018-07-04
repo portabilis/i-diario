@@ -15,6 +15,7 @@ class ConceptualExamsController < ApplicationController
       .filter(filtering_params(params[:search]))
       .by_unity(current_user_unity)
       .by_classroom(current_user_classroom)
+      .by_teacher(current_teacher_id)
       .ordered
 
     authorize @conceptual_exams
