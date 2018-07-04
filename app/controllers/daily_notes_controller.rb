@@ -6,18 +6,27 @@ class DailyNotesController < ApplicationController
   before_action :require_current_school_calendar
 
   def index
-    @daily_notes = apply_scopes(DailyNote)
-                    .includes(:avaliation)
-                    .by_unity_id(current_user_unity)
-                    .by_classroom_id(current_user_classroom)
-                    .by_discipline_id(current_user_discipline)
-                    .order_by_avaliation_test_date_desc
+    if params[:filter].present? && params[:filter][:by_step_id].present?
+      step_id = params[:filter].delete(:by_step_id)
+
+      if current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom.id)
+        params[:filter][:by_school_calendar_classroom_step_id] = step_id
+      else
+        params[:filter][:by_school_calendar_step_id] = step_id
+      end
+    end
+
+    @daily_notes = apply_scopes(DailyNote).includes(:avaliation)
+                                          .by_unity_id(current_user_unity)
+                                          .by_classroom_id(current_user_classroom)
+                                          .by_discipline_id(current_user_discipline)
+                                          .order_by_avaliation_test_date_desc
 
     @classrooms = Classroom.where(id: current_user_classroom)
     @disciplines = Discipline.where(id: current_user_discipline)
-    @avaliations = Avaliation
-                    .by_classroom_id(current_user_classroom)
-                    .by_discipline_id(current_user_discipline)
+    @avaliations = Avaliation.by_classroom_id(current_user_classroom)
+                             .by_discipline_id(current_user_discipline)
+    @steps = SchoolCalendarDecorator.current_steps_for_select2(current_school_calendar, current_user_classroom)
 
     authorize @daily_notes
   end

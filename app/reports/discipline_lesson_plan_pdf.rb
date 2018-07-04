@@ -1,25 +1,12 @@
-class DisciplineLessonPlanPdf
-  include Prawn::View
-
+class DisciplineLessonPlanPdf < BaseReport
   def self.build(entity_configuration, discipline_lesson_plan, current_teacher)
     new.build(entity_configuration, discipline_lesson_plan, current_teacher)
-  end
-
-  def initialize
-    @document = Prawn::Document.new(
-      page_size: 'A4',
-      page_layout: :portrait,
-      left_margin: 5.mm,
-      right_margin: 5.mm,
-      top_margin: 5.mm,
-      bottom_margin: 5.mm)
   end
 
   def build(entity_configuration, discipline_lesson_plan, current_teacher)
     @entity_configuration = entity_configuration
     @discipline_lesson_plan = discipline_lesson_plan
     @current_teacher = current_teacher
-    @gap = 8
     attributes
 
     header
@@ -77,7 +64,7 @@ class DisciplineLessonPlanPdf
       ]
     ]
 
-    repeat(:all) do
+    page_header do
       table(table_data, width: bounds.width) do
         cells.border_width = 0.25
         row(0).border_top_width = 0.25
@@ -89,7 +76,6 @@ class DisciplineLessonPlanPdf
   end
 
   def attributes
-
     @general_information_header_cell = make_cell(
       content: 'Identificação',
       size: 12,
@@ -183,6 +169,8 @@ class DisciplineLessonPlanPdf
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+
+    move_down GAP
   end
 
   def class_plan
@@ -195,8 +183,6 @@ class DisciplineLessonPlanPdf
       [@evaluation_cell],
       [@bibliography_cell]
     ]
-
-    move_down @gap
 
     table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
       cells.border_width = 0.25
@@ -214,7 +200,6 @@ class DisciplineLessonPlanPdf
     ]
 
     if @discipline_lesson_plan.lesson_plan.opinion.present?
-      move_down @gap
       table(additional_information_table_data, width: bounds.width, cell_style: { inline_format: true }) do
         cells.border_width = 0.25
         row(0).border_top_width = 0.25
@@ -226,27 +211,10 @@ class DisciplineLessonPlanPdf
   end
 
   def body
-    bounding_box([0, 712], width: bounds.width, height: 700) do
+    page_content do
       general_information
       class_plan
       additional_information
     end
-  end
-
-  def footer
-    repeat(:all) do
-      draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
-    end
-
-    string = "Página <page> de <total>"
-    options = { at: [bounds.right - 150, 6],
-                width: 150,
-                size: 8,
-                align: :right }
-    number_pages(string, options)
-  end
-
-  def inline_formated_cell_header(text)
-    "<font size='8'><b>#{text}</b></font>\n"
   end
 end

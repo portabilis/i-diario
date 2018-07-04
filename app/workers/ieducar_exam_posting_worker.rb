@@ -1,7 +1,7 @@
 class IeducarExamPostingWorker
   include Sidekiq::Worker
 
-  sidekiq_options retry: false, queue: :exam_posting
+  sidekiq_options retry: false, queue: :exam_posting, unique: :until_and_while_executing
 
   def perform(entity_id, posting_id)
     entity = Entity.find(entity_id)
@@ -39,7 +39,7 @@ class IeducarExamPostingWorker
 
         raise e
       rescue Exception => e
-        posting.mark_as_error!('Ocorreu um erro desconhecido.')
+        posting.mark_as_error!('Ocorreu um erro desconhecido.', e.message)
         raise e
       end
     end

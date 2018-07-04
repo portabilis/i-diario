@@ -12,6 +12,8 @@ $(function(){
     var schoolCalendarStepId = $('#school_calendar_step').val();
     if (!_.isEmpty(schoolCalendarStepId)) {
       $.ajax({
+        beforeSend: function () {},
+        complete: function () {},
         url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
           {
             format: 'json',
@@ -41,6 +43,8 @@ $(function(){
     var schoolCalendarStepId = $('#school_calendar_step').val();
     if (!_.isEmpty(schoolCalendarStepId)) {
       $.ajax({
+        beforeSend: function () {},
+        complete: function () {},
         url: Routes.dashboard_teacher_work_done_chart_index_pt_br_path(
           {
             format: 'json',

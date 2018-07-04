@@ -13,9 +13,6 @@ $(function () {
     trimValue: true
   });
 
-  // removendo o loading quando a página estiver carregada
-  $('#page-loading').addClass('hidden');
-
   $.ajaxSetup({
     beforeSend: function () {
       $('#page-loading').removeClass('hidden');
