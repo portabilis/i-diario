@@ -1,10 +1,13 @@
 class EntityCreator
-  attr_reader :name, :domain, :database, :status
+  attr_reader :name, :domain, :database, :status, :host, :db_user, :db_password
 
   def initialize(options)
     @name = options["NAME"]
     @domain = options["DOMAIN"]
     @database = options["DATABASE"]
+    @host = options["HOST"]
+    @db_user = options["DB_USER"]
+    @db_password = options["DB_PASSWORD"]
   end
 
   def setup
@@ -27,10 +30,19 @@ class EntityCreator
     entity = entity_repository.new(
       name: name,
       domain: domain,
-      config: { database: database }
+      config: entity_config
     )
 
     entity.save
+  end
+
+  def entity_config
+    config = {database: database}
+    config.merge!({host: host}) if host.present?
+    config.merge!({username: db_user}) if db_user.present?
+    config.merge!({password: db_password}) if db_password.present?
+
+    config
   end
 
   def entity_repository
