@@ -1,20 +1,6 @@
-require "prawn/measurement_extensions"
-
-class AbsenceJustificationReport
-  include Prawn::View
-
+class AbsenceJustificationReport < BaseReport
   def self.build(entity_configuration, absence_justifications, absence_justification_report_form)
     new.build(entity_configuration, absence_justifications, absence_justification_report_form)
-  end
-
-  def initialize
-    @document = Prawn::Document.new(
-      page_size: 'A4',
-      page_layout: :portrait,
-      left_margin: 5.mm,
-      right_margin: 5.mm,
-      top_margin: 5.mm,
-      bottom_margin: 5.mm)
   end
 
   def build(entity_configuration, absence_justifications, absence_justification_report_form)
@@ -75,7 +61,7 @@ class AbsenceJustificationReport
       [logo_cell, entity_organ_and_unity_cell]
     ]
 
-    repeat(:all) do
+    page_header do
       table(table_data, width: bounds.width) do
         cells.border_width = 0.25
         row(0).border_top_width = 0.25
@@ -106,6 +92,7 @@ class AbsenceJustificationReport
       padding: [2, 2, 4, 4],
       colspan: 2
     )
+
     unity_cell = make_cell(
       content: @absence_justifications.first.unity ? @absence_justifications.first.unity.name : '',
       size: 10,
@@ -194,6 +181,8 @@ class AbsenceJustificationReport
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+
+    move_down GAP
   end
 
   def general_information
@@ -294,15 +283,13 @@ class AbsenceJustificationReport
         student_cell,
         justification_cell
       ]
-
     end
+
     general_information_table_data = [
       headers
     ]
 
     general_information_table_data.concat(general_information_cells)
-
-    move_down 8
 
     table(title_general_information, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -322,7 +309,7 @@ class AbsenceJustificationReport
   end
 
   def body
-    bounding_box([0, 712], width: bounds.width, height: 700) do
+    page_content do
       identification
       general_information
       signatures
@@ -335,18 +322,5 @@ class AbsenceJustificationReport
     move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
     text_box("______________________________________________\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
-  end
-
-  def footer
-    repeat(:all) do
-      draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
-    end
-
-    string = "Página <page> de <total>"
-    options = { at: [bounds.right - 150, 6],
-                width: 150,
-                size: 8,
-                align: :right }
-    number_pages(string, options)
   end
 end

@@ -21,10 +21,11 @@ class IeducarApiSynchronization < ActiveRecord::Base
     self.error.unnotified.last
   end
 
-  def mark_as_error!(message)
+  def mark_as_error!(message, full_error_message='')
     update_columns(
       status: ApiSynchronizationStatus::ERROR,
-      error_message: message
+      error_message: message,
+      full_error_message: full_error_message,
     )
   end
 

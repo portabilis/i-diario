@@ -73,6 +73,16 @@ class Avaliation < ActiveRecord::Base
     !test_setting_test || allow_break_up? ? description : test_setting_test.to_s
   end
 
+  def current_step
+    return unless school_calendar
+
+    school_calendar_classroom = school_calendar.classrooms.find_by_classroom_id(classroom.id)
+
+    return school_calendar_classroom.classroom_step(test_date) if school_calendar_classroom.present?
+
+    school_calendar.step(test_date)
+  end
+
   def classes=(classes)
     write_attribute(:classes, classes ? classes.split(',').sort.map(&:to_i) : classes)
   end

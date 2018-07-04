@@ -1,19 +1,6 @@
-require "prawn/measurement_extensions"
-
-class KnowledgeAreaLessonPlanReport
-  include Prawn::View
-
+class KnowledgeAreaLessonPlanReport < BaseReport
   def self.build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans, current_teacher)
     new.build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans, current_teacher)
-  end
-
-  def initialize
-    @document = Prawn::Document.new(page_size: 'A4',
-                                    page_layout: :portrait,
-                                    left_margin: 5.mm,
-                                    right_margin: 5.mm,
-                                    top_margin: 5.mm,
-                                    bottom_margin: 5.mm)
   end
 
   def build(entity_configuration, date_start, date_end, knowledge_area_lesson_plans, current_teacher)
@@ -31,12 +18,9 @@ class KnowledgeAreaLessonPlanReport
     self
   end
 
-  protected
-
   private
 
   def header
-
     entity_name = @entity_configuration ? @entity_configuration.entity_name : ''
     organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
     title = 'Registros de conteúdos por áreas de conhecimento - Planos de aula'
@@ -75,8 +59,6 @@ class KnowledgeAreaLessonPlanReport
       padding: [6, 0, 8, 0]
     )
 
-
-
     table_data = [
       [header_cell],
       [
@@ -85,7 +67,7 @@ class KnowledgeAreaLessonPlanReport
       ]
     ]
 
-    repeat(:all) do
+    page_header do
       table(table_data, width: bounds.width) do
         cells.border_width = 0.25
         row(0).border_top_width = 0.25
@@ -119,7 +101,6 @@ class KnowledgeAreaLessonPlanReport
       colspan: 5
     )
 
-
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @plan_date_header = make_cell(content: 'Data', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', width: 60, padding: [2, 2, 4, 4])
@@ -135,7 +116,6 @@ class KnowledgeAreaLessonPlanReport
     @teacher_cell = make_cell(content: @current_teacher.name, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} a #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
   end
-
 
   def identification
     title_identification = [
@@ -164,10 +144,11 @@ class KnowledgeAreaLessonPlanReport
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+
+    move_down GAP
   end
 
   def general_information
-
     title_general_information = [
       [@general_information_header_cell]
     ]
@@ -183,7 +164,6 @@ class KnowledgeAreaLessonPlanReport
     content_cell = []
 
     @knowledge_area_lesson_plans.each do |knowledge_area_lesson_plan|
-
       knowledge_area_lesson_plans_knowledge_areas = KnowledgeAreaLessonPlanKnowledgeArea.where knowledge_area_lesson_plan_id: knowledge_area_lesson_plan.id
 
       knowledge_area_ids = knowledge_area_lesson_plans_knowledge_areas.map(&:knowledge_area_id)
@@ -205,11 +185,8 @@ class KnowledgeAreaLessonPlanReport
       end
     end
 
-
     general_information_table_data = [general_information_headers]
     general_information_table_data.concat(general_information_cells)
-
-    move_down 8
 
     table(title_general_information, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -229,7 +206,7 @@ class KnowledgeAreaLessonPlanReport
   end
 
   def body
-    bounding_box([0, 712], width: bounds.width, height: 700) do
+    page_content do
       identification
       general_information
       signatures
@@ -242,18 +219,5 @@ class KnowledgeAreaLessonPlanReport
     move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
     text_box("______________________________________________\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
-  end
-
-  def footer
-    repeat(:all) do
-      draw_text("Data e hora: #{DateTime.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
-    end
-
-    string = "Página <page> de <total>"
-    options = { at: [bounds.right - 150, 6],
-                width: 150,
-                size: 8,
-                align: :right }
-    number_pages(string, options)
   end
 end

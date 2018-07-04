@@ -20,6 +20,7 @@ pt-BR:
         test_date: "Data"
         classes: "Aulas"
         description: "Descrição"
+        step: "Etapa"
         test_setting_test_id: "Tipo de avaliação"
         test_setting_test: "Tipo de avaliação"
         weight: "Peso"

@@ -46,18 +46,24 @@ class ConceptualExam < ActiveRecord::Base
 
   before_validation :self_assign_to_conceptual_exam_values
 
-  def step
-    school_calendar_classroom_step || school_calendar_step
-  end
-
   def self.by_teacher(teacher)
     joins(
-        arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
-          .on(TeacherDisciplineClassroom.arel_table[:classroom_id].eq(arel_table[:classroom_id]))
-          .join_sources
+      arel_table.join(
+        TeacherDisciplineClassroom.arel_table,
+        Arel::Nodes::OuterJoin
+      ).on(
+        TeacherDisciplineClassroom.arel_table[:classroom_id]
+                                  .eq(arel_table[:classroom_id])
+      ).join_sources
+    ).joins(
+      :conceptual_exam_values
+    ).where(
+      TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher)
+    ).where(
+      TeacherDisciplineClassroom.arel_table[:discipline_id].eq(
+        ConceptualExamValue.arel_table[:discipline_id]
       )
-      .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher))
-      .uniq
+    ).uniq
   end
 
   def self.by_status(status)
