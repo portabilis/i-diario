@@ -41,7 +41,7 @@ class DailyNotesController < ApplicationController
   def create
     @daily_note = DailyNote.new(resource_params)
 
-    if @daily_note.valid? && find_or_initialize_resource
+    if @daily_note.valid? && find_or_create_resource
       redirect_to edit_daily_note_path(@daily_note)
     else
       render :new
@@ -205,22 +205,10 @@ class DailyNotesController < ApplicationController
 
   private
 
-  def find_or_initialize_resource
-    @daily_note = DailyNote.find_or_initialize_by(resource_params)
-
-    if @daily_note.new_record?
-      student_enrollments = fetch_student_enrollments
-
-      student_enrollments.each do |student_enrollment|
-        if student = Student.find_by_id(student_enrollment.student_id)
-          @daily_note.students.build(student_id: student.id, daily_note: @daily_note, active: true)
-        end
-      end
-
-      @daily_note.save
-    else
-      true
-    end
+  def find_or_create_resource
+    creator = DailyNoteCreator.new(resource_params)
+    return unless creator.find_or_create!
+    @daily_note = creator.daily_note
   end
 
   def destroy_students_not_found
