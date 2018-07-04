@@ -63,5 +63,6 @@
     <%= link_to(t('views.form.history'), history_avaliation_path(@avaliation), class: 'btn btn-info') if @avaliation.persisted? %>
 
     <%= f.submit(t('views.form.save'), class: 'btn btn-primary') %>
+    <%= f.submit(t('.save_and_edit_daily_notes'), class: 'btn btn-primary') %>
   </footer>
 <% end %>
