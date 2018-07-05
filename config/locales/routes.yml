@@ -113,6 +113,7 @@ pt-BR:
     maintenance_adjustments: 'manutencao-ajustes'
     custom_rounding_tables: 'tabelas-de-arredondamento'
     distributed: 'distribuidos'
+    ***REMOVED***: '***REMOVED***'
 
     # actions
     edit: 'editar'
