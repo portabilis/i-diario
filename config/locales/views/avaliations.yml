@@ -12,3 +12,5 @@ pt-BR:
     multiple_classrooms:
       classrooms: "Turmas"
       no_classroom_found: "Nenhuma turma encontrada"
+    form:
+      save_and_edit_daily_notes: 'Salvar e lançar notas'

@@ -90,7 +90,7 @@ class UnitiesController < ApplicationController
     if UnitiesCreator.create!(params[:unities])
       redirect_to unities_path, notice: t('flash.unities.create_batch.notice')
     else
-      redirect_to synchroniation_unities_path, alert: t('flash.unities.create_batch.alert')
+      redirect_to synchronizations_unities_path, alert: t('flash.unities.create_batch.alert')
     end
   end
 
