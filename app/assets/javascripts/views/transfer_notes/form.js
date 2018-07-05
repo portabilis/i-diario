@@ -76,7 +76,7 @@ $(function () {
 
     $student.select2({ data: selectedStudents });
 
-    if (!selectedStudents.find(x => x.id == $student.select2('val'))) {
+    if (!selectedStudents.find(student => student.id == $student.select2('val'))) {
       $student.select2('val', '');
     }
   };
