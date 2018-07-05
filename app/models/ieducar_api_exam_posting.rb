@@ -63,6 +63,13 @@ class IeducarApiExamPosting < ActiveRecord::Base
     )
   end
 
+  def done_percentage
+    return 100 if !synchronization_in_progress?
+    return 0   if worker_batch.blank?
+
+    worker_batch.done_percentage
+  end
+
   def step
     self.school_calendar_classroom_step || self.school_calendar_step
   end

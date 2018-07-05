@@ -33,7 +33,7 @@ class IeducarApiExamPostingsController < ApplicationController
   def done_percentage
     posting = IeducarApiExamPosting.find(params[:id])
 
-    render json: { percentage: posting.worker_batch.done_percentage }
+    render json: { percentage: posting.done_percentage }
   end
 
   protected
