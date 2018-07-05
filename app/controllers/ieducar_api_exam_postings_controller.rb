@@ -19,7 +19,7 @@ class IeducarApiExamPostingsController < ApplicationController
     ieducar_api_exam_posting.save!
 
 
-    jid = IeducarExamPostingWorker.perform_async(current_entity.id, ieducar_api_exam_posting.id)
+    jid = IeducarExamPostingWorker.perform_in(5.seconds, current_entity.id, ieducar_api_exam_posting.id)
 
     WorkerBatch.create!(
       main_job_class: 'IeducarExamPostingWorker',
