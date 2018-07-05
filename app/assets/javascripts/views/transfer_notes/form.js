@@ -12,7 +12,6 @@ $(function () {
   var $student = $('#transfer_note_student_id');
   var schoolCalendarStep = null;
 
-
   function fetchDisciplines() {
     var classroom_id = $classroom.select2('val');
 
@@ -32,7 +31,6 @@ $(function () {
     var classroom_id = $classroom.select2('val');
     var transfer_date = $transferDate.val();
 
-    $student.select2('val', '');
     $student.select2({ data: [] });
 
     if (!_.isEmpty(classroom_id) &&
@@ -77,6 +75,10 @@ $(function () {
     });
 
     $student.select2({ data: selectedStudents });
+
+    if (!selectedStudents.find(x => x.id == $student.select2('val'))) {
+      $student.select2('val', '');
+    }
   };
 
   function handleFetchStudentsError() {
