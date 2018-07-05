@@ -101,6 +101,7 @@ pt-BR:
     administrative: "Administrativo"
     maintenance_adjustments: "Manutenção/Ajustes"
     custom_rounding_tables: "Tabelas de arredondamento"
+    ***REMOVED***: "***REMOVED***"
 
 
   enumerations:
