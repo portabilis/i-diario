@@ -1,8 +1,4 @@
 <tbody>
-  <% content_for :js do %>
-    <%= render 'percentage_refresh' %>
-  <% end %>
-
   <% ApiPostingTypes.to_a.each do |value| %>
     <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != step.school_calendar.steps.to_a.last %>
 
