@@ -27,6 +27,8 @@ services:
   redis:
     image: redis:alpine
     container_name: redis-novo-educacao
+    ports:
+      - "6379:6379"
 
   app:
     build: .
