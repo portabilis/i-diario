@@ -129,11 +129,15 @@ $(function () {
     }
   });
 
-  var togleLegendContainerVisibility = function(){
-    if($eventType.val() != "extra_school" && $eventType.val() != ""){
-      $legendContainer.removeClass("hidden");
-    }else{
-      $legendContainer.addClass("hidden");
+  var togleLegendContainerVisibility = function() {
+    var isNotExtraSchool = $eventType.val() != 'extra_school';
+    var isNotNoSchoolWithFrequency = $eventType.val() != 'no_school_with_frequency';
+    var isNotBlank = $eventType.val() != '';
+    
+    if (isNotExtraSchool && isNotNoSchoolWithFrequency && isNotBlank) {
+      $legendContainer.removeClass('hidden');
+    } else {
+      $legendContainer.addClass('hidden');
     }
   }
 
