@@ -11,7 +11,7 @@ class TermsDictionary < ActiveRecord::Base
   end
 
   def self.cached_current
-    Rails.cache.fetch('current_terms_dictionary', expires_in: 20.seconds) do
+    Rails.cache.fetch("#{Entity.current.id}_current_terms_dictionary", expires_in: 10.minutes) do
       self.current
     end
   end

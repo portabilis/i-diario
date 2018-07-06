@@ -7,7 +7,7 @@
         <table class="table table-bordered table-striped table-condensed table-hover">
           <thead>
             <tr>
-              <th>Tipo</th>
+              <th width="20%">Tipo</th>
               <th>Situação</th>
               <th width="2%"></th>
             </tr>
@@ -25,7 +25,7 @@
         <table class="table table-bordered table-striped table-condensed table-hover">
           <thead>
             <tr>
-              <th>Tipo</th>
+              <th width="20%">Tipo</th>
               <th>Situação</th>
               <th width="2%"></th>
             </tr>
@@ -37,3 +37,7 @@
     <% end %>
   <% end %>
 </div>
+
+<% content_for :js do %>
+  <%= render 'percentage_refresh' %>
+<% end %>

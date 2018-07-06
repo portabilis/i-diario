@@ -30,7 +30,7 @@ module IeducarApi
 
     def send_post(params = {})
       request(RequestMethods::POST, params) do |endpoint, request_params|
-        RestClient.post(endpoint, request_params)
+        RestClient.post("#{endpoint}?#{request_params.to_param}", {})
       end
     end
 
