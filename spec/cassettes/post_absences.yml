@@ -2,17 +2,17 @@
 http_interactions:
 - request:
     method: post
-    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=***REMOVED***&etapa=1&faltas=1&instituicao_id=1&oper=post&resource=faltas-geral&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Diario
     body:
-      encoding: ASCII-8BIT
-      string: ''
+      encoding: US-ASCII
+      string: etapa=1&turmas[1234][turma_id]=1234&resource=faltas-geral&oper=post&access_key=***REMOVED***&secret_key=***REMOVED***&instituicao_id=1
     headers:
       Accept:
       - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       Content-Length:
-      - '0'
+      - '168'
       Content-Type:
       - application/x-www-form-urlencoded
       User-Agent:
@@ -22,34 +22,27 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Server:
-      - nginx
       Date:
-      - Sat, 30 Jun 2018 20:10:02 GMT
-      Content-Type:
-      - application/json; charset=UTF-8
-      Transfer-Encoding:
-      - chunked
-      Connection:
-      - keep-alive
-      Vary:
-      - Accept-Encoding
+      - Tue, 18 Aug 2015 20:20:18 GMT
+      Server:
+      - Apache
       Set-Cookie:
-      - PHPSESSID=fl3b6ot0bubpcebipig8f39l56; path=/
+      - PHPSESSID=d7binu938d9jgc017so895hg51; expires=Wed, 19-Aug-2015 20:20:18 GMT;
+        path=/
       Expires:
       - Thu, 19 Nov 1981 08:52:00 GMT
       Cache-Control:
-      - no-store, no-cache, must-revalidate
+      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
       Pragma:
       - no-cache
-      Content-Encoding:
-      - gzip
+      Content-Length:
+      - '128'
+      Content-Type:
+      - application/json; charset=UTF-8
     body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        H4sIAAAAAAAAAx2MsQ2AMAwEVwmuYQEGYAmEkBVMGsCRPxQIZXccutedfS9p
-        FqORsqJQTybQ26I42fkojCGJ8eHmRAKN89uG2+m3ob3x5iPqGXBHAbTz6/Lk
-        1nDSENWlJ76eVczU1r/geUj9AIxIu+SAAAAA
+      encoding: UTF-8
+      string: '{"oper":"post","resource":"faltas-geral","msgs":[{"msg":"Faltas postadas
+        com sucesso!","type":"success"}],"any_error_msg":false}'
     http_version: 
-  recorded_at: Thu, 02 Mar 2017 02:09:01 GMT
-recorded_with: VCR 3.0.0
+  recorded_at: Tue, 18 Aug 2015 20:20:19 GMT
+recorded_with: VCR 2.9.3

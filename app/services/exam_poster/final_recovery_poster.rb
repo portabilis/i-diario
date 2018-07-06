@@ -1,28 +1,28 @@
 module ExamPoster
   class FinalRecoveryPoster < Base
+    def self.post!(post_data)
+      new(post_data).post!
+    end
 
-    private
-
-    def generate_requests
+    def post!
       params = build_params
+
       params.each do |classroom_id, classroom_score|
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
-            self.requests << {
-              notas: {
-                classroom_id => {
-                  student_id => {
-                    discipline_id => discipline_score
-                  }
-                }
-              }
-            }
+            api.send_post(notas: { classroom_id => { student_id => { discipline_id => discipline_score } } })
           end
         end
       end
+
+      return { warning_messages: @warning_messages }
     end
 
     private
+
+    def api
+      IeducarApi::FinalRecoveries.new(@post_data.to_api)
+    end
 
     def build_params
       params = Hash.new{ |hash, key| hash[key] = Hash.new(&hash.default_proc) }

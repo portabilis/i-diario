@@ -11,8 +11,6 @@ class IeducarApiExamPosting < ActiveRecord::Base
   belongs_to :author, class_name: 'User'
   belongs_to :teacher
 
-  has_one :worker_batch, as: :stateable
-
   validates :ieducar_api_configuration, presence: true
   validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
   validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
@@ -43,17 +41,11 @@ class IeducarApiExamPosting < ActiveRecord::Base
     )
   end
 
-  def mark_as_warning!(message = nil)
-    self.status = ApiSynchronizationStatus::WARNING
-    self.warning_message = message if message
-    self.save!
-  end
-
-  def add_warning!(messages)
-    with_lock do
-      self.warning_message += Array(messages)
-      save!
-    end
+  def mark_as_warning!(message)
+    update_columns(
+      status: ApiSynchronizationStatus::WARNING,
+      warning_message: message
+    )
   end
 
   def mark_as_completed!(message)
@@ -61,13 +53,6 @@ class IeducarApiExamPosting < ActiveRecord::Base
       status: ApiSynchronizationStatus::COMPLETED,
       message: message
     )
-  end
-
-  def done_percentage
-    return 100 if !synchronization_in_progress?
-    return 0   if worker_batch.blank?
-
-    worker_batch.done_percentage
   end
 
   def step
