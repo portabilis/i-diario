@@ -35,6 +35,8 @@ class IeducarExamPostingWorker
       when ApiPostingTypes::SCHOOL_TERM_RECOVERY
         ExamPoster::SchoolTermRecoveryPoster.post!(posting, entity_id)
       end
+
+      posting.mark_as_warning!(messages[:warning_messages]) if !messages[:warning_messages].empty?
     end
   end
 end
