@@ -1,32 +1,43 @@
 module ExamPoster
   class AbsencePoster < Base
-    def self.post!(post_data)
-      new(post_data).post!
-    end
 
-    def post!
+    private
+
+    def generate_requests
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
-          api.send_post(faltas: { classroom_id => { student_id => student_absence } }, etapa: @post_data.step.to_number, resource: 'faltas-geral')
+          self.requests << {
+            etapa: @post_data.step.to_number,
+            resource: 'faltas-geral',
+            faltas: {
+              classroom_id => {
+                student_id => student_absence
+              }
+            }
+          }
         end
       end
 
       post_by_discipline_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|
-            api.send_post(faltas: { classroom_id => { student_id => { discipline_id => discipline_absence } } }, etapa: @post_data.step.to_number, resource: 'faltas-por-componente')
+            self.requests << {
+              etapa: @post_data.step.to_number,
+              resource: 'faltas-por-componente',
+              faltas: {
+                classroom_id => {
+                  student_id => {
+                    discipline_id => discipline_absence
+                  }
+                }
+              }
+            }
           end
         end
       end
-
-      return { warning_messages: @warning_messages }
     end
 
     protected
-
-    def api
-      IeducarApi::PostAbsences.new(@post_data.to_api)
-    end
 
     def post_general_classrooms
       absences = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }

@@ -2,17 +2,17 @@
 http_interactions:
 - request:
     method: post
-    uri: http://test.ieducar.com.br/module/Api/Diario
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=***REMOVED***&etapa=1&instituicao_id=1&oper=post&pareceres=1&resource=pareceres-anual-geral&secret_key=***REMOVED***
     body:
-      encoding: US-ASCII
-      string: etapa=1&turmas[1234][turma_id]=1234&resource=faltas-geral&oper=post&access_key=***REMOVED***&secret_key=***REMOVED***&instituicao_id=1
+      encoding: ASCII-8BIT
+      string: ''
     headers:
       Accept:
       - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       Content-Length:
-      - '168'
+      - '0'
       Content-Type:
       - application/x-www-form-urlencoded
       User-Agent:
@@ -22,27 +22,34 @@ http_interactions:
       code: 200
       message: OK
     headers:
-      Date:
-      - Tue, 18 Aug 2015 20:19:01 GMT
       Server:
-      - Apache
+      - nginx
+      Date:
+      - Sat, 30 Jun 2018 20:11:03 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
       Set-Cookie:
-      - PHPSESSID=n1v0bu07c7g89k62a5frcnln80; expires=Wed, 19-Aug-2015 20:19:01 GMT;
-        path=/
+      - PHPSESSID=iho4mtodsi8mo7i7g92mcrs506; path=/
       Expires:
       - Thu, 19 Nov 1981 08:52:00 GMT
       Cache-Control:
-      - no-store, no-cache, must-revalidate, post-check=0, pre-check=0
+      - no-store, no-cache, must-revalidate
       Pragma:
       - no-cache
-      Content-Length:
-      - '128'
-      Content-Type:
-      - application/json; charset=UTF-8
+      Content-Encoding:
+      - gzip
     body:
-      encoding: UTF-8
-      string: '{"oper":"post","resource":"faltas-geral","msgs":[{"msg":"Faltas postadas
-        com sucesso!","type":"success"}],"any_error_msg":false}'
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAzWMQQqEQAwEvzKbs37AV3hfFgmz0ctohrRzEPHvJoK3pqiu
+        k7SK0UBVsVNHJtBmWYKwSRYHPW+NS7+IcXFlxQIavmcM18ZXS5HgvyJlXRNa
+        FkA/ftiPGj0ngej6dcTbMYmZ2vREZi6Q6wZzUPMZjAAAAA==
     http_version: 
-  recorded_at: Tue, 18 Aug 2015 20:19:01 GMT
-recorded_with: VCR 2.9.3
+  recorded_at: Thu, 02 Mar 2017 02:10:01 GMT
+recorded_with: VCR 3.0.0
