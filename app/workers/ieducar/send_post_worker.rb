@@ -3,6 +3,7 @@ module Ieducar
     extend Ieducar::SendPostPerformer
     include Ieducar::SendPostPerformer
     include Sidekiq::Worker
+    include ActiveSupport::Benchmarkable
 
     sidekiq_options retry: 2, queue: :exam_posting_send
 
@@ -24,20 +25,26 @@ module Ieducar
         return if posting.error?
 
         begin
-          api(posting).send_post(params)
+          benchmark "BENCHMARK[#{entity_id},#{posting_id},#{params.inspect}] api(posting).send_post(params)" do
+            api(posting).send_post(params)
+          end
         rescue Exception => e
-          if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
-            posting.add_warning!("Componente curricular '#{discipline(params)}' não existe para a turma '#{classroom(params)}'")
-          else
-            raise e
+          benchmark "BENCHMARK[#{entity_id},#{posting_id},#{params.inspect}]: api(posting).send_post(params) => error" do
+            if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
+              posting.add_warning!("Componente curricular '#{discipline(params)}' não existe para a turma '#{classroom(params)}'")
+            else
+              raise e
+            end
           end
         end
 
-        posting.worker_batch.increment(params) do
-          if posting.warning_message.any?
-            posting.mark_as_warning!
-          else
-            posting.mark_as_completed! 'Envio realizado com sucesso!'
+        benchmark "BENCHMARK[#{entity_id},#{posting_id},#{params.inspect}]: posting.worker_batch.increment(params)" do
+          posting.worker_batch.increment(params) do
+            if posting.warning_message.any?
+              posting.mark_as_warning!
+            else
+              posting.mark_as_completed! 'Envio realizado com sucesso!'
+            end
           end
         end
       end
