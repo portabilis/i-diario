@@ -40,10 +40,12 @@ module Ieducar
 
         benchmark "BENCHMARK[#{entity_id},#{posting_id},#{params.inspect}]: posting.worker_batch.increment(params)" do
           posting.worker_batch.increment(params) do
-            if posting.warning_message.any?
-              posting.mark_as_warning!
-            else
-              posting.mark_as_completed! 'Envio realizado com sucesso!'
+            if posting.synchronization_in_progress?
+              if posting.warning_message.any?
+                posting.mark_as_warning!
+              else
+                posting.mark_as_completed! 'Envio realizado com sucesso!'
+              end
             end
           end
         end
