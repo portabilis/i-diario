@@ -12,12 +12,17 @@ class IeducarApiExamPosting < ActiveRecord::Base
   belongs_to :teacher
 
   has_one :worker_batch, as: :stateable
+  has_many :notices, as: :noticeable
 
   validates :ieducar_api_configuration, presence: true
   validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
   validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
 
   delegate :to_api, to: :ieducar_api_configuration
+
+  def warning_message
+    super.presence || notices.texts
+  end
 
   def self.completed
     self.completed.last
@@ -28,7 +33,7 @@ class IeducarApiExamPosting < ActiveRecord::Base
   end
 
   def self.warnings
-    self.warning
+    Notice.all.merge(self.all).texts
   end
 
   def synchronization_in_progress?
@@ -44,15 +49,15 @@ class IeducarApiExamPosting < ActiveRecord::Base
   end
 
   def mark_as_warning!(message = nil)
-    self.status = ApiSynchronizationStatus::WARNING
-    self.warning_message = message if message
-    self.save!
+    transaction do
+      add_warning!(message) if message
+      update_attribute(:status, ApiSynchronizationStatus::WARNING)
+    end
   end
 
   def add_warning!(messages)
-    with_lock do
-      self.warning_message += Array(messages)
-      save!
+    Array(messages).each do |message|
+      notices.create(kind: NoticeTypes::WARNING, text: message)
     end
   end
 
