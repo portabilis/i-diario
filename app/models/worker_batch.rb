@@ -21,10 +21,11 @@ class WorkerBatch < ActiveRecord::Base
 
   def increment(done_info)
     with_lock do
-      update_attributes!(
-        done_workers: (done_workers + 1),
-        completed_workers: (completed_workers << done_info)
-      )
+      self.done_workers = (done_workers + 1)
+      if Rails.logger.debug?
+        self.completed_workers = (completed_workers << done_info)
+      end
+      save!
 
       yield if block_given? && all_workers_finished?
     end
