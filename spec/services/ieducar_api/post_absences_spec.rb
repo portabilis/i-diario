@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe IeducarApi::PostAbsences, :type => :service do
-  let(:url) { "https://test.ieducar.com.br" }
+  let(:url) { "http://test.ieducar.com.br" }
   let(:access_key) { "***REMOVED***" }
   let(:secret_key) { "***REMOVED***" }
   let(:unity_id) { 1 }

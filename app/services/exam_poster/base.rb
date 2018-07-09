@@ -2,35 +2,16 @@ module ExamPoster
   class Base
     class InvalidClassroomError < StandardError; end
 
-    attr_accessor :warning_messages, :requests
+    attr_accessor :warning_messages
 
-    def initialize(post_data, entity_id = nil, batch = nil)
+    def initialize(post_data)
       @post_data = post_data
-      @entity_id = entity_id
-      @worker_batch = post_data.worker_batch
       @warning_messages = []
-      @requests = []
-    end
-
-    def self.post!(post_data, entity_id = nil)
-      new(post_data, entity_id).post!
     end
 
     def post!
-      generate_requests
-
-      worker_batch.update_attributes!(total_workers: requests.count)
-      requests.each do |request|
-        Ieducar::SendPostWorker.perform_async(entity_id, @post_data.id, request)
-      end
-
-      @post_data.add_warning!(@warning_messages)
-      @post_data.mark_as_warning! if worker_batch.lock!.all_workers_finished?
+      raise NotImplementedError
     end
-
-    private
-
-    attr_reader :worker_batch, :entity_id
 
     def step_exists_for_classroom?(classroom)
       return false if invalid_classroom_year?(classroom)

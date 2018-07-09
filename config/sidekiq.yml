@@ -7,4 +7,3 @@ production:
 :queues:
   - default
   - exam_posting
-  - exam_posting_send

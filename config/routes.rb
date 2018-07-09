@@ -366,11 +366,7 @@ Rails.application.routes.draw do
 
     resources :absence_justifications, concerns: :history
     resources :observation_diary_records, expect: :show, concerns: :history
-    resources :ieducar_api_exam_postings do
-      member do
-        get :done_percentage
-      end
-    end
+    resources :ieducar_api_exam_postings
     resources :avaliation_exemptions, concerns: :history
     resources :***REMOVED***, concerns: :history
 
