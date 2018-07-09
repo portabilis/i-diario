@@ -24,8 +24,7 @@ module ExamPoster
         Ieducar::SendPostWorker.perform_async(entity_id, @post_data.id, request)
       end
 
-      @post_data.add_warning!(@warning_messages)
-      @post_data.mark_as_warning! if worker_batch.lock!.all_workers_finished?
+      @post_data.mark_as_warning!(@warning_messages) if @warning_messages.present?
     end
 
     private
