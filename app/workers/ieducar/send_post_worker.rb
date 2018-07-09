@@ -4,7 +4,7 @@ module Ieducar
     include Ieducar::SendPostPerformer
     include Sidekiq::Worker
 
-    sidekiq_options retry: 5, queue: :exam_posting_send
+    sidekiq_options retry: 2, queue: :exam_posting_send
 
     sidekiq_retries_exhausted do |msg, ex|
       performer(*msg['args']) do |posting, _, _|
