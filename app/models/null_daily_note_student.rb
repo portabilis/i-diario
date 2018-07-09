@@ -1,4 +1,6 @@
 class NullDailyNoteStudent
+  attr_accessor :recovery_note
+
   def dependence?
     false
   end
@@ -8,7 +10,7 @@ class NullDailyNoteStudent
   end
 
   def recovery_note
-    'N'
+    @recovery_note || 'N'
   end
 
   def has_recovery?

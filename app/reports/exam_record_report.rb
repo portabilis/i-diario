@@ -117,20 +117,18 @@ class ExamRecordReport < BaseReport
 
         @students_enrollments.each do |student_enrollment|
           student_id = student_enrollment.student_id
-          exemped_from_discipline = exempted_from_discipline?(student_enrollment, daily_note)
-          if exemped_from_discipline ||
-             exempted_avaliation?(student_enrollment.student_id, avaliation_id)
+          exempted_from_discipline = exempted_from_discipline?(student_enrollment, daily_note)
 
+          if exempted_from_discipline || exempted_avaliation?(student_enrollment.student_id, avaliation_id)
             student_note = ExemptedDailyNoteStudent.new
-            averages[student_enrollment.student_id] = "D" if exemped_from_discipline
+            averages[student_enrollment.student_id] = "D" if exempted_from_discipline
           else
-            student_note = DailyNoteStudent
-            .find_by(
-              student_id: student_id,
-              daily_note_id: daily_note_id,
-              active: true
-            ) || NullDailyNoteStudent.new
+            daily_note_student = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note_id, active: true)
+            student_note = daily_note_student || NullDailyNoteStudent.new
           end
+
+          recovery_note = recovery_record(daily_note) ? daily_note.students.find_by_student_id(student_id).try(&:score) : nil
+          student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
 
           student = Student.find(student_id)
 

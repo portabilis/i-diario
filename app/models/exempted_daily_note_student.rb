@@ -1,4 +1,6 @@
 class ExemptedDailyNoteStudent
+  attr_accessor :recovery_note
+
   def dependence?
     false
   end
@@ -8,7 +10,7 @@ class ExemptedDailyNoteStudent
   end
 
   def recovery_note
-    'D'
+    @recovery_note || 'D'
   end
 
   def has_recovery?
