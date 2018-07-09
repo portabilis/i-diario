@@ -28,9 +28,9 @@ module Ieducar
         rescue Exception => e
           if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
             posting.add_warning!("Componente curricular '#{discipline(params)}' não existe para a turma '#{classroom(params)}'")
+          else
+            raise e
           end
-
-          raise e
         end
 
         posting.worker_batch.increment(params) do
