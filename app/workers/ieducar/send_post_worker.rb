@@ -12,6 +12,8 @@ module Ieducar
 
         if posting.synchronization_in_progress?
           posting.mark_as_error!('Ocorreu um erro desconhecido.', custom_error)
+        else
+          Honeybadger.notify(ex)
         end
       end
     end
