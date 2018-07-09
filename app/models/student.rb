@@ -16,7 +16,9 @@ class Student < ActiveRecord::Base
 
   scope :api, -> { where(arel_table[:api].eq(true)) }
   scope :ordered, -> { order(:name) }
-  scope :order_by_sequence, lambda { |classroom_id| joins(:student_enrollments).merge(StudentEnrollment.by_classroom(classroom_id).active.ordered) }
+  scope :order_by_sequence, lambda { |classroom_id|
+    joins(:student_enrollments).merge(StudentEnrollment.by_classroom(classroom_id).active.ordered)
+  }
 
   def self.search(value)
     relation = all
@@ -35,12 +37,11 @@ class Student < ActiveRecord::Base
   end
 
   def first_name
-    name.blank? ? "" : name.split(" ")[0]
+    name.blank? ? '' : name.split(' ')[0]
   end
 
   def average(classroom, discipline, step)
-    StudentAverageCalculator.new(self)
-      .calculate(classroom, discipline, step)
+    StudentAverageCalculator.new(self).calculate(classroom, discipline, step)
   end
 
   def classrooms

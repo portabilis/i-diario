@@ -1,24 +1,11 @@
-class KnowledgeAreaTeachingPlanPdf
-  include Prawn::View
-
+class KnowledgeAreaTeachingPlanPdf < BaseReport
   def self.build(entity_configuration, knowledge_area_teaching_plan)
     new.build(entity_configuration, knowledge_area_teaching_plan)
   end
 
-  def initialize
-    @document = Prawn::Document.new(
-      page_size: 'A4',
-      page_layout: :portrait,
-      left_margin: 5.mm,
-      right_margin: 5.mm,
-      top_margin: 5.mm,
-      bottom_margin: 5.mm)
-  end
-
   def build(entity_configuration, knowledge_area_teaching_plan)
     @entity_configuration = entity_configuration
-    @knowledge_area_teaching_plan = knowledge_area_teaching_plan    
-    @gap = 8
+    @knowledge_area_teaching_plan = knowledge_area_teaching_plan
     attributes
 
     header
@@ -76,7 +63,7 @@ class KnowledgeAreaTeachingPlanPdf
       ]
     ]
 
-    repeat(:all) do
+    page_header do
       table(table_data, width: bounds.width) do
         cells.border_width = 0.25
         row(0).border_top_width = 0.25
@@ -108,8 +95,8 @@ class KnowledgeAreaTeachingPlanPdf
       padding: [2, 2, 4, 4],
       align: :center,
       colspan: 4
-    )        
-    knowledge_area_lesson_plans_knowledge_areas = KnowledgeAreaTeachingPlanKnowledgeArea.where knowledge_area_teaching_plan_id: @knowledge_area_teaching_plan.id    
+    )
+    knowledge_area_lesson_plans_knowledge_areas = KnowledgeAreaTeachingPlanKnowledgeArea.where knowledge_area_teaching_plan_id: @knowledge_area_teaching_plan.id
     knowledge_area_ids = []
 
     knowledge_area_lesson_plans_knowledge_areas.each do |knowledge_area_lesson_plans_knowledge_area|
@@ -118,7 +105,7 @@ class KnowledgeAreaTeachingPlanPdf
 
     knowledge_areas = KnowledgeArea.where id: [knowledge_area_ids]
 
-    knowledge_area_descriptions = (knowledge_areas.map { |descriptions| descriptions}.join(", "))    
+    knowledge_area_descriptions = (knowledge_areas.map { |descriptions| descriptions}.join(", "))
 
     @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 7)
     @unity_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 7)
@@ -136,13 +123,13 @@ class KnowledgeAreaTeachingPlanPdf
     @year_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     @period_header = make_cell(content: 'Período escolar', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @period_cell = make_cell(content: (@knowledge_area_teaching_plan.teaching_plan.school_term_type == SchoolTermTypes::YEARLY ? @knowledge_area_teaching_plan.teaching_plan.school_term_type_humanize : @knowledge_area_teaching_plan.teaching_plan.school_term_humanize), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)    
+    @period_cell = make_cell(content: (@knowledge_area_teaching_plan.teaching_plan.school_term_type == SchoolTermTypes::YEARLY ? @knowledge_area_teaching_plan.teaching_plan.school_term_type_humanize : @knowledge_area_teaching_plan.teaching_plan.school_term_humanize), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     objective_cell_content = inline_formated_cell_header('Objetivos') + (@knowledge_area_teaching_plan.teaching_plan.objectives.present? ? @knowledge_area_teaching_plan.teaching_plan.objectives : '-')
     @objective_cell = make_cell(content: objective_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
     content_cell_content = inline_formated_cell_header('Conteúdos') + (@knowledge_area_teaching_plan.teaching_plan.contents.present? ? @knowledge_area_teaching_plan.teaching_plan.contents_ordered.map(&:to_s).join(", ") : '-')
-    @content_cell = make_cell(content: content_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)    
+    @content_cell = make_cell(content: content_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
     methodology_cell_content = inline_formated_cell_header('Metodologia') + (@knowledge_area_teaching_plan.teaching_plan.methodology.present? ? @knowledge_area_teaching_plan.teaching_plan.methodology : '-')
     @methodology_cell = make_cell(content: methodology_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
@@ -151,7 +138,7 @@ class KnowledgeAreaTeachingPlanPdf
     @evaluation_cell = make_cell(content: evaluation_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
     reference_cell_content = inline_formated_cell_header('Referências') + (@knowledge_area_teaching_plan.teaching_plan.references.present? ? @knowledge_area_teaching_plan.teaching_plan.references : '-')
-    @reference_cell = make_cell(content: reference_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)    
+    @reference_cell = make_cell(content: reference_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
   end
 
   def general_information
@@ -172,6 +159,8 @@ class KnowledgeAreaTeachingPlanPdf
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+
+    move_down GAP
   end
 
   def class_plan
@@ -184,8 +173,6 @@ class KnowledgeAreaTeachingPlanPdf
       [@reference_cell]
     ]
 
-    move_down @gap
-
     table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
       cells.border_width = 0.25
       row(0).border_top_width = 0.25
@@ -196,26 +183,9 @@ class KnowledgeAreaTeachingPlanPdf
   end
 
   def body
-    bounding_box([0, 727], width: bounds.width, height: 700) do
+    page_content do
       general_information
-      class_plan      
+      class_plan
     end
   end
-
-  def footer
-    repeat(:all) do
-      draw_text("Data e hora: #{Time.zone.now.strftime("%d/%m/%Y %H:%M")}", size: 8, at: [0, 0])
-    end
-
-    string = "Página <page> de <total>"
-    options = { at: [bounds.right - 150, 6],
-                width: 150,
-                size: 8,
-                align: :right }
-    number_pages(string, options)
-  end
-
-  def inline_formated_cell_header(text)
-    "<font size='8'><b>#{text}</b></font>\n"
-  end  
 end

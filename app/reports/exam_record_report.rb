@@ -1,21 +1,10 @@
-require "prawn/measurement_extensions"
 require 'action_view'
 
-class ExamRecordReport
-  include Prawn::View
+class ExamRecordReport < BaseReport
   include ActionView::Helpers::NumberHelper
 
   def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
-    new.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
-  end
-
-  def initialize
-    @document = Prawn::Document.new(page_size: 'A4',
-                                    page_layout: :landscape,
-                                    left_margin: 5.mm,
-                                    right_margin: 5.mm,
-                                    top_margin: 5.mm,
-                                    bottom_margin: 5.mm)
+    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
   end
 
   def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
@@ -27,8 +16,8 @@ class ExamRecordReport
     @daily_notes = daily_notes
     @students_enrollments = students_enrollments
 
+    header
     content
-
     footer
 
     self
@@ -69,12 +58,14 @@ class ExamRecordReport
                         [discipline_header, teacher_header],
                         [discipline_cell, teacher_cell]]
 
-    table(first_table_data, width: bounds.width, header: true) do
-      cells.border_width = 0.25
-      row(0).border_top_width = 0.25
-      row(-1).border_bottom_width = 0.25
-      column(0).border_left_width = 0.25
-      column(-1).border_right_width = 0.25
+    page_header do
+      table(first_table_data, width: bounds.width, header: true) do
+        cells.border_width = 0.25
+        row(0).border_top_width = 0.25
+        row(-1).border_bottom_width = 0.25
+        column(0).border_left_width = 0.25
+        column(-1).border_right_width = 0.25
+      end
     end
   end
 
@@ -126,20 +117,18 @@ class ExamRecordReport
 
         @students_enrollments.each do |student_enrollment|
           student_id = student_enrollment.student_id
-          exemped_from_discipline = exempted_from_discipline?(student_enrollment, daily_note)
-          if exemped_from_discipline ||
-             exempted_avaliation?(student_enrollment.student_id, avaliation_id)
+          exempted_from_discipline = exempted_from_discipline?(student_enrollment, daily_note)
 
+          if exempted_from_discipline || exempted_avaliation?(student_enrollment.student_id, avaliation_id)
             student_note = ExemptedDailyNoteStudent.new
-            averages[student_enrollment.student_id] = "D" if exemped_from_discipline
+            averages[student_enrollment.student_id] = "D" if exempted_from_discipline
           else
-            student_note = DailyNoteStudent
-            .find_by(
-              student_id: student_id,
-              daily_note_id: daily_note_id,
-              active: true
-            ) || NullDailyNoteStudent.new
+            daily_note_student = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note_id, active: true)
+            student_note = daily_note_student || NullDailyNoteStudent.new
           end
+
+          recovery_note = recovery_record(daily_note) ? daily_note.students.find_by_student_id(student_id).try(&:score) : nil
+          student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
 
           student = Student.find(student_id)
 
@@ -208,15 +197,15 @@ class ExamRecordReport
         ]
         data.concat(students_cells_slice)
 
-        move_down 8
-
-        table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2], inline_format: true }, width: bounds.width) do |t|
-          t.cells.border_width = 0.25
-          t.before_rendering_page do |page|
-            page.row(0).border_top_width = 0.25
-            page.row(-1).border_bottom_width = 0.25
-            page.column(0).border_left_width = 0.25
-            page.column(-1).border_right_width = 0.25
+        page_content do
+          table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2], inline_format: true }, width: bounds.width) do |t|
+            t.cells.border_width = 0.25
+            t.before_rendering_page do |page|
+              page.row(0).border_top_width = 0.25
+              page.row(-1).border_bottom_width = 0.25
+              page.column(0).border_left_width = 0.25
+              page.column(-1).border_right_width = 0.25
+            end
           end
         end
 
@@ -228,31 +217,25 @@ class ExamRecordReport
   end
 
   def content
-    header
     daily_notes_table
   end
 
   def footer
-    repeat(:all) do
-      draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
-      draw_text('____________________________', size: 8, at: [117, 0])
+    page_footer do
+      repeat(:all) do
+        draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
+        draw_text('____________________________', size: 8, at: [117, 0])
 
-      draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
-      draw_text('____________________________', size: 8, at: [429, 0])
+        draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
+        draw_text('____________________________', size: 8, at: [429, 0])
 
-      draw_text('Data:', size: 8, style: :bold, at: [559, 0])
-      draw_text('________________', size: 8, at: [581, 0])
+        draw_text('Data:', size: 8, style: :bold, at: [559, 0])
+        draw_text('________________', size: 8, at: [581, 0])
 
-      draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação ou da disciplina', size: 8, at: [0, 17])
-      draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if self.any_student_with_dependence
+        draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação ou da disciplina', size: 8, at: [0, 17])
+        draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if self.any_student_with_dependence
+      end
     end
-
-    string = "Página <page> de <total>"
-    options = { at: [bounds.right - 150, 6],
-                width: 150,
-                size: 8,
-                align: :right }
-    number_pages(string, options)
   end
 
   def exempted_avaliation?(student_id, avaliation_id)
