@@ -20,7 +20,7 @@
     <%= favicon_link_tag  %>
   </head>
 
-  <body class="smart-style-2 <%= controller_name %>">
+  <body class="smart-style-2 fixed-header <%= controller_name %>">
     <div id="page-loading" class="hidden">
       <i class="fa fa-cog fa-spin"></i>
       Carregando ...
@@ -28,10 +28,37 @@
 
     <%= hidden_field_tag :valid_current_role, "#{valid_current_role?}" %>
 
-    <header id="header">
-      <div id="logo-group">
-        <span id="logo">Educação</span>
+    <header id="header" style="height: 65px; background-color: #27333B;">
+      <div class="login-info" style="background-color: #32414C; height: 65px;">
+        <span style="background-color: transparent; margin-top: 6px;">
+          <a data-action="toggleShortcut">
+            <img class="online" src="https://www.gravatar.com/avatar/8ccc7669e581bbfb46d859a942361822?size=48&d=https%3A%2F%2Fs3-sa-east-1.amazonaws.com%2Fapps-core-images-test%2Fuploads%2Favatar%2Favatar.jpg" alt="me">
+            <span style="background-color: transparent; color: #FFFFFF;"><%= current_user.navigation_display %></span>
+          </a>
+        </span>
       </div>
+
+      <div id="current-role-selector" style="margin-top: 8px;">
+        <%=
+          render(
+            "users/selectors",
+            user: current_user,
+            user_role: current_user.current_user_role,
+            unity: current_user.current_unity,
+            teacher: current_user.teacher || current_user.current_teacher,
+            classroom: current_user.current_classroom,
+            discipline: current_user.current_discipline,
+            unities: Unity.includes(:user_roles).ordered,
+            teachers: Teacher.joins(classrooms: :unity).includes(classrooms: :unity).order_by_name.uniq,
+            classrooms: Classroom.joins(teacher_discipline_classrooms: :teacher).includes(teacher_discipline_classrooms: :teacher).ordered.uniq,
+            disciplines: Discipline.joins(teacher_discipline_classrooms: :classroom).includes(teacher_discipline_classrooms: :classroom).ordered.uniq
+          )
+        %>
+      </div>
+
+      <%# <div id="logo-group">
+        <span id="logo">Educação</span>
+      </div> %>
 
       <div class="pull-right">
         <!-- collapse ***REMOVED*** button -->

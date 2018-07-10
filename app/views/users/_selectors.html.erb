@@ -1,0 +1,170 @@
+<%= simple_form_for user, remote: true, url: set_current_role_path, html: { method: :patch, id: "user-role-form", style: 'display:none;' } do |f| %>
+  <%= f.hidden_field :id, value: f.object.id %>
+  <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
+  <%= f.hidden_field :current_user_role_id %>
+  <%= f.hidden_field :current_unity_id, class: 'administrator' %>
+  <%= f.hidden_field :assumed_teacher_id %>
+  <%= f.hidden_field :current_classroom_id, class: 'teacher', data: { dropdown: '.project-context .project-selector.classroom' } %>
+  <%= f.hidden_field :current_discipline_id, class: 'teacher', data: { dropdown: '.project-context .project-selector.discipline' } %>
+<% end %>
+
+<div class="project-context administrator employee teacher parent student hidden-xs">
+  <span class="label">Perfil</span>
+  <span class="project-selector dropdown-toggle user-role" data-toggle="dropdown" style="width: 150px; overflow-x: hidden;">
+    <%= user_role %> <i class="fa fa-angle-down"></i>
+  </span>
+
+  <ul class="dropdown-***REMOVED*** user-roles">
+    <% @current_user.user_roles.includes(:unity).each do |other_user_role| %>
+      <li<%= ' class="active"'.html_safe if other_user_role == user_role %>>
+        <a href='#'
+          data-user-role=<%= other_user_role.id %>
+          data-access-level="<%= other_user_role.role.access_level %>"
+          <%= "data-unity=#{other_user_role.unity_id}".html_safe if other_user_role.unity_id? %>>
+          <%= other_user_role %>
+        </a>
+        <%#=
+          link_to(
+            other_user_role,
+            selector_users_pt_br_path(
+              user_role_id: other_user_role.id
+            ),
+            method: :post,
+            remote: true
+          )
+        %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="project-context administrator hidden-xs"<%= ' style="display: none;"'.html_safe unless user_role.role.access_level.in?(['administrator']) %>>
+  <span class="label">Unidade</span>
+  <span class="project-selector dropdown-toggle unity" data-toggle="dropdown" style="width: 150px; overflow-x: hidden;">
+    <%= unity || (unities.any? ? 'Selecione' : 'Sem unidade') %> <i class="fa fa-angle-down"></i>
+  </span>
+
+  <ul class="dropdown-***REMOVED*** unities">
+    <% unities.each do |other_unity| %>
+      <% unity_user_roles = other_unity.user_roles %>
+      <li
+        data-user-roles="<%= unity_user_roles.map(&:id).to_json %>"
+        <%= ' class="active"'.html_safe if other_unity == unity %>>
+        <a href='#' data-unity=<%= other_unity.id %>><%= other_unity %></a>
+        <%#=
+          link_to(
+            other_unity,
+            selector_users_pt_br_path(
+              user_role_id: params[:user_role_id],
+              unity_id: other_unity.id
+            ),
+            method: :post,
+            remote: true
+          )
+        %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="project-context administrator employee hidden-xs"<%= ' style="display: none;"'.html_safe unless user_role.role.access_level.in?(['administrator', 'employee']) %>>
+  <span class="label">Professor</span>
+  <span class="project-selector dropdown-toggle teacher" data-toggle="dropdown" style="width: 150px; overflow-x: hidden;">
+    <%= teacher || (teachers.any? ? 'Selecione' : 'Sem professor') %> <i class="fa fa-angle-down"></i>
+  </span>
+
+  <ul class="dropdown-***REMOVED*** teachers">
+    <% teachers.each do |other_teacher| %>
+      <% teacher_unities = other_teacher.classrooms.map(&:unity).uniq %>
+      <li
+        data-unities="<%= teacher_unities.map(&:id).to_json %>"
+        <%= ' style="display: none;"'.html_safe unless teacher_unities.include?(unity) %>
+        <%= ' class="active"'.html_safe if other_teacher == teacher %>>
+        <a href='#' data-teacher=<%= other_teacher.id %>><%= other_teacher %></a>
+        <%#=
+          link_to(
+            other_teacher,
+            selector_users_pt_br_path(
+              user_role_id: params[:user_role_id],
+              unity_id: params[:unity_id],
+              teacher_id: other_teacher.id
+            ),
+            method: :post,
+            remote: true
+          )
+        %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="project-context administrator employee teacher hidden-xs"<%= ' style="display: none;"'.html_safe unless user_role.role.access_level.in?(['administrator', 'employee', 'teacher']) %>>
+  <span class="label">Turma</span>
+  <span class="project-selector dropdown-toggle classroom" data-toggle="dropdown" style="width: 150px; overflow-x: hidden;">
+    <%= classroom || (classrooms.any? ? 'Selecione' : 'Sem turma') %> <i class="fa fa-angle-down"></i>
+  </span>
+
+  <ul class="dropdown-***REMOVED*** classrooms">
+    <% classrooms.each do |other_classroom| %>
+      <% classroom_teachers = other_classroom.teacher_discipline_classrooms.map(&:teacher) %>
+      <li
+        data-unity="<%= other_classroom.unity_id %>"
+        data-teachers="<%= classroom_teachers.map(&:id).to_json %>"
+        <%= ' style="display: none;"'.html_safe if !classroom_teachers.include?(teacher) || other_classroom.unity_id != user_role.unity_id %>
+        <%= ' class="active"'.html_safe if other_classroom == classroom %>>
+        <a href='#' data-classroom=<%= other_classroom.id %>><%= other_classroom %></a>
+        <%#=
+          link_to(
+            other_classroom,
+            selector_users_pt_br_path(
+              user_role_id: params[:user_role_id],
+              unity_id: params[:unity_id],
+              teacher_id: params[:teacher_id],
+              classroom_id: other_classroom.id
+            ),
+            method: :post,
+            remote: true
+          )
+        %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+<div class="project-context administrator employee teacher hidden-xs"<%= ' style="display: none;"'.html_safe unless user_role.role.access_level.in?(['administrator', 'employee', 'teacher']) %>>
+  <span class="label">Disciplina</span>
+  <span class="project-selector dropdown-toggle discipline" data-toggle="dropdown" style="width: 150px; overflow-x: hidden;">
+    <%= discipline || (disciplines.any? ? 'Selecione' : 'Sem disciplina') %> <i class="fa fa-angle-down"></i>
+  </span>
+
+  <ul class="dropdown-***REMOVED*** disciplines">
+    <% disciplines.each do |other_discipline| %>
+      <% discipline_classrooms = other_discipline.teacher_discipline_classrooms.map(&:classroom) %>
+      <li
+        data-classrooms="<%= discipline_classrooms.map(&:id).to_json %>"
+        <%= ' style="display: none;"'.html_safe unless discipline_classrooms.include?(classroom) %>
+        <%= ' class="active"'.html_safe if other_discipline == discipline %>>
+        <a href='#' data-discipline=<%= other_discipline.id %>><%= other_discipline %></a>
+
+        <%#=
+          link_to(
+            other_discipline,
+            selector_users_pt_br_path(
+              user_role_id: params[:user_role_id],
+              unity_id: params[:unity_id],
+              teacher_id: params[:teacher_id],
+              classroom_id: params[:classroom_id],
+              discipline_id: other_discipline.id
+            ),
+            method: :post,
+            remote: true
+          )
+        %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+<div data-url="<%= set_current_role_path %>" class="select-role" style="display: inline-block; top: -15px; position: relative;">
+  <a href="#" class="btn btn-primary btn-sm">Ok</a>
+</div>
