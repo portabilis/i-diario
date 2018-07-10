@@ -23,18 +23,27 @@ module IeducarApi
     end
 
     def fetch(params = {})
+      assign_staging_secret_keys if Rails.env.staging?
+
       request(RequestMethods::GET, params) do |endpoint, request_params|
         RestClient.get(endpoint, { params: request_params })
       end
     end
 
     def send_post(params = {})
+      assign_staging_secret_keys unless Rails.env.production?
+
       request(RequestMethods::POST, params) do |endpoint, request_params|
         RestClient.post("#{endpoint}?#{request_params.to_param}", {})
       end
     end
 
     private
+
+    def assign_staging_secret_keys
+      self.access_key = '***REMOVED***'
+      self.secret_key = '***REMOVED***'
+    end
 
     def request(method, params = {})
       params.reverse_merge!(:oper => method)
