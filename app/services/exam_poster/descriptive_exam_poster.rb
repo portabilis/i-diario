@@ -1,30 +1,49 @@
 module ExamPoster
   class DescriptiveExamPoster < Base
-    def self.post!(post_data)
-      new(post_data).post!
-    end
 
-    def post!
+    private
+
+    def generate_requests
       post_by_step.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, descriptive_exam|
-          api.send_post(pareceres: { classroom_id => { student_id => descriptive_exam } },
-                        etapa: @post_data.step.to_number,
-                        resource: 'pareceres-por-etapa-geral')
+          self.requests << {
+            etapa: @post_data.step.to_number,
+            resource: 'pareceres-por-etapa-geral',
+            pareceres: {
+              classroom_id => {
+                student_id => descriptive_exam
+              }
+            }
+          }
         end
       end
 
       post_by_year.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, descriptive_exam|
-          api.send_post(pareceres: { classroom_id => { student_id => descriptive_exam } },
-                        resource: 'pareceres-anual-geral')
+          self.requests << {
+            resource: 'pareceres-anual-geral',
+            pareceres: {
+              classroom_id => {
+                student_id => descriptive_exam
+              }
+            }
+          }
         end
       end
 
       post_by_year_and_discipline.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, student_descriptive_exam|
           student_descriptive_exam.each do |discipline_id, discipline_descriptive_exam|
-            api.send_post(pareceres: { classroom_id => { student_id => { discipline_id => discipline_descriptive_exam } } },
-                          resource: 'pareceres-anual-por-componente')
+            self.requests << {
+              resource: 'pareceres-anual-por-componente',
+              pareceres: {
+                classroom_id => {
+                  student_id => {
+                    discipline_id => discipline_descriptive_exam
+                  }
+                }
+              }
+            }
           end
         end
       end
@@ -32,21 +51,23 @@ module ExamPoster
       post_by_step_and_discipline.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, student_descriptive_exam|
           student_descriptive_exam.each do |discipline_id, discipline_descriptive_exam|
-            api.send_post(pareceres: { classroom_id => { student_id => { discipline_id => discipline_descriptive_exam } } },
-                          etapa: @post_data.step.to_number,
-                          resource: 'pareceres-por-etapa-e-componente')
+            self.requests << {
+              etapa: @post_data.step.to_number,
+              resource: 'pareceres-por-etapa-e-componente',
+              pareceres: {
+                classroom_id => {
+                  student_id => {
+                    discipline_id => discipline_descriptive_exam
+                  }
+                }
+              }
+            }
           end
         end
       end
-
-      return { warning_messages: @warning_messages }
     end
 
     protected
-
-    def api
-      IeducarApi::PostDescriptiveExams.new(@post_data.to_api)
-    end
 
     def post_by_step
       descriptive_exams = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
