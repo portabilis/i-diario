@@ -36,10 +36,6 @@ class IeducarExamPostingWorker
       when ApiPostingTypes::SCHOOL_TERM_RECOVERY
         ExamPoster::SchoolTermRecoveryPoster.post!(posting, entity_id)
       end
-
-      posting.worker_batch.increment(params) do
-        posting.finish!
-      end
     end
   end
 end

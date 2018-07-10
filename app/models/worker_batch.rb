@@ -3,7 +3,9 @@ class WorkerBatch < ActiveRecord::Base
   belongs_to :stateable, polymorphic: true
 
   def all_workers_finished?
-    total_workers == done_workers
+    with_lock do
+      total_workers == done_workers
+    end
   end
 
   def done_percentage

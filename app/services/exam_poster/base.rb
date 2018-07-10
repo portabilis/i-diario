@@ -22,8 +22,13 @@ module ExamPoster
       @post_data.add_warning!(@warning_messages) if @warning_messages.present?
 
       worker_batch.update_attributes!(total_workers: requests.count)
-      requests.each do |request|
-        Ieducar::SendPostWorker.perform_async(entity_id, @post_data.id, request)
+
+      if requests.present?
+        requests.each do |request|
+          Ieducar::SendPostWorker.perform_async(entity_id, @post_data.id, request)
+        end
+      else
+        @post_data.finish!
       end
     end
 
