@@ -3,6 +3,9 @@ module IeducarApi
   class Base
     class ApiError < Exception; end
 
+    STAGING_ACCESS_KEY = '***REMOVED***'
+    STAGING_SECRET_KEY = '***REMOVED***'
+
     attr_accessor :url, :access_key, :secret_key, :unity_id
 
     def initialize(options = {})
@@ -41,8 +44,8 @@ module IeducarApi
     private
 
     def assign_staging_secret_keys
-      self.access_key = '***REMOVED***'
-      self.secret_key = '***REMOVED***'
+      self.access_key = STAGING_ACCESS_KEY
+      self.secret_key = STAGING_SECRET_KEY
     end
 
     def request(method, params = {})
