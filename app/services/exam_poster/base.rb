@@ -19,7 +19,7 @@ module ExamPoster
     def post!
       generate_requests
 
-      @post_data.mark_as_warning!(@warning_messages) if @warning_messages.present?
+      @post_data.add_warning!(@warning_messages) if @warning_messages.present?
 
       worker_batch.update_attributes!(total_workers: requests.count)
       requests.each do |request|

@@ -11,7 +11,8 @@ class IeducarExamPostingWorker
       posting = IeducarApiExamPosting.find(posting_id)
 
       custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
-      posting.mark_as_error!('Ocorreu um erro desconhecido.', custom_error)
+      posting.add_error!('Ocorreu um erro desconhecido.', custom_error)
+      posting.finish!
     end
   end
 

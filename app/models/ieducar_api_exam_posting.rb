@@ -40,18 +40,11 @@ class IeducarApiExamPosting < ActiveRecord::Base
     status == ApiSynchronizationStatus::STARTED
   end
 
-  def mark_as_error!(message, full_error_message='')
-    update_columns(
-      status: ApiSynchronizationStatus::ERROR,
-      error_message: message,
-      full_error_message: full_error_message,
-    )
-  end
-
-  def mark_as_warning!(message = nil)
-    transaction do
-      add_warning!(message) if message
-      update_attribute(:status, ApiSynchronizationStatus::WARNING)
+  def add_error!(message, full_error_message)
+    with_lock do
+      self.error_message = message
+      self.full_error_message ||= full_error_message
+      save!
     end
   end
 
@@ -75,7 +68,32 @@ class IeducarApiExamPosting < ActiveRecord::Base
     worker_batch.done_percentage
   end
 
+  def finish!
+    with_lock do
+      return if !synchronization_in_progress?
+
+      if warning_message.any?
+        mark_as_warning!
+      elsif error_message?
+        mark_as_error!
+      else
+        mark_as_completed! 'Envio realizado com sucesso!'
+      end
+    end
+  end
+
   def step
     self.school_calendar_classroom_step || self.school_calendar_step
+  end
+
+  private
+
+  def mark_as_error!
+    update_attribute(:status, ApiSynchronizationStatus::ERROR)
+  end
+
+
+  def mark_as_warning!
+    update_attribute(:status, ApiSynchronizationStatus::WARNING)
   end
 end

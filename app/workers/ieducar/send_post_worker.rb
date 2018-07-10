@@ -10,10 +10,14 @@ module Ieducar
       performer(*msg['args']) do |posting, _, _|
         custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
 
-        if posting.synchronization_in_progress?
-          posting.mark_as_error!('Ocorreu um erro desconhecido.', custom_error)
-        else
-          Honeybadger.notify(ex)
+        Honeybadger.notify(ex)
+
+        posting.worker_batch.increment(params) do
+          if !posting.error_message?
+            posting.add_error!('Ocorreu um erro desconhecido.', custom_error)
+          end
+
+          posting.finish!
         end
       end
     end
@@ -34,13 +38,7 @@ module Ieducar
         end
 
         posting.worker_batch.increment(params) do
-          if posting.synchronization_in_progress?
-            if posting.warning_message.any?
-              posting.mark_as_warning!
-            else
-              posting.mark_as_completed! 'Envio realizado com sucesso!'
-            end
-          end
+          posting.finish!
         end
       end
     end
