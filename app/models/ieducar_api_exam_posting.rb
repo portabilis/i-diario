@@ -72,9 +72,7 @@ class IeducarApiExamPosting < ActiveRecord::Base
     with_lock do
       return if !synchronization_in_progress?
 
-      if warning_message.any?
-        mark_as_warning!
-      elsif error_message?
+      if error_message?
         mark_as_error!
       else
         mark_as_completed! 'Envio realizado com sucesso!'
@@ -90,10 +88,5 @@ class IeducarApiExamPosting < ActiveRecord::Base
 
   def mark_as_error!
     update_attribute(:status, ApiSynchronizationStatus::ERROR)
-  end
-
-
-  def mark_as_warning!
-    update_attribute(:status, ApiSynchronizationStatus::WARNING)
   end
 end
