@@ -4,16 +4,20 @@ module Ieducar
     include Ieducar::SendPostPerformer
     include Sidekiq::Worker
 
-    sidekiq_options retry: 5, queue: :exam_posting_send
+    sidekiq_options retry: 2, queue: :exam_posting_send
 
     sidekiq_retries_exhausted do |msg, ex|
       performer(*msg['args']) do |posting, _, _|
         custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
 
-        if posting.synchronization_in_progress?
-          posting.mark_as_error!('Ocorreu um erro desconhecido.', custom_error)
-        else
-          Honeybadger.notify(ex)
+        Honeybadger.notify(ex)
+
+        posting.worker_batch.increment(params) do
+          if !posting.error_message?
+            posting.add_error!('Ocorreu um erro desconhecido.', custom_error)
+          end
+
+          posting.finish!
         end
       end
     end
@@ -28,17 +32,13 @@ module Ieducar
         rescue Exception => e
           if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
             posting.add_warning!("Componente curricular '#{discipline(params)}' não existe para a turma '#{classroom(params)}'")
+          else
+            raise e
           end
-
-          raise e
         end
 
         posting.worker_batch.increment(params) do
-          if posting.warning_message.any?
-            posting.mark_as_warning!
-          else
-            posting.mark_as_completed! 'Envio realizado com sucesso!'
-          end
+          posting.finish!
         end
       end
     end

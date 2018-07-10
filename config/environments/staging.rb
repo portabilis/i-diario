@@ -5,7 +5,7 @@ Rails.application.configure do
   config.consider_all_requests_local = true
 
   # See everything in the log (default is :info)
-  config.log_level = :debug
+  config.log_level = :info
 
   config.active_support.deprecation = :log
 
