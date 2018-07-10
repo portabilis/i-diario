@@ -1,18 +1,26 @@
 module ExamPoster
   class SchoolTermRecoveryPoster < Base
-    def self.post!(post_data)
-      new(post_data).post!
-    end
 
-    def post!
+    private
+
+    def generate_requests
       post_by_classrooms.each do |classroom_id, classroom_score|
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
-            api.send_post(notas: { classroom_id => { student_id => { discipline_id => discipline_score } } }, etapa: @post_data.step.to_number, resource: 'recuperacoes')
+            self.requests << {
+              etapa: @post_data.step.to_number,
+              resource: 'recuperacoes',
+              notas: {
+                classroom_id => {
+                  student_id => {
+                    discipline_id => discipline_score
+                  }
+                }
+              }
+            }
           end
         end
       end
-      return { warning_messages: "" }
     end
 
     def post_by_classrooms
@@ -29,6 +37,7 @@ module ExamPoster
 
           next if !correct_score_type(classroom.exam_rule.score_type)
           next if !same_unity(classroom.unity_id)
+          next unless step_exists_for_classroom?(classroom)
 
           teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, get_step(classroom))
           teacher_score_fetcher.fetch!
@@ -68,10 +77,6 @@ module ExamPoster
 
     private
 
-    def api
-      IeducarApi::PostRecoveries.new(@post_data.to_api)
-    end
-
     def same_unity(unity_id)
       unity_id == @post_data.step.school_calendar.unity_id
     end
@@ -81,7 +86,7 @@ module ExamPoster
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      if has_classroom_steps(classroom)
+      if classroom.calendar
         school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
           .by_classroom_id(classroom)
           .by_discipline_id(discipline)

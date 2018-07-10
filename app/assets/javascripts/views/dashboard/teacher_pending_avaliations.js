@@ -12,6 +12,8 @@ $(function(){
 
     if (!_.isEmpty(schoolCalendarStepId)){
       $.ajax({
+        beforeSend: function () {},
+        complete: function () {},
         url: Routes.dashboard_teacher_pending_avaliations_pt_br_path(
           {
             format: 'json',

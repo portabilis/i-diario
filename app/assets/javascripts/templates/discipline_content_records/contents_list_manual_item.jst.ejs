@@ -1,5 +1,14 @@
-<li class="list-group-item manual">
+<% id = new Date().getTime() %>
+<li class="list-group-item manual" id="content_record_<%= id %>">
   <input type="checkbox" name="discipline_content_record[content_record_attributes][content_descriptions][]" id="discipline_content_record_content_record_attributes_content_descriptions_" value="<%= description %>" hidden="hidden"
     checked="checked" data-content_description="<%= description %>">
   <span style="margin-left: 5px;"><%= description %></span>
+  <div class="pull-right" style="margin-top: -7px;">
+    <a class="btn btn-success" onclick="editContentRecord('content_record_<%= id %>')">
+      <i class="fa fa-pencil"></i>
+    </a>
+    <a class="btn btn-danger" onclick="removeContentRecord('content_record_<%= id %>')">
+      <i class="fa fa-trash"></i>
+    </a>
+  </div>
 </li>

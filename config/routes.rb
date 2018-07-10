@@ -247,7 +247,7 @@ Rails.application.routes.draw do
 
     resources :moved_***REMOVED***, only: [:index]
     get '/unities/:unity_id/moved_***REMOVED***/:material_id', to: 'moved_***REMOVED***#show', as: 'unity_moved_material'
-    get '/unities/:unity_id/moved_***REMOVED***/:material_id/get_consumption_balance', to: 'moved_***REMOVED***#get_consumption_balance', as: 'get_consumption_balance'
+    get '/unities/:unity_id/moved_***REMOVED***/:material_id/current_balance', to: 'moved_***REMOVED***#current_balance', as: 'current_balance'
 
     resources :***REMOVED***, only: [:index, :new, :create]
     get '/***REMOVED***/entrances/:id', to: '***REMOVED***#show_entrance', as: 'inventory_adjustment_entrance'
@@ -366,7 +366,11 @@ Rails.application.routes.draw do
 
     resources :absence_justifications, concerns: :history
     resources :observation_diary_records, expect: :show, concerns: :history
-    resources :ieducar_api_exam_postings
+    resources :ieducar_api_exam_postings do
+      member do
+        get :done_percentage
+      end
+    end
     resources :avaliation_exemptions, concerns: :history
     resources :***REMOVED***, concerns: :history
 
@@ -419,6 +423,9 @@ Rails.application.routes.draw do
     get '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#form', as: '***REMOVED***_movements_report'
     post '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#report', as: '***REMOVED***_movements_report'
     get '/reports/***REMOVED***_movements/:id', to: '***REMOVED***_movements_report#show', as: '***REMOVED***_movements_report_viewer'
+
+    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
+    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
 
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'

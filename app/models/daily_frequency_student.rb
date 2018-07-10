@@ -21,6 +21,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_frequency).merge(DailyFrequency.by_discipline_id(discipline_id)) }
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_frequency_date, lambda { |frequency_date| joins(:daily_frequency).merge(DailyFrequency.by_frequency_date(frequency_date)) }
+  scope :by_frequency_date_between, lambda { |start_at, end_at| joins(:daily_frequency).merge(DailyFrequency.by_frequency_date_between(start_at, end_at)) }
   scope :general_by_classroom_student_date_between,
         lambda { |classroom_id, student_id, start_at, end_at| where(
                                                        'daily_frequencies.classroom_id' => classroom_id,
@@ -38,7 +39,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   def to_s
     if present?
-      TermsDictionary.current.try(:presence_identifier_character) || '.'
+      TermsDictionary.cached_current.try(:presence_identifier_character) || '.'
     else
       'F'
     end

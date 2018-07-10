@@ -34,15 +34,13 @@ class StudentEnrollmentsList
   end
 
   def fetch_student_enrollments
-    students_enrollments ||= StudentEnrollment
-      .by_classroom(classroom)
-      .by_discipline(discipline)
-      .by_score_type(score_type, classroom)
-      .includes(:student)
-      .includes(:dependences)
-      .active
-      .ordered
-
+    students_enrollments ||= StudentEnrollment.by_classroom(classroom)
+                                              .by_discipline(discipline)
+                                              .by_score_type(score_type, classroom)
+                                              .includes(:student)
+                                              .includes(:dependences)
+                                              .active
+                                              .ordered
     students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
 
     students_enrollments = reject_duplicated_students(students_enrollments)
@@ -84,31 +82,28 @@ class StudentEnrollmentsList
   end
 
   def student_active_on_date?(student_enrollment)
-    StudentEnrollment
-      .where(id: student_enrollment)
-      .by_classroom(classroom)
-      .by_date(date)
-      .active
-      .any?
+    StudentEnrollment.where(id: student_enrollment)
+                     .by_classroom(classroom)
+                     .by_date(date)
+                     .active
+                     .any?
   end
 
   def student_active_on_date_range?(student_enrollment)
-    StudentEnrollment
-      .where(id: student_enrollment)
-      .by_classroom(classroom)
-      .by_date_range(start_at, end_at)
-      .active
-      .any?
+    StudentEnrollment.where(id: student_enrollment)
+                     .by_classroom(classroom)
+                     .by_date_range(start_at, end_at)
+                     .active
+                     .any?
   end
 
   def student_displayable_as_inactive?(student_enrollment)
-    StudentEnrollment
-      .where(id: student_enrollment)
-      .by_classroom(classroom)
-      .by_discipline(discipline)
-      .active
-      .show_as_inactive
-      .any?
+    StudentEnrollment.where(id: student_enrollment)
+                     .by_classroom(classroom)
+                     .by_discipline(discipline)
+                     .active
+                     .show_as_inactive
+                     .any?
   end
 
   def remove_not_displayable_students(students_enrollments)
