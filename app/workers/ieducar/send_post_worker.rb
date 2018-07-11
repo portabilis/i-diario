@@ -8,16 +8,11 @@ module Ieducar
 
     sidekiq_retries_exhausted do |msg, ex|
       performer(*msg['args']) do |posting, _, _|
-        custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
-
         Honeybadger.notify(ex)
 
-        posting.worker_batch.increment(params) do
-          if !posting.error_message?
-            posting.add_error!('Ocorreu um erro desconhecido.', custom_error)
-          end
-
-          posting.finish!
+        if !posting.error_message?
+          custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
+          posting.add_error!('Ocorreu um erro desconhecido.', custom_error)
         end
       end
     end
@@ -25,7 +20,6 @@ module Ieducar
     def perform(entity_id, posting_id, params)
       performer(entity_id, posting_id, params) do |posting, params|
         params = params.with_indifferent_access
-        return if posting.error?
 
         begin
           api(posting).send_post(params)
@@ -35,10 +29,6 @@ module Ieducar
           else
             raise e
           end
-        end
-
-        posting.worker_batch.increment(params) do
-          posting.finish!
         end
       end
     end
