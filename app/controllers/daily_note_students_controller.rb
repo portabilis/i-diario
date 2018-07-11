@@ -60,14 +60,15 @@ class DailyNoteStudentsController < ApplicationController
     @dependence_students = []
 
     daily_note = @daily_note_students.first.daily_note
+    date_for_search = params[:search][:recorded_at].to_date
 
-    student_enrollments = fetch_student_enrollments(daily_note.classroom, daily_note.discipline, daily_note.avaliation.test_date)
+    student_enrollments = fetch_student_enrollments(daily_note.classroom, daily_note.discipline, date_for_search)
 
     student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
         note_student = @daily_note_students.where(student_id: student.id).first || DailyNoteStudent.new(student: student)
         note_student.dependence = student_has_dependence?(student_enrollment, daily_note.discipline)
-        note_student.active = student_active_on_date?(student_enrollment, daily_note.classroom, daily_note.avaliation.test_date)
+        note_student.active = student_active_on_date?(student_enrollment, daily_note.classroom, date_for_search)
         note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, daily_note)
 
         @normal_students << note_student unless note_student.dependence

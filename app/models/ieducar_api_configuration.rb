@@ -26,18 +26,6 @@ class IeducarApiConfiguration < ActiveRecord::Base
     self.token == token
   end
 
-  def token
-    return '***REMOVED***' unless Rails.env.production?
-
-    super
-  end
-
-  def secret_token
-    return '***REMOVED***' unless Rails.env.production?
-
-    super
-  end
-
   def to_api
     {
       url: url,
