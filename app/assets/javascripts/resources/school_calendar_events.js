@@ -129,15 +129,31 @@ $(function () {
     }
   });
 
-  var togleLegendContainerVisibility = function() {
-    var isNotExtraSchool = $eventType.val() != 'extra_school';
-    var isNotNoSchoolWithFrequency = $eventType.val() != 'no_school_with_frequency';
-    var isNotBlank = $eventType.val() != '';
-    
-    if (isNotExtraSchool && isNotNoSchoolWithFrequency && isNotBlank) {
-      $legendContainer.removeClass('hidden');
-    } else {
+  var isEventTypeEqualTo = function(type) {
+    return $eventType.val() === type;
+  }
+
+  var eventTypeIsBlank = function() {
+    return isEventTypeEqualTo('');
+  }
+
+  var eventTypeIsExtraSchool = function() {
+    return isEventTypeEqualTo('extra_school');
+  }
+
+  var eventTypeIsNoSchoolWithFrequency = function() {
+    return isEventTypeEqualTo('no_school_with_frequency');
+  }
+
+  var shouldHideLegend = function() {
+    return eventTypeIsBlank() || eventTypeIsExtraSchool() || eventTypeIsNoSchoolWithFrequency();
+  }
+
+   var togleLegendContainerVisibility = function() {
+    if (shouldHideLegend()) {
       $legendContainer.addClass('hidden');
+    } else {
+      $legendContainer.removeClass('hidden');
     }
   }
 
