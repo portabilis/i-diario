@@ -34,12 +34,16 @@ module ExamPoster
 
         if classroom.calendar
           conceptual_exams = ConceptualExam.by_classroom(classroom)
+                                           .join_teacher_disciplines
                                            .by_unity(@post_data.step.school_calendar.unity)
                                            .by_school_calendar_classroom_step(get_step(classroom))
+                                           .includes(:conceptual_exam_values)
         else
           conceptual_exams = ConceptualExam.by_classroom(classroom)
+                                           .join_teacher_disciplines
                                            .by_unity(@post_data.step.school_calendar.unity)
                                            .by_school_calendar_step(get_step(classroom))
+                                           .includes(:conceptual_exam_values)
         end
 
         conceptual_exams.each do |conceptual_exam|
