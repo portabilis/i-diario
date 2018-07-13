@@ -45,7 +45,6 @@ module ExamPoster
                                            .by_school_calendar_step(get_step(classroom))
                                            .includes(:conceptual_exam_values)
         end
-        binding.pry
 
         conceptual_exams.each do |conceptual_exam|
           conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
