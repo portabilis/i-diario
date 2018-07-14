@@ -113,8 +113,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   end
 
   def should_validate_legend?
-    self.event_type != EventTypes::EXTRA_SCHOOL && 
-      self.event_type != EventTypes::NO_SCHOOL_WITH_FREQUENCY
+    [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY].exclude?(event_type)
   end
 
   def uniquenesss_of_start_at_in_grade
