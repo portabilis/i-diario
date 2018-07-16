@@ -3,6 +3,8 @@ require 'rails_helper'
 RSpec.describe DailyFrequenciesCreator, type: :service do
   let(:discipline) { create(:discipline) }
   let(:classroom) { create(:classroom) }
+  let(:default_class_numbers) { ['1'] }
+  let(:two_class_numbers) { ['1', '2'] }
   let(:frequency_start_at) { Date.parse("#{school_calendar.year}-01-01") }
   let(:student_enrollment) { create(:student_enrollment) }
   let(:school_calendar) do
@@ -40,7 +42,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     expect { creator.find_or_create! }.to_not change { DailyFrequency.count }
   end
 
-  it 'allows to create frequencies custom class number in the params' do
+  it 'allows to create frequencies custom class numbers in the params' do
     student_enrollment_classroom = classroom.student_enrollment_classrooms.first
     student_enrollment_classroom.update_attribute(:joined_at, frequency_start_at)
 
@@ -48,7 +50,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       unity: classroom.unity,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
-      class_number: '1',
+      class_numbers: default_class_numbers,
       discipline_id: discipline.id
     })
 
@@ -58,7 +60,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     expect(daily_frequency.class_number).to eq 1
   end
 
-  it 'allows to create frequencies custom class number in the second argument' do
+  it 'allows to create frequencies with two custom class numbers in the params' do
     student_enrollment_classroom = classroom.student_enrollment_classrooms.first
     student_enrollment_classroom.update_attribute(:joined_at, frequency_start_at)
 
@@ -66,13 +68,11 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       unity: classroom.unity,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
+      class_numbers: two_class_numbers,
       discipline_id: discipline.id
-    }, [1])
+    })
 
-    creator.find_or_create!
-    daily_frequency = DailyFrequency.last
-
-    expect(daily_frequency.class_number).to eq 1
+    expect { creator.find_or_create! }.to change { DailyFrequency.count }.to(2)
   end
 
   it 'should create daily_frequency_students for available student_enrollment_classrooms' do
@@ -83,8 +83,9 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       unity: classroom.unity,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
+      class_numbers: default_class_numbers,
       discipline_id: discipline.id
-    }, [1])
+    })
 
     creator.find_or_create!
     daily_frequency = creator.daily_frequencies[0]
@@ -107,8 +108,9 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       unity: classroom.unity,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
+      class_numbers: default_class_numbers,
       discipline_id: discipline.id
-    }, [1])
+    })
 
     creator.find_or_create!
     daily_frequency = creator.daily_frequencies[0]

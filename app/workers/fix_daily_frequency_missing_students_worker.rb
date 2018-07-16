@@ -15,7 +15,8 @@ class FixDailyFrequencyMissingStudentsWorker
           frequency_date: daily_frequency.frequency_date,
           class_number: daily_frequency.class_number,
           discipline_id: daily_frequency.discipline_id,
-          school_calendar: daily_frequency.school_calendar
+          school_calendar: daily_frequency.school_calendar,
+          origin: OriginTypes::WORKER
         }).find_or_create!
       end
 

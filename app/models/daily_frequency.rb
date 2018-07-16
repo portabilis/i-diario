@@ -55,6 +55,12 @@ class DailyFrequency < ActiveRecord::Base
     students.where(student_id: student.id).first || students.build(student_id: student.id, present: 1)
   end
 
+  def origin=(value)
+    return origin if persisted?
+
+    super(value)
+  end
+
   private
 
   def frequency_date_must_be_less_than_or_equal_to_today
