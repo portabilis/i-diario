@@ -46,7 +46,7 @@ class ConceptualExam < ActiveRecord::Base
 
   before_validation :self_assign_to_conceptual_exam_values
 
-  def self.by_teacher(teacher)
+  def self.join_teacher_disciplines
     joins(
       arel_table.join(
         TeacherDisciplineClassroom.arel_table,
@@ -58,11 +58,15 @@ class ConceptualExam < ActiveRecord::Base
     ).joins(
       :conceptual_exam_values
     ).where(
-      TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher)
-    ).where(
       TeacherDisciplineClassroom.arel_table[:discipline_id].eq(
         ConceptualExamValue.arel_table[:discipline_id]
       )
+    )
+  end
+
+  def self.by_teacher(teacher)
+    join_teacher_disciplines.where(
+      TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher)
     ).uniq
   end
 
