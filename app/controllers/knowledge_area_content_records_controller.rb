@@ -29,6 +29,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_content_record.content_record.teacher = current_teacher
     @knowledge_area_content_record.content_record.content_ids = content_ids
+    @knowledge_area_content_record.content_record.origin = OriginTypes::WEB
 
     authorize @knowledge_area_content_record
 
@@ -80,6 +81,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
   def clone
     @form = KnowledgeAreaContentRecordClonerForm.new(clone_params)
+
     if @form.clone!
       flash[:success] = "Registro de conteúdo por área de conhecimento copiado com sucesso!"
     end
@@ -108,12 +110,14 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def clone_params
-    params.require(:knowledge_area_content_record_cloner_form).permit(:knowledge_area_content_record_id,
-                                                                      knowledge_area_content_record_item_cloner_form_attributes: [
-                                                                        :uuid,
-                                                                        :classroom_id,
-                                                                        :record_date
-                                                                      ])
+    params.require(:knowledge_area_content_record_cloner_form).permit(
+      :knowledge_area_content_record_id,
+      knowledge_area_content_record_item_cloner_form_attributes: [
+        :uuid,
+        :classroom_id,
+        :record_date
+      ]
+    )
   end
 
   def contents
@@ -122,15 +126,18 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     classroom = @knowledge_area_content_record.content_record.classroom
     knowledge_areas = @knowledge_area_content_record.knowledge_areas
     date = @knowledge_area_content_record.content_record.record_date
+
     if teacher && classroom && knowledge_areas && date
       @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_areas, date).fetch
       @contents.each { |content| content.is_editable = false }
     end
+
     if @knowledge_area_content_record.content_record.contents
       contents = @knowledge_area_content_record.content_record.contents_ordered
       contents.each { |content| content.is_editable = true }
       @contents << contents
     end
+
     @contents.flatten.uniq
   end
   helper_method :contents
@@ -152,8 +159,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   helper_method :unities
 
   def classrooms
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id)
-                           .ordered
+    @classrooms = Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
   end
   helper_method :classrooms
 

@@ -19,10 +19,10 @@ class Api::V2::ContentRecordsController < Api::V2::BaseController
     @number_of_days = params[:number_of_days] || 7
 
     @lesson_plans = LessonPlan.by_unity_id(@unities.map(&:id))
-                           .by_teacher_id(params[:teacher_id])
-                           .fromLastDays(@number_of_days)
-                           .includes(classroom: [:unity, :grade])
-                           .ordered
+                              .by_teacher_id(params[:teacher_id])
+                              .fromLastDays(@number_of_days)
+                              .includes(classroom: [:unity, :grade])
+                              .ordered
   end
 
   def sync
@@ -38,10 +38,10 @@ class Api::V2::ContentRecordsController < Api::V2::BaseController
     @content_record =
       if discipline_id
         query.joins(:discipline_content_record)
-          .find_by(discipline_content_records: { discipline_id: discipline_id } )
+             .find_by(discipline_content_records: { discipline_id: discipline_id })
       elsif knowledge_areas
         query.joins(:knowledge_area_content_record)
-          .find_by(knowledge_area_content_records: { discipline_id: discipline_id } )
+             .find_by(knowledge_area_content_records: { discipline_id: discipline_id })
       end
 
     if !@content_record
@@ -49,6 +49,8 @@ class Api::V2::ContentRecordsController < Api::V2::BaseController
       @content_record.teacher_id = teacher_id
       @content_record.classroom_id = classroom_id
       @content_record.record_date = record_date
+      @content_record.origin = OriginTypes::API_V2
+
       if discipline_id
         @content_record.build_discipline_content_record(discipline_id: discipline_id)
       elsif knowledge_areas
@@ -57,7 +59,8 @@ class Api::V2::ContentRecordsController < Api::V2::BaseController
     end
 
     content_ids = []
-    (contents||[]).each do |content|
+
+    (contents || []).each do |content|
       if content[:id].present?
         content_ids << content[:id]
       elsif
@@ -74,5 +77,4 @@ class Api::V2::ContentRecordsController < Api::V2::BaseController
 
     true
   end
-
 end

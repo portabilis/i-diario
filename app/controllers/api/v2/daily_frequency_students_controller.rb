@@ -18,7 +18,7 @@ class Api::V2::DailyFrequencyStudentsController < Api::V2::BaseController
       unity: unity,
       classroom_id: params[:classroom_id],
       frequency_date: params[:frequency_date],
-      class_number: params[:class_number],
+      class_numbers: [params[:class_number]],
       discipline_id: params[:discipline_id],
       school_calendar: current_school_calendar
     })
