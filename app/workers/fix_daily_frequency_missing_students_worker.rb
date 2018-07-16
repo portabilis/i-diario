@@ -9,8 +9,15 @@ class FixDailyFrequencyMissingStudentsWorker
       entity.using_connection do
         frequencies = DailyFrequency.by_frequency_date_between('2018-01-01'.to_date, '2018-12-31'.to_date)
 
+        worker_batch = WorkerBatch.create!(
+          main_job_class: 'FixDailyFrequencyMissingStudentsWorker',
+          main_job_id: self.jid,
+          total_workers: frequencies.count,
+          entity_id: entity.id
+        )
+
         frequencies.each do |daily_frequency|
-          DailyFrequencyCreatorWorker.perform_async(entity.id, daily_frequency.id)
+          DailyFrequencyCreatorWorker.perform_async(entity.id, daily_frequency.id, worker_batch.id)
         end
       end
     end
