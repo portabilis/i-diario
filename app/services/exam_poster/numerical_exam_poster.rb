@@ -104,6 +104,7 @@ module ExamPoster
       if student_enrollment_classroom.present?
         return student_enrollment_classroom.student_enrollment
                                            .exempted_disciplines
+                                           .by_discipline(discipline_id)
                                            .where("? = ANY(string_to_array(steps, ',')::integer[])", @post_data.step.to_number)
                                            .any?
       end
