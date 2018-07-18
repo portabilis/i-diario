@@ -30,6 +30,7 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record = DisciplineContentRecord.new(resource_params)
     @discipline_content_record.content_record.teacher = current_teacher
     @discipline_content_record.content_record.content_ids = content_ids
+    @discipline_content_record.content_record.origin = OriginTypes::WEB
 
     authorize @discipline_content_record
 
@@ -80,6 +81,7 @@ class DisciplineContentRecordsController < ApplicationController
 
   def clone
     @form = DisciplineContentRecordClonerForm.new(clone_params)
+
     if @form.clone!
       flash[:success] = "Registro de conteúdo por disciplina copiado com sucesso!"
     end
@@ -108,12 +110,14 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def clone_params
-    params.require(:discipline_content_record_cloner_form).permit(:discipline_content_record_id,
-                                                                  discipline_content_record_item_cloner_form_attributes: [
-                                                                    :uuid,
-                                                                    :classroom_id,
-                                                                    :record_date
-                                                                  ])
+    params.require(:discipline_content_record_cloner_form).permit(
+      :discipline_content_record_id,
+      discipline_content_record_item_cloner_form_attributes: [
+        :uuid,
+        :classroom_id,
+        :record_date
+      ]
+    )
   end
 
   def contents
@@ -122,15 +126,18 @@ class DisciplineContentRecordsController < ApplicationController
     classroom = @discipline_content_record.content_record.classroom
     discipline = @discipline_content_record.discipline
     date = @discipline_content_record.content_record.record_date
+
     if teacher && classroom && discipline && date
       @contents = ContentsForDisciplineRecordFetcher.new(teacher, classroom, discipline, date).fetch
       @contents.each { |content| content.is_editable = false }
     end
+
     if @discipline_content_record.content_record.contents
       contents = @discipline_content_record.content_record.contents_ordered
       contents.each { |content| content.is_editable = true }
       @contents << contents
     end
+
     @contents.flatten.uniq
   end
   helper_method :contents
@@ -152,8 +159,7 @@ class DisciplineContentRecordsController < ApplicationController
   helper_method :unities
 
   def classrooms
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id)
-                           .ordered
+    @classrooms = Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
   end
   helper_method :classrooms
 
@@ -166,6 +172,7 @@ class DisciplineContentRecordsController < ApplicationController
         )
         .ordered
     end
+
     @disciplines
   end
   helper_method :disciplines

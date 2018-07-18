@@ -77,6 +77,7 @@ class FeaturesAccessLevels
   private
   def self.admin_only_features
     [
+      :data_exportations,
       :entity_configurations,
       :general_configurations,
       :***REMOVED***,

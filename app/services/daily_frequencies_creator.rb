@@ -1,14 +1,15 @@
 class DailyFrequenciesCreator
   attr_reader :daily_frequencies
 
-  def initialize(params, class_numbers = [nil])
+  def initialize(params)
     @params = params
-    @class_numbers = Array(params.delete(:class_number) || class_numbers)
+    @class_numbers = params.delete(:class_numbers) || [nil]
+    @origin = params.delete(:origin) || OriginTypes::API_V2
     @params[:frequency_date] ||= Time.zone.today
   end
 
-  def self.find_or_create!(params, class_numbers)
-    new(params, class_numbers).find_or_create!
+  def self.find_or_create!(params)
+    new(params).find_or_create!
   end
 
   def find_or_create!
@@ -28,11 +29,7 @@ class DailyFrequenciesCreator
   end
 
   def find_or_create_daily_frequency(params)
-    begin
-      DailyFrequency.find_or_create_by(params)
-    rescue ActiveRecord::RecordNotUnique
-      DailyFrequency.find_by(params)
-    end
+    (DailyFrequency.find_by(params) || DailyFrequency.create(params.merge({origin: @origin})))
   end
 
   def find_or_create_daily_frequency_students
@@ -61,14 +58,13 @@ class DailyFrequenciesCreator
       if first_daily_frequency.blank?
         []
       else
-        StudentEnrollment
-          .includes(:student)
-          .by_classroom(first_daily_frequency.classroom)
-          .by_discipline(first_daily_frequency.discipline)
-          .by_date(@params[:frequency_date])
-          .exclude_exempted_disciplines(first_daily_frequency.discipline_id, step_number)
-          .active
-          .ordered
+        StudentEnrollment.includes(:student)
+                         .by_classroom(first_daily_frequency.classroom)
+                         .by_discipline(first_daily_frequency.discipline)
+                         .by_date(@params[:frequency_date])
+                         .exclude_exempted_disciplines(first_daily_frequency.discipline_id, step_number)
+                         .active
+                         .ordered
       end
   end
 
@@ -77,10 +73,9 @@ class DailyFrequenciesCreator
   end
 
   def student_has_dependence?(student_enrollment_id, discipline_id)
-    StudentEnrollmentDependence
-      .by_student_enrollment(student_enrollment_id)
-      .by_discipline(discipline_id)
-      .any?
+    StudentEnrollmentDependence.by_student_enrollment(student_enrollment_id)
+                               .by_discipline(discipline_id)
+                               .any?
   end
 
   def step_number

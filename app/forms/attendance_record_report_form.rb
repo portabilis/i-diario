@@ -25,25 +25,23 @@ class AttendanceRecordReportForm
 
   def daily_frequencies
     if global_absence?
-      DailyFrequency
-        .by_classroom_id(classroom_id)
-        .by_frequency_date_between(start_at, end_at)
-        .general_frequency
-        .includes(students: :student)
-        .order_by_frequency_date
-        .order_by_class_number
-        .order_by_student_name
+      DailyFrequency.by_classroom_id(classroom_id)
+                    .by_frequency_date_between(start_at, end_at)
+                    .general_frequency
+                    .includes(students: :student)
+                    .order_by_frequency_date
+                    .order_by_class_number
+                    .order_by_student_name
 
     else
-      DailyFrequency
-        .by_classroom_id(classroom_id)
-        .by_discipline_id(discipline_id)
-        .by_class_number(class_numbers.split(','))
-        .by_frequency_date_between(start_at, end_at)
-        .includes(students: :student)
-        .order_by_frequency_date
-        .order_by_class_number
-        .order_by_student_name
+      DailyFrequency.by_classroom_id(classroom_id)
+                    .by_discipline_id(discipline_id)
+                    .by_class_number(class_numbers.split(','))
+                    .by_frequency_date_between(start_at, end_at)
+                    .includes(students: :student)
+                    .order_by_frequency_date
+                    .order_by_class_number
+                    .order_by_student_name
     end
   end
 
@@ -69,20 +67,21 @@ class AttendanceRecordReportForm
   end
 
   def students_enrollments
-    StudentEnrollmentsList.new(classroom: classroom_id,
-                               discipline: discipline_id,
-                               start_at: start_at,
-                               end_at: end_at,
-                               search_type: :by_date_range).student_enrollments
+    StudentEnrollmentsList.new(
+      classroom: classroom_id,
+      discipline: discipline_id,
+      start_at: start_at,
+      end_at: end_at,
+      search_type: :by_date_range
+    ).student_enrollments
   end
 
   private
 
   def remove_duplicated_enrollments(students_enrollments)
     students_enrollments = students_enrollments.select do |student_enrollment|
-      enrollments_for_student = StudentEnrollment
-        .by_student(student_enrollment.student_id)
-        .by_classroom(classroom_id)
+      enrollments_for_student = StudentEnrollment.by_student(student_enrollment.student_id)
+                                                 .by_classroom(classroom_id)
 
       if enrollments_for_student.count > 1
         enrollments_for_student.last != student_enrollment

@@ -12,18 +12,17 @@ RSpec.describe IeducarApiExamPosting, :type => :model do
     it { should validate_presence_of :school_calendar_step }
   end
 
-  describe "#mark_as_error!" do
-    it "should mark synchronization as error and set the error message" do
-      message = double
-      full_error_message = Faker::Lorem.word
+  describe "#add_error!" do
+    it "saves the respective error" do
+      subject = create(:ieducar_api_exam_posting)
 
-      expect(subject).to receive(:update_columns).with(
-        status: ApiSynchronizationStatus::ERROR,
-        error_message: message,
-        full_error_message: full_error_message,
-      )
+      message = 'Erro qualquer'
+      full_error_message = 'Exception X'
 
-      subject.mark_as_error!(message, full_error_message)
+      subject.add_error!(message, full_error_message)
+
+      expect(subject.full_error_message).to eq full_error_message
+      expect(subject.error_message).to eq message
     end
   end
 

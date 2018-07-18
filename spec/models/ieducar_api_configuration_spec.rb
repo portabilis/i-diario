@@ -24,30 +24,6 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
     end
   end
 
-  describe '#token' do
-    it 'returns default value when not in production' do
-      expect(subject.token).to eq '***REMOVED***'
-    end
-
-    it 'does not return default value when in production' do
-      Rails.stub_chain(:env, production?: true)
-
-      expect(subject.token).to_not eq '***REMOVED***'
-    end
-  end
-
-  describe '#secret_token' do
-    it 'returns default value when not in production' do
-      expect(subject.secret_token).to eq '***REMOVED***'
-    end
-
-    it 'does not return default value when in production' do
-      Rails.stub_chain(:env, production?: true)
-
-      expect(subject.secret_token).to_not eq '***REMOVED***'
-    end
-  end
-
   describe ".current" do
     before(:all) do
       # At this point the fixtures where loaded

@@ -26,12 +26,13 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   private
 
   def self.by_date_range_query(start_at, end_at)
-    where("(CASE WHEN COALESCE(student_enrollment_classrooms.left_at) = ''
-            THEN
-              student_enrollment_classrooms.joined_at <= ?
-            ELSE
-              student_enrollment_classrooms.joined_at <= ? AND student_enrollment_classrooms.left_at >= ?
-            END)", end_at.to_date, end_at.to_date, start_at.to_date)
+    where("(CASE
+              WHEN COALESCE(student_enrollment_classrooms.left_at) = '' THEN
+                student_enrollment_classrooms.joined_at <= :end_at
+              ELSE
+                student_enrollment_classrooms.joined_at <= :end_at AND student_enrollment_classrooms.left_at >= :start_at and
+                student_enrollment_classrooms.joined_at <> student_enrollment_classrooms.left_at
+            END)", end_at: end_at.to_date, start_at: start_at.to_date)
   end
 
   def left_classroom?

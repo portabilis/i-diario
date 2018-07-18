@@ -1,24 +1,25 @@
 class FixDailyFrequencyMissingStudentsWorker
   include Sidekiq::Worker
 
-  def perform(entity_id)
-    entity = Entity.find(entity_id)
+  def perform(entity_id = nil)
+    entities = Entity.where(id: entity_id) if entity_id.present?
+    entities ||= Entity.all
 
-    entity.using_connection do
+    entities.each do |entity|
+      entity.using_connection do
+        frequencies = DailyFrequency.by_frequency_date_between('2018-01-01'.to_date, '2018-12-31'.to_date)
 
-      frequencies = DailyFrequency.by_frequency_date_between('2018-01-01'.to_date, '2018-12-31'.to_date)
+        worker_batch = WorkerBatch.create!(
+          main_job_class: 'FixDailyFrequencyMissingStudentsWorker',
+          main_job_id: self.jid,
+          total_workers: frequencies.count,
+          entity_id: entity.id
+        )
 
-      frequencies.each do |daily_frequency|
-        DailyFrequenciesCreator.new({
-          unity_id: daily_frequency.unity_id,
-          classroom_id: daily_frequency.classroom_id,
-          frequency_date: daily_frequency.frequency_date,
-          class_number: daily_frequency.class_number,
-          discipline_id: daily_frequency.discipline_id,
-          school_calendar: daily_frequency.school_calendar
-        }).find_or_create!
+        frequencies.each do |daily_frequency|
+          DailyFrequencyCreatorWorker.perform_async(entity.id, daily_frequency.id, worker_batch.id)
+        end
       end
-
     end
   end
 end

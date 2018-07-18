@@ -5,6 +5,8 @@ RSpec.describe IeducarApi::Base, :type => :service do
   let(:url) { "https://test.ieducar.com.br" }
   let(:access_key) { "***REMOVED***" }
   let(:secret_key) { "***REMOVED***" }
+  let(:staging_access_key) { "***REMOVED***" }
+  let(:staging_secret_key) { "***REMOVED***" }
   let(:unity_id) { 1 }
 
   context "ensure obligatory params" do
@@ -66,6 +68,40 @@ RSpec.describe IeducarApi::Base, :type => :service do
         end
       end
     end
+
+    context "assign staging secret keys when in staging" do
+      before do
+        Rails.stub_chain(:env, staging?: true)
+        subject.access_key = nil
+        subject.secret_key = nil
+        subject.fetch(path: path, resource: resource)
+      end
+
+      it "access_key is the staging access_key" do
+        expect(subject.access_key).to eq staging_access_key
+      end
+
+      it "secret_key is the staging secret_key" do
+        expect(subject.secret_key).to eq staging_secret_key
+      end
+    end
+
+    context "do not assign staging secret keys when not in staging" do
+      before do
+        Rails.stub_chain(:env, staging?: false)
+        subject.access_key = nil
+        subject.secret_key = nil
+        expect { subject.fetch(path: path, resource: resource) }.to raise_error("Chave de acesso inválida!")
+      end
+
+      it "access_key is not the staging access_key" do
+        expect(subject.access_key).to eq nil
+      end
+
+      it "secret_key is not the staging secret_key" do
+        expect(subject.secret_key).to eq nil
+      end
+    end
   end
 
   context "with wrong options" do
@@ -120,9 +156,6 @@ RSpec.describe IeducarApi::Base, :type => :service do
 
     let(:path) { "module/Api/Diario" }
     let(:resource) { "faltas-geral" }
-    let(:classroom_id) { 1 }
-    let(:student_id) { 2 }
-    let(:step) { 3 }
 
     context "ensure obligatory options" do
       it "requires path" do
@@ -137,11 +170,50 @@ RSpec.describe IeducarApi::Base, :type => :service do
         }.to raise_error("É necessário informar o recurso de acesso: resource")
       end
     end
+
+    context "assign staging secret keys when not in production" do
+      before do
+        Rails.stub_chain(:env, production?: false)
+        subject.access_key = nil
+        subject.secret_key = nil
+        subject.send_post(path: path, resource: resource, etapa: 1, faltas: 1)
+      end
+
+      it "access_key is the staging access_key" do
+        expect(subject.access_key).to eq staging_access_key
+      end
+
+      it "secret_key is the staging secret_key" do
+        expect(subject.secret_key).to eq staging_secret_key
+      end
+    end
+
+    context "do not assign staging secret keys when in production" do
+      before do
+        Rails.stub_chain(:env, production?: true)
+        subject.access_key = nil
+        subject.secret_key = nil
+        expect { subject.send_post(path: path, resource: resource, etapa: 1, faltas: 1) }.to raise_error("Chave de acesso inválida!")
+      end
+
+      it "access_key is the staging access_key" do
+        expect(subject.access_key).to eq nil
+      end
+
+      it "secret_key is the staging secret_key" do
+        expect(subject.secret_key).to eq nil
+      end
+    end
   end
 
   context "with wrong options" do
-    let(:path) { "module/Api/Aluno" }
-    let(:resource) { "todos-alunos" }
+    let(:path) { "module/Api/Diario" }
+    let(:resource) { "faltas-geral" }
+    let(:params) { {path: path, resource: resource, etapa: 1, faltas: 1 } }
+
+    before do
+      Rails.stub_chain(:env, production?: true)
+    end
 
     context "invalid keys" do
       it "returns an error when providing an invalid access_key" do
@@ -149,7 +221,7 @@ RSpec.describe IeducarApi::Base, :type => :service do
 
         VCR.use_cassette("post_invalid_access_key") do
           expect {
-            subject.send_post(path: path, resource: resource)
+            subject.send_post(params)
           }.to raise_error("Chave de acesso inválida!")
         end
       end
@@ -159,7 +231,7 @@ RSpec.describe IeducarApi::Base, :type => :service do
       subject = IeducarApi::Base.new(url: "https://botucat.ieduca.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
 
       expect {
-        subject.send_post(path: path, resource: resource)
+        subject.send_post(params)
       }.to raise_error("URL do i-Educar informada não é válida.")
     end
 
@@ -168,7 +240,7 @@ RSpec.describe IeducarApi::Base, :type => :service do
 
       VCR.use_cassette("post_wrong_client_url") do
         expect {
-          subject.send_post(path: path, resource: resource)
+          subject.send_post(params)
         }.to raise_error("Chave de acesso inválida!")
       end
     end

@@ -105,7 +105,12 @@ class ApplicationController < ActionController::Base
       flash.now[:notice] = t("ieducar_api_synchronization.completed")
       synchronization.notified!
     elsif synchronization = current_user.synchronizations.last_error
-      flash.now[:alert] = t("ieducar_api_synchronization.error", error: synchronization.error_message)
+      flash.now[:alert] = t(
+        "ieducar_api_synchronization.error",
+        error: current_user.admin? && synchronization.full_error_message.present? ?
+               synchronization.full_error_message :
+               synchronization.error_message
+      )
       synchronization.notified!
     end
   end

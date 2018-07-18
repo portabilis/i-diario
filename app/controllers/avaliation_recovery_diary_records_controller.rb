@@ -191,15 +191,17 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     return unless @avaliation_recovery_diary_record.avaliation
     StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
                                discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
-                               date: @avaliation_recovery_diary_record.avaliation.test_date,
                                score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+                               date: @avaliation_recovery_diary_record.recovery_diary_record.recorded_at,
                                search_type: :by_date)
                           .student_enrollments
   end
 
   def reload_students_list
-    return unless fetch_student_enrollments
     student_enrollments = fetch_student_enrollments
+
+    return unless fetch_student_enrollments
+    return unless @avaliation_recovery_diary_record.recovery_diary_record.recorded_at
 
     @students = []
 
@@ -235,7 +237,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     StudentEnrollment
       .where(id: student_enrollment)
       .by_classroom(@avaliation_recovery_diary_record.recovery_diary_record.classroom)
-      .by_date(@avaliation_recovery_diary_record.avaliation.test_date)
+      .by_date(@avaliation_recovery_diary_record.recovery_diary_record.recorded_at)
       .any?
   end
 

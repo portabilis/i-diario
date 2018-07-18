@@ -1,4 +1,6 @@
 class TermsDictionariesController < ApplicationController
+  after_action :clear_cache_current_terms_dictionary, only: :update
+
   def edit
     @terms_dictionaries = TermsDictionary.current
 
@@ -26,8 +28,13 @@ class TermsDictionariesController < ApplicationController
     respond_with @terms_dictionary
   end
 
-  protected
+  private
+
   def resource_params
     params.require(:terms_dictionary).permit(:presence_identifier_character)
+  end
+
+  def clear_cache_current_terms_dictionary
+    Rails.cache.delete("#{current_entity.id}_current_terms_dictionary")
   end
 end

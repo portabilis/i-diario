@@ -1,36 +1,29 @@
 module ExamPoster
   class ConceptualExamPoster < Base
-    def self.post!(post_data)
-      new(post_data).post!
-    end
-
-    def post!
-      post_conceptual_exams.each do |classroom_id, conceptual_exam_classroom|
-        conceptual_exam_classroom.each do |student_id, conceptual_exam_student|
-          conceptual_exam_student.each do |discipline_id, conceptual_exam_discipline|
-            begin
-              api.send_post( notas: { classroom_id => { student_id => { discipline_id => conceptual_exam_discipline } } },
-                             etapa: @post_data.step.to_number, resource: 'notas' )
-            rescue Exception => e
-              if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).nil?
-                raise e
-              else
-                discipline = Discipline.find_by(api_code: discipline_id).description
-                classroom = Classroom.find_by(api_code: classroom_id).description
-                @warning_messages << "Componente curricular '#{discipline}' não existe para a turma '#{classroom}'"
-              end
-            end
-          end
-        end
-      end
-      return { warning_messages: @warning_messages.uniq }
-    end
 
     private
 
-    def api
-      IeducarApi::PostExams.new(@post_data.to_api)
+    def generate_requests
+      post_conceptual_exams.each do |classroom_id, conceptual_exam_classroom|
+        conceptual_exam_classroom.each do |student_id, conceptual_exam_student|
+          conceptual_exam_student.each do |discipline_id, conceptual_exam_discipline|
+            self.requests << {
+              etapa: @post_data.step.to_number,
+              resource: 'notas',
+              notas: {
+                classroom_id => {
+                  student_id => {
+                    discipline_id => conceptual_exam_discipline
+                  }
+                }
+              }
+            }
+          end
+        end
+      end
     end
+
+    private
 
     def post_conceptual_exams
       params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
@@ -41,12 +34,16 @@ module ExamPoster
 
         if classroom.calendar
           conceptual_exams = ConceptualExam.by_classroom(classroom)
+                                           .join_teacher_disciplines
                                            .by_unity(@post_data.step.school_calendar.unity)
-                                           .by_school_calendar_classroom_step(@post_data.step)
+                                           .by_school_calendar_classroom_step(get_step(classroom))
+                                           .includes(:conceptual_exam_values)
         else
           conceptual_exams = ConceptualExam.by_classroom(classroom)
+                                           .join_teacher_disciplines
                                            .by_unity(@post_data.step.school_calendar.unity)
-                                           .by_school_calendar_step(@post_data.step)
+                                           .by_school_calendar_step(get_step(classroom))
+                                           .includes(:conceptual_exam_values)
         end
 
         conceptual_exams.each do |conceptual_exam|

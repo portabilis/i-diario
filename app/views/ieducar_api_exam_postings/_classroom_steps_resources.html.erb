@@ -12,6 +12,9 @@
         <% if api_posting %>
           <% if api_posting.status == ApiPostingStatus::STARTED %>
             <i class="fa fa-cog fa-spin"></i> Enviando
+            <% if worker_batch = api_posting.worker_batch %>
+              (<span class='ieducar-posting-done-percentage' data-url='<%= done_percentage_ieducar_api_exam_posting_pt_br_path(api_posting.id) %>'><%= worker_batch.done_percentage %></span>%)
+            <% end %>
           <% else %>
             <% if api_posting.message.present? %>
               <p class="success">
@@ -28,12 +31,27 @@
             <% end %>
 
             <% if api_posting.warning_message.present? %>
-            <% api_posting.warning_message.each do |message| %>
-              <p class="warning">
-                <i class="fa fa-exclamation-triangle"></i>
-                  <%= message %>
-              </p>
-              <% end %>
+              <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                <div class="panel panel-default">
+                  <div class="panel-heading" role="tab" id="heading<%= api_posting.id %>">
+                    <h4 class="panel-title">
+                      <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse<%= api_posting.id %>" aria-expanded="true" aria-controls="collapse<%= api_posting.id %>">
+                        <div>
+                          <i class="fa fa-exclamation-triangle"></i>
+                          Atenção
+                        </div>
+                      </a>
+                    </h4>
+                  </div>
+                  <div id="collapse<%= api_posting.id %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading<%= api_posting.id %>">
+                    <div class="panel-body">
+                      <% api_posting.warning_message.each do |message| %>
+                        <p><%= message %></p>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
             <% end %>
           <% end %>
         <% else %>

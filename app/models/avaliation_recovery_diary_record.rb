@@ -21,7 +21,12 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   scope :by_school_calendar_id, lambda { |school_calendar_id| where(school_calendar_id: school_calendar_id) }
   scope :by_recorded_at, lambda { |recorded_at| joins(:recovery_diary_record).where(recovery_diary_records: { recorded_at: recorded_at }) }
   scope :by_avaliation_id, lambda { |avaliation_id| where(avaliation_id: avaliation_id) }
-  scope :by_avaliation_description, lambda { |avaliation_description| joins(:avaliation).where('unaccent(avaliations.description) ILIKE unaccent(?)', "%#{avaliation_description}%" ) }
+  scope :by_avaliation_description, lambda { |avaliation_description|
+    joins(:avaliation).where('unaccent(avaliations.description) ILIKE unaccent(?)', "%#{avaliation_description}%" )
+  }
+  scope :by_test_date_between, lambda { |start_at, end_at|
+    joins(:avaliation).where(avaliations: { test_date: start_at.to_date..end_at.to_date })
+  }
   scope :ordered, -> { joins(:recovery_diary_record).order(RecoveryDiaryRecord.arel_table[:recorded_at].desc) }
 
   validates :avaliation, :recovery_diary_record, presence: true
