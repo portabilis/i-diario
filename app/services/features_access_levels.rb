@@ -43,7 +43,8 @@ class FeaturesAccessLevels
       :school_term_recovery_diary_records,
       :test_settings,
       :transfer_notes,
-      :teacher_report_cards
+      :teacher_report_cards,
+      :change_school_year
     ]
   end
 
