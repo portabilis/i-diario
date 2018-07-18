@@ -83,7 +83,8 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :custom_rounding_tables,
                    :***REMOVED***,
-                   :***REMOVED***
+                   :***REMOVED***,
+                   :change_school_year
 
   sort_by :translation
 end
