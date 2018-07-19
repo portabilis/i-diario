@@ -38,7 +38,7 @@ gem 'aws-sdk', '~> 2'
 gem "paperclip", "~> 5.1.0"
 gem 'activerecord-tableless', '~> 2.0'
 
-gem 'honeybadger', '~> 3.1'
+gem 'honeybadger', '~> 3'
 
 gem 'angular_rails_csrf'
 gem 'rack-cors', require: 'rack/cors'
