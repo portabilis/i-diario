@@ -329,7 +329,7 @@ GEM
     has_scope (0.5.1)
     hashdiff (0.2.3)
     hashery (2.1.1)
-    honeybadger (3.1.2)
+    honeybadger (3.3.0)
     httparty (0.14.0)
       multi_xml (>= 0.5.2)
     i18n (0.7.0)
@@ -613,7 +613,7 @@ DEPENDENCIES
   gelf
   handlebars_assets (= 0.17.1)
   has_scope (= 0.5.1)
-  honeybadger (~> 3.1)
+  honeybadger (~> 3)
   i18n_alchemy (= 0.2.1)!
   jbuilder (~> 2.2.2)
   js-routes
