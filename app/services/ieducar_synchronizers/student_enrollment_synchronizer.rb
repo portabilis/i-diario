@@ -34,10 +34,12 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   end
 
   def create_new_student_enrollment(record)
+    return unless student_id(record)
+
     student_enrollment = student_enrollments.create!(
       api_code: record["matricula_id"],
       status: record["situacao"],
-      student_id: Student.find_by(api_code: record["aluno_id"]).try(:id),
+      student_id: student_id(record),
       student_code: record["aluno_id"],
       changed_at: record["data_atualizacao"].to_s,
       active: record["ativo"]
@@ -62,10 +64,12 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   end
 
   def update_existing_student_enrollment(record, student_enrollment)
+    return unless student_id(record)
+
     if record["data_atualizacao"].blank? || student_enrollment.changed_at.blank? || record["data_atualizacao"].to_s > student_enrollment.changed_at.to_s
       student_enrollment.update(
         status: record["situacao"],
-        student_id: Student.find_by!(api_code: record["aluno_id"]).id,
+        student_id: student_id(record),
         student_code: record["aluno_id"],
         changed_at: record["data_atualizacao"].to_s,
         active: record["ativo"]
@@ -120,4 +124,12 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       end
     end
   end
+
+  private
+
+  def student_id(record)
+    @student_ids ||= {}
+    @student_ids[record["aluno_id"]] ||= Student.find_by(api_code: record["aluno_id"]).try(:id)
+  end
+
 end
