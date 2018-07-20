@@ -1,4 +1,14 @@
 class ConceptualExamValue < ActiveRecord::Base
+
+  default_scope do
+    where("
+      EXISTS(SELECT 1 FROM teacher_discipline_classrooms
+              WHERE teacher_discipline_classrooms.discipline_id = conceptual_exam_values.discipline_id
+                AND score_type IN (:score_type) limit 1)",
+      score_type: [DisciplineScoreTypes::CONCEPT, nil]
+    )
+  end
+
   acts_as_copy_target
 
   audited associated_with: :conceptual_exam, except: :conceptual_exam_id
