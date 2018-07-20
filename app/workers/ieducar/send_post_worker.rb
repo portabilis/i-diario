@@ -34,17 +34,21 @@ module Ieducar
     end
 
     def discipline(params)
-      discipline_id = params[:notas].first[1].first[1].first[0]
+      discipline_id = notas(params).first[1].first[1].first[0]
 
       @disciplines ||= {}
       @disciplines[discipline_id] ||= Discipline.find_by(api_code: discipline_id).description
     end
 
     def classroom(params)
-      classroom_id = params[:notas].first[0]
+      classroom_id = notas(params).first[0]
 
       @classrooms ||= {}
       @classrooms[classroom_id] ||= Classroom.find_by(api_code: classroom_id).description
+    end
+
+    def notas(params)
+      params[:notas] || params[:pareceres]
     end
 
     def api(posting)
