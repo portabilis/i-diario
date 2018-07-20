@@ -22,7 +22,7 @@ module Turnip
       #
       # click_on "Salvar"
       #
-      # expect(page).to have_content "Justificativa de falta foi criada com sucesso."
+      # wait_for(page).to have_content "Justificativa de falta foi criada com sucesso."
     end
 
     step 'que existe uma justificativa de falta cadastrada para o usuário logado' do
@@ -33,7 +33,7 @@ module Turnip
       # click_***REMOVED*** 'Frequência > Justificativas de falta'
       #
       # within :xpath, '//table/tbody/tr[last()]' do
-      #   expect(page).to have_content(@absence_justification.localized.absence_date)
+      #   wait_for(page).to have_content(@absence_justification.localized.absence_date)
       # end
     end
 
@@ -55,33 +55,33 @@ module Turnip
       #
       # click_on 'Salvar'
       #
-      # expect(page).to have_content 'Justificativa de falta foi alterada com sucesso.'
+      # wait_for(page).to have_content 'Justificativa de falta foi alterada com sucesso.'
       #
       # within :xpath, '//table/tbody/tr[last()]' do
-      #   expect(page).to have_content '20/01/2015'
+      #   wait_for(page).to have_content '20/01/2015'
       # end
     end
 
     step "poderei excluir uma justificativa de falta" do
       # TODO:
       # within :xpath, '//table/tbody/tr[last()]' do
-      #   expect(page).to have_content(@absence_justification.localized.absence_date)
+      #   wait_for(page).to have_content(@absence_justification.localized.absence_date)
       #   click_on 'Excluir'
       # end
       #
-      # expect(page).to have_content "Justificativa de falta foi apagada com sucesso"
+      # wait_for(page).to have_content "Justificativa de falta foi apagada com sucesso"
       #
-      # expect(page).to have_no_content "02/01/2015"
+      # wait_for(page).to have_no_content "02/01/2015"
     end
 
     step 'devo visualizar minha justificativa de falta' do
       # TODO:
-      # expect(page).to have_content(@absence_justification.student.name)
+      # wait_for(page).to have_content(@absence_justification.student.name)
     end
 
     step 'não devo visualizar a justificativa de falta de outro usuário' do
       # TODO:
-      # expect(page).to_not have_content(@another_user_absence_justification.student.name)
+      # wait_for(page).to_not have_content(@another_user_absence_justification.student.name)
     end
   end
 end

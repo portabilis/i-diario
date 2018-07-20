@@ -13,7 +13,7 @@ module Turnip
     end
 
     step "não conseguirei acessar o sistema" do
-      expect(page).to have_content 'Email ou senha inválidos.'
+      wait_for(page).to have_content 'Email ou senha inválidos.'
     end
 
     step "informo o email para login" do
@@ -24,7 +24,7 @@ module Turnip
     end
 
     step "serei logado no sistema" do
-      expect(page).to have_content 'Login realizado com sucesso.'
+      wait_for(page).to have_content 'Login realizado com sucesso.'
     end
 
     step "informo o usuário para login" do
@@ -70,13 +70,13 @@ module Turnip
 
       click_button 'Acessar'
 
-      expect(page).to have_content 'Login realizado com sucesso.'
+      wait_for(page).to have_content 'Login realizado com sucesso.'
     end
 
     step "poderei sair do sistema" do
       click_link 'sign_out'
 
-      expect(page).to have_content 'Você precisa registrar-se ou fazer login para continuar.'
+      wait_for(page).to have_content 'Você precisa registrar-se ou fazer login para continuar.'
     end
   end
 end
