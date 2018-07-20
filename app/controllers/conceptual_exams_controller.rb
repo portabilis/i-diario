@@ -247,7 +247,7 @@ class ConceptualExamsController < ApplicationController
     )
     fetcher.fetch!
 
-    @disciplines = fetcher.disciplines
+    @disciplines = fetcher.disciplines.by_score_type([DisciplineScoreTypes::CONCEPT, nil])
     calendar_step_id = @conceptual_exam.school_calendar_step_id
     classroom_step_id = @conceptual_exam.school_calendar_classroom_step_id
 
