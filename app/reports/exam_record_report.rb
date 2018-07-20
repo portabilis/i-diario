@@ -88,7 +88,7 @@ class ExamRecordReport < BaseReport
       if daily_note.avaliation.recovery_diary_record
         daily_notes_and_recoveries << daily_note.avaliation.recovery_diary_record
         daily_notes_descriptions << daily_note.avaliation.to_s
-        daily_notes_dates << daily_note.test_date
+        daily_notes_dates << daily_note.avaliation.recovery_diary_record.recorded_at
         daily_notes_avaliations_ids << daily_note.avaliation_id
         daily_notes_ids << daily_note.id
       end

@@ -3,23 +3,15 @@ class Api::V2::DailyFrequenciesController < Api::V2::BaseController
 
   def index
     frequency_type_resolver = FrequencyTypeResolver.new(classroom, teacher)
+    @daily_frequencies = DailyFrequency.by_classroom_id(params[:classroom_id])
+    @daily_frequencies = @daily_frequencies.general_frequency if frequency_type_resolver.general?
+    @daily_frequencies = @daily_frequencies.by_discipline_id(params[:discipline_id]) unless frequency_type_resolver.general?
 
-    if frequency_type_resolver.general?
-      @daily_frequencies = DailyFrequency
-        .by_classroom_id(params[:classroom_id])
-        .general_frequency
-    else
-      @daily_frequencies = DailyFrequency
-        .by_classroom_id(params[:classroom_id])
-        .by_discipline_id(params[:discipline_id])
-    end
-
-    @daily_frequencies = @daily_frequencies
-      .order_by_frequency_date_desc
-      .order_by_unity
-      .order_by_classroom
-      .order_by_class_number
-      .includes(:unity, :classroom, :discipline, :students)
+    @daily_frequencies = @daily_frequencies.order_by_frequency_date_desc
+                                           .order_by_unity
+                                           .order_by_classroom
+                                           .order_by_class_number
+                                           .includes(:unity, :classroom, :discipline, :students)
 
     respond_with @daily_frequencies
   end
@@ -28,16 +20,7 @@ class Api::V2::DailyFrequenciesController < Api::V2::BaseController
     @class_numbers = Array(params[:class_number] || (params[:class_numbers] && params[:class_numbers].split(",")))
     @class_numbers = [nil] if @class_numbers.blank?
 
-    frequency_params = {
-      unity_id: unity.id,
-      classroom_id: classroom.id,
-      discipline_id: params[:discipline_id],
-      frequency_date: params[:frequency_date],
-      class_number: @class_numbers.first,
-      school_calendar: current_school_calendar
-    }
-
-    creator = DailyFrequenciesCreator.new(frequency_params, @class_numbers)
+    creator = DailyFrequenciesCreator.new(frequency_params)
     creator.find_or_create!
 
     if params[:class_numbers].present?
@@ -51,7 +34,18 @@ class Api::V2::DailyFrequenciesController < Api::V2::BaseController
     @current_user ||= User.find(user_id)
   end
 
-  protected
+  private
+
+  def frequency_params
+    {
+      unity_id: unity.id,
+      classroom_id: classroom.id,
+      discipline_id: params[:discipline_id],
+      frequency_date: params[:frequency_date],
+      class_numbers: @class_numbers,
+      school_calendar: current_school_calendar
+    }
+  end
 
   def teacher
     @teacher ||= Teacher.find_by_id(params[:teacher_id])

@@ -3,7 +3,8 @@
 staging:
   :concurrency: 10
 production:
-  :concurrency: 20
+  :concurrency: 30
 :queues:
   - default
   - exam_posting
+  - exam_posting_send

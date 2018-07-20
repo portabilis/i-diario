@@ -3,7 +3,7 @@ class SynchronizationsController < ApplicationController
     configuration = IeducarApiConfiguration.current
     @synchronization = configuration.start_synchronization!(current_user)
 
-    job_id = IeducarSynchronizerWorker.perform_async(current_entity.id, @synchronization.id)
+    job_id = IeducarSynchronizerWorker.perform_in(5.seconds, current_entity.id, @synchronization.id)
 
     @synchronization.set_job_id!(job_id)
 

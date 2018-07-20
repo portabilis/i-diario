@@ -209,6 +209,9 @@ Rails.application.routes.draw do
       member do
         post :clone
       end
+      collection do
+        get :distributed
+      end
     end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
@@ -366,7 +369,11 @@ Rails.application.routes.draw do
 
     resources :absence_justifications, concerns: :history
     resources :observation_diary_records, expect: :show, concerns: :history
-    resources :ieducar_api_exam_postings
+    resources :ieducar_api_exam_postings do
+      member do
+        get :done_percentage
+      end
+    end
     resources :avaliation_exemptions, concerns: :history
     resources :***REMOVED***, concerns: :history
 
@@ -425,6 +432,9 @@ Rails.application.routes.draw do
 
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
+
+    get '/reports/***REMOVED***s', to: '***REMOVED***#form', as: '***REMOVED***'
+    post '/reports/***REMOVED***s', to: '***REMOVED***#report', as: '***REMOVED***'
 
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'

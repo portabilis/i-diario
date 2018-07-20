@@ -7,6 +7,7 @@ class ContentRecord < ActiveRecord::Base
 
   belongs_to :classroom
   belongs_to :teacher
+
   attr_writer :unity_id
   attr_writer :contents_tags
 
@@ -14,6 +15,7 @@ class ContentRecord < ActiveRecord::Base
   has_one :knowledge_area_content_record, dependent: :delete
   has_many :content_records_contents, dependent: :destroy
   has_many :contents, through: :content_records_contents
+
   accepts_nested_attributes_for :contents
 
   validates_date :record_date
@@ -60,6 +62,12 @@ class ContentRecord < ActiveRecord::Base
 
   def contents_ordered
     contents.order(' "content_records_contents"."id" ')
+  end
+
+  def origin=(value)
+    return origin if persisted?
+
+    super(value)
   end
 
   private

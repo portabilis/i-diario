@@ -20,6 +20,7 @@ class Avaliation < ActiveRecord::Base
   has_one  :avaliation_recovery_diary_record, dependent: :restrict_with_error
 
   has_many :daily_notes, dependent: :restrict_with_error
+  has_many :avaliation_exemption, dependent: :destroy
   has_many :teacher_discipline_classrooms, -> { where(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(Avaliation.arel_table[:discipline_id])) }, through: :classroom
 
   validates_date :test_date
