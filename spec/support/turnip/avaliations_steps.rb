@@ -14,7 +14,7 @@ module Turnip
 
       click_button 'Acessar'
 
-      expect(page).to have_content 'Login realizado com sucesso.'
+      wait_for(page).to have_content 'Login realizado com sucesso.'
     end
 
     step 'que existem turmas com tipo de avaliação númerica vinculadas ao professor logado' do
@@ -76,7 +76,7 @@ module Turnip
 
       fill_in_select2 'Tipo de avaliação', with: @test.id
 
-      expect(page).to_not have_field('Peso')
+      wait_for(page).to_not have_field('Peso')
 
       click_on "Salvar"
     end
@@ -104,25 +104,25 @@ module Turnip
     step 'selecionar uma turma com tipo de avaliação não numérica' do
       fill_in_select2 "Escola", with: @classroom_with_concept_score_type.unity.id
       using_wait_time 10 do
-        expect(page).to have_content(@classroom_with_concept_score_type.unity.name)
+        wait_for(page).to have_content(@classroom_with_concept_score_type.unity.name)
       end
 
       sleep 1
 
       fill_in_select2 "Turma", with: @classroom_with_concept_score_type.id
       using_wait_time 10 do
-        expect(page).to have_content(@classroom_with_concept_score_type.description)
+        wait_for(page).to have_content(@classroom_with_concept_score_type.description)
       end
 
       click_on "Salvar"
     end
 
     step 'devo visualizar uma mensagem de avaliação cadastrada com sucesso' do
-      expect(page).to have_content 'Avaliação numérica foi criada com sucesso.'
+      wait_for(page).to have_content 'Avaliação numérica foi criada com sucesso.'
     end
 
     step 'devo visualizar uma mensagem de turma com tipo de avaliação não numérica' do
-      expect(page).to have_content "o tipo de nota da regra de avaliação não é numérica"
+      wait_for(page).to have_content "o tipo de nota da regra de avaliação não é numérica"
     end
   end
 end
