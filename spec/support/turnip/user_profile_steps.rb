@@ -20,7 +20,7 @@ module Turnip
       #
       # click_button 'Alterar'
       #
-      # expect(page).to have_content 'Conta atualizada com sucesso.'
+      # wait_for(page).to have_content 'Conta atualizada com sucesso.'
     end
   end
 end

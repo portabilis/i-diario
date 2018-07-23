@@ -25,14 +25,14 @@ module Turnip
 
       find('button[type=submit]').trigger('click')
 
-      expect(page).to have_content('Calendários letivos sincronizados com sucesso.')
+      wait_for(page).to have_content('Calendários letivos sincronizados com sucesso.')
     end
 
     step 'que existe um calendário letivo cadastrada' do
       click_***REMOVED*** 'Calendário letivo'
 
       within '#resources > tbody > tr:nth-child(1)' do
-        expect(page).to have_content "2015"
+        wait_for(page).to have_content "2015"
       end
     end
 
@@ -47,20 +47,20 @@ module Turnip
 
       click_on 'Salvar'
 
-      expect(page).to have_content 'Calendário letivo foi alterado com sucesso.'
-      expect(page).to have_content '3'
+      wait_for(page).to have_content 'Calendário letivo foi alterado com sucesso.'
+      wait_for(page).to have_content '3'
     end
 
     step 'poderei excluir um calendário letivo' do
       within '#resources > tbody > tr:nth-child(1)' do
-        expect(page).to have_content "2015"
+        wait_for(page).to have_content "2015"
         click_link "Excluir"
       end
 
-      expect(page).to have_content 'Calendário letivo foi apagado com sucesso'
+      wait_for(page).to have_content 'Calendário letivo foi apagado com sucesso'
 
       within '#resources > tbody' do
-        expect(page).to have_no_content '2015'
+        wait_for(page).to have_no_content '2015'
       end
     end
   end

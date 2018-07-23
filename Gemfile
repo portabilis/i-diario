@@ -96,6 +96,7 @@ group :test do
   gem 'pdf-inspector', require: 'pdf/inspector'
   gem 'capybara-screenshot'
   gem 'rspec-rails', '~> 3.4'
+  gem 'rspec-wait', '~> 0.0.9'
   gem 'factory_girl_rails', '~> 4.5'
   gem 'pry', '~> 0.10.3'
   gem 'faker', '~> 1.6', '>= 1.6.1'
