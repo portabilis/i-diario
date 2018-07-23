@@ -1,12 +1,18 @@
 class ConceptualExamValue < ActiveRecord::Base
 
   default_scope do
-    where("
-      EXISTS(SELECT 1 FROM teacher_discipline_classrooms
-              WHERE teacher_discipline_classrooms.discipline_id = conceptual_exam_values.discipline_id
-                AND score_type IN (:score_type) limit 1)",
-      score_type: [DisciplineScoreTypes::CONCEPT, nil]
-    )
+    query = <<-SQL
+      EXISTS(SELECT 1
+            FROM "conceptual_exams"
+            INNER JOIN "teacher_discipline_classrooms" ON "teacher_discipline_classrooms"."classroom_id" = "conceptual_exams"."classroom_id"
+                   AND "teacher_discipline_classrooms"."discipline_id" = "conceptual_exam_values"."discipline_id"
+            WHERE ("teacher_discipline_classrooms"."score_type" = ?
+               OR  "teacher_discipline_classrooms"."score_type" IS NULL)
+              AND "conceptual_exams"."id" = "conceptual_exam_values"."conceptual_exam_id"
+            LIMIT 1)
+    SQL
+
+    where(query, DisciplineScoreTypes::CONCEPT)
   end
 
   acts_as_copy_target
