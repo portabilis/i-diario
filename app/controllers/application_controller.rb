@@ -268,6 +268,16 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_user_available_disciplines
 
+  def current_unities
+    @current_unities ||=
+      if current_user.current_user_role.try(:role_administrator?)
+        Unity.ordered
+      else
+        [current_user_unity]
+      end
+  end
+  helper_method :current_unities
+
   def valid_current_role?
     CurrentRoleForm.new(
       current_user_id: current_user.id,

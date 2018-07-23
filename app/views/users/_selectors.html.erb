@@ -16,7 +16,7 @@
 
 <div id="unity-field-container" class="project-context administrator"<%= ' style="display: none;"'.html_safe unless user_role.role.access_level.in?(['administrator']) %> style="width: 180px;">
   <span class="label">Unidade</span>
-    <%= f.input :current_unity_id, as: :select2, elements: unities, label: false, wrapper: false, class: 'administrator' %>
+    <%= f.input :current_unity_id, as: :select2, elements: current_unities, label: false, wrapper: false, class: 'administrator' %>
   </span>
 </div>
 
