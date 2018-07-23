@@ -26,7 +26,7 @@ module Turnip
 
       click_on 'Salvar'
 
-      expect(page).to have_content 'Evento do calendário letivo foi criado com sucesso.'
+      wait_for(page).to have_content 'Evento do calendário letivo foi criado com sucesso.'
     end
 
     step 'que existe um evento do calendário letivo cadastrada' do
@@ -35,7 +35,7 @@ module Turnip
       click_on 'Eventos'
 
       within '#resources > tbody > tr:nth-child(1)' do
-        expect(page).to have_content "Ano Novo"
+        wait_for(page).to have_content "Ano Novo"
       end
     end
 
@@ -50,20 +50,20 @@ module Turnip
 
       click_on 'Salvar'
 
-      expect(page).to have_content 'Evento do calendário letivo foi alterado com sucesso.'
-      expect(page).to have_content 'Ano Novo 2015'
+      wait_for(page).to have_content 'Evento do calendário letivo foi alterado com sucesso.'
+      wait_for(page).to have_content 'Ano Novo 2015'
     end
 
     step 'poderei excluir um evento do calendário letivo' do
       within '#resources > tbody > tr:nth-child(1)' do
-        expect(page).to have_content "Ano Novo"
+        wait_for(page).to have_content "Ano Novo"
         click_link "Excluir"
       end
 
-      expect(page).to have_content 'Evento do calendário letivo foi apagado com sucesso'
+      wait_for(page).to have_content 'Evento do calendário letivo foi apagado com sucesso'
 
       within '#resources > tbody' do
-        expect(page).to have_no_content 'Ano Novo'
+        wait_for(page).to have_no_content 'Ano Novo'
       end
     end
   end

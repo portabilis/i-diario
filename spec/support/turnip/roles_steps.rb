@@ -15,14 +15,14 @@ module Turnip
 
       click_on "Salvar"
 
-      expect(page).to have_content "Permissão foi criada com sucesso."
+      wait_for(page).to have_content "Permissão foi criada com sucesso."
     end
 
     step 'que existe uma permissão cadastrada' do
       click_***REMOVED*** 'Configurações > Permissões'
 
       within :xpath, '//table/tbody/tr[position()=1]' do
-        expect(page).to have_content 'Administrador'
+        wait_for(page).to have_content 'Administrador'
       end
     end
 
@@ -33,36 +33,36 @@ module Turnip
     end
 
     step 'poderei permitir acesso às funcionalidades' do
-      expect(page).to have_field "Nome", with: "Administrador"
+      wait_for(page).to have_field "Nome", with: "Administrador"
 
       within "tr#role-users" do
-        expect(page).to have_content "Usuários"
-        expect(page).to have_select2_filled 'Permissão', with: 'Leitura/Escrita'
+        wait_for(page).to have_content "Usuários"
+        wait_for(page).to have_select2_filled 'Permissão', with: 'Leitura/Escrita'
       end
 
       within "tr#role-unities" do
-        expect(page).to have_content "Unidades"
-        expect(page).to have_select2_filled 'Permissão', with: 'Leitura/Escrita'
+        wait_for(page).to have_content "Unidades"
+        wait_for(page).to have_select2_filled 'Permissão', with: 'Leitura/Escrita'
       end
 
       within "tr#role-***REMOVED***" do
-        expect(page).to have_content "***REMOVED***"
-        expect(page).to have_select2_filled 'Permissão', with: 'Leitura/Escrita'
+        wait_for(page).to have_content "***REMOVED***"
+        wait_for(page).to have_select2_filled 'Permissão', with: 'Leitura/Escrita'
       end
 
       within "tr#role-***REMOVED***" do
-        expect(page).to have_content "***REMOVED***"
-        expect(page).to have_select2_filled 'Permissão', with: 'Sem acesso'
+        wait_for(page).to have_content "***REMOVED***"
+        wait_for(page).to have_select2_filled 'Permissão', with: 'Sem acesso'
 
         fill_in_select2 "Permissão", with: "Leitura"
       end
 
       click_on 'Salvar'
 
-      expect(page).to have_content 'Permissão foi alterada com sucesso.'
+      wait_for(page).to have_content 'Permissão foi alterada com sucesso.'
 
       within :xpath, '//table/tbody/tr[position()=1]' do
-        expect(page).to have_content 'Administrador'
+        wait_for(page).to have_content 'Administrador'
       end
     end
 
@@ -70,20 +70,20 @@ module Turnip
       click_***REMOVED*** 'Configurações > Permissões'
 
       within :xpath, '//table/tbody/tr[position()=4]' do
-        expect(page).to have_content 'Secretária'
+        wait_for(page).to have_content 'Secretária'
       end
     end
 
     step "poderei excluir uma permissão" do
       within :xpath, '//table/tbody/tr[position()=4]' do
-        expect(page).to have_content 'Secretária'
+        wait_for(page).to have_content 'Secretária'
 
         click_on 'Excluir'
       end
 
-      expect(page).to have_content "Permissão foi apagada com sucesso"
+      wait_for(page).to have_content "Permissão foi apagada com sucesso"
 
-      expect(page).to have_no_content 'Secretária'
+      wait_for(page).to have_no_content 'Secretária'
     end
   end
 end
