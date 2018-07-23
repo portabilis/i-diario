@@ -1,15 +1,23 @@
 class ConceptualExamValue < ActiveRecord::Base
 
   default_scope do
+    # Retorna apenas os valores relacionados a:
+    # - Regra da turma como nota conceitual;
+    # - Regra da turma como nota conceitual ou numérica porém disciplina marcada
+    #   como conceitual;
     query = <<-SQL
       EXISTS(SELECT 1
-            FROM "conceptual_exams"
-            INNER JOIN "teacher_discipline_classrooms" ON "teacher_discipline_classrooms"."classroom_id" = "conceptual_exams"."classroom_id"
-                   AND "teacher_discipline_classrooms"."discipline_id" = "conceptual_exam_values"."discipline_id"
-            WHERE ("teacher_discipline_classrooms"."score_type" = ?
-               OR  "teacher_discipline_classrooms"."score_type" IS NULL)
-              AND "conceptual_exams"."id" = "conceptual_exam_values"."conceptual_exam_id"
-            LIMIT 1)
+          FROM "conceptual_exams"
+          INNER JOIN "teacher_discipline_classrooms" ON "teacher_discipline_classrooms"."classroom_id" = "conceptual_exams"."classroom_id"
+          INNER JOIN "classrooms" ON "classrooms"."id" = "conceptual_exams"."classroom_id"
+          INNER JOIN "exam_rules" ON "exam_rules"."id" = "classrooms"."exam_rule_id"
+          LEFT OUTER JOIN "exam_rules" "differentiated_exam_rules_exam_rules" ON "differentiated_exam_rules_exam_rules"."id" = "exam_rules"."differentiated_exam_rule_id"
+          AND "teacher_discipline_classrooms"."discipline_id" = "conceptual_exam_values"."discipline_id"
+          WHERE (coalesce(differentiated_exam_rules_exam_rules.score_type, exam_rules.score_type) = '2' /* concept */
+                 OR (coalesce(differentiated_exam_rules_exam_rules.score_type, exam_rules.score_type) = '3' /* numeric_and_concept */
+                     AND "teacher_discipline_classrooms"."score_type" = '1' /* concept */))
+            AND "conceptual_exams"."id" = "conceptual_exam_values"."conceptual_exam_id"
+          LIMIT 1)
     SQL
 
     where(query, DisciplineScoreTypes::CONCEPT)
