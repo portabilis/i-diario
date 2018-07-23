@@ -11,7 +11,7 @@ module Turnip
     end
 
     step 'poderei cadastrar uma nova unidade' do
-      expect(page).to have_select2_filled 'Tipo de unidade', with: 'Unidade escolar'
+      wait_for(page).to have_select2_filled 'Tipo de unidade', with: 'Unidade escolar'
 
       fill_in "Nome", with: "Escola Y"
       fill_in_select2 "Tipo de unidade", with: "school_unit"
@@ -28,14 +28,14 @@ module Turnip
 
       sleep 0.2
 
-      expect(page).to have_content "Unidade foi criada com sucesso."
+      wait_for(page).to have_content "Unidade foi criada com sucesso."
     end
 
     step 'que existe uma unidade cadastrada' do
       click_***REMOVED*** 'Configurações > Unidades'
 
       within :xpath, '//table/tbody/tr[position()=1]' do
-        expect(page).to have_content 'Escola A Unidade escolar'
+        wait_for(page).to have_content 'Escola A Unidade escolar'
       end
     end
 
@@ -48,27 +48,27 @@ module Turnip
     step 'poderei alterar os dados da unidade' do
       fill_in 'Nome', with: 'Unidade Z'
 
-      expect(page).to have_field "CEP", with: "32672-124"
-      expect(page).to have_field "Rua", with: "Rua Goiania"
-      expect(page).to have_field "Número", with: "54"
-      expect(page).to have_field "Bairro", with: "Centro"
-      expect(page).to have_field "Cidade", with: "Betim"
-      expect(page).to have_select "Estado", selected: "Minas Gerais"
-      expect(page).to have_field "País", with: "Brasil"
+      wait_for(page).to have_field "CEP", with: "32672-124"
+      wait_for(page).to have_field "Rua", with: "Rua Goiania"
+      wait_for(page).to have_field "Número", with: "54"
+      wait_for(page).to have_field "Bairro", with: "Centro"
+      wait_for(page).to have_field "Cidade", with: "Betim"
+      wait_for(page).to have_select "Estado", selected: "Minas Gerais"
+      wait_for(page).to have_field "País", with: "Brasil"
 
       click_on 'Salvar'
 
-      expect(page).to have_content 'Unidade foi alterada com sucesso.'
+      wait_for(page).to have_content 'Unidade foi alterada com sucesso.'
 
       within :xpath, '//table/tbody/tr[position()=3]' do
-        expect(page).to have_content 'Unidade Z'
+        wait_for(page).to have_content 'Unidade Z'
       end
     end
 
     step "que existem unidades cadastradas" do
       click_***REMOVED*** 'Configurações > Unidades'
 
-      expect(page).to have_content 'Escola Z'
+      wait_for(page).to have_content 'Escola Z'
     end
 
     step "poderei excluir uma unidade" do
@@ -77,12 +77,12 @@ module Turnip
       ***REMOVED***RequestAuthorization.destroy_all
       ***REMOVED***Request.destroy_all
 
-      expect(page).to have_content 'Escola Z'
+      wait_for(page).to have_content 'Escola Z'
       click_on 'Excluir Escola Z'
 
-      expect(page).to have_content "Unidade foi apagada com sucesso"
+      wait_for(page).to have_content "Unidade foi apagada com sucesso"
 
-      expect(page).to have_no_content 'Escola Z'
+      wait_for(page).to have_no_content 'Escola Z'
     end
   end
 end

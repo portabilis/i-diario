@@ -6,12 +6,12 @@ module Turnip
 
       click_link 'Criar conta'
 
-      expect(page).to have_content 'Crie sua conta'
+      wait_for(page).to have_content 'Crie sua conta'
     end
 
     step "informo os dados para o cadastro de pais" do
       VCR.use_cassette('signup_parent') do
-        expect(page).to have_content "Dados pessoais"
+        wait_for(page).to have_content "Dados pessoais"
 
         fill_in 'Nome', with: 'Clark'
         fill_in 'Sobrenome', with: 'Kent'
@@ -28,20 +28,20 @@ module Turnip
         sleep 2
       end
 
-      expect(page).to have_content "Alunos"
+      wait_for(page).to have_content "Alunos"
 
       #TODO Ajustar
       # within "table" do
       #   within "tbody tr:nth-child(1)" do
       #     click_on "ADRIANO ROQUE"
-      #     expect(page).to have_content "ADRIANO ROQUE"
-      #     expect(page).to have_content "544"
+      #     wait_for(page).to have_content "ADRIANO ROQUE"
+      #     wait_for(page).to have_content "544"
       #   end
       #
       #   within "tbody tr:nth-child(2)" do
       #     click_on "ABNER ROCHA"
-      #     expect(page).to have_content "ABNER ROCHA"
-      #     expect(page).to have_content "1932"
+      #     wait_for(page).to have_content "ABNER ROCHA"
+      #     wait_for(page).to have_content "1932"
       #   end
       # end
 
@@ -49,7 +49,7 @@ module Turnip
     end
 
     step "deverei ser logado ao sistema" do
-      expect(page).to have_text 'Bem-vindo! Você se registrou com sucesso.'
+      wait_for(page).to have_text 'Bem-vindo! Você se registrou com sucesso.'
 
       user = User.last
       # TODO Ajustar
@@ -58,7 +58,7 @@ module Turnip
     end
 
     step "informo os dados para o acesso do aluno" do
-      expect(page).to have_content "Dados pessoais"
+      wait_for(page).to have_content "Dados pessoais"
 
       fill_in 'Nome', with: 'Mary'
       fill_in 'Sobrenome', with: 'Jane'
@@ -74,7 +74,7 @@ module Turnip
 
     step "deverei ver a mensagem de acesso solicitado" do
       sleep 5
-      expect(page).to have_content "Notificamos o responsável da sua unidade escolar sobre sua solicitação. Em breve você receberá um e-mail com o seu acesso."
+      wait_for(page).to have_content "Notificamos o responsável da sua unidade escolar sobre sua solicitação. Em breve você receberá um e-mail com o seu acesso."
     end
 
     step "o login não poderá ser realizado enquanto o acesso estiver pendente" do
@@ -83,7 +83,7 @@ module Turnip
 
       click_on 'Acessar'
 
-      expect(page).to have_content 'A sua conta não foi ativada ainda.'
+      wait_for(page).to have_content 'A sua conta não foi ativada ainda.'
     end
 
     step "informo os dados para o acesso do servidor" do
@@ -105,12 +105,12 @@ module Turnip
 
       click_on 'Acessar'
 
-      expect(page).to have_content 'A sua conta não foi ativada ainda.'
+      wait_for(page).to have_content 'A sua conta não foi ativada ainda.'
     end
 
     step "informo os dados para o acesso de pai, aluno e servidor" do
       VCR.use_cassette('signup_parent') do
-        expect(page).to have_content "Dados pessoais"
+        wait_for(page).to have_content "Dados pessoais"
 
         fill_in 'Nome', with: 'John'
         fill_in 'Sobrenome', with: 'Stuart'
@@ -133,19 +133,19 @@ module Turnip
         sleep 2
       end
 
-      expect(page).to have_content "Alunos"
+      wait_for(page).to have_content "Alunos"
       #TODO Ajustar
       # within "table" do
       #   within "tbody tr:nth-child(1)" do
       #     click_on "ADRIANO ROQUE"
-      #     expect(page).to have_content "ADRIANO ROQUE"
-      #     expect(page).to have_content "544"
+      #     wait_for(page).to have_content "ADRIANO ROQUE"
+      #     wait_for(page).to have_content "544"
       #   end
       #
       #   within "tbody tr:nth-child(2)" do
       #     click_on "ABNER ROCHA"
-      #     expect(page).to have_content "ABNER ROCHA"
-      #     expect(page).to have_content "1932"
+      #     wait_for(page).to have_content "ABNER ROCHA"
+      #     wait_for(page).to have_content "1932"
       #   end
       # end
 
