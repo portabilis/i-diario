@@ -13,17 +13,14 @@ class ConceptualExamValue < ActiveRecord::Base
           INNER JOIN "classrooms" ON "classrooms"."id" = "conceptual_exams"."classroom_id"
           INNER JOIN "exam_rules" ON "exam_rules"."id" = "classrooms"."exam_rule_id"
           LEFT OUTER JOIN "exam_rules" "differentiated_exam_rules" ON "differentiated_exam_rules"."id" = "exam_rules"."differentiated_exam_rule_id"
-          WHERE (coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :exam_rule_score_type_concept
-                 OR (coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :exam_rule_score_type_numeric_and_concept
-                     AND "teacher_discipline_classrooms"."score_type" = :discipline_concept))
+          WHERE (coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :score_type_numeric_and_concept
+                 OR (coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :score_type_target
+                     AND "teacher_discipline_classrooms"."score_type" = :discipline_score_type_target))
             AND "conceptual_exams"."id" = "conceptual_exam_values"."conceptual_exam_id"
           LIMIT 1)
     SQL
 
-    where(query,
-          discipline_concept: DisciplineScoreTypes::CONCEPT,
-          exam_rule_score_type_concept: ScoreTypes::CONCEPT,
-          exam_rule_score_type_numeric_and_concept: ScoreTypes::NUMERIC_AND_CONCEPT)
+    where(query, Discipline::SCORE_TYPE_FILTERS[:concept])
   end
 
   acts_as_copy_target

@@ -1,4 +1,18 @@
 class Discipline < ActiveRecord::Base
+
+  SCORE_TYPE_FILTERS = {
+    concept: {
+      score_type_numeric_and_concept: '3',
+      score_type_target: '2',
+      discipline_score_type_target: '1'
+    },
+    numeric: {
+      score_type_numeric_and_concept: '3',
+      score_type_target: '1',
+      discipline_score_type_target: '2'
+    }
+  }
+
   acts_as_copy_target
 
   belongs_to :knowledge_area
@@ -9,7 +23,20 @@ class Discipline < ActiveRecord::Base
 
   scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
-  scope :by_score_type, lambda { |score_type| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { score_type: score_type }) }
+
+  scope :by_score_type, lambda { |score_type|
+    joins(%{
+            INNER JOIN "classrooms" ON "classrooms"."id" = "teacher_discipline_classrooms"."classroom_id"
+            INNER JOIN "exam_rules" ON "exam_rules"."id" = "classrooms"."exam_rule_id"
+            LEFT OUTER JOIN "exam_rules" "differentiated_exam_rules" ON "differentiated_exam_rules"."id" = "exam_rules"."differentiated_exam_rule_id"
+          }).
+    where(%{
+            coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :score_type_target
+                  OR (coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :score_type_numeric_and_concept
+                      AND "teacher_discipline_classrooms"."score_type" = :discipline_score_type_target)
+          }, SCORE_TYPE_FILTERS[score_type.to_sym])
+  }
+
   scope :by_grade, lambda { |grade| by_grade(grade) }
   scope :by_classroom, lambda { |classroom| by_classroom(classroom) }
   scope :by_teacher_and_classroom, lambda { |teacher_id, classroom_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id }).uniq }

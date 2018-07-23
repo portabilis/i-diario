@@ -155,7 +155,6 @@ class AvaliationsController < ApplicationController
   def disciplines_for_multiple_classrooms
     @disciplines_for_multiple_classrooms ||= Discipline.by_unity_id(current_user_unity.id)
                                                        .by_teacher_id(current_teacher.id)
-                                                       .by_score_type([DisciplineScoreTypes::NUMERIC, nil])
                                                        .ordered
   end
   helper_method :disciplines_for_multiple_classrooms
