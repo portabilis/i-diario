@@ -34,7 +34,7 @@
           render(
             "users/selectors",
             user: current_user,
-            user_role: current_user.current_user_role,
+            user_role: current_user.current_user_role || NullUserRole.new,
             unity: current_user.current_unity,
             teacher: current_user.teacher || current_user.current_teacher,
             classroom: current_user.current_classroom,
