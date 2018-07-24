@@ -50,7 +50,7 @@ module ExamPoster
         conceptual_exam_values.each do |conceptual_exam_value|
           conceptual_exam = conceptual_exam_value.conceptual_exam
 
-          if conceptual_exam_value.value.nil? || conceptual_exam_value.value.blank?
+          if conceptual_exam_value.value.blank?
             student_name = conceptual_exam.student.name
             classroom_description = conceptual_exam.classroom.description
             discipline_description = conceptual_exam_value.discipline.description
