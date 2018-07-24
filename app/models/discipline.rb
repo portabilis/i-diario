@@ -33,10 +33,12 @@ class Discipline < ActiveRecord::Base
             INNER JOIN "exam_rules" ON "exam_rules"."id" = "classrooms"."exam_rule_id"
             LEFT OUTER JOIN "exam_rules" "differentiated_exam_rules" ON "differentiated_exam_rules"."id" = "exam_rules"."differentiated_exam_rule_id"
           }).
-    where(%{
-            coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :score_type_target
-                  OR (coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :score_type_numeric_and_concept
-                      AND "teacher_discipline_classrooms"."score_type" = :discipline_score_type_target)
+    where(%{coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :score_type_target
+            OR (
+                 "exam_rules"."score_type" = :score_type_numeric_and_concept
+                 AND
+                 "teacher_discipline_classrooms"."score_type" = :discipline_score_type_target
+               )
           }, SCORE_TYPE_FILTERS[score_type.to_sym])
   }
 
