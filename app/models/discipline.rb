@@ -24,6 +24,8 @@ class Discipline < ActiveRecord::Base
   scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
 
+  # Funciona apenas se feito join com teacher_discipline_classrooms
+  # através de queries como by_teacher_id e by_classroom.
   scope :by_score_type, lambda { |score_type|
     joins(%{
             INNER JOIN "classrooms" ON "classrooms"."id" = "teacher_discipline_classrooms"."classroom_id"
