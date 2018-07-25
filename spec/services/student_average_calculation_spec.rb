@@ -178,19 +178,21 @@ RSpec.describe StudentAverageCalculator, type: :service do
       end
     end
 
-    context "when the calculation type is arithmetic and sum and have no daily_note_student" do
-      let(:score_1) { 4.0 }
-      let(:score_2) { 3.0 }
-      let(:weight_avaliation_1) { 5.0 }
-      let(:weight_avaliation_2) { 5.0 }
-      let(:maximum_score) { 10 }
-      let(:arithmetic_and_sum_calculation_type?) { true }
-      let(:recovery_diary_records) { [recovery_diary_record_1, recovery_diary_record_2] }
+    context "when the calculation type is arithmetic and sum" do
+      context "and have no daily_note_student" do
+        let(:score_1) { 4.0 }
+        let(:score_2) { 3.0 }
+        let(:weight_avaliation_1) { 5.0 }
+        let(:weight_avaliation_2) { 5.0 }
+        let(:maximum_score) { 10 }
+        let(:arithmetic_and_sum_calculation_type?) { true }
+        let(:recovery_diary_records) { [recovery_diary_record_1, recovery_diary_record_2] }
 
-      before { allow(score_rounder).to receive(:round).with(7.0).and_return(7.0) }
+        before { allow(score_rounder).to receive(:round).with(7.0).and_return(7.0) }
 
-      it "calculates average using recovery_diary_records without daily_note_student" do
-        expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(7.0)
+        it "calculates average using recovery_diary_records without daily_note_student" do
+          expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(7.0)
+        end
       end
     end
   end
