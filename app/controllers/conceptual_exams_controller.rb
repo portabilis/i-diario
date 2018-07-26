@@ -8,6 +8,8 @@ class ConceptualExamsController < ApplicationController
   def index
     @conceptual_exams = apply_scopes(ConceptualExam)
       .includes(
+        :school_calendar_classroom_step,
+        :school_calendar_step,
         :student,
         :conceptual_exam_values,
         classroom: :unity
