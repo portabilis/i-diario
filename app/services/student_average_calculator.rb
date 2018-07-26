@@ -36,7 +36,9 @@ class StudentAverageCalculator
     end
 
     recovery_diary_records.each do |recovery_diary_record|
-      sum += recovery_diary_record.avaliation.weight unless avaliation_exempted?(recovery_diary_record.avaliation)
+      unless avaliation_exempted?(recovery_diary_record.avaliation_recovery_diary_record.avaliation)
+        sum += recovery_diary_record.avaliation_recovery_diary_record.avaliation.weight
+      end
     end
 
     sum
