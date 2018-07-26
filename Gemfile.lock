@@ -134,9 +134,6 @@ GEM
       aws-sdk-core (= 2.9.7)
     aws-sigv4 (1.0.0)
     bcrypt (3.1.10)
-    better_errors (1.1.0)
-      coderay (>= 1.0.0)
-      erubis (>= 2.6.6)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     builder (3.2.2)
@@ -592,7 +589,6 @@ DEPENDENCIES
   audited-activerecord!
   aws-sdk (~> 2)
   backbone-nested-attributes!
-  better_errors (~> 1.1.0)
   binding_of_caller (~> 0.7.2)
   bulk_insert (~> 1.0)
   bullet
