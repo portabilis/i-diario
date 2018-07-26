@@ -77,6 +77,7 @@ group :development do
   gem 'spring-commands-rspec'
   gem 'quiet_assets'
   gem 'mina', '0.3.7'
+  gem 'meta_request'
   gem 'binding_of_caller', '~> 0.7.2'
   gem 'puma', '~> 3.9.1'
   gem 'mina-sidekiq', '~> 0.4.1'
