@@ -1,40 +1,5 @@
 class ConceptualExamValue < ActiveRecord::Base
 
-  default_scope do
-    # Retorna apenas os valores relacionados a:
-    # - Regra da turma como nota conceitual;
-    # - Regra da turma como nota conceitual ou numérica porém disciplina marcada
-    #   como conceitual;
-    query = <<-SQL
-      EXISTS(SELECT 1
-        FROM "conceptual_exams"
-        INNER JOIN "teacher_discipline_classrooms" ON "teacher_discipline_classrooms"."classroom_id" = "conceptual_exams"."classroom_id"
-               AND "teacher_discipline_classrooms"."discipline_id" = "conceptual_exam_values"."discipline_id"
-        INNER JOIN "classrooms" ON "classrooms"."id" = "conceptual_exams"."classroom_id"
-        LEFT OUTER JOIN "students" ON "students"."id" = "conceptual_exams"."student_id" AND "uses_differentiated_exam_rule" = true
-        INNER JOIN "exam_rules" ON "exam_rules"."id" = "classrooms"."exam_rule_id"
-        LEFT OUTER JOIN "exam_rules" "differentiated_exam_rules" ON "differentiated_exam_rules"."id" = "exam_rules"."differentiated_exam_rule_id"
-        WHERE
-          "exam_rules"."score_type" = :score_type_target
-        OR
-          (
-            "exam_rules"."score_type" = :score_type_numeric_and_concept
-            AND
-            "teacher_discipline_classrooms"."score_type" = :discipline_score_type_target
-          )
-        OR
-          (
-            "differentiated_exam_rules"."score_type" = :score_type_target
-            AND
-            "students"."id" IS NOT NULL
-          )
-        LIMIT 1
-      )
-    SQL
-
-    where(query, Discipline::SCORE_TYPE_FILTERS[:concept])
-  end
-
   acts_as_copy_target
 
   audited associated_with: :conceptual_exam, except: :conceptual_exam_id
@@ -47,6 +12,12 @@ class ConceptualExamValue < ActiveRecord::Base
   validates :conceptual_exam, presence: true
   validates :discipline_id, presence: true
 
+  def self.active
+    joins(:conceptual_exam).
+      joins(active_joins).
+      where(active_query)
+  end
+
   def self.ordered
     joins(
       arel_table.join(KnowledgeArea.arel_table, Arel::Nodes::OuterJoin)
@@ -54,6 +25,25 @@ class ConceptualExamValue < ActiveRecord::Base
         .join_sources
     )
     .order(KnowledgeArea.arel_table[:description])
+  end
+
+  def self.active_joins
+    <<-SQL
+      INNER JOIN "teacher_discipline_classrooms" ON "teacher_discipline_classrooms"."classroom_id" = "conceptual_exams"."classroom_id"
+              AND "teacher_discipline_classrooms"."discipline_id" = "conceptual_exam_values"."discipline_id"
+      INNER JOIN "classrooms" ON "classrooms"."id" = "conceptual_exams"."classroom_id"
+      LEFT OUTER JOIN "students" ON "students"."id" = "conceptual_exams"."student_id" AND "students"."uses_differentiated_exam_rule" = true
+      INNER JOIN "exam_rules" ON "exam_rules"."id" = "classrooms"."exam_rule_id"
+      LEFT OUTER JOIN "exam_rules" "differentiated_exam_rules" ON "differentiated_exam_rules"."id" = "exam_rules"."differentiated_exam_rule_id"
+    SQL
+  end
+
+  def self.active_query
+    <<-SQL
+      "exam_rules"."score_type" = '2'
+      OR ("exam_rules"."score_type" = '3' AND "teacher_discipline_classrooms"."score_type" = '1')
+      OR ("differentiated_exam_rules"."score_type" = '2' AND "students"."id" IS NOT NULL)
+    SQL
   end
 
   def mark_as_invisible

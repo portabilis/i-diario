@@ -42,7 +42,7 @@ module ExamPoster
         end
 
         conceptual_exam_values = ConceptualExamValue.
-          joins(:conceptual_exam).
+          active.
           includes(:conceptual_exam, :discipline).
           merge(conceptual_exams).
           uniq
