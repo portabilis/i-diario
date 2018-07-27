@@ -27,19 +27,32 @@ class Discipline < ActiveRecord::Base
   # It works only when the query chain has join with
   # teacher_discipline_classrooms. Using scopes like by_teacher_id or
   # by_classroom for example.
-  scope :by_score_type, lambda { |score_type|
-    joins(%{
-            INNER JOIN "classrooms" ON "classrooms"."id" = "teacher_discipline_classrooms"."classroom_id"
-            INNER JOIN "exam_rules" ON "exam_rules"."id" = "classrooms"."exam_rule_id"
-            LEFT OUTER JOIN "exam_rules" "differentiated_exam_rules" ON "differentiated_exam_rules"."id" = "exam_rules"."differentiated_exam_rule_id"
-          }).
-    where(%{coalesce(differentiated_exam_rules.score_type, exam_rules.score_type) = :score_type_target
-            OR (
-                 "exam_rules"."score_type" = :score_type_numeric_and_concept
-                 AND
-                 "teacher_discipline_classrooms"."score_type" = :discipline_score_type_target
-               )
-          }, SCORE_TYPE_FILTERS[score_type.to_sym])
+  scope :by_score_type, lambda { |score_type, student_id = nil|
+    scoped = joins(teacher_discipline_classrooms: { classroom: :exam_rule })
+    if student_id && Student.find(student_id).try(:uses_differentiated_exam_rule)
+      exam_rules = ExamRule.arel_table.alias('exam_rules_classrooms')
+
+      differentiated_exam_rules = ExamRule.arel_table.alias('differentiated_exam_rules')
+        scoped.joins(
+          arel_table.join(differentiated_exam_rules, Arel::Nodes::OuterJoin).
+            on(differentiated_exam_rules[:id].eq(exam_rules[:differentiated_exam_rule_id])).join_sources
+        ).where(
+          exam_rules[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_target]).or(
+            exam_rules[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_numeric_and_concept]).
+            and(TeacherDisciplineClassroom.arel_table[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:discipline_score_type_target]))
+          ).or(
+            differentiated_exam_rules[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_target])
+          )
+        ).uniq
+    else
+      scoped.where(
+        ExamRule.arel_table[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_target]).
+        or(
+          ExamRule.arel_table[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_numeric_and_concept]).
+          and(TeacherDisciplineClassroom.arel_table[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:discipline_score_type_target]))
+        )
+      ).uniq
+    end
   }
 
   scope :by_grade, lambda { |grade| by_grade(grade) }

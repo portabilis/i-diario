@@ -24,6 +24,10 @@ class DisciplinesController < ApplicationController
 
     @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id).order_by_sequence
 
+    if params[:conceptual]
+      @disciplines = @disciplines.by_score_type(:concept, params[:student_id])
+    end
+
     if disciplines_by_step
       @disciplines = @disciplines.where.not(id: disciplines_by_step)
     end
