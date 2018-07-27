@@ -12,10 +12,14 @@ class ConceptualExamValue < ActiveRecord::Base
   validates :conceptual_exam, presence: true
   validates :discipline_id, presence: true
 
-  def self.active
-    joins(:conceptual_exam).
-      joins(active_joins).
-      where(active_query)
+  def self.active(join_conceptual_exam = true)
+    scoped = if join_conceptual_exam
+       joins(:conceptual_exam)
+    else
+      all
+    end
+
+    scoped.active_query
   end
 
   def self.ordered
@@ -27,30 +31,41 @@ class ConceptualExamValue < ActiveRecord::Base
     .order(KnowledgeArea.arel_table[:description])
   end
 
-  def self.active_joins
-    <<-SQL
-      INNER JOIN "teacher_discipline_classrooms" ON "teacher_discipline_classrooms"."classroom_id" = "conceptual_exams"."classroom_id"
-              AND "teacher_discipline_classrooms"."discipline_id" = "conceptual_exam_values"."discipline_id"
-      INNER JOIN "classrooms" ON "classrooms"."id" = "conceptual_exams"."classroom_id"
-      LEFT OUTER JOIN "students" ON "students"."id" = "conceptual_exams"."student_id" AND "students"."uses_differentiated_exam_rule" = true
-      INNER JOIN "exam_rules" ON "exam_rules"."id" = "classrooms"."exam_rule_id"
-      LEFT OUTER JOIN "exam_rules" "differentiated_exam_rules" ON "differentiated_exam_rules"."id" = "exam_rules"."differentiated_exam_rule_id"
-    SQL
-  end
-
-  def self.active_query
-    <<-SQL
-      "exam_rules"."score_type" = '2'
-      OR ("exam_rules"."score_type" = '3' AND "teacher_discipline_classrooms"."score_type" = '1')
-      OR ("differentiated_exam_rules"."score_type" = '2' AND "students"."id" IS NOT NULL)
-    SQL
-  end
-
   def mark_as_invisible
     @marked_as_invisible = true
   end
 
   def marked_as_invisible?
     @marked_as_invisible
+  end
+
+  private
+
+  def self.active_query
+    differentiated_exam_rules = ExamRule.arel_table.alias('differentiated_exam_rules')
+
+    joins(
+      arel_table.join(TeacherDisciplineClassroom.arel_table).
+        on(TeacherDisciplineClassroom.arel_table[:classroom_id].eq(ConceptualExam.arel_table[:classroom_id]).
+          and(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(arel_table[:discipline_id]))).join_sources,
+      arel_table.join(Classroom.arel_table).
+        on(Classroom.arel_table[:id].eq(ConceptualExam.arel_table[:classroom_id])).join_sources,
+      arel_table.join(ExamRule.arel_table).
+        on(ExamRule.arel_table[:id].eq(Classroom.arel_table[:exam_rule_id])).join_sources,
+      arel_table.join(Student.arel_table, Arel::Nodes::OuterJoin).
+        on(Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id]).
+          and(Student.arel_table[:uses_differentiated_exam_rule].eq(true))).join_sources,
+      arel_table.join(differentiated_exam_rules, Arel::Nodes::OuterJoin).
+        on(differentiated_exam_rules[:id].eq(ExamRule.arel_table[:differentiated_exam_rule_id])).join_sources
+    ).where(
+      ExamRule.arel_table[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:score_type_target]).
+        or(
+          ExamRule.arel_table[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:score_type_numeric_and_concept]).
+          and(TeacherDisciplineClassroom.arel_table[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:discipline_score_type_target]))
+        ).or(
+          differentiated_exam_rules[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:score_type_target]).
+          and(Student.arel_table[:id].not_eq(nil))
+        )
+      ).uniq
   end
 end

@@ -48,9 +48,7 @@ class ConceptualExam < ActiveRecord::Base
   before_validation :self_assign_to_conceptual_exam_values
 
   def self.active
-    join_conceptual_exam_values.
-      joins(ConceptualExamValue.active_joins).
-      where(ConceptualExamValue.active_query)
+    join_conceptual_exam_values.merge(ConceptualExamValue.active(false))
   end
 
   def self.by_teacher(teacher_id)
