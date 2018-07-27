@@ -250,7 +250,7 @@ class ConceptualExamsController < ApplicationController
     fetcher.fetch!
 
     @disciplines = fetcher.disciplines
-    @disciplines = @disciplines.by_score_type(:concept) if @disciplines.present?
+    @disciplines = @disciplines.by_score_type(:concept, @conceptual_exam.try(:student_id)) if @disciplines.present?
     calendar_step_id = @conceptual_exam.school_calendar_step_id
     classroom_step_id = @conceptual_exam.school_calendar_classroom_step_id
 
