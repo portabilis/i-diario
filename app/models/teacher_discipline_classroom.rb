@@ -1,6 +1,10 @@
 class TeacherDisciplineClassroom < ActiveRecord::Base
   acts_as_copy_target
 
+  audited
+
+  include Audit
+
   belongs_to :teacher
   belongs_to :discipline
   belongs_to :classroom
