@@ -1,16 +1,12 @@
 source 'https://rubygems.org'
 
-# '~> <version>' is used to limit versions in the same release, eg: "~> 2.1" is like as ">= 2.1 and < 3.0"
-
 ruby '2.2.6'
 
 gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
-
 gem "gelf"
 gem "lograge"
-
 gem 'simple_form', '3.1.0'
 gem 'pg', '0.17.1'
 gem 'foreigner', '1.6.1'
@@ -37,12 +33,9 @@ gem 'bulk_insert', '~> 1.0'
 gem 'aws-sdk', '~> 2'
 gem "paperclip", "~> 5.1.0"
 gem 'activerecord-tableless', '~> 2.0'
-
 gem 'honeybadger', '~> 3'
-
 gem 'angular_rails_csrf'
 gem 'rack-cors', require: 'rack/cors'
-
 gem 'sinatra', '>= 1.3.0', require: nil
 gem 'sidekiq', '< 6'
 gem 'sidekiq-unique-jobs', '~> 4.0.18'
@@ -51,24 +44,19 @@ gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
 gem 'postgres-copy'
 gem 'activerecord-session_store'
-
-# Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.2'
 gem 'less-rails', '2.7.0'
 gem 'twitter-bootstrap-rails', '3.2.0'
 gem 'backbone-nested-attributes', git: 'git://github.com/samuelsimoes/backbone-nested-attributes.git'
 gem 'handlebars_assets', '0.17.1'
 gem 'ejs', '~> 1.1', '>= 1.1.1'
-
 gem 'decore', git: 'https://github.com/matiasleidemer/decore'
 gem 'activerecord-connections', git: 'https://github.com/ricardohsd/activerecord-connections.git'
-
 gem 'carrierwave'
 gem 'fog', '~> 1.36'
-
 gem 'rdstation-ruby-client'
-
 gem "zenvia-ruby", git: "https://github.com/portabilis/zenvia-ruby"
+gem "paranoia", "~> 2.2"
 
 group :development do
   gem 'spring'
