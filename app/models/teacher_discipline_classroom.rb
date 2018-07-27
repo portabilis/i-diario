@@ -1,6 +1,8 @@
 class TeacherDisciplineClassroom < ActiveRecord::Base
   acts_as_copy_target
 
+  acts_as_paranoid
+
   audited
 
   include Audit
