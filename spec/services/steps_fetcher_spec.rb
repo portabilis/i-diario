@@ -14,51 +14,63 @@ RSpec.describe StepsFetcher, type: :service do
 
   subject { StepsFetcher.new(classroom) }
 
-  context 'when there is only school_calendar_steps' do
+  context 'when there is only the steps of the school calendar' do
     let(:step) { school_calendar.steps.last }
 
     describe '#steps' do
-      it 'returns school_calendar_steps according to the classroom' do
+      it 'returns the steps of the school calendar according to the classroom' do
         expect(subject.steps).to eq(school_calendar.steps)
       end
     end
 
     describe '#step' do
-      it 'returns school_calendar_step according to the date' do
-        expect(subject.step(step.start_at)).to eq(step)
+      context 'when there is step of the school calendar on date' do
+        it 'returns the step' do
+          expect(subject.step(step.start_at)).to eq(step)
+        end
       end
 
-      it 'returns nil when there is no school_calendar_step on date' do
-        expect(subject.step(step.start_at.beginning_of_month)).to eq(nil)
+      context 'when there is no step of the school calendar on date' do
+        it 'returns nil' do
+          expect(subject.step(step.start_at.beginning_of_month)).to eq(nil)
+        end
       end
     end
 
     describe '#current_step' do
-      it 'returns school_calendar_step according to the current date' do
-        step = school_calendar.step(Date.today)
+      context 'when there is step of the school calendar on the current date' do
+        it 'returns the step' do
+          step = school_calendar.step(Date.today)
 
-        expect(subject.current_step).to eq(step)
+          expect(subject.current_step).to eq(step)
+        end
       end
 
-      it 'returns nil when there is no school_calendar_step on current date' do
-        Timecop.freeze(Date.today.year, step.start_at.month, 1, 0, 0, 0) do
-          expect(subject.current_step).to eq(nil)
+      context 'when there is no step of the school calendar on the current date' do
+        it 'returns nil' do
+          Timecop.freeze(Date.today.year, step.start_at.month, 1, 0, 0, 0) do
+            expect(subject.current_step).to eq(nil)
+          end
         end
       end
     end
 
     describe '#step_belongs_to_date' do
-      it 'returns true when the school_calendar_step is on date' do
-        expect(subject.step_belongs_to_date(step.id, step.start_at)).to eq(true)
+      context 'when the step of the school calendar is on date' do
+        it 'returns true' do
+          expect(subject.step_belongs_to_date(step.id, step.start_at)).to eq(true)
+        end
       end
 
-      it 'returns false when the school_calendar_step is not on date' do
-        expect(subject.step_belongs_to_date(step.id, step.start_at.beginning_of_month)).to eq(false)
+      context 'when the step of the school calendar is not on date' do
+        it 'returns false' do
+          expect(subject.step_belongs_to_date(step.id, step.start_at.beginning_of_month)).to eq(false)
+        end
       end
     end
   end
 
-  context 'when there is school_calendar_classroom_steps' do
+  context 'when there is the steps of the classroom' do
     let!(:school_calendar_classroom) {
       create(
         :school_calendar_classroom,
@@ -70,42 +82,54 @@ RSpec.describe StepsFetcher, type: :service do
     let(:step) { school_calendar_classroom.classroom_steps.last }
 
     describe '#steps' do
-      it 'returns school_calendar_classroom_steps according to the classroom' do
+      it 'returns the steps of the classroom according to the classroom' do
         expect(subject.steps).to eq(school_calendar_classroom.classroom_steps)
       end
     end
 
     describe '#step' do
-      it 'returns school_calendar_classroom_step according to the date' do
-        expect(subject.step(step.start_at)).to eq(step)
+      context 'when there is step of the classroom on date' do
+        it 'returns the step of the classroom' do
+          expect(subject.step(step.start_at)).to eq(step)
+        end
       end
 
-      it 'returns nil when there is no school_calendar_classroom_step on date' do
-        expect(subject.step(step.start_at.beginning_of_month)).to eq(nil)
+      context 'when there is no step of the classroom on date' do
+        it 'returns nil' do
+          expect(subject.step(step.start_at.beginning_of_month)).to eq(nil)
+        end
       end
     end
 
     describe '#current_step' do
-      it 'returns school_calendar_classroom_step according to the current date' do
-        step = school_calendar_classroom.classroom_step(Date.today)
+      context 'when there is step of the classroom on the current date' do
+        it 'returns the step of the classroom' do
+          step = school_calendar_classroom.classroom_step(Date.today)
 
-        expect(subject.current_step).to eq(step)
+          expect(subject.current_step).to eq(step)
+        end
       end
 
-      it 'returns nil when there is no school_calendar_classroom_step on current date' do
-        Timecop.freeze(Date.today.year, step.start_at.month, 1, 0, 0, 0) do
-          expect(subject.current_step).to eq(nil)
+      context 'when there is no step of the classroom on the current date' do
+        it 'returns nil' do
+          Timecop.freeze(Date.today.year, step.start_at.month, 1, 0, 0, 0) do
+            expect(subject.current_step).to eq(nil)
+          end
         end
       end
     end
 
     describe '#step_belongs_to_date' do
-      it 'returns true when the school_calendar_classroom_step is on date' do
-        expect(subject.step_belongs_to_date(step.id, step.start_at)).to eq(true)
+      context 'when the step of the classroom is on date' do
+        it 'returns true' do
+          expect(subject.step_belongs_to_date(step.id, step.start_at)).to eq(true)
+        end
       end
 
-      it 'returns false when the school_calendar_classroom_step is not on date' do
-        expect(subject.step_belongs_to_date(step.id, step.start_at.beginning_of_month)).to eq(false)
+      context 'when the step of the classroom is not on date' do
+        it 'returns false' do
+          expect(subject.step_belongs_to_date(step.id, step.start_at.beginning_of_month)).to eq(false)
+        end
       end
     end
   end
