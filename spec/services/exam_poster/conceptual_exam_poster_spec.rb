@@ -129,7 +129,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
                score_type: DisciplineScoreTypes::NUMERIC)
       end
 
-      it 'enqueues the requests' do
+      it 'does not enqueue the requests' do
         subject.post!
 
         request = {
