@@ -374,7 +374,7 @@ $(function() {
   });
   $('#user-role-form').on('ajax:error', function(event, request){
     $('#page-loading').addClass('hidden');
-    let messages = (request.responseJSON||{})['messages']||[];
+    var messages = (request.responseJSON||{})['messages']||[];
     alert(messages.join(', ') || 'Erro desconhecido');
   });
 
