@@ -494,6 +494,9 @@ GEM
       rspec-expectations (~> 3.4.0)
       rspec-mocks (~> 3.4.0)
       rspec-support (~> 3.4.0)
+    rspec-sidekiq (3.0.3)
+      rspec-core (~> 3.0, >= 3.0.0)
+      sidekiq (>= 2.4.0)
     rspec-support (3.4.0)
     rspec-wait (0.0.9)
       rspec (>= 3, < 4)
@@ -650,6 +653,7 @@ DEPENDENCIES
   rest-client!
   route_translator!
   rspec-rails (~> 3.4)
+  rspec-sidekiq
   rspec-wait (~> 0.0.9)
   rubyzip (= 1.1.0)
   sdoc (~> 0.4.0)

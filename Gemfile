@@ -87,6 +87,7 @@ group :development do
 end
 
 group :test do
+  gem 'rspec-sidekiq'
   gem 'business_time'
   gem 'turnip', '~> 1.3', '>= 1.3.1'
   gem 'capybara', '~> 2.5'
