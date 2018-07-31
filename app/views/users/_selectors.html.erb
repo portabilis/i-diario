@@ -14,23 +14,23 @@
               %>
 </div>
 
-<div id="unity-field-container" class="project-context administrator"<%= ' style="display: none;"'.html_safe unless user_role.role.access_level.in?(['administrator']) %> style="width: 180px;">
+<div id="unity-field-container" class="project-context administrator" style="width: 140px; <%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['administrator']) %>" >
   <span class="label">Unidade</span>
     <%= f.input :current_unity_id, as: :select2, elements: current_unities, label: false, wrapper: false, class: 'administrator' %>
   </span>
 </div>
 
-<div id="assumed-teacher-field-container" class="project-context administrator employee"<%= ' style="display: none;"'.html_safe unless user_role.role.access_level.in?(['administrator', 'employee']) %> style="width: 180px;">
+<div id="assumed-teacher-field-container" class="project-context administrator employee" style="width: 180px;<%= ' display: none;'.html_safe unless user_role.role.access_level.in?(['administrator', 'employee']) && f.object.current_unity.try(:school_unit?) %>"" >
   <span class="label">Professor</span>
   <%= f.input :assumed_teacher_id, as: :select2, elements: current_user_available_teachers, label: false, wrapper: false %>
 </div>
 
-<div id="classroom-field-container" class="project-context administrator employee teacher"<%= ' style="display: none;"'.html_safe unless user_role.role.access_level.in?(['administrator', 'employee', 'teacher']) %> style="width: 160px;">
+<div id="classroom-field-container" class="project-context administrator employee teacher" style="width: 175px;<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || f.object.assumed_teacher_id.present? %> ">
   <span class="label">Turma</span>
   <%= f.input :current_classroom_id, as: :select2, elements: current_user_available_classrooms, class: 'teacher', data: { dropdown: '.project-context .project-selector.classroom' }, wrapper: false, label: false %>
 </div>
 
-<div id="discipline-field-container" class="project-context administrator employee teacher"<%= ' style="display: none;"'.html_safe unless user_role.role.access_level.in?(['administrator', 'employee', 'teacher']) %> style="width: 150px;">
+<div id="discipline-field-container" class="project-context administrator employee teacher" style="width: 175px;<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || f.object.assumed_teacher_id.present? %>">
   <span class="label">Disciplina</span>
 
   <%= f.input :current_discipline_id,

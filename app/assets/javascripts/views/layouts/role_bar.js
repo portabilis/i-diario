@@ -372,8 +372,10 @@ $(function() {
   $('#user-role-form').on('ajax:send', function(){
     $('#page-loading').removeClass('hidden');
   });
-  $('#user-role-form').on('ajax:error', function(){
+  $('#user-role-form').on('ajax:error', function(event, request){
     $('#page-loading').addClass('hidden');
+    let messages = (request.responseJSON||{})['messages']||[];
+    alert(messages.join(', ') || 'Erro desconhecido');
   });
 
   $('#header input.select2').on('select2-open', function(){

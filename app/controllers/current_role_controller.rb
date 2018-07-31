@@ -8,7 +8,9 @@ class CurrentRoleController < ApplicationController
         flash[:notice] = I18n.t('current_role.set.notice')
         format.json { render json: current_role_form }
       else
-        format.json { render json: current_role_form.errors, status: :unprocessable_entity }
+        response = current_role_form.errors
+        response[:messages] = current_role_form.errors.full_messages
+        format.json { render json: response, status: :unprocessable_entity }
       end
     end
   end

@@ -236,7 +236,7 @@ class ApplicationController < ActionController::Base
   def current_user_available_teachers
     return [] unless current_user_unity
     @current_user_available_teachers ||= begin
-      teachers = Teacher.by_unity_id(current_user_unity)
+      teachers = Teacher.by_unity_id(current_user_unity).order_by_name
       if current_school_calendar.try(:year)
         teachers.by_year(current_school_calendar.try(:year))
       else
@@ -248,8 +248,8 @@ class ApplicationController < ActionController::Base
 
   def current_user_available_classrooms
     return [] unless current_user_unity && current_teacher
-    @classrooms ||= begin
-      classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher)
+    @current_user_available_classrooms ||= begin
+      classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher).ordered
       if current_school_calendar.try(:year)
         classrooms.by_year(current_school_calendar.try(:year))
       else
@@ -263,8 +263,9 @@ class ApplicationController < ActionController::Base
   def current_user_available_disciplines
     return [] unless current_user_classroom && current_teacher
 
-    @disciplines ||= Discipline.by_teacher_id(current_teacher)
+    @current_user_available_disciplines ||= Discipline.by_teacher_id(current_teacher)
                                .by_classroom(current_user_classroom)
+                               .ordered
   end
   helper_method :current_user_available_disciplines
 
