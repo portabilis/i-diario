@@ -23,10 +23,9 @@ module ExamPoster
       end
     end
 
-    private
-
     def post_conceptual_exams
       params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
+
 
       classrooms_ids = teacher.classrooms.uniq
       classrooms_ids.each do |classroom|
