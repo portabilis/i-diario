@@ -326,6 +326,7 @@ Rails.application.routes.draw do
         post :create_multiple_classrooms
       end
     end
+    resources :complementary_exam_settings, concerns: :history
     resources :teacher_avaliations, only: :index
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do

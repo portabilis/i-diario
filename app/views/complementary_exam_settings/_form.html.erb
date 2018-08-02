@@ -1,0 +1,55 @@
+<div class="widget-body no-padding">
+
+  <%= simple_form_for @complementary_exam_setting, html: { class: "smart-form" } do |f| %>
+    <% if f.object.errors[:base].present? %>
+      <div class="alert alert-danger fade in">
+        <i class="fa-fw fa fa-times"></i>
+          <%= f.object.errors[:base].first %>
+      </div>
+    <% end %>
+
+    <fieldset>
+      <div class="row">
+        <div class="col col-sm-3">
+          <%= f.input :description %>
+        </div>
+        <div class="col col-sm-3">
+          <%= f.input :initials %>
+        </div>
+
+        <div class="col col-sm-3">
+          <%= f.input :calculation_type, as: :select2, elements: CalculationTypes.to_select.to_json %>
+        </div>
+
+        <div class="col col-sm-3">
+          <%= f.input :affected_score, as: :select2, elements: AffectedScoreTypes.to_select.to_json %>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col col-sm-3">
+          <%= f.input :maximum_score %>
+        </div>
+
+        <div class="col col-sm-3">
+          <%= f.input :number_of_decimal_places %>
+        </div>
+
+        <div class="col col-sm-3">
+          <%= f.input :grade_ids, as: :select2, elements: grades, multiple: true,
+          input_html: { value: f.object.grades.reject(&:marked_for_destruction?).map(&:id).join(','), data: { without_json_parser: true } } %>
+        </div>
+      </div>
+    </fieldset>
+
+    <footer>
+      <%= link_to t('views.form.back'), complementary_exam_settings_path, class: "btn btn-default" %>
+
+      <% if @complementary_exam_setting.persisted? %>
+        <%= link_to t('views.form.history'), history_complementary_exam_setting_path(@complementary_exam_setting), class: 'btn btn-info' %>
+      <% end %>
+
+      <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+    </footer>
+  <% end %>
+</div>
