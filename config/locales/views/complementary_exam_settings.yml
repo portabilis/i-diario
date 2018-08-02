@@ -1,0 +1,9 @@
+pt-BR:
+  complementary_exam_settings:
+    index:
+      by_description: "Filtrar descrição"
+      by_initials: "Filtrar sigla"
+      by_affected_score: "Filtrar nota afetada"
+      by_calculation_type: "Filtrar tipo de cálculo"
+      by_grade_id: "Filtrar série"
+      new_html: "<i class='fa fa-plus'></i> Nova avaliação complementar"
