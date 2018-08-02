@@ -1,0 +1,35 @@
+<tr class="nested-fields dynamic">
+  <td>
+    <%= sequence %>
+  </td>
+  <td>
+    <div class="control-group hidden complementary_exam_complementary_exam_students_student_id">
+      <div class="controls input">
+        <input class="hidden" type="hidden" name="complementary_exam_record[complementary_exam_attributes][students_attributes][<%= element_id %>][student_id]" id="complementary_exam_complementary_exam_attributes_students_attributes_<%= element_id %>_student_id" value=<%= id %>>
+      </div>
+    </div>
+
+    <span class="<%= student_situation %>">
+      <%= name %>
+    </span>
+  </td>
+
+  <td>
+    <%= note %>
+  </td>
+
+  <td>
+    <div class="control-group decimal optional complementary_exam_complementary_exam_students_score">
+      <label class="decimal optional control-label hidden" for="complementary_exam_complementary_exam_attributes_students_attributes_<%= element_id %>_score">
+        Nota
+      </label>
+      <div class="controls input">
+        <% if(active && !exempted_from_discipline){ %>
+          <input class="string decimal form-control decimal form-control decimal optional" type="decimal" name="complementary_exam_record[complementary_exam_attributes][students_attributes][<%= element_id %>][score]" id="complementary_exam_complementary_exam_attributes_students_attributes_<%= element_id %>_score">
+        <% } else { %>
+          <input readonly="readonly" class="string decimal form-control decimal form-control decimal optional" type="decimal" name="complementary_exam_record[complementary_exam_attributes][students_attributes][<%= element_id %>][score]" id="complementary_exam_complementary_exam_attributes_students_attributes_<%= element_id %>_score">
+        <% } %>
+      </div>
+    </div>
+  </td>
+</tr>

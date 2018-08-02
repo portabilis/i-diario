@@ -247,6 +247,9 @@ navigation:
         - ***REMOVED***:
             type: "complementary_exam_settings"
             path: "complementary_exam_settings_path"
+        - ***REMOVED***:
+            type: "complementary_exams"
+            path: "complementary_exams_path"
   - ***REMOVED***:
       type: "recovery_diary_records_***REMOVED***"
       icon: "fa-file-text"

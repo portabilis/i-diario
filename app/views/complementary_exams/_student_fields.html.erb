@@ -1,0 +1,25 @@
+<tr class="nested-fields <%= f.object.persisted? ? 'existing' : 'dynamic' %>" style="<%= 'display: none;' if f.object.marked_for_destruction? %>">
+  <td>
+    <%= sequence %>
+  </td>
+  <td>
+    <% if f.object.persisted? %>
+      <%= f.hidden_field :id %>
+      <%= f.hidden_field :_destroy %>
+    <% end %>
+
+    <%= f.input :student_id, as: :hidden %>
+    <span class="<%= conceptual_exam_student_name_class(f.object) %>">
+      <%= conceptual_exam_student_name(f.object) %>
+    </span>
+  </td>
+
+  <td>
+    <%= @student_notes[f.object.student_id] if @student_notes %>
+  </td>
+
+  <td>
+    <%= f.input :score, label: false,
+          input_html: decimal_input_mask(@number_of_decimal_places), readonly: !f.object.active || f.object.exempted_from_discipline %>
+  </td>
+</tr>

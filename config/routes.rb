@@ -327,6 +327,7 @@ Rails.application.routes.draw do
       end
     end
     resources :complementary_exam_settings, concerns: :history
+    resources :complementary_exams
     resources :teacher_avaliations, only: :index
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do

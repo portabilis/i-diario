@@ -1,0 +1,8 @@
+pt-BR:
+  activerecord:
+    attributes:
+      complementary_exam_student:
+        sequencial: "Sequencial"
+        student: "Aluno"
+        student_id: "Aluno"
+        score: "Nota"
