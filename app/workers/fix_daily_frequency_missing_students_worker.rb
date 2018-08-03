@@ -17,7 +17,7 @@ class FixDailyFrequencyMissingStudentsWorker
         )
 
         frequencies.each do |daily_frequency|
-          DailyFrequencyCreatorWorker.set(queue: 'daily_frequency_creator').perform_async(entity.id, daily_frequency.id, worker_batch.id)
+          DailyFrequencyCreatorWorker.perform_async(entity.id, daily_frequency.id, worker_batch.id)
         end
       end
     end
