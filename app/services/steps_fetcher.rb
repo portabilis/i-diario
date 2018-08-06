@@ -15,8 +15,8 @@ class StepsFetcher
     step_by_date(Date.today)
   end
 
-  def step_belongs_to_date(step_id, date)
-    (step_id == step_by_date(date).try(:id))
+  def step_belongs_to_date?(step_id, date)
+    (step_id.to_i == step_by_date(date).try(:id))
   end
 
   private
