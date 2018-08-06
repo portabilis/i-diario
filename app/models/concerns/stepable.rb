@@ -28,6 +28,8 @@ module Stepable
   end
 
   def step
+    return steps_fetcher.steps.find(step_id) if step_id.present?
+
     steps_fetcher.step(recorded_at)
   end
 
