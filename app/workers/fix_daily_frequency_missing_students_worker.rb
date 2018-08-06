@@ -7,7 +7,7 @@ class FixDailyFrequencyMissingStudentsWorker
 
     entities.each do |entity|
       entity.using_connection do
-        frequencies = DailyFrequency.by_frequency_date_between('2018-01-01'.to_date, '2018-12-31'.to_date)
+        frequencies = DailyFrequency.by_frequency_date_between('2018-01-01'.to_date, '2018-07-17'.to_date)
 
         worker_batch = WorkerBatch.create!(
           main_job_class: 'FixDailyFrequencyMissingStudentsWorker',
