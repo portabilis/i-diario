@@ -374,8 +374,18 @@ $(function() {
   });
   $('#user-role-form').on('ajax:error', function(event, request){
     $('#page-loading').addClass('hidden');
-    var messages = (request.responseJSON||{})['messages']||[];
-    alert(messages.join(', ') || 'Erro desconhecido');
+    var invalidFields = request.responseJSON||{};
+    if (invalidFields['current_user_role_id'] !== undefined) {
+      alert('É necessário selecionar um perfil para continuar a navegação');
+    } else if(invalidFields['current_unity_id'] !== undefined) {
+      alert('É necessário selecionar uma unidade para continuar a navegação');
+    } else if(invalidFields['current_classroom_id'] !== undefined) {
+      alert('É necessário selecionar uma turma e disciplina para continuar a navegação');
+    } else if(invalidFields['current_discipline_id'] !== undefined) {
+      alert('É necessário selecionar uma disciplina para continuar a navegação');
+    } else {
+      alert('Erro desconhecido');
+    }
   });
 
   $('#header input.select2').on('select2-open', function(){
