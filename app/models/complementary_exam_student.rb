@@ -15,6 +15,8 @@ class ComplementaryExamStudent < ActiveRecord::Base
 
   scope :ordered, -> { joins(:student).order(Student.arel_table[:name]) }
 
+  delegate :to_s, to: :student
+
   validates :complementary_exam, presence: true
   validates(
     :score,

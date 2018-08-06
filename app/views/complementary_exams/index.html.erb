@@ -1,5 +1,5 @@
 <div class="widget-body no-padding">
-  <%= simple_form_for :search, { url: complementary_exams_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for :filter, { url: complementary_exams_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
     <div class="table-responsive">
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
@@ -8,7 +8,7 @@
             <td></td>
             <td></td>
             <td>
-              <%= f.input :by_complementary_exam_setting, as: :select2, elements: complementary_exam_settings, label: false, placeholder: t('.by_complementary_exam_setting') %>
+              <%= f.input :by_complementary_exam_setting, as: :select2, elements: ComplementaryExamSetting.ordered, label: false, placeholder: t('.by_complementary_exam_setting') %>
             </td>
             <td>
               <%= f.input :by_recorded_at, as: :date, label: false, placeholder: t('.by_recorded_at') %>

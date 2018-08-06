@@ -46,63 +46,20 @@
     <% end %>
 
     <table class="table table-striped table-bordered table-condensed records">
-      <colgroup>
-        <col style="width: 65px;" />
-        <col />
-        <col />
-        <col style="width: 200px;" />
-      </colgroup>
       <thead>
         <tr>
-          <th>Sequencial</th>
           <th><%= ComplementaryExamStudent.human_attribute_name :student %></th>
           <th width="20%"><%= ComplementaryExamStudent.human_attribute_name :score %></th>
         </tr>
       </thead>
 
-      <tbody id="conceptual-exam-students" data-scale="<%= f.object.complementary_exam_setting.try(:number_of_decimal_places) %>">
+      <tbody id="complementary-exam-students" data-scale="<%= f.object.complementary_exam_setting.try(:number_of_decimal_places) %>">
         <tr>
           <td class="no_item_found" colspan="3" style="<%= f.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
         </tr>
 
-        <% sequence = 0 %>
-        <%= f.fields_for :students, @normal_students do |student| %>
-          <% sequence += 1 %>
-          <%= render 'student_fields', f: student, sequence: sequence %>
-        <% end %>
-
-        <% sequence = 0 %>
-        <% if @dependence_students && @dependence_students.any? %>
-          <%= f.fields_for :students, @dependence_students do |student| %>
-            <% sequence += 1 %>
-            <%= render 'student_fields', f: student, sequence: sequence %>
-          <% end %>
-
-          <tr>
-            <td colspan="4">
-              <span class="daily-note-student-legend">
-                <%= t('.dependence_students_legend') %>
-              </span>
-            </td>
-          </tr>
-        <% end %>
-        <% if @any_inactive_student %>
-          <tr>
-            <td colspan="4">
-              <span class="daily-note-student-legend">
-                <%= t('.inactive_students_legend') %>
-              </span>
-            </td>
-          </tr>
-        <% end %>
-        <% if @any_student_exempted_from_discipline %>
-          <tr>
-            <td colspan="4">
-              <span class="conceptual-exam-student-legend">
-                <%= t('.exempted_students_from_discipline_legend') %>
-              </span>
-            </td>
-          </tr>
+        <%= f.fields_for :students do |student| %>
+          <%= render 'student_fields', f: student %>
         <% end %>
       </tbody>
     </table>

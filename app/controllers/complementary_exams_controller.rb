@@ -21,11 +21,11 @@ class ComplementaryExamsController < ApplicationController
   end
 
   def new
-    @complementary_exam = ComplementaryExam.new.localized
-    @complementary_exam.unity = current_user_unity
-
-
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
+    @complementary_exam = ComplementaryExam.new(
+      unity: current_user_unity,
+      classroom: current_user_classroom,
+      discipline: current_user_discipline
+    ).localized
   end
 
   def create
@@ -35,27 +35,18 @@ class ComplementaryExamsController < ApplicationController
     authorize @complementary_exam
 
     if @complementary_exam.save
-      respond_with @complementary_exam, location: avaliation_recovery_diary_records_path
+      respond_with @complementary_exam, location: complementary_exams_path
     else
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places
-      reload_students_list
-
       render :new
     end
   end
 
   def edit
-    @complementary_exam = ComplementaryExam.find(params[:id]).localized
-
+    @complementary_exam = ComplementaryExam.find(params[:id])
+    @complementary_exam.step_id = StepsFetcher.new(@complementary_exam.classroom).step(@complementary_exam.recorded_at).try(:id)
+    @complementary_exam = @complementary_exam.localized
     authorize @complementary_exam
-
-    add_missing_students
-    mark_not_existing_students_for_destruction
-
     reload_students_list
-
-    @number_of_decimal_places = current_test_setting.number_of_decimal_places
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
   end
 
   def update
@@ -64,38 +55,44 @@ class ComplementaryExamsController < ApplicationController
 
     authorize @complementary_exam
 
-    if @complementary_exam.save
-      respond_with @complementary_exam, location: avaliation_recovery_diary_records_path
-    else
-      @number_of_decimal_places = current_test_setting.number_of_decimal_places
-      reload_students_list
+    mark_students_not_found_for_destruction
 
+    if @complementary_exam.save
+      respond_with @complementary_exam, location: complementary_exams_path
+    else
       render :edit
     end
   end
 
   def destroy
-    @complementary_exams = ComplementaryExam.find(params[:id])
-
-    @complementary_exams.destroy
-
-    respond_with @complementary_exams, location: avaliation_recovery_diary_records_path
+    @complementary_exam = ComplementaryExam.find(params[:id])
+    @complementary_exam.destroy
+    respond_with @complementary_exam, location: complementary_exams_path
   end
 
   def settings
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])
     step = StepsFetcher.new(classroom).steps.where(id: params[:step_id]).first
-    _complementary_exam_settings(classroom, discipline, step)
+    render(json: _complementary_exam_settings(classroom, discipline, step))
+  end
+
+  def history
+    @complementary_exam = ComplementaryExam.find(params[:id])
+
+    authorize @complementary_exam
+
+    respond_with @complementary_exam
   end
 
   private
 
   def resource_params
-    params.require(:avaliation_recovery_diary_record).permit(
+    params.require(:complementary_exam).permit(
       :complementary_exam_setting_id,
       :unity_id,
       :classroom_id,
+      :step_id,
       :discipline_id,
       :recorded_at,
       students_attributes: [
@@ -112,11 +109,10 @@ class ComplementaryExamsController < ApplicationController
   end
   helper_method :complementary_exam_settings
 
-
   def _complementary_exam_settings(classroom, discipline, step, complementary_exam_id = nil)
     return [] unless classroom && discipline && step
 
-    @complementary_exam_settings ||= ComplementaryExamSettingFetcher.new(
+    @complementary_exam_settings ||= ComplementaryExamSettingsFetcher.new(
       classroom,
       discipline,
       step,
@@ -141,115 +137,37 @@ class ComplementaryExamsController < ApplicationController
   end
   helper_method :disciplines
 
-  def mark_not_existing_students_for_destruction
-    current_students.each do |current_student|
-      is_student_in_recovery = daily_note_students.students.any? do |daily_note_student|
-        current_student.student.id == daily_note_student.student.id
-      end
-
-      current_student.mark_for_destruction unless is_student_in_recovery
-    end
-  end
-
-  def missing_students
-    missing_students = []
-    daily_note_students.students.each do |daily_note_student|
-      is_missing = @complementary_exam.students.none? do |recovery_diary_record_student|
-        recovery_diary_record_student.student.id == daily_note_student.student.id
-      end
-      missing_students << daily_note_student.student if is_missing
-    end
-    missing_students
-  end
-
-  def daily_note_students
-    DailyNote.find_by_avaliation_id(@complementary_exams.avaliation_id)
-  end
-
-  def add_missing_students
-    missing_students.each do |missing_student|
-      @complementary_exam.students.build(student: missing_student)
-    end
-  end
-
-  def current_students
-    @complementary_exam.students
-  end
-
   def fetch_student_enrollments
-    return unless @complementary_exams.avaliation
+    return unless @complementary_exam.complementary_exam_setting && @complementary_exam.recorded_at
     StudentEnrollmentsList.new(classroom: @complementary_exam.classroom,
                                discipline: @complementary_exam.discipline,
                                score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+                               with_recovery_note_in_step: @complementary_exam.complementary_exam_setting.affected_score == AffectedScoreTypes::STEP_RECOVERY_SCORE,
                                date: @complementary_exam.recorded_at,
                                search_type: :by_date)
                           .student_enrollments
   end
 
   def reload_students_list
-    student_enrollments = fetch_student_enrollments
-
-    return unless fetch_student_enrollments
     return unless @complementary_exam.recorded_at
 
-    @students = []
+    student_enrollments = fetch_student_enrollments
+    return unless student_enrollments
 
     student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
-        note_student = (@complementary_exam.students.where(student_id: student.id).first || @complementary_exam.students.build(student_id: student.id, student: student))
-        note_student.dependence = student_has_dependence?(student_enrollment, @complementary_exam.discipline)
-        note_student.active = student_active_on_date?(student_enrollment)
-        note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, recovery_diary_record, @complementary_exams)
-        @students << note_student
+        @complementary_exam.students.where(student_id: student.id).first || @complementary_exam.students.build(student_id: student.id, student: student)
       end
     end
-
-    @normal_students = []
-    @dependence_students = []
-    @any_inactive_student = any_inactive_student?
-
-    @students.each do |student|
-      @normal_students << student if !student.dependence
-      @dependence_students << student if student.dependence
-    end
   end
 
-  def student_has_dependence?(student_enrollment, discipline)
-    StudentEnrollmentDependence
-      .by_student_enrollment(student_enrollment)
-      .by_discipline(discipline)
-      .any?
-  end
-
-  def student_active_on_date?(student_enrollment)
-    StudentEnrollment
-      .where(id: student_enrollment)
-      .by_classroom(@complementary_exam.classroom)
-      .by_date(@complementary_exam.recorded_at)
-      .any?
-  end
-
-  def any_inactive_student?
-    any_inactive_student = false
-    if @students
-      @students.each do |student|
-        any_inactive_student = true if !student.active
+  def mark_students_not_found_for_destruction
+    @complementary_exam.students.each do |student|
+      student_exists = resource_params[:students_attributes].any? do |student_params|
+        student_params.last[:student_id].to_i == student.student.id
       end
+
+      student.mark_for_destruction unless student_exists
     end
-    any_inactive_student
-  end
-
-  def student_exempted_from_discipline?(student_enrollment, recovery_diary_record, avaliation_recovery_diary_record)
-    discipline_id = recovery_diary_record.discipline.id
-    test_date = avaliation_recovery_diary_record.avaliation.test_date
-    step_number = avaliation_recovery_diary_record.avaliation.school_calendar.step(test_date).to_number
-
-    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                           .by_step_number(step_number)
-                                           .any?
-  end
-
-  def any_student_exempted_from_discipline?
-    (@students || []).any?(&:exempted_from_discipline)
   end
 end

@@ -1,5 +1,6 @@
 class ComplementaryExam < ActiveRecord::Base
   include Audit
+  include Stepable
 
   acts_as_copy_target
 
@@ -17,8 +18,9 @@ class ComplementaryExam < ActiveRecord::Base
 
   accepts_nested_attributes_for :students, allow_destroy: true
 
-  scope :by_complementary_exam_id, lambda { |complementary_exam_id| where(complementary_exam_id: complementary_exam_id) }
+  scope :by_complementary_exam_setting, lambda { |complementary_exam_setting_id| where(complementary_exam_setting_id: complementary_exam_setting_id) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :by_grade_id, lambda { |grade_id| joins(:classroom).merge(Classroom.by_grade(grade_id)) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_student_id, lambda { |student_id| joins(:students).where(compelementary_exam_students: { student_id: student_id }) }
@@ -31,26 +33,11 @@ class ComplementaryExam < ActiveRecord::Base
   validates :classroom, presence: true
   validates :discipline, presence: true
   validates :complementary_exam_setting, presence: true
-  validates :recorded_at, presence: true, school_calendar_day: true
 
   validate :at_least_one_assigned_student
-  validate :recorded_at_must_be_less_than_or_equal_to_today
 
   delegate :maximum_score, to: :complementary_exam_setting
   before_validation :self_assign_to_students
-
-  def school_calendar
-    @school_calendar ||= step.try(:school_calendar)
-  end
-
-  def step
-    return unless classroom && recorded_at
-    @step ||= StepsFetcher.new(classroom).step(recorded_at)
-  end
-
-  def step_id
-    @step_id ||= step.try(:id)
-  end
 
   def test_date
     recorded_at
@@ -62,15 +49,7 @@ class ComplementaryExam < ActiveRecord::Base
     errors.add(:students, :at_least_one_assigned_student) if students.reject(&:marked_for_destruction?).empty?
   end
 
-  def recorded_at_must_be_less_than_or_equal_to_today
-    return unless recorded_at
-
-    if recorded_at > Time.zone.today
-      errors.add(:recorded_at, :recorded_at_must_be_less_than_or_equal_to_today)
-    end
-  end
-
   def self_assign_to_students
-    students.each { |student| student.recovery_diary_record = self }
+    students.each { |student| student.complementary_exam = self }
   end
 end
