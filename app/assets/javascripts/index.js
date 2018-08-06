@@ -47,5 +47,5 @@ $(function(){
   });
 
   $('form.filterable_search_form select, form.filterable_search_form input.select2, input.select2_remote,\
-     input.select2_step, form.filterable_search_form input.datepicker').on('change', filterableSearch);
+     form.filterable_search_form input.select2_step, form.filterable_search_form input.datepicker').on('change', filterableSearch);
 })
