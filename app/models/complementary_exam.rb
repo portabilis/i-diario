@@ -28,9 +28,7 @@ class ComplementaryExam < ActiveRecord::Base
   scope :by_date_range, lambda { |start_at, end_at| where(recorded_at: start_at..end_at) }
   scope :ordered, -> { order(recorded_at: :desc) }
 
-  validates_date :recorded_at
   validates :unity, presence: true
-  validates :classroom, presence: true
   validates :discipline, presence: true
   validates :complementary_exam_setting, presence: true
 
