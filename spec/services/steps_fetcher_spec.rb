@@ -55,16 +55,16 @@ RSpec.describe StepsFetcher, type: :service do
       end
     end
 
-    describe '#step_belongs_to_date' do
+    describe '#step_belongs_to_date?' do
       context 'when the step of the school calendar is on date' do
         it 'returns true' do
-          expect(subject.step_belongs_to_date(step.id, step.start_at)).to eq(true)
+          expect(subject.step_belongs_to_date?(step.id, step.start_at)).to eq(true)
         end
       end
 
       context 'when the step of the school calendar is not on date' do
         it 'returns false' do
-          expect(subject.step_belongs_to_date(step.id, step.start_at.beginning_of_month)).to eq(false)
+          expect(subject.step_belongs_to_date?(step.id, step.start_at.beginning_of_month)).to eq(false)
         end
       end
     end
@@ -119,16 +119,16 @@ RSpec.describe StepsFetcher, type: :service do
       end
     end
 
-    describe '#step_belongs_to_date' do
+    describe '#step_belongs_to_date?' do
       context 'when the step of the classroom is on date' do
         it 'returns true' do
-          expect(subject.step_belongs_to_date(step.id, step.start_at)).to eq(true)
+          expect(subject.step_belongs_to_date?(step.id, step.start_at)).to eq(true)
         end
       end
 
       context 'when the step of the classroom is not on date' do
         it 'returns false' do
-          expect(subject.step_belongs_to_date(step.id, step.start_at.beginning_of_month)).to eq(false)
+          expect(subject.step_belongs_to_date?(step.id, step.start_at.beginning_of_month)).to eq(false)
         end
       end
     end
