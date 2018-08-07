@@ -322,12 +322,16 @@ $(function() {
     $('#unity-field-container').hide();
     $('#classroom-field-container').hide();
     $('#discipline-field-container').hide();
+    $('#assumed-teacher-field-container').hide();
 
-    $('#assumed-teacher-field-container').show();
+    $("form#user-role-form #user_assumed_teacher_id").select2('val', '');
+    $("form#user-role-form #user_current_unity_id").select2('val', '');
+    $("form#user-role-form #user_current_classroom_id").select2('val', '');
+    $("form#user-role-form #user_current_discipline_id").select2('val', '');
 
     $("form#user-role-form #user_current_unity_id").val('');
 
-    fetchTeachers(unity_id);
+    checkUnityType(unity_id);
 
     if(valueSelected($('form#user-role-form #user_assumed_teacher_id'))){
       $('#discipline-field-container').show();
