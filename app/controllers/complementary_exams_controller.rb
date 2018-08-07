@@ -163,8 +163,8 @@ class ComplementaryExamsController < ApplicationController
 
   def mark_students_not_found_for_destruction
     @complementary_exam.students.each do |student|
-      student_exists = resource_params[:students_attributes].any? do |student_params|
-        student_params.last[:student_id].to_i == student.student.id
+      student_exists = student.new_record? || resource_params[:students_attributes].any? do |student_params|
+        student_params.last[:id].to_i == student.id
       end
 
       student.mark_for_destruction unless student_exists
