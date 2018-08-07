@@ -15,12 +15,11 @@ class ComplementaryExamSetting < ActiveRecord::Base
   validates :number_of_decimal_places, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3 }
   validate :uniqueness_of_calculation_type_by_grade
 
-
   scope :by_description, lambda { |description| where("unaccent(complementary_exam_settings.description) ILIKE unaccent('%#{description}%')") }
   scope :by_initials, lambda { |initials| where("unaccent(complementary_exam_settings.initials) ILIKE unaccent('%#{initials}%')") }
   scope :by_affected_score, lambda { |affected_score| where(affected_score: affected_score) }
   scope :by_calculation_type, lambda { |calculation_type| where(calculation_type: calculation_type) }
-  scope :by_grade_id, lambda { |grade_id| where_exists(:grades, id: grade_id) }
+  scope :by_grade_id, lambda { |grade_id| by_grade_id_scope(grade_id) }
   scope :ordered, -> { order(:description) }
 
   has_enumeration_for :affected_score, with: AffectedScoreTypes, create_helpers: true
@@ -33,6 +32,17 @@ class ComplementaryExamSetting < ActiveRecord::Base
   end
 
   private
+
+  def self.by_grade_id_scope(grade_id)
+    where(<<-SQL, grade_id)
+      EXISTS(
+        SELECT 1
+        FROM complementary_exam_settings_grades
+        WHERE complementary_exam_settings_grades.complementary_exam_setting_id = complementary_exam_settings.id
+        AND complementary_exam_settings_grades.grade_id IN (?)
+      )
+    SQL
+  end
 
   def uniqueness_of_calculation_type_by_grade
     return true unless [CalculationTypes::SUBSTITUTION, CalculationTypes::SUBSTITUTION_IF_GREATER].include?(calculation_type)

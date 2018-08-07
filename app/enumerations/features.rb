@@ -84,7 +84,8 @@ class Features < EnumerateIt::Base
                    :custom_rounding_tables,
                    :***REMOVED***,
                    :***REMOVED***,
-                   :complementary_exam_settings
+                   :complementary_exam_settings,
+                   :complementary_exams
 
   sort_by :translation
 end

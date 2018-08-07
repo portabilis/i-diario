@@ -51,7 +51,6 @@ gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
 gem 'postgres-copy'
 gem 'activerecord-session_store'
-gem 'where_exists'
 
 # Assets + Twitter Bootstrap
 gem 'therubyracer', '0.12.2'

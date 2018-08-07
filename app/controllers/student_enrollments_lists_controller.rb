@@ -5,6 +5,7 @@ class StudentEnrollmentsListsController < ApplicationController
       discipline: params[:filter][:discipline],
       score_type: params[:filter][:score_type],
       opinion_type: params[:filter][:opinion_type],
+      with_recovery_note_in_step: ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:filter][:with_recovery_note_in_step]),
       date: params[:filter][:date]
     ).student_enrollments
 

@@ -11,6 +11,11 @@ class ComplementaryExamSettingsController < ApplicationController
     respond_with @complementary_exam_settings
   end
 
+  def show
+    authorize resource
+    render json: resource
+  end
+
   def new
     resource
     authorize resource
