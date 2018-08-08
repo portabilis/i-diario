@@ -23,9 +23,11 @@ class ComplementaryExam < ActiveRecord::Base
   scope :by_grade_id, lambda { |grade_id| joins(:classroom).merge(Classroom.by_grade(grade_id)) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
-  scope :by_student_id, lambda { |student_id| joins(:students).where(compelementary_exam_students: { student_id: student_id }) }
+  scope :by_student_id, lambda { |student_id| joins(:students).where(complementary_exam_students: { student_id: student_id }) }
   scope :by_recorded_at, lambda { |recorded_at| where(recorded_at: recorded_at) }
   scope :by_date_range, lambda { |start_at, end_at| where(recorded_at: start_at..end_at) }
+  scope :by_affected_score, lambda { |affected_score| joins(:complementary_exam_setting).merge(ComplementaryExamSetting.by_affected_score(affected_score)) }
+  scope :by_calculation_type, lambda { |calculation_type| joins(:complementary_exam_setting).merge(ComplementaryExamSetting.by_calculation_type(calculation_type)) }
   scope :ordered, -> { order(recorded_at: :desc) }
 
   validates :unity, presence: true
