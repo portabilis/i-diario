@@ -172,7 +172,7 @@ class ApplicationController < ActionController::Base
   def current_school_calendar
     return if current_user.admin? && current_user_unity.blank?
 
-    CurrentSchoolCalendarFetcher.new(current_user_unity, current_user_classroom).fetch
+    CurrentSchoolCalendarFetcher.new(current_user_unity, current_user_classroom, current_user_school_year).fetch
   end
 
   def current_test_setting
@@ -189,17 +189,6 @@ class ApplicationController < ActionController::Base
   def require_current_teacher_discipline_classrooms
     unless current_teacher && current_teacher.teacher_discipline_classrooms.any?
       flash[:alert] = t('errors.general.require_current_teacher_discipline_classrooms')
-      redirect_to root_path
-    end
-  end
-
-  def require_current_school_calendar
-    school_calendar = current_school_calendar
-
-    if school_calendar
-      require_valid_school_calendar(school_calendar)
-    else
-      flash[:alert] = t('errors.general.require_current_school_calendar')
       redirect_to root_path
     end
   end
@@ -279,6 +268,11 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_unities
 
+  def current_user_school_year
+    current_user.try(:current_school_year)
+  end
+  helper_method :current_user_school_year
+
   def valid_current_role?
     CurrentRoleForm.new(
       current_user_id: current_user.id,
@@ -287,7 +281,8 @@ class ApplicationController < ActionController::Base
       current_classroom_id: current_user.current_classroom_id,
       current_discipline_id: current_user.current_discipline_id,
       current_unity_id: current_user.current_unity_id,
-      assumed_teacher_id: current_user.assumed_teacher_id
+      assumed_teacher_id: current_user.assumed_teacher_id,
+      current_school_year: current_user.current_school_year
     ).valid?
   end
   helper_method :valid_current_role?

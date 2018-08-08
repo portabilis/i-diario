@@ -80,6 +80,22 @@ class SchoolCalendarsController < ApplicationController
     redirect_to school_calendars_path, notice: t('.notice') unless performed?
   end
 
+  def years_from_unity
+    @school_calendars = apply_scopes(SchoolCalendar).map(&:year).sort
+
+    @years = []
+
+    @school_calendars.each do |year|
+      @years << {
+        id: year,
+        name: year
+      }
+
+    end
+
+    render json: @years
+  end
+
   private
 
   def selected_school_calendars(school_calendars)

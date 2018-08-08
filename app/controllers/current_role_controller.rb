@@ -17,7 +17,7 @@ class CurrentRoleController < ApplicationController
 
   def resource_params
     params.require(:user).permit(
-      :id, :current_user_role_id, :teacher_id, :current_unity_id, :current_classroom_id, :current_discipline_id, :assumed_teacher_id,
+      :id, :current_user_role_id, :teacher_id, :current_unity_id, :current_classroom_id, :current_discipline_id, :assumed_teacher_id, :current_school_year
     )
   end
 end
