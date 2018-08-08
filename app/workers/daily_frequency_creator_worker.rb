@@ -1,6 +1,8 @@
 class DailyFrequencyCreatorWorker
   include Sidekiq::Worker
 
+  sidekiq_options(queue: :daily_frequency_creator)
+
   def perform(entity_id, daily_frequency_id, worker_batch_id)
     entity = Entity.find(entity_id)
 

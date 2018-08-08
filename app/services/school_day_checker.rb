@@ -29,7 +29,7 @@ class SchoolDayChecker
       return false if any_grade_event?(events_by_date_without_frequency.by_period(classroom.period), @grade_id)
       return true if any_grade_event?(events_by_date_with_frequency.by_period(classroom.period), @grade_id)
       return false if any_course_event?(events_by_date_without_frequency.by_period(classroom.period), grade.course_id)
-      return true if any_course_event?(events_by_date_without_frequency.by_period(classroom.period), grade.course_id)
+      return true if any_course_event?(events_by_date_with_frequency.by_period(classroom.period), grade.course_id)
 
       return false if any_global_event?(events_by_date_without_frequency.by_period(classroom.period))
       return true if any_global_event?(events_by_date_with_frequency.by_period(classroom.period))
