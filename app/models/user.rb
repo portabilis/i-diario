@@ -77,6 +77,8 @@ class User < ActiveRecord::Base
   scope :login, lambda { |login| where("unaccent(login) ILIKE unaccent(?)", "%#{login}%")}
   scope :status, lambda { |status| where status: status }
 
+  delegate :can_change_school_year?, to: :current_user_role
+
   def self.to_csv
     attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Celular"]
 

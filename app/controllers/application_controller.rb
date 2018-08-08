@@ -207,6 +207,11 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def can_change_school_year?
+    @can_change_school_year ||= current_user.can_change_school_year?
+  end
+  helper_method :can_change_school_year?
+
   def current_user_unity
     @current_user_unity ||= current_user.current_unity
   end
@@ -221,6 +226,14 @@ class ApplicationController < ActionController::Base
     @current_user_discipline ||= current_user.try(:current_discipline)
   end
   helper_method :current_user_discipline
+
+  def current_user_available_years
+    return [] unless current_user_unity
+    @current_user_available_years ||= begin
+      YearsFromUnityFetcher.new(current_user_unity.id).fetch.map{|year| { id: year, name: year }}
+    end
+  end
+  helper_method :current_user_available_years
 
   def current_user_available_teachers
     return [] unless current_user_unity

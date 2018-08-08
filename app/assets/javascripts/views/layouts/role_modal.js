@@ -72,13 +72,12 @@ $(function(){
 
   function fetchYears(unity_id, callback){
     callback = callback || function(){};
-    var filter = { by_unity_id: unity_id };
     unity_id = String(unity_id);
 
     if(!_.isEmpty(unity_id)){
       $.ajax({
         url: Routes.years_from_unity_school_calendars_pt_br_path({
-            filter: filter,
+            unity_id: unity_id,
             format: 'json'
         }),
         success: function(data){
@@ -100,8 +99,8 @@ $(function(){
                                                   },
                                     data: selectedYears });
 
-    if (selectedYears.length && !can_change_school_year) {
-      $('form#user-role #user_current_school_year').select2('val', selectedYears[selectedYears.length-1]['id']);
+    if (selectedYears.length > 1 && !can_change_school_year) {
+      $('form#user-role #user_current_school_year').select2('val', selectedYears[1]['id']);
     }
     callback();
   }

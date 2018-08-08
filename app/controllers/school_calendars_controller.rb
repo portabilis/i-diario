@@ -81,18 +81,7 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def years_from_unity
-    @school_calendars = apply_scopes(SchoolCalendar).map(&:year).sort
-
-    @years = []
-
-    @school_calendars.each do |year|
-      @years << {
-        id: year,
-        name: year
-      }
-
-    end
-
+    @years = YearsFromUnityFetcher.new(params[:unity_id]).fetch.map{ |year| { id: year, name: year } }
     render json: @years
   end
 
