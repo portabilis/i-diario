@@ -32,6 +32,8 @@ RSpec.describe StudentAverageCalculator, type: :service do
   let(:daily_note_student_3) { double(:daily_note_student_3) }
   let(:recovery_diary_record_1) { double(:recovery_diary_record_1) }
   let(:recovery_diary_record_2) { double(:recovery_diary_record_2) }
+  let(:avaliation_recovery_diary_record_1) { double(:avaliation_recovery_diary_record_1) }
+  let(:avaliation_recovery_diary_record_2) { double(:avaliation_recovery_diary_record_2) }
   let(:daily_note_1) { double(:daily_note_student_1) }
   let(:daily_note_2) { double(:daily_note_student_2) }
   let(:daily_note_3) { double(:daily_note_student_3) }
@@ -71,6 +73,8 @@ RSpec.describe StudentAverageCalculator, type: :service do
     stub_recovery_diary_record_2
     stub_avaliations
     stub_student
+    stub_recovery_diary_records
+    stub_avaliation_recovery_diary_records
   end
 
   describe '#calculate' do
@@ -173,6 +177,24 @@ RSpec.describe StudentAverageCalculator, type: :service do
         expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(11.0)
       end
     end
+
+    context "when the calculation type is arithmetic and sum" do
+      context "and have no daily_note_student" do
+        let(:score_1) { 4.0 }
+        let(:score_2) { 3.0 }
+        let(:weight_avaliation_1) { 5.0 }
+        let(:weight_avaliation_2) { 5.0 }
+        let(:maximum_score) { 10 }
+        let(:arithmetic_and_sum_calculation_type?) { true }
+        let(:recovery_diary_records) { [recovery_diary_record_1, recovery_diary_record_2] }
+
+        before { allow(score_rounder).to receive(:round).with(7.0).and_return(7.0) }
+
+        it "calculates average using recovery_diary_records without daily_note_student" do
+          expect(subject.calculate(classroom, discipline, school_calendar_step)).to eq(7.0)
+        end
+      end
+    end
   end
 
   def stub_school_calendar_step
@@ -264,5 +286,15 @@ RSpec.describe StudentAverageCalculator, type: :service do
 
   def stub_student
     allow(student).to receive(:id).and_return(student_1)
+  end
+
+  def stub_recovery_diary_records
+    allow(recovery_diary_record_1).to receive(:avaliation_recovery_diary_record).and_return(avaliation_recovery_diary_record_1)
+    allow(recovery_diary_record_2).to receive(:avaliation_recovery_diary_record).and_return(avaliation_recovery_diary_record_2)
+  end
+
+  def stub_avaliation_recovery_diary_records
+    allow(avaliation_recovery_diary_record_1).to receive(:avaliation).and_return(avaliation_1)
+    allow(avaliation_recovery_diary_record_2).to receive(:avaliation).and_return(avaliation_2)
   end
 end
