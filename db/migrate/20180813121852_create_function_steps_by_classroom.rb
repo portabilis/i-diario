@@ -1,7 +1,7 @@
-class CreateFunctionSteps < ActiveRecord::Migration
+class CreateFunctionStepsByClassroom < ActiveRecord::Migration
   def change
     execute <<-SQL
-      CREATE OR REPLACE FUNCTION steps(
+      CREATE OR REPLACE FUNCTION steps_by_classroom(
         l_school_calendar_id INT,
         l_classroom_id INT
       )
