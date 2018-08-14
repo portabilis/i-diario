@@ -20,6 +20,10 @@ FactoryGirl.define do
       score_type ScoreTypes::NUMERIC_AND_CONCEPT
       recovery_type  RecoveryTypes::PARALLEL
     end
+
+    factory :exam_rule_concept do
+      score_type ScoreTypes::CONCEPT
+    end
   end
 
 

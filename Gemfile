@@ -8,8 +8,10 @@ gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
-gem "gelf"
-gem "lograge"
+group :staging, :production do
+  gem "gelf"
+  gem "lograge"
+end
 
 gem 'simple_form', '3.1.0'
 gem 'pg', '0.17.1'
@@ -75,7 +77,7 @@ group :development do
   gem 'spring-commands-rspec'
   gem 'quiet_assets'
   gem 'mina', '0.3.7'
-  gem 'better_errors', '~> 1.1.0'
+  gem 'meta_request'
   gem 'binding_of_caller', '~> 0.7.2'
   gem 'puma', '~> 3.9.1'
   gem 'mina-sidekiq', '~> 0.4.1'
@@ -85,6 +87,7 @@ group :development do
 end
 
 group :test do
+  gem 'rspec-sidekiq'
   gem 'business_time'
   gem 'turnip', '~> 1.3', '>= 1.3.1'
   gem 'capybara', '~> 2.5'
