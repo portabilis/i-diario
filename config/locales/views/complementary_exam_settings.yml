@@ -7,3 +7,7 @@ pt-BR:
       by_calculation_type: "Filtrar tipo de cálculo"
       by_grade_id: "Filtrar série"
       new_html: "<i class='fa fa-plus'></i> Nova avaliação complementar"
+    form:
+      substitution_calculation_type_html: "<strong>Substituição</strong>: A nota lançada para essa avaliação substituirá a Nota afetada."
+      sum_calculation_type_html: "<strong>Soma</strong>: A nota lançada para essa avaliação será somada a Nota afetada."
+      substitution_if_greater_calculation_type_html: "<strong>Substituição se maior</strong>: A nota lançada para essa avaliação, se for maior, substituirá a Nota afetada."

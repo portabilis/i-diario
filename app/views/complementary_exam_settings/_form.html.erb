@@ -1,3 +1,18 @@
+<div id="flash-messages">
+  <p class="alert alert-info calculation-type-info hidden" id="substitution-calculation-type-info">
+    <i class="fa-fw fa fa-info"></i>
+    <%= t('.substitution_calculation_type_html') %>
+  </p>
+  <p class="alert alert-info calculation-type-info hidden" id="sum-calculation-type-info">
+    <i class="fa-fw fa fa-info"></i>
+      <%= t('.sum_calculation_type_html') %>
+  </p>
+  <p class="alert alert-info calculation-type-info hidden" id="substitution_if_greater-calculation-type-info">
+    <i class="fa-fw fa fa-info"></i>
+      <%= t('.substitution_if_greater_calculation_type_html') %>
+  </p>
+</div>
+
 <div class="widget-body no-padding">
 
   <%= simple_form_for @complementary_exam_setting, html: { class: "smart-form" } do |f| %>
@@ -53,3 +68,7 @@
     </footer>
   <% end %>
 </div>
+
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/complementary_exam_settings/form' %>
+<% end %>

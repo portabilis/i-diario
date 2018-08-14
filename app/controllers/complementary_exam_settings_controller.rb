@@ -55,8 +55,11 @@ class ComplementaryExamSettingsController < ApplicationController
   def destroy
     authorize resource
 
-    resource.destroy
-
+    resource_destroyer = ResourceDestroyer.new.destroy(resource)
+    if resource_destroyer.has_error?
+      flash[:error] = resource_destroyer.error_message
+      flash[:notice] = ""
+    end
     respond_with resource, location: complementary_exam_settings_path
   end
 

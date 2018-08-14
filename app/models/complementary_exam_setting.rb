@@ -14,6 +14,8 @@ class ComplementaryExamSetting < ActiveRecord::Base
   validates :maximum_score, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 1000 }
   validates :number_of_decimal_places, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3 }
   validate :uniqueness_of_calculation_type_by_grade
+  validate :uniqueness_of_initials_and_description_by_affected_score
+  validate :grades_in_use_cant_be_removed
 
   scope :by_description, lambda { |description| where("unaccent(complementary_exam_settings.description) ILIKE unaccent('%#{description}%')") }
   scope :by_initials, lambda { |initials| where("unaccent(complementary_exam_settings.initials) ILIKE unaccent('%#{initials}%')") }
@@ -25,6 +27,7 @@ class ComplementaryExamSetting < ActiveRecord::Base
   has_enumeration_for :affected_score, with: AffectedScoreTypes, create_helpers: true
   has_enumeration_for :calculation_type, with: CalculationTypes, create_helpers: true
 
+  has_many :complementary_exams, dependent: :restrict_with_exception
   has_and_belongs_to_many :grades
 
   def to_s
@@ -55,5 +58,24 @@ class ComplementaryExamSetting < ActiveRecord::Base
                   .exists?
 
     errors.add(:base, :uniqueness_of_calculation_type_by_grade)
+  end
+
+  def uniqueness_of_initials_and_description_by_affected_score
+    return true unless initials.present? && description.present? && affected_score.present?
+    return true unless ComplementaryExamSetting.where.not(id: id)
+                  .by_affected_score(affected_score)
+                  .where('initials ILIKE ?', initials)
+                  .where('description ILIKE ?', description)
+                  .exists?
+
+    errors.add(:base, :uniqueness_of_initials_and_description_by_affected_score)
+  end
+
+  def grades_in_use_cant_be_removed
+    #binding.pry
+    return true if new_record?
+    return true if complementary_exams.count == complementary_exams.by_grade_id(grade_ids).count
+
+    errors.add(:base, :grades_in_use_cant_be_removed)
   end
 end
