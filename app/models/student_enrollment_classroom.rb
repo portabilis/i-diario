@@ -12,14 +12,14 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :active, -> { joins(:student_enrollment).where(student_enrollments: { active: IeducarBooleanState::ACTIVE }) }
 
   def delete_invalid_presence_record
-    if left_classroom? && classroom
-      daily_frequencies = DailyFrequency.by_unity_classroom_and_frequency_date_between(classroom.unity_id,
-                                                                                       classroom_id,
-                                                                                       left_at).has_frequency_for_student(student_enrollment.student_id)
-      daily_frequencies.each do |daily_frequency|
-        daily_frequency.find_by_student(student_enrollment.student.id).destroy
-      end
-    end
+    # if left_classroom? && classroom
+    #   daily_frequencies = DailyFrequency.by_unity_classroom_and_frequency_date_between(classroom.unity_id,
+    #                                                                                    classroom_id,
+    #                                                                                    left_at).has_frequency_for_student(student_enrollment.student_id)
+    #   daily_frequencies.each do |daily_frequency|
+    #     daily_frequency.find_by_student(student_enrollment.student.id).destroy
+    #   end
+    # end
     true
   end
 
