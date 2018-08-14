@@ -82,7 +82,7 @@ class ComplementaryExamSettingsController < ApplicationController
 
   def assign_attributes(model)
     model.assign_attributes(resource_params)
-    model.grades = Grade.where(id: (resource_params[:grade_ids]||'').split(','))
+    model.grade_ids = (params[:complementary_exam_setting][:grade_ids]||'').split(',')
   end
 
   def resource
@@ -101,7 +101,6 @@ class ComplementaryExamSettingsController < ApplicationController
                   :affected_score,
                   :calculation_type,
                   :maximum_score,
-                  :number_of_decimal_places,
-                  :grade_ids)
+                  :number_of_decimal_places)
   end
 end

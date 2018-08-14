@@ -28,7 +28,7 @@ class ComplementaryExamSetting < ActiveRecord::Base
   has_enumeration_for :calculation_type, with: CalculationTypes, create_helpers: true
 
   has_many :complementary_exams, dependent: :restrict_with_exception
-  has_and_belongs_to_many :grades
+  deferred_has_and_belongs_to_many :grades
 
   def to_s
     description
@@ -72,7 +72,6 @@ class ComplementaryExamSetting < ActiveRecord::Base
   end
 
   def grades_in_use_cant_be_removed
-    #binding.pry
     return true if new_record?
     return true if complementary_exams.count == complementary_exams.by_grade_id(grade_ids).count
 
