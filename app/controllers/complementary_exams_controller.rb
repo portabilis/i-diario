@@ -5,6 +5,8 @@ class ComplementaryExamsController < ApplicationController
   before_action :require_current_teacher
 
   def index
+    step_id = (params[:filter]||[]).delete(:by_step_id)
+
     @complementary_exams = apply_scopes(ComplementaryExam)
       .includes(
         :complementary_exam_setting,
@@ -16,6 +18,9 @@ class ComplementaryExamsController < ApplicationController
       .by_classroom_id(current_user_classroom)
       .by_discipline_id(current_user_discipline)
       .ordered
+    if step_id
+      @complementary_exams = @complementary_exams.by_step_id(current_user_classroom, step_id)
+    end
 
     authorize @complementary_exams
   end
@@ -137,11 +142,17 @@ class ComplementaryExamsController < ApplicationController
   end
   helper_method :disciplines
 
+  def steps
+    @steps ||= StepsFetcher.new(current_user_classroom).steps.ordered
+  end
+  helper_method :steps
+
   def fetch_student_enrollments
     return unless @complementary_exam.complementary_exam_setting && @complementary_exam.recorded_at
     StudentEnrollmentsList.new(classroom: @complementary_exam.classroom,
                                discipline: @complementary_exam.discipline,
                                score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+                               show_inactive: false,
                                with_recovery_note_in_step: @complementary_exam.complementary_exam_setting.affected_score == AffectedScoreTypes::STEP_RECOVERY_SCORE,
                                date: @complementary_exam.recorded_at,
                                search_type: :by_date)
@@ -153,12 +164,14 @@ class ComplementaryExamsController < ApplicationController
 
     student_enrollments = fetch_student_enrollments
     return unless student_enrollments
-
+    enrolled_student_ids = []
     student_enrollments.each do |student_enrollment|
       if student = Student.find_by_id(student_enrollment.student_id)
         @complementary_exam.students.where(student_id: student.id).first || @complementary_exam.students.build(student_id: student.id, student: student)
+        enrolled_student_ids << student.id
       end
     end
+    @complementary_exam.students.select{|student| !enrolled_student_ids.include?(student.student_id)}.each(&:mark_for_destruction)
   end
 
   def mark_students_not_found_for_destruction

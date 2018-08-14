@@ -38,7 +38,7 @@
   <fieldset>
     <legend><%= t('.students') %></legend>
 
-    <% if f.object.errors.added? :students, :at_least_one_assigned_student %>
+    <% if f.object.errors.added? :students, :at_least_one_score %>
       <div class="alert alert-danger fade in">
         <i class="fa-fw fa fa-times"></i>
         <%= f.object.errors[:students].first %>

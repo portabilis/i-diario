@@ -12,7 +12,6 @@ class ComplementaryExamSettingsController < ApplicationController
   end
 
   def show
-    authorize resource
     render json: resource
   end
 

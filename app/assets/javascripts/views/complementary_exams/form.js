@@ -77,6 +77,7 @@ $(function () {
             classroom: classroom_id,
             date: recorded_at,
             discipline: discipline_id,
+            show_inactive: false,
             with_recovery_note_in_step: with_recovery_note_in_step,
             score_type: 'numeric'
           },
@@ -110,6 +111,12 @@ $(function () {
       });
 
       loadDecimalMasks();
+    } else {
+      if (with_recovery_note_in_step) {
+        flashMessages.error('Nenhum aluno encontrado, verifique se existe recuperação de etapa lançada para etapa informada.');
+      } else {
+        flashMessages.error('Nenhum aluno encontrado para os filtros informados.');
+      }
     }
   };
 

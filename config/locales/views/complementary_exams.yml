@@ -3,6 +3,7 @@ pt-BR:
     index:
       by_complementary_exam_setting: "Filtrar avaliação"
       by_recorded_at: "Filtrar data"
+      by_step_id: "Filtrar etapa"
       new_html: "<i class='fa fa-plus'></i> Novo lançamento"
 
     form:

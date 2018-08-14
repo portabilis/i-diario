@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @complementary_exams.empty? %>
     <tr>
-      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @complementary_exams.each do |complementary_exam| %>
@@ -10,6 +10,7 @@
         <td><%= complementary_exam.classroom %></td>
         <td><%= complementary_exam.discipline %></td>
         <td><%= complementary_exam.complementary_exam_setting %></td>
+        <td><%= complementary_exam.step %></td>
         <td><%= l(complementary_exam.recorded_at) %></td>
         <td class="actions">
           <%= link_to t('views.index.edit'),
