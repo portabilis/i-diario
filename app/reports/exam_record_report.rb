@@ -286,7 +286,7 @@ class ExamRecordReport < BaseReport
 
   def exam_description(record)
     if recovery_record(record)
-      "Rec. #{record.avaliation}\n<font size='7'>#{record.avaliation.recovery_diary_record.recorded_at.strftime("%d/%m")}</font>"
+      "Rec. #{record.avaliation_recovery_diary_record.avaliation}\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}</font>"
     elsif complementary_exam_record(record)
       "#{record.complementary_exam_setting.description}\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}\n#{record.complementary_exam_setting.maximum_score}</font>"
     else
