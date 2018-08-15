@@ -57,7 +57,9 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
           sequence: record_classroom["sequencial_fechamento"],
           show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"]
         )
-        student_enrollment_classroom.delete_invalid_presence_record
+
+        DeleteInvalidPresenceRecordService.new(student_enrollment_classroom).run!
+
         student_enrollment_classroom
       end
     end
@@ -101,7 +103,9 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
             sequence: record_classroom["sequencial_fechamento"],
             show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"]
           )
-          student_enrollment_classroom.delete_invalid_presence_record
+
+          DeleteInvalidPresenceRecordService.new(student_enrollment_classroom).run!
+
           student_enrollment_classroom
         end
       else
@@ -117,7 +121,9 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
               sequence: record_classroom["sequencial_fechamento"],
               show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"]
             )
-            student_enrollment_classroom.delete_invalid_presence_record
+
+            DeleteInvalidPresenceRecordService.new(student_enrollment_classroom).run!
+
             student_enrollment_classroom
           end
         end
