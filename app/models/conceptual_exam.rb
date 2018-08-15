@@ -10,8 +10,8 @@ class ConceptualExam < ActiveRecord::Base
   attr_accessor :unity_id
 
   belongs_to :classroom
-  belongs_to :school_calendar_step
-  belongs_to :school_calendar_classroom_step
+  belongs_to :school_calendar_step, -> { unscope(where: :active) }
+  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
   belongs_to :student
   has_many :conceptual_exam_values,
     -> { active.includes(:conceptual_exam, discipline: :knowledge_area) },
