@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    calculation_types:
+      substitution: "Substituição"
+      sum: "Soma"
+      substitution_if_greater: "Substituição se maior"

@@ -1,0 +1,26 @@
+<tbody id="resources-tbody">
+  <% if @complementary_exams.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @complementary_exams.each do |complementary_exam| %>
+      <tr>
+        <td><%= complementary_exam.unity %></td>
+        <td><%= complementary_exam.classroom %></td>
+        <td><%= complementary_exam.discipline %></td>
+        <td><%= complementary_exam.complementary_exam_setting %></td>
+        <td><%= complementary_exam.step %></td>
+        <td><%= l(complementary_exam.recorded_at) %></td>
+        <td class="actions">
+          <%= link_to t('views.index.edit'),
+                edit_complementary_exam_path(complementary_exam),
+                class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'),
+                complementary_exam_path(complementary_exam),
+                class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>
