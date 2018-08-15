@@ -100,7 +100,7 @@ class PartialScoreRecordReport < BaseReport
                               .by_discipline_id(discipline.id)
                               .by_test_date_between(@school_calendar_step.start_at, @school_calendar_step.end_at)
                               .order(:test_date)
-
+      discipline_scores = []
       avaliations.each do |avaliation|
         student_note = nil
 
@@ -123,12 +123,15 @@ class PartialScoreRecordReport < BaseReport
           ].compact
           student_note = localize_score(student_notes.max)
         end
-
-        if student_note
-          disciplines[discipline.id] ||= []
-          disciplines[discipline.id] << student_note
-        end
+        discipline_scores << student_note if student_note
       end
+
+      complementary_exams = fetch_complementary_exams(discipline.id)
+      complementary_exams.each do |complementary_exam|
+        student_score = complementary_exam.students.by_student_id(@student.id).first.try(:score)
+        discipline_scores << localize_score(student_score) if student_score
+      end
+      disciplines[discipline.id] = discipline_scores
     end
 
     number_of_scores = disciplines.map{|i,hash| hash.length}.max || 1
@@ -238,5 +241,13 @@ class PartialScoreRecordReport < BaseReport
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)
                                            .any?
+  end
+
+  def fetch_complementary_exams(discipline_id)
+    complementary_exams = ComplementaryExam.by_unity_id(@unity.id)
+                              .by_classroom_id(@classroom.id)
+                              .by_discipline_id(discipline_id)
+                              .by_date_range(@school_calendar_step.start_at, @school_calendar_step.end_at)
+                              .ordered
   end
 end

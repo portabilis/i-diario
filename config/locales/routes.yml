@@ -114,6 +114,8 @@ pt-BR:
     custom_rounding_tables: 'tabelas-de-arredondamento'
     distributed: 'distribuidos'
     ***REMOVED***: '***REMOVED***'
+    complementary_exam_settings: 'avaliacoes-complementares'
+    complementary_exams: 'diario-de-avaliacoes-complementares'
 
     # actions
     edit: 'editar'
