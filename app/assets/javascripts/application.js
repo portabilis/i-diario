@@ -56,3 +56,4 @@
 //= require freshwidget_call
 //= require chat_helpdesk
 //= require_tree ./resources
+//= require jquery-maxlength.min
