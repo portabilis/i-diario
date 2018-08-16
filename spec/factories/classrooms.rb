@@ -19,6 +19,16 @@ FactoryGirl.define do
       association :exam_rule, factory: :exam_rule_numeric_and_concept
     end
 
+    factory :classroom_numeric do
+      current
+      association :exam_rule, factory: :exam_rule
+    end
+
+    factory :classroom_concept do
+      current
+      association :exam_rule, factory: :exam_rule_concept
+    end
+
     trait :by_discipline do
       association :exam_rule, factory: :exam_rule_by_discipline
     end

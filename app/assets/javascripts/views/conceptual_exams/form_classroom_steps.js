@@ -151,6 +151,8 @@ $(function() {
         url: Routes.disciplines_pt_br_path(
           {
             classroom_id: classroom_id,
+            conceptual: true,
+            student_id: $student.select2('val'),
             school_calendar_classroom_step_id: school_calendar_classroom_step_id,
             format: 'json'
           }

@@ -92,7 +92,11 @@ module ExamPoster
         .by_recovery_diary_record_id(school_term_recovery_diary_record.recovery_diary_record_id)
         .first
 
-      student_recovery.try(:score)
+      score = student_recovery.try(:score)
+      if score.present?
+        score = ComplementaryExamCalculator.new(AffectedScoreTypes::STEP_RECOVERY_SCORE, student, discipline.id, classroom.id, @post_data.step).calculate(score)
+      end
+      score
     end
 
     def exempted_discipline(classroom_id, discipline_id, student_id)
