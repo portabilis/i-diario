@@ -26,6 +26,11 @@
         </div>
       </div>
       <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :max_descriptive_exam_character_count, as: :integer %>
+        </div>
+      </div>
+      <div class="row">
         <div class="col col-sm-4">
           <%= f.association :students_default_role, as: :select2, elements: Role.ordered %>
         </div>
