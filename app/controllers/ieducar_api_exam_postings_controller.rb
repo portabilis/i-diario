@@ -59,7 +59,7 @@ class IeducarApiExamPostingsController < ApplicationController
   end
 
   def school_calendar_classroom_steps
-    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom)
+    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom).ordered
 
     @school_calendar_classroom_steps = @school_calendar_classroom_steps.posting_date_after_and_before(Time.zone.today) unless current_user.can_change?("ieducar_api_exam_posting_without_restrictions")
 
