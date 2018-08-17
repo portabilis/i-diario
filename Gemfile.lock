@@ -179,6 +179,8 @@ GEM
       safe_yaml (~> 1.0.0)
     database_cleaner (1.5.1)
     debug_inspector (0.0.2)
+    deferring (0.5.0)
+      activerecord (>= 4.2, < 5.3)
     devise (3.5.1)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -611,6 +613,7 @@ DEPENDENCIES
   cpf_faker (~> 1.3)
   database_cleaner (~> 1.5, >= 1.5.1)
   decore!
+  deferring
   devise (= 3.5.1)
   ejs (~> 1.1, >= 1.1.1)
   enumerate_it (= 1.3.1)

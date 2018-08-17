@@ -21,6 +21,7 @@ class StudentAverageCalculator
       end
     end
 
+    result = ComplementaryExamCalculator.new(AffectedScoreTypes::STEP_AVERAGE, student, discipline, classroom, step).calculate(result)
     ScoreRounder.new(classroom).round(result)
   end
 
@@ -54,11 +55,7 @@ class StudentAverageCalculator
   end
 
   def calculate_average(sum, count)
-    begin
-      sum / count
-    rescue ZeroDivisionError
-      0
-    end
+    count == 0 ? 0 : sum / count
   end
 
   def avaliation_count

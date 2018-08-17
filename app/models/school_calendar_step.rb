@@ -21,6 +21,8 @@ class SchoolCalendarStep < ActiveRecord::Base
   validate :dates_for_posting_less_than_start_date
   validate :end_date_less_than_start_date_for_posting
 
+  default_scope { active }
+
   scope :by_school_calendar_id, lambda { |school_calendar_id| where(school_calendar_id: school_calendar_id) }
   scope :by_unity, lambda { |unity_id| joins(:school_calendar).where(school_calendars: { unity_id: unity_id } ) }
   scope :by_year, lambda { |year| joins(:school_calendar).where(school_calendars: { year: year } ) }
