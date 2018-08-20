@@ -24,13 +24,25 @@ module Ieducar
         begin
           api(posting).send_post(params)
         rescue Exception => e
+          error = "Aluno: #{student(params)};\nComponente curricular: #{discipline(params)};\nTurma: #{classroom(params)};\n"
+
           if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
-            posting.add_warning!("Componente curricular '#{discipline(params)}' não existe para a turma '#{classroom(params)}'")
+            posting.add_warning!(error + "Erro: Componente curricular não existe para a turma.")
+          elsif e.message.match(/Nota somente pode ser lançada após lançar notas nas etapas:/).present? ||
+              e.message.match(/O secretário\/coordenador deve lançar as notas das etapas:/).present?
+            posting.add_warning!(error + "Erro: #{e.message}")
           else
             raise e
           end
         end
       end
+    end
+
+    def student(params)
+      student_id = notas(params).first[1].first[0]
+
+      @students ||= {}
+      @students[student_id] ||= Student.find_by(api_code: student_id).name
     end
 
     def discipline(params)
