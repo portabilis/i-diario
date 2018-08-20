@@ -26,7 +26,7 @@ module ExamPoster
     def post_by_classrooms
       scores = Hash.new{ |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
-      classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq
+      classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq.compact
 
       classroom_ids.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
