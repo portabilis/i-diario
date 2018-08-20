@@ -1,0 +1,36 @@
+#header .select2-arrow {
+  width: 10px;
+}
+
+#header .select2-choice {
+  background: transparent;
+  border: none;
+  margin-bottom: 7px;
+  margin-top: -7px;
+  padding-left: 0px;
+}
+
+#header .select2-chosen {
+  color: #B2C1D5;
+  margin-right: 10px;
+  font-size: 12px;
+}
+
+#header .select2-dropdown-open .select2-choice {
+  border-bottom: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  background: transparent;
+}
+
+#header .select2-dropdown-open {
+  border: none;
+}
+
+#header .select2-arrow {
+  color: #B2C1D5;
+  background: transparent;
+  border: none;
+}

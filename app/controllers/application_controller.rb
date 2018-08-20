@@ -207,20 +207,79 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def can_change_school_year?
+    @can_change_school_year ||= current_user.can_change_school_year?
+  end
+  helper_method :can_change_school_year?
+
   def current_user_unity
-    current_user.current_unity
+    @current_user_unity ||= current_user.current_unity
   end
   helper_method :current_user_unity
 
   def current_user_classroom
-    current_user.try(:current_classroom)
+    @current_user_classroom ||= current_user.try(:current_classroom)
   end
   helper_method :current_user_classroom
 
   def current_user_discipline
-    current_user.try(:current_discipline)
+    @current_user_discipline ||= current_user.try(:current_discipline)
   end
   helper_method :current_user_discipline
+
+  def current_user_available_years
+    return [] unless current_user_unity
+    @current_user_available_years ||= begin
+      YearsFromUnityFetcher.new(current_user_unity.id).fetch.map{|year| { id: year, name: year }}
+    end
+  end
+  helper_method :current_user_available_years
+
+  def current_user_available_teachers
+    return [] unless current_user_unity
+    @current_user_available_teachers ||= begin
+      teachers = Teacher.by_unity_id(current_user_unity).order_by_name
+      if current_school_calendar.try(:year)
+        teachers.by_year(current_school_calendar.try(:year))
+      else
+        teachers
+      end
+    end
+  end
+  helper_method :current_user_available_teachers
+
+  def current_user_available_classrooms
+    return [] unless current_user_unity && current_teacher
+    @current_user_available_classrooms ||= begin
+      classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher).ordered
+      if current_school_calendar.try(:year)
+        classrooms.by_year(current_school_calendar.try(:year))
+      else
+        classrooms
+      end
+    end
+  end
+  helper_method :current_user_available_classrooms
+
+  # @TODO refatorar index do discipline em service e utilizar em ambos
+  def current_user_available_disciplines
+    return [] unless current_user_classroom && current_teacher
+
+    @current_user_available_disciplines ||= Discipline.by_teacher_id(current_teacher)
+                               .by_classroom(current_user_classroom)
+                               .ordered
+  end
+  helper_method :current_user_available_disciplines
+
+  def current_unities
+    @current_unities ||=
+      if current_user.current_user_role.try(:role_administrator?)
+        Unity.ordered
+      else
+        [current_user_unity]
+      end
+  end
+  helper_method :current_unities
 
   def current_user_school_year
     current_user.try(:current_school_year)
