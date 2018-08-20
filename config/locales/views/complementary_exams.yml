@@ -1,0 +1,12 @@
+pt-BR:
+  complementary_exams:
+    index:
+      by_complementary_exam_setting: "Filtrar avaliação"
+      by_recorded_at: "Filtrar data"
+      by_step_id: "Filtrar etapa"
+      new_html: "<i class='fa fa-plus'></i> Novo lançamento"
+
+    form:
+      students: "Alunos"
+      no_item_found: "Nenhum aluno"
+      exempted_students_from_discipline_legend: "**** Alunos dispensados da disciplina"

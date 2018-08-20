@@ -70,6 +70,8 @@ gem 'fog', '~> 1.36'
 
 gem 'rdstation-ruby-client'
 
+gem 'deferring'
+
 gem "zenvia-ruby", git: "https://github.com/portabilis/zenvia-ruby"
 
 group :development do

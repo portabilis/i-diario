@@ -12,6 +12,7 @@ RSpec.describe StudentAverageCalculator, type: :service do
   let(:start_at) { double(:start_at) }
   let(:end_at) { double(:end_at) }
   let(:student_notes_query) { double(:student_notes_query) }
+  let(:complementary_exam_calculator) { double(:complementary_exam_calculator) }
   let(:test_setting) { double(:test_setting) }
   let(:sum_calculation_type?) { false }
   let(:arithmetic_calculation_type?) { false }
@@ -75,6 +76,7 @@ RSpec.describe StudentAverageCalculator, type: :service do
     stub_student
     stub_recovery_diary_records
     stub_avaliation_recovery_diary_records
+    stub_complementary_exam_calculator
   end
 
   describe '#calculate' do
@@ -212,6 +214,16 @@ RSpec.describe StudentAverageCalculator, type: :service do
     )
     allow(student_notes_query).to receive(:daily_note_students).and_return(daily_note_students)
     allow(student_notes_query).to receive(:recovery_diary_records).and_return(recovery_diary_records)
+  end
+
+  def stub_complementary_exam_calculator
+    stub_const('ComplementaryExamCalculator', Class.new)
+    allow(ComplementaryExamCalculator).to(
+      receive(:new).with(AffectedScoreTypes::STEP_AVERAGE, student, discipline, classroom, school_calendar_step).and_return(complementary_exam_calculator)
+    )
+    allow(complementary_exam_calculator).to(
+      receive(:calculate).with(anything) { |value| value }
+    )
   end
 
   def stub_test_setting
