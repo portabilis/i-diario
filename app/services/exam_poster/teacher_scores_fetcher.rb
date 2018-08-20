@@ -1,4 +1,4 @@
-class TeacherScoresFetcher
+class ExamPoster::TeacherScoresFetcher
   attr_reader :scores
   attr_reader :warning_messages
 
