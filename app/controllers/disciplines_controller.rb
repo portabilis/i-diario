@@ -15,13 +15,10 @@ class DisciplinesController < ApplicationController
     step_number = StepsFetcher.new(classroom).steps.find(params[:step_id]).to_number
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step_number)
 
-    if classroom.exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
-      @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
-                                             .by_score_type(DisciplineScoreTypes::CONCEPT)
-                                             .order_by_sequence
-    else
-      @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id)
-                                             .order_by_sequence
+    @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id).order_by_sequence
+
+    if params[:conceptual]
+      @disciplines = @disciplines.by_score_type(:concept, params[:student_id])
     end
 
     @disciplines = @disciplines.where.not(id: exempted_discipline_ids) if exempted_discipline_ids.present?

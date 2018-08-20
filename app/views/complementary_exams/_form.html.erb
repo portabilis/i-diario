@@ -1,0 +1,79 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/complementary_exams/form' %>
+<% end %>
+
+<%= simple_form_for @complementary_exam, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.association :unity, as: :select2_unity, user: current_user %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :classroom, as: :select2_classroom, user: current_user %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :discipline, as: :select2_discipline, user: current_user,
+              classroom_id: @complementary_exam.classroom_id %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom, readonly: f.object.persisted? %>
+      </div>
+      <div class="col col-sm-4">
+        <%= f.association :complementary_exam_setting, as: :select2, elements: complementary_exam_settings, readonly: f.object.persisted? %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :recorded_at, as: :date %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend><%= t('.students') %></legend>
+
+    <% if f.object.errors.added? :students, :at_least_one_score %>
+      <div class="alert alert-danger fade in">
+        <i class="fa-fw fa fa-times"></i>
+        <%= f.object.errors[:students].first %>
+      </div>
+    <% end %>
+
+    <table class="table table-striped table-bordered table-condensed records">
+      <thead>
+        <tr>
+          <th><%= ComplementaryExamStudent.human_attribute_name :student %></th>
+          <th width="20%"><%= ComplementaryExamStudent.human_attribute_name :score %></th>
+        </tr>
+      </thead>
+
+      <tbody id="complementary-exam-students" data-scale="<%= f.object.complementary_exam_setting.try(:number_of_decimal_places) %>">
+        <tr>
+          <td class="no_item_found" colspan="3" style="<%= f.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+        </tr>
+
+        <%= f.fields_for :students do |student| %>
+          <%= render 'student_fields', f: student %>
+        <% end %>
+      </tbody>
+    </table>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), complementary_exams_path, class: 'btn btn-default' %>
+
+    <% if @complementary_exam.persisted? %>
+      <%= link_to t('views.form.history'),
+            history_complementary_exam_path(@complementary_exam),
+            class: 'btn btn-info' %>
+    <% end %>
+
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+  </footer>
+<% end %>

@@ -15,6 +15,8 @@ class ConceptualExam < ActiveRecord::Base
   has_many :conceptual_exam_values, -> {
     includes(:conceptual_exam, discipline: :knowledge_area)
   }, dependent: :destroy
+  belongs_to :school_calendar_step, -> { unscope(where: :active) }
+  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
 
   accepts_nested_attributes_for :conceptual_exam_values, allow_destroy: true
 
@@ -22,7 +24,7 @@ class ConceptualExam < ActiveRecord::Base
 
   scope :by_unity, lambda { |unity| joins(:classroom).where(classrooms: { unity_id: unity }) }
   scope :by_classroom, lambda { |classroom| where(classroom: classroom) }
-  scope :by_discipline, lambda { |discipline| joins(:conceptual_exam_values).where(conceptual_exam_values: { discipline: discipline } ) }
+  scope :by_discipline, lambda { |discipline| join_conceptual_exam_values.where(conceptual_exam_values: { discipline: discipline } ) }
   scope :by_student_name, lambda { |student_name| joins(:student).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student_name}%") }
   scope :ordered, -> { order(recorded_at: :desc) }
 
@@ -33,32 +35,18 @@ class ConceptualExam < ActiveRecord::Base
 
   before_validation :self_assign_to_conceptual_exam_values
 
-  def self.join_teacher_disciplines
-    joins(
-      arel_table.join(
-        TeacherDisciplineClassroom.arel_table,
-        Arel::Nodes::OuterJoin
-      ).on(
-        TeacherDisciplineClassroom.arel_table[:classroom_id]
-                                  .eq(arel_table[:classroom_id])
-      ).join_sources
-    ).joins(
-      :conceptual_exam_values
-    ).where(
-      TeacherDisciplineClassroom.arel_table[:discipline_id].eq(
-        ConceptualExamValue.arel_table[:discipline_id]
-      )
-    )
+  def self.active
+    join_conceptual_exam_values.merge(ConceptualExamValue.active(false))
   end
 
-  def self.by_teacher(teacher)
-    join_teacher_disciplines.where(
-      TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher)
+  def self.by_teacher(teacher_id)
+    active.where(
+      TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id)
     ).uniq
   end
 
   def self.by_status(status)
-    incomplete_conceptual_exams_ids = ConceptualExamValue.where(value: nil)
+    incomplete_conceptual_exams_ids = ConceptualExamValue.active.where(value: nil)
                                                          .group(:conceptual_exam_id)
                                                          .pluck(:conceptual_exam_id)
 
@@ -73,7 +61,11 @@ class ConceptualExam < ActiveRecord::Base
   def status
     values = ConceptualExamValue.where(conceptual_exam_id: id, exempted_discipline: false)
 
-    if values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
+    incomplete = conceptual_exam_values.any? do |conceptual_exam_value|
+      conceptual_exam_value.value.blank? && !conceptual_exam_value.exempted_discipline
+    end
+
+    if incomplete
       ConceptualExamStatus::INCOMPLETE
     else
       ConceptualExamStatus::COMPLETE
@@ -102,6 +94,17 @@ class ConceptualExam < ActiveRecord::Base
 
   def self_assign_to_conceptual_exam_values
     conceptual_exam_values.each { |conceptual_exam_value| conceptual_exam_value.conceptual_exam = self }
+  end
+
+  def self.join_conceptual_exam_values
+    joins(
+      arel_table.join(
+        ConceptualExamValue.arel_table
+      ).on(
+        ConceptualExamValue.arel_table[:conceptual_exam_id].
+          eq(arel_table[:id])
+      ).join_sources
+    )
   end
 
   def uniqueness_of_student

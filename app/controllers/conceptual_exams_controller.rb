@@ -242,6 +242,8 @@ class ConceptualExamsController < ApplicationController
     fetcher.fetch!
 
     @disciplines = fetcher.disciplines
+    @disciplines = @disciplines.by_score_type(:concept, @conceptual_exam.try(:student_id)) if @disciplines.present?
+
     step_number = steps_fetcher.step(@conceptual_exam.recorded_at).try(:to_number)
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(@conceptual_exam.classroom_id, step_number)
 

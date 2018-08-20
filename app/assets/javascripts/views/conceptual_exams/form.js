@@ -29,6 +29,10 @@ $(function() {
 
   function handleFetchExamRuleSuccess(data) {
     if (examRuleIsValid(data.exam_rule)) {
+      if (!data.exam_rule.conceptual_rounding_table) {
+        flashMessages.error('A regra de avaliação não possui tabela de arredondamento vinculada.');
+        return { }
+      }
       window.examRule = data.exam_rule;
 
       window.roundingTableValues = _.map(data.exam_rule.conceptual_rounding_table.rounding_table_values, function(rounding_table_value) {
@@ -133,6 +137,8 @@ $(function() {
           {
             classroom_id: classroom_id,
             step_id: step_id,
+            conceptual: true,
+            student_id: $student.select2('val'),
             format: 'json'
           }
         ),

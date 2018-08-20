@@ -64,7 +64,7 @@ class SchoolCalendar < ActiveRecord::Base
     school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters, 1 => Year }
     index_of_step = steps.find_index(step)
 
-    if school_term = school_terms[steps.count]
+    if school_term = school_terms[steps.size]
       school_term.key_for(index_of_step)
     end
   end
