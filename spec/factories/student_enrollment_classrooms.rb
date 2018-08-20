@@ -4,7 +4,7 @@ FactoryGirl.define do
     student_enrollment
     classroom
     classroom_code '1'
-    joined_at { Date.today.to_s }
-    changed_at { Date.today.to_s }
+    joined_at { Time.zone.today.to_s }
+    changed_at { Time.zone.today.to_s }
   end
 end
