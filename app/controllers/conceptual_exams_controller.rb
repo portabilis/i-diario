@@ -217,10 +217,13 @@ class ConceptualExamsController < ApplicationController
 
   def mark_exempted_disciplines
     @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
-    exempted_disciplines = @student_enrollments.find { |item| item[:student_id] == @conceptual_exam.student_id }.exempted_disciplines
 
-    @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
-      conceptual_exam_value.exempted_discipline = student_exempted_from_discipline?(conceptual_exam_value.discipline_id, exempted_disciplines)
+    if current_student_enrollment = @student_enrollments.find { |item| item[:student_id] == @conceptual_exam.student_id }
+      exempted_disciplines = current_student_enrollment.exempted_disciplines
+
+      @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
+        conceptual_exam_value.exempted_discipline = student_exempted_from_discipline?(conceptual_exam_value.discipline_id, exempted_disciplines)
+      end
     end
   end
 
@@ -289,6 +292,12 @@ class ConceptualExamsController < ApplicationController
 
     if @conceptual_exam.classroom.present? && @conceptual_exam.recorded_at.present? && @conceptual_exam.step.present?
       @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
+
+      if @conceptual_exam.student_id.present? &&
+         @student_enrollments.find { |enrollment| enrollment[:student_id] = @conceptual_exam.student_id }.blank?
+        @student_enrollments << StudentEnrollment.by_student(@conceptual_exam.student_id).first
+      end
+
       @student_ids = @student_enrollments.collect(&:student_id)
 
       @students = Student.where(id: @student_ids)
