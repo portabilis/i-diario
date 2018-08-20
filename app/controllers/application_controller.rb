@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
   skip_around_filter :set_locale_from_url
   around_action :handle_customer
   before_action :set_honeybadger_context
+  around_filter :set_user_current
 
   respond_to :html, :json
 
@@ -316,6 +317,15 @@ class ApplicationController < ActionController::Base
     return DisciplineScoreTypes::NUMERIC if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC
     return DisciplineScoreTypes::CONCEPT if differentiated_exam_rule.score_type == ScoreTypes::CONCEPT
     TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+  end
+
+  def set_user_current
+    User.current = current_user
+    begin
+        yield
+    ensure
+        User.current = nil
+    end
   end
 
   private
