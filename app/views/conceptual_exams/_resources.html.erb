@@ -1,7 +1,7 @@
-<tbody id="resources-tbody">
+<tbody id='resources-tbody'>
   <% if @conceptual_exams.empty? %>
     <tr>
-      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
+      <td class='no_record_found' colspan='7'><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @conceptual_exams.each do |conceptual_exam| %>
@@ -11,17 +11,15 @@
         <td><%= conceptual_exam.student %></td>
         <td><%= conceptual_exam.step %></td>
         <td>
-          <span class="<%= conceptual_exam_label(conceptual_exam.status) %>">
+          <span class='<%= conceptual_exam_label(conceptual_exam.status) %>'>
             <%= conceptual_exam.status_humanize %>
           </span>
         </td>
-        <td class="actions">
+        <td class='actions'>
           <%= link_to t('views.index.edit'),
-                edit_conceptual_exam_path(conceptual_exam),
-                class: 'btn btn-success' %>
-          <%= link_to t('views.index.delete'),
-                conceptual_exam_path(conceptual_exam),
-                class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
+            edit_conceptual_exam_path(conceptual_exam), class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'), conceptual_exam_path(conceptual_exam),
+            class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
         </td>
       </tr>
     <% end %>

@@ -12,17 +12,19 @@ class SchoolCalendar < ActiveRecord::Base
 
   belongs_to :unity
 
-  has_many :steps, -> { active.includes(:school_calendar).ordered },  class_name: 'SchoolCalendarStep',  dependent: :destroy
+  has_many :steps, -> { active.includes(:school_calendar).ordered }, class_name: 'SchoolCalendarStep', dependent: :destroy
   has_many :classrooms, class_name: 'SchoolCalendarClassroom', dependent: :destroy
   has_many :events, class_name: 'SchoolCalendarEvent', dependent: :destroy
 
   accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :classrooms, reject_if: :all_blank, allow_destroy: true
 
-  validates :year, presence: true,
-                   uniqueness: { scope: :unity_id }
-  validates :number_of_classes, presence: true,
-                                numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 10 }
+  validates :year, presence: true, uniqueness: { scope: :unity_id }
+  validates :number_of_classes, presence: true, numericality: {
+    only_integer: true,
+    greater_than_or_equal_to: 1,
+    less_than_or_equal_to: 10
+  }
 
   validates_associated :steps
 
@@ -51,7 +53,6 @@ class SchoolCalendar < ActiveRecord::Base
 
   def school_term(date)
     school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters, 1 => Year }
-
     index_of_step = steps.find_index(step(date))
 
     if school_term = school_terms[steps.count]
@@ -61,7 +62,6 @@ class SchoolCalendar < ActiveRecord::Base
 
   def school_step(step)
     school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters, 1 => Year }
-
     index_of_step = steps.find_index(step)
 
     if school_term = school_terms[steps.count]
@@ -86,13 +86,14 @@ class SchoolCalendar < ActiveRecord::Base
 
   def self.by_school_day(date)
     joins(:steps).where(SchoolCalendarStep.arel_table[:start_at].lteq(date.to_date))
-      .where(SchoolCalendarStep.arel_table[:end_at].gteq(date.to_date))
+                 .where(SchoolCalendarStep.arel_table[:end_at].gteq(date.to_date))
   end
 
   def self.by_school_day_classroom_steps(date, classroom)
     joins(:classrooms).where(SchoolCalendarClassroom.arel_table[:classroom_id].eq(classroom.id))
-    .joins(classrooms: :classroom_steps).where(SchoolCalendarClassroomStep.arel_table[:start_at].lteq(date.to_date))
-      .where(SchoolCalendarClassroomStep.arel_table[:end_at].gteq(date.to_date))
+                      .joins(classrooms: :classroom_steps)
+                      .where(SchoolCalendarClassroomStep.arel_table[:start_at].lteq(date.to_date))
+                      .where(SchoolCalendarClassroomStep.arel_table[:end_at].gteq(date.to_date))
   end
 
   def self_assign_to_steps

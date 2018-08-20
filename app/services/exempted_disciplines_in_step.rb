@@ -1,23 +1,12 @@
 class ExemptedDisciplinesInStep
-  def initialize(classroom_id)
-    @classroom_id = classroom_id
+  def self.discipline_ids(classroom_id, step_number)
+    new.discipline_ids(classroom_id, step_number)
   end
 
-  def discipline_ids_by_calendar_step(step_id)
-    step_number = SchoolCalendarStep.find(step_id).to_number
-    fetch_disciplines(step_number).map(&:discipline_id)
-  end
-
-  def discipline_ids_by_classroom_step(step_id)
-    step_number = SchoolCalendarClassroomStep.find(step_id).to_number
-    fetch_disciplines(step_number).map(&:discipline_id)
-  end
-
-  private
-
-  def fetch_disciplines(step_number)
+  def discipline_ids(classroom_id, step_number)
     SpecificStep.where(classroom_id: @classroom_id)
                 .where("not (? = ANY(string_to_array(used_steps, ',')::integer[]))", step_number)
                 .where.not(used_steps: '')
+                .map(&:discipline_id)
   end
 end
