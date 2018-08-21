@@ -34,11 +34,7 @@ module ExamPoster
         conceptual_exams = ConceptualExam.by_classroom(classroom).
           by_unity(@post_data.step.school_calendar.unity)
 
-        if classroom.calendar
-          conceptual_exams = conceptual_exams.by_school_calendar_classroom_step(get_step(classroom))
-        else
-          conceptual_exams = conceptual_exams.by_school_calendar_step(get_step(classroom))
-        end
+        conceptual_exams = conceptual_exams.by_step_id(classroom, get_step(classroom).id)
 
         conceptual_exam_values = ConceptualExamValue.
           active.
