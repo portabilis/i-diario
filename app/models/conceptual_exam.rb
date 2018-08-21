@@ -8,7 +8,7 @@ class ConceptualExam < ActiveRecord::Base
   audited
   has_associated_audits
 
-  attr_accessor :unity_id
+  attr_accessor :unity_id, :teacher_id
 
   belongs_to :classroom
   belongs_to :student
@@ -60,17 +60,12 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def status
-    values = ConceptualExamValue.where(conceptual_exam_id: id, exempted_discipline: false)
+    discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id).pluck(:discipline_id)
+    values = ConceptualExamValue.where(conceptual_exam_id: id, exempted_discipline: false, discipline_id: discipline_ids)
 
-    incomplete = conceptual_exam_values.any? do |conceptual_exam_value|
-      conceptual_exam_value.value.blank? && !conceptual_exam_value.exempted_discipline
-    end
+    return ConceptualExamStatus::INCOMPLETE if values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
 
-    if incomplete
-      ConceptualExamStatus::INCOMPLETE
-    else
-      ConceptualExamStatus::COMPLETE
-    end
+    ConceptualExamStatus::COMPLETE
   end
 
   private

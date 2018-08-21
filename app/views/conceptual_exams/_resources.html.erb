@@ -11,6 +11,7 @@
         <td><%= conceptual_exam.student %></td>
         <td><%= conceptual_exam.step %></td>
         <td>
+          <% conceptual_exam.teacher_id = current_teacher_id %>
           <span class='<%= conceptual_exam_label(conceptual_exam.status) %>'>
             <%= conceptual_exam.status_humanize %>
           </span>
