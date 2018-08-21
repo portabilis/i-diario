@@ -44,6 +44,7 @@ class ConceptualExam < ActiveRecord::Base
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
   validate :ensure_is_school_day
+  validate :ensure_student_is_in_classroom
 
   before_validation :self_assign_to_conceptual_exam_values
 
@@ -143,5 +144,13 @@ class ConceptualExam < ActiveRecord::Base
 
   def school_calendar
     CurrentSchoolCalendarFetcher.new(classroom.try(:unity), classroom).fetch
+  end
+
+  def ensure_student_is_in_classroom
+    return unless recorded_at.present? && student_id.present? && classroom_id.present?
+
+    unless StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
+      errors.add(:base, :student_is_not_in_classroom)
+    end
   end
 end
