@@ -11,7 +11,7 @@ class DailyNoteStudentsController < ApplicationController
   def old_notes
     return unless params[:classroom_id] && params[:discipline_id] && params[:school_calendar_step_id] && params[:student_id]
 
-    school_calendar_step = SchoolCalendarStep.find(params[:school_calendar_step_id])
+    school_calendar_step = SchoolCalendarStep.unscoped.find(params[:school_calendar_step_id])
 
     daily_note_students = DailyNoteStudent.by_discipline_id(params[:discipline_id])
                                            .by_student_id(params[:student_id])
@@ -33,7 +33,7 @@ class DailyNoteStudentsController < ApplicationController
   def old_notes_classroom_steps
     return unless params[:classroom_id] && params[:discipline_id] && params[:school_calendar_classroom_step_id] && params[:student_id]
 
-    school_calendar_classroom_step = SchoolCalendarClassroomStep.find(params[:school_calendar_classroom_step_id])
+    school_calendar_classroom_step = SchoolCalendarClassroomStep.unscoped.find(params[:school_calendar_classroom_step_id])
 
     daily_note_students = DailyNoteStudent.by_discipline_id(params[:discipline_id])
                                            .by_student_id(params[:student_id])

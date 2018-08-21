@@ -27,3 +27,5 @@ pt-BR:
               taken: 'já existe um lançamento para este aluno na etapa informada'
             conceptual_exam_values:
               at_least_one_conceptual_exam_value: 'É necessário pelo menos 1 disciplina'
+            base:
+                student_is_not_in_classroom: 'Não é possível modificar o Diário de avaliações conceituais pois o aluno não está enturmado na data do lançamento.'

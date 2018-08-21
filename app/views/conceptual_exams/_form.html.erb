@@ -5,6 +5,8 @@
 <%= simple_form_for @conceptual_exam, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
+  <%= render 'base_errors', f: f %>
+
   <fieldset>
     <div class="row">
       <div class="col col-sm-4">
