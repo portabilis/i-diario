@@ -220,7 +220,7 @@ $(function() {
     if(valueSelected($(this))){
       $('#classroom-field-container').show();
       $('#discipline-field-container').show();
-      var unity_id = role_unity_id ? role_unity_id : $("form#user-role-form #user_current_unity_id").val();
+      var unity_id = currentUnityId();
       fetchClassroomsByTeacherAndUnity(teacher_id, unity_id);
     }else{
       $("form#user-role-form #user_current_classroom_id").val('');
@@ -391,6 +391,16 @@ $(function() {
       alert('Erro desconhecido');
     }
   });
+
+  function currentUnityId(){
+    var result = role_unity_id ? role_unity_id : $("form#user-role-form #user_current_unity_id").val();
+
+    if (!result){
+      $('form#user-role-form #user_current_user_role_id').onchange();
+      return currentUnityId();
+    }
+    return result;
+  }
 
   $('#header input.select2').on('select2-open', function(){
     $('.select2-search:visible').attr('style', 'margin-top: 5px;');
