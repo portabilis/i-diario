@@ -146,9 +146,10 @@ $(function() {
     flashMessages.error('Ocorreu um erro ao buscar as escolas.');
   }
 
-  $('form#user-role-form #user_current_user_role_id').on('change', function(){
+  $('form#user-role-form #user_current_user_role_id').on('change', fetchRole);
 
-    var user_role_id = $(this).val();
+  function fetchRole() {
+    var user_role_id = $('form#user-role-form #user_current_user_role_id').val();
 
     if(_.isEmpty(user_role_id)){
       $('#no-role-selected-alert').removeClass('hidden');
@@ -156,7 +157,7 @@ $(function() {
       $('#no-role-selected-alert').addClass('hidden');
     }
 
-    if(valueSelected($(this))){
+    if(valueSelected($('form#user-role-form #user_current_user_role_id'))){
       $.ajax({
         url: Routes.user_role_pt_br_path( user_role_id, {
             format: 'json'
@@ -195,7 +196,7 @@ $(function() {
     function handleFetchRoleError(){
       flashMessages.error('Ocorreu um erro ao buscar o nível de acesso da permissão selecionada.');
     }
-  });
+  };
 
   $('form#user-role-form #user_current_unity_id').on('change', function(){
     $('#assumed-teacher-field-container').hide();
@@ -396,7 +397,7 @@ $(function() {
     var result = role_unity_id ? role_unity_id : $("form#user-role-form #user_current_unity_id").val();
 
     if (!result){
-      $('form#user-role-form #user_current_user_role_id').onchange();
+      fetchRole();
       return currentUnityId();
     }
     return result;
