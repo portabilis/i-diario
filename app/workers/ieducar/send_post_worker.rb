@@ -24,7 +24,9 @@ module Ieducar
         begin
           api(posting).send_post(params)
         rescue Exception => e
-          error = "Aluno: #{student(params)};\nComponente curricular: #{discipline(params)};\nTurma: #{classroom(params)};\n"
+          error = "Aluno: #{student(params)};<br>
+                   Componente curricular: #{discipline(params)};<br>
+                   Turma: #{classroom(params)};<br>"
 
           if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
             posting.add_warning!(error + "Erro: Componente curricular não existe para a turma.")
