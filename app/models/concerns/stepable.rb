@@ -5,7 +5,7 @@ module Stepable
 
   included do
     validates_date :recorded_at
-    validates_presence_of :classroom, :recorded_at, :step_id
+    validates_presence_of :classroom_id, :recorded_at, :step_id
     validates :recorded_at, not_in_future: true
     validate :recorded_at_is_in_selected_step
     validate :ensure_is_school_day
