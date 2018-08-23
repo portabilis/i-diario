@@ -271,7 +271,8 @@ Rails.application.routes.draw do
 
     resources :school_calendars, concerns: :history do
       collection do
-        get  :synchronize
+        get :step
+        get :synchronize
         post :create_and_update_batch
       end
 
@@ -341,7 +342,6 @@ Rails.application.routes.draw do
     resources :daily_note_students, only: [:index] do
       collection do
         get :old_notes
-        get :old_notes_classroom_steps
         get :dependence
       end
     end
@@ -349,7 +349,6 @@ Rails.application.routes.draw do
     resources :transfer_notes, concerns: :history do
       collection do
         get :current_notes
-        get :current_notes_classroom_steps
       end
     end
     resources :final_recovery_diary_records, concerns: :history

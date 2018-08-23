@@ -80,6 +80,13 @@ class SchoolCalendarsController < ApplicationController
     redirect_to school_calendars_path, notice: t('.notice') unless performed?
   end
 
+  def step
+    classroom = Classroom.find(params[:classroom_id])
+    @step = StepsFetcher.new(classroom).steps.find(params[:step_id])
+
+    render json: @step
+  end
+
   private
 
   def selected_school_calendars(school_calendars)
