@@ -243,7 +243,9 @@ class AttendanceRecordReport < BaseReport
     return false unless daily_frequency.discipline_id.present?
 
     discipline_id = daily_frequency.discipline_id
-    step_number = @school_calendar.step(daily_frequency.frequency_date).to_number
+    school_calendar_classroom = @school_calendar.classrooms.find_by_classroom_id(daily_frequency.classroom_id)
+    step_number = school_calendar_classroom.classroom_step(daily_frequency.frequency_date).to_number if school_calendar_classroom.present?
+    step_number ||= @school_calendar.step(daily_frequency.frequency_date).to_number
 
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)

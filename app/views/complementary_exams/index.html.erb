@@ -1,0 +1,49 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for :filter, { url: complementary_exams_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
+        <thead>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+              <%= f.input :by_complementary_exam_setting, as: :select2, elements: ComplementaryExamSetting.ordered, label: false, placeholder: t('.by_complementary_exam_setting') %>
+            </td>
+            <td>
+              <%= f.input :by_step_id, as: :select2, elements: steps, label: false, placeholder: t('.by_step_id') %>
+            </td>
+            <td>
+              <%= f.input :by_recorded_at, as: :date, label: false, placeholder: t('.by_recorded_at') %>
+            </td>
+            <td><%= link_to t('.new_html'), new_complementary_exam_path, class: 'btn btn-primary pull-right' %></td>
+          </tr>
+
+          <tr>
+            <th><%= ComplementaryExam.human_attribute_name :unity %></th>
+            <th><%= ComplementaryExam.human_attribute_name :classroom %></th>
+            <th><%= ComplementaryExam.human_attribute_name :discipline %>
+            <th><%= ComplementaryExam.human_attribute_name :complementary_exam_setting %>
+            <th><%= ComplementaryExam.human_attribute_name :step %>
+            <th width="10%"><%= ComplementaryExam.human_attribute_name :recorded_at %></th>
+            <td width="160px"></td>
+          </tr>
+        </thead>
+
+        <%= render 'resources' %>
+
+        <tfoot id="paginator" class="remote">
+          <td colspan="7">
+            <div id="page_entries_info" class="pull-left hidden-xs">
+              <%= page_entries_info @complementary_exams %>
+            </div>
+
+            <div class="pull-right">
+              <%= paginate @complementary_exams %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

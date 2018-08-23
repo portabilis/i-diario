@@ -30,7 +30,7 @@ class SchoolCalendarClassroom < ActiveRecord::Base
 
     index_of_step = classroom_steps.find_index(classroom_step(date))
 
-    if school_term = school_terms[classroom_steps.count]
+    if school_term = school_terms[classroom_steps.size]
       school_term.key_for(index_of_step)
     end
   end

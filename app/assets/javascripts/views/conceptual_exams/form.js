@@ -60,6 +60,10 @@ $(function() {
 
   function handleFetchExamRuleSuccess(data) {
     if (examRuleIsValid(data.exam_rule)) {
+      if (!data.exam_rule.conceptual_rounding_table) {
+        flashMessages.error('A regra de avaliação não possui tabela de arredondamento vinculada.');
+        return { }
+      }
       window.examRule = data.exam_rule;
       window.roundingTableValues = _.map(data.exam_rule.conceptual_rounding_table.rounding_table_values, function(rounding_table_value) {
         return { id: rounding_table_value.value, text: rounding_table_value.to_s };
@@ -159,6 +163,8 @@ $(function() {
         url: Routes.disciplines_pt_br_path(
           {
             classroom_id: classroom_id,
+            conceptual: true,
+            student_id: $student.select2('val'),
             school_calendar_step_id: school_calendar_step_id,
             format: 'json'
           }

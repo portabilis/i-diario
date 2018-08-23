@@ -8,3 +8,4 @@ production:
   - default
   - exam_posting
   - exam_posting_send
+  - daily_frequency_creator

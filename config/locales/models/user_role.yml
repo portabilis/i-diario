@@ -4,6 +4,9 @@ pt-BR:
       user_role:
         one: "Permissão do usuário"
         other: "Permissões do usuário"
+      current_role_form:
+        current_unity: "Unidade"
+        current_unity_id: "Unidade"
     attributes:
       user_role:
         role: "Permissão"
