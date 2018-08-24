@@ -2,7 +2,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   include Audit
   include Filterable
 
-  acts_as_paranoid
+  # acts_as_paranoid
 
   acts_as_copy_target
 

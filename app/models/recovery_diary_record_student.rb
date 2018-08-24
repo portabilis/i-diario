@@ -3,7 +3,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
 
   audited associated_with: :recovery_diary_record, except: [:recovery_diary_record_id]
 
-  acts_as_paranoid
+  # acts_as_paranoid
 
   acts_as_copy_target
 
