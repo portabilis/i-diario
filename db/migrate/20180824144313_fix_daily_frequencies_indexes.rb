@@ -1,6 +1,6 @@
 class FixDailyFrequenciesIndexes < ActiveRecord::Migration
   def change
-    remove_index :daily_frequencies, name: :daily_frequencies_unique_idx
+    remove_index :daily_frequencies, name: :daily_frequencies_unique_idx if index_exists?(:daily_frequencies, name: :daily_frequencies_unique_idx)
     remove_index :daily_frequencies, :classroom_id
     remove_index :daily_frequencies, :discipline_id
     remove_index :daily_frequencies, :unity_id
