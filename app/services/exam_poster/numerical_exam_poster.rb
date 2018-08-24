@@ -26,7 +26,7 @@ module ExamPoster
     def post_by_classrooms
       scores = Hash.new{ |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
-      classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq
+      classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq.compact
 
       classroom_ids.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
@@ -92,7 +92,11 @@ module ExamPoster
         .by_recovery_diary_record_id(school_term_recovery_diary_record.recovery_diary_record_id)
         .first
 
-      student_recovery.try(:score)
+      score = student_recovery.try(:score)
+      if score.present?
+        score = ComplementaryExamCalculator.new(AffectedScoreTypes::STEP_RECOVERY_SCORE, student, discipline.id, classroom.id, @post_data.step).calculate(score)
+      end
+      score
     end
 
     def exempted_discipline(classroom_id, discipline_id, student_id)

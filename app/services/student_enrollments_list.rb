@@ -14,6 +14,7 @@ class StudentEnrollmentsList
     @show_inactive_outside_step = params.fetch(:show_inactive_outside_step, true)
     @score_type = params.fetch(:score_type, StudentEnrollmentScoreTypeFilters::BOTH) || StudentEnrollmentScoreTypeFilters::BOTH
     @opinion_type = params.fetch(:opinion_type, nil)
+    @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, false)
     ensure_has_valid_params
   end
 
@@ -23,7 +24,7 @@ class StudentEnrollmentsList
 
   private
 
-  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive, :show_inactive_outside_step, :score_type, :opinion_type
+  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive, :show_inactive_outside_step, :score_type, :opinion_type, :with_recovery_note_in_step
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -42,6 +43,7 @@ class StudentEnrollmentsList
                                               .active
                                               .ordered
     students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
+    students_enrollments = students_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
     students_enrollments = reject_duplicated_students(students_enrollments)
     students_enrollments = remove_not_displayable_students(students_enrollments)
@@ -116,5 +118,9 @@ class StudentEnrollmentsList
         (student_displayable_as_inactive?(student_enrollment) && !show_inactive)
       end
     end
+  end
+
+  def step
+    @step ||= StepsFetcher.new(Classroom.find(classroom)).step(date)
   end
 end

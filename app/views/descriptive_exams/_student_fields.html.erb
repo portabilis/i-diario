@@ -12,6 +12,9 @@
   </td>
 
   <td>
-    <%= f.input :value, label_html: { class: 'hidden' }, readonly: f.object.exempted_from_discipline %>
+    <%= f.input :value,
+                label_html: { class: 'hidden' },
+                input_html: { maxlength: GeneralConfiguration.current.max_descriptive_exam_character_count },
+                readonly: f.object.exempted_from_discipline %>
   </td>
 </tr>

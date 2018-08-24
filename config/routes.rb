@@ -271,7 +271,8 @@ Rails.application.routes.draw do
 
     resources :school_calendars, concerns: :history do
       collection do
-        get  :synchronize
+        get :step
+        get :synchronize
         post :create_and_update_batch
       end
 
@@ -324,6 +325,12 @@ Rails.application.routes.draw do
         get :search
         get :multiple_classrooms
         post :create_multiple_classrooms
+      end
+    end
+    resources :complementary_exam_settings, concerns: :history
+    resources :complementary_exams, concerns: :history do
+      collection do
+        get :settings
       end
     end
     resources :teacher_avaliations, only: :index

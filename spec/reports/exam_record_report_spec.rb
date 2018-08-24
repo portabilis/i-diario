@@ -34,7 +34,8 @@ RSpec.describe ExamRecordReport, type: :report do
       school_calendar_step_two,
       test_setting,
       daily_notes,
-      students
+      students,
+      []
     ).render
 
     expect(subject).to be_truthy

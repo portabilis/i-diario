@@ -1,0 +1,16 @@
+pt-BR:
+  activemodel:
+    attributes:
+      current_role_form:
+        current_unity: "Unidade"
+        current_unity_id: "Unidade"
+        current_user_id: "Usuário"
+        current_user: "Usuário"
+        teacher_id: "Professor"
+        teacher: "Professor"
+        current_classroom_id: "Turma"
+        current_classroom: "Turma"
+        current_discipline_id: "Disciplina"
+        current_discipline: "Disciplina"
+        assumed_teacher_id: "Professor"
+        assumed_teacher: "Professor"

@@ -11,6 +11,8 @@
 <%= simple_form_for @conceptual_exam, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
+  <%= render 'base_errors', f: f %>
+
   <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
     <i class="fa fa-exclamation-circle fa-fw"></i>
     <%= t('.exam_rule_not_found') %>

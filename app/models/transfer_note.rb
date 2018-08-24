@@ -12,8 +12,8 @@ class TransferNote < ActiveRecord::Base
 
   belongs_to :classroom
   belongs_to :discipline
-  belongs_to :school_calendar_step
-  belongs_to :school_calendar_classroom_step
+  belongs_to :school_calendar_step, -> { unscope(where: :active) }
+  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
   belongs_to :student
   belongs_to :teacher
   has_many :daily_note_students, dependent: :destroy

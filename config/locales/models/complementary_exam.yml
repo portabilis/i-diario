@@ -1,0 +1,27 @@
+pt-BR:
+  activerecord:
+    models:
+      complementary_exam:
+        one: 'Diário de avaliação complementar'
+        other: 'Diário de avaliações complementares'
+    attributes:
+      complementary_exam:
+        unity: "Escola"
+        unity_id: "Escola"
+        classroom: "Turma"
+        classroom_id: "Turma"
+        discipline: "Disciplina"
+        discipline_id: "Disciplina"
+        complementary_exam_setting_id: "Avaliação"
+        complementary_exam_setting: "Avaliação"
+        step_id: "Etapa"
+        step: "Etapa"
+        recorded_at: "Data"
+        students: "Alunos"
+
+    errors:
+      models:
+        complementary_exam:
+          attributes:
+            students:
+              at_least_one_score: "É necessário informar ao menos uma nota"

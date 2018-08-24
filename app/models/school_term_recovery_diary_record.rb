@@ -10,8 +10,8 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   has_associated_audits
 
   belongs_to :recovery_diary_record, dependent: :destroy
-  belongs_to :school_calendar_step, -> { includes(:school_calendar) }
-  belongs_to :school_calendar_classroom_step
+  belongs_to :school_calendar_step, -> { unscope(where: :active).includes(:school_calendar) }
+  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
 
   accepts_nested_attributes_for :recovery_diary_record
 
