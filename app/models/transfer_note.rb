@@ -5,6 +5,8 @@ class TransferNote < ActiveRecord::Base
   has_associated_audits
   acts_as_copy_target
 
+  acts_as_paranoid
+
   attr_writer :unity_id
   attr_accessor :transfer_date_copy
 

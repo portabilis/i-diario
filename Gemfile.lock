@@ -396,6 +396,8 @@ GEM
       cocaine (~> 0.5.5)
       mime-types
       mimemagic (~> 0.3.0)
+    paranoia (2.4.1)
+      activerecord (>= 4.0, < 5.3)
     pdf-core (0.6.1)
     pdf-inspector (1.2.1)
       pdf-reader (~> 1.0)
@@ -637,6 +639,7 @@ DEPENDENCIES
   mina-sidekiq (~> 0.4.1)
   newrelic_rpm
   paperclip (~> 5.1.0)
+  paranoia (~> 2.2)
   pdf-inspector
   pg (= 0.17.1)
   poltergeist (~> 1.8.1)
