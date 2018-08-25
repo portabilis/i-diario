@@ -42,7 +42,7 @@ class StudentsController < ApplicationController
         configuration,
         params[:classroom_id],
         params[:discipline_id],
-        params[:school_calendar_step_id],
+        params[:step_id],
         params[:date].to_date.to_s
       )
       .fetch
@@ -52,28 +52,8 @@ class StudentsController < ApplicationController
       each_serializer: StudentInRecoverySerializer,
       discipline: discipline,
       classroom: classroom,
-      school_calendar_step: school_step,
-      number_of_decimal_places: school_step.test_setting.number_of_decimal_places
-    )
-  end
-
-  def in_recovery_classroom_steps
-    @students = StudentsInRecoveryByClassroomStepFetcher.new(
-        configuration,
-        params[:classroom_id],
-        params[:discipline_id],
-        params[:school_calendar_classroom_step_id],
-        params[:date].to_date.to_s
-      )
-      .fetch
-
-    render(
-      json: @students,
-      each_serializer: StudentInRecoveryClassroomStepSerializer,
-      discipline: discipline,
-      classroom: classroom,
-      school_calendar_classroom_step: classroom_step,
-      number_of_decimal_places: classroom_step.test_setting.number_of_decimal_places
+      step: step,
+      number_of_decimal_places: step.test_setting.number_of_decimal_places
     )
   end
 
@@ -92,23 +72,23 @@ class StudentsController < ApplicationController
 
   private
 
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(classroom)
+  end
+
+  def step
+    @step ||= steps_fetcher.steps.find(params[:step_id])
+  end
+
   def configuration
     IeducarApiConfiguration.current
   end
 
   def classroom
-    Classroom.find(params[:classroom_id])
-  end
-
-  def school_step
-    SchoolCalendarStep.unscoped.find(params[:school_calendar_step_id])
-  end
-
-  def classroom_step
-    SchoolCalendarClassroomStep.unscoped.find(params[:school_calendar_classroom_step_id])
+    @classroom ||= Classroom.find(params[:classroom_id])
   end
 
   def discipline
-    Discipline.find(params[:discipline_id])
+    @discipline ||= Discipline.find(params[:discipline_id])
   end
 end

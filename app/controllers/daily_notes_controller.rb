@@ -114,7 +114,14 @@ class DailyNotesController < ApplicationController
   end
 
   def search
+    step_id = (params[:filter] || []).delete(:by_step_id)
+
     @daily_notes = apply_scopes(DailyNote)
+
+    if step_id.present?
+      classroom = Classroom.find(params[:filter][:by_classroom_id])
+      @daily_notes = @daily_notes.by_step_id(classroom, step_id)
+    end
 
     render json: @daily_notes
   end

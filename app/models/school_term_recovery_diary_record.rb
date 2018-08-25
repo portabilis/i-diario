@@ -1,5 +1,6 @@
 class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   include Audit
+  include Stepable
   include Filterable
 
   acts_as_copy_target
@@ -13,54 +14,33 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   accepts_nested_attributes_for :recovery_diary_record
 
-  scope :by_unity_id, lambda { |unity_id| joins(:recovery_diary_record).where(recovery_diary_records: { unity_id: unity_id }) }
+  scope :by_unity_id, lambda { |unity_id|
+    joins(:recovery_diary_record).where(recovery_diary_records: { unity_id: unity_id })
+  }
   scope :by_teacher_id, lambda { |teacher_id| by_teacher_id_query(teacher_id) }
-  scope :by_classroom_id, lambda { |classroom_id| joins(:recovery_diary_record).where(recovery_diary_records: { classroom_id: classroom_id }) }
-  scope :by_discipline_id, lambda { |discipline_id| joins(:recovery_diary_record).where(recovery_diary_records: { discipline_id: discipline_id }) }
-  scope :by_school_calendar_step_id, lambda { |school_calendar_step_id| where(school_calendar_step_id: school_calendar_step_id) }
-  scope :by_school_calendar_classroom_step_id, lambda { |school_calendar_classroom_step_id| where(school_calendar_classroom_step_id: school_calendar_classroom_step_id)   }
-  scope :by_recorded_at, lambda { |recorded_at| joins(:recovery_diary_record).where(recovery_diary_records: { recorded_at: recorded_at }) }
+  scope :by_classroom_id, lambda { |classroom_id|
+    joins(:recovery_diary_record).where(recovery_diary_records: { classroom_id: classroom_id })
+  }
+  scope :by_discipline_id, lambda { |discipline_id|
+    joins(:recovery_diary_record).where(recovery_diary_records: { discipline_id: discipline_id })
+  }
+  scope :by_school_calendar_step_id, lambda { |school_calendar_step_id|
+    where(school_calendar_step_id: school_calendar_step_id)
+  }
+  scope :by_school_calendar_classroom_step_id, lambda { |school_calendar_classroom_step_id|
+    where(school_calendar_classroom_step_id: school_calendar_classroom_step_id)
+  }
+  scope :by_recorded_at, lambda { |recorded_at| where(recorded_at: recorded_at) }
+  scope :ordered, -> { order(arel_table[:recorded_at].desc) }
 
-  scope :ordered, -> { joins(:recovery_diary_record).order(RecoveryDiaryRecord.arel_table[:recorded_at].desc) }
+  before_validation :set_recorded_at, on: [:create, :update]
 
   validates :recovery_diary_record, presence: true
-  validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
-  validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
-
-  validate :uniqueness_of_school_term_recovery_diary_record
+  validate :recovery_type_must_allow_recovery_for_step
   validate :recovery_type_must_allow_recovery_for_classroom
-  validate :recovery_type_must_allow_recovery_for_school_calendar_step
-  validate :recorded_at_must_be_school_calendar_step_day, unless: :school_calendar_classroom_step
-  validate :recorded_at_must_be_school_calendar_classroom_step_day, unless: :school_calendar_step
+  validate :uniqueness_of_school_term_recovery_diary_record
 
-  delegate :classroom_id, :discipline_id, :recorded_at, to: :recovery_diary_record
-
-  def school_calendar_steps_ids
-    school_calendar_steps = RecoverySchoolCalendarStepsFetcher.new(
-      school_calendar_step_id,
-      recovery_diary_record.classroom_id
-      )
-      .fetch
-
-    school_calendar_steps.map(&:id)
-  end
-
-  def school_calendar_classroom_steps_ids
-    school_calendar_classroom_steps = RecoverySchoolCalendarClassroomStepsFetcher.new(
-      school_calendar_step_id,
-      recovery_diary_record.classroom_id
-    ).fetch
-
-    school_calendar_classroom_steps.map(&:id)
-  end
-
-  def step
-    self.school_calendar_classroom_step || self.school_calendar_step
-  end
-
-  def recorded_at
-    recovery_diary_record.recorded_at
-  end
+  delegate :classroom, :classroom_id, :discipline_id, to: :recovery_diary_record
 
   private
 
@@ -82,55 +62,39 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
       .and(TeacherDisciplineClassroom.arel_table[:active].eq('t')))
   end
 
-  def uniqueness_of_school_term_recovery_diary_record
-    return unless recovery_diary_record
+  def set_recorded_at
+    self.recovery_diary_record.recorded_at = recorded_at
+  end
 
-    relation = SchoolTermRecoveryDiaryRecord.by_classroom_id(recovery_diary_record.classroom_id)
-                                            .by_discipline_id(recovery_diary_record.discipline_id)
-                                            .by_school_calendar_step_id(school_calendar_step_id)
-                                            .by_school_calendar_classroom_step_id(school_calendar_classroom_step_id)
+  def uniqueness_of_school_term_recovery_diary_record
+    return unless recovery_diary_record.present? && step.present?
+
+    relation = SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom_id)
+                                            .by_discipline_id(discipline_id)
+                                            .by_step_id(classroom, step_id)
 
     relation = relation.where.not(id: id) if persisted?
 
     if relation.any?
-      errors.add(:school_calendar_step, :uniqueness_of_school_term_recovery_diary_record) if school_calendar_step_id.present?
-      errors.add(:school_calendar_classroom_step, :uniqueness_of_school_term_recovery_diary_record) if school_calendar_classroom_step_id.present?
+      errors.add(:step_id, :uniqueness_of_school_term_recovery_diary_record)
     end
   end
 
   def recovery_type_must_allow_recovery_for_classroom
-    classroom_present = recovery_diary_record && recovery_diary_record.classroom
+    return unless recovery_diary_record.present? && classroom.present?
 
-    if classroom_present && recovery_diary_record.classroom.exam_rule.recovery_type == RecoveryTypes::DONT_USE
+    if classroom.exam_rule.recovery_type == RecoveryTypes::DONT_USE
       errors.add(:recovery_diary_record, :recovery_type_must_allow_recovery_for_classroom)
       recovery_diary_record.errors.add(:classroom, :recovery_type_must_allow_recovery_for_classroom)
     end
   end
 
-  def recovery_type_must_allow_recovery_for_school_calendar_step
-    classroom_present = recovery_diary_record && recovery_diary_record.classroom
-    return unless classroom_present && school_calendar_step && recovery_diary_record.classroom.exam_rule.recovery_type == RecoveryTypes::SPECIFIC
+  def recovery_type_must_allow_recovery_for_step
+    return unless recovery_diary_record.present? && classroom.present? && step.present?
+    return unless classroom.exam_rule.recovery_type == RecoveryTypes::SPECIFIC
 
-    if recovery_diary_record.classroom.exam_rule.recovery_exam_rules.none? { |r| r.steps.include?(school_calendar_step.to_number) }
-      errors.add(:school_calendar_step, :recovery_type_must_allow_recovery_for_school_calendar_step)
-    end
-  end
-
-  def recorded_at_must_be_school_calendar_step_day
-    return unless recovery_diary_record && recovery_diary_record.recorded_at && school_calendar_step
-
-    unless school_calendar_step == school_calendar_step.school_calendar.step(recovery_diary_record.recorded_at)
-      errors.add(:recovery_diary_record, :recorded_at_must_be_school_calendar_step_day)
-      recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_school_calendar_step_day)
-    end
-  end
-
-  def recorded_at_must_be_school_calendar_classroom_step_day
-    return unless recovery_diary_record && recovery_diary_record.recorded_at && school_calendar_classroom_step
-
-    unless school_calendar_classroom_step == school_calendar_classroom_step.school_calendar_classroom.classroom_step(recovery_diary_record.recorded_at)
-      errors.add(:recovery_diary_record, :recorded_at_must_be_school_calendar_step_day)
-      recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_school_calendar_step_day)
+    if classroom.exam_rule.recovery_exam_rules.none? { |r| r.steps.include?(step.to_number) }
+      errors.add(:step_id, :recovery_type_must_allow_recovery_for_step)
     end
   end
 end

@@ -1,11 +1,5 @@
-<% if @school_calendar_classroom_steps.any? %>
-  <% content_for :js do %>
-    <%= javascript_include_tag 'views/school_term_recovery_diary_records/form_classroom_steps' %>
-  <% end %>
-<% else %>
-  <% content_for :js do %>
-    <%= javascript_include_tag 'views/school_term_recovery_diary_records/form' %>
-  <% end %>
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/school_term_recovery_diary_records/form' %>
 <% end %>
 
 <%= simple_form_for @school_term_recovery_diary_record, html: { class: 'smart-form' } do |f| %>
@@ -26,21 +20,18 @@
 
         <div class="col col-sm-4">
           <%= recovery_diary_record.association :discipline, as: :select2_discipline, user: current_user,
-                classroom_id: @school_term_recovery_diary_record.recovery_diary_record.classroom_id %>
+            classroom_id: @school_term_recovery_diary_record.recovery_diary_record.classroom_id %>
         </div>
       </div>
 
       <div class="row">
         <div class="col col-sm-4">
-          <% if @school_calendar_classroom_steps.any? %>
-            <%= f.association :school_calendar_classroom_step, as: :select2, elements: @school_calendar_classroom_steps, required: true %>
-          <% else %>
-            <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps, required: true %>
-          <% end %>
+          <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
+            readonly: @school_term_recovery_diary_record.persisted?, required: true %>
         </div>
 
         <div class="col col-sm-4">
-          <%= recovery_diary_record.input :recorded_at, as: :date %>
+          <%= f.input :recorded_at, as: :date %>
         </div>
       </div>
     </fieldset>
@@ -66,10 +57,14 @@
 
         <tbody id="recovery-diary-record-students" data-scale="<%= @number_of_decimal_places %>">
           <tr>
-            <td class="no_item_found" colspan="3" style="<%= recovery_diary_record.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+            <td class="no_item_found" colspan="3"
+              style="<%= recovery_diary_record.object.students.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>">
+              <%= t('.no_item_found') %>
+            </td>
           </tr>
 
-          <%= recovery_diary_record.association :students, collection: recovery_diary_record.object.students.sort_by { |student| student.student.name.upcase } do |student| %>
+          <%= recovery_diary_record.association :students,
+            collection: recovery_diary_record.object.students.sort_by { |student| student.student.name.upcase } do |student| %>
             <%= render 'student_fields', f: student %>
           <% end %>
         </tbody>
@@ -92,8 +87,8 @@
 
     <% if @school_term_recovery_diary_record.persisted? %>
       <%= link_to t('views.form.history'),
-            history_school_term_recovery_diary_record_path(@school_term_recovery_diary_record),
-            class: 'btn btn-info' %>
+        history_school_term_recovery_diary_record_path(@school_term_recovery_diary_record),
+        class: 'btn btn-info' %>
     <% end %>
 
     <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>

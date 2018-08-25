@@ -1,21 +1,23 @@
 class StudentsInRecoveryFetcher
-  def initialize(ieducar_api_configuration, classroom_id, discipline_id, school_calendar_step_id, date)
+  def initialize(ieducar_api_configuration, classroom_id, discipline_id, step_id, date)
     @ieducar_api_configuration = ieducar_api_configuration
     @classroom_id = classroom_id
     @discipline_id = discipline_id
-    @school_calendar_step_id = school_calendar_step_id
+    @step_id = step_id
     @date = date
   end
 
   def fetch
     @students = []
-    if classroom.exam_rule.differentiated_exam_rule.blank? || classroom.exam_rule.differentiated_exam_rule.recovery_type == classroom.exam_rule.recovery_type
 
+    if (classroom.exam_rule.differentiated_exam_rule.blank? ||
+        classroom.exam_rule.differentiated_exam_rule.recovery_type == classroom.exam_rule.recovery_type)
       @students += fetch_by_recovery_type(classroom.exam_rule.recovery_type)
     else
       @students += fetch_by_recovery_type(classroom.exam_rule.recovery_type, false)
       @students += fetch_by_recovery_type(classroom.exam_rule.differentiated_exam_rule.recovery_type, true)
     end
+
     @students.uniq!
 
     @students
@@ -32,19 +34,24 @@ class StudentsInRecoveryFetcher
     else
       students = []
     end
+
     students
   end
 
   def classroom
-    Classroom.find(@classroom_id)
+    @classroom ||= Classroom.find(@classroom_id)
   end
 
   def discipline
-    Discipline.find(@discipline_id)
+    @discipline ||= Discipline.find(@discipline_id)
   end
 
-  def school_calendar_step
-    SchoolCalendarStep.unscoped.find(@school_calendar_step_id)
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(classroom)
+  end
+
+  def step
+    @step = steps_fetcher.steps.find(@step_id)
   end
 
   def fetch_students_in_parallel_recovery(differentiated = nil)
@@ -54,14 +61,14 @@ class StudentsInRecoveryFetcher
         @date,
         nil,
         StudentEnrollmentScoreTypeFilters::BOTH,
-        school_calendar_step.to_number,
-        true
+        step.to_number,
+        false
       )
       .fetch
 
     if classroom.exam_rule.parallel_recovery_average
       students = students.select do |student|
-        average = student.average(classroom, discipline, school_calendar_step)
+        average = student.average(classroom, discipline, step)
         average < classroom.exam_rule.parallel_recovery_average
       end
     end
@@ -72,34 +79,32 @@ class StudentsInRecoveryFetcher
   def fetch_students_in_specific_recovery(differentiated = nil)
     students = []
 
-    school_calendar_steps = RecoverySchoolCalendarStepsFetcher.new(
-      @school_calendar_step_id,
-      @classroom_id
-      )
-      .fetch
+    recovery_steps = RecoveryStepsFetcher.new(step, classroom).fetch
 
     recovery_exam_rule = classroom.exam_rule.recovery_exam_rules.find do |recovery_diary_record|
-      recovery_diary_record.steps.last.eql?(school_calendar_step.to_number)
+      recovery_diary_record.steps.last.eql?(@step.to_number)
     end
 
-    if recovery_exam_rule
+    if recovery_exam_rule.present?
       students = StudentsFetcher.new(
           classroom,
           discipline,
           @date,
           nil,
           StudentEnrollmentScoreTypeFilters::BOTH,
-          school_calendar_step.to_number,
-          true
+          @step.to_number,
+          false
         )
         .fetch
 
       students = students.select do |student|
         sum_averages = 0
-        school_calendar_steps.each do |step|
+
+        recovery_steps.each do |step|
           sum_averages = sum_averages + student.average(classroom, discipline, step)
         end
-        average = sum_averages / school_calendar_steps.count
+
+        average = sum_averages / recovery_steps.count
 
         average < recovery_exam_rule.average
       end

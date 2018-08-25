@@ -7,26 +7,23 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   before_action :require_current_test_setting
 
   def index
+    step_id = (params[:filter] || []).delete(:by_step_id)
+
     @school_term_recovery_diary_records = apply_scopes(SchoolTermRecoveryDiaryRecord)
       .includes(
-        :school_calendar_step,
         recovery_diary_record: [
           :unity,
           :classroom,
           :discipline
         ]
       )
-      .filter(filtering_params(params[:search]))
       .by_classroom_id(current_user_classroom)
       .by_discipline_id(current_user_discipline)
       .ordered
 
-    authorize @school_term_recovery_diary_records
+    @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_step_id(current_user_classroom, step_id) if step_id.present?
 
-    @classrooms = fetch_classrooms
-    @disciplines = fetch_disciplines
-    @school_calendar_classroom_steps = fetch_school_calendar_classroom_steps
-    @school_calendar_steps = current_school_calendar.steps
+    authorize @school_term_recovery_diary_records
   end
 
   def new
@@ -34,8 +31,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @school_term_recovery_diary_record.build_recovery_diary_record
     @school_term_recovery_diary_record.recovery_diary_record.unity = current_user_unity
 
-    @school_calendar_steps = current_school_calendar.steps
-    @school_calendar_classroom_steps = fetch_school_calendar_classroom_steps
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
 
@@ -48,8 +43,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     if @school_term_recovery_diary_record.save
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
-      @school_calendar_steps = current_school_calendar.steps
-      @school_calendar_classroom_steps = fetch_school_calendar_classroom_steps
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
 
       render :new
@@ -58,15 +51,16 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def edit
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
+    @school_term_recovery_diary_record.step_id = steps_fetcher.step(@school_term_recovery_diary_record.recorded_at).try(:id)
 
     authorize @school_term_recovery_diary_record
 
-    @school_calendar_classroom_steps = fetch_school_calendar_classroom_steps
-    students_in_recovery = @school_calendar_classroom_steps.any? ? fetch_students_in_recovery_by_classroom_step : fetch_students_in_recovery
+    students_in_recovery = fetch_students_in_recovery
     mark_students_not_in_recovery_for_destruction(students_in_recovery)
+    mark_exempted_disciplines(students_in_recovery)
     add_missing_students(students_in_recovery)
 
-    @school_calendar_steps = current_school_calendar.steps
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
 
@@ -79,8 +73,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     if @school_term_recovery_diary_record.save
       respond_with @school_term_recovery_diary_record, location: school_term_recovery_diary_records_path
     else
-      @school_calendar_steps = current_school_calendar.steps
-      @school_calendar_classroom_steps = fetch_school_calendar_classroom_steps
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
 
       render :edit
@@ -107,8 +99,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def resource_params
     params.require(:school_term_recovery_diary_record).permit(
-      :school_calendar_step_id,
-      :school_calendar_classroom_step_id,
+      :step_id,
+      :recorded_at,
       recovery_diary_record_attributes: [
         :id,
         :unity_id,
@@ -125,15 +117,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     )
   end
 
-  def filtering_params(params)
-    params = {} unless params
-    params.slice(
-      :by_classroom_id,
-      :by_discipline_id,
-      :by_school_calendar_step_id,
-      :by_school_calendar_step_id,
-      :by_recorded_at
-    )
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 
   def decimal_places
@@ -141,44 +126,14 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
   helper_method :decimal_places
 
-  def fetch_school_calendar_classroom_steps
-    SchoolCalendarClassroomStep.by_classroom(current_user_classroom)
-  end
-
-  def fetch_unities
-    Unity.by_teacher(current_teacher.id).ordered
-  end
-
-  def fetch_classrooms
-    Classroom.where(id: current_user_classroom)
-    .ordered
-  end
-
-  def fetch_disciplines
-    Discipline.where(id: current_user_discipline)
-      .ordered
-  end
-
   def fetch_students_in_recovery
     StudentsInRecoveryFetcher.new(
       api_configuration,
       @school_term_recovery_diary_record.recovery_diary_record.classroom_id,
       @school_term_recovery_diary_record.recovery_diary_record.discipline_id,
-      @school_term_recovery_diary_record.school_calendar_step_id,
-      @school_term_recovery_diary_record.recovery_diary_record.recorded_at
-    )
-    .fetch
-  end
-
-  def fetch_students_in_recovery_by_classroom_step
-    StudentsInRecoveryByClassroomStepFetcher.new(
-      api_configuration,
-      @school_term_recovery_diary_record.recovery_diary_record.classroom_id,
-      @school_term_recovery_diary_record.recovery_diary_record.discipline_id,
-      @school_term_recovery_diary_record.school_calendar_classroom_step_id,
-      @school_term_recovery_diary_record.recovery_diary_record.recorded_at
-    )
-    .fetch
+      @school_term_recovery_diary_record.step_id,
+      @school_term_recovery_diary_record.recorded_at
+    ).fetch
   end
 
   def mark_students_not_in_recovery_for_destruction(students_in_recovery)
@@ -188,6 +143,16 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       end
 
       student.mark_for_destruction unless is_student_in_recovery
+    end
+  end
+
+  def mark_exempted_disciplines(students_in_recovery)
+    @school_term_recovery_diary_record.recovery_diary_record.students.each do |student|
+      exempted_from_discipline = students_in_recovery.find do |student_in_recovery|
+        student_in_recovery.id == student.student_id
+      end.try(:exempted_from_discipline)
+
+      student.exempted_from_discipline = exempted_from_discipline
     end
   end
 
@@ -201,6 +166,10 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     students_missing.each do |student_missing|
       @school_term_recovery_diary_record.recovery_diary_record.students.build(student: student_missing)
     end
+  end
+
+  def any_student_exempted_from_discipline?
+    @school_term_recovery_diary_record.recovery_diary_record.students.any?(&:exempted_from_discipline)
   end
 
   def api_configuration

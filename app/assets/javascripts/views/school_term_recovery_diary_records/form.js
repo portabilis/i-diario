@@ -5,78 +5,50 @@ $(function () {
   var dateRegex = '^(?:(?:31(\\/)(?:0?[13578]|1[02]))\\1|(?:(?:29|30)(\\/)(?:0?[1,3-9]|1[0-2])\\2))(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$|^(?:29(\\/)0?2\\3(?:(?:(?:1[6-9]|[2-9]\\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3579][26])00))))$|^(?:0?[1-9]|1\\d|2[0-8])(\\/)(?:(?:0?[1-9])|(?:1[0-2]))\\4(?:(?:1[6-9]|[2-9]\\d)?\\d{2})$';
 
   var flashMessages = new FlashMessages();
-  var schoolCalendarStep = null;
+  var examRule = null;
   var $unity = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_unity_id');
   var $classroom = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_classroom_id');
   var $discipline = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
-  var $school_calendar_step = $('#school_term_recovery_diary_record_school_calendar_step_id');
-  var $recorded_at = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_recorded_at');
+  var $step = $('#school_term_recovery_diary_record_step_id');
+  var $recorded_at = $('#school_term_recovery_diary_record_recorded_at');
   var $submitButton = $('input[type=submit]');
 
-
-  function fetchDisciplines() {
+  function fetchExamRule() {
     var classroom_id = $classroom.select2('val');
-
-    $discipline.select2('val', '');
-    $discipline.select2({ data: [] });
 
     if (!_.isEmpty(classroom_id)) {
       $.ajax({
-        url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
-        success: handleFetchDisciplinesSuccess,
-        error: handleFetchDisciplinesError
+        url: Routes.exam_rules_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
+        success: handleFetchExamRuleSuccess,
+        error: handleFetchExamRuleError
       });
     }
   };
 
-  function handleFetchDisciplinesSuccess(disciplines) {
-    var selectedDisciplines = _.map(disciplines, function(discipline) {
-      return { id: discipline['id'], text: discipline['description'] };
-    });
+  function handleFetchExamRuleSuccess(data) {
+    examRule = data.exam_rule;
 
-    $discipline.select2({ data: selectedDisciplines });
-  };
-
-  function handleFetchDisciplinesError() {
-    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
-  };
-
-  function fetchSchoolCalendarStep() {
-    var school_calendar_step_id = $school_calendar_step.select2('val');
-
-    if (!_.isEmpty(school_calendar_step_id)) {
-      $.ajax({
-        url: Routes.school_calendar_step_pt_br_path(school_calendar_step_id, { format: 'json' }),
-        success: handleFetchSchoolCalendarStepSuccess,
-        error: handleFetchSchoolCalendarStepError
-      });
+    if (!$.isEmptyObject(examRule) && examRule.recovery_type === 0) {
+      flashMessages.error('A turma selecionada está configurada para não permitir o lançamento de recuperações de etapas.');
+    } else {
+      flashMessages.pop('');
     }
-  }
-
-  function handleFetchSchoolCalendarStepSuccess(data) {
-    schoolCalendarStep = data.school_calendar_step;
-    loadDecimalMasks();
   };
 
-  function handleFetchSchoolCalendarStepError() {
-    flashMessages.error('Ocorreu um erro ao buscar a etapa selecionada.');
+  function handleFetchExamRuleError() {
+    flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
   };
 
   function fetchStudentsInRecovery() {
-    var classroom_id = $classroom.select2('val');
-    var discipline_id = $discipline.select2('val');
-    var school_calendar_step_id = $school_calendar_step.select2('val');
+    var step_id = $step.select2('val');
     var recorded_at = $recorded_at.val();
 
-    if (!_.isEmpty(classroom_id) &&
-        !_.isEmpty(discipline_id) &&
-        !_.isEmpty(school_calendar_step_id) &&
-        !_.isEmpty(recorded_at.match(dateRegex))) {
+    if (!_.isEmpty(step_id) && !_.isEmpty(recorded_at.match(dateRegex)) && examRule.recovery_type !== 0) {
       $.ajax({
         url: Routes.in_recovery_students_pt_br_path({
-            classroom_id: classroom_id,
-            discipline_id: discipline_id,
-            school_calendar_step_id: school_calendar_step_id,
+            classroom_id: $classroom.select2('val'),
+            discipline_id: $discipline.select2('val'),
+            step_id: step_id,
             date: recorded_at,
             format: 'json'
           }),
@@ -87,7 +59,8 @@ $(function () {
   };
 
   function handleFetchStudentsInRecoverySuccess(data) {
-    var students = data.students
+    var students = data.students;
+
     if (!_.isEmpty(students)) {
       var element_counter = 0;
       var any_student_exempted_from_discipline = false;
@@ -95,7 +68,7 @@ $(function () {
       hideNoItemMessage();
 
       _.each(students, function(student) {
-        var element_id = new Date().getTime() + element_counter++
+        var element_id = new Date().getTime() + element_counter++;
 
         var html = JST['templates/school_term_recovery_diary_records/student_fields']({
             id: student.id,
@@ -126,23 +99,19 @@ $(function () {
   };
 
   function checkPersistedDailyNote() {
-    var unity_id = $unity.select2('val');
-    var classroom_id = $classroom.select2('val');
-    var discipline_id = $discipline.select2('val');
-    var school_calendar_step_id = $school_calendar_step.select2('val');
+    var step_id = $step.select2('val');
 
     var filter = {
-      by_classroom_id: classroom_id,
-      by_unity_id: unity_id,
-      by_discipline_id: discipline_id,
-      by_school_calendar_step_id: school_calendar_step_id,
+      by_classroom_id: $classroom.select2('val'),
+      by_unity_id: $unity.select2('val'),
+      by_discipline_id: $discipline.select2('val'),
+      by_step_id: step_id,
       with_daily_note_students: true
     };
 
-    if (!_.isEmpty(school_calendar_step_id)) {
+    if (!_.isEmpty(step_id)) {
       $.ajax({
-        url: Routes.search_daily_notes_pt_br_path({ filter: filter,
-                                                    format: 'json' }),
+        url: Routes.search_daily_notes_pt_br_path({ filter: filter, format: 'json' }),
         success: handleFetchCheckPersistedDailyNoteSuccess,
         error: handleFetchCheckPersistedDailyNoteError
       });
@@ -163,10 +132,7 @@ $(function () {
   };
 
   function removeStudents() {
-    // Remove not persisted students
     $('.nested-fields.dynamic').remove();
-
-    // Hide persisted students and sets _destroy = true
     $('.nested-fields.existing').hide();
     $('.nested-fields.existing [id$=_destroy]').val(true);
     $('.exempted_students_from_discipline_legend').addClass('hidden');
@@ -189,20 +155,7 @@ $(function () {
     $('.nested-fields input.decimal').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
-  // On change
-
-  $classroom.on('change', function() {
-    fetchDisciplines();
-    removeStudents();
-  });
-
-  $discipline.on('change', function() {
-    removeStudents();
-    checkPersistedDailyNote();
-  });
-
-  $school_calendar_step.on('change', function() {
-    fetchSchoolCalendarStep();
+  $step.on('change', function() {
     removeStudents();
     checkPersistedDailyNote();
   });
@@ -213,12 +166,9 @@ $(function () {
   });
 
   $submitButton.on('click', function() {
-    // Workaround for a bug on Datepicker plugin to prevent change after submit
     $recorded_at.unbind();
   });
 
-  // On load
-
-  fetchSchoolCalendarStep();
+  fetchExamRule();
   loadDecimalMasks();
 });
