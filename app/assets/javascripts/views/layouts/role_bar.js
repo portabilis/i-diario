@@ -4,8 +4,6 @@ $(function() {
   var role_unity_id = null;
   var flashMessages = new FlashMessages();
 
-  fetchRole(false);
-
   function fetchTeachers(unity_id){
     var filter = { by_unity_id: unity_id };
     unity_id = String(unity_id);
