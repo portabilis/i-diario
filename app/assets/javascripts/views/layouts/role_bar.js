@@ -4,6 +4,8 @@ $(function() {
   var role_unity_id = null;
   var flashMessages = new FlashMessages();
 
+  fetchRole(false);
+
   function fetchTeachers(unity_id){
     var filter = { by_unity_id: unity_id };
     unity_id = String(unity_id);
@@ -148,7 +150,7 @@ $(function() {
 
   $('form#user-role-form #user_current_user_role_id').on('change', fetchRole);
 
-  function fetchRole() {
+  function fetchRole(fullFetchRole) {
     var user_role_id = $('form#user-role-form #user_current_user_role_id').val();
 
     if(_.isEmpty(user_role_id)){
@@ -173,23 +175,31 @@ $(function() {
       role_unity_id = null;
       switch (data.user_role.role.access_level) {
         case 'administrator':
-          toggleAdministratorFields();
+          if (fullFetchRole) {
+            toggleAdministratorFields();
+          }
           break;
 
         case 'employee':
-          toggleEmployeeFields(data.user_role.unity_id);
+          if (fullFetchRole) {
+            toggleEmployeeFields(data.user_role.unity_id);
+          }
           role_unity_id = data.user_role.unity_id;
           break;
 
         case 'teacher':
-          toggleTeacherFields(data.user_role.unity_id);
+          if (fullFetchRole) {
+            toggleTeacherFields(data.user_role.unity_id);
+          }
           role_unity_id = data.user_role.unity_id;
           break;
 
         case 'parent':
         case 'student':
+        if (fullFetchRole) {
           toggleParentAndStudentFields();
-          break;
+        }
+        break;
       }
     }
 
@@ -394,13 +404,7 @@ $(function() {
   });
 
   function currentUnityId(){
-    var result = role_unity_id ? role_unity_id : $("form#user-role-form #user_current_unity_id").val();
-
-    if (!result){
-      fetchRole();
-      return currentUnityId();
-    }
-    return result;
+    return role_unity_id ? role_unity_id : $("form#user-role-form #user_current_unity_id").val();
   }
 
   $('#header input.select2').on('select2-open', function(){
