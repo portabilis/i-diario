@@ -6,68 +6,34 @@ class DescriptiveExamsController < ApplicationController
     @descriptive_exam = DescriptiveExam.new
 
     authorize @descriptive_exam
-    set_school_calendar_steps
-    set_school_calendar_classroom_steps
   end
 
   def create
     @descriptive_exam = DescriptiveExam.new(resource_params)
+    @descriptive_exam.recorded_at = recorded_at_by_step
 
-    if(@descriptive_exam.valid?)
-      if @descriptive_exam.school_calendar_classroom_step_id
-        @descriptive_exam = DescriptiveExam.find_or_create_by(
-          classroom: @descriptive_exam.classroom,
-          school_calendar_classroom_step_id: @descriptive_exam.school_calendar_classroom_step_id,
-          discipline_id: @descriptive_exam.discipline_id,
-          opinion_type: @descriptive_exam.opinion_type
-        )
-      else
-        @descriptive_exam = DescriptiveExam.find_or_create_by(
-          classroom: @descriptive_exam.classroom,
-          school_calendar_step_id: @descriptive_exam.school_calendar_step_id,
-          discipline_id: @descriptive_exam.discipline_id,
-          opinion_type: @descriptive_exam.opinion_type
-        )
-      end
+    if @descriptive_exam.valid?
+      @descriptive_exam = find_or_create_descriptive_exam
+
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
-      set_school_calendar_steps
-      set_school_calendar_classroom_steps
       render :new
     end
   end
 
   def edit
-    @descriptive_exam = DescriptiveExam.find(params[:id])
+    @descriptive_exam = DescriptiveExam.find(params[:id]).localized
+    @descriptive_exam.step_id = steps_fetcher.step(@descriptive_exam.recorded_at).try(:id) unless opinion_type_by_year?
 
     authorize @descriptive_exam
 
-    fetch_student_enrollments
-
-    @students = []
-
-    @student_enrollments.each do |student_enrollment|
-      if student = Student.find_by_id(student_enrollment.student_id)
-        exam_student = (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
-        exam_student.dependence = student_has_dependence?(student_enrollment, @descriptive_exam.discipline)
-        exam_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @descriptive_exam)
-        @students << exam_student
-      end
-    end
-
-    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
-    @normal_students = []
-    @dependence_students = []
-
-    @students.each do |student|
-      @normal_students << student if !student.dependence?
-      @dependence_students << student if student.dependence?
-    end
+    fetch_students
   end
 
   def update
     @descriptive_exam = DescriptiveExam.find(params[:id])
-    @descriptive_exam.assign_attributes resource_params
+    @descriptive_exam.assign_attributes(resource_params)
+    @descriptive_exam.ignore_step = true if opinion_type_by_year?
 
     authorize @descriptive_exam
 
@@ -76,6 +42,8 @@ class DescriptiveExamsController < ApplicationController
     if @descriptive_exam.save
       respond_with @descriptive_exam, location: new_descriptive_exam_path
     else
+      fetch_students
+
       render :edit
     end
   end
@@ -90,46 +58,95 @@ class DescriptiveExamsController < ApplicationController
 
   def opinion_types
     set_opinion_types(Classroom.find(params[:classroom_id]))
+
     render json: @opinion_types.to_json
   end
 
   protected
 
-  def fetch_student_enrollments
-    @student_enrollments = StudentEnrollmentsList.new(classroom: @descriptive_exam.classroom,
-                                                     discipline: @descriptive_exam.discipline,
-                                                     opinion_type: @descriptive_exam.opinion_type,
-                                                     start_at: calendar_step.start_at,
-                                                     end_at: calendar_step.end_at,
-                                                     show_inactive_outside_step: false,
-                                                     search_type: :by_date_range)
-                                                .student_enrollments
-  end
-
-  def calendar_step
-    @descriptive_exam.step || current_school_calendar_steps.started_after_and_before(Time.zone.today).first
-  end
-
-  def current_school_calendar_steps
-    if current_user_classroom.calendar
-      current_school_calendar.classrooms.find_by_classroom_id(current_user_classroom).classroom_steps
-    else
-      current_school_calendar.steps
-    end
-  end
-
-  def configuration
-    @configuration ||= IeducarApiConfiguration.current
-  end
-
   def resource_params
     params.require(:descriptive_exam).permit(
-      :classroom_id, :discipline_id, :school_calendar_step_id,
-      :school_calendar_classroom_step_id, :opinion_type,
+      :classroom_id,
+      :discipline_id,
+      :step_id,
+      :recorded_at,
+      :opinion_type,
       students_attributes: [
         :id, :student_id, :value, :dependence
       ]
     )
+  end
+
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
+  end
+
+  def find_or_create_descriptive_exam
+    step_id = @descriptive_exam.step.id
+
+    descriptive_exam = DescriptiveExam.by_classroom_id(@descriptive_exam.classroom_id)
+                                      .by_discipline_id(@descriptive_exam.discipline_id)
+                                      .by_step_id(@descriptive_exam.classroom, @descriptive_exam.step.id)
+                                      .first
+
+    unless descriptive_exam.present?
+      descriptive_exam = DescriptiveExam.create!(
+        classroom_id: @descriptive_exam.classroom_id,
+        discipline_id: @descriptive_exam.discipline_id,
+        recorded_at: @descriptive_exam.recorded_at,
+        step_id: @descriptive_exam.step_id
+      )
+    end
+
+    descriptive_exam.update_attribute(:opinion_type, @descriptive_exam.opinion_type)
+
+    descriptive_exam
+  end
+
+  def opinion_type_by_year?
+    [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(@descriptive_exam.opinion_type)
+  end
+
+  def recorded_at_by_step
+    @descriptive_exam.step_id = steps_fetcher.steps.first.id if opinion_type_by_year?
+
+    steps_fetcher.steps.find(@descriptive_exam.step_id).start_at
+  end
+
+  def fetch_student_enrollments
+    @student_enrollments = StudentEnrollmentsList.new(
+      classroom: @descriptive_exam.classroom,
+      discipline: @descriptive_exam.discipline,
+      opinion_type: @descriptive_exam.opinion_type,
+      start_at: @descriptive_exam.step.start_at,
+      end_at: @descriptive_exam.step.end_at,
+      show_inactive_outside_step: false,
+      search_type: :by_date_range
+    ).student_enrollments
+  end
+
+  def fetch_students
+    fetch_student_enrollments
+
+    @students = []
+
+    @student_enrollments.each do |student_enrollment|
+      if student = Student.find_by_id(student_enrollment.student_id)
+        exam_student = (@descriptive_exam.students.where(student_id: student.id).first || @descriptive_exam.students.build(student_id: student.id))
+        exam_student.dependence = student_has_dependence?(student_enrollment, @descriptive_exam.discipline)
+        exam_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment)
+        @students << exam_student
+      end
+    end
+
+    @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
+    @normal_students = []
+    @dependence_students = []
+
+    @students.each do |student|
+      @normal_students << student if !student.dependence?
+      @dependence_students << student if student.dependence?
+    end
   end
 
   def require_teacher
@@ -139,17 +156,10 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
-  def set_school_calendar_steps
-    @school_calendar_steps =  current_school_calendar.steps.ordered || {}
-  end
-
-  def set_school_calendar_classroom_steps
-    @school_calendar_classroom_steps = SchoolCalendarClassroomStep.by_classroom(current_user_classroom.id) || {}
-  end
-
   def set_opinion_types(classroom)
-    @opinion_types = []
     return unless classroom.is_a?(Classroom)
+
+    @opinion_types = []
 
     if classroom.exam_rule.allow_descriptive_exam?
       @opinion_types << {
@@ -180,16 +190,14 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def student_has_dependence?(student_enrollment, discipline)
-    StudentEnrollmentDependence
-      .by_student_enrollment(student_enrollment)
-      .by_discipline(discipline)
-      .any?
+    StudentEnrollmentDependence.by_student_enrollment(student_enrollment)
+                               .by_discipline(discipline)
+                               .any?
   end
 
-  def student_exempted_from_discipline?(student_enrollment, descriptive_exam)
-    if discipline_id = descriptive_exam.discipline.try(&:id)
-      step_number ||= descriptive_exam.school_calendar_classroom_step.try(:to_number)
-      step_number ||= descriptive_exam.school_calendar_step.to_number
+  def student_exempted_from_discipline?(student_enrollment)
+    if discipline_id = @descriptive_exam.discipline.try(&:id)
+      step_number = @descriptive_exam.step.to_number
 
       return student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                                     .by_step_number(step_number)

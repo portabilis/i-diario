@@ -1,5 +1,6 @@
 class DescriptiveExam < ActiveRecord::Base
   include Audit
+  include Stepable
 
   acts_as_copy_target
 
@@ -14,17 +15,18 @@ class DescriptiveExam < ActiveRecord::Base
   belongs_to :school_calendar_step, -> { unscope(where: :active) }
   belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
 
-  delegate :unity, to: :classroom, allow_nil: true
-
   has_many :students, class_name: 'DescriptiveExamStudent', dependent: :destroy
+
   accepts_nested_attributes_for :students
 
+  delegate :unity, to: :classroom, allow_nil: true
+
+  scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+
   validates :unity, presence: true
-  validates :classroom_id, presence: true
   validates :opinion_type, presence: true
   validates :discipline_id, presence: true, if: :should_validate_presence_of_discipline
-  validates :school_calendar_step_id, presence: true, if: :should_validate_presence_of_school_calendar_step
-  validates :school_calendar_classroom_step_id, presence: true, if: :should_validate_presence_of_classroom_school_calendar_step
 
   def mark_students_for_removal
     students.each do |student|
@@ -32,29 +34,11 @@ class DescriptiveExam < ActiveRecord::Base
     end
   end
 
-  def step
-    school_calendar_classroom_step || school_calendar_step
-  end
-
   private
 
   def should_validate_presence_of_discipline
     return unless opinion_type
 
-    [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include? opinion_type
-  end
-
-  def should_validate_presence_of_school_calendar_step
-    return unless opinion_type
-
-    by_step = [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? opinion_type
-    by_step && !school_calendar_classroom_step_id
-  end
-
-  def should_validate_presence_of_classroom_school_calendar_step
-    return unless opinion_type
-
-    by_step = [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? opinion_type
-    by_step && !school_calendar_step_id
+    [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type)
   end
 end

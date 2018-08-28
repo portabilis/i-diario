@@ -4,15 +4,15 @@
 
 <div class="widget-body no-padding">
   <%= simple_form_for @descriptive_exam, html: { class: "smart-form" } do |f| %>
-  <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
-    <i class="fa fa-exclamation-circle fa-fw"></i>
-    <%= t('.exam_rule_not_found') %>
-  </div>
-  <div class="alert alert-danger hidden" id="exam-rule-not-allow-descriptive-exam">
-    <i class="fa fa-exclamation-circle fa-fw"></i>
-    <%= t('.exam_rule_not_allow_descriptive_exam') %>
-  </div>
-  <%= f.error_notification %>
+    <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
+      <i class="fa fa-exclamation-circle fa-fw"></i>
+      <%= t('.exam_rule_not_found') %>
+    </div>
+    <div class="alert alert-danger hidden" id="exam-rule-not-allow-descriptive-exam">
+      <i class="fa fa-exclamation-circle fa-fw"></i>
+      <%= t('.exam_rule_not_allow_descriptive_exam') %>
+    </div>
+    <%= f.error_notification %>
 
     <fieldset>
       <div class="row">
@@ -33,15 +33,10 @@
           <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
                 classroom_id: @descriptive_exam.classroom_id %>
         </div>
-        <% if @school_calendar_classroom_steps.any? %>
         <div class="col col-sm-4 hidden" data-descriptive-exam-step-container>
-          <%= f.input :school_calendar_classroom_step_id, as: :select2, elements: @school_calendar_classroom_steps, required: true %>
+          <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
+            readonly: @descriptive_exam.persisted?, required: true %>
         </div>
-        <% else %>
-        <div class="col col-sm-4 hidden" data-descriptive-exam-step-container>
-          <%= f.input :school_calendar_step_id, as: :select2, elements: @school_calendar_steps, required: true %>
-        </div>
-        <% end %>
       </div>
 
     </fieldset>
