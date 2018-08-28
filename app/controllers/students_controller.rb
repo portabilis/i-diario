@@ -1,18 +1,19 @@
 class StudentsController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:search_api]
+  skip_before_action :authenticate_user!, only: :search_api
 
   def index
-    if params[:classroom_id]
-      date = params[:date].present? ? params[:date] : Date.today
-      classroom = Classroom.find(params[:classroom_id])
-      step_number ||= SchoolCalendarClassroomStep.unscoped.find_by_id(params[:school_calendar_classroom_step_id]).try(:to_number)
-      step_number ||= SchoolCalendarStep.unscoped.find_by_id(params[:school_calendar_step_id]).try(:to_number)
+    if params[:classroom_id].present?
+      date = params[:date] || Date.today
+      step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
+      step = steps_fetcher.steps.find(step_id)
+      step_number = step.to_number
+      start_date = params[:start_date] || step.start_at
 
       @students = StudentsFetcher.new(
         classroom,
         Discipline.find_by_id(params[:discipline_id]),
         date.to_date.to_s,
-        params[:start_date],
+        start_date,
         params[:score_type] || StudentEnrollmentScoreTypeFilters::BOTH,
         step_number
       )
@@ -91,6 +92,10 @@ class StudentsController < ApplicationController
   end
 
   private
+
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(classroom)
+  end
 
   def configuration
     IeducarApiConfiguration.current

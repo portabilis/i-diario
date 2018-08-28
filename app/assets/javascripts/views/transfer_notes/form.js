@@ -7,62 +7,30 @@ $(function () {
   var flashMessages = new FlashMessages();
   var $classroom = $('#transfer_note_classroom_id');
   var $discipline = $('#transfer_note_discipline_id');
-  var $school_calendar_step = $('#transfer_note_school_calendar_step_id');
-  var $transferDate = $('#transfer_note_transfer_date');
+  var $step = $('#transfer_note_step_id');
+  var $recordedAt = $('#transfer_note_recorded_at');
   var $student = $('#transfer_note_student_id');
-  var schoolCalendarStep = null;
-
-  function fetchDisciplines() {
-    var classroom_id = $classroom.select2('val');
-
-    $discipline.select2('val', '');
-    $discipline.select2({ data: [] });
-
-    if (!_.isEmpty(classroom_id)) {
-      $.ajax({
-        url: Routes.disciplines_pt_br_path({ classroom_id: classroom_id, format: 'json' }),
-        success: handleFetchDisciplinesSuccess,
-        error: handleFetchDisciplinesError
-      });
-    }
-  };
 
   function fetchStudents() {
-    var classroom_id = $classroom.select2('val');
-    var transfer_date = $transferDate.val();
+    var step_id = $step.select2('val');
+    var recorded_at = $recordedAt.val();
 
     $student.select2({ data: [] });
 
-    if (!_.isEmpty(classroom_id) &&
-        !_.isEmpty(transfer_date.match(dateRegex)) &&
-        schoolCalendarStep &&
-        !_.isEmpty(schoolCalendarStep.start_at) ) {
+    if (!_.isEmpty(recorded_at.match(dateRegex)) && !_.isEmpty(step_id)) {
       $.ajax({
         url: Routes.students_pt_br_path(),
         data: {
-          classroom_id: classroom_id,
-          date: transfer_date,
-          start_date: schoolCalendarStep.start_at,
+          classroom_id: $classroom.select2('val'),
+          date: recorded_at,
           score_type: 'numeric',
           discipline_id: $discipline.select2('val'),
-          school_calendar_step_id: schoolCalendarStep.id
+          step_id: step_id
         },
         success: handleFetchStudentsSuccess,
         error: handleFetchStudentsError
       });
     }
-  };
-
-  function handleFetchDisciplinesSuccess(disciplines) {
-    var selectedDisciplines = _.map(disciplines, function(discipline) {
-      return { id: discipline['id'], text: discipline['description'] };
-    });
-
-    $discipline.select2({ data: selectedDisciplines });
-  };
-
-  function handleFetchDisciplinesError() {
-    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
   };
 
   function handleFetchStudentsSuccess(data) {
@@ -85,45 +53,21 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar os alunos da turma selecionada.');
   };
 
-  function fetchSchoolCalendarStep() {
-    var school_calendar_step_id = $school_calendar_step.select2('val');
-
-    if (!_.isEmpty(school_calendar_step_id)) {
-      $.ajax({
-        url: Routes.school_calendar_step_pt_br_path(school_calendar_step_id, { format: 'json' }),
-        success: handleFetchSchoolCalendarStepSuccess,
-        error: handleFetchSchoolCalendarStepError
-      });
-    }
-  }
-
-  function handleFetchSchoolCalendarStepSuccess(data) {
-    schoolCalendarStep = data.school_calendar_step;
-    fetchStudents();
-  };
-
-  function handleFetchSchoolCalendarStepError() {
-    flashMessages.error('Ocorreu um erro ao buscar a etapa selecionada.');
-  };
-
   function fetchStudentOldNotes() {
-    var classroom_id = $classroom.select2('val');
-    var discipline_id = $discipline.select2('val');
-    var school_calendar_step_id = $school_calendar_step.select2('val');
+    var step_id = $step.select2('val');
     var student_id = $student.select2('val');
 
-    if (!_.isEmpty(classroom_id) &&
-        !_.isEmpty(discipline_id) &&
-        !_.isEmpty(school_calendar_step_id) &&
-        !_.isEmpty(student_id)) {
+    if (!_.isEmpty(step_id) && !_.isEmpty(student_id)) {
       $.ajax({
-        url: Routes.old_notes_daily_note_students_pt_br_path({
-            classroom_id: classroom_id,
-            discipline_id: discipline_id,
-            school_calendar_step_id: school_calendar_step_id,
+        url: Routes.old_notes_daily_note_students_pt_br_path(
+          {
+            classroom_id: $classroom.select2('val'),
+            discipline_id: $discipline.select2('val'),
+            step_id: step_id,
             student_id: student_id,
             format: 'json'
-          }),
+          }
+        ),
         success: handlefetchStudentOldNotesSuccess,
         error: handlefetchStudentOldNotesError
       });
@@ -133,11 +77,11 @@ $(function () {
   function handlefetchStudentOldNotesSuccess(data) {
     if (!_.isEmpty(data.old_notes)) {
       $('.no_old_notes_found').hide();
+
       _.each(data.old_notes, function(old_note) {
         var html = JST['templates/transfer_notes/old_notes_row'](old_note);
         $('#old-notes-rows').append(html);
       });
-
     }
   };
 
@@ -145,27 +89,23 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as notas do aluno na turma anterior.');
   };
 
-  function fetchStudentCurrentNotes(){
-    var classroom_id = $classroom.select2('val');
-    var discipline_id = $discipline.select2('val');
-    var school_calendar_step_id = $school_calendar_step.select2('val');
+  function fetchStudentCurrentNotes() {
+    var step_id = $step.select2('val');
     var student_id = $student.select2('val');
-    var transfer_date = $transferDate.val();
+    var recorded_at = $recordedAt.val();
 
-    if (!_.isEmpty(classroom_id) &&
-        !_.isEmpty(discipline_id) &&
-        !_.isEmpty(school_calendar_step_id) &&
-        !_.isEmpty(student_id) &&
-        !_.isEmpty(transfer_date.match(dateRegex))) {
+    if (!_.isEmpty(step_id) && !_.isEmpty(student_id) && !_.isEmpty(recorded_at.match(dateRegex))) {
       $.ajax({
-        url: Routes.current_notes_transfer_notes_pt_br_path({
-            classroom_id: classroom_id,
-            discipline_id: discipline_id,
-            school_calendar_step_id: school_calendar_step_id,
+        url: Routes.current_notes_transfer_notes_pt_br_path(
+          {
+            classroom_id: $classroom.select2('val'),
+            discipline_id: $discipline.select2('val'),
+            step_id: step_id,
             student_id: student_id,
-            transfer_date: transfer_date,
+            recorded_at: recorded_at,
             format: 'json'
-          }),
+          }
+        ),
         success: handlefetchStudentCurrentNotesSuccess,
         error: handlefetchStudentCurrentNotesError
       });
@@ -176,13 +116,14 @@ $(function () {
     if (!_.isEmpty(data.transfer_notes)) {
       $('.no_current_notes_found').hide();
       var element_counter = 0;
+
       _.each(data.transfer_notes, function(current_note) {
         current_note.element_id = new Date().getTime() + element_counter++;
         var html = JST['templates/transfer_notes/current_notes_row'](current_note);
         $('#current-notes-rows').append(html);
       });
-      $('#current-notes-rows input.decimal').inputmask('customDecimal');
 
+      $('#current-notes-rows input.decimal').inputmask('customDecimal');
     }
   };
 
@@ -210,48 +151,34 @@ $(function () {
         $equivalentLine.find('input[id$=_note]').val(note > recovery_note ? note : recovery_note);
       }
     });
+
     return false;
   });
 
-  $classroom.on('change', function() {
-    fetchDisciplines();
-    fetchStudents();
-    removeStudentOldNotes();
-    removeStudentCurrentNotes();
-  });
-
-  $discipline.on('change', function() {
-    removeStudentOldNotes();
-    removeStudentCurrentNotes();
-    fetchStudentOldNotes();
-  });
-
-  $school_calendar_step.on('change', function() {
-    fetchSchoolCalendarStep();
+  function reset() {
     removeStudentOldNotes();
     removeStudentCurrentNotes();
     fetchStudentOldNotes();
     fetchStudentCurrentNotes();
+  }
+
+  $step.on('change', function() {
+    reset();
+    fetchStudents();
   });
 
-  $transferDate.on('change', function() {
-    removeStudentOldNotes();
-    removeStudentCurrentNotes();
+  $recordedAt.on('change', function() {
+    reset();
     fetchStudents();
-    fetchStudentOldNotes();
-    fetchStudentCurrentNotes();
   });
 
   $student.on('change', function() {
-    removeStudentOldNotes();
-    removeStudentCurrentNotes();
-    fetchStudentOldNotes();
-    fetchStudentCurrentNotes();
+    reset();
   });
 
-  fetchSchoolCalendarStep();
-  fetchStudentOldNotes();
   if(!$('form[id^=edit_transfer_note]').length){
     fetchStudentCurrentNotes();
   }
+
+  fetchStudentOldNotes();
 });

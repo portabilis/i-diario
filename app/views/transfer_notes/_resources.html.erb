@@ -1,7 +1,7 @@
-<tbody id="resources-tbody">
+<tbody id='resources-tbody'>
   <% if @transfer_notes.empty? %>
     <tr>
-      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
+      <td class='no_record_found' colspan='6'><%= t('views.index.no_record_found') %></td>
     </tr>
   <% else %>
     <% @transfer_notes.each do |transfer_note| %>
@@ -9,14 +9,12 @@
         <td><%= transfer_note.classroom %></td>
         <td><%= transfer_note.discipline %></td>
         <td><%= transfer_note.student %></td>
-        <td><%= l transfer_note.transfer_date %></td>
-        <td class="actions">
-          <%= link_to t('views.index.edit'),
-                edit_transfer_note_path(transfer_note),
-                class: 'btn btn-success' %>
-          <%= link_to t('views.index.delete'),
-                transfer_note_path(transfer_note),
-                class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
+        <td><%= transfer_note.step %></td>
+        <td><%= l(transfer_note.transfer_date) %></td>
+        <td class='actions'>
+          <%= link_to t('views.index.edit'), edit_transfer_note_path(transfer_note), class: 'btn btn-success' %>
+          <%= link_to t('views.index.delete'), transfer_note_path(transfer_note),
+            class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
         </td>
       </tr>
     <% end %>
