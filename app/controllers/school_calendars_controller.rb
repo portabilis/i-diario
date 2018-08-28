@@ -94,13 +94,16 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def school_calendar_is_synchronizing(unity_id)
-    WorkerState.where(kind: 'SchoolCalendarSynchronizerWorker', status: ApiSynchronizationStatus::STARTED, uuid: unity_id).any?
+    WorkerState.where(
+      kind: 'SchoolCalendarSynchronizerWorker',
+      status: ApiSynchronizationStatus::STARTED,
+      uuid: unity_id
+    ).any?
   end
 
   def filtering_params(params)
     params = {} unless params
-    params.slice(:by_year,
-                 :by_unity_id)
+    params.slice(:by_year, :by_unity_id)
   end
 
   def resource
@@ -113,21 +116,29 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def resource_params
-    params.require(:school_calendar).permit(:year,
-                                            :number_of_classes,
-                                            steps_attributes: [:id,
-                                                               :start_at,
-                                                               :end_at,
-                                                               :start_date_for_posting,
-                                                               :end_date_for_posting,
-                                                               :_destroy],
-                                            classrooms_attributes: [:id,
-                                                                    :classroom,
-                                                                    :_destroy,
-                                            classroom_steps_attributes: [:id,
-                                                               :start_at,
-                                                               :end_at,
-                                                               :start_date_for_posting,
-                                                               :end_date_for_posting]])
+    params.require(:school_calendar).permit(
+      :year,
+      :number_of_classes,
+      steps_attributes: [
+        :id,
+        :start_at,
+        :end_at,
+        :start_date_for_posting,
+        :end_date_for_posting,
+        :_destroy
+      ],
+      classrooms_attributes: [
+        :id,
+        :classroom,
+        :_destroy,
+        classroom_steps_attributes: [
+          :id,
+          :start_at,
+          :end_at,
+          :start_date_for_posting,
+          :end_date_for_posting
+        ]
+      ]
+    )
   end
 end

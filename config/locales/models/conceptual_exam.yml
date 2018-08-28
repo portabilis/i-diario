@@ -2,20 +2,18 @@ pt-BR:
   activerecord:
     models:
       conceptual_exam:
-        one: "Avaliação conceitual"
-        other: "Avaliações conceituais"
+        one: 'Avaliação conceitual'
+        other: 'Avaliações conceituais'
 
     attributes:
       conceptual_exam:
-        unity_id: "Escola"
-        classroom: "Turma"
-        classroom_id: "Turma"
-        school_calendar_step: "Etapa"
-        school_calendar_step_id: "Etapa"
-        school_calendar_classroom_step: "Etapa da turma"
-        school_calendar_classroom_step_id: "Etapa da turma"
-        student: "Aluno"
-        student_id: "Aluno"
+        unity_id: 'Escola'
+        classroom: 'Turma'
+        classroom_id: 'Turma'
+        step: 'Etapa'
+        step_id: 'Etapa'
+        student: 'Aluno'
+        student_id: 'Aluno'
         recorded_at: 'Data'
         status: 'Situação'
 

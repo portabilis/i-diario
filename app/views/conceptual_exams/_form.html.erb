@@ -1,11 +1,5 @@
-<% if @school_calendar_classroom_steps.any? %>
-  <% content_for :js do %>
-    <%= javascript_include_tag 'views/conceptual_exams/form_classroom_steps' %>
-  <% end %>
-<% else %>
-    <% content_for :js do %>
-      <%= javascript_include_tag 'views/conceptual_exams/form' %>
-    <% end %>
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/conceptual_exams/form' %>
 <% end %>
 
 <%= simple_form_for @conceptual_exam, html: { class: 'smart-form' } do |f| %>
@@ -13,20 +7,7 @@
 
   <%= render 'base_errors', f: f %>
 
-  <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
-    <i class="fa fa-exclamation-circle fa-fw"></i>
-    <%= t('.exam_rule_not_found') %>
-  </div>
-
-  <div class="alert alert-danger hidden" id="exam-rule-not-allow-concept">
-    <i class="fa fa-exclamation-circle fa-fw"></i>
-    <%= t('.exam_rule_not_allow_concept') %>
-  </div>
-
   <fieldset>
-    <%#= f.hidden_field :step_start_at, value: @conceptual_exam.school_calendar_step.start_at %>
-    <%#= f.hidden_field :step_end_at, value: @conceptual_exam.school_calendar_step.end_at %>
-
     <div class="row">
       <div class="col col-sm-4">
         <%= f.input :unity_id, as: :select2_unity, user: current_user %>
@@ -35,17 +16,11 @@
       <div class="col col-sm-4">
         <%= f.association :classroom, as: :select2_classroom, user: current_user %>
       </div>
-      <% if @school_calendar_classroom_steps.any? %>
-          <div class="col col-sm-4">
-            <%= f.association :school_calendar_classroom_step, as: :select2, elements: @school_calendar_classroom_steps,
-            readonly: @conceptual_exam.persisted?, required: true %>
-          </div>
-        <% else %>
-          <div class="col col-sm-4">
-            <%= f.association :school_calendar_step, as: :select2, elements: @school_calendar_steps,
-            readonly: @conceptual_exam.persisted?, required: true %>
-          </div>
-      <% end %>
+
+      <div class="col col-sm-4">
+        <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
+          readonly: edit_persisted?, required: true %>
+      </div>
     </div>
 
     <div class="row">
@@ -55,7 +30,7 @@
 
       <div class="col col-sm-4">
         <%= f.association :student, as: :select2, elements: @students,
-              readonly: action_name == 'edit' %>
+          readonly: edit_persisted? %>
       </div>
     </div>
   </fieldset>
@@ -71,11 +46,7 @@
         <tr>
           <td class="no_item_found" colspan="2" style="<%= f.object.conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
         </tr>
-        <% @conceptual_exam.conceptual_exam_values
-             .sort_by { |conceptual_exam_value| conceptual_exam_value.discipline.sequence.to_i }
-             .group_by { |conceptual_exam_value| conceptual_exam_value.discipline.knowledge_area }
-             .sort_by { |knowledge_area, conceptual_exam_values| knowledge_area.sequence.to_i }
-             .each do |knowledge_area, conceptual_exam_values| %>
+        <% ordered_conceptual_exam_values.each do |knowledge_area, conceptual_exam_values| %>
           <% if conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).any? %>
             <tr class="knowledge-area-table-row">
               <td class="knowledge-area-table-data" colspan="2"><strong><%= knowledge_area %></strong></td>
@@ -87,7 +58,7 @@
           <% end %>
         <% end %>
 
-        <tfoot class='exempted_students_from_discipline_legend <%= 'hidden' unless @any_student_exempted_from_discipline %>'>
+        <tfoot class='exempted_students_from_discipline_legend <%= 'hidden' unless any_student_exempted_from_discipline? %>'>
           <tr>
             <td colspan="2">
               <span class="conceptual-exam-student-legend">
@@ -102,7 +73,8 @@
 
   <footer>
     <%= link_to t('views.form.back'), conceptual_exams_path, class: 'btn btn-default' %>
-    <%= link_to t('views.form.history'), history_conceptual_exam_path(@conceptual_exam), class: 'btn btn-info' if @conceptual_exam.persisted? %>
+    <%= link_to t('views.form.history'), history_conceptual_exam_path(@conceptual_exam),
+      class: 'btn btn-info' if @conceptual_exam.persisted? %>
     <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
     <%= f.submit t('.save_and_go_to_the_next'), class: 'btn btn-primary' %>
   </footer>

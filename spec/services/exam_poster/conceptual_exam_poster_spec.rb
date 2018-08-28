@@ -7,7 +7,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
            teacher: teacher_discipline_classroom.teacher)
   end
   let!(:conceptual_exam) do
-    create(:conceptual_exam_with_one_value, school_calendar_step: school_calendar.steps.first, classroom: classroom)
+    create(:conceptual_exam_with_one_value, step_id: school_calendar.steps.first.id, classroom: classroom)
   end
   let!(:school_calendar) { create(:school_calendar, :school_calendar_with_semester_steps, :current) }
   let!(:discipline) { conceptual_exam.conceptual_exam_values.first.discipline }
@@ -28,7 +28,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
       let!(:conceptual_exam) do
         student = create(:student, uses_differentiated_exam_rule: true)
         create(:conceptual_exam_with_one_value,
-              school_calendar_step: school_calendar.steps.first,
+              step_id: school_calendar.steps.first.id,
               classroom: classroom,
               student: student)
       end
