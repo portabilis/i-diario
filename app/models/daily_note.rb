@@ -11,7 +11,9 @@ class DailyNote < ActiveRecord::Base
   belongs_to :avaliation
 
   has_one :daily_note_status
-  has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyNoteStudent', dependent: :destroy
+  has_many :students, -> {
+    includes(:student).order('students.name')
+  }, class_name: 'DailyNoteStudent', dependent: :destroy
 
   accepts_nested_attributes_for :students, allow_destroy: true
 
@@ -27,23 +29,43 @@ class DailyNote < ActiveRecord::Base
   before_destroy :ensure_not_has_avaliation_recovery
 
   scope :by_teacher_id, lambda { |teacher_id| by_teacher_id_query(teacher_id) }
-  scope :by_unity_id, lambda { |unity_id| joins(:avaliation).merge(Avaliation.by_unity_id(unity_id))}
-  scope :by_classroom_id, lambda { |classroom_id| joins(:avaliation).merge(Avaliation.by_classroom_id(classroom_id))}
-  scope :by_discipline_id, lambda { |discipline_id| joins(:avaliation).merge(Avaliation.by_discipline_id(discipline_id))}
-  scope :exclude_discipline_ids, lambda { |discipline_ids| joins(:avaliation).merge(Avaliation.exclude_discipline_ids(discipline_ids))}
-  scope :by_test_date_between, lambda { |start_at, end_at| includes(:avaliation, students: :student).where('avaliations.test_date': start_at.to_date..end_at.to_date) }
-  scope :by_avaliation_id, lambda { |avaliation_id| joins(:avaliation).where(avaliation: avaliation_id) }
-  scope :by_school_calendar_step_id, lambda { |school_calendar_step_id| joins(:avaliation).merge(Avaliation.by_school_calendar_step(school_calendar_step_id)) }
-  scope :by_school_calendar_classroom_step_id, lambda { |school_calendar_classroom_step_id| joins(:avaliation).merge(Avaliation.by_school_calendar_classroom_step(school_calendar_classroom_step_id))   }
-  scope :with_daily_note_students, lambda { |with_daily_note_student| with_daily_note_students_query(with_daily_note_student) }
-  scope :by_status, lambda { |status| joins(:daily_note_status).merge(DailyNoteStatus.by_status(status)) }
-  scope :active, -> { joins(:students).merge(DailyNoteStudent.active) }
-  scope :not_including_classroom_id, lambda { |classroom_id| joins(:avaliation).merge(Avaliation.not_including_classroom_id(classroom_id)) }
-
+  scope :by_unity_id, lambda { |unity_id| joins(:avaliation).merge(Avaliation.by_unity_id(unity_id)) }
+  scope :by_classroom_id, lambda { |classroom_id| joins(:avaliation).merge(Avaliation.by_classroom_id(classroom_id)) }
+  scope :by_discipline_id, lambda { |discipline_id|
+    joins(:avaliation).merge(Avaliation.by_discipline_id(discipline_id))
+  }
+  scope :exclude_discipline_ids, lambda { |discipline_ids|
+    joins(:avaliation).merge(Avaliation.exclude_discipline_ids(discipline_ids))
+  }
+  scope :by_test_date_between, lambda { |start_at, end_at|
+    includes(:avaliation, students: :student).where('avaliations.test_date': start_at.to_date..end_at.to_date)
+  }
+  scope :by_avaliation_id, lambda { |avaliation_id|
+    joins(:avaliation).where(avaliation: avaliation_id)
+  }
+  scope :by_school_calendar_step_id, lambda { |school_calendar_step_id|
+    joins(:avaliation).merge(Avaliation.by_school_calendar_step(school_calendar_step_id))
+  }
+  scope :by_school_calendar_classroom_step_id, lambda { |school_calendar_classroom_step_id|
+    joins(:avaliation).merge(Avaliation.by_school_calendar_classroom_step(school_calendar_classroom_step_id))
+  }
+  scope :with_daily_note_students, lambda { |with_daily_note_student|
+    with_daily_note_students_query(with_daily_note_student)
+  }
+  scope :by_status, lambda { |status|
+    joins(:daily_note_status).merge(DailyNoteStatus.by_status(status))
+  }
+  scope :not_including_classroom_id, lambda { |classroom_id|
+    joins(:avaliation).merge(Avaliation.not_including_classroom_id(classroom_id))
+  }
+  scope :by_step_id, lambda { |classroom, step_id|
+    joins(:avaliation).merge(Avaliation.by_step_id(classroom, step_id))
+  }
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
   scope :order_by_avaliation_test_date_desc, -> { order('avaliations.test_date DESC') }
   scope :order_by_sequence, -> { joins(students: [student: :student_enrollments]).merge(StudentEnrollment.ordered) }
+  scope :active, -> { joins(:students).merge(DailyNoteStudent.active) }
 
   delegate :status, to: :daily_note_status, prefix: false, allow_nil: true
   delegate :classroom, :classroom_id, :discipline, :discipline_id, to: :avaliation, allow_nil: true

@@ -87,8 +87,7 @@ Rails.application.routes.draw do
     resources :students do
       collection do
         get :search_api
-        get :in_recovery, path: '/in_recovery/classrooms/:classroom_id/disciplines/:discipline_id/school_calendar_steps/:school_calendar_step_id'
-        get :in_recovery_classroom_steps, path: '/in_recovery/classrooms/:classroom_id/disciplines/:discipline_id/school_calendar_classroom_steps/:school_calendar_classroom_step_id'
+        get :in_recovery
         get :in_final_recovery, path: '/in_final_recovery/classrooms/:classroom_id/disciplines/:discipline_id'
       end
     end

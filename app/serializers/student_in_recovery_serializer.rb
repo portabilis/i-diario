@@ -12,7 +12,7 @@ class StudentInRecoverySerializer < StudentSerializer
       object,
       @serialization_options[:classroom],
       @serialization_options[:discipline],
-      @serialization_options[:school_calendar_step]
+      @serialization_options[:step]
     ).recovery_average
   end
 end

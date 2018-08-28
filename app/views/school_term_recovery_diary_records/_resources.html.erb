@@ -1,7 +1,9 @@
-<tbody id="resources-tbody">
+<tbody id='resources-tbody'>
   <% if @school_term_recovery_diary_records.empty? %>
     <tr>
-      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found')%></td>
+      <td class='no_record_found' colspan='6'>
+        <%= t('views.index.no_record_found')%>
+      </td>
     </tr>
   <% else %>
     <% @school_term_recovery_diary_records.each do |school_term_recovery_diary_record| %>
@@ -11,13 +13,13 @@
         <td><%= school_term_recovery_diary_record.recovery_diary_record.discipline %></td>
         <td><%= school_term_recovery_diary_record.step %></td>
         <td><%= l(school_term_recovery_diary_record.recovery_diary_record.recorded_at) %></td>
-        <td class="actions">
+        <td class='actions'>
           <%= link_to t('views.index.edit'),
-                edit_school_term_recovery_diary_record_path(school_term_recovery_diary_record),
-                class: 'btn btn-success' %>
+            edit_school_term_recovery_diary_record_path(school_term_recovery_diary_record),
+            class: 'btn btn-success' %>
           <%= link_to t('views.index.delete'),
-                school_term_recovery_diary_record_path(school_term_recovery_diary_record),
-                class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
+            school_term_recovery_diary_record_path(school_term_recovery_diary_record),
+            class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
         </td>
       </tr>
     <% end %>
