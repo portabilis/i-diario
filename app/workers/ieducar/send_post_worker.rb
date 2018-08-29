@@ -18,6 +18,8 @@ module Ieducar
     end
 
     def perform(entity_id, posting_id, params)
+      Honeybadger.context(posting_id: posting_id)
+
       performer(entity_id, posting_id, params) do |posting, params|
         params = params.with_indifferent_access
 
@@ -34,21 +36,21 @@ module Ieducar
     end
 
     def discipline(params)
-      discipline_id = notas(params).first[1].first[1].first[0]
+      discipline_id = data(params).first[1].first[1].first[0]
 
       @disciplines ||= {}
       @disciplines[discipline_id] ||= Discipline.find_by(api_code: discipline_id).description
     end
 
     def classroom(params)
-      classroom_id = notas(params).first[0]
+      classroom_id = data(params).first[0]
 
       @classrooms ||= {}
       @classrooms[classroom_id] ||= Classroom.find_by(api_code: classroom_id).description
     end
 
-    def notas(params)
-      params[:notas] || params[:pareceres]
+    def data(params)
+      params[:faltas] || params[:notas] || params[:pareceres]
     end
 
     def api(posting)
