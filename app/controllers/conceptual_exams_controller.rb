@@ -124,8 +124,8 @@ class ConceptualExamsController < ApplicationController
   end
 
   def exempted_disciplines
-    step ||= SchoolCalendarClassroomStep.find_by_id(params[:conceptual_exam_school_calendar_classroom_step_id])
-    step ||= SchoolCalendarStep.find(params[:conceptual_exam_school_calendar_step_id])
+    step ||= SchoolCalendarClassroomStep.unscoped.find_by_id(params[:conceptual_exam_school_calendar_classroom_step_id])
+    step ||= SchoolCalendarStep.unscoped.find(params[:conceptual_exam_school_calendar_step_id])
     @student_enrollments ||= student_enrollments(step.start_at, step.end_at)
 
     exempted_disciplines = @student_enrollments.find do |item|

@@ -44,7 +44,7 @@ class StudentsInRecoveryByClassroomStepFetcher
   end
 
   def school_calendar_classroom_step
-    SchoolCalendarClassroomStep.find(@school_calendar_classroom_step_id)
+    SchoolCalendarClassroomStep.unscoped.find(@school_calendar_classroom_step_id)
   end
 
   def fetch_students_in_parallel_recovery(differentiated = nil)

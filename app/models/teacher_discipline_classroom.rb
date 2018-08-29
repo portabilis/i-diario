@@ -1,6 +1,12 @@
 class TeacherDisciplineClassroom < ActiveRecord::Base
   acts_as_copy_target
 
+  # acts_as_paranoid
+
+  audited
+
+  include Audit
+
   belongs_to :teacher
   belongs_to :discipline
   belongs_to :classroom
