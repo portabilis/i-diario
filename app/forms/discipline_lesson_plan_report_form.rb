@@ -26,7 +26,7 @@ class DisciplineLessonPlanReportForm
       .by_classroom_id(classroom_id)
       .by_discipline_id(discipline_id)
       .by_date_range(date_start.to_date, date_end.to_date)
-      .order(LessonPlan.arel_table[:start_at].asc)
+      .order_by_lesson_plan_date
   end
 
   def discipline_content_record
@@ -35,7 +35,7 @@ class DisciplineLessonPlanReportForm
       .by_classroom_id(classroom_id)
       .by_discipline_id(discipline_id)
       .by_date_range(date_start.to_date, date_end.to_date)
-      .order(ContentRecord.arel_table[:record_date].asc)
+      .order_by_content_record_date
   end
 
   private
