@@ -5,6 +5,8 @@ class ObservationDiaryRecord < ActiveRecord::Base
   audited
   has_associated_audits
 
+  before_destroy :valid_for_destruction?
+
   attr_accessor :unity_id
 
   delegate :unity, to: :classroom, allow_nil: true
@@ -34,7 +36,8 @@ class ObservationDiaryRecord < ActiveRecord::Base
     presence: true,
     uniqueness: { scope: [:school_calendar_id, :teacher_id, :classroom_id, :discipline_id] },
     not_in_future: true,
-    school_calendar_day: true
+    school_calendar_day: true,
+    posting_date: true
   )
   validates :notes, presence: true
   validates :unity_id, presence: true
@@ -55,5 +58,13 @@ class ObservationDiaryRecord < ActiveRecord::Base
     return unless classroom && teacher
 
     FrequencyTypeResolver.new(classroom, teacher).by_discipline?
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:frequency_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
   end
 end

@@ -9,6 +9,8 @@ class ConceptualExam < ActiveRecord::Base
   audited
   has_associated_audits
 
+  before_destroy :valid_for_destruction?
+
   attr_accessor :unity_id
 
   belongs_to :classroom
@@ -38,6 +40,7 @@ class ConceptualExam < ActiveRecord::Base
   validates :student, presence: true
   validates :recorded_at, presence: true,
     not_in_future: true,
+    posting_date: true,
     school_term_day: { school_term: lambda(&:step),
     school_calendar_day: true }
   validates :unity_id, presence: true
@@ -153,6 +156,14 @@ class ConceptualExam < ActiveRecord::Base
 
     unless StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
       errors.add(:base, :student_is_not_in_classroom)
+    end
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end
   end
 end

@@ -85,7 +85,7 @@ pt-BR:
 
     ***REMOVED***:
       <<: *male
-    
+
     ***REMOVED***:
       <<: *male
 
@@ -137,33 +137,71 @@ pt-BR:
 
     discipline_lesson_plans:
       <<: *male
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
 
     knowledge_area_lesson_plans:
       <<: *male
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
+
+    discipline_content_records:
+      <<: *male
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
+
+    knowledge_area_content_records:
+      <<: *male
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
+
+    transfer_notes:
+      <<: *male
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
+
+    conceptual_exams:
+      <<: *female
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
+
+    descriptive_exams:
+      <<: *female
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
 
     avaliations:
       <<: *female
       destroy:
-        alert: '%{resource_name} não pode ser apagada pois possui vínculos.'
+        alert: '%{resource_name} não pode ser apagada pois possui vínculos ou data atual está fora das datas de lançamento da etapa.'
 
     daily_notes:
       has_avaliation_recovery: 'Avaliação numérica não pode ser apagada pois possui vínculos.'
       <<: *male
       destroy:
         notice: 'Registro do diário de avaliações foi apagado com sucesso.'
-        alert: 'Registro do diário de avaliações não pode ser apagado pois possui vínculos.'
+        alert: 'Registro do diário de avaliações não pode ser apagado pois possui vínculos ou data atual está fora das datas de lançamento da etapa.'
 
     daily_frequencies:
       <<: *male
       destroy_multiple:
         notice: 'Registro do diário de frequência foi apagado com sucesso.'
-        alert: 'Registro do diário de frequência não pode ser apagado.'
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa.'
+
+    complementary_exams:
+      <<: *female
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
 
     absence_justifications:
       <<: *female
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
 
     observation_diary_records:
       <<: *male
+      destroy:
+        alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
 
     ***REMOVED***:
       <<: *male
@@ -188,7 +226,7 @@ pt-BR:
         alert: "Lançamento de recuperação de etapa não pode ser atualizado."
       destroy:
         notice: "Lançamento de recuperação de etapa apagado com sucesso."
-        alert: "Lançamento de recuperação de etapa não pode ser apagado."
+        alert: "Não é possível apagar registros fora das datas de lançamento da etapa"
 
     final_recovery_diary_records:
       create:
@@ -199,7 +237,7 @@ pt-BR:
         alert: "Lançamento de recuperação final não pode ser atualizado."
       destroy:
         notice: "Lançamento de recuperação final apagado com sucesso."
-        alert: "Lançamento de recuperação final não pode ser apagado."
+        alert: "Não é possível apagar registros fora das datas de lançamento da etapa"
 
     avaliation_recovery_diary_records:
       create:
@@ -210,4 +248,4 @@ pt-BR:
         alert: "Lançamento de recuperação de avaliação não pode ser atualizado."
       destroy:
         notice: "Lançamento de recuperação de avaliação apagado com sucesso."
-        alert: "Lançamento de recuperação de avaliação não pode ser apagado."
+        alert: "Não é possível apagar registros fora das datas de lançamento da etapa"

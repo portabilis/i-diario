@@ -23,8 +23,10 @@ class DailyNote < ActiveRecord::Base
   validates :avaliation, presence: true
 
   validate :avaliation_date_must_be_less_than_or_equal_to_today
+  validate :avaliation_test_date_must_be_valid_posting_date
 
   before_destroy :ensure_not_has_avaliation_recovery
+  before_destroy :avaliation_test_date_must_be_valid_posting_date
 
   scope :by_teacher_id, lambda { |teacher_id| by_teacher_id_query(teacher_id) }
   scope :by_unity_id, lambda { |unity_id| joins(:avaliation).merge(Avaliation.by_unity_id(unity_id))}
@@ -92,6 +94,13 @@ class DailyNote < ActiveRecord::Base
     if avaliation.test_date > Time.zone.today
       errors.add(:avaliation, :must_be_less_than_or_equal_to_today)
     end
+  end
+
+  def avaliation_test_date_must_be_valid_posting_date
+    return unless test_date && classroom
+    return true if PostingDateChecker.new(classroom, test_date).check
+    errors.add(:base, I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    false
   end
 
   def self.with_daily_note_students_query(with_daily_notes)

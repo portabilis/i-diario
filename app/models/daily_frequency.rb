@@ -8,6 +8,8 @@ class DailyFrequency < ActiveRecord::Base
 
   include Audit
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :unity
   belongs_to :classroom
   belongs_to :discipline
@@ -18,7 +20,7 @@ class DailyFrequency < ActiveRecord::Base
 
   validates_date :frequency_date
   validates :unity, :classroom, :school_calendar, presence: true
-  validates :frequency_date, presence: true, school_calendar_day: true
+  validates :frequency_date, presence: true, school_calendar_day: true, posting_date: true
 
   validate :frequency_date_must_be_less_than_or_equal_to_today
   validate :frequency_must_be_global_or_discipline
@@ -64,6 +66,14 @@ class DailyFrequency < ActiveRecord::Base
   end
 
   private
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:frequency_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
+  end
 
   def frequency_date_must_be_less_than_or_equal_to_today
     return unless frequency_date

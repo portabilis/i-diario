@@ -9,7 +9,8 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
 
   belongs_to :lesson_plan, dependent: :destroy
 
-  before_destroy :remove_attachments
+  before_destroy :valid_for_destruction?
+  before_destroy :remove_attachments, if: :valid_for_destruction?
 
   has_many :knowledge_area_lesson_plan_knowledge_areas, dependent: :destroy
   has_many :knowledge_areas, through: :knowledge_area_lesson_plan_knowledge_areas
@@ -60,6 +61,20 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
           .lteq(date)
           .and(LessonPlan.arel_table[:end_at].gteq(date))
       )
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      lesson_plan.valid?
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+      if lesson_plan.errors[:start_at].include?(forbidden_error) || lesson_plan.errors[:end_at].include?(forbidden_error)
+        errors.add(:base, forbidden_error)
+        false
+      else
+        true
+      end
+    end
   end
 
   def remove_attachments

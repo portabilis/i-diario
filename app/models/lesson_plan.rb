@@ -25,8 +25,8 @@ class LessonPlan < ActiveRecord::Base
   validates :school_calendar, presence: true
   validates :unity, presence: true
   validates :classroom, presence: true
-  validates :start_at, presence: true, school_calendar_day: true
-  validates :end_at, presence: true, school_calendar_day: true
+  validates :start_at, presence: true, school_calendar_day: true, posting_date: true
+  validates :end_at, presence: true, school_calendar_day: true, posting_date: true
 
   validate :no_retroactive_dates
   validate :at_least_one_assigned_content
