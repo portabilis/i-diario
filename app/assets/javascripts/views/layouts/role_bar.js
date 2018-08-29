@@ -1,7 +1,6 @@
 $(function() {
    "use strict";
 
-  var role_unity_id = null;
   var flashMessages = new FlashMessages();
 
   function fetchTeachers(unity_id){
@@ -56,21 +55,6 @@ $(function() {
         }else{
           $('#assumed-teacher-field-container').hide();
         }
-      });
-    }
-  }
-
-  function fetchClassroomsByTeacher(teacher_id){
-    filter = { by_teacher_id: teacher_id };
-    if(!_.isEmpty(teacher_id)){
-      $.ajax({
-        url: Routes.classrooms_pt_br_path({
-            filter: filter,
-            find_by_current_year: true,
-            format: 'json'
-        }),
-        success: handleFetchClassroomsSuccess,
-        error: handleFetchClassroomsError
       });
     }
   }
@@ -148,7 +132,7 @@ $(function() {
 
   $('form#user-role-form #user_current_user_role_id').on('change', fetchRole);
 
-  function fetchRole(fullFetchRole) {
+  function fetchRole() {
     var user_role_id = $('form#user-role-form #user_current_user_role_id').val();
 
     if(_.isEmpty(user_role_id)){
@@ -170,34 +154,25 @@ $(function() {
     }
 
     function handleFetchRoleSuccess(data){
-      role_unity_id = null;
       switch (data.user_role.role.access_level) {
         case 'administrator':
-          if (fullFetchRole) {
-            toggleAdministratorFields();
-          }
+          toggleAdministratorFields();
           break;
 
         case 'employee':
-          if (fullFetchRole) {
-            toggleEmployeeFields(data.user_role.unity_id);
-          }
-          role_unity_id = data.user_role.unity_id;
+          toggleEmployeeFields(data.user_role.unity_id);
+          $('form#user-role-form #user_current_unity_id').val(data.user_role.unity_id);
           break;
 
         case 'teacher':
-          if (fullFetchRole) {
-            toggleTeacherFields(data.user_role.unity_id);
-          }
-          role_unity_id = data.user_role.unity_id;
+          toggleTeacherFields(data.user_role.unity_id);
+          $('form#user-role-form #user_current_unity_id').val(data.user_role.unity_id);
           break;
 
         case 'parent':
         case 'student':
-        if (fullFetchRole) {
           toggleParentAndStudentFields();
-        }
-        break;
+          break;
       }
     }
 
@@ -292,7 +267,6 @@ $(function() {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
   }
 
-  // Togglers
   function toggleNoProfileSelectedFields(){
 
     $("form#user-role-form #user_current_teacher_id").val('');
@@ -402,7 +376,7 @@ $(function() {
   });
 
   function currentUnityId(){
-    return role_unity_id ? role_unity_id : $("form#user-role-form #user_current_unity_id").val();
+    return $("form#user-role-form #user_current_unity_id").val();
   }
 
   $('#header input.select2').on('select2-open', function(){
