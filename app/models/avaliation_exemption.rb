@@ -92,7 +92,7 @@ class AvaliationExemption < ActiveRecord::Base
   end
 
   def avaliation_test_date_must_be_valid_posting_date
-    return unless avaliation.try(:test_date) && classroom
+    return unless avaliation.try(:test_date).present? && classroom.present?
     return true if PostingDateChecker.new(classroom, avaliation.test_date).check
     errors.add(:base, I18n.t('errors.messages.not_allowed_to_post_in_date'))
     false
