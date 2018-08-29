@@ -13,6 +13,10 @@
     </span>
   </td>
 
+  <%  Object.keys(old_values).forEach(function (key) { %>
+    <td class="old_step_column"> <%= old_values[key]['values'][discipline_id] || '-' %> </td>
+  <% }) %>
+
   <td>
     <div class="control-group select2 optional conceptual_exam_conceptual_exam_values_value">
       <label class="select2 optional control-label hidden" for="conceptual_exam_conceptual_exam_values_attributes_<%= element_id %>_value">

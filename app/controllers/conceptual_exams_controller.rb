@@ -358,7 +358,6 @@ class ConceptualExamsController < ApplicationController
       next_conceptual_exam.recorded_at = @conceptual_exam.recorded_at
       next_conceptual_exam
     end
-
   end
 
   def fetch_next_student
@@ -374,6 +373,13 @@ class ConceptualExamsController < ApplicationController
       @students[next_student_index]
     end
   end
+
+  def old_values
+    return {} unless @conceptual_exam.classroom.present? && @conceptual_exam.student.present? && @conceptual_exam.step.present?
+
+    @old_values ||= OldStepsConceptualValuesFetcher.new(@conceptual_exam.classroom, @conceptual_exam.student, @conceptual_exam.step).fetch
+  end
+  helper_method :old_values
 
   def clear_invalid_dates
     begin
