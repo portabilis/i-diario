@@ -50,7 +50,7 @@ class DailyNote < ActiveRecord::Base
   delegate :status, to: :daily_note_status, prefix: false, allow_nil: true
   delegate :classroom, :classroom_id, :discipline, :discipline_id, to: :avaliation, allow_nil: true
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
-  delegate :test_date, :school_calendar, to: :avaliation
+  delegate :test_date, :school_calendar, to: :avaliation, allow_nil: true
 
   def current_step
     return unless avaliation.school_calendar
