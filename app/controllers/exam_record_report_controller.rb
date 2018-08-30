@@ -14,8 +14,7 @@ class ExamRecordReportController < ApplicationController
 
     if @exam_record_report_form.valid?
       exam_record_report = @school_calendar_classroom_steps.any? ? build_by_classroom_steps : build_by_school_steps
-
-      send_data(exam_record_report.render, filename: 'registro-de-avaliacao.pdf', type: 'application/pdf', disposition: 'inline')
+      send_pdf("registro-de-avaliacao", exam_record_report.render)
     else
       fetch_collections
       render :form

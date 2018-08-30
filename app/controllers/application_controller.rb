@@ -342,4 +342,13 @@ class ApplicationController < ActionController::Base
       discipline_id: params[:discipline_id]
     )
   end
+
+  def send_pdf(prefix, pdf_to_s)
+    prefix = "/relatorios/#{prefix}"
+    hash = SecureRandom.hex
+    File.open("#{Rails.root}/public#{prefix}-#{hash}.pdf", 'wb') do |f| 
+      f.write(pdf_to_s) 
+    end
+    redirect_to "#{prefix}-#{hash}.pdf"
+  end
 end

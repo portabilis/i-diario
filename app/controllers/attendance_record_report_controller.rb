@@ -24,8 +24,8 @@ class AttendanceRecordReportController < ApplicationController
                                                               @attendance_record_report_form.students_enrollments,
                                                               @attendance_record_report_form.school_calendar_events,
                                                               current_school_calendar)
-
-      send_data(attendance_record_report.render, filename: 'registro-de-frequencia.pdf', type: 'application/pdf', disposition: 'inline')
+      
+      send_pdf("registro-de-frequencia", attendance_record_report.render)
     else
       @attendance_record_report_form.school_calendar_year = current_school_calendar.year
       fetch_collections

@@ -34,13 +34,7 @@ class DisciplineTeachingPlansController < ApplicationController
           current_entity_configuration,
           @discipline_teaching_plan
         )
-
-        send_data(
-          discipline_teaching_plan_pdf.render,
-          filename: 'planos-de-ensino-por-disciplina.pdf',
-          type: 'application/pdf',
-          disposition: 'inline'
-        )
+        send_pdf("planos-de-ensino-por-disciplina", discipline_teaching_plan_pdf.render)
       end
     end
   end

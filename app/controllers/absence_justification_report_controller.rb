@@ -20,7 +20,7 @@ class AbsenceJustificationReportController < ApplicationController
       absence_justification_report = AbsenceJustificationReport.build(current_entity_configuration,
                                                                       @absence_justifications,
                                                                       @absence_justification_report_form)
-      send_data(absence_justification_report.render, filename: 'registro-de-justificativa-de-faltas.pdf', type: 'application/pdf', disposition: 'inline')
+      send_pdf("registro-de-justificativa-de-faltas", absence_justification_report.render)                                                                      
     else
       clear_invalid_dates
       render :form

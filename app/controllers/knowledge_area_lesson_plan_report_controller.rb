@@ -17,8 +17,7 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
                                                                               @knowledge_area_lesson_plan_report_form.date_end,
                                                                               @knowledge_area_lesson_plan_report_form.knowledge_area_lesson_plan,
                                                                               current_teacher)
-
-      send_data(knowledge_area_lesson_plan_report.render, filename: 'registo-de-conteudo-por-areas-de-conhecimento-planos-de-aula.pdf', type: 'application/pdf', disposition: 'inline')
+      send_pdf("registo-de-conteudo-por-areas-de-conhecimento-planos-de-aula", knowledge_area_lesson_plan_report.render)
     else
       @knowledge_area_lesson_plan_report_form
       clear_invalid_dates
@@ -37,9 +36,7 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
                                                                                  @knowledge_area_lesson_plan_report_form.date_end,
                                                                                  @knowledge_area_lesson_plan_report_form.knowledge_area_content_record,
                                                                                  current_teacher)
-      send_data(knowledge_area_lesson_plan_report.render, filename:'registo-de-conteudo-por-areas-de-conhecimento-registros-de-conteudo.pdf',
-                                                          type: 'application/pdf',
-                                                          disposition: 'inline')
+      send_pdf("registo-de-conteudo-por-areas-de-conhecimento-registros-de-conteudo", knowledge_area_lesson_plan_report.render)
     else
       @knowledge_area_lesson_plan_report_form
       clear_invalid_dates
