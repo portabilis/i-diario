@@ -1,7 +1,6 @@
 $(function(){
    "use strict";
 
-  var role_unity_id = null;
   var flashMessages = new FlashMessages();
   $("form#user-role").on("ajax:success", function(event, data, status, xhr){
     $("form#user-role").clear_form_fields();
@@ -193,7 +192,6 @@ $(function(){
     }
 
     function handleFetchRoleSuccess(data){
-      role_unity_id = null;
       switch (data.user_role.role.access_level) {
         case 'administrator':
           toggleAdministratorFields();
@@ -201,12 +199,12 @@ $(function(){
 
         case 'employee':
           toggleEmployeeFields(data.user_role.unity_id);
-          role_unity_id = data.user_role.unity_id;
+          $('form#user-role #user_current_unity_id').val(data.user_role.unity_id);
           break;
 
         case 'teacher':
           toggleTeacherFields(data.user_role.unity_id);
-          role_unity_id = data.user_role.unity_id;
+          $('form#user-role #user_current_unity_id').val(data.user_role.unity_id);
           break;
 
         case 'parent':
@@ -244,7 +242,7 @@ $(function(){
     if(valueSelected($(this))){
       $('#classroom-field').show();
       $('#discipline-field').show();
-      var unity_id = role_unity_id ? role_unity_id : $("form#user-role #user_current_unity_id").val();
+      var unity_id = $("form#user-role #user_current_unity_id").val();
       fetchClassroomsByTeacherAndUnity(teacher_id, unity_id);
     }else{
       $("form#user-role #user_current_classroom_id").val('');
