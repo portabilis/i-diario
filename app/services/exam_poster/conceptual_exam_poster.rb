@@ -24,8 +24,7 @@ module ExamPoster
     end
 
     def post_conceptual_exams
-      params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
-
+      params = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
 
       classrooms_ids = teacher.classrooms.uniq
       classrooms_ids.each do |classroom|
@@ -56,9 +55,11 @@ module ExamPoster
           classroom_api_code = conceptual_exam.classroom.api_code
           student_api_code = conceptual_exam.student.api_code
           discipline_api_code = conceptual_exam_value.discipline.api_code
+
           params[classroom_api_code][student_api_code][discipline_api_code]["nota"] = conceptual_exam_value.value
         end
       end
+
       params
     end
   end

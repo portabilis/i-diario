@@ -1,6 +1,6 @@
 <tbody>
   <% ApiPostingTypes.to_a.each do |value| %>
-    <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != step.school_calendar.steps.to_a.last %>
+    <% next if value.last == ApiPostingTypes::FINAL_RECOVERY && step != @steps.to_a.last %>
 
     <tr>
       <td>
@@ -8,7 +8,7 @@
       </td>
 
       <td>
-        <% api_posting = instance_variable_get("@school_calendar_step_#{step.id}_#{value.last}_posting") %>
+        <% api_posting = instance_variable_get("@step_#{step.id}_#{value.last}_posting") %>
         <% if api_posting %>
           <% if api_posting.status == ApiPostingStatus::STARTED %>
             <i class="fa fa-cog fa-spin"></i> Enviando
@@ -63,7 +63,7 @@
         <% if api_posting && api_posting.synchronization_in_progress? %>
             <%= link_to 'Enviar', '#', class: 'btn bg-color-red txt-color-white disabled' %>
         <% else %>
-          <%= link_to 'Enviar', ieducar_api_exam_postings_path(school_calendar_step_id: step.id, post_type: value.last),
+          <%= link_to 'Enviar', ieducar_api_exam_postings_path(step_column => step.id, post_type: value.last),
                                 method: 'post',
                                 class: 'btn bg-color-red txt-color-white' %>
         <% end %>

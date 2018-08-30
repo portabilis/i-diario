@@ -71,19 +71,11 @@ module ExamPoster
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      if classroom.calendar
-        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
-          .by_classroom_id(classroom)
-          .by_discipline_id(discipline)
-          .by_school_calendar_classroom_step_id(get_step(classroom))
-          .first
-      else
-        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
+      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
         .by_classroom_id(classroom)
         .by_discipline_id(discipline)
-        .by_school_calendar_step_id(get_step(classroom))
+        .by_step_id(classroom, get_step(classroom).id)
         .first
-      end
 
       return unless school_term_recovery_diary_record
 
@@ -93,9 +85,11 @@ module ExamPoster
         .first
 
       score = student_recovery.try(:score)
+
       if score.present?
         score = ComplementaryExamCalculator.new(AffectedScoreTypes::STEP_RECOVERY_SCORE, student, discipline.id, classroom.id, @post_data.step).calculate(score)
       end
+
       score
     end
 
@@ -109,7 +103,7 @@ module ExamPoster
         return student_enrollment_classroom.student_enrollment
                                            .exempted_disciplines
                                            .by_discipline(discipline_id)
-                                           .where("? = ANY(string_to_array(steps, ',')::integer[])", @post_data.step.to_number)
+                                           .by_step_number(@post_data.step.to_number)
                                            .any?
       end
 

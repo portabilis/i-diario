@@ -36,20 +36,26 @@ module ExamPoster
 
     attr_reader :worker_batch, :entity_id
 
+    def steps_fetcher(classroom)
+      StepsFetcher.new(classroom)
+    end
+
     def step_exists_for_classroom?(classroom)
       return false if invalid_classroom_year?(classroom)
 
-      classroom.calendar.blank? || classroom.calendar.classroom_steps.any? do |classroom_step|
-        classroom_step.to_number == @post_data.step.to_number
-      end
+      get_step_by_step_number(classroom, @post_data.step.to_number).present?
     end
 
     def get_step(classroom)
       raise InvalidClassroomError if invalid_classroom_year?(classroom)
 
-      classroom.calendar && classroom.calendar.classroom_steps.find do |classroom_step|
-        classroom_step.to_number == @post_data.step.to_number
-      end || @post_data.step
+      get_step_by_step_number(classroom, @post_data.step.to_number) || @post_data.step
+    end
+
+    def get_step_by_step_number(classroom, step_number)
+      steps_fetcher(classroom).steps.find do |step|
+        step.to_number == step_number
+      end
     end
 
     def teacher

@@ -17,19 +17,11 @@ module ExamPoster
     private
 
     def fetch_school_term_recovery_score(classroom, discipline, step)
-      if classroom.try(:calendar)
-        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
-          .by_classroom_id(classroom)
-          .by_discipline_id(discipline)
-          .by_school_calendar_classroom_step_id(step)
-          .first
-      else
-        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
+      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
         .by_classroom_id(classroom)
         .by_discipline_id(discipline)
-        .by_school_calendar_step_id(step)
+        .by_step_id(step.id)
         .first
-      end
 
       return unless school_term_recovery_diary_record
 

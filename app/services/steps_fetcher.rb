@@ -19,6 +19,10 @@ class StepsFetcher
     (step_id.to_i == step_by_date(date).try(:id))
   end
 
+  def step_type
+    school_calendar_classroom.present? ? StepTypes::CLASSROOM : StepTypes::GENERAL
+  end
+
   private
 
   def school_calendar

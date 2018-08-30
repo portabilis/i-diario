@@ -48,6 +48,7 @@ module ExamPoster
             next if exempted_discipline(classroom.id, discipline.id, student_score.id)
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
+
             if school_term_recovery
               value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.step)
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
@@ -65,6 +66,7 @@ module ExamPoster
             next if exempted_discipline(classroom.id, discipline.id, student.id)
 
             score = student_recovery.try(:score)
+
             if score
               scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom).round(score)
             end
@@ -72,6 +74,7 @@ module ExamPoster
 
         end
       end
+
       return scores
     end
 
@@ -86,19 +89,11 @@ module ExamPoster
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      if classroom.calendar
-        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
-          .by_classroom_id(classroom)
-          .by_discipline_id(discipline)
-          .by_school_calendar_classroom_step_id(get_step(classroom))
-          .first
-      else
-        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
+      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
         .by_classroom_id(classroom)
         .by_discipline_id(discipline)
-        .by_school_calendar_step_id(get_step(classroom))
+        .by_step_id(get_step(classroom).id)
         .first
-      end
 
       return unless school_term_recovery_diary_record
 
@@ -119,7 +114,8 @@ module ExamPoster
       if student_enrollment_classroom.present?
         return student_enrollment_classroom.student_enrollment
                                            .exempted_disciplines
-                                           .where("? = ANY(string_to_array(steps, ',')::integer[])", @post_data.step.to_number)
+                                           .by_discipline(discipline_id)
+                                           .by_step_number(@post_data.step.to_number)
                                            .any?
       end
 
