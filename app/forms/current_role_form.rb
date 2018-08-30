@@ -60,6 +60,7 @@ class CurrentRoleForm
   def is_teacher?
     access_level == AccessLevel::TEACHER
   end
+
   def require_unity?
     is_admin? || is_employee? || is_teacher?
   end
