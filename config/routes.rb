@@ -209,6 +209,9 @@ Rails.application.routes.draw do
       member do
         post :clone
       end
+      collection do
+        get :distributed
+      end
     end
     resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history
@@ -268,7 +271,8 @@ Rails.application.routes.draw do
 
     resources :school_calendars, concerns: :history do
       collection do
-        get  :synchronize
+        get :step
+        get :synchronize
         post :create_and_update_batch
       end
 
@@ -321,6 +325,12 @@ Rails.application.routes.draw do
         get :search
         get :multiple_classrooms
         post :create_multiple_classrooms
+      end
+    end
+    resources :complementary_exam_settings, concerns: :history
+    resources :complementary_exams, concerns: :history do
+      collection do
+        get :settings
       end
     end
     resources :teacher_avaliations, only: :index
@@ -429,6 +439,9 @@ Rails.application.routes.draw do
 
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
+
+    get '/reports/***REMOVED***s', to: '***REMOVED***#form', as: '***REMOVED***'
+    post '/reports/***REMOVED***s', to: '***REMOVED***#report', as: '***REMOVED***'
 
     get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
     post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'

@@ -1,6 +1,8 @@
 class DailyFrequency < ActiveRecord::Base
   acts_as_copy_target
 
+  # acts_as_paranoid
+
   audited
   has_associated_audits
 
@@ -53,6 +55,12 @@ class DailyFrequency < ActiveRecord::Base
 
   def build_or_find_by_student student
     students.where(student_id: student.id).first || students.build(student_id: student.id, present: 1)
+  end
+
+  def origin=(value)
+    return origin if persisted?
+
+    super(value)
   end
 
   private

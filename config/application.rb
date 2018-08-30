@@ -16,6 +16,7 @@ module Educacao
     config.autoload_paths += %W(
       #{config.root}/lib
       #{config.root}/app/workers
+      #{config.root}/app/workers/concerns
       #{config.root}/app/services
       #{config.root}/app/queries
     )

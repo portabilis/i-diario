@@ -15,6 +15,10 @@ FactoryGirl.define do
       end
     end
 
+    factory :current_recovery_diary_record do
+      recorded_at { Time.zone.today }
+    end
+
     factory :recovery_diary_record_with_students do
       transient { students_count 5 }
 

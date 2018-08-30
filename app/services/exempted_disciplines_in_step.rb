@@ -4,12 +4,12 @@ class ExemptedDisciplinesInStep
   end
 
   def discipline_ids_by_calendar_step(step_id)
-    step_number = SchoolCalendarStep.find(step_id).to_number
+    step_number = SchoolCalendarStep.unscoped.find(step_id).to_number
     fetch_disciplines(step_number).map(&:discipline_id)
   end
 
   def discipline_ids_by_classroom_step(step_id)
-    step_number = SchoolCalendarClassroomStep.find(step_id).to_number
+    step_number = SchoolCalendarClassroomStep.unscoped.find(step_id).to_number
     fetch_disciplines(step_number).map(&:discipline_id)
   end
 

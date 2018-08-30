@@ -7,6 +7,10 @@ module Ieducar
         posting = IeducarApiExamPosting.find(posting_id)
 
         yield(posting, params)
+
+        posting.worker_batch.increment(params) do
+          posting.finish!
+        end
       end
     end
   end

@@ -22,7 +22,7 @@ class RecoverySchoolCalendarStepsFetcher
   private
 
   def school_calendar_step
-    SchoolCalendarStep.find(@school_calendar_step_id)
+    SchoolCalendarStep.unscoped.find(@school_calendar_step_id)
   end
 
   def classroom

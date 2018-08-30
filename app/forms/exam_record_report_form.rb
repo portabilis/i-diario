@@ -50,13 +50,23 @@ class ExamRecordReportForm
   def step
     return unless school_calendar_step_id
 
-    SchoolCalendarStep.find(school_calendar_step_id)
+    SchoolCalendarStep.unscoped.find(school_calendar_step_id)
   end
 
   def classroom_step
     return unless school_calendar_classroom_step_id
 
-    SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
+    SchoolCalendarClassroomStep.unscoped.find(school_calendar_classroom_step_id)
+  end
+
+  def complementary_exams
+    @complementary_exams ||= ComplementaryExam
+      .by_unity_id(unity_id)
+      .by_classroom_id(classroom_id)
+      .by_discipline_id(discipline_id)
+      .by_affected_score(AffectedScoreTypes::STEP_AVERAGE)
+      .by_date_range((classroom_step || step).start_at, (classroom_step || step).end_at)
+      .order(recorded_at: :asc)
   end
 
   private

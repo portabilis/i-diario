@@ -3,11 +3,11 @@ require 'action_view'
 class ExamRecordReport < BaseReport
   include ActionView::Helpers::NumberHelper
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
-    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
+    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -15,6 +15,7 @@ class ExamRecordReport < BaseReport
     @test_setting = test_setting
     @daily_notes = daily_notes
     @students_enrollments = students_enrollments
+    @complementary_exams = complementary_exams
 
     header
     content
@@ -77,73 +78,79 @@ class ExamRecordReport < BaseReport
       averages[student_enrollment.student_id] = StudentAverageCalculator.new(Student.find(student_enrollment.student_id)).calculate(@daily_notes.first.classroom, @daily_notes.first.discipline, @school_calendar_step)
     end
 
-    daily_notes_and_recoveries = []
-    daily_notes_descriptions = []
-    daily_notes_avaliations_ids = []
-    daily_notes_ids = []
-    daily_notes_dates = []
+    exams = []
+    recoveries_avaliation_id = []
+    recoveries_ids = []
 
     @daily_notes.each do |daily_note|
-      daily_notes_and_recoveries << daily_note
+      exams << daily_note
       if daily_note.avaliation.recovery_diary_record
-        daily_notes_and_recoveries << daily_note.avaliation.recovery_diary_record
-        daily_notes_descriptions << daily_note.avaliation.to_s
-        daily_notes_dates << daily_note.avaliation.recovery_diary_record.recorded_at
-        daily_notes_avaliations_ids << daily_note.avaliation_id
-        daily_notes_ids << daily_note.id
+        exams << daily_note.avaliation.recovery_diary_record
+        recoveries_avaliation_id << daily_note.avaliation_id
+        recoveries_ids << daily_note.id
       end
     end
 
-    daily_notes_and_recoveries.to_a
-    sliced_daily_notes_and_recoveries = daily_notes_and_recoveries.each_slice(10).to_a
+    @complementary_exams.each do |complementary_exam|
+      exams << complementary_exam
+    end
+
+    exams.to_a
+    sliced_exams = exams.each_slice(10).to_a
     pos = 0
 
-    sliced_daily_notes_and_recoveries.each_with_index do |daily_notes_slice, index|
+    sliced_exams.each_with_index do |daily_notes_slice, index|
       avaliations = []
       students = {}
 
-      daily_notes_slice.each do |daily_note|
-        if recovery_record(daily_note)
-          avaliations << make_cell(content: "Rec. #{daily_notes_descriptions[pos]}\n<font size='7'>#{daily_notes_dates[pos].strftime("%d/%m")}</font>", font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
-          avaliation_id = daily_notes_avaliations_ids[pos]
-          daily_note_id = daily_notes_ids[pos]
+      daily_notes_slice.each do |exam|
+        content = ''
+        if recovery_record(exam)
+          avaliation_id = recoveries_avaliation_id[pos]
+          daily_note_id = recoveries_ids[pos]
           pos += 1
+        elsif complementary_exam_record(exam)
+          avaliation_id = nil
+          daily_note_id = nil
         else
-          content = "#{daily_note.avaliation.to_s}\n<font size='7'>#{daily_note.test_date.strftime("%d/%m")}</font>\n<font size='7'>#{daily_note.avaliation.try(:weight)}</font>"
-          avaliations << make_cell(content: content, font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
-          avaliation_id = daily_note.avaliation_id
-          daily_note_id = daily_note.id
+          avaliation_id = exam.avaliation_id
+          daily_note_id = exam.id
         end
+        avaliations << make_cell(content: exam_description(exam), font_style: :bold, background_color: 'FFFFFF', align: :center, width: 55)
 
         @students_enrollments.each do |student_enrollment|
           student_id = student_enrollment.student_id
-          exempted_from_discipline = exempted_from_discipline?(student_enrollment, daily_note)
+          exempted_from_discipline = exempted_from_discipline?(student_enrollment, exam)
+          daily_note_student = nil
 
-          if exempted_from_discipline || exempted_avaliation?(student_enrollment.student_id, avaliation_id)
+          if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student_enrollment.student_id, avaliation_id))
             student_note = ExemptedDailyNoteStudent.new
             averages[student_enrollment.student_id] = "D" if exempted_from_discipline
-          else
+          elsif (avaliation_id.present?)
             daily_note_student = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note_id, active: true)
             student_note = daily_note_student || NullDailyNoteStudent.new
           end
 
-          recovery_note = recovery_record(daily_note) ? daily_note.students.find_by_student_id(student_id).try(&:score) : nil
-          student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
+          score = nil
+
+          if exempted_from_discipline || avaliation_id.present?
+            recovery_note = recovery_record(exam) ? exam.students.find_by_student_id(student_id).try(&:score) : nil
+            student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
+            score = recovery_record(exam) ? student_note.recovery_note : student_note.note
+          elsif complementary_exam_record(exam)
+            complementary_student = ComplementaryExamStudent.find_by(complementary_exam_id: exam.id, student_id: student_id)
+            score = complementary_student.present? ? complementary_student.try(:score) : NullDailyNoteStudent.new.note
+          end
 
           student = Student.find(student_id)
 
-          self.any_student_with_dependence = any_student_with_dependence || student_has_dependence?(student_enrollment, daily_note.discipline_id)
+          self.any_student_with_dependence = any_student_with_dependence || student_has_dependence?(student_enrollment, exam.discipline_id)
 
           (students[student_id] ||= {})[:name] = student.name
 
           students[student_id] = {} if students[student_id].nil?
-          students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, daily_note.discipline_id)
-
-          if recovery_record(daily_note)
-            (students[student_id][:scores] ||= []) << make_cell(content: localize_score(student_note.recovery_note), align: :center)
-          else
-            (students[student_id][:scores] ||= []) << make_cell(content: localize_score(student_note.note), align: :center)
-          end
+          students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, exam.discipline_id)
+          (students[student_id][:scores] ||= []) << make_cell(content: localize_score(score), align: :center)
         end
       end
 
@@ -170,7 +177,7 @@ class ExamRecordReport < BaseReport
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
         (10 - data_column_count).times { student_cells << nil }
-        if daily_notes_slice == sliced_daily_notes_and_recoveries.last
+        if daily_notes_slice == sliced_exams.last
           average = localize_score(averages[key])
           student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)
         else
@@ -212,7 +219,7 @@ class ExamRecordReport < BaseReport
         start_new_page if index < sliced_students_cells.count - 1
       end
 
-      start_new_page if index < sliced_daily_notes_and_recoveries.count - 1
+      start_new_page if index < sliced_exams.count - 1
     end
   end
 
@@ -246,11 +253,11 @@ class ExamRecordReport < BaseReport
     avaliation_is_exempted
   end
 
-  def exempted_from_discipline?(student_enrollment, daily_note)
-    discipline_id = daily_note.discipline.id
+  def exempted_from_discipline?(student_enrollment, exam)
+    discipline_id = exam.discipline.id
 
-    test_date = daily_note.test_date
-    step_number = daily_note.school_calendar.step(test_date).to_number
+    test_date = exam.test_date
+    step_number = exam.school_calendar.step(test_date).to_number
 
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)
@@ -259,6 +266,10 @@ class ExamRecordReport < BaseReport
 
   def recovery_record(record)
     record.class.to_s == "RecoveryDiaryRecord"
+  end
+
+  def complementary_exam_record(record)
+    record.class.to_s == "ComplementaryExam"
   end
 
   def localize_score(value)
@@ -271,5 +282,15 @@ class ExamRecordReport < BaseReport
       .by_student_enrollment(student_enrollment)
       .by_discipline(discipline)
       .any?
+  end
+
+  def exam_description(record)
+    if recovery_record(record)
+      "Rec. #{record.avaliation_recovery_diary_record.avaliation}\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}</font>"
+    elsif complementary_exam_record(record)
+      "#{record.complementary_exam_setting.description}\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}\n#{record.complementary_exam_setting.maximum_score}</font>"
+    else
+      "#{record.avaliation.to_s}\n<font size='7'>#{record.test_date.strftime("%d/%m")}</font>\n<font size='7'>#{record.avaliation.try(:weight)}</font>"
+    end
   end
 end

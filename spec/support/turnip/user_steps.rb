@@ -9,20 +9,20 @@ module Turnip
     end
 
     step "eu entrar no formulário de um usuário pendente" do
-      expect(page).to have_content 'Usuários'
+      wait_for(page).to have_content 'Usuários'
 
       within :xpath, '//table/tbody/tr[position()=2]' do
-        expect(page).to have_content 'Mary Jane'
-        expect(page).to have_content 'Pendente'
+        wait_for(page).to have_content 'Mary Jane'
+        wait_for(page).to have_content 'Pendente'
 
         click_on "Editar"
       end
     end
 
     step "poderei liberar o acesso deste usuário" do
-      expect(page).to have_field 'Nome', with: 'Mary'
-      expect(page).to have_field 'Sobrenome', with: 'Jane'
-      expect(page).to have_field 'E-mail', with: 'mary_jane@example.com'
+      wait_for(page).to have_field 'Nome', with: 'Mary'
+      wait_for(page).to have_field 'Sobrenome', with: 'Jane'
+      wait_for(page).to have_field 'E-mail', with: 'mary_jane@example.com'
 
       fill_in_select2 'Status', with: 'Ativado'
 
@@ -31,7 +31,7 @@ module Turnip
       click_on 'Salvar'
 
       # TODO ajustar
-      #expect(page).to have_content 'Usuário foi alterado com sucesso.'
+      #wait_for(page).to have_content 'Usuário foi alterado com sucesso.'
     end
   end
 end

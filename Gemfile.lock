@@ -134,9 +134,6 @@ GEM
       aws-sdk-core (= 2.9.7)
     aws-sigv4 (1.0.0)
     bcrypt (3.1.10)
-    better_errors (1.1.0)
-      coderay (>= 1.0.0)
-      erubis (>= 2.6.6)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     builder (3.2.2)
@@ -149,6 +146,7 @@ GEM
       activesupport (>= 3.2.0)
       tzinfo
     byebug (9.0.6)
+    callsite (0.0.11)
     capybara (2.5.0)
       mime-types (>= 1.16)
       nokogiri (>= 1.3.3)
@@ -181,6 +179,8 @@ GEM
       safe_yaml (~> 1.0.0)
     database_cleaner (1.5.1)
     debug_inspector (0.0.2)
+    deferring (0.5.0)
+      activerecord (>= 4.2, < 5.3)
     devise (3.5.1)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -329,7 +329,7 @@ GEM
     has_scope (0.5.1)
     hashdiff (0.2.3)
     hashery (2.1.1)
-    honeybadger (3.1.2)
+    honeybadger (3.3.0)
     httparty (0.14.0)
       multi_xml (>= 0.5.2)
     i18n (0.7.0)
@@ -368,6 +368,10 @@ GEM
     mask_validator (0.2.1)
       activemodel (>= 3.0)
       activerecord (>= 3.0)
+    meta_request (0.6.0)
+      callsite (~> 0.0, >= 0.0.11)
+      rack-contrib (>= 1.1, < 3)
+      railties (>= 3.0.0, < 6)
     method_source (0.8.2)
     mime-types (2.6.2)
     mimemagic (0.3.2)
@@ -392,6 +396,8 @@ GEM
       cocaine (~> 0.5.5)
       mime-types
       mimemagic (~> 0.3.0)
+    paranoia (2.4.1)
+      activerecord (>= 4.0, < 5.3)
     pdf-core (0.6.1)
     pdf-inspector (1.2.1)
       pdf-reader (~> 1.0)
@@ -430,6 +436,8 @@ GEM
     quiet_assets (1.1.0)
       railties (>= 3.1, < 5.0)
     rack (1.6.4)
+    rack-contrib (1.8.0)
+      rack (~> 1.4)
     rack-cors (0.4.0)
     rack-protection (1.5.3)
       rack
@@ -490,7 +498,12 @@ GEM
       rspec-expectations (~> 3.4.0)
       rspec-mocks (~> 3.4.0)
       rspec-support (~> 3.4.0)
+    rspec-sidekiq (3.0.3)
+      rspec-core (~> 3.0, >= 3.0.0)
+      sidekiq (>= 2.4.0)
     rspec-support (3.4.0)
+    rspec-wait (0.0.9)
+      rspec (>= 3, < 4)
     ruby-rc4 (0.1.5)
     rubyzip (1.1.0)
     safe_yaml (1.0.4)
@@ -590,7 +603,6 @@ DEPENDENCIES
   audited-activerecord!
   aws-sdk (~> 2)
   backbone-nested-attributes!
-  better_errors (~> 1.1.0)
   binding_of_caller (~> 0.7.2)
   bulk_insert (~> 1.0)
   bullet
@@ -603,6 +615,7 @@ DEPENDENCIES
   cpf_faker (~> 1.3)
   database_cleaner (~> 1.5, >= 1.5.1)
   decore!
+  deferring
   devise (= 3.5.1)
   ejs (~> 1.1, >= 1.1.1)
   enumerate_it (= 1.3.1)
@@ -613,7 +626,7 @@ DEPENDENCIES
   gelf
   handlebars_assets (= 0.17.1)
   has_scope (= 0.5.1)
-  honeybadger (~> 3.1)
+  honeybadger (~> 3)
   i18n_alchemy (= 0.2.1)!
   jbuilder (~> 2.2.2)
   js-routes
@@ -621,10 +634,12 @@ DEPENDENCIES
   less-rails (= 2.7.0)
   lograge
   mask_validator (= 0.2.1)
+  meta_request
   mina (= 0.3.7)
   mina-sidekiq (~> 0.4.1)
   newrelic_rpm
   paperclip (~> 5.1.0)
+  paranoia (~> 2.2)
   pdf-inspector
   pg (= 0.17.1)
   poltergeist (~> 1.8.1)
@@ -644,6 +659,8 @@ DEPENDENCIES
   rest-client!
   route_translator!
   rspec-rails (~> 3.4)
+  rspec-sidekiq
+  rspec-wait (~> 0.0.9)
   rubyzip (= 1.1.0)
   sdoc (~> 0.4.0)
   shoulda-matchers (~> 3.0, >= 3.0.1)

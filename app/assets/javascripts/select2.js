@@ -9,7 +9,8 @@ $(document).ready(function(){
       },
       data: $(element).data('elements'),
       multiple: $(element).data('multiple'),
-      allowClear: !$(element).data('hide-empty-element')
+      allowClear: !$(element).data('hide-empty-element'),
+      theme: 'classic'
     });
 
     if ($(element).data('multiple') && !$(element).data('without-json-parser') && !_.isEmpty($(element).val())){

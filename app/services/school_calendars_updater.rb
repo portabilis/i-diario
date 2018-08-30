@@ -195,7 +195,7 @@ class SchoolCalendarsUpdater
   end
 
   def move_to_inactive_step(relation, step, association_name, year)
-    school_calendar_step_id = SchoolCalendarStep.by_school_calendar_id(step.school_calendar_id).by_step_year(year).inactive.first.try(:id)
+    school_calendar_step_id = SchoolCalendarStep.unscoped.by_school_calendar_id(step.school_calendar_id).by_step_year(year).inactive.first.try(:id)
 
     if school_calendar_step_id.blank?
       school_calendar_step_id = SchoolCalendarStep.create(
@@ -224,11 +224,13 @@ class SchoolCalendarsUpdater
             year = start_at.year
 
             classroom_step_id = SchoolCalendarClassroomStep.by_school_calendar_id(school_calendar_classroom.school_calendar.id)
+                                                           .by_classroom(school_calendar_classroom.classroom_id)
                                                            .where.not(id: school_calendar_classroom_steps_ids_marked_for_destruction)
                                                            .started_after_and_before(start_at).started_after_and_before(end_at)
                                                            .active.first.try(:id)
           else
             classroom_step_id = SchoolCalendarClassroomStep.by_school_calendar_id(school_calendar_classroom.school_calendar.id)
+                                                           .by_classroom(school_calendar_classroom.classroom_id)
                                                            .where.not(id: school_calendar_classroom_steps_ids_marked_for_destruction)
                                                            .started_after_and_before(relation.recorded_at).active.first.try(:id)
           end
@@ -254,7 +256,10 @@ class SchoolCalendarsUpdater
   end
 
   def move_to_inactive_classroom_step(relation, step, association_name, year)
-    classroom_step_id = SchoolCalendarClassroomStep.by_school_calendar_id(step.school_calendar_id).by_step_year(year).inactive.first.try(:id)
+    classroom_step_id = SchoolCalendarClassroomStep.unscoped.by_school_calendar_id(step.school_calendar_id)
+                                                   .by_classroom(step.school_calendar_classroom.classroom_id)
+                                                   .by_step_year(year)
+                                                   .inactive.first.try(:id)
 
     if classroom_step_id.blank?
       classroom_step_id = SchoolCalendarClassroomStep.create(
