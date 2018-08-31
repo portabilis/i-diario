@@ -344,11 +344,14 @@ class ApplicationController < ActionController::Base
   end
 
   def send_pdf(prefix, pdf_to_s)
-    prefix = "/relatorios/#{prefix}"
-    hash = SecureRandom.hex
-    File.open("#{Rails.root}/public#{prefix}-#{hash}.pdf", 'wb') do |f| 
+    name = report_name(prefix)
+    File.open("#{Rails.root}/public#{name}", 'wb') do |f| 
       f.write(pdf_to_s) 
     end
-    redirect_to "#{prefix}-#{hash}.pdf"
+    redirect_to name
+  end
+
+  def report_name(prefix)
+    "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
   end
 end
