@@ -39,7 +39,7 @@ class DisciplineLessonPlansController < ApplicationController
           @discipline_lesson_plan,
           current_teacher
         )
-        send_pdf("planos-de-aula-por-disciplina", discipline_lesson_plan_pdf.render)
+        send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
       end
     end
   end

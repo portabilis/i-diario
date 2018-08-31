@@ -22,7 +22,7 @@ class DisciplineLessonPlanReportController < ApplicationController
                                                             @discipline_lesson_plan_report_form.date_end,
                                                             @discipline_lesson_plan_report_form.discipline_lesson_plan,
                                                             current_teacher)
-      send_pdf("registros-de-conteudo-por-disciplina-planos-de-aula", lesson_plan_report.render)
+      send_pdf(t("routes.lesson_plan_record"), lesson_plan_report.render)
     else
       @discipline_lesson_plan_report_form
       fetch_collections
@@ -42,7 +42,7 @@ class DisciplineLessonPlanReportController < ApplicationController
                                                                @discipline_lesson_plan_report_form.date_end,
                                                                @discipline_lesson_plan_report_form.discipline_content_record,
                                                                current_teacher)
-      send_pdf("registros-de-conteudo-por-disciplina", lesson_plan_report.render)
+      send_pdf(t("routes.discipline_content_record"), lesson_plan_report.render)
     else
       @discipline_lesson_plan_report_form
       fetch_collections

@@ -32,7 +32,7 @@ class TeacherReportCardsController < ApplicationController
         ano: year,
         professor: current_teacher.to_s
       })
-      send_pdf("boletim", report.render)
+      send_pdf(t("routes.teacher_report_cards"), report.render)
     else
       render :form
     end

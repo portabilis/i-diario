@@ -34,7 +34,7 @@ class DisciplineTeachingPlansController < ApplicationController
           current_entity_configuration,
           @discipline_teaching_plan
         )
-        send_pdf("planos-de-ensino-por-disciplina", discipline_teaching_plan_pdf.render)
+        send_pdf(t("routes.discipline_teaching_plans"), discipline_teaching_plan_pdf.render)
       end
     end
   end

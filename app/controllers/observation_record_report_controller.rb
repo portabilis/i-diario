@@ -23,7 +23,7 @@ class ObservationRecordReportController < ApplicationController
           @observation_record_report_form
         )
         .build
-        send_pdf("registro-de-frequencia", observation_record_report.render)
+        send_pdf(t("routes.attendance_record"), observation_record_report.render)
     else
       clear_invalid_dates
       render :form

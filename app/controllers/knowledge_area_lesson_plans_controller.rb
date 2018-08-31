@@ -37,7 +37,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
           @knowledge_area_lesson_plan,
           current_teacher
         )
-        send_pdf("planos-de-aula-por-area-de-conhecimento", knowledge_area_lesson_plan_pdf.render)
+        send_pdf(t("routes.knowledge_area_lesson_plans"), knowledge_area_lesson_plan_pdf.render)
       end
     end
   end
