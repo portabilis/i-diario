@@ -228,12 +228,12 @@ $(function(){
 
         case 'employee':
           toggleEmployeeFields(data.user_role.unity_id);
-          role_unity_id = data.user_role.unity_id;
+          $('form#user-role #user_current_unity_id').val(data.user_role.unity_id);
           break;
 
         case 'teacher':
           toggleTeacherFields(data.user_role.unity_id);
-          role_unity_id = data.user_role.unity_id;
+          $('form#user-role #user_current_unity_id').val(data.user_role.unity_id);
           break;
 
         case 'parent':
