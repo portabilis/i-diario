@@ -6,6 +6,8 @@ gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
+gem 'puma', '~> 3.12.0'
+
 group :staging, :production do
   gem "gelf"
   gem "lograge"
@@ -70,7 +72,6 @@ group :development do
   gem 'mina', '0.3.7'
   gem 'meta_request'
   gem 'binding_of_caller', '~> 0.7.2'
-  gem 'puma', '~> 3.9.1'
   gem 'mina-sidekiq', '~> 0.4.1'
   gem 'web-console', '~> 2.0'
   gem 'pry-byebug'

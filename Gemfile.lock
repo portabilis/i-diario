@@ -430,7 +430,7 @@ GEM
     pry-remote (0.1.8)
       pry (~> 0.9)
       slop (~> 3.0)
-    puma (3.9.1)
+    puma (3.12.0)
     pundit (0.3.0)
       activesupport (>= 3.0.0)
     quiet_assets (1.1.0)
@@ -649,7 +649,7 @@ DEPENDENCIES
   pry (~> 0.10.3)
   pry-byebug
   pry-remote
-  puma (~> 3.9.1)
+  puma (~> 3.12.0)
   pundit (= 0.3.0)
   quiet_assets
   rack-cors
