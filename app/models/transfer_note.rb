@@ -53,7 +53,7 @@ class TransferNote < ActiveRecord::Base
   end
 
   def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
+    CurrentSchoolCalendarFetcher.new(unity, classroom, classroom.year).fetch
   end
 
   def recorded_at
