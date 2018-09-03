@@ -24,6 +24,14 @@ GIT
       rails (>= 3.2.8)
 
 GIT
+  remote: git://github.com/untitledkingdom/mina-puma.git
+  revision: 581a2048d82998328a5c9581a45883e0f3b28d06
+  specs:
+    mina-puma (1.1.0)
+      mina (~> 1.2.0)
+      puma (>= 2.13)
+
+GIT
   remote: https://github.com/enriclluelles/route_translator.git
   revision: 1c71391ba17f3616b58cd042e94c3bb9347fecfc
   specs:
@@ -636,6 +644,7 @@ DEPENDENCIES
   mask_validator (= 0.2.1)
   meta_request
   mina (= 1.2.3)
+  mina-puma!
   mina-sidekiq (~> 1.0.3)
   newrelic_rpm
   paperclip (~> 5.1.0)
