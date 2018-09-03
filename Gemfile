@@ -6,6 +6,10 @@ gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
+gem 'mina', '1.2.3'
+gem 'mina-sidekiq', '~> 1.0.3'
+gem 'mina-puma', require: false,  github: 'untitledkingdom/mina-puma'
+
 gem 'puma', '~> 3.12.0'
 
 group :staging, :production do
@@ -73,10 +77,6 @@ group :development do
   gem 'web-console', '~> 2.0'
   gem 'pry-byebug'
   gem 'pry-remote'
-
-  gem 'mina', '1.2.3'
-  gem 'mina-sidekiq', '~> 1.0.3'
-  gem 'mina-puma', require: false,  github: 'untitledkingdom/mina-puma'
 end
 
 group :test do
