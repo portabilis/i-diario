@@ -44,6 +44,7 @@ class FeaturesAccessLevels
       :test_settings,
       :transfer_notes,
       :teacher_report_cards,
+      :change_school_year,
       :complementary_exams
     ]
   end
