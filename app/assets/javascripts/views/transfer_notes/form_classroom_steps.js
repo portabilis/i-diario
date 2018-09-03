@@ -48,7 +48,7 @@ $(function () {
           start_date: schoolCalendarClassroomStep.start_at,
           score_type: 'numeric',
           discipline_id: $discipline.select2('val'),
-          school_calendar_step_id: schoolCalendarStep.id
+          school_calendar_step_id: schoolCalendarClassroomStep.id
         },
         success: handleFetchStudentsSuccess,
         error: handleFetchStudentsError
