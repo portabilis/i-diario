@@ -45,7 +45,6 @@ gem 'rack-cors', require: 'rack/cors'
 gem 'sinatra', '>= 1.3.0', require: nil
 gem 'sidekiq', '< 6'
 gem 'sidekiq-unique-jobs', '~> 4.0.18'
-gem 'whenever', require: false
 gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
 gem 'postgres-copy'
