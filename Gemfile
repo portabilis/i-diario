@@ -6,6 +6,12 @@ gem 'rails', '4.2.3'
 gem 'uglifier', '>= 1.3.0'
 gem 'sdoc', '~> 0.4.0', group: :doc
 
+gem 'mina', '1.2.3'
+gem 'mina-sidekiq', '~> 1.0.3'
+gem 'mina-puma', require: false,  github: 'untitledkingdom/mina-puma'
+
+gem 'puma', '~> 3.12.0'
+
 group :staging, :production do
   gem "gelf"
   gem "lograge"
@@ -43,7 +49,6 @@ gem 'rack-cors', require: 'rack/cors'
 gem 'sinatra', '>= 1.3.0', require: nil
 gem 'sidekiq', '< 6'
 gem 'sidekiq-unique-jobs', '~> 4.0.18'
-gem 'whenever', require: false
 gem 'rest-client', git: 'https://github.com/ricardohsd/rest-client.git'
 gem 'rubyzip', '1.1.0', require: 'zip'
 gem 'postgres-copy'
@@ -67,11 +72,8 @@ group :development do
   gem 'spring'
   gem 'spring-commands-rspec'
   gem 'quiet_assets'
-  gem 'mina', '0.3.7'
   gem 'meta_request'
   gem 'binding_of_caller', '~> 0.7.2'
-  gem 'puma', '~> 3.9.1'
-  gem 'mina-sidekiq', '~> 0.4.1'
   gem 'web-console', '~> 2.0'
   gem 'pry-byebug'
   gem 'pry-remote'
