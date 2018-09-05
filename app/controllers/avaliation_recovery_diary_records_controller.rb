@@ -98,6 +98,14 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     end
   end
 
+  def history
+    @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id])
+
+    authorize @avaliation_recovery_diary_record
+
+    respond_with @avaliation_recovery_diary_record
+  end
+
   def destroy
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.find(params[:id])
 
