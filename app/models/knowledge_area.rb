@@ -1,6 +1,10 @@
 class KnowledgeArea < ActiveRecord::Base
   acts_as_copy_target
 
+  audited
+
+  include Audit
+
   has_many :disciplines, dependent: :destroy
   has_and_belongs_to_many :knowledge_area_content_records
 

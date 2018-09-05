@@ -1,0 +1,23 @@
+<tbody id="resources-tbody">
+  <% if @complementary_exam_settings.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="6"> <%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @complementary_exam_settings.each do |complementary_exam_setting| %>
+      <tr>
+        <td><%= complementary_exam_setting.description %></td>
+        <td><%= complementary_exam_setting.initials %></td>
+        <td><%= complementary_exam_setting.calculation_type_humanize %></td>
+        <td><%= complementary_exam_setting.affected_score_humanize %></td>
+        <td><%= complementary_exam_setting.decorator.grades_labels %></td>
+        <td class="actions">
+          <%= link_to 'Editar', edit_complementary_exam_setting_path(complementary_exam_setting),
+            class: "btn btn-success" %>
+          <%= link_to 'Excluir', complementary_exam_setting_path(complementary_exam_setting),
+            class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

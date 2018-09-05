@@ -3,6 +3,8 @@ class RecoveryDiaryRecord < ActiveRecord::Base
 
   acts_as_copy_target
 
+  # acts_as_paranoid
+
   audited
   has_associated_audits
 
@@ -36,7 +38,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   before_validation :self_assign_to_students
 
   def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
+    CurrentSchoolCalendarFetcher.new(unity, classroom, classroom.try(:year)).fetch
   end
 
   def test_date

@@ -1,6 +1,7 @@
 pt-BR:
   enumerations:
     event_types:
-      no_school: "Não letivo"
       extra_school: "Letivo - permite lançamentos"
       extra_school_without_frequency: "Letivo - não permite lançamentos"
+      no_school: "Não letivo - não permite lançamentos"
+      no_school_with_frequency: "Não letivo - permite lançamentos"      

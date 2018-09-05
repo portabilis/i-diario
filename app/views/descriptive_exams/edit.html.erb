@@ -28,6 +28,10 @@
     </tbody>
   </table>
 
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/descriptive_exams/student_fields' %>
+  <% end %>
+
   <%= simple_form_for @descriptive_exam, html: { class: "smart-form" } do |f| %>
     <%= f.error_notification %>
 

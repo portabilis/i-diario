@@ -3,14 +3,16 @@ class DescriptiveExam < ActiveRecord::Base
 
   acts_as_copy_target
 
+  # acts_as_paranoid
+
   audited
   has_associated_audits
   before_save :mark_students_for_removal
 
   belongs_to :classroom
   belongs_to :discipline
-  belongs_to :school_calendar_step
-  belongs_to :school_calendar_classroom_step
+  belongs_to :school_calendar_step, -> { unscope(where: :active) }
+  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
 
   delegate :unity, to: :classroom, allow_nil: true
 

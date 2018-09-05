@@ -15,6 +15,7 @@ pt-BR:
         parents_default_role_id: "Permissão padrão para pais"
         allows_after_sales_relationship: "Permite relacionamento direto no pós-venda?"
         display_header_on_all_reports_pages: "Exibir cabeçalho em todas as páginas nos relatórios do diário do professor"
+        max_descriptive_exam_character_count: "Quantidade máxima de caracteres permitidos em avaliações descritivas"
 
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"

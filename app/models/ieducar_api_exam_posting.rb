@@ -6,8 +6,8 @@ class IeducarApiExamPosting < ActiveRecord::Base
                                                           create_scopes: true
 
   belongs_to :ieducar_api_configuration
-  belongs_to :school_calendar_step
-  belongs_to :school_calendar_classroom_step
+  belongs_to :school_calendar_step, -> { unscope(where: :active) }
+  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
   belongs_to :author, class_name: 'User'
   belongs_to :teacher
 

@@ -36,7 +36,12 @@ class User < ActiveRecord::Base
   has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
     foreign_key: :responsible_id, dependent: :restrict_with_error
   has_many :***REMOVED***s, foreign_key: :author_id, dependent: :restrict_with_error
+
   has_many :system_notification_targets, dependent: :destroy
+  has_many :system_***REMOVED***, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
+  has_many :unread_***REMOVED***, -> { joins(:targets).where(system_notification_targets: { read: false}) },
+    through: :system_notification_targets, source: :system_notification
+
   has_many :message_targets, dependent: :destroy
   has_many :messages, through: :message_targets, foreign_key: :author_id, dependent: :destroy
   has_many :sent_messages, class_name: "Message", foreign_key: :author_id, dependent: :destroy
@@ -76,6 +81,8 @@ class User < ActiveRecord::Base
   scope :email, lambda { |email| where("unaccent(email) ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("unaccent(login) ILIKE unaccent(?)", "%#{login}%")}
   scope :status, lambda { |status| where status: status }
+
+  delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
 
   def self.to_csv
     attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Celular"]
@@ -172,16 +179,6 @@ class User < ActiveRecord::Base
     return false unless user_roles.exists?(id: user_role_id)
 
     update_column(:current_user_role_id, user_role_id)
-  end
-
-  def system_***REMOVED***
-    SystemNotification.where(id: system_notification_targets.pluck(:system_notification_id))
-  end
-
-  def unread_***REMOVED***
-    @unread_***REMOVED*** ||= system_***REMOVED***.
-      not_in(system_notification_targets.read.pluck(:system_notification_id)).
-      ordered
   end
 
   def count_unread_messages

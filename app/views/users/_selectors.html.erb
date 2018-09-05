@@ -1,0 +1,57 @@
+<div class="hidden-xs hidden-sm">
+<%= simple_form_for user, remote: true, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
+  <%= f.hidden_field :id, value: f.object.id %>
+  <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
+
+<div class="project-context administrator employee teacher parent student" style="width: 180px;">
+  <span class="label">Perfil</span>
+  <%= f.input :current_user_role_id,
+              as: :select2,
+              elements: user.user_roles.includes(:unity),
+              label: false,
+              wrapper: false,
+              width: '100px'
+              %>
+</div>
+
+<div id="unity-field-container" class="project-context administrator" style="width: 165px; <%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['administrator']) %>" >
+  <span class="label">Unidade</span>
+    <%= f.input :current_unity_id, as: :select2, elements: current_unities, label: false, wrapper: false, class: 'administrator' %>
+  </span>
+</div>
+
+<div id="school-year-field-container" class="project-context"
+     style="width: 95px; <%= 'display: none;'.html_safe unless can_change_school_year? && user_role.role.access_level.in?(['administrator', 'employee' ,'teacher']) %>" >
+     <span class="label">Ano letivo</span>
+    <%= f.input :current_school_year, as: :select2, elements: current_user_available_years.to_json, label: false, wrapper: false %>
+</div>
+
+<div id="assumed-teacher-field-container" class="project-context administrator employee" style="width: 165px;<%= ' display: none;'.html_safe unless user_role.role.access_level.in?(['administrator', 'employee']) && f.object.current_unity.try(:school_unit?) %>"" >
+  <span class="label">Professor</span>
+  <%= f.input :assumed_teacher_id, as: :select2, elements: current_user_available_teachers, label: false, wrapper: false %>
+</div>
+
+<div id="classroom-field-container" class="project-context administrator employee teacher" style="width: 165px;<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || (user_role.role.access_level.in?(['administrator', 'employee']) && f.object.assumed_teacher_id.present?) %> ">
+  <span class="label">Turma</span>
+  <%= f.input :current_classroom_id, as: :select2, elements: current_user_available_classrooms, class: 'teacher', data: { dropdown: '.project-context .project-selector.classroom' }, wrapper: false, label: false %>
+</div>
+
+<div id="discipline-field-container" class="project-context administrator employee teacher" style="width: 220px;<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || (user_role.role.access_level.in?(['administrator', 'employee']) && f.object.assumed_teacher_id.present?) %>">
+  <span class="label">Disciplina</span>
+
+  <%= f.input :current_discipline_id,
+      as: :select2,
+      wrapper: false,
+      label: false,
+      elements: current_user_available_disciplines,
+      class: 'teacher',
+      data: { dropdown: '.project-context .project-selector.discipline' } %>
+
+</div>
+
+<div class="select-role" style="display: inline-block; top: -15px; position: relative;">
+  <button type="submit" class="btn btn-sm bg-color-blueDark txt-color-white">Alterar perfil</a>
+</div>
+
+<% end %>
+</div>

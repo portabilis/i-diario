@@ -17,6 +17,7 @@
  *= require educacao
  *= require morris
  *= require bootstrap-select
+ *= require header-select2
  *= require jquery-file-upload/jquery.fileupload
  *= require_tree ./resources
  *= require_self
@@ -291,4 +292,22 @@ a.parent-dashboard-basic-info-links {
   margin-bottom: -8px;
   -webkit-box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);
   box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);
+}
+
+@media (max-width: 1250px) {
+  #current-role-selector {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1250px) {
+  .login-info {
+    display: none !important;
+  }
+}
+
+header .project-context {
+  display: inline-block;
+  padding: 7px 7px 0;
+  position: relative;
 }
