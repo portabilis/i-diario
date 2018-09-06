@@ -43,7 +43,7 @@ module Ieducar
     end
 
     def student(params)
-      student_id = notas(params).first[1].first[0]
+      student_id = data(params).first[1].first[0]
 
       @students ||= {}
       @students[student_id] ||= Student.find_by(api_code: student_id).name
