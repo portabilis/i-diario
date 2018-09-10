@@ -214,9 +214,6 @@ class Avaliation < ActiveRecord::Base
   end
 
   def try_destroy
-    
-    binding.pry
-    
     @grades_allow_destroy = !daily_notes.any? { |daily_note| daily_note.students.any? { |daily_note_student| daily_note_student.note } }
     @recovery_allow_destroy = avaliation_recovery_diary_record.nil?
 
