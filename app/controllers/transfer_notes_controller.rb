@@ -3,7 +3,6 @@ class TransferNotesController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
@@ -64,11 +63,11 @@ class TransferNotesController < ApplicationController
     return unless params[:step_id].present? && params[:student_id].present? && params[:recorded_at].present?
 
     step = StepsFetcher.new(Classroom.find(params[:classroom_id])).steps.find(params[:step_id])
-
+    end_date = step.end_at > params[:transfer_date].to_date ? params[:transfer_date].to_date : step.end_at
     avaliations = Avaliation.by_classroom_id(params[:classroom_id])
                             .by_discipline_id(params[:discipline_id])
                             .by_teacher(current_teacher.id)
-                            .by_test_date_between(step.start_at, params[:recorded_at])
+                            .by_test_date_between(step.start_at, end_date)
                             .ordered_asc
 
     @daily_note_students = avaliations.map do |avaliation|

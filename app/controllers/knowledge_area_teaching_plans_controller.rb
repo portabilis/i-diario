@@ -2,7 +2,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_school_calendar
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
 
   def index

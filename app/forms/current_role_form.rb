@@ -8,10 +8,11 @@ class CurrentRoleForm
                 :current_discipline_id,
                 :id,
                 :current_unity_id,
-                :assumed_teacher_id
+                :assumed_teacher_id,
+                :current_school_year
 
   validates :current_user_role_id, presence: true
-  validates :current_classroom_id, :current_discipline_id,  presence: true, if: :require_allocation?
+  validates :current_classroom_id, :current_discipline_id, :current_school_year, presence: true, if: :require_allocation?
   validates :current_unity_id,  presence: true, if: :require_unity?
 
   def initialize(attributes = {})
@@ -53,8 +54,15 @@ class CurrentRoleForm
     access_level == AccessLevel::ADMINISTRATOR
   end
 
-  def require_unity?
-    is_admin?
+  def is_employee?
+    access_level == AccessLevel::EMPLOYEE
   end
 
+  def is_teacher?
+    access_level == AccessLevel::TEACHER
+  end
+
+  def require_unity?
+    is_admin? || is_employee? || is_teacher?
+  end
 end

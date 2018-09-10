@@ -1,4 +1,4 @@
-<div class="modal fade" tabindex="-1" role="dialog" id="role-modal" aria-hidden="true">
+<div class="modal" tabindex="-1" role="dialog" id="role-modal" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -6,7 +6,7 @@
         <h4 class="modal-title">Selecione o perfil atual</h4>
       </div>
       <div class="modal-body">
-        <div class="alert fade in alert-danger hidden" id="no-role-selected-alert">
+        <div class="alert in alert-danger hidden" id="no-role-selected-alert">
           Por favor, selecione um perfil para continuar.
         </div>
         <%= simple_form_for @current_user, remote: true, url: set_current_role_path, html: { method: :patch, class: "simple_form smart-form", id: "user-role" } do |f| %>
@@ -15,6 +15,9 @@
           <%= f.input :current_user_role_id, as: :select2, elements: @current_user.user_roles.includes(:unity), required: true %>
           <div id="unity-field">
             <%= f.input :current_unity_id, as: :select2, elements: [], required: true %>
+          </div>
+          <div id="school-year-field" style="display:none;">
+            <%= f.input :current_school_year, as: :select2, elements: [], required: true %>
           </div>
           <div id="assumed-teacher-field">
             <%= f.input :assumed_teacher_id, as: :select2, elements: [] %>
@@ -41,4 +44,5 @@
   window.user.assumed_teacher_id = <%= current_user.assumed_teacher_id || "undefined" %>;
   window.user.current_classroom_id = <%= current_user.current_classroom_id || "undefined" %>;
   window.user.current_discipline_id = <%= current_user.current_discipline_id || "undefined" %>;
+  window.user.current_school_year = <%= current_user.current_school_year || "undefined" %>;
 </script>

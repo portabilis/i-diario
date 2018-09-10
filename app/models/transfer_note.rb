@@ -7,6 +7,8 @@ class TransferNote < ActiveRecord::Base
 
   acts_as_copy_target
 
+  # acts_as_paranoid
+
   attr_writer :unity_id
 
   belongs_to :classroom
