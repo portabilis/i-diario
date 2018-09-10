@@ -3,7 +3,6 @@ class ObservationDiaryRecordsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def index
     current_discipline = fetch_current_discipline

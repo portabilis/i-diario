@@ -5,6 +5,8 @@ class TransferNote < ActiveRecord::Base
   has_associated_audits
   acts_as_copy_target
 
+  # acts_as_paranoid
+
   attr_writer :unity_id
   attr_accessor :transfer_date_copy
 
@@ -51,7 +53,7 @@ class TransferNote < ActiveRecord::Base
   end
 
   def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
+    CurrentSchoolCalendarFetcher.new(unity, classroom, classroom.year).fetch
   end
 
   def recorded_at
