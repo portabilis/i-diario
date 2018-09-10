@@ -192,7 +192,7 @@ class AvaliationsController < ApplicationController
                                        :observations)
   end
 
-  def flash_interpolation_options
+  def interpolation_options
     reasons = []
 
     if !resource.grades_allow_destroy
