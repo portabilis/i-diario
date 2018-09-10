@@ -3,7 +3,6 @@ class DisciplineLessonPlanReportController < ApplicationController
   DISCIPLINE_CONTENT_RECORD = "2"
 
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def form
     @discipline_lesson_plan_report_form = DisciplineLessonPlanReportForm.new

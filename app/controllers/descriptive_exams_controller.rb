@@ -1,6 +1,5 @@
 class DescriptiveExamsController < ApplicationController
   before_action :require_teacher
-  before_action :require_current_school_calendar
 
   def new
     @descriptive_exam = DescriptiveExam.new

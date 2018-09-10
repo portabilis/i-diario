@@ -46,7 +46,7 @@
                   <div id="collapse<%= api_posting.id %>" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading<%= api_posting.id %>">
                     <div class="panel-body">
                       <% api_posting.warning_message.each do |message| %>
-                        <p><%= message %></p>
+                        <p><%= message.html_safe %></p>
                       <% end %>
                     </div>
                   </div>

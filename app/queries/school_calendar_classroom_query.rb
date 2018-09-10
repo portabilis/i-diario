@@ -6,7 +6,7 @@ class SchoolCalendarClassroomQuery
 
   def school_calendar
     SchoolCalendar.by_unity_id(unity)
-    .by_school_day_classroom_steps(Time.zone.today, classroom)
+    .by_year(classroom.year)
     .first
   end
 
