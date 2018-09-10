@@ -38,6 +38,7 @@ pt-BR:
         receive_news_related_***REMOVED***: "Relacionados ao estoque e alimentação escolar"
         receive_news_related_tools_for_parents: "Relacionados a ferramentas para pais e alunos"
         receive_news_related_all_matters: "Relacionados a todos os assuntos do produto"
+        current_school_year: 'Ano letivo'
 
     errors:
       models:

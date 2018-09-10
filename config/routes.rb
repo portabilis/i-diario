@@ -273,6 +273,7 @@ Rails.application.routes.draw do
         get :step
         get :synchronize
         post :create_and_update_batch
+        get :years_from_unity
       end
 
       resources :school_calendar_steps, only: [:index]

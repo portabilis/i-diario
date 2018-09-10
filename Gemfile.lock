@@ -24,6 +24,14 @@ GIT
       rails (>= 3.2.8)
 
 GIT
+  remote: git://github.com/untitledkingdom/mina-puma.git
+  revision: 581a2048d82998328a5c9581a45883e0f3b28d06
+  specs:
+    mina-puma (1.1.0)
+      mina (~> 1.2.0)
+      puma (>= 2.13)
+
+GIT
   remote: https://github.com/enriclluelles/route_translator.git
   revision: 1c71391ba17f3616b58cd042e94c3bb9347fecfc
   specs:
@@ -161,7 +169,6 @@ GEM
       activesupport (>= 3.2.0)
       json (>= 1.7)
       mime-types (>= 1.16)
-    chronic (0.10.2)
     climate_control (0.1.0)
     clipboard (1.0.6)
     cliver (0.3.2)
@@ -375,11 +382,11 @@ GEM
     method_source (0.8.2)
     mime-types (2.6.2)
     mimemagic (0.3.2)
-    mina (0.3.7)
+    mina (1.2.3)
       open4 (~> 1.3.4)
       rake
-    mina-sidekiq (0.4.1)
-      mina
+    mina-sidekiq (1.0.3)
+      mina (>= 1.0.2)
     mini_portile (0.6.2)
     minitest (5.8.3)
     multi_json (1.11.2)
@@ -396,6 +403,8 @@ GEM
       cocaine (~> 0.5.5)
       mime-types
       mimemagic (~> 0.3.0)
+    paranoia (2.4.1)
+      activerecord (>= 4.0, < 5.3)
     pdf-core (0.6.1)
     pdf-inspector (1.2.1)
       pdf-reader (~> 1.0)
@@ -428,7 +437,7 @@ GEM
     pry-remote (0.1.8)
       pry (~> 0.9)
       slop (~> 3.0)
-    puma (3.9.1)
+    puma (3.12.0)
     pundit (0.3.0)
       activesupport (>= 3.0.0)
     quiet_assets (1.1.0)
@@ -583,8 +592,6 @@ GEM
     websocket-driver (0.6.4)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
-    whenever (0.9.4)
-      chronic (>= 0.6.3)
     xml-simple (1.1.5)
     xpath (2.0.0)
       nokogiri (~> 1.3)
@@ -633,10 +640,12 @@ DEPENDENCIES
   lograge
   mask_validator (= 0.2.1)
   meta_request
-  mina (= 0.3.7)
-  mina-sidekiq (~> 0.4.1)
+  mina (= 1.2.3)
+  mina-puma!
+  mina-sidekiq (~> 1.0.3)
   newrelic_rpm
   paperclip (~> 5.1.0)
+  paranoia (~> 2.2)
   pdf-inspector
   pg (= 0.17.1)
   poltergeist (~> 1.8.1)
@@ -646,7 +655,7 @@ DEPENDENCIES
   pry (~> 0.10.3)
   pry-byebug
   pry-remote
-  puma (~> 3.9.1)
+  puma (~> 3.12.0)
   pundit (= 0.3.0)
   quiet_assets
   rack-cors
@@ -678,7 +687,6 @@ DEPENDENCIES
   vcr (~> 3.0)
   web-console (~> 2.0)
   webmock (~> 1.22, >= 1.22.3)
-  whenever
   zenvia-ruby!
 
 RUBY VERSION
