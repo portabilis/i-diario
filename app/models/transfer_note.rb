@@ -24,7 +24,7 @@ class TransferNote < ActiveRecord::Base
 
   before_validation :set_transfer_date, on: [:create, :update]
 
-  validates_presence_of :unity_id, :discipline_id, :student_id, :teacher
+  validates :unity_id, :discipline_id, :student_id, :teacher, presence: true
   validate :at_least_one_daily_note_student
 
   scope :by_classroom_description, lambda { |description|
