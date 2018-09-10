@@ -3,7 +3,8 @@ class AvaliationsController < ApplicationController
   has_scope :per, default: 10, only: [:index]
 
   respond_to :html, :js, :json
-
+  responders :flash, :http_cache
+  
   before_action :require_current_teacher, except: [:search]
   before_action :require_current_test_setting
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms]
@@ -115,9 +116,9 @@ class AvaliationsController < ApplicationController
 
   def destroy
     authorize resource
-
+    
     resource.destroy
-
+    
     respond_with resource, location: avaliations_path
   end
 
@@ -190,5 +191,19 @@ class AvaliationsController < ApplicationController
                                        :test_setting_test_id,
                                        :weight,
                                        :observations)
+  end
+
+  def flash_interpolation_options
+    reasons = []
+
+    if !resource.grades_allow_destroy
+      reasons << "já foram efetuados lançamentos"
+    end
+    
+    if !resource.recovery_allow_destroy
+      reasons << "existe uma recuperação desta avaliação"
+    end
+    
+    { reason: reasons.join(" e ") }
   end
 end
