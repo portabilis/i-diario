@@ -180,7 +180,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def mark_not_existing_disciplines_as_invisible
-    return unless @disciplines.present?
+    return if @disciplines.blank?
 
     @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
       discipline_exists = @disciplines.any? do |discipline|
@@ -192,7 +192,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def mark_persisted_disciplines_as_invisible
-    return unless @disciplines.present?
+    return if @disciplines.blank?
 
     @conceptual_exam.conceptual_exam_values.each do |conceptual_exam_value|
       discipline_exists = @disciplines.any? do |discipline|
@@ -204,7 +204,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def mark_exempted_disciplines
-    return unless @conceptual_exam.recorded_at.present? && @conceptual_exam.step.present?
+    return if @conceptual_exam.recorded_at.blank? || @conceptual_exam.step.blank?
 
     @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
 
@@ -220,7 +220,7 @@ class ConceptualExamsController < ApplicationController
   def disciplines_with_assignment
     disciplines = TeacherDisciplineClassroom.by_classroom(@conceptual_exam.classroom_id)
                                             .by_year(current_school_calendar.year)
-                                            .collect(&:discipline_id)
+                                            .pluck(:discipline_id)
                                             .uniq
 
     disciplines
@@ -234,7 +234,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def fetch_unities_classrooms_disciplines_by_teacher
-    return unless @conceptual_exam.recorded_at.present?
+    return if @conceptual_exam.recorded_at.blank?
 
     fetcher = UnitiesClassroomsDisciplinesByTeacher.new(
       current_teacher.id,
@@ -347,34 +347,4 @@ class ConceptualExamsController < ApplicationController
                         .by_step_number(step_number)
                         .any?
   end
-
-  def any_student_exempted_from_discipline?
-    @conceptual_exam.conceptual_exam_values.any? { |value| value.exempted_discipline.to_s == 'true' }
-  end
-  helper_method :any_student_exempted_from_discipline?
-
-  def ordered_conceptual_exam_values
-    @conceptual_exam.conceptual_exam_values
-                    .sort_by { |conceptual_exam_value|
-                      [
-                        conceptual_exam_value.discipline.sequence.to_i,
-                        conceptual_exam_value.discipline.description
-                      ]
-                    }
-                    .group_by { |conceptual_exam_value|
-                      conceptual_exam_value.discipline.knowledge_area
-                    }
-                    .sort_by { |knowledge_area, conceptual_exam_values|
-                      [
-                        knowledge_area.sequence.to_i,
-                        knowledge_area.description
-                      ]
-                    }
-  end
-  helper_method :ordered_conceptual_exam_values
-
-  def edit_persisted?
-    @edit_persisted ||= (@conceptual_exam.persisted? && @conceptual_exam.step.present?)
-  end
-  helper_method :edit_persisted?
 end

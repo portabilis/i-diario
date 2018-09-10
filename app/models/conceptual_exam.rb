@@ -30,7 +30,7 @@ class ConceptualExam < ActiveRecord::Base
   scope :by_student_name, lambda { |student_name| joins(:student).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student_name}%") }
   scope :ordered, -> { order(recorded_at: :desc) }
 
-  validates_presence_of :student, :unity_id
+  validates :student, :unity_id, presence: true
   validate :student_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
@@ -73,7 +73,7 @@ class ConceptualExam < ActiveRecord::Base
   private
 
   def student_must_have_conceptual_exam_score_type
-    return unless student.present? && classroom.present?
+    return if student.blank? || classroom.blank?
 
     permited_score_types = [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT]
     exam_rule = classroom.exam_rule
@@ -106,7 +106,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def uniqueness_of_student
-    return unless step.present? && student_id.present?
+    return if step.blank? || student_id.blank?
 
     discipline_ids = conceptual_exam_values.collect{ |value| value.discipline_id }
     conceptual_exam = ConceptualExam.joins(:conceptual_exam_values)
@@ -123,7 +123,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def ensure_student_is_in_classroom
-    return unless recorded_at.present? && student_id.present? && classroom_id.present?
+    return if recorded_at.blank? || student_id.blank? || classroom_id.blank?
 
     unless StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
       errors.add(:base, :student_is_not_in_classroom)
