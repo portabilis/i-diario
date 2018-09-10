@@ -3,7 +3,6 @@ class TransferNotesController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def index
     @transfer_notes = apply_scopes(TransferNote).includes(:classroom, :discipline, :student)
@@ -63,10 +62,11 @@ class TransferNotesController < ApplicationController
 
     classroom = Classroom.find(params[:classroom_id])
     school_calendar_step = SchoolCalendarStep.unscoped.find(params[:school_calendar_step_id])
+    end_date = school_calendar_step.end_at > params[:transfer_date].to_date ? params[:transfer_date].to_date : school_calendar_step.end_at
     avaliations = Avaliation.by_classroom_id(params[:classroom_id])
                             .by_discipline_id(params[:discipline_id])
                             .by_teacher(current_teacher.id)
-                            .by_test_date_between(school_calendar_step.start_at, params[:transfer_date])
+                            .by_test_date_between(school_calendar_step.start_at, end_date)
                             .ordered_asc
 
     @daily_note_students = avaliations.map do |avaliation|

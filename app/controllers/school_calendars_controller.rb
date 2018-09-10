@@ -80,6 +80,11 @@ class SchoolCalendarsController < ApplicationController
     redirect_to school_calendars_path, notice: t('.notice') unless performed?
   end
 
+  def years_from_unity
+    @years = YearsFromUnityFetcher.new(params[:unity_id]).fetch.map{ |year| { id: year, name: year } }
+    render json: @years
+  end
+
   def step
     classroom = Classroom.find(params[:classroom_id])
     @step = StepsFetcher.new(classroom).steps.find(params[:step_id])

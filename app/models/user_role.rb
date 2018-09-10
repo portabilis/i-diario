@@ -21,6 +21,11 @@ class UserRole < ActiveRecord::Base
     end
   end
 
+  def can_change_school_year?
+    return false unless role
+    role.can_change?('change_school_year')
+  end
+
   private
 
   def require_unity?
