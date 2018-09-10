@@ -19,7 +19,7 @@
 
       <div class="col col-sm-4">
         <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
-          readonly: edit_persisted?, required: true %>
+          readonly: @conceptual_exam.persisted?, required: true %>
       </div>
     </div>
 
@@ -30,7 +30,7 @@
 
       <div class="col col-sm-4">
         <%= f.association :student, as: :select2, elements: @students,
-          readonly: edit_persisted? %>
+          readonly: @conceptual_exam.persisted? %>
       </div>
     </div>
   </fieldset>
