@@ -45,7 +45,7 @@ module ExamPoster
           student_scores = teacher_score_fetcher.scores
 
           student_scores.each do |student_score|
-            next if exempted_discipline(classroom.id, discipline.id, student_score.id)
+            next if exempted_discipline(classroom, discipline.id, student_score.id)
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
 
@@ -63,7 +63,7 @@ module ExamPoster
           students_without_daily_notes.each do |student_recovery|
             student = student_recovery.student
 
-            next if exempted_discipline(classroom.id, discipline.id, student.id)
+            next if exempted_discipline(classroom, discipline.id, student.id)
 
             score = student_recovery.try(:score)
 
@@ -105,8 +105,8 @@ module ExamPoster
       student_recovery.try(:score)
     end
 
-    def exempted_discipline(classroom_id, discipline_id, student_id)
-      student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
+    def exempted_discipline(classroom, discipline_id, student_id)
+      student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom.id)
                                                                .by_student(student_id)
                                                                .active
                                                                .first
@@ -115,7 +115,7 @@ module ExamPoster
         return student_enrollment_classroom.student_enrollment
                                            .exempted_disciplines
                                            .by_discipline(discipline_id)
-                                           .by_step_number(@post_data.step.to_number)
+                                           .by_step_number(get_step(classroom).to_number)
                                            .any?
       end
 

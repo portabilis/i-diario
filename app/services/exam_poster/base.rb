@@ -36,10 +36,6 @@ module ExamPoster
 
     attr_reader :worker_batch, :entity_id
 
-    def steps_fetcher(classroom)
-      StepsFetcher.new(classroom)
-    end
-
     def step_exists_for_classroom?(classroom)
       return false if invalid_classroom_year?(classroom)
 
@@ -53,8 +49,12 @@ module ExamPoster
     end
 
     def get_step_by_step_number(classroom, step_number)
-      steps_fetcher(classroom).steps.find do |step|
-        step.to_number == step_number
+      current_step_exam_poster = "#{Entity.current.id}_#{classroom.id}_#{step_number}_current_step_exam_poster"
+
+      Rails.cache.fetch(current_step_exam_poster, expires_in: 5.minutes) do
+        StepsFetcher.new(classroom).steps.find do |step|
+          step.to_number == step_number
+        end
       end
     end
 
