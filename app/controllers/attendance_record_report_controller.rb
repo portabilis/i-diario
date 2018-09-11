@@ -1,23 +1,22 @@
 class AttendanceRecordReportController < ApplicationController
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def form
     @attendance_record_report_form = AttendanceRecordReportForm.new(
       unity_id: current_user_unity.id,
-      school_calendar_year: current_school_calendar.year
+      school_calendar_year: current_user_school_year
     )
     fetch_collections
   end
 
   def report
     @attendance_record_report_form = AttendanceRecordReportForm.new(resource_params)
-    @attendance_record_report_form.school_calendar = current_school_calendar
+    @attendance_record_report_form.school_calendar = SchoolCalendar.find_by(unity: current_user_unity, year: current_user_school_year)
 
     if @attendance_record_report_form.valid?
       attendance_record_report = AttendanceRecordReport.build(current_entity_configuration,
                                                               current_teacher,
-                                                              current_school_calendar.year,
+                                                              current_user_school_year,
                                                               @attendance_record_report_form.start_at,
                                                               @attendance_record_report_form.end_at,
                                                               @attendance_record_report_form.daily_frequencies,
@@ -26,7 +25,7 @@ class AttendanceRecordReportController < ApplicationController
                                                               current_school_calendar)
       send_pdf(t("routes.attendance_record"), attendance_record_report.render)
     else
-      @attendance_record_report_form.school_calendar_year = current_school_calendar.year
+      @attendance_record_report_form.school_calendar_year = current_user_school_year
       fetch_collections
       clear_invalid_dates
       render :form
