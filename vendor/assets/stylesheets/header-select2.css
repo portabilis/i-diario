@@ -13,6 +13,7 @@
 #header .select2-chosen {
   color: #B2C1D5;
   margin-right: 10px;
+  font-size: 12px;
 }
 
 #header .select2-dropdown-open .select2-choice {

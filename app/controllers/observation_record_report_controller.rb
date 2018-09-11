@@ -1,6 +1,5 @@
 class ObservationRecordReportController < ApplicationController
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def form
     @observation_record_report_form = ObservationRecordReportForm.new(

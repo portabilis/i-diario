@@ -44,7 +44,7 @@ RSpec.describe CurrentSchoolCalendarFetcher, type: :service do
   def stub_school_calendar_query
     stub_const('SchoolCalendarQuery', Class.new)
     allow(SchoolCalendarQuery).to(
-      receive(:new).with(unity).and_return(school_calendar_query)
+      receive(:new).with(unity, nil).and_return(school_calendar_query)
     )
     allow(school_calendar_query).to receive(:school_calendar).and_return(school_calendar)
   end
