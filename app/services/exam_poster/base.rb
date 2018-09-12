@@ -49,7 +49,7 @@ module ExamPoster
     end
 
     def get_step_by_step_number(classroom, step_number)
-      current_step_exam_poster = "#{Entity.current.id}_#{classroom.id}_#{step_number}_current_step_exam_poster"
+      current_step_exam_poster = "#{@entity_id}_#{classroom.id}_#{step_number}_current_step_exam_poster"
 
       Rails.cache.fetch(current_step_exam_poster, expires_in: 5.minutes) do
         StepsFetcher.new(classroom).steps.find do |step|

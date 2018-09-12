@@ -59,29 +59,27 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def create_and_update_batch
-    selected_school_calendars(params[:synchronize]).each do |school_calendar|
-      unity = Unity.find(school_calendar[:unity_id])
-
-      if school_calendar_is_synchronizing(unity.id)
-        redirect_to synchronize_school_calendars_path, alert: t('.school_calendar_is_synchronizing', unity: unity.name) unless performed?
-      else
-        job_id = SchoolCalendarSynchronizerWorker.perform_in(10.seconds, current_entity.id, school_calendar, current_user.id)
-
-        WorkerState.create(
-          user: current_user,
-          job_id: job_id,
-          kind: 'SchoolCalendarSynchronizerWorker',
-          status: ApiSynchronizationStatus::STARTED,
-          uuid: unity.id
-        )
+    begin
+      selected_school_calendars(params[:synchronize]).each do |school_calendar|
+        SchoolCalendarSynchronizerService.synchronize(school_calendar)
       end
-    end
 
-    redirect_to school_calendars_path, notice: t('.notice') unless performed?
+      redirect_to school_calendars_path, notice: t('.notice')
+    rescue SchoolCalendarsCreator::InvalidSchoolCalendarError,
+            SchoolCalendarsCreator::InvalidClassroomCalendarError,
+            SchoolCalendarsUpdater::InvalidSchoolCalendarError,
+            SchoolCalendarsUpdater::InvalidClassroomCalendarError => error
+      Honeybadger.notify(e)
+
+      redirect_to synchronize_school_calendars_path, alert: error.to_s
+    rescue
+      redirect_to synchronize_school_calendars_path, alert: t('.alert')
+    end
   end
 
   def years_from_unity
     @years = YearsFromUnityFetcher.new(params[:unity_id]).fetch.map{ |year| { id: year, name: year } }
+
     render json: @years
   end
 
@@ -96,14 +94,6 @@ class SchoolCalendarsController < ApplicationController
 
   def selected_school_calendars(school_calendars)
     school_calendars.select { |school_calendar| school_calendar[:unity_id].present? }
-  end
-
-  def school_calendar_is_synchronizing(unity_id)
-    WorkerState.where(
-      kind: 'SchoolCalendarSynchronizerWorker',
-      status: ApiSynchronizationStatus::STARTED,
-      uuid: unity_id
-    ).any?
   end
 
   def filtering_params(params)

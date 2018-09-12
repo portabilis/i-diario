@@ -108,7 +108,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       create(
         :current_school_term_recovery_diary_record,
         recovery_diary_record: recovery_diary_record,
-        school_calendar_step: avaliation.current_step
+        step_id: StepsFetcher.new(recovery_diary_record.classroom).step(recovery_diary_record.recorded_at).id
       )
     }
     context 'hasnt complementary exams' do

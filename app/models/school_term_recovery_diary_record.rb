@@ -11,8 +11,6 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   has_associated_audits
 
   belongs_to :recovery_diary_record, dependent: :destroy
-  belongs_to :school_calendar_step, -> { unscope(where: :active).includes(:school_calendar) }
-  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
 
   accepts_nested_attributes_for :recovery_diary_record
 
@@ -25,12 +23,6 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   }
   scope :by_discipline_id, lambda { |discipline_id|
     joins(:recovery_diary_record).where(recovery_diary_records: { discipline_id: discipline_id })
-  }
-  scope :by_school_calendar_step_id, lambda { |school_calendar_step_id|
-    where(school_calendar_step_id: school_calendar_step_id)
-  }
-  scope :by_school_calendar_classroom_step_id, lambda { |school_calendar_classroom_step_id|
-    where(school_calendar_classroom_step_id: school_calendar_classroom_step_id)
   }
   scope :by_recorded_at, lambda { |recorded_at| where(recorded_at: recorded_at) }
   scope :ordered, -> { order(arel_table[:recorded_at].desc) }

@@ -12,8 +12,6 @@ class DescriptiveExam < ActiveRecord::Base
 
   belongs_to :classroom
   belongs_to :discipline
-  belongs_to :school_calendar_step, -> { unscope(where: :active) }
-  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
 
   has_many :students, class_name: 'DescriptiveExamStudent', dependent: :destroy
 

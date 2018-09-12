@@ -17,8 +17,6 @@ class ConceptualExam < ActiveRecord::Base
   has_many :conceptual_exam_values, -> {
     includes(:conceptual_exam, discipline: :knowledge_area)
   }, dependent: :destroy
-  belongs_to :school_calendar_step, -> { unscope(where: :active) }
-  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
 
   accepts_nested_attributes_for :conceptual_exam_values, allow_destroy: true
 
