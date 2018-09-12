@@ -1,6 +1,6 @@
 class UpdateCurrentClassroomIdToTeachersWithWrongValue < ActiveRecord::Migration
   def change
-    xecute <<-SQL
+    execute <<-SQL
       UPDATE users
         SET current_classroom_id = u.classroom_id
           FROM
