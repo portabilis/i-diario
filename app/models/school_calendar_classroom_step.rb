@@ -11,8 +11,6 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   validate :dates_for_posting_less_than_start_date
   validate :end_date_less_than_start_date_for_posting
 
-  default_scope { active }
-
   scope :by_school_day, lambda { |date| where('? BETWEEN start_at AND end_at', date) }
   scope :by_classroom, lambda { |classroom|
     joins(school_calendar_classroom: [:school_calendar]).where(school_calendar_classrooms: { classroom_id: classroom })
@@ -28,8 +26,6 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   }
   scope :by_step_year, lambda { |year| where('extract(year from start_at) = ?', year) }
   scope :ordered, -> { order(:start_at) }
-  scope :inactive, -> { where(active: false) }
-  scope :active, -> { where(active: true) }
 
   delegate :classroom, :school_calendar_id, to: :school_calendar_classroom
 
