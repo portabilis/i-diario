@@ -66,13 +66,14 @@ class SchoolCalendarsController < ApplicationController
 
       redirect_to school_calendars_path, notice: t('.notice')
     rescue SchoolCalendarsCreator::InvalidSchoolCalendarError,
-            SchoolCalendarsCreator::InvalidClassroomCalendarError,
-            SchoolCalendarsUpdater::InvalidSchoolCalendarError,
-            SchoolCalendarsUpdater::InvalidClassroomCalendarError => error
-      Honeybadger.notify(e)
+           SchoolCalendarsCreator::InvalidClassroomCalendarError,
+           SchoolCalendarsUpdater::InvalidSchoolCalendarError,
+           SchoolCalendarsUpdater::InvalidClassroomCalendarError => error
 
       redirect_to synchronize_school_calendars_path, alert: error.to_s
-    rescue
+    rescue StandardError => error
+      Honeybadger.notify(error)
+
       redirect_to synchronize_school_calendars_path, alert: t('.alert')
     end
   end
