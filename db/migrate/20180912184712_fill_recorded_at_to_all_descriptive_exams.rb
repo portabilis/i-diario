@@ -1,4 +1,4 @@
-class FillRecordedAtToDescriptiveExams < ActiveRecord::Migration
+class FillRecordedAtToAllDescriptiveExams < ActiveRecord::Migration
   def change
     execute <<-SQL
       UPDATE descriptive_exams
@@ -13,6 +13,10 @@ class FillRecordedAtToDescriptiveExams < ActiveRecord::Migration
           ON scc.id = sccs.school_calendar_classroom_id
        WHERE sccs.id = descriptive_exams.school_calendar_classroom_step_id
          AND scc.classroom_id = descriptive_exams.classroom_id;
+
+      UPDATE descriptive_exams
+         SET recorded_at = created_at
+       WHERE recorded_at IS NULL;
     SQL
   end
 end

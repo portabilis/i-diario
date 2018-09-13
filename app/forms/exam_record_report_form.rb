@@ -50,13 +50,13 @@ class ExamRecordReportForm
   def step
     return unless school_calendar_step_id
 
-    SchoolCalendarStep.unscoped.find(school_calendar_step_id)
+    SchoolCalendarStep.find(school_calendar_step_id)
   end
 
   def classroom_step
     return unless school_calendar_classroom_step_id
 
-    SchoolCalendarClassroomStep.unscoped.find(school_calendar_classroom_step_id)
+    SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
   end
 
   def complementary_exams
