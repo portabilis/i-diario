@@ -292,4 +292,6 @@ $(function() {
     removeDisciplines();
     fetchDisciplines();
   });
+
+  fetchExamRule();
 });

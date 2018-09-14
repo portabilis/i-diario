@@ -4,10 +4,13 @@ class StudentsController < ApplicationController
   def index
     if params[:classroom_id].present?
       date = params[:date] || Date.today
-      step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
-      step = steps_fetcher.steps.find(step_id)
-      step_number = step.to_number
-      start_date = params[:start_date] || step.start_at
+      start_date = params[:start_date]
+
+      if step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
+        step = steps_fetcher.steps.find(step_id)
+        step_number = step.to_number
+        start_date ||= step.start_at
+      end
 
       @students = StudentsFetcher.new(
         classroom,
