@@ -33,13 +33,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
           current_entity_configuration,
           @knowledge_area_teaching_plan
         )
-
-        send_data(
-          knowledge_area_teaching_plan_pdf.render,
-          filename: 'planos-de-ensino-por-areas-de-conhecimento.pdf',
-          type: 'application/pdf',
-          disposition: 'inline'
-        )
+        send_pdf(t("routes.knowledge_area_teaching_plans"), knowledge_area_teaching_plan_pdf.render)
       end
     end
   end
