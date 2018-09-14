@@ -8,7 +8,7 @@ class StudentUnityChecker
 
   def present?
     results = get_student_registrations @student.api_code
-    results.any?{|record| record["ano"] == Date.today.year.to_s &&
+    results.any?{|record| record["ano"] == Date.current.year.to_s &&
                           record["codigo_situacao"] == "3" &&
                           record["escola_id"] == @unity.api_code }
   end
