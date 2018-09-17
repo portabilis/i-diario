@@ -12,7 +12,7 @@ class StepsFetcher
   end
 
   def current_step
-    step_by_date(Date.today)
+    step_by_date(Date.current)
   end
 
   def step_belongs_to_date?(step_id, date)

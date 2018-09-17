@@ -82,8 +82,8 @@ class V1::BiometricController < V1::BaseController
     api.fetch_registereds(
       {
         unity_api_code: api_code,
-        date: Date.today,
-        year: Date.today.year
+        date: Date.current,
+        year: Date.current.year
       }
     )["alunos"].uniq
   end
