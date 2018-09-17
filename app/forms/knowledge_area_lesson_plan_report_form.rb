@@ -21,7 +21,7 @@ class KnowledgeAreaLessonPlanReportForm
     relation = KnowledgeAreaLessonPlan.by_classroom_id(classroom_id)
                                       .by_date_range(date_start.to_date, date_end.to_date)
                                       .by_teacher_id(teacher_id)
-                                      .order(LessonPlan.arel_table[:start_at].asc)
+                                      .order_by_lesson_plan_date
     relation = relation.by_knowledge_area_id(knowledge_area_id) if knowledge_area_id.present?
     relation
   end
@@ -30,7 +30,7 @@ class KnowledgeAreaLessonPlanReportForm
     relation = KnowledgeAreaContentRecord.by_classroom_id(classroom_id)
                                          .by_date_range(date_start.to_date, date_end.to_date)
                                          .by_teacher_id(teacher_id)
-                                         .order(ContentRecord.arel_table[:record_date].asc)
+                                         .order_by_content_record_date
     relation = relation.by_knowledge_area_id(knowledge_area_id) if knowledge_area_id.present?
     relation
   end
