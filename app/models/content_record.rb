@@ -37,7 +37,7 @@ class ContentRecord < ActiveRecord::Base
   end
 
   def self.fromLastDays days
-    start_date = (Date.today - days.days).to_date
+    start_date = (Date.current - days.days).to_date
     where('record_date >= ? ', start_date)
   end
 

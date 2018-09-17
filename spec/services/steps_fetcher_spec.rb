@@ -40,7 +40,7 @@ RSpec.describe StepsFetcher, type: :service do
     describe '#current_step' do
       context 'when there is step of the school calendar on the current date' do
         it 'returns the step' do
-          step = school_calendar.step(Date.today)
+          step = school_calendar.step(Date.current)
 
           expect(subject.current_step).to eq(step)
         end
@@ -48,7 +48,7 @@ RSpec.describe StepsFetcher, type: :service do
 
       context 'when there is no step of the school calendar on the current date' do
         it 'returns nil' do
-          Timecop.freeze(Date.today.year, step.start_at.month, 1, 0, 0, 0) do
+          Timecop.freeze(Date.current.year, step.start_at.month, 1, 0, 0, 0) do
             expect(subject.current_step).to eq(nil)
           end
         end
@@ -104,7 +104,7 @@ RSpec.describe StepsFetcher, type: :service do
     describe '#current_step' do
       context 'when there is step of the classroom on the current date' do
         it 'returns the step of the classroom' do
-          step = school_calendar_classroom.classroom_step(Date.today)
+          step = school_calendar_classroom.classroom_step(Date.current)
 
           expect(subject.current_step).to eq(step)
         end
@@ -112,7 +112,7 @@ RSpec.describe StepsFetcher, type: :service do
 
       context 'when there is no step of the classroom on the current date' do
         it 'returns nil' do
-          Timecop.freeze(Date.today.year, step.start_at.month, 1, 0, 0, 0) do
+          Timecop.freeze(Date.current.year, step.start_at.month, 1, 0, 0, 0) do
             expect(subject.current_step).to eq(nil)
           end
         end
