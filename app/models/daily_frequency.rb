@@ -22,6 +22,7 @@ class DailyFrequency < ActiveRecord::Base
 
   validate :frequency_date_must_be_less_than_or_equal_to_today
   validate :frequency_must_be_global_or_discipline
+  validate :ensure_belongs_to_step
 
   scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
         lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at=Time.zone.now| where(unity_id: unity_id,
@@ -78,5 +79,9 @@ class DailyFrequency < ActiveRecord::Base
        !discipline && class_number
       errors.add(:base, :frequency_type_must_be_valid)
     end
+  end
+
+  def ensure_belongs_to_step
+    errors.add(:frequency_date, I18n.t('errors.messages.not_school_calendar_day')) if school_calendar.step(frequency_date).blank?
   end
 end
