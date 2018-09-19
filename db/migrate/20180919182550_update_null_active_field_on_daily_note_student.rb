@@ -1,8 +1,9 @@
 class UpdateNullActiveFieldOnDailyNoteStudent < ActiveRecord::Migration
   def change
-    DailyNoteStudent.where(active: nil).each do |daily_note_student|
-      daily_note_student.active = true
-      daily_note_student.save
-    end
+    execute <<-SQL
+      UPDATE daily_note_students
+         SET active = true
+       WHERE active is null
+    SQL
   end
 end
