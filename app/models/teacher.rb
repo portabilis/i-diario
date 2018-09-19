@@ -18,7 +18,7 @@ class Teacher < ActiveRecord::Base
   def self.active_query
     joins_teacher_discipline_classrooms.where(
       active: true
-    )
+    ).uniq
   end
 
   def self.search(value)

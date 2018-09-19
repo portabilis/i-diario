@@ -3,7 +3,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def index
     @knowledge_area_lesson_plans = apply_scopes(KnowledgeAreaLessonPlan)
@@ -37,13 +36,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
           @knowledge_area_lesson_plan,
           current_teacher
         )
-
-        send_data(
-          knowledge_area_lesson_plan_pdf.render,
-          filename: 'planos-de-aula-por-area-de-conhecimento.pdf',
-          type: 'application/pdf',
-          disposition: 'inline'
-        )
+        send_pdf(t("routes.knowledge_area_lesson_plans"), knowledge_area_lesson_plan_pdf.render)
       end
     end
   end

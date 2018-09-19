@@ -45,7 +45,8 @@ class FeaturesAccessLevels
       :transfer_notes,
       :teacher_report_cards,
       :complementary_exams,
-      :ieducar_api_exam_posting_without_restrictions
+      :ieducar_api_exam_posting_without_restrictions,
+      :change_school_year
     ]
   end
 

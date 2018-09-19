@@ -13,7 +13,7 @@ FactoryGirl.define do
 
     before(:create) do |content_record, evaluator|
       content_record.contents = create_list(:content, evaluator.contents_count)
-      school_calendar = create(:school_calendar_with_one_step, unity: content_record.unity, year: Date.current.year)
+      school_calendar = create(:school_calendar_with_one_step, unity: content_record.unity, year: content_record.classroom.year)
       content_record.record_date = 1.business_days.after(Date.parse("#{school_calendar.year}-01-01"))
     end
   end

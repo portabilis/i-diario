@@ -8,7 +8,7 @@ class DashboardController < ApplicationController
   end
 
   def load_parent_dashboard_info
-    @panels = ParentDashboardBuilder.new(current_user, Date.today).build
+    @panels = ParentDashboardBuilder.new(current_user, Date.current).build
   end
 
   private
