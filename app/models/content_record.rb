@@ -37,12 +37,12 @@ class ContentRecord < ActiveRecord::Base
   end
 
   def self.fromLastDays days
-    start_date = (Date.today - days.days).to_date
+    start_date = (Date.current - days.days).to_date
     where('record_date >= ? ', start_date)
   end
 
   def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
+    CurrentSchoolCalendarFetcher.new(unity, classroom, classroom.year).fetch
   end
 
   def unity

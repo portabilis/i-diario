@@ -1,6 +1,8 @@
 class Avaliation < ActiveRecord::Base
   acts_as_copy_target
 
+  # acts_as_paranoid
+
   audited
   has_associated_audits
 
@@ -138,12 +140,12 @@ class Avaliation < ActiveRecord::Base
   private
 
   def self.by_school_calendar_step_query(school_calendar_step_id)
-    school_calendar_step = SchoolCalendarStep.find(school_calendar_step_id)
+    school_calendar_step = SchoolCalendarStep.unscoped.find(school_calendar_step_id)
     self.by_test_date_between(school_calendar_step.start_at, school_calendar_step.end_at)
   end
 
   def self.by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)
-    school_calendar_classroom_step = SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
+    school_calendar_classroom_step = SchoolCalendarClassroomStep.unscoped.find(school_calendar_classroom_step_id)
     self.by_test_date_between(school_calendar_classroom_step.start_at, school_calendar_classroom_step.end_at)
   end
 

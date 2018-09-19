@@ -1,0 +1,3 @@
+$(function () {
+  $('textarea[maxLength]').maxlength();
+});

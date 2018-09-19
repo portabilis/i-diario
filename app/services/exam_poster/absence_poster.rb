@@ -44,8 +44,8 @@ module ExamPoster
 
       teacher.classrooms.uniq.each do |classroom|
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
-        next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
         next unless step_exists_for_classroom?(classroom)
+        next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
 
         daily_frequencies = DailyFrequency
           .by_classroom_id(classroom.id)
@@ -77,8 +77,8 @@ module ExamPoster
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           next if teacher_discipline_classroom.classroom.unity_id != @post_data.step.school_calendar.unity_id
-          next if classroom.exam_rule.frequency_type != FrequencyTypes::BY_DISCIPLINE
           next unless step_exists_for_classroom?(classroom)
+          next if classroom.exam_rule.frequency_type != FrequencyTypes::BY_DISCIPLINE
 
           discipline = teacher_discipline_classroom.discipline
 
@@ -121,7 +121,7 @@ module ExamPoster
           end
         end
       else
-        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_school_day(Time.zone.today).first
+        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_year(classroom.year).first
 
         school_calendar.steps.each do |school_step|
           if school_step.to_number == @post_data.step.to_number
@@ -144,7 +144,7 @@ module ExamPoster
           end
         end
       else
-        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_school_day(Time.zone.today).first
+        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_year(classroom.year).first
 
         school_calendar.steps.each do |school_step|
           if school_step.to_number == @post_data.step.to_number
