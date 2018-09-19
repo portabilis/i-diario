@@ -40,7 +40,7 @@ class LessonPlan < ActiveRecord::Base
   scope :ordered, -> { joins(:classroom).order('description ASC') }
 
   def self.fromLastDays days
-    start_date = (Date.today - days.days).to_date
+    start_date = (Date.current - days.days).to_date
     where('start_at <= current_date AND end_at >= ? ', start_date)
   end
 

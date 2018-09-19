@@ -3,7 +3,6 @@ class DisciplineLessonPlansController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def index
     @discipline_lesson_plans = apply_scopes(DisciplineLessonPlan)
@@ -39,13 +38,7 @@ class DisciplineLessonPlansController < ApplicationController
           @discipline_lesson_plan,
           current_teacher
         )
-
-        send_data(
-          discipline_lesson_plan_pdf.render,
-          filename: 'planos-de-aula-por-disciplina.pdf',
-          type: 'application/pdf',
-          disposition: 'inline'
-        )
+        send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
       end
     end
   end

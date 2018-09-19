@@ -1,6 +1,5 @@
 class TeacherReportCardsController < ApplicationController
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def form
     @teacher_report_card_form = TeacherReportCardForm.new(unity_id: current_user_unity.id)
@@ -32,8 +31,7 @@ class TeacherReportCardsController < ApplicationController
         ano: year,
         professor: current_teacher.to_s
       })
-
-      send_data report, type: 'application/pdf', disposition: 'inline', filename: 'boletim.pdf'
+      send_pdf(t("routes.teacher_report_cards"), report)
     else
       render :form
     end

@@ -2,7 +2,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_school_calendar
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
 
   def index
@@ -34,13 +33,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
           current_entity_configuration,
           @knowledge_area_teaching_plan
         )
-
-        send_data(
-          knowledge_area_teaching_plan_pdf.render,
-          filename: 'planos-de-ensino-por-areas-de-conhecimento.pdf',
-          type: 'application/pdf',
-          disposition: 'inline'
-        )
+        send_pdf(t("routes.knowledge_area_teaching_plans"), knowledge_area_teaching_plan_pdf.render)
       end
     end
   end

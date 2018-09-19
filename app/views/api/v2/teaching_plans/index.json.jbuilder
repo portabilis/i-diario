@@ -1,7 +1,7 @@
 json.unities @unities do |unity|
   teaching_plans = TeachingPlan.by_unity_id(unity.id)
                                .by_teacher_id(params[:teacher_id])
-                               .by_year(Date.today.year)
+                               .by_year(Date.current.year)
                                .includes(:unity)
 
   json.unity_name unity.to_s

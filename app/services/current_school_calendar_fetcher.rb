@@ -1,19 +1,20 @@
 class CurrentSchoolCalendarFetcher
-  def initialize(unity, classroom)
+  def initialize(unity, classroom, year = nil)
     @unity = unity
     @classroom = classroom
+    @year = year
   end
 
   def fetch
     if has_classroom_steps?
       SchoolCalendarClassroomQuery.new(unity, classroom).school_calendar
     else
-      SchoolCalendarQuery.new(unity).school_calendar
+      SchoolCalendarQuery.new(unity, year).school_calendar
     end
   end
 
   private
-  attr_accessor :unity, :classroom
+  attr_accessor :unity, :classroom, :year
 
   def has_classroom_steps?
     return false if classroom.nil?

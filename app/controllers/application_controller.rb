@@ -172,7 +172,7 @@ class ApplicationController < ActionController::Base
   def current_school_calendar
     return if current_user.admin? && current_user_unity.blank?
 
-    CurrentSchoolCalendarFetcher.new(current_user_unity, current_user_classroom).fetch
+    CurrentSchoolCalendarFetcher.new(current_user_unity, current_user_classroom, current_user_school_year).fetch
   end
 
   def current_test_setting
@@ -193,17 +193,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def require_current_school_calendar
-    school_calendar = current_school_calendar
-
-    if school_calendar
-      require_valid_school_calendar(school_calendar)
-    else
-      flash[:alert] = t('errors.general.require_current_school_calendar')
-      redirect_to root_path
-    end
-  end
-
   def require_current_test_setting
     unless current_test_setting
       flash[:alert] = t('errors.general.require_current_test_setting')
@@ -217,6 +206,11 @@ class ApplicationController < ActionController::Base
       redirect_to root_path
     end
   end
+
+  def can_change_school_year?
+    @can_change_school_year ||= current_user.can_change_school_year?
+  end
+  helper_method :can_change_school_year?
 
   def current_user_unity
     @current_user_unity ||= current_user.current_unity
@@ -232,6 +226,14 @@ class ApplicationController < ActionController::Base
     @current_user_discipline ||= current_user.try(:current_discipline)
   end
   helper_method :current_user_discipline
+
+  def current_user_available_years
+    return [] unless current_user_unity
+    @current_user_available_years ||= begin
+      YearsFromUnityFetcher.new(current_user_unity.id).fetch.map{|year| { id: year, name: year }}
+    end
+  end
+  helper_method :current_user_available_years
 
   def current_user_available_teachers
     return [] unless current_user_unity
@@ -279,6 +281,11 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_unities
 
+  def current_user_school_year
+    current_user.try(:current_school_year)
+  end
+  helper_method :current_user_school_year
+
   def valid_current_role?
     CurrentRoleForm.new(
       current_user_id: current_user.id,
@@ -287,7 +294,8 @@ class ApplicationController < ActionController::Base
       current_classroom_id: current_user.current_classroom_id,
       current_discipline_id: current_user.current_discipline_id,
       current_unity_id: current_user.current_unity_id,
-      assumed_teacher_id: current_user.assumed_teacher_id
+      assumed_teacher_id: current_user.assumed_teacher_id,
+      current_school_year: current_user.current_school_year
     ).valid?
   end
   helper_method :valid_current_role?
@@ -341,5 +349,17 @@ class ApplicationController < ActionController::Base
       teacher_id: params[:teacher_id],
       discipline_id: params[:discipline_id]
     )
+  end
+
+  def send_pdf(prefix, pdf_to_s)
+    name = report_name(prefix)
+    File.open("#{Rails.root}/public#{name}", 'wb') do |f| 
+      f.write(pdf_to_s) 
+    end
+    redirect_to name
+  end
+
+  def report_name(prefix)
+    "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
   end
 end

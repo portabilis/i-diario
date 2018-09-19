@@ -3,7 +3,7 @@ class StudentsController < ApplicationController
 
   def index
     if params[:classroom_id]
-      date = params[:date].present? ? params[:date] : Date.today
+      date = params[:date].present? ? params[:date] : Date.current
       classroom = Classroom.find(params[:classroom_id])
       step_number ||= SchoolCalendarClassroomStep.unscoped.find_by_id(params[:school_calendar_classroom_step_id]).try(:to_number)
       step_number ||= SchoolCalendarStep.unscoped.find_by_id(params[:school_calendar_step_id]).try(:to_number)

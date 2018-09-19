@@ -5,7 +5,6 @@ class AvaliationsController < ApplicationController
   respond_to :html, :js, :json
 
   before_action :require_current_teacher, except: [:search]
-  before_action :require_current_school_calendar
   before_action :require_current_test_setting
   before_action :set_number_of_classes, only: [:new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms]
 
@@ -191,5 +190,19 @@ class AvaliationsController < ApplicationController
                                        :test_setting_test_id,
                                        :weight,
                                        :observations)
+  end
+
+  def interpolation_options
+    reasons = []
+
+    if !resource.grades_allow_destroy
+      reasons << t('avaliation.grades_avoid_destroy')
+    end
+
+    if !resource.recovery_allow_destroy
+      reasons << t('avaliation.recovery_avoid_destroy')
+    end
+
+    { reason: reasons.join(" e ") }
   end
 end
