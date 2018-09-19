@@ -7,6 +7,6 @@ class ExemptedDisciplinesInStep
     SpecificStep.where(classroom_id: @classroom_id)
                 .where("not (? = ANY(string_to_array(used_steps, ',')::integer[]))", step_number)
                 .where.not(used_steps: '')
-                .map(&:discipline_id)
+                .pluck(:discipline_id)
   end
 end

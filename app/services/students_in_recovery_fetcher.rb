@@ -51,7 +51,7 @@ class StudentsInRecoveryFetcher
   end
 
   def step
-    @step = steps_fetcher.steps.find(@step_id)
+    @step ||= steps_fetcher.steps.find(@step_id)
   end
 
   def fetch_students_in_parallel_recovery(differentiated = nil)
