@@ -66,6 +66,6 @@ class OldStepsConceptualValuesFetcher
   end
 
   def rounding_table
-    @rounding_table ||= @classroom.exam_rule.try(:rounding_table)
+    @rounding_table ||= ExamRuleFetcher.fetch(@classroom, @student).try(:rounding_table)
   end
 end
