@@ -205,7 +205,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def student_exempted_from_discipline?(student_enrollment)
-    if discipline_id = @descriptive_exam.discipline.try(&:id)
+    if discipline_id = @descriptive_exam.discipline.try(:id)
       step_number = @descriptive_exam.step.to_number
 
       return student_enrollment.exempted_disciplines.by_discipline(discipline_id)

@@ -28,7 +28,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = ConceptualExam.new(
       unity_id: current_user_unity.id,
       classroom_id: current_user_classroom.id,
-      recorded_at: Date.today
+      recorded_at: Date.current
     ).localized
 
     if params[:conceptual_exam].present?
@@ -218,12 +218,10 @@ class ConceptualExamsController < ApplicationController
   end
 
   def disciplines_with_assignment
-    disciplines = TeacherDisciplineClassroom.by_classroom(@conceptual_exam.classroom_id)
-                                            .by_year(current_school_calendar.year)
-                                            .pluck(:discipline_id)
-                                            .uniq
-
-    disciplines
+    TeacherDisciplineClassroom.by_classroom(@conceptual_exam.classroom_id)
+                              .by_year(current_school_calendar.year)
+                              .pluck(:discipline_id)
+                              .uniq
   end
 
   def fetch_collections
@@ -300,7 +298,7 @@ class ConceptualExamsController < ApplicationController
         respond_with(
           @conceptual_exam,
           location: new_conceptual_exam_path(
-            conceptual_exam: next_conceptual_exam.attributes.merge({step_id: @conceptual_exam.step_id})
+            conceptual_exam: next_conceptual_exam.attributes.merge(step_id: @conceptual_exam.step_id)
           )
         )
       else
