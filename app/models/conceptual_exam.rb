@@ -92,6 +92,14 @@ class ConceptualExam < ActiveRecord::Base
     self.school_calendar_classroom_step || self.school_calendar_step
   end
 
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
+  end
+
   private
 
   def student_must_have_conceptual_exam_score_type
@@ -156,14 +164,6 @@ class ConceptualExam < ActiveRecord::Base
 
     unless StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
       errors.add(:base, :student_is_not_in_classroom)
-    end
-  end
-
-  def valid_for_destruction?
-    @valid_for_destruction if defined?(@valid_for_destruction)
-    @valid_for_destruction = begin
-      valid?
-      !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end
   end
 end

@@ -99,7 +99,7 @@ class DailyNote < ActiveRecord::Base
   def avaliation_test_date_must_be_valid_posting_date
     return unless test_date && classroom
     return true if PostingDateChecker.new(classroom, test_date).check
-    errors.add(:base, I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    errors.add(:avaliation, I18n.t('errors.messages.not_allowed_to_post_in_date'))
     false
   end
 

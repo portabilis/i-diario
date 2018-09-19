@@ -5,7 +5,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
   audited
   has_associated_audits
 
-  before_destroy :valid_for_destruction?
+  before_destroy :valid_for_destruction?, prepend: true
 
   attr_accessor :unity_id
 
@@ -64,7 +64,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
       valid?
-      !errors[:frequency_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+      !errors[:date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end
   end
 end
