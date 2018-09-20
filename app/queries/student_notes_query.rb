@@ -12,6 +12,16 @@ class StudentNotesQuery
                     .by_discipline_id(discipline)
                     .by_classroom_id(classroom)
                     .by_test_date_between(start_at, end_at)
+                    .includes(
+                      daily_note: [
+                        avaliation: [
+                          :recovery_diary_record,
+                          :test_setting_test,
+                          :discipline,
+                          :school_calendar
+                        ]
+                      ]
+                    )
   end
 
   def recovery_diary_records
