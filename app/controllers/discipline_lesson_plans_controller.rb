@@ -38,13 +38,7 @@ class DisciplineLessonPlansController < ApplicationController
           @discipline_lesson_plan,
           current_teacher
         )
-
-        send_data(
-          discipline_lesson_plan_pdf.render,
-          filename: 'planos-de-aula-por-disciplina.pdf',
-          type: 'application/pdf',
-          disposition: 'inline'
-        )
+        send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
       end
     end
   end

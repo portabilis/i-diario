@@ -26,7 +26,7 @@ class SchoolCalendarSynchronizerService
   end
 
   def set_assigned_teacher_by_school_calendar(school_calendar)
-    current_year = SchoolCalendar.by_unity_id(school_calendar['unity_id']).by_school_day(Date.today).first.try(:year)
+    current_year = SchoolCalendar.by_unity_id(school_calendar['unity_id']).by_school_day(Date.current).first.try(:year)
 
     User.by_current_unity_id(school_calendar['unity_id']).each do |user|
       classrooms_in_school_calendar_classrooms = SchoolCalendarClassroom.joins(:classroom)
@@ -45,7 +45,7 @@ class SchoolCalendarSynchronizerService
 
   def set_assigned_teacher_by_school_calendar_classrooms(school_calendar)
     current_classroom_ids = SchoolCalendarClassroom.by_unity_id(school_calendar['unity_id']).joins(:classroom_steps)
-                                                    .merge(SchoolCalendarClassroomStep.by_school_day(Date.today))
+                                                    .merge(SchoolCalendarClassroomStep.by_school_day(Date.current))
                                                     .map(&:classroom_id)
 
     User.by_current_unity_id(school_calendar['unity_id']).each do |user|
@@ -64,7 +64,7 @@ class SchoolCalendarSynchronizerService
   end
 
   def set_classroom_and_discipline_by_school_calendar(school_calendar)
-    current_year = SchoolCalendar.by_unity_id(school_calendar['unity_id']).by_school_day(Date.today).first.try(:year)
+    current_year = SchoolCalendar.by_unity_id(school_calendar['unity_id']).by_school_day(Date.current).first.try(:year)
 
     User.by_current_unity_id(school_calendar['unity_id']).each do |user|
       classroom_year = Classroom.find_by_id(user.current_classroom_id).try(:year)
@@ -80,7 +80,7 @@ class SchoolCalendarSynchronizerService
 
   def set_classroom_and_discipline_by_school_calendar_classrooms(school_calendar)
     current_classroom_ids = SchoolCalendarClassroom.by_unity_id(school_calendar['unity_id']).joins(:classroom_steps)
-                                                    .merge(SchoolCalendarClassroomStep.by_school_day(Date.today))
+                                                    .merge(SchoolCalendarClassroomStep.by_school_day(Date.current))
                                                     .map(&:classroom_id)
 
     User.by_current_unity_id(school_calendar['unity_id']).each do |user|

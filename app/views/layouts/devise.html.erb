@@ -32,13 +32,13 @@
     <%= render '/layouts/not_logged_header' %>
 
     <div id="main" role="main">
-      <% if Date.today.month == 10 %>
-        <a href="https://www.google.com.br/#q=outubro+rosa+<%= "#{Date.today.year}" %>" target="_blank">
+      <% if Date.current.month == 10 %>
+        <a href="https://www.google.com.br/#q=outubro+rosa+<%= "#{Date.current.year}" %>" target="_blank">
           <img src="https://s3-us-west-2.amazonaws.com/portabilis2/public/outubro_rosa/outubro_rosa.svg" width="100px" height="100px" class="custom-login-image" />
         </a>
       <% end %>
-      <% if Date.today.month == 11 %>
-        <a href="https://www.google.com.br/#q=novembro+azul+<%= "#{Date.today.year}" %>" target="_blank">
+      <% if Date.current.month == 11 %>
+        <a href="https://www.google.com.br/#q=novembro+azul+<%= "#{Date.current.year}" %>" target="_blank">
           <img src="https://s3-us-west-2.amazonaws.com/portabilis2/public/novembro_azul/novembro-azul.jpg" width="55px" height="100px" class="custom-login-image" />
         </a>
       <% end %>
