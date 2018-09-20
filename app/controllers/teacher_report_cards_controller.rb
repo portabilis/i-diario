@@ -31,8 +31,7 @@ class TeacherReportCardsController < ApplicationController
         ano: year,
         professor: current_teacher.to_s
       })
-
-      send_data report, type: 'application/pdf', disposition: 'inline', filename: 'boletim.pdf'
+      send_pdf(t("routes.teacher_report_cards"), report)
     else
       render :form
     end
