@@ -15,6 +15,7 @@ config/initializers/better_errors.rb
 config/database.yml
 config/secrets.yml
 /public/uploads
+/public/relatorios
 
 ## Environment normalisation:
 /.bundle
