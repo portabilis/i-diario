@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :daily_frequency do
-    frequency_date "01/03/2016"
+    frequency_date { Time.zone.today }
 
     unity
     classroom
