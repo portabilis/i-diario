@@ -20,11 +20,12 @@ class StudentNotesQuery
     RecoveryDiaryRecord.by_student_id(student)
                        .by_discipline_id(discipline)
                        .by_classroom_id(classroom)
-                       .joins(:avaliation_recovery_diary_record)
+                       .joins(:avaliation_recovery_diary_record, :students)
                        .merge(
                          AvaliationRecoveryDiaryRecord.by_test_date_between(start_at, end_at)
                                                       .where.not(avaliation_id: avaliation_ids)
                        )
+                       .where.not(recovery_diary_record_students: { score: nil })
   end
 
   private

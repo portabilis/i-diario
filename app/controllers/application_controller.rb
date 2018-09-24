@@ -350,4 +350,16 @@ class ApplicationController < ActionController::Base
       discipline_id: params[:discipline_id]
     )
   end
+
+  def send_pdf(prefix, pdf_to_s)
+    name = report_name(prefix)
+    File.open("#{Rails.root}/public#{name}", 'wb') do |f| 
+      f.write(pdf_to_s) 
+    end
+    redirect_to name
+  end
+
+  def report_name(prefix)
+    "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
+  end
 end
