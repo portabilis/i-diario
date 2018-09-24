@@ -12,7 +12,6 @@ class Features < EnumerateIt::Base
                    :ieducar_api_configurations,
                    :***REMOVED***,
                    :***REMOVED***,
-                   :***REMOVED***,
                    :***REMOVED***_classes,
                    :***REMOVED***,
                    :***REMOVED***,

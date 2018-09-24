@@ -26,7 +26,6 @@ class User < ActiveRecord::Base
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
-  has_many :***REMOVED***, dependent: :destroy
   has_many :requested_***REMOVED***, class_name: "***REMOVED***Request",
     foreign_key: :requestor_id, dependent: :restrict_with_error
   has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
@@ -252,12 +251,6 @@ class User < ActiveRecord::Base
 
   def can_receive_news_related_all_matters?
     roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
-  end
-
-  def can_publish?
-    current_user_role.try(:role_teacher?) ||
-      current_user_role.try(:role_employee?) ||
-      current_user_role.try(:role_administrator?)
   end
 
   def update_rd_lead
