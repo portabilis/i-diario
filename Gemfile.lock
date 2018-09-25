@@ -479,7 +479,7 @@ GEM
       activesupport (= 4.2.7.1)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
-    rake (12.3.1)
+    rake (11.1.2)
     rdoc (4.2.0)
     rdstation-ruby-client (0.0.4)
       httparty (~> 0.12)
@@ -667,6 +667,7 @@ DEPENDENCIES
   rack-cors (~> 0.4.1)
   rack-protection (~> 1.5.5)
   rails (~> 4.2.7.1)
+  rake (~> 11.1.0)
   rdstation-ruby-client
   responders (~> 2.0)
   rest-client!
