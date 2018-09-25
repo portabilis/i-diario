@@ -21,6 +21,16 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
             create_new_student_enrollment(record)
           end
         end
+
+        collection.each do |record|
+          next if student_id(record).blank?
+
+          if student_enrollment = student_enrollments.find_by(api_code: record["matricula_id"])
+            student_enrollment.student_enrollment_classrooms.each do |student_enrollment_classroom|
+              DeleteInvalidPresenceRecordService.new(student_enrollment_classroom).run!
+            end
+          end
+        end
       end
     end
   end
@@ -47,7 +57,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
 
     if record["enturmacoes"].present?
       record["enturmacoes"].each do |record_classroom|
-        student_enrollment_classroom = student_enrollment.student_enrollment_classrooms.create!(
+        student_enrollment.student_enrollment_classrooms.create!(
           api_code: record_classroom["sequencial"],
           classroom_id: Classroom.find_by(api_code: record_classroom["turma_id"]).try(:id),
           classroom_code: record_classroom["turma_id"],
@@ -55,12 +65,9 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
           left_at: record_classroom["data_saida"],
           changed_at: record_classroom["data_atualizacao"].to_s,
           sequence: record_classroom["sequencial_fechamento"],
-          show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"]
+          show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"],
+          visible: record_classroom["mostrar_enturmacao"]
         )
-
-        DeleteInvalidPresenceRecordService.new(student_enrollment_classroom).run!
-
-        student_enrollment_classroom
       end
     end
   end
@@ -82,7 +89,8 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       any_updated_or_new_record = false
       record["enturmacoes"].each do |record_classroom|
         if student_enrollment_classroom = student_enrollment.student_enrollment_classrooms.find_by(api_code: record_classroom["sequencial"])
-          any_updated_or_new_record = record_classroom["data_atualizacao"].to_s > student_enrollment_classroom.changed_at.to_s
+          any_updated_or_new_record = record_classroom["data_atualizacao"].blank? ||
+                                      record_classroom["data_atualizacao"].to_s > student_enrollment_classroom.changed_at.to_s
           break if any_updated_or_new_record
         else
           any_updated_or_new_record = true
@@ -93,7 +101,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       if any_updated_or_new_record
         student_enrollment.student_enrollment_classrooms.destroy_all
         record["enturmacoes"].each do |record_classroom|
-          student_enrollment_classroom = student_enrollment.student_enrollment_classrooms.create!(
+          student_enrollment.student_enrollment_classrooms.create!(
             api_code: record_classroom["sequencial"],
             classroom_id: Classroom.find_by(api_code: record_classroom["turma_id"]).try(:id),
             classroom_code: record_classroom["turma_id"],
@@ -101,17 +109,14 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
             left_at: record_classroom["data_saida"],
             changed_at: record_classroom["data_atualizacao"].to_s,
             sequence: record_classroom["sequencial_fechamento"],
-            show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"]
+            show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"],
+            visible: record_classroom["mostrar_enturmacao"]
           )
-
-          DeleteInvalidPresenceRecordService.new(student_enrollment_classroom).run!
-
-          student_enrollment_classroom
         end
       else
         record["enturmacoes"].each do |record_classroom|
           if !student_enrollment.student_enrollment_classrooms.find_by(api_code: record_classroom["sequencial"])
-            student_enrollment_classroom = student_enrollment.student_enrollment_classrooms.create!(
+            student_enrollment.student_enrollment_classrooms.create!(
               api_code: record_classroom["sequencial"],
               classroom_id: Classroom.find_by(api_code: record_classroom["turma_id"]).try(:id),
               classroom_code: record_classroom["turma_id"],
@@ -119,12 +124,9 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
               left_at: record_classroom["data_saida"],
               changed_at: record_classroom["data_atualizacao"].to_s,
               sequence: record_classroom["sequencial_fechamento"],
-              show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"]
+              show_as_inactive_when_not_in_date: record_classroom["apresentar_fora_da_data"],
+              visible: record_classroom["mostrar_enturmacao"]
             )
-
-            DeleteInvalidPresenceRecordService.new(student_enrollment_classroom).run!
-
-            student_enrollment_classroom
           end
         end
       end
@@ -137,5 +139,4 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
     @student_ids ||= {}
     @student_ids[record["aluno_id"]] ||= Student.find_by(api_code: record["aluno_id"]).try(:id)
   end
-
 end
