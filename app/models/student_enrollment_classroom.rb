@@ -2,6 +2,8 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :student_enrollment
 
+  default_scope { visible }
+
   scope :by_classroom, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_date, lambda { |date| where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date) }
   scope :by_date_range, lambda { |start_at, end_at| self.by_date_range_query(start_at, end_at)}
@@ -11,6 +13,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :by_student, lambda { |student_id| joins(student_enrollment: :student).where(students: { id: student_id }) }
   scope :by_student_enrollment, lambda { |student_enrollment_id| where(student_enrollment_id: student_enrollment_id) }
   scope :active, -> { joins(:student_enrollment).where(student_enrollments: { active: IeducarBooleanState::ACTIVE }) }
+  scope :visible, -> { where(visible: true) }
 
   private
 
