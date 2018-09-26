@@ -6,6 +6,8 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   audited
   has_associated_audits
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :recovery_diary_record, dependent: :destroy
   belongs_to :avaliation
   belongs_to :unity
@@ -82,6 +84,20 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   def self_assign_to_recovery_diary_record
     if recovery_diary_record && !recovery_diary_record.avaliation_recovery_diary_record
       recovery_diary_record.avaliation_recovery_diary_record = self
+    end
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      recovery_diary_record.valid?
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+      if recovery_diary_record.errors[:recorded_at].include?(forbidden_error)
+        errors.add(:base, forbidden_error)
+        false
+      else
+        true
+      end
     end
   end
 end
