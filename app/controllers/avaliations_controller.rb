@@ -191,4 +191,22 @@ class AvaliationsController < ApplicationController
                                        :weight,
                                        :observations)
   end
+
+  def interpolation_options
+    reasons = []
+
+    if resource.errors[:test_date].include?(t('errors.messages.not_allowed_to_post_in_date'))
+      reasons << t('errors.messages.not_allowed_to_post_in_date')
+    end
+
+    if !resource.grades_allow_destroy
+      reasons << t('avaliation.grades_avoid_destroy')
+    end
+
+    if !resource.recovery_allow_destroy
+      reasons << t('avaliation.recovery_avoid_destroy')
+    end
+
+    { reason: reasons.join(" e ") }
+  end
 end

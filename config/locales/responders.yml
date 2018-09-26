@@ -173,7 +173,7 @@ pt-BR:
     avaliations:
       <<: *female
       destroy:
-        alert: '%{resource_name} não pode ser apagada pois possui vínculos ou data atual está fora das datas de lançamento da etapa.'
+        alert: '%{resource_name} não pode ser apagada pois %{reason}.'
 
     daily_notes:
       has_avaliation_recovery: 'Avaliação numérica não pode ser apagada pois possui vínculos.'
