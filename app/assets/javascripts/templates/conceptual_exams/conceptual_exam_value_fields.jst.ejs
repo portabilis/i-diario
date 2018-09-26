@@ -13,9 +13,9 @@
     </span>
   </td>
 
-  <%  Object.keys(old_values).forEach(function (key) { %>
+  <% $.each(old_values, function (key, value) { %>
     <td class="old_step_column"> <%= old_values[key]['values'][discipline_id] || '-' %> </td>
-  <% }) %>
+  <% }); %>
 
   <td>
     <div class="control-group select2 optional conceptual_exam_conceptual_exam_values_value">

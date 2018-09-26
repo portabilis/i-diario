@@ -202,8 +202,8 @@ $(function() {
   }
 
   function makeOldValuesHeader() {
-    let $ths = [];
-    Object.keys(old_values).forEach(function (key) {
+    var $ths = [];
+    $.each(old_values, function (key, value) {
       $ths.push(
         $('<th/>').addClass(('old_step_column')).text(old_values[key]['description'])
       );
