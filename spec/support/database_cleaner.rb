@@ -2,6 +2,7 @@ RSpec.configure do |config|
   config.before(:suite) { DatabaseCleaner.clean_with(:truncation) }
 
   config.before(:each) { DatabaseCleaner.strategy = :transaction }
+  config.before(:each) { User.current = create(:user, admin: true) }
   config.before(:each, js: true) { DatabaseCleaner.strategy = :truncation }
 
   config.before(:each, type: :model) { DatabaseCleaner.start }

@@ -21,7 +21,7 @@ class ContentRecord < ActiveRecord::Base
   validates_date :record_date
   validates :unity_id, presence: true
   validates :classroom, presence: true
-  validates :record_date, presence: true, school_calendar_day: true
+  validates :record_date, presence: true, school_calendar_day: true, posting_date: true
   validates :teacher, presence: true
   validate :at_least_one_content
 

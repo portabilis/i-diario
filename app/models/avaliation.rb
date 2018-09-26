@@ -10,7 +10,8 @@ class Avaliation < ActiveRecord::Base
 
   attr_accessor :test_date_copy, :grades_allow_destroy, :recovery_allow_destroy
 
-  before_destroy :try_destroy
+  before_destroy :valid_for_destruction?
+  before_destroy :try_destroy, if: :valid_for_destruction?
 
   belongs_to :classroom
   belongs_to :discipline
@@ -29,7 +30,7 @@ class Avaliation < ActiveRecord::Base
   validates :unity,             presence: true
   validates :classroom,         presence: true
   validates :discipline,        presence: true
-  validates :test_date,         presence: true, school_calendar_day: true
+  validates :test_date,         presence: true, school_calendar_day: true, posting_date: true
   validates :classes,           presence: true
   validates :school_calendar,   presence: true
   validates :test_setting,      presence: true
@@ -210,6 +211,14 @@ class Avaliation < ActiveRecord::Base
       errors.add(:weight, :less_than_or_equal_to, count: test_setting_test.weight - total_weight_of_existing_avaliations)
     elsif (weight <= 0)
       errors.add(:weight, :greater_than, count: 0.0)
+    end
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:test_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end
   end
 
