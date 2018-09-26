@@ -12,6 +12,8 @@ class ConceptualExam < ActiveRecord::Base
 
   attr_accessor :unity_id, :teacher_id
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :classroom
   belongs_to :student
   has_many :conceptual_exam_values, -> {
@@ -66,6 +68,14 @@ class ConceptualExam < ActiveRecord::Base
     return ConceptualExamStatus::INCOMPLETE if values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
 
     ConceptualExamStatus::COMPLETE
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
   end
 
   private

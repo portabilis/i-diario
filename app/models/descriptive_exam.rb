@@ -8,6 +8,7 @@ class DescriptiveExam < ActiveRecord::Base
 
   audited
   has_associated_audits
+
   before_save :mark_students_for_removal
 
   belongs_to :classroom

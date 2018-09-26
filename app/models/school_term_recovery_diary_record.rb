@@ -10,6 +10,8 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   audited
   has_associated_audits
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :recovery_diary_record, dependent: :destroy
 
   accepts_nested_attributes_for :recovery_diary_record
@@ -89,6 +91,20 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
     if classroom.exam_rule.recovery_exam_rules.none? { |r| r.steps.include?(step.to_number) }
       errors.add(:step_id, :recovery_type_must_allow_recovery_for_step)
+    end
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      recovery_diary_record.valid?
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+      if recovery_diary_record.errors[:recorded_at].include?(forbidden_error)
+        errors.add(:base, forbidden_error)
+        false
+      else
+        true
+      end
     end
   end
 end

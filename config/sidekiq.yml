@@ -3,9 +3,9 @@
 staging:
   :concurrency: 10
 production:
-  :concurrency: 30
+  :concurrency: 50
 :queues:
-  - default
-  - exam_posting
-  - exam_posting_send
-  - daily_frequency_creator
+  - [default, 1]
+  - [daily_frequency_creator, 2]
+  - [exam_posting, 3]
+  - [exam_posting_send, 4]

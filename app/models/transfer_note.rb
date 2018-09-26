@@ -11,6 +11,8 @@ class TransferNote < ActiveRecord::Base
 
   attr_writer :unity_id
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :classroom
   belongs_to :discipline
   belongs_to :student
@@ -51,6 +53,14 @@ class TransferNote < ActiveRecord::Base
   def at_least_one_daily_note_student
     if daily_note_students.reject { |daily_note_student| daily_note_student.note.blank? }.empty?
       errors.add(:daily_note_students, :at_least_one_daily_note_student)
+    end
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:transfer_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end
   end
 end

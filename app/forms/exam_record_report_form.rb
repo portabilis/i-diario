@@ -18,33 +18,32 @@ class ExamRecordReportForm
   def daily_notes
     return unless step
 
-    @daily_notes = DailyNote
-      .by_unity_id(unity_id)
-      .by_classroom_id(classroom_id)
-      .by_discipline_id(discipline_id)
-      .by_test_date_between(step.start_at, step.end_at)
-      .order_by_avaliation_test_date
+    @daily_notes = DailyNote.by_unity_id(unity_id)
+                            .by_classroom_id(classroom_id)
+                            .by_discipline_id(discipline_id)
+                            .by_test_date_between(step.start_at, step.end_at)
+                            .order_by_avaliation_test_date
   end
 
   def daily_notes_classroom_steps
     return unless classroom_step
 
-    @daily_notes = DailyNote
-      .by_unity_id(unity_id)
-      .by_classroom_id(classroom_id)
-      .by_discipline_id(discipline_id)
-      .by_test_date_between(classroom_step.start_at, classroom_step.end_at)
-      .order_by_avaliation_test_date
+    @daily_notes = DailyNote.by_unity_id(unity_id)
+                            .by_classroom_id(classroom_id)
+                            .by_discipline_id(discipline_id)
+                            .by_test_date_between(classroom_step.start_at, classroom_step.end_at)
+                            .order_by_avaliation_test_date
   end
 
   def students_enrollments
-    StudentEnrollmentsList.new(classroom: classroom_id,
-                               discipline: discipline_id,
-                               start_at: classroom_step.try(:start_at) || step.start_at,
-                               end_at: classroom_step.try(:end_at) || step.end_at,
-                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-                               search_type: :by_date_range)
-                          .student_enrollments
+    StudentEnrollmentsList.new(
+      classroom: classroom_id,
+      discipline: discipline_id,
+      start_at: classroom_step.try(:start_at) || step.start_at,
+      end_at: classroom_step.try(:end_at) || step.end_at,
+      score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+      search_type: :by_date_range
+    ).student_enrollments
   end
 
   def step
