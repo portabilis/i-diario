@@ -54,7 +54,6 @@ class BackupFile
     'BackupFile::***REMOVED***s',
     'BackupFile::***REMOVED***s',
     'BackupFile::***REMOVED***s',
-    'BackupFile::Notifications',
     'BackupFile::ObservationDiaryRecordNoteStudents',
     'BackupFile::ObservationDiaryRecordNotes',
     'BackupFile::ObservationDiaryRecords',

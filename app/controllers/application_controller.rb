@@ -139,11 +139,6 @@ class ApplicationController < ActionController::Base
   end
   helper_method :current_configuration
 
-  def current_notification
-    @configuration ||= Notification.current
-  end
-  helper_method :current_notification
-
   def api
     @api ||= IeducarApi::StudentRegistrations.new(current_configuration.to_api)
   end
@@ -353,8 +348,8 @@ class ApplicationController < ActionController::Base
 
   def send_pdf(prefix, pdf_to_s)
     name = report_name(prefix)
-    File.open("#{Rails.root}/public#{name}", 'wb') do |f| 
-      f.write(pdf_to_s) 
+    File.open("#{Rails.root}/public#{name}", 'wb') do |f|
+      f.write(pdf_to_s)
     end
     redirect_to name
   end

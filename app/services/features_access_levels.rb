@@ -37,7 +37,6 @@ class FeaturesAccessLevels
       :messages,
       :observation_diary_records,
       :observation_record_report,
-      :***REMOVED***,
       :school_calendar_events,
       :school_calendars,
       :school_term_recovery_diary_records,
@@ -55,10 +54,8 @@ class FeaturesAccessLevels
       :accounts,
       :dashboard,
       :***REMOVED***,
-      :***REMOVED***,
       :messages,
       :***REMOVED***s,
-      :***REMOVED***,
       :***REMOVED***
     ]
   end
@@ -69,9 +66,7 @@ class FeaturesAccessLevels
       :accounts,
       :dashboard,
       :***REMOVED***,
-      :***REMOVED***,
       :messages,
-      :***REMOVED***,
       :***REMOVED***
     ]
   end
@@ -82,7 +77,6 @@ class FeaturesAccessLevels
       :data_exportations,
       :entity_configurations,
       :general_configurations,
-      :***REMOVED***,
       :***REMOVED***_configs,
       :roles,
       :unities,

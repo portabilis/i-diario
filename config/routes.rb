@@ -31,7 +31,6 @@ Rails.application.routes.draw do
 
     namespace :api do
       namespace :v1 do
-        resources :***REMOVED***, only: [:create]
         resources :exam_rules, only: [:index]
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index]
@@ -42,7 +41,6 @@ Rails.application.routes.draw do
         resources :daily_frequency_students, only: [:update]
       end
       namespace :v2 do
-        resources :***REMOVED***, only: [:create]
         resources :exam_rules, only: [:index]
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index]
@@ -133,7 +131,6 @@ Rails.application.routes.draw do
       end
     end
     resources  :user_roles, only: [:show]
-    resources :***REMOVED***, only: [:index]
     resources :***REMOVED***, only: [:index, :show]
     resources :***REMOVED***_confirmations, except: [:new, :create] do
       member do
@@ -148,7 +145,6 @@ Rails.application.routes.draw do
       resources :synchronizations, only: [:index, :create]
     end
     resource :contact_school, only: [:new, :create]
-    resource :notification, only: [:edit, :update], concerns: :history
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
     resource :terms_dictionaries, only: [:edit, :update], concerns: :history

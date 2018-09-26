@@ -30,10 +30,6 @@ navigation:
               path: "***REMOVED***_confirmations_path"
   - ***REMOVED***:
       type: "***REMOVED***"
-      icon: "fa-bar-chart-o"
-      path: "***REMOVED***_path"
-  - ***REMOVED***:
-      type: "***REMOVED***"
       icon: "fa-graduation-cap"
       path: "***REMOVED***_path"
   - ***REMOVED***:
@@ -94,9 +90,6 @@ navigation:
             type: "ieducar_api_configurations"
             path: "edit_ieducar_api_configurations_path"
         - ***REMOVED***:
-           type: "***REMOVED***"
-           path: "edit_notification_path"
-        - ***REMOVED***:
             type: "***REMOVED***_configs"
             path: "edit_***REMOVED***_configs_path"
         - ***REMOVED***:
@@ -111,10 +104,6 @@ navigation:
         - ***REMOVED***:
             type: "custom_rounding_tables"
             path: "custom_rounding_tables_path"
-  - ***REMOVED***:
-      type: "***REMOVED***"
-      icon: "fa-bullhorn"
-      path: "***REMOVED***_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-exchange"
