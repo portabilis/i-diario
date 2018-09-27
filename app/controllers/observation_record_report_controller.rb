@@ -1,6 +1,5 @@
 class ObservationRecordReportController < ApplicationController
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def form
     @observation_record_report_form = ObservationRecordReportForm.new(
@@ -23,13 +22,7 @@ class ObservationRecordReportController < ApplicationController
           @observation_record_report_form
         )
         .build
-
-      send_data(
-        observation_record_report.render,
-        filename: 'registro-de-frequencia.pdf',
-        type: 'application/pdf',
-        disposition: 'inline'
-      )
+        send_pdf(t("routes.attendance_record"), observation_record_report.render)
     else
       clear_invalid_dates
       render :form

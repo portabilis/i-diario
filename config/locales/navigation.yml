@@ -114,6 +114,7 @@ pt-BR:
       ***REMOVED***_configs: "Configuração da pré-matrícula"
       test_settings: "Configurações de avaliações"
       teacher_report_card: "Boletim do professor"
-      ieducar_api_exam_posting_without_restrictions: "Envio de avaliações sem restrições de datas"
+      ieducar_api_exam_posting_without_restrictions: "Lançamentos sem restrições de datas"
       can_change_user_password: "Permite redefinir senha dos usuários"
       ***REMOVED***: "Relatório de cardápios"
+      change_school_year: "Acesso à anos letivos anteriores"

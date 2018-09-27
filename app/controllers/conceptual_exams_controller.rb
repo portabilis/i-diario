@@ -3,7 +3,6 @@ class ConceptualExamsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_school_calendar
 
   def index
     @conceptual_exams = apply_scopes(ConceptualExam)
@@ -111,7 +110,11 @@ class ConceptualExamsController < ApplicationController
 
     values_to_destroy.each { |value| value.destroy }
 
-    @conceptual_exam.destroy unless ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id).any?
+    if ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id).any?
+      @conceptual_exam.destroy
+    else
+      @conceptual_exam.valid?
+    end
 
     respond_with @conceptual_exam, location: conceptual_exams_path
   end

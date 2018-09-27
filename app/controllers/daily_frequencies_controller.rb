@@ -1,6 +1,5 @@
 class DailyFrequenciesController < ApplicationController
   before_action :require_teacher
-  before_action :require_current_school_calendar
   before_action :set_number_of_classes, only: [:new, :create, :edit_multiple, :update_multiple]
 
   def new
@@ -257,7 +256,7 @@ class DailyFrequenciesController < ApplicationController
 
     discipline_id = daily_frequency.discipline.id
     frequency_date = daily_frequency.frequency_date
-    step_number = daily_frequency.school_calendar.step(frequency_date).to_number
+    step_number = daily_frequency.school_calendar.step(frequency_date).try(:to_number)
 
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)

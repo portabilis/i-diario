@@ -21,7 +21,7 @@ class ContentRecord < ActiveRecord::Base
   validates_date :record_date
   validates :unity_id, presence: true
   validates :classroom, presence: true
-  validates :record_date, presence: true, school_calendar_day: true
+  validates :record_date, presence: true, school_calendar_day: true, posting_date: true
   validates :teacher, presence: true
   validate :at_least_one_content
 
@@ -37,12 +37,12 @@ class ContentRecord < ActiveRecord::Base
   end
 
   def self.fromLastDays days
-    start_date = (Date.today - days.days).to_date
+    start_date = (Date.current - days.days).to_date
     where('record_date >= ? ', start_date)
   end
 
   def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
+    CurrentSchoolCalendarFetcher.new(unity, classroom, classroom.year).fetch
   end
 
   def unity

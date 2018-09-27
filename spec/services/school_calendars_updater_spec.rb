@@ -18,7 +18,7 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       end
 
       it 'deletes one step' do
-        school_calendars['steps'].first['end_at'] = Date.new(Date.today.year, 12, 31)
+        school_calendars['steps'].first['end_at'] = Date.new(Date.current.year, 12, 31)
         school_calendars['steps'].last['_destroy'] = 'true'
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
@@ -30,12 +30,12 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       end
 
       it 'moves related items to other step' do
-        school_calendars['steps'].first['end_at'] = Date.new(Date.today.year, 12, 31)
+        school_calendars['steps'].first['end_at'] = Date.new(Date.current.year, 12, 31)
         school_calendars['steps'].last['_destroy'] = 'true'
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
+        Timecop.freeze(Date.current.year, 9, 1, 0, 0, 0) do
           school_calendar_step_id = school_calendar.steps.last.id
 
           expect(conceptual_exam.school_calendar_step_id).to eq(school_calendar_step_id)
@@ -57,17 +57,17 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       it 'creates a new step and move related items for this step' do
         new_school_calendar_step = school_calendars['steps'].last.clone
         new_school_calendar_step['id'] = new_school_calendar_step['id'] + 1
-        new_school_calendar_step['start_at'] = Date.new(Date.today.year, 9, 1)
-        new_school_calendar_step['start_date_for_posting'] = Date.new(Date.today.year, 9, 1)
-        school_calendars['steps'].first['end_at'] = Date.new(Date.today.year, 4, 30)
-        school_calendars['steps'].last['start_at'] = Date.new(Date.today.year, 5, 1)
-        school_calendars['steps'].last['end_at'] = Date.new(Date.today.year, 8, 31)
-        school_calendars['steps'].last['start_date_for_posting'] = Date.new(Date.today.year, 5, 1)
+        new_school_calendar_step['start_at'] = Date.new(Date.current.year, 9, 1)
+        new_school_calendar_step['start_date_for_posting'] = Date.new(Date.current.year, 9, 1)
+        school_calendars['steps'].first['end_at'] = Date.new(Date.current.year, 4, 30)
+        school_calendars['steps'].last['start_at'] = Date.new(Date.current.year, 5, 1)
+        school_calendars['steps'].last['end_at'] = Date.new(Date.current.year, 8, 31)
+        school_calendars['steps'].last['start_date_for_posting'] = Date.new(Date.current.year, 5, 1)
         school_calendars['steps'] << new_school_calendar_step
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
+        Timecop.freeze(Date.current.year, 9, 1, 0, 0, 0) do
           school_calendar_step_id = school_calendar.steps.last.id
 
           expect(conceptual_exam.school_calendar_step_id).to eq school_calendar_step_id
@@ -87,13 +87,13 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       end
 
       it 'creates a new inactivate step and move unrelated items' do
-        school_calendars['steps'].first['end_at'] = Date.new(Date.today.year, 8, 31)
-        school_calendars['steps'].last['start_at'] = Date.new(Date.today.year, 9, 2)
-        school_calendars['steps'].last['start_date_for_posting'] = Date.new(Date.today.year, 9, 2)
+        school_calendars['steps'].first['end_at'] = Date.new(Date.current.year, 8, 31)
+        school_calendars['steps'].last['start_at'] = Date.new(Date.current.year, 9, 2)
+        school_calendars['steps'].last['start_date_for_posting'] = Date.new(Date.current.year, 9, 2)
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
+        Timecop.freeze(Date.current.year, 9, 1, 0, 0, 0) do
           conceptual_exam_step = conceptual_exam.school_calendar_step
           transfer_note_step = transfer_note.school_calendar_step
           school_term_recovery_diary_record_step = school_term_recovery_diary_record.school_calendar_step
@@ -119,9 +119,9 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       end
 
       it 'creates a new inactivate step and move descriptive_exams' do
-        school_calendars['steps'].first['end_at'] = Date.new(Date.today.year, 8, 31)
-        school_calendars['steps'].last['start_at'] = Date.new(Date.today.year, 9, 1)
-        school_calendars['steps'].last['start_date_for_posting'] = Date.new(Date.today.year, 9, 1)
+        school_calendars['steps'].first['end_at'] = Date.new(Date.current.year, 8, 31)
+        school_calendars['steps'].last['start_at'] = Date.new(Date.current.year, 9, 1)
+        school_calendars['steps'].last['start_date_for_posting'] = Date.new(Date.current.year, 9, 1)
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
@@ -195,7 +195,7 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       end
 
       it 'deletes one classroom_step' do
-        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.today.year, 12, 31)
+        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.current.year, 12, 31)
         school_calendars['classrooms'].first['steps'].last['_destroy'] = 'true'
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
@@ -207,12 +207,12 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       end
 
       it 'moves related items to other classroom_step' do
-        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.today.year, 12, 31)
+        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.current.year, 12, 31)
         school_calendars['classrooms'].first['steps'].last['_destroy'] = 'true'
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
+        Timecop.freeze(Date.current.year, 9, 1, 0, 0, 0) do
           classroom_step_id = school_calendar_classroom.classroom_steps.last.id
 
           expect(conceptual_exam.school_calendar_classroom_step_id).to eq(classroom_step_id)
@@ -234,17 +234,17 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       it 'creates a new classroom_step and move related items for this classroom_step' do
         new_school_calendar_classroom_step = school_calendars['classrooms'].first['steps'].last.clone
         new_school_calendar_classroom_step['id'] = new_school_calendar_classroom_step['id'] + 1
-        new_school_calendar_classroom_step['start_at'] = Date.new(Date.today.year, 9, 1)
-        new_school_calendar_classroom_step['start_date_for_posting'] = Date.new(Date.today.year, 9, 1)
-        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.today.year, 4, 30)
-        school_calendars['classrooms'].first['steps'].last['start_at'] = Date.new(Date.today.year, 5, 1)
-        school_calendars['classrooms'].first['steps'].last['end_at'] = Date.new(Date.today.year, 8, 31)
-        school_calendars['classrooms'].first['steps'].last['start_date_for_posting'] = Date.new(Date.today.year, 5, 1)
+        new_school_calendar_classroom_step['start_at'] = Date.new(Date.current.year, 9, 1)
+        new_school_calendar_classroom_step['start_date_for_posting'] = Date.new(Date.current.year, 9, 1)
+        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.current.year, 4, 30)
+        school_calendars['classrooms'].first['steps'].last['start_at'] = Date.new(Date.current.year, 5, 1)
+        school_calendars['classrooms'].first['steps'].last['end_at'] = Date.new(Date.current.year, 8, 31)
+        school_calendars['classrooms'].first['steps'].last['start_date_for_posting'] = Date.new(Date.current.year, 5, 1)
         school_calendars['classrooms'].first['steps'] << new_school_calendar_classroom_step
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
+        Timecop.freeze(Date.current.year, 9, 1, 0, 0, 0) do
           school_calendar_classroom_step_id = school_calendar_classroom.classroom_steps.last.id
 
           expect(school_calendar_classroom.classroom_steps.count).to eq 2
@@ -267,13 +267,13 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       end
 
       it 'creates a new inactivate classroom_step and move unrelated items' do
-        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.today.year, 8, 31)
-        school_calendars['classrooms'].first['steps'].last['start_at'] = Date.new(Date.today.year, 9, 2)
-        school_calendars['classrooms'].first['steps'].last['start_date_for_posting'] = Date.new(Date.today.year, 9, 2)
+        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.current.year, 8, 31)
+        school_calendars['classrooms'].first['steps'].last['start_at'] = Date.new(Date.current.year, 9, 2)
+        school_calendars['classrooms'].first['steps'].last['start_date_for_posting'] = Date.new(Date.current.year, 9, 2)
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 
-        Timecop.freeze(Date.today.year, 9, 1, 0, 0, 0) do
+        Timecop.freeze(Date.current.year, 9, 1, 0, 0, 0) do
           conceptual_exam_step = conceptual_exam.school_calendar_classroom_step
           transfer_note_step = transfer_note.school_calendar_classroom_step
           school_term_recovery_diary_record_step = school_term_recovery_diary_record.school_calendar_classroom_step
@@ -299,9 +299,9 @@ RSpec.describe SchoolCalendarsUpdater, type: :service do
       end
 
       it 'creates a new inactivate classroom_step and move descriptive_exams' do
-        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.today.year, 8, 31)
-        school_calendars['classrooms'].first['steps'].last['start_at'] = Date.new(Date.today.year, 9, 1)
-        school_calendars['classrooms'].first['steps'].last['start_date_for_posting'] = Date.new(Date.today.year, 9, 1)
+        school_calendars['classrooms'].first['steps'].first['end_at'] = Date.new(Date.current.year, 8, 31)
+        school_calendars['classrooms'].first['steps'].last['start_at'] = Date.new(Date.current.year, 9, 1)
+        school_calendars['classrooms'].first['steps'].last['start_date_for_posting'] = Date.new(Date.current.year, 9, 1)
 
         updater = SchoolCalendarsUpdater.new(school_calendars)
 

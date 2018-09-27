@@ -121,7 +121,7 @@ module ExamPoster
           end
         end
       else
-        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_school_day(Time.zone.today).first
+        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_year(classroom.year).first
 
         school_calendar.steps.each do |school_step|
           if school_step.to_number == @post_data.step.to_number
@@ -144,7 +144,7 @@ module ExamPoster
           end
         end
       else
-        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_school_day(Time.zone.today).first
+        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_year(classroom.year).first
 
         school_calendar.steps.each do |school_step|
           if school_step.to_number == @post_data.step.to_number

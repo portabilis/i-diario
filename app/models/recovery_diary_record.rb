@@ -30,7 +30,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   validates :unity, presence: true
   validates :classroom, presence: true
   validates :discipline, presence: true
-  validates :recorded_at, presence: true, school_calendar_day: true
+  validates :recorded_at, presence: true, school_calendar_day: true, posting_date: true
 
   validate :at_least_one_assigned_student
   validate :recorded_at_must_be_less_than_or_equal_to_today
@@ -38,7 +38,7 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   before_validation :self_assign_to_students
 
   def school_calendar
-    CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
+    CurrentSchoolCalendarFetcher.new(unity, classroom, classroom.try(:year)).fetch
   end
 
   def test_date
