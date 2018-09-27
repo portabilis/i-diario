@@ -23,6 +23,10 @@ class StepsFetcher
     school_calendar_classroom.present? ? StepTypes::CLASSROOM : StepTypes::GENERAL
   end
 
+  def old_steps(date)
+    old_steps_by_date(date)
+  end
+
   private
 
   def school_calendar
@@ -39,5 +43,13 @@ class StepsFetcher
 
   def step_by_date(date)
     school_calendar_steps.started_after_and_before(date).first
+  end
+
+  def old_steps_by_date(date)
+    if school_calendar_classroom.present?
+      school_calendar_steps.where(SchoolCalendarClassroomStep.arel_table[:start_at].lt(date))
+    else
+      school_calendar_steps.where(SchoolCalendarStep.arel_table[:start_at].lt(date))
+    end
   end
 end

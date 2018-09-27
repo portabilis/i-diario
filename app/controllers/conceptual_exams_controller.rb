@@ -342,6 +342,13 @@ class ConceptualExamsController < ApplicationController
     end
   end
 
+  def old_values
+    return {} unless @conceptual_exam.classroom.present? && @conceptual_exam.student.present? && @conceptual_exam.step.present?
+
+    @old_values ||= OldStepsConceptualValuesFetcher.new(@conceptual_exam.classroom, @conceptual_exam.student, @conceptual_exam.step).fetch
+  end
+  helper_method :old_values
+
   def student_exempted_from_discipline?(discipline_id, exempted_disciplines)
     step_number = steps_fetcher.step(@conceptual_exam.recorded_at).try(:to_number)
 

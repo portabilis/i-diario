@@ -11,7 +11,9 @@
       <%= conceptual_exam_value_student_name(f.object) %>
     </span>
   </td>
-
+  <% old_values.each do |step| %>
+    <td class="old_step_column"><%= step[:values]["#{f.object.discipline_id}"] || '-' %></td>
+  <% end %>
   <td>
     <%= f.input :value, as: :select2,
           elements: f.object.decorator.data_for_select2,

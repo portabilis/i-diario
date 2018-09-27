@@ -358,6 +358,7 @@ Rails.application.routes.draw do
         get :exempted_disciplines
       end
     end
+    resources :old_steps_conceptual_values, except: [:only]
     resources :descriptive_exams, only: [:new, :create, :edit, :update], concerns: :history do
       collection do
         get :opinion_types

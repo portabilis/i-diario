@@ -5,6 +5,7 @@ $(function() {
   var $step = $('#conceptual_exam_step_id');
   var $student = $('#conceptual_exam_student_id');
   var $discipline = $('#user_current_discipline_id');
+  var old_values = {};
   var flashMessages = new FlashMessages();
 
   function fetchExamRule() {
@@ -130,23 +131,59 @@ $(function() {
   function fetchDisciplines() {
     var classroom_id = $classroom.select2('val');
     var step_id = $step.select2('val');
+    var student_id = $student.select2('val');
+    $('.old_step_column').remove();
 
-    if (!_.isEmpty(classroom_id) && !_.isEmpty(step_id)) {
-      $.ajax({
-        url: Routes.disciplines_pt_br_path(
-          {
-            classroom_id: classroom_id,
-            step_id: step_id,
-            conceptual: true,
-            student_id: $student.select2('val'),
-            format: 'json'
-          }
-        ),
-        success: handleFetchDisciplinesSuccess,
-        error: handleFetchDisciplinesError
+    if (!_.isEmpty(classroom_id) && !_.isEmpty(step_id) && !_.isEmpty(student_id)) {
+
+      $.when(
+        $.get(
+          Routes.old_steps_conceptual_values_pt_br_path(
+            {
+              classroom_id: classroom_id,
+              student_id: student_id,
+              step_id: school_calendar_step_id,
+              format: 'json'
+            }
+          )
+        ).done(function(data){
+          old_values = data.old_steps_conceptual_values;
+          makeOldValuesHeader();
+        })
+      ).then(function(){
+        $.ajax({
+          url: Routes.disciplines_pt_br_path(
+            {
+              classroom_id: classroom_id,
+              step_id: step_id,
+              conceptual: true,
+              student_id: $student.select2('val'),
+              format: 'json'
+            }
+          ),
+          success: handleFetchDisciplinesSuccess,
+          error: handleFetchDisciplinesError
+        });
       });
     }
   };
+
+  function setTableColspans(colspans) {
+    $('#conceptual_exam_values_table [colspan]').each(function(){
+      $(this).attr('colspan', colspans);
+    });
+  }
+
+  function makeOldValuesHeader() {
+    var $ths = [];
+    $.each(old_values, function (key, value) {
+      $ths.push(
+        $('<th/>').addClass(('old_step_column')).text(old_values[key]['description'])
+      );
+    });
+    setTableColspans($ths.length + 2);
+    $('#conceptual_exam_values_table').find('thead th:first').after($ths);
+  }
 
   function handleFetchDisciplinesSuccess(disciplines) {
     if (!_.isEmpty(disciplines)) {
@@ -170,8 +207,8 @@ $(function() {
 
       _.each(disciplines***REMOVED***edByKnowledgeArea, function(disciplines, knowledge_area_sequence) {
         var knowledge_area = disciplines[0].knowledge_area_description;
-        var knowledgeAreaTableRowHtml = '<tr class="knowledge-area-table-row"><td class="knowledge-area-table-data" colspan="2"><strong>' +
-                                        knowledge_area + '</strong></td></tr>';
+        var knowledgeAreaTableRowHtml = '<tr class="knowledge-area-table-row"><td class="knowledge-area-table-data" colspan="' +
+                                         (2 + old_values.length) + '"><strong>' + knowledge_area + '</strong></td></tr>';
         $('#conceptual_exam_values').append(knowledgeAreaTableRowHtml);
 
         _.each(disciplines, function(discipline) {
@@ -180,7 +217,8 @@ $(function() {
           var html = JST['templates/conceptual_exams/conceptual_exam_value_fields']({
               discipline_id: discipline.id,
               discipline_description: discipline.description,
-              element_id: element_id
+              element_id: element_id,
+              old_values: old_values
             });
 
           $('#conceptual_exam_values').append(html);
@@ -222,6 +260,8 @@ $(function() {
     $('.nested-fields.existing').hide();
     $('.nested-fields.existing [id$=_destroy]').val(true);
     $('.exempted_students_from_discipline_legend').addClass('hidden');
+    $('.old_step_column').remove();
+    setTableColspans(2);
 
     showNoItemMessage();
   }
