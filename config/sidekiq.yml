@@ -6,6 +6,5 @@ production:
   :concurrency: 50
 :queues:
   - [default, 1]
-  - [daily_frequency_creator, 2]
-  - [exam_posting, 3]
-  - [exam_posting_send, 4]
+  - [exam_posting, 2]
+  - [exam_posting_send, 3]
