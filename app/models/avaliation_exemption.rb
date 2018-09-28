@@ -27,6 +27,9 @@ class AvaliationExemption < ActiveRecord::Base
             uniqueness: { scope: [:avaliation_id] }
 
   validate :ensure_no_score_for_avaliation
+  validate :avaliation_test_date_must_be_valid_posting_date
+
+  before_destroy :avaliation_test_date_must_be_valid_posting_date
 
   delegate :unity_id, :discipline_id, :school_calendar_id, :classroom_id,
            :classroom, :discipline,
@@ -86,6 +89,13 @@ class AvaliationExemption < ActiveRecord::Base
       .first
       .try(:id)
     school_calendar_classroom_step
+  end
+
+  def avaliation_test_date_must_be_valid_posting_date
+    return unless avaliation.try(:test_date).present? && classroom.present?
+    return true if PostingDateChecker.new(classroom, avaliation.test_date).check
+    errors.add(:base, I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    false
   end
 
   def ensure_no_score_for_avaliation

@@ -5,6 +5,10 @@ workers ENV['RAILS_ENV'] == 'production' ? 16 : 2
 # Min and Max threads per worker
 threads 1, 1
 
+if ENV['RAILS_ENV'] == 'development'
+  worker_timeout 10000
+end
+
 if ENV['RAILS_ENV'] != 'development'
   app_dir = "/var/www/novo-educacao"
   shared_dir = "#{app_dir}/shared"

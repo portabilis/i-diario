@@ -10,8 +10,8 @@ pt-BR:
         school_calendar_id: "Calendário letivo"
         start_at: "Data inicial"
         end_at: "Data final"
-        start_date_for_posting: "Data inicial para postagem"
-        end_date_for_posting: "Data final para postagem"
+        start_date_for_posting: "Data inicial para lançamentos"
+        end_date_for_posting: "Data final para lançamentos"
 
     errors:
       models:
@@ -26,4 +26,4 @@ pt-BR:
               must_be_greater_than_start_at: "não pode ser menor que a data inicial"
             end_date_for_posting:
               must_be_greater_than_start_at: "não pode ser menor que a data inicial"
-              must_be_greater_than_start_date_for_posting: "não pode ser menor que a data inicial para postagem"
+              must_be_greater_than_start_date_for_posting: "não pode ser menor que a data inicial para lançamentos"
