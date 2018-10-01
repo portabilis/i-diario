@@ -5,7 +5,7 @@ class ExamRuleFetcher
   end
 
   def self.fetch(classroom, student)
-    self.new(classroom, student)
+    self.new(classroom, student).fetch
   end
 
   def fetch
