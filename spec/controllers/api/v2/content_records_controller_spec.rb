@@ -10,6 +10,10 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
       end
     end
 
+    before do
+      User.current = create(:user, admin: true)
+    end
+
     it 'destroys content record when content was not in the params' do
       content_record = create(:content_record,
                               teacher_id: teacher_discipline_classroom.teacher_id,

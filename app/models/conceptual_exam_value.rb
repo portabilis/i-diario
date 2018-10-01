@@ -14,6 +14,8 @@ class ConceptualExamValue < ActiveRecord::Base
   validates :conceptual_exam, presence: true
   validates :discipline_id, presence: true
 
+  before_destroy :valid_for_destruction?
+
   def self.active(join_conceptual_exam = true)
     scoped = if join_conceptual_exam
        joins(:conceptual_exam)
@@ -69,5 +71,10 @@ class ConceptualExamValue < ActiveRecord::Base
           and(Student.arel_table[:id].not_eq(nil))
         )
       ).uniq
+  end
+
+  def valid_for_destruction?
+    return true unless conceptual_exam.present?
+    conceptual_exam.valid_for_destruction?
   end
 end

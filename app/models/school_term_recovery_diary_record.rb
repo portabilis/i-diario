@@ -9,6 +9,8 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   audited
   has_associated_audits
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :recovery_diary_record, dependent: :destroy
   belongs_to :school_calendar_step, -> { unscope(where: :active).includes(:school_calendar) }
   belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
@@ -133,6 +135,20 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     unless school_calendar_classroom_step == school_calendar_classroom_step.school_calendar_classroom.classroom_step(recovery_diary_record.recorded_at)
       errors.add(:recovery_diary_record, :recorded_at_must_be_school_calendar_step_day)
       recovery_diary_record.errors.add(:recorded_at, :recorded_at_must_be_school_calendar_step_day)
+    end
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      recovery_diary_record.valid?
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+      if recovery_diary_record.errors[:recorded_at].include?(forbidden_error)
+        errors.add(:base, forbidden_error)
+        false
+      else
+        true
+      end
     end
   end
 end
