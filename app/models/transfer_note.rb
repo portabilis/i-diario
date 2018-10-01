@@ -10,6 +10,8 @@ class TransferNote < ActiveRecord::Base
   attr_writer :unity_id
   attr_accessor :transfer_date_copy
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :classroom
   belongs_to :discipline
   belongs_to :school_calendar_step, -> { unscope(where: :active) }
@@ -24,7 +26,7 @@ class TransferNote < ActiveRecord::Base
   validates :discipline_id, presence: true
   validates :school_calendar_step_id, presence: true, unless: :school_calendar_classroom_step_id
   validates :school_calendar_classroom_step_id, presence: true, unless: :school_calendar_step_id
-  validates :transfer_date, presence: true, date: { not_in_future: true }, school_calendar_day: true
+  validates :transfer_date, presence: true, date: { not_in_future: true }, school_calendar_day: true, posting_date: true
   validates :student_id, presence: true
   validates :teacher, presence: true
   validate :transfer_date_must_be_in_step, unless: :school_calendar_classroom_step_id
@@ -65,6 +67,14 @@ class TransferNote < ActiveRecord::Base
   def at_least_one_daily_note_student
     if daily_note_students.reject{|dns| dns.note.blank?}.empty?
       errors.add(:daily_note_students, :at_least_one_daily_note_student)
+    end
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:transfer_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end
   end
 
