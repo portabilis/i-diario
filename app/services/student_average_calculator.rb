@@ -5,8 +5,9 @@ class StudentAverageCalculator
 
   def calculate(classroom, discipline, step)
     result = 0.0
+    joined_at = student_enrollment_date(classroom).joined_at
 
-    student_notes_query = StudentNotesQuery.new(student, discipline, classroom, step.start_at, step.end_at)
+    student_notes_query = StudentNotesQuery.new(student, discipline, classroom, step.start_at, step.end_at, joined_at)
     @daily_note_students = student_notes_query.daily_note_students
     @recovery_diary_records = student_notes_query.recovery_diary_records
 
@@ -74,5 +75,12 @@ class StudentAverageCalculator
 
   def avaliation_exempted?(avaliation)
     StudentAvaliationExemptionQuery.new(student).is_exempted(avaliation)
+  end
+
+  def student_enrollment_date(classroom)
+    StudentEnrollmentClassroom.by_student(student)
+                              .by_classroom(classroom)
+                              .active
+                              .first
   end
 end

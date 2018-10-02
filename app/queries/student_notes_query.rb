@@ -1,11 +1,11 @@
 class StudentNotesQuery
-  def initialize(student, discipline, classroom, start_at, end_at)
+  def initialize(student, discipline, classroom, start_at, end_at, joined_at)
     @student = student
     @discipline = discipline
     @classroom = classroom
     @start_at = start_at.to_date
     @end_at = end_at.to_date
-    @joined_at = student_enrollment.joined_at
+    @joined_at = joined_at
   end
 
   def daily_note_students
@@ -33,11 +33,4 @@ class StudentNotesQuery
   private
 
   attr_accessor :student, :discipline, :classroom, :start_at, :end_at, :joined_at
-
-  def student_enrollment
-    StudentEnrollmentClassroom.by_student(student)
-                              .by_classroom(classroom)
-                              .active
-                              .first
-  end
 end
