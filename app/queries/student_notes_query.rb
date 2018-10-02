@@ -10,11 +10,11 @@ class StudentNotesQuery
 
   def daily_note_students
     DailyNoteStudent.by_student_id(student)
-                                           .by_discipline_id(discipline)
-                                           .by_classroom_id(classroom)
-                                           .by_test_date_between(start_at, end_at)
-                                           .joins(daily_note: :avaliation)
-                                           .merge(Avaliation.by_test_date_between(joined_at, end_at))
+                    .by_discipline_id(discipline)
+                    .by_classroom_id(classroom)
+                    .by_test_date_between(start_at, end_at)
+                    .joins(daily_note: :avaliation)
+                    .merge(Avaliation.by_test_date_between(joined_at, end_at))
   end
 
   def recovery_diary_records
