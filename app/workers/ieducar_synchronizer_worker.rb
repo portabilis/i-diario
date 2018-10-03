@@ -22,8 +22,10 @@ class IeducarSynchronizerWorker
         unless synchronization = IeducarApiSynchronization.find_by_id(synchronization_id)
           configuration = IeducarApiConfiguration.current
           break unless configuration.persisted?
-          synchronization = configuration.start_synchronization!(User.first)
-          synchronization.job_id = self.jid unless synchronization.job_id
+
+          if synchronization = configuration.start_synchronization(User.first)
+            synchronization.job_id = self.jid unless synchronization.job_id
+          end
         end
 
         worker_batch = WorkerBatch.create!(main_job_class: 'IeducarSynchronizerWorker', main_job_id: synchronization.job_id)

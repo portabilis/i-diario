@@ -14,8 +14,8 @@ class IeducarApiConfiguration < ActiveRecord::Base
     self.first.presence || new
   end
 
-  def start_synchronization!(user = nil)
-    synchronizations.create!(status: ApiSynchronizationStatus::STARTED, author: user)
+  def start_synchronization(user = nil)
+    synchronizations.create(status: ApiSynchronizationStatus::STARTED, author: user)
   end
 
   def synchronization_in_progress?
