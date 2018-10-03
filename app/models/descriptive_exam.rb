@@ -26,6 +26,8 @@ class DescriptiveExam < ActiveRecord::Base
   validates :school_calendar_step_id, presence: true, if: :should_validate_presence_of_school_calendar_step
   validates :school_calendar_classroom_step_id, presence: true, if: :should_validate_presence_of_classroom_school_calendar_step
 
+  validate :check_posting_date
+
   def mark_students_for_removal
     students.each do |student|
       student.mark_for_destruction if student.value.blank?
@@ -33,7 +35,7 @@ class DescriptiveExam < ActiveRecord::Base
   end
 
   def step
-    school_calendar_classroom_step || school_calendar_step
+    @step ||= school_calendar_classroom_step || school_calendar_step
   end
 
   private
@@ -56,5 +58,13 @@ class DescriptiveExam < ActiveRecord::Base
 
     by_step = [OpinionTypes::BY_STEP_AND_DISCIPLINE, OpinionTypes::BY_STEP].include? opinion_type
     by_step && !school_calendar_step_id
+  end
+
+  def check_posting_date
+    return unless classroom && step
+
+    return true if PostingDateChecker.new(classroom, step.start_at).check
+    errors.add(:school_calendar_classroom_step_id, I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    errors.add(:school_calendar_step_id, I18n.t('errors.messages.not_allowed_to_post_in_date'))
   end
 end

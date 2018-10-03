@@ -15,6 +15,16 @@ class StudentNotesQuery
                     .by_test_date_between(start_at, end_at)
                     .joins(daily_note: :avaliation)
                     .merge(Avaliation.by_test_date_between(joined_at, end_at))
+                    .includes(
+                      daily_note: [
+                        avaliation: [
+                          :recovery_diary_record,
+                          :test_setting_test,
+                          :discipline,
+                          :school_calendar
+                        ]
+                      ]
+                    )
   end
 
   def recovery_diary_records
@@ -23,11 +33,13 @@ class StudentNotesQuery
     RecoveryDiaryRecord.by_student_id(student)
                        .by_discipline_id(discipline)
                        .by_classroom_id(classroom)
-                       .joins(avaliation_recovery_diary_record: :avaliation)
+                       .joins(:students, avaliation_recovery_diary_record: :avaliation)
                        .merge(
                          AvaliationRecoveryDiaryRecord.by_test_date_between(start_at, end_at)
-                                                      .where.not(avaliation_id: avaliation_ids))
+                                                      .where.not(avaliation_id: avaliation_ids)
+                       )
                        .merge(Avaliation.by_test_date_between(joined_at, end_at))
+                       .where.not(recovery_diary_record_students: { score: nil })
   end
 
   private
