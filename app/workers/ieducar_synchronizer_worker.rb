@@ -102,7 +102,10 @@ class IeducarSynchronizerWorker
           end
         end
       rescue Exception => e
-        synchronization.mark_as_error!('Erro desconhecido.', e.message)
+        if e.class != Sidekiq::Shutdown
+          synchronization.mark_as_error!('Erro desconhecido.', e.message)
+        end
+
         raise e
       end
     end
