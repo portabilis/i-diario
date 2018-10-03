@@ -3,7 +3,9 @@ class User < ActiveRecord::Base
 
   audited allow_mass_assignment: true,
     only: [:email, :first_name, :last_name, :phone, :cpf, :login,
-           :authorize_email_and_sms, :student_id, :status, :encrypted_password]
+           :authorize_email_and_sms, :student_id, :status, :encrypted_password,
+           :teacher_id, :assumed_teacher_id, :current_unity_id, :current_classroom_id,
+           :current_discipline_id, :current_school_year, :current_user_role_id]
   has_associated_audits
 
   include Audit
