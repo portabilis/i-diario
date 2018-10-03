@@ -28,6 +28,8 @@ class IeducarSynchronizerWorker
           end
         end
 
+        break unless synchronization.persisted? && synchronization.started?
+
         worker_batch = WorkerBatch.create!(main_job_class: 'IeducarSynchronizerWorker', main_job_id: synchronization.job_id)
 
         total = []
