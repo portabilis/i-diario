@@ -5,6 +5,5 @@ staging:
 production:
   :concurrency: 50
 :queues:
-  - [default, 10]
-  - [exam_posting, 20]
+  - [exam_posting, 2]
   - [exam_posting_send, 50]
