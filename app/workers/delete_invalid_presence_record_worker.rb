@@ -1,13 +1,13 @@
-class DeleteInvalidPresenceRecordService
-  def initialize(student_enrollment_classroom)
-    @student_enrollment_classroom = student_enrollment_classroom
-  end
+class DeleteInvalidPresenceRecordWorker
+  include Sidekiq::Worker
 
-  def run!
+  sidekiq_options unique: :until_and_while_executing, queue: :low
+
+  def perform(student_id, classroom_id)
     daily_frequency_students = DailyFrequencyStudent
       .joins(:daily_frequency)
-      .by_classroom_id(@student_enrollment_classroom.classroom_id)
-      .by_student_id(@student_enrollment_classroom.student_enrollment.student_id)
+      .by_classroom_id(classroom_id)
+      .by_student_id(student_id)
       .where(
         <<-SQL
           NOT EXISTS(
@@ -19,13 +19,11 @@ class DeleteInvalidPresenceRecordService
                AND daily_frequencies.frequency_date >= CAST(sec.joined_at AS DATE)
                AND (COALESCE(sec.left_at, '') = '' OR
                     daily_frequencies.frequency_date < CAST(sec.left_at AS DATE))
-             WHERE se.student_id = #{@student_enrollment_classroom.student_enrollment.student_id}
+             WHERE se.student_id = #{student_id}
           )
         SQL
       )
 
-    daily_frequency_students.each do |daily_frequency_student|
-      daily_frequency_student.destroy
-    end
+    daily_frequency_students.destroy_all
   end
 end
