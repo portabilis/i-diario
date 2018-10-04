@@ -85,7 +85,7 @@ class IeducarSynchronizerWorker
           Unity.with_api_code.each do |unity|
             increment_total(total) do
 
-              StudentEnrollmentSynchronizer.synchronize!(synchronization, worker_batch, [year], unity.api_code)
+              StudentEnrollmentSynchronizer.synchronize!(synchronization, worker_batch, [year], unity.api_code, entity.id)
             end
           end
         end

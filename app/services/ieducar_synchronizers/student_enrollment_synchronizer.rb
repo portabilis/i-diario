@@ -27,10 +27,11 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         classroom_ids = StudentEnrollmentClassroom.unscoped
           .by_student(student_id)
           .pluck(:classroom_id)
+          .compact
           .uniq
 
         classroom_ids.each do |classroom_id|
-          DeleteInvalidPresenceRecordWorker.perform_async(student_id, classroom_id)
+          DeleteInvalidPresenceRecordWorker.perform_async(entity_id, student_id, classroom_id)
         end
       end
     end
