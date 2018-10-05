@@ -11,7 +11,7 @@ class RemoveDuplicateRecordsToDailyFrequencies < ActiveRecord::Migration
             JOIN classrooms
               ON classrooms.id = daily_frequencies.classroom_id
            WHERE daily_frequencies.unity_id <> classrooms.unity_id
-          ) LOOP
+        ) LOOP
           IF EXISTS(
             SELECT 1
               FROM daily_frequencies
