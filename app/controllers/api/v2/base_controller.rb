@@ -12,4 +12,13 @@ class Api::V2::BaseController < ApplicationController
   def ieducar_api
     @ieducar_api ||= IeducarApiConfiguration.current
   end
+
+  def set_thread_origin_type
+    Thread.current[:origin_type] = OriginTypes::API_V2
+    begin
+        yield
+    ensure
+        Thread.current[:origin_type] = nil
+    end
+  end
 end

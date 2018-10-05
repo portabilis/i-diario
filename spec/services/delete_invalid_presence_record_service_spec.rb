@@ -1,10 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe DeleteInvalidPresenceRecordService, type: :service do
-  describe '#run!' do
+  describe '#perform' do
     let(:classroom) { create(:classroom_numeric_and_concept) }
     let(:student_enrollment) { create(:student_enrollment) }
-    let(:student_enrollment_classroom) {
+    let!(:student_enrollment_classroom) {
       create(
         :student_enrollment_classroom,
         classroom: classroom,
@@ -27,7 +27,7 @@ RSpec.describe DeleteInvalidPresenceRecordService, type: :service do
       )
     }
 
-    subject { DeleteInvalidPresenceRecordService.new(student_enrollment_classroom) }
+    subject { DeleteInvalidPresenceRecordService.new(student_enrollment.student_id, classroom.id) }
 
     context 'when there is only one enrollment of the student on classroom' do
       context 'and has not left it' do

@@ -50,18 +50,18 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
     end
   end
 
-  describe "#start_synchronization!" do
+  describe "#start_synchronization" do
     it "starts a synchronization with a given user" do
       user = double
       synchronizations = double
 
       expect(subject).to receive(:synchronizations).and_return(synchronizations)
-      expect(synchronizations).to receive(:create!).with(
+      expect(synchronizations).to receive(:create).with(
         status: ApiSynchronizationStatus::STARTED,
         author: user
       )
 
-      subject.start_synchronization!(user)
+      subject.start_synchronization(user)
     end
   end
 
