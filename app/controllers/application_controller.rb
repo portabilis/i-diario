@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   around_action :handle_customer
   before_action :set_honeybadger_context
   around_filter :set_user_current
+  around_filter :set_thread_origin_type
 
   respond_to :html, :json
 
@@ -336,6 +337,15 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def set_thread_origin_type
+    Thread.current[:origin_type] = OriginTypes::WEB
+    begin
+        yield
+    ensure
+        Thread.current[:origin_type] = nil
+    end
+  end
+
   private
 
   def load_status_administrative_tools
@@ -363,8 +373,8 @@ class ApplicationController < ActionController::Base
 
   def send_pdf(prefix, pdf_to_s)
     name = report_name(prefix)
-    File.open("#{Rails.root}/public#{name}", 'wb') do |f| 
-      f.write(pdf_to_s) 
+    File.open("#{Rails.root}/public#{name}", 'wb') do |f|
+      f.write(pdf_to_s)
     end
     redirect_to name
   end
