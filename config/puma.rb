@@ -29,12 +29,7 @@ if ENV['RAILS_ENV'] != 'development'
 end
 
 on_worker_boot do
-  require "active_record"
-  ActiveRecord::Base.connection.disconnect! rescue ActiveRecord::ConnectionNotEstablished
-
-  if ENV['RAILS_ENV'] != 'development'
-    ActiveRecord::Base.establish_connection(YAML.load_file("#{shared_dir}/config/database.yml")[ENV['RAILS_ENV']])
-  else
+  ActiveSupport.on_load(:active_record) do
     ActiveRecord::Base.establish_connection
   end
 end
