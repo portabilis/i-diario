@@ -1,6 +1,7 @@
 #!/usr/bin/env puma
 
 workers ENV['RAILS_ENV'] == 'production' ? 16 : 2
+preload_app!
 
 # Min and Max threads per worker
 threads 1, 1
