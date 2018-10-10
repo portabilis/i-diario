@@ -1,7 +1,7 @@
 module Stepable
   extend ActiveSupport::Concern
 
-  attr_accessor :step_id, :ignore_step
+  attr_accessor :step_id, :ignore_step, :ignore_school_day
 
   included do
     validates_date :recorded_at
@@ -9,7 +9,7 @@ module Stepable
     validates_presence_of :step_id, unless: :ignore_step
     validates :recorded_at, not_in_future: true, posting_date: true
     validate :recorded_at_is_in_selected_step
-    validate :ensure_is_school_day
+    validate :ensure_is_school_day, unless: :ignore_school_day
   end
 
   module ClassMethods

@@ -14,10 +14,12 @@
         <% if @descriptive_exam.step_id.present? %>
           <th><%= DescriptiveExam.human_attribute_name :step %></th>
         <% end %>
-        <th><%= DescriptiveExam.human_attribute_name :recorded_at %></th>
       </thead>
 
       <tbody style="border-bottom: 1px solid #ccc;">
+        <%= f.hidden_field :step_id %>
+        <%= f.hidden_field :recorded_at %>
+
         <td><%= @descriptive_exam.unity %></td>
         <td><%= @descriptive_exam.classroom %></td>
         <% if @descriptive_exam.discipline.present? %>
@@ -26,10 +28,6 @@
         <% if @descriptive_exam.step_id.present? %>
           <td><%= @descriptive_exam.step %></td>
         <% end %>
-        <td style='width: 200px;'>
-          <%= f.hidden_field :step_id %>
-          <%= f.input :recorded_at, as: :date, label: false %>
-        </td>
       </tbody>
     </table>
 

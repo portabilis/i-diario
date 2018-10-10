@@ -98,7 +98,6 @@ class DescriptiveExamsController < ApplicationController
       )
     end
 
-    descriptive_exam.update_attribute(:recorded_at, @descriptive_exam.recorded_at)
     descriptive_exam.update_attribute(:opinion_type, @descriptive_exam.opinion_type)
 
     descriptive_exam
@@ -111,15 +110,9 @@ class DescriptiveExamsController < ApplicationController
   def recorded_at_by_step
     @descriptive_exam.step_id = steps_fetcher.steps.first.id if opinion_type_by_year?
 
-    date = steps_fetcher.steps.find(@descriptive_exam.step_id).start_at
+    date = steps_fetcher.steps.find(@descriptive_exam.step_id).end_at
 
-    SchoolDayChecker.new(
-      current_school_calendar,
-      date,
-      @descriptive_exam.classroom.grade_id,
-      @descriptive_exam.classroom_id,
-      @descriptive_exam.discipline_id
-    ).next_school_day
+    (Date.current > date) ? date : Date.current
   end
 
   def fetch_student_enrollments
