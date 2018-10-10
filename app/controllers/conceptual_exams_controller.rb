@@ -7,7 +7,7 @@ class ConceptualExamsController < ApplicationController
   def index
     step_id = (params[:filter] || []).delete(:by_step)
 
-    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :conceptual_exam_values, classroom: :unity)
+    @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
                                                     .by_unity(current_user_unity)
                                                     .by_classroom(current_user_classroom)
                                                     .by_teacher(current_teacher_id)

@@ -27,7 +27,13 @@ class ConceptualExam < ActiveRecord::Base
   scope :by_unity, lambda { |unity| joins(:classroom).where(classrooms: { unity_id: unity }) }
   scope :by_classroom, lambda { |classroom| where(classroom: classroom) }
   scope :by_discipline, lambda { |discipline| join_conceptual_exam_values.where(conceptual_exam_values: { discipline: discipline } ) }
-  scope :by_student_name, lambda { |student_name| joins(:student).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student_name}%") }
+  scope :by_student_name, lambda { |student_name|
+    joins(
+      arel_table.join(Student.arel_table).on(
+        Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id])
+      ).join_sources
+    ).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student_name}%")
+  }
   scope :ordered, -> { order(recorded_at: :desc) }
 
   validates :student, :unity_id, presence: true

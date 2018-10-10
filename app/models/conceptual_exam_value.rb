@@ -45,6 +45,7 @@ class ConceptualExamValue < ActiveRecord::Base
 
   def self.active_query
     differentiated_exam_rules = ExamRule.arel_table.alias('differentiated_exam_rules')
+    differentiated_exam_rule_students = Student.arel_table.alias('differentiated_exam_rule_students')
 
     joins(
       arel_table.join(TeacherDisciplineClassroom.arel_table).
@@ -54,9 +55,9 @@ class ConceptualExamValue < ActiveRecord::Base
         on(Classroom.arel_table[:id].eq(ConceptualExam.arel_table[:classroom_id])).join_sources,
       arel_table.join(ExamRule.arel_table).
         on(ExamRule.arel_table[:id].eq(Classroom.arel_table[:exam_rule_id])).join_sources,
-      arel_table.join(Student.arel_table, Arel::Nodes::OuterJoin).
-        on(Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id]).
-          and(Student.arel_table[:uses_differentiated_exam_rule].eq(true))).join_sources,
+      arel_table.join(differentiated_exam_rule_students, Arel::Nodes::OuterJoin).
+        on(differentiated_exam_rule_students[:id].eq(ConceptualExam.arel_table[:student_id]).
+          and(differentiated_exam_rule_students[:uses_differentiated_exam_rule].eq(true))).join_sources,
       arel_table.join(differentiated_exam_rules, Arel::Nodes::OuterJoin).
         on(differentiated_exam_rules[:id].eq(ExamRule.arel_table[:differentiated_exam_rule_id])).join_sources
     ).where(
@@ -66,7 +67,7 @@ class ConceptualExamValue < ActiveRecord::Base
           and(TeacherDisciplineClassroom.arel_table[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:discipline_score_type_target]))
         ).or(
           differentiated_exam_rules[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:score_type_target]).
-          and(Student.arel_table[:id].not_eq(nil))
+          and(differentiated_exam_rule_students[:id].not_eq(nil))
         )
       ).uniq
   end
