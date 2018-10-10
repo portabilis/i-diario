@@ -101,16 +101,13 @@ class ConceptualExamsController < ApplicationController
 
     authorize @conceptual_exam
 
-    current_teacher_disciplines = Discipline.by_teacher_and_classroom(current_teacher.id, current_user_classroom.id)
-    values_to_destroy = ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id)
-                                           .where(discipline_id: current_teacher_disciplines)
+    if @conceptual_exam.valid?
+      current_teacher_disciplines = Discipline.by_teacher_and_classroom(current_teacher.id, current_user_classroom.id)
+      values_to_destroy = ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id)
+                                             .where(discipline_id: current_teacher_disciplines)
 
-    values_to_destroy.each(&:destroy)
-
-    if ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id).any?
-      @conceptual_exam.destroy
-    else
-      @conceptual_exam.valid?
+      values_to_destroy.each(&:destroy)
+      @conceptual_exam.destroy unless ConceptualExamValue.where(conceptual_exam_id: @conceptual_exam.id).any?
     end
 
     respond_with @conceptual_exam, location: conceptual_exams_path
