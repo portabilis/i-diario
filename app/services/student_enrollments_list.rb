@@ -38,6 +38,7 @@ class StudentEnrollmentsList
     students_enrollments ||= StudentEnrollment.by_classroom(classroom)
                                               .by_discipline(discipline)
                                               .by_score_type(score_type, classroom)
+                                              .by_date_range(start_at, end_at)
                                               .includes(:student)
                                               .includes(:dependences)
                                               .active
