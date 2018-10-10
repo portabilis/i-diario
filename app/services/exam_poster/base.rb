@@ -4,16 +4,17 @@ module ExamPoster
 
     attr_accessor :warning_messages, :requests
 
-    def initialize(post_data, entity_id = nil, batch = nil)
+    def initialize(post_data, entity_id, queue)
       @post_data = post_data
       @entity_id = entity_id
       @worker_batch = post_data.worker_batch
       @warning_messages = []
       @requests = []
+      @queue = queue
     end
 
-    def self.post!(post_data, entity_id = nil)
-      new(post_data, entity_id).post!
+    def self.post!(post_data, entity_id, queue)
+      new(post_data, entity_id, queue).post!
     end
 
     def post!
@@ -25,7 +26,7 @@ module ExamPoster
 
       if requests.present?
         requests.each do |request|
-          Ieducar::SendPostWorker.perform_async(entity_id, @post_data.id, request)
+          Ieducar::SendPostWorker.set(queue: @queue).perform_async(entity_id, @post_data.id, request)
         end
       else
         @post_data.finish!
