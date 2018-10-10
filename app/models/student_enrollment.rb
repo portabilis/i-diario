@@ -11,11 +11,13 @@ class StudentEnrollment < ActiveRecord::Base
   scope :by_opinion_type, lambda {|opinion_type, classroom_id| by_opinion_type_query(opinion_type, classroom_id)}
   scope :by_student, lambda { |student_id| where(student_id: student_id) }
   scope :by_date, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date(date)) }
-  scope :by_date_range, lambda do |start_at, end_at|
+  scope :by_date_range, lambda { |start_at, end_at|
                           if start_at.present? && end_at.present?
-                            joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_range(start_at, end_at))
+                            joins(:student_enrollment_classrooms)
+                              .merge(StudentEnrollmentClassroom
+                              .by_date_range(start_at, end_at))
                           end
-                        end
+                        }
   scope :by_date_not_before, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_not_before(date)) }
   scope :show_as_inactive, lambda { joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.show_as_inactive) }
   scope :with_recovery_note_in_step, lambda { |step, discipline_id| with_recovery_note_in_step_query(step, discipline_id) }
