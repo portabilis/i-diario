@@ -98,6 +98,8 @@ class ConceptualExamsController < ApplicationController
 
   def destroy
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
+    @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
+    @conceptual_exam.step_id = steps_fetcher.step(@conceptual_exam.recorded_at).try(:id)
 
     authorize @conceptual_exam
 
