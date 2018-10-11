@@ -14,6 +14,9 @@ class ConceptualExamValue < ActiveRecord::Base
 
   before_destroy :valid_for_destruction?
 
+  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_conceptual_exam_id, lambda { |conceptual_exam_id| where(conceptual_exam_id: conceptual_exam_id) }
+
   def self.active(join_conceptual_exam = true)
     scoped = if join_conceptual_exam
        joins(:conceptual_exam)
