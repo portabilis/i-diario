@@ -38,6 +38,10 @@ class DescriptiveExam < ActiveRecord::Base
     true
   end
 
+  def ignore_step
+    opinion_type_by_year?
+  end
+
   private
 
   def should_validate_presence_of_discipline
@@ -52,5 +56,9 @@ class DescriptiveExam < ActiveRecord::Base
     return true if PostingDateChecker.new(classroom, step.start_at).check
 
     errors.add(:step_id, I18n.t('errors.messages.not_allowed_to_post_in_date'))
+  end
+
+  def opinion_type_by_year?
+    [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type)
   end
 end
