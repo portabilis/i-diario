@@ -8,6 +8,14 @@ GIT
       i18n (~> 0.6)
 
 GIT
+  remote: git://github.com/portabilis/mina-sidekiq.git
+  revision: 4f550031e5781fe1efecb6d6c8bc79a96e307ae7
+  branch: mc-improve-tasks
+  specs:
+    mina-sidekiq (1.0.3)
+      mina (>= 1.0.2)
+
+GIT
   remote: git://github.com/portabilis/prawn.git
   revision: a7a99b9d95418c48c9defdb32409f3fcfe59daaa
   branch: master
@@ -647,7 +655,7 @@ DEPENDENCIES
   meta_request
   mina (= 1.2.3)
   mina-puma!
-  mina-sidekiq (~> 1.0.3)
+  mina-sidekiq!
   newrelic_rpm
   nokogiri (~> 1.8.1)
   paperclip (~> 5.2.0)
