@@ -142,7 +142,7 @@ $(function() {
             {
               classroom_id: classroom_id,
               student_id: student_id,
-              step_id: school_calendar_step_id,
+              step_id: step_id,
               format: 'json'
             }
           )
