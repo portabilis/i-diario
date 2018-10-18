@@ -54,8 +54,12 @@ class ConceptualExam < ActiveRecord::Base
     ).uniq
   end
 
-  def self.by_status(status)
+  def self.by_status(classroom_id, teacher_id, status)
+    discipline_ids = TeacherDisciplineClassroom.by_classroom(classroom_id)
+                                               .by_teacher_id(teacher_id)
+                                               .pluck(:discipline_id)
     incomplete_conceptual_exams_ids = ConceptualExamValue.active.where(value: nil)
+                                                         .by_discipline_id(discipline_ids)
                                                          .group(:conceptual_exam_id)
                                                          .pluck(:conceptual_exam_id)
 
