@@ -12,3 +12,6 @@ pt-BR:
         website: "Site"
         email: "E-mail"
         logo: "Brasão"
+
+  entity_configuration:
+    not_found: "A entidade precisa estar configurada."

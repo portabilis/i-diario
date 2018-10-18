@@ -193,6 +193,8 @@ class AvaliationsController < ApplicationController
   end
 
   def interpolation_options
+    return {} if resource.class != Avaliation
+
     reasons = []
 
     if resource.errors[:test_date].include?(t('errors.messages.not_allowed_to_post_in_date'))

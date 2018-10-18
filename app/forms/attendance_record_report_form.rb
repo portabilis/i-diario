@@ -72,7 +72,8 @@ class AttendanceRecordReportForm
       discipline: discipline_id,
       start_at: start_at,
       end_at: end_at,
-      search_type: :by_date_range
+      search_type: :by_date_range,
+      show_inactive: false
     ).student_enrollments
   end
 
