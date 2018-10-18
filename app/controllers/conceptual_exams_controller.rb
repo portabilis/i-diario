@@ -6,6 +6,7 @@ class ConceptualExamsController < ApplicationController
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
+    status = (params[:filter] || []).delete(:by_status)
 
     @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
                                                     .by_unity(current_user_unity)
@@ -14,6 +15,7 @@ class ConceptualExamsController < ApplicationController
                                                     .ordered
 
     @conceptual_exams = @conceptual_exams.by_step_id(current_user_classroom, step_id) if step_id.present?
+    @conceptual_exams = @conceptual_exams.by_status(current_user_classroom, current_teacher_id, status) if status.present?
 
     authorize @conceptual_exams
   end
