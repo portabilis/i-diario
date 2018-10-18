@@ -63,7 +63,7 @@ class TransferNotesController < ApplicationController
     return unless params[:step_id].present? && params[:student_id].present? && params[:recorded_at].present?
 
     step = StepsFetcher.new(Classroom.find(params[:classroom_id])).steps.find(params[:step_id])
-    end_date = step.end_at > params[:transfer_date].to_date ? params[:transfer_date].to_date : step.end_at
+    end_date = step.end_at > params[:recorded_at].to_date ? params[:recorded_at].to_date : step.end_at
     avaliations = Avaliation.by_classroom_id(params[:classroom_id])
                             .by_discipline_id(params[:discipline_id])
                             .by_teacher(current_teacher.id)
