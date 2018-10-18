@@ -688,7 +688,7 @@ http_interactions:
       - application/json; charset=UTF-8
     body:
       encoding: UTF-8
-      string: '{"areas":[{"id":"8","nome":"ARTES VISUAIS"},{"id":"21","nome":"ATIVIDADES
+      string: '{"areas":[{"id":"8","nome":"ARTES VISUAIS", "ordenamento_ac": "1"},{"id":"21","nome":"ATIVIDADES
         ESPORTIVAS"},{"id":"18","nome":"DAN\u00c7A"},{"id":"15","nome":"EDUCA\u00c7\u00c3O
         AMBIENTAL"},{"id":"1","nome":"Ensino Fundamental\/B\u00e1sico"},{"id":"16","nome":"FILOSOFIA"},{"id":"9","nome":"IDENTIDADE
         E AUTONOMIA"},{"id":"19","nome":"INFORM\u00c1TICA EDUCATIVA"},{"id":"11","nome":"INFORM\u00c1TICA
