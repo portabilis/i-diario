@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   around_action :handle_customer
   before_action :set_honeybadger_context
   around_filter :set_user_current
+  around_filter :set_thread_origin_type
 
   respond_to :html, :json
 
@@ -328,6 +329,15 @@ class ApplicationController < ActionController::Base
         yield
     ensure
         User.current = nil
+    end
+  end
+
+  def set_thread_origin_type
+    Thread.current[:origin_type] = OriginTypes::WEB
+    begin
+        yield
+    ensure
+        Thread.current[:origin_type] = nil
     end
   end
 

@@ -8,6 +8,7 @@ class IeducarApiSynchronization < ActiveRecord::Base
   belongs_to :author, class_name: "User"
 
   validates :ieducar_api_configuration, presence: true
+  validates :ieducar_api_configuration_id, uniqueness: { scope: :status }, if: :started?
 
   delegate :to_api, to: :ieducar_api_configuration
 
