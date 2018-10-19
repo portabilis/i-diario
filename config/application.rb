@@ -18,6 +18,7 @@ module Educacao
       #{config.root}/app/workers
       #{config.root}/app/workers/concerns
       #{config.root}/app/services
+      #{config.root}/app/services/ieducar_synchronizers
       #{config.root}/app/queries
     )
 
