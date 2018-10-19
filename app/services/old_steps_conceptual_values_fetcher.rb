@@ -18,14 +18,12 @@ class OldStepsConceptualValuesFetcher
 
   def values_by_step(step)
     conceptual_exam_values = ConceptualExamValue.joins(:conceptual_exam)
-      .merge(ConceptualExam.where(student_id: @student.id))
-      .merge(ConceptualExam.by_classroom(@classroom.id))
+      .merge(
+        ConceptualExam.where(student_id: @student.id)
+                      .by_classroom(@classroom.id)
+                      .by_step_id(@classroom, step.id)
+      )
 
-    if @classroom.calendar
-      conceptual_exam_values = conceptual_exam_values.merge(ConceptualExam.by_school_calendar_classroom_step(step.id))
-    else
-      conceptual_exam_values = conceptual_exam_values.merge(ConceptualExam.by_school_calendar_step(step.id))
-    end
     values = {}
     conceptual_exam_values.ordered.each do |value|
       values["#{value.discipline_id}"] = rounding_table_value_of(value.value)
@@ -34,21 +32,7 @@ class OldStepsConceptualValuesFetcher
   end
 
   def old_steps
-    @old_steps ||= @classroom.calendar ? old_school_calendar_classroom_steps : old_school_calendar_steps
-  end
-
-  def old_school_calendar_classroom_steps
-    @current_step.school_calendar_classroom
-      .steps
-      .where(SchoolCalendarClassroomStep.arel_table[:start_at].lt(@current_step.start_at))
-      .ordered
-  end
-
-  def old_school_calendar_steps
-    @current_step.school_calendar
-      .steps
-      .where(SchoolCalendarStep.arel_table[:start_at].lt(@current_step.start_at))
-      .ordered
+    @old_steps ||= StepsFetcher.new(@classroom).old_steps(@current_step.start_at)
   end
 
   def rounding_table_value_of(value)

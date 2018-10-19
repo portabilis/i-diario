@@ -15,7 +15,7 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
 
   default_scope { where(arel_table[:active].eq(true)) }
 
-  scope :by_classroom, lambda { |classroom| where(classroom: classroom) }
-  scope :by_year, lambda { |year| where(year: year) }
-
+  scope :by_classroom, ->(classroom) { where(classroom: classroom) }
+  scope :by_teacher_id, ->(teacher_id) { where(teacher_id: teacher_id) }
+  scope :by_year, ->(year) { where(year: year) }
 end

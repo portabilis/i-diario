@@ -1,5 +1,0 @@
-pt-BR:
-  services:
-    school_calendar_classroom_step_setter:
-      success: "As etapas dos registros foram atualizadas com sucesso."
-      error: "Não foi possível realizar a atualização das etapas dos registros na entidade. Por favor, utilize o seguinte formato:\nrake entity:set_school_calendar_classroom_step NAME=\"nome_da_entidade\""

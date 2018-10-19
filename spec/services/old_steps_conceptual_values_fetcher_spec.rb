@@ -2,7 +2,14 @@ require 'rails_helper'
 
 RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
   let(:classroom) { create(:classroom, :current) }
-  let(:school_calendar) { create(:school_calendar, :school_calendar_with_trimester_steps, unity: classroom.unity) }
+  let(:school_calendar) {
+    create(
+      :school_calendar,
+      :school_calendar_with_trimester_steps,
+      :current,
+      unity: classroom.unity
+    )
+  }
   let(:student) { create(:student) }
 
   before do
@@ -12,7 +19,7 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
         classroom: classroom,
         unity_id: classroom.unity_id,
         student: student,
-        school_calendar_step: step,
+        step_id: step.id,
         recorded_at: 1.business_days.after(step.start_at)
       )
       exam.save(validate: false)
