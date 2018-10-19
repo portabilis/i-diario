@@ -16,6 +16,14 @@ RSpec.describe PostingDateChecker, :type => :service do
     described_class.new(classroom, school_calendar_step.start_at)
   end
 
+  context 'user current is nil' do
+    before do
+      User.current = nil
+    end
+
+    it { expect(subject.check).to be(true) }
+  end
+
   context 'current thread origin is api' do
     before do
       Thread.current[:origin_type] = OriginTypes::API_V2
