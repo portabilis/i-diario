@@ -7,7 +7,7 @@ module ExamPoster
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           self.requests << {
-            etapa: @post_data.step.to_number,
+            etapa: @step.to_number,
             resource: 'faltas-geral',
             faltas: {
               classroom_id => {
@@ -22,7 +22,7 @@ module ExamPoster
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|
             self.requests << {
-              etapa: @post_data.step.to_number,
+              etapa: @step.to_number,
               resource: 'faltas-por-componente',
               faltas: {
                 classroom_id => {
@@ -43,14 +43,15 @@ module ExamPoster
       absences = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
+        @step = get_step(classroom)
+
+        next if classroom.unity_id != @step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
         next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
 
-        daily_frequencies = DailyFrequency
-          .by_classroom_id(classroom.id)
-          .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
-          .general_frequency
+        daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
+                                          .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
+                                          .general_frequency
 
         students = fetch_students(daily_frequencies)
 
@@ -76,7 +77,7 @@ module ExamPoster
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-          next if teacher_discipline_classroom.classroom.unity_id != @post_data.step.school_calendar.unity_id
+          next if teacher_discipline_classroom.classroom.unity_id != @step.school_calendar.unity_id
           next unless step_exists_for_classroom?(classroom)
           next if classroom.exam_rule.frequency_type != FrequencyTypes::BY_DISCIPLINE
 
@@ -112,19 +113,21 @@ module ExamPoster
     private
 
     def step_start_at(classroom)
-      step_start_at = @post_data.step.start_at
+      step_start_at = @step.start_at
       if classroom.calendar
         classroom.calendar.classroom_steps.each do |classroom_step|
-          if classroom_step.to_number == @post_data.step.to_number
+          if classroom_step.to_number == @step.to_number
             step_start_at = classroom_step.start_at
             break
           end
         end
       else
-        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_year(classroom.year).first
+        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id)
+                                        .by_year(classroom.year)
+                                        .first
 
         school_calendar.steps.each do |school_step|
-          if school_step.to_number == @post_data.step.to_number
+          if school_step.to_number == @step.to_number
             step_start_at = school_step.start_at
             break
           end
@@ -135,19 +138,21 @@ module ExamPoster
     end
 
     def step_end_at(classroom)
-      step_end_at = @post_data.step.end_at
+      step_end_at = @step.end_at
       if classroom.calendar
         classroom.calendar.classroom_steps.each do |classroom_step|
-          if classroom_step.to_number == @post_data.step.to_number
+          if classroom_step.to_number == @step.to_number
             step_end_at = classroom_step.end_at
             break
           end
         end
       else
-        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id).by_year(classroom.year).first
+        school_calendar = SchoolCalendar.by_unity_id(classroom.unity_id)
+                                        .by_year(classroom.year)
+                                        .first
 
         school_calendar.steps.each do |school_step|
-          if school_step.to_number == @post_data.step.to_number
+          if school_step.to_number == @step.to_number
             step_end_at = school_step.end_at
             break
           end

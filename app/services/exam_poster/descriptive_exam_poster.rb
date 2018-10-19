@@ -7,7 +7,7 @@ module ExamPoster
       post_by_step.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, descriptive_exam|
           self.requests << {
-            etapa: @post_data.step.to_number,
+            etapa: @step.to_number,
             resource: 'pareceres-por-etapa-geral',
             pareceres: {
               classroom_id => {
@@ -52,7 +52,7 @@ module ExamPoster
         classroom_descriptive_exam.each do |student_id, student_descriptive_exam|
           student_descriptive_exam.each do |discipline_id, discipline_descriptive_exam|
             self.requests << {
-              etapa: @post_data.step.to_number,
+              etapa: @step.to_number,
               resource: 'pareceres-por-etapa-e-componente',
               pareceres: {
                 classroom_id => {
@@ -73,16 +73,18 @@ module ExamPoster
       descriptive_exams = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
+        @step = get_step(classroom)
+
+        next if classroom.unity_id != @step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
 
         if classroom.calendar
           exams = DescriptiveExamStudent.includes(:student)
-                                        .by_classroom_and_classroom_step(classroom, get_step(classroom).id)
+                                        .by_classroom_and_classroom_step(classroom, @step.id)
                                         .ordered
         else
           exams = DescriptiveExamStudent.includes(:student)
-                                        .by_classroom_and_step(classroom, get_step(classroom).id)
+                                        .by_classroom_and_step(classroom, @step.id)
                                         .ordered
         end
 
@@ -99,7 +101,7 @@ module ExamPoster
       descriptive_exams = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
+        next if classroom.unity_id != @step.school_calendar.unity_id
 
         exams = DescriptiveExamStudent.by_classroom(classroom).ordered
         exams.each do |exam|
@@ -118,7 +120,7 @@ module ExamPoster
         classroom = teacher_discipline_classroom.classroom
         discipline = teacher_discipline_classroom.discipline
 
-        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
+        next if classroom.unity_id != @step.school_calendar.unity_id
 
         exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).ordered
         exams.each do |exam|
@@ -137,13 +139,13 @@ module ExamPoster
         classroom = teacher_discipline_classroom.classroom
         discipline = teacher_discipline_classroom.discipline
 
-        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
+        next if classroom.unity_id != @step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
 
         if classroom.calendar
-          exams = DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, get_step(classroom).id).ordered
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, @step.id).ordered
         else
-          exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, get_step(classroom).id).ordered
+          exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, @step.id).ordered
         end
 
         exams.each do |exam|

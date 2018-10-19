@@ -8,7 +8,7 @@ module ExamPoster
         conceptual_exam_classroom.each do |student_id, conceptual_exam_student|
           conceptual_exam_student.each do |discipline_id, conceptual_exam_discipline|
             self.requests << {
-              etapa: @post_data.step.to_number,
+              etapa: @step.to_number,
               resource: 'notas',
               notas: {
                 classroom_id => {
@@ -26,18 +26,18 @@ module ExamPoster
     def post_conceptual_exams
       params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
 
-
       classrooms_ids = teacher.classrooms.uniq
       classrooms_ids.each do |classroom|
+        @step = get_step(classroom)
         next unless step_exists_for_classroom?(classroom)
 
-        conceptual_exams = ConceptualExam.by_classroom(classroom).
-          by_unity(@post_data.step.school_calendar.unity)
+        conceptual_exams = ConceptualExam.by_classroom(classroom)
+                                         .by_unity(@step.school_calendar.unity)
 
         if classroom.calendar
-          conceptual_exams = conceptual_exams.by_school_calendar_classroom_step(get_step(classroom))
+          conceptual_exams = conceptual_exams.by_school_calendar_classroom_step(@step)
         else
-          conceptual_exams = conceptual_exams.by_school_calendar_step(get_step(classroom))
+          conceptual_exams = conceptual_exams.by_school_calendar_step(@step)
         end
 
         conceptual_exam_values = ConceptualExamValue.
