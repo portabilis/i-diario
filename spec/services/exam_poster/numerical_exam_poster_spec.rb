@@ -55,7 +55,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     }
   end
 
-  subject { described_class.new(exam_posting, Entity.first.id) }
+  subject { described_class.new(exam_posting, Entity.first.id, 'exam_posting_send') }
 
   context 'hasnt recovery' do
     context 'hasnt complementary exams' do

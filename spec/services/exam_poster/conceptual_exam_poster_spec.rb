@@ -17,7 +17,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
            discipline: discipline)
   end
 
-  subject { described_class.new(exam_posting, Entity.first.id) }
+  subject { described_class.new(exam_posting, Entity.first.id, 'exam_posting_send') }
 
   context 'when has differentiated_exam_rules' do
     let(:differentiated_exam_rule) { create(:exam_rule, score_type: ScoreTypes::CONCEPT) }

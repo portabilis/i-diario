@@ -1,0 +1,9 @@
+---
+:concurrency: 5
+staging:
+  :concurrency: 10
+production:
+  :concurrency: 50
+:queues:
+  - [exam_posting, 2]
+  - [exam_posting_send, 50]
