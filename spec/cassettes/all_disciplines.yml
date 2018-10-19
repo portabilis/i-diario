@@ -21,7 +21,7 @@ http_interactions:
       Server:
       - nginx/1.14.0 (Ubuntu)
       Date:
-      - Thu, 18 Oct 2018 21:26:16 GMT
+      - Fri, 19 Oct 2018 11:56:08 GMT
       Content-Type:
       - text/html
       Content-Length:
@@ -36,7 +36,7 @@ http_interactions:
         bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
         (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
     http_version: 
-  recorded_at: Wed, 01 Mar 2017 05:04:31 GMT
+  recorded_at: Wed, 01 Mar 2017 19:34:24 GMT
 - request:
     method: get
     uri: https://test.ieducar.com.br/module/Api/ComponenteCurricular?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=componentes-curriculares&secret_key=***REMOVED***
@@ -66,8 +66,8 @@ http_interactions:
       Vary:
       - Accept-Encoding
       Set-Cookie:
-      - PHPSESSID=45dmbmeq6tkmafruadn5b1otmv; path=/
-      - PHPSESSID=45dmbmeq6tkmafruadn5b1otmv; path=/
+      - PHPSESSID=7aniho2cnm7kpe7ksagmks66ct; path=/
+      - PHPSESSID=7aniho2cnm7kpe7ksagmks66ct; path=/
       Expires:
       - Thu, 19 Nov 1981 08
       - Thu, 19 Nov 1981 08:52:00 GMT
@@ -78,7 +78,7 @@ http_interactions:
       - no-cache
       - no-cache
       Date:
-      - Thu, 18 Oct 2018 21:26:17 GMT
+      - Fri, 19 Oct 2018 11:56:09 GMT
       Content-Encoding:
       - gzip
     body:
@@ -208,5 +208,5 @@ http_interactions:
         wf+Dz1Kh4Y+tyOACeL/K9QrptaWbCWrZ5sUq11quQFbA93BVbLbm6uafcDNP
         /v1ZaK30Z/js6mbDIyP++/8xh5dw8b8AAA==
     http_version: 
-  recorded_at: Wed, 01 Mar 2017 05:04:32 GMT
+  recorded_at: Wed, 01 Mar 2017 19:34:25 GMT
 recorded_with: VCR 3.0.0

@@ -10,12 +10,12 @@ RSpec.describe KnowledgeAreasSynchronizer do
       VCR.use_cassette('all_knowledge_areas') do
         described_class.synchronize!(synchronization, worker_batch)
 
-        expect(KnowledgeArea.count).to eq 22
+        expect(KnowledgeArea.count).to eq 14
         first = KnowledgeArea.order(:id).first
         expect(first).to have_attributes(
-          "description": "ARTES VISUAIS",
-          "api_code": "8",
-          "sequence": 1
+          "description": "Artes e Música",
+          "api_code": "7",
+          "sequence": 3
         )
       end
     end
@@ -29,11 +29,11 @@ RSpec.describe KnowledgeAreasSynchronizer do
 
         described_class.synchronize!(synchronization, worker_batch)
 
-        expect(KnowledgeArea.count).to eq 22
+        expect(KnowledgeArea.count).to eq 14
         expect(knowledge_area.reload).to have_attributes(
-          "description": "ARTES VISUAIS",
+          "description": "Linguagem Oral e Escrita",
           "api_code": "8",
-          "sequence": 1
+          "sequence": 4
         )
       end
     end

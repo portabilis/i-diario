@@ -21,7 +21,7 @@ RSpec.describe DisciplinesSynchronizer do
         expect(first).to have_attributes(
           "description": "Adota hábitos de autocuidado relacionado à higiene, alimentação, conforto, segurança, proteção e cuidado com a aparência.",
           "api_code": "215",
-          "knowledge_area_id": 7,
+          "knowledge_area_id": KnowledgeArea.find_by(api_code: 5).id,
           "sequence": 9
         )
       end
