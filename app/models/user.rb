@@ -36,16 +36,12 @@ class User < ActiveRecord::Base
     foreign_key: :responsible_id, dependent: :restrict_with_error
   has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
     foreign_key: :responsible_id, dependent: :restrict_with_error
-  has_many :***REMOVED***s, foreign_key: :author_id, dependent: :restrict_with_error
 
   has_many :system_notification_targets, dependent: :destroy
   has_many :system_***REMOVED***, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
   has_many :unread_***REMOVED***, -> { joins(:targets).where(system_notification_targets: { read: false}) },
     through: :system_notification_targets, source: :system_notification
 
-  has_many :message_targets, dependent: :destroy
-  has_many :messages, through: :message_targets, foreign_key: :author_id, dependent: :destroy
-  has_many :sent_messages, class_name: "Message", foreign_key: :author_id, dependent: :destroy
   has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
 
   has_and_belongs_to_many :students, dependent: :restrict_with_error
@@ -188,10 +184,6 @@ class User < ActiveRecord::Base
     return false unless user_roles.exists?(id: user_role_id)
 
     update_column(:current_user_role_id, user_role_id)
-  end
-
-  def count_unread_messages
-    message_targets.unread.active.count
   end
 
   def read_***REMOVED***!

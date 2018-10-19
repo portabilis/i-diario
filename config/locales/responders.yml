@@ -33,20 +33,6 @@ pt-BR:
       destroy:
         alert: '%{resource_name} não pode ser apagada pois possui vínculos.'
 
-    ***REMOVED***s:
-      <<: *female
-      destroy:
-        notice: '%{resource_name} foi cancelada com sucesso.'
-
-    ***REMOVED***_confirmations:
-      <<: *female
-      update:
-        notice: 'Candidatura foi alterada com sucesso.'
-      cancel:
-        notice: 'Candidatura cancelada com sucesso.'
-      confirm:
-        notice: 'Candidatura confirmada com sucesso.'
-
     devise:
       passwords:
         create:
@@ -77,11 +63,6 @@ pt-BR:
       create:
         notice: "Integração de alunos do i-Educar está sendo processada."
         alert: "Integração de alunos do i-Educar não pode ser processada."
-
-    ***REMOVED***:
-      create:
-        notice: "Mensagem enviada com sucesso!"
-        alert: "Mensagem não pode ser enviada."
 
     ***REMOVED***:
       <<: *male

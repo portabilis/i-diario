@@ -112,11 +112,6 @@ Rails.application.routes.draw do
     get '/disabled_entity', to: 'pages#disabled_entity'
     get '/new_role_modal_feature', to: 'news#role_modal_feature'
 
-    resources :messages, except: [:edit, :update] do
-      collection do
-        delete :destroy_batch
-      end
-    end
     resources :users, concerns: :history do
       collection do
         get :export_all
@@ -131,20 +126,9 @@ Rails.application.routes.draw do
       end
     end
     resources  :user_roles, only: [:show]
-    resources :***REMOVED***, only: [:index, :show]
-    resources :***REMOVED***_confirmations, except: [:new, :create] do
-      member do
-        patch :cancel
-        patch :preview
-        patch :confirm
-      end
-    end
-    resource :***REMOVED***_configs, only: [:edit, :update], concerns: :history
-    resources :***REMOVED***s, concerns: :history
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
       resources :synchronizations, only: [:index, :create]
     end
-    resource :contact_school, only: [:new, :create]
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
     resource :terms_dictionaries, only: [:edit, :update], concerns: :history
@@ -226,11 +210,7 @@ Rails.application.routes.draw do
     end
     resources :maintenance_adjustments, concerns: :history, except: :show
 
-    resources :grades, only: [:index] do
-      member do
-        get :verify_candidate_birthdate
-      end
-    end
+    resources :grades, only: [:index]
 
     resources :schools, only: [:index]
     resources :***REMOVED***, concerns: :history

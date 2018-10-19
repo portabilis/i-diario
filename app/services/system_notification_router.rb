@@ -13,8 +13,6 @@ class SystemNotificationRouter
   def path
     return "" unless object.source
     case object.source_type
-    when "Message"
-      routes.message_path(object.source_id)
     when "***REMOVED***"
       routes.***REMOVED***_movements_report_viewer_path(object.source)
     when "***REMOVED***Request"

@@ -20,7 +20,6 @@ class BackupFile
     'BackupFile::***REMOVED***s',
     'BackupFile::DescriptiveExamStudents',
     'BackupFile::DescriptiveExams',
-    'BackupFile::***REMOVED***s',
     'BackupFile::DisciplineContentRecords',
     'BackupFile::DisciplineLessonPlans',
     'BackupFile::DisciplineTeachingPlans',

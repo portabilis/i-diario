@@ -5,33 +5,10 @@ navigation:
       path: "root_path"
       visible: true
   - ***REMOVED***:
-      type: "messages"
-      icon: "fa-inbox"
-      path: "messages_path"
-      visible: true
-  - ***REMOVED***:
       type: "accounts"
       icon: "fa-user"
       path: "edit_account_path"
       visible: true
-  - ***REMOVED***:
-      type: "***REMOVED***"
-      icon: "fa-envelope-o"
-      path: "new_contact_school_path"
-  - ***REMOVED***:
-      type: "***REMOVED***"
-      icon: "fa-ticket"
-      sub***REMOVED***s:
-          - ***REMOVED***:
-              type: "***REMOVED***s"
-              path: "***REMOVED***s_path"
-          - ***REMOVED***:
-              type: "***REMOVED***_confirmations"
-              path: "***REMOVED***_confirmations_path"
-  - ***REMOVED***:
-      type: "***REMOVED***"
-      icon: "fa-graduation-cap"
-      path: "***REMOVED***_path"
   - ***REMOVED***:
       type: "***REMOVED***"
       icon: "fa-cutlery"
@@ -89,9 +66,6 @@ navigation:
         - ***REMOVED***:
             type: "ieducar_api_configurations"
             path: "edit_ieducar_api_configurations_path"
-        - ***REMOVED***:
-            type: "***REMOVED***_configs"
-            path: "edit_***REMOVED***_configs_path"
         - ***REMOVED***:
             type: "entity_configurations"
             path: "edit_entity_configurations_path"
