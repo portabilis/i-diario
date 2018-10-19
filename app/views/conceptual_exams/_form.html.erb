@@ -61,15 +61,18 @@
   </fieldset>
 
   <fieldset>
-    <table class="table table-bordered table-condensed">
+    <table class="table table-bordered table-condensed" id="conceptual_exam_values_table">
       <thead>
         <th><%= ConceptualExamValue.human_attribute_name :discipline %></th>
+        <% old_values.each do |step| %>
+          <th class="old_step_column"><%= step[:description] %></th>
+        <% end %>
         <th width="20%"><%= ConceptualExamValue.human_attribute_name :value %></th>
       </thead>
 
       <tbody id="conceptual_exam_values">
         <tr>
-          <td class="no_item_found" colspan="2" style="<%= f.object.conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+          <td class="no_item_found" colspan="<%= old_values.count + 2 %>" style="<%= f.object.conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
         </tr>
         <% @conceptual_exam.conceptual_exam_values
              .sort_by { |conceptual_exam_value| conceptual_exam_value.discipline.sequence.to_i }
@@ -78,7 +81,7 @@
              .each do |knowledge_area, conceptual_exam_values| %>
           <% if conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).any? %>
             <tr class="knowledge-area-table-row">
-              <td class="knowledge-area-table-data" colspan="2"><strong><%= knowledge_area %></strong></td>
+              <td class="knowledge-area-table-data" colspan="<%= old_values.count + 2 %>"><strong><%= knowledge_area %></strong></td>
             </tr>
           <% end %>
 
@@ -89,7 +92,7 @@
 
         <tfoot class='exempted_students_from_discipline_legend <%= 'hidden' unless @any_student_exempted_from_discipline %>'>
           <tr>
-            <td colspan="2">
+            <td colspan="<%= old_values.count + 2 %>">
               <span class="conceptual-exam-student-legend">
                 <%= t('.exempted_students_from_discipline_legend') %>
               </span>
