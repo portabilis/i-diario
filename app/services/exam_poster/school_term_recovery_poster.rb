@@ -92,7 +92,7 @@ module ExamPoster
       school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
         .by_classroom_id(classroom)
         .by_discipline_id(discipline)
-        .by_step_id(get_step(classroom).id)
+        .by_step_id(classroom, get_step(classroom).id)
         .first
 
       return unless school_term_recovery_diary_record
