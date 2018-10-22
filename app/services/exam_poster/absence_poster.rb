@@ -45,7 +45,7 @@ module ExamPoster
       teacher.classrooms.uniq.each do |classroom|
         @step = get_step(classroom)
 
-        next if classroom.unity_id != @step.school_calendar.unity_id
+        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
         next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
 
@@ -77,7 +77,7 @@ module ExamPoster
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-          next if teacher_discipline_classroom.classroom.unity_id != @step.school_calendar.unity_id
+          next if teacher_discipline_classroom.classroom.unity_id != @post_data.step.school_calendar.unity_id
           next unless step_exists_for_classroom?(classroom)
           next if classroom.exam_rule.frequency_type != FrequencyTypes::BY_DISCIPLINE
 
