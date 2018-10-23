@@ -68,6 +68,7 @@ group :development do
   gem 'pry-byebug'
   gem 'pry-remote'
   gem 'quiet_assets'
+  gem 'rubocop', '~> 0.59.2', require: false
   gem 'spring'
   gem 'spring-commands-rspec'
   gem 'web-console', '~> 2.0'
