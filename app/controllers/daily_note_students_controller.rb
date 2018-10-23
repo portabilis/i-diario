@@ -1,5 +1,4 @@
 class DailyNoteStudentsController < ApplicationController
-
   respond_to :json, only: [:index, :old_notes, :dependence]
 
   def index
@@ -9,17 +8,18 @@ class DailyNoteStudentsController < ApplicationController
   end
 
   def old_notes
-    return unless params[:classroom_id] && params[:discipline_id] && params[:school_calendar_step_id] && params[:student_id]
+    return unless params[:step_id].present? && params[:student_id].present?
 
-    school_calendar_step = SchoolCalendarStep.unscoped.find(params[:school_calendar_step_id])
+    step = StepsFetcher.new(Classroom.find(params[:classroom_id])).steps.find(params[:step_id])
 
     daily_note_students = DailyNoteStudent.by_discipline_id(params[:discipline_id])
-                                           .by_student_id(params[:student_id])
-                                           .by_test_date_between(school_calendar_step.start_at, school_calendar_step.end_at)
-                                           .not_including_classroom_id(params[:classroom_id])
-                                           .ordered
+                                          .by_student_id(params[:student_id])
+                                          .by_test_date_between(step.start_at, step.end_at)
+                                          .not_including_classroom_id(params[:classroom_id])
+                                          .ordered
 
     @old_notes = []
+
     daily_note_students.each do |daily_note_student|
       @old_notes << {
         avaliation_description: daily_note_student.avaliation.description_to_teacher,
@@ -27,29 +27,8 @@ class DailyNoteStudentsController < ApplicationController
         recovery_note: daily_note_student.recovery_note
       }
     end
+
     respond_with old_notes: @old_notes
-  end
-
-  def old_notes_classroom_steps
-    return unless params[:classroom_id] && params[:discipline_id] && params[:school_calendar_classroom_step_id] && params[:student_id]
-
-    school_calendar_classroom_step = SchoolCalendarClassroomStep.unscoped.find(params[:school_calendar_classroom_step_id])
-
-    daily_note_students = DailyNoteStudent.by_discipline_id(params[:discipline_id])
-                                           .by_student_id(params[:student_id])
-                                           .by_test_date_between(school_calendar_classroom_step.start_at, school_calendar_classroom_step.end_at)
-                                           .not_including_classroom_id(params[:classroom_id])
-                                           .ordered
-
-    @old_notes = []
-    daily_note_students.each do |daily_note_student|
-      @old_notes << {
-        avaliation_description: daily_note_student.avaliation.description_to_teacher,
-        note: daily_note_student.note,
-        recovery_note: daily_note_student.recovery_note
-      }
-    end
-    render json: @old_notes
   end
 
   def dependence
@@ -77,8 +56,10 @@ class DailyNoteStudentsController < ApplicationController
     end
 
     sequence = 0
+
     @normal_students.each do |note_student|
       sequence += 1
+
       @students << {
         sequence: sequence,
         id: note_student.student_id,
@@ -91,8 +72,10 @@ class DailyNoteStudentsController < ApplicationController
     end
 
     sequence = 0
+
     @dependence_students.each do |note_student|
       sequence += 1
+
       @students << {
         sequence: sequence,
         id: note_student.student_id,
@@ -109,29 +92,27 @@ class DailyNoteStudentsController < ApplicationController
 
   private
 
-
   def student_has_dependence?(student_enrollment, discipline)
-    StudentEnrollmentDependence
-      .by_student_enrollment(student_enrollment)
-      .by_discipline(discipline)
-      .any?
+    StudentEnrollmentDependence.by_student_enrollment(student_enrollment)
+                               .by_discipline(discipline)
+                               .any?
   end
 
   def student_active_on_date?(student_enrollment, classroom, test_date)
-    StudentEnrollment
-      .where(id: student_enrollment)
-      .by_classroom(classroom)
-      .by_date(test_date)
-      .any?
+    StudentEnrollment.where(id: student_enrollment)
+                     .by_classroom(classroom)
+                     .by_date(test_date)
+                     .any?
   end
 
   def fetch_student_enrollments(classroom, discipline, date)
-    StudentEnrollmentsList.new(classroom: classroom,
-                               discipline: discipline,
-                               date: date,
-                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-                               search_type: :by_date)
-                          .student_enrollments
+    StudentEnrollmentsList.new(
+      classroom: classroom,
+      discipline: discipline,
+      date: date,
+      score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+      search_type: :by_date
+    ).student_enrollments
   end
 
   def student_exempted_from_discipline?(student_enrollment, daily_note)

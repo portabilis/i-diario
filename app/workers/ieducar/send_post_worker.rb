@@ -46,21 +46,21 @@ module Ieducar
       student_id = data(params).first[1].first[0]
 
       @students ||= {}
-      @students[student_id] ||= Student.find_by(api_code: student_id).name
+      @students[student_id] ||= Student.find_by(api_code: student_id).try(:name)
     end
 
     def discipline(params)
       discipline_id = data(params).first[1].first[1].first[0]
 
       @disciplines ||= {}
-      @disciplines[discipline_id] ||= Discipline.find_by(api_code: discipline_id).description
+      @disciplines[discipline_id] ||= Discipline.find_by(api_code: discipline_id).try(:description)
     end
 
     def classroom(params)
       classroom_id = data(params).first[0]
 
       @classrooms ||= {}
-      @classrooms[classroom_id] ||= Classroom.find_by(api_code: classroom_id).description
+      @classrooms[classroom_id] ||= Classroom.find_by(api_code: classroom_id).try(:description)
     end
 
     def data(params)

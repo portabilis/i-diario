@@ -210,15 +210,23 @@ class SchoolCalendarsParser
   end
 
   def school_calendar_need_synchronization?(school_calendar)
-    school_calendar.changed? || school_calendar.steps.any?(&:new_record?) || school_calendar.steps.any?(&:changed?) || school_calendar.classrooms.any?(&:new_record?)
+    school_calendar.changed? ||
+    school_calendar.steps.any? do |step|
+      step.new_record? || step.changed? || step.marked_for_destruction?
+    end ||
+    school_calendar.classrooms.any? do |school_calendar_classroom|
+      school_calendar_classroom.new_record? || school_calendar_classroom.marked_for_destruction?
+    end
   end
 
   def school_calendar_classroom_step_need_synchronization?(school_calendar_classroom)
-    need = false
     school_calendar_classroom.each do |classroom|
-      need = true if classroom.classroom_steps.any?(&:new_record?) || classroom.classroom_steps.any?(&:changed?)
+      return true if classroom.classroom_steps.any? do |classroom_step|
+        classroom_step.new_record? || classroom_step.changed? || classroom_step.marked_for_destruction?
+      end
     end
-    need
+
+    false
   end
 
   private

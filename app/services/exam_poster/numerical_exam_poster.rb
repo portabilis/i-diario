@@ -46,7 +46,7 @@ module ExamPoster
           student_scores = teacher_score_fetcher.scores
 
           student_scores.each do |student_score|
-            next if exempted_discipline(classroom.id, discipline.id, student_score.id)
+            next if exempted_discipline(classroom, discipline.id, student_score.id)
             next if !correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
@@ -71,19 +71,11 @@ module ExamPoster
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      if classroom.calendar
-        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
-          .by_classroom_id(classroom)
-          .by_discipline_id(discipline)
-          .by_school_calendar_classroom_step_id(get_step(classroom))
-          .first
-      else
-        school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
+      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
         .by_classroom_id(classroom)
         .by_discipline_id(discipline)
-        .by_school_calendar_step_id(get_step(classroom))
+        .by_step_id(classroom, get_step(classroom).id)
         .first
-      end
 
       return unless school_term_recovery_diary_record
 
@@ -93,14 +85,16 @@ module ExamPoster
         .first
 
       score = student_recovery.try(:score)
+
       if score.present?
         score = ComplementaryExamCalculator.new(AffectedScoreTypes::STEP_RECOVERY_SCORE, student, discipline.id, classroom.id, @post_data.step).calculate(score)
       end
+
       score
     end
 
-    def exempted_discipline(classroom_id, discipline_id, student_id)
-      student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
+    def exempted_discipline(classroom, discipline_id, student_id)
+      student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom.id)
                                                                .by_student(student_id)
                                                                .active
                                                                .first
@@ -109,7 +103,7 @@ module ExamPoster
         return student_enrollment_classroom.student_enrollment
                                            .exempted_disciplines
                                            .by_discipline(discipline_id)
-                                           .where("? = ANY(string_to_array(steps, ',')::integer[])", @post_data.step.to_number)
+                                           .by_step_number(get_step(classroom).to_number)
                                            .any?
       end
 
