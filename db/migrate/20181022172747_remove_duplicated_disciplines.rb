@@ -10,7 +10,8 @@ class RemoveDuplicatedDisciplines < ActiveRecord::Migration
     duplicated = Discipline.where(api_code: duplicated_api_codes)
     duplicated.group_by(&:api_code).each do |api_code, disciplines|
       selected = disciplines[0]
-      to_delete_ids = disciplines[1..-1].map(&:id)
+      to_delete = disciplines[1..-1]
+      to_delete_ids = to_delete.map(&:id)
 
       ActiveRecord::Base.transaction do
         puts AbsenceJustification.where(discipline_id: to_delete_ids).
