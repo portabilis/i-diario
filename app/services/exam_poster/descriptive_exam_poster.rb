@@ -67,8 +67,6 @@ module ExamPoster
       end
     end
 
-    protected
-
     def post_by_step
       descriptive_exams = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
 
@@ -76,18 +74,17 @@ module ExamPoster
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
 
-        if classroom.calendar
-          exams = DescriptiveExamStudent.includes(:student)
-                                        .by_classroom_and_classroom_step(classroom, get_step(classroom).id)
-                                        .ordered
-        else
-          exams = DescriptiveExamStudent.includes(:student)
-                                        .by_classroom_and_step(classroom, get_step(classroom).id)
-                                        .ordered
-        end
+        exams = DescriptiveExamStudent.joins(:descriptive_exam)
+                                      .includes(:student, :descriptive_exam)
+                                      .merge(
+                                        DescriptiveExam.by_classroom_id(classroom.id)
+                                                       .by_step_id(classroom, get_step(classroom).id)
+                                      )
+                                      .ordered
 
         exams.each do |exam|
           next unless valid_opinion_type?(exam.student.uses_differentiated_exam_rule, OpinionTypes::BY_STEP, classroom.exam_rule)
+
           descriptive_exams[classroom.api_code][exam.student.api_code]["valor"] = exam.value
         end
       end
@@ -102,8 +99,10 @@ module ExamPoster
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
 
         exams = DescriptiveExamStudent.by_classroom(classroom).ordered
+
         exams.each do |exam|
           next unless valid_opinion_type?(exam.student.uses_differentiated_exam_rule, OpinionTypes::BY_YEAR, classroom.exam_rule)
+
           descriptive_exams[classroom.api_code][exam.student.api_code]["valor"] = exam.value
         end
       end
@@ -121,8 +120,10 @@ module ExamPoster
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
 
         exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).ordered
+
         exams.each do |exam|
           next unless valid_opinion_type?(exam.student.uses_differentiated_exam_rule, OpinionTypes::BY_YEAR_AND_DISCIPLINE, classroom.exam_rule)
+
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]["valor"] = exam.value
         end
       end
@@ -140,20 +141,25 @@ module ExamPoster
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
 
-        if classroom.calendar
-          exams = DescriptiveExamStudent.by_classroom_discipline_and_classroom_step(classroom, discipline, get_step(classroom).id).ordered
-        else
-          exams = DescriptiveExamStudent.by_classroom_discipline_and_step(classroom, discipline, get_step(classroom).id).ordered
-        end
+        exams = DescriptiveExamStudent.joins(:descriptive_exam)
+                                      .includes(:student, :descriptive_exam)
+                                      .merge(
+                                        DescriptiveExam.by_classroom_id(classroom.id)
+                                                       .by_discipline_id(discipline.id)
+                                                       .by_step_id(classroom, get_step(classroom).id)
+                                      )
+                                      .ordered
 
         exams.each do |exam|
           next unless valid_opinion_type?(exam.student.uses_differentiated_exam_rule, OpinionTypes::BY_STEP_AND_DISCIPLINE, classroom.exam_rule)
+
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]["valor"] = exam.value
         end
       end
 
       descriptive_exams
     end
+
     def valid_opinion_type?(differentiated, opinion_type, exam_rule)
       exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
       exam_rule.opinion_type == opinion_type
