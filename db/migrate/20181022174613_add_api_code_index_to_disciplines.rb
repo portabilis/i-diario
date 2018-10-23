@@ -1,6 +1,6 @@
 class AddApiCodeIndexToDisciplines < ActiveRecord::Migration
   def change
-    execute "DROP INDEX index_disciplines_on_api_code IF EXISTS"
+    execute "DROP INDEX IF EXISTS index_disciplines_on_api_code "
     add_index :disciplines, :api_code, unique: true
   end
 end
