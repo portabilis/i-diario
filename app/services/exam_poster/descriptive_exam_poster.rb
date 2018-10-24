@@ -7,7 +7,7 @@ module ExamPoster
       post_by_step.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, descriptive_exam|
           requests << {
-            etapa: @step.to_number,
+            etapa: @post_data.step.to_number,
             resource: 'pareceres-por-etapa-geral',
             pareceres: {
               classroom_id => {
@@ -52,7 +52,7 @@ module ExamPoster
         classroom_descriptive_exam.each do |student_id, student_descriptive_exam|
           student_descriptive_exam.each do |discipline_id, discipline_descriptive_exam|
             requests << {
-              etapa: @step.to_number,
+              etapa: @post_data.step.to_number,
               resource: 'pareceres-por-etapa-e-componente',
               pareceres: {
                 classroom_id => {

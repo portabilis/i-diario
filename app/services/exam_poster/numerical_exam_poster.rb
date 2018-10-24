@@ -7,7 +7,7 @@ module ExamPoster
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
             requests << {
-              etapa: @step.to_number,
+              etapa: @post_data.step.to_number,
               resource: 'notas',
               notas: {
                 classroom_id => {

@@ -7,7 +7,7 @@ module ExamPoster
         conceptual_exam_classroom.each do |student_id, conceptual_exam_student|
           conceptual_exam_student.each do |discipline_id, conceptual_exam_discipline|
             requests << {
-              etapa: @step.to_number,
+              etapa: @post_data.step.to_number,
               resource: 'notas',
               notas: {
                 classroom_id => {
