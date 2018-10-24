@@ -74,12 +74,11 @@ module ExamPoster
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
 
-        @step = get_step(classroom)
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
                                       .includes(:student, :descriptive_exam)
                                       .merge(
                                         DescriptiveExam.by_classroom_id(classroom.id)
-                                                       .by_step_id(classroom, @step.id)
+                                                       .by_step_id(classroom, get_step(classroom).id)
                                       )
                                       .ordered
 
@@ -154,7 +153,7 @@ module ExamPoster
                                       .merge(
                                         DescriptiveExam.by_classroom_id(classroom.id)
                                                        .by_discipline_id(discipline.id)
-                                                       .by_step_id(classroom, @step.id)
+                                                       .by_step_id(classroom, get_step(classroom).id)
                                       )
                                       .ordered
 

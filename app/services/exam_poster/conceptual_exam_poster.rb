@@ -27,13 +27,12 @@ module ExamPoster
 
       classrooms_ids = teacher.classrooms.uniq
       classrooms_ids.each do |classroom|
-        @step = get_step(classroom)
         next unless step_exists_for_classroom?(classroom)
 
         conceptual_exams = ConceptualExam.by_classroom(classroom)
-                                         .by_unity(@step.school_calendar.unity)
+                                         .by_unity(get_step(classroom).school_calendar.unity)
 
-        conceptual_exams = conceptual_exams.by_step_id(classroom, @step.id)
+        conceptual_exams = conceptual_exams.by_step_id(classroom, get_step(classroom).id)
 
         conceptual_exam_values = ConceptualExamValue.active
                                                     .includes(:conceptual_exam, :discipline)

@@ -47,7 +47,6 @@ module ExamPoster
         next unless step_exists_for_classroom?(classroom)
         next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
 
-        @step = get_step(classroom)
         daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
                                           .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
                                           .general_frequency
@@ -112,10 +111,10 @@ module ExamPoster
     private
 
     def step_start_at(classroom)
-      step_start_at = @step.start_at
+      step_start_at = get_step(classroom).start_at
       if classroom.calendar
         classroom.calendar.classroom_steps.each do |classroom_step|
-          if classroom_step.to_number == @step.to_number
+          if classroom_step.to_number == get_step(classroom).to_number
             step_start_at = classroom_step.start_at
             break
           end
@@ -126,7 +125,7 @@ module ExamPoster
                                         .first
 
         school_calendar.steps.each do |school_step|
-          if school_step.to_number == @step.to_number
+          if school_step.to_number == get_step(classroom).to_number
             step_start_at = school_step.start_at
             break
           end
@@ -137,10 +136,10 @@ module ExamPoster
     end
 
     def step_end_at(classroom)
-      step_end_at = @step.end_at
+      step_end_at = get_step(classroom).end_at
       if classroom.calendar
         classroom.calendar.classroom_steps.each do |classroom_step|
-          if classroom_step.to_number == @step.to_number
+          if classroom_step.to_number == get_step(classroom).to_number
             step_end_at = classroom_step.end_at
             break
           end
@@ -151,7 +150,7 @@ module ExamPoster
                                         .first
 
         school_calendar.steps.each do |school_step|
-          if school_step.to_number == @step.to_number
+          if school_step.to_number == get_step(classroom).to_number
             step_end_at = school_step.end_at
             break
           end

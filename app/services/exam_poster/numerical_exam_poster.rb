@@ -34,7 +34,6 @@ module ExamPoster
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
-          @step = get_step(classroom)
 
           next unless same_unity(classroom.unity_id)
           next unless step_exists_for_classroom?(classroom)
@@ -43,7 +42,7 @@ module ExamPoster
             teacher,
             classroom,
             discipline,
-            @step
+            get_step(classroom)
           )
           teacher_score_fetcher.fetch!
 
@@ -54,7 +53,7 @@ module ExamPoster
             next unless correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
-            value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @step)
+            value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, get_step(classroom))
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
 
             next unless school_term_recovery
@@ -70,7 +69,7 @@ module ExamPoster
     end
 
     def same_unity(unity_id)
-      unity_id == @step.school_calendar.unity_id
+      unity_id == get_step(classroom).school_calendar.unity_id
     end
 
     def correct_score_type(differentiated, exam_rule)
@@ -82,7 +81,7 @@ module ExamPoster
     def fetch_school_term_recovery_score(classroom, discipline, student)
       school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
                                                                        .by_discipline_id(discipline)
-                                                                       .by_step_id(classroom, @step.id)
+                                                                       .by_step_id(classroom, get_step(classroom).id)
                                                                        .first
 
       return unless school_term_recovery_diary_record
@@ -99,7 +98,7 @@ module ExamPoster
           student,
           discipline.id,
           classroom.id,
-          @step
+          get_step(classroom)
         ).calculate(score)
       end
 
@@ -116,7 +115,7 @@ module ExamPoster
         return student_enrollment_classroom.student_enrollment
                                            .exempted_disciplines
                                            .by_discipline(discipline_id)
-                                           .by_step_number(@step.to_number)
+                                           .by_step_number(get_step(classroom).to_number)
                                            .any?
       end
 
