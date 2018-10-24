@@ -68,7 +68,7 @@ module ExamPoster
     end
 
     def post_by_step
-      descriptive_exams = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
+      descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
@@ -94,7 +94,7 @@ module ExamPoster
     end
 
     def post_by_year
-      descriptive_exams = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
+      descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
@@ -115,7 +115,7 @@ module ExamPoster
     end
 
     def post_by_year_and_discipline
-      descriptive_exams = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
+      descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.teacher_discipline_classrooms.each do |teacher_discipline_classroom|
         classroom = teacher_discipline_classroom.classroom
@@ -140,7 +140,7 @@ module ExamPoster
     end
 
     def post_by_step_and_discipline
-      descriptive_exams = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
+      descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.teacher_discipline_classrooms.each do |teacher_discipline_classroom|
         classroom = teacher_discipline_classroom.classroom

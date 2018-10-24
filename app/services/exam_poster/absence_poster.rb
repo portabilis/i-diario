@@ -40,7 +40,7 @@ module ExamPoster
     protected
 
     def post_general_classrooms
-      absences = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
+      absences = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
@@ -70,7 +70,7 @@ module ExamPoster
     end
 
     def post_by_discipline_classrooms
-      absences = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
+      absences = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
