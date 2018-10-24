@@ -1,6 +1,5 @@
 module ExamPoster
   class DescriptiveExamPoster < Base
-
     private
 
     def generate_requests
@@ -83,7 +82,10 @@ module ExamPoster
                                       .ordered
 
         exams.each do |exam|
-          next unless valid_opinion_type?(exam.student.uses_differentiated_exam_rule, OpinionTypes::BY_STEP, classroom.exam_rule)
+          next unless valid_opinion_type?(
+            exam.student.uses_differentiated_exam_rule,
+            OpinionTypes::BY_STEP, classroom.exam_rule
+          )
 
           descriptive_exams[classroom.api_code][exam.student.api_code]['valor'] = exam.value
         end
