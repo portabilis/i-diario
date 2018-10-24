@@ -1,13 +1,12 @@
 module ExamPoster
   class SchoolTermRecoveryPoster < Base
-
     private
 
     def generate_requests
       post_by_classrooms.each do |classroom_id, classroom_score|
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
-            self.requests << {
+            requests << {
               etapa: @post_data.step.to_number,
               resource: 'recuperacoes',
               notas: {
@@ -35,8 +34,8 @@ module ExamPoster
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
 
-          next if !correct_score_type(classroom.exam_rule.score_type)
-          next if !same_unity?(classroom.unity_id)
+          next unless correct_score_type(classroom.exam_rule.score_type)
+          next unless same_unity?(classroom.unity_id)
           next unless step_exists_for_classroom?(classroom)
 
           teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, get_step(classroom))
@@ -48,12 +47,12 @@ module ExamPoster
             next if exempted_discipline(classroom, discipline.id, student_score.id)
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
+            next unless school_term_recovery
 
-            if school_term_recovery
-              value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.step)
-              scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom).round(school_term_recovery)
-            end
+            value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.step)
+            recovery_value = ScoreRounder.new(classroom).round(school_term_recovery)
+            scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
+            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
           end
 
           students_only_with_recovery_fetcher = StudentOnlyWithRecoveryFetcher.new(teacher, classroom, discipline, @post_data.step)
@@ -68,7 +67,8 @@ module ExamPoster
             score = student_recovery.try(:score)
 
             if score
-              scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom).round(score)
+              value = ScoreRounder.new(classroom).round(score)
+              scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = value
             end
           end
 
@@ -78,25 +78,21 @@ module ExamPoster
       return scores
     end
 
-    private
-
     def correct_score_type(score_type)
       score_type == ScoreTypes::NUMERIC
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
-        .by_classroom_id(classroom)
-        .by_discipline_id(discipline)
-        .by_step_id(classroom, get_step(classroom).id)
-        .first
+      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
+                                                                       .by_discipline_id(discipline)
+                                                                       .by_step_id(classroom, get_step(classroom).id)
+                                                                       .first
 
       return unless school_term_recovery_diary_record
 
-      student_recovery = RecoveryDiaryRecordStudent
-        .by_student_id(student)
-        .by_recovery_diary_record_id(school_term_recovery_diary_record.recovery_diary_record_id)
-        .first
+      student_recovery = RecoveryDiaryRecordStudent.by_student_id(student)
+                                                   .by_recovery_diary_record_id(school_term_recovery_diary_record.recovery_diary_record_id)
+                                                   .first
 
       student_recovery.try(:score)
     end
