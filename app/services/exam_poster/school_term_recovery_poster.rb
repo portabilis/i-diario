@@ -36,7 +36,7 @@ module ExamPoster
           discipline = teacher_discipline_classroom.discipline
 
           next if !correct_score_type(classroom.exam_rule.score_type)
-          next if !same_unity(classroom.unity_id)
+          next if !same_unity?(classroom.unity_id)
           next unless step_exists_for_classroom?(classroom)
 
           teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, get_step(classroom))
@@ -79,10 +79,6 @@ module ExamPoster
     end
 
     private
-
-    def same_unity(unity_id)
-      unity_id == @post_data.step.school_calendar.unity_id
-    end
 
     def correct_score_type(score_type)
       score_type == ScoreTypes::NUMERIC

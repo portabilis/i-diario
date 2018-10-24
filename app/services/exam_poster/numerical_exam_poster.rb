@@ -35,7 +35,7 @@ module ExamPoster
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
 
-          next unless same_unity(classroom.unity_id)
+          next unless same_unity?(classroom.unity_id)
           next unless step_exists_for_classroom?(classroom)
 
           teacher_score_fetcher = TeacherScoresFetcher.new(
@@ -66,10 +66,6 @@ module ExamPoster
       end
 
       scores
-    end
-
-    def same_unity(unity_id)
-      unity_id == get_step(classroom).school_calendar.unity_id
     end
 
     def correct_score_type(differentiated, exam_rule)

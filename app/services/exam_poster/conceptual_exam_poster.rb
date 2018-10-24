@@ -27,6 +27,7 @@ module ExamPoster
 
       classrooms_ids = teacher.classrooms.uniq
       classrooms_ids.each do |classroom|
+        next unless same_unity?(classroom.unity_id)
         next unless step_exists_for_classroom?(classroom)
 
         conceptual_exams = ConceptualExam.by_classroom(classroom)

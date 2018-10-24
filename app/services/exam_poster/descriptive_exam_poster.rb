@@ -71,7 +71,7 @@ module ExamPoster
       descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
+        next unless same_unity?(classroom.unity_id)
         next unless step_exists_for_classroom?(classroom)
 
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
