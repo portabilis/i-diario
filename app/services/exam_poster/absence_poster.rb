@@ -6,7 +6,7 @@ module ExamPoster
     def generate_requests
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
-          self.requests << {
+          requests << {
             etapa: @step.to_number,
             resource: 'faltas-geral',
             faltas: {
@@ -21,7 +21,7 @@ module ExamPoster
       post_by_discipline_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|
-            self.requests << {
+            requests << {
               etapa: @step.to_number,
               resource: 'faltas-por-componente',
               faltas: {
@@ -40,15 +40,14 @@ module ExamPoster
     protected
 
     def post_general_classrooms
-      absences = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
+      absences = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        @step = get_step(classroom)
-
         next if classroom.unity_id != @post_data.step.school_calendar.unity_id
         next unless step_exists_for_classroom?(classroom)
         next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
 
+        @step = get_step(classroom)
         daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
                                           .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
                                           .general_frequency
@@ -71,7 +70,7 @@ module ExamPoster
     end
 
     def post_by_discipline_classrooms
-      absences = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
+      absences = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
@@ -84,25 +83,25 @@ module ExamPoster
           discipline = teacher_discipline_classroom.discipline
 
           daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
-            .by_discipline_id(discipline.id)
-            .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
+                                            .by_discipline_id(discipline.id)
+                                            .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
 
-          if daily_frequencies.any?
-            students = fetch_students(daily_frequencies)
+          next unless daily_frequencies.any?
 
-            students.each do |student|
-              daily_frequency_students = DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(
-                classroom.id,
-                discipline.id,
-                student.id,
-                step_start_at(classroom),
-                step_end_at(classroom)
-              ).active
+          students = fetch_students(daily_frequencies)
 
-              if daily_frequency_students.any?
-                value = daily_frequency_students.absences.count
-                absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
-              end
+          students.each do |student|
+            daily_frequency_students = DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(
+              classroom.id,
+              discipline.id,
+              student.id,
+              step_start_at(classroom),
+              step_end_at(classroom)
+            ).active
+
+            if daily_frequency_students.any?
+              value = daily_frequency_students.absences.count
+              absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
             end
           end
         end

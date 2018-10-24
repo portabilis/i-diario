@@ -1,13 +1,12 @@
 module ExamPoster
   class NumericalExamPoster < Base
-
     private
 
     def generate_requests
       post_by_classrooms.each do |classroom_id, classroom_score|
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
-            self.requests << {
+            requests << {
               etapa: @step.to_number,
               resource: 'notas',
               notas: {
@@ -25,7 +24,6 @@ module ExamPoster
 
     def post_by_classrooms
       scores = Hash.new{ |hash, key| hash[key] = Hash.new(&hash.default_proc) }
-
       classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq.compact
 
       classroom_ids.each do |classroom|
@@ -38,7 +36,7 @@ module ExamPoster
           discipline = teacher_discipline_classroom.discipline
           @step = get_step(classroom)
 
-          next if !same_unity(classroom.unity_id)
+          next unless same_unity(classroom.unity_id)
           next unless step_exists_for_classroom?(classroom)
 
           teacher_score_fetcher = TeacherScoresFetcher.new(
@@ -53,17 +51,22 @@ module ExamPoster
 
           student_scores.each do |student_score|
             next if exempted_discipline(classroom, discipline.id, student_score.id)
-            next if !correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
+            next unless correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @step)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = ScoreRounder.new(classroom).round(school_term_recovery) if school_term_recovery
+
+            next unless school_term_recovery
+
+            recovery_value = ScoreRounder.new(classroom).round(school_term_recovery)
+            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.has_warnings?
         end
       end
-      return scores
+
+      scores
     end
 
     def same_unity(unity_id)
@@ -77,11 +80,10 @@ module ExamPoster
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
-      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord
-        .by_classroom_id(classroom)
-        .by_discipline_id(discipline)
-        .by_step_id(classroom, @step.id)
-        .first
+      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
+                                                                       .by_discipline_id(discipline)
+                                                                       .by_step_id(classroom, @step.id)
+                                                                       .first
 
       return unless school_term_recovery_diary_record
 
