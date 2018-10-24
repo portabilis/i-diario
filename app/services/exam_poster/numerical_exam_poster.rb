@@ -23,7 +23,7 @@ module ExamPoster
     end
 
     def post_by_classrooms
-      scores = Hash.new{ |hash, key| hash[key] = Hash.new(&hash.default_proc) }
+      scores = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
       classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq.compact
 
       classroom_ids.each do |classroom|
@@ -53,7 +53,8 @@ module ExamPoster
             next unless correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
-            value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, get_step(classroom))
+            value = StudentAverageCalculator.new(student_score)
+                                            .calculate(classroom, discipline, get_step(classroom))
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
 
             next unless school_term_recovery
@@ -77,13 +78,18 @@ module ExamPoster
     def fetch_school_term_recovery_score(classroom, discipline, student)
       school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
                                                                        .by_discipline_id(discipline)
-                                                                       .by_step_id(classroom, get_step(classroom).id)
+                                                                       .by_step_id(
+                                                                         classroom,
+                                                                         get_step(classroom).id
+                                                                       )
                                                                        .first
 
       return unless school_term_recovery_diary_record
 
       student_recovery = RecoveryDiaryRecordStudent.by_student_id(student)
-                                                   .by_recovery_diary_record_id(school_term_recovery_diary_record.recovery_diary_record_id)
+                                                   .by_recovery_diary_record_id(
+                                                     school_term_recovery_diary_record.recovery_diary_record_id
+                                                   )
                                                    .first
 
       score = student_recovery.try(:score)

@@ -1,6 +1,5 @@
 module ExamPoster
   class AbsencePoster < Base
-
     private
 
     def generate_requests
@@ -48,7 +47,10 @@ module ExamPoster
         next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
 
         daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
-                                          .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
+                                          .by_frequency_date_between(
+                                            step_start_at(classroom),
+                                            step_end_at(classroom)
+                                          )
                                           .general_frequency
 
         students = fetch_students(daily_frequencies)
@@ -75,7 +77,7 @@ module ExamPoster
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-          next if teacher_discipline_classroom.classroom.unity_id != @post_data.step.school_calendar.unity_id
+          next unless same_unity?(teacher_discipline_classroom.classroom.unity_id)
           next unless step_exists_for_classroom?(classroom)
           next if classroom.exam_rule.frequency_type != FrequencyTypes::BY_DISCIPLINE
 
@@ -83,7 +85,10 @@ module ExamPoster
 
           daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
                                             .by_discipline_id(discipline.id)
-                                            .by_frequency_date_between(step_start_at(classroom), step_end_at(classroom))
+                                            .by_frequency_date_between(
+                                              step_start_at(classroom),
+                                              step_end_at(classroom)
+                                            )
 
           next unless daily_frequencies.any?
 
@@ -167,5 +172,4 @@ module ExamPoster
       Student.find(students_ids)
     end
   end
-
 end
