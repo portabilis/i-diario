@@ -98,7 +98,8 @@ module ExamPoster
       descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
+        next unless same_unity?(classroom.unity_id)
+        next unless step_exists_for_classroom?(classroom)
 
         exams = DescriptiveExamStudent.by_classroom(classroom).ordered
 
@@ -122,7 +123,8 @@ module ExamPoster
         classroom = teacher_discipline_classroom.classroom
         discipline = teacher_discipline_classroom.discipline
 
-        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
+        next unless same_unity?(classroom.unity_id)
+        next unless step_exists_for_classroom?(classroom)
 
         exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).ordered
 
@@ -147,7 +149,7 @@ module ExamPoster
         classroom = teacher_discipline_classroom.classroom
         discipline = teacher_discipline_classroom.discipline
 
-        next if classroom.unity_id != @post_data.step.school_calendar.unity_id
+        next unless same_unity?(classroom.unity_id)
         next unless step_exists_for_classroom?(classroom)
 
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
