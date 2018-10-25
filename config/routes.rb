@@ -139,7 +139,6 @@ Rails.application.routes.draw do
         post :create_batch
         get :search
         get :all
-        get :school_group
       end
     end
     resources :***REMOVED***, concerns: :history do
@@ -181,22 +180,8 @@ Rails.application.routes.draw do
         get :measuring_unit_by_material_id
       end
     end
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***s, concerns: :history do
-      member do
-        post :clone
-      end
-      collection do
-        get :distributed
-      end
-    end
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
     resources :courses, only: [:index]
     resources :lectures, only: [:index]
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
     resources :***REMOVED***, concerns: :history, except: :show do
       collection do
         get :search
@@ -231,12 +216,6 @@ Rails.application.routes.draw do
     get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
     get '/***REMOVED***/get_***REMOVED***', to: '***REMOVED***#get_***REMOVED***_for_select2_remote', as: 'get_all_***REMOVED***'
     get '/***REMOVED***/get_filtered_***REMOVED***', to: '***REMOVED***#get_filtered_***REMOVED***_for_select2_remote', as: 'get_filtered_***REMOVED***'
-
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***_***REMOVED***s, only: :index
-    resources :***REMOVED***_***REMOVED***, only: :index
-    resources :***REMOVED***_periods, only: :index
-    resources :***REMOVED***_students, only: :index
 
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
@@ -387,9 +366,6 @@ Rails.application.routes.draw do
     get '/reports/observation_record', to: 'observation_record_report#form', as: 'observation_record_report'
     post '/reports/observation_record', to: 'observation_record_report#report', as: 'observation_record_report'
 
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
     get '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#form', as: 'discipline_lesson_plan_report'
     post '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#lesson_plan_report', as: 'discipline_lesson_plan_report'
     post '/reports/discipline_content_record', to: 'discipline_lesson_plan_report#content_record_report', as: 'discipline_content_record_report'
@@ -401,26 +377,9 @@ Rails.application.routes.draw do
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
 
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
     get '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#form', as: '***REMOVED***_movements_report'
     post '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#report', as: '***REMOVED***_movements_report'
     get '/reports/***REMOVED***_movements/:id', to: '***REMOVED***_movements_report#show', as: '***REMOVED***_movements_report_viewer'
-
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
-    get '/reports/***REMOVED***s', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***s', to: '***REMOVED***#report', as: '***REMOVED***'
-
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
-    post '/food_composition', to: 'food_composition#calculate'
 
     resources :data_exportations, only: [:index, :create]
   end

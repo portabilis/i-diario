@@ -78,6 +78,15 @@ GIT
       activerecord (>= 4.1.0)
       activesupport (>= 4.1.0)
 
+PATH
+  remote: ../novo_educacao_plus
+  specs:
+    novo_educacao_plus (0.0.1)
+      decorators (~> 2.0.3)
+      enumerate_it
+      rails (~> 4.2.3)
+      rspec-rails (~> 3.4)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -191,6 +200,8 @@ GEM
     debug_inspector (0.0.2)
     declarative (0.0.10)
     declarative-option (0.1.0)
+    decorators (2.0.4)
+      railties (>= 4.0.0, < 6)
     deferring (0.5.0)
       activerecord (>= 4.2, < 5.3)
     devise (3.5.1)
@@ -724,6 +735,7 @@ DEPENDENCIES
   newrelic_rpm
   nokogiri (~> 1.8.1)
   non-stupid-digest-assets (~> 1.0.9)
+  novo_educacao_plus!
   paperclip (~> 5.2.0)
   paranoia (~> 2.2)
   pdf-inspector

@@ -10,34 +10,6 @@ navigation:
       path: "edit_account_path"
       visible: true
   - ***REMOVED***:
-      type: "***REMOVED***"
-      icon: "fa-cutlery"
-      sub***REMOVED***s:
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
-            type: "***REMOVED***s"
-            path: "***REMOVED***s_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-  - ***REMOVED***:
       type: "administrative"
       icon: "fa-tasks"
       sub***REMOVED***s:
@@ -264,9 +236,6 @@ navigation:
             type: "observation_record_report"
             path: "observation_record_report_path"
         - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
             type: "discipline_lesson_plan_report"
             path: "discipline_lesson_plan_report_path"
         - ***REMOVED***:
@@ -279,26 +248,11 @@ navigation:
             type: "teacher_report_cards"
             path: "teacher_report_cards_path"
         - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
             type: "partial_score_record_report"
             path: "partial_score_record_report_path"
         - ***REMOVED***:
             type: "***REMOVED***_movements_report"
             path: "***REMOVED***_movements_report_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
-        - ***REMOVED***:
-            type: "***REMOVED***"
-            path: "***REMOVED***_path"
 
   - ***REMOVED***:
       type: "ieducar_api_exam_postings"

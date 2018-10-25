@@ -89,24 +89,11 @@ pt-BR:
       <<: *male
 
     ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***s:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *female
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
       <<: *female
 
     authorization_***REMOVED***:
       <<: *female
-    execution_***REMOVED***s:
-      <<: *female
+
     test_settings:
       <<: *female
 
@@ -189,11 +176,6 @@ pt-BR:
       create:
         notice: 'Ajuste de estoque realizado com sucesso.'
         alert: 'Ajuste de estoque não pode ser realizado.'
-
-    ***REMOVED***:
-      <<: *male
-      destroy:
-        alert: '%{resource_name} não pode ser apagado pois possui vínculos.'
 
     terms_dictionaries:
       <<: *male

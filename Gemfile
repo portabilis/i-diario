@@ -67,7 +67,7 @@ gem 'uri_validator'
 gem 'validates_timeliness', '3.0.14'
 gem 'zenvia-ruby', git: 'https://github.com/portabilis/zenvia-ruby'
 
-#gem 'novo_educacao_plus', path: '../novo_educacao_plus'
+gem 'novo_educacao_plus', path: '../novo_educacao_plus'
 
 group :development do
   gem 'binding_of_caller', '~> 0.7.2'
