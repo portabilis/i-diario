@@ -2,7 +2,7 @@ Style/Encoding:
   Enabled: false
 
 Style/ConditionalAssignment:
-  EnforcedStyle: assign_inside_condition
+  EnforcedStyle: assign_to_condition
 
 Style/Documentation:
   Enabled: false
