@@ -2,24 +2,20 @@ pt-BR:
   activerecord:
     models:
       school_term_recovery_diary_record:
-        one: "Recuperação de etapas da turma"
-        other: "Recuperação de etapas da turma"
+        one: 'Recuperação de etapas da turma'
+        other: 'Recuperação de etapas da turma'
     attributes:
       school_term_recovery_diary_record:
-        school_calendar_step: "Etapa"
-        school_calendar_step_id: "Etapa"
-        school_calendar_classroom_step: "Etapa da turma"
-        school_calendar_classroom_step_id: "Etapa da turma"
+        step: 'Etapa'
+        step_id: 'Etapa'
+        recorded_at: 'Data'
 
     errors:
       models:
         school_term_recovery_diary_record:
           attributes:
               recovery_diary_record:
-                recovery_type_must_allow_recovery_for_classroom: "deve permitir o lançamento de recuperações de etapas"
-                recorded_at_must_be_school_calendar_step_day: "deve ser um dia letivo da etapa selecionada"
-              school_calendar_step:
-                recovery_type_must_allow_recovery_for_school_calendar_step: "não é permitido recuperar a etapa informada"
-                uniqueness_of_school_term_recovery_diary_record: "já existe um lançamento de recuperação para a etapa informada"
-              school_calendar_classroom_step:
-                uniqueness_of_school_term_recovery_diary_record: "já existe um lançamento de recuperação para a etapa informada"
+                recovery_type_must_allow_recovery_for_classroom: 'deve permitir o lançamento de recuperações de etapas'
+              step_id:
+                recovery_type_must_allow_recovery_for_step: 'não é permitido recuperar a etapa informada'
+                uniqueness_of_school_term_recovery_diary_record: 'já existe um lançamento de recuperação para a etapa informada'

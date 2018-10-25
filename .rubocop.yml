@@ -1,0 +1,31 @@
+Style/Encoding:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  EnforcedStyle: assign_to_condition
+
+Style/Documentation:
+  Enabled: false
+
+# Set max LineLength to 115
+Metrics/LineLength:
+  Max: 115
+
+# Disable module length restriction
+Metrics/ModuleLength:
+  Enabled: false
+
+# Disable method length restriction
+Metrics/ClassLength:
+  Enabled: false
+
+# Disable method length restriction
+Metrics/MethodLength:
+  Enabled: false
+
+# Disable checking of ABC metrics (assignment, branch, condition)
+Metrics/AbcSize:
+  Enabled: false
+
+Rails:
+  Enabled: true

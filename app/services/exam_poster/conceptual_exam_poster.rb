@@ -24,8 +24,7 @@ module ExamPoster
     end
 
     def post_conceptual_exams
-      params = Hash.new{ |h, k| h[k] = Hash.new(&h.default_proc) }
-
+      params = Hash.new { |h, k| h[k] = Hash.new(&h.default_proc) }
 
       classrooms_ids = teacher.classrooms.uniq
       classrooms_ids.each do |classroom|
@@ -34,11 +33,7 @@ module ExamPoster
         conceptual_exams = ConceptualExam.by_classroom(classroom).
           by_unity(@post_data.step.school_calendar.unity)
 
-        if classroom.calendar
-          conceptual_exams = conceptual_exams.by_school_calendar_classroom_step(get_step(classroom))
-        else
-          conceptual_exams = conceptual_exams.by_school_calendar_step(get_step(classroom))
-        end
+        conceptual_exams = conceptual_exams.by_step_id(classroom, get_step(classroom).id)
 
         conceptual_exam_values = ConceptualExamValue.
           active.
@@ -60,9 +55,11 @@ module ExamPoster
           classroom_api_code = conceptual_exam.classroom.api_code
           student_api_code = conceptual_exam.student.api_code
           discipline_api_code = conceptual_exam_value.discipline.api_code
+
           params[classroom_api_code][student_api_code][discipline_api_code]["nota"] = conceptual_exam_value.value
         end
       end
+
       params
     end
   end

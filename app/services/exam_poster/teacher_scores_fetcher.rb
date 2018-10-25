@@ -2,11 +2,11 @@ class ExamPoster::TeacherScoresFetcher
   attr_reader :scores
   attr_reader :warning_messages
 
-  def initialize(teacher, classroom, discipline, school_calendar_step)
+  def initialize(teacher, classroom, discipline, step)
     @teacher = teacher
     @classroom = classroom
     @discipline = discipline
-    @school_calendar_step = school_calendar_step
+    @step = step
     @warning_messages = []
     @scores = []
   end
@@ -14,12 +14,12 @@ class ExamPoster::TeacherScoresFetcher
   def fetch!
     exams = Avaliation.by_classroom_id(@classroom.id)
       .by_discipline_id(@discipline.id)
-      .by_test_date_between(@school_calendar_step.start_at, @school_calendar_step.end_at)
+      .by_test_date_between(@step.start_at, @step.end_at)
     number_of_exams = exams.count
 
     daily_notes = DailyNote.by_classroom_id(@classroom.id)
       .by_discipline_id(@discipline.id)
-      .by_test_date_between(@school_calendar_step.start_at, @school_calendar_step.end_at)
+      .by_test_date_between(@step.start_at, @step.end_at)
       .active
 
     validate_exam_quantity(number_of_exams)
@@ -34,7 +34,7 @@ class ExamPoster::TeacherScoresFetcher
         .by_classroom_id(@classroom)
         .by_discipline_id(@discipline)
         .by_student_id(student.id)
-        .by_test_date_between(@school_calendar_step.start_at, @school_calendar_step.end_at)
+        .by_test_date_between(@step.start_at, @step.end_at)
         .active
 
       pending_exams = student_exams.select { |e| e.note.blank? && !e.exempted? }
@@ -82,6 +82,6 @@ class ExamPoster::TeacherScoresFetcher
   end
 
   def current_test_setting
-    CurrentTestSettingFetcher.new(@school_calendar_step.school_calendar).fetch
+    CurrentTestSettingFetcher.new(@step.school_calendar).fetch
   end
 end
