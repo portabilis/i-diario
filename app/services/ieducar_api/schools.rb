@@ -2,7 +2,7 @@
 module IeducarApi
   class Schools < Base
     def fetch_with_vacancy(params = {})
-      params.merge!(path: "module/Api/Escola", resource: "escolas")
+      params.merge!(path: "module/Api/Escola", resource: "info-escolas")
 
       raise ApiError.new("É necessário informar pelo menos um ano") if params[:ano].blank?
       raise ApiError.new("É necessário informar pelo menos um curso") if params[:curso_id].blank?
