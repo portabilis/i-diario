@@ -49,6 +49,10 @@ module ExamPoster
       get_step_by_step_number(classroom, @post_data.step.to_number) || @post_data.step
     end
 
+    def same_unity?(unity_id)
+      unity_id == @post_data.step.school_calendar.unity_id
+    end
+
     def get_step_by_step_number(classroom, step_number)
       current_step_exam_poster = "#{@entity_id}_#{classroom.id}_#{step_number}_current_step_exam_poster"
 
