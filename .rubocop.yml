@@ -7,6 +7,9 @@ Style/ConditionalAssignment:
 Style/Documentation:
   Enabled: false
 
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
 # Set max LineLength to 115
 Metrics/LineLength:
   Max: 115
