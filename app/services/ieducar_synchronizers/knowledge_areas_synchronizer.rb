@@ -12,25 +12,12 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
   end
 
   def update_records(collection)
-    ActiveRecord::Base.transaction do
-      collection.each do |record|
-        if knowledge_area = knowledge_areas.find_by(api_code: record["id"])
-          knowledge_area.update(
-            description: record["nome"],
-            sequence: record["ordenamento_ac"]
-          )
-        elsif record["nome"].present?
-          knowledge_areas.create!(
-            api_code: record["id"],
-            description: record["nome"],
-            sequence: record["ordenamento_ac"]
-          )
-        end
+    collection.each do |record|
+      KnowledgeArea.find_or_initialize_by(api_code: record["id"]).tap do |knowledge_area|
+        knowledge_area.description = record["nome"]
+        knowledge_area.sequence = record["ordenamento_ac"]
+        knowledge_area.save! if knowledge_area.changed?
       end
     end
-  end
-
-  def knowledge_areas(klass = KnowledgeArea)
-    klass
   end
 end

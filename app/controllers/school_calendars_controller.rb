@@ -59,29 +59,28 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def create_and_update_batch
-    selected_school_calendars(params[:synchronize]).each do |school_calendar|
-      unity = Unity.find(school_calendar[:unity_id])
-
-      if school_calendar_is_synchronizing(unity.id)
-        redirect_to synchronize_school_calendars_path, alert: t('.school_calendar_is_synchronizing', unity: unity.name) unless performed?
-      else
-        job_id = SchoolCalendarSynchronizerWorker.perform_in(10.seconds, current_entity.id, school_calendar, current_user.id)
-
-        WorkerState.create(
-          user: current_user,
-          job_id: job_id,
-          kind: 'SchoolCalendarSynchronizerWorker',
-          status: ApiSynchronizationStatus::STARTED,
-          uuid: unity.id
-        )
+    begin
+      selected_school_calendars(params[:synchronize]).each do |school_calendar|
+        SchoolCalendarSynchronizerService.synchronize(school_calendar)
       end
-    end
 
-    redirect_to school_calendars_path, notice: t('.notice') unless performed?
+      redirect_to school_calendars_path, notice: t('.notice')
+    rescue SchoolCalendarsCreator::InvalidSchoolCalendarError,
+           SchoolCalendarsCreator::InvalidClassroomCalendarError,
+           SchoolCalendarsUpdater::InvalidSchoolCalendarError,
+           SchoolCalendarsUpdater::InvalidClassroomCalendarError => error
+
+      redirect_to synchronize_school_calendars_path, alert: error.to_s
+    rescue StandardError => error
+      Honeybadger.notify(error)
+
+      redirect_to synchronize_school_calendars_path, alert: t('.alert')
+    end
   end
 
   def years_from_unity
     @years = YearsFromUnityFetcher.new(params[:unity_id]).fetch.map{ |year| { id: year, name: year } }
+
     render json: @years
   end
 
@@ -89,7 +88,7 @@ class SchoolCalendarsController < ApplicationController
     classroom = Classroom.find(params[:classroom_id])
     @step = StepsFetcher.new(classroom).steps.find(params[:step_id])
 
-    render json: @step
+    render json: @step.to_json
   end
 
   private
@@ -98,14 +97,9 @@ class SchoolCalendarsController < ApplicationController
     school_calendars.select { |school_calendar| school_calendar[:unity_id].present? }
   end
 
-  def school_calendar_is_synchronizing(unity_id)
-    WorkerState.where(kind: 'SchoolCalendarSynchronizerWorker', status: ApiSynchronizationStatus::STARTED, uuid: unity_id).any?
-  end
-
   def filtering_params(params)
     params = {} unless params
-    params.slice(:by_year,
-                 :by_unity_id)
+    params.slice(:by_year, :by_unity_id)
   end
 
   def resource
@@ -118,21 +112,29 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def resource_params
-    params.require(:school_calendar).permit(:year,
-                                            :number_of_classes,
-                                            steps_attributes: [:id,
-                                                               :start_at,
-                                                               :end_at,
-                                                               :start_date_for_posting,
-                                                               :end_date_for_posting,
-                                                               :_destroy],
-                                            classrooms_attributes: [:id,
-                                                                    :classroom,
-                                                                    :_destroy,
-                                            classroom_steps_attributes: [:id,
-                                                               :start_at,
-                                                               :end_at,
-                                                               :start_date_for_posting,
-                                                               :end_date_for_posting]])
+    params.require(:school_calendar).permit(
+      :year,
+      :number_of_classes,
+      steps_attributes: [
+        :id,
+        :start_at,
+        :end_at,
+        :start_date_for_posting,
+        :end_date_for_posting,
+        :_destroy
+      ],
+      classrooms_attributes: [
+        :id,
+        :classroom,
+        :_destroy,
+        classroom_steps_attributes: [
+          :id,
+          :start_at,
+          :end_at,
+          :start_date_for_posting,
+          :end_date_for_posting
+        ]
+      ]
+    )
   end
 end
