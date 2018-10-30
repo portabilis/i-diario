@@ -1,14 +1,15 @@
 pt-BR:
   transfer_notes:
     index:
-      by_classroom_description: "Filtrar turma"
-      by_discipline_description: "Filtrar disciplina"
-      by_student_name: "Filtrar aluno"
-      by_transfer_date: "Filtrar data"
+      by_classroom_description: 'Filtrar turma'
+      by_discipline_description: 'Filtrar disciplina'
+      by_student_name: 'Filtrar aluno'
+      by_step: 'Filtrar etapa'
+      by_transfer_date: 'Filtrar data'
       new_html: "<i class='fa fa-plus'></i> Novo lançamento"
     form:
-      back: "Voltar"
-      history: "Histórico"
-      save: "Salvar"
-      no_old_notes_found: "Não encontramos registros anteriores para este aluno. Por favor, procure a secretaria da escola."
-      no_current_notes_found: "Não encontramos avaliações atuais para este aluno."
+      back: 'Voltar'
+      history: 'Histórico'
+      save: 'Salvar'
+      no_old_notes_found: 'Não encontramos registros anteriores para este aluno. Por favor, procure a secretaria da escola.'
+      no_current_notes_found: 'Não encontramos avaliações atuais para este aluno.'

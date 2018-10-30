@@ -2,25 +2,24 @@ pt-BR:
   activerecord:
     models:
       descriptive_exam:
-        one: "Avaliação descritiva"
-        other: "Avaliações descritivas"
+        one: 'Avaliação descritiva'
+        other: 'Avaliações descritivas'
 
     attributes:
       descriptive_exam:
-        unity: "Escola"
-        classroom: "Turma"
-        classroom_id: "Turma"
-        discipline: "Disciplina"
-        discipline_id: "Disciplina"
-        school_calendar_step: "Etapa"
-        school_calendar_step_id: "Etapa"
-        school_calendar_classroom_step: "Etapa da turma"
-        school_calendar_classroom_step_id: "Etapa da turma"
-        opinion_type: "Tipo"
+        unity: 'Escola'
+        classroom: 'Turma'
+        classroom_id: 'Turma'
+        discipline: 'Disciplina'
+        discipline_id: 'Disciplina'
+        step: 'Etapa'
+        step_id: 'Etapa'
+        recorded_at: 'Data'
+        opinion_type: 'Tipo'
 
   errors:
     descriptive_exams:
-      require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
+      require_teacher: 'É necessário vincular um professor ao usuário atual para acessar esse cadastro'
 
   descriptive_exams:
     new:
