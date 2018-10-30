@@ -6,8 +6,6 @@ class ConceptualExamValue < ActiveRecord::Base
 
   audited associated_with: :conceptual_exam, except: :conceptual_exam_id
 
-  attr_accessor :exempted_discipline
-
   belongs_to :conceptual_exam
   belongs_to :discipline
 
@@ -15,6 +13,9 @@ class ConceptualExamValue < ActiveRecord::Base
   validates :discipline_id, presence: true
 
   before_destroy :valid_for_destruction?
+
+  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
+  scope :by_conceptual_exam_id, lambda { |conceptual_exam_id| where(conceptual_exam_id: conceptual_exam_id) }
 
   def self.active(join_conceptual_exam = true)
     scoped = if join_conceptual_exam
@@ -47,6 +48,7 @@ class ConceptualExamValue < ActiveRecord::Base
 
   def self.active_query
     differentiated_exam_rules = ExamRule.arel_table.alias('differentiated_exam_rules')
+    differentiated_exam_rule_students = Student.arel_table.alias('differentiated_exam_rule_students')
 
     joins(
       arel_table.join(TeacherDisciplineClassroom.arel_table).
@@ -56,9 +58,9 @@ class ConceptualExamValue < ActiveRecord::Base
         on(Classroom.arel_table[:id].eq(ConceptualExam.arel_table[:classroom_id])).join_sources,
       arel_table.join(ExamRule.arel_table).
         on(ExamRule.arel_table[:id].eq(Classroom.arel_table[:exam_rule_id])).join_sources,
-      arel_table.join(Student.arel_table, Arel::Nodes::OuterJoin).
-        on(Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id]).
-          and(Student.arel_table[:uses_differentiated_exam_rule].eq(true))).join_sources,
+      arel_table.join(differentiated_exam_rule_students, Arel::Nodes::OuterJoin).
+        on(differentiated_exam_rule_students[:id].eq(ConceptualExam.arel_table[:student_id]).
+          and(differentiated_exam_rule_students[:uses_differentiated_exam_rule].eq(true))).join_sources,
       arel_table.join(differentiated_exam_rules, Arel::Nodes::OuterJoin).
         on(differentiated_exam_rules[:id].eq(ExamRule.arel_table[:differentiated_exam_rule_id])).join_sources
     ).where(
@@ -68,7 +70,7 @@ class ConceptualExamValue < ActiveRecord::Base
           and(TeacherDisciplineClassroom.arel_table[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:discipline_score_type_target]))
         ).or(
           differentiated_exam_rules[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:score_type_target]).
-          and(Student.arel_table[:id].not_eq(nil))
+          and(differentiated_exam_rule_students[:id].not_eq(nil))
         )
       ).uniq
   end
