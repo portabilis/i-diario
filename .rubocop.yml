@@ -16,6 +16,9 @@ Metrics/ModuleLength:
 Rails:
   Enabled: true
 
+Rails/ReversibleMigration:
+  Enabled: false
+
 Style/ConditionalAssignment:
   EnforcedStyle: assign_to_condition
 
