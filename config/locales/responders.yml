@@ -64,36 +64,6 @@ pt-BR:
         notice: "Integração de alunos do i-Educar está sendo processada."
         alert: "Integração de alunos do i-Educar não pode ser processada."
 
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *female
-
-    ***REMOVED***:
-      <<: *female
-
-    ***REMOVED***:
-      <<: *female
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *female
-
-    authorization_***REMOVED***:
-      <<: *female
-
     test_settings:
       <<: *female
 
@@ -170,12 +140,6 @@ pt-BR:
       <<: *male
       destroy:
         alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
-
-    ***REMOVED***:
-      <<: *male
-      create:
-        notice: 'Ajuste de estoque realizado com sucesso.'
-        alert: 'Ajuste de estoque não pode ser realizado.'
 
     terms_dictionaries:
       <<: *male

@@ -28,14 +28,6 @@ class User < ActiveRecord::Base
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
-  has_many :requested_***REMOVED***, class_name: "***REMOVED***Request",
-    foreign_key: :requestor_id, dependent: :restrict_with_error
-  has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
-    foreign_key: :responsible_id, dependent: :restrict_with_error
-  has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
-    foreign_key: :responsible_id, dependent: :restrict_with_error
-  has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
-    foreign_key: :responsible_id, dependent: :restrict_with_error
 
   has_many :system_notification_targets, dependent: :destroy
   has_many :system_***REMOVED***, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
@@ -46,9 +38,6 @@ class User < ActiveRecord::Base
 
   has_and_belongs_to_many :students, dependent: :restrict_with_error
 
-  has_many :***REMOVED***, dependent: :restrict_with_error
-  has_many :authorization_***REMOVED***, dependent: :restrict_with_error
-  has_many :***REMOVED***, dependent: :restrict_with_error
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
   has_many :worker_states, dependent: :destroy
 
@@ -241,10 +230,6 @@ class User < ActiveRecord::Base
 
   def can_receive_news_related_daily_teacher?
     roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "teacher"].include? access_level}
-  end
-
-  def can_receive_news_related_***REMOVED***?
-    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
   end
 
   def can_receive_news_related_tools_for_parents?

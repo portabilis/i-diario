@@ -37,7 +37,6 @@ Rails.application.routes.draw do
         resources :teacher_disciplines, only: [:index]
         resources :school_calendars, only: [:index]
         resources :daily_frequencies, only: [:create]
-        resources :***REMOVED***, only: [:create]
         resources :daily_frequency_students, only: [:update]
       end
       namespace :v2 do
@@ -52,7 +51,6 @@ Rails.application.routes.draw do
             post :update_or_create
           end
         end
-        resources :***REMOVED***, only: [:create]
         resources :classroom_students, only: [:index]
         resources :teacher_allocations, only: [:index]
         resources :lesson_plans, only: [:index]
@@ -91,9 +89,6 @@ Rails.application.routes.draw do
     end
 
     resources :teachers, only: :index
-    resources :***REMOVED***, only: :index
-    resources :***REMOVED***, only: :index
-    resources :***REMOVED***_movements, only: :index
 
     resources :system_***REMOVED***, only: :index
 
@@ -141,81 +136,16 @@ Rails.application.routes.draw do
         get :all
       end
     end
-    resources :***REMOVED***, concerns: :history do
-      get '***REMOVED***_classes/select'
-    end
-
-    resources :***REMOVED***_classes, concerns: :history do
-      collection do
-        get :select
-      end
-    end
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history do
-      collection do
-        get :select
-      end
-    end
-    resources :***REMOVED***, concerns: :history do
-      resources :material_request_items, only: [:index]
-    end
-    resources :***REMOVED***, concerns: :history do
-      resources :material_request_authorization_items, only: [:index]
-      collection do
-        get :filtered_***REMOVED***
-      end
-    end
-    resources :***REMOVED***, concerns: :history do
-      collection do
-        get :get_***REMOVED***_by_kind
-      end
-      resources :material_exit_items, only: [:index]
-    end
-    resources :***REMOVED***, concerns: :history do
-      collection do
-        get :filtered_***REMOVED***
-        get :data_by_commitment
-        get :measuring_unit_by_material_id
-      end
-    end
     resources :courses, only: [:index]
     resources :lectures, only: [:index]
-    resources :***REMOVED***, concerns: :history, except: :show do
-      collection do
-        get :search
-      end
-    end
-    resources :***REMOVED***, concerns: :history, except: :show do
-      collection do
-        get :search
-      end
-    end
     resources :maintenance_adjustments, concerns: :history, except: :show
 
     resources :grades, only: [:index]
 
     resources :schools, only: [:index]
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history do
-      collection do
-        get :search
-      end
-    end
-    resources :authorization_***REMOVED***, concerns: :history
 
     resources :custom_rounding_tables, concerns: :history, except: :show
-
-    resources :moved_***REMOVED***, only: [:index]
-    get '/unities/:unity_id/moved_***REMOVED***/:material_id', to: 'moved_***REMOVED***#show', as: 'unity_moved_material'
-    get '/unities/:unity_id/moved_***REMOVED***/:material_id/current_balance', to: 'moved_***REMOVED***#current_balance', as: 'current_balance'
-
-    resources :***REMOVED***, only: [:index, :new, :create]
-    get '/***REMOVED***/entrances/:id', to: '***REMOVED***#show_entrance', as: 'inventory_adjustment_entrance'
-    get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
-    get '/***REMOVED***/get_***REMOVED***', to: '***REMOVED***#get_***REMOVED***_for_select2_remote', as: 'get_all_***REMOVED***'
-    get '/***REMOVED***/get_filtered_***REMOVED***', to: '***REMOVED***#get_filtered_***REMOVED***_for_select2_remote', as: 'get_filtered_***REMOVED***'
+    resources :custom_rounding_tables, concerns: :history, except: :show
 
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
@@ -335,7 +265,6 @@ Rails.application.routes.draw do
       end
     end
     resources :avaliation_exemptions, concerns: :history
-    resources :***REMOVED***, concerns: :history
 
     resources :daily_frequency_students do
       collection do
@@ -376,10 +305,6 @@ Rails.application.routes.draw do
 
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
-
-    get '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#form', as: '***REMOVED***_movements_report'
-    post '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#report', as: '***REMOVED***_movements_report'
-    get '/reports/***REMOVED***_movements/:id', to: '***REMOVED***_movements_report#show', as: '***REMOVED***_movements_report_viewer'
 
     resources :data_exportations, only: [:index, :create]
   end
