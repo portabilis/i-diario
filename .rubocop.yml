@@ -1,4 +1,22 @@
-Style/Encoding:
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 115
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Rails:
+  Enabled: true
+
+Rails/ReversibleMigration:
   Enabled: false
 
 Style/ConditionalAssignment:
@@ -7,25 +25,8 @@ Style/ConditionalAssignment:
 Style/Documentation:
   Enabled: false
 
-# Set max LineLength to 115
-Metrics/LineLength:
-  Max: 115
-
-# Disable module length restriction
-Metrics/ModuleLength:
+Style/Encoding:
   Enabled: false
 
-# Disable method length restriction
-Metrics/ClassLength:
-  Enabled: false
-
-# Disable method length restriction
-Metrics/MethodLength:
-  Enabled: false
-
-# Disable checking of ABC metrics (assignment, branch, condition)
-Metrics/AbcSize:
-  Enabled: false
-
-Rails:
-  Enabled: true
+Style/SymbolArray:
+  EnforcedStyle: brackets

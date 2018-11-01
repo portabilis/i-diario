@@ -9,9 +9,17 @@ class Teacher < ActiveRecord::Base
   validates :api_code, uniqueness: true
   validates :active, inclusion: { in: [true, false] }
 
-  scope :by_unity_id, lambda { |unity_id| by_unity_id(unity_id)}
-  scope :by_year, lambda { |year| filter_current_teachers_by_year(year) }
+  scope :by_unity_id, ->(unity_id) { by_unity_id(unity_id) }
+  scope :by_year, ->(year) { filter_current_teachers_by_year(year) }
   scope :active, -> { active_query }
+  scope :by_daily_frequency, lambda { |daily_frequency|
+    joins(:teacher_discipline_classrooms).where(
+      teacher_discipline_classrooms: {
+        classroom_id: daily_frequency.classroom_id,
+        discipline_id: daily_frequency.discipline_id
+      }
+    )
+  }
 
   scope :order_by_name, -> { order(name: :asc) }
 
