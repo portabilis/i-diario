@@ -12,40 +12,46 @@ class CreateFunctionStudentsAvailableByDateRange < ActiveRecord::Migration
         student_id INT
       ) AS $$
       DECLARE
-        exempted_student_enrollments record;
+        exempted_student_enrollment_id INT;
       BEGIN
-        SELECT seed.student_enrollment_id AS id
-          INTO exempted_student_enrollments
-          FROM student_enrollment_exempted_disciplines AS seed
-         WHERE seed.discipline_id = l_discipline_id
-           AND l_step_number = ANY(string_to_array(steps, ',')::integer[]);
+        SELECT student_enrollment_exempted_disciplines.student_enrollment_id
+          INTO exempted_student_enrollment_id
+          FROM student_enrollment_exempted_disciplines
+         WHERE student_enrollment_exempted_disciplines.discipline_id = l_discipline_id
+           AND l_step_number = ANY(string_to_array(student_enrollment_exempted_disciplines.steps, ',')::integer[]);
 
         RETURN QUERY (
-          SELECT DISTINCT se.student_id
-            FROM student_enrollments AS se
-            JOIN student_enrollment_classrooms AS sec
-              ON sec.student_enrollment_id = se.id
-           WHERE sec.classroom_id = l_classroom_id
+          SELECT DISTINCT student_enrollments.student_id
+            FROM student_enrollments
+            JOIN student_enrollment_classrooms
+              ON student_enrollment_classrooms.student_enrollment_id = student_enrollments.id
+           WHERE student_enrollment_classrooms.classroom_id = l_classroom_id
+             AND student_enrollments.active = 1
+             AND CASE
+                   WHEN COALESCE(student_enrollment_classrooms.left_at) = '' THEN
+                     CAST(student_enrollment_classrooms.joined_at AS DATE) <= l_end_at
+                   ELSE
+                     CAST(student_enrollment_classrooms.joined_at AS DATE) <= l_end_at AND
+                     CAST(student_enrollment_classrooms.left_at AS DATE) >= l_start_at AND
+                     CAST(student_enrollment_classrooms.joined_at AS DATE) <> CAST(student_enrollment_classrooms.left_at AS DATE)
+                 END
              AND (
-              CASE
-                WHEN COALESCE(sec.left_at) = '' THEN
-                  CAST(sec.joined_at AS DATE) <= l_end_at
-                ELSE
-                  CAST(sec.joined_at AS DATE) <= l_end_at AND
-                  CAST(sec.left_at AS DATE) >= l_start_at AND
-                  CAST(sec.joined_at AS DATE) <> CAST(sec.left_at AS DATE)
-              END
-             )
-             AND se.active = 1
-             AND (exempted_student_enrollments.id IS NULL OR se.id NOT IN (exempted_student_enrollments.id))
-             AND (l_discipline_id IS NULL OR
-                  NOT EXISTS(SELECT 1
-                               FROM student_enrollment_dependences
-                              WHERE student_enrollment_dependences.student_enrollment_id = se.id) OR
-                  EXISTS(SELECT 1
-                           FROM student_enrollment_dependences
-                          WHERE student_enrollment_dependences.student_enrollment_id = se.id
-                            AND student_enrollment_dependences.discipline_id = l_discipline_id)
+                   exempted_student_enrollment_id IS NULL OR
+                   student_enrollments.id NOT IN (exempted_student_enrollment_id)
+                 )
+             AND (
+                  l_discipline_id IS NULL OR
+                  NOT EXISTS(
+                    SELECT 1
+                      FROM student_enrollment_dependences
+                     WHERE student_enrollment_dependences.student_enrollment_id = student_enrollments.id
+                  ) OR
+                  EXISTS(
+                    SELECT 1
+                      FROM student_enrollment_dependences
+                     WHERE student_enrollment_dependences.student_enrollment_id = student_enrollments.id
+                       AND student_enrollment_dependences.discipline_id = l_discipline_id
+                  )
                 )
         );
 
