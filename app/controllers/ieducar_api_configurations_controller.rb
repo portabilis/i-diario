@@ -3,6 +3,7 @@ class IeducarApiConfigurationsController < ApplicationController
     @ieducar_api_configuration = IeducarApiConfiguration.current
 
     authorize @ieducar_api_configuration
+    render :edit
   end
 
   def update

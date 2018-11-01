@@ -85,7 +85,6 @@ PATH
       decorators (~> 2.0.3)
       ejs (~> 1.1, >= 1.1.1)
       enumerate_it
-      handlebars_assets (~> 0.23.0)
       rails (~> 4.2.3)
       rspec-rails (~> 3.4)
 

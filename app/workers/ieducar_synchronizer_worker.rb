@@ -16,6 +16,18 @@ class IeducarSynchronizerWorker
 
   private
 
+  BASIC_SYNCHRONIZERS = [
+    'KnowledgeAreasSynchronizer',
+    'DisciplinesSynchronizer',
+    'StudentsSynchronizer',
+    'DeficienciesSynchronizer',
+    'RoundingTablesSynchronizer',
+    'RecoveryExamRulesSynchronizer',
+    'TeachersSynchronizer',
+    'CoursesGradesClassroomsSynchronizer',
+    'StudentEnrollmentDependenceSynchronizer'
+  ]
+
   def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
       begin
@@ -34,44 +46,10 @@ class IeducarSynchronizerWorker
 
         total = []
 
-        increment_total(total) do
-          KnowledgeAreasSynchronizer.synchronize!(synchronization, worker_batch)
-        end
-
-        increment_total(total) do
-          DisciplinesSynchronizer.synchronize!(synchronization, worker_batch)
-        end
-
-        increment_total(total) do
-          StudentsSynchronizer.synchronize!(synchronization, worker_batch)
-        end
-
-        increment_total(total) do
-          DeficienciesSynchronizer.synchronize!(synchronization, worker_batch)
-        end
-
-        increment_total(total) do
-          ***REMOVED***sSynchronizer.synchronize!(synchronization, worker_batch)
-        end
-
-        increment_total(total) do
-          RoundingTablesSynchronizer.synchronize!(synchronization, worker_batch)
-        end
-
-        increment_total(total) do
-          RecoveryExamRulesSynchronizer.synchronize!(synchronization, worker_batch)
-        end
-
-        increment_total(total) do
-          TeachersSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
-        end
-
-        increment_total(total) do
-          CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, worker_batch)
-        end
-
-        increment_total(total) do
-          StudentEnrollmentDependenceSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
+        BASIC_SYNCHRONIZERS.each do |klass|
+          increment_total(total) do
+            klass.constantize.synchronize!(synchronization, worker_batch, years_to_synchronize)
+          end
         end
 
         total << SpecificStepClassroomsSynchronizer.synchronize!(entity.id, synchronization.id, worker_batch.id)
