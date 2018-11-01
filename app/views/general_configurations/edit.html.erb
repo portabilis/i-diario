@@ -9,6 +9,17 @@
 
     <fieldset>
       <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :copyright_name %>
+        </div>
+        <div class="col col-sm-4">
+          <%= f.input :support_email %>
+        </div>
+        <div class="col col-sm-4">
+          <%= f.input :support_url %>
+        </div>
+      </div>
+      <div class="row">
         <div class="col col-sm-6">
           <%= f.input :security_level do %>
             <%= f.input_field :security_level, collection: SecurityLevels %>
