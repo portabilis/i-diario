@@ -36,7 +36,10 @@ class GeneralConfigurationsController < ApplicationController
       :parents_default_role_id,
       :allows_after_sales_relationship,
       :display_header_on_all_reports_pages,
-      :max_descriptive_exam_character_count
+      :max_descriptive_exam_character_count,
+      :copyright_name,
+      :support_url,
+      :support_freshdesk
     )
   end
 end
