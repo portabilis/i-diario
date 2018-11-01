@@ -83,7 +83,9 @@ PATH
   specs:
     novo_educacao_plus (0.0.1)
       decorators (~> 2.0.3)
+      ejs (~> 1.1, >= 1.1.1)
       enumerate_it
+      handlebars_assets (~> 0.23.0)
       rails (~> 4.2.3)
       rspec-rails (~> 3.4)
 

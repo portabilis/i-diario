@@ -59,3 +59,4 @@
 //= require jquery-maxlength.min
 //= require jquery-regex-mask
 //= require bootstrap_config
+//= require novo_educacao_plus
