@@ -40,6 +40,18 @@ GIT
       puma (>= 2.13)
 
 GIT
+  remote: git@github.com:portabilis/novo_educacao_plus.git
+  revision: bc33265fd8dabe8468dcdab99634630911996bdc
+  branch: extracao-features-plus
+  specs:
+    novo_educacao_plus (0.0.1)
+      decorators (~> 2.0.3)
+      ejs (~> 1.1, >= 1.1.1)
+      enumerate_it
+      rails (~> 4.2.3)
+      rspec-rails (~> 3.4)
+
+GIT
   remote: https://github.com/enriclluelles/route_translator.git
   revision: 1c71391ba17f3616b58cd042e94c3bb9347fecfc
   specs:
@@ -77,16 +89,6 @@ GIT
     activerecord-connections (0.0.3)
       activerecord (>= 4.1.0)
       activesupport (>= 4.1.0)
-
-PATH
-  remote: ../novo_educacao_plus
-  specs:
-    novo_educacao_plus (0.0.1)
-      decorators (~> 2.0.3)
-      ejs (~> 1.1, >= 1.1.1)
-      enumerate_it
-      rails (~> 4.2.3)
-      rspec-rails (~> 3.4)
 
 GEM
   remote: https://rubygems.org/
