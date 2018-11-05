@@ -39,7 +39,6 @@ gem 'mina-sidekiq', require: false,  github: 'portabilis/mina-sidekiq', branch: 
 gem 'newrelic_rpm'
 gem 'nokogiri', '~> 1.8.1'
 gem 'paperclip', '~> 5.2.0'
-gem 'paranoia', '~> 2.2'
 gem 'pg', '0.17.1'
 gem 'postgres-copy'
 gem 'prawn', '~> 2.1.0', github: 'portabilis/prawn', branch: 'master'
