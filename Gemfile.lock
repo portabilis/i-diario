@@ -66,9 +66,9 @@ GIT
 
 GIT
   remote: https://github.com/portabilis/zenvia-ruby
-  revision: 3ddce8e147d02a7deafd56adaedd7f35184ce0a7
+  revision: 25ac2847e4242633d87454345542c74614deba8b
   specs:
-    zenvia-ruby (0.1.7)
+    zenvia-ruby (0.1.8)
 
 GIT
   remote: https://github.com/ricardohsd/activerecord-connections.git
