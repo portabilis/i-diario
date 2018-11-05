@@ -51,7 +51,7 @@ RSpec.describe SchoolCalendarClassroomStep, type: :model do
       subject.end_date_for_posting = "01/01/2020"
 
       expect(subject).to_not be_valid
-      expect(subject.errors.messages[:end_date_for_posting]).to include("não pode ser menor que a data inicial para postagem")
+      expect(subject.errors.messages[:end_date_for_posting]).to include("não pode ser menor que a data inicial para lançamentos")
     end
   end
 end

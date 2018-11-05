@@ -16,6 +16,7 @@
 
   <%= simple_form_for @daily_note, html: { class: "smart-form" } do |f| %>
     <%= f.error_notification %>
+    <%= render 'shared/base_error_alert', f: f %>
 
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <colgroup>

@@ -29,9 +29,9 @@ class PartialScoreRecordReportForm
     return unless school_calendar_step_id || school_calendar_classroom_step_id
 
     if classroom.calendar
-      @step ||= SchoolCalendarClassroomStep.unscoped.find(school_calendar_classroom_step_id)
+      @step ||= SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
     else
-      @step ||= SchoolCalendarStep.unscoped.find(school_calendar_step_id)
+      @step ||= SchoolCalendarStep.find(school_calendar_step_id)
     end
   end
 

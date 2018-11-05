@@ -1,5 +1,6 @@
 class ConceptualExam < ActiveRecord::Base
   include Audit
+  include Stepable
   include Filterable
 
   acts_as_copy_target
@@ -9,43 +10,36 @@ class ConceptualExam < ActiveRecord::Base
   audited
   has_associated_audits
 
-  attr_accessor :unity_id
+  attr_accessor :unity_id, :teacher_id
+
+  before_destroy :valid_for_destruction?
 
   belongs_to :classroom
-  belongs_to :school_calendar_step, -> { unscope(where: :active) }
-  belongs_to :school_calendar_classroom_step, -> { unscope(where: :active) }
   belongs_to :student
-  has_many :conceptual_exam_values,
-    -> { active.includes(:conceptual_exam, discipline: :knowledge_area) },
-    dependent: :destroy
+  has_many :conceptual_exam_values, -> {
+    includes(:conceptual_exam, discipline: :knowledge_area)
+  }, dependent: :destroy
 
   accepts_nested_attributes_for :conceptual_exam_values, allow_destroy: true
 
-  has_enumeration_for :status, with: ConceptualExamStatus,  create_helpers: true
+  has_enumeration_for :status, with: ConceptualExamStatus, create_helpers: true
 
   scope :by_unity, lambda { |unity| joins(:classroom).where(classrooms: { unity_id: unity }) }
   scope :by_classroom, lambda { |classroom| where(classroom: classroom) }
   scope :by_discipline, lambda { |discipline| join_conceptual_exam_values.where(conceptual_exam_values: { discipline: discipline } ) }
-  scope :by_student_name, lambda { |student_name| joins(:student).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student_name}%") }
-  scope :by_school_calendar_step, lambda { |school_calendar_step| where(school_calendar_step: school_calendar_step) }
-  scope :by_school_calendar_classroom_step, lambda { |school_calendar_classroom_step| where(school_calendar_classroom_step: school_calendar_classroom_step)   }
-  scope :ordered, -> { order(recorded_at: :desc)  }
+  scope :by_student_name, lambda { |student_name|
+    joins(
+      arel_table.join(Student.arel_table).on(
+        Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id])
+      ).join_sources
+    ).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student_name}%")
+  }
+  scope :ordered, -> { order(recorded_at: :desc) }
 
-  validates_date :recorded_at
-  validates :classroom,  presence: true
-  validates :school_calendar_step, presence: true, unless: :school_calendar_classroom_step
-  validates :school_calendar_classroom_step, presence: true, unless: :school_calendar_step
-  validates :student, presence: true
-  validates :recorded_at, presence: true,
-    not_in_future: true,
-    school_term_day: { school_term: lambda(&:step),
-    school_calendar_day: true }
-  validates :unity_id, presence: true
-
+  validates :student, :unity_id, presence: true
   validate :student_must_have_conceptual_exam_score_type
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
-  validate :ensure_is_school_day
   validate :ensure_student_is_in_classroom
 
   before_validation :self_assign_to_conceptual_exam_values
@@ -60,10 +54,14 @@ class ConceptualExam < ActiveRecord::Base
     ).uniq
   end
 
-  def self.by_status(status)
+  def self.by_status(classroom_id, teacher_id, status)
+    discipline_ids = TeacherDisciplineClassroom.by_classroom(classroom_id)
+                                               .by_teacher_id(teacher_id)
+                                               .pluck(:discipline_id)
     incomplete_conceptual_exams_ids = ConceptualExamValue.active.where(value: nil)
-      .group(:conceptual_exam_id)
-      .pluck(:conceptual_exam_id)
+                                                         .by_discipline_id(discipline_ids)
+                                                         .group(:conceptual_exam_id)
+                                                         .pluck(:conceptual_exam_id)
 
     case status
     when ConceptualExamStatus::INCOMPLETE
@@ -74,19 +72,20 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def status
-    incomplete = conceptual_exam_values.any? do |conceptual_exam_value|
-      conceptual_exam_value.value.blank? && !conceptual_exam_value.exempted_discipline
-    end
+    discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id).pluck(:discipline_id)
+    values = ConceptualExamValue.where(conceptual_exam_id: id, exempted_discipline: false, discipline_id: discipline_ids)
 
-    if incomplete
-      ConceptualExamStatus::INCOMPLETE
-    else
-      ConceptualExamStatus::COMPLETE
-    end
+    return ConceptualExamStatus::INCOMPLETE if values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
+
+    ConceptualExamStatus::COMPLETE
   end
 
-  def step
-    self.school_calendar_classroom_step || self.school_calendar_step
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
   end
 
   private
@@ -97,7 +96,8 @@ class ConceptualExam < ActiveRecord::Base
     permited_score_types = [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT]
     exam_rule = classroom.exam_rule
     exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if student.uses_differentiated_exam_rule
-    unless permited_score_types.include? exam_rule.score_type
+
+    unless permited_score_types.include?(exam_rule.score_type)
       errors.add(:student, :classroom_must_have_conceptual_exam_score_type)
     end
   end
@@ -124,32 +124,24 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def uniqueness_of_student
+    return if step.blank? || student_id.blank?
+
     discipline_ids = conceptual_exam_values.collect{ |value| value.discipline_id }
-    conceptual_exam = ConceptualExam.join_conceptual_exam_values.where(student_id: student_id, classroom_id: classroom_id, conceptual_exam_values: { discipline_id: discipline_ids })
-    if classroom.try(:calendar)
-      conceptual_exam = conceptual_exam.where(school_calendar_classroom_step_id: school_calendar_classroom_step_id)
-    else
-      conceptual_exam = conceptual_exam.where(school_calendar_step_id: school_calendar_step_id)
-    end
+    conceptual_exam = ConceptualExam.joins(:conceptual_exam_values)
+                                    .by_recorded_at_between(step.start_at, step.end_at)
+                                    .where(
+                                      student_id: student_id,
+                                      classroom_id: classroom_id,
+                                      conceptual_exam_values: { discipline_id: discipline_ids }
+                                    )
+
     conceptual_exam = conceptual_exam.where.not(id: id) if persisted?
 
-    errors.add(:student, :taken) if conceptual_exam.any?
-  end
-
-  def ensure_is_school_day
-    return unless recorded_at && school_calendar
-
-    unless school_calendar.school_day?(recorded_at, classroom.grade, classroom, nil)
-      errors.add(:recorded_at, :not_school_calendar_day)
-    end
-  end
-
-  def school_calendar
-    CurrentSchoolCalendarFetcher.new(classroom.try(:unity), classroom).fetch
+    errors.add(:student, :taken) if conceptual_exam.exists?
   end
 
   def ensure_student_is_in_classroom
-    return unless recorded_at.present? && student_id.present? && classroom_id.present?
+    return if recorded_at.blank? || student_id.blank? || classroom_id.blank?
 
     unless StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
       errors.add(:base, :student_is_not_in_classroom)

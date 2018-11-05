@@ -24,6 +24,7 @@ pt-BR:
       must_be_a_valid_date: "deve ser uma data válida"
       not_in_future: "deve ser menor ou igual a data de hoje"
       not_school_calendar_day: "deve ser um dia letivo"
+      not_allowed_to_post_in_date: "Não é possível alterar registros fora das datas de lançamento da etapa"
       not_school_term_day: "deve ser um dia letivo da etapa informada"
       odd: "deve ser ímpar"
       record_invalid: ! "A validação falhou: %{errors}"

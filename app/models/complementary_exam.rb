@@ -7,6 +7,8 @@ class ComplementaryExam < ActiveRecord::Base
   audited
   has_associated_audits
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :unity
   belongs_to :classroom
   belongs_to :discipline
@@ -34,6 +36,7 @@ class ComplementaryExam < ActiveRecord::Base
   validates :unity, presence: true
   validates :discipline, presence: true
   validates :complementary_exam_setting, presence: true
+  validates :recorded_at, posting_date: true
 
   validate :at_least_one_score
 
@@ -57,5 +60,13 @@ class ComplementaryExam < ActiveRecord::Base
 
   def self_assign_to_students
     students.each { |student| student.complementary_exam = self }
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
   end
 end

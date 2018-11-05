@@ -1,6 +1,6 @@
 class SchoolDayChecker
   def initialize(school_calendar, date, grade_id, classroom_id, discipline_id)
-    raise ArgumentError unless school_calendar && date
+    raise ArgumentError unless school_calendar.present? && date.present?
 
     @school_calendar = school_calendar
     @date = date
@@ -10,14 +10,27 @@ class SchoolDayChecker
   end
 
   def school_day?
-    events_by_date = @school_calendar.events.by_date(@date)
+    date_is_school_day?(@date)
+  end
+
+  def next_school_day
+    date = @date
+
+    while not date_is_school_day?(date)
+      date = date.next_day
+    end
+
+    date
+  end
+
+  private
+
+  def date_is_school_day?(date)
+    events_by_date = @school_calendar.events.by_date(date)
     events_by_date_without_frequency = events_by_date.without_frequency
     events_by_date_with_frequency = events_by_date.with_frequency
 
     if @classroom_id.present?
-      classroom = Classroom.find(@classroom_id)
-      grade = Grade.find(@grade_id)
-
       if @discipline_id.present?
         return false if any_discipline_event?(events_by_date_without_frequency, @grade_id, @classroom_id, @discipline_id)
         return true if any_discipline_event?(events_by_date_with_frequency, @grade_id, @classroom_id, @discipline_id)
@@ -45,16 +58,14 @@ class SchoolDayChecker
       return true if any_global_event?(events_by_date_with_frequency)
     end
 
-    if classroom.try(:calendar)
-      return false if classroom.calendar.classroom_step(@date).nil?
+    if @classroom_id.present? && classroom.try(:calendar)
+      return false if classroom.calendar.classroom_step(date).nil?
     else
-      return false if @school_calendar.step(@date).nil?
+      return false if @school_calendar.step(date).nil?
     end
 
-    ![0, 6].include? @date.wday
+    ![0, 6].include? date.wday
   end
-
-  private
 
   def any_discipline_event?(query, grade_id, classroom_id, discipline_id)
     query.by_grade(grade_id)
@@ -92,5 +103,9 @@ class SchoolDayChecker
 
   def classroom
     @classroom ||= Classroom.find(@classroom_id)
+  end
+
+  def grade
+    @grade ||= Grade.find(@grade_id)
   end
 end

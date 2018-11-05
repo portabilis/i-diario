@@ -1,0 +1,32 @@
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/LineLength:
+  Max: 115
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Rails:
+  Enabled: true
+
+Rails/ReversibleMigration:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  EnforcedStyle: assign_to_condition
+
+Style/Documentation:
+  Enabled: false
+
+Style/Encoding:
+  Enabled: false
+
+Style/SymbolArray:
+  EnforcedStyle: brackets

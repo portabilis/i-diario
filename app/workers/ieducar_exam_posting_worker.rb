@@ -16,7 +16,7 @@ class IeducarExamPostingWorker
     end
   end
 
-  def perform(entity_id, posting_id)
+  def perform(entity_id, posting_id, queue = 'exam_posting_send')
     entity = Entity.find(entity_id)
 
     entity.using_connection do
@@ -24,17 +24,17 @@ class IeducarExamPostingWorker
 
       case posting.post_type
       when ApiPostingTypes::NUMERICAL_EXAM
-        ExamPoster::NumericalExamPoster.post!(posting, entity_id)
+        ExamPoster::NumericalExamPoster.post!(posting, entity_id, queue)
       when ApiPostingTypes::CONCEPTUAL_EXAM
-        ExamPoster::ConceptualExamPoster.post!(posting, entity_id)
+        ExamPoster::ConceptualExamPoster.post!(posting, entity_id, queue)
       when ApiPostingTypes::DESCRIPTIVE_EXAM
-        ExamPoster::DescriptiveExamPoster.post!(posting, entity_id)
+        ExamPoster::DescriptiveExamPoster.post!(posting, entity_id, queue)
       when ApiPostingTypes::ABSENCE
-        ExamPoster::AbsencePoster.post!(posting, entity_id)
+        ExamPoster::AbsencePoster.post!(posting, entity_id, queue)
       when ApiPostingTypes::FINAL_RECOVERY
-        ExamPoster::FinalRecoveryPoster.post!(posting, entity_id)
+        ExamPoster::FinalRecoveryPoster.post!(posting, entity_id, queue)
       when ApiPostingTypes::SCHOOL_TERM_RECOVERY
-        ExamPoster::SchoolTermRecoveryPoster.post!(posting, entity_id)
+        ExamPoster::SchoolTermRecoveryPoster.post!(posting, entity_id, queue)
       end
     end
   end

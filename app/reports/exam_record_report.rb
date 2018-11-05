@@ -75,7 +75,13 @@ class ExamRecordReport < BaseReport
     self.any_student_with_dependence = false
 
     @students_enrollments.each do |student_enrollment|
-      averages[student_enrollment.student_id] = StudentAverageCalculator.new(Student.find(student_enrollment.student_id)).calculate(@daily_notes.first.classroom, @daily_notes.first.discipline, @school_calendar_step)
+      averages[student_enrollment.student_id] = StudentAverageCalculator.new(
+        student_enrollment.student
+      ).calculate(
+        @daily_notes.first.classroom,
+        @daily_notes.first.discipline,
+        @school_calendar_step
+      )
     end
 
     exams = []

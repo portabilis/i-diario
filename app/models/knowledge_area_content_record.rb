@@ -4,6 +4,8 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   audited
   acts_as_copy_target
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :content_record, dependent: :destroy
   accepts_nested_attributes_for :content_record
   has_and_belongs_to_many :knowledge_areas
@@ -17,7 +19,9 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   scope :by_knowledge_area_description, lambda { |description| joins(:knowledge_areas).where('unaccent(knowledge_areas.description) ILIKE unaccent(?)', "%#{description}%" ) }
   scope :by_date, lambda { |date| joins(:content_record).where(content_records: { record_date: date.to_date }) }
   scope :by_date_range, lambda { |start_at, end_at| joins(:content_record).where("record_date <= ? AND record_date >= ?", end_at, start_at) }
+
   scope :ordered, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date].desc) }
+  scope :order_by_content_record_date, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date]) }
 
   validates :content_record, presence: true
   validates :knowledge_area_ids, presence: true
@@ -33,6 +37,20 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   end
 
   private
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      content_record.valid?
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+      if content_record.errors[:record_date].include?(forbidden_error)
+        errors.add(:base, forbidden_error)
+        false
+      else
+        true
+      end
+    end
+  end
 
   def uniqueness_of_knowledge_area_content_record
     return unless content_record.present? && content_record.classroom.present? && content_record.record_date.present?

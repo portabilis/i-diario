@@ -42,7 +42,9 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
 
     steps.each do |step_number|
 
-      step = school_calendar.steps.ordered[step_number.to_i]
+      step = school_calendar.steps.ordered.find{|step|
+        step.to_number == step_number.to_i
+      }
 
       next unless step
 

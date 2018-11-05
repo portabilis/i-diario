@@ -1,0 +1,4 @@
+pt-BR:
+  conceptual_exams:
+    new:
+      current_discipline_does_not_have_conceptual_exam: 'A disciplina selecionada não possui nota conceitual'

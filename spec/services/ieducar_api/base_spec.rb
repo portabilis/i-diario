@@ -74,7 +74,10 @@ RSpec.describe IeducarApi::Base, :type => :service do
         Rails.stub_chain(:env, staging?: true)
         subject.access_key = nil
         subject.secret_key = nil
-        subject.fetch(path: path, resource: resource)
+
+        VCR.use_cassette('all_students') do
+          subject.fetch(path: path, resource: resource)
+        end
       end
 
       it "access_key is the staging access_key" do
@@ -91,7 +94,10 @@ RSpec.describe IeducarApi::Base, :type => :service do
         Rails.stub_chain(:env, staging?: false)
         subject.access_key = nil
         subject.secret_key = nil
-        expect { subject.fetch(path: path, resource: resource) }.to raise_error("Chave de acesso inválida!")
+
+        VCR.use_cassette('all_students') do
+          expect { subject.fetch(path: path, resource: resource) }.to raise_error("Chave de acesso inválida!")
+        end
       end
 
       it "access_key is not the staging access_key" do

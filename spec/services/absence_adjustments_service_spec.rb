@@ -14,19 +14,36 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
       let!(:classroom) { create(:classroom, :current) }
       let!(:discipline) { create(:discipline) }
       let!(:daily_frequency_1) do
-        create(:daily_frequency, :current, unity: unities.first, classroom: classroom, discipline: discipline)
+        create(
+          :daily_frequency,
+          :current, unity: unities.first,
+          classroom: classroom,
+          discipline: discipline
+        )
       end
       let!(:daily_frequency_2) do
-        create(:daily_frequency, :current, unity: unities.first, classroom: classroom, discipline: discipline, class_number: 2)
+        create(
+          :daily_frequency,
+          :current,
+          unity: unities.first,
+          classroom: classroom,
+          discipline: discipline,
+          class_number: 2
+        )
       end
       let!(:teacher_discipline_classroom_1) do
-        create(:teacher_discipline_classroom, :current, classroom: classroom, discipline: discipline, teacher: teacher)
+        create(
+          :teacher_discipline_classroom,
+          :current, classroom: classroom,
+          discipline: discipline,
+          teacher: teacher
+        )
       end
 
       it 'needs to adjust to be general absence' do
-        expect(daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be true
+        expect(subject.daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be true
         subject.adjust
-        expect(daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be false
+        expect(subject.daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be false
       end
 
       it 'removes others daily_frequencies' do
@@ -40,48 +57,44 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
       let!(:classroom) { create(:classroom, :by_discipline) }
       let!(:school_calendar) { create(:school_calendar_with_one_step, :current) }
       let!(:daily_frequency_1) do
-        create(:daily_frequency, :current, :without_discipline, unity: unities.first, classroom: classroom, school_calendar: school_calendar)
+        create(
+          :daily_frequency,
+          :current,
+          :without_discipline,
+          unity: unities.first,
+          classroom: classroom,
+          school_calendar: school_calendar
+        )
       end
       let!(:daily_frequency_2) do
-        create(:daily_frequency, :current, :without_discipline, unity: unities.first, classroom: classroom, school_calendar: school_calendar)
+        create(
+          :daily_frequency,
+          :without_discipline,
+          unity: unities.first,
+          classroom: classroom,
+          school_calendar: school_calendar,
+          frequency_date: daily_frequency_1.frequency_date.prev_day
+        )
       end
       let!(:user) { create(:user, teacher: teacher) }
       let!(:teacher_discipline_classroom_by_discipline) do
-        create(:teacher_discipline_classroom, :current, classroom: classroom, teacher: teacher)
+        create(
+          :teacher_discipline_classroom,
+          :current,
+          classroom: classroom,
+          teacher: teacher
+        )
       end
 
       it 'needs to adjust to be absence by discipline' do
         add_user_to_audit(daily_frequency_1)
         add_user_to_audit(daily_frequency_2)
 
-        expect(daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be true
+        expect(subject.daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be true
         subject.adjust
-        expect(daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be false
-      end
-
-      it 'removes others daily_frequencies' do
-        add_user_to_audit(daily_frequency_1)
-        add_user_to_audit(daily_frequency_2)
-
-        expect(DailyFrequency.count).to be(2)
-        subject.adjust
-        expect(DailyFrequency.count).to be(1)
+        expect(subject.daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be false
       end
     end
-  end
-
-  private
-
-  def daily_frequencies_by_type(frequency_type)
-    daily_frequencies = DailyFrequency.joins(:classroom)
-                                      .merge(Classroom.joins(:exam_rule).where(exam_rules: { frequency_type: frequency_type }))
-                                      .where('extract(year from frequency_date) = ?', year)
-                                      .where(unity_id: unities)
-
-    daily_frequencies = daily_frequencies.where.not(discipline_id: nil) if frequency_type == FrequencyTypes::GENERAL
-    daily_frequencies = daily_frequencies.where(discipline_id: nil) if frequency_type == FrequencyTypes::BY_DISCIPLINE
-
-    daily_frequencies
   end
 
   def add_user_to_audit(daily_frequency)

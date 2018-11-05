@@ -8,9 +8,10 @@ class Avaliation < ActiveRecord::Base
 
   include Audit
 
-  attr_accessor :test_date_copy
+  attr_accessor :test_date_copy, :grades_allow_destroy, :recovery_allow_destroy
 
-  before_destroy :try_destroy_daily_notes
+  before_destroy :valid_for_destruction?
+  before_destroy :try_destroy, if: :valid_for_destruction?
 
   belongs_to :classroom
   belongs_to :discipline
@@ -29,7 +30,7 @@ class Avaliation < ActiveRecord::Base
   validates :unity,             presence: true
   validates :classroom,         presence: true
   validates :discipline,        presence: true
-  validates :test_date,         presence: true, school_calendar_day: true
+  validates :test_date,         presence: true, school_calendar_day: true, posting_date: true
   validates :classes,           presence: true
   validates :school_calendar,   presence: true
   validates :test_setting,      presence: true
@@ -71,6 +72,12 @@ class Avaliation < ActiveRecord::Base
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
 
   attr_accessor :include
+
+  def self.by_step_id(classroom, step_id)
+    step = StepsFetcher.new(classroom).steps.find(step_id)
+
+    where(arel_table[:test_date].gteq(step.start_at)).where(arel_table[:test_date].lteq(step.end_at))
+  end
 
   def to_s
     !test_setting_test || allow_break_up? ? description : test_setting_test.to_s
@@ -140,12 +147,12 @@ class Avaliation < ActiveRecord::Base
   private
 
   def self.by_school_calendar_step_query(school_calendar_step_id)
-    school_calendar_step = SchoolCalendarStep.unscoped.find(school_calendar_step_id)
+    school_calendar_step = SchoolCalendarStep.find(school_calendar_step_id)
     self.by_test_date_between(school_calendar_step.start_at, school_calendar_step.end_at)
   end
 
   def self.by_school_calendar_classroom_step_query(school_calendar_classroom_step_id)
-    school_calendar_classroom_step = SchoolCalendarClassroomStep.unscoped.find(school_calendar_classroom_step_id)
+    school_calendar_classroom_step = SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
     self.by_test_date_between(school_calendar_classroom_step.start_at, school_calendar_classroom_step.end_at)
   end
 
@@ -213,9 +220,19 @@ class Avaliation < ActiveRecord::Base
     end
   end
 
-  def try_destroy_daily_notes
-    can_destroy_daily_notes = !daily_notes.any? { |daily_note| daily_note.students.any? { |daily_note_student| daily_note_student.note } }
-    daily_notes.each(&:destroy) if can_destroy_daily_notes
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:test_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
+  end
+
+  def try_destroy
+    @grades_allow_destroy = !daily_notes.any? { |daily_note| daily_note.students.any? { |daily_note_student| daily_note_student.note } }
+    @recovery_allow_destroy = avaliation_recovery_diary_record.nil?
+
+    daily_notes.each(&:destroy) if @grades_allow_destroy && @recovery_allow_destroy
   end
 
   def weight_not_greater_than_test_setting_maximum_score

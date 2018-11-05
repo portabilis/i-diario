@@ -11,6 +11,8 @@ class ApplicationController < ActionController::Base
   skip_around_filter :set_locale_from_url
   around_action :handle_customer
   before_action :set_honeybadger_context
+  around_filter :set_user_current
+  around_filter :set_thread_origin_type
 
   respond_to :html, :json
 
@@ -326,6 +328,24 @@ class ApplicationController < ActionController::Base
     TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
   end
 
+  def set_user_current
+    User.current = current_user
+    begin
+        yield
+    ensure
+        User.current = nil
+    end
+  end
+
+  def set_thread_origin_type
+    Thread.current[:origin_type] = OriginTypes::WEB
+    begin
+        yield
+    ensure
+        Thread.current[:origin_type] = nil
+    end
+  end
+
   private
 
   def load_status_administrative_tools
@@ -349,5 +369,17 @@ class ApplicationController < ActionController::Base
       teacher_id: params[:teacher_id],
       discipline_id: params[:discipline_id]
     )
+  end
+
+  def send_pdf(prefix, pdf_to_s)
+    name = report_name(prefix)
+    File.open("#{Rails.root}/public#{name}", 'wb') do |f|
+      f.write(pdf_to_s)
+    end
+    redirect_to name
+  end
+
+  def report_name(prefix)
+    "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
   end
 end

@@ -127,7 +127,7 @@ class AvaliationMultipleCreatorForm
     valid = true
     avaliations.select(&:include).each do |avaliation|
       if !avaliation.valid?
-        msg = avaliation.errors.full_messages.reject{|msg| msg.include?("Data da avaliação") || msg.include?("Aulas")}.first
+        msg = avaliation.errors.full_messages.reject{|msg| msg.include?("Data da avaliação") || msg.include?("Aulas") || msg.include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))}.first
         errors.add(:base, msg) if msg
         avaliation.errors.add(:classroom, msg)
         valid = false

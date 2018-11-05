@@ -6,6 +6,8 @@ class AbsenceJustification < ActiveRecord::Base
   include Audit
   include Filterable
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :student
   belongs_to :unity
   belongs_to :classroom
@@ -19,8 +21,8 @@ class AbsenceJustification < ActiveRecord::Base
   validates :unity,            presence: true
   validates :classroom_id,     presence: true
   validates :school_calendar,  presence: true
-  validates :absence_date_end, presence: true, school_calendar_day: true
-  validates :absence_date,     presence: true, school_calendar_day: true
+  validates :absence_date_end, presence: true, school_calendar_day: true, posting_date: true
+  validates :absence_date,     presence: true, school_calendar_day: true, posting_date: true
   validates :discipline_id,    presence: true,
                                if: :frequence_type_by_discipline?
   validates :justification,    presence: true
@@ -83,5 +85,14 @@ class AbsenceJustification < ActiveRecord::Base
     frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)
     frequency_type_definer.define!
     frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+      !(errors[:absence_date_end].include?(forbidden_error) || errors[:absence_date].include?(forbidden_error))
+    end
   end
 end

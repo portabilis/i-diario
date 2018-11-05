@@ -19,7 +19,7 @@ RSpec.describe DailyNoteCreator, type: :service do
       StudentEnrollmentClassroom.create!(
         classroom: classroom,
         student_enrollment: student_enrollment,
-        joined_at: Date.today.beginning_of_year
+        joined_at: Date.current.beginning_of_year
       )
     end
 
