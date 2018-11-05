@@ -16,7 +16,9 @@ pt-BR:
         allows_after_sales_relationship: "Permite relacionamento direto no pós-venda?"
         display_header_on_all_reports_pages: "Exibir cabeçalho em todas as páginas nos relatórios do diário do professor"
         max_descriptive_exam_character_count: "Quantidade máxima de caracteres permitidos em avaliações descritivas"
-
+        support_freshdesk: "Freshdesk"
+        copyright_name: "Empresa mantenedora"
+        support_url: "Site"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."
