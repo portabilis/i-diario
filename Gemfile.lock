@@ -402,7 +402,7 @@ GEM
       activesupport (>= 4, < 5.2)
       railties (>= 4, < 5.2)
       request_store (~> 1.0)
-    loofah (2.2.2)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)
@@ -713,7 +713,7 @@ DEPENDENCIES
   kaminari (~> 0.16.1)
   less-rails (~> 3.0.0)
   lograge
-  loofah (~> 2.2.1)
+  loofah (~> 2.2.3)
   mask_validator (= 0.2.1)
   meta_request
   mina (= 1.2.3)
