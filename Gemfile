@@ -68,7 +68,7 @@ gem 'validates_timeliness', '3.0.14'
 gem 'zenvia-ruby', git: 'https://github.com/portabilis/zenvia-ruby'
 
 #instance_eval File.read('Gemfile.plugins') if File.exists?('Gemfile.plugins')
-gem 'novo_educacao_plus', git: 'git@github.com:portabilis/novo_educacao_plus.git', branch: 'extracao-features-plus'
+gem 'novo_educacao_plus', git: 'https://github.com/portabilis/novo_educacao_plus.git', branch: 'extracao-features-plus'
 
 group :development do
   gem 'binding_of_caller', '~> 0.7.2'
