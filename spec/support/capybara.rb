@@ -21,6 +21,7 @@ end
 
 Capybara.configure do |config|
   config.default_driver = :poltergeist
+  config.javascript_driver = :poltergeist
   config.ignore_hidden_elements = true
   config.match = :prefer_exact
   config.default_max_wait_time = 5
