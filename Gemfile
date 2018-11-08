@@ -21,6 +21,7 @@ gem 'devise', '3.5.1'
 gem 'ejs', '1.1.1'
 gem 'enumerate_it', '1.3.1'
 gem 'fog', '1.36.0'
+gem 'fog-xenserver', '0.3.0'
 gem 'foreigner', '1.6.1'
 gem 'google_drive', '2.1.12', require: false
 gem 'handlebars_assets', '0.23.2'
