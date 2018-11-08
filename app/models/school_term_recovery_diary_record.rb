@@ -3,8 +3,6 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   include Stepable
   include Filterable
 
-  # acts_as_paranoid
-
   acts_as_copy_target
 
   audited
