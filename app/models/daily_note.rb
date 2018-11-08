@@ -1,8 +1,6 @@
 class DailyNote < ActiveRecord::Base
   acts_as_copy_target
 
-  # acts_as_paranoid
-
   audited
   has_associated_audits
 

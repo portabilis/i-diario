@@ -445,8 +445,6 @@ GEM
       mime-types
       mimemagic (~> 0.3.0)
     parallel (1.12.1)
-    paranoia (2.4.1)
-      activerecord (>= 4.0, < 5.3)
     parser (2.5.1.2)
       ast (~> 2.4.0)
     pdf-core (0.6.1)
@@ -725,7 +723,6 @@ DEPENDENCIES
   nokogiri (~> 1.8.1)
   non-stupid-digest-assets (~> 1.0.9)
   paperclip (~> 5.2.0)
-  paranoia (~> 2.2)
   pdf-inspector
   pg (= 0.17.1)
   poltergeist (~> 1.8.1)
