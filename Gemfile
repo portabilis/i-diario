@@ -97,6 +97,7 @@ group :test do
   gem 'shoulda-matchers', '3.0.1'
   gem 'simplecov', '0.12.0'
   gem 'timecop', '0.8.1'
+  gem 'gherkin', '2.12.2'
   gem 'turnip', '1.3.1'
   gem 'vcr', '3.0.0'
   gem 'webmock', '1.24.6'
