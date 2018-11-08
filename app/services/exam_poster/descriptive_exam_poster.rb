@@ -126,7 +126,16 @@ module ExamPoster
         next unless same_unity?(classroom.unity_id)
         next unless step_exists_for_classroom?(classroom)
 
-        exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).ordered
+        exempted_discipline_ids =
+          ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
+        exams = DescriptiveExamStudent.joins(:descriptive_exam)
+                                      .includes(:student, :descriptive_exam)
+                                      .merge(
+                                        DescriptiveExam.by_classroom_id(classroom.id)
+                                                       .by_discipline_id(discipline.id)
+                                                       .where.not(discipline_id: exempted_discipline_ids)
+                                      )
+                                      .ordered
 
         exams.each do |exam|
           next unless valid_opinion_type?(
@@ -152,12 +161,15 @@ module ExamPoster
         next unless same_unity?(classroom.unity_id)
         next unless step_exists_for_classroom?(classroom)
 
+        exempted_discipline_ids =
+          ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
                                       .includes(:student, :descriptive_exam)
                                       .merge(
                                         DescriptiveExam.by_classroom_id(classroom.id)
                                                        .by_discipline_id(discipline.id)
                                                        .by_step_id(classroom, get_step(classroom).id)
+                                                       .where.not(discipline_id: exempted_discipline_ids)
                                       )
                                       .ordered
 

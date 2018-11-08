@@ -181,11 +181,6 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
 
   context 'when classroom score type is concept' do
     let!(:classroom) { create(:classroom_concept, unity: school_calendar.unity) }
-    let!(:teacher_discipline_classroom) do
-      create(:teacher_discipline_classroom,
-             classroom: classroom,
-             discipline: discipline)
-    end
 
     it 'enqueues the requests' do
       subject.post!
@@ -206,6 +201,39 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
 
       expect(Ieducar::SendPostWorker).
         to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+    end
+  end
+
+  context 'when discipline is exempted' do
+    let!(:classroom) { create(:classroom_concept, unity: school_calendar.unity) }
+    let!(:specific_step) do
+      create(
+        :specific_step,
+        classroom: classroom,
+        discipline: discipline,
+        used_steps: (school_calendar.steps.first.to_number + 1)
+      )
+    end
+
+    it 'does not enqueue the requests' do
+      subject.post!
+
+      request = {
+        etapa: exam_posting.step.to_number,
+        resource: 'notas',
+        notas: {
+          classroom.api_code => {
+            conceptual_exam.student.api_code => {
+              discipline.api_code => {
+                nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+              }
+            }
+          }
+        }
+      }
+
+      expect(Ieducar::SendPostWorker)
+        .not_to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
     end
   end
 end

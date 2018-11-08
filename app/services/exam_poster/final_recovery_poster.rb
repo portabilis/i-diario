@@ -53,6 +53,14 @@ module ExamPoster
       final_recovery_diary_records = []
 
       teacher_discipline_classrooms.each do |teacher_discipline_classroom|
+        exempted_discipline_ids =
+          ExemptedDisciplinesInStep.discipline_ids(
+            teacher_discipline_classroom.classroom_id,
+            get_step(teacher_discipline_classroom.classroom).to_number
+          )
+
+        next if exempted_discipline_ids.include?(discipline.id)
+
         final_recovery_diary_record =
           FinalRecoveryDiaryRecord.by_school_calendar_id(@post_data.step.school_calendar_id)
                                   .by_classroom_id(teacher_discipline_classroom.classroom.id)
