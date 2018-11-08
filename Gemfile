@@ -3,7 +3,7 @@ source 'https://rubygems.org'
 ruby '2.2.6'
 
 gem 'active_model_serializers', '0.9.3'
-gem 'activerecord-connections', '0.0.3', git: 'https://github.com/ricardohsd/activerecord-connections.git', tag: 'v0.0.3'
+gem 'activerecord-connections', git: 'https://github.com/ricardohsd/activerecord-connections.git'
 gem 'activerecord-session_store', '1.1.1'
 gem 'activerecord-tableless', '2.0.0'
 gem 'angular_rails_csrf', '1.0.4'
@@ -103,7 +103,7 @@ group :test do
 end
 
 group :test, :development do
-  gem 'bullet'
+  gem 'bullet', '4.14.10'
 end
 
 group :staging, :production do
