@@ -13,7 +13,7 @@ class UserRole < ActiveRecord::Base
 
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
-  after_save :update_user_current_user_role_id, on: :update
+  after_save :update_current_user_role_id, on: :update
 
   def to_s
     if require_unity?
@@ -35,8 +35,9 @@ class UserRole < ActiveRecord::Base
     role_teacher? || role_employee?
   end
 
-  def update_user_current_user_role_id
-    return if unity_id == unity_id_was || user.current_unity_id != unity_id_was
+  def update_current_user_role_id
+    return if unity_id == unity_id_was
+    return if user.current_unity_id != unity_id_was
 
     user.update(current_user_role_id: nil)
   end
