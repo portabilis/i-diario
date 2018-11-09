@@ -7,8 +7,6 @@ class TransferNote < ActiveRecord::Base
 
   acts_as_copy_target
 
-  # acts_as_paranoid
-
   attr_writer :unity_id
 
   before_destroy :valid_for_destruction?

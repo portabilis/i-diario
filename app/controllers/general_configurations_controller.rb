@@ -1,4 +1,6 @@
 class GeneralConfigurationsController < ApplicationController
+  after_action :clear_cache, only: :update
+
   def edit
     @general_configuration = GeneralConfiguration.current
 
@@ -41,5 +43,11 @@ class GeneralConfigurationsController < ApplicationController
       :support_url,
       :support_freshdesk
     )
+  end
+
+  def clear_cache
+    Rails.cache.delete("#{current_entity.id}_entity_copyright")
+    Rails.cache.delete("#{current_entity.id}_entity_website")
+    Rails.cache.delete("#{current_entity.id}_entity_freshdesk")
   end
 end

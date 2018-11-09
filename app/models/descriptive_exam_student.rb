@@ -1,8 +1,6 @@
 class DescriptiveExamStudent < ActiveRecord::Base
   acts_as_copy_target
 
-  # acts_as_paranoid
-
   audited associated_with: :descriptive_exam, except: [:descriptive_exam_id, :dependence]
 
   attr_accessor :exempted_from_discipline
