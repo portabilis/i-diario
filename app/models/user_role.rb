@@ -36,6 +36,7 @@ class UserRole < ActiveRecord::Base
   end
 
   def update_current_user_role_id
+    return if user.current_unity_id.blank?
     return if unity_id == unity_id_was
     return if user.current_unity_id != unity_id_was
 
