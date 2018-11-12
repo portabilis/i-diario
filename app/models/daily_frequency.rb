@@ -1,12 +1,12 @@
 class DailyFrequency < ActiveRecord::Base
   acts_as_copy_target
 
-  # acts_as_paranoid
-
   audited
   has_associated_audits
 
   include Audit
+
+  before_destroy :valid_for_destruction?
 
   belongs_to :unity
   belongs_to :classroom
@@ -18,10 +18,11 @@ class DailyFrequency < ActiveRecord::Base
 
   validates_date :frequency_date
   validates :unity, :classroom, :school_calendar, presence: true
-  validates :frequency_date, presence: true, school_calendar_day: true
+  validates :frequency_date, presence: true, school_calendar_day: true, posting_date: true
 
   validate :frequency_date_must_be_less_than_or_equal_to_today
   validate :frequency_must_be_global_or_discipline
+  validate :ensure_belongs_to_step
 
   scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
         lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at=Time.zone.now| where(unity_id: unity_id,
@@ -65,6 +66,14 @@ class DailyFrequency < ActiveRecord::Base
 
   private
 
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      valid?
+      !errors[:frequency_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
+  end
+
   def frequency_date_must_be_less_than_or_equal_to_today
     return unless frequency_date
 
@@ -78,5 +87,10 @@ class DailyFrequency < ActiveRecord::Base
        !discipline && class_number
       errors.add(:base, :frequency_type_must_be_valid)
     end
+  end
+
+  def ensure_belongs_to_step
+    return if school_calendar.blank? || frequency_date.blank?
+    errors.add(:frequency_date, I18n.t('errors.messages.not_school_calendar_day')) if school_calendar.step(frequency_date).blank?
   end
 end

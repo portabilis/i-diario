@@ -14,7 +14,9 @@ config/initializers/sidekiq.rb
 config/initializers/better_errors.rb
 config/database.yml
 config/secrets.yml
+config/google_drive.json
 /public/uploads
+/public/relatorios
 
 ## Environment normalisation:
 /.bundle

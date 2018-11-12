@@ -7,6 +7,8 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
   audited
   has_associated_audits
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :recovery_diary_record, dependent: :destroy
   belongs_to :school_calendar
 
@@ -80,6 +82,20 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
     relation = RecoveryDiaryRecord.find_by(unity_id: recovery_diary_record.unity_id, classroom_id: recovery_diary_record.classroom_id, discipline_id: recovery_diary_record.discipline_id)
     if relation
       recovery_diary_record.errors.add(:recorded_at, :uniqueness)
+    end
+  end
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      recovery_diary_record.valid?
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+      if recovery_diary_record.errors[:recorded_at].include?(forbidden_error)
+        errors.add(:base, forbidden_error)
+        false
+      else
+        true
+      end
     end
   end
 end

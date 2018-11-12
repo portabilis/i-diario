@@ -12,11 +12,19 @@ class StepsFetcher
   end
 
   def current_step
-    step_by_date(Date.today)
+    step_by_date(Date.current)
   end
 
   def step_belongs_to_date?(step_id, date)
     (step_id.to_i == step_by_date(date).try(:id))
+  end
+
+  def step_type
+    school_calendar_classroom.present? ? StepTypes::CLASSROOM : StepTypes::GENERAL
+  end
+
+  def old_steps(date)
+    old_steps_by_date(date)
   end
 
   private
@@ -35,5 +43,13 @@ class StepsFetcher
 
   def step_by_date(date)
     school_calendar_steps.started_after_and_before(date).first
+  end
+
+  def old_steps_by_date(date)
+    if school_calendar_classroom.present?
+      school_calendar_steps.where(SchoolCalendarClassroomStep.arel_table[:start_at].lt(date))
+    else
+      school_calendar_steps.where(SchoolCalendarStep.arel_table[:start_at].lt(date))
+    end
   end
 end

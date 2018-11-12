@@ -3,7 +3,9 @@ class User < ActiveRecord::Base
 
   audited allow_mass_assignment: true,
     only: [:email, :first_name, :last_name, :phone, :cpf, :login,
-           :authorize_email_and_sms, :student_id, :status, :encrypted_password]
+           :authorize_email_and_sms, :student_id, :status, :encrypted_password,
+           :teacher_id, :assumed_teacher_id, :current_unity_id, :current_classroom_id,
+           :current_discipline_id, :current_school_year, :current_user_role_id]
   has_associated_audits
 
   include Audit
@@ -83,6 +85,14 @@ class User < ActiveRecord::Base
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
+
+  def self.current=(user)
+    Thread.current[:user] = user
+  end
+
+  def self.current
+    Thread.current[:user]
+  end
 
   def self.to_csv
     attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Celular"]

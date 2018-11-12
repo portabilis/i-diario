@@ -5,6 +5,8 @@ class DisciplineContentRecord < ActiveRecord::Base
           except: [:content_record_id]
   acts_as_copy_target
 
+  before_destroy :valid_for_destruction?
+
   belongs_to :content_record, dependent: :destroy
   accepts_nested_attributes_for :content_record
 
@@ -18,7 +20,9 @@ class DisciplineContentRecord < ActiveRecord::Base
   scope :by_discipline_description, lambda { |description| joins(:discipline).where('unaccent(disciplines.description) ILIKE unaccent(?)', "%#{description}%" ) }
   scope :by_date, lambda { |date| joins(:content_record).where(content_records: { record_date: date.to_date }) }
   scope :by_date_range, lambda { |start_at, end_at| joins(:content_record).where("content_records.record_date <= ? AND content_records.record_date >= ?", end_at, start_at) }
+
   scope :ordered, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date].desc) }
+  scope :order_by_content_record_date, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date]) }
 
   validates :content_record, presence: true
   validates :discipline, presence: true
@@ -30,6 +34,20 @@ class DisciplineContentRecord < ActiveRecord::Base
   delegate :grade, to: :classroom
 
   private
+
+  def valid_for_destruction?
+    @valid_for_destruction if defined?(@valid_for_destruction)
+    @valid_for_destruction = begin
+      content_record.valid?
+      forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
+      if content_record.errors[:record_date].include?(forbidden_error)
+        errors.add(:base, forbidden_error)
+        false
+      else
+        true
+      end
+    end
+  end
 
   def uniqueness_of_discipline_content_record
     return unless content_record.present? && content_record.classroom.present? && content_record.record_date.present?

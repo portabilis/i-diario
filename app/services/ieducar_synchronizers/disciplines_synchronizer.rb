@@ -12,27 +12,19 @@ class DisciplinesSynchronizer < BaseSynchronizer
   end
 
   def update_records(collection)
-    ActiveRecord::Base.transaction do
-      collection.each do |record|
-        if discipline = disciplines.find_by(api_code: record["id"])
-          discipline.update(
-            description: record["nome"],
-            sequence: record["ordenamento"],
-            knowledge_area: KnowledgeArea.find_by(api_code: record["area_conhecimento_id"])
-          )
-        elsif record["nome"].present?
-          disciplines.create!(
-            api_code: record["id"],
-            description: record["nome"],
-            sequence: record["ordenamento"],
-            knowledge_area: KnowledgeArea.find_by(api_code: record["area_conhecimento_id"])
-          )
-        end
+    collection.each do |record|
+      Discipline.find_or_initialize_by(api_code: record["id"]).tap do |discipline|
+        discipline.description = record["nome"]
+        discipline.sequence = record["ordenamento"]
+        discipline.knowledge_area = knowledge_area(record["area_conhecimento_id"])
+        discipline.save! if discipline.changed?
       end
     end
   end
 
-  def disciplines(klass = Discipline)
-    klass
+  def knowledge_area(knowledge_area_id)
+    @knowledge_areas ||= {}
+    @knowledge_areas[knowledge_area_id] ||=
+      KnowledgeArea.find_by(api_code: knowledge_area_id)
   end
 end

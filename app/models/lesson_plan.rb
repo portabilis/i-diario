@@ -25,8 +25,8 @@ class LessonPlan < ActiveRecord::Base
   validates :school_calendar, presence: true
   validates :unity, presence: true
   validates :classroom, presence: true
-  validates :start_at, presence: true, school_calendar_day: true
-  validates :end_at, presence: true, school_calendar_day: true
+  validates :start_at, presence: true, school_calendar_day: true, posting_date: true
+  validates :end_at, presence: true, school_calendar_day: true, posting_date: true
 
   validate :no_retroactive_dates
   validate :at_least_one_assigned_content
@@ -40,7 +40,7 @@ class LessonPlan < ActiveRecord::Base
   scope :ordered, -> { joins(:classroom).order('description ASC') }
 
   def self.fromLastDays days
-    start_date = (Date.today - days.days).to_date
+    start_date = (Date.current - days.days).to_date
     where('start_at <= current_date AND end_at >= ? ', start_date)
   end
 

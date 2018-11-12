@@ -22,9 +22,13 @@ class IeducarSynchronizerWorker
         unless synchronization = IeducarApiSynchronization.find_by_id(synchronization_id)
           configuration = IeducarApiConfiguration.current
           break unless configuration.persisted?
-          synchronization = configuration.start_synchronization!(User.first)
-          synchronization.job_id = self.jid unless synchronization.job_id
+
+          if synchronization = configuration.start_synchronization(User.first)
+            synchronization.job_id = self.jid unless synchronization.job_id
+          end
         end
+
+        break unless synchronization.persisted? && synchronization.started?
 
         worker_batch = WorkerBatch.create!(main_job_class: 'IeducarSynchronizerWorker', main_job_id: synchronization.job_id)
 
@@ -59,11 +63,11 @@ class IeducarSynchronizerWorker
         end
 
         increment_total(total) do
-          TeachersSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
+          CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, worker_batch)
         end
 
         increment_total(total) do
-          CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, worker_batch)
+          TeachersSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
         end
 
         increment_total(total) do
@@ -81,7 +85,7 @@ class IeducarSynchronizerWorker
           Unity.with_api_code.each do |unity|
             increment_total(total) do
 
-              StudentEnrollmentSynchronizer.synchronize!(synchronization, worker_batch, [year], unity.api_code)
+              StudentEnrollmentSynchronizer.synchronize!(synchronization, worker_batch, [year], unity.api_code, entity.id)
             end
           end
         end
@@ -98,7 +102,10 @@ class IeducarSynchronizerWorker
           end
         end
       rescue Exception => e
-        synchronization.mark_as_error!('Erro desconhecido.', e.message)
+        if e.class != Sidekiq::Shutdown
+          synchronization.mark_as_error!('Erro desconhecido.', e.message)
+        end
+
         raise e
       end
     end

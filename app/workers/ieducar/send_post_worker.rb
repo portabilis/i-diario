@@ -4,7 +4,7 @@ module Ieducar
     include Ieducar::SendPostPerformer
     include Sidekiq::Worker
 
-    sidekiq_options retry: 2, queue: :exam_posting_send, dead: false
+    sidekiq_options retry: 2, dead: false
 
     sidekiq_retries_exhausted do |msg, ex|
       performer(*msg['args']) do |posting, _, _|
@@ -26,8 +26,15 @@ module Ieducar
         begin
           api(posting).send_post(params)
         rescue Exception => e
+          error = "Aluno: #{student(params)};<br>
+                   Componente curricular: #{discipline(params)};<br>
+                   Turma: #{classroom(params)};<br>"
+
           if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
-            posting.add_warning!("Componente curricular '#{discipline(params)}' não existe para a turma '#{classroom(params)}'")
+            posting.add_warning!(error + "Erro: Componente curricular não existe para a turma.")
+          elsif e.message.match(/Nota somente pode ser lançada após lançar notas nas etapas:/).present? ||
+              e.message.match(/O secretário\/coordenador deve lançar as notas das etapas:/).present?
+            posting.add_warning!(error + "Erro: #{e.message}")
           else
             raise e
           end
@@ -35,18 +42,25 @@ module Ieducar
       end
     end
 
+    def student(params)
+      student_id = data(params).first[1].first[0]
+
+      @students ||= {}
+      @students[student_id] ||= Student.find_by(api_code: student_id).try(:name)
+    end
+
     def discipline(params)
       discipline_id = data(params).first[1].first[1].first[0]
 
       @disciplines ||= {}
-      @disciplines[discipline_id] ||= Discipline.find_by(api_code: discipline_id).description
+      @disciplines[discipline_id] ||= Discipline.find_by(api_code: discipline_id).try(:description)
     end
 
     def classroom(params)
       classroom_id = data(params).first[0]
 
       @classrooms ||= {}
-      @classrooms[classroom_id] ||= Classroom.find_by(api_code: classroom_id).description
+      @classrooms[classroom_id] ||= Classroom.find_by(api_code: classroom_id).try(:description)
     end
 
     def data(params)

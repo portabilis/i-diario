@@ -35,7 +35,7 @@ RSpec.describe StudentUnityChecker, type: :service do
         {
           "codigo_situacao" => "3",
           "escola_id" => "1",
-          "ano" => Date.today.year.to_s
+          "ano" => Date.current.year.to_s
         }
       ]
     }

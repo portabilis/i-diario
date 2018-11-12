@@ -34,9 +34,12 @@ $(function(){
     }
     noInfoChartElement.hide();
     $('#teacher-work-done-chart').show();
-    teacherWorkDoneChart.data.datasets[0].data[0] = teacher_notes.completed_notes_count;
-    teacherWorkDoneChart.data.datasets[0].data[1] = teacher_notes.pending_notes_count;
-    teacherWorkDoneChart.update();
+
+    if (teacherWorkDoneChart) {
+      teacherWorkDoneChart.data.datasets[0].data[0] = teacher_notes.completed_notes_count;
+      teacherWorkDoneChart.data.datasets[0].data[1] = teacher_notes.pending_notes_count;
+      teacherWorkDoneChart.update();
+    }
   }
 
   function mountWorkDoneChart(){
