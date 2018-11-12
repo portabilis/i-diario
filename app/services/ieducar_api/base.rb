@@ -30,7 +30,14 @@ module IeducarApi
       assign_staging_secret_keys if Rails.env.staging?
 
       request(RequestMethods::GET, params) do |endpoint, request_params|
-        RestClient.get(endpoint, { params: request_params })
+        RestClient::Request.execute(
+          method: :get,
+          url: endpoint,
+          read_timeout: 240,
+          headers: {
+            params: request_params
+          }
+        )
       end
     end
 
