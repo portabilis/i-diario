@@ -23,8 +23,8 @@ class IeducarSynchronizerWorker
     'DeficienciesSynchronizer',
     'RoundingTablesSynchronizer',
     'RecoveryExamRulesSynchronizer',
-    'TeachersSynchronizer',
     'CoursesGradesClassroomsSynchronizer',
+    'TeachersSynchronizer',
     'StudentEnrollmentDependenceSynchronizer'
   ]
 
