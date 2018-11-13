@@ -57,19 +57,19 @@ describe Navigation::MenuRender, :type => :service do
         let(:***REMOVED***s) do
           [
             {
-              :type => '***REMOVED***',
-              :icon => 'fa-cutlery',
+              :type => 'configurations',
+              :icon => 'fa-cog',
               :css_class => [],
               :subnodes => [
                 {
-                  :type => '***REMOVED***s',
-                  :path => '***REMOVED***s_path',
+                  :type => 'roles',
+                  :path => 'roles_path',
                   :css_class => [],
                   :subnodes => []
                 },
                 {
-                  :type => '***REMOVED***',
-                  :path => '***REMOVED***_path',
+                  :type => 'unities',
+                  :path => 'unities_path',
                   :css_class => [],
                   :subnodes => []
                 }
@@ -79,7 +79,7 @@ describe Navigation::MenuRender, :type => :service do
         end
 
         it "returns this ***REMOVED*** with links and sublinks" do
-          expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cutlery\"></i> <span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a> <ul><li class=\"\"><a href=\"/***REMOVED***\"><span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a></li> <li class=\"\"><a href=\"/***REMOVED***\"><span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a></li></ul></li></ul>"
+          expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span class=\"***REMOVED***-item-parent\">Configurações</span></a> <ul><li class=\"\"><a href=\"/permissoes\"><span class=\"***REMOVED***-item-parent\">Permissões</span></a></li> <li class=\"\"><a href=\"/unidades\"><span class=\"***REMOVED***-item-parent\">Unidades</span></a></li></ul></li></ul>"
         end
       end
     end
@@ -97,19 +97,19 @@ describe Navigation::MenuRender, :type => :service do
           :visible => true
         },
         {
-          :type => '***REMOVED***',
-          :icon => 'fa-cutlery',
+          :type => 'configurations',
+          :icon => 'fa-cog',
           :css_class => ['open'],
           :subnodes => [
             {
-              :type => '***REMOVED***s',
-              :path => '***REMOVED***s_path',
+              :type => 'roles',
+              :path => 'roles_path',
               :css_class => ['current'],
               :subnodes => []
             },
             {
-              :type => '***REMOVED***',
-              :path => '***REMOVED***_path',
+              :type => 'unities',
+              :path => 'unities_path',
               :css_class => [],
               :subnodes => []
             }
@@ -119,7 +119,7 @@ describe Navigation::MenuRender, :type => :service do
     end
 
     it "returns the ***REMOVED*** with all links" do
-      expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"/\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span class=\"***REMOVED***-item-parent\">Dashboard</span></a></li> <li class=\"open\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cutlery\"></i> <span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a> <ul><li class=\"current\"><a href=\"/***REMOVED***\"><span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a></li> <li class=\"\"><a href=\"/***REMOVED***\"><span class=\"***REMOVED***-item-parent\">***REMOVED***</span></a></li></ul></li></ul>"
+      expect(subject.render(***REMOVED***s)).to eq "<ul><li class=\"\"><a href=\"/\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span class=\"***REMOVED***-item-parent\">Dashboard</span></a></li> <li class=\"open\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span class=\"***REMOVED***-item-parent\">Configurações</span></a> <ul><li class=\"current\"><a href=\"/permissoes\"><span class=\"***REMOVED***-item-parent\">Permissões</span></a></li> <li class=\"\"><a href=\"/unidades\"><span class=\"***REMOVED***-item-parent\">Unidades</span></a></li></ul></li></ul>"
     end
   end
 end
