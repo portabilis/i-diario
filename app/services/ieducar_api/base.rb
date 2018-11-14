@@ -1,10 +1,11 @@
 # encoding: utf-8
+
 module IeducarApi
   class Base
-    class ApiError < Exception; end
+    class ApiError < RuntimeError; end
 
-    STAGING_ACCESS_KEY = '***REMOVED***'
-    STAGING_SECRET_KEY = '***REMOVED***'
+    STAGING_ACCESS_KEY = '***REMOVED***'.freeze
+    STAGING_SECRET_KEY = '***REMOVED***'.freeze
 
     attr_accessor :url, :access_key, :secret_key, :unity_id
 
@@ -19,17 +20,24 @@ module IeducarApi
         unity_id: unity_id
       )
 
-      raise ApiError.new("É necessário informar a url de acesso: url") if url.blank?
-      raise ApiError.new("É necessário informar a chave de acesso: access_key") if access_key.blank?
-      raise ApiError.new("É necessário informar a chave secreta: secret_key") if secret_key.blank?
-      raise ApiError.new("É necessário informar o id da unidade: unity_id") if unity_id.blank?
+      raise ApiError, 'É necessário informar a url de acesso: url' if url.blank?
+      raise ApiError, 'É necessário informar a chave de acesso: access_key' if access_key.blank?
+      raise ApiError, 'É necessário informar a chave secreta: secret_key' if secret_key.blank?
+      raise ApiError, 'É necessário informar o id da unidade: unity_id' if unity_id.blank?
     end
 
     def fetch(params = {})
       assign_staging_secret_keys if Rails.env.staging?
 
       request(RequestMethods::GET, params) do |endpoint, request_params|
-        RestClient.get(endpoint, { params: request_params })
+        RestClient::Request.execute(
+          method: :get,
+          url: endpoint,
+          read_timeout: 240,
+          headers: {
+            params: request_params
+          }
+        )
       end
     end
 
@@ -49,14 +57,14 @@ module IeducarApi
     end
 
     def request(method, params = {})
-      params.reverse_merge!(:oper => method)
+      params.reverse_merge!(oper: method)
 
       path = params.delete(:path)
 
-      raise ApiError.new("É necessário informar o caminho de acesso: path") if path.blank?
-      raise ApiError.new("É necessário informar o recurso de acesso: resource") if params[:resource].blank?
+      raise ApiError, 'É necessário informar o caminho de acesso: path' if path.blank?
+      raise ApiError, 'É necessário informar o recurso de acesso: resource' if params[:resource].blank?
 
-      endpoint = [url, path].join("/")
+      endpoint = [url, path].join('/')
 
       request_params = {
         access_key: access_key,
@@ -77,14 +85,12 @@ module IeducarApi
         result = yield(endpoint, request_params)
         result = JSON.parse(result)
       rescue SocketError, RestClient::ResourceNotFound
-        raise ApiError.new("URL do i-Educar informada não é válida.")
-      rescue => e
-        raise ApiError.new(e.message)
+        raise ApiError, 'URL do i-Educar informada não é válida.'
+      rescue StandardError => error
+        raise ApiError, error.message
       end
 
-      if result["any_error_msg"]
-        raise ApiError.new(result["msgs"].map { |r| r["msg"] }.join(", "))
-      end
+      raise ApiError, result['msgs'].map { |r| r['msg'] }.join(', ') if result['any_error_msg'].present?
 
       result
     end
