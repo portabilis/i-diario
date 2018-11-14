@@ -52,7 +52,6 @@ Rails.application.configure do
 
   config.lograge.enabled = true
   config.lograge.formatter = Lograge::Formatters::Graylog2.new
-  config.logger = GELF::Logger.new("***REMOVED***", 12203, "WAN", facility: "novo-educacao-production")
 
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
@@ -83,14 +82,4 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
-
-  config.action_mailer.default_url_options = { :host => 'portabilis.com.br' }
-
-  # Paperclip configuration
-  config.paperclip_defaults = {
-    storage: :s3,
-    s3_region: 'us-east-1',
-    bucket: '***REMOVED***',
-    s3_credentials: "#{Rails.root}/config/aws.yml"
-  }
 end
