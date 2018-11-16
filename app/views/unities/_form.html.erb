@@ -40,7 +40,7 @@
   </fieldset>
 
   <%= f.association :address do |a| %>
-    <%= render 'address/shared_form', f: a, show_map: true %>
+    <%= render 'address/shared_form', f: a, show_map: !Rails.env.test? %>
   <% end %>
 
   <fieldset>
