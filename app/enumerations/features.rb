@@ -86,7 +86,8 @@ class Features < EnumerateIt::Base
                    :***REMOVED***,
                    :change_school_year,
                    :complementary_exam_settings,
-                   :complementary_exams
+                   :complementary_exams,
+                   :***REMOVED***
 
   sort_by :translation
 end
