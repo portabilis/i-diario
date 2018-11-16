@@ -486,7 +486,7 @@ GEM
       activesupport (>= 3.0.0)
     quiet_assets (1.1.0)
       railties (>= 3.1, < 5.0)
-    rack (1.6.10)
+    rack (1.6.11)
     rack-contrib (1.8.0)
       rack (~> 1.4)
     rack-cors (0.4.1)
@@ -735,6 +735,7 @@ DEPENDENCIES
   puma (~> 3.12.0)
   pundit (= 0.3.0)
   quiet_assets
+  rack (>= 1.6.11)
   rack-cors (~> 0.4.1)
   rack-protection (~> 1.5.5)
   rails (~> 4.2.10)
