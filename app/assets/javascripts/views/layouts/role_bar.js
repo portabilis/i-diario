@@ -123,9 +123,7 @@ $(function() {
       return { id: classroom['id'], text: classroom['description'] };
     });
 
-    if(_.isEmpty(selectedClassrooms)){
-      $('form#user-role-form #user_current_classroom_id').val("");
-    }
+    $('form#user-role-form #user_current_classroom_id').val("");
 
     insertEmptyElement(selectedClassrooms);
     $('form#user-role-form #user_current_classroom_id').select2({ formatResult: function(el) {
@@ -306,9 +304,8 @@ $(function() {
       return { id: discipline['id'], text: discipline['description'] };
     });
 
-    if(_.isEmpty(selectedDisciplines)){
-      $('form#user-role-form #user_current_discipline_id').val("");
-    }
+    $('form#user-role-form #user_current_discipline_id').val("");
+    $('form#user-role #user_current_discipline_id').val("");
 
     insertEmptyElement(selectedDisciplines);
     $('form#user-role-form #user_current_discipline_id').select2({ formatResult: function(el) {
@@ -428,6 +425,7 @@ $(function() {
   function valueSelected(select2Element){
     return !(_.isEmpty(select2Element.val()) || select2Element.val() == 0);
   }
+
   $('#user-role-form').on('ajax:success', location.reload.bind(location));
   $('#user-role-form').on('ajax:send', function(){
     $('#page-loading').removeClass('hidden');

@@ -3,15 +3,12 @@ $(function(){
 
   var role_unity_id = null;
   var can_change_school_year = false;
+  var can_clear = true;
   var flashMessages = new FlashMessages();
   $("form#user-role").on("ajax:success", function(event, data, status, xhr){
     $("form#user-role").clear_form_fields();
     $("form#user-role").clear_form_errors();
-    if($('#current_action_').val() == 'edit'){
-      location.href = Routes.root_pt_br_path;
-    }else{
-      location.reload();
-    }
+    location.href = Routes.root_pt_br_path;
     }).on("ajax:error", function(event, data, status, xhr){
       $("form#user-role").render_form_errors('user', data.responseJSON);
   });
@@ -24,6 +21,7 @@ $(function(){
     $('form#user-role #user_current_discipline_id').val(window.user.current_discipline_id);
     $('form#user-role #user_current_school_year').val(window.user.current_school_year);
     $('form#user-role #user_current_user_role_id').trigger("change");
+    can_clear = false;
   });
 
   $("#submit-role-modal-form").on('click', function(){
@@ -148,7 +146,7 @@ $(function(){
       return { id: classroom['id'], text: classroom['description'] };
     });
 
-    if(_.isEmpty(selectedClassrooms)){
+    if(can_clear){
       $('form#user-role #user_current_classroom_id').val("");
     }
 
@@ -332,9 +330,11 @@ $(function(){
       return { id: discipline['id'], text: discipline['description'] };
     });
 
-    if(_.isEmpty(selectedDisciplines)){
+    if(can_clear){
       $('form#user-role #user_current_discipline_id').val("");
     }
+    $('form#user-role-form #user_current_discipline_id').val("");
+    can_clear = true;
 
     insertEmptyElement(selectedDisciplines);
     $('form#user-role #user_current_discipline_id').select2({ formatResult: function(el) {
