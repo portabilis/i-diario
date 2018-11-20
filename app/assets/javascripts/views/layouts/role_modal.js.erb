@@ -65,7 +65,7 @@ $(function(){
   }
 
   function handleFetchTeachersError(){
-    flashMessages.error('Ocorreu um erro ao buscar os professores da unidade selecionada.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>');
   }
 
   function fetchYears(unity_id, callback){
@@ -104,7 +104,7 @@ $(function(){
   }
 
   function handleFetchYearsError(){
-    flashMessages.error('Ocorreu um erro ao buscar os anos letivos da unidade selecionada.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_years_error') %>');
   }
 
   function checkUnityType(unity_id){
@@ -159,7 +159,7 @@ $(function(){
   }
 
   function handleFetchClassroomsError(){
-    flashMessages.error('Ocorreu um erro ao buscar as turmas do professor selecionado.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>');
   }
 
   function fetchUnities(){
@@ -191,7 +191,7 @@ $(function(){
   }
 
   function handleFetchUnitiessError(){
-    flashMessages.error('Ocorreu um erro ao buscar as escolas.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_schools_error') %>');
   }
 
   $('form#user-role #user_current_user_role_id').on('change', function(){
@@ -242,7 +242,7 @@ $(function(){
     }
 
     function handleFetchRoleError(){
-      flashMessages.error('Ocorreu um erro ao buscar o nível de acesso da permissão selecionada.');
+      flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>');
     }
   });
 
@@ -344,7 +344,7 @@ $(function(){
   }
 
   function handleFetchDisciplinesError(){
-    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>');
   }
 
   // Togglers

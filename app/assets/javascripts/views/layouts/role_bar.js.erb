@@ -41,7 +41,7 @@ $(function() {
   }
 
   function handleFetchTeachersError(){
-    flashMessages.error('Ocorreu um erro ao buscar os professores da unidade selecionada.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>');
   }
 
   function fetchYears(unity_id, callback){
@@ -76,7 +76,7 @@ $(function() {
     callback();
   }
    function handleFetchYearsError(){
-    flashMessages.error('Ocorreu um erro ao buscar os anos letivos da unidade selecionada.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_years_error') %>');
   }
 
   function checkUnityType(unity_id){
@@ -134,7 +134,7 @@ $(function() {
   }
 
   function handleFetchClassroomsError(){
-    flashMessages.error('Ocorreu um erro ao buscar as turmas do professor selecionado.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>');
   }
 
   function fetchUnities(){
@@ -166,7 +166,7 @@ $(function() {
   }
 
   function handleFetchUnitiessError(){
-    flashMessages.error('Ocorreu um erro ao buscar as escolas.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_schools_error') %>');
   }
 
   $('form#user-role-form #user_current_user_role_id').on('change', fetchRole);
@@ -218,7 +218,7 @@ $(function() {
     }
 
     function handleFetchRoleError(){
-      flashMessages.error('Ocorreu um erro ao buscar o nível de acesso da permissão selecionada.');
+      flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>');
     }
   };
 
@@ -315,7 +315,7 @@ $(function() {
   }
 
   function handleFetchDisciplinesError(){
-    flashMessages.error('Ocorreu um erro ao buscar as disciplinas da turma selecionada.');
+    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>');
   }
 
   function toggleNoProfileSelectedFields(){
@@ -434,15 +434,15 @@ $(function() {
     $('#page-loading').addClass('hidden');
     var invalidFields = request.responseJSON||{};
     if (invalidFields['current_user_role_id'] !== undefined) {
-      alert('É necessário selecionar um perfil para continuar a navegação');
+     alert('<%= I18n.t('layouts.error_messages.needs_profile') %>');
     } else if(invalidFields['current_unity_id'] !== undefined) {
-      alert('É necessário selecionar uma unidade para continuar a navegação');
+      alert('<%= I18n.t('layouts.error_messages.needs_unity') %>');
     } else if(invalidFields['current_classroom_id'] !== undefined) {
-      alert('É necessário selecionar uma turma e disciplina para continuar a navegação');
+      alert('<%= I18n.t('layouts.error_messages.needs_classroom') %>');
     } else if(invalidFields['current_discipline_id'] !== undefined) {
-      alert('É necessário selecionar uma disciplina para continuar a navegação');
+      alert('<%= I18n.t('layouts.error_messages.needs_discipline') %>');
     } else {
-      alert('Erro desconhecido');
+      alert('<%= I18n.t('layouts.error_messages.unknown_error') %>');
     }
   });
 
