@@ -35,17 +35,17 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
-          <% if @entity_configuration.logo && @entity_configuration.logo.url %> 
+          <% if @entity_configuration.logo && @entity_configuration.logo.url %>
             <%= image_tag @entity_configuration.logo_url, id: 'img-prev'%>
           <% else %>
             <img id='img-prev' />
           <% end %>
         </div>
       </div>
-    </fieldset>      
+    </fieldset>
     <%= f.association :address do |a| %>
-      <%= render 'address/shared_form', f: a, show_map: true %>
-    <% end %>                        
+      <%= render 'address/shared_form', f: a, show_map: !Rails.env.test? %>
+    <% end %>
 
 
     <footer>

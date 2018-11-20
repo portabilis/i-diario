@@ -52,10 +52,12 @@
 //= require morris
 //= require select2-tags
 //= require form_errors
-//= require freshwidget
-//= require freshwidget_call
-//= require chat_helpdesk
 //= require_tree ./resources
 //= require jquery-maxlength.min
 //= require jquery-regex-mask
 //= require bootstrap_config
+<% if !Rails.env.test? %>
+  <%= require_asset 'freshwidget' %>
+  <%= require_asset 'freshwidget_call' %>
+  <%= require_asset 'chat_helpdesk' %>
+<% end %>
