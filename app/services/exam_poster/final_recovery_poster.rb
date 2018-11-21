@@ -59,12 +59,12 @@ module ExamPoster
             get_step(teacher_discipline_classroom.classroom).to_number
           )
 
-        next if exempted_discipline_ids.include?(discipline.id)
+        next if exempted_discipline_ids.include?(teacher_discipline_classroom.discipline_id)
 
         final_recovery_diary_record =
           FinalRecoveryDiaryRecord.by_school_calendar_id(@post_data.step.school_calendar_id)
                                   .by_classroom_id(teacher_discipline_classroom.classroom.id)
-                                  .by_discipline_id(teacher_discipline_classroom.discipline.id)
+                                  .by_discipline_id(teacher_discipline_classroom.discipline_id)
                                   .first
 
         final_recovery_diary_records << final_recovery_diary_record if final_recovery_diary_record.present?
