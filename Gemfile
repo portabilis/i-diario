@@ -104,8 +104,3 @@ end
 group :test, :development do
   gem 'bullet'
 end
-
-group :staging, :production do
-  gem 'gelf'
-  gem 'lograge'
-end
