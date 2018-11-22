@@ -428,7 +428,10 @@ $(function() {
   function valueSelected(select2Element){
     return !(_.isEmpty(select2Element.val()) || select2Element.val() == 0);
   }
-  $('#user-role-form').on('ajax:success', location.reload.bind(location));
+
+  $('#user-role-form').on('ajax:success', function(){
+    location.href = Routes.root_pt_br_path;
+  });
   $('#user-role-form').on('ajax:send', function(){
     $('#page-loading').removeClass('hidden');
   });
