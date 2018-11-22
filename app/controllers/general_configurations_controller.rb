@@ -1,4 +1,6 @@
 class GeneralConfigurationsController < ApplicationController
+  after_action :clear_cache, only: :update
+
   def edit
     @general_configuration = GeneralConfiguration.current
 
@@ -36,7 +38,16 @@ class GeneralConfigurationsController < ApplicationController
       :parents_default_role_id,
       :allows_after_sales_relationship,
       :display_header_on_all_reports_pages,
-      :max_descriptive_exam_character_count
+      :max_descriptive_exam_character_count,
+      :copyright_name,
+      :support_url,
+      :support_freshdesk
     )
+  end
+
+  def clear_cache
+    Rails.cache.delete("#{current_entity.id}_entity_copyright")
+    Rails.cache.delete("#{current_entity.id}_entity_website")
+    Rails.cache.delete("#{current_entity.id}_entity_freshdesk")
   end
 end

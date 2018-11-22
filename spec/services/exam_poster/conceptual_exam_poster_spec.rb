@@ -7,7 +7,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
            teacher: teacher_discipline_classroom.teacher)
   end
   let!(:conceptual_exam) do
-    create(:conceptual_exam_with_one_value, school_calendar_step: school_calendar.steps.first, classroom: classroom)
+    create(:conceptual_exam_with_one_value, step_id: school_calendar.steps.first.id, classroom: classroom)
   end
   let!(:school_calendar) { create(:school_calendar, :school_calendar_with_semester_steps, :current) }
   let!(:discipline) { conceptual_exam.conceptual_exam_values.first.discipline }
@@ -28,7 +28,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
       let!(:conceptual_exam) do
         student = create(:student, uses_differentiated_exam_rule: true)
         create(:conceptual_exam_with_one_value,
-              school_calendar_step: school_calendar.steps.first,
+              step_id: school_calendar.steps.first.id,
               classroom: classroom,
               student: student)
       end
@@ -181,11 +181,6 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
 
   context 'when classroom score type is concept' do
     let!(:classroom) { create(:classroom_concept, unity: school_calendar.unity) }
-    let!(:teacher_discipline_classroom) do
-      create(:teacher_discipline_classroom,
-             classroom: classroom,
-             discipline: discipline)
-    end
 
     it 'enqueues the requests' do
       subject.post!
@@ -206,6 +201,39 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
 
       expect(Ieducar::SendPostWorker).
         to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+    end
+  end
+
+  context 'when discipline is exempted' do
+    let!(:classroom) { create(:classroom_concept, unity: school_calendar.unity) }
+    let!(:specific_step) do
+      create(
+        :specific_step,
+        classroom: classroom,
+        discipline: discipline,
+        used_steps: (school_calendar.steps.first.to_number + 1)
+      )
+    end
+
+    it 'does not enqueue the requests' do
+      subject.post!
+
+      request = {
+        etapa: exam_posting.step.to_number,
+        resource: 'notas',
+        notas: {
+          classroom.api_code => {
+            conceptual_exam.student.api_code => {
+              discipline.api_code => {
+                nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+              }
+            }
+          }
+        }
+      }
+
+      expect(Ieducar::SendPostWorker)
+        .not_to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
     end
   end
 end

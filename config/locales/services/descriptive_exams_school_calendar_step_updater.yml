@@ -1,5 +1,0 @@
-pt-BR:
-  services:
-    descriptive_exams_school_calendar_step_updater:
-      success: "As etapas das avaliações descritivas foram atualizadas com sucesso."
-      error: "Não foi possível realizar a atualização das etapas das avaliações descritivas na entidade. Por favor, utilize o seguinte formato:\nrake entity:update_descriptive_exams_school_calendar_step NAME=\"nome_da_entidade\""

@@ -108,7 +108,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       create(
         :current_school_term_recovery_diary_record,
         recovery_diary_record: recovery_diary_record,
-        school_calendar_step: avaliation.current_step
+        step_id: StepsFetcher.new(recovery_diary_record.classroom).step(recovery_diary_record.recorded_at).id
       )
     }
     context 'hasnt complementary exams' do
@@ -137,6 +137,27 @@ RSpec.describe ExamPoster::NumericalExamPoster do
           Ieducar::SendPostWorker.jobs.first["args"][2]
         ).to match(request)
       end
+    end
+  end
+
+  context 'when discipline is exempted' do
+    let!(:specific_step) do
+      create(
+        :specific_step,
+        classroom: classroom,
+        discipline: avaliation.discipline,
+        used_steps: (avaliation.current_step.to_number + 1)
+      )
+    end
+
+    it 'does not enqueue the requests' do
+      subject.post!
+      scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] =
+        daily_note_student.note.to_f
+      request['notas'] = scores
+
+      expect(Ieducar::SendPostWorker)
+        .not_to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
     end
   end
 end

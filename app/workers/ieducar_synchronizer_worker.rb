@@ -63,11 +63,11 @@ class IeducarSynchronizerWorker
         end
 
         increment_total(total) do
-          TeachersSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
+          CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, worker_batch)
         end
 
         increment_total(total) do
-          CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, worker_batch)
+          TeachersSynchronizer.synchronize!(synchronization, worker_batch, years_to_synchronize)
         end
 
         increment_total(total) do

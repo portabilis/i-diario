@@ -1,42 +1,47 @@
-<div class="widget-body no-padding">
-  <%= simple_form_for :search, { url: conceptual_exams_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
-    <div class="table-responsive">
-      <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
+<div class='widget-body no-padding'>
+  <%= simple_form_for :filter, { url: conceptual_exams_path, method: :get,
+    html: { class: 'filterable_search_form' } } do |f| %>
+    <div class='table-responsive'>
+      <table id='resources' class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover'>
         <thead>
           <tr>
             <td></td>
-            <td><%= f.input :by_classroom, as: :select2, elements: @classrooms, label: false, placeholder: t('.by_classroom') %></td>
-            <td><%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %></td>
+            <td></td>
             <td>
-              <% if @school_calendar_classroom_steps.any? %>
-                <%= f.input :by_school_calendar_classroom_step, as: :select2, elements: @school_calendar_classroom_steps, label: false, placeholder: t('.by_school_calendar_step') %>
-              <% else %>
-                <%= f.input :by_school_calendar_step, as: :select2, elements: @school_calendar_steps, label: false, placeholder: t('.by_school_calendar_step') %>
-              <% end %>
+              <%= f.input :by_student_name, label: false, placeholder: t('.by_student_name') %>
             </td>
-            <td><%= f.input :by_status, as: :select2, elements: ConceptualExamStatus.to_select.to_json, label: false, placeholder: t('.by_status') %></td>
-            <td><%= link_to t('.new_html'), new_conceptual_exam_path, class: 'btn btn-primary pull-right' %></td>
+            <td>
+              <%= f.input :by_step, as: :select2_step, classroom: current_user_classroom,
+                label: false, placeholder: t('.by_step') %>
+            </td>
+            <td>
+              <%= f.input :by_status, as: :select2, elements: ConceptualExamStatus.to_select.to_json,
+                label: false, placeholder: t('.by_status') %>
+            </td>
+            <td>
+              <%= link_to t('.new_html'), new_conceptual_exam_path, class: 'btn btn-primary pull-right' %>
+            </td>
           </tr>
 
           <tr>
             <th><%= ConceptualExam.human_attribute_name :unity_id %></th>
             <th><%= ConceptualExam.human_attribute_name :classroom %></th>
             <th><%= ConceptualExam.human_attribute_name :student %></th>
-            <th><%= ConceptualExam.human_attribute_name :school_calendar_step %></th>
+            <th><%= ConceptualExam.human_attribute_name :step %></th>
             <th><%= ConceptualExam.human_attribute_name :status %></th>
-            <td width="160px"></td>
+            <td width='160px'></td>
           </tr>
         </thead>
 
         <%= render 'resources' %>
 
-        <tfoot id="paginator" class="remote">
-          <td colspan="7">
-            <div id="page_entries_info" class="pull-left hidden-xs">
+        <tfoot id='paginator' class='remote'>
+          <td colspan='7'>
+            <div id='page_entries_info' class='pull-left hidden-xs'>
               <%= page_entries_info @conceptual_exams %>
             </div>
 
-            <div class="pull-right">
+            <div class='pull-right'>
               <%= paginate @conceptual_exams %>
             </div>
           </td>

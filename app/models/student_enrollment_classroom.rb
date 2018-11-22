@@ -1,4 +1,8 @@
 class StudentEnrollmentClassroom < ActiveRecord::Base
+  include Audit
+  audited
+  has_associated_audits
+
   belongs_to :classroom
   belongs_to :student_enrollment
 

@@ -1,4 +1,5 @@
 pt-BR:
   descriptive_exams:
     edit:
-      exempted_students_from_discipline_legend: "**** Alunos dispensados da disciplina"
+      dependence_students: '* Alunos cursando dependência'
+      exempted_students_from_discipline_legend: '**** Alunos dispensados da disciplina'
