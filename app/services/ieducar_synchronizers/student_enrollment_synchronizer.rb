@@ -56,7 +56,8 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       student_id: student_id(record),
       student_code: record["aluno_id"],
       changed_at: record["data_atualizacao"].to_s,
-      active: record["ativo"]
+      active: record["ativo"],
+      period: record["turno_id"]
     )
 
     if record["enturmacoes"].present?
@@ -87,7 +88,8 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         student_id: student_id(record),
         student_code: record["aluno_id"],
         changed_at: record["data_atualizacao"].to_s,
-        active: record["ativo"]
+        active: record["ativo"],
+        period: record["turno_id"]
       )
     end
 

@@ -38,9 +38,11 @@ class DailyNotesController < ApplicationController
   end
 
   def create
-    @daily_note = DailyNote.new(resource_params)
+    creator = DailyNoteCreator.new(resource_params)
+    creator.find_or_create
+    @daily_note = creator.daily_note
 
-    if @daily_note.valid? && find_or_create_resource
+    if @daily_note.persisted?
       redirect_to edit_daily_note_path(@daily_note)
     else
       render :new
@@ -210,12 +212,6 @@ class DailyNotesController < ApplicationController
   end
 
   private
-
-  def find_or_create_resource
-    creator = DailyNoteCreator.new(resource_params)
-    return unless creator.find_or_create!
-    @daily_note = creator.daily_note
-  end
 
   def destroy_students_not_found
     @daily_note.students.each do |student|

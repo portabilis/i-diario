@@ -66,9 +66,9 @@ GIT
 
 GIT
   remote: https://github.com/portabilis/zenvia-ruby
-  revision: 3ddce8e147d02a7deafd56adaedd7f35184ce0a7
+  revision: 25ac2847e4242633d87454345542c74614deba8b
   specs:
-    zenvia-ruby (0.1.7)
+    zenvia-ruby (0.1.8)
 
 GIT
   remote: https://github.com/ricardohsd/activerecord-connections.git
@@ -331,8 +331,6 @@ GEM
     foreigner (1.6.1)
       activerecord (>= 3.0.0)
     formatador (0.2.5)
-    gelf (3.0.0)
-      json
     gherkin (2.12.2)
       multi_json (~> 1.3)
     globalid (0.4.1)
@@ -397,11 +395,6 @@ GEM
       sprockets (> 2, < 4)
       tilt
     libv8 (3.16.14.13)
-    lograge (0.7.1)
-      actionpack (>= 4, < 5.2)
-      activesupport (>= 4, < 5.2)
-      railties (>= 4, < 5.2)
-      request_store (~> 1.0)
     loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -445,8 +438,6 @@ GEM
       mime-types
       mimemagic (~> 0.3.0)
     parallel (1.12.1)
-    paranoia (2.4.1)
-      activerecord (>= 4.0, < 5.3)
     parser (2.5.1.2)
       ast (~> 2.4.0)
     pdf-core (0.6.1)
@@ -488,7 +479,7 @@ GEM
       activesupport (>= 3.0.0)
     quiet_assets (1.1.0)
       railties (>= 3.1, < 5.0)
-    rack (1.6.10)
+    rack (1.6.11)
     rack-contrib (1.8.0)
       rack (~> 1.4)
     rack-cors (0.4.1)
@@ -533,7 +524,6 @@ GEM
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
       uber (< 0.2.0)
-    request_store (1.3.2)
     responders (2.1.0)
       railties (>= 4.2.0, < 5)
     rest-client (2.0.2)
@@ -704,7 +694,6 @@ DEPENDENCIES
   faker (~> 1.6, >= 1.6.1)
   fog (~> 1.36)
   foreigner (= 1.6.1)
-  gelf
   google_drive (= 2.1.12)
   handlebars_assets (~> 0.23.0)
   has_scope (= 0.5.1)
@@ -714,7 +703,6 @@ DEPENDENCIES
   js-routes
   kaminari (~> 0.16.1)
   less-rails (~> 3.0.0)
-  lograge
   loofah (~> 2.2.3)
   mask_validator (= 0.2.1)
   meta_request
@@ -725,7 +713,6 @@ DEPENDENCIES
   nokogiri (~> 1.8.1)
   non-stupid-digest-assets (~> 1.0.9)
   paperclip (~> 5.2.0)
-  paranoia (~> 2.2)
   pdf-inspector
   pg (= 0.17.1)
   poltergeist (~> 1.8.1)
@@ -738,6 +725,7 @@ DEPENDENCIES
   puma (~> 3.12.0)
   pundit (= 0.3.0)
   quiet_assets
+  rack (>= 1.6.11)
   rack-cors (~> 0.4.1)
   rack-protection (~> 1.5.5)
   rails (~> 4.2.10)
@@ -776,4 +764,4 @@ RUBY VERSION
    ruby 2.2.6p396
 
 BUNDLED WITH
-   1.16.6
+   1.17.1

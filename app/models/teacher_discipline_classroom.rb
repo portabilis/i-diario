@@ -1,8 +1,6 @@
 class TeacherDisciplineClassroom < ActiveRecord::Base
   acts_as_copy_target
 
-  # acts_as_paranoid
-
   audited
 
   include Audit
@@ -10,6 +8,8 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   belongs_to :teacher
   belongs_to :discipline
   belongs_to :classroom
+
+  has_enumeration_for :period, with: Periods, skip_validation: true
 
   validates :teacher, :teacher_api_code, :discipline_api_code, :classroom_api_code, :year, presence: true
 

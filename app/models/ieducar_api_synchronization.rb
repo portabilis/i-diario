@@ -41,4 +41,18 @@ class IeducarApiSynchronization < ActiveRecord::Base
   def set_job_id!(job_id)
     update_attribute(:job_id, job_id)
   end
+
+  def running?
+    running = Sidekiq::Queue.new('default').find_job(job_id) ||
+      Sidekiq::ScheduledSet.new.find_job(job_id) ||
+      Sidekiq::RetrySet.new.find_job(job_id)
+
+    if Sidekiq::Workers.new.size > 0
+      Sidekiq::Workers.new.each do |process_id, thread_id, work|
+        (running = work['payload']['jid'] == job_id) && break
+      end
+    end
+
+    running
+  end
 end

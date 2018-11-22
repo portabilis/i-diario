@@ -50,12 +50,9 @@ Rails.application.configure do
   # Use a different logger for distributed setups.
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
-  config.lograge.enabled = true
-  config.lograge.formatter = Lograge::Formatters::Graylog2.new
-  config.logger = GELF::Logger.new("***REMOVED***", 12203, "WAN", facility: "novo-educacao-production")
-
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
+  config.cache_store = :memory_store, { size: 64.megabytes }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.action_controller.asset_host = "http://assets.example.com"

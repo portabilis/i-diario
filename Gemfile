@@ -39,13 +39,13 @@ gem 'mina-sidekiq', require: false,  github: 'portabilis/mina-sidekiq', branch: 
 gem 'newrelic_rpm'
 gem 'nokogiri', '~> 1.8.1'
 gem 'paperclip', '~> 5.2.0'
-gem 'paranoia', '~> 2.2'
 gem 'pg', '0.17.1'
 gem 'postgres-copy'
 gem 'prawn', '~> 2.1.0', github: 'portabilis/prawn', branch: 'master'
 gem 'prawn-table', '0.2.2'
 gem 'puma', '~> 3.12.0'
 gem 'pundit', '0.3.0'
+gem 'rack', '>= 1.6.11'
 gem 'rack-cors', '~> 0.4.1 ', require: 'rack/cors'
 gem 'rack-protection', '~> 1.5.5'
 gem 'rails', '~> 4.2.10'
@@ -103,9 +103,4 @@ end
 
 group :test, :development do
   gem 'bullet'
-end
-
-group :staging, :production do
-  gem 'gelf'
-  gem 'lograge'
 end
