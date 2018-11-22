@@ -50,9 +50,6 @@ Rails.application.configure do
   # Use a different logger for distributed setups.
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
 
-  config.lograge.enabled = true
-  config.lograge.formatter = Lograge::Formatters::Graylog2.new
-
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   config.cache_store = :memory_store, { size: 64.megabytes }

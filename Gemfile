@@ -102,8 +102,3 @@ end
 group :test, :development do
   gem 'bullet', '4.14.10'
 end
-
-group :staging, :production do
-  gem 'gelf', '3.0.0'
-  gem 'lograge', '0.7.1'
-end

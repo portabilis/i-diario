@@ -126,6 +126,11 @@ module ExamPoster
         next unless same_unity?(classroom.unity_id)
         next unless step_exists_for_classroom?(classroom)
 
+        exempted_discipline_ids =
+          ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
+
+        next if exempted_discipline_ids.include?(discipline.id)
+
         exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).ordered
 
         exams.each do |exam|
@@ -151,6 +156,11 @@ module ExamPoster
 
         next unless same_unity?(classroom.unity_id)
         next unless step_exists_for_classroom?(classroom)
+
+        exempted_discipline_ids =
+          ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
+
+        next if exempted_discipline_ids.include?(discipline.id)
 
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
                                       .includes(:student, :descriptive_exam)

@@ -139,4 +139,25 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       end
     end
   end
+
+  context 'when discipline is exempted' do
+    let!(:specific_step) do
+      create(
+        :specific_step,
+        classroom: classroom,
+        discipline: avaliation.discipline,
+        used_steps: (avaliation.current_step.to_number + 1)
+      )
+    end
+
+    it 'does not enqueue the requests' do
+      subject.post!
+      scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] =
+        daily_note_student.note.to_f
+      request['notas'] = scores
+
+      expect(Ieducar::SendPostWorker)
+        .not_to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+    end
+  end
 end
