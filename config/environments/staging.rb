@@ -10,6 +10,4 @@ Rails.application.configure do
   config.active_support.deprecation = :log
 
   config.action_mailer.default_url_options = { :host => 'clientetest.portabilis.com.br' }
-
-  config.logger = GELF::Logger.new("***REMOVED***", 12203, "WAN", facility: "novo-educacao-staging")
 end

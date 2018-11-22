@@ -143,9 +143,16 @@ class AvaliationsController < ApplicationController
 
   def respond_to_save
     if params[:commit] == I18n.t('avaliations.form.save_and_edit_daily_notes')
-      creator = DailyNoteCreator.new({ avaliation_id: resource.id })
-      creator.find_or_create!
-      redirect_to edit_daily_note_path(creator.daily_note)
+      creator = DailyNoteCreator.new(avaliation_id: resource.id)
+      creator.find_or_create
+
+      @daily_note = creator.daily_note
+
+      if @daily_note.persisted?
+        redirect_to edit_daily_note_path(@daily_note)
+      else
+        render 'daily_notes/new'
+      end
     else
       respond_with resource, location: avaliations_path
     end
