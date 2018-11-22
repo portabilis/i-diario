@@ -40,17 +40,27 @@ module ExamPoster
     def step_exists_for_classroom?(classroom)
       return false if invalid_classroom_year?(classroom)
 
-      classroom.calendar.blank? || classroom.calendar.classroom_steps.any? do |classroom_step|
-        classroom_step.to_number == @post_data.step.to_number
-      end
+      get_step_by_step_number(classroom, @post_data.step.to_number).present?
     end
 
     def get_step(classroom)
       raise InvalidClassroomError if invalid_classroom_year?(classroom)
 
-      classroom.calendar && classroom.calendar.classroom_steps.find do |classroom_step|
-        classroom_step.to_number == @post_data.step.to_number
-      end || @post_data.step
+      get_step_by_step_number(classroom, @post_data.step.to_number) || @post_data.step
+    end
+
+    def same_unity?(unity_id)
+      unity_id == @post_data.step.school_calendar.unity_id
+    end
+
+    def get_step_by_step_number(classroom, step_number)
+      current_step_exam_poster = "#{@entity_id}_#{classroom.id}_#{step_number}_current_step_exam_poster"
+
+      Rails.cache.fetch(current_step_exam_poster, expires_in: 5.minutes) do
+        StepsFetcher.new(classroom).steps.find do |step|
+          step.to_number == step_number
+        end
+      end
     end
 
     def teacher

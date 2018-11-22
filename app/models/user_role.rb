@@ -13,6 +13,8 @@ class UserRole < ActiveRecord::Base
 
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
+  after_save :update_current_user_role_id, on: :update
+
   def to_s
     if require_unity?
       "#{role_name} (Nível: #{role_access_level_humanize}) - #{unity_name}"
@@ -23,6 +25,7 @@ class UserRole < ActiveRecord::Base
 
   def can_change_school_year?
     return false unless role
+
     role.can_change?('change_school_year')
   end
 
@@ -30,5 +33,13 @@ class UserRole < ActiveRecord::Base
 
   def require_unity?
     role_teacher? || role_employee?
+  end
+
+  def update_current_user_role_id
+    return if user.current_unity_id.blank?
+    return if unity_id == unity_id_was
+    return if user.current_unity_id != unity_id_was
+
+    user.update(current_user_role_id: nil)
   end
 end
