@@ -41,9 +41,9 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
       end
 
       it 'needs to adjust to be general absence' do
-        expect(daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be true
+        expect(subject.daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be true
         subject.adjust
-        expect(daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be false
+        expect(subject.daily_frequencies_by_type(FrequencyTypes::GENERAL).exists?).to be false
       end
 
       it 'removes others daily_frequencies' do
@@ -90,25 +90,11 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         add_user_to_audit(daily_frequency_1)
         add_user_to_audit(daily_frequency_2)
 
-        expect(daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be true
+        expect(subject.daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be true
         subject.adjust
-        expect(daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be false
+        expect(subject.daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be false
       end
     end
-  end
-
-  private
-
-  def daily_frequencies_by_type(frequency_type)
-    daily_frequencies = DailyFrequency.joins(:classroom)
-                                      .merge(Classroom.joins(:exam_rule).where(exam_rules: { frequency_type: frequency_type }))
-                                      .where('extract(year from frequency_date) = ?', year)
-                                      .where(unity_id: unities)
-
-    daily_frequencies = daily_frequencies.where.not(discipline_id: nil) if frequency_type == FrequencyTypes::GENERAL
-    daily_frequencies = daily_frequencies.where(discipline_id: nil) if frequency_type == FrequencyTypes::BY_DISCIPLINE
-
-    daily_frequencies
   end
 
   def add_user_to_audit(daily_frequency)

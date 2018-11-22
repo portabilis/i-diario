@@ -2,8 +2,6 @@ class ConceptualExamValue < ActiveRecord::Base
 
   acts_as_copy_target
 
-  # acts_as_paranoid
-
   audited associated_with: :conceptual_exam, except: :conceptual_exam_id
 
   belongs_to :conceptual_exam
