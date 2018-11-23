@@ -331,8 +331,6 @@ GEM
     foreigner (1.6.1)
       activerecord (>= 3.0.0)
     formatador (0.2.5)
-    gelf (3.0.0)
-      json
     gherkin (2.12.2)
       multi_json (~> 1.3)
     globalid (0.4.1)
@@ -397,11 +395,6 @@ GEM
       sprockets (> 2, < 4)
       tilt
     libv8 (3.16.14.13)
-    lograge (0.7.1)
-      actionpack (>= 4, < 5.2)
-      activesupport (>= 4, < 5.2)
-      railties (>= 4, < 5.2)
-      request_store (~> 1.0)
     loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -531,7 +524,6 @@ GEM
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
       uber (< 0.2.0)
-    request_store (1.3.2)
     responders (2.1.0)
       railties (>= 4.2.0, < 5)
     rest-client (2.0.2)
@@ -702,7 +694,6 @@ DEPENDENCIES
   faker (~> 1.6, >= 1.6.1)
   fog (~> 1.36)
   foreigner (= 1.6.1)
-  gelf
   google_drive (= 2.1.12)
   handlebars_assets (~> 0.23.0)
   has_scope (= 0.5.1)
@@ -712,7 +703,6 @@ DEPENDENCIES
   js-routes
   kaminari (~> 0.16.1)
   less-rails (~> 3.0.0)
-  lograge
   loofah (~> 2.2.3)
   mask_validator (= 0.2.1)
   meta_request
@@ -774,4 +764,4 @@ RUBY VERSION
    ruby 2.2.6p396
 
 BUNDLED WITH
-   1.16.6
+   1.17.1

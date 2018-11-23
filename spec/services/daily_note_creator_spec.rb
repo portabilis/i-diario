@@ -9,7 +9,7 @@ RSpec.describe DailyNoteCreator, type: :service do
       avaliation_id: avaliation.id
     })
 
-    expect { creator.find_or_create! }.to change { DailyNote.count }.to(1)
+    expect { creator.find_or_create }.to change { DailyNote.count }.to(1)
   end
 
   context 'exist student enrollments' do
@@ -28,7 +28,7 @@ RSpec.describe DailyNoteCreator, type: :service do
         avaliation_id: avaliation.id
       })
 
-      expect { creator.find_or_create! }.to change { DailyNoteStudent.count }.to(1)
+      expect { creator.find_or_create }.to change { DailyNoteStudent.count }.to(1)
     end
   end
 end
