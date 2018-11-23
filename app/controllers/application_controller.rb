@@ -361,4 +361,5 @@ class ApplicationController < ActionController::Base
   def report_name(prefix)
     "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
   end
+
 end
