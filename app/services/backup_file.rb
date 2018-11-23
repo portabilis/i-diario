@@ -2,7 +2,6 @@ class BackupFile
   BACKUP_CLASSES = [
     'BackupFile::AbsenceJustifications',
     'BackupFile::Addresses',
-    'BackupFile::***REMOVED***s',
     'BackupFile::AvaliationExemptions',
     'BackupFile::AvaliationRecoveryDiaryRecords',
     'BackupFile::Avaliations',
@@ -47,8 +46,6 @@ class BackupFile
     'BackupFile::SchoolCalendarSteps',
     'BackupFile::SchoolCalendars',
     'BackupFile::SchoolTermRecoveryDiaryRecords',
-    'BackupFile::***REMOVED***s',
-    'BackupFile::***REMOVED***s',
     'BackupFile::Students',
     'BackupFile::***REMOVED***es',
     'BackupFile::TeacherDisciplineClassrooms',

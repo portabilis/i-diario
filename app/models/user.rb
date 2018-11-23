@@ -50,7 +50,6 @@ class User < ActiveRecord::Base
 
   validates_associated :user_roles
 
-  validate :uniqueness_of_student_parent_role
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
 
@@ -261,36 +260,6 @@ class User < ActiveRecord::Base
 
   def email_required?
     false
-  end
-
-  def uniqueness_of_student_parent_role
-    return if user_roles.blank?
-
-    parent_roles = []
-    student_roles = []
-
-    user_roles.reject(&:marked_for_destruction?).each do |user_role|
-      _role = Role.find(user_role.role_id)
-
-      next if _role.teacher?
-
-      case _role.access_level.to_s
-      when AccessLevel::PARENT
-        if parent_roles.include?(_role)
-          errors.add(:user_roles, :invalid)
-          user_role.errors.add(:role_id, :parent_role_taken)
-        else
-          parent_roles.push(_role)
-        end
-      when AccessLevel::STUDENT
-        if student_roles.include?(_role)
-          errors.add(:user_roles, :invalid)
-          user_role.errors.add(:role_id, :student_role_taken)
-        else
-          student_roles.push(_role)
-        end
-      end
-    end
   end
 
   def presence_of_email_or_cpf
