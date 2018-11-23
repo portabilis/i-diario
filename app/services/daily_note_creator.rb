@@ -5,11 +5,11 @@ class DailyNoteCreator
     @params = params
   end
 
-  def self.find_or_create!(params)
-    new(params).find_or_create!
+  def self.find_or_create(params)
+    new(params).find_or_create
   end
 
-  def find_or_create!
+  def find_or_create
     @daily_note = DailyNote.find_or_initialize_by(@params)
 
     if @daily_note.new_record?
@@ -21,7 +21,7 @@ class DailyNoteCreator
         end
       end
 
-      @daily_note.save!
+      @daily_note.save
     else
       true
     end
