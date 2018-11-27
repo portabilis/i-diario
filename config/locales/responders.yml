@@ -33,20 +33,6 @@ pt-BR:
       destroy:
         alert: '%{resource_name} não pode ser apagada pois possui vínculos.'
 
-    ***REMOVED***s:
-      <<: *female
-      destroy:
-        notice: '%{resource_name} foi cancelada com sucesso.'
-
-    ***REMOVED***_confirmations:
-      <<: *female
-      update:
-        notice: 'Candidatura foi alterada com sucesso.'
-      cancel:
-        notice: 'Candidatura cancelada com sucesso.'
-      confirm:
-        notice: 'Candidatura confirmada com sucesso.'
-
     devise:
       passwords:
         create:
@@ -78,54 +64,6 @@ pt-BR:
         notice: "Integração de alunos do i-Educar está sendo processada."
         alert: "Integração de alunos do i-Educar não pode ser processada."
 
-    ***REMOVED***:
-      create:
-        notice: "Mensagem enviada com sucesso!"
-        alert: "Mensagem não pode ser enviada."
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *female
-
-    ***REMOVED***:
-      <<: *female
-
-    ***REMOVED***:
-      <<: *female
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***s:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *female
-
-    ***REMOVED***:
-      <<: *male
-
-    ***REMOVED***:
-      <<: *female
-
-    authorization_***REMOVED***:
-      <<: *female
-    execution_***REMOVED***s:
-      <<: *female
     test_settings:
       <<: *female
 
@@ -202,17 +140,6 @@ pt-BR:
       <<: *male
       destroy:
         alert: 'Não é possível apagar registros fora das datas de lançamento da etapa'
-
-    ***REMOVED***:
-      <<: *male
-      create:
-        notice: 'Ajuste de estoque realizado com sucesso.'
-        alert: 'Ajuste de estoque não pode ser realizado.'
-
-    ***REMOVED***:
-      <<: *male
-      destroy:
-        alert: '%{resource_name} não pode ser apagado pois possui vínculos.'
 
     terms_dictionaries:
       <<: *male

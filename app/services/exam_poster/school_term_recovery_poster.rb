@@ -38,6 +38,11 @@ module ExamPoster
           next unless same_unity?(classroom.unity_id)
           next unless step_exists_for_classroom?(classroom)
 
+          exempted_discipline_ids =
+            ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
+
+          next if exempted_discipline_ids.include?(discipline.id)
+
           teacher_score_fetcher = TeacherScoresFetcher.new(teacher, classroom, discipline, get_step(classroom))
           teacher_score_fetcher.fetch!
 

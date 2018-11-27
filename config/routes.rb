@@ -31,18 +31,15 @@ Rails.application.routes.draw do
 
     namespace :api do
       namespace :v1 do
-        resources :***REMOVED***, only: [:create]
         resources :exam_rules, only: [:index]
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index]
         resources :teacher_disciplines, only: [:index]
         resources :school_calendars, only: [:index]
         resources :daily_frequencies, only: [:create]
-        resources :***REMOVED***, only: [:create]
         resources :daily_frequency_students, only: [:update]
       end
       namespace :v2 do
-        resources :***REMOVED***, only: [:create]
         resources :exam_rules, only: [:index]
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index]
@@ -54,7 +51,6 @@ Rails.application.routes.draw do
             post :update_or_create
           end
         end
-        resources :***REMOVED***, only: [:create]
         resources :classroom_students, only: [:index]
         resources :teacher_allocations, only: [:index]
         resources :lesson_plans, only: [:index]
@@ -93,9 +89,6 @@ Rails.application.routes.draw do
     end
 
     resources :teachers, only: :index
-    resources :***REMOVED***, only: :index
-    resources :***REMOVED***, only: :index
-    resources :***REMOVED***_movements, only: :index
 
     resources :system_***REMOVED***, only: :index
 
@@ -113,11 +106,6 @@ Rails.application.routes.draw do
     get '/disabled_entity', to: 'pages#disabled_entity'
     get '/new_role_modal_feature', to: 'news#role_modal_feature'
 
-    resources :messages, except: [:edit, :update] do
-      collection do
-        delete :destroy_batch
-      end
-    end
     resources :users, concerns: :history do
       collection do
         get :export_all
@@ -132,22 +120,9 @@ Rails.application.routes.draw do
       end
     end
     resources  :user_roles, only: [:show]
-    resources :***REMOVED***, only: [:index]
-    resources :***REMOVED***, only: [:index, :show]
-    resources :***REMOVED***_confirmations, except: [:new, :create] do
-      member do
-        patch :cancel
-        patch :preview
-        patch :confirm
-      end
-    end
-    resource :***REMOVED***_configs, only: [:edit, :update], concerns: :history
-    resources :***REMOVED***s, concerns: :history
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
       resources :synchronizations, only: [:index, :create]
     end
-    resource :contact_school, only: [:new, :create]
-    resource :notification, only: [:edit, :update], concerns: :history
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
     resource :terms_dictionaries, only: [:edit, :update], concerns: :history
@@ -159,109 +134,18 @@ Rails.application.routes.draw do
         post :create_batch
         get :search
         get :all
-        get :school_group
       end
     end
-    resources :***REMOVED***, concerns: :history do
-      get '***REMOVED***_classes/select'
-    end
-
-    resources :***REMOVED***_classes, concerns: :history do
-      collection do
-        get :select
-      end
-    end
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history do
-      collection do
-        get :select
-      end
-    end
-    resources :***REMOVED***, concerns: :history do
-      resources :material_request_items, only: [:index]
-    end
-    resources :***REMOVED***, concerns: :history do
-      resources :material_request_authorization_items, only: [:index]
-      collection do
-        get :filtered_***REMOVED***
-      end
-    end
-    resources :***REMOVED***, concerns: :history do
-      collection do
-        get :get_***REMOVED***_by_kind
-      end
-      resources :material_exit_items, only: [:index]
-    end
-    resources :***REMOVED***, concerns: :history do
-      collection do
-        get :filtered_***REMOVED***
-        get :data_by_commitment
-        get :measuring_unit_by_material_id
-      end
-    end
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***s, concerns: :history do
-      member do
-        post :clone
-      end
-      collection do
-        get :distributed
-      end
-    end
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
     resources :courses, only: [:index]
     resources :lectures, only: [:index]
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history, except: :show do
-      collection do
-        get :search
-      end
-    end
-    resources :***REMOVED***, concerns: :history, except: :show do
-      collection do
-        get :search
-      end
-    end
     resources :maintenance_adjustments, concerns: :history, except: :show
 
-    resources :grades, only: [:index] do
-      member do
-        get :verify_candidate_birthdate
-      end
-    end
+    resources :grades, only: [:index]
 
     resources :schools, only: [:index]
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***, concerns: :history do
-      collection do
-        get :search
-      end
-    end
-    resources :authorization_***REMOVED***, concerns: :history
 
     resources :custom_rounding_tables, concerns: :history, except: :show
-
-    resources :moved_***REMOVED***, only: [:index]
-    get '/unities/:unity_id/moved_***REMOVED***/:material_id', to: 'moved_***REMOVED***#show', as: 'unity_moved_material'
-    get '/unities/:unity_id/moved_***REMOVED***/:material_id/current_balance', to: 'moved_***REMOVED***#current_balance', as: 'current_balance'
-
-    resources :***REMOVED***, only: [:index, :new, :create]
-    get '/***REMOVED***/entrances/:id', to: '***REMOVED***#show_entrance', as: 'inventory_adjustment_entrance'
-    get '/***REMOVED***/exits/:id', to: '***REMOVED***#show_exit', as: 'inventory_adjustment_exit'
-    get '/***REMOVED***/get_***REMOVED***', to: '***REMOVED***#get_***REMOVED***_for_select2_remote', as: 'get_all_***REMOVED***'
-    get '/***REMOVED***/get_filtered_***REMOVED***', to: '***REMOVED***#get_filtered_***REMOVED***_for_select2_remote', as: 'get_filtered_***REMOVED***'
-
-    resources :***REMOVED***, concerns: :history
-    resources :***REMOVED***_***REMOVED***s, only: :index
-    resources :***REMOVED***_***REMOVED***, only: :index
-    resources :***REMOVED***_periods, only: :index
-    resources :***REMOVED***_students, only: :index
+    resources :custom_rounding_tables, concerns: :history, except: :show
 
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
@@ -381,7 +265,6 @@ Rails.application.routes.draw do
       end
     end
     resources :avaliation_exemptions, concerns: :history
-    resources :***REMOVED***, concerns: :history
 
     resources :daily_frequency_students do
       collection do
@@ -412,9 +295,6 @@ Rails.application.routes.draw do
     get '/reports/observation_record', to: 'observation_record_report#form', as: 'observation_record_report'
     post '/reports/observation_record', to: 'observation_record_report#report', as: 'observation_record_report'
 
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
     get '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#form', as: 'discipline_lesson_plan_report'
     post '/reports/discipline_lesson_plan', to: 'discipline_lesson_plan_report#lesson_plan_report', as: 'discipline_lesson_plan_report'
     post '/reports/discipline_content_record', to: 'discipline_lesson_plan_report#content_record_report', as: 'discipline_content_record_report'
@@ -425,27 +305,6 @@ Rails.application.routes.draw do
 
     get '/reports/teacher_report_cards', to: 'teacher_report_cards#form', as: 'teacher_report_cards'
     post '/reports/teacher_report_cards', to: 'teacher_report_cards#report', as: 'teacher_report_cards'
-
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
-    get '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#form', as: '***REMOVED***_movements_report'
-    post '/reports/***REMOVED***_movements', to: '***REMOVED***_movements_report#report', as: '***REMOVED***_movements_report'
-    get '/reports/***REMOVED***_movements/:id', to: '***REMOVED***_movements_report#show', as: '***REMOVED***_movements_report_viewer'
-
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
-    get '/reports/***REMOVED***s', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***s', to: '***REMOVED***#report', as: '***REMOVED***'
-
-    get '/reports/***REMOVED***', to: '***REMOVED***#form', as: '***REMOVED***'
-    post '/reports/***REMOVED***', to: '***REMOVED***#report', as: '***REMOVED***'
-
-    post '/food_composition', to: 'food_composition#calculate'
 
     resources :data_exportations, only: [:index, :create]
   end

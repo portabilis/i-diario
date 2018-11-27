@@ -52,6 +52,11 @@ module ExamPoster
             next if exempted_discipline(classroom, discipline.id, student_score.id)
             next unless correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
 
+            exempted_discipline_ids =
+              ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
+
+            next if exempted_discipline_ids.include?(discipline.id)
+
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             value = StudentAverageCalculator.new(student_score)
                                             .calculate(classroom, discipline, get_step(classroom))

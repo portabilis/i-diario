@@ -70,7 +70,8 @@ class TeachersSynchronizer < BaseSynchronizer
         classroom_id: Classroom.find_by(api_code: discipline_classroom['turma_id']).try(:id),
         classroom_api_code: discipline_classroom['turma_id'],
         allow_absence_by_discipline: discipline_classroom['permite_lancar_faltas_componente'],
-        changed_at: collection['updated_at']
+        changed_at: collection['updated_at'],
+        period: collection['turno_id']
       )
     end
   end

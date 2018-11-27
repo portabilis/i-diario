@@ -16,16 +16,6 @@ describe Navigation::MenuBuilder, :type => :service do
 
         expect(html).to match /<ul><li class="">.+Dashboard.+<\/li>.+<\/ul>/
 
-        expect(html).to match /<ul>.+Dashboard.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-
-        expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-
-        expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul><li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
-
-        expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+Administrativo.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Configurações gerais.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Manutenção\/Ajustes.+<\/li>.+<\/ul>.+<\/ul>/
 
@@ -33,19 +23,6 @@ describe Navigation::MenuBuilder, :type => :service do
         expect(html).to match /<ul>.+Configurações.+<ul><li class="">.+Permissões.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Permissões.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+API de integração.+<\/li>.+<\/ul>.+<\/ul>/
-
-        expect(html).to match /<ul>.+Configurações.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-
-        # expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<ul>.+<\/ul><\/li><\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul><li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
       end
     end
 
@@ -57,16 +34,6 @@ describe Navigation::MenuBuilder, :type => :service do
 
         expect(html).to match /<ul><li class="current">.+Dashboard.+<\/li>.+<\/ul>/
 
-        expect(html).to match /<ul>.+Dashboard.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-
-        expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-
-        expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul><li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
-
-        expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+Administrativo.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Configurações gerais.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Manutenção\/Ajustes.+<\/li>.+<\/ul>.+<\/ul>/
 
@@ -74,60 +41,24 @@ describe Navigation::MenuBuilder, :type => :service do
         expect(html).to match /<ul>.+Configurações.+<ul><li class="">.+Permissões.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Permissões.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+API de integração.+<\/li>.+<\/ul>.+<\/ul>/
-
-        expect(html).to match /<ul>.+Configurações.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-
-        # expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<ul>.+<\/ul><\/li><\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul><li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
       end
     end
 
     context "when informed feature refers to a sub***REMOVED***" do
-      let(:feature) { "***REMOVED***s" }
+      let(:feature) { "unities" }
 
       it "returns all ***REMOVED***s, but only feature sub***REMOVED*** is marked as current and your parent ***REMOVED*** is marked as open" do
         html = subject.build
 
         expect(html).to match /<ul><li class="">.+Dashboard.+<\/li>.+<\/ul>/
 
-        expect(html).to match /<ul>.+Dashboard.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-
-        expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-
-        expect(html).to match /<ul>.+***REMOVED***.+<li class="open">.+***REMOVED***.+<ul style="display: block;">.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul style="display: block;"><li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul style="display: block;">.+***REMOVED***.+<li class="current">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul style="display: block;">.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
-
-        expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+Administrativo.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Configurações gerais.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Manutenção\/Ajustes.+<\/li>.+<\/ul>.+<\/ul>/
 
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Configurações.+<ul>.+<\/ul>.+<\/li>.+<\/ul>/
-        expect(html).to match /<ul>.+Configurações.+<ul><li class="">.+Permissões.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+Configurações.+<ul>.+Permissões.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+API de integração.+<\/li>.+<\/ul>.+<\/ul>/
-
-        expect(html).to match /<ul>.+Configurações.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-
-        # expect(html).to match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<ul>.+<\/ul><\/li><\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul><li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li><\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul style="display: block;"><li class="">.+Permissões.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul style="display: block;">.+Permissões.+<li class="current">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
+        expect(html).to match /<ul>.+Configurações.+<ul style="display: block;">.+Unidades.+<li class="">.+API de integração.+<\/li>.+<\/ul>.+<\/ul>/
       end
     end
 
@@ -146,18 +77,12 @@ describe Navigation::MenuBuilder, :type => :service do
       it "returns all permitted ***REMOVED***s" do
         html = subject.build
 
-        expect(html).to_not match /<ul>.+Dashboard.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-        expect(html).to_not match /<ul>.+***REMOVED***.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-        expect(html).to_not match /<ul>.+***REMOVED***.+<li class="">/
-        expect(html).to_not match /<ul>.+***REMOVED***.+<ul>/
         expect(html).to_not match /<ul>.+Configurações.+<ul>.+Permissões.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to_not match /<ul>.+Configurações.+<ul>.+Configurações gerais.+<li class="">.+API de integração.+<\/li><\/ul>.+<\/ul>/
         expect(html).to_not match /<ul>.+Configurações.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
-        expect(html).to_not match /<ul>.+***REMOVED***.+<li class="">/
 
         expect(html).to match /<ul><li class="current">.+Dashboard.+<\/li>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+Usuários.+<\/li>.+<\/ul>.+<\/ul>/
-        expect(html).to match /<ul>.+***REMOVED***.+<ul>.+***REMOVED***.+<\/ul>.+<\/ul>/
       end
     end
   end
