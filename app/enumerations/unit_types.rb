@@ -1,3 +1,3 @@
 class UnitTypes < EnumerateIt::Base
-  associate_values :school_unit, :cost_center
+  associate_values :school_unit
 end

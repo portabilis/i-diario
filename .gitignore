@@ -15,6 +15,7 @@ config/initializers/better_errors.rb
 config/database.yml
 config/secrets.yml
 config/google_drive.json
+config/puma.rb
 /public/uploads
 /public/relatorios
 
@@ -24,6 +25,8 @@ config/google_drive.json
 
 # these should all be checked in to normalise the environment:
 # Gemfile.lock, .ruby-version, .ruby-gemset
+Gemfile.lock
+vendor/assets/javascripts/plugins.js
 
 # unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
 .rvmrc
@@ -37,3 +40,6 @@ db/structure.sql
 
 # File to backport support new postgres to rails 4
 config/initializers/backport_pg_10_support_to_rails_4.rb
+
+# Optinal plugins
+Gemfile.plugins

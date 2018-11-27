@@ -1,0 +1,28 @@
+<fieldset>
+  <legend>Anúncios e novidades do produto</legend>
+  <div class="row" style="margin-top: -20px;">
+    <div class="col col-sm-4">
+      <%= f.input :receive_news, inline_label: true, label: false, input_html: { checked: f.object.receive_news == !!f.object.receive_news ? f.object.receive_news : true } %>
+    </div>
+  </div>
+  <div class="row receive_news_options">
+    <% if f.object.can_receive_news_related_daily_teacher? %>
+      <div class="col col-sm-6" style="padding-left: 50px;">
+        <%= f.input :receive_news_related_daily_teacher, inline_label: true, label: false, input_html: { checked: f.object.receive_news_related_daily_teacher == !!f.object.receive_news_related_daily_teacher ? f.object.receive_news_related_daily_teacher : true } %>
+      </div>
+    <% end %>
+    <% if f.object.can_receive_news_related_tools_for_parents? %>
+      <div class="col col-sm-6" style="padding-left: 50px;">
+        <%= f.input :receive_news_related_tools_for_parents, inline_label: true, label: false, input_html: { checked: f.object.receive_news_related_tools_for_parents == !!f.object.receive_news_related_tools_for_parents ? f.object.receive_news_related_tools_for_parents : true } %>
+      </div>
+    <% end %>
+  </div>
+  <div class="row receive_news_options">
+    <% if f.object.can_receive_news_related_all_matters? %>
+      <div class="col col-sm-6" style="padding-left: 50px;">
+        <%= f.input :receive_news_related_all_matters, inline_label: true, label: false, input_html: { checked: f.object.receive_news_related_all_matters == !!f.object.receive_news_related_all_matters ? f.object.receive_news_related_all_matters : true } %>
+      </div>
+    <% end %>
+  </div>
+
+</fieldset>
