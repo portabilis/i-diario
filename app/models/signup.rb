@@ -159,12 +159,8 @@ class Signup
   end
 
   def presence_of_default_roles
-    if parents_default_role.blank?
-      errors.add(:parent_role, :default_role_not_found, role: "pais")
-    elsif employees_default_role.blank?
+    if employees_default_role.blank?
       errors.add(:employee_role, :default_role_not_found, role: "servidores")
-    elsif students_default_role.blank?
-      errors.add(:student_role, :default_role_not_found, role: "alunos")
     end
   end
 

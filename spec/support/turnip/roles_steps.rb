@@ -45,18 +45,6 @@ module Turnip
         wait_for(page).to have_select2_filled 'Permissão', with: 'Leitura/Escrita'
       end
 
-      within "tr#role-***REMOVED***" do
-        wait_for(page).to have_content "***REMOVED***"
-        wait_for(page).to have_select2_filled 'Permissão', with: 'Leitura/Escrita'
-      end
-
-      within "tr#role-***REMOVED***" do
-        wait_for(page).to have_content "***REMOVED***"
-        wait_for(page).to have_select2_filled 'Permissão', with: 'Sem acesso'
-
-        fill_in_select2 "Permissão", with: "Leitura"
-      end
-
       click_on 'Salvar'
 
       wait_for(page).to have_content 'Permissão foi alterada com sucesso.'

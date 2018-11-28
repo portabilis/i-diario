@@ -12,29 +12,13 @@ class Unity < ActiveRecord::Base
   has_one :address, as: :source, inverse_of: :source
   has_one :absence_justification, dependent: :restrict_with_error
 
-  has_many :origin_***REMOVED***, foreign_key: :origin_unity_id,
-    class_name: "***REMOVED***Request", dependent: :restrict_with_error
-  has_many :origin_***REMOVED***, foreign_key: :origin_unity_id,
-    class_name: "***REMOVED***", dependent: :restrict_with_error
-  has_many :destination_***REMOVED***, foreign_key: :destination_unity_id,
-    class_name: "***REMOVED***", dependent: :restrict_with_error
-  has_many :destination_***REMOVED***, foreign_key: :destination_unity_id,
-    class_name: "***REMOVED***",dependent: :restrict_with_error
-  has_many :***REMOVED***_distribution_unities
   has_many :unity_equipments
-  has_many :***REMOVED***, through: :***REMOVED***_distribution_unities
-  has_many :***REMOVED***, through: :***REMOVED***_unities
-  has_many :moved_***REMOVED***, dependent: :restrict_with_error
-  has_many :***REMOVED***, dependent: :restrict_with_error
-  has_many :***REMOVED***, dependent: :restrict_with_error
   has_many :classrooms, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, through: :classrooms, dependent: :restrict_with_error
   has_many :user_roles
   has_many :school_calendars
 
   has_and_belongs_to_many :maintenance_adjustments
-  has_and_belongs_to_many :***REMOVED***
-  has_and_belongs_to_many :***REMOVED***
   has_and_belongs_to_many :custom_rounding_tables
 
   accepts_nested_attributes_for :address, reject_if: :all_blank, allow_destroy: true
@@ -60,7 +44,6 @@ class Unity < ActiveRecord::Base
   scope :phone, lambda { |phone| where("unaccent(phone) ILIKE unaccent(?)", "%#{phone}%") }
   scope :email, lambda { |email| where("unaccent(email) ILIKE unaccent(?)", "%#{email}%") }
   scope :responsible, lambda { |responsible| where("unaccent(responsible) ILIKE unaccent(?)", "%#{responsible}%") }
-  scope :by_school_group, lambda { |school_group| joins(:***REMOVED***).where(***REMOVED***_unities: { school_group_id: school_group })  }
   scope :by_id, lambda { |unity_id| where(id: unity_id) }
 
   def to_s

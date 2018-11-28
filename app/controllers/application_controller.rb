@@ -71,7 +71,6 @@ class ApplicationController < ActionController::Base
   end
 
   def check_entity_status
-    load_status_administrative_tools
     if current_entity.disabled
       redirect_to disabled_entity_path unless disabled_entity_page?
     end
@@ -140,11 +139,6 @@ class ApplicationController < ActionController::Base
     @configuration ||= IeducarApiConfiguration.current
   end
   helper_method :current_configuration
-
-  def current_notification
-    @configuration ||= Notification.current
-  end
-  helper_method :current_notification
 
   def api
     @api ||= IeducarApi::StudentRegistrations.new(current_configuration.to_api)
@@ -302,11 +296,6 @@ class ApplicationController < ActionController::Base
   end
   helper_method :valid_current_role?
 
-  def current_user_is_parent?
-    current_user && current_user.current_user_role && current_user.current_user_role.role_parent?
-  end
-  helper_method :current_user_is_parent?
-
   def teacher_discipline_score_type
     return DisciplineScoreTypes::NUMERIC if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC
     return DisciplineScoreTypes::CONCEPT if current_user_classroom.exam_rule.score_type == ScoreTypes::CONCEPT
@@ -347,13 +336,6 @@ class ApplicationController < ActionController::Base
   end
 
   private
-
-  def load_status_administrative_tools
-    administrative_tools_informations = AdministrativeToolsIntegrator::Informations.new(current_entity.name)
-    return if administrative_tools_informations.nil?
-    current_entity.disabled = !administrative_tools_informations.active_on_new_education?
-    current_entity.save
-  end
 
   def disabled_entity_page?
     controller_name.eql?('pages') && action_name.eql?('disabled_entity')

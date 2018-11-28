@@ -6,12 +6,6 @@ RSpec.describe User, type: :model do
 
     it { expect(subject).to have_many(:logins) }
     it { expect(subject).to have_many(:synchronizations) }
-    it { expect(subject).to have_many(:***REMOVED***) }
-    it { expect(subject).to have_many(:requested_***REMOVED***) }
-    it { expect(subject).to have_many(:responsible_requested_***REMOVED***) }
-    it { expect(subject).to have_many(:responsible_***REMOVED***) }
-    it { expect(subject).to have_many(:responsible_***REMOVED***) }
-    it { expect(subject).to have_many(:***REMOVED***s) }
     it { expect(subject).to have_many(:user_roles) }
     it { expect(subject).to have_and_belong_to_many(:students) }
   end

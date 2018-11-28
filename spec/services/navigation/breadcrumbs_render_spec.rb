@@ -48,10 +48,10 @@ describe Navigation::BreadcrumbsRender, :type => :service do
     end
 
     context "when three ***REMOVED***s are informed" do
-      let(:***REMOVED***s) { [{ :type => 'begin', :path => 'root_path' }, { :type => '***REMOVED***', :icon => 'fa-cutlery' }, { :type => '***REMOVED***s', :path => '***REMOVED***s_path' }] }
+      let(:***REMOVED***s) { [{ :type => 'begin', :path => 'root_path' }, { :type => 'configurations', :icon => 'fa-cog' }, { :type => 'roles', :path => 'roles_path' }] }
 
       it "returns three breadcrumbs links" do
-        expect(subject.render(***REMOVED***s)).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\">Início</a></li> <li><a href=\"#\"><i class=\"fa fa-cutlery fa-fw\"></i> ***REMOVED***</a></li> <li><a href=\"/***REMOVED***\">***REMOVED***</a></li></ol>"
+        expect(subject.render(***REMOVED***s)).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\">Início</a></li> <li><a href=\"#\"><i class=\"fa fa-cog fa-fw\"></i> Configurações</a></li> <li><a href=\"/permissoes\">Permissões</a></li></ol>"
       end
     end
   end
