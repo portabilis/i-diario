@@ -28,9 +28,9 @@ class StudentEnrollmentsList
 
   def ensure_has_valid_params
     if search_type == :by_date
-      raise ArgumentError, "Should define date argument on search by date" unless date
+      raise ArgumentError, 'Should define date argument on search by date' unless date
     elsif search_type == :by_date_range
-      raise ArgumentError, "Should define start_at and end_at arguments on search by date range" unless start_at || end_at
+      raise ArgumentError, 'Should define start_at and end_at arguments on search by date range' unless start_at || end_at
     end
   end
 
@@ -42,11 +42,13 @@ class StudentEnrollmentsList
                                               .includes(:dependences)
                                               .active
                                               .ordered
+
     students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
     students_enrollments = students_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
     students_enrollments = reject_duplicated_students(students_enrollments)
     students_enrollments = remove_not_displayable_students(students_enrollments)
+
     students_enrollments
   end
 
@@ -110,13 +112,10 @@ class StudentEnrollmentsList
 
   def remove_not_displayable_students(students_enrollments)
     students_enrollments.reject do |student_enrollment|
-      if search_type == :by_date
-        (!student_active_on_date?(student_enrollment) && !student_displayable_as_inactive?(student_enrollment)) ||
-        (student_displayable_as_inactive?(student_enrollment) && !show_inactive)
-      elsif search_type == :by_date_range
-        (!student_active_on_date_range?(student_enrollment) && !student_displayable_as_inactive?(student_enrollment)) ||
-        (student_displayable_as_inactive?(student_enrollment) && !show_inactive)
-      end
+      next if student_active?(student_enrollment)
+      next if student_displayable_as_inactive?(student_enrollment) && show_inactive
+
+      true
     end
   end
 
