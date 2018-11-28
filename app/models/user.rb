@@ -28,32 +28,16 @@ class User < ActiveRecord::Base
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
-  has_many :***REMOVED***, dependent: :destroy
-  has_many :requested_***REMOVED***, class_name: "***REMOVED***Request",
-    foreign_key: :requestor_id, dependent: :restrict_with_error
-  has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
-    foreign_key: :responsible_id, dependent: :restrict_with_error
-  has_many :responsible_***REMOVED***, class_name: "***REMOVED***",
-    foreign_key: :responsible_id, dependent: :restrict_with_error
-  has_many :responsible_requested_***REMOVED***, class_name: "***REMOVED***RequestAuthorization",
-    foreign_key: :responsible_id, dependent: :restrict_with_error
-  has_many :***REMOVED***s, foreign_key: :author_id, dependent: :restrict_with_error
 
   has_many :system_notification_targets, dependent: :destroy
   has_many :system_***REMOVED***, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
   has_many :unread_***REMOVED***, -> { joins(:targets).where(system_notification_targets: { read: false}) },
     through: :system_notification_targets, source: :system_notification
 
-  has_many :message_targets, dependent: :destroy
-  has_many :messages, through: :message_targets, foreign_key: :author_id, dependent: :destroy
-  has_many :sent_messages, class_name: "Message", foreign_key: :author_id, dependent: :destroy
   has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
 
   has_and_belongs_to_many :students, dependent: :restrict_with_error
 
-  has_many :***REMOVED***, dependent: :restrict_with_error
-  has_many :authorization_***REMOVED***, dependent: :restrict_with_error
-  has_many :***REMOVED***, dependent: :restrict_with_error
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
   has_many :worker_states, dependent: :destroy
 
@@ -66,7 +50,6 @@ class User < ActiveRecord::Base
 
   validates_associated :user_roles
 
-  validate :uniqueness_of_student_parent_role
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
 
@@ -191,10 +174,6 @@ class User < ActiveRecord::Base
     update_column(:current_user_role_id, user_role_id)
   end
 
-  def count_unread_messages
-    message_targets.unread.active.count
-  end
-
   def read_***REMOVED***!
     system_notification_targets.read!
   end
@@ -252,38 +231,12 @@ class User < ActiveRecord::Base
     roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "teacher"].include? access_level}
   end
 
-  def can_receive_news_related_***REMOVED***?
-    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
-  end
-
   def can_receive_news_related_tools_for_parents?
     roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "parent", "student"].include? access_level}
   end
 
   def can_receive_news_related_all_matters?
     roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
-  end
-
-  def can_publish?
-    current_user_role.try(:role_teacher?) ||
-      current_user_role.try(:role_employee?) ||
-      current_user_role.try(:role_administrator?)
-  end
-
-  def update_rd_lead
-    return unless GeneralConfiguration.current.allows_after_sales_relationship?
-    return unless Rails.env.production?
-    rdstation_client = RDStation::Client.new('***REMOVED***', '***REMOVED***', 'Usuário no produto Educar+')
-
-    response = rdstation_client.create_lead({
-      :"email" => email,
-      :"Cargo" => rd_access_level,
-      :"Nome" => name,
-      :"Telefone fixo" => phone,
-      :"Empresa" => EntityConfiguration.current.entity_name,
-      :"Recebe informações do Educar plus?" => rd_matters,
-      :identificador => 'Usuário no produto Educar+'
-    })
   end
 
   def clear_allocation
@@ -305,57 +258,8 @@ class User < ActiveRecord::Base
 
   protected
 
-  def rd_matters
-    options = []
-    options << "Diário do professor" if receive_news_related_daily_teacher?
-    options << "***REMOVED*** e alimentação escolar" if receive_news_related_***REMOVED***?
-    options << "Pais e alunos" if receive_news_related_tools_for_parents?
-    options << "Todos os assuntos relacionados ao Educar+" if receive_news_related_all_matters?
-    options << "Nenhum" if options.blank?
-    options
-  end
-
-  def rd_access_level
-    access_levels = roles.map(&:access_level).uniq
-    return "administrador" if access_levels.include? "administrator"
-    return "servidor" if access_levels.include? "employee"
-    return "professor" if access_levels.include? "teacher"
-    return "pais" if access_levels.include? "parent"
-    return "alunos" if access_levels.include? "student"
-  end
-
   def email_required?
     false
-  end
-
-  def uniqueness_of_student_parent_role
-    return if user_roles.blank?
-
-    parent_roles = []
-    student_roles = []
-
-    user_roles.reject(&:marked_for_destruction?).each do |user_role|
-      _role = Role.find(user_role.role_id)
-
-      next if _role.teacher?
-
-      case _role.access_level.to_s
-      when AccessLevel::PARENT
-        if parent_roles.include?(_role)
-          errors.add(:user_roles, :invalid)
-          user_role.errors.add(:role_id, :parent_role_taken)
-        else
-          parent_roles.push(_role)
-        end
-      when AccessLevel::STUDENT
-        if student_roles.include?(_role)
-          errors.add(:user_roles, :invalid)
-          user_role.errors.add(:role_id, :student_role_taken)
-        else
-          student_roles.push(_role)
-        end
-      end
-    end
   end
 
   def presence_of_email_or_cpf
@@ -379,13 +283,11 @@ class User < ActiveRecord::Base
   def verify_receive_news_fields
     return true unless persisted?
     self.receive_news_related_daily_teacher = false unless can_receive_news_related_daily_teacher?
-    self.receive_news_related_***REMOVED*** = false unless can_receive_news_related_***REMOVED***?
     self.receive_news_related_tools_for_parents = false unless can_receive_news_related_tools_for_parents?
     self.receive_news_related_all_matters = false unless can_receive_news_related_all_matters?
 
     if !receive_news?
       self.receive_news_related_daily_teacher = false
-      self.receive_news_related_***REMOVED*** = false
       self.receive_news_related_tools_for_parents = false
       self.receive_news_related_all_matters = false
     end
@@ -394,7 +296,7 @@ class User < ActiveRecord::Base
 
   def validate_receive_news_fields
     if receive_news? && !(
-        receive_news_related_daily_teacher? || receive_news_related_***REMOVED***? ||
+        receive_news_related_daily_teacher? ||
          receive_news_related_tools_for_parents? || receive_news_related_all_matters?)
       errors.add(:receive_news, :must_fill_receive_news_options)
     end

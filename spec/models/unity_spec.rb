@@ -5,12 +5,7 @@ RSpec.describe Unity, :type => :model do
   context "associations" do
     it { should belong_to :author }
     it { should have_one :address }
-    it { should have_many :origin_***REMOVED*** }
-    it { should have_many :origin_***REMOVED*** }
-    it { should have_many :destination_***REMOVED*** }
-    it { should have_many :destination_***REMOVED*** }
     it { should have_many :unity_equipments }
-    it { should have_and_belong_to_many :***REMOVED*** }
   end
 
   context "Validations" do

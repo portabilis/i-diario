@@ -72,11 +72,6 @@ module Turnip
     end
 
     step "poderei excluir uma unidade" do
-      ***REMOVED***.destroy_all
-      ***REMOVED***.destroy_all
-      ***REMOVED***RequestAuthorization.destroy_all
-      ***REMOVED***Request.destroy_all
-
       wait_for(page).to have_content 'Escola Z'
       click_on 'Excluir Escola Z'
 

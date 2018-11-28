@@ -19,7 +19,6 @@ class FeaturesAccessLevels
       :avaliation_recovery_diary_records,
       :avaliations,
       :conceptual_exams,
-      :***REMOVED***,
       :daily_frequencies,
       :daily_notes,
       :descriptive_exams,
@@ -34,10 +33,8 @@ class FeaturesAccessLevels
       :knowledge_area_lesson_plan_report,
       :knowledge_area_lesson_plans,
       :knowledge_area_teaching_plans,
-      :messages,
       :observation_diary_records,
       :observation_record_report,
-      :***REMOVED***,
       :school_calendar_events,
       :school_calendars,
       :school_term_recovery_diary_records,
@@ -54,13 +51,7 @@ class FeaturesAccessLevels
     [
       :begin,
       :accounts,
-      :dashboard,
-      :***REMOVED***,
-      :***REMOVED***,
-      :messages,
-      :***REMOVED***s,
-      :***REMOVED***,
-      :***REMOVED***
+      :dashboard
     ]
   end
 
@@ -68,12 +59,7 @@ class FeaturesAccessLevels
     [
       :begin,
       :accounts,
-      :dashboard,
-      :***REMOVED***,
-      :***REMOVED***,
-      :messages,
-      :***REMOVED***,
-      :***REMOVED***
+      :dashboard
     ]
   end
 
@@ -83,8 +69,6 @@ class FeaturesAccessLevels
       :data_exportations,
       :entity_configurations,
       :general_configurations,
-      :***REMOVED***,
-      :***REMOVED***_configs,
       :roles,
       :unities,
       :terms_dictionaries

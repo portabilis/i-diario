@@ -19,10 +19,10 @@ describe Navigation::TitleBuilder, :type => :service do
         end
 
         context "and this feature is a sub***REMOVED***" do
-          let(:feature) { "***REMOVED***s" }
+          let(:feature) { "roles" }
 
           it "returns the ***REMOVED*** icon and the sub***REMOVED*** title text" do
-            expect(subject.build).to eq "<i class=\"fa fa-fw fa-cutlery\"></i> ***REMOVED***"
+            expect(subject.build).to eq "<i class=\"fa fa-fw fa-cog\"></i> Permissões"
           end
         end
       end
@@ -39,10 +39,10 @@ describe Navigation::TitleBuilder, :type => :service do
         end
 
         context "and this feature is a sub***REMOVED***" do
-          let(:feature) { "***REMOVED***s" }
+          let(:feature) { "roles" }
 
           it "returns the sub***REMOVED*** title text" do
-            expect(subject.build).to eq "***REMOVED***"
+            expect(subject.build).to eq "Permissões"
           end
         end
       end

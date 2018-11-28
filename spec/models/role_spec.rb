@@ -35,9 +35,9 @@ RSpec.describe Role, :type => :model do
   describe "#to_s" do
     it "returns name" do
       subject.name = "administrador"
-      subject.access_level = AccessLevel::PARENT
+      subject.access_level = AccessLevel::TEACHER
 
-      expect(subject.to_s).to eq "administrador - Nível: Pais"
+      expect(subject.to_s).to eq "administrador - Nível: Professor"
     end
   end
 end

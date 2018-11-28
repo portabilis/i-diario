@@ -14,10 +14,10 @@ describe Navigation::BreadcrumbsBuilder, :type => :service do
    end
 
     context "when a sub***REMOVED*** is informed" do
-      let(:feature) { "***REMOVED***s" }
+      let(:feature) { "roles" }
 
       it "returns breadcrumbs with the links begin, ***REMOVED*** and sub***REMOVED***" do
-        expect(subject.build).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\">Início</a></li> <li><a href=\"#\"><i class=\"fa fa-cutlery fa-fw\"></i> ***REMOVED***</a></li> <li><a href=\"/***REMOVED***\">***REMOVED***</a></li></ol>"
+        expect(subject.build).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\">Início</a></li> <li><a href=\"#\"><i class=\"fa fa-cog fa-fw\"></i> Configurações</a></li> <li><a href=\"/permissoes\">Permissões</a></li></ol>"
       end
     end
 
