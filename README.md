@@ -14,7 +14,7 @@ $ gem install bundler
 - Baixar o novo educação:
 
 ```bash
-$ git clone https://github.com/portabilis/novo-educacao.gi
+$ git clone https://github.com/portabilis/novo-educacao.git
 ```
 
 - Instalar as gems:
