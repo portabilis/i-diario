@@ -1,4 +1,4 @@
-# Novo Educação
+# i-Diário
 
 Portal do professor integrado com o software livre [i-Educar](https://github.com/portabilis/i-educar)
 
@@ -11,16 +11,16 @@ Portal do professor integrado com o software livre [i-Educar](https://github.com
 $ gem install bundler
 ```
 
-- Baixar o novo educação:
+- Baixar o i-Diário:
 
 ```bash
-$ git clone https://github.com/portabilis/novo-educacao.git
+$ git clone https://github.com/portabilis/i-diario.git
 ```
 
 - Instalar as gems:
 
 ```bash
-$ cd novo-educacao
+$ cd i-diario
 $ bundle install
 ```
 
@@ -47,7 +47,7 @@ $ bundle exec rake db:migrate
 - Criar uma entidade:
 
 ```bash
-$ bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_educacao
+$ bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
 ```
 
 - Criar um usuário administrador:
@@ -72,7 +72,7 @@ $ bundle exec rails server
 - Acessar Calendário letivo, clicar em **Sincronizar** e configurar os calendários
 - Acessar Configurações > Api de Integração e clicar no botão de sincronizar
 
-_Nota: Após esses primeiros passos, recomendamos que a sincronização rode pelo menos diariamente para manter o Novo Educação atualizado com o i-Educar_
+_Nota: Após esses primeiros passos, recomendamos que a sincronização rode pelo menos diariamente para manter o i-Diário atualizado com o i-Educar_
 
 ## Rodar os testes
 
