@@ -54,7 +54,8 @@ module ExamPoster
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             next unless school_term_recovery
 
-            value = StudentAverageCalculator.new(student_score).calculate(classroom, discipline, @post_data.step)
+            value = StudentAverageCalculator.new(student_score)
+                                            .calculate(classroom, discipline, get_step(classroom))
             recovery_value = ScoreRounder.new(classroom).round(school_term_recovery)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
@@ -64,7 +65,7 @@ module ExamPoster
             teacher,
             classroom,
             discipline,
-            @post_data.step
+            get_step(classroom)
           )
           students_only_with_recovery_fetcher.fetch!
           students_without_daily_notes = students_only_with_recovery_fetcher.recoveries || []

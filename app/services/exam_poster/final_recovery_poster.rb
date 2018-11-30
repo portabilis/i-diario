@@ -53,16 +53,18 @@ module ExamPoster
       final_recovery_diary_records = []
 
       teacher_discipline_classrooms.each do |teacher_discipline_classroom|
+        classroom_step = get_step(teacher_discipline_classroom.classroom)
+
         exempted_discipline_ids =
           ExemptedDisciplinesInStep.discipline_ids(
             teacher_discipline_classroom.classroom_id,
-            get_step(teacher_discipline_classroom.classroom).to_number
+            classroom_step.to_number
           )
 
         next if exempted_discipline_ids.include?(teacher_discipline_classroom.discipline_id)
 
         final_recovery_diary_record =
-          FinalRecoveryDiaryRecord.by_school_calendar_id(@post_data.step.school_calendar_id)
+          FinalRecoveryDiaryRecord.by_school_calendar_id(classroom_step.school_calendar_id)
                                   .by_classroom_id(teacher_discipline_classroom.classroom.id)
                                   .by_discipline_id(teacher_discipline_classroom.discipline_id)
                                   .first
@@ -75,13 +77,9 @@ module ExamPoster
 
     def teacher_discipline_classrooms
       @post_data.author.current_teacher.teacher_discipline_classrooms.select do |teacher_discipline_classroom|
-        valid_unity?(teacher_discipline_classroom.classroom.unity_id) &&
+        same_unity?(teacher_discipline_classroom.classroom.unity_id) &&
           valid_score_type?(teacher_discipline_classroom.classroom.exam_rule.score_type)
       end
-    end
-
-    def valid_unity?(unity_id)
-      unity_id == @post_data.step.school_calendar.unity_id
     end
 
     def valid_score_type?(score_type)
