@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=***REMOVED***&etapa=1&faltas=1&instituicao_id=1&oper=post&resource=faltas-geral&secret_key=***REMOVED***
+    uri: https://test.ieducar.com.br/module/Api/Diario?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&etapa=1&faltas=1&instituicao_id=1&oper=post&resource=faltas-geral&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: ASCII-8BIT
       string: ''

@@ -2,7 +2,7 @@ class SystemNotificationsController < ApplicationController
   respond_to :json, only: :index
 
   def read_all
-    current_user.read_***REMOVED***!
+    current_user.read_notifications!
 
     render json: :ok
   end
@@ -10,8 +10,8 @@ class SystemNotificationsController < ApplicationController
   def index
     render(
       json: {
-        system_***REMOVED***: ActiveModel::ArraySerializer.new(current_user.system_***REMOVED***.limit(10).ordered, each_serializer: SystemNotificationSerializer),
-        unread_***REMOVED***_count: current_user.unread_***REMOVED***.count
+        system_notifications: ActiveModel::ArraySerializer.new(current_user.system_notifications.limit(10).ordered, each_serializer: SystemNotificationSerializer),
+        unread_notifications_count: current_user.unread_notifications.count
       }
     )
   end

@@ -774,7 +774,7 @@ try {
 function Sizzle( selector, context, results, seed ) {
 	var match, elem, m, nodeType,
 		// QSA vars
-		i, ***REMOVED***, old, nid, newContext, newSelector;
+		i, groups, old, nid, newContext, newSelector;
 
 	if ( ( context ? context.ownerDocument || context : preferredDoc ) !== document ) {
 		setDocument( context );
@@ -843,7 +843,7 @@ function Sizzle( selector, context, results, seed ) {
 			// and working up from there (Thanks to Andrew Dupont for the technique)
 			// IE 8 doesn't work on object elements
 			if ( nodeType === 1 && context.nodeName.toLowerCase() !== "object" ) {
-				***REMOVED*** = tokenize( selector );
+				groups = tokenize( selector );
 
 				if ( (old = context.getAttribute("id")) ) {
 					nid = old.replace( rescape, "\\$&" );
@@ -852,12 +852,12 @@ function Sizzle( selector, context, results, seed ) {
 				}
 				nid = "[id='" + nid + "'] ";
 
-				i = ***REMOVED***.length;
+				i = groups.length;
 				while ( i-- ) {
-					***REMOVED***[i] = nid + toSelector( ***REMOVED***[i] );
+					groups[i] = nid + toSelector( groups[i] );
 				}
 				newContext = rsibling.test( selector ) && testContext( context.parentNode ) || context;
-				newSelector = ***REMOVED***.join(",");
+				newSelector = groups.join(",");
 			}
 
 			if ( newSelector ) {
@@ -2022,7 +2022,7 @@ Expr.setFilters = new setFilters();
 
 function tokenize( selector, parseOnly ) {
 	var matched, match, tokens, type,
-		soFar, ***REMOVED***, preFilters,
+		soFar, groups, preFilters,
 		cached = tokenCache[ selector + " " ];
 
 	if ( cached ) {
@@ -2030,7 +2030,7 @@ function tokenize( selector, parseOnly ) {
 	}
 
 	soFar = selector;
-	***REMOVED*** = [];
+	groups = [];
 	preFilters = Expr.preFilter;
 
 	while ( soFar ) {
@@ -2041,7 +2041,7 @@ function tokenize( selector, parseOnly ) {
 				// Don't consume trailing commas as valid
 				soFar = soFar.slice( match[0].length ) || soFar;
 			}
-			***REMOVED***.push( (tokens = []) );
+			groups.push( (tokens = []) );
 		}
 
 		matched = false;
@@ -2084,7 +2084,7 @@ function tokenize( selector, parseOnly ) {
 		soFar ?
 			Sizzle.error( selector ) :
 			// Cache the tokens
-			tokenCache( selector, ***REMOVED*** ).slice( 0 );
+			tokenCache( selector, groups ).slice( 0 );
 }
 
 function toSelector( tokens ) {
@@ -2333,7 +2333,7 @@ function matcherFromTokens( tokens ) {
 	return elementMatcher( matchers );
 }
 
-function matcherFrom***REMOVED***Matchers( elementMatchers, setMatchers ) {
+function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 	var bySet = setMatchers.length > 0,
 		byElement = elementMatchers.length > 0,
 		superMatcher = function( seed, context, xml, results, outermost ) {
@@ -2454,7 +2454,7 @@ compile = Sizzle.compile = function( selector, group /* Internal Use Only */ ) {
 		}
 
 		// Cache the compiled function
-		cached = compilerCache( selector, matcherFrom***REMOVED***Matchers( elementMatchers, setMatchers ) );
+		cached = compilerCache( selector, matcherFromGroupMatchers( elementMatchers, setMatchers ) );
 	}
 	return cached;
 };
@@ -4231,7 +4231,7 @@ var rcheckableType = (/^(?:checkbox|radio)$/i);
 
 var rformElems = /^(?:input|select|textarea)$/i,
 	rkeyEvent = /^key/,
-	rmouseEvent = /^(?:mouse|context***REMOVED***)|click/,
+	rmouseEvent = /^(?:mouse|contextmenu)|click/,
 	rfocusMorph = /^(?:focusinfocus|focusoutblur)$/,
 	rtypenamespace = /^([^.]*)(?:\.(.+)|)$/;
 
@@ -8279,7 +8279,7 @@ if ( !support.optSelected ) {
 			if ( parent ) {
 				parent.selectedIndex;
 
-				// Make sure that it also works with opt***REMOVED***, see #5701
+				// Make sure that it also works with optgroups, see #5701
 				if ( parent.parentNode ) {
 					parent.parentNode.selectedIndex;
 				}
@@ -8469,7 +8469,7 @@ jQuery.fn.extend({
 
 jQuery.each( ("blur focus focusin focusout load resize scroll unload click dblclick " +
 	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave " +
-	"change select submit keydown keypress keyup error context***REMOVED***").split(" "), function( i, name ) {
+	"change select submit keydown keypress keyup error contextmenu").split(" "), function( i, name ) {
 
 	// Handle event binding
 	jQuery.fn[ name ] = function( data, fn ) {

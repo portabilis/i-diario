@@ -47,7 +47,7 @@ RSpec.configure do |config|
     end
 
     config.after(:each) do
-      Bullet.perform_out_of_channel_***REMOVED*** if Bullet.notification?
+      Bullet.perform_out_of_channel_notifications if Bullet.notification?
       Bullet.end_request
       Bullet.raise = false
     end

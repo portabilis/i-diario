@@ -1,4 +1,4 @@
-class Add***REMOVED***AndRemoveClassNumberFromAvaliations < ActiveRecord::Migration
+class AddClassesAndRemoveClassNumberFromAvaliations < ActiveRecord::Migration
   def change
     add_column :avaliations, :classes, :integer, array: true, default: []
 

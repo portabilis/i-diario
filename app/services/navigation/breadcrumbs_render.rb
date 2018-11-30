@@ -1,9 +1,9 @@
 module Navigation
   class BreadcrumbsRender < Navigation::Render::Base
-    def render(***REMOVED***s)
+    def render(menus)
       content_tag :ol, :class => 'breadcrumb' do
-        items = ***REMOVED***s.map do |***REMOVED***_item|
-          render_item(***REMOVED***_item)
+        items = menus.map do |menu_item|
+          render_item(menu_item)
         end
 
         raw items.join(" ")

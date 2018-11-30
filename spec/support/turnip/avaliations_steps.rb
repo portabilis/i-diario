@@ -54,7 +54,7 @@ module Turnip
     end
 
     step 'que acesso a listagem de avaliações' do
-      click_***REMOVED*** 'Avaliações > Avaliações numéricas'
+      click_menu 'Avaliações > Avaliações numéricas'
     end
 
     step 'eu entrar no formulário de nova avaliação' do

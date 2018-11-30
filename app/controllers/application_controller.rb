@@ -24,7 +24,7 @@ class ApplicationController < ActionController::Base
   before_action :check_entity_status
   before_action :authenticate_user!, unless: :disabled_entity_page?
   before_action :configure_permitted_parameters, if: :devise_controller?
-  before_action :check_for_***REMOVED***
+  before_action :check_for_notifications
   before_action :check_for_current_user_role
 
   has_scope :q do |controller, scope, value|
@@ -99,7 +99,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def check_for_***REMOVED***
+  def check_for_notifications
     return unless current_user
 
     if synchronization = current_user.synchronizations.completed_unnotified

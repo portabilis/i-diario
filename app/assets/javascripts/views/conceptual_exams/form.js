@@ -199,13 +199,13 @@ $(function() {
       });
 
       var element_counter = 0;
-      var disciplines***REMOVED***edByKnowledgeArea = _.groupBy(disciplines, function(discipline) {
+      var disciplinesGroupedByKnowledgeArea = _.groupBy(disciplines, function(discipline) {
         return discipline.knowledge_area_description;
       });
 
       $('#conceptual_exam_values').html('');
 
-      _.each(disciplines***REMOVED***edByKnowledgeArea, function(disciplines, knowledge_area_sequence) {
+      _.each(disciplinesGroupedByKnowledgeArea, function(disciplines, knowledge_area_sequence) {
         var knowledge_area = disciplines[0].knowledge_area_description;
         var knowledgeAreaTableRowHtml = '<tr class="knowledge-area-table-row"><td class="knowledge-area-table-data" colspan="' +
                                          (2 + old_values.length) + '"><strong>' + knowledge_area + '</strong></td></tr>';

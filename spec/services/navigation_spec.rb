@@ -14,11 +14,11 @@ describe Navigation, :type => :service do
     end
   end
 
-  describe ".draw_***REMOVED***s" do
+  describe ".draw_menus" do
     it "calls Navigation::MenuBuilder.build" do
       expect(Navigation::MenuBuilder).to receive(:build).with(item, context)
 
-      subject.draw_***REMOVED***s(item, context)
+      subject.draw_menus(item, context)
     end
   end
 

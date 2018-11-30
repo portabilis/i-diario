@@ -10,18 +10,18 @@ describe Navigation::TitleBuilder, :type => :service do
       context "when icon is marked for show" do
         let(:show_icon) { true }
 
-        context "and this feature is a ***REMOVED***" do
+        context "and this feature is a menu" do
           let(:feature) { "dashboard" }
 
-          it "returns the ***REMOVED*** icon and the ***REMOVED*** title text" do
+          it "returns the menu icon and the menu title text" do
             expect(subject.build).to eq "<i class=\"fa fa-fw fa-home\"></i> Dashboard"
           end
         end
 
-        context "and this feature is a sub***REMOVED***" do
+        context "and this feature is a submenu" do
           let(:feature) { "roles" }
 
-          it "returns the ***REMOVED*** icon and the sub***REMOVED*** title text" do
+          it "returns the menu icon and the submenu title text" do
             expect(subject.build).to eq "<i class=\"fa fa-fw fa-cog\"></i> Permissões"
           end
         end
@@ -30,18 +30,18 @@ describe Navigation::TitleBuilder, :type => :service do
       context "when icon is not marked for show" do
         let(:show_icon) { false }
 
-        context "and this feature is a ***REMOVED***" do
+        context "and this feature is a menu" do
           let(:feature) { "dashboard" }
 
-          it "returns the ***REMOVED*** title text" do
+          it "returns the menu title text" do
             expect(subject.build).to eq "Dashboard"
           end
         end
 
-        context "and this feature is a sub***REMOVED***" do
+        context "and this feature is a submenu" do
           let(:feature) { "roles" }
 
-          it "returns the sub***REMOVED*** title text" do
+          it "returns the submenu title text" do
             expect(subject.build).to eq "Permissões"
           end
         end

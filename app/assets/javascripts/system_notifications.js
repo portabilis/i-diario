@@ -1,6 +1,6 @@
 $(function () {
   var readAllNotifications = function () {
-    $.post(Routes.read_all_***REMOVED***_pt_br_path());
+    $.post(Routes.read_all_notifications_pt_br_path());
   };
 
   // ACTIVITY
@@ -39,7 +39,7 @@ $(function () {
     var $this = $(this);
 
     url = $this.attr('id');
-    container = $('.ajax-***REMOVED***');
+    container = $('.ajax-notifications');
 
     loadURL(url, container);
 

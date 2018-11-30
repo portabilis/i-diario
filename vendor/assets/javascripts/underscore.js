@@ -333,7 +333,7 @@
     return result;
   };
 
-  // ***REMOVED***s the object's values by a criterion. Pass either a string attribute
+  // Groups the object's values by a criterion. Pass either a string attribute
   // to group by, or a function that returns the criterion.
   _.groupBy = function(obj, value, context) {
     return group(obj, value, context, function(result, key, value) {

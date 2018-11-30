@@ -20,13 +20,13 @@ module Navigation
 
     def find_title(nodes, parent_icon = nil)
       nodes.each do |node|
-        node = node["***REMOVED***"]
+        node = node["menu"]
 
         if node["type"] == item
           title[:icon] = node["icon"] || parent_icon
           title[:type] = item
-        elsif node["sub***REMOVED***s"].present?
-          find_title node["sub***REMOVED***s"], (node["icon"] || parent_icon)
+        elsif node["submenus"].present?
+          find_title node["submenus"], (node["icon"] || parent_icon)
         end
       end
     end

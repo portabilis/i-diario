@@ -48,15 +48,15 @@
       </div> %>
 
       <div class="pull-right" style="margin-top: 10px;">
-        <!-- collapse ***REMOVED*** button -->
-        <div id="hide-***REMOVED***" class="btn-header pull-right">
+        <!-- collapse menu button -->
+        <div id="hide-menu" class="btn-header pull-right">
           <span>
             <a href="javascript:void(0);" data-action="toggleMenu" title="Exibir/Esconder o Menu">
               <i class="fa fa-reorder"></i>
             </a>
           </span>
         </div>
-        <!-- end collapse ***REMOVED*** -->
+        <!-- end collapse menu -->
 
         <% if user_signed_in? %>
           <!-- logout button -->
@@ -67,7 +67,7 @@
           </div>
           <!-- logout button -->
 
-          <%= render 'layouts/system_***REMOVED***' %>
+          <%= render 'layouts/system_notifications' %>
 
 
         <% end %>

@@ -17,16 +17,16 @@
                 }
                 0 !== opts.repeat && isNaN(opts.integerDigits) && (opts.integerDigits = opts.repeat), 
                 opts.repeat = 0, opts.groupSeparator === opts.radixPoint && ("." === opts.radixPoint ? opts.groupSeparator = "," : "," === opts.radixPoint ? opts.groupSeparator = "." : opts.groupSeparator = ""), 
-                " " === opts.groupSeparator && (opts.skipOptionalPartCharacter = void 0), opts.auto***REMOVED*** = opts.auto***REMOVED*** && "" !== opts.groupSeparator;
+                " " === opts.groupSeparator && (opts.skipOptionalPartCharacter = void 0), opts.autoGroup = opts.autoGroup && "" !== opts.groupSeparator;
                 var seps = "+", mod = 0;
-                opts.auto***REMOVED*** && ("string" == typeof opts.groupSize && isFinite(opts.groupSize) && (opts.groupSize = parseInt(opts.groupSize)), 
+                opts.autoGroup && ("string" == typeof opts.groupSize && isFinite(opts.groupSize) && (opts.groupSize = parseInt(opts.groupSize)), 
                 isFinite(opts.integerDigits) && (seps = Math.floor(opts.integerDigits / opts.groupSize), 
                 mod = opts.integerDigits % opts.groupSize)), opts.placeholder.length > 1 && (opts.placeholder = opts.placeholder.charAt(0)), 
                 opts.jitMasking === !0 && opts.placeholder.length > 0 && (opts.jitMasking = 1), 
                 opts.radixFocus = opts.radixFocus && "" !== opts.placeholder && opts.integerOptional === !0, 
                 opts.definitions[";"] = opts.definitions["~"], opts.definitions[";"].definitionSymbol = "~";
                 var mask = autoEscape(opts.prefix);
-                return mask += "[+]", opts.auto***REMOVED*** ? (mask += "(" + opts.groupSeparator + "~{" + opts.groupSize + "}){" + seps + "}", 
+                return mask += "[+]", opts.autoGroup ? (mask += "(" + opts.groupSeparator + "~{" + opts.groupSize + "}){" + seps + "}", 
                 mod > 0 && (mask += "~{" + mod + "}")) : mask += "~{" + opts.integerDigits + "}", 
                 void 0 !== opts.digits && (isNaN(opts.digits) || parseInt(opts.digits) > 0) && (opts.digitsOptional ? mask += "[" + (opts.decimalProtect ? ":" : opts.radixPoint) + ";{1," + opts.digits + "}]" : (mask += (opts.decimalProtect ? ":" : opts.radixPoint) + ";{" + opts.digits + "}", 
                 isFinite(opts.jitMasking) && opts.jitMasking < 1 + opts.radixPoint.length + (isFinite(opts.digits) ? opts.digits : 2) && (opts.jitMasking = 1 + opts.radixPoint.length + (isFinite(opts.digits) ? opts.digits : 2)))), 
@@ -41,7 +41,7 @@
             radixFocus: !0,
             groupSize: 3,
             groupSeparator: "",
-            auto***REMOVED***: !1,
+            autoGroup: !1,
             allowPlus: !0,
             allowMinus: !0,
             negationSymbol: {
@@ -270,8 +270,8 @@
                 }
                 if (0 !== opts.repeat && isNaN(opts.integerDigits) && (opts.integerDigits = opts.repeat), 
                 opts.repeat = 0, opts.groupSeparator === opts.radixPoint && ("." === opts.radixPoint ? opts.groupSeparator = "," : "," === opts.radixPoint ? opts.groupSeparator = "." : opts.groupSeparator = ""), 
-                " " === opts.groupSeparator && (opts.skipOptionalPartCharacter = void 0), opts.auto***REMOVED*** = opts.auto***REMOVED*** && "" !== opts.groupSeparator, 
-                opts.auto***REMOVED*** && ("string" == typeof opts.groupSize && isFinite(opts.groupSize) && (opts.groupSize = parseInt(opts.groupSize)), 
+                " " === opts.groupSeparator && (opts.skipOptionalPartCharacter = void 0), opts.autoGroup = opts.autoGroup && "" !== opts.groupSeparator, 
+                opts.autoGroup && ("string" == typeof opts.groupSize && isFinite(opts.groupSize) && (opts.groupSize = parseInt(opts.groupSize)), 
                 isFinite(opts.integerDigits))) {
                     var seps = Math.floor(opts.integerDigits / opts.groupSize), mod = opts.integerDigits % opts.groupSize;
                     opts.integerDigits = parseInt(opts.integerDigits) + (0 === mod ? seps - 1 : seps), 
@@ -294,7 +294,7 @@
             radixFocus: !0,
             groupSize: 3,
             groupSeparator: "",
-            auto***REMOVED***: !1,
+            autoGroup: !1,
             allowPlus: !0,
             allowMinus: !0,
             negationSymbol: {
@@ -329,9 +329,9 @@
                 charAtPos === opts.groupSeparator && (cbuf.splice(pos--, 1), charAtPos = cbuf[pos]), 
                 reformatOnly ? charAtPos !== opts.radixPoint && (cbuf[pos] = "?") : cbuf.splice(pos, 0, "?");
                 var bufVal = cbuf.join(""), bufValOrigin = bufVal;
-                if (bufVal.length > 0 && opts.auto***REMOVED*** || reformatOnly && -1 !== bufVal.indexOf(opts.groupSeparator)) {
-                    var escaped***REMOVED***Separator = Inputmask.escapeRegex(opts.groupSeparator);
-                    needsRefresh = 0 === bufVal.indexOf(opts.groupSeparator), bufVal = bufVal.replace(new RegExp(escaped***REMOVED***Separator, "g"), "");
+                if (bufVal.length > 0 && opts.autoGroup || reformatOnly && -1 !== bufVal.indexOf(opts.groupSeparator)) {
+                    var escapedGroupSeparator = Inputmask.escapeRegex(opts.groupSeparator);
+                    needsRefresh = 0 === bufVal.indexOf(opts.groupSeparator), bufVal = bufVal.replace(new RegExp(escapedGroupSeparator, "g"), "");
                     var radixSplit = bufVal.split(opts.radixPoint);
                     if (bufVal = "" === opts.radixPoint ? bufVal : radixSplit[0], bufVal !== opts.prefix + "?0" && bufVal.length >= opts.groupSize + opts.prefix.length) for (var reg = new RegExp("([-+]?[\\d?]+)([\\d?]{" + opts.groupSize + "})"); reg.test(bufVal); ) bufVal = bufVal.replace(reg, "$1" + opts.groupSeparator + "$2"), 
                     bufVal = bufVal.replace(opts.groupSeparator + opts.groupSeparator, opts.groupSeparator);
@@ -382,7 +382,7 @@
                         }
                     }
                 }
-                if (opts.auto***REMOVED***) {
+                if (opts.autoGroup) {
                     var rslt = opts.postFormat(buffer, opts.numericInput ? caretPos : caretPos - 1, !0, opts);
                     return rslt.caret = caretPos <= opts.prefix.length ? rslt.pos : rslt.pos + 1, rslt;
                 }
@@ -655,7 +655,7 @@
             groupSeparator: ",",
             alias: "numeric",
             placeholder: "0",
-            auto***REMOVED***: !0,
+            autoGroup: !0,
             digits: 2,
             digitsOptional: !1,
             clearMaskOnLostFocus: !1
@@ -673,7 +673,7 @@
             digits: 2,
             radixPoint: ".",
             placeholder: "0",
-            auto***REMOVED***: !1,
+            autoGroup: !1,
             min: 0,
             max: 100,
             suffix: " %",

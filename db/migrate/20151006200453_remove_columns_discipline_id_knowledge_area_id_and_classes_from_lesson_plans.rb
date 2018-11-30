@@ -1,4 +1,4 @@
-class RemoveColumnsDisciplineIdKnowledgeAreaIdAnd***REMOVED***FromLessonPlans < ActiveRecord::Migration
+class RemoveColumnsDisciplineIdKnowledgeAreaIdAndClassesFromLessonPlans < ActiveRecord::Migration
   def change
     execute <<-SQL
       INSERT INTO discipline_lesson_plans(lesson_plan_id, discipline_id, classes)

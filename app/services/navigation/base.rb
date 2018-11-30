@@ -17,8 +17,8 @@ module Navigation
 
     attr_reader :navigation, :item, :navigation_render
 
-    def ***REMOVED***s
-      @***REMOVED***s ||= []
+    def menus
+      @menus ||= []
     end
   end
 end

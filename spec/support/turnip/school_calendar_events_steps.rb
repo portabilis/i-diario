@@ -2,7 +2,7 @@
 module Turnip
   module SchoolCalendarEventsSteps
     step 'que acesso a listagem de eventos do calendário letivo' do
-      click_***REMOVED*** 'Calendário letivo'
+      click_menu 'Calendário letivo'
 
       click_on 'Eventos'
     end
@@ -30,7 +30,7 @@ module Turnip
     end
 
     step 'que existe um evento do calendário letivo cadastrada' do
-      click_***REMOVED*** 'Calendário letivo'
+      click_menu 'Calendário letivo'
 
       click_on 'Eventos'
 

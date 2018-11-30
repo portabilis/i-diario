@@ -11,7 +11,7 @@ module Turnip
     end
 
     step 'que acesso a listagem de calendários letivos' do
-      click_***REMOVED*** 'Calendário letivo'
+      click_menu 'Calendário letivo'
     end
 
     step 'eu clicar em Sincronizar' do
@@ -29,7 +29,7 @@ module Turnip
     end
 
     step 'que existe um calendário letivo cadastrada' do
-      click_***REMOVED*** 'Calendário letivo'
+      click_menu 'Calendário letivo'
 
       within '#resources > tbody > tr:nth-child(1)' do
         wait_for(page).to have_content "2015"

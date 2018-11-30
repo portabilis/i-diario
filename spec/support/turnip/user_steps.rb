@@ -5,7 +5,7 @@ module Turnip
     end
 
     step "que acesso a listagem de usuários" do
-      click_***REMOVED*** 'Configurações > Usuários'
+      click_menu 'Configurações > Usuários'
     end
 
     step "eu entrar no formulário de um usuário pendente" do

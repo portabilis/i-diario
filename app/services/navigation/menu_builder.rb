@@ -5,52 +5,52 @@ module Navigation
     end
 
     def build
-      amount_***REMOVED***s
+      amount_menus
       render
     end
 
     protected
 
-    def amount_***REMOVED***s
-      amount_nodes navigation do |***REMOVED***|
-        ***REMOVED***s << ***REMOVED***
+    def amount_menus
+      amount_nodes navigation do |menu|
+        menus << menu
       end
     end
 
-    def amount_nodes(nodes, parent_***REMOVED*** = nil)
+    def amount_nodes(nodes, parent_menu = nil)
       nodes ||= []
 
       nodes.select do |node|
-        visible = node["***REMOVED***"]["visible"]
-        next if (!visible.nil? && visible == false) || (visible == 'only-when-active' && node["***REMOVED***"]["type"] != item)
-        yield node_values(node["***REMOVED***"], parent_***REMOVED***)
+        visible = node["menu"]["visible"]
+        next if (!visible.nil? && visible == false) || (visible == 'only-when-active' && node["menu"]["type"] != item)
+        yield node_values(node["menu"], parent_menu)
       end
     end
 
-    def node_values(node, parent_***REMOVED***)
-      {}.tap do |***REMOVED***|
-        ***REMOVED***[:type]      = node["type"]
-        ***REMOVED***[:icon]      = node["icon"]
-        ***REMOVED***[:path]      = node["path"]
-        ***REMOVED***[:visible]   = node["visible"]
-        ***REMOVED***[:css_class] = []
-        ***REMOVED***[:subnodes]  = []
+    def node_values(node, parent_menu)
+      {}.tap do |menu|
+        menu[:type]      = node["type"]
+        menu[:icon]      = node["icon"]
+        menu[:path]      = node["path"]
+        menu[:visible]   = node["visible"]
+        menu[:css_class] = []
+        menu[:subnodes]  = []
 
-        if ***REMOVED***[:type] == item
-          ***REMOVED***[:css_class] << :current
-          parent_***REMOVED***[:css_class] << :open if parent_***REMOVED***
+        if menu[:type] == item
+          menu[:css_class] << :current
+          parent_menu[:css_class] << :open if parent_menu
         end
 
-        node["sub***REMOVED***s"] ||= []
-        amount_nodes node["sub***REMOVED***s"], ***REMOVED*** do |subnode|
-          ***REMOVED***[:subnodes] << subnode
+        node["submenus"] ||= []
+        amount_nodes node["submenus"], menu do |subnode|
+          menu[:subnodes] << subnode
         end
         true
       end
     end
 
     def render
-      navigation_render.render(***REMOVED***s)
+      navigation_render.render(menus)
     end
   end
 end

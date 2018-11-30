@@ -90,7 +90,7 @@
         <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
           <%= t('.print') %> <span class="caret"></span>
         </button>
-        <ul class="dropdown-***REMOVED***">
+        <ul class="dropdown-menu">
           <li>
             <%= link_to(t('.by_month'), attendance_record_report_path(attendance_record_report_form: params_for_print_month(@daily_frequencies)),
                   method: :post, target: '_blank') %>

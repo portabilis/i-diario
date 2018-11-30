@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/ComponenteCurricular?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=componentes-curriculares&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/ComponenteCurricular?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&oper=get&resource=componentes-curriculares&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''
@@ -29,7 +29,7 @@ http_interactions:
       Connection:
       - keep-alive
       Location:
-      - https://test.ieducar.com.br/module/Api/ComponenteCurricular?resource=componentes-curriculares&oper=get&access_key=***REMOVED***&secret_key=***REMOVED***&instituicao_id=1
+      - https://test.ieducar.com.br/module/Api/ComponenteCurricular?resource=componentes-curriculares&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
     body:
       encoding: UTF-8
       string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
@@ -39,7 +39,7 @@ http_interactions:
   recorded_at: Wed, 01 Mar 2017 19:34:24 GMT
 - request:
     method: get
-    uri: https://test.ieducar.com.br/module/Api/ComponenteCurricular?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=componentes-curriculares&secret_key=***REMOVED***
+    uri: https://test.ieducar.com.br/module/Api/ComponenteCurricular?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&oper=get&resource=componentes-curriculares&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''
@@ -96,7 +96,7 @@ http_interactions:
         HqMVk8larmCXdYNoTEdl3jNEQTjsGaJwGHqIMqFjkPka2B28IuNbwGL4UrA/
         c54gD1bLLwJ/FoyZJXAPMOqoDdm4huyX4smtS3o27iewIJz2E1gY0KlMNfBR
         uMlKzBfCZDLmrJCfIARlJfqeS45NyZCO5meKPBydKXBPYFTAE7V/4mbixLAw
-        afEexT***REMOVED***7VB+S5YLNaAzLSt46BGzjueidjtA1ASDmU7VQbns75DDKeNO65P
+        afEexTb2l7VB+S5YLNaAzLSt46BGzjueidjtA1ASDmU7VQbns75DDKeNO65P
         EIPh0RNdAGHXoO2qG9CgUU1ecvkVfmxBVV6DWp2KP3OR2A8ULDaAv5HAz0S2
         evnyZatO8VAaQkpDI3s4oCH2H2lQ3Y9VxZXBKAAxypHUDW4eoFDwzCmdulWf
         fzD4gKyRybgb8Gjt1O7BRQUbXXa6eAj2aXC20IPZceu+j9jnEw+6SmF1vjCC

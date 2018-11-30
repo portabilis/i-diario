@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Escola?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=etapas-por-escola&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&oper=get&resource=etapas-por-escola&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''

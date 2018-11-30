@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=***REMOVED***&ano=2015&instituicao_id=1&oper=get&resource=regras&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2015&instituicao_id=1&oper=get&resource=regras&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''
@@ -42,7 +42,7 @@ http_interactions:
   recorded_at: Fri, 17 Jul 2015 12:00:43 GMT
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=***REMOVED***&ano=2016&instituicao_id=1&oper=get&resource=regras&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2016&instituicao_id=1&oper=get&resource=regras&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''
@@ -82,7 +82,7 @@ http_interactions:
   recorded_at: Thu, 21 Jan 2016 19:20:22 GMT
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=***REMOVED***&ano=2017&instituicao_id=1&oper=get&resource=regras&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&instituicao_id=1&oper=get&resource=regras&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''

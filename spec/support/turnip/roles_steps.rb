@@ -2,7 +2,7 @@
 module Turnip
   module RolesSteps
     step "que acesso a listagem de permissões" do
-      click_***REMOVED*** 'Configurações > Permissões'
+      click_menu 'Configurações > Permissões'
     end
 
     step 'eu entrar no formulário de nova permissão' do
@@ -19,7 +19,7 @@ module Turnip
     end
 
     step 'que existe uma permissão cadastrada' do
-      click_***REMOVED*** 'Configurações > Permissões'
+      click_menu 'Configurações > Permissões'
 
       within :xpath, '//table/tbody/tr[position()=1]' do
         wait_for(page).to have_content 'Administrador'
@@ -55,7 +55,7 @@ module Turnip
     end
 
     step "que existem permissões cadastradas" do
-      click_***REMOVED*** 'Configurações > Permissões'
+      click_menu 'Configurações > Permissões'
 
       within :xpath, '//table/tbody/tr[position()=4]' do
         wait_for(page).to have_content 'Secretária'

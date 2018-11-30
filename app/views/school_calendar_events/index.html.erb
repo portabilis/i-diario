@@ -14,7 +14,7 @@
               <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
                 <%= t('.new_html') %> <span class="caret"></span>
               </button>
-              <ul class="dropdown-***REMOVED***">
+              <ul class="dropdown-menu">
                 <% EventCoverageType.to_a.each do |t, v| %>
                   <li>
                     <%= link_to t, new_school_calendar_school_calendar_event_path(coverage: v) %>

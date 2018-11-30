@@ -1,56 +1,56 @@
 module Navigation
   class MenuRender < Navigation::Render::Base
-    def render(***REMOVED***s)
-      render_***REMOVED***s(***REMOVED***s)
+    def render(menus)
+      render_menus(menus)
     end
 
     protected
 
-    def render_***REMOVED***s(***REMOVED***s, html_options = {})
+    def render_menus(menus, html_options = {})
       content_tag :ul, html_options do
-        html = ***REMOVED***s.map do |***REMOVED***|
-          render_***REMOVED***(***REMOVED***)
+        html = menus.map do |menu|
+          render_menu(menu)
         end.join(" ")
 
         raw html
       end
     end
 
-    def render_***REMOVED***(***REMOVED***)
-      has_sub***REMOVED***s = ***REMOVED***[:subnodes].any?
+    def render_menu(menu)
+      has_submenus = menu[:subnodes].any?
 
-      can_show = if ***REMOVED***[:visible]
+      can_show = if menu[:visible]
                    true
-                 elsif has_sub***REMOVED***s
-                   has_visible_sub***REMOVED***s?(***REMOVED***[:subnodes])
+                 elsif has_submenus
+                   has_visible_submenus?(menu[:subnodes])
                  else
-                   can_show?(***REMOVED***[:type])
+                   can_show?(menu[:type])
                  end
 
       if can_show
-        content_tag :li, :class => ***REMOVED***[:css_class].join(" ") do
+        content_tag :li, :class => menu[:css_class].join(" ") do
           li = []
-          ***REMOVED***_path = path_method ***REMOVED***[:path]
+          menu_path = path_method menu[:path]
 
-          li << link_to(***REMOVED***_path) do
+          li << link_to(menu_path) do
             link = []
-            link_content = I18n.t(***REMOVED***[:type], :scope => :navigation)
+            link_content = I18n.t(menu[:type], :scope => :navigation)
 
-            if ***REMOVED***[:icon]
-              link << content_tag(:i, "", :class => "fa fa-lg fa-fw #{***REMOVED***[:icon]}")
+            if menu[:icon]
+              link << content_tag(:i, "", :class => "fa fa-lg fa-fw #{menu[:icon]}")
             end
 
-            link << content_tag(:span, link_content, :class => "***REMOVED***-item-parent")
+            link << content_tag(:span, link_content, :class => "menu-item-parent")
 
             raw link.join(" ")
           end
 
-          if has_sub***REMOVED***s
+          if has_submenus
             options = {}
 
-            options[:style] = "display: block;" if ***REMOVED***[:css_class].include?(:open)
+            options[:style] = "display: block;" if menu[:css_class].include?(:open)
 
-            li << render_***REMOVED***s(***REMOVED***[:subnodes], options)
+            li << render_menus(menu[:subnodes], options)
           end
 
           raw li.join(" ")
@@ -60,7 +60,7 @@ module Navigation
       end
     end
 
-    def has_visible_sub***REMOVED***s?(subnodes)
+    def has_visible_submenus?(subnodes)
       subnodes.any? do |node|
         can_show?(node[:type])
       end

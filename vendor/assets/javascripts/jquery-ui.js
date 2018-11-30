@@ -1,6 +1,6 @@
 /*! jQuery UI - v1.10.4 - 2014-04-20
 * http://jqueryui.com
-* Includes: jquery.ui.core.js, jquery.ui.widget.js, jquery.ui.mouse.js, jquery.ui.position.js, jquery.ui.draggable.js, jquery.ui.droppable.js, jquery.ui.resizable.js, jquery.ui.selectable.js, jquery.ui.sortable.js, jquery.ui.accordion.js, jquery.ui.autocomplete.js, jquery.ui.button.js, jquery.ui.datepicker.js, jquery.ui.dialog.js, jquery.ui.***REMOVED***.js, jquery.ui.progressbar.js, jquery.ui.slider.js, jquery.ui.spinner.js, jquery.ui.tabs.js, jquery.ui.tooltip.js, jquery.ui.effect.js, jquery.ui.effect-blind.js, jquery.ui.effect-bounce.js, jquery.ui.effect-clip.js, jquery.ui.effect-drop.js, jquery.ui.effect-explode.js, jquery.ui.effect-fade.js, jquery.ui.effect-fold.js, jquery.ui.effect-highlight.js, jquery.ui.effect-pulsate.js, jquery.ui.effect-scale.js, jquery.ui.effect-shake.js, jquery.ui.effect-slide.js, jquery.ui.effect-transfer.js
+* Includes: jquery.ui.core.js, jquery.ui.widget.js, jquery.ui.mouse.js, jquery.ui.position.js, jquery.ui.draggable.js, jquery.ui.droppable.js, jquery.ui.resizable.js, jquery.ui.selectable.js, jquery.ui.sortable.js, jquery.ui.accordion.js, jquery.ui.autocomplete.js, jquery.ui.button.js, jquery.ui.datepicker.js, jquery.ui.dialog.js, jquery.ui.menu.js, jquery.ui.progressbar.js, jquery.ui.slider.js, jquery.ui.spinner.js, jquery.ui.tabs.js, jquery.ui.tooltip.js, jquery.ui.effect.js, jquery.ui.effect-blind.js, jquery.ui.effect-bounce.js, jquery.ui.effect-clip.js, jquery.ui.effect-drop.js, jquery.ui.effect-explode.js, jquery.ui.effect-fade.js, jquery.ui.effect-fold.js, jquery.ui.effect-highlight.js, jquery.ui.effect-pulsate.js, jquery.ui.effect-scale.js, jquery.ui.effect-shake.js, jquery.ui.effect-slide.js, jquery.ui.effect-transfer.js
 * Copyright 2014 jQuery Foundation and other contributors; Licensed MIT */
 
 (function( $, undefined ) {
@@ -1477,7 +1477,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 	version: "1.10.4",
 	widgetEventPrefix: "drag",
 	options: {
-		add***REMOVED***: true,
+		addClasses: true,
 		appendTo: "parent",
 		axis: false,
 		connectToSortable: false,
@@ -1512,7 +1512,7 @@ $.widget("ui.draggable", $.ui.mouse, {
 		if (this.options.helper === "original" && !(/^(?:r|a|f)/).test(this.element.css("position"))) {
 			this.element[0].style.position = "relative";
 		}
-		if (this.options.add***REMOVED***){
+		if (this.options.addClasses){
 			this.element.addClass("ui-draggable");
 		}
 		if (this.options.disabled){
@@ -2426,7 +2426,7 @@ $.widget("ui.droppable", {
 	options: {
 		accept: "*",
 		activeClass: false,
-		add***REMOVED***: true,
+		addClasses: true,
 		greedy: false,
 		hoverClass: false,
 		scope: "default",
@@ -2471,7 +2471,7 @@ $.widget("ui.droppable", {
 		$.ui.ddmanager.droppables[o.scope] = $.ui.ddmanager.droppables[o.scope] || [];
 		$.ui.ddmanager.droppables[o.scope].push(this);
 
-		(o.add***REMOVED*** && this.element.addClass("ui-droppable"));
+		(o.addClasses && this.element.addClass("ui-droppable"));
 
 	},
 
@@ -5933,22 +5933,22 @@ $.widget( "ui.autocomplete", {
 					break;
 				case keyCode.ENTER:
 				case keyCode.NUMPAD_ENTER:
-					// when ***REMOVED*** is open and has focus
-					if ( this.***REMOVED***.active ) {
+					// when menu is open and has focus
+					if ( this.menu.active ) {
 						// #6055 - Opera still allows the keypress to occur
 						// which causes forms to submit
 						suppressKeyPress = true;
 						event.preventDefault();
-						this.***REMOVED***.select( event );
+						this.menu.select( event );
 					}
 					break;
 				case keyCode.TAB:
-					if ( this.***REMOVED***.active ) {
-						this.***REMOVED***.select( event );
+					if ( this.menu.active ) {
+						this.menu.select( event );
 					}
 					break;
 				case keyCode.ESCAPE:
-					if ( this.***REMOVED***.element.is( ":visible" ) ) {
+					if ( this.menu.element.is( ":visible" ) ) {
 						this._value( this.term );
 						this.close( event );
 						// Different browsers have different default behavior for escape
@@ -5967,7 +5967,7 @@ $.widget( "ui.autocomplete", {
 			keypress: function( event ) {
 				if ( suppressKeyPress ) {
 					suppressKeyPress = false;
-					if ( !this.isMultiLine || this.***REMOVED***.element.is( ":visible" ) ) {
+					if ( !this.isMultiLine || this.menu.element.is( ":visible" ) ) {
 						event.preventDefault();
 					}
 					return;
@@ -6018,17 +6018,17 @@ $.widget( "ui.autocomplete", {
 		});
 
 		this._initSource();
-		this.***REMOVED*** = $( "<ul>" )
+		this.menu = $( "<ul>" )
 			.addClass( "ui-autocomplete ui-front" )
 			.appendTo( this._appendTo() )
-			.***REMOVED***({
+			.menu({
 				// disable ARIA support, the live region takes care of that
 				role: null
 			})
 			.hide()
-			.data( "ui-***REMOVED***" );
+			.data( "ui-menu" );
 
-		this._on( this.***REMOVED***.element, {
+		this._on( this.menu.element, {
 			mousedown: function( event ) {
 				// prevent moving focus out of the text field
 				event.preventDefault();
@@ -6042,29 +6042,29 @@ $.widget( "ui.autocomplete", {
 
 				// clicking on the scrollbar causes focus to shift to the body
 				// but we can't detect a mouseup or a click immediately afterward
-				// so we have to track the next mousedown and close the ***REMOVED*** if
+				// so we have to track the next mousedown and close the menu if
 				// the user clicks somewhere outside of the autocomplete
-				var ***REMOVED***Element = this.***REMOVED***.element[ 0 ];
-				if ( !$( event.target ).closest( ".ui-***REMOVED***-item" ).length ) {
+				var menuElement = this.menu.element[ 0 ];
+				if ( !$( event.target ).closest( ".ui-menu-item" ).length ) {
 					this._delay(function() {
 						var that = this;
 						this.document.one( "mousedown", function( event ) {
 							if ( event.target !== that.element[ 0 ] &&
-									event.target !== ***REMOVED***Element &&
-									!$.contains( ***REMOVED***Element, event.target ) ) {
+									event.target !== menuElement &&
+									!$.contains( menuElement, event.target ) ) {
 								that.close();
 							}
 						});
 					});
 				}
 			},
-			***REMOVED***focus: function( event, ui ) {
+			menufocus: function( event, ui ) {
 				// support: Firefox
-				// Prevent accidental activation of ***REMOVED*** items in Firefox (#7024 #9118)
+				// Prevent accidental activation of menu items in Firefox (#7024 #9118)
 				if ( this.isNewMenu ) {
 					this.isNewMenu = false;
 					if ( event.originalEvent && /^mouse/.test( event.originalEvent.type ) ) {
-						this.***REMOVED***.blur();
+						this.menu.blur();
 
 						this.document.one( "mousemove", function() {
 							$( event.target ).trigger( event.originalEvent );
@@ -6082,18 +6082,18 @@ $.widget( "ui.autocomplete", {
 					}
 				} else {
 					// Normally the input is populated with the item's value as the
-					// ***REMOVED*** is navigated, causing screen readers to notice a change and
+					// menu is navigated, causing screen readers to notice a change and
 					// announce the item. Since the focus event was canceled, this doesn't
 					// happen, so we update the live region so that screen readers can
 					// still notice the change and announce it.
 					this.liveRegion.text( item.value );
 				}
 			},
-			***REMOVED***select: function( event, ui ) {
+			menuselect: function( event, ui ) {
 				var item = ui.item.data( "ui-autocomplete-item" ),
 					previous = this.previous;
 
-				// only trigger when focus was lost (click on ***REMOVED***)
+				// only trigger when focus was lost (click on menu)
 				if ( this.element[0] !== this.document[0].activeElement ) {
 					this.element.focus();
 					this.previous = previous;
@@ -6140,7 +6140,7 @@ $.widget( "ui.autocomplete", {
 		this.element
 			.removeClass( "ui-autocomplete-input" )
 			.removeAttr( "autocomplete" );
-		this.***REMOVED***.element.remove();
+		this.menu.element.remove();
 		this.liveRegion.remove();
 	},
 
@@ -6150,7 +6150,7 @@ $.widget( "ui.autocomplete", {
 			this._initSource();
 		}
 		if ( key === "appendTo" ) {
-			this.***REMOVED***.element.appendTo( this._appendTo() );
+			this.menu.element.appendTo( this._appendTo() );
 		}
 		if ( key === "disabled" && value && this.xhr ) {
 			this.xhr.abort();
@@ -6279,9 +6279,9 @@ $.widget( "ui.autocomplete", {
 	},
 
 	_close: function( event ) {
-		if ( this.***REMOVED***.element.is( ":visible" ) ) {
-			this.***REMOVED***.element.hide();
-			this.***REMOVED***.blur();
+		if ( this.menu.element.is( ":visible" ) ) {
+			this.menu.element.hide();
+			this.menu.blur();
 			this.isNewMenu = true;
 			this._trigger( "close", event );
 		}
@@ -6313,12 +6313,12 @@ $.widget( "ui.autocomplete", {
 	},
 
 	_suggest: function( items ) {
-		var ul = this.***REMOVED***.element.empty();
+		var ul = this.menu.element.empty();
 		this._renderMenu( ul, items );
 		this.isNewMenu = true;
-		this.***REMOVED***.refresh();
+		this.menu.refresh();
 
-		// size and position ***REMOVED***
+		// size and position menu
 		ul.show();
 		this._resizeMenu();
 		ul.position( $.extend({
@@ -6326,12 +6326,12 @@ $.widget( "ui.autocomplete", {
 		}, this.options.position ));
 
 		if ( this.options.autoFocus ) {
-			this.***REMOVED***.next();
+			this.menu.next();
 		}
 	},
 
 	_resizeMenu: function() {
-		var ul = this.***REMOVED***.element;
+		var ul = this.menu.element;
 		ul.outerWidth( Math.max(
 			// Firefox wraps long text (possibly a rounding bug)
 			// so we add 1px to avoid the wrapping (#7513)
@@ -6358,21 +6358,21 @@ $.widget( "ui.autocomplete", {
 	},
 
 	_move: function( direction, event ) {
-		if ( !this.***REMOVED***.element.is( ":visible" ) ) {
+		if ( !this.menu.element.is( ":visible" ) ) {
 			this.search( null, event );
 			return;
 		}
-		if ( this.***REMOVED***.isFirstItem() && /^previous/.test( direction ) ||
-				this.***REMOVED***.isLastItem() && /^next/.test( direction ) ) {
+		if ( this.menu.isFirstItem() && /^previous/.test( direction ) ||
+				this.menu.isLastItem() && /^next/.test( direction ) ) {
 			this._value( this.term );
-			this.***REMOVED***.blur();
+			this.menu.blur();
 			return;
 		}
-		this.***REMOVED***[ direction ]( event );
+		this.menu[ direction ]( event );
 	},
 
 	widget: function() {
-		return this.***REMOVED***.element;
+		return this.menu.element;
 	},
 
 	_value: function() {
@@ -6380,7 +6380,7 @@ $.widget( "ui.autocomplete", {
 	},
 
 	_keyEvent: function( keyEvent, event ) {
-		if ( !this.isMultiLine || this.***REMOVED***.element.is( ":visible" ) ) {
+		if ( !this.isMultiLine || this.menu.element.is( ":visible" ) ) {
 			this._move( keyEvent, event );
 
 			// prevents moving cursor to beginning/end of the text field in some browsers
@@ -6435,15 +6435,15 @@ $.widget( "ui.autocomplete", $.ui.autocomplete, {
 (function( $, undefined ) {
 
 var lastActive,
-	base***REMOVED*** = "ui-button ui-widget ui-state-default ui-corner-all",
-	type***REMOVED*** = "ui-button-icons-only ui-button-icon-only ui-button-text-icons ui-button-text-icon-primary ui-button-text-icon-secondary ui-button-text-only",
+	baseClasses = "ui-button ui-widget ui-state-default ui-corner-all",
+	typeClasses = "ui-button-icons-only ui-button-icon-only ui-button-text-icons ui-button-text-icon-primary ui-button-text-icon-secondary ui-button-text-only",
 	formResetHandler = function() {
 		var form = $( this );
 		setTimeout(function() {
 			form.find( ":ui-button" ).button( "refresh" );
 		}, 1 );
 	},
-	radio***REMOVED*** = function( radio ) {
+	radioGroup = function( radio ) {
 		var name = radio.name,
 			form = radio.form,
 			radios = $( [] );
@@ -6499,7 +6499,7 @@ $.widget( "ui.button", {
 		this._hoverable( this.buttonElement );
 
 		this.buttonElement
-			.addClass( base***REMOVED*** )
+			.addClass( baseClasses )
 			.attr( "role", "button" )
 			.bind( "mouseenter" + this.eventNamespace, function() {
 				if ( options.disabled ) {
@@ -6554,7 +6554,7 @@ $.widget( "ui.button", {
 				that.buttonElement.attr( "aria-pressed", "true" );
 
 				var radio = that.element[ 0 ];
-				radio***REMOVED***( radio )
+				radioGroup( radio )
 					.not( radio )
 					.map(function() {
 						return $( this ).button( "widget" )[ 0 ];
@@ -6657,7 +6657,7 @@ $.widget( "ui.button", {
 		this.element
 			.removeClass( "ui-helper-hidden-accessible" );
 		this.buttonElement
-			.removeClass( base***REMOVED*** + " ui-state-active " + type***REMOVED*** )
+			.removeClass( baseClasses + " ui-state-active " + typeClasses )
 			.removeAttr( "role" )
 			.removeAttr( "aria-pressed" )
 			.html( this.buttonElement.find(".ui-button-text").html() );
@@ -6687,7 +6687,7 @@ $.widget( "ui.button", {
 			this._setOption( "disabled", isDisabled );
 		}
 		if ( this.type === "radio" ) {
-			radio***REMOVED***( this.element[0] ).each(function() {
+			radioGroup( this.element[0] ).each(function() {
 				if ( $( this ).is( ":checked" ) ) {
 					$( this ).button( "widget" )
 						.addClass( "ui-state-active" )
@@ -6718,7 +6718,7 @@ $.widget( "ui.button", {
 			}
 			return;
 		}
-		var buttonElement = this.buttonElement.removeClass( type***REMOVED*** ),
+		var buttonElement = this.buttonElement.removeClass( typeClasses ),
 			buttonText = $( "<span></span>", this.document[0] )
 				.addClass( "ui-button-text" )
 				.html( this.options.label )
@@ -6726,11 +6726,11 @@ $.widget( "ui.button", {
 				.text(),
 			icons = this.options.icons,
 			multipleIcons = icons.primary && icons.secondary,
-			button***REMOVED*** = [];
+			buttonClasses = [];
 
 		if ( icons.primary || icons.secondary ) {
 			if ( this.options.text ) {
-				button***REMOVED***.push( "ui-button-text-icon" + ( multipleIcons ? "s" : ( icons.primary ? "-primary" : "-secondary" ) ) );
+				buttonClasses.push( "ui-button-text-icon" + ( multipleIcons ? "s" : ( icons.primary ? "-primary" : "-secondary" ) ) );
 			}
 
 			if ( icons.primary ) {
@@ -6742,16 +6742,16 @@ $.widget( "ui.button", {
 			}
 
 			if ( !this.options.text ) {
-				button***REMOVED***.push( multipleIcons ? "ui-button-icons-only" : "ui-button-icon-only" );
+				buttonClasses.push( multipleIcons ? "ui-button-icons-only" : "ui-button-icon-only" );
 
 				if ( !this.hasTitle ) {
 					buttonElement.attr( "title", $.trim( buttonText ) );
 				}
 			}
 		} else {
-			button***REMOVED***.push( "ui-button-text-only" );
+			buttonClasses.push( "ui-button-text-only" );
 		}
-		buttonElement.addClass( button***REMOVED***.join( " " ) );
+		buttonElement.addClass( buttonClasses.join( " " ) );
 	}
 });
 
@@ -6822,7 +6822,7 @@ var PROP_NAME = "datepicker",
 
 /* Date picker manager.
    Use the singleton instance of this class, $.datepicker, to interact with the date picker.
-   Settings for (***REMOVED*** of) date pickers are maintained in an instance object,
+   Settings for (groups of) date pickers are maintained in an instance object,
    allowing multiple different settings on the same page. */
 
 function Datepicker() {
@@ -9644,20 +9644,20 @@ if ( $.uiBackCompat !== false ) {
 }( jQuery ) );
 (function( $, undefined ) {
 
-$.widget( "ui.***REMOVED***", {
+$.widget( "ui.menu", {
 	version: "1.10.4",
 	defaultElement: "<ul>",
 	delay: 300,
 	options: {
 		icons: {
-			sub***REMOVED***: "ui-icon-carat-1-e"
+			submenu: "ui-icon-carat-1-e"
 		},
-		***REMOVED***s: "ul",
+		menus: "ul",
 		position: {
 			my: "left top",
 			at: "right top"
 		},
-		role: "***REMOVED***",
+		role: "menu",
 
 		// callbacks
 		blur: null,
@@ -9668,17 +9668,17 @@ $.widget( "ui.***REMOVED***", {
 	_create: function() {
 		this.activeMenu = this.element;
 		// flag used to prevent firing of the click handler
-		// as the event bubbles up through nested ***REMOVED***s
+		// as the event bubbles up through nested menus
 		this.mouseHandled = false;
 		this.element
 			.uniqueId()
-			.addClass( "ui-***REMOVED*** ui-widget ui-widget-content ui-corner-all" )
-			.toggleClass( "ui-***REMOVED***-icons", !!this.element.find( ".ui-icon" ).length )
+			.addClass( "ui-menu ui-widget ui-widget-content ui-corner-all" )
+			.toggleClass( "ui-menu-icons", !!this.element.find( ".ui-icon" ).length )
 			.attr({
 				role: this.options.role,
 				tabIndex: 0
 			})
-			// need to catch all clicks on disabled ***REMOVED***
+			// need to catch all clicks on disabled menu
 			// not possible through _on
 			.bind( "click" + this.eventNamespace, $.proxy(function( event ) {
 				if ( this.options.disabled ) {
@@ -9693,16 +9693,16 @@ $.widget( "ui.***REMOVED***", {
 		}
 
 		this._on({
-			// Prevent focus from sticking to links inside ***REMOVED*** after clicking
+			// Prevent focus from sticking to links inside menu after clicking
 			// them (focus should always stay on UL during navigation).
-			"mousedown .ui-***REMOVED***-item > a": function( event ) {
+			"mousedown .ui-menu-item > a": function( event ) {
 				event.preventDefault();
 			},
 			"click .ui-state-disabled > a": function( event ) {
 				event.preventDefault();
 			},
-			"click .ui-***REMOVED***-item:has(a)": function( event ) {
-				var target = $( event.target ).closest( ".ui-***REMOVED***-item" );
+			"click .ui-menu-item:has(a)": function( event ) {
+				var target = $( event.target ).closest( ".ui-menu-item" );
 				if ( !this.mouseHandled && target.not( ".ui-state-disabled" ).length ) {
 					this.select( event );
 
@@ -9711,35 +9711,35 @@ $.widget( "ui.***REMOVED***", {
 						this.mouseHandled = true;
 					}
 
-					// Open sub***REMOVED*** on click
-					if ( target.has( ".ui-***REMOVED***" ).length ) {
+					// Open submenu on click
+					if ( target.has( ".ui-menu" ).length ) {
 						this.expand( event );
-					} else if ( !this.element.is( ":focus" ) && $( this.document[ 0 ].activeElement ).closest( ".ui-***REMOVED***" ).length ) {
+					} else if ( !this.element.is( ":focus" ) && $( this.document[ 0 ].activeElement ).closest( ".ui-menu" ).length ) {
 
-						// Redirect focus to the ***REMOVED***
+						// Redirect focus to the menu
 						this.element.trigger( "focus", [ true ] );
 
 						// If the active item is on the top level, let it stay active.
 						// Otherwise, blur the active item since it is no longer visible.
-						if ( this.active && this.active.parents( ".ui-***REMOVED***" ).length === 1 ) {
+						if ( this.active && this.active.parents( ".ui-menu" ).length === 1 ) {
 							clearTimeout( this.timer );
 						}
 					}
 				}
 			},
-			"mouseenter .ui-***REMOVED***-item": function( event ) {
+			"mouseenter .ui-menu-item": function( event ) {
 				var target = $( event.currentTarget );
-				// Remove ui-state-active class from siblings of the newly focused ***REMOVED*** item
+				// Remove ui-state-active class from siblings of the newly focused menu item
 				// to avoid a jump caused by adjacent elements both having a class with a border
 				target.siblings().children( ".ui-state-active" ).removeClass( "ui-state-active" );
 				this.focus( event, target );
 			},
 			mouseleave: "collapseAll",
-			"mouseleave .ui-***REMOVED***": "collapseAll",
+			"mouseleave .ui-menu": "collapseAll",
 			focus: function( event, keepActiveItem ) {
 				// If there's already an active item, keep it active
 				// If not, activate the first item
-				var item = this.active || this.element.children( ".ui-***REMOVED***-item" ).eq( 0 );
+				var item = this.active || this.element.children( ".ui-menu-item" ).eq( 0 );
 
 				if ( !keepActiveItem ) {
 					this.focus( event, item );
@@ -9757,10 +9757,10 @@ $.widget( "ui.***REMOVED***", {
 
 		this.refresh();
 
-		// Clicks outside of a ***REMOVED*** collapse any open ***REMOVED***s
+		// Clicks outside of a menu collapse any open menus
 		this._on( this.document, {
 			click: function( event ) {
-				if ( !$( event.target ).closest( ".ui-***REMOVED***" ).length ) {
+				if ( !$( event.target ).closest( ".ui-menu" ).length ) {
 					this.collapseAll( event );
 				}
 
@@ -9771,11 +9771,11 @@ $.widget( "ui.***REMOVED***", {
 	},
 
 	_destroy: function() {
-		// Destroy (sub)***REMOVED***s
+		// Destroy (sub)menus
 		this.element
 			.removeAttr( "aria-activedescendant" )
-			.find( ".ui-***REMOVED***" ).addBack()
-				.removeClass( "ui-***REMOVED*** ui-widget ui-widget-content ui-corner-all ui-***REMOVED***-icons" )
+			.find( ".ui-menu" ).addBack()
+				.removeClass( "ui-menu ui-widget ui-widget-content ui-corner-all ui-menu-icons" )
 				.removeAttr( "role" )
 				.removeAttr( "tabIndex" )
 				.removeAttr( "aria-labelledby" )
@@ -9785,9 +9785,9 @@ $.widget( "ui.***REMOVED***", {
 				.removeUniqueId()
 				.show();
 
-		// Destroy ***REMOVED*** items
-		this.element.find( ".ui-***REMOVED***-item" )
-			.removeClass( "ui-***REMOVED***-item" )
+		// Destroy menu items
+		this.element.find( ".ui-menu-item" )
+			.removeClass( "ui-menu-item" )
 			.removeAttr( "role" )
 			.removeAttr( "aria-disabled" )
 			.children( "a" )
@@ -9798,13 +9798,13 @@ $.widget( "ui.***REMOVED***", {
 				.removeAttr( "aria-haspopup" )
 				.children().each( function() {
 					var elem = $( this );
-					if ( elem.data( "ui-***REMOVED***-sub***REMOVED***-carat" ) ) {
+					if ( elem.data( "ui-menu-submenu-carat" ) ) {
 						elem.remove();
 					}
 				});
 
-		// Destroy ***REMOVED*** dividers
-		this.element.find( ".ui-***REMOVED***-divider" ).removeClass( "ui-***REMOVED***-divider ui-widget-content" );
+		// Destroy menu dividers
+		this.element.find( ".ui-menu-divider" ).removeClass( "ui-menu-divider ui-widget-content" );
 	},
 
 	_keydown: function( event ) {
@@ -9864,19 +9864,19 @@ $.widget( "ui.***REMOVED***", {
 			}
 
 			regex = new RegExp( "^" + escape( character ), "i" );
-			match = this.activeMenu.children( ".ui-***REMOVED***-item" ).filter(function() {
+			match = this.activeMenu.children( ".ui-menu-item" ).filter(function() {
 				return regex.test( $( this ).children( "a" ).text() );
 			});
 			match = skip && match.index( this.active.next() ) !== -1 ?
-				this.active.nextAll( ".ui-***REMOVED***-item" ) :
+				this.active.nextAll( ".ui-menu-item" ) :
 				match;
 
 			// If no matches on the current filter, reset to the last character pressed
-			// to move down the ***REMOVED*** to the first item that starts with that character
+			// to move down the menu to the first item that starts with that character
 			if ( !match.length ) {
 				character = String.fromCharCode( event.keyCode );
 				regex = new RegExp( "^" + escape( character ), "i" );
-				match = this.activeMenu.children( ".ui-***REMOVED***-item" ).filter(function() {
+				match = this.activeMenu.children( ".ui-menu-item" ).filter(function() {
 					return regex.test( $( this ).children( "a" ).text() );
 				});
 			}
@@ -9912,15 +9912,15 @@ $.widget( "ui.***REMOVED***", {
 	},
 
 	refresh: function() {
-		var ***REMOVED***s,
-			icon = this.options.icons.sub***REMOVED***,
-			sub***REMOVED***s = this.element.find( this.options.***REMOVED***s );
+		var menus,
+			icon = this.options.icons.submenu,
+			submenus = this.element.find( this.options.menus );
 
-		this.element.toggleClass( "ui-***REMOVED***-icons", !!this.element.find( ".ui-icon" ).length );
+		this.element.toggleClass( "ui-menu-icons", !!this.element.find( ".ui-icon" ).length );
 
-		// Initialize nested ***REMOVED***s
-		sub***REMOVED***s.filter( ":not(.ui-***REMOVED***)" )
-			.addClass( "ui-***REMOVED*** ui-widget ui-widget-content ui-corner-all" )
+		// Initialize nested menus
+		submenus.filter( ":not(.ui-menu)" )
+			.addClass( "ui-menu ui-widget ui-widget-content ui-corner-all" )
 			.hide()
 			.attr({
 				role: this.options.role,
@@ -9928,23 +9928,23 @@ $.widget( "ui.***REMOVED***", {
 				"aria-expanded": "false"
 			})
 			.each(function() {
-				var ***REMOVED*** = $( this ),
-					item = ***REMOVED***.prev( "a" ),
-					sub***REMOVED***Carat = $( "<span>" )
-						.addClass( "ui-***REMOVED***-icon ui-icon " + icon )
-						.data( "ui-***REMOVED***-sub***REMOVED***-carat", true );
+				var menu = $( this ),
+					item = menu.prev( "a" ),
+					submenuCarat = $( "<span>" )
+						.addClass( "ui-menu-icon ui-icon " + icon )
+						.data( "ui-menu-submenu-carat", true );
 
 				item
 					.attr( "aria-haspopup", "true" )
-					.prepend( sub***REMOVED***Carat );
-				***REMOVED***.attr( "aria-labelledby", item.attr( "id" ) );
+					.prepend( submenuCarat );
+				menu.attr( "aria-labelledby", item.attr( "id" ) );
 			});
 
-		***REMOVED***s = sub***REMOVED***s.add( this.element );
+		menus = submenus.add( this.element );
 
 		// Don't refresh list items that are already adapted
-		***REMOVED***s.children( ":not(.ui-***REMOVED***-item):has(a)" )
-			.addClass( "ui-***REMOVED***-item" )
+		menus.children( ":not(.ui-menu-item):has(a)" )
+			.addClass( "ui-menu-item" )
 			.attr( "role", "presentation" )
 			.children( "a" )
 				.uniqueId()
@@ -9954,19 +9954,19 @@ $.widget( "ui.***REMOVED***", {
 					role: this._itemRole()
 				});
 
-		// Initialize unlinked ***REMOVED***-items containing spaces and/or dashes only as dividers
-		***REMOVED***s.children( ":not(.ui-***REMOVED***-item)" ).each(function() {
+		// Initialize unlinked menu-items containing spaces and/or dashes only as dividers
+		menus.children( ":not(.ui-menu-item)" ).each(function() {
 			var item = $( this );
 			// hyphen, em dash, en dash
 			if ( !/[^\-\u2014\u2013\s]/.test( item.text() ) ) {
-				item.addClass( "ui-widget-content ui-***REMOVED***-divider" );
+				item.addClass( "ui-widget-content ui-menu-divider" );
 			}
 		});
 
-		// Add aria-disabled attribute to any disabled ***REMOVED*** item
-		***REMOVED***s.children( ".ui-state-disabled" ).attr( "aria-disabled", "true" );
+		// Add aria-disabled attribute to any disabled menu item
+		menus.children( ".ui-state-disabled" ).attr( "aria-disabled", "true" );
 
-		// If the active item has been removed, blur the ***REMOVED***
+		// If the active item has been removed, blur the menu
 		if ( this.active && !$.contains( this.element[ 0 ], this.active[ 0 ] ) ) {
 			this.blur();
 		}
@@ -9974,16 +9974,16 @@ $.widget( "ui.***REMOVED***", {
 
 	_itemRole: function() {
 		return {
-			***REMOVED***: "***REMOVED***item",
+			menu: "menuitem",
 			listbox: "option"
 		}[ this.options.role ];
 	},
 
 	_setOption: function( key, value ) {
 		if ( key === "icons" ) {
-			this.element.find( ".ui-***REMOVED***-icon" )
-				.removeClass( this.options.icons.sub***REMOVED*** )
-				.addClass( value.sub***REMOVED*** );
+			this.element.find( ".ui-menu-icon" )
+				.removeClass( this.options.icons.submenu )
+				.addClass( value.submenu );
 		}
 		this._super( key, value );
 	},
@@ -10002,10 +10002,10 @@ $.widget( "ui.***REMOVED***", {
 			this.element.attr( "aria-activedescendant", focused.attr( "id" ) );
 		}
 
-		// Highlight active parent ***REMOVED*** item, if any
+		// Highlight active parent menu item, if any
 		this.active
 			.parent()
-			.closest( ".ui-***REMOVED***-item" )
+			.closest( ".ui-menu-item" )
 			.children( "a:first" )
 			.addClass( "ui-state-active" );
 
@@ -10017,7 +10017,7 @@ $.widget( "ui.***REMOVED***", {
 			}, this.delay );
 		}
 
-		nested = item.children( ".ui-***REMOVED***" );
+		nested = item.children( ".ui-menu" );
 		if ( nested.length && event && ( /^mouse/.test( event.type ) ) ) {
 			this._startOpening(nested);
 		}
@@ -10059,32 +10059,32 @@ $.widget( "ui.***REMOVED***", {
 		this._trigger( "blur", event, { item: this.active } );
 	},
 
-	_startOpening: function( sub***REMOVED*** ) {
+	_startOpening: function( submenu ) {
 		clearTimeout( this.timer );
 
 		// Don't open if already open fixes a Firefox bug that caused a .5 pixel
-		// shift in the sub***REMOVED*** position when mousing over the carat icon
-		if ( sub***REMOVED***.attr( "aria-hidden" ) !== "true" ) {
+		// shift in the submenu position when mousing over the carat icon
+		if ( submenu.attr( "aria-hidden" ) !== "true" ) {
 			return;
 		}
 
 		this.timer = this._delay(function() {
 			this._close();
-			this._open( sub***REMOVED*** );
+			this._open( submenu );
 		}, this.delay );
 	},
 
-	_open: function( sub***REMOVED*** ) {
+	_open: function( submenu ) {
 		var position = $.extend({
 			of: this.active
 		}, this.options.position );
 
 		clearTimeout( this.timer );
-		this.element.find( ".ui-***REMOVED***" ).not( sub***REMOVED***.parents( ".ui-***REMOVED***" ) )
+		this.element.find( ".ui-menu" ).not( submenu.parents( ".ui-menu" ) )
 			.hide()
 			.attr( "aria-hidden", "true" );
 
-		sub***REMOVED***
+		submenu
 			.show()
 			.removeAttr( "aria-hidden" )
 			.attr( "aria-expanded", "true" )
@@ -10094,11 +10094,11 @@ $.widget( "ui.***REMOVED***", {
 	collapseAll: function( event, all ) {
 		clearTimeout( this.timer );
 		this.timer = this._delay(function() {
-			// If we were passed an event, look for the sub***REMOVED*** that contains the event
+			// If we were passed an event, look for the submenu that contains the event
 			var currentMenu = all ? this.element :
-				$( event && event.target ).closest( this.element.find( ".ui-***REMOVED***" ) );
+				$( event && event.target ).closest( this.element.find( ".ui-menu" ) );
 
-			// If we found no valid sub***REMOVED*** ancestor, use the main ***REMOVED*** to close all sub ***REMOVED***s anyway
+			// If we found no valid submenu ancestor, use the main menu to close all sub menus anyway
 			if ( !currentMenu.length ) {
 				currentMenu = this.element;
 			}
@@ -10110,15 +10110,15 @@ $.widget( "ui.***REMOVED***", {
 		}, this.delay );
 	},
 
-	// With no arguments, closes the currently active ***REMOVED*** - if nothing is active
-	// it closes all ***REMOVED***s.  If passed an argument, it will search for ***REMOVED***s BELOW
+	// With no arguments, closes the currently active menu - if nothing is active
+	// it closes all menus.  If passed an argument, it will search for menus BELOW
 	_close: function( startMenu ) {
 		if ( !startMenu ) {
 			startMenu = this.active ? this.active.parent() : this.element;
 		}
 
 		startMenu
-			.find( ".ui-***REMOVED***" )
+			.find( ".ui-menu" )
 				.hide()
 				.attr( "aria-hidden", "true" )
 				.attr( "aria-expanded", "false" )
@@ -10129,7 +10129,7 @@ $.widget( "ui.***REMOVED***", {
 
 	collapse: function( event ) {
 		var newItem = this.active &&
-			this.active.parent().closest( ".ui-***REMOVED***-item", this.element );
+			this.active.parent().closest( ".ui-menu-item", this.element );
 		if ( newItem && newItem.length ) {
 			this._close();
 			this.focus( event, newItem );
@@ -10139,14 +10139,14 @@ $.widget( "ui.***REMOVED***", {
 	expand: function( event ) {
 		var newItem = this.active &&
 			this.active
-				.children( ".ui-***REMOVED*** " )
-				.children( ".ui-***REMOVED***-item" )
+				.children( ".ui-menu " )
+				.children( ".ui-menu-item" )
 				.first();
 
 		if ( newItem && newItem.length ) {
 			this._open( newItem.parent() );
 
-			// Delay so Firefox will not hide activedescendant change in expanding sub***REMOVED*** from AT
+			// Delay so Firefox will not hide activedescendant change in expanding submenu from AT
 			this._delay(function() {
 				this.focus( event, newItem );
 			});
@@ -10162,11 +10162,11 @@ $.widget( "ui.***REMOVED***", {
 	},
 
 	isFirstItem: function() {
-		return this.active && !this.active.prevAll( ".ui-***REMOVED***-item" ).length;
+		return this.active && !this.active.prevAll( ".ui-menu-item" ).length;
 	},
 
 	isLastItem: function() {
-		return this.active && !this.active.nextAll( ".ui-***REMOVED***-item" ).length;
+		return this.active && !this.active.nextAll( ".ui-menu-item" ).length;
 	},
 
 	_move: function( direction, filter, event ) {
@@ -10174,16 +10174,16 @@ $.widget( "ui.***REMOVED***", {
 		if ( this.active ) {
 			if ( direction === "first" || direction === "last" ) {
 				next = this.active
-					[ direction === "first" ? "prevAll" : "nextAll" ]( ".ui-***REMOVED***-item" )
+					[ direction === "first" ? "prevAll" : "nextAll" ]( ".ui-menu-item" )
 					.eq( -1 );
 			} else {
 				next = this.active
-					[ direction + "All" ]( ".ui-***REMOVED***-item" )
+					[ direction + "All" ]( ".ui-menu-item" )
 					.eq( 0 );
 			}
 		}
 		if ( !next || !next.length || !this.active ) {
-			next = this.activeMenu.children( ".ui-***REMOVED***-item" )[ filter ]();
+			next = this.activeMenu.children( ".ui-menu-item" )[ filter ]();
 		}
 
 		this.focus( event, next );
@@ -10202,14 +10202,14 @@ $.widget( "ui.***REMOVED***", {
 		if ( this._hasScroll() ) {
 			base = this.active.offset().top;
 			height = this.element.height();
-			this.active.nextAll( ".ui-***REMOVED***-item" ).each(function() {
+			this.active.nextAll( ".ui-menu-item" ).each(function() {
 				item = $( this );
 				return item.offset().top - base - height < 0;
 			});
 
 			this.focus( event, item );
 		} else {
-			this.focus( event, this.activeMenu.children( ".ui-***REMOVED***-item" )
+			this.focus( event, this.activeMenu.children( ".ui-menu-item" )
 				[ !this.active ? "first" : "last" ]() );
 		}
 	},
@@ -10226,14 +10226,14 @@ $.widget( "ui.***REMOVED***", {
 		if ( this._hasScroll() ) {
 			base = this.active.offset().top;
 			height = this.element.height();
-			this.active.prevAll( ".ui-***REMOVED***-item" ).each(function() {
+			this.active.prevAll( ".ui-menu-item" ).each(function() {
 				item = $( this );
 				return item.offset().top - base + height > 0;
 			});
 
 			this.focus( event, item );
 		} else {
-			this.focus( event, this.activeMenu.children( ".ui-***REMOVED***-item" ).first() );
+			this.focus( event, this.activeMenu.children( ".ui-menu-item" ).first() );
 		}
 	},
 
@@ -10244,9 +10244,9 @@ $.widget( "ui.***REMOVED***", {
 	select: function( event ) {
 		// TODO: It should never be possible to not have an active item at this
 		// point, but the tests don't trigger mouseenter before click.
-		this.active = this.active || $( event.target ).closest( ".ui-***REMOVED***-item" );
+		this.active = this.active || $( event.target ).closest( ".ui-menu-item" );
 		var ui = { item: this.active };
-		if ( !this.active.has( ".ui-***REMOVED***" ).length ) {
+		if ( !this.active.has( ".ui-menu" ).length ) {
 			this.collapseAll( event, true );
 		}
 		this._trigger( "select", event, ui );

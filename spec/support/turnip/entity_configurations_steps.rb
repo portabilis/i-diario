@@ -2,7 +2,7 @@
 module Turnip
   module EntityConfigurationSteps
     step 'acesso as configurações da entidade' do
-      click_***REMOVED*** 'Configurações > Entidade'
+      click_menu 'Configurações > Entidade'
     end
 
     step 'poderei alterar informações da entidade' do

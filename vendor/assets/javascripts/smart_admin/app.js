@@ -1,4 +1,4 @@
-$('#hide-***REMOVED*** span a').on('click', function (e) {
-  $.root_.toggleClass("hidden-***REMOVED***");
-  $("html").toggleClass("hidden-***REMOVED***-mobile-lock");
+$('#hide-menu span a').on('click', function (e) {
+  $.root_.toggleClass("hidden-menu");
+  $("html").toggleClass("hidden-menu-mobile-lock");
 } );

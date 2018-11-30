@@ -63,8 +63,8 @@
     }
     function generateMaskSet(opts, nocache) {
         function analyseMask(mask) {
-            function MaskToken(is***REMOVED***, isOptional, isQuantifier, isAlternator) {
-                this.matches = [], this.is***REMOVED*** = is***REMOVED*** || !1, this.isOptional = isOptional || !1, 
+            function MaskToken(isGroup, isOptional, isQuantifier, isAlternator) {
+                this.matches = [], this.isGroup = isGroup || !1, this.isOptional = isOptional || !1, 
                 this.isQuantifier = isQuantifier || !1, this.isAlternator = isAlternator || !1, 
                 this.quantifier = {
                     min: 1,
@@ -115,20 +115,20 @@
                     mask: element
                 }), escaped = !1;
             }
-            function verify***REMOVED***Marker(lastMatch, isOpen***REMOVED***) {
-                lastMatch.is***REMOVED*** && (lastMatch.is***REMOVED*** = !1, insertTestDefinition(lastMatch, opts.groupmarker.start, 0), 
-                isOpen***REMOVED*** !== !0 && insertTestDefinition(lastMatch, opts.groupmarker.end));
+            function verifyGroupMarker(lastMatch, isOpenGroup) {
+                lastMatch.isGroup && (lastMatch.isGroup = !1, insertTestDefinition(lastMatch, opts.groupmarker.start, 0), 
+                isOpenGroup !== !0 && insertTestDefinition(lastMatch, opts.groupmarker.end));
             }
             function maskCurrentToken(m, currentToken, lastMatch, extraCondition) {
                 currentToken.matches.length > 0 && (void 0 === extraCondition || extraCondition) && (lastMatch = currentToken.matches[currentToken.matches.length - 1], 
-                verify***REMOVED***Marker(lastMatch)), insertTestDefinition(currentToken, m);
+                verifyGroupMarker(lastMatch)), insertTestDefinition(currentToken, m);
             }
             function defaultCase() {
                 if (openenings.length > 0) {
                     if (currentOpeningToken = openenings[openenings.length - 1], maskCurrentToken(m, currentOpeningToken, lastMatch, !currentOpeningToken.isAlternator), 
                     currentOpeningToken.isAlternator) {
                         alternator = openenings.pop();
-                        for (var mndx = 0; mndx < alternator.matches.length; mndx++) alternator.matches[mndx].is***REMOVED*** = !1;
+                        for (var mndx = 0; mndx < alternator.matches.length; mndx++) alternator.matches[mndx].isGroup = !1;
                         openenings.length > 0 ? (currentOpeningToken = openenings[openenings.length - 1], 
                         currentOpeningToken.matches.push(alternator)) : currentToken.matches.push(alternator);
                     }
@@ -142,7 +142,7 @@
                 maskToken.matches = maskToken.matches.reverse();
                 for (var match in maskToken.matches) {
                     var intMatch = parseInt(match);
-                    if (maskToken.matches[match].isQuantifier && maskToken.matches[intMatch + 1] && maskToken.matches[intMatch + 1].is***REMOVED***) {
+                    if (maskToken.matches[match].isQuantifier && maskToken.matches[intMatch + 1] && maskToken.matches[intMatch + 1].isGroup) {
                         var qt = maskToken.matches[match];
                         maskToken.matches.splice(match, 1), maskToken.matches.splice(intMatch + 1, 0, qt);
                     }
@@ -162,7 +162,7 @@
                     if (currentOpeningToken = openenings[openenings.length - 1], currentOpeningToken.matches.push(openingToken), 
                     currentOpeningToken.isAlternator) {
                         alternator = openenings.pop();
-                        for (var mndx = 0; mndx < alternator.matches.length; mndx++) alternator.matches[mndx].is***REMOVED*** = !1;
+                        for (var mndx = 0; mndx < alternator.matches.length; mndx++) alternator.matches[mndx].isGroup = !1;
                         openenings.length > 0 ? (currentOpeningToken = openenings[openenings.length - 1], 
                         currentOpeningToken.matches.push(alternator)) : currentToken.matches.push(alternator);
                     }
@@ -186,9 +186,9 @@
                     max: mq1
                 }, openenings.length > 0) {
                     var matches = openenings[openenings.length - 1].matches;
-                    match = matches.pop(), match.is***REMOVED*** || (groupToken = new MaskToken(!0), groupToken.matches.push(match), 
+                    match = matches.pop(), match.isGroup || (groupToken = new MaskToken(!0), groupToken.matches.push(match), 
                     match = groupToken), matches.push(match), matches.push(quantifier);
-                } else match = currentToken.matches.pop(), match.is***REMOVED*** || (groupToken = new MaskToken(!0), 
+                } else match = currentToken.matches.pop(), match.isGroup || (groupToken = new MaskToken(!0), 
                 groupToken.matches.push(match), match = groupToken), currentToken.matches.push(match), 
                 currentToken.matches.push(quantifier);
                 break;
@@ -203,10 +203,10 @@
               default:
                 defaultCase();
             }
-            for (;openenings.length > 0; ) openingToken = openenings.pop(), verify***REMOVED***Marker(openingToken, !0), 
+            for (;openenings.length > 0; ) openingToken = openenings.pop(), verifyGroupMarker(openingToken, !0), 
             currentToken.matches.push(openingToken);
             return currentToken.matches.length > 0 && (lastMatch = currentToken.matches[currentToken.matches.length - 1], 
-            verify***REMOVED***Marker(lastMatch), maskTokens.push(currentToken)), opts.numericInput && reverseTokens(maskTokens[0]), 
+            verifyGroupMarker(lastMatch), maskTokens.push(currentToken)), opts.numericInput && reverseTokens(maskTokens[0]), 
             maskTokens;
         }
         function generateMask(mask, metadata) {
@@ -347,10 +347,10 @@
         function getTests(pos, ndxIntlzr, tstPs, cacheable) {
             function resolveTestFromToken(maskToken, ndxInitializer, loopNdx, quantifierRecurse) {
                 function handleMatch(match, loopNdx, quantifierRecurse) {
-                    function isFirstMatch(latestMatch, token***REMOVED***) {
-                        var firstMatch = 0 === $.inArray(latestMatch, token***REMOVED***.matches);
-                        return firstMatch || $.each(token***REMOVED***.matches, function(ndx, match) {
-                            return match.isQuantifier === !0 && (firstMatch = isFirstMatch(latestMatch, token***REMOVED***.matches[ndx - 1])) ? !1 : void 0;
+                    function isFirstMatch(latestMatch, tokenGroup) {
+                        var firstMatch = 0 === $.inArray(latestMatch, tokenGroup.matches);
+                        return firstMatch || $.each(tokenGroup.matches, function(ndx, match) {
+                            return match.isQuantifier === !0 && (firstMatch = isFirstMatch(latestMatch, tokenGroup.matches[ndx - 1])) ? !1 : void 0;
                         }), firstMatch;
                     }
                     function resolveNdxInitializer(pos, alternateNdx) {
@@ -363,7 +363,7 @@
                         locator: loopNdx.reverse()
                     }), !0;
                     if (void 0 !== match.matches) {
-                        if (match.is***REMOVED*** && quantifierRecurse !== match) {
+                        if (match.isGroup && quantifierRecurse !== match) {
                             if (match = handleMatch(maskToken.matches[$.inArray(match, maskToken.matches) + 1], loopNdx)) return !0;
                         } else if (match.isOptional) {
                             var optionalToken = match;
@@ -417,10 +417,10 @@
                             } else match = handleMatch(alternateToken.matches[altIndex] || maskToken.matches[altIndex], [ altIndex ].concat(loopNdx), quantifierRecurse);
                             if (match) return !0;
                         } else if (match.isQuantifier && quantifierRecurse !== maskToken.matches[$.inArray(match, maskToken.matches) - 1]) for (var qt = match, qndx = ndxInitializer.length > 0 ? ndxInitializer.shift() : 0; qndx < (isNaN(qt.quantifier.max) ? qndx + 1 : qt.quantifier.max) && pos >= testPos; qndx++) {
-                            var token***REMOVED*** = maskToken.matches[$.inArray(qt, maskToken.matches) - 1];
-                            if (match = handleMatch(token***REMOVED***, [ qndx ].concat(loopNdx), token***REMOVED***)) {
+                            var tokenGroup = maskToken.matches[$.inArray(qt, maskToken.matches) - 1];
+                            if (match = handleMatch(tokenGroup, [ qndx ].concat(loopNdx), tokenGroup)) {
                                 if (latestMatch = matches[matches.length - 1].match, latestMatch.optionalQuantifier = qndx > qt.quantifier.min - 1, 
-                                isFirstMatch(latestMatch, token***REMOVED***)) {
+                                isFirstMatch(latestMatch, tokenGroup)) {
                                     if (qndx > qt.quantifier.min - 1) {
                                         insertStop = !0, testPos = pos;
                                         break;

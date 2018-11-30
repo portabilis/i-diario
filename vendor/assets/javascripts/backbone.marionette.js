@@ -890,7 +890,7 @@
   // Marionette Object
   // ---------------------
   //
-  // A Base Class that other ***REMOVED*** should descend from.
+  // A Base Class that other Classes should descend from.
   // Object borrows many conventions and utilities from Backbone.
   Marionette.Object = function(options) {
   
@@ -3344,7 +3344,7 @@
       return module;
     },
   
-    // ## Module ***REMOVED***
+    // ## Module Classes
     //
     // Module classes can be used as an alternative to the define pattern.
     // The extend function of a Module is identical to the extend functions

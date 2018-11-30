@@ -2,7 +2,7 @@ require 'active_support/concern'
 
 module RSpec
   module Decorator
-    module DecoratorExample***REMOVED***
+    module DecoratorExampleGroup
       extend ActiveSupport::Concern
 
       included do
@@ -29,6 +29,6 @@ module RSpec
 end
 
 RSpec.configure do |config|
-  config.include RSpec::Decorator::DecoratorExample***REMOVED***, :type => :decorator,
+  config.include RSpec::Decorator::DecoratorExampleGroup, :type => :decorator,
     :file_path => /spec[\\\/]decorators/
 end
