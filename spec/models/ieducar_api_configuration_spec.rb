@@ -68,8 +68,8 @@ RSpec.describe IeducarApiConfiguration, :type => :model do
   describe "#to_api" do
     it "returns config to be used in the api" do
       url = "http://teste.com.br"
-      token = "***REMOVED***"
-      secret_token = "***REMOVED***"
+      token = "8IOwGIjiHvbeTklgwo10yVLgwDhhvs"
+      secret_token = "5y8cfq31oGvFdAlGMCLIeSKdfc8pUC"
       unity_code = "123"
 
       subject.url = url

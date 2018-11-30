@@ -1,13 +1,13 @@
 module Helpers
-  def click_***REMOVED***(***REMOVED***)
-    ***REMOVED*** = ***REMOVED***.split(" > ")
+  def click_menu(menu)
+    menu = menu.split(" > ")
 
     within "#left-panel" do
-      click_on ***REMOVED***[0]
+      click_on menu[0]
 
-      if ***REMOVED***[1]
+      if menu[1]
         within "li.open" do
-          click_link ***REMOVED***[1]
+          click_link menu[1]
         end
       end
     end

@@ -8,10 +8,10 @@ describe Navigation::MenuBuilder, :type => :service do
   subject { described_class.new feature, current_user }
 
   describe "#build" do
-    context "when informed feature no refers to a ***REMOVED*** or a sub***REMOVED***" do
-      let(:feature) { "invalid ***REMOVED***" }
+    context "when informed feature no refers to a menu or a submenu" do
+      let(:feature) { "invalid menu" }
 
-      it "returns all ***REMOVED***s, but no mark nothing ***REMOVED*** or sub***REMOVED*** as current" do
+      it "returns all menus, but no mark nothing menu or submenu as current" do
         html = subject.build
 
         expect(html).to match /<ul><li class="">.+Dashboard.+<\/li>.+<\/ul>/
@@ -26,10 +26,10 @@ describe Navigation::MenuBuilder, :type => :service do
       end
     end
 
-    context "when informed feature refers to a ***REMOVED***" do
+    context "when informed feature refers to a menu" do
       let(:feature) { "dashboard" }
 
-      it "returns all ***REMOVED***s, but only feature ***REMOVED*** is marked as current" do
+      it "returns all menus, but only feature menu is marked as current" do
         html = subject.build
 
         expect(html).to match /<ul><li class="current">.+Dashboard.+<\/li>.+<\/ul>/
@@ -44,10 +44,10 @@ describe Navigation::MenuBuilder, :type => :service do
       end
     end
 
-    context "when informed feature refers to a sub***REMOVED***" do
+    context "when informed feature refers to a submenu" do
       let(:feature) { "unities" }
 
-      it "returns all ***REMOVED***s, but only feature sub***REMOVED*** is marked as current and your parent ***REMOVED*** is marked as open" do
+      it "returns all menus, but only feature submenu is marked as current and your parent menu is marked as open" do
         html = subject.build
 
         expect(html).to match /<ul><li class="">.+Dashboard.+<\/li>.+<\/ul>/
@@ -74,12 +74,12 @@ describe Navigation::MenuBuilder, :type => :service do
         current_user
       end
 
-      it "returns all permitted ***REMOVED***s" do
+      it "returns all permitted menus" do
         html = subject.build
 
         expect(html).to_not match /<ul>.+Configurações.+<ul>.+Permissões.+<li class="">.+Unidades.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to_not match /<ul>.+Configurações.+<ul>.+Configurações gerais.+<li class="">.+API de integração.+<\/li><\/ul>.+<\/ul>/
-        expect(html).to_not match /<ul>.+Configurações.+<li class="">.+***REMOVED***.+<\/li>.+<\/ul>/
+        expect(html).to_not match /<ul>.+Configurações.+<li class="">.+Publicações.+<\/li>.+<\/ul>/
 
         expect(html).to match /<ul><li class="current">.+Dashboard.+<\/li>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+Usuários.+<\/li>.+<\/ul>.+<\/ul>/

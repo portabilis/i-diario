@@ -8,7 +8,7 @@ unities_permission:
   feature: "unities"
   permission: "change"
 
-***REMOVED***_permission:
+groups_permission:
   role: admin
-  feature: "***REMOVED***"
+  feature: "groups"
   permission: "change"

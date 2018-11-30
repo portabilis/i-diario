@@ -280,7 +280,7 @@
     this.$element = $(element);
     this.$newElement = null;
     this.$button = null;
-    this.$***REMOVED*** = null;
+    this.$menu = null;
     this.$lis = null;
     this.options = options;
 
@@ -314,10 +314,10 @@
     countSelectedText: function (numSelected, numTotal) {
       return (numSelected == 1) ? "{0} item selected" : "{0} items selected";
     },
-    maxOptionsText: function (numAll, num***REMOVED***) {
+    maxOptionsText: function (numAll, numGroup) {
       return [
         (numAll == 1) ? 'Limit reached ({n} item max)' : 'Limit reached ({n} items max)',
-        (num***REMOVED*** == 1) ? '***REMOVED*** limit reached ({n} item max)' : '***REMOVED*** limit reached ({n} items max)'
+        (numGroup == 1) ? 'Group limit reached ({n} item max)' : 'Group limit reached ({n} items max)'
       ];
     },
     selectAllText: 'Select All',
@@ -376,13 +376,13 @@
         .after(this.$newElement)
         .appendTo(this.$newElement);
       this.$button = this.$newElement.children('button');
-      this.$***REMOVED*** = this.$newElement.children('.dropdown-***REMOVED***');
-      this.$***REMOVED***Inner = this.$***REMOVED***.children('.inner');
-      this.$searchbox = this.$***REMOVED***.find('input');
+      this.$menu = this.$newElement.children('.dropdown-menu');
+      this.$menuInner = this.$menu.children('.inner');
+      this.$searchbox = this.$menu.find('input');
 
       this.$element.removeClass('bs-select-hidden');
 
-      if (this.options.dropdownAlignRight === true) this.$***REMOVED***.addClass('dropdown-***REMOVED***-right');
+      if (this.options.dropdownAlignRight === true) this.$menu.addClass('dropdown-menu-right');
 
       if (typeof id !== 'undefined') {
         this.$button.attr('data-id', id);
@@ -399,20 +399,20 @@
       this.setStyle();
       this.setWidth();
       if (this.options.container) this.selectPosition();
-      this.$***REMOVED***.data('this', this);
+      this.$menu.data('this', this);
       this.$newElement.data('this', this);
       if (this.options.mobile) this.mobile();
 
       this.$newElement.on({
         'hide.bs.dropdown': function (e) {
-          that.$***REMOVED***Inner.attr('aria-expanded', false);
+          that.$menuInner.attr('aria-expanded', false);
           that.$element.trigger('hide.bs.select', e);
         },
         'hidden.bs.dropdown': function (e) {
           that.$element.trigger('hidden.bs.select', e);
         },
         'show.bs.dropdown': function (e) {
-          that.$***REMOVED***Inner.attr('aria-expanded', true);
+          that.$menuInner.attr('aria-expanded', true);
           that.$element.trigger('show.bs.select', e);
         },
         'shown.bs.dropdown': function (e) {
@@ -433,7 +433,7 @@
             },
             'shown.bs.select': function () {
               that.$element
-                .val(that.$element.val()) // set the value to hide the validation message in Chrome when ***REMOVED*** is opened
+                .val(that.$element.val()) // set the value to hide the validation message in Chrome when menu is opened
                 .off('shown.bs.select');
             },
             'rendered.bs.select': function () {
@@ -454,7 +454,7 @@
       // Options
       // If we are multiple or showTick option is set, then add the show-tick class
       var showTick = (this.multiple || this.options.showTick) ? ' show-tick' : '',
-          input***REMOVED*** = this.$element.parent().hasClass('input-group') ? ' input-group-btn' : '',
+          inputGroup = this.$element.parent().hasClass('input-group') ? ' input-group-btn' : '',
           autofocus = this.autofocus ? ' autofocus' : '';
       // Elements
       var header = this.options.header ? '<div class="popover-title"><button type="button" class="close" aria-hidden="true">&times;</button>' + this.options.header + '</div>' : '';
@@ -486,18 +486,18 @@
       '</div>'
           : '';
       var drop =
-          '<div class="btn-group bootstrap-select' + showTick + input***REMOVED*** + '">' +
+          '<div class="btn-group bootstrap-select' + showTick + inputGroup + '">' +
           '<button type="button" class="' + this.options.styleBase + ' dropdown-toggle" data-toggle="dropdown"' + autofocus + ' role="button">' +
           '<span class="filter-option pull-left"></span>&nbsp;' +
           '<span class="bs-caret">' +
           this.options.template.caret +
           '</span>' +
           '</button>' +
-          '<div class="dropdown-***REMOVED*** open" role="combobox">' +
+          '<div class="dropdown-menu open" role="combobox">' +
           header +
           searchbox +
           actionsbox +
-          '<ul class="dropdown-***REMOVED*** inner" role="listbox" aria-expanded="false">' +
+          '<ul class="dropdown-menu inner" role="listbox" aria-expanded="false">' +
           '</ul>' +
           donebutton +
           '</div>' +
@@ -519,11 +519,11 @@
       this.destroyLi();
       //Re build
       var li = this.createLi();
-      this.$***REMOVED***Inner[0].innerHTML = li;
+      this.$menuInner[0].innerHTML = li;
     },
 
     destroyLi: function () {
-      this.$***REMOVED***.find('li').remove();
+      this.$menu.find('li').remove();
     },
 
     createLi: function () {
@@ -635,8 +635,8 @@
             }
           }
 
-          var opt***REMOVED***Class = ' ' + $parent[0].className || '';
-          if (that.options.selectAllHeaders) opt***REMOVED***Class += ' selectAllHeaders';
+          var optGroupClass = ' ' + $parent[0].className || '';
+          if (that.options.selectAllHeaders) optGroupClass += ' selectAllHeaders';
 
           if ($this.index() === 0) { // Is it the first option of the optgroup?
             optID += 1;
@@ -653,7 +653,7 @@
               _li.push(generateLI('', null, 'divider', optID + 'div'));
             }
             liIndex++;
-            _li.push(generateLI(label, null, 'dropdown-header' + opt***REMOVED***Class, optID));
+            _li.push(generateLI(label, null, 'dropdown-header' + optGroupClass, optID));
           }
 
           if (that.options.hideDisabled && isDisabled) {
@@ -661,7 +661,7 @@
             return;
           }
 
-          _li.push(generateLI(generateA(text, 'opt ' + optionClass + opt***REMOVED***Class, inline, tokens), index, '', optID));
+          _li.push(generateLI(generateA(text, 'opt ' + optionClass + optGroupClass, inline, tokens), index, '', optID));
         } else if ($this.data('divider') === true) {
           _li.push(generateLI('', index, 'divider'));
         } else if ($this.data('hidden') === true) {
@@ -677,17 +677,17 @@
             for (var i = 0; i < $prev.length; i++) {
               // find the first element in the previous elements that is an optgroup
               if ($prev[i].tagName === 'OPTGROUP') {
-                var opt***REMOVED***Distance = 0;
+                var optGroupDistance = 0;
 
                 // loop through the options in between the current option and the optgroup
                 // and check if they are hidden or disabled
                 for (var d = 0; d < i; d++) {
                   var prevOption = $prev[d];
-                  if (prevOption.disabled || $(prevOption).data('hidden') === true) opt***REMOVED***Distance++;
+                  if (prevOption.disabled || $(prevOption).data('hidden') === true) optGroupDistance++;
                 }
 
                 // if all of the options between the current option and the optgroup are hidden or disabled, show the divider
-                if (opt***REMOVED***Distance === i) showDivider = true;
+                if (optGroupDistance === i) showDivider = true;
 
                 break;
               }
@@ -713,7 +713,7 @@
     },
 
     findLis: function () {
-      if (this.$lis == null) this.$lis = this.$***REMOVED***.find('li');
+      if (this.$lis == null) this.$lis = this.$menu.find('li');
       return this.$lis;
     },
 
@@ -821,41 +821,41 @@
       if (!refresh && (this.options.size === false || this.sizeInfo)) return;
 
       var newElement = document.createElement('div'),
-          ***REMOVED*** = document.createElement('div'),
-          ***REMOVED***Inner = document.createElement('ul'),
+          menu = document.createElement('div'),
+          menuInner = document.createElement('ul'),
           divider = document.createElement('li'),
           li = document.createElement('li'),
           a = document.createElement('a'),
           text = document.createElement('span'),
-          header = this.options.header && this.$***REMOVED***.find('.popover-title').length > 0 ? this.$***REMOVED***.find('.popover-title')[0].cloneNode(true) : null,
+          header = this.options.header && this.$menu.find('.popover-title').length > 0 ? this.$menu.find('.popover-title')[0].cloneNode(true) : null,
           search = this.options.liveSearch ? document.createElement('div') : null,
-          actions = this.options.actionsBox && this.multiple && this.$***REMOVED***.find('.bs-actionsbox').length > 0 ? this.$***REMOVED***.find('.bs-actionsbox')[0].cloneNode(true) : null,
-          doneButton = this.options.doneButton && this.multiple && this.$***REMOVED***.find('.bs-donebutton').length > 0 ? this.$***REMOVED***.find('.bs-donebutton')[0].cloneNode(true) : null;
+          actions = this.options.actionsBox && this.multiple && this.$menu.find('.bs-actionsbox').length > 0 ? this.$menu.find('.bs-actionsbox')[0].cloneNode(true) : null,
+          doneButton = this.options.doneButton && this.multiple && this.$menu.find('.bs-donebutton').length > 0 ? this.$menu.find('.bs-donebutton')[0].cloneNode(true) : null;
 
       text.className = 'text';
-      newElement.className = this.$***REMOVED***[0].parentNode.className + ' open';
-      ***REMOVED***.className = 'dropdown-***REMOVED*** open';
-      ***REMOVED***Inner.className = 'dropdown-***REMOVED*** inner';
+      newElement.className = this.$menu[0].parentNode.className + ' open';
+      menu.className = 'dropdown-menu open';
+      menuInner.className = 'dropdown-menu inner';
       divider.className = 'divider';
 
       text.appendChild(document.createTextNode('Inner text'));
       a.appendChild(text);
       li.appendChild(a);
-      ***REMOVED***Inner.appendChild(li);
-      ***REMOVED***Inner.appendChild(divider);
-      if (header) ***REMOVED***.appendChild(header);
+      menuInner.appendChild(li);
+      menuInner.appendChild(divider);
+      if (header) menu.appendChild(header);
       if (search) {
         // create a span instead of input as creating an input element is slower
         var input = document.createElement('span');
         search.className = 'bs-searchbox';
         input.className = 'form-control';
         search.appendChild(input);
-        ***REMOVED***.appendChild(search);
+        menu.appendChild(search);
       }
-      if (actions) ***REMOVED***.appendChild(actions);
-      ***REMOVED***.appendChild(***REMOVED***Inner);
-      if (doneButton) ***REMOVED***.appendChild(doneButton);
-      newElement.appendChild(***REMOVED***);
+      if (actions) menu.appendChild(actions);
+      menu.appendChild(menuInner);
+      if (doneButton) menu.appendChild(doneButton);
+      newElement.appendChild(menu);
 
       document.body.appendChild(newElement);
 
@@ -866,25 +866,25 @@
           doneButtonHeight = doneButton ? doneButton.offsetHeight : 0,
           dividerHeight = $(divider).outerHeight(true),
           // fall back to jQuery if getComputedStyle is not supported
-          ***REMOVED***Style = typeof getComputedStyle === 'function' ? getComputedStyle(***REMOVED***) : false,
-          $***REMOVED*** = ***REMOVED***Style ? null : $(***REMOVED***),
-          ***REMOVED***Padding = {
-            vert: parseInt(***REMOVED***Style ? ***REMOVED***Style.paddingTop : $***REMOVED***.css('paddingTop')) +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.paddingBottom : $***REMOVED***.css('paddingBottom')) +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.borderTopWidth : $***REMOVED***.css('borderTopWidth')) +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.borderBottomWidth : $***REMOVED***.css('borderBottomWidth')),
-            horiz: parseInt(***REMOVED***Style ? ***REMOVED***Style.paddingLeft : $***REMOVED***.css('paddingLeft')) +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.paddingRight : $***REMOVED***.css('paddingRight')) +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.borderLeftWidth : $***REMOVED***.css('borderLeftWidth')) +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.borderRightWidth : $***REMOVED***.css('borderRightWidth'))
+          menuStyle = typeof getComputedStyle === 'function' ? getComputedStyle(menu) : false,
+          $menu = menuStyle ? null : $(menu),
+          menuPadding = {
+            vert: parseInt(menuStyle ? menuStyle.paddingTop : $menu.css('paddingTop')) +
+                  parseInt(menuStyle ? menuStyle.paddingBottom : $menu.css('paddingBottom')) +
+                  parseInt(menuStyle ? menuStyle.borderTopWidth : $menu.css('borderTopWidth')) +
+                  parseInt(menuStyle ? menuStyle.borderBottomWidth : $menu.css('borderBottomWidth')),
+            horiz: parseInt(menuStyle ? menuStyle.paddingLeft : $menu.css('paddingLeft')) +
+                  parseInt(menuStyle ? menuStyle.paddingRight : $menu.css('paddingRight')) +
+                  parseInt(menuStyle ? menuStyle.borderLeftWidth : $menu.css('borderLeftWidth')) +
+                  parseInt(menuStyle ? menuStyle.borderRightWidth : $menu.css('borderRightWidth'))
           },
-          ***REMOVED***Extras =  {
-            vert: ***REMOVED***Padding.vert +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.marginTop : $***REMOVED***.css('marginTop')) +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.marginBottom : $***REMOVED***.css('marginBottom')) + 2,
-            horiz: ***REMOVED***Padding.horiz +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.marginLeft : $***REMOVED***.css('marginLeft')) +
-                  parseInt(***REMOVED***Style ? ***REMOVED***Style.marginRight : $***REMOVED***.css('marginRight')) + 2
+          menuExtras =  {
+            vert: menuPadding.vert +
+                  parseInt(menuStyle ? menuStyle.marginTop : $menu.css('marginTop')) +
+                  parseInt(menuStyle ? menuStyle.marginBottom : $menu.css('marginBottom')) + 2,
+            horiz: menuPadding.horiz +
+                  parseInt(menuStyle ? menuStyle.marginLeft : $menu.css('marginLeft')) +
+                  parseInt(menuStyle ? menuStyle.marginRight : $menu.css('marginRight')) + 2
           }
 
       document.body.removeChild(newElement);
@@ -896,8 +896,8 @@
         actionsHeight: actionsHeight,
         doneButtonHeight: doneButtonHeight,
         dividerHeight: dividerHeight,
-        ***REMOVED***Padding: ***REMOVED***Padding,
-        ***REMOVED***Extras: ***REMOVED***Extras
+        menuPadding: menuPadding,
+        menuExtras: menuExtras
       };
     },
 
@@ -905,12 +905,12 @@
       this.findLis();
       this.liHeight();
 
-      if (this.options.header) this.$***REMOVED***.css('padding-top', 0);
+      if (this.options.header) this.$menu.css('padding-top', 0);
       if (this.options.size === false) return;
 
       var that = this,
-          $***REMOVED*** = this.$***REMOVED***,
-          $***REMOVED***Inner = this.$***REMOVED***Inner,
+          $menu = this.$menu,
+          $menuInner = this.$menuInner,
           $window = $(window),
           selectHeight = this.$newElement[0].offsetHeight,
           selectWidth = this.$newElement[0].offsetWidth,
@@ -920,11 +920,11 @@
           actionsHeight = this.sizeInfo['actionsHeight'],
           doneButtonHeight = this.sizeInfo['doneButtonHeight'],
           divHeight = this.sizeInfo['dividerHeight'],
-          ***REMOVED***Padding = this.sizeInfo['***REMOVED***Padding'],
-          ***REMOVED***Extras = this.sizeInfo['***REMOVED***Extras'],
+          menuPadding = this.sizeInfo['menuPadding'],
+          menuExtras = this.sizeInfo['menuExtras'],
           notDisabled = this.options.hideDisabled ? '.disabled' : '',
-          ***REMOVED***Height,
-          ***REMOVED***Width,
+          menuHeight,
+          menuWidth,
           getHeight,
           getWidth,
           selectOffsetTop,
@@ -964,20 +964,20 @@
                     }
                 };
               },
-              lis = that.$***REMOVED***Inner[0].getElementsByTagName('li'),
+              lis = that.$menuInner[0].getElementsByTagName('li'),
               lisVisible = Array.prototype.filter ? Array.prototype.filter.call(lis, hasClass('hidden', false)) : that.$lis.not('.hidden'),
-              opt***REMOVED*** = Array.prototype.filter ? Array.prototype.filter.call(lisVisible, hasClass('dropdown-header', true)) : lisVisible.filter('.dropdown-header');
+              optGroup = Array.prototype.filter ? Array.prototype.filter.call(lisVisible, hasClass('dropdown-header', true)) : lisVisible.filter('.dropdown-header');
 
           getPos();
-          ***REMOVED***Height = selectOffsetBot - ***REMOVED***Extras.vert;
-          ***REMOVED***Width = selectOffsetRight - ***REMOVED***Extras.horiz;
+          menuHeight = selectOffsetBot - menuExtras.vert;
+          menuWidth = selectOffsetRight - menuExtras.horiz;
 
           if (that.options.container) {
-            if (!$***REMOVED***.data('height')) $***REMOVED***.data('height', $***REMOVED***.height());
-            getHeight = $***REMOVED***.data('height');
+            if (!$menu.data('height')) $menu.data('height', $menu.height());
+            getHeight = $menu.data('height');
 
-            if (!$***REMOVED***.data('width')) $***REMOVED***.data('width', $***REMOVED***.width());
-            getWidth = $***REMOVED***.data('width');
+            if (!$menu.data('width')) $menu.data('width', $menu.width());
+            getWidth = $menu.data('width');
           } else {
             
             function uncheckOptgroup($optgroupLis, $options) {
@@ -1022,7 +1022,7 @@
             if (that.options.selectAllHeaders && that.multiple) { 
             
               //Bind selecting all options under the group.
-              $***REMOVED***.find('li.divider, li.dropdown-header')
+              $menu.find('li.divider, li.dropdown-header')
                 .off('click') //Fixes double bound issue
                 .click(function (e) {
                   e.preventDefault();
@@ -1046,28 +1046,28 @@
                 });
             }
               
-            ***REMOVED***Height = selectOffsetTop - ***REMOVED***Extras.vert;
+            menuHeight = selectOffsetTop - menuExtras.vert;
           }
 
           if (that.options.dropdownAlignRight === 'auto') {
-            $***REMOVED***.toggleClass('dropdown-***REMOVED***-right', selectOffsetLeft > selectOffsetRight && (***REMOVED***Width - ***REMOVED***Extras.horiz) < (getWidth - selectWidth));
+            $menu.toggleClass('dropdown-menu-right', selectOffsetLeft > selectOffsetRight && (menuWidth - menuExtras.horiz) < (getWidth - selectWidth));
           }
 
-          if ((lisVisible.length + opt***REMOVED***.length) > 3) {
-            minHeight = liHeight * 3 + ***REMOVED***Extras.vert - 2;
+          if ((lisVisible.length + optGroup.length) > 3) {
+            minHeight = liHeight * 3 + menuExtras.vert - 2;
           } else {
             minHeight = 0;
           }
 
-          $***REMOVED***.css({
-            'max-height': ***REMOVED***Height + 'px',
+          $menu.css({
+            'max-height': menuHeight + 'px',
             'overflow': 'hidden',
             'min-height': minHeight + headerHeight + searchHeight + actionsHeight + doneButtonHeight + 'px'
           });
-          $***REMOVED***Inner.css({
-            'max-height': ***REMOVED***Height - headerHeight - searchHeight - actionsHeight - doneButtonHeight - ***REMOVED***Padding.vert + 'px',
+          $menuInner.css({
+            'max-height': menuHeight - headerHeight - searchHeight - actionsHeight - doneButtonHeight - menuPadding.vert + 'px',
             'overflow-y': 'auto',
-            'min-height': Math.max(minHeight - ***REMOVED***Padding.vert, 0) + 'px'
+            'min-height': Math.max(minHeight - menuPadding.vert, 0) + 'px'
           });
         };
         getSize();
@@ -1076,26 +1076,26 @@
       } else if (this.options.size && this.options.size != 'auto' && this.$lis.not(notDisabled).length > this.options.size) {
         var optIndex = this.$lis.not('.divider').not(notDisabled).children().slice(0, this.options.size).last().parent().index(),
             divLength = this.$lis.slice(0, optIndex + 1).filter('.divider').length;
-        ***REMOVED***Height = liHeight * this.options.size + divLength * divHeight + ***REMOVED***Padding.vert;
+        menuHeight = liHeight * this.options.size + divLength * divHeight + menuPadding.vert;
 
         if (that.options.container) {
-          if (!$***REMOVED***.data('height')) $***REMOVED***.data('height', $***REMOVED***.height());
-          getHeight = $***REMOVED***.data('height');
+          if (!$menu.data('height')) $menu.data('height', $menu.height());
+          getHeight = $menu.data('height');
         } else {
-          getHeight = $***REMOVED***.height();
+          getHeight = $menu.height();
         }
 
         if (that.options.dropupAuto) {
           //noinspection JSUnusedAssignment
-          this.$newElement.toggleClass('dropup', selectOffsetTop > selectOffsetBot && (***REMOVED***Height - ***REMOVED***Extras.vert) < getHeight);
+          this.$newElement.toggleClass('dropup', selectOffsetTop > selectOffsetBot && (menuHeight - menuExtras.vert) < getHeight);
         }
-        $***REMOVED***.css({
-          'max-height': ***REMOVED***Height + headerHeight + searchHeight + actionsHeight + doneButtonHeight + 'px',
+        $menu.css({
+          'max-height': menuHeight + headerHeight + searchHeight + actionsHeight + doneButtonHeight + 'px',
           'overflow': 'hidden',
           'min-height': ''
         });
-        $***REMOVED***Inner.css({
-          'max-height': ***REMOVED***Height - ***REMOVED***Padding.vert + 'px',
+        $menuInner.css({
+          'max-height': menuHeight - menuPadding.vert + 'px',
           'overflow-y': 'auto',
           'min-height': ''
         });
@@ -1104,12 +1104,12 @@
 
     setWidth: function () {
       if (this.options.width === 'auto') {
-        this.$***REMOVED***.css('min-width', '0');
+        this.$menu.css('min-width', '0');
 
         // Get correct width if element is hidden
-        var $selectClone = this.$***REMOVED***.parent().clone().appendTo('body'),
+        var $selectClone = this.$menu.parent().clone().appendTo('body'),
             $selectClone2 = this.options.container ? this.$newElement.clone().appendTo('body') : $selectClone,
-            ulWidth = $selectClone.children('.dropdown-***REMOVED***').outerWidth(),
+            ulWidth = $selectClone.children('.dropdown-menu').outerWidth(),
             btnWidth = $selectClone2.css('width', 'auto').children('button').outerWidth();
 
         $selectClone.remove();
@@ -1119,15 +1119,15 @@
         this.$newElement.css('width', Math.max(ulWidth, btnWidth) + 'px');
       } else if (this.options.width === 'fit') {
         // Remove inline min-width so width can be changed from 'auto'
-        this.$***REMOVED***.css('min-width', '');
+        this.$menu.css('min-width', '');
         this.$newElement.css('width', '').addClass('fit-width');
       } else if (this.options.width) {
         // Remove inline min-width so width can be changed from 'auto'
-        this.$***REMOVED***.css('min-width', '');
+        this.$menu.css('min-width', '');
         this.$newElement.css('width', this.options.width);
       } else {
         // Remove inline min-width/width so width can be changed
-        this.$***REMOVED***.css('min-width', '');
+        this.$menu.css('min-width', '');
         this.$newElement.css('width', '');
       }
       // Remove fit-width class if width is changed programmatically
@@ -1177,7 +1177,7 @@
         that.$bsContainer
           .appendTo(that.options.container)
           .toggleClass('open', !$this.hasClass('open'))
-          .append(that.$***REMOVED***);
+          .append(that.$menu);
       });
 
       $(window).on('resize scroll', function () {
@@ -1185,7 +1185,7 @@
       });
 
       this.$element.on('hide.bs.select', function () {
-        that.$***REMOVED***.data('height', that.$***REMOVED***.height());
+        that.$menu.data('height', that.$menu.height());
         that.$bsContainer.detach();
       });
     },
@@ -1266,7 +1266,7 @@
       var that = this,
           $document = $(document);
 
-      this.$newElement.on('touchstart.dropdown', '.dropdown-***REMOVED***', function (e) {
+      this.$newElement.on('touchstart.dropdown', '.dropdown-menu', function (e) {
         e.stopPropagation();
       });
 
@@ -1285,27 +1285,27 @@
 
       this.$element.on('shown.bs.select', function () {
         if (!that.options.liveSearch && !that.multiple) {
-          that.$***REMOVED***Inner.find('.selected a').focus();
+          that.$menuInner.find('.selected a').focus();
         } else if (!that.multiple) {
           var selectedIndex = that.liObj[that.$element[0].selectedIndex];
 
           if (typeof selectedIndex !== 'number' || that.options.size === false) return;
 
           // scroll to selected option
-          var offset = that.$lis.eq(selectedIndex)[0].offsetTop - that.$***REMOVED***Inner[0].offsetTop;
-          offset = offset - that.$***REMOVED***Inner[0].offsetHeight/2 + that.sizeInfo.liHeight/2;
-          that.$***REMOVED***Inner[0].scrollTop = offset;
+          var offset = that.$lis.eq(selectedIndex)[0].offsetTop - that.$menuInner[0].offsetTop;
+          offset = offset - that.$menuInner[0].offsetHeight/2 + that.sizeInfo.liHeight/2;
+          that.$menuInner[0].scrollTop = offset;
         }
       });
 
-      this.$***REMOVED***Inner.on('click', 'li a', function (e) {
+      this.$menuInner.on('click', 'li a', function (e) {
         var $this = $(this),
             clickedIndex = $this.parent().data('originalIndex'),
             prevValue = that.$element.val(),
             prevIndex = that.$element.prop('selectedIndex'),
             triggerChange = true;
 
-        // Don't close on multi choice ***REMOVED***
+        // Don't close on multi choice menu
         if (that.multiple && that.options.maxOptions !== 1) {
           e.stopPropagation();
         }
@@ -1324,7 +1324,7 @@
           if (!that.multiple) { // Deselect all others if not multi select box
             $options.prop('selected', false);
             $option.prop('selected', true);
-            that.$***REMOVED***Inner.find('.selected').removeClass('selected').find('a').attr('aria-selected', false);
+            that.$menuInner.find('.selected').removeClass('selected').find('a').attr('aria-selected', false);
             that.setSelected(clickedIndex, true);
           } else { // Toggle the one we have chosen if we are multi select.
             $option.prop('selected', !state);
@@ -1339,13 +1339,13 @@
                 if (maxOptions && maxOptions == 1) {
                   $options.prop('selected', false);
                   $option.prop('selected', true);
-                  that.$***REMOVED***Inner.find('.selected').removeClass('selected');
+                  that.$menuInner.find('.selected').removeClass('selected');
                   that.setSelected(clickedIndex, true);
                 } else if (maxOptionsGrp && maxOptionsGrp == 1) {
                   $optgroup.find('option:selected').prop('selected', false);
                   $option.prop('selected', true);
                   var optgroupID = $this.parent().data('optgroup');
-                  that.$***REMOVED***Inner.find('[data-optgroup="' + optgroupID + '"]').removeClass('selected');
+                  that.$menuInner.find('[data-optgroup="' + optgroupID + '"]').removeClass('selected');
                   that.setSelected(clickedIndex, true);
                 } else {
                   var maxOptionsText = typeof that.options.maxOptionsText === 'string' ? [that.options.maxOptionsText, that.options.maxOptionsText] : that.options.maxOptionsText,
@@ -1362,7 +1362,7 @@
 
                   $option.prop('selected', false);
 
-                  that.$***REMOVED***.append($notify);
+                  that.$menu.append($notify);
 
                   if (maxOptions && maxReached) {
                     $notify.append($('<div>' + maxTxt + '</div>'));
@@ -1406,7 +1406,7 @@
         }
       });
 
-      this.$***REMOVED***.on('click', 'li.disabled a, .popover-title, .popover-title :not(.close)', function (e) {
+      this.$menu.on('click', 'li.disabled a, .popover-title, .popover-title :not(.close)', function (e) {
         if (e.currentTarget == this) {
           e.preventDefault();
           e.stopPropagation();
@@ -1418,7 +1418,7 @@
         }
       });
 
-      this.$***REMOVED***Inner.on('click', '.divider, .dropdown-header', function (e) {
+      this.$menuInner.on('click', '.divider, .dropdown-header', function (e) {
         e.preventDefault();
         e.stopPropagation();
         if (that.options.liveSearch) {
@@ -1428,7 +1428,7 @@
         }
       });
 
-      this.$***REMOVED***.on('click', '.popover-title .close', function () {
+      this.$menu.on('click', '.popover-title .close', function () {
         that.$button.click();
       });
 
@@ -1436,7 +1436,7 @@
         e.stopPropagation();
       });
 
-      this.$***REMOVED***.on('click', '.actions-btn', function (e) {
+      this.$menu.on('click', '.actions-btn', function (e) {
         if (that.options.liveSearch) {
           that.$searchbox.focus();
         } else {
@@ -1465,13 +1465,13 @@
           $no_results = $('<li class="no-results"></li>');
 
       this.$button.on('click.dropdown.data-api touchstart.dropdown.data-api', function () {
-        that.$***REMOVED***Inner.find('.active').removeClass('active');
+        that.$menuInner.find('.active').removeClass('active');
         if (!!that.$searchbox.val()) {
           that.$searchbox.val('');
           that.$lis.not('.is-hidden').removeClass('hidden');
           if (!!$no_results.parent().length) $no_results.remove();
         }
-        if (!that.multiple) that.$***REMOVED***Inner.find('.selected').addClass('active');
+        if (!that.multiple) that.$menuInner.find('.selected').addClass('active');
         setTimeout(function () {
           that.$searchbox.focus();
         }, 10);
@@ -1520,7 +1520,7 @@
               $no_results.remove();
             }
             $no_results.html(that.options.noneResultsText.replace('{0}', '"' + htmlEscape(that.$searchbox.val()) + '"')).show();
-            that.$***REMOVED***Inner.append($no_results);
+            that.$menuInner.append($no_results);
           } else if (!!$no_results.parent().length) {
             $no_results.remove();
           }
@@ -1674,7 +1674,7 @@
 
       if (that.options.liveSearch) $parent = $this.parent().parent();
 
-      if (that.options.container) $parent = that.$***REMOVED***;
+      if (that.options.container) $parent = that.$menu;
 
       $items = $('[role="listbox"] li', $parent);
 
@@ -1683,7 +1683,7 @@
       if (!isActive && (e.keyCode >= 48 && e.keyCode <= 57 || e.keyCode >= 96 && e.keyCode <= 105 || e.keyCode >= 65 && e.keyCode <= 90)) {
         if (!that.options.container) {
           that.setSize();
-          that.$***REMOVED***.parent().addClass('open');
+          that.$menu.parent().addClass('open');
           isActive = true;
         } else {
           that.$button.trigger('click');
@@ -1693,9 +1693,9 @@
       }
 
       if (that.options.liveSearch) {
-        if (/(^9$|27)/.test(e.keyCode.toString(10)) && isActive && that.$***REMOVED***.find('.active').length === 0) {
+        if (/(^9$|27)/.test(e.keyCode.toString(10)) && isActive && that.$menu.find('.active').length === 0) {
           e.preventDefault();
-          that.$***REMOVED***.parent().removeClass('open');
+          that.$menu.parent().removeClass('open');
           if (that.options.container) that.$newElement.removeClass('open');
           that.$button.focus();
         }
@@ -1703,7 +1703,7 @@
         $items = $('[role="listbox"] li' + selector, $parent);
         if (!$this.val() && !/(38|40)/.test(e.keyCode.toString(10))) {
           if ($items.filter('.active').length === 0) {
-            $items = that.$***REMOVED***Inner.find('li');
+            $items = that.$menuInner.find('li');
             if (that.options.liveSearchNormalize) {
               $items = $items.filter(':a' + that._searchStyle() + '(' + normalizeToBase(keyCodeMap[e.keyCode]) + ')');
             } else {
@@ -1794,7 +1794,7 @@
         $items.eq(keyIndex[count - 1]).children('a').focus();
       }
 
-      // Select focused option if "Enter", "Spacebar" or "Tab" (when selectOnTab is true) are pressed inside the ***REMOVED***.
+      // Select focused option if "Enter", "Spacebar" or "Tab" (when selectOnTab is true) are pressed inside the menu.
       if ((/(13|32)/.test(e.keyCode.toString(10)) || (/(^9$)/.test(e.keyCode.toString(10)) && that.options.selectOnTab)) && isActive) {
         if (!/(32)/.test(e.keyCode.toString(10))) e.preventDefault();
         if (!that.options.liveSearch) {
@@ -1807,14 +1807,14 @@
           // Fixes spacebar selection of dropdown items in FF & IE
           $(document).data('spaceSelect', true);
         } else if (!/(32)/.test(e.keyCode.toString(10))) {
-          that.$***REMOVED***Inner.find('.active a').click();
+          that.$menuInner.find('.active a').click();
           $this.focus();
         }
         $(document).data('keycount', 0);
       }
 
       if ((/(^9$|27)/.test(e.keyCode.toString(10)) && isActive && (that.multiple || that.options.liveSearch)) || (/(27)/.test(e.keyCode.toString(10)) && !isActive)) {
-        that.$***REMOVED***.parent().removeClass('open');
+        that.$menu.parent().removeClass('open');
         if (that.options.container) that.$newElement.removeClass('open');
         that.$button.focus();
       }
@@ -1857,7 +1857,7 @@
       if (this.$bsContainer) {
         this.$bsContainer.remove();
       } else {
-        this.$***REMOVED***.remove();
+        this.$menu.remove();
       }
 
       this.$element

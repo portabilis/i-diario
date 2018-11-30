@@ -211,22 +211,22 @@ ul#contents-list li.list-group-item.active{
 }
 
 /* clearfix  */
-.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected {
+.bootstrap-select.btn-group.show-tick .dropdown-menu li.selected {
   border: 0 !important;
 }
-.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected:before {
+.bootstrap-select.btn-group.show-tick .dropdown-menu li.selected:before {
   content: "";
   display: table;
   clear: both;
 }
-.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected:after {
+.bootstrap-select.btn-group.show-tick .dropdown-menu li.selected:after {
   content: "";
   display: table;
   clear: both;
   border: 0;
 }
 
-.bootstrap-select.open > .dropdown-***REMOVED***{
+.bootstrap-select.open > .dropdown-menu{
  -o-transition-property: none;
  -moz-transition-property: none;
  -ms-transition-property: none;
@@ -244,7 +244,7 @@ ul#contents-list li.list-group-item.active{
  animation: none;
 }
 
-.bootstrap-select.open > .dropdown-***REMOVED***.open > .dropdown-***REMOVED***{
+.bootstrap-select.open > .dropdown-menu.open > .dropdown-menu{
  -o-transition-property: none;
  -moz-transition-property: none;
  -ms-transition-property: none;
@@ -288,7 +288,7 @@ a.parent-dashboard-basic-info-links {
   float: right;
 }
 
-.dropup .dropdown-***REMOVED*** {
+.dropup .dropdown-menu {
   margin-bottom: -8px;
   -webkit-box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);
   box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);

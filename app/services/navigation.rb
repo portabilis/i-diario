@@ -3,7 +3,7 @@ module Navigation
     BreadcrumbsBuilder.build(item, context)
   end
 
-  def self.draw_***REMOVED***s(item, user)
+  def self.draw_menus(item, user)
     MenuBuilder.build(item, user)
   end
 

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Escola?access_key=***REMOVED***&instituicao_id=1&oper=get&resource=info-escolas&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&oper=get&resource=info-escolas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''
@@ -98,7 +98,7 @@ http_interactions:
         SOUZA","cep":"89295000","numero":null,"complemento":"","logradouro":"BR 280
         BOA VISTA","bairro":"BOA VISTA","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"emebprofadeliadaluz@gmail.com","ddd":"47","fone":"36448966","nome_responsavel":"VANESSA
         CARVALHO"},{"cod_escola":"98698","nome":"EMEB PE DR TOMAS GASSER","cep":"89295000","numero":null,"complemento":"","logradouro":"CERRO
-        AZUL","bairro":"CERRO AZUL","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"esctom***REMOVED***asser@gmail.com","ddd":"47","fone":"36460051","nome_responsavel":""},{"cod_escola":"703025","nome":"CAE
+        AZUL","bairro":"CERRO AZUL","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"esctomasgasser@gmail.com","ddd":"47","fone":"36460051","nome_responsavel":""},{"cod_escola":"703025","nome":"CAE
         NOVA ESPERAN\u00c7A","cep":"89295000","numero":"609","complemento":"","logradouro":"R
         RUTH WOLMANN RITZMANN","bairro":"INDL. NORTE","municipio":"Rio Negrinho","uf":"SC","pais":"Brasil","email":"caenovaesperansa@gmail.com","ddd":"47","fone":"36448743","nome_responsavel":""},{"cod_escola":"115770","nome":"EMEB
         PIONEIRO MARCELINO STOEBERL","cep":"89295000","numero":null,"complemento":"","logradouro":"AGUAS

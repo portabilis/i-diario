@@ -30,8 +30,8 @@ class User < ActiveRecord::Base
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
 
   has_many :system_notification_targets, dependent: :destroy
-  has_many :system_***REMOVED***, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
-  has_many :unread_***REMOVED***, -> { joins(:targets).where(system_notification_targets: { read: false}) },
+  has_many :system_notifications, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
+  has_many :unread_notifications, -> { joins(:targets).where(system_notification_targets: { read: false}) },
     through: :system_notification_targets, source: :system_notification
 
   has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
@@ -174,7 +174,7 @@ class User < ActiveRecord::Base
     update_column(:current_user_role_id, user_role_id)
   end
 
-  def read_***REMOVED***!
+  def read_notifications!
     system_notification_targets.read!
   end
 

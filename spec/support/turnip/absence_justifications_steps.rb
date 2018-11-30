@@ -2,11 +2,11 @@
 module Turnip
   module AbsenceJustificationsSteps
     step "que acesso a listagem de justificativas de faltas" do
-      # click_***REMOVED*** 'Frequência > Justificativas de falta'
+      # click_menu 'Frequência > Justificativas de falta'
     end
 
     step 'eu acesso a tela de listagem de justificativas de falta' do
-      # click_***REMOVED*** 'Frequência > Justificativas de falta'
+      # click_menu 'Frequência > Justificativas de falta'
     end
 
     step 'eu entrar no formulário de nova justificativa de falta' do
@@ -30,7 +30,7 @@ module Turnip
       # current_user = users(:john_doe)
       # @absence_justification = create(:absence_justification, author: current_user)
 
-      # click_***REMOVED*** 'Frequência > Justificativas de falta'
+      # click_menu 'Frequência > Justificativas de falta'
       #
       # within :xpath, '//table/tbody/tr[last()]' do
       #   wait_for(page).to have_content(@absence_justification.localized.absence_date)

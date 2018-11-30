@@ -3229,7 +3229,7 @@
        * @param {Number} value
        */
       var checkDropdownMenu = function ($btn, value) {
-        $btn.find('.dropdown-***REMOVED*** li a').each(function () {
+        $btn.find('.dropdown-menu li a').each(function () {
           // always compare string to avoid creating another func.
           var isChecked = ($(this).data('value') + '') === (value + '');
           this.className = isChecked ? 'checked' : '';
@@ -4518,7 +4518,7 @@
         });
       },
       table: function (lang) {
-        var dropdown = '<ul class="note-table dropdown-***REMOVED***">' +
+        var dropdown = '<ul class="note-table dropdown-menu">' +
                          '<div class="note-dimension-picker">' +
                            '<div class="note-dimension-picker-mousecatcher" data-event="insertTable" data-value="1x1"></div>' +
                            '<div class="note-dimension-picker-highlighted"></div>' +
@@ -4544,7 +4544,7 @@
 
         return tplIconButton('fa fa-magic icon-magic', {
           title: lang.style.style,
-          dropdown: '<ul class="dropdown-***REMOVED***">' + items + '</ul>'
+          dropdown: '<ul class="dropdown-menu">' + items + '</ul>'
         });
       },
       fontname: function (lang, options) {
@@ -4559,7 +4559,7 @@
                      '</span>';
         return tplButton(label, {
           title: lang.font.name,
-          dropdown: '<ul class="dropdown-***REMOVED***">' + items + '</ul>'
+          dropdown: '<ul class="dropdown-menu">' + items + '</ul>'
         });
       },
       fontsize: function (lang, options) {
@@ -4572,7 +4572,7 @@
         var label = '<span class="note-current-fontsize">11</span>';
         return tplButton(label, {
           title: lang.font.size,
-          dropdown: '<ul class="dropdown-***REMOVED***">' + items + '</ul>'
+          dropdown: '<ul class="dropdown-menu">' + items + '</ul>'
         });
       },
 
@@ -4585,7 +4585,7 @@
           value: '{"backColor":"yellow"}'
         });
 
-        var dropdown = '<ul class="dropdown-***REMOVED***">' +
+        var dropdown = '<ul class="dropdown-menu">' +
                          '<li>' +
                            '<div class="btn-group">' +
                              '<div class="note-palette-title">' + lang.color.background + '</div>' +
@@ -4693,7 +4693,7 @@
           event: 'indent'
         });
 
-        var dropdown = '<div class="dropdown-***REMOVED***">' +
+        var dropdown = '<div class="dropdown-menu">' +
                          '<div class="note-align btn-group">' +
                            leftButton + centerButton + rightButton + justifyButton +
                          '</div>' +
@@ -4716,7 +4716,7 @@
 
         return tplIconButton('fa fa-text-height icon-text-height', {
           title: lang.font.height,
-          dropdown: '<ul class="dropdown-***REMOVED***">' + items + '</ul>'
+          dropdown: '<ul class="dropdown-menu">' + items + '</ul>'
         });
 
       },
@@ -4849,7 +4849,7 @@
         for (var idx = 0, len = options.airPopover.length; idx < len; idx ++) {
           var group = options.airPopover[idx];
           content += '<div class="note-' + group[0] + ' btn-group">';
-          for (var i = 0, len***REMOVED*** = group[1].length; i < len***REMOVED***; i++) {
+          for (var i = 0, lenGroup = group[1].length; i < lenGroup; i++) {
             content += tplButtonInfo[group[1][i]](lang, options);
           }
           content += '</div>';

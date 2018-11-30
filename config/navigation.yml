@@ -1,178 +1,178 @@
 navigation:
-  - ***REMOVED***:
+  - menu:
       type: "dashboard"
       icon: "fa-home"
       path: "root_path"
       visible: true
-  - ***REMOVED***:
+  - menu:
       type: "accounts"
       icon: "fa-user"
       path: "edit_account_path"
       visible: true
-  - ***REMOVED***:
+  - menu:
       type: "administrative"
       icon: "fa-tasks"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "general_configurations"
             path: "edit_general_configurations_path"
-        - ***REMOVED***:
+        - menu:
             type: "maintenance_adjustments"
             path: "maintenance_adjustments_path"
-  - ***REMOVED***:
+  - menu:
       type: "configurations"
       icon: "fa-cog"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "roles"
             path: "roles_path"
-        - ***REMOVED***:
+        - menu:
             type: "unities"
             path: "unities_path"
-        - ***REMOVED***:
+        - menu:
             type: "users"
             path: "users_path"
-        - ***REMOVED***:
+        - menu:
             type: "data_exportations"
             path: "data_exportations_path"
-        - ***REMOVED***:
+        - menu:
             type: "ieducar_api_configurations"
             path: "edit_ieducar_api_configurations_path"
-        - ***REMOVED***:
+        - menu:
             type: "entity_configurations"
             path: "edit_entity_configurations_path"
-        - ***REMOVED***:
+        - menu:
             type: "test_settings"
             path: "test_settings_path"
-        - ***REMOVED***:
+        - menu:
             type: "terms_dictionaries"
             path: "edit_terms_dictionaries_path"
-        - ***REMOVED***:
+        - menu:
             type: "custom_rounding_tables"
             path: "custom_rounding_tables_path"
-  - ***REMOVED***:
+  - menu:
       type: "school_calendars"
       icon: "fa-calendar"
       path: "school_calendars_path"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "school_calendar_events"
             visible: "only-when-active"
-  - ***REMOVED***:
-      type: "teaching_plans_***REMOVED***"
+  - menu:
+      type: "teaching_plans_menu"
       icon: "fa-book"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "discipline_teaching_plans"
             path: "discipline_teaching_plans_path"
-        - ***REMOVED***:
+        - menu:
             type: "knowledge_area_teaching_plans"
             path: "knowledge_area_teaching_plans_path"
-  - ***REMOVED***:
-      type: "lesson_plans_***REMOVED***"
+  - menu:
+      type: "lesson_plans_menu"
       icon: "fa-pencil"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "discipline_lesson_plans"
             path: "discipline_lesson_plans_path"
-        - ***REMOVED***:
+        - menu:
             type: "knowledge_area_lesson_plans"
             path: "knowledge_area_lesson_plans_path"
-  - ***REMOVED***:
-      type: "content_records_***REMOVED***"
+  - menu:
+      type: "content_records_menu"
       icon: "fa-pencil-square-o"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "discipline_content_records"
             path: "discipline_content_records_path"
-        - ***REMOVED***:
+        - menu:
             type: "knowledge_area_content_records"
             path: "knowledge_area_content_records_path"
-  - ***REMOVED***:
-      type: "avaliations_***REMOVED***"
+  - menu:
+      type: "avaliations_menu"
       icon: "fa-file-text-o"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "conceptual_exams"
             path: "conceptual_exams_path"
-        - ***REMOVED***:
+        - menu:
             type: "descriptive_exams"
             path: "new_descriptive_exam_path"
-        - ***REMOVED***:
+        - menu:
             type: "avaliations"
             path: "avaliations_path"
-        - ***REMOVED***:
+        - menu:
             type: "daily_notes"
             path: "daily_notes_path"
-        - ***REMOVED***:
+        - menu:
             type: "avaliation_exemptions"
             path: "avaliation_exemptions_path"
-        - ***REMOVED***:
+        - menu:
             type: "transfer_notes"
             path: "transfer_notes_path"
-        - ***REMOVED***:
+        - menu:
             type: "complementary_exam_settings"
             path: "complementary_exam_settings_path"
-        - ***REMOVED***:
+        - menu:
             type: "complementary_exams"
             path: "complementary_exams_path"
-  - ***REMOVED***:
-      type: "recovery_diary_records_***REMOVED***"
+  - menu:
+      type: "recovery_diary_records_menu"
       icon: "fa-file-text"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "school_term_recovery_diary_records"
             path: "school_term_recovery_diary_records_path"
-        - ***REMOVED***:
+        - menu:
             type: "final_recovery_diary_records"
             path: "final_recovery_diary_records_path"
-        - ***REMOVED***:
+        - menu:
             type: "avaliation_recovery_diary_records"
             path: "avaliation_recovery_diary_records_path"
-  - ***REMOVED***:
-      type: "frequencies_***REMOVED***"
+  - menu:
+      type: "frequencies_menu"
       icon: "fa-check-square-o"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "daily_frequencies"
             path: "new_daily_frequency_path"
-        - ***REMOVED***:
+        - menu:
             type: "absence_justifications"
             path: "absence_justifications_path"
-  - ***REMOVED***:
+  - menu:
       type: "observation_diary_records"
       icon: "fa-sticky-note-o"
       path: "observation_diary_records_path"
-  - ***REMOVED***:
+  - menu:
       type: "reports"
       icon: "fa-files-o"
-      sub***REMOVED***s:
-        - ***REMOVED***:
+      submenus:
+        - menu:
             type: "exam_record_report"
             path: "exam_record_report_path"
-        - ***REMOVED***:
+        - menu:
             type: "attendance_record_report"
             path: "attendance_record_report_path"
-        - ***REMOVED***:
+        - menu:
             type: "observation_record_report"
             path: "observation_record_report_path"
-        - ***REMOVED***:
+        - menu:
             type: "discipline_lesson_plan_report"
             path: "discipline_lesson_plan_report_path"
-        - ***REMOVED***:
+        - menu:
             type: "knowledge_area_lesson_plan_report"
             path: "knowledge_area_lesson_plan_report_path"
-        - ***REMOVED***:
+        - menu:
             type: "absence_justification_report"
             path: "absence_justification_report_path"
-        - ***REMOVED***:
+        - menu:
             type: "teacher_report_cards"
             path: "teacher_report_cards_path"
-        - ***REMOVED***:
+        - menu:
             type: "partial_score_record_report"
             path: "partial_score_record_report_path"
 
-  - ***REMOVED***:
+  - menu:
       type: "ieducar_api_exam_postings"
       icon: "fa-arrow-circle-up"
       path: "ieducar_api_exam_postings_path"

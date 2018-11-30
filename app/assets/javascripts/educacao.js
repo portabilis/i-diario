@@ -32,7 +32,7 @@ $(function () {
     digits: "deve conter somente dígitos"
   });
 
-  $('nav ul').jarvis***REMOVED***({
+  $('nav ul').jarvismenu({
     accordion : true,
     speed : 235,
     closedSign : '<em class="fa fa-plus-square-o"></em>',

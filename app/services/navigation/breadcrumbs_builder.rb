@@ -2,25 +2,25 @@ module Navigation
   class BreadcrumbsBuilder < Base
     def initialize(item, context, render = BreadcrumbsRender)
       super(item,context, render)
-      ***REMOVED***s << { :type => :begin, :path => "root_path" }
+      menus << { :type => :begin, :path => "root_path" }
     end
 
     def build
-      find_***REMOVED***s
+      find_menus
       render
     end
 
     protected
 
-    def find_***REMOVED***s
+    def find_menus
       navigation.each do |node|
-        if node["***REMOVED***"]["type"] == item
-          ***REMOVED***s << node_values(node["***REMOVED***"])
-        elsif node["***REMOVED***"]["sub***REMOVED***s"].present?
-           node["***REMOVED***"]["sub***REMOVED***s"].each do |subnode|
-            if subnode["***REMOVED***"]["type"] == item
-              ***REMOVED***s << node_values(node["***REMOVED***"])
-              ***REMOVED***s << node_values(subnode["***REMOVED***"])
+        if node["menu"]["type"] == item
+          menus << node_values(node["menu"])
+        elsif node["menu"]["submenus"].present?
+           node["menu"]["submenus"].each do |subnode|
+            if subnode["menu"]["type"] == item
+              menus << node_values(node["menu"])
+              menus << node_values(subnode["menu"])
             end
           end
         end
@@ -36,7 +36,7 @@ module Navigation
     end
 
     def render
-      navigation_render.render(***REMOVED***s)
+      navigation_render.render(menus)
     end
   end
 end

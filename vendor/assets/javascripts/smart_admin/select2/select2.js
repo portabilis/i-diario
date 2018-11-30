@@ -317,7 +317,7 @@ the specific language governing permissions and limitations under the Apache Lic
         return sizer.width();
     }
 
-    function syncCss***REMOVED***(dest, src, adapter) {
+    function syncCssClasses(dest, src, adapter) {
         var classes, replacements = [], adapted;
 
         classes = $.trim(dest.attr("class"));
@@ -719,7 +719,7 @@ the specific language governing permissions and limitations under the Apache Lic
 
             this.body = $("body");
 
-            syncCss***REMOVED***(this.container, this.opts.element, this.opts.adaptContainerCssClass);
+            syncCssClasses(this.container, this.opts.element, this.opts.adaptContainerCssClass);
 
             this.container.attr("style", opts.element.attr("style"));
             this.container.css(evaluate(opts.containerCss, this.opts.element));
@@ -738,7 +738,7 @@ the specific language governing permissions and limitations under the Apache Lic
 
             this.dropdown = this.container.find(".select2-drop");
 
-            syncCss***REMOVED***(this.dropdown, this.opts.element, this.opts.adaptDropdownCssClass);
+            syncCssClasses(this.dropdown, this.opts.element, this.opts.adaptDropdownCssClass);
 
             this.dropdown.addClass(evaluate(opts.dropdownCssClass, this.opts.element));
             this.dropdown.data("select2", this);
@@ -1116,10 +1116,10 @@ the specific language governing permissions and limitations under the Apache Lic
                 if (readonly === undefined) readonly = false;
                 this.readonly(readonly);
 
-                syncCss***REMOVED***(this.container, this.opts.element, this.opts.adaptContainerCssClass);
+                syncCssClasses(this.container, this.opts.element, this.opts.adaptContainerCssClass);
                 this.container.addClass(evaluate(this.opts.containerCssClass, this.opts.element));
 
-                syncCss***REMOVED***(this.dropdown, this.opts.element, this.opts.adaptDropdownCssClass);
+                syncCssClasses(this.dropdown, this.opts.element, this.opts.adaptDropdownCssClass);
                 this.dropdown.addClass(evaluate(this.opts.dropdownCssClass, this.opts.element));
 
             });

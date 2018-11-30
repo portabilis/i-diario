@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=***REMOVED***&disciplina_id=3187&instituicao_id=1&oper=get&resource=alunos-exame-turma&secret_key=***REMOVED***&turma_id=4244
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&disciplina_id=3187&instituicao_id=1&oper=get&resource=alunos-exame-turma&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&turma_id=4244
     body:
       encoding: US-ASCII
       string: ''
@@ -43,7 +43,7 @@ http_interactions:
   recorded_at: Thu, 26 Nov 2015 17:26:37 GMT
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=***REMOVED***&disciplina_id=3187&instituicao_id=1&oper=get&resource=alunos-exame-turma&secret_key=***REMOVED***&turma_id=4244
+    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&disciplina_id=3187&instituicao_id=1&oper=get&resource=alunos-exame-turma&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&turma_id=4244
     body:
       encoding: US-ASCII
       string: ''

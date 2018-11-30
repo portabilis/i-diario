@@ -38,7 +38,7 @@ $(function() {
         multiple: $(element).data('multiple')
       })
       .on('change', function(e) {
-        var measuringUnit = get***REMOVED***FromSelectedItem(e);
+        var measuringUnit = getMeasuringUnitFromSelectedItem(e);
 
         $(e.target)
           .closest('[data-nested-fields]')
@@ -48,7 +48,7 @@ $(function() {
     });
   }
 
-  function get***REMOVED***FromSelectedItem(e) {
+  function getMeasuringUnitFromSelectedItem(e) {
     return ($(e.target)
           .data('elements')
           .filter(function(element) {

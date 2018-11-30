@@ -2,7 +2,7 @@
 module Turnip
   module GeneralConfigurationSteps
     step 'acesso as configurações gerais' do
-      click_***REMOVED*** 'Configurações > Configurações gerais'
+      click_menu 'Configurações > Configurações gerais'
     end
 
     step 'poderei informar o nível de segurança da entidade' do

@@ -52,7 +52,7 @@ class V1::AccessController < V1::BaseController
         unity = Unity.find_by(api_code: unity_code)
         student = Student.find_by(api_code: student_code)
 
-        access = ***REMOVED***.new(
+        access = StudentSchoolAccess.new(
           transaction_date: Time.zone.parse(datetime),
           student: student,
           unity: unity,

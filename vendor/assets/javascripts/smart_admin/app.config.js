@@ -31,7 +31,7 @@
  */
 
   $.root_ = $('body');
-  window.***REMOVED***_accordion = null;
+  window.menu_accordion = null;
   window.debugState = null;
 
 /* APP CONFIGURATION (HTML/AJAX/PHP Versions ONLY)
@@ -51,9 +51,9 @@
  */
 	var throttle_delay = 350,
 /*
- * The rate at which the ***REMOVED*** expands revealing child elements on click
+ * The rate at which the menu expands revealing child elements on click
  */
-	***REMOVED***_speed = 235,	
+	menu_speed = 235,	
 /*
  * Turn on JarvisWidget functionality
  * dependency: js/jarviswidget/jarvis.widget.min.js
@@ -205,17 +205,17 @@
 			'scroll up' : function () { $('html, body').animate({ scrollTop: 0 }, 100); },
 			'scroll down' : function () { $('html, body').animate({ scrollTop: $(document).height() }, 100);},
 			'hide navigation' : function() { 
-				if ($.root_.hasClass("container") && !$.root_.hasClass("***REMOVED***-on-top")){
+				if ($.root_.hasClass("container") && !$.root_.hasClass("menu-on-top")){
 					$('span.minifyme').trigger("click");
 				} else {
-					$('#hide-***REMOVED*** > span > a').trigger("click"); 
+					$('#hide-menu > span > a').trigger("click"); 
 				}
 			},
 			'show navigation' : function() { 
-				if ($.root_.hasClass("container") && !$.root_.hasClass("***REMOVED***-on-top")){
+				if ($.root_.hasClass("container") && !$.root_.hasClass("menu-on-top")){
 					$('span.minifyme').trigger("click");
 				} else {
-					$('#hide-***REMOVED*** > span > a').trigger("click"); 
+					$('#hide-menu > span > a').trigger("click"); 
 				}
 			},
 			'mute' : function() {

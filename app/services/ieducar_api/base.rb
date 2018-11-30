@@ -4,8 +4,8 @@ module IeducarApi
   class Base
     class ApiError < RuntimeError; end
 
-    STAGING_ACCESS_KEY = '***REMOVED***'.freeze
-    STAGING_SECRET_KEY = '***REMOVED***'.freeze
+    STAGING_ACCESS_KEY = '8IOwGIjiHvbeTklgwo10yVLgwDhhvs'.freeze
+    STAGING_SECRET_KEY = '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC'.freeze
 
     attr_accessor :url, :access_key, :secret_key, :unity_id
 

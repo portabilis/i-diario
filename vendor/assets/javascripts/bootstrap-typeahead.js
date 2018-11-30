@@ -34,7 +34,7 @@
     this.highlighter = this.options.highlighter || this.highlighter
     this.updater = this.options.updater || this.updater
     this.source = this.options.source
-    this.$***REMOVED*** = $(this.options.***REMOVED***)
+    this.$menu = $(this.options.menu)
     this.shown = false
     this.listen()
   }
@@ -44,7 +44,7 @@
     constructor: Typeahead
 
   , select: function () {
-      var val = this.$***REMOVED***.find('.active').attr('data-value')
+      var val = this.$menu.find('.active').attr('data-value')
       this.$element
         .val(this.updater(val))
         .change()
@@ -60,7 +60,7 @@
         height: this.$element[0].offsetHeight
       })
 
-      this.$***REMOVED***
+      this.$menu
         .insertAfter(this.$element)
         .css({
           top: pos.top + pos.height
@@ -73,7 +73,7 @@
     }
 
   , hide: function () {
-      this.$***REMOVED***.hide()
+      this.$menu.hide()
       this.shown = false
       return this
     }
@@ -144,27 +144,27 @@
       })
 
       items.first().addClass('active')
-      this.$***REMOVED***.html(items)
+      this.$menu.html(items)
       return this
     }
 
   , next: function (event) {
-      var active = this.$***REMOVED***.find('.active').removeClass('active')
+      var active = this.$menu.find('.active').removeClass('active')
         , next = active.next()
 
       if (!next.length) {
-        next = $(this.$***REMOVED***.find('li')[0])
+        next = $(this.$menu.find('li')[0])
       }
 
       next.addClass('active')
     }
 
   , prev: function (event) {
-      var active = this.$***REMOVED***.find('.active').removeClass('active')
+      var active = this.$menu.find('.active').removeClass('active')
         , prev = active.prev()
 
       if (!prev.length) {
-        prev = this.$***REMOVED***.find('li').last()
+        prev = this.$menu.find('li').last()
       }
 
       prev.addClass('active')
@@ -181,7 +181,7 @@
         this.$element.on('keydown', $.proxy(this.keydown, this))
       }
 
-      this.$***REMOVED***
+      this.$menu
         .on('click', $.proxy(this.click, this))
         .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
         .on('mouseleave', 'li', $.proxy(this.mouseleave, this))
@@ -276,7 +276,7 @@
 
   , mouseenter: function (e) {
       this.mousedover = true
-      this.$***REMOVED***.find('.active').removeClass('active')
+      this.$menu.find('.active').removeClass('active')
       $(e.currentTarget).addClass('active')
     }
 
@@ -306,7 +306,7 @@
   $.fn.typeahead.defaults = {
     source: []
   , items: 8
-  , ***REMOVED***: '<ul class="typeahead dropdown-***REMOVED***"></ul>'
+  , menu: '<ul class="typeahead dropdown-menu"></ul>'
   , item: '<li><a href="#"></a></li>'
   , minLength: 1
   }

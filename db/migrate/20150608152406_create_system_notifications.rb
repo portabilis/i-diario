@@ -1,6 +1,6 @@
 class CreateSystemNotifications < ActiveRecord::Migration
   def change
-    create_table :system_***REMOVED*** do |t|
+    create_table :system_notifications do |t|
       t.integer :source_id, null: false
       t.string :source_type, null: false
       t.string :title, null: false
@@ -8,6 +8,6 @@ class CreateSystemNotifications < ActiveRecord::Migration
 
       t.timestamps
     end
-    add_index :system_***REMOVED***, [:source_id, :source_type]
+    add_index :system_notifications, [:source_id, :source_type]
   end
 end

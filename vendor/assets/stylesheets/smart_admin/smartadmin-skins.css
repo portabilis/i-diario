@@ -31,12 +31,12 @@
 .smart-style-1 .project-selector {
   color: #B9B9B9;
 }
-.smart-style-1 .open > .dropdown-***REMOVED***,
-.smart-style-1 .dropdown-***REMOVED*** {
+.smart-style-1 .open > .dropdown-menu,
+.smart-style-1 .dropdown-menu {
   padding: 4px;
 }
-.smart-style-1 .dropdown-***REMOVED*** > li > a,
-.smart-style-1 .dropdown-***REMOVED*** > li > a {
+.smart-style-1 .dropdown-menu > li > a,
+.smart-style-1 .dropdown-menu > li > a {
   border-radius: 4px;
   margin: 3px 0;
 }
@@ -71,12 +71,12 @@
   color: #fb3c4a !important;
 }
 @media (max-width: 979px) and (min-width: 768px) {
-  .smart-style-1 #hide-***REMOVED*** i {
+  .smart-style-1 #hide-menu i {
     color: #fff !important;
   }
 }
 @media only screen and (max-width: 679px) and (min-width: 0px) {
-  .smart-style-1 #hide-***REMOVED*** i {
+  .smart-style-1 #hide-menu i {
     color: #fff !important;
   }
 }
@@ -218,7 +218,7 @@
 .smart-style-1 .ajax-dropdown {
   background: #E2E8F1;
 }
-.smart-style-1 .ajax-***REMOVED*** {
+.smart-style-1 .ajax-notifications {
   background: #fff;
 }
 /* no nav animation */
@@ -349,38 +349,38 @@
 /*
  * Style 1 Top Menu
  */
-.smart-style-1.***REMOVED***-on-top nav ul ul li > a {
+.smart-style-1.menu-on-top nav ul ul li > a {
   text-shadow: none !important;
   color: #646E75;
 }
-.smart-style-1.***REMOVED***-on-top aside {
+.smart-style-1.menu-on-top aside {
   background: #14161B;
 }
-.smart-style-1.***REMOVED***-on-top aside#left-panel {
+.smart-style-1.menu-on-top aside#left-panel {
   -webkit-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   border-bottom: 1px solid #222;
   border-top: 1px solid #333;
 }
-.smart-style-1.***REMOVED***-on-top aside#left-panel nav > ul > li {
+.smart-style-1.menu-on-top aside#left-panel nav > ul > li {
   border-right: 1px solid transparent;
   border-left: 1px solid transparent;
 }
-.smart-style-1.***REMOVED***-on-top aside#left-panel nav > ul > li:hover {
+.smart-style-1.menu-on-top aside#left-panel nav > ul > li:hover {
   border-right-color: #333;
   border-left-color: #333;
 }
-.smart-style-1.***REMOVED***-on-top aside#left-panel nav > ul > li > a {
+.smart-style-1.menu-on-top aside#left-panel nav > ul > li > a {
   text-shadow: none !important;
   font-size: 13px;
   padding: 10px 9px !important;
 }
-.smart-style-1.***REMOVED***-on-top nav ul ul li a {
+.smart-style-1.menu-on-top nav ul ul li a {
   padding-left: 10px !important;
   font-size: 13px;
 }
 /* Hover state */
-.smart-style-1.***REMOVED***-on-top aside#left-panel nav > ul > li:hover {
+.smart-style-1.menu-on-top aside#left-panel nav > ul > li:hover {
   background: #fff;
   /* Old browsers */
   background: -moz-linear-gradient(top, #04070c 0%, #2e3e57 66%);
@@ -398,73 +398,73 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#04070C', endColorstr='#2E3E57', GradientType=0);
   /* IE6-9 */
 }
-.smart-style-1.***REMOVED***-on-top aside#left-panel nav > ul > li:hover > a {
+.smart-style-1.menu-on-top aside#left-panel nav > ul > li:hover > a {
   color: #F1F1F1 !important;
   border-left: 1px solid #000;
   border-right: 1px solid #000;
   padding-left: 8px !important;
   padding-right: 8px !important;
 }
-.smart-style-1.***REMOVED***-on-top aside#left-panel nav > ul > li > ul {
+.smart-style-1.menu-on-top aside#left-panel nav > ul > li > ul {
   background: #3a3633;
 }
 /* hover state universal */
-.smart-style-1.***REMOVED***-on-top nav ul ul li a,
-.smart-style-1.***REMOVED***-on-top nav ul ul ul li a {
+.smart-style-1.menu-on-top nav ul ul li a,
+.smart-style-1.menu-on-top nav ul ul ul li a {
   color: #D8DEE5;
 }
-.smart-style-1.***REMOVED***-on-top nav ul ul li a:hover,
-.smart-style-1.***REMOVED***-on-top nav ul ul ul li a:hover {
+.smart-style-1.menu-on-top nav ul ul li a:hover,
+.smart-style-1.menu-on-top nav ul ul ul li a:hover {
   color: #fff;
   background-color: #1b1e24 !important;
 }
-.smart-style-1.***REMOVED***-on-top nav ul ul li:hover > a {
+.smart-style-1.menu-on-top nav ul ul li:hover > a {
   color: #fff;
   background-color: #1b1e24;
 }
-.smart-style-1.***REMOVED***-on-top nav > ul ul ul {
+.smart-style-1.menu-on-top nav > ul ul ul {
   border-top: 1px solid #c7c7c7 !important;
 }
 /* Hover state second level */
-.smart-style-1.***REMOVED***-on-top nav ul ul,
-.smart-style-1.***REMOVED***-on-top nav ul ul ul {
+.smart-style-1.menu-on-top nav ul ul,
+.smart-style-1.menu-on-top nav ul ul ul {
   background: #2e3e57 !important;
   border: 1px solid transparent;
   padding: 0px;
 }
-.smart-style-1.***REMOVED***-on-top nav > ul ul li:hover > ul {
+.smart-style-1.menu-on-top nav > ul ul li:hover > ul {
   background: #333;
 }
 /*
 	 * Child Arrow
 	 */
 /* top level childs */
-.smart-style-1.***REMOVED***-on-top nav > ul > li > a:after {
+.smart-style-1.menu-on-top nav > ul > li > a:after {
   color: #8AA1B3 !important;
 }
 /* next level childs */
-.smart-style-1.***REMOVED***-on-top nav > ul > li > a:after,
-.smart-style-1.***REMOVED***-on-top nav > ul ul > li a:after,
-.smart-style-1.***REMOVED***-on-top nav ul ul li:hover > a:after,
-.smart-style-1.***REMOVED***-on-top nav > ul ul > li a:hover:after {
+.smart-style-1.menu-on-top nav > ul > li > a:after,
+.smart-style-1.menu-on-top nav > ul ul > li a:after,
+.smart-style-1.menu-on-top nav ul ul li:hover > a:after,
+.smart-style-1.menu-on-top nav > ul ul > li a:hover:after {
   color: #D5D5D5;
 }
-.smart-style-1.***REMOVED***-on-top nav ul ul li:hover > a:after,
-.smart-style-1.***REMOVED***-on-top nav > ul ul > li a:hover:after {
+.smart-style-1.menu-on-top nav ul ul li:hover > a:after,
+.smart-style-1.menu-on-top nav > ul ul > li a:hover:after {
   color: #fff;
 }
-.smart-style-1.***REMOVED***-on-top nav > ul ul > li a:only-child:after,
-.smart-style-1.***REMOVED***-on-top nav > ul > li > a:only-child:after {
+.smart-style-1.menu-on-top nav > ul ul > li a:only-child:after,
+.smart-style-1.menu-on-top nav > ul > li > a:only-child:after {
   content: "" !important;
 }
 /*
 	 * Active Child
 	 */
-.smart-style-1.***REMOVED***-on-top nav ul ul .active > a {
+.smart-style-1.menu-on-top nav ul ul .active > a {
   color: #fff !important;
 }
-.smart-style-1.***REMOVED***-on-top nav ul ul .active > a:hover,
-.smart-style-1.***REMOVED***-on-top nav ul ul li.active:hover > a {
+.smart-style-1.menu-on-top nav ul ul .active > a:hover,
+.smart-style-1.menu-on-top nav ul ul li.active:hover > a {
   color: #fff !important;
 }
 /********************************************************************* STYLE 2 *************************************************************/
@@ -515,14 +515,14 @@ body.smart-style-2 {
   border-radius: 4px;
 }
 .smart-style-2 .btn-header > :first-child > a,
-.smart-style-2 #hide-***REMOVED*** a > i {
+.smart-style-2 #hide-menu a > i {
   background: none;
   border: none !important;
   color: #C5C6CA !important;
   box-shadow: none !important;
 }
 .smart-style-2 .btn-header > :first-child > a:hover,
-.smart-style-2 #hide-***REMOVED*** a:hover i {
+.smart-style-2 #hide-menu a:hover i {
   color: #fff !important;
   cursor: pointer !important;
 }
@@ -559,7 +559,7 @@ body.smart-style-2 {
   padding-bottom: 15px;
   padding-top: 64px;
 }
-.***REMOVED***-on-top.smart-style-2 #left-panel {
+.menu-on-top.smart-style-2 #left-panel {
   padding-top: 49px !important;
 }
 .smart-style-2 #logo-group > span .badge {
@@ -659,8 +659,8 @@ body.smart-style-2 {
   background-color: #3E90D4;
   border-color: #2F7DBE;
 }
-.smart-style-2 .dropdown-***REMOVED*** > li > a:hover,
-.smart-style-2 .dropdown-***REMOVED*** > li > a:focus {
+.smart-style-2 .dropdown-menu > li > a:hover,
+.smart-style-2 .dropdown-menu > li > a:focus {
   background-color: #3E90D4;
 }
 .smart-style-2 .btn-success {
@@ -793,108 +793,108 @@ body.smart-style-2 {
 /*
  * Style 2 Top Menu
  */
-.smart-style-2.***REMOVED***-on-top .***REMOVED***-item-parent {
+.smart-style-2.menu-on-top .menu-item-parent {
   font-size: 10px;
 }
-.smart-style-2.***REMOVED***-on-top #left-panel {
+.smart-style-2.menu-on-top #left-panel {
   padding-right: 0px;
   padding-left: 0px;
   padding-bottom: 0px;
 }
-.smart-style-2.***REMOVED***-on-top nav ul ul li > a {
+.smart-style-2.menu-on-top nav ul ul li > a {
   text-shadow: none !important;
   color: #646E75;
 }
-.smart-style-2.***REMOVED***-on-top aside {
+.smart-style-2.menu-on-top aside {
   background: inherit;
 }
-.smart-style-2.***REMOVED***-on-top aside#left-panel {
+.smart-style-2.menu-on-top aside#left-panel {
   -webkit-box-shadow: none;
   box-shadow: none;
   border-bottom: 1px solid #B8B8B8;
   border-top: 1px solid #333;
 }
-.smart-style-2.***REMOVED***-on-top aside#left-panel nav > ul > li {
+.smart-style-2.menu-on-top aside#left-panel nav > ul > li {
   border-right: 1px solid transparent;
   border-left: 1px solid transparent;
 }
-.smart-style-2.***REMOVED***-on-top aside#left-panel nav > ul > li:hover {
+.smart-style-2.menu-on-top aside#left-panel nav > ul > li:hover {
   background: #2e3e57;
   border-right-color: #fff;
   border-left-color: #fff;
 }
-.smart-style-2.***REMOVED***-on-top aside#left-panel nav > ul > li > a {
+.smart-style-2.menu-on-top aside#left-panel nav > ul > li > a {
   text-shadow: none !important;
   font-size: 13px;
   padding: 10px 9px !important;
 }
-.smart-style-2.***REMOVED***-on-top nav ul ul li a {
+.smart-style-2.menu-on-top nav ul ul li a {
   padding-left: 10px !important;
   font-size: 13px;
 }
 /* Hover state */
-.smart-style-2.***REMOVED***-on-top aside#left-panel nav > ul > li:hover > a {
+.smart-style-2.menu-on-top aside#left-panel nav > ul > li:hover > a {
   color: #F1F1F1 !important;
   border-left: 1px solid #000;
   border-right: 1px solid #000;
   padding-left: 8px !important;
   padding-right: 8px !important;
 }
-.smart-style-2.***REMOVED***-on-top aside#left-panel nav > ul > li > ul {
+.smart-style-2.menu-on-top aside#left-panel nav > ul > li > ul {
   background: #2C3742;
 }
 /* hover state universal */
-.smart-style-2.***REMOVED***-on-top nav ul ul li a,
-.smart-style-2.***REMOVED***-on-top nav ul ul ul li a {
+.smart-style-2.menu-on-top nav ul ul li a,
+.smart-style-2.menu-on-top nav ul ul ul li a {
   color: #ADBED3 !important;
 }
-.smart-style-2.***REMOVED***-on-top nav ul ul li a:hover,
-.smart-style-2.***REMOVED***-on-top nav ul ul ul li a:hover {
+.smart-style-2.menu-on-top nav ul ul li a:hover,
+.smart-style-2.menu-on-top nav ul ul ul li a:hover {
   color: #fff;
   background-color: #5E6C88 !important;
 }
-.smart-style-2.***REMOVED***-on-top nav ul ul li:hover > a {
+.smart-style-2.menu-on-top nav ul ul li:hover > a {
   color: #fff !important;
   background-color: #5E6C88;
 }
-.smart-style-2.***REMOVED***-on-top nav > ul ul ul {
+.smart-style-2.menu-on-top nav > ul ul ul {
   border-top: 1px solid #c7c7c7 !important;
 }
 /* Hover state second level */
-.smart-style-2.***REMOVED***-on-top nav ul ul,
-.smart-style-2.***REMOVED***-on-top nav ul ul ul {
+.smart-style-2.menu-on-top nav ul ul,
+.smart-style-2.menu-on-top nav ul ul ul {
   background: #2e3e57 !important;
   border: 1px solid transparent;
 }
-.smart-style-2.***REMOVED***-on-top nav > ul ul li:hover > ul {
+.smart-style-2.menu-on-top nav > ul ul li:hover > ul {
   background: #333;
 }
 /*
 	 * Child Arrow
 	 */
 /* top level childs */
-.smart-style-2.***REMOVED***-on-top nav > ul > li > a:after {
+.smart-style-2.menu-on-top nav > ul > li > a:after {
   color: #8AA1B3 !important;
 }
 /* next level childs */
-.smart-style-2.***REMOVED***-on-top nav > ul > li > a:after,
-.smart-style-2.***REMOVED***-on-top nav > ul ul > li a:after,
-.smart-style-2.***REMOVED***-on-top nav ul ul li:hover > a:after,
-.smart-style-2.***REMOVED***-on-top nav > ul ul > li a:hover:after {
+.smart-style-2.menu-on-top nav > ul > li > a:after,
+.smart-style-2.menu-on-top nav > ul ul > li a:after,
+.smart-style-2.menu-on-top nav ul ul li:hover > a:after,
+.smart-style-2.menu-on-top nav > ul ul > li a:hover:after {
   color: #D5D5D5;
 }
-.smart-style-2.***REMOVED***-on-top nav ul ul li:hover > a:after,
-.smart-style-2.***REMOVED***-on-top nav > ul ul > li a:hover:after {
+.smart-style-2.menu-on-top nav ul ul li:hover > a:after,
+.smart-style-2.menu-on-top nav > ul ul > li a:hover:after {
   color: #fff;
 }
 /*
 	 * Active Child
 	 */
-.smart-style-2.***REMOVED***-on-top nav ul ul .active > a {
+.smart-style-2.menu-on-top nav ul ul .active > a {
   color: #fff !important;
 }
-.smart-style-2.***REMOVED***-on-top nav ul ul .active > a:hover,
-.smart-style-2.***REMOVED***-on-top nav ul ul li.active:hover > a {
+.smart-style-2.menu-on-top nav ul ul .active > a:hover,
+.smart-style-2.menu-on-top nav ul ul li.active:hover > a {
   color: #fff !important;
 }
 /********************************************************************* STYLE 3 *************************************************************/
@@ -943,7 +943,7 @@ body.smart-style-3,
   border: 1px solid #f09d61;
   text-shadow: #985813 0 -1px;
 }
-.smart-style-3 #hide-***REMOVED*** i {
+.smart-style-3 #hide-menu i {
   color: #fff !important;
 }
 .smart-style-3 .btn-header > :first-child > a:hover,
@@ -1100,30 +1100,30 @@ body.smart-style-3,
     border-radius: 0px;
   }
 }
-.smart-style-3 .dropdown-***REMOVED*** > .active > a,
-.smart-style-3 .dropdown-***REMOVED*** > .active > a:hover,
-.smart-style-3 .dropdown-***REMOVED*** > li > a:hover,
-.smart-style-3 .dropdown-***REMOVED*** > li > a:focus,
+.smart-style-3 .dropdown-menu > .active > a,
+.smart-style-3 .dropdown-menu > .active > a:hover,
+.smart-style-3 .dropdown-menu > li > a:hover,
+.smart-style-3 .dropdown-menu > li > a:focus,
 .smart-style-3 .tt-suggestion.tt-is-under-cursor {
   background-color: #EC9519;
   color: #fff;
 }
-.smart-style-3 .dropdown-***REMOVED*** > li > a {
+.smart-style-3 .dropdown-menu > li > a {
   color: #4E361B;
 }
-.smart-style-3 .dropdown-***REMOVED*** {
+.smart-style-3 .dropdown-menu {
   border-radius: 0;
   border-bottom: 2px solid #ADADAD;
   background: #FDDFB3;
 }
-.smart-style-3 .dropdown-***REMOVED*** .divider {
+.smart-style-3 .dropdown-menu .divider {
   background-color: #EBC7A6;
 }
-.smart-style-3 .dropdown-***REMOVED***-large .dropdown-header {
+.smart-style-3 .dropdown-menu-large .dropdown-header {
   color: #5C391E;
 }
-.smart-style-3 .dropdown-***REMOVED***-large > li ul > li > a:focus,
-.smart-style-3 .dropdown-***REMOVED***-large > li ul > li > a:hover {
+.smart-style-3 .dropdown-menu-large > li ul > li > a:focus,
+.smart-style-3 .dropdown-menu-large > li ul > li > a:hover {
   border-radius: 3px;
   background-color: #F1B686;
 }
@@ -1178,62 +1178,62 @@ body.smart-style-3,
 /*
  * Style 3 Top Menu
  */
-.smart-style-3.***REMOVED***-on-top nav ul ul li > a {
+.smart-style-3.menu-on-top nav ul ul li > a {
   color: inherit;
 }
-.smart-style-3.***REMOVED***-on-top aside {
+.smart-style-3.menu-on-top aside {
   background: inherit;
 }
-.smart-style-3.***REMOVED***-on-top aside#left-panel {
+.smart-style-3.menu-on-top aside#left-panel {
   -webkit-box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.25);
   border-bottom: 1px solid #fff;
   border-top: 1px solid #fff;
 }
-.smart-style-3.***REMOVED***-on-top aside#left-panel nav > ul > li {
+.smart-style-3.menu-on-top aside#left-panel nav > ul > li {
   border-right: 1px solid #E2E2E2;
   border-left: 1px solid #FFFFFF;
 }
-.smart-style-3.***REMOVED***-on-top nav ul ul,
-.smart-style-3.***REMOVED***-on-top nav ul ul ul {
+.smart-style-3.menu-on-top nav ul ul,
+.smart-style-3.menu-on-top nav ul ul ul {
   border-color: #E2E2E2;
 }
-.smart-style-3.***REMOVED***-on-top nav ul > li > ul {
+.smart-style-3.menu-on-top nav ul > li > ul {
   left: -2px;
 }
-.smart-style-3.***REMOVED***-on-top aside#left-panel nav > ul > li > a {
+.smart-style-3.menu-on-top aside#left-panel nav > ul > li > a {
   text-shadow: none !important;
   font-size: 13px;
   padding: 10px 9px !important;
   border: none !important;
 }
-.smart-style-3.***REMOVED***-on-top nav ul ul li a {
+.smart-style-3.menu-on-top nav ul ul li a {
   padding-left: 10px !important;
   font-size: 13px;
 }
 /* Hover state */
-.smart-style-3.***REMOVED***-on-top nav > ul > li > a:hover {
+.smart-style-3.menu-on-top nav > ul > li > a:hover {
   background: #fff !important;
 }
-.smart-style-3.***REMOVED***-on-top nav ul ul li a:hover,
-.smart-style-3.***REMOVED***-on-top nav ul ul li:hover > a,
-.smart-style-3.***REMOVED***-on-top nav ul ul ul li a:hover {
+.smart-style-3.menu-on-top nav ul ul li a:hover,
+.smart-style-3.menu-on-top nav ul ul li:hover > a,
+.smart-style-3.menu-on-top nav ul ul ul li a:hover {
   background: rgba(0, 0, 0, 0.05);
 }
-.smart-style-3.***REMOVED***-on-top aside#left-panel nav > ul > li:hover {
+.smart-style-3.menu-on-top aside#left-panel nav > ul > li:hover {
   background: #fff;
   /* Old browsers */
 }
 /* hover state universal */
-.smart-style-3.***REMOVED***-on-top nav ul ul li a,
-.smart-style-3.***REMOVED***-on-top nav ul ul ul li a {
+.smart-style-3.menu-on-top nav ul ul li a,
+.smart-style-3.menu-on-top nav ul ul ul li a {
   color: #D8DEE5;
 }
-.smart-style-3.***REMOVED***-on-top nav ul ul li a:hover,
-.smart-style-3.***REMOVED***-on-top nav ul ul ul li a:hover {
+.smart-style-3.menu-on-top nav ul ul li a:hover,
+.smart-style-3.menu-on-top nav ul ul ul li a:hover {
   color: #fff;
 }
-.smart-style-3.***REMOVED***-on-top nav ul ul li:hover > a {
+.smart-style-3.menu-on-top nav ul ul li:hover > a {
   color: #fff;
 }
 /* Hover state second level */
@@ -1241,32 +1241,32 @@ body.smart-style-3,
 	 * Child Arrow
 	 */
 /* top level childs */
-.smart-style-3.***REMOVED***-on-top nav > ul > li > a:after {
+.smart-style-3.menu-on-top nav > ul > li > a:after {
   color: #8AA1B3 !important;
 }
 /* next level childs */
-.smart-style-3.***REMOVED***-on-top nav > ul > li > a:after,
-.smart-style-3.***REMOVED***-on-top nav > ul ul > li a:after,
-.smart-style-3.***REMOVED***-on-top nav ul ul li:hover > a:after,
-.smart-style-3.***REMOVED***-on-top nav > ul ul > li a:hover:after {
+.smart-style-3.menu-on-top nav > ul > li > a:after,
+.smart-style-3.menu-on-top nav > ul ul > li a:after,
+.smart-style-3.menu-on-top nav ul ul li:hover > a:after,
+.smart-style-3.menu-on-top nav > ul ul > li a:hover:after {
   color: inherit;
 }
-.smart-style-3.***REMOVED***-on-top nav ul ul li:hover > a:after,
-.smart-style-3.***REMOVED***-on-top nav > ul ul > li a:hover:after {
+.smart-style-3.menu-on-top nav ul ul li:hover > a:after,
+.smart-style-3.menu-on-top nav > ul ul > li a:hover:after {
   color: inherit;
 }
-.smart-style-3.***REMOVED***-on-top nav ul ul .active > a:hover,
-.smart-style-3.***REMOVED***-on-top nav ul ul li.active:hover > a {
+.smart-style-3.menu-on-top nav ul ul .active > a:hover,
+.smart-style-3.menu-on-top nav ul ul li.active:hover > a {
   color: #333 !important;
 }
 /*
 	 * Active Child
 	 */
-.smart-style-3.***REMOVED***-on-top nav ul ul .active > a {
+.smart-style-3.menu-on-top nav ul ul .active > a {
   color: #333 !important;
 }
-.smart-style-1.***REMOVED***-on-top nav ul ul .active > a:hover,
-.smart-style-1.***REMOVED***-on-top nav ul ul li.active:hover > a {
+.smart-style-1.menu-on-top nav ul ul .active > a:hover,
+.smart-style-1.menu-on-top nav ul ul li.active:hover > a {
   color: #333 !important;
 }
 /********************************************************************* Skin-4 *************************************************************/

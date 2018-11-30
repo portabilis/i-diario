@@ -11,4 +11,4 @@ pt-BR:
       new_html: "<i class='fa fa-plus'></i> Nova dispensa"
     edit:
       no_item_found: "Nenhuma dispensa"
-      ***REMOVED***: "Dispensas"
+      materials: "Dispensas"

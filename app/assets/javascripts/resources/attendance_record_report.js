@@ -5,8 +5,8 @@ $(function () {
   var $hideWhenGlobalAbsence = $(".hide-when-global-absence"),
       $globalAbsence = $("#attendance_record_report_form_global_absence"),
       $examRuleNotFoundAlert = $('#exam-rule-not-found-alert'),
-      $selectAll***REMOVED*** = $('#select-all-classes'),
-      $deselectAll***REMOVED*** = $('#deselect-all-classes');
+      $selectAllClasses = $('#select-all-classes'),
+      $deselectAllClasses = $('#deselect-all-classes');
 
   var fetchDisciplines = function (params, callback) {
     if (_.isEmpty(window.disciplines)) {
@@ -81,7 +81,7 @@ $(function () {
     }
   });
 
-  $selectAll***REMOVED***.on('click', function(){
+  $selectAllClasses.on('click', function(){
     var allElements = $.parseJSON($("#attendance_record_report_form_class_numbers").attr('data-elements'));
     var joinedElements = "";
 
@@ -92,17 +92,17 @@ $(function () {
     $class_numbers.val(joinedElements);
     $class_numbers.trigger("change");
 
-    $selectAll***REMOVED***.hide();
-    $deselectAll***REMOVED***.show();
+    $selectAllClasses.hide();
+    $deselectAllClasses.show();
   });
 
-  $deselectAll***REMOVED***.on('click', function(){
+  $deselectAllClasses.on('click', function(){
 
     $class_numbers.val("");
     $class_numbers.trigger("change");
 
-    $selectAll***REMOVED***.show();
-    $deselectAll***REMOVED***.hide();
+    $selectAllClasses.show();
+    $deselectAllClasses.hide();
   });
 
   $hideWhenGlobalAbsence.hide();

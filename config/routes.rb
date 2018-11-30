@@ -6,7 +6,7 @@ Rails.application.routes.draw do
   localized do
     devise_for :users
 
-    # ***REMOVED***
+    # madis
     namespace :v1 do
       resources :access do
         collection do
@@ -90,7 +90,7 @@ Rails.application.routes.draw do
 
     resources :teachers, only: :index
 
-    resources :system_***REMOVED***, only: :index
+    resources :system_notifications, only: :index
 
     root 'dashboard#index'
 
@@ -102,7 +102,7 @@ Rails.application.routes.draw do
     end
 
     patch '/current_role', to: 'current_role#set', as: :set_current_role
-    post '/system_***REMOVED***/read_all', to: 'system_***REMOVED***#read_all', as: :read_all_***REMOVED***
+    post '/system_notifications/read_all', to: 'system_notifications#read_all', as: :read_all_notifications
     get '/disabled_entity', to: 'pages#disabled_entity'
     get '/new_role_modal_feature', to: 'news#role_modal_feature'
 

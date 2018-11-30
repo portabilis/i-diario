@@ -3,7 +3,7 @@
 module Turnip
   module UnitiesSteps
     step "que acesso a listagem de unidades" do
-      click_***REMOVED*** 'Configurações > Unidades'
+      click_menu 'Configurações > Unidades'
     end
 
     step 'eu entrar no formulário de nova unidade' do
@@ -32,7 +32,7 @@ module Turnip
     end
 
     step 'que existe uma unidade cadastrada' do
-      click_***REMOVED*** 'Configurações > Unidades'
+      click_menu 'Configurações > Unidades'
 
       within :xpath, '//table/tbody/tr[position()=1]' do
         wait_for(page).to have_content 'Escola A Unidade escolar'
@@ -66,7 +66,7 @@ module Turnip
     end
 
     step "que existem unidades cadastradas" do
-      click_***REMOVED*** 'Configurações > Unidades'
+      click_menu 'Configurações > Unidades'
 
       wait_for(page).to have_content 'Escola Z'
     end

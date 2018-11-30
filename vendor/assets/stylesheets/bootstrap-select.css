@@ -77,9 +77,9 @@ select.selectpicker {
   display: inline-block;
   margin-left: 0;
 }
-.bootstrap-select.btn-group.dropdown-***REMOVED***-right,
-.bootstrap-select.btn-group[class*="col-"].dropdown-***REMOVED***-right,
-.row .bootstrap-select.btn-group[class*="col-"].dropdown-***REMOVED***-right {
+.bootstrap-select.btn-group.dropdown-menu-right,
+.bootstrap-select.btn-group[class*="col-"].dropdown-menu-right,
+.row .bootstrap-select.btn-group[class*="col-"].dropdown-menu-right {
   float: right;
 }
 .form-inline .bootstrap-select.btn-group,
@@ -107,7 +107,7 @@ select.selectpicker {
   height: 0 !important;
   padding: 0 !important;
 }
-.bootstrap-select.btn-group.bs-container .dropdown-***REMOVED*** {
+.bootstrap-select.btn-group.bs-container .dropdown-menu {
   z-index: 1060;
 }
 .bootstrap-select.btn-group .dropdown-toggle .filter-option {
@@ -126,13 +126,13 @@ select.selectpicker {
 .bootstrap-select.btn-group[class*="col-"] .dropdown-toggle {
   width: 100%;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** {
+.bootstrap-select.btn-group .dropdown-menu {
   min-width: 100%;
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
           box-sizing: border-box;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED***.inner {
+.bootstrap-select.btn-group .dropdown-menu.inner {
   position: static;
   float: none;
   border: 0;
@@ -142,14 +142,14 @@ select.selectpicker {
   -webkit-box-shadow: none;
           box-shadow: none;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li {
+.bootstrap-select.btn-group .dropdown-menu li {
   position: relative;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li.dropdown-header.selectAllHeaders {
+.bootstrap-select.btn-group .dropdown-menu li.dropdown-header.selectAllHeaders {
   height: 26px;
   cursor: pointer;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li.dropdown-header.selectAllHeaders span {
+.bootstrap-select.btn-group .dropdown-menu li.dropdown-header.selectAllHeaders span {
   -webkit-user-select: none;
   /* Chrome all / Safari all */
   -moz-user-select: none;
@@ -158,36 +158,36 @@ select.selectpicker {
   /* IE 10+ */
   user-select: none;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li.dropdown-header.selectAllHeaders:hover {
+.bootstrap-select.btn-group .dropdown-menu li.dropdown-header.selectAllHeaders:hover {
   background: #f5f5f5;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li.active small {
+.bootstrap-select.btn-group .dropdown-menu li.active small {
   color: #fff;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li.disabled a {
+.bootstrap-select.btn-group .dropdown-menu li.disabled a {
   cursor: not-allowed;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li a {
+.bootstrap-select.btn-group .dropdown-menu li a {
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li a.opt {
+.bootstrap-select.btn-group .dropdown-menu li a.opt {
   position: relative;
   padding-left: 2.25em;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li a span.check-mark {
+.bootstrap-select.btn-group .dropdown-menu li a span.check-mark {
   display: none;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li a span.text {
+.bootstrap-select.btn-group .dropdown-menu li a span.text {
   display: inline-block;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** li small {
+.bootstrap-select.btn-group .dropdown-menu li small {
   padding-left: 0.5em;
 }
-.bootstrap-select.btn-group .dropdown-***REMOVED*** .notify {
+.bootstrap-select.btn-group .dropdown-menu .notify {
   position: absolute;
   bottom: 5px;
   width: 96%;
@@ -218,19 +218,19 @@ select.selectpicker {
   top: auto;
   margin-top: -1px;
 }
-.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li.selected a span.check-mark {
+.bootstrap-select.btn-group.show-tick .dropdown-menu li.selected a span.check-mark {
   position: absolute;
   display: inline-block;
   right: 15px;
   margin-top: 5px;
 }
-.bootstrap-select.btn-group.show-tick .dropdown-***REMOVED*** li a span.text {
+.bootstrap-select.btn-group.show-tick .dropdown-menu li a span.text {
   margin-right: 34px;
 }
-.bootstrap-select.show-***REMOVED***-arrow.open > .dropdown-toggle {
+.bootstrap-select.show-menu-arrow.open > .dropdown-toggle {
   z-index: 1061;
 }
-.bootstrap-select.show-***REMOVED***-arrow .dropdown-toggle:before {
+.bootstrap-select.show-menu-arrow .dropdown-toggle:before {
   content: '';
   border-left: 7px solid transparent;
   border-right: 7px solid transparent;
@@ -240,7 +240,7 @@ select.selectpicker {
   left: 9px;
   display: none;
 }
-.bootstrap-select.show-***REMOVED***-arrow .dropdown-toggle:after {
+.bootstrap-select.show-menu-arrow .dropdown-toggle:after {
   content: '';
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
@@ -250,28 +250,28 @@ select.selectpicker {
   left: 10px;
   display: none;
 }
-.bootstrap-select.show-***REMOVED***-arrow.dropup .dropdown-toggle:before {
+.bootstrap-select.show-menu-arrow.dropup .dropdown-toggle:before {
   bottom: auto;
   top: -3px;
   border-top: 7px solid rgba(204, 204, 204, 0.2);
   border-bottom: 0;
 }
-.bootstrap-select.show-***REMOVED***-arrow.dropup .dropdown-toggle:after {
+.bootstrap-select.show-menu-arrow.dropup .dropdown-toggle:after {
   bottom: auto;
   top: -3px;
   border-top: 6px solid white;
   border-bottom: 0;
 }
-.bootstrap-select.show-***REMOVED***-arrow.pull-right .dropdown-toggle:before {
+.bootstrap-select.show-menu-arrow.pull-right .dropdown-toggle:before {
   right: 12px;
   left: auto;
 }
-.bootstrap-select.show-***REMOVED***-arrow.pull-right .dropdown-toggle:after {
+.bootstrap-select.show-menu-arrow.pull-right .dropdown-toggle:after {
   right: 13px;
   left: auto;
 }
-.bootstrap-select.show-***REMOVED***-arrow.open > .dropdown-toggle:before,
-.bootstrap-select.show-***REMOVED***-arrow.open > .dropdown-toggle:after {
+.bootstrap-select.show-menu-arrow.open > .dropdown-toggle:before,
+.bootstrap-select.show-menu-arrow.open > .dropdown-toggle:after {
   display: block;
 }
 .bs-searchbox,

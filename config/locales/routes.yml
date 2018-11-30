@@ -57,7 +57,7 @@ pt-BR:
     discipline_content_records: 'registros-de-conteudos-por-disciplina'
     lesson_plan_record: 'registros-de-conteudo-por-disciplina-planos-de-aula'
     partial_score_record: 'registro-de-notas-parciais'
-    system_***REMOVED***: 'notificacoes-do-sistema'
+    system_notifications: 'notificacoes-do-sistema'
     terms_dictionaries: 'dicionario-de-termos'
     student_enrollments: 'matriculas-de-alunos'
     student_enrollments_list: 'lista-de-alunos-matriculados'
@@ -94,7 +94,7 @@ pt-BR:
     by_date: 'por-data'
     by_date_range: 'por-periodo'
 
-    #***REMOVED***
+    #madis
     access: "acesso"
     request_access: "solicitaracesso"
     send_access: "enviarfimacesso"

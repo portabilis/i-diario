@@ -6,7 +6,7 @@ $(function() {
       digitsOptional: false,
       groupSeparator: '.',
       radixPoint: ',',
-      auto***REMOVED***: true,
+      autoGroup: true,
       allowPlus: false,
       allowMinus: false,
       positionCaretOnTab: true,

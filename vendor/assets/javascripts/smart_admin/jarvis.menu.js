@@ -4,7 +4,7 @@
   $.fn.extend({
 
     //pass the options variable to the function
-    jarvis***REMOVED*** : function(options) {
+    jarvismenu : function(options) {
 
       var defaults = {
         accordion : 'true',
@@ -18,7 +18,7 @@
       //Assign current element to variable, in this case is UL element
         $this = $(this);
 
-      //add a mark [+] to a multilevel ***REMOVED***
+      //add a mark [+] to a multilevel menu
       $this.find("li").each(function() {
         if ($(this).find("ul").size() !== 0) {
           //add the multilevel sign next to the link

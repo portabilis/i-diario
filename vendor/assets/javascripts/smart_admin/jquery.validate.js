@@ -161,7 +161,7 @@
     $.extend($.validator, {
         defaults: {
             messages: {},
-            ***REMOVED***: {},
+            groups: {},
             rules: {},
             errorClass: "invalid",
             validClass: "valid",
@@ -248,13 +248,13 @@
                 this.pending = {};
                 this.invalid = {};
                 this.reset();
-                var ***REMOVED*** = (this.***REMOVED*** = {});
-                $.each(this.settings.***REMOVED***, function (key, value) {
+                var groups = (this.groups = {});
+                $.each(this.settings.groups, function (key, value) {
                     if (typeof value === "string") {
                         value = value.split(/\s/);
                     }
                     $.each(value, function (index, name) {
-                        ***REMOVED***[name] = key;
+                        groups[name] = key;
                     });
                 });
                 var rules = this.settings.rules;
@@ -565,7 +565,7 @@
                 });
             },
             idOrName: function (element) {
-                return this.***REMOVED***[element.name] || (this.checkable(element) ? element.name : element.id || element.name);
+                return this.groups[element.name] || (this.checkable(element) ? element.name : element.id || element.name);
             },
             validationTargetFor: function (element) {
                 if (this.checkable(element)) {

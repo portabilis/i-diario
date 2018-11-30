@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=***REMOVED***&aluno_id%5B0%5D=1812&aluno_id%5B1%5D=1931&aluno_id%5B2%5D=2378&instituicao_id=1&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&aluno_id%5B0%5D=1812&aluno_id%5B1%5D=1931&aluno_id%5B2%5D=2378&instituicao_id=1&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''
@@ -58,7 +58,7 @@ http_interactions:
   recorded_at: Tue, 25 Nov 2014 18:47:50 GMT
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=***REMOVED***&aluno_id%5B%5D=1812&aluno_id%5B%5D=1931&aluno_id%5B%5D=2378&instituicao_id=1&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&aluno_id%5B%5D=1812&aluno_id%5B%5D=1931&aluno_id%5B%5D=2378&instituicao_id=1&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''
@@ -98,7 +98,7 @@ http_interactions:
   recorded_at: Wed, 18 Nov 2015 12:26:25 GMT
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=***REMOVED***&aluno_id%5B%5D=18625&aluno_id%5B%5D=18627&instituicao_id=1&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&aluno_id%5B%5D=18625&aluno_id%5B%5D=18627&instituicao_id=1&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''
@@ -183,7 +183,7 @@ http_interactions:
   recorded_at: Wed, 18 Nov 2015 12:55:38 GMT
 - request:
     method: get
-    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=***REMOVED***&aluno_id%5B%5D=18625&aluno_id%5B%5D=18627&aluno_id%5B%5D=18685&instituicao_id=1&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=***REMOVED***
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&aluno_id%5B%5D=18625&aluno_id%5B%5D=18627&aluno_id%5B%5D=18685&instituicao_id=1&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
     body:
       encoding: US-ASCII
       string: ''
@@ -277,7 +277,7 @@ http_interactions:
   recorded_at: Wed, 18 Nov 2015 13:38:33 GMT
 - request:
     method: get
-    uri: https://***REMOVED***/api/v1/customers/prefeitura
+    uri: https://administrativo.portabilis.com.br/api/v1/customers/prefeitura
     body:
       encoding: US-ASCII
       string: ''
@@ -325,8 +325,8 @@ http_interactions:
         Municipal do Tux","ieducar_login_footer":"\u003cp\u003ePortabilis Tecnologia
         - suporte@portabilis.com.br - \u003ca class=\"light\" href=\"http://suporte.portabilis.com.br\"
         target=\"_blank\"\u003e Obter Suporte \u003c/a\u003e\u003c/p\u003e\r\n","ieducar_external_footer":"\u003cp\u003eConhe\u0026ccedil;a
-        mais sobre o i-Educar e a Portabilis, acesse nosso \u003ca href=\"http://b***REMOVED***\"\u003eblog\u003c/a\u003e\u003c/p\u003e\r\n","ieducar_internal_footer":"\u003cp\u003eConhe\u0026ccedil;a
-        mais sobre o i-Educar e a Portabilis, \u003ca href=\"http://b***REMOVED***\"
+        mais sobre o i-Educar e a Portabilis, acesse nosso \u003ca href=\"http://blog.portabilis.com.br\"\u003eblog\u003c/a\u003e\u003c/p\u003e\r\n","ieducar_internal_footer":"\u003cp\u003eConhe\u0026ccedil;a
+        mais sobre o i-Educar e a Portabilis, \u003ca href=\"http://blog.portabilis.com.br\"
         target=\"_blank\"\u003eacesse nosso blog\u003c/a\u003e \u0026nbsp;\u0026nbsp;\u0026nbsp;
         \u0026copy; Portabilis - Todos os direitos reservados\u003c/p\u003e\r\n","facebook_url":"https://www.facebook.com/portabilis","twitter_url":"https://twitter.com/portabilis","linkedin_url":"https://www.linkedin.com/company/portabilis-tecnologia","created_at":"2017-05-17T13:12:35.083Z","updated_at":"2017-05-25T17:28:35.263Z","ieducar_suspension_message_id":null,"new_education_suspension_message_id":null,"ieducar_show_onboarding":false,"new_education_show_onboarding":false}'
     http_version:
