@@ -68,7 +68,7 @@ RSpec.describe IeducarApi::Base, type: :service do
 
           expect(result.keys).to include 'alunos'
 
-          expect(result['alunos'].size).to eq(117573)
+          expect(result['alunos'].size).to eq(117_573)
         end
       end
     end
@@ -238,12 +238,14 @@ RSpec.describe IeducarApi::Base, type: :service do
         Rails.stub_chain(:env, production?: true)
         subject.access_key = nil
         subject.secret_key = nil
-        expect { subject.send_post(
-          path: path,
-          resource: resource,
-          etapa: 1,
-          faltas: 1
-        ) }.to raise_error('Chave de acesso inválida!')
+        expect {
+          subject.send_post(
+            path: path,
+            resource: resource,
+            etapa: 1,
+            faltas: 1
+          )
+        }.to raise_error('Chave de acesso inválida!')
       end
 
       it 'access_key is the staging access_key' do
@@ -311,7 +313,12 @@ RSpec.describe IeducarApi::Base, type: :service do
     end
 
     it 'returns an error when providing an invalid resource' do
-      subject = IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+      subject = IeducarApi::Base.new(
+        url: url,
+        access_key: access_key,
+        secret_key: secret_key,
+        unity_id: unity_id
+      )
 
       VCR.use_cassette('post_wrong_resource') do
         expect {
