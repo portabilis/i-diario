@@ -4,9 +4,6 @@ module IeducarApi
   class Base
     class ApiError < RuntimeError; end
 
-    STAGING_ACCESS_KEY = '8IOwGIjiHvbeTklgwo10yVLgwDhhvs'.freeze
-    STAGING_SECRET_KEY = '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC'.freeze
-
     attr_accessor :url, :access_key, :secret_key, :unity_id
 
     def initialize(options = {})
@@ -52,8 +49,8 @@ module IeducarApi
     private
 
     def assign_staging_secret_keys
-      self.access_key = STAGING_ACCESS_KEY
-      self.secret_key = STAGING_SECRET_KEY
+      self.access_key = Rails.application.secrets.staging_access_key
+      self.secret_key = Rails.application.secrets.staging_secret_key
     end
 
     def request(method, params = {})
