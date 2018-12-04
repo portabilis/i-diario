@@ -19,6 +19,9 @@ Rails:
 Rails/ReversibleMigration:
   Enabled: false
 
+Style/BlockDelimiters:
+  EnforcedStyle: semantic
+
 Style/ConditionalAssignment:
   EnforcedStyle: assign_to_condition
 
