@@ -2,12 +2,15 @@
 
 require 'spec_helper'
 
+PRIVATE_ACCESS_KEY = '8IOwGIjiHvbeTklgwo10yVLgwDhhvs'.freeze
+PRIVATE_SECRET_KEY = '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC'.freeze
+
 RSpec.describe IeducarApi::Base, type: :service do
   let(:url) { 'https://test.ieducar.com.br' }
-  let(:access_key) { '8IOwGIjiHvbeTklgwo10yVLgwDhhvs' }
-  let(:secret_key) { '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC' }
-  let(:staging_access_key) { '8IOwGIjiHvbeTklgwo10yVLgwDhhvs' }
-  let(:staging_secret_key) { '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC' }
+  let(:access_key) { PRIVATE_ACCESS_KEY }
+  let(:secret_key) { PRIVATE_SECRET_KEY }
+  let(:staging_access_key) { PRIVATE_ACCESS_KEY }
+  let(:staging_secret_key) { PRIVATE_SECRET_KEY }
   let(:unity_id) { 1 }
 
   context 'ensure obligatory params' do
@@ -70,9 +73,10 @@ RSpec.describe IeducarApi::Base, type: :service do
       end
     end
 
-    context 'assign staging secret keys when in staging' do
+    context 'when on staging environment' do
       before do
         Rails.stub_chain(:env, staging?: true)
+
         subject.access_key = nil
         subject.secret_key = nil
 
@@ -81,18 +85,19 @@ RSpec.describe IeducarApi::Base, type: :service do
         end
       end
 
-      it 'access_key is the staging access_key' do
+      it 'has the staging access key assigned' do
         expect(subject.access_key).to eq(staging_access_key)
       end
 
-      it 'secret_key is the staging secret_key' do
+      it 'has the staging secret key assigned' do
         expect(subject.secret_key).to eq(staging_secret_key)
       end
     end
 
-    context 'do not assign staging secret keys when not in staging' do
+    context 'when is not in staging environment' do
       before do
         Rails.stub_chain(:env, staging?: false)
+
         subject.access_key = nil
         subject.secret_key = nil
 
@@ -101,11 +106,11 @@ RSpec.describe IeducarApi::Base, type: :service do
         end
       end
 
-      it 'access_key is not the staging access_key' do
+      it 'does not have the staging access key assigned' do
         expect(subject.access_key).to eq(nil)
       end
 
-      it 'secret_key is not the staging secret_key' do
+      it 'does not have the staging secret key assigned' do
         expect(subject.secret_key).to eq(nil)
       end
     end
@@ -208,12 +213,15 @@ RSpec.describe IeducarApi::Base, type: :service do
         Rails.stub_chain(:env, production?: false)
         subject.access_key = nil
         subject.secret_key = nil
-        subject.send_post(
-          path: path,
-          resource: resource,
-          etapa: 1,
-          faltas: 1
-        )
+
+        VCR.use_cassette('post_absence_resource') do
+          subject.send_post(
+            path: path,
+            resource: resource,
+            etapa: 1,
+            faltas: 1
+          )
+        end
       end
 
       it 'access_key is the staging access_key' do
