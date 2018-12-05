@@ -50,6 +50,7 @@ class DescriptiveExam < ActiveRecord::Base
 
   def check_posting_date
     return if classroom.blank? || step.blank?
+    return if [OpinionTypes::BY_YEAR_AND_DISCIPLINE, OpinionTypes::BY_YEAR].include?(opinion_type)
 
     return true if PostingDateChecker.new(classroom, step.start_at).check
 
@@ -58,5 +59,9 @@ class DescriptiveExam < ActiveRecord::Base
 
   def opinion_type_by_year?
     [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type)
+  end
+
+  def ignore_posting_date
+    true
   end
 end
