@@ -25,7 +25,6 @@ class DescriptiveExam < ActiveRecord::Base
   validates :opinion_type, presence: true
   validates :discipline_id, presence: true, if: :should_validate_presence_of_discipline
   validate :check_posting_date
-  validates :recorded_at, posting_date: false
 
   def mark_students_for_removal
     students.each do |student|
