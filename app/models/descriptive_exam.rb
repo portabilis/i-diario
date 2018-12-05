@@ -25,6 +25,7 @@ class DescriptiveExam < ActiveRecord::Base
   validates :opinion_type, presence: true
   validates :discipline_id, presence: true, if: :should_validate_presence_of_discipline
   validate :check_posting_date
+  validates :recorded_at, posting_date: false
 
   def mark_students_for_removal
     students.each do |student|
@@ -50,6 +51,7 @@ class DescriptiveExam < ActiveRecord::Base
 
   def check_posting_date
     return if classroom.blank? || step.blank?
+    return if [OpinionTypes::BY_YEAR_AND_DISCIPLINE, OpinionTypes::BY_YEAR].include?(opinion_type)
 
     return true if PostingDateChecker.new(classroom, step.start_at).check
 
@@ -58,5 +60,9 @@ class DescriptiveExam < ActiveRecord::Base
 
   def opinion_type_by_year?
     [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type)
+  end
+
+  def ignore_posting_date
+    true
   end
 end
