@@ -9,6 +9,7 @@ class StudentAverageCalculator
     student_notes_query = StudentNotesQuery.new(student, discipline, classroom, step.start_at, step.end_at)
     @daily_note_students = student_notes_query.daily_note_students
     @recovery_diary_records = student_notes_query.recovery_diary_records
+    @avaliations_ids_without_note = student_notes_query.avaliations_ids_without_note
 
     if daily_note_students.any? || recovery_diary_records.any?
       result = case
@@ -27,7 +28,7 @@ class StudentAverageCalculator
 
   private
 
-  attr_accessor :student, :daily_note_students, :recovery_diary_records
+  attr_accessor :student, :daily_note_students, :recovery_diary_records, :avaliations_ids_without_note
 
   def weight_sum
     sum = 0
@@ -40,6 +41,10 @@ class StudentAverageCalculator
       unless avaliation_exempted?(recovery_diary_record.avaliation_recovery_diary_record.avaliation)
         sum += recovery_diary_record.avaliation_recovery_diary_record.avaliation.weight
       end
+    end
+
+    avaliations_ids_without_note.each do |id|
+      sum += Avaliation.find(id).weight
     end
 
     sum
