@@ -46,7 +46,7 @@ class DisciplineTeachingPlanPdf < BaseReport
     organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
 
     entity_organ_and_unity_cell = make_cell(
-      content: "#{entity_name}\n#{organ_name}\n#{@discipline_teaching_plan.teaching_plan.unity.name}",
+      content: "#{entity_name}\n#{organ_name}\n#{teaching_plan.unity.name}",
       size: 12,
       leading: 1.5,
       align: :center,
@@ -75,60 +75,19 @@ class DisciplineTeachingPlanPdf < BaseReport
   end
 
   def attributes
-    @general_information_header_cell = make_cell(
-      content: 'Identificação',
-      size: 12,
-      font_style: :bold,
-      background_color: 'DEDEDE',
-      height: 20,
-      padding: [2, 2, 4, 4],
-      align: :center,
-      colspan: 7
-    )
-
-    @class_plan_header_cell = make_cell(
-      content: 'Plano de ensino',
-      size: 12,
-      font_style: :bold,
-      background_color: 'DEDEDE',
-      height: 20,
-      padding: [2, 2, 4, 4],
-      align: :center,
-      colspan: 4
-    )
-
-    @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 7)
-    @unity_cell = make_cell(content: @discipline_teaching_plan.teaching_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 7)
-
-    @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 3)
-    @discipline_cell = make_cell(content: @discipline_teaching_plan.discipline.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 3)
-
-    @classroom_header = make_cell(content: 'Série', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 4)
-    @classroom_cell = make_cell(content: @discipline_teaching_plan.teaching_plan.grade.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
-
-    @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 3)
-    @teacher_cell = make_cell(content: @discipline_teaching_plan.teaching_plan.teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 3)
-
-    @year_header = make_cell(content: 'Ano', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @year_cell = make_cell(content: @discipline_teaching_plan.teaching_plan.year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
-
-    @period_header = make_cell(content: 'Período escolar', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @period_cell = make_cell(content: (@discipline_teaching_plan.teaching_plan.school_term_type == SchoolTermTypes::YEARLY ? @discipline_teaching_plan.teaching_plan.school_term_type_humanize : @discipline_teaching_plan.teaching_plan.school_term_humanize), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
-
-    objective_cell_content = inline_formated_cell_header('Objetivos') + (@discipline_teaching_plan.teaching_plan.objectives.present? ? @discipline_teaching_plan.teaching_plan.objectives : '-')
-    @objective_cell = make_cell(content: objective_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    content_cell_content = inline_formated_cell_header('Conteúdos') + (@discipline_teaching_plan.teaching_plan.contents.present? ? @discipline_teaching_plan.teaching_plan.contents_ordered.map(&:to_s).join(", ") : '-')
-    @content_cell = make_cell(content: content_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    methodology_cell_content = inline_formated_cell_header('Metodologia') + (@discipline_teaching_plan.teaching_plan.methodology.present? ? @discipline_teaching_plan.teaching_plan.methodology : '-')
-    @methodology_cell = make_cell(content: methodology_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    evaluation_cell_content = inline_formated_cell_header('Avaliação') + (@discipline_teaching_plan.teaching_plan.evaluation.present? ? @discipline_teaching_plan.teaching_plan.evaluation : '-')
-    @evaluation_cell = make_cell(content: evaluation_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    reference_cell_content = inline_formated_cell_header('Referências') + (@discipline_teaching_plan.teaching_plan.references.present? ? @discipline_teaching_plan.teaching_plan.references : '-')
-    @reference_cell = make_cell(content: reference_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    general_information_attribute
+    class_plan_attribute
+    unity_attribute
+    discipline_attribute
+    classroom_attribute
+    teacher_attribute
+    year_attribute
+    period_attribute
+    objective_attribute
+    content_attribute
+    methodology_attribute
+    evaluation_attribute
+    reference_attribute
   end
 
   def general_information
@@ -177,5 +136,214 @@ class DisciplineTeachingPlanPdf < BaseReport
       general_information
       class_plan
     end
+  end
+
+  def general_information_attribute
+    @general_information_header_cell = make_cell(
+      content: 'Identificação',
+      size: 12,
+      font_style: :bold,
+      background_color: 'DEDEDE',
+      height: 20,
+      padding: [2, 2, 4, 4],
+      align: :center,
+      colspan: 7
+    )
+  end
+
+  def class_plan_attribute
+    @class_plan_header_cell = make_cell(
+      content: 'Plano de ensino',
+      size: 12,
+      font_style: :bold,
+      background_color: 'DEDEDE',
+      height: 20,
+      padding: [2, 2, 4, 4],
+      align: :center,
+      colspan: 4
+    )
+  end
+
+  def unity_attribute
+    @unity_header = make_cell(
+      content: 'Unidade',
+      size: 8,
+      font_style: :bold,
+      borders: [:left, :right, :top],
+      padding: [2, 2, 4, 4],
+      colspan: 7
+    )
+    @unity_cell = make_cell(
+      content: teaching_plan.unity.name,
+      size: 10,
+      borders: [:bottom, :left, :right],
+      padding: [0, 2, 4, 4],
+      colspan: 7
+    )
+  end
+
+  def discipline_attribute
+    @discipline_header = make_cell(
+      content: 'Disciplina',
+      size: 8,
+      font_style: :bold,
+      borders: [:left, :right, :top],
+      padding: [2, 2, 4, 4],
+      colspan: 3
+    )
+    @discipline_cell = make_cell(
+      content: @discipline_teaching_plan.discipline.description,
+      size: 10,
+      borders: [:bottom, :left, :right],
+      padding: [0, 2, 4, 4],
+      colspan: 3
+    )
+  end
+
+  def classroom_attribute
+    @classroom_header = make_cell(
+      content: 'Série',
+      size: 8,
+      font_style: :bold,
+      borders: [:left, :right, :top],
+      padding: [2, 2, 4, 4],
+      colspan: 4
+    )
+    @classroom_cell = make_cell(
+      content: teaching_plan.grade.description,
+      size: 10,
+      borders: [:bottom, :left, :right],
+      padding: [0, 2, 4, 4],
+      colspan: 4
+    )
+  end
+
+  def teacher_attribute
+    @teacher_header = make_cell(
+      content: 'Professor',
+      size: 8,
+      font_style: :bold,
+      borders: [:left, :right, :top],
+      padding: [2, 2, 4, 4],
+      colspan: 3
+    )
+    @teacher_cell = make_cell(
+      content: teaching_plan.teacher.name,
+      size: 10,
+      borders: [:bottom, :left, :right],
+      padding: [0, 2, 4, 4],
+      colspan: 3
+    )
+  end
+
+  def year_attribute
+    @year_header = make_cell(
+      content: 'Ano',
+      size: 8,
+      font_style: :bold,
+      borders: [:left, :right, :top],
+      padding: [2, 2, 4, 4],
+      colspan: 2
+    )
+    @year_cell = make_cell(
+      content: teaching_plan.year.to_s,
+      size: 10,
+      borders: [:bottom, :left, :right],
+      padding: [0, 2, 4, 4],
+      colspan: 2
+    )
+  end
+
+  def period_attribute
+    @period_header = make_cell(
+      content: 'Período escolar',
+      size: 8,
+      font_style: :bold,
+      borders: [:left, :right, :top],
+      padding: [2, 2, 4, 4],
+      colspan: 2
+    )
+    @period_cell = make_cell(
+      content: period_attribute_text,
+      size: 10,
+      borders: [:bottom, :left, :right],
+      padding: [0, 2, 4, 4],
+      colspan: 2
+    )
+  end
+
+  def period_attribute_text
+    return teaching_plan.school_term_type_humanize if teaching_plan.school_term_type == SchoolTermTypes::YEARLY
+
+    teaching_plan.school_term_humanize
+  end
+
+  def objective_attribute
+    text = teaching_plan.objectives || '-'
+
+    objective_cell_content = inline_formated_cell_header('Objetivos') + text
+    @objective_cell = make_cell(
+      content: objective_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
+    )
+  end
+
+  def content_attribute
+    text = (teaching_plan.contents.present? ? teaching_plan.contents_ordered.map(&:to_s).join(', ') : '-')
+
+    content_cell_content = inline_formated_cell_header('Conteúdos') + text
+    @content_cell = make_cell(
+      content: content_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
+    )
+  end
+
+  def methodology_attribute
+    text = teaching_plan.methodology || '-'
+
+    methodology_cell_content = inline_formated_cell_header('Metodologia') + text
+    @methodology_cell = make_cell(
+      content: methodology_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
+    )
+  end
+
+  def evaluation_attribute
+    text = teaching_plan.evaluation || '-'
+
+    evaluation_cell_content = inline_formated_cell_header('Avaliação') + text
+    @evaluation_cell = make_cell(
+      content: evaluation_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
+    )
+  end
+
+  def reference_attribute
+    text = teaching_plan.references || '-'
+
+    reference_cell_content = inline_formated_cell_header('Referências') + text
+    @reference_cell = make_cell(
+      content: reference_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
+    )
+  end
+
+  def teaching_plan
+    @discipline_teaching_plan.teaching_plan
   end
 end
