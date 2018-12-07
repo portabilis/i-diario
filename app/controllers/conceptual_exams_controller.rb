@@ -54,6 +54,8 @@ class ConceptualExamsController < ApplicationController
   def create
     @conceptual_exam = ConceptualExam.new(resource_params)
 
+    authorize @conceptual_exam
+
     if @conceptual_exam.valid?
       @conceptual_exam = find_or_create_conceptual_exam
       @conceptual_exam.assign_attributes(resource_params)
