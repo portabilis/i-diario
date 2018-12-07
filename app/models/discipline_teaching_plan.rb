@@ -13,13 +13,17 @@ class DisciplineTeachingPlan < ActiveRecord::Base
 
   accepts_nested_attributes_for :teaching_plan
 
-  scope :by_year, lambda { |year| joins(:teaching_plan).where(teaching_plans: { year: year }) }
-  scope :by_unity, lambda { |unity| joins(:teaching_plan).where(teaching_plans: { unity_id: unity }) }
-  scope :by_grade, lambda { |grade| joins(:teaching_plan).where(teaching_plans: { grade_id: grade }) }
-  scope :by_school_term_type, lambda { |school_term_type| joins(:teaching_plan).where(teaching_plans: { school_term_type: school_term_type }) }
-  scope :by_school_term, lambda { |school_term| joins(:teaching_plan).where(teaching_plans: { school_term: school_term }) }
-  scope :by_discipline, lambda { |discipline| where(discipline: discipline) }
-  scope :by_teacher_id, lambda { |teacher_id| joins(:teaching_plan).where(teaching_plans: { teacher_id: teacher_id }) }
+  scope :by_year, ->(year) { joins(:teaching_plan).where(teaching_plans: { year: year }) }
+  scope :by_unity, ->(unity) { joins(:teaching_plan).where(teaching_plans: { unity_id: unity }) }
+  scope :by_grade, ->(grade) { joins(:teaching_plan).where(teaching_plans: { grade_id: grade }) }
+  scope :by_school_term_type, lambda { |school_term_type|
+    joins(:teaching_plan).where(teaching_plans: { school_term_type: school_term_type })
+  }
+  scope :by_school_term, lambda { |school_term|
+    joins(:teaching_plan).where(teaching_plans: { school_term: school_term })
+  }
+  scope :by_discipline, ->(discipline) { where(discipline: discipline) }
+  scope :by_teacher_id, ->(teacher_id) { joins(:teaching_plan).where(teaching_plans: { teacher_id: teacher_id }) }
   scope :by_teacher_id_or_is_null, lambda { |teacher_id|
     joins(:teaching_plan)
       .where("teaching_plans.teacher_id #{(teacher_id ? '= ' << teacher_id.to_s : 'IS NULL')} OR
@@ -42,18 +46,14 @@ class DisciplineTeachingPlan < ActiveRecord::Base
 
   def uniqueness_of_discipline_teaching_plan
     discipline_teaching_plans = DisciplineTeachingPlan.by_year(teaching_plan.year)
-      .by_unity(teaching_plan.unity)
-      .by_teacher_id(teaching_plan.teacher_id)
-      .by_grade(teaching_plan.grade)
-      .by_school_term(teaching_plan.school_term)
-      .by_discipline(discipline)
+                                                      .by_unity(teaching_plan.unity)
+                                                      .by_teacher_id(teaching_plan.teacher_id)
+                                                      .by_grade(teaching_plan.grade)
+                                                      .by_school_term(teaching_plan.school_term)
+                                                      .by_discipline(discipline)
 
-    if persisted?
-      discipline_teaching_plans = discipline_teaching_plans.where.not(id: id)
-    end
+    discipline_teaching_plans = discipline_teaching_plans.where.not(id: id) if persisted?
 
-    if discipline_teaching_plans.any?
-      errors.add(:base, :uniqueness_of_discipline_teaching_plan)
-    end
+    errors.add(:base, :uniqueness_of_discipline_teaching_plan) if discipline_teaching_plans.any?
   end
 end
