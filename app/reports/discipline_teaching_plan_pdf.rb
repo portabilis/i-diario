@@ -219,6 +219,8 @@ class DisciplineTeachingPlanPdf < BaseReport
   end
 
   def teacher_attribute
+    text = teaching_plan.teacher ? teaching_plan.teacher.name : '-'
+
     @teacher_header = make_cell(
       content: 'Professor',
       size: 8,
@@ -228,7 +230,7 @@ class DisciplineTeachingPlanPdf < BaseReport
       colspan: 3
     )
     @teacher_cell = make_cell(
-      content: teaching_plan.teacher.name,
+      content: text,
       size: 10,
       borders: [:bottom, :left, :right],
       padding: [0, 2, 4, 4],
