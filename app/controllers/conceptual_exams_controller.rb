@@ -52,16 +52,11 @@ class ConceptualExamsController < ApplicationController
   end
 
   def create
-    @conceptual_exam = ConceptualExam.new(resource_params)
-
+    @conceptual_exam = find_or_initialize_conceptual_exam(resource_params)
     authorize @conceptual_exam
+    @conceptual_exam.assign_attributes(resource_params)
 
-    if @conceptual_exam.valid?
-      @conceptual_exam = find_or_create_conceptual_exam
-      @conceptual_exam.assign_attributes(resource_params)
-
-      respond_to_save if @conceptual_exam.save
-    end
+    respond_to_save if @conceptual_exam.save
 
     return if performed?
 
@@ -160,18 +155,20 @@ class ConceptualExamsController < ApplicationController
     )
   end
 
-  def find_or_create_conceptual_exam
-    conceptual_exam = ConceptualExam.by_classroom(@conceptual_exam.classroom_id)
-                                    .by_student_id(@conceptual_exam.student_id)
-                                    .by_step_id(@conceptual_exam.classroom, @conceptual_exam.step.id)
+  def find_or_initialize_conceptual_exam(resource_params)
+    step_id = steps_fetcher.step(resource_params[:recorded_at])
+
+    conceptual_exam = ConceptualExam.by_classroom(resource_params[:classroom_id])
+                                    .by_student_id(resource_params[:student_id])
+                                    .by_step_id(current_user_classroom, step_id)
                                     .first
 
     if conceptual_exam.blank?
-      conceptual_exam = ConceptualExam.create!(
-        classroom_id: @conceptual_exam.classroom_id,
-        student_id: @conceptual_exam.student_id,
-        recorded_at: @conceptual_exam.recorded_at,
-        step_id: @conceptual_exam.step_id
+      conceptual_exam = ConceptualExam.new(
+        classroom_id: resource_params[:classroom_id],
+        student_id: resource_params[:student_id],
+        recorded_at: resource_params[:recorded_at],
+        step_id: resource_params[:step_id]
       )
     end
 
