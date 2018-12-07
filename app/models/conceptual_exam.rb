@@ -24,6 +24,7 @@ class ConceptualExam < ActiveRecord::Base
 
   scope :by_unity, lambda { |unity| joins(:classroom).where(classrooms: { unity_id: unity }) }
   scope :by_classroom, lambda { |classroom| where(classroom: classroom) }
+  scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_discipline, lambda { |discipline| join_conceptual_exam_values.where(conceptual_exam_values: { discipline: discipline } ) }
   scope :by_student_name, lambda { |student_name|
     joins(

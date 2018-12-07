@@ -54,16 +54,19 @@ class ConceptualExamsController < ApplicationController
   def create
     @conceptual_exam = ConceptualExam.new(resource_params)
 
-    authorize @conceptual_exam
+    if @conceptual_exam.valid?
+      @conceptual_exam = find_or_create_conceptual_exam
+      @conceptual_exam.assign_attributes(resource_params)
 
-    if @conceptual_exam.save
-      respond_to_save
-    else
-      fetch_collections
-      mark_not_existing_disciplines_as_invisible
-
-      render :new
+      respond_to_save if @conceptual_exam.save
     end
+
+    return if performed?
+
+    fetch_collections
+    mark_not_existing_disciplines_as_invisible
+
+    render :new
   end
 
   def edit
@@ -153,6 +156,24 @@ class ConceptualExamsController < ApplicationController
         :_destroy
       ]
     )
+  end
+
+  def find_or_create_conceptual_exam
+    conceptual_exam = ConceptualExam.by_classroom(@conceptual_exam.classroom_id)
+                                    .by_student_id(@conceptual_exam.student_id)
+                                    .by_step_id(@conceptual_exam.classroom, @conceptual_exam.step.id)
+                                    .first
+
+    if conceptual_exam.blank?
+      conceptual_exam = ConceptualExam.create!(
+        classroom_id: @conceptual_exam.classroom_id,
+        student_id: @conceptual_exam.student_id,
+        recorded_at: @conceptual_exam.recorded_at,
+        step_id: @conceptual_exam.step_id
+      )
+    end
+
+    conceptual_exam
   end
 
   def add_missing_disciplines
