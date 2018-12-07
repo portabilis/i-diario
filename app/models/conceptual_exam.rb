@@ -14,7 +14,7 @@ class ConceptualExam < ActiveRecord::Base
 
   belongs_to :classroom
   belongs_to :student
-  has_many :conceptual_exam_values, lamda {
+  has_many :conceptual_exam_values, lambda {
     includes(:conceptual_exam, discipline: :knowledge_area)
   }, dependent: :destroy
 
