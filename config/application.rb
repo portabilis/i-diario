@@ -48,7 +48,7 @@ module Educacao
     end
 
     if Rails.env.production? || Rails.env.staging?
-      app.config.paperclip_defaults = {
+      config.paperclip_defaults = {
         storage: :s3,
         s3_region: 'us-east-1',
         bucket: Rails.application.secrets[:BUCKET_NAME],
