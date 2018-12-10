@@ -13,7 +13,9 @@ class DailyNote < ActiveRecord::Base
     includes(:student).order('students.name')
   }, class_name: 'DailyNoteStudent', dependent: :destroy
 
-  accepts_nested_attributes_for :students, allow_destroy: true
+  accepts_nested_attributes_for :students, allow_destroy: true, reject_if: proc { |attributes|
+    !ActiveRecord::Type::Boolean.new.type_cast_from_user(attributes[:active])
+  }
 
   has_enumeration_for :status, with: DailyNoteStatuses, create_helpers: true
 
