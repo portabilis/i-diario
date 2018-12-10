@@ -24,16 +24,16 @@ class TeachingPlan < ActiveRecord::Base
   has_many :contents_teaching_plans, dependent: :destroy
   has_many :contents, through: :contents_teaching_plans
 
-  has_one :discipline_teaching_plan
-  has_one :knowledge_area_teaching_plan
+  has_one :discipline_teaching_plan, dependent: :restrict_with_error
+  has_one :knowledge_area_teaching_plan, dependent: :restrict_with_error
 
   accepts_nested_attributes_for :contents, allow_destroy: true
 
   validate :at_least_one_content_assigned
 
-  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
-  scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }
-  scope :by_year, lambda { |year| where( year: year ) }
+  scope :by_unity_id, ->(unity_id) { where(unity_id: unity_id) }
+  scope :by_teacher_id, ->(teacher_id) { where(teacher_id: teacher_id) }
+  scope :by_year, ->(year) { where(year: year) }
 
   def to_s
     return discipline_teaching_plan.discipline.to_s if discipline_teaching_plan
@@ -42,9 +42,9 @@ class TeachingPlan < ActiveRecord::Base
 
   def contents_tags
     if @contents_tags.present?
-      ContentTagConverter::tags_to_json(@contents_tags)
+      ContentTagConverter.tags_to_json(@contents_tags)
     else
-      ContentTagConverter::contents_to_json(contents_ordered)
+      ContentTagConverter.contents_to_json(contents_ordered)
     end
   end
 
@@ -61,7 +61,7 @@ class TeachingPlan < ActiveRecord::Base
     when SchoolTermTypes::SEMESTER
       I18n.t("enumerations.semesters.#{school_term}")
     when SchoolTermTypes::YEARLY
-      I18n.t("enumerations.year.yearly")
+      I18n.t('enumerations.year.yearly')
     end
   end
 
