@@ -6,10 +6,11 @@ class DailyFrequencyStudentsController < ApplicationController
       student_id: params[:student_id],
       daily_frequency_id: params[:daily_frequency_id]
     )
-    daily_frequency_student.update({
+    daily_frequency_student.update(
+      active: true,
       present: params[:present],
       dependence: params[:dependence]
-    })
+    )
 
     respond_with daily_frequency_student
   end
