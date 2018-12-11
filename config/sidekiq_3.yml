@@ -1,8 +1,8 @@
 ---
-:concurrency: 5
+:concurrency: 4
 staging:
-  :concurrency: 10
+  :concurrency: 4
 production:
-  :concurrency: 20
+  :concurrency: 4
 :queues:
   - [exam_posting, 1]
