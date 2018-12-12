@@ -77,9 +77,8 @@ module ExamPoster
 
     def teacher_discipline_classrooms
       @post_data.author.current_teacher.teacher_discipline_classrooms.select do |teacher_discipline_classroom|
-        same_unity?(teacher_discipline_classroom.classroom.unity_id) &&
-          valid_score_type?(teacher_discipline_classroom.classroom.exam_rule.score_type) &&
-          step_exists_for_classroom?(teacher_discipline_classroom.classroom)
+        can_post?(teacher_discipline_classroom.classroom) &&
+          valid_score_type?(teacher_discipline_classroom.classroom.exam_rule.score_type)
       end
     end
 

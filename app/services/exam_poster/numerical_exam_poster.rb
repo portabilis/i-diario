@@ -35,8 +35,7 @@ module ExamPoster
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
 
-          next unless same_unity?(classroom.unity_id)
-          next unless step_exists_for_classroom?(classroom)
+          next unless can_post?(classroom)
 
           teacher_score_fetcher = TeacherScoresFetcher.new(
             teacher,

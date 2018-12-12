@@ -34,9 +34,8 @@ module ExamPoster
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
 
+          next unless can_post?(classroom)
           next unless correct_score_type(classroom.exam_rule.score_type)
-          next unless same_unity?(classroom.unity_id)
-          next unless step_exists_for_classroom?(classroom)
 
           exempted_discipline_ids =
             ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)

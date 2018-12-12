@@ -42,8 +42,7 @@ module ExamPoster
       absences = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next unless same_unity?(classroom.unity_id)
-        next unless step_exists_for_classroom?(classroom)
+        next unless can_post?(classroom)
         next if classroom.exam_rule.frequency_type != FrequencyTypes::GENERAL
 
         daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
@@ -77,8 +76,7 @@ module ExamPoster
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-          next unless same_unity?(teacher_discipline_classroom.classroom.unity_id)
-          next unless step_exists_for_classroom?(classroom)
+          next unless can_post?(classroom)
           next if classroom.exam_rule.frequency_type != FrequencyTypes::BY_DISCIPLINE
 
           discipline = teacher_discipline_classroom.discipline

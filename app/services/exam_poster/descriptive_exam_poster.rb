@@ -70,8 +70,7 @@ module ExamPoster
       descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next unless same_unity?(classroom.unity_id)
-        next unless step_exists_for_classroom?(classroom)
+        next unless can_post?(classroom)
 
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
                                       .includes(:student, :descriptive_exam)
@@ -98,8 +97,7 @@ module ExamPoster
       descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
       teacher.classrooms.uniq.each do |classroom|
-        next unless same_unity?(classroom.unity_id)
-        next unless step_exists_for_classroom?(classroom)
+        next unless can_post?(classroom)
 
         exams = DescriptiveExamStudent.by_classroom(classroom).ordered
 
@@ -123,8 +121,7 @@ module ExamPoster
         classroom = teacher_discipline_classroom.classroom
         discipline = teacher_discipline_classroom.discipline
 
-        next unless same_unity?(classroom.unity_id)
-        next unless step_exists_for_classroom?(classroom)
+        next unless can_post?(classroom)
 
         exempted_discipline_ids =
           ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
@@ -154,8 +151,7 @@ module ExamPoster
         classroom = teacher_discipline_classroom.classroom
         discipline = teacher_discipline_classroom.discipline
 
-        next unless same_unity?(classroom.unity_id)
-        next unless step_exists_for_classroom?(classroom)
+        next unless can_post?(classroom)
 
         exempted_discipline_ids =
           ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
