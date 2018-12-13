@@ -328,9 +328,26 @@ $(function() {
   });
 
   $student.on('change', function(){
-    fetchExamRule();
-    removeDisciplines();
-    fetchDisciplines();
+    $.get(
+      Routes.find_conceptual_exam_by_student_conceptual_exams_pt_br_path(
+        {
+          conceptual_exam: {
+            classroom_id: $classroom.select2('val'),
+            student_id: $student.select2('val'),
+            step_id: $step.select2('val'),
+            format: 'json'
+          }
+        }
+      )
+    ).done(function(conceptual_exam_id) {
+      if (conceptual_exam_id) {
+        window.location.href = Routes.edit_conceptual_exam_pt_br_path(conceptual_exam_id);
+      } else {
+        fetchExamRule();
+        removeDisciplines();
+        fetchDisciplines();
+      }
+    });
   });
 
   fetchExamRule();

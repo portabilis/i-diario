@@ -52,7 +52,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def create
-    @conceptual_exam = find_or_initialize_conceptual_exam(resource_params)
+    @conceptual_exam = find_or_initialize_conceptual_exam
     authorize @conceptual_exam
     @conceptual_exam.assign_attributes(resource_params)
 
@@ -136,6 +136,10 @@ class ConceptualExamsController < ApplicationController
     render json:exempted_disciplines.by_step_number(step.to_number)
   end
 
+  def find_conceptual_exam_by_student
+    render json: find_conceptual_exam.try(:id)
+  end
+
   private
 
   def resource_params
@@ -155,13 +159,17 @@ class ConceptualExamsController < ApplicationController
     )
   end
 
-  def find_or_initialize_conceptual_exam(resource_params)
-    step_id = steps_fetcher.step(resource_params[:recorded_at])
+  def find_conceptual_exam
+    classroom = Classroom.find(resource_params[:classroom_id])
 
-    conceptual_exam = ConceptualExam.by_classroom(resource_params[:classroom_id])
-                                    .by_student_id(resource_params[:student_id])
-                                    .by_step_id(current_user_classroom, step_id)
-                                    .first
+    ConceptualExam.by_classroom(resource_params[:classroom_id])
+                  .by_student_id(resource_params[:student_id])
+                  .by_step_id(classroom, resource_params[:step_id])
+                  .first
+  end
+
+  def find_or_initialize_conceptual_exam
+    conceptual_exam = find_conceptual_exam
 
     if conceptual_exam.blank?
       conceptual_exam = ConceptualExam.new(
