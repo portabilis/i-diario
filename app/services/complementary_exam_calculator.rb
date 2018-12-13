@@ -8,6 +8,21 @@ class ComplementaryExamCalculator
   end
 
   def calculate(score)
+    score = make_complementary_exams_calculations(score)
+    maximum_score && maximum_score < score ? maximum_score : score
+  end
+
+  private
+
+  def maximum_score
+    @maximum_score ||= test_setting.try(:maximum_score)
+  end
+
+  def test_setting
+    @test_setting ||= TestSettingFetcher.fetch(@step)
+  end
+
+  def make_complementary_exams_calculations(score)
     return substitution_complementary_exam_score if substitution_complementary_exam_score.present?
     score += sum_substitution_complementary_exam_score
 
@@ -17,8 +32,6 @@ class ComplementaryExamCalculator
       score
     end
   end
-
-  private
 
   attr_accessor :affected_score, :student_id, :discipline_id, :classroom_id, :step
 
