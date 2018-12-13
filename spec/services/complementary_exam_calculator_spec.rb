@@ -44,6 +44,14 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
     it 'return complementary_exam score plus value passed as parameter' do
       expect(subject.calculate(score)).to eq((complementary_exam_student.score + score).to_f)
     end
+
+    context 'calculation exceeds test setting maximum score' do
+      it 'returns test setting maximum score' do
+        score = 110
+        test_setting = create(:test_setting, year: classroom.year, maximum_score: score)
+        expect(subject.calculate(score)).to eq(test_setting.maximum_score.to_f)
+      end
+    end
   end
 
   context 'exam calculation type is substitution if greater' do
