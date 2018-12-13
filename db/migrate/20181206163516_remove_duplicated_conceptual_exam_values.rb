@@ -38,7 +38,7 @@ class RemoveDuplicatedConceptualExamValues < ActiveRecord::Migration
              AND conceptual_exams.student_id = conceptual_exam_value.student_id
              AND conceptual_exam_values.discipline_id = conceptual_exam_value.discipline_id
              AND step.step_id = conceptual_exam_value.step_id
-        ORDER BY COALESCE(conceptual_exam_values.value, 0) DESC
+        ORDER BY COALESCE(conceptual_exam_values.value, 0) = 0, conceptual_exam_values.updated_at DESC
            LIMIT 1;
 
           FOR conceptual_exam_value_to_delete IN (

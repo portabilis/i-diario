@@ -38,7 +38,7 @@ class RemoveDuplicatedDescriptiveExamStudents < ActiveRecord::Migration
              AND COALESCE(descriptive_exams.discipline_id, 0) = COALESCE(descriptive_exam_student.discipline_id, 0)
              AND descriptive_exam_students.student_id = descriptive_exam_student.student_id
              AND step.step_id = descriptive_exam_student.step_id
-        ORDER BY descriptive_exam_students.created_at
+        ORDER BY TRIM(descriptive_exam_students.value) = '', descriptive_exam_students.updated_at DESC
            LIMIT 1;
 
           FOR descriptive_exam_student_to_delete IN (
