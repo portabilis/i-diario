@@ -47,6 +47,7 @@ class StudentEnrollmentsList
     students_enrollments = students_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
     students_enrollments = reject_duplicated_students(students_enrollments)
+
     students_enrollments = remove_not_displayable_students(students_enrollments)
 
     students_enrollments
@@ -111,12 +112,10 @@ class StudentEnrollmentsList
   end
 
   def remove_not_displayable_students(students_enrollments)
-    students_enrollments.reject do |student_enrollment|
-      next if student_active?(student_enrollment)
-      next if student_displayable_as_inactive?(student_enrollment) && show_inactive
-
-      true
-    end
+    students_enrollments.select { |student_enrollment|
+      student_active?(student_enrollment) ||
+        (student_displayable_as_inactive?(student_enrollment) && show_inactive)
+    }
   end
 
   def step
