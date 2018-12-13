@@ -47,6 +47,7 @@ class StudentEnrollmentsList
     students_enrollments = students_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
     students_enrollments = reject_duplicated_students(students_enrollments)
+
     students_enrollments = remove_not_displayable_students(students_enrollments)
 
     students_enrollments
@@ -78,27 +79,15 @@ class StudentEnrollmentsList
   end
 
   def student_active?(student_enrollment)
+    enrollments_on_period = StudentEnrollment.where(id: student_enrollment)
+                                             .by_classroom(classroom)
     if search_type == :by_date
-      student_active_on_date?(student_enrollment)
+      enrollments_on_period = enrollments_on_period.by_date(date)
     elsif search_type == :by_date_range
-      student_active_on_date_range?(student_enrollment)
+      enrollments_on_period = enrollments_on_period.by_date_range(start_at, end_at)
     end
-  end
 
-  def student_active_on_date?(student_enrollment)
-    StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(classroom)
-                     .by_date(date)
-                     .active
-                     .any?
-  end
-
-  def student_active_on_date_range?(student_enrollment)
-    StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(classroom)
-                     .by_date_range(start_at, end_at)
-                     .active
-                     .any?
+    enrollments_on_period.active.any?
   end
 
   def student_displayable_as_inactive?(student_enrollment)
@@ -111,12 +100,10 @@ class StudentEnrollmentsList
   end
 
   def remove_not_displayable_students(students_enrollments)
-    students_enrollments.reject do |student_enrollment|
-      next if student_active?(student_enrollment)
-      next if student_displayable_as_inactive?(student_enrollment) && show_inactive
-
-      true
-    end
+    students_enrollments.select { |student_enrollment|
+      student_active?(student_enrollment) ||
+        (student_displayable_as_inactive?(student_enrollment) && show_inactive)
+    }
   end
 
   def step

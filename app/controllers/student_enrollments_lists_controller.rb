@@ -21,7 +21,8 @@ class StudentEnrollmentsListsController < ApplicationController
       end_at: params[:filter][:end_at],
       score_type: params[:filter][:score_type],
       opinion_type: params[:filter][:opinion_type],
-      search_type: :by_date_range
+      search_type: :by_date_range,
+      show_inactive: ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:filter][:show_inactive])
     ).student_enrollments
 
     render json:  student_enrollments

@@ -87,7 +87,8 @@ $(function() {
           start_at: start_at,
           end_at: end_at,
           discipline: discipline_id,
-          score_type: 'concept'
+          score_type: 'concept',
+          show_inactive: false
         };
 
         if (!_.isEmpty(classroom_id) && !_.isEmpty(start_at) && !_.isEmpty(end_at)) {
