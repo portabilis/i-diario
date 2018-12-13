@@ -79,27 +79,15 @@ class StudentEnrollmentsList
   end
 
   def student_active?(student_enrollment)
+    enrollments_on_period = StudentEnrollment.where(id: student_enrollment)
+                                             .by_classroom(classroom)
     if search_type == :by_date
-      student_active_on_date?(student_enrollment)
+      enrollments_on_period = enrollments_on_period.by_date(date)
     elsif search_type == :by_date_range
-      student_active_on_date_range?(student_enrollment)
+      enrollments_on_period = enrollments_on_period.by_date_range(start_at, end_at)
     end
-  end
 
-  def student_active_on_date?(student_enrollment)
-    StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(classroom)
-                     .by_date(date)
-                     .active
-                     .any?
-  end
-
-  def student_active_on_date_range?(student_enrollment)
-    StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(classroom)
-                     .by_date_range(start_at, end_at)
-                     .active
-                     .any?
+    enrollments_on_period.active.any?
   end
 
   def student_displayable_as_inactive?(student_enrollment)
