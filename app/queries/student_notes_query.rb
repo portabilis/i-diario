@@ -22,6 +22,7 @@ class StudentNotesQuery
                         ]
                       ]
                     )
+                    .merge(Avaliation.by_test_date_between(student_joined_at, student_left_at))
   end
 
   def recovery_diary_records
@@ -38,6 +39,12 @@ class StudentNotesQuery
                          ).where.not(
                            avaliation_id: avaliation_ids
                          )
+                       )
+                       .merge(
+                         AvaliationRecoveryDiaryRecord.by_test_date_between(
+                           student_joined_at,
+                           student_left_at
+                         )
                        ).where.not(
                          recovery_diary_record_students: {
                            score: nil
@@ -48,4 +55,23 @@ class StudentNotesQuery
   private
 
   attr_accessor :student, :discipline, :classroom, :start_at, :end_at
+
+  def student_joined_at
+    StudentEnrollmentClassroom.by_student(student)
+                              .by_classroom(classroom)
+                              .active
+                              .first
+                              .joined_at
+  end
+
+  def student_left_at
+    left_at = StudentEnrollmentClassroom.by_student(student)
+                                        .by_classroom(classroom)
+                                        .active
+                                        .first
+                                        .left_at
+    return @end_at if left_at.blank?
+
+    left_at
+  end
 end
