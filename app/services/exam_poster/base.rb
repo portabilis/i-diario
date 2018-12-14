@@ -26,7 +26,11 @@ module ExamPoster
 
       if requests.present?
         requests.each do |request|
-          Ieducar::SendPostWorker.set(queue: @queue).perform_async(entity_id, @post_data.id, request)
+          Ieducar::SendPostWorker.set(queue: @queue).perform_async(
+            entity_id,
+            @post_data.id,
+            request
+          )
         end
       else
         @post_data.finish!
