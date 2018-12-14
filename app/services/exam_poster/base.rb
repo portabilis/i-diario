@@ -76,6 +76,8 @@ module ExamPoster
     end
 
     def can_post?(classroom)
+      return false if classroom.blank?
+
       classroom.post_info &&
         same_unity?(classroom) &&
         step_exists_for_classroom?(classroom)
