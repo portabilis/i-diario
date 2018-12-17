@@ -26,7 +26,11 @@ module ExamPoster
 
       if requests.present?
         requests.each do |request|
-          Ieducar::SendPostWorker.set(queue: @queue).perform_async(entity_id, @post_data.id, request)
+          Ieducar::SendPostWorker.set(queue: @queue).perform_async(
+            entity_id,
+            @post_data.id,
+            request
+          )
         end
       else
         @post_data.finish!
@@ -72,6 +76,8 @@ module ExamPoster
     end
 
     def can_post?(classroom)
+      return false if classroom.blank?
+
       classroom.post_info &&
         same_unity?(classroom) &&
         step_exists_for_classroom?(classroom)
