@@ -8,6 +8,8 @@ class StudentNotesQuery
   end
 
   def daily_note_students
+    intersect_dates
+
     DailyNoteStudent.by_student_id(student)
                     .by_discipline_id(discipline)
                     .by_classroom_id(classroom)
@@ -22,11 +24,11 @@ class StudentNotesQuery
                         ]
                       ]
                     )
-                    .merge(Avaliation.by_test_date_between(student_joined_at, student_left_at))
   end
 
   def recovery_diary_records
     avaliation_ids = daily_note_students.map { |daily_note_student| daily_note_student.avaliation.id }
+    intersect_dates
 
     RecoveryDiaryRecord.by_student_id(student)
                        .by_discipline_id(discipline)
@@ -38,12 +40,6 @@ class StudentNotesQuery
                            end_at
                          ).where.not(
                            avaliation_id: avaliation_ids
-                         )
-                       )
-                       .merge(
-                         AvaliationRecoveryDiaryRecord.by_test_date_between(
-                           student_joined_at,
-                           student_left_at
                          )
                        ).where.not(
                          recovery_diary_record_students: {
@@ -57,11 +53,13 @@ class StudentNotesQuery
   attr_accessor :student, :discipline, :classroom, :start_at, :end_at
 
   def student_joined_at
-    StudentEnrollmentClassroom.by_student(student)
-                              .by_classroom(classroom)
-                              .active
-                              .first
-                              .joined_at
+    joined_at = StudentEnrollmentClassroom.by_student(student)
+                                          .by_classroom(classroom)
+                                          .active
+                                          .first
+                                          .joined_at
+
+    Date.parse(joined_at)
   end
 
   def student_left_at
@@ -72,6 +70,15 @@ class StudentNotesQuery
                                         .left_at
     return @end_at if left_at.blank?
 
-    left_at
+    Date.parse(left_at)
+  end
+
+  def intersect_dates
+    step_range = @start_at..@end_at
+    enrollment_range = student_joined_at..student_left_at
+
+    intersection = step_range.to_a & enrollment_range.to_a
+
+    @start_at, @end_at = intersection.minmax unless intersection.empty?
   end
 end
