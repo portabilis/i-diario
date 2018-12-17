@@ -31,19 +31,18 @@ class AbsenceJustification < ActiveRecord::Base
   validate :no_retroactive_dates
 
   scope :ordered, -> { order(absence_date: :desc) }
-
-  # search scopes
-  scope :by_teacher, lambda { |teacher_id| where(teacher_id: teacher_id)  }
-  scope :by_classroom, lambda { |classroom_id| where("classroom_id = ? OR classroom_id IS NULL", classroom_id) }
-  scope :by_student, lambda { |student| joins(:student).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student}%") }
-  scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
-  scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
-  scope :by_date_range, lambda { |absence_date, absence_date_end| where("absence_date <= ? AND absence_date_end >= ?", absence_date_end, absence_date) }
-  scope :by_unity, lambda { |unity| where("unity_id = ? OR unity_id IS NULL", unity) }
-  scope :by_school_calendar, lambda { |school_calendar| where("school_calendar_id = ? OR school_calendar_id IS NULL", school_calendar) }
-  scope :by_date, lambda { |date| by_date_query(date) }
-  scope :by_date_report, lambda { |absence_date, absence_date_end| where("absence_date >= ? AND absence_date_end <= ?", absence_date, absence_date_end) }
-  scope :by_school_calendar_report, lambda { |school_calendar| where(school_calendar: school_calendar)  }
+  scope :by_teacher, ->(teacher_id) { where(teacher_id: teacher_id)  }
+  scope :by_classroom, ->(classroom_id) { where('classroom_id = ? OR classroom_id IS NULL', classroom_id) }
+  scope :by_student, ->(student) { joins(:student).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student}%") }
+  scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
+  scope :by_student_id, ->(student_id) { where(student_id: student_id) }
+  scope :by_date_range, lambda { |absence_date, absence_date_end|
+    where('((absence_date BETWEEN ? AND ?) OR (absence_date_end BETWEEN ? AND ?))', absence_date, absence_date_end, absence_date, absence_date_end)
+  }
+  scope :by_unity, ->(unity) { where('unity_id = ? OR unity_id IS NULL', unity) }
+  scope :by_school_calendar, ->(school_calendar) { where('school_calendar_id = ? OR school_calendar_id IS NULL', school_calendar) }
+  scope :by_date, ->(date) { by_date_query(date) }
+  scope :by_school_calendar_report, ->(school_calendar) { where(school_calendar: school_calendar)  }
 
   private
 
@@ -67,9 +66,9 @@ class AbsenceJustification < ActiveRecord::Base
 
   def period_absence
     absence_justifications = AbsenceJustification.by_classroom(classroom)
-      .by_student_id(student_id)
-      .by_discipline_id(discipline_id)
-      .by_date_range(absence_date, absence_date_end)
+                                                 .by_student_id(student_id)
+                                                 .by_discipline_id(discipline_id)
+                                                 .by_date_range(absence_date, absence_date_end)
 
     absence_justifications = absence_justifications.where.not(id: id) if persisted?
 
@@ -95,4 +94,5 @@ class AbsenceJustification < ActiveRecord::Base
       !(errors[:absence_date_end].include?(forbidden_error) || errors[:absence_date].include?(forbidden_error))
     end
   end
+  private_class_method :by_date_query
 end
