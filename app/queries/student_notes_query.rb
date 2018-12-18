@@ -53,7 +53,8 @@ class StudentNotesQuery
     joined_at = StudentEnrollmentClassroom.by_student(student)
                                           .by_classroom(classroom)
                                           .active
-                                          .first
+                                          .ordered
+                                          .last
                                           .joined_at
     return @step_start_at if joined_at.blank? || Date.parse(joined_at) < @step_start_at
 
@@ -64,7 +65,8 @@ class StudentNotesQuery
     left_at = StudentEnrollmentClassroom.by_student(student)
                                         .by_classroom(classroom)
                                         .active
-                                        .first
+                                        .ordered
+                                        .last
                                         .left_at
     return @step_end_at if left_at.blank? || Date.parse(left_at) > @step_end_at
 
