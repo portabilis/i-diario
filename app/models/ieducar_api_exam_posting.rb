@@ -84,8 +84,6 @@ class IeducarApiExamPosting < ActiveRecord::Base
     self.school_calendar_classroom_step || self.school_calendar_step
   end
 
-  private
-
   def mark_as_error!
     update_attribute(:status, ApiSynchronizationStatus::ERROR)
   end
