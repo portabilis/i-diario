@@ -1,15 +1,13 @@
 class StudentNotesQuery
-  def initialize(student, discipline, classroom, start_at, end_at)
+  def initialize(student, discipline, classroom, step_start_at, step_end_at)
     @student = student
     @discipline = discipline
     @classroom = classroom
-    @start_at = start_at.to_date
-    @end_at = end_at.to_date
+    @step_start_at = step_start_at.to_date
+    @step_end_at = step_end_at.to_date
   end
 
   def daily_note_students
-    intersect_dates
-
     DailyNoteStudent.by_student_id(student)
                     .by_discipline_id(discipline)
                     .by_classroom_id(classroom)
@@ -28,7 +26,6 @@ class StudentNotesQuery
 
   def recovery_diary_records
     avaliation_ids = daily_note_students.map { |daily_note_student| daily_note_student.avaliation.id }
-    intersect_dates
 
     RecoveryDiaryRecord.by_student_id(student)
                        .by_discipline_id(discipline)
@@ -50,35 +47,27 @@ class StudentNotesQuery
 
   private
 
-  attr_accessor :student, :discipline, :classroom, :start_at, :end_at
+  attr_accessor :student, :discipline, :classroom, :step_start_at, :step_end_at
 
-  def student_joined_at
+  def start_at
     joined_at = StudentEnrollmentClassroom.by_student(student)
                                           .by_classroom(classroom)
                                           .active
                                           .first
                                           .joined_at
+    return @step_start_at if joined_at.blank? || Date.parse(joined_at) < @step_start_at
 
     Date.parse(joined_at)
   end
 
-  def student_left_at
+  def end_at
     left_at = StudentEnrollmentClassroom.by_student(student)
                                         .by_classroom(classroom)
                                         .active
                                         .first
                                         .left_at
-    return @end_at if left_at.blank?
+    return @step_end_at if left_at.blank? || Date.parse(left_at) > @step_end_at
 
     Date.parse(left_at)
-  end
-
-  def intersect_dates
-    step_range = @start_at..@end_at
-    enrollment_range = student_joined_at..student_left_at
-
-    intersection = step_range.to_a & enrollment_range.to_a
-
-    @start_at, @end_at = intersection.minmax unless intersection.empty?
   end
 end
