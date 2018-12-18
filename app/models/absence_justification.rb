@@ -37,7 +37,7 @@ class AbsenceJustification < ActiveRecord::Base
   scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
   scope :by_date_range, lambda { |absence_date, absence_date_end|
-    where('((absence_date BETWEEN ? AND ?) OR (absence_date_end BETWEEN ? AND ?))', absence_date, absence_date_end, absence_date, absence_date_end)
+    where('(NOT (absence_date > ? OR absence_date_end < ?))', absence_date_end, absence_date)
   }
   scope :by_unity, ->(unity) { where('unity_id = ? OR unity_id IS NULL', unity) }
   scope :by_school_calendar, ->(school_calendar) { where('school_calendar_id = ? OR school_calendar_id IS NULL', school_calendar) }
