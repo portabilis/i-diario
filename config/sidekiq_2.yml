@@ -1,4 +1,5 @@
 ---
+:logfile: ./log/sidekiq_low.log
 :concurrency: 5
 staging:
   :concurrency: 10
