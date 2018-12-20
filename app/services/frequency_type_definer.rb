@@ -8,12 +8,28 @@ class FrequencyTypeDefiner
   end
 
   def define!
-    return if @classroom.blank? || @exam_rule.blank?
+    return if @exam_rule.blank?
 
-    return if @teacher.blank? && @frequency_type = @exam_rule.frequency_type
+    @frequency_type = @exam_rule.frequency_type
 
-    return if @exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE && @frequency_type = FrequencyTypes::BY_DISCIPLINE
+    return if @exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE || @teacher.blank? || @classroom.blank?
 
+    define_frequency_type
+  end
+
+  def allow_frequency_by_discipline?
+    define!
+
+    @frequency_type == FrequencyTypes::BY_DISCIPLINE
+  end
+
+  def self.allow_frequency_by_discipline?(classroom, teacher, exam_rule = nil)
+    new(classroom, teacher, exam_rule).allow_frequency_by_discipline?
+  end
+
+  private
+
+  def define_frequency_type
     allow_absence_by_discipline_record = TeacherDisciplineClassroom.find_by(
       teacher_id: @teacher.id,
       classroom_id: @classroom.id,
