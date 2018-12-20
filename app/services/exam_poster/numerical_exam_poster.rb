@@ -66,7 +66,7 @@ module ExamPoster
             recovery_value = ScoreRounder.new(classroom).round(school_term_recovery)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
           end
-          @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.has_warnings?
+          @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.warnings?
         end
       end
 

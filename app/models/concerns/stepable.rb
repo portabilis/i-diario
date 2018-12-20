@@ -1,16 +1,16 @@
 module Stepable
   extend ActiveSupport::Concern
 
-  attr_accessor :step_id, :ignore_step, :ignore_school_day, :ignore_posting_date
+  attr_accessor :step_id, :ignore_step, :ignore_date_validates
 
   included do
     validates_date :recorded_at
-    validates_presence_of :classroom_id, :recorded_at
-    validates_presence_of :step_id, unless: :ignore_step
-    validates :recorded_at, not_in_future: true
-    validates :recorded_at, posting_date: true, unless: :ignore_posting_date
+    validates :classroom_id, :recorded_at, presence: true
+    validates :step_id, presence: true, unless: :ignore_step
+    validates :recorded_at, not_in_future: true, unless: :ignore_date_validates
+    validates :recorded_at, posting_date: true, unless: :ignore_date_validates
     validate :recorded_at_is_in_selected_step
-    validate :ensure_is_school_day, unless: :ignore_school_day
+    validate :ensure_is_school_day, unless: :ignore_date_validates
   end
 
   module ClassMethods
@@ -43,17 +43,15 @@ module Stepable
 
   def ensure_is_school_day
     return unless recorded_at.present? && school_calendar.present?
+    return if school_calendar.school_day?(recorded_at, classroom.grade, classroom, nil)
 
-    unless school_calendar.school_day?(recorded_at, classroom.grade, classroom, nil)
-      errors.add(:recorded_at, :not_school_term_day)
-    end
+    errors.add(:recorded_at, :not_school_term_day)
   end
 
   def recorded_at_is_in_selected_step
     return if step_id.blank? || recorded_at.blank?
+    return if steps_fetcher.step_belongs_to_date?(step_id, recorded_at)
 
-    unless steps_fetcher.step_belongs_to_date?(step_id, recorded_at)
-      errors.add(:recorded_at, :not_school_term_day)
-    end
+    errors.add(:recorded_at, :not_school_term_day)
   end
 end

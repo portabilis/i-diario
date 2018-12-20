@@ -1,4 +1,5 @@
 ---
+:logfile: ./log/sidekiq_exam_posting.log
 :concurrency: 4
 staging:
   :concurrency: 4
