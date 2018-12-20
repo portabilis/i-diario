@@ -43,7 +43,7 @@ module ExamPoster
 
       teacher.classrooms.uniq.each do |classroom|
         next unless can_post?(classroom)
-        next if absence_by_discipline?(classroom)
+        next if frequency_by_discipline?(classroom)
 
         daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
                                           .by_frequency_date_between(
@@ -77,7 +77,7 @@ module ExamPoster
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           next unless can_post?(classroom)
-          next unless absence_by_discipline?(classroom)
+          next unless frequency_by_discipline?(classroom)
 
           discipline = teacher_discipline_classroom.discipline
 
@@ -170,7 +170,7 @@ module ExamPoster
       Student.find(students_ids)
     end
 
-    def absence_by_discipline?(classroom)
+    def frequency_by_discipline?(classroom)
       FrequencyTypeDefiner.allow_frequency_by_discipline?(
         classroom,
         teacher
