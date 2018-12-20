@@ -32,10 +32,6 @@ class DescriptiveExam < ActiveRecord::Base
     end
   end
 
-  def ignore_school_day
-    true
-  end
-
   def ignore_step
     opinion_type_by_year?
   end
@@ -61,7 +57,7 @@ class DescriptiveExam < ActiveRecord::Base
     [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type)
   end
 
-  def ignore_posting_date
+  def ignore_date_validates
     true
   end
 end
