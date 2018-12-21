@@ -38,8 +38,11 @@ $  cp config/database.sample.yml config/database.yml
 
 ```yaml
 development:
-  secret_key_base: CHAVE_SECRETA_AQUI # Você pode gerar uma chave usando o comando "bundle exec rake secret"
+  secret_key_base: CHAVE_SECRETA_AQUI
 ```
+
+_Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
+
 
 - Criar o banco de dados:
 
