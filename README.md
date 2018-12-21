@@ -1,3 +1,6 @@
+[![Maintainability](https://api.codeclimate.com/v1/badges/92cee0c65548b4b4653b/maintainability)](https://codeclimate.com/github/portabilis/i-diario/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/92cee0c65548b4b4653b/test_coverage)](https://codeclimate.com/github/portabilis/i-diario/test_coverage)
+
 # i-Diário
 
 Portal do professor integrado com o software livre [i-Educar](https://github.com/portabilis/i-educar)
