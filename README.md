@@ -60,7 +60,16 @@ $ bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefei
 $ bundle exec rails console
 ```
 ```ruby
-Entity.last.using_connection { User.create!(email: 'admin@domain.com.br', password: '123456789', password_confirmation: '123456789', status: 'actived', kind: 'employee', admin:  true) }
+Entity.last.using_connection {
+  User.create!(
+    email: 'admin@domain.com.br',
+    password: '123456789',
+    password_confirmation: '123456789',
+    status: 'actived',
+    kind: 'employee',
+    admin:  true
+  )
+}
 ```
 
 - Iniciar o servidor e acessar http://localhost:3000 para acessar o sistema:
