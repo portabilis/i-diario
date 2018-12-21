@@ -16,6 +16,8 @@ class StudentEnrollmentsList
     @opinion_type = params.fetch(:opinion_type, nil)
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, false)
     ensure_has_valid_params
+
+    adjust_date_range_by_year if opinion_type_by_year?
   end
 
   def student_enrollments
@@ -107,6 +109,19 @@ class StudentEnrollmentsList
   end
 
   def step
-    @step ||= StepsFetcher.new(Classroom.find(classroom)).step(date)
+    @step ||= begin
+      step_date = date || start_at
+      StepsFetcher.new(Classroom.find(classroom)).step(step_date)
+    end
+  end
+
+  def adjust_date_range_by_year
+    school_calendar = step.school_calendar
+    @start_at = school_calendar.first_day
+    @end_at = school_calendar.last_day
+  end
+
+  def opinion_type_by_year?
+    [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(@opinion_type)
   end
 end
