@@ -39,6 +39,9 @@ class TransferNote < ActiveRecord::Base
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).where(classrooms: { unity_id: unity_id }) }
+  scope :by_transfer_date_between, lambda { |start_at, end_at|
+    where(transfer_date: start_at.to_date..end_at.to_date)
+  }
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
 

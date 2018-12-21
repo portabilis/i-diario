@@ -45,6 +45,21 @@ class StudentNotesQuery
                        )
   end
 
+  def transfer_notes
+    DailyNoteStudent.by_student_id(student)
+                    .by_discipline_id(discipline)
+                    .by_classroom_id(classroom)
+                    .joins(:transfer_note)
+                    .merge(
+                      TransferNote.by_transfer_date_between(
+                        start_at,
+                        end_at
+                      )
+                    ).where.not(
+                      transfer_note: nil
+                    )
+  end
+
   private
 
   attr_accessor :student, :discipline, :classroom, :step_start_at, :step_end_at
