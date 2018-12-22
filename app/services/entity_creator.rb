@@ -2,7 +2,7 @@ class EntityCreator
   attr_reader :name, :domain, :database, :status, :host, :db_user, :db_password
 
   def initialize(options)
-    @name = options["NAME"]
+    @name = options['NAME']
     @domain = options["DOMAIN"]
     @database = options["DATABASE"]
     @host = options["HOST"]
@@ -11,7 +11,7 @@ class EntityCreator
   end
 
   def setup
-    if (has_params? && create_entity)
+    if (params? && create_entity)
       EntityDatabaseCreator.create(@database)
 
       success
@@ -22,7 +22,7 @@ class EntityCreator
 
   protected
 
-  def has_params?
+  def params?
     name && domain && database
   end
 

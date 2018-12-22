@@ -9,6 +9,7 @@ class ComplementaryExamCalculator
 
   def calculate(score)
     return substitution_complementary_exam_score if substitution_complementary_exam_score.present?
+
     score += sum_substitution_complementary_exam_score
 
     if substitution_if_greather_complementary_exam_score.present? && substitution_if_greather_complementary_exam_score > score

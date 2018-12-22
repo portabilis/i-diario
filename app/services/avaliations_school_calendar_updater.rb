@@ -3,11 +3,11 @@ class AvaliationsSchoolCalendarUpdater
               :status
 
   def initialize(options)
-    @name = options["NAME"]
+    @name = options['NAME']
   end
 
   def update
-    if has_params? && update_avaliations_school_calendar
+    if params? && update_avaliations_school_calendar
       success
     else
       error
@@ -16,12 +16,12 @@ class AvaliationsSchoolCalendarUpdater
 
   private
 
-  def has_params?
+  def params?
     name
   end
 
   def update_avaliations_school_calendar
-    entity = Entity.find_by_name(name)
+    entity = Entity.find_by(name: name)
     if entity
       entity.using_connection do
         avaliations = Avaliation.all

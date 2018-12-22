@@ -3,7 +3,7 @@ class EntityStatusManager
               :status
 
   def initialize(options)
-    @name = options["NAME"]
+    @name = options['NAME']
   end
 
   def enable
@@ -16,12 +16,12 @@ class EntityStatusManager
 
   private
 
-  def has_params?
+  def params?
     name
   end
 
   def perform_action(action)
-    if (has_params? && update_entity_status(action))
+    if (params? && update_entity_status(action))
       success
     else
       error(action)
@@ -29,7 +29,7 @@ class EntityStatusManager
   end
 
   def update_entity_status(action)
-    entity = Entity.find_by_name(name)
+    entity = Entity.find_by(name: name)
     if entity
       entity.disabled = action.eql?(:disable)
       entity.save

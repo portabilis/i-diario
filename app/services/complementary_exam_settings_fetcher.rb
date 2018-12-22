@@ -17,9 +17,9 @@ class ComplementaryExamSettingsFetcher
 
   def not_exists_condition
     condition = ComplementaryExam.by_classroom_id(@classroom.id)
-                     .by_discipline_id(@discipline.id)
-                     .by_date_range(@step.start_at, @step.end_at)
-                     .where('complementary_exams.complementary_exam_setting_id = complementary_exam_settings.id')
+                                 .by_discipline_id(@discipline.id)
+                                 .by_date_range(@step.start_at, @step.end_at)
+                                 .where('complementary_exams.complementary_exam_setting_id = complementary_exam_settings.id')
     condition = condition.where('complementary_exams.id <> ?', @complementary_exam_id) if @complementary_exam_id.present?
     condition.to_sql
   end

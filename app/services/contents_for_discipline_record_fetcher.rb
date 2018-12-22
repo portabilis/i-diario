@@ -13,21 +13,17 @@ class ContentsForDisciplineRecordFetcher
                                        .by_teacher_id(@teacher.id)
                                        .by_date(@date)
 
-    if lesson_plans.exists?
-      @contents = lesson_plans.map(&:contents)
-    end
+    @contents = lesson_plans.map(&:contents) if lesson_plans.exists?
 
     if @contents.blank?
       teaching_plans = DisciplineTeachingPlan.by_grade(@classroom.grade.id)
-        .by_discipline(@discipline.id)
-        .by_year(@date.to_date.year)
+                                             .by_discipline(@discipline.id)
+                                             .by_year(@date.to_date.year)
 
       teaching_plans_by_teacher = teaching_plans.by_teacher_id(@teacher.id)
       teaching_plans_by_teacher = teaching_plans.by_teacher_id(nil) unless teaching_plans_by_teacher.exists?
 
-      if teaching_plans_by_teacher.exists?
-        @contents = teaching_plans_by_teacher.map(&:contents)
-      end
+      @contents = teaching_plans_by_teacher.map(&:contents) if teaching_plans_by_teacher.exists?
     end
 
     @contents.uniq.flatten
