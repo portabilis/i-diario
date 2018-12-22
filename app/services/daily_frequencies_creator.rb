@@ -23,7 +23,7 @@ class DailyFrequenciesCreator
   def find_or_create_daily_frequencies
     @daily_frequencies =
       @class_numbers.map do |class_number|
-        daily_frequency = find_or_create_daily_frequency(@params.merge({class_number: class_number}))
+        daily_frequency = find_or_create_daily_frequency(@params.merge(class_number: class_number))
         daily_frequency if daily_frequency.persisted?
       end.compact
   end
