@@ -29,11 +29,16 @@ class DailyNoteCreator
   private
 
   def fetch_student_enrollments
-    @student_enrollments ||= StudentEnrollmentsList.new(classroom: @daily_note.classroom,
-                               discipline: @daily_note.discipline,
-                               date: @daily_note.avaliation.test_date,
-                               score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-                               search_type: :by_date)
-                          .student_enrollments
+    @fetch_student_enrollments ||= student_enrollment_list
+  end
+
+  def student_enrollment_list
+    StudentEnrollmentsList.new(
+      classroom: @daily_note.classroom,
+      discipline: @daily_note.discipline,
+      date: @daily_note.avaliation.test_date,
+      score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+      search_type: :by_date
+    ).student_enrollments
   end
 end
