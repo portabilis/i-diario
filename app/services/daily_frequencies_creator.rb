@@ -79,6 +79,7 @@ class DailyFrequenciesCreator
   end
 
   def step_number
-    @step_number ||= first_daily_frequency.school_calendar.step(first_daily_frequency.frequency_date).try(:to_number) || 0
+    school_calendar = first_daily_frequency.school_calendar
+    @step_number ||= school_calendar.step(first_daily_frequency.frequency_date).try(:to_number) || 0
   end
 end
