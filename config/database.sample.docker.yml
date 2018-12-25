@@ -1,0 +1,16 @@
+default: &default
+  adapter: postgresql
+  encoding: utf8
+  pool: 5
+  host: db
+  port: 5432
+  username: postgres
+  password:
+
+development:
+  <<: *default
+  database: educacao_development
+
+test:
+  <<: *default
+  database: educacao_test

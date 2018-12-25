@@ -1,49 +1,63 @@
-version: "3"
+version: '3.5'
+services:
+  redis:
+    image: redis:alpine
+    container_name: 'redis-i-diario'
+    ports:
+      - '6379:6379'
+    
+  ssh-agent: # https://github.com/nardeas/docker-ssh-agent
+    container_name: 'ssh-agent-i-diario'
+    image: nardeas/ssh-agent:latest
+    volumes:
+      - 'dot_ssh:/root/.ssh'
+      - 'socket_dir:/.ssh-agent'
+    environment:
+      - SSH_AUTH_SOCK=/.ssh-agent/socket
+  db:
+    image: postgres:9.4-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=
+      - SSH_AUTH_SOCK=/.ssh-agent/socket
+    volumes:
+      - psql:/var/lib/postgresql/9.4/data
+      - dot_ssh:/root/.ssh
+      - socket_dir:/.ssh-agent
+    ports:
+      - '5432'
+    networks:
+      - 'application-network'
+  app:
+    stdin_open: true
+    tty: true
+    build: .
+    command: script/start
+    container_name: 'i-diario'
+    volumes:
+      - .:/i-diario
+      - bundler:/bundler
+      - 'dot_ssh:/root/.ssh'
+      - 'socket_dir:/.ssh-agent'
+    environment:
+      - DISABLE_DATABASE_ENVIRONMENT_CHECK=1
+      - BUNDLE_PATH=/bundler
+      - SSH_AUTH_SOCK=/.ssh-agent/socket
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+      - redis
+      - ssh-agent
+    networks:
+      - 'application-network'
+networks:
+  application-network:
+    driver: bridge
 
 volumes:
   dot_ssh:
   socket_dir:
-
-services:
-  ssh-agent: # https://github.com/nardeas/docker-ssh-agent
-    container_name: ssh-agent-novo-educacao
-    image: nardeas/ssh-agent:latest
-    volumes:
-      - "dot_ssh:/root/.ssh"
-      - "socket_dir:/.ssh-agent"
-    environment:
-      - SSH_AUTH_SOCK=/.ssh-agent/socket
-
-  postgres:
-    image: postgres:9.4-alpine
-    container_name: postgres94-novo-educacao
-    ports:
-      - "5432:5432"
-    volumes:
-      - /var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=postgres
-
-  redis:
-    image: redis:alpine
-    container_name: redis-novo-educacao
-    ports:
-      - "6379:6379"
-
-  app:
-    build: .
-    container_name: novo-educacao
-    command: /bin/bash
-    tty: true
-    volumes:
-      - .:/app
-      - "dot_ssh:/root/.ssh"
-      - "socket_dir:/.ssh-agent"
-    ports:
-      - "4000:4000"
-    depends_on:
-      - ssh-agent
-      - postgres
-      - redis
-    environment:
-      - SSH_AUTH_SOCK=/.ssh-agent/socket
+  psql:
+  bundler:
