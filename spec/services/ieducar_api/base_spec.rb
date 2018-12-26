@@ -1,77 +1,82 @@
 # encoding: utf-8
+
 require 'spec_helper'
 
-RSpec.describe IeducarApi::Base, :type => :service do
-  let(:url) { "https://test.ieducar.com.br" }
-  let(:access_key) { "8IOwGIjiHvbeTklgwo10yVLgwDhhvs" }
-  let(:secret_key) { "5y8cfq31oGvFdAlGMCLIeSKdfc8pUC" }
-  let(:staging_access_key) { "8IOwGIjiHvbeTklgwo10yVLgwDhhvs" }
-  let(:staging_secret_key) { "5y8cfq31oGvFdAlGMCLIeSKdfc8pUC" }
+PRIVATE_ACCESS_KEY = '8IOwGIjiHvbeTklgwo10yVLgwDhhvs'.freeze
+PRIVATE_SECRET_KEY = '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC'.freeze
+
+RSpec.describe IeducarApi::Base, type: :service do
+  let(:url) { 'https://test.ieducar.com.br' }
+  let(:access_key) { PRIVATE_ACCESS_KEY }
+  let(:secret_key) { PRIVATE_SECRET_KEY }
+  let(:staging_access_key) { PRIVATE_ACCESS_KEY }
+  let(:staging_secret_key) { PRIVATE_SECRET_KEY }
   let(:unity_id) { 1 }
 
-  context "ensure obligatory params" do
-    it "requires url" do
+  context 'ensure obligatory params' do
+    it 'requires url' do
       expect {
         IeducarApi::Base.new({})
-      }.to raise_error("É necessário informar a url de acesso: url")
+      }.to raise_error('É necessário informar a url de acesso: url')
     end
 
-    it "requires access_key" do
+    it 'requires access_key' do
       expect {
         IeducarApi::Base.new(url: url)
-      }.to raise_error("É necessário informar a chave de acesso: access_key")
+      }.to raise_error('É necessário informar a chave de acesso: access_key')
     end
 
-    it "requires secret_key" do
+    it 'requires secret_key' do
       expect {
         IeducarApi::Base.new(url: url, access_key: access_key)
-      }.to raise_error("É necessário informar a chave secreta: secret_key")
+      }.to raise_error('É necessário informar a chave secreta: secret_key')
     end
 
-    it "requires unity_id" do
+    it 'requires unity_id' do
       expect {
         IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key)
-      }.to raise_error("É necessário informar o id da unidade: unity_id")
+      }.to raise_error('É necessário informar o id da unidade: unity_id')
     end
   end
 
-  describe "#fetch" do
+  describe '#fetch' do
     subject do
       IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
     end
 
-    let(:path) { "module/Api/Aluno" }
-    let(:resource) { "todos-alunos" }
+    let(:path) { 'module/Api/Aluno' }
+    let(:resource) { 'todos-alunos' }
 
-    context "ensure obligatory options" do
-      it "requires path" do
+    context 'ensure obligatory options' do
+      it 'requires path' do
         expect {
           subject.fetch
-        }.to raise_error("É necessário informar o caminho de acesso: path")
+        }.to raise_error('É necessário informar o caminho de acesso: path')
       end
 
-      it "requires resource" do
+      it 'requires resource' do
         expect {
           subject.fetch(path: path)
-        }.to raise_error("É necessário informar o recurso de acesso: resource")
+        }.to raise_error('É necessário informar o recurso de acesso: resource')
       end
     end
 
-    context "all students" do
-      it "returns all students" do
+    context 'all students' do
+      it 'returns all students' do
         VCR.use_cassette('all_students') do
           result = subject.fetch(path: path, resource: resource)
 
-          expect(result.keys).to include "alunos"
+          expect(result.keys).to include 'alunos'
 
-          expect(result["alunos"].size).to eq 117573
+          expect(result['alunos'].size).to eq(117_573)
         end
       end
     end
 
-    context "assign staging secret keys when in staging" do
+    context 'when on staging environment' do
       before do
         Rails.stub_chain(:env, staging?: true)
+
         subject.access_key = nil
         subject.secret_key = nil
 
@@ -80,183 +85,244 @@ RSpec.describe IeducarApi::Base, :type => :service do
         end
       end
 
-      it "access_key is the staging access_key" do
-        expect(subject.access_key).to eq staging_access_key
+      it 'has the staging access key assigned' do
+        expect(subject.access_key).to eq(staging_access_key)
       end
 
-      it "secret_key is the staging secret_key" do
-        expect(subject.secret_key).to eq staging_secret_key
+      it 'has the staging secret key assigned' do
+        expect(subject.secret_key).to eq(staging_secret_key)
       end
     end
 
-    context "do not assign staging secret keys when not in staging" do
+    context 'when is not in staging environment' do
       before do
         Rails.stub_chain(:env, staging?: false)
+
         subject.access_key = nil
         subject.secret_key = nil
 
         VCR.use_cassette('all_students') do
-          expect { subject.fetch(path: path, resource: resource) }.to raise_error("Chave de acesso inválida!")
+          expect { subject.fetch(path: path, resource: resource) }.to raise_error('Chave de acesso inválida!')
         end
       end
 
-      it "access_key is not the staging access_key" do
-        expect(subject.access_key).to eq nil
+      it 'does not have the staging access key assigned' do
+        expect(subject.access_key).to eq(nil)
       end
 
-      it "secret_key is not the staging secret_key" do
-        expect(subject.secret_key).to eq nil
+      it 'does not have the staging secret key assigned' do
+        expect(subject.secret_key).to eq(nil)
       end
     end
   end
 
-  context "with wrong options" do
-    let(:path) { "module/Api/Aluno" }
-    let(:resource) { "todos-alunos" }
+  context 'with wrong options' do
+    let(:path) { 'module/Api/Aluno' }
+    let(:resource) { 'todos-alunos' }
 
-    context "invalid keys" do
-      it "returns an error when providing an invalid access_key" do
-        subject = IeducarApi::Base.new(url: url, access_key: "invalid", secret_key: secret_key, unity_id: unity_id)
+    context 'invalid keys' do
+      it 'returns an error when providing an invalid access_key' do
+        subject = IeducarApi::Base.new(
+          url: url,
+          access_key: 'invalid',
+          secret_key: secret_key,
+          unity_id: unity_id
+        )
 
-        VCR.use_cassette("invalid_access_key") do
+        VCR.use_cassette('invalid_access_key') do
           expect {
             subject.fetch(path: path, resource: resource)
-          }.to raise_error("Chave de acesso inválida!")
+          }.to raise_error('Chave de acesso inválida!')
         end
       end
     end
 
-    it "returns an error when providing an invalid url" do
-      subject = IeducarApi::Base.new(url: "https://botucat.ieduca.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+    it 'returns an error when providing an invalid url' do
+      subject = IeducarApi::Base.new(
+        url: 'https://botucat.ieduca.com.br',
+        access_key: access_key,
+        secret_key: secret_key,
+        unity_id: unity_id
+      )
 
       expect {
         subject.fetch(path: path, resource: resource)
-      }.to raise_error("URL do i-Educar informada não é válida.")
+      }.to raise_error('URL do i-Educar informada não é válida.')
     end
 
-    it "returns an error when providing an invalid client url" do
-      subject = IeducarApi::Base.new(url: "https://botucat.ieducar.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+    it 'returns an error when providing an invalid client url' do
+      subject = IeducarApi::Base.new(
+        url: 'https://botucat.ieducar.com.br',
+        access_key: access_key,
+        secret_key: secret_key,
+        unity_id: unity_id
+      )
 
-      VCR.use_cassette("wrong_client_url") do
+      VCR.use_cassette('wrong_client_url') do
         expect {
           subject.fetch(path: path, resource: resource)
-        }.to raise_error("Chave de acesso inválida!")
+        }.to raise_error('Chave de acesso inválida!')
       end
     end
 
-    it "returns an error when providing an invalid resource" do
-      subject = IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+    it 'returns an error when providing an invalid resource' do
+      subject = IeducarApi::Base.new(
+        url: url,
+        access_key: access_key,
+        secret_key: secret_key,
+        unity_id: unity_id
+      )
 
-      VCR.use_cassette("wrong_resource") do
+      VCR.use_cassette('wrong_resource') do
         expect {
-          subject.fetch(path: path, resource: "errado")
+          subject.fetch(path: path, resource: 'errado')
         }.to raise_error("Operação 'get' não implementada para o recurso 'errado'")
       end
     end
   end
 
-  describe "#send_post" do
+  describe '#send_post' do
     subject do
-      IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+      IeducarApi::Base.new(
+        url: url,
+        access_key: access_key,
+        secret_key: secret_key,
+        unity_id: unity_id
+      )
     end
 
-    let(:path) { "module/Api/Diario" }
-    let(:resource) { "faltas-geral" }
+    let(:path) { 'module/Api/Diario' }
+    let(:resource) { 'faltas-geral' }
 
-    context "ensure obligatory options" do
-      it "requires path" do
+    context 'ensure obligatory options' do
+      it 'requires path' do
         expect {
           subject.send_post
-        }.to raise_error("É necessário informar o caminho de acesso: path")
+        }.to raise_error('É necessário informar o caminho de acesso: path')
       end
 
-      it "requires resource" do
+      it 'requires resource' do
         expect {
           subject.send_post(path: path)
-        }.to raise_error("É necessário informar o recurso de acesso: resource")
+        }.to raise_error('É necessário informar o recurso de acesso: resource')
       end
     end
 
-    context "assign staging secret keys when not in production" do
+    context 'assign staging secret keys when not in production' do
       before do
         Rails.stub_chain(:env, production?: false)
         subject.access_key = nil
         subject.secret_key = nil
-        subject.send_post(path: path, resource: resource, etapa: 1, faltas: 1)
+
+        VCR.use_cassette('post_absence_resource') do
+          subject.send_post(
+            path: path,
+            resource: resource,
+            etapa: 1,
+            faltas: 1
+          )
+        end
       end
 
-      it "access_key is the staging access_key" do
-        expect(subject.access_key).to eq staging_access_key
+      it 'access_key is the staging access_key' do
+        expect(subject.access_key).to eq(staging_access_key)
       end
 
-      it "secret_key is the staging secret_key" do
-        expect(subject.secret_key).to eq staging_secret_key
+      it 'secret_key is the staging secret_key' do
+        expect(subject.secret_key).to eq(staging_secret_key)
       end
     end
 
-    context "do not assign staging secret keys when in production" do
+    context 'do not assign staging secret keys when in production' do
       before do
         Rails.stub_chain(:env, production?: true)
         subject.access_key = nil
         subject.secret_key = nil
-        expect { subject.send_post(path: path, resource: resource, etapa: 1, faltas: 1) }.to raise_error("Chave de acesso inválida!")
+        expect {
+          subject.send_post(
+            path: path,
+            resource: resource,
+            etapa: 1,
+            faltas: 1
+          )
+        }.to raise_error('Chave de acesso inválida!')
       end
 
-      it "access_key is the staging access_key" do
-        expect(subject.access_key).to eq nil
+      it 'access_key is the staging access_key' do
+        expect(subject.access_key).to eq(nil)
       end
 
-      it "secret_key is the staging secret_key" do
-        expect(subject.secret_key).to eq nil
+      it 'secret_key is the staging secret_key' do
+        expect(subject.secret_key).to eq(nil)
       end
     end
   end
 
-  context "with wrong options" do
-    let(:path) { "module/Api/Diario" }
-    let(:resource) { "faltas-geral" }
-    let(:params) { {path: path, resource: resource, etapa: 1, faltas: 1 } }
+  context 'with wrong options' do
+    let(:path) { 'module/Api/Diario' }
+    let(:resource) { 'faltas-geral' }
+    let(:params) { { path: path, resource: resource, etapa: 1, faltas: 1 } }
 
     before do
       Rails.stub_chain(:env, production?: true)
     end
 
-    context "invalid keys" do
-      it "returns an error when providing an invalid access_key" do
-        subject = IeducarApi::Base.new(url: url, access_key: "invalid", secret_key: secret_key, unity_id: unity_id)
+    context 'invalid keys' do
+      it 'returns an error when providing an invalid access_key' do
+        subject = IeducarApi::Base.new(
+          url: url,
+          access_key: 'invalid',
+          secret_key: secret_key,
+          unity_id: unity_id
+        )
 
-        VCR.use_cassette("post_invalid_access_key") do
+        VCR.use_cassette('post_invalid_access_key') do
           expect {
             subject.send_post(params)
-          }.to raise_error("Chave de acesso inválida!")
+          }.to raise_error('Chave de acesso inválida!')
         end
       end
     end
 
-    it "returns an error when providing an invalid url" do
-      subject = IeducarApi::Base.new(url: "https://botucat.ieduca.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+    it 'returns an error when providing an invalid url' do
+      subject = IeducarApi::Base.new(
+        url: 'https://botucat.ieduca.com.br',
+        access_key: access_key,
+        secret_key: secret_key,
+        unity_id: unity_id
+      )
 
       expect {
         subject.send_post(params)
-      }.to raise_error("URL do i-Educar informada não é válida.")
+      }.to raise_error('URL do i-Educar informada não é válida.')
     end
 
-    it "returns an error when providing an invalid client url" do
-      subject = IeducarApi::Base.new(url: "https://botucat.ieducar.com.br", access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+    it 'returns an error when providing an invalid client url' do
+      subject = IeducarApi::Base.new(
+        url: 'https://botucat.ieducar.com.br',
+        access_key: access_key,
+        secret_key: secret_key,
+        unity_id: unity_id
+      )
 
-      VCR.use_cassette("post_wrong_client_url") do
+      VCR.use_cassette('post_wrong_client_url') do
         expect {
           subject.send_post(params)
-        }.to raise_error("Chave de acesso inválida!")
+        }.to raise_error('Chave de acesso inválida!')
       end
     end
 
-    it "returns an error when providing an invalid resource" do
-      subject = IeducarApi::Base.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id)
+    it 'returns an error when providing an invalid resource' do
+      subject = IeducarApi::Base.new(
+        url: url,
+        access_key: access_key,
+        secret_key: secret_key,
+        unity_id: unity_id
+      )
 
-      VCR.use_cassette("post_wrong_resource") do
+      VCR.use_cassette('post_wrong_resource') do
         expect {
-          subject.send_post(path: path, resource: "errado")
+          subject.send_post(path: path, resource: 'errado')
         }.to raise_error("Operação 'post' não implementada para o recurso 'errado'")
       end
     end

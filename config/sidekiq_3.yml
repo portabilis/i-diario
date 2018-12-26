@@ -1,9 +1,9 @@
 ---
-:concurrency: 5
+:logfile: ./log/sidekiq_exam_posting.log
+:concurrency: 4
 staging:
-  :concurrency: 10
+  :concurrency: 4
 production:
-  :concurrency: 50
+  :concurrency: 4
 :queues:
-  - [exam_posting, 2]
-  - [exam_posting_send, 50]
+  - [exam_posting, 1]

@@ -22,7 +22,6 @@ class StudentNotesQuery
                         ]
                       ]
                     )
-                    .where.not(note: nil)
   end
 
   def recovery_diary_records

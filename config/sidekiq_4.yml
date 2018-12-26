@@ -1,0 +1,9 @@
+---
+:logfile: ./log/sidekiq_exam_posting_send.log
+:concurrency: 5
+staging:
+  :concurrency: 10
+production:
+  :concurrency: 50
+:queues:
+  - [exam_posting_send, 1]

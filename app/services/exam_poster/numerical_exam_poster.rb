@@ -35,8 +35,7 @@ module ExamPoster
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
 
-          next unless same_unity?(classroom.unity_id)
-          next unless step_exists_for_classroom?(classroom)
+          next unless can_post?(classroom)
 
           teacher_score_fetcher = TeacherScoresFetcher.new(
             teacher,
@@ -67,7 +66,7 @@ module ExamPoster
             recovery_value = ScoreRounder.new(classroom).round(school_term_recovery)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
           end
-          @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.has_warnings?
+          @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.warnings?
         end
       end
 

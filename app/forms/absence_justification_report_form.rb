@@ -16,7 +16,6 @@ class AbsenceJustificationReportForm
   validates :discipline_id,    presence: true,
                                if: :frequence_type_by_discipline?
 
-
   validate :must_find_absence
 
   def absence_justification
@@ -26,14 +25,14 @@ class AbsenceJustificationReportForm
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
                           .by_discipline_id(discipline_id)
-                          .by_date_report(absence_date, absence_date_end)
+                          .by_date_range(absence_date, absence_date_end)
                           .ordered
     else
       AbsenceJustification.by_teacher(current_teacher_id)
                           .by_unity(unity_id)
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
-                          .by_date_report(absence_date, absence_date_end)
+                          .by_date_range(absence_date, absence_date_end)
                           .ordered
     end
   end
@@ -47,11 +46,9 @@ class AbsenceJustificationReportForm
   private
 
   def must_find_absence
-    return unless errors.blank?
+    return if errors.present?
 
-    if absence_justification.blank?
-      errors.add(:base, "Não foram encontrados resultados para a pesquisa!")
-    end
+    errors.add(:base, 'Não foram encontrados resultados para a pesquisa!') if absence_justification.blank?
   end
 
   def classroom

@@ -1,3 +1,7 @@
+[![Latest Release](https://img.shields.io/github/release/portabilis/i-diario.svg?label=latest%20release)](https://github.com/portabilis/i-diario/releases)
+[![Maintainability](https://api.codeclimate.com/v1/badges/92cee0c65548b4b4653b/maintainability)](https://codeclimate.com/github/portabilis/i-diario/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/92cee0c65548b4b4653b/test_coverage)](https://codeclimate.com/github/portabilis/i-diario/test_coverage)
+
 # i-Diário
 
 Portal do professor integrado com o software livre [i-Educar](https://github.com/portabilis/i-educar)
@@ -34,8 +38,11 @@ $  cp config/database.sample.yml config/database.yml
 
 ```yaml
 development:
-  secret_key_base: CHAVE_SECRETA_AQUI # Você pode gerar uma chave usando o comando "bundle exec rake secret"
+  secret_key_base: CHAVE_SECRETA_AQUI
 ```
+
+_Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
+
 
 - Criar o banco de dados:
 
@@ -56,7 +63,16 @@ $ bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefei
 $ bundle exec rails console
 ```
 ```ruby
-Entity.last.using_connection { User.create!(email: 'admin@domain.com.br', password: '123456789', password_confirmation: '123456789', status: 'actived', kind: 'employee', admin:  true) }
+Entity.last.using_connection {
+  User.create!(
+    email: 'admin@domain.com.br',
+    password: '123456789',
+    password_confirmation: '123456789',
+    status: 'actived',
+    kind: 'employee',
+    admin:  true
+  )
+}
 ```
 
 - Iniciar o servidor e acessar http://localhost:3000 para acessar o sistema:

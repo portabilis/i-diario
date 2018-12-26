@@ -303,7 +303,8 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user_is_employee_or_administrator?
-    current_user.current_user_role.role_employee? || (current_user.current_user_role.role_administrator? && !current_user.assumed_teacher_id)
+    (current_user.assumed_teacher_id.blank? &&
+      (current_user.current_user_role.role_employee? || current_user.current_user_role.role_administrator?))
   end
   helper_method :current_user_is_employee_or_administrator?
 

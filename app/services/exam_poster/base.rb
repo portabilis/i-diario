@@ -26,7 +26,11 @@ module ExamPoster
 
       if requests.present?
         requests.each do |request|
-          Ieducar::SendPostWorker.set(queue: @queue).perform_async(entity_id, @post_data.id, request)
+          Ieducar::SendPostWorker.set(queue: @queue).perform_async(
+            entity_id,
+            @post_data.id,
+            request
+          )
         end
       else
         @post_data.finish!
@@ -49,8 +53,8 @@ module ExamPoster
       get_step_by_step_number(classroom, @post_data.step.to_number) || @post_data.step
     end
 
-    def same_unity?(unity_id)
-      unity_id == @post_data.step.school_calendar.unity_id
+    def same_unity?(classroom)
+      classroom.unity_id == @post_data.step.school_calendar.unity_id
     end
 
     def get_step_by_step_number(classroom, step_number)
@@ -69,6 +73,14 @@ module ExamPoster
 
     def invalid_classroom_year?(classroom)
       @post_data.step.school_calendar.year != classroom.year
+    end
+
+    def can_post?(classroom)
+      return false if classroom.blank?
+
+      classroom.post_info &&
+        same_unity?(classroom) &&
+        step_exists_for_classroom?(classroom)
     end
   end
 end
