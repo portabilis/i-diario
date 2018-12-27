@@ -240,9 +240,18 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def find_by_or_create_daily_frequency(params)
-    params[:school_calendar_id] = current_school_calendar.id
+    daily_frequency = DailyFrequency.find_by(
+      classroom_id: params.fetch(:classroom_id),
+      frequency_date: params.fetch(:frequency_date),
+      discipline_id: params.fetch(:discipline_id, nil),
+      class_number:  params.fetch(:class_number, nil)
+    )
 
-    (DailyFrequency.find_by(params) || DailyFrequency.create(params.merge({origin: OriginTypes::WEB})))
+    daily_frequency ||= DailyFrequency.create(
+      params.merge(origin: OriginTypes::WEB)
+    )
+
+    daily_frequency
   end
 
   def student_has_dependence?(student_enrollment, discipline)
