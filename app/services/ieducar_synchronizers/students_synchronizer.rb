@@ -19,6 +19,7 @@ class StudentsSynchronizer < BaseSynchronizer
         if student.present?
           student.update(
             name: record['nome_aluno'],
+            social_name: record['nome_social'],
             avatar_url: record['foto_aluno'],
             birth_date: record['data_nascimento'],
             uses_differentiated_exam_rule: record['utiliza_regra_diferenciada']
@@ -27,6 +28,7 @@ class StudentsSynchronizer < BaseSynchronizer
           students.create!(
             api_code: record['aluno_id'],
             name: record['nome_aluno'],
+            social_name: record['nome_social'],
             avatar_url: record['foto_aluno'],
             birth_date: record['data_nascimento'],
             api: true,
