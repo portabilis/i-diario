@@ -23,6 +23,7 @@ class StudentEnrollment < ActiveRecord::Base
   scope :with_recovery_note_in_step, lambda { |step, discipline_id| with_recovery_note_in_step_query(step, discipline_id) }
   scope :active, -> { where(active: 1) }
   scope :ordered, -> { joins(:student, :student_enrollment_classrooms).order('sequence ASC, students.name ASC') }
+  scope :current_enrollment, -> { joins(:student_enrollment_classrooms).where("left_at = ''") }
 
   def self.by_discipline_query(discipline_id)
     unless discipline_id.blank?
