@@ -1,6 +1,6 @@
 class StudentsSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch['alunos']
+    update_records(api.fetch['alunos'])
 
     finish_worker('StudentsSynchronizer')
   end
@@ -14,7 +14,9 @@ class StudentsSynchronizer < BaseSynchronizer
   def update_records(collection)
     ActiveRecord::Base.transaction do
       collection.each do |record|
-        if student = students.find_by(api_code: record['aluno_id'])
+        student = students.find_by(api_code: record['aluno_id'])
+
+        if student.present?
           student.update(
             name: record['nome_aluno'],
             avatar_url: record['foto_aluno'],
