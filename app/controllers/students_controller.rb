@@ -10,17 +10,41 @@ class StudentsController < ApplicationController
         step = steps_fetcher.steps.find(step_id)
         step_number = step.to_number
         start_date ||= step.start_at
+        end_date ||= step.end_at
       end
 
-      @students = StudentsFetcher.new(
-        classroom,
-        Discipline.find_by_id(params[:discipline_id]),
-        date.to_date.to_s,
-        start_date,
-        params[:score_type] || StudentEnrollmentScoreTypeFilters::BOTH,
-        step_number
-      )
-      .fetch
+      student_enrollments = StudentEnrollmentsList.new(
+        classroom: params[:classroom_id],
+        discipline: params[:discipline_id],
+        date: date,
+        search_type: :by_date,
+        score_type: params[:score_type]
+      ).student_enrollments
+
+      student_enrollments.delete_if do |student_enrollment|
+        joinde_at = StudentEnrollmentClassroom
+                    .by_student_enrollment(student_enrollment.id)
+                    .by_date(date)
+                    .first
+                    .joined_at
+
+        joinde_at.to_date < start_date
+      end
+
+      student_ids = student_enrollments.collect(&:student_id)
+
+      @students = Student.where(id: student_ids).order_by_sequence(@classroom, start_date, end_date)
+
+      if params[:discipline_id].present? && step_number.present?
+        @students.each do |student|
+          student_enrollment = student_enrollments.find { |enrollment| enrollment.student_id == student.id }
+          exempted_from_discipline = student_enrollment.exempted_disciplines.by_discipline(params[:discipline_id])
+                                                                            .by_step_number(step_number)
+                                                                            .any?
+          student.exempted_from_discipline = exempted_from_discipline
+        end
+        @students.to_a.reject!(&:exempted_from_discipline) if @remove_exempted_from_discipline
+      end
 
       render json: @students
     else
