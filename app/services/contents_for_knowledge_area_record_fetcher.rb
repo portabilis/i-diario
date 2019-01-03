@@ -19,11 +19,15 @@ class ContentsForKnowledgeAreaRecordFetcher
     end
 
     if @contents.blank?
+      step = StepsFetcher.new(@classroom).step(@date.to_date)
+      school_term = step.try(:raw_school_term) || ''
+
       teaching_plans = KnowledgeAreaTeachingPlan.by_grade(@classroom.grade.id)
         .by_knowledge_area(@knowledge_areas.map(&:id))
         .by_year(@date.to_date.year)
         .includes(teaching_plan: :contents)
 
+      teaching_plans = teaching_plans.by_school_term(school_term)
       teaching_plans_by_teacher = teaching_plans.by_teacher_id(@teacher.id)
       teaching_plans_by_teacher = teaching_plans.by_teacher_id(nil) unless teaching_plans_by_teacher.exists?
 

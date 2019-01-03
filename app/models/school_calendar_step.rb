@@ -1,4 +1,6 @@
 class SchoolCalendarStep < ActiveRecord::Base
+  include SchoolTermable
+
   acts_as_copy_target
 
   audited associated_with: :school_calendar, except: :school_calendar_id
@@ -6,9 +8,6 @@ class SchoolCalendarStep < ActiveRecord::Base
   belongs_to :school_calendar
   has_many :ieducar_api_exam_postings, dependent: :destroy
 
-  validates_date :start_date_for_posting, :end_date_for_posting
-  validates :start_at, :end_at, :start_date_for_posting, :end_date_for_posting, presence: true
-  validate :start_at_must_be_in_school_calendar_year, if: :school_calendar
   validate :start_at_must_not_have_conflicting_date, if: :school_calendar
   validate :end_at_must_not_have_conflicting_date, if: :school_calendar
   validate :start_at_must_be_less_than_end_at
@@ -28,16 +27,6 @@ class SchoolCalendarStep < ActiveRecord::Base
   scope :ordered, -> { order(:start_at) }
 
   delegate :unity, to: :school_calendar
-
-  def to_s
-    "#{school_term} (#{localized.start_at} a #{localized.end_at})"
-  end
-
-  def to_number
-    return unless school_calendar
-
-    (school_calendar.steps.ordered.index(self) || 0) + 1
-  end
 
   def school_calendar_step_day?(date)
     step_from_date = school_calendar.step(date)
@@ -61,21 +50,6 @@ class SchoolCalendarStep < ActiveRecord::Base
     dates
   end
 
-  def school_term
-    school_term = school_calendar.school_step(self).to_s
-
-    case
-    when school_term.end_with?(SchoolTermTypes::BIMESTER)
-      I18n.t("enumerations.bimesters.#{school_term}")
-    when school_term.end_with?(SchoolTermTypes::TRIMESTER)
-      I18n.t("enumerations.trimesters.#{school_term}")
-    when school_term.end_with?(SchoolTermTypes::SEMESTER)
-      I18n.t("enumerations.semesters.#{school_term}")
-    when school_term.end_with?(SchoolTermTypes::YEARLY)
-      I18n.t("enumerations.year.#{school_term}")
-    end
-  end
-
   def test_setting
     TestSetting.where(
       TestSetting.arel_table[:year].eq(school_calendar.year)
@@ -88,12 +62,16 @@ class SchoolCalendarStep < ActiveRecord::Base
     .first
   end
 
+  def school_calendar_parent
+    school_calendar
+  end
+
   private
 
-  def start_at_must_be_in_school_calendar_year
-    return if errors[:start_at].any? || school_calendar.errors[:year].any?
+  def steps
+    return if school_calendar.blank?
 
-    errors.add(:start_at, :must_be_in_school_calendar_year) if start_at.to_date.year != school_calendar.year.to_i
+    school_calendar.steps
   end
 
   def start_at_must_be_less_than_end_at
