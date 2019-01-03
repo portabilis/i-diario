@@ -16,7 +16,7 @@ class ConceptualExam < ActiveRecord::Base
   belongs_to :student
   has_many :conceptual_exam_values, lambda {
     includes(:conceptual_exam, discipline: :knowledge_area)
-  }, dependent: :destroy
+  }, inverse_of: :conceptual_exam, dependent: :destroy
 
   accepts_nested_attributes_for :conceptual_exam_values, allow_destroy: true
 
@@ -42,8 +42,6 @@ class ConceptualExam < ActiveRecord::Base
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
   validate :ensure_student_is_in_classroom
-
-  before_validation :self_assign_to_conceptual_exam_values
 
   def self.active
     join_conceptual_exam_values.merge(ConceptualExamValue.active(false))
@@ -114,10 +112,6 @@ class ConceptualExam < ActiveRecord::Base
     return unless conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty?
 
     errors.add(:conceptual_exam_values, :at_least_one_conceptual_exam_value)
-  end
-
-  def self_assign_to_conceptual_exam_values
-    conceptual_exam_values.each { |conceptual_exam_value| conceptual_exam_value.conceptual_exam = self }
   end
 
   def self.join_conceptual_exam_values
