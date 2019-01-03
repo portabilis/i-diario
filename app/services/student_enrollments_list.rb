@@ -24,16 +24,20 @@ class StudentEnrollmentsList
     fetch_student_enrollments
   end
 
-  def remove_joined_before_date(student_enrollments, date, start_date)
-    student_enrollments.delete_if do |student_enrollment|
-      joinde_at = StudentEnrollmentClassroom
-                  .by_student_enrollment(student_enrollment.id)
-                  .by_date(date)
-                  .first
-                  .joined_at
+  def remove_joined_before_date(student_enrollments, start_date, end_date)
+    student_enrollment_ids = student_enrollments.collect(&:id)
 
-      joinde_at.to_date < start_date
+    student_enrollments_in_period = StudentEnrollment.includes(:student_enrollment_classrooms)
+                                                     .by_date_range(start_date, end_date)
+                                                     .where(id: student_enrollment_ids)
+
+    student_enrollments_in_period.each do |student_enrollment|
+      joined_at = student_enrollment.student_enrollment_classrooms.first.joined_at
+
+      student_enrollments.delete(student_enrollment) if joined_at.to_date < start_date
     end
+
+    student_enrollments
   end
 
   private

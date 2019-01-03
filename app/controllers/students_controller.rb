@@ -23,8 +23,8 @@ class StudentsController < ApplicationController
       student_enrollments = student_enrollments_list.student_enrollments
       student_enrollments = student_enrollments_list.remove_joined_before_date(
         student_enrollments,
-        date,
-        start_date
+        start_date,
+        end_date
       )
 
       student_ids = student_enrollments.collect(&:student_id)
