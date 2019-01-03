@@ -18,6 +18,7 @@ class ContentsForDisciplineRecordFetcher
     if @contents.blank?
       step = StepsFetcher.new(@classroom).step(@date.to_date)
       school_term = step.try(:raw_school_term) || ''
+      school_term = '' if school_term == SchoolTermTypes::YEARLY
 
       teaching_plans = DisciplineTeachingPlan.by_grade(@classroom.grade.id)
                                              .by_discipline(@discipline.id)
