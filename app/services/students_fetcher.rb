@@ -1,19 +1,11 @@
 class StudentsFetcher
-  def initialize(
-    classroom,
-    discipline = nil,
-    date = Time.zone.today,
-    start_date = nil,
-    score_type = StudentEnrollmentScoreTypeFilters::BOTH,
-    step = nil,
-    remove_exempted_from_discipline = false
-  )
+  def initialize(classroom, discipline = nil, date = Time.zone.today, start_date = nil, score_type = StudentEnrollmentScoreTypeFilters::BOTH, step_number = nil, remove_exempted_from_discipline = false)
     @classroom = classroom
     @discipline = discipline
     @date = date
     @start_date = start_date
     @score_type = score_type
-    @step = step
+    @step_number = step_number
     @remove_exempted_from_discipline = remove_exempted_from_discipline
   end
 
@@ -32,13 +24,13 @@ class StudentsFetcher
 
     student_ids = student_enrollments.ordered.collect(&:student_id)
 
-    students = Student.where(id: student_ids).order_by_sequence(@classroom, @step.start_at, @step.end_at)
+    students = Student.where(id: student_ids).order_by_sequence(@classroom)
 
-    if @discipline.present? && @step.present?
+    if @discipline.present? && @step_number.present?
       students.each do |student|
         student_enrollment = student_enrollments.find { |enrollment| enrollment.student_id == student.id }
         exempted_from_discipline = student_enrollment.exempted_disciplines.by_discipline(@discipline.id)
-                                                                          .by_step_number(@step.to_number)
+                                                                          .by_step_number(@step_number)
                                                                           .any?
         student.exempted_from_discipline = exempted_from_discipline
       end
