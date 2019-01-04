@@ -240,6 +240,7 @@ Rails.application.routes.draw do
     resources :conceptual_exams, concerns: :history do
       collection do
         get :exempted_disciplines
+        get :find_conceptual_exam_by_student
       end
     end
     resources :old_steps_conceptual_values, except: [:only]

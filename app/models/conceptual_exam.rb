@@ -14,17 +14,20 @@ class ConceptualExam < ActiveRecord::Base
 
   belongs_to :classroom
   belongs_to :student
-  has_many :conceptual_exam_values, -> {
+  has_many :conceptual_exam_values, lambda {
     includes(:conceptual_exam, discipline: :knowledge_area)
-  }, dependent: :destroy
+  }, inverse_of: :conceptual_exam, dependent: :destroy
 
   accepts_nested_attributes_for :conceptual_exam_values, allow_destroy: true
 
   has_enumeration_for :status, with: ConceptualExamStatus, create_helpers: true
 
-  scope :by_unity, lambda { |unity| joins(:classroom).where(classrooms: { unity_id: unity }) }
-  scope :by_classroom, lambda { |classroom| where(classroom: classroom) }
-  scope :by_discipline, lambda { |discipline| join_conceptual_exam_values.where(conceptual_exam_values: { discipline: discipline } ) }
+  scope :by_unity, ->(unity) { joins(:classroom).where(classrooms: { unity_id: unity }) }
+  scope :by_classroom, ->(classroom) { where(classroom: classroom) }
+  scope :by_student_id, ->(student_id) { where(student_id: student_id) }
+  scope :by_discipline, lambda { |discipline|
+    join_conceptual_exam_values.where(conceptual_exam_values: { discipline: discipline })
+  }
   scope :by_student_name, lambda { |student_name|
     joins(
       arel_table.join(Student.arel_table).on(
@@ -39,8 +42,6 @@ class ConceptualExam < ActiveRecord::Base
   validate :at_least_one_conceptual_exam_value
   validate :uniqueness_of_student
   validate :ensure_student_is_in_classroom
-
-  before_validation :self_assign_to_conceptual_exam_values
 
   def self.active
     join_conceptual_exam_values.merge(ConceptualExamValue.active(false))
@@ -70,10 +71,17 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def status
-    discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id).pluck(:discipline_id)
-    values = ConceptualExamValue.where(conceptual_exam_id: id, exempted_discipline: false, discipline_id: discipline_ids)
+    discipline_ids = TeacherDisciplineClassroom.where(classroom_id: classroom_id, teacher_id: teacher_id)
+                                               .pluck(:discipline_id)
+    values = ConceptualExamValue.where(
+      conceptual_exam_id: id,
+      exempted_discipline: false,
+      discipline_id: discipline_ids
+    )
 
-    return ConceptualExamStatus::INCOMPLETE if values.any? { |conceptual_exam_value| conceptual_exam_value.value.blank? }
+    return ConceptualExamStatus::INCOMPLETE if values.any? { |conceptual_exam_value|
+      conceptual_exam_value.value.blank?
+    }
 
     ConceptualExamStatus::COMPLETE
   end
@@ -95,19 +103,15 @@ class ConceptualExam < ActiveRecord::Base
     exam_rule = classroom.exam_rule
     exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if student.uses_differentiated_exam_rule
 
-    unless permited_score_types.include?(exam_rule.score_type)
-      errors.add(:student, :classroom_must_have_conceptual_exam_score_type)
-    end
+    return if permited_score_types.include?(exam_rule.score_type)
+
+    errors.add(:student, :classroom_must_have_conceptual_exam_score_type)
   end
 
   def at_least_one_conceptual_exam_value
-    if conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty?
-      errors.add(:conceptual_exam_values, :at_least_one_conceptual_exam_value)
-    end
-  end
+    return unless conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty?
 
-  def self_assign_to_conceptual_exam_values
-    conceptual_exam_values.each { |conceptual_exam_value| conceptual_exam_value.conceptual_exam = self }
+    errors.add(:conceptual_exam_values, :at_least_one_conceptual_exam_value)
   end
 
   def self.join_conceptual_exam_values
@@ -124,7 +128,7 @@ class ConceptualExam < ActiveRecord::Base
   def uniqueness_of_student
     return if step.blank? || student_id.blank?
 
-    discipline_ids = conceptual_exam_values.collect{ |value| value.discipline_id }
+    discipline_ids = conceptual_exam_values.collect(&:discipline_id)
     conceptual_exam = ConceptualExam.joins(:conceptual_exam_values)
                                     .by_recorded_at_between(step.start_at, step.end_at)
                                     .where(
@@ -140,9 +144,8 @@ class ConceptualExam < ActiveRecord::Base
 
   def ensure_student_is_in_classroom
     return if recorded_at.blank? || student_id.blank? || classroom_id.blank?
+    return if StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
 
-    unless StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
-      errors.add(:base, :student_is_not_in_classroom)
-    end
+    errors.add(:base, :student_is_not_in_classroom)
   end
 end
