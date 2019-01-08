@@ -104,7 +104,7 @@ class AttendanceRecordReport < BaseReport
               student_frequency ||= NullDailyFrequencyStudent.new
             end
             student = student_enrollment.student
-            (students[student_id] ||= {})[:name] = student.name
+            (students[student_id] ||= {})[:name] = student.to_s
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, daily_frequency.discipline_id)
 
@@ -127,7 +127,7 @@ class AttendanceRecordReport < BaseReport
           @students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
             student = student_enrollment.student
-            (students[student_id] ||= {})[:name] = student.name
+            (students[student_id] ||= {})[:name] = student.to_s
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:absences] ||= 0
             (students[student_id][:attendances] ||= []) << make_cell(content: "#{school_calendar_event[:legend]}", align: :center)
