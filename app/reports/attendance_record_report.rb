@@ -256,12 +256,12 @@ class AttendanceRecordReport < BaseReport
     school_calendar_classroom = @school_calendar.classrooms.find_by(classroom: daily_frequency.classroom_id)
 
     if school_calendar_classroom.present?
-      step_number = school_calendar_classroom.classroom_step(daily_frequency.frequency_date).to_number
+      step = school_calendar_classroom.classroom_step(daily_frequency.frequency_date)
     end
 
-    step_number ||= @school_calendar.step(daily_frequency.frequency_date)
+    step ||= @school_calendar.step(daily_frequency.frequency_date)
 
-    step_number.to_number unless step_number.nil?
+    step.to_number unless step.nil?
   end
 
   def frequency_in_period(daily_frequency)
