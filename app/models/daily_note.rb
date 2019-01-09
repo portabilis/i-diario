@@ -63,6 +63,11 @@ class DailyNote < ActiveRecord::Base
   scope :by_step_id, lambda { |classroom, step_id|
     joins(:avaliation).merge(Avaliation.by_step_id(classroom, step_id))
   }
+  scope :by_active_student_enrollment_classroom, lambda { |classroom_id|
+    joins(students: [student: :student_enrollments]).merge(
+      StudentEnrollment.by_classroom(classroom_id).active
+    )
+  }
   scope :order_by_student_name, -> { order('students.name') }
   scope :order_by_avaliation_test_date, -> { order('avaliations.test_date') }
   scope :order_by_avaliation_test_date_desc, -> { order('avaliations.test_date DESC') }
