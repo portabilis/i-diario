@@ -253,13 +253,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def step_number(daily_frequency)
-    school_calendar_classroom = @school_calendar.classrooms.find_by(classroom: daily_frequency.classroom_id)
-
-    if school_calendar_classroom.present?
-      step = school_calendar_classroom.classroom_step(daily_frequency.frequency_date)
-    end
-
-    step ||= @school_calendar.step(daily_frequency.frequency_date)
+    step = StepsFetcher.new(daily_frequency.classroom).step(daily_frequency.frequency_date)
 
     step.to_number unless step.nil?
   end
