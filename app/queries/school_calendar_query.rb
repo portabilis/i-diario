@@ -6,7 +6,7 @@ class SchoolCalendarQuery
 
   def school_calendar
     @school_calendar = SchoolCalendar.by_unity_id(unity)
-    @school_calendar.by_year(year) if year.present?
+    @school_calendar = @school_calendar.by_year(year) if year.present?
 
     @school_calendar.ordered.first
   end
