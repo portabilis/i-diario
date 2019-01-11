@@ -15,6 +15,7 @@ class StudentEnrollmentsList
     @score_type = params.fetch(:score_type, StudentEnrollmentScoreTypeFilters::BOTH) || StudentEnrollmentScoreTypeFilters::BOTH
     @opinion_type = params.fetch(:opinion_type, nil)
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, false)
+    @include_date_range = params.fetch(:include_date_range, false)
     ensure_has_valid_params
 
     adjust_date_range_by_year if opinion_type_by_year?
@@ -24,25 +25,19 @@ class StudentEnrollmentsList
     fetch_student_enrollments
   end
 
-  def remove_joined_before_date(student_enrollments, start_date, end_date)
-    student_enrollment_ids = student_enrollments.collect(&:id)
-
-    student_enrollments_in_period = StudentEnrollment.includes(:student_enrollment_classrooms)
-                                                     .by_date_range(start_date, end_date)
-                                                     .where(id: student_enrollment_ids)
-
-    student_enrollments_in_period.each do |student_enrollment|
-      joined_at = student_enrollment.student_enrollment_classrooms.first.joined_at
-
-      student_enrollments.delete(student_enrollment) if joined_at.to_date < start_date
+  def remove_joined_before_date(students_enrollments)
+    students_enrollments.delete_if do |student_enrollment|
+      student_enrollment.student_enrollment_classrooms.first.joined_at.to_date < start_at
     end
 
-    student_enrollments
+    students_enrollments
   end
 
   private
 
-  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive, :show_inactive_outside_step, :score_type, :opinion_type, :with_recovery_note_in_step
+  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive,
+                :show_inactive_outside_step, :score_type, :opinion_type, :with_recovery_note_in_step,
+                :include_date_range
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -60,6 +55,11 @@ class StudentEnrollmentsList
                                               .includes(:dependences)
                                               .active
                                               .ordered
+
+    if include_date_range
+      students_enrollments = students_enrollments.includes(:student_enrollment_classrooms)
+                                                 .by_date_range(start_at, end_at)
+    end
 
     students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
     students_enrollments = students_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
