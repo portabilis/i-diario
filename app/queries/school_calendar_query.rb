@@ -1,7 +1,7 @@
 class SchoolCalendarQuery
   def initialize(unity, year = nil)
     @unity = unity
-    @year = year || Time.current.year
+    @year = year
   end
 
   def school_calendar
