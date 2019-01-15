@@ -24,8 +24,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       end
 
       updated_student_ids.uniq.each do |student_id|
-        classroom_ids = StudentEnrollmentClassroom.unscoped
-          .by_student(student_id)
+        classroom_ids = StudentEnrollmentClassroom.by_student(student_id)
           .pluck(:classroom_id)
           .compact
           .uniq
