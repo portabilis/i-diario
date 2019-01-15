@@ -3,6 +3,12 @@ require 'action_view'
 class ExamRecordReport < BaseReport
   include ActionView::Helpers::NumberHelper
 
+  # This number represent how many students are printed on each page
+  STUDENT_BY_PAGE_COUNT = 25
+
+  # This factor represent the quantitty of students with social name needed to reduce 1 student by page
+  SOCIAL_NAME_REDUCTION_FACTOR = 3
+
   def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
     new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
   end
@@ -152,11 +158,12 @@ class ExamRecordReport < BaseReport
 
           self.any_student_with_dependence = any_student_with_dependence || student_has_dependence?(student_enrollment, exam.discipline_id)
 
-          (students[student_id] ||= {})[:name] = student.name
+          (students[student_id] ||= {})[:name] = student.to_s
 
           students[student_id] = {} if students[student_id].nil?
           students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, exam.discipline_id)
           (students[student_id][:scores] ||= []) << make_cell(content: localize_score(score), align: :center)
+          students[student_id][:social_name] = student.social_name
         end
       end
 
@@ -203,7 +210,13 @@ class ExamRecordReport < BaseReport
         students_cells << student_cells
       end
 
-      sliced_students_cells = students_cells.each_slice(25).to_a
+      student_with_social_name_count = students.select { |(key, value)|
+        value[:social_name].present?
+      }.length
+
+      student_slice_size = STUDENT_BY_PAGE_COUNT - (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
+      sliced_students_cells = students_cells.each_slice(student_slice_size).to_a
+
       sliced_students_cells.each_with_index do |students_cells_slice, index|
         data = [
           first_headers_and_cells
