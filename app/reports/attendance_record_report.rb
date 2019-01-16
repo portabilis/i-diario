@@ -96,6 +96,8 @@ class AttendanceRecordReport < BaseReport
       frequencies_and_events_slice.each do |daily_frequency_or_event|
         if daily_frequency?(daily_frequency_or_event)
           daily_frequency = daily_frequency_or_event
+          next unless frequency_in_period(daily_frequency)
+
           class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
           days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
@@ -249,9 +251,7 @@ class AttendanceRecordReport < BaseReport
     return false unless daily_frequency.discipline_id.present?
 
     discipline_id = daily_frequency.discipline_id
-    school_calendar_classroom = @school_calendar.classrooms.find_by_classroom_id(daily_frequency.classroom_id)
-    step_number = school_calendar_classroom.classroom_step(daily_frequency.frequency_date).to_number if school_calendar_classroom.present?
-    step_number ||= @school_calendar.step(daily_frequency.frequency_date).to_number
+    step_number = step_number(daily_frequency)
 
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)
@@ -264,5 +264,15 @@ class AttendanceRecordReport < BaseReport
     }.length
 
     STUDENT_BY_PAGE_COUNT - (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
+  end
+
+  def step_number(daily_frequency)
+    step = StepsFetcher.new(daily_frequency.classroom).step(daily_frequency.frequency_date)
+
+    step.to_number unless step.nil?
+  end
+
+  def frequency_in_period(daily_frequency)
+    step_number(daily_frequency).present?
   end
 end
