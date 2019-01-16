@@ -52,18 +52,18 @@ class ConceptualExamsController < ApplicationController
   end
 
   def create
-    @conceptual_exam = ConceptualExam.new(resource_params)
-
+    @conceptual_exam = find_or_initialize_conceptual_exam
     authorize @conceptual_exam
+    @conceptual_exam.assign_attributes(resource_params)
 
-    if @conceptual_exam.save
-      respond_to_save
-    else
-      fetch_collections
-      mark_not_existing_disciplines_as_invisible
+    respond_to_save if @conceptual_exam.save
 
-      render :new
-    end
+    return if performed?
+
+    fetch_collections
+    mark_not_existing_disciplines_as_invisible
+
+    render :new
   end
 
   def edit
@@ -136,6 +136,10 @@ class ConceptualExamsController < ApplicationController
     render json:exempted_disciplines.by_step_number(step.to_number)
   end
 
+  def find_conceptual_exam_by_student
+    render json: find_conceptual_exam.try(:id)
+  end
+
   private
 
   def resource_params
@@ -153,6 +157,30 @@ class ConceptualExamsController < ApplicationController
         :_destroy
       ]
     )
+  end
+
+  def find_conceptual_exam
+    classroom = Classroom.find(resource_params[:classroom_id])
+
+    ConceptualExam.by_classroom(resource_params[:classroom_id])
+                  .by_student_id(resource_params[:student_id])
+                  .by_step_id(classroom, resource_params[:step_id])
+                  .first
+  end
+
+  def find_or_initialize_conceptual_exam
+    conceptual_exam = find_conceptual_exam
+
+    if conceptual_exam.blank?
+      conceptual_exam = ConceptualExam.new(
+        classroom_id: resource_params[:classroom_id],
+        student_id: resource_params[:student_id],
+        recorded_at: resource_params[:recorded_at],
+        step_id: resource_params[:step_id]
+      )
+    end
+
+    conceptual_exam
   end
 
   def add_missing_disciplines

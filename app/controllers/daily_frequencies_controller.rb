@@ -240,9 +240,23 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def find_by_or_create_daily_frequency(params)
-    params[:school_calendar_id] = current_school_calendar.id
-
-    (DailyFrequency.find_by(params) || DailyFrequency.create(params.merge({origin: OriginTypes::WEB})))
+    DailyFrequency.create_with(
+      params.slice(
+        :unity_id
+      ).merge(
+        origin: OriginTypes::WEB,
+        school_calendar_id: current_school_calendar.id
+      )
+    ).find_or_create_by(
+      params.slice(
+        :classroom_id,
+        :frequency_date,
+        :discipline_id,
+        :class_number
+      )
+    )
+  rescue ActiveRecord::RecordNotUnique
+    retry
   end
 
   def student_has_dependence?(student_enrollment, discipline)

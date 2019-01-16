@@ -113,8 +113,7 @@ RSpec.describe SchoolCalendarStep, type: :model do
 
   describe "#to_number" do
     subject do
-      school_calendar_step = school_calendar_steps(:school_calendar_step_a)
-      school_calendar_step.school_calendar = SchoolCalendar.new
+      school_calendar_step = build(:school_calendar_step)
       school_calendar_step
     end
 
