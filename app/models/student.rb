@@ -15,8 +15,14 @@ class Student < ActiveRecord::Base
 
   scope :api, -> { where(arel_table[:api].eq(true)) }
   scope :ordered, -> { order(:name) }
-  scope :order_by_sequence, lambda { |classroom_id|
-    joins(:student_enrollments).merge(StudentEnrollment.by_classroom(classroom_id).active.ordered)
+  scope :order_by_sequence, lambda { |classroom_id, start_date, end_date|
+    joins(:student_enrollments)
+      .merge(
+        StudentEnrollment.by_classroom(classroom_id)
+                         .by_date_range(start_date, end_date)
+                         .active
+                         .ordered
+      )
   }
 
   def self.search(value)
