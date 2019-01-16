@@ -24,7 +24,6 @@ class StudentsController < ApplicationController
         score_type: params[:score_type]
       )
       student_enrollments = student_enrollments_list.student_enrollments
-      student_enrollments = student_enrollments_list.remove_joined_before_date(student_enrollments)
 
       student_ids = student_enrollments.collect(&:student_id)
 

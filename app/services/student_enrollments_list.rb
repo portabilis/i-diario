@@ -25,14 +25,6 @@ class StudentEnrollmentsList
     fetch_student_enrollments
   end
 
-  def remove_joined_before_date(students_enrollments)
-    students_enrollments.delete_if do |student_enrollment|
-      student_enrollment.student_enrollment_classrooms.first.joined_at.to_date < start_at
-    end
-
-    students_enrollments
-  end
-
   private
 
   attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive,
@@ -59,6 +51,7 @@ class StudentEnrollmentsList
     if include_date_range
       students_enrollments = students_enrollments.includes(:student_enrollment_classrooms)
                                                  .by_date_range(start_at, end_at)
+                                                 .by_date_not_before(start_at)
     end
 
     students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
