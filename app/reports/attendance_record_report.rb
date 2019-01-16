@@ -1,5 +1,9 @@
 class AttendanceRecordReport < BaseReport
-  STUDENTS_BY_PAGE = 29
+  # This number represent how many students are printed on each page
+  STUDENT_BY_PAGE_COUNT = 29
+
+  # This factor represent the quantitty of students with social name needed to reduce 1 student by page
+  SOCIAL_NAME_REDUCTION_FACTOR = 2
 
   def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
     new(:landscape).build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
@@ -104,7 +108,7 @@ class AttendanceRecordReport < BaseReport
               student_frequency ||= NullDailyFrequencyStudent.new
             end
             student = student_enrollment.student
-            (students[student_id] ||= {})[:name] = student.name
+            (students[student_id] ||= {})[:name] = student.to_s
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, daily_frequency.discipline_id)
 
@@ -127,9 +131,10 @@ class AttendanceRecordReport < BaseReport
           @students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
             student = student_enrollment.student
-            (students[student_id] ||= {})[:name] = student.name
+            (students[student_id] ||= {})[:name] = student.to_s
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:absences] ||= 0
+            students[student_id][:social_name] = student.social_name
             (students[student_id][:attendances] ||= []) << make_cell(content: "#{school_calendar_event[:legend]}", align: :center)
           end
         end
@@ -169,7 +174,8 @@ class AttendanceRecordReport < BaseReport
         sequence += 1
       end
 
-      sliced_students_cells = students_cells.each_slice(STUDENTS_BY_PAGE).to_a
+      sliced_students_cells = students_cells.each_slice(student_slice_size(students)).to_a
+
       sliced_students_cells.each_with_index do |students_cells_slice, index|
         data = [
           first_headers_and_class_numbers_cells,
@@ -250,5 +256,13 @@ class AttendanceRecordReport < BaseReport
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)
                                            .any?
+  end
+
+  def student_slice_size(students)
+    student_with_social_name_count = students.select { |(key, value)|
+      value[:social_name].present?
+    }.length
+
+    STUDENT_BY_PAGE_COUNT - (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
   end
 end
