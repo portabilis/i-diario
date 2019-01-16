@@ -210,12 +210,7 @@ class ExamRecordReport < BaseReport
         students_cells << student_cells
       end
 
-      student_with_social_name_count = students.select { |(key, value)|
-        value[:social_name].present?
-      }.length
-
-      student_slice_size = STUDENT_BY_PAGE_COUNT - (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
-      sliced_students_cells = students_cells.each_slice(student_slice_size).to_a
+      sliced_students_cells = students_cells.each_slice(student_slice_size(students)).to_a
 
       sliced_students_cells.each_with_index do |students_cells_slice, index|
         data = [
@@ -240,6 +235,14 @@ class ExamRecordReport < BaseReport
 
       start_new_page if index < sliced_exams.count - 1
     end
+  end
+
+  def student_slice_size(students)
+    student_with_social_name_count = students.select { |(key, value)|
+      value[:social_name].present?
+    }.length
+
+    STUDENT_BY_PAGE_COUNT - (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
   end
 
   def content
