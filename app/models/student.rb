@@ -38,7 +38,7 @@ class Student < ActiveRecord::Base
   end
 
   def display_name
-    social_name || name
+    @display_name ||= social_name || name
   end
 
   def first_name
