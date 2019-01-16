@@ -13,11 +13,19 @@ class StudentsInFinalRecoveryFetcher
     )
 
     api_students = result['alunos']
-    students_api_codes = api_students.map { |api_student| api_student['id'] }
+    students_api_codes = api_students.map { |api_student|
+      api_student['id']
+    }
 
-    students = Student.where(api_code: students_api_codes).ordered.map do |student|
+    students = Student.where(api_code: students_api_codes).ordered
+
+    students.map do |student|
+      needed_score = api_students.find { |api_student|
+        api_student['id'] == student.api_code
+      }['nota_exame'].to_f
+
       decorated_student = StudentInFinalRecoveryDecorator.new(student)
-      decorated_student.needed_score = api_students.find { |api_student| api_student['id'] == student.api_code }['nota_exame'].to_f
+      decorated_student.needed_score = needed_score
       decorated_student
     end
   end
