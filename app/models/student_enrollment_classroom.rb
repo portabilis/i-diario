@@ -10,7 +10,6 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :by_date, lambda { |date|
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
-  scope :by_date_range, ->(start_at, end_at) { by_date_range_query(start_at, end_at) }
   scope :by_date_not_before, ->(date) { where.not('joined_at < ?', date) }
   scope :show_as_inactive, -> { where(show_as_inactive_when_not_in_date: 't') }
   scope :by_grade, ->(grade_id) { joins(:classroom).where(classrooms: { grade_id: grade_id }) }
@@ -21,9 +20,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   }
   scope :ordered, -> { order(:api_code) }
 
-  private
-
-  def by_date_range_query(start_at, end_at)
+  def self.by_date_range(start_at, end_at)
     where("(CASE
               WHEN COALESCE(student_enrollment_classrooms.left_at) = '' THEN
                 student_enrollment_classrooms.joined_at <= :end_at
