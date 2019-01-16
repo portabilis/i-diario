@@ -58,15 +58,17 @@ module DailyFrequencyHelper
   end
 
   def frequency_student_name_class(dependence, active, exempted_from_discipline)
+    name_class = 'multiline'
+
     if !active
-      'inactive-student'
+      name_class += ' inactive-student'
     elsif dependence
-      'dependence-student'
+      name_class += ' dependence-student'
     elsif exempted_from_discipline
-      'exempted-student-from-discipline'
-    else
-      ''
+      name_class += ' exempted-student-from-discipline'
     end
+
+    name_class
   end
 
   def frequency_student_name(student, dependence, active, exempted_from_discipline)
