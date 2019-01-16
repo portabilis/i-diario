@@ -9,6 +9,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
       .includes(:knowledge_areas, content_record: [:classroom])
       .by_classroom_id(current_user_classroom)
       .by_teacher_id(current_teacher)
+      .ordered
 
     authorize @knowledge_area_content_records
   end

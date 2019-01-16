@@ -20,6 +20,12 @@ RSpec.describe ExamPoster::NumericalExamPoster do
            discipline: avaliation.discipline,
            score_type: DisciplineScoreTypes::NUMERIC)
   end
+  let!(:student_enrollment_classroom) do
+    create(:student_enrollment_classroom,
+           student_enrollment: student_enrollment,
+           classroom: classroom)
+  end
+  let!(:student_enrollment) { create(:student_enrollment, student: daily_note_student.student) }
 
   let(:complementary_exam_setting) {
     create(

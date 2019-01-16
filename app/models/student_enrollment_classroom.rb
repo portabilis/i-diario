@@ -18,6 +18,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :by_student_enrollment, lambda { |student_enrollment_id| where(student_enrollment_id: student_enrollment_id) }
   scope :active, -> { joins(:student_enrollment).where(student_enrollments: { active: IeducarBooleanState::ACTIVE }) }
   scope :visible, -> { where(visible: true) }
+  scope :ordered, -> { order(:api_code) }
 
   private
 

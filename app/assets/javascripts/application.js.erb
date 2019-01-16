@@ -59,8 +59,3 @@
 <% if File.exists?('vendor/assets/javascripts/plugins.js') %>
   <%= require_asset 'plugins' %>
 <% end %>
-<% if !Rails.env.test? %>
-  <%= require_asset 'freshwidget' %>
-  <%= require_asset 'freshwidget_call' %>
-  <%= require_asset 'chat_helpdesk' %>
-<% end %>
