@@ -40,6 +40,7 @@ class AddFilterConditionToDailyNoteStatusesView < ActiveRecord::Migration
                           AND student_enrollments.student_id = daily_note_students.student_id
                           AND student_enrollment_classrooms.classroom_id = avaliations.classroom_id
                           AND student_enrollment_classrooms.left_at = ''
+                          AND student_enrollments.active = 1
                      )
                    )
                  AND daily_notes.id = outer_daily_notes.id
