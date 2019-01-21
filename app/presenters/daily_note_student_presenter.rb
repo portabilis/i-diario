@@ -1,6 +1,6 @@
 class DailyNoteStudentPresenter < BasePresenter
   def student_name_class
-    name_class = 'multiline'
+    name_class = 'multiline '
 
     if exempted_from_discipline
       name_class += 'exempted-student-from-discipline'
