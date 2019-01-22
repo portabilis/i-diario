@@ -14,7 +14,7 @@ class ContentRecord < ActiveRecord::Base
   has_one :discipline_content_record, dependent: :delete
   has_one :knowledge_area_content_record, dependent: :delete
   has_many :content_records_contents, dependent: :destroy
-  has_many :contents, through: :content_records_contents
+  deferred_has_many :contents, through: :content_records_contents
 
   accepts_nested_attributes_for :contents
 
