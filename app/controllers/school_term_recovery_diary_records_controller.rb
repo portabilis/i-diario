@@ -50,7 +50,13 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def edit
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
-    @school_term_recovery_diary_record.step_id = steps_fetcher.step(@school_term_recovery_diary_record.recorded_at).try(:id)
+    recorded_at = @school_term_recovery_diary_record.recorded_at
+    @school_term_recovery_diary_record.step_id = steps_fetcher.step(recorded_at).try(:id)
+
+    if @school_term_recovery_diary_record.step_id.blank?
+      flash[:alert] = t('errors.general.calendar_step_not_found', date: recorded_at)
+      return redirect_to school_term_recovery_diary_records_path
+    end
 
     authorize @school_term_recovery_diary_record
 
