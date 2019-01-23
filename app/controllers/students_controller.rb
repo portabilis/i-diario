@@ -5,29 +5,32 @@ class StudentsController < ApplicationController
     if params[:classroom_id].present?
       date = params[:date] || Date.current
       start_date = params[:start_date]
+      end_date = params[:end_date]
+      step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
 
-      if step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
+      if step_id.present?
         step = steps_fetcher.steps.find(step_id)
-        step_number = step.to_number
         start_date ||= step.start_at
         end_date ||= step.end_at
       end
+
+      include_date_range = start_date.present? && end_date.present?
 
       student_enrollments_list = StudentEnrollmentsList.new(
         classroom: params[:classroom_id],
         discipline: params[:discipline_id],
         date: date,
         search_type: :by_date,
-        include_date_range: true,
+        include_date_range: include_date_range,
         start_at: start_date,
         end_at: end_date,
         score_type: params[:score_type]
       )
+
       student_enrollments = student_enrollments_list.student_enrollments
-
       student_ids = student_enrollments.collect(&:student_id)
-
-      @students = Student.where(id: student_ids).order_by_sequence(@classroom, start_date, end_date)
+      @students = Student.where(id: student_ids)
+      @students = @students.order_by_sequence(@classroom, start_date, end_date) if include_date_range
 
       render json: @students
     else
