@@ -152,9 +152,6 @@ Antes de abrir seu PR (pull request) certique-se que:
 - Seu código adere ao [Style Guide](https://github.com/portabilis/ruby);
 - Seus commits englobam bem as funcionalidades desenvolvidas. Evite espalhar o
   desenvolvimento de um recurso em múltiplos commits;
-- Se for inevitável criar vários commits intermediários, por favor execute um
-  [squash](https://git-scm.com/book/pt-br/v1/Ferramentas-do-Git-Reescrevendo-o-Hist%C3%B3rico#Achatando-um-Commit)
-  antes de abrir seu PR;
 - As mensagens de seus commits são claras e descrevem bem o trabalho. Para
   maiores dicas sobre como escrever mensagens de commit adequadas, veja
   [este guia](https://chris.beams.io/posts/git-commit/).
