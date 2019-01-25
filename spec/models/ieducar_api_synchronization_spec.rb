@@ -22,28 +22,25 @@ RSpec.describe IeducarApiSynchronization, :type => :model do
     end
   end
 
-  describe "#mark_as_error!" do
-    it "should mark synchronization as error and set the error message" do
-      message = double
-      full_error_message = double
+  describe '#mark_as_error!' do
+    it 'should mark synchronization as error and set the error message' do
+      subject = create(:ieducar_api_synchronization)
 
-      expect(subject).to receive(:update_columns).with(
-        status: ApiSynchronizationStatus::ERROR,
-        error_message: message,
-        full_error_message: full_error_message,
-      )
+      subject.mark_as_error!('foo', 'bar')
 
-      subject.mark_as_error!(message, full_error_message)
+      expect(subject.status).to eq ApiSynchronizationStatus::ERROR
+      expect(subject.error_message).to eq 'foo'
+      expect(subject.full_error_message).to eq 'bar'
     end
   end
 
-  describe "#mark_as_completed!" do
-    it "should mark synchronization as completed" do
-      message = double
-
-      expect(subject).to receive(:update_column).with(:status, ApiSynchronizationStatus::COMPLETED)
+  describe '#mark_as_completed!' do
+    it 'should mark synchronization as completed' do
+      subject = create(:ieducar_api_synchronization)
 
       subject.mark_as_completed!
+
+      expect(subject.status).to eq ApiSynchronizationStatus::COMPLETED
     end
   end
 
