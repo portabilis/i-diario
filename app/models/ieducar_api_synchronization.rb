@@ -57,8 +57,8 @@ class IeducarApiSynchronization < ActiveRecord::Base
       if restart
         IeducarSynchronizerWorker.perform_async(current_entity.id, id)
       else
-        sync.mark_as_error!('Ocorreu um erro, tente novamente por favor. Se persistir, entre em contato com a nossa equipe de atendimento.',
-                            'Processo parado pelo sistema pois estava travado.')
+        sync.mark_as_error! I18n.t('ieducar_api_synchronization.public_error_feedback'),
+                            I18n.t('ieducar_api_synchronization.private_error_feedback')
       end
     end
   end
