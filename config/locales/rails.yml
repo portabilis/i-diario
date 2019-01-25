@@ -281,3 +281,8 @@ pt-BR:
       last_word_connector: ! " e "
       two_words_connector: ! " e "
       words_connector: ! ", "
+
+  http_codes:
+    not_found: "Página não encontrada"
+    internal_server_error: "Erro interno do servidor"
+    unprocessable_entity: "The change you wanted was rejected"
