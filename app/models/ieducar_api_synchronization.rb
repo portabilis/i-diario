@@ -66,9 +66,9 @@ class IeducarApiSynchronization < ActiveRecord::Base
   private
 
   def job_is_running?
-    running = Sidekiq::Queue.new('default').find_job(job_id) ||
-              Sidekiq::ScheduledSet.new.find_job(job_id) ||
-              Sidekiq::RetrySet.new.find_job(job_id)
+    running = Sidekiq::Queue.new('default').find_job(job_id)
+    running ||= Sidekiq::ScheduledSet.new.find_job(job_id)
+    running ||= Sidekiq::RetrySet.new.find_job(job_id)
 
     if running.blank? && Sidekiq::Workers.new.size > 0
       Sidekiq::Workers.new.each do |process_id, thread_id, work|
