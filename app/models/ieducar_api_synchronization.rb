@@ -42,11 +42,35 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def running?
-    running = Sidekiq::Queue.new('default').find_job(job_id) ||
-      Sidekiq::ScheduledSet.new.find_job(job_id) ||
-      Sidekiq::RetrySet.new.find_job(job_id)
+    number_of_checks = 3
+    number_of_checks.times do
+      return true if job_is_running?
+    end
 
-    if Sidekiq::Workers.new.size > 0
+    false
+  end
+
+  def self.cancel_not_running_synchronizations(current_entity, options = {})
+    restart = options.fetch(:restart, false)
+
+    started.reject(&:running?).each do |sync|
+      if restart
+        IeducarSynchronizerWorker.perform_async(current_entity.id, id)
+      else
+        sync.mark_as_error!('Ocorreu um erro, tente novamente por favor. Se persistir, entre em contato com a nossa equipe de atendimento.',
+                            'Processo parado pelo sistema pois estava travado.')
+      end
+    end
+  end
+
+  private
+
+  def job_is_running?
+    running = Sidekiq::Queue.new('default').find_job(job_id) ||
+              Sidekiq::ScheduledSet.new.find_job(job_id) ||
+              Sidekiq::RetrySet.new.find_job(job_id)
+
+    if running.blank? && Sidekiq::Workers.new.size > 0
       Sidekiq::Workers.new.each do |process_id, thread_id, work|
         (running = work['payload']['jid'] == job_id) && break
       end
