@@ -18,16 +18,7 @@ namespace :execute_sql do
 
     Entity.all.each do |entity|
       entity.using_connection do
-        msg = entity.id.to_s + "-" + entity.name + ": "
-
-        count = 0
-        IeducarApiSynchronization.started.reject(&:running?).each do |sync|
-          count += 1
-          sync.mark_as_error!('Erro desconhecido, tente novamente.',
-                              'Processo parado pelo sistema pois estava travado.')
-        end
-
-        puts msg + "Executado com sucesso! #{count} sincronizações interrompidas."
+        IeducarApiSynchronization.cancel_not_running_synchronizations(entity, restart: true)
       end
     end
 
