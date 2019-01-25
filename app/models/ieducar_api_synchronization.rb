@@ -55,7 +55,7 @@ class IeducarApiSynchronization < ActiveRecord::Base
 
     started.reject(&:running?).each do |sync|
       if restart
-        IeducarSynchronizerWorker.perform_async(current_entity.id, id)
+        IeducarSynchronizerWorker.perform_async(current_entity.id, sync.id)
       else
         sync.mark_as_error! I18n.t('ieducar_api_synchronization.public_error_feedback'),
                             I18n.t('ieducar_api_synchronization.private_error_feedback')
