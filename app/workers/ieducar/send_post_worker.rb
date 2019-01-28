@@ -11,35 +11,45 @@ module Ieducar
         Honeybadger.notify(ex)
 
         if !posting.error_message?
-          custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
-          posting.add_error!('Ocorreu um erro desconhecido.', custom_error)
+          posting.add_error!(
+            I18n.t('ieducar_api.error.messages.post_error'),
+            ex.message
+          )
         end
       end
     end
 
-    def perform(entity_id, posting_id, params)
+    def perform(entity_id, posting_id, params, info)
       Honeybadger.context(posting_id: posting_id)
 
-      performer(entity_id, posting_id, params) do |posting, params|
+      performer(entity_id, posting_id, params, info) do |posting, params|
         params = params.with_indifferent_access
 
         begin
           api(posting).send_post(params)
-        rescue Exception => e
-          error = "Aluno: #{student(params)};<br>
-                   Componente curricular: #{discipline(params)};<br>
-                   Turma: #{classroom(params)};<br>"
+        rescue StandardError => error
+          information = info_message(info)
 
-          if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
-            posting.add_warning!(error + "Erro: Componente curricular não existe para a turma.")
-          elsif e.message.match(/Nota somente pode ser lançada após lançar notas nas etapas:/).present? ||
-              e.message.match(/O secretário\/coordenador deve lançar as notas das etapas:/).present?
-            posting.add_warning!(error + "Erro: #{e.message}")
+          if error.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
+            posting.add_warning!("#{information} Erro: Componente curricular não existe para a turma.")
+          elsif error.message.match(/Nota somente pode ser lançada após lançar notas nas etapas:/).present? ||
+                error.message.match(/O secretário\/coordenador deve lançar as notas das etapas:/).present?
+            posting.add_warning!("#{information} Erro: #{error.message}")
           else
-            raise e
+            raise StandardError, "#{information} Erro: #{error.message}"
           end
         end
       end
+    end
+
+    def info_message(info)
+      message = ''
+
+      message += "Turma: #{info['classroom']} \n" if info.key?('classroom')
+      message += "Aluno: #{info['student']} \n" if info.key?('student')
+      message += "Componente curricular: #{info['discipline']} \n" if info.key?('discipline')
+
+      message
     end
 
     def student(params)

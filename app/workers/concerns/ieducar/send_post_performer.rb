@@ -1,6 +1,6 @@
 module Ieducar
   module SendPostPerformer
-    def performer(entity_id, posting_id, params)
+    def performer(entity_id, posting_id, params, info)
       entity = Entity.find(entity_id)
 
       entity.using_connection do

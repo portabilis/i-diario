@@ -3,15 +3,17 @@ class IeducarExamPostingWorker
 
   sidekiq_options retry: 2, queue: :exam_posting, unique: :until_and_while_executing, dead: false
 
-  sidekiq_retries_exhausted do |msg, ex|
-    entity_id, posting_id = msg['args']
+  sidekiq_retries_exhausted do |message, exception|
+    entity_id, posting_id, params = message['args']
     entity = Entity.find(entity_id)
 
     entity.using_connection do
       posting = IeducarApiExamPosting.find(posting_id)
 
-      custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
-      posting.add_error!('Ocorreu um erro desconhecido.', custom_error)
+      posting.add_error!(
+        I18n.t('ieducar_api.error.messages.post_error'),
+        exception.message
+      )
       posting.finish!
     end
   end
