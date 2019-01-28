@@ -285,4 +285,4 @@ pt-BR:
   http_codes:
     not_found: "Página não encontrada"
     internal_server_error: "Erro interno do servidor"
-    unprocessable_entity: "The change you wanted was rejected"
+    unprocessable_entity: "A alteração que você queria foi rejeitada"

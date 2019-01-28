@@ -113,10 +113,10 @@
     </div>
 
     <%= javascript_include_tag "application" %>
-    <%  if freshdesk_enabled? && !Rails.env.test? %>
-        <%= javascript_include_tag 'freshwidget' %>
-        <%= javascript_include_tag 'freshwidget_call' %>
-        <%= javascript_include_tag 'chat_helpdesk' %>
+    <% if show_freshdesk? %>
+      <%= javascript_include_tag 'freshwidget' %>
+      <%= javascript_include_tag 'freshwidget_call' %>
+      <%= javascript_include_tag 'chat_helpdesk' %>
     <% end %>
 
     <%= yield :js %>
