@@ -5,6 +5,8 @@ $(function(){
   var can_change_school_year = false;
   var show_modal_allows_clear = true;
   var flashMessages = new FlashMessages();
+  var user_role = $('form#user-role-form #user_role').val();
+
   $("form#user-role").on("ajax:success", function(event, data, status, xhr){
     $("form#user-role").clear_form_fields();
     $("form#user-role").clear_form_errors();
@@ -28,8 +30,11 @@ $(function(){
     $("form#user-role").trigger("submit");
   });
 
-  function fetchTeachers(unity_id, year){
+  function fetchTeachers(unity_id, year, id = null){
     var filter = { by_unity_id: unity_id, by_year: year };
+    if (id){
+      filter['by_id'] = id;
+    }
     unity_id = String(unity_id);
 
     if(!_.isEmpty(unity_id) && !_.isEmpty(year)){
@@ -116,7 +121,11 @@ $(function(){
       $.getJSON(Routes.unities_pt_br_path() + "/"+unity_id, function(data){
         if(data && data.unit_type == "school_unit"){
           $('#assumed-teacher-field').show();
-          fetchTeachers(unity_id, $('form#user-role #user_current_school_year').val());
+           if(user_role == 'teacher' || can_change_school_year){
+            fetchTeachers(unity_id, $('form#user-role-form #user_current_school_year').val(), $('form#user-role-form #user_teacher_id').val());
+          }else{
+            fetchTeachers(unity_id, $('form#user-role-form #user_current_school_year').val());
+          }
         }else{
           $('#assumed-teacher-field').hide();
         }
