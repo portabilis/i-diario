@@ -310,7 +310,7 @@ Rails.application.routes.draw do
     resources :data_exportations, only: [:index, :create]
   end
 
-  %w( 404 422 500 ).each do |code|
-    get code, to: 'errors#show', code: code
-  end
+  match '/404', to: 'errors#not_found', via: :all
+  match '/422', to: 'errors#unprocessable_entity', via: :all
+  match '/500', to: 'errors#internal_server_error', via: :all
 end
