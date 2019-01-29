@@ -73,12 +73,12 @@ class LessonPlan < ActiveRecord::Base
   end
 
   def at_least_one_assigned_content
-    return unless contents_empty?(contents)
+    return unless contents_empty?
 
     errors.add(:contents, :at_least_one_content)
   end
 
-  def contents_empty?(contents)
+  def contents_empty?
     contents.empty? || (contents.size == contents.select(&:marked_for_destruction?).size)
   end
 end
