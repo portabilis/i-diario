@@ -24,20 +24,14 @@ module Ieducar
 
       performer(entity_id, posting_id, params, info) do |posting, params|
         params = params.with_indifferent_access
+        information = info_message(info)
 
         begin
-          api(posting).send_post(params)
-        rescue StandardError => error
-          information = info_message(info)
+          response = IeducarResponseDecorator.new(api(posting).send_post(params))
 
-          if error.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
-            posting.add_warning!("#{information} Erro: Componente curricular não existe para a turma.")
-          elsif error.message.match(/Nota somente pode ser lançada após lançar notas nas etapas:/).present? ||
-                error.message.match(/O secretário\/coordenador deve lançar as notas das etapas:/).present?
-            posting.add_warning!("#{information} Erro: #{error.message}")
-          else
-            raise StandardError, "#{information} Erro: #{error.message}"
-          end
+          posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
+        rescue StandardError => error
+          raise StandardError, "#{information} Erro: #{error.message}"
         end
       end
     end
@@ -45,32 +39,26 @@ module Ieducar
     def info_message(info)
       message = ''
 
-      message += "Turma: #{info['classroom']} \n" if info.key?('classroom')
-      message += "Aluno: #{info['student']} \n" if info.key?('student')
-      message += "Componente curricular: #{info['discipline']} \n" if info.key?('discipline')
+      message += "Turma: #{classroom(info['classroom'])};<br>" if info.key?('classroom')
+      message += "Aluno: #{student(info['student'])};<br>" if info.key?('student')
+      message += "Componente curricular: #{discipline(info['discipline'])};<br>" if info.key?('discipline')
 
       message
     end
 
-    def student(params)
-      student_id = data(params).first[1].first[0]
-
+    def student(api_code)
       @students ||= {}
-      @students[student_id] ||= Student.find_by(api_code: student_id).try(:name)
+      @students[api_code] ||= Student.find_by(api_code: api_code).try(:name)
     end
 
-    def discipline(params)
-      discipline_id = data(params).first[1].first[1].first[0]
-
+    def discipline(api_code)
       @disciplines ||= {}
-      @disciplines[discipline_id] ||= Discipline.find_by(api_code: discipline_id).try(:description)
+      @disciplines[api_code] ||= Discipline.find_by(api_code: api_code).try(:description)
     end
 
-    def classroom(params)
-      classroom_id = data(params).first[0]
-
+    def classroom(api_code)
       @classrooms ||= {}
-      @classrooms[classroom_id] ||= Classroom.find_by(api_code: classroom_id).try(:description)
+      @classrooms[api_code] ||= Classroom.find_by(api_code: api_code).try(:description)
     end
 
     def data(params)
