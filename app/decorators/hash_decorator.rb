@@ -3,7 +3,7 @@ class HashDecorator < SimpleDelegator
     super(JSON.parse(hash.to_json, object_class: OpenStruct))
   end
 
-  def defined?(key)
+  def key_exist?(key)
     self[key].present?
   end
 end

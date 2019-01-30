@@ -25,6 +25,6 @@ class IeducarResponseDecorator < HashDecorator
   private
 
   def error?
-    defined?('error')
+    key_exist?('error')
   end
 end
