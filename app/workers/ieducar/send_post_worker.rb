@@ -11,9 +11,11 @@ module Ieducar
         Honeybadger.notify(ex)
 
         if !posting.error_message?
+          custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
+
           posting.add_error!(
             I18n.t('ieducar_api.error.messages.post_error'),
-            ex.message
+            custom_error
           )
         end
       end
