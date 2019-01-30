@@ -1,4 +1,6 @@
 class StudentEnrollmentDependence < ActiveRecord::Base
+  audited
+
   belongs_to :student_enrollment
   belongs_to :discipline
 

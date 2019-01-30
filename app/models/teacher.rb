@@ -1,6 +1,8 @@
 class Teacher < ActiveRecord::Base
   acts_as_copy_target
 
+  audited
+
   has_many :users
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_many :classrooms, through: :teacher_discipline_classrooms

@@ -1,4 +1,6 @@
 class KnowledgeAreaTeachingPlanKnowledgeArea < ActiveRecord::Base
+  audited
+
   belongs_to :knowledge_area_teaching_plan
   belongs_to :knowledge_area
 

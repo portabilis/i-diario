@@ -151,4 +151,8 @@ module ApplicationHelper
 
     yield(presenter) if block_given?
   end
+
+  def show_freshdesk?
+    freshdesk_enabled? && !Rails.env.test?
+  end
 end

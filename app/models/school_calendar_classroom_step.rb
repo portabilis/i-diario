@@ -1,6 +1,8 @@
 class SchoolCalendarClassroomStep < ActiveRecord::Base
   include SchoolTermable
 
+  audited
+
   acts_as_copy_target
 
   belongs_to :school_calendar_classroom

@@ -19,7 +19,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
   end
 
   def synchronization_in_progress?
-    synchronizations.started.exists?
+    synchronizations.started.select(:running?).any?
   end
 
   def authenticate!(token)

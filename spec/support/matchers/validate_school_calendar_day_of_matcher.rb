@@ -31,9 +31,12 @@ class ValidateSchoolCalendarDayOfMatcher
   private
 
   def allow_day_in_school_calendar
-    school_calendar = FactoryGirl.create(:school_calendar_with_one_step)
+    classroom = FactoryGirl.create(:classroom, :current)
+    school_calendar = FactoryGirl.create(:school_calendar_with_one_step, :current, unity: classroom.unity)
+
     @subject.school_calendar = school_calendar if @subject.respond_to?(:school_calendar=)
-    @subject.send("#{@attribute}=", school_calendar.steps.first.end_at)
+    @subject.classroom = classroom if @subject.respond_to?(:classroom=)
+    @subject.send("#{@attribute}=", school_calendar.steps.first.end_at - 2.days)
 
     @subject.valid?
 
@@ -41,8 +44,11 @@ class ValidateSchoolCalendarDayOfMatcher
   end
 
   def disallow_day_not_in_school_calendar
-    school_calendar = FactoryGirl.create(:school_calendar_with_one_step)
+    classroom = FactoryGirl.create(:classroom, :current)
+    school_calendar = FactoryGirl.create(:school_calendar_with_one_step, :current, unity: classroom.unity)
+
     @subject.school_calendar = school_calendar if @subject.respond_to?(:school_calendar=)
+    @subject.classroom = classroom if @subject.respond_to?(:classroom=)
     @subject.send("#{@attribute}=", school_calendar.steps.first.end_at + 1.day)
 
     @subject.valid?
