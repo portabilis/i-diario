@@ -63,6 +63,7 @@ class SchoolCalendarsCreator
     school_calendar_steps.each do |step_params|
       SchoolCalendarStep.create!(
         school_calendar: school_calendar,
+        step_number: step_params['step_number'],
         start_at: step_params['start_at'],
         end_at: step_params['end_at'],
         start_date_for_posting: step_params['start_date_for_posting'],
@@ -86,6 +87,7 @@ class SchoolCalendarsCreator
     classroom_steps.each do |step_params|
       SchoolCalendarClassroomStep.create!(
         school_calendar_classroom: school_calendar_classroom,
+        step_number: step_params['step_number'],
         start_at: step_params['start_at'],
         end_at: step_params['end_at'],
         start_date_for_posting: step_params['start_date_for_posting'],
