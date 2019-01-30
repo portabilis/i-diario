@@ -1,6 +1,8 @@
 class AdjustFunctionStepsByClassroomToUseStepNumber < ActiveRecord::Migration
   def change
     execute <<-SQL
+      DROP FUNCTION steps_by_classroom(INT);
+
       CREATE OR REPLACE FUNCTION steps_by_classroom(
         _classroom_id INT
       )
