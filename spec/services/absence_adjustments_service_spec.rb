@@ -11,13 +11,22 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
 
   describe '#adjust' do
     context 'when exists absence by discipline and should be general absence' do
-      let!(:classroom) { create(:classroom, :current) }
+      let!(:classroom) { create(:classroom, :current, unity: unities.first) }
+      let(:school_calendar) do
+        create(
+          :school_calendar_with_one_step,
+          unity: classroom.unity,
+          year: Date.current.year
+        )
+      end
       let!(:discipline) { create(:discipline) }
       let!(:daily_frequency_1) do
         create(
           :daily_frequency,
-          :current, unity: unities.first,
+          :current,
+          unity: classroom.unity,
           classroom: classroom,
+          school_calendar: school_calendar,
           discipline: discipline
         )
       end
@@ -25,7 +34,8 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         create(
           :daily_frequency,
           :current,
-          unity: unities.first,
+          unity: classroom.unity,
+          school_calendar: school_calendar,
           classroom: classroom,
           discipline: discipline,
           class_number: 2
@@ -54,14 +64,20 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
     end
 
     context 'when exists general absence and should be absence by discipline' do
-      let!(:classroom) { create(:classroom, :by_discipline) }
-      let!(:school_calendar) { create(:school_calendar_with_one_step, :current) }
+      let!(:classroom) { create(:classroom, :by_discipline, unity: unities.first) }
+      let(:school_calendar) do
+        create(
+          :school_calendar_with_one_step,
+          unity: classroom.unity,
+          year: Date.current.year
+        )
+      end
       let!(:daily_frequency_1) do
         create(
           :daily_frequency,
           :current,
           :without_discipline,
-          unity: unities.first,
+          unity: classroom.unity,
           classroom: classroom,
           school_calendar: school_calendar
         )
@@ -70,7 +86,7 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         create(
           :daily_frequency,
           :without_discipline,
-          unity: unities.first,
+          unity: classroom.unity,
           classroom: classroom,
           school_calendar: school_calendar,
           frequency_date: daily_frequency_1.frequency_date.prev_day
