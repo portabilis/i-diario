@@ -7,6 +7,11 @@ FactoryGirl.define do
     unity
     grade
     teacher
+
+    trait :yearly do
+      school_term_type SchoolTermTypes::YEARLY
+      school_term ''
+    end
   end
 
   factory :teaching_plan_without_contents, class: TeachingPlan do

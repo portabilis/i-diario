@@ -1,6 +1,8 @@
 class ExamRule < ActiveRecord::Base
   acts_as_copy_target
 
+  audited
+
   attr_accessor :allow_frequency_by_discipline
 
   has_enumeration_for :score_type, with: ScoreTypes

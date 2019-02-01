@@ -1,6 +1,8 @@
 class Course < ActiveRecord::Base
   acts_as_copy_target
 
+  audited
+
   has_many :grades
 
   validates :description, :api_code, presence: true

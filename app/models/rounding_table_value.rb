@@ -1,5 +1,8 @@
 class RoundingTableValue < ActiveRecord::Base
   acts_as_copy_target
+
+  audited
+
   belongs_to :rounding_table
 
   has_enumeration_for :action, with: RoundingTableAction

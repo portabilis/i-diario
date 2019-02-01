@@ -15,6 +15,8 @@ class Discipline < ActiveRecord::Base
 
   acts_as_copy_target
 
+  audited
+
   belongs_to :knowledge_area
   has_many :teacher_discipline_classrooms, dependent: :destroy
 

@@ -60,7 +60,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
         locale: "en"
       }
 
-      content_record.contents = content_record.contents.first(1)
+      content_record.contents << content_record.contents.first
 
       xhr :post, :sync, params
 

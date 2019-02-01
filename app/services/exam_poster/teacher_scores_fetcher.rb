@@ -27,7 +27,7 @@ module ExamPoster
       validate_exam_quantity_for_fix_test(number_of_exams)
       validate_pending_exams(daily_notes, exams)
 
-      student_ids = fetch_student_ids(daily_notes)
+      student_ids = fetch_student_ids(daily_notes.by_active_student_enrollment_classroom(@classroom.id))
       students = Student.find(student_ids)
 
       @scores = students.each do |student|

@@ -3,8 +3,15 @@ require 'rails_helper'
 RSpec.describe AttendanceRecordReport, type: :report do
   it "should be created" do
     entity_configuration = create(:entity_configuration)
-    school_calendar = create(:school_calendar_with_one_step, year: 2016)
-    daily_frequency = create(:daily_frequency, frequency_date: "04/01/2016", school_calendar: school_calendar)
+    classroom = create(:classroom, :current)
+    school_calendar = create(:school_calendar_with_one_step, :current, unity: classroom.unity)
+
+    daily_frequency = create(
+      :daily_frequency,
+      frequency_date: "04/01/#{school_calendar.year}",
+      classroom: classroom,
+      school_calendar: school_calendar
+    )
     student = create(:student)
     teacher = create(:teacher)
 

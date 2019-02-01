@@ -1,13 +1,14 @@
 class SchoolCalendarQuery
   def initialize(unity, year = nil)
     @unity = unity
-    @year = year || Time.current.year
+    @year = year
   end
 
   def school_calendar
-    SchoolCalendar.by_unity_id(unity)
-    .by_year(year)
-    .first
+    @school_calendar = SchoolCalendar.by_unity_id(unity)
+    @school_calendar = @school_calendar.by_year(year) if year.present?
+
+    @school_calendar.ordered.first
   end
 
   private
