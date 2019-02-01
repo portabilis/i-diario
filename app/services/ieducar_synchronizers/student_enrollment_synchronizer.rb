@@ -56,8 +56,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       student_id: student_id(record),
       student_code: record['aluno_id'],
       changed_at: record['data_atualizacao'].to_s,
-      active: record['ativo'],
-      period: record['turno_id']
+      active: record['ativo']
     )
 
     return if record['enturmacoes'].blank?
@@ -72,7 +71,8 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         changed_at: record_classroom['data_atualizacao'].to_s,
         sequence: record_classroom['sequencial_fechamento'],
         show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
-        visible: record_classroom['mostrar_enturmacao']
+        visible: record_classroom['mostrar_enturmacao'],
+        period: record['turno_id']
       )
     end
   end
@@ -89,8 +89,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         student_id: student_id(record),
         student_code: record['aluno_id'],
         changed_at: record['data_atualizacao'].to_s,
-        active: record['ativo'],
-        period: record['turno_id']
+        active: record['ativo']
       )
     end
 
@@ -147,7 +146,8 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       changed_at: record_classroom['data_atualizacao'].to_s,
       sequence: record_classroom['sequencial_fechamento'],
       show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
-      visible: record_classroom['mostrar_enturmacao']
+      visible: record_classroom['mostrar_enturmacao'],
+      period: record['turno_id']
     )
   end
 end
