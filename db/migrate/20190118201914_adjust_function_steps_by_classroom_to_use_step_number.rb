@@ -7,7 +7,7 @@ class AdjustFunctionStepsByClassroomToUseStepNumber < ActiveRecord::Migration
         _classroom_id INT
       )
       RETURNS TABLE (
-        step_number BIGINT,
+        step_number INT,
         step_id INT,
         start_at DATE,
         end_at DATE,
