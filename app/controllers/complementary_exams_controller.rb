@@ -36,6 +36,7 @@ class ComplementaryExamsController < ApplicationController
   def create
     @complementary_exam = ComplementaryExam.new.localized
     @complementary_exam.assign_attributes(resource_params)
+    @complementary_exam.step_number = @complementary_exam.step.step_number
 
     authorize @complementary_exam
 
@@ -48,7 +49,7 @@ class ComplementaryExamsController < ApplicationController
 
   def edit
     @complementary_exam = ComplementaryExam.find(params[:id])
-    @complementary_exam.step_id = StepsFetcher.new(@complementary_exam.classroom).step(@complementary_exam.recorded_at).try(:id)
+    @complementary_exam.step_id = find_step_id
     @complementary_exam = @complementary_exam.localized
     authorize @complementary_exam
     reload_students_list
@@ -78,7 +79,8 @@ class ComplementaryExamsController < ApplicationController
   def settings
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])
-    step = StepsFetcher.new(classroom).steps.where(id: params[:step_id]).first
+    step = StepsFetcher.new(classroom).steps.find(params[:step_id])
+
     render(json: _complementary_exam_settings(classroom, discipline, step))
   end
 
@@ -107,6 +109,10 @@ class ComplementaryExamsController < ApplicationController
         :_destroy
       ]
     )
+  end
+
+  def find_step_id
+    StepsFetcher.new(@complementary_exam.classroom).step(@complementary_exam.step_number).try(:id)
   end
 
   def complementary_exam_settings

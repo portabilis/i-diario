@@ -120,7 +120,7 @@ class StudentEnrollmentsList
   def step
     @step ||= begin
       step_date = date || start_at
-      StepsFetcher.new(Classroom.find(classroom)).step(step_date)
+      StepsFetcher.new(Classroom.find(classroom)).step_by_date(step_date)
     end
   end
 

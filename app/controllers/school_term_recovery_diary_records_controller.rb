@@ -36,6 +36,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def create
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.new.localized
     @school_term_recovery_diary_record.assign_attributes(resource_params)
+    @school_term_recovery_diary_record.step_number = @school_term_recovery_diary_record.step.step_number
 
     authorize @school_term_recovery_diary_record
 
@@ -50,7 +51,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def edit
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
-    @school_term_recovery_diary_record.step_id = steps_fetcher.step(@school_term_recovery_diary_record.recorded_at).try(:id)
+    @school_term_recovery_diary_record.step_id =
+      steps_fetcher.step(@school_term_recovery_diary_record.step_number).try(:id)
 
     authorize @school_term_recovery_diary_record
 

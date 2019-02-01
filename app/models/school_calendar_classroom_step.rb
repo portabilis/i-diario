@@ -26,6 +26,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   scope :posting_date_after_and_before, lambda { |date|
     where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date)))
   }
+  scope :by_step_number, ->(step_number) { where(step_number: step_number) }
   scope :by_step_year, ->(year) { where('EXTRACT(YEAR FROM start_at) = ?', year) }
   scope :ordered, -> { order(:start_at) }
 

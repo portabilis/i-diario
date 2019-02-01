@@ -8,7 +8,6 @@ class StudentsController < ApplicationController
 
       if step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
         step = steps_fetcher.steps.find(step_id)
-        step_number = step.to_number
         start_date ||= step.start_at
         end_date ||= step.end_at
       end
