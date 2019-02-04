@@ -35,9 +35,9 @@ $(function () {
       filter: {
         by_grade: grade_id,
         by_teacher_discipline: discipline_id,
-        different_than: classroom_id,
-        by_year: record_date.substring(6,10)
+        different_than: classroom_id
       },
+      find_by_current_year: true,
       find_by_current_teacher: true,
       include_unity: true
     };

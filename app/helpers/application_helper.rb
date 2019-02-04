@@ -133,8 +133,12 @@ module ApplicationHelper
       content
     end
   end
-  
+
   def freshdesk_enabled?
     GeneralConfiguration.current.support_freshdesk.present?
+  end
+
+  def show_freshdesk?
+    freshdesk_enabled? && Rails.env != 'test'
   end
 end

@@ -29,7 +29,8 @@ module ExamPoster
           Ieducar::SendPostWorker.set(queue: @queue).perform_async(
             entity_id,
             @post_data.id,
-            request
+            request[:request],
+            request[:info]
           )
         end
       else

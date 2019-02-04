@@ -1,6 +1,8 @@
 class Classroom < ActiveRecord::Base
   acts_as_copy_target
 
+  audited
+
   has_enumeration_for :period, with: Periods
 
   belongs_to :unity

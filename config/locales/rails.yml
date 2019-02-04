@@ -5,11 +5,13 @@ pt-BR:
       require_current_teacher_discipline_classrooms: "É necessário ter turmas vinculadas ao professor atual para acessar esta funcionalidade"
       require_current_test_setting: "É necessário o cadastro de uma configuração de avaliação no ano atual para acessar esse cadastro"
       school_calendar_steps_more_than_limit: "Verificamos que o calendário letivo da escola: %{unity}, possui uma quantidade de etapas acima do permitido."
+      calendar_step_not_found: "Não foi localizada uma etapa para a data %{date}."
   ieducar_api:
     error:
       messages:
         invalid_fetch: "Requisição não pode ser realizada. É necessário informar o %{field}."
         invalid_post: "Requisição não pode ser realizada. É necessário informar o %{field}."
+        post_error: "Ocorreu um erro ao efetuar o envio. Entre em contato com o administrador."
 
   boolean:
     "yes": "Sim"
@@ -280,3 +282,8 @@ pt-BR:
       last_word_connector: ! " e "
       two_words_connector: ! " e "
       words_connector: ! ", "
+
+  http_codes:
+    not_found: "Página não encontrada"
+    internal_server_error: "Erro interno do servidor"
+    unprocessable_entity: "A alteração que você queria foi rejeitada"
