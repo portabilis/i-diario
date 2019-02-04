@@ -117,14 +117,14 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         student_enrollment.student_enrollment_classrooms.destroy_all
 
         record['enturmacoes'].each do |record_classroom|
-          create_student_entrrollment_classroom(student_enrollment, record_classroom)
+          create_student_entrrollment_classroom(student_enrollment, record_classroom, record['turno_id'])
         end
       end
     else
       record['enturmacoes'].each do |record_classroom|
         next if student_enrollment.student_enrollment_classrooms.find_by(api_code: record_classroom['sequencial'])
 
-        create_student_entrrollment_classroom(student_enrollment, record_classroom)
+        create_student_entrrollment_classroom(student_enrollment, record_classroom, record['turno_id'])
       end
     end
   end
@@ -136,7 +136,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
     @student_ids[record['aluno_id']] ||= Student.find_by(api_code: record['aluno_id']).try(:id)
   end
 
-  def create_student_entrrollment_classroom(student_enrollment, record_classroom)
+  def create_student_entrrollment_classroom(student_enrollment, record_classroom, period)
     student_enrollment.student_enrollment_classrooms.create!(
       api_code: record_classroom['sequencial'],
       classroom_id: Classroom.find_by(api_code: record_classroom['turma_id']).try(:id),
@@ -147,7 +147,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       sequence: record_classroom['sequencial_fechamento'],
       show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
       visible: record_classroom['mostrar_enturmacao'],
-      period: record['turno_id']
+      period: period
     )
   end
 end
