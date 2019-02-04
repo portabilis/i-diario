@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe DailyFrequenciesCreator, type: :service do
   let(:discipline) { create(:discipline) }
-  let(:classroom) { create(:classroom) }
+  let(:classroom) { create(:classroom, :current) }
   let(:default_class_numbers) { ['1'] }
   let(:two_class_numbers) { ['1', '2'] }
   let(:frequency_start_at) { Date.parse("#{school_calendar.year}-01-01") }

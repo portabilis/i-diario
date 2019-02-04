@@ -6,8 +6,9 @@ class SchoolCalendarClassroomQuery
 
   def school_calendar
     SchoolCalendar.by_unity_id(unity)
-    .by_year(classroom.year)
-    .first
+                  .by_year(classroom.year)
+                  .ordered
+                  .first
   end
 
   private

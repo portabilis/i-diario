@@ -1,5 +1,8 @@
 class SchoolCalendarClassroom < ActiveRecord::Base
   acts_as_copy_target
+
+  audited
+
   belongs_to :school_calendar
   belongs_to :classroom
 

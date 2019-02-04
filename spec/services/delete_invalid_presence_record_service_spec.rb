@@ -4,6 +4,13 @@ RSpec.describe DeleteInvalidPresenceRecordService, type: :service do
   describe '#perform' do
     let(:classroom) { create(:classroom_numeric_and_concept) }
     let(:student_enrollment) { create(:student_enrollment) }
+    let(:school_calendar) do
+      create(
+        :school_calendar_with_one_step,
+        unity: classroom.unity,
+        year: Date.current.year
+      )
+    end
     let!(:student_enrollment_classroom) {
       create(
         :student_enrollment_classroom,
@@ -16,7 +23,8 @@ RSpec.describe DeleteInvalidPresenceRecordService, type: :service do
         :daily_frequency,
         :current,
         classroom: classroom,
-        unity_id: classroom.unity_id
+        unity_id: classroom.unity_id,
+        school_calendar: school_calendar
       )
     }
     let!(:daily_frequency_student) {

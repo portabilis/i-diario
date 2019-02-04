@@ -30,6 +30,7 @@ FactoryGirl.define do
     end
 
     trait :by_discipline do
+      current
       association :exam_rule, factory: :exam_rule_by_discipline
     end
   end
