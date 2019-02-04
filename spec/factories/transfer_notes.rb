@@ -2,9 +2,9 @@ FactoryGirl.define do
   factory :transfer_note do
     classroom
     discipline
-    school_calendar_step
     student
     teacher
+    step_number 1
     transfer_date { Time.zone.today }
 
     after(:build) do |transfer_note|
