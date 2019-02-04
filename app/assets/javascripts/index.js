@@ -39,7 +39,9 @@ $(function(){
 
   $('form.filterable_search_form input:not(.autocomplete, .select2-input)').keyup(function(e) {
     clearTimeout(typingTimer);
-    typingTimer = setTimeout(filterableSearch(e), doneTypingInterval);
+    typingTimer = setTimeout(function() {
+      filterableSearch(e);
+    }, doneTypingInterval);
   });
 
   $('form.filterable_search_form input:not(.autocomplete, .select2-input)').keydown(function() {
