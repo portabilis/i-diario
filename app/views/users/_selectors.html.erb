@@ -2,7 +2,6 @@
 <%= simple_form_for user, remote: true, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
   <%= f.hidden_field :id, value: f.object.id %>
   <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
-  <%= hidden_field_tag 'user_role', user_role.role.access_level %>
 
 <div class="project-context administrator employee teacher parent student" style="width: 180px;">
   <span class="label">Perfil</span>

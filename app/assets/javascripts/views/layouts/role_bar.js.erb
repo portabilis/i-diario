@@ -4,12 +4,11 @@ $(function() {
   var role_unity_id = null;
   var can_change_school_year = false;
   var flashMessages = new FlashMessages();
-  var user_role = $('form#user-role-form #user_role').val();
 
-  function fetchTeachers(unity_id, year, id = null){
+  function fetchTeachers(unity_id, year, teacher_id = null){
     var filter = { by_unity_id: unity_id, by_year: year };
-    if (id){
-      filter['by_id'] = id;
+    if(teacher_id){
+      filter['by_id'] = teacher_id;
     }
     unity_id = String(unity_id);
 
@@ -95,11 +94,26 @@ $(function() {
             $('#school-year-field-container').show();
           }
           $('#assumed-teacher-field-container').show();
-          if(user_role == 'teacher' || can_change_school_year){
-            fetchTeachers(unity_id, $('form#user-role-form #user_current_school_year').val(), $('form#user-role-form #user_teacher_id').val());
-          }else{
-            fetchTeachers(unity_id, $('form#user-role-form #user_current_school_year').val());
-          }
+          var user_role_id = $('form#user-role-form #user_current_user_role_id').val();
+          $.ajax({
+            url: Routes.user_role_pt_br_path( user_role_id, {
+                format: 'json'
+            }),
+            success: function(data){
+              if(data.user_role.role.access_level == 'teacher' || can_change_school_year){
+                fetchTeachers(
+                  unity_id,
+                  $('form#user-role-form #user_current_school_year').val(),
+                  $('form#user-role-form #user_teacher_id').val()
+                );
+              }else{
+                fetchTeachers(unity_id, $('form#user-role-form #user_current_school_year').val());
+              }
+            },
+            error: function(){
+              flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>');
+            }
+          });
         }else{
           $('#assumed-teacher-field-container').hide();
           $('#school-year-field-container').hide();
