@@ -13,11 +13,13 @@ class DailyFrequency < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :school_calendar
 
+  has_enumeration_for :period, with: Periods, skip_validation: true
+
   has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyFrequencyStudent', dependent: :destroy
   accepts_nested_attributes_for :students, allow_destroy: true
 
   validates_date :frequency_date
-  validates :unity, :classroom, :school_calendar, presence: true
+  validates :unity, :classroom, :school_calendar, :period, presence: true
   validates :frequency_date, presence: true, school_calendar_day: true, posting_date: true
 
   validate :frequency_date_must_be_less_than_or_equal_to_today
