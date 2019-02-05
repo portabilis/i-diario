@@ -61,7 +61,7 @@ class StudentsInRecoveryFetcher
         @date,
         nil,
         StudentEnrollmentScoreTypeFilters::BOTH,
-        step.to_number,
+        step,
         false
       )
       .fetch
@@ -92,7 +92,7 @@ class StudentsInRecoveryFetcher
           @date,
           nil,
           StudentEnrollmentScoreTypeFilters::BOTH,
-          @step.to_number,
+          @step,
           false
         )
         .fetch

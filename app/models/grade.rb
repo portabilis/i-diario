@@ -1,6 +1,8 @@
 class Grade < ActiveRecord::Base
   acts_as_copy_target
 
+  audited
+
   belongs_to :course
   has_many :classrooms
 

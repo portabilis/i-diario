@@ -17,14 +17,14 @@ class DashboardController < ApplicationController
   end
 
   def fetch_current_school_calendar_step
-    @current_school_calendar_step = current_school_calendar.step(Time.zone.today).try(:id)
+    @current_school_calendar_step = dashboard_current_school_calendar.step(Time.zone.today).try(:id)
   end
 
-  def current_school_calendar
+  def dashboard_current_school_calendar
     CurrentSchoolCalendarFetcher.new(current_user_unity, nil).fetch
   end
 
   def current_school_calendar_steps
-    current_school_calendar.try(:steps) || []
+    dashboard_current_school_calendar.try(:steps) || []
   end
 end
