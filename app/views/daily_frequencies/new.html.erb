@@ -1,5 +1,6 @@
 <div class="widget-body no-padding">
 <%= simple_form_for @daily_frequency, html: { class: "smart-form" } do |f| %>
+  <%= f.hidden_field :period, value: @period %>
   <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
     <i class="fa fa-exclamation-circle fa-fw"></i>
     <%= t('.exam_rule_not_found') %>

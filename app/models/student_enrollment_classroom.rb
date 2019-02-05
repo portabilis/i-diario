@@ -18,6 +18,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :by_grade, lambda { |grade_id| joins(:classroom).where(classrooms: { grade_id: grade_id })   }
   scope :by_student, lambda { |student_id| joins(student_enrollment: :student).where(students: { id: student_id }) }
   scope :by_student_enrollment, lambda { |student_enrollment_id| where(student_enrollment_id: student_enrollment_id) }
+  scope :by_period, ->(period) { by_period(period) }
   scope :active, -> { joins(:student_enrollment).where(student_enrollments: { active: IeducarBooleanState::ACTIVE }) }
   scope :visible, -> { where(visible: true) }
   scope :ordered, -> { order(:api_code) }
@@ -32,5 +33,12 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
                 student_enrollment_classrooms.joined_at <= :end_at AND student_enrollment_classrooms.left_at >= :start_at and
                 student_enrollment_classrooms.joined_at <> student_enrollment_classrooms.left_at
             END)", end_at: end_at.to_date, start_at: start_at.to_date)
+  end
+
+  def self.by_period(period)
+    joins(:classroom).where(
+      '(COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period)',
+      period: period
+    )
   end
 end
