@@ -6,6 +6,8 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :student_enrollment
 
+  has_enumeration_for :period, with: Periods, skip_validation: true
+
   scope :by_classroom, ->(classroom_id) { where(classroom_id: classroom_id) }
   scope :by_date, lambda { |date|
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)

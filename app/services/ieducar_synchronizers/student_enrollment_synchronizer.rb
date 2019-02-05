@@ -69,7 +69,8 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         left_at: record_classroom['data_saida'],
         changed_at: record_classroom['data_atualizacao'].to_s,
         sequence: record_classroom['sequencial_fechamento'],
-        show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data']
+        show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
+        period: record['turno_id']
       )
     end
   end
@@ -144,7 +145,6 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       changed_at: record_classroom['data_atualizacao'].to_s,
       sequence: record_classroom['sequencial_fechamento'],
       show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
-      visible: record_classroom['mostrar_enturmacao'],
       period: period
     )
   end
