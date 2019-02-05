@@ -68,7 +68,18 @@ module ExamPoster
     end
 
     def teacher
-      @post_data.teacher || @post_data.author.current_teacher
+      @teacher ||= @post_data.teacher || @post_data.author.current_teacher
+    end
+
+    def classrooms
+      @classrooms ||= teacher.classrooms.uniq
+    end
+
+    def discipline_ids
+      @discipline_ids ||= TeacherDisciplineClassroom.where(
+        classroom_id: classrooms.pluck(:id),
+        teacher_id: teacher.id
+      ).pluck(:discipline_id).uniq
     end
 
     def invalid_classroom_year?(classroom)

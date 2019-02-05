@@ -96,10 +96,11 @@ module ExamPoster
     def post_by_year
       descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
-      teacher.classrooms.uniq.each do |classroom|
+      classrooms.each do |classroom|
         next unless can_post?(classroom)
 
-        exams = DescriptiveExamStudent.by_classroom(classroom).ordered
+        exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline_ids)
+                                      .ordered
 
         exams.each do |exam|
           next unless valid_opinion_type?(
