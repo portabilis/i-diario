@@ -65,7 +65,7 @@ class StudentNotesQuery
   attr_accessor :student, :discipline, :classroom, :step_start_at, :step_end_at
 
   def start_at
-    joined_at = student_enrollment_classroom.joined_at
+    joined_at = student_enrollment_classroom.try(:joined_at)
 
     return step_start_at if joined_at.blank? || Date.parse(joined_at) < step_start_at
 
@@ -73,7 +73,7 @@ class StudentNotesQuery
   end
 
   def end_at
-    left_at = student_enrollment_classroom.left_at
+    left_at = student_enrollment_classroom.try(:left_at)
 
     return step_end_at if left_at.blank? || Date.parse(left_at) > step_end_at
 
