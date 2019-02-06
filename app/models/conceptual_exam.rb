@@ -34,8 +34,8 @@ class ConceptualExam < ActiveRecord::Base
         Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id])
       ).join_sources
     ).where(
-      "(unaccent(students.name) ILIKE unaccent('#{student_name}') or
-        unaccent(students.social_name) ILIKE unaccent('#{student_name}'))"
+      "(unaccent(students.name) ILIKE unaccent('%#{student_name}%') or
+        unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
     )
   }
   scope :ordered, -> { order(recorded_at: :desc) }
