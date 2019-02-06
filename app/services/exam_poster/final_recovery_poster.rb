@@ -8,10 +8,16 @@ module ExamPoster
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
             requests << {
-              notas: {
-                classroom_id => {
-                  student_id => {
-                    discipline_id => discipline_score
+              info: {
+                student: student_id,
+                discipline: discipline_id
+              },
+              request: {
+                notas: {
+                  classroom_id => {
+                    student_id => {
+                      discipline_id => discipline_score
+                    }
                   }
                 }
               }

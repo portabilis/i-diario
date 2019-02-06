@@ -6,11 +6,17 @@ module ExamPoster
       post_general_classrooms.each do |classroom_id, classroom_absence|
         classroom_absence.each do |student_id, student_absence|
           requests << {
-            etapa: @post_data.step.to_number,
-            resource: 'faltas-geral',
-            faltas: {
-              classroom_id => {
-                student_id => student_absence
+            info: {
+              classroom: classroom_id,
+              student: student_id
+            },
+            request: {
+              etapa: @post_data.step.to_number,
+              resource: 'faltas-geral',
+              faltas: {
+                classroom_id => {
+                  student_id => student_absence
+                }
               }
             }
           }
@@ -21,12 +27,19 @@ module ExamPoster
         classroom_absence.each do |student_id, student_absence|
           student_absence.each do |discipline_id, discipline_absence|
             requests << {
-              etapa: @post_data.step.to_number,
-              resource: 'faltas-por-componente',
-              faltas: {
-                classroom_id => {
-                  student_id => {
-                    discipline_id => discipline_absence
+              info: {
+                classroom: classroom_id,
+                student: student_id,
+                discipline: discipline_id
+              },
+              request: {
+                etapa: @post_data.step.to_number,
+                resource: 'faltas-por-componente',
+                faltas: {
+                  classroom_id => {
+                    student_id => {
+                      discipline_id => discipline_absence
+                    }
                   }
                 }
               }

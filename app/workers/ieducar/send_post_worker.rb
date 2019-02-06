@@ -12,55 +12,55 @@ module Ieducar
 
         if !posting.error_message?
           custom_error = "args: #{msg['args'].inspect}, error: #{ex.message}"
-          posting.add_error!('Ocorreu um erro desconhecido.', custom_error)
+
+          posting.add_error!(
+            I18n.t('ieducar_api.error.messages.post_error'),
+            custom_error
+          )
         end
       end
     end
 
-    def perform(entity_id, posting_id, params)
+    def perform(entity_id, posting_id, params, info)
       Honeybadger.context(posting_id: posting_id)
 
-      performer(entity_id, posting_id, params) do |posting, params|
+      performer(entity_id, posting_id, params, info) do |posting, params|
         params = params.with_indifferent_access
+        information = info_message(info)
 
         begin
-          api(posting).send_post(params)
-        rescue Exception => e
-          error = "Aluno: #{student(params)};<br>
-                   Componente curricular: #{discipline(params)};<br>
-                   Turma: #{classroom(params)};<br>"
+          response = IeducarResponseDecorator.new(api(posting).send_post(params))
 
-          if e.message.match(/(Componente curricular de cÃ³digo).*(nÃ£o existe para a turma)/).present?
-            posting.add_warning!(error + "Erro: Componente curricular não existe para a turma.")
-          elsif e.message.match(/Nota somente pode ser lançada após lançar notas nas etapas:/).present? ||
-              e.message.match(/O secretário\/coordenador deve lançar as notas das etapas:/).present?
-            posting.add_warning!(error + "Erro: #{e.message}")
-          else
-            raise e
-          end
+          posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
+        rescue StandardError => error
+          raise StandardError, "#{information} Erro: #{error.message}"
         end
       end
     end
 
-    def student(params)
-      student_id = data(params).first[1].first[0]
+    def info_message(info)
+      message = ''
 
+      message += "Turma: #{classroom(info['classroom'])};<br>" if info.key?('classroom')
+      message += "Aluno: #{student(info['student'])};<br>" if info.key?('student')
+      message += "Componente curricular: #{discipline(info['discipline'])};<br>" if info.key?('discipline')
+
+      message
+    end
+
+    def student(api_code)
       @students ||= {}
-      @students[student_id] ||= Student.find_by(api_code: student_id).try(:name)
+      @students[api_code] ||= Student.find_by(api_code: api_code).try(:name)
     end
 
-    def discipline(params)
-      discipline_id = data(params).first[1].first[1].first[0]
-
+    def discipline(api_code)
       @disciplines ||= {}
-      @disciplines[discipline_id] ||= Discipline.find_by(api_code: discipline_id).try(:description)
+      @disciplines[api_code] ||= Discipline.find_by(api_code: api_code).try(:description)
     end
 
-    def classroom(params)
-      classroom_id = data(params).first[0]
-
+    def classroom(api_code)
       @classrooms ||= {}
-      @classrooms[classroom_id] ||= Classroom.find_by(api_code: classroom_id).try(:description)
+      @classrooms[api_code] ||= Classroom.find_by(api_code: api_code).try(:description)
     end
 
     def data(params)

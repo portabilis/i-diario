@@ -7,12 +7,19 @@ module ExamPoster
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
             requests << {
-              etapa: @post_data.step.to_number,
-              resource: 'recuperacoes',
-              notas: {
-                classroom_id => {
-                  student_id => {
-                    discipline_id => discipline_score
+              info: {
+                classroom: classroom_id,
+                student: student_id,
+                discipline: discipline_id
+              },
+              request: {
+                etapa: @post_data.step.to_number,
+                resource: 'recuperacoes',
+                notas: {
+                  classroom_id => {
+                    student_id => {
+                      discipline_id => discipline_score
+                    }
                   }
                 }
               }
