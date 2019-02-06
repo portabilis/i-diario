@@ -33,4 +33,11 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
                 student_enrollment_classrooms.joined_at <> student_enrollment_classrooms.left_at
             END)", end_at: end_at.to_date, start_at: start_at.to_date)
   end
+
+  def self.by_period(period)
+    joins(:classroom).where(
+      '(COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period)',
+      period: period
+    )
+  end
 end
