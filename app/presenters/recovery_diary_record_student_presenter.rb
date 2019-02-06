@@ -4,9 +4,9 @@ class RecoveryDiaryRecordStudentPresenter < BasePresenter
 
     if exempted_from_discipline
       name_class += 'exempted-student-from-discipline'
-    elsif !active
+    elsif active.present? && !active
       name_class += 'inactive-student'
-    elsif dependence
+    elsif dependence.present? && dependence
       name_class += 'dependence-student'
     end
 
@@ -16,9 +16,9 @@ class RecoveryDiaryRecordStudentPresenter < BasePresenter
   def student_name
     if exempted_from_discipline
       "****#{student}"
-    elsif !active
+    elsif active.present? && !active
       "***#{student}"
-    elsif dependence
+    elsif dependence.present? && dependence
       "*#{student}"
     else
       student.to_s
