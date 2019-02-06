@@ -1,6 +1,7 @@
 ---
 :logfile: ./log/sidekiq_default.log
 :concurrency: 5
+:tag: default
 staging:
   :concurrency: 10
 production:

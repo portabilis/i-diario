@@ -3,6 +3,8 @@ require 'sidekiq/web'
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
 
+  get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
+
   localized do
     devise_for :users
 
