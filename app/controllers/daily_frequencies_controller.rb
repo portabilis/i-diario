@@ -111,10 +111,11 @@ class DailyFrequenciesController < ApplicationController
   private
 
   def current_teacher_period
-    TeacherDisciplineClassroom.by_teacher_id(current_teacher.id)
-                              .by_classroom(current_user.current_classroom_id)
-                              .first
-                              .period
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      current_user.current_classroom_id,
+      current_user.current_discipline_id
+    ).teacher_period
   end
 
   def create_unpersisted_students
