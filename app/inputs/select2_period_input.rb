@@ -14,15 +14,17 @@ class Select2PeriodInput < Select2Input
 
   def parse_collection
     classroom_period = options[:user].current_classroom.period
-    periods = Periods.all
+    periods = JSON.parse(PeriodsDecorator.data_for_select2)
 
-    options[:elements] = if classroom_period == Periods::FULL
-                           periods.keep_if do |period|
-                             [Periods::FULL, Periods::MATUTINAL, Periods::VESPERTINE].include?(period.id)
-                           end
-                         else
-                           periods.keep_if { |period| period.id == classroom_period }
-                         end
+    if classroom_period == Periods::FULL
+      periods.keep_if do |period|
+        [Periods::FULL, Periods::MATUTINAL, Periods::VESPERTINE].include?(period['id'])
+      end
+    else
+      periods.keep_if { |period| period['id'] == classroom_period }
+    end
+
+    options[:elements] = periods.to_json
 
     super
   end
