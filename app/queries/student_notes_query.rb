@@ -86,6 +86,6 @@ class StudentNotesQuery
                                                                 .by_date_range(step_start_at, step_end_at)
                                                                 .active
                                                                 .ordered
-                                                                .first
+                                                                .last
   end
 end
