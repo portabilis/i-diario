@@ -39,7 +39,7 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number.includes(:students)
     @daily_frequency = @daily_frequencies.first
     teacher_period = current_teacher_period
-    teacher_period != Periods::FULL ? @period = teacher_period : nil
+    @period = teacher_period != Periods::FULL ? teacher_period : nil
 
     authorize @daily_frequency
 
