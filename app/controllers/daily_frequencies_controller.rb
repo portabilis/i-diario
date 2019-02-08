@@ -38,6 +38,8 @@ class DailyFrequenciesController < ApplicationController
   def edit_multiple
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number.includes(:students)
     @daily_frequency = @daily_frequencies.first
+    teacher_period = current_teacher_period
+    teacher_period != Periods::FULL ? @period = teacher_period : nil
 
     authorize @daily_frequency
 
@@ -155,7 +157,7 @@ class DailyFrequenciesController < ApplicationController
       discipline: @daily_frequency.discipline,
       date: @daily_frequency.frequency_date,
       search_type: :by_date,
-      period: current_teacher_period
+      period: @period
     ).student_enrollments
   end
 
