@@ -9,8 +9,6 @@ class StudentEnrollment < ActiveRecord::Base
   has_many :dependences, class_name: 'StudentEnrollmentDependence'
   has_many :exempted_disciplines, class_name: 'StudentEnrollmentExemptedDiscipline'
 
-  has_enumeration_for :period, with: Periods, skip_validation: true
-
   scope :by_classroom, lambda { |classroom_id| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_classroom(classroom_id)) }
   scope :by_discipline, lambda {|discipline_id| by_discipline_query(discipline_id)}
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}

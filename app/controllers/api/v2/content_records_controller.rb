@@ -14,7 +14,6 @@ module Api
                                         .joins(:discipline_content_record)
                                         .fromLastDays(@number_of_days)
                                         .includes(classroom: [:unity, :grade])
-
       end
 
       def lesson_plans
@@ -41,13 +40,13 @@ module Api
         @content_record =
           if discipline_id
             query.joins(:discipline_content_record)
-                .find_by(discipline_content_records: { discipline_id: discipline_id })
+                 .find_by(discipline_content_records: { discipline_id: discipline_id })
           elsif knowledge_areas
             query.joins(:knowledge_area_content_record)
-                .find_by(knowledge_area_content_records: { discipline_id: discipline_id })
+                 .find_by(knowledge_area_content_records: { discipline_id: discipline_id })
           end
 
-        if !@content_record
+        unless @content_record
           @content_record = ContentRecord.new
           @content_record.teacher_id = teacher_id
           @content_record.classroom_id = classroom_id
@@ -64,11 +63,10 @@ module Api
         content_ids = []
 
         (contents || []).each do |content|
-          if content[:id].present?
-            content_ids << content[:id]
-          elsif
-            content_ids << Content.find_or_create_by(description: content[:description]).id
-          end
+          content_id = content[:id]
+          content_id ||= Content.find_or_create_by(description: content[:description]).id
+
+          content_ids << content_id if content_id.present?
         end
 
         if content_ids.present?

@@ -15,8 +15,8 @@ if @content_record.knowledge_area_content_record
 elsif @content_record.discipline_content_record
   discipline_id = @content_record.discipline_content_record.discipline_id
 end
+
 json.knowledge_areas knowledge_areas
 json.discipline_id discipline_id
 json.grade_id @content_record.grade_id
-
 json.record_date @content_record.record_date
