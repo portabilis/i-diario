@@ -63,7 +63,7 @@ class DailyNoteStudentsController < ApplicationController
       @students << {
         sequence: sequence,
         id: note_student.student_id,
-        name: note_student.student.name,
+        name: note_student.student.to_s,
         note: note_student.note,
         dependence: note_student.dependence,
         exempted_from_discipline: note_student.exempted_from_discipline,
@@ -79,7 +79,7 @@ class DailyNoteStudentsController < ApplicationController
       @students << {
         sequence: sequence,
         id: note_student.student_id,
-        name: note_student.student.name,
+        name: note_student.student.to_s,
         note: note_student.note,
         dependence: note_student.dependence,
         exempted_from_discipline: note_student.exempted_from_discipline,
