@@ -4,7 +4,7 @@ class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
       destroy_records
 
       years.each do |year|
-        create_records(api.fetch(ano: year)["matriculas"])
+        create_records(api.fetch(ano: year)['matriculas'])
       end
     end
 
