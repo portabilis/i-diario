@@ -19,5 +19,5 @@ module ContextHelper
 end
 
 RSpec.configure do |config|
-  config.include ContextHelper, :type => :service
+  config.include ContextHelper, type: :service
 end

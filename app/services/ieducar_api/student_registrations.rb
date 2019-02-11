@@ -7,7 +7,7 @@ module IeducarApi
         only_valid_boletim: true
       )
 
-      raise ApiError, 'É necessário informar os códigos do aluno' if params[:aluno_id].blank?
+      raise ApiError, 'É necessário informar o código do aluno' if params[:aluno_id].blank?
 
       super
     end

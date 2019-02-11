@@ -1,5 +1,3 @@
-# encoding: utf-8
-
 require 'spec_helper'
 
 PRIVATE_ACCESS_KEY = '8IOwGIjiHvbeTklgwo10yVLgwDhhvs'.freeze
