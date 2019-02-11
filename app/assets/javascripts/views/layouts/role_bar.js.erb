@@ -5,9 +5,9 @@ $(function() {
   var can_change_school_year = false;
   var flashMessages = new FlashMessages();
 
-  function fetchTeachers(unity_id, year, teacher_id = null){
+  function fetchTeachers(unity_id, year, teacher_id){
     var filter = { by_unity_id: unity_id, by_year: year };
-    if(teacher_id){
+    if(typeof teacher_id != 'undefined'){
       filter['by_id'] = teacher_id;
     }
     unity_id = String(unity_id);
