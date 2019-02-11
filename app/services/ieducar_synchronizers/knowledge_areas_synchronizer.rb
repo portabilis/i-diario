@@ -1,6 +1,6 @@
 class KnowledgeAreasSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch["areas"]
+    update_records api.fetch['areas']
 
     finish_worker('KnowledgeAreasSynchronizer')
   end
@@ -13,9 +13,9 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
 
   def update_records(collection)
     collection.each do |record|
-      KnowledgeArea.find_or_initialize_by(api_code: record["id"]).tap do |knowledge_area|
-        knowledge_area.description = record["nome"]
-        knowledge_area.sequence = record["ordenamento_ac"]
+      KnowledgeArea.find_or_initialize_by(api_code: record['id']).tap do |knowledge_area|
+        knowledge_area.description = record['nome']
+        knowledge_area.sequence = record['ordenamento_ac']
         knowledge_area.save! if knowledge_area.changed?
       end
     end

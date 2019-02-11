@@ -41,9 +41,12 @@ class TeachersSynchronizer < BaseSynchronizer
 
       discipline_classrooms.each do |discipline_classroom|
         next if discipline_classroom['tipo_nota'].nil?
-        teacher_discipline_classroom = TeacherDisciplineClassroom.find_by(teacher_api_code: record['servidor_id'],
-                                                                          discipline_api_code: discipline_classroom['disciplina_id'],
-                                                                          api_code: record['id'])
+
+        teacher_discipline_classroom = TeacherDisciplineClassroom.find_by(
+          teacher_api_code: record['servidor_id'],
+          discipline_api_code: discipline_classroom['disciplina_id'],
+          api_code: record['id']
+        )
         teacher_discipline_classroom.update!(score_type: discipline_classroom['tipo_nota'])
       end
     end

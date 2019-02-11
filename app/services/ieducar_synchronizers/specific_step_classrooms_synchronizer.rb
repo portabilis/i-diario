@@ -11,9 +11,15 @@ class SpecificStepClassroomsSynchronizer
 
   def synchronize!
     specific_step_classrooms_api.each do |turma|
-      classroom_id = Classroom.find_by_api_code(turma['turma_id']).try(:id)
+      classroom_id = Classroom.find_by(api_code: turma['turma_id']).try(:id)
 
-      SpecificStepsSynchronizerWorker.perform_async(entity_id, synchronization_id, worker_batch_id, classroom_id, turma['turma_id'])
+      SpecificStepsSynchronizerWorker.perform_async(
+        entity_id,
+        synchronization_id,
+        worker_batch_id,
+        classroom_id,
+        turma['turma_id']
+      )
     end
 
     specific_step_classrooms_api.count
@@ -24,6 +30,8 @@ class SpecificStepClassroomsSynchronizer
   attr_accessor :entity_id, :synchronization_id, :worker_batch_id
 
   def specific_step_classrooms_api
-    @specific_step_classrooms ||= IeducarApi::SpecificStepClassrooms.new(IeducarApiSynchronization.find(synchronization_id).to_api).fetch['turmas']
+    @specific_step_classrooms_api ||= IeducarApi::SpecificStepClassrooms.new(
+      IeducarApiSynchronization.find(synchronization_id).to_api
+    ).fetch['turmas']
   end
 end

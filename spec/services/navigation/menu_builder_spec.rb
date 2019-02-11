@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe Navigation::MenuBuilder, :type => :service do
+describe Navigation::MenuBuilder, type: :service do
   let :current_user do
     User.new(admin: true)
   end
