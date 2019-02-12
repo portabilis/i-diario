@@ -58,7 +58,7 @@ gem 'simple_form', '3.1.0'
 gem 'sinatra', '1.4.6', require: nil
 gem 'therubyracer', '0.12.2'
 gem 'twitter-bootstrap-rails', '3.2.0'
-gem 'uglifier', '2.7.2'
+gem 'uglifier', '4.1.20'
 gem 'uri_validator', '0.2.0'
 gem 'validates_timeliness', '3.0.14'
 
