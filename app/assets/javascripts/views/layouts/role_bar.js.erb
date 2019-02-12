@@ -44,7 +44,7 @@ $(function() {
   }
 
   function handleFetchTeachersError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>");
   }
 
   function fetchYears(unity_id, callback){
@@ -79,7 +79,7 @@ $(function() {
     callback();
   }
    function handleFetchYearsError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_years_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_years_error') %>");
   }
 
   function checkUnityType(unity_id){
@@ -111,7 +111,7 @@ $(function() {
               }
             },
             error: function(){
-              flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>');
+              flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
             }
           });
         }else{
@@ -156,7 +156,7 @@ $(function() {
   }
 
   function handleFetchClassroomsError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>");
   }
 
   function fetchUnities(){
@@ -188,7 +188,7 @@ $(function() {
   }
 
   function handleFetchUnitiessError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_schools_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_schools_error') %>");
   }
 
   $('form#user-role-form #user_current_user_role_id').on('change', fetchRole);
@@ -240,7 +240,7 @@ $(function() {
     }
 
     function handleFetchRoleError(){
-      flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>');
+      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
     }
   };
 
@@ -337,7 +337,7 @@ $(function() {
   }
 
   function handleFetchDisciplinesError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>");
   }
 
   function toggleNoProfileSelectedFields(){
@@ -458,15 +458,15 @@ $(function() {
     $('#page-loading').addClass('hidden');
     var invalidFields = request.responseJSON||{};
     if (invalidFields['current_user_role_id'] !== undefined) {
-     alert('<%= I18n.t('layouts.error_messages.needs_profile') %>');
+     alert("<%= I18n.t('layouts.error_messages.needs_profile') %>");
     } else if(invalidFields['current_unity_id'] !== undefined) {
-      alert('<%= I18n.t('layouts.error_messages.needs_unity') %>');
+      alert("<%= I18n.t('layouts.error_messages.needs_unity') %>");
     } else if(invalidFields['current_classroom_id'] !== undefined) {
-      alert('<%= I18n.t('layouts.error_messages.needs_classroom') %>');
+      alert("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
     } else if(invalidFields['current_discipline_id'] !== undefined) {
-      alert('<%= I18n.t('layouts.error_messages.needs_discipline') %>');
+      alert("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
     } else {
-      alert('<%= I18n.t('layouts.error_messages.unknown_error') %>');
+      alert("<%= I18n.t('layouts.error_messages.unknown_error') %>");
     }
   });
 
