@@ -2,7 +2,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch(ano: years.first, escola: unity_api_code)['matriculas']
 
-    finish_worker('StudentEnrollmentSynchronizer-' << years.first << '-' << unity_api_code)
+    finish_worker("StudentEnrollmentSynchronizer-#{years.first}-#{unity_api_code}")
   end
 
   protected
@@ -25,8 +25,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
     end
 
     updated_student_ids.uniq.each do |student_id|
-      classroom_ids = StudentEnrollmentClassroom.unscoped
-                                                .by_student(student_id)
+      classroom_ids = StudentEnrollmentClassroom.by_student(student_id)
                                                 .pluck(:classroom_id)
                                                 .compact
                                                 .uniq
@@ -71,7 +70,6 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         changed_at: record_classroom['data_atualizacao'].to_s,
         sequence: record_classroom['sequencial_fechamento'],
         show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
-        visible: record_classroom['mostrar_enturmacao'],
         period: record['turno_id']
       )
     end
@@ -80,10 +78,11 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   def update_existing_student_enrollment(record, student_enrollment, updated_student_ids)
     return unless student_id(record)
 
-    if record['data_atualizacao'].blank? ||
-       student_enrollment.changed_at.blank? ||
-       record['data_atualizacao'].to_s > student_enrollment.changed_at.to_s
+    date_changed = record['data_atualizacao'].blank? ||
+                   student_enrollment.changed_at.blank? ||
+                   record['data_atualizacao'].to_s > student_enrollment.changed_at.to_s
 
+    if date_changed
       student_enrollment.update(
         status: record['situacao'],
         student_id: student_id(record),
@@ -146,7 +145,6 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       changed_at: record_classroom['data_atualizacao'].to_s,
       sequence: record_classroom['sequencial_fechamento'],
       show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
-      visible: record_classroom['mostrar_enturmacao'],
       period: period
     )
   end
