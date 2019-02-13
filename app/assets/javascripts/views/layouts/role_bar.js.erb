@@ -9,6 +9,9 @@ $(function() {
     var filter = { by_unity_id: unity_id, by_year: year };
     if(typeof teacher_id != 'undefined'){
       filter['by_id'] = teacher_id;
+      $('form#user-role-form #assumed-teacher-field-container').hide();
+      $('form#user-role-form #user_assumed_teacher_id').val(teacher_id);
+      $('form#user-role-form #user_assumed_teacher_id').trigger('change');
     }
     unity_id = String(unity_id);
 
