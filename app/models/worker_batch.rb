@@ -1,6 +1,8 @@
 class WorkerBatch < ActiveRecord::Base
+  include LifeCycleTimeLoggable
 
   belongs_to :stateable, polymorphic: true
+  has_many :worker_states, dependent: :restrict_with_error
 
   def all_workers_finished?
     with_lock do
@@ -9,7 +11,7 @@ class WorkerBatch < ActiveRecord::Base
   end
 
   def done_percentage
-    return 0 if total_workers == 0
+    return 0 if total_workers.zero?
 
     ((done_workers.to_f / total_workers.to_f) * 100).round(0)
   end
@@ -24,9 +26,7 @@ class WorkerBatch < ActiveRecord::Base
   def increment(done_info)
     with_lock do
       self.done_workers = (done_workers + 1)
-      if Rails.logger.debug?
-        self.completed_workers = (completed_workers << done_info)
-      end
+      self.completed_workers = (completed_workers << done_info) if Rails.logger.debug?
       save!
 
       yield if block_given? && all_workers_finished?

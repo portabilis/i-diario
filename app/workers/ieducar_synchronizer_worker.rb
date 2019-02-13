@@ -5,11 +5,16 @@ class IeducarSynchronizerWorker
 
   def perform(entity_id = nil, synchronization_id = nil)
     if entity_id
-      entity = Entity.find(entity_id)
-      perform_for_entity(entity, synchronization_id)
+      perform_for_entity(
+        Entity.find(entity_id),
+        synchronization_id
+      )
     else
       all_entities.each do |entity|
-        IeducarSynchronizerWorker.perform_async(entity.id, synchronization_id)
+        IeducarSynchronizerWorker.perform_async(
+          entity.id,
+          synchronization_id
+        )
       end
     end
   end
@@ -17,80 +22,108 @@ class IeducarSynchronizerWorker
   private
 
   BASIC_SYNCHRONIZERS = [
-    'KnowledgeAreasSynchronizer',
-    'DisciplinesSynchronizer',
-    'StudentsSynchronizer',
-    'DeficienciesSynchronizer',
-    'RoundingTablesSynchronizer',
-    'RecoveryExamRulesSynchronizer',
-    'CoursesGradesClassroomsSynchronizer',
-    'TeachersSynchronizer',
-    'StudentEnrollmentDependenceSynchronizer'
-  ]
+    KnowledgeAreasSynchronizer.to_s,
+    DisciplinesSynchronizer.to_s,
+    StudentsSynchronizer.to_s,
+    DeficienciesSynchronizer.to_s,
+    RoundingTablesSynchronizer.to_s,
+    RecoveryExamRulesSynchronizer.to_s,
+    CoursesGradesClassroomsSynchronizer.to_s,
+    TeachersSynchronizer.to_s,
+    StudentEnrollmentDependenceSynchronizer.to_s
+  ].freeze
 
   def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
       begin
-        unless synchronization = IeducarApiSynchronization.find_by_id(synchronization_id)
+        synchronization = IeducarApiSynchronization.find_by(id: synchronization_id)
+
+        if synchronization.blank?
           configuration = IeducarApiConfiguration.current
           break unless configuration.persisted?
 
-          if synchronization = configuration.start_synchronization(User.first)
-            synchronization.job_id = self.jid unless synchronization.job_id
+          synchronization = configuration.start_synchronization(User.first)
+          if synchronization.present?
+            synchronization.job_id = jid unless synchronization.job_id
           end
         end
 
         break unless synchronization.persisted? && synchronization.started?
 
-        worker_batch = WorkerBatch.create!(main_job_class: 'IeducarSynchronizerWorker', main_job_id: synchronization.job_id)
+        worker_batch = WorkerBatch.create!(
+          main_job_class: IeducarSynchronizerWorker.to_s,
+          main_job_id: synchronization.job_id
+        )
 
         total = []
 
         BASIC_SYNCHRONIZERS.each do |klass|
           increment_total(total) do
-            klass.constantize.synchronize!(synchronization, worker_batch, years_to_synchronize)
+            klass.constantize.synchronize!(
+              synchronization,
+              worker_batch,
+              years_to_synchronize
+            )
           end
         end
 
-        total << SpecificStepClassroomsSynchronizer.synchronize!(entity.id, synchronization.id, worker_batch.id)
+        total << SpecificStepClassroomsSynchronizer.synchronize!(
+          entity.id,
+          synchronization.id,
+          worker_batch.id
+        )
 
         years_to_synchronize.each do |year|
           increment_total(total) do
-
-            ExamRulesSynchronizer.synchronize!(synchronization, worker_batch, [year])
+            ExamRulesSynchronizer.synchronize!(
+              synchronization,
+              worker_batch,
+              [year]
+            )
           end
 
           Unity.with_api_code.each do |unity|
             increment_total(total) do
-
-              StudentEnrollmentSynchronizer.synchronize!(synchronization, worker_batch, [year], unity.api_code, entity.id)
+              StudentEnrollmentSynchronizer.synchronize!(
+                synchronization,
+                worker_batch,
+                [year],
+                unity.api_code,
+                entity.id
+              )
             end
           end
         end
 
         increment_total(total) do
-          StudentEnrollmentExemptedDisciplinesSynchronizer.synchronize!(synchronization, worker_batch)
+          StudentEnrollmentExemptedDisciplinesSynchronizer.synchronize!(
+            synchronization,
+            worker_batch
+          )
         end
 
         worker_batch.with_lock do
-          worker_batch.update_attribute(:total_workers, total.sum)
+          worker_batch.update(total_workers: total.sum)
 
           if worker_batch.all_workers_finished?
+            worker_batch.end!
             synchronization.mark_as_completed!
           end
         end
-      rescue Exception => e
-        if e.class != Sidekiq::Shutdown
-          synchronization.mark_as_error!('Erro desconhecido.', e.message)
-        end
+      rescue StandardError => error
+        synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.class != Sidekiq::Shutdown
 
-        raise e
+        raise error
       end
     end
   end
 
   def years_to_synchronize
-    @years ||= Unity.with_api_code.joins(:school_calendars).pluck('school_calendars.year').uniq.reject(&:blank?).sort
+    @years ||= Unity.with_api_code
+                                   .joins(:school_calendars)
+                                   .pluck('school_calendars.year')
+                                   .uniq
+                                   .reject(&:blank?).sort
   end
 
   def all_entities
@@ -100,6 +133,6 @@ class IeducarSynchronizerWorker
   def increment_total(total, &block)
     total << 1
 
-    block.call
+    block.yield
   end
 end

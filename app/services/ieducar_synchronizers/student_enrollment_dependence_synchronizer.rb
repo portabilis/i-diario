@@ -8,7 +8,7 @@ class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
       end
     end
 
-    finish_worker('StudentEnrollmentDependenceSynchronizer')
+    finish_worker
   end
 
   protected

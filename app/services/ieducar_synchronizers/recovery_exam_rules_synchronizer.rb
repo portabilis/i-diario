@@ -2,7 +2,7 @@ class RecoveryExamRulesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch['regras-recuperacao']
 
-    finish_worker('RecoveryExamRulesSynchronizer')
+    finish_worker
   end
 
   protected

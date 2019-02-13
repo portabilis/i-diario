@@ -9,19 +9,35 @@ class BaseSynchronizer
     self.years = years
     self.unity_api_code = unity_api_code
     self.entity_id = entity_id
+    self.worker_state = WorkerState.create!(
+      worker_batch: worker_batch,
+      kind: worker_name
+    )
+
+    worker_batch.start!
+    worker_state.start!
   end
 
   protected
 
-  attr_accessor :synchronization, :worker_batch, :years, :unity_api_code, :entity_id
+  attr_accessor :synchronization, :worker_batch, :years, :unity_api_code, :entity_id, :worker_state
 
-  def finish_worker(synchronizer)
+  def finish_worker
+    worker_state.end!
+
     worker_batch.with_lock do
       worker_batch.done_workers = (worker_batch.done_workers + 1)
-      worker_batch.completed_workers = (worker_batch.completed_workers << synchronizer) if Rails.logger.debug?
+      worker_batch.completed_workers = (worker_batch.completed_workers << worker_name) if Rails.logger.debug?
       worker_batch.save!
 
-      synchronization.mark_as_completed! if worker_batch.all_workers_finished?
+      if worker_batch.all_workers_finished?
+        worker_batch.end!
+        synchronization.mark_as_completed!
+      end
     end
+  end
+
+  def worker_name
+    self.class.to_s
   end
 end
