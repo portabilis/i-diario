@@ -38,9 +38,9 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     joins(:classroom).where(
       "CASE
          WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
-           student_enrollment_classrooms.period <> 2
+           student_enrollment_classrooms.period <> 2 OR student_enrollment_classrooms.period IS NULL
          WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN
-           student_enrollment_classrooms.period <> 1
+           student_enrollment_classrooms.period <> 1 OR student_enrollment_classrooms.period IS NULL
          ELSE
            COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period
       END", period: period
