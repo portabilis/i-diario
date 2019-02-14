@@ -36,8 +36,14 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
 
   def self.by_period(period)
     joins(:classroom).where(
-      '(COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period)',
-      period: period
+      "CASE
+         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
+           student_enrollment_classrooms.period <> 2
+         WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN
+           student_enrollment_classrooms.period <> 1
+         ELSE
+           COALESCE(student_enrollment_classrooms.period, CAST(classrooms.period AS INTEGER)) = :period
+      END", period: period
     )
   end
 end
