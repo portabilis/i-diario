@@ -2,10 +2,14 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch(ano: years.first, escola: unity_api_code)['matriculas']
 
-    finish_worker("StudentEnrollmentSynchronizer-#{years.first}-#{unity_api_code}")
+    finish_worker
   end
 
   protected
+
+  def worker_name
+    "#{self.class}-#{years.first}-#{unity_api_code}"
+  end
 
   def api
     IeducarApi::StudentEnrollments.new(synchronization.to_api)
@@ -31,7 +35,11 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
                                                 .uniq
 
       classroom_ids.each do |classroom_id|
-        DeleteInvalidPresenceRecordWorker.perform_async(entity_id, student_id, classroom_id)
+        DeleteInvalidPresenceRecordWorker.perform_async(
+          entity_id,
+          student_id,
+          classroom_id
+        )
       end
     end
   end

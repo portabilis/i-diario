@@ -2,7 +2,7 @@ class StudentsSynchronizer < BaseSynchronizer
   def synchronize!
     update_records(api.fetch['alunos'])
 
-    finish_worker('StudentsSynchronizer')
+    finish_worker
   end
 
   protected
