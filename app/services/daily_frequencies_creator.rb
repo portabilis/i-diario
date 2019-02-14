@@ -56,23 +56,26 @@ class DailyFrequenciesCreator
   end
 
   def student_enrollments
-    if first_daily_frequency.blank?
-      student_enrollments = []
-    else
-      student_enrollments = StudentEnrollment.includes(:student)
-                                             .by_classroom(first_daily_frequency.classroom)
-                                             .by_discipline(first_daily_frequency.discipline)
-                                             .by_date(@params[:frequency_date])
-                                             .exclude_exempted_disciplines(
-                                               first_daily_frequency.discipline_id,
-                                               step_number
-                                             )
-                                             .active
-                                             .ordered
-      student_enrollments.by_period(student_period) if student_period
-    end
+    @student_enrollments ||= begin
+      if first_daily_frequency.blank?
+        student_enrollments = []
+      else
+        student_enrollments = StudentEnrollment.includes(:student)
+                                               .by_classroom(first_daily_frequency.classroom)
+                                               .by_discipline(first_daily_frequency.discipline)
+                                               .by_date(@params[:frequency_date])
+                                               .exclude_exempted_disciplines(
+                                                 first_daily_frequency.discipline_id,
+                                                 step_number
+                                               )
+                                               .active
+                                               .ordered
 
-    @student_enrollments ||= student_enrollments
+        student_enrollments.by_period(student_period) if student_period
+      end
+
+      student_enrollments
+    end
   end
 
   def first_daily_frequency
