@@ -5,13 +5,19 @@ class DisciplineContentRecordsController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    @discipline_content_records = apply_scopes(DisciplineContentRecord)
-      .includes(:discipline, content_record: [:classroom])
-      .by_unity_id(current_user_unity.id)
-      .by_classroom_id(current_user_classroom)
-      .by_discipline_id(current_user_discipline)
-      .by_teacher_id(current_teacher)
-      .ordered
+    author_type = (params[:filter] || []).delete(:by_author)
+
+    @discipline_content_records = apply_scopes(
+      DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
+                             .by_unity_id(current_user_unity.id)
+                             .by_classroom_id(current_user_classroom)
+                             .by_discipline_id(current_user_discipline)
+                             .ordered
+    )
+
+    if author_type.present?
+      @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
+    end
 
     authorize @discipline_content_records
   end

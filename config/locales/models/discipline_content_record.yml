@@ -11,6 +11,7 @@ pt-BR:
         content_record_id: "Registro de conteúdo"
         discipline: "Disciplina"
         discipline_id: "Disciplina"
+        author: "Autor"
     errors:
       models:
         discipline_content_record:
