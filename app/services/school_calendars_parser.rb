@@ -39,6 +39,7 @@ class SchoolCalendarsParser
 
       school_calendar_from_api['etapas'].each do |step|
         school_calendar.steps.build(
+          step_number: step['etapa'],
           start_at: step['data_inicio'],
           end_at: step['data_fim'],
           start_date_for_posting: step['data_inicio'],
@@ -54,6 +55,7 @@ class SchoolCalendarsParser
         steps = []
         classroom_step['etapas'].each do |step|
           steps << SchoolCalendarClassroomStep.new(
+            step_number: step['etapa'],
             start_at: step['data_inicio'],
             end_at: step['data_fim'],
             start_date_for_posting: step['data_inicio'],
@@ -96,10 +98,12 @@ class SchoolCalendarsParser
         if school_calendar_step.present?
           existing_school_calendar_step_ids << school_calendar_step.id
 
+          update_step_step_number(school_calendar, index, step)
           update_step_start_at(school_calendar, index, step)
           update_step_end_at(school_calendar, index, step)
         else
           school_calendar.steps.build(
+            step_number: step['etapa'],
             start_at: step['data_inicio'],
             end_at: step['data_fim'],
             start_date_for_posting: step['data_inicio'],
@@ -126,10 +130,13 @@ class SchoolCalendarsParser
 
             if existing_school_calendar_classroom_step.present?
               existing_school_calendar_classroom_step_ids << existing_school_calendar_classroom_step.id
+
+              update_classrooms_step_step_number(school_calendar_classroom, step_index, step)
               update_classrooms_step_start_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
               update_classrooms_step_end_at(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, step_index, step)
             else
               step = SchoolCalendarClassroomStep.new(
+                step_number: step['etapa'],
                 start_at: step['data_inicio'],
                 end_at: step['data_fim'],
                 start_date_for_posting: step['data_inicio'],
@@ -145,6 +152,7 @@ class SchoolCalendarsParser
           steps = []
           classroom_step['etapas'].each do |step|
             steps << SchoolCalendarClassroomStep.new(
+              step_number: step['etapa'],
               start_at: step['data_inicio'],
               end_at: step['data_fim'],
               start_date_for_posting: step['data_inicio'],
@@ -181,6 +189,12 @@ class SchoolCalendarsParser
     end
   end
 
+  def update_step_step_number(school_calendar, index, step)
+    return if school_calendar.steps[index].step_number == step['etapa'].to_i
+
+    school_calendar.steps[index].step_number = step['etapa'].to_i
+  end
+
   def update_step_start_at(school_calendar, index, step)
     if school_calendar.steps[index].start_at != Date.parse(step['data_inicio'])
       school_calendar.steps[index].start_at = step['data_inicio']
@@ -193,6 +207,12 @@ class SchoolCalendarsParser
       school_calendar.steps[index].end_at = step['data_fim']
       school_calendar.steps[index].end_date_for_posting = step['data_fim']
     end
+  end
+
+  def update_classrooms_step_step_number(school_calendar_classroom, step_index, step)
+    return if school_calendar_classroom.classroom_steps[step_index].step_number == step['etapa'].to_i
+
+    school_calendar_classroom.classroom_steps[step_index].step_number = step['etapa'].to_i
   end
 
   def update_classrooms_step_start_at(school_calendar_classroom, step_index, step)

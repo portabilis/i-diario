@@ -109,6 +109,7 @@ class SchoolCalendarsController < ApplicationController
       :number_of_classes,
       steps_attributes: [
         :id,
+        :step_number,
         :start_at,
         :end_at,
         :start_date_for_posting,
@@ -121,6 +122,7 @@ class SchoolCalendarsController < ApplicationController
         :_destroy,
         classroom_steps_attributes: [
           :id,
+          :step_number,
           :start_at,
           :end_at,
           :start_date_for_posting,

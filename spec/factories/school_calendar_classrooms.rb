@@ -10,6 +10,7 @@ FactoryGirl.define do
             .build(
               attributes_for(
                 :school_calendar_classroom_step,
+                step_number: trimester,
                 start_at: Date.new(school_calendar_classroom.school_calendar.year, (trimester * 3 - 2), 10),
                 end_at: Date.new(school_calendar_classroom.school_calendar.year, (trimester * 3), 20),
                 start_date_for_posting: Date.new(school_calendar_classroom.school_calendar.year, (trimester * 3 - 2), 10),
@@ -27,6 +28,7 @@ FactoryGirl.define do
             .build(
               attributes_for(
                 :school_calendar_classroom_step,
+                step_number: semester,
                 start_at: Date.new(school_calendar_classroom.school_calendar.year, (semester * 6 - 5), 1),
                 end_at: Date.new(school_calendar_classroom.school_calendar.year, (semester * 6), 1).end_of_month,
                 start_date_for_posting: Date.new(school_calendar_classroom.school_calendar.year, (semester * 6 - 5), 1),

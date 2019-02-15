@@ -26,13 +26,13 @@ RSpec.describe StepsFetcher, type: :service do
     describe '#step' do
       context 'when there is step of the school calendar on date' do
         it 'returns the step' do
-          expect(subject.step(step.start_at)).to eq(step)
+          expect(subject.step(step.step_number)).to eq(step)
         end
       end
 
       context 'when there is no step of the school calendar on date' do
         it 'returns nil' do
-          expect(subject.step(step.start_at.beginning_of_month)).to eq(nil)
+          expect(subject.step(step.step_number + 1)).to eq(nil)
         end
       end
     end
@@ -90,13 +90,13 @@ RSpec.describe StepsFetcher, type: :service do
     describe '#step' do
       context 'when there is step of the classroom on date' do
         it 'returns the step of the classroom' do
-          expect(subject.step(step.start_at)).to eq(step)
+          expect(subject.step(step.step_number)).to eq(step)
         end
       end
 
       context 'when there is no step of the classroom on date' do
         it 'returns nil' do
-          expect(subject.step(step.start_at.beginning_of_month)).to eq(nil)
+          expect(subject.step(step.step_number + 1)).to eq(nil)
         end
       end
     end

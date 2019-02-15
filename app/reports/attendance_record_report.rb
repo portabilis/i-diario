@@ -267,7 +267,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def step_number(daily_frequency)
-    step = StepsFetcher.new(daily_frequency.classroom).step(daily_frequency.frequency_date)
+    step = StepsFetcher.new(daily_frequency.classroom).step_by_date(daily_frequency.frequency_date)
 
     step.to_number unless step.nil?
   end
