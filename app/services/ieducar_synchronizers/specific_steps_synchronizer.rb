@@ -10,7 +10,6 @@ class SpecificStepsSynchronizer < BaseSynchronizer
     self.api_classroom_id = api_classroom_id
 
     create_worker_state
-    start_workers
   end
 
   def synchronize!
