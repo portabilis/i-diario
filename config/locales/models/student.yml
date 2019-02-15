@@ -1,0 +1,17 @@
+pt-BR:
+  activerecord:
+    models:
+      student:
+        one: "Estudante"
+        other: "Estudantes"
+    attributes:
+      student:
+        api_code: "Código no i-Educar"
+        api: "Cadastrado via API"
+        avatar_url: "URL da foto"
+        birth_date: "Data de nascimento"
+        name: "Nome de registro"
+        social_name: "Nome social"
+        uses_differentiated_exam_rule: "Regra de avaliação diferenciada"
+  student:
+    display_name_format: "%{social_name} \n Nome de registro: %{name}"

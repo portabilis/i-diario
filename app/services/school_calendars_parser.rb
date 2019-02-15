@@ -1,4 +1,6 @@
 class SchoolCalendarsParser
+  class ClassroomNotFoundError < StandardError; end
+
   def initialize(configuration)
     @configuration = configuration
   end
@@ -48,7 +50,7 @@ class SchoolCalendarsParser
       steps_from_classrooms = get_school_calendar_classroom_steps(school_calendar_from_api['etapas_de_turmas'])
       steps_from_classrooms.each do |classroom_step|
         classroom = SchoolCalendarClassroom.new(
-          classroom: Classroom.by_api_code(classroom_step['turma_id']).first
+          classroom: find_classroom_by_api_code(classroom_step['turma_id'], unity)
         )
         steps = []
         classroom_step['etapas'].each do |step|
@@ -145,7 +147,7 @@ class SchoolCalendarsParser
           end
         else
           classroom = SchoolCalendarClassroom.new(
-            classroom: Classroom.by_api_code(classroom_step['turma_id']).first
+            classroom: find_classroom_by_api_code(classroom_step['turma_id'], unity)
           )
           steps = []
           classroom_step['etapas'].each do |step|
@@ -249,9 +251,19 @@ class SchoolCalendarsParser
     false
   end
 
-  private
-
   def get_school_calendar_classroom_steps(classroom_steps)
     classroom_steps.nil? ? [] : classroom_steps
+  end
+
+  def find_classroom_by_api_code(api_code, unity)
+    classroom = Classroom.find_by(api_code: api_code)
+
+    return classroom if classroom.present?
+
+    raise ClassroomNotFoundError, I18n.t(
+      '.school_calendars.synchronize.classroom_not_found',
+      unity_name: unity.name,
+      classroom_code: api_code
+    )
   end
 end

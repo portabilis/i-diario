@@ -6,7 +6,13 @@ RSpec.describe IeducarApi::SchoolCalendars, type: :service do
   let(:secret_key) { '5y8cfq31oGvFdAlGMCLIeSKdfc8pUC' }
   let(:unity_id) { 1 }
 
-  subject { IeducarApi::SchoolCalendars.new(url: url, access_key: access_key, secret_key: secret_key, unity_id: unity_id) }
+  subject {
+    IeducarApi::SchoolCalendars.new(
+      url: url,
+      access_key: access_key,
+      secret_key: secret_key,
+      unity_id: unity_id)
+  }
 
   describe '#fetch' do
     it 'should return all school calendars' do

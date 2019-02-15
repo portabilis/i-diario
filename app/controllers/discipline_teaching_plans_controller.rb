@@ -8,6 +8,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plans = apply_scopes(DisciplineTeachingPlan)
       .includes(:discipline, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
+      .by_year(current_user_school_year)
       .by_teacher_id_or_is_null(current_teacher.try(:id))
 
     @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.try(:grade))

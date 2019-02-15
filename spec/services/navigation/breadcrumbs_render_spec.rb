@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "rails_helper"
 
-describe Navigation::BreadcrumbsRender, :type => :service do
+describe Navigation::BreadcrumbsRender, type: :service do
   subject { described_class.new(context) }
 
   describe "#render" do

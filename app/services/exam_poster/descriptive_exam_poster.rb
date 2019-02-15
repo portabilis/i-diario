@@ -8,8 +8,7 @@ module ExamPoster
           requests << {
             info: {
               classroom: classroom_id,
-              student: student_id,
-              discipline: discipline_id
+              student: student_id
             },
             request: {
               etapa: @post_data.step.to_number,

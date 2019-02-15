@@ -2,7 +2,7 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch(escola_id: unities,
                              get_series: true,
-                             get_turmas: true)["cursos"]
+                             get_turmas: true)['cursos']
 
     finish_worker('CoursesGradesClassroomsSynchronizer')
   end
@@ -16,31 +16,35 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
   def update_records(collection)
     ActiveRecord::Base.transaction do
       collection.each do |record|
-        if course = courses.find_by(api_code: record["id"])
-          course.update_attribute(:description, record["nome"])
+        course = courses.find_by(api_code: record['id'])
+
+        if course.present?
+          course.update_attribute(:description, record['nome'])
         else
           course = courses.create!(
-            api_code: record["id"],
-            description: record["nome"]
+            api_code: record['id'],
+            description: record['nome']
           )
         end
 
-        update_grades(course, record["series"])
+        update_grades(course, record['series'])
       end
     end
   end
 
   def update_grades(course, collection)
     collection.each do |record|
-      if grade = grades.find_by(api_code: record["id"])
+      grade = grades.find_by(api_code: record['id'])
+
+      if grade.present?
         grade.update(
-          description: record["nome"],
+          description: record['nome'],
           course: course
         )
       else
         grade = grades.create!(
-          api_code: record["id"],
-          description: record["nome"],
+          api_code: record['id'],
+          description: record['nome'],
           course: course
         )
       end
@@ -50,23 +54,25 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
 
   def update_classrooms(grade, collection)
     collection.each do |record|
-      if classroom = classrooms.find_by(api_code: record["cod_turma"])
+      classroom = classrooms.find_by(api_code: record['cod_turma'])
+
+      if classroom.present?
         classroom.update(
-          description: record["nm_turma"],
-          unity_id: Unity.find_by(api_code: record["escola_id"]).try(:id),
-          unity_code: record["escola_id"],
-          period: record["turma_turno_id"],
+          description: record['nm_turma'],
+          unity_id: Unity.find_by(api_code: record['escola_id']).try(:id),
+          unity_code: record['escola_id'],
+          period: record['turma_turno_id'],
           grade: grade
         )
       else
-        classroom = classrooms.create!(
-          api_code: record["cod_turma"],
-          description: record["nm_turma"],
-          unity_id: Unity.find_by(api_code: record["escola_id"]).try(:id),
-          unity_code: record["escola_id"],
-          period: record["turma_turno_id"],
+        classrooms.create!(
+          api_code: record['cod_turma'],
+          description: record['nm_turma'],
+          unity_id: Unity.find_by(api_code: record['escola_id']).try(:id),
+          unity_code: record['escola_id'],
+          period: record['turma_turno_id'],
           grade: grade,
-          year: record["ano"]
+          year: record['ano']
         )
       end
     end

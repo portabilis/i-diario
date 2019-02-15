@@ -24,7 +24,7 @@ module ApplicationHelper
   end
 
   def tagfy(value)
-    transliterate(value).gsub(" ", "_").underscore
+    transliterate(value).tr(' ', '_').underscore
   end
 
   def breadcrumbs
@@ -52,22 +52,29 @@ module ApplicationHelper
 
   def gravatar_image_tag(email, size = '48', html_options = {})
     email = Digest::MD5.hexdigest(email.to_s)
+    default_avatar = CGI.escape(
+      'https://s3-sa-east-1.amazonaws.com/apps-core-images-test/uploads/avatar/avatar.jpg'
+    )
+
     html_options['height'] = "#{size}px"
     html_options['width'] = "#{size}px"
     html_options['onerror'] = "this.error=null;this.src='/assets/profile-default.jpg'"
 
-    image_tag "https://www.gravatar.com/avatar/#{email}?size=#{size}&d=#{CGI.escape('https://s3-sa-east-1.amazonaws.com/apps-core-images-test/uploads/avatar/avatar.jpg')}", html_options
+    image_tag(
+      "https://www.gravatar.com/avatar/#{email}?size=#{size}&d=#{default_avatar}",
+      html_options
+    )
   end
 
   def custom_date_format(date)
     if date == Time.zone.today
-      t 'date.today'
+      t('date.today')
     elsif date == Time.zone.yesterday
-      t 'date.yesterday'
+      t('date.yesterday')
     elsif date.year == Time.zone.today.year
-      l date, format: :short
+      l(date, format: :short)
     else
-      l date, format: :long
+      l(date, format: :long)
     end
   end
 
@@ -113,12 +120,12 @@ module ApplicationHelper
     end
   end
 
-  def alert_by_entity(entity_name)
-    ""
+  def alert_by_entity(_entity_name)
+    ''
   end
 
   def initial_value_for_select2_remote(id, description)
-    '{"id": ' + id.to_s + ', "description": "' + description.gsub("\n", " ") + '"}'
+    '{"id": ' + id.to_s + ', "description": "' + description.tr("\n", ' ') + '"}'
   end
 
   def link_to_if_and_else(*args, &block)
@@ -126,7 +133,7 @@ module ApplicationHelper
     content = capture(&block)
 
     if condition
-      link_to *args do
+      link_to(*args) do
         content
       end
     else
@@ -138,7 +145,14 @@ module ApplicationHelper
     GeneralConfiguration.current.support_freshdesk.present?
   end
 
+  def present(model)
+    klass = "#{model.class}Presenter".constantize
+    presenter = klass.new(model, self)
+
+    yield(presenter) if block_given?
+  end
+
   def show_freshdesk?
-    freshdesk_enabled? && Rails.env != 'test'
+    freshdesk_enabled? && !Rails.env.test?
   end
 end

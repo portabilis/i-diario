@@ -18,14 +18,10 @@ class BaseSynchronizer
   def finish_worker(synchronizer)
     worker_batch.with_lock do
       worker_batch.done_workers = (worker_batch.done_workers + 1)
-      if Rails.logger.debug?
-        worker_batch.completed_workers = (worker_batch.completed_workers << synchronizer)
-      end
+      worker_batch.completed_workers = (worker_batch.completed_workers << synchronizer) if Rails.logger.debug?
       worker_batch.save!
 
-      if worker_batch.all_workers_finished?
-        synchronization.mark_as_completed!
-      end
+      synchronization.mark_as_completed! if worker_batch.all_workers_finished?
     end
   end
 end
