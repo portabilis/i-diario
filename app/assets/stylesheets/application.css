@@ -311,3 +311,7 @@ header .project-context {
   padding: 7px 7px 0;
   position: relative;
 }
+
+span.multiline {
+  white-space: pre-line
+}

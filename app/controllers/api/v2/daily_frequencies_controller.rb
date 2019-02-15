@@ -5,9 +5,11 @@ module Api
 
       def index
         frequency_type_resolver = FrequencyTypeResolver.new(classroom, teacher)
+        general_frequency = frequency_type_resolver.general?
+
         @daily_frequencies = DailyFrequency.by_classroom_id(params[:classroom_id])
-        @daily_frequencies = @daily_frequencies.general_frequency if frequency_type_resolver.general?
-        @daily_frequencies = @daily_frequencies.by_discipline_id(params[:discipline_id]) unless frequency_type_resolver.general?
+        @daily_frequencies = @daily_frequencies.general_frequency if general_frequency
+        @daily_frequencies = @daily_frequencies.by_discipline_id(params[:discipline_id]) unless general_frequency
 
         @daily_frequencies = @daily_frequencies.order_by_frequency_date_desc
                                                .order_by_unity
@@ -19,7 +21,8 @@ module Api
       end
 
       def create
-        @class_numbers = Array(params[:class_number] || (params[:class_numbers] && params[:class_numbers].split(',')))
+        classes = params[:class_number] || (params[:class_numbers] && params[:class_numbers].split(','))
+        @class_numbers = Array(classes)
         @class_numbers = [nil] if @class_numbers.blank?
 
         creator = DailyFrequenciesCreator.new(frequency_params)

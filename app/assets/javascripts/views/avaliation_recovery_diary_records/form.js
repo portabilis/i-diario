@@ -101,20 +101,19 @@ $(function () {
       _.each(daily_note_students, function(daily_note_student) {
         var element_id = new Date().getTime() + element_counter++
 
-        var student_situation;
+        var student_situation = 'multiline ';
         var student_name;
 
         if (daily_note_student.exempted_from_discipline) {
-          student_situation = 'exempted-student-from-discipline';
+          student_situation = student_situation + 'exempted-student-from-discipline';
           student_name = '****' + daily_note_student.name
         } else if (!daily_note_student.active) {
-          student_situation = 'inactive-student';
+          student_situation = student_situation + 'inactive-student';
           student_name = '***' + daily_note_student.name
         } else if (daily_note_student.dependence) {
-            student_situation = 'dependence-student';
+            student_situation = student_situation + 'dependence-student';
             student_name = '*' + daily_note_student.name
         } else {
-            student_situation = '';
             student_name = daily_note_student.name
         }
 

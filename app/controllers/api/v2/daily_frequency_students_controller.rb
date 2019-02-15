@@ -1,7 +1,6 @@
 module Api
   module V2
     class DailyFrequencyStudentsController < Api::V2::BaseController
-
       respond_to :json
 
       def update

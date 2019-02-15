@@ -5,6 +5,7 @@ $(function(){
   var can_change_school_year = false;
   var show_modal_allows_clear = true;
   var flashMessages = new FlashMessages();
+
   $("form#user-role").on("ajax:success", function(event, data, status, xhr){
     $("form#user-role").clear_form_fields();
     $("form#user-role").clear_form_errors();
@@ -28,8 +29,14 @@ $(function(){
     $("form#user-role").trigger("submit");
   });
 
-  function fetchTeachers(unity_id, year){
+  function fetchTeachers(unity_id, year, teacher_id){
     var filter = { by_unity_id: unity_id, by_year: year };
+    if(typeof teacher_id != 'undefined'){
+      filter['by_id'] = teacher_id;
+      $('form#user-role #assumed-teacher-field').hide();
+      $('form#user-role #user_assumed_teacher_id').val(teacher_id);
+      $('form#user-role #user_assumed_teacher_id').trigger('change');
+    }
     unity_id = String(unity_id);
 
     if(!_.isEmpty(unity_id) && !_.isEmpty(year)){
@@ -65,7 +72,7 @@ $(function(){
   }
 
   function handleFetchTeachersError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>");
   }
 
   function fetchYears(unity_id, callback){
@@ -104,7 +111,7 @@ $(function(){
   }
 
   function handleFetchYearsError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_years_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_years_error') %>");
   }
 
   function checkUnityType(unity_id){
@@ -116,7 +123,26 @@ $(function(){
       $.getJSON(Routes.unities_pt_br_path() + "/"+unity_id, function(data){
         if(data && data.unit_type == "school_unit"){
           $('#assumed-teacher-field').show();
-          fetchTeachers(unity_id, $('form#user-role #user_current_school_year').val());
+          var user_role_id = $('form#user-role #user_current_user_role_id').val();
+          $.ajax({
+            url: Routes.user_role_pt_br_path( user_role_id, {
+                format: 'json'
+            }),
+            success: function(data){
+              if(data.user_role.role.access_level == 'teacher' || can_change_school_year){
+                fetchTeachers(
+                  unity_id,
+                  $('form#user-role #user_current_school_year').val(),
+                  $('form#user-role #user_teacher_id').val()
+                );
+              }else{
+                fetchTeachers(unity_id, $('form#user-role #user_current_school_year').val());
+              }
+            },
+            error: function(){
+              flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
+            }
+          });
         }else{
           $('#assumed-teacher-field').hide();
         }
@@ -159,7 +185,7 @@ $(function(){
   }
 
   function handleFetchClassroomsError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>");
   }
 
   function fetchUnities(){
@@ -191,7 +217,7 @@ $(function(){
   }
 
   function handleFetchUnitiessError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_schools_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_schools_error') %>");
   }
 
   $('form#user-role #user_current_user_role_id').on('change', function(){
@@ -242,7 +268,7 @@ $(function(){
     }
 
     function handleFetchRoleError(){
-      flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>');
+      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
     }
   });
 
@@ -344,7 +370,7 @@ $(function(){
   }
 
   function handleFetchDisciplinesError(){
-    flashMessages.error('<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>');
+    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>");
   }
 
   // Togglers

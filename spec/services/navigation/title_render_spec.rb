@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe Navigation::TitleRender, :type => :service do
+describe Navigation::TitleRender, type: :service do
   subject { described_class.new(context) }
 
   let(:show_icon){ true }
