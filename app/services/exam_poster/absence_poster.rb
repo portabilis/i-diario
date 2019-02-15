@@ -65,7 +65,6 @@ module ExamPoster
                                           )
                                           .general_frequency
 
-        daily_frequencies_ids = repeated_frequencies(daily_frequencies, classroom)
         students = fetch_students(daily_frequencies)
 
         students.each do |student|
@@ -76,12 +75,11 @@ module ExamPoster
             step_end_at(classroom)
           )
 
-          if daily_frequencies_ids.present?
-            frequencies_ids = define_frequencies(daily_frequencies_ids, daily_frequency_students, student)
-            daily_frequency_students = daily_frequency_students.where.not(id: frequencies_ids)
-          end
-
-          value = daily_frequency_students.absences.count
+          value = if classroom.period == Periods::FULL
+                    AbsenceCountService.new(daily_frequency_students).count_absences
+                  else
+                    daily_frequency_students.absences.count
+                  end
           absences[classroom.api_code][student.api_code]['valor'] = value
         end
       end
@@ -110,7 +108,6 @@ module ExamPoster
 
           next unless daily_frequencies.any?
 
-          daily_frequencies_ids = repeated_frequencies(daily_frequencies, classroom, discipline)
           students = fetch_students(daily_frequencies)
 
           students.each do |student|
@@ -121,11 +118,6 @@ module ExamPoster
               step_start_at(classroom),
               step_end_at(classroom)
             ).active
-
-            if daily_frequencies_ids.present?
-              frequencies_ids = define_frequencies(daily_frequencies_ids, daily_frequency_students, student)
-              daily_frequency_students = daily_frequency_students.where.not(id: frequencies_ids)
-            end
 
             if daily_frequency_students.any?
               value = daily_frequency_students.absences.count
@@ -201,58 +193,6 @@ module ExamPoster
         classroom,
         teacher
       )
-    end
-
-    def repeated_frequencies(daily_frequencies, classroom, discipline = nil)
-      return if daily_frequencies.blank?
-      return if classroom.period != Periods::FULL
-
-      same_daily_frequencies_ids = []
-
-      daily_frequencies.each do |daily_frequency1|
-        daily_frequencies.each do |daily_frequency2|
-          next if different_frequencies(daily_frequency1, daily_frequency2, same_daily_frequencies_ids, discipline)
-
-          same_daily_frequencies_ids << [daily_frequency1.id, daily_frequency2.id]
-        end
-      end
-
-      same_daily_frequencies_ids
-    end
-
-    def in_array?(element, array)
-      array.select { |pair| pair.include?(element) }.any?
-    end
-
-    def different_frequencies(daily_frequency1, daily_frequency2, same_daily_frequencies_ids, discipline)
-      return true if daily_frequency1 == daily_frequency2
-      return true if in_array?(daily_frequency1.id, same_daily_frequencies_ids)
-      return true if daily_frequency1.frequency_date != daily_frequency2.frequency_date
-      return true if discipline && daily_frequency1.class_number != daily_frequency2.class_number
-
-      false
-    end
-
-    def define_frequencies(daily_frequencies_ids, daily_frequency_students, student)
-      return if daily_frequencies_ids.blank?
-
-      frequencies_ids = []
-
-      daily_frequencies_ids.each do |daily_frequency_id1, daily_frequency_id2|
-        frequency1 = daily_frequency_students.find_by(
-          daily_frequency_id: daily_frequency_id1,
-          student_id: student.id
-        )
-
-        frequency2 = daily_frequency_students.find_by(
-          daily_frequency_id: daily_frequency_id2,
-          student_id: student.id
-        )
-
-        frequencies_ids << (frequency1.present ? frequency2.id : frequency1.id)
-      end
-
-      frequencies_ids
     end
   end
 end
