@@ -9,18 +9,26 @@ class BaseSynchronizer
     self.years = years
     self.unity_api_code = unity_api_code
     self.entity_id = entity_id
-    self.worker_state = WorkerState.create!(
-      worker_batch: worker_batch,
-      kind: worker_name
-    )
 
-    worker_batch.start!
-    worker_state.start!
+    create_worker_state
+    start_workers
   end
 
   protected
 
   attr_accessor :synchronization, :worker_batch, :years, :unity_api_code, :entity_id, :worker_state
+
+  def create_worker_state
+    self.worker_state = WorkerState.create!(
+      worker_batch: worker_batch,
+      kind: worker_name
+    )
+  end
+
+  def start_workers
+    worker_batch.start!
+    worker_state.start!
+  end
 
   def finish_worker
     worker_state.end!
