@@ -54,6 +54,7 @@ class IeducarSynchronizerWorker
           main_job_class: IeducarSynchronizerWorker.to_s,
           main_job_id: synchronization.job_id
         )
+        worker_batch.start!
 
         total = []
 
@@ -120,10 +121,10 @@ class IeducarSynchronizerWorker
 
   def years_to_synchronize
     @years ||= Unity.with_api_code
-                                   .joins(:school_calendars)
-                                   .pluck('school_calendars.year')
-                                   .uniq
-                                   .reject(&:blank?).sort
+                    .joins(:school_calendars)
+                    .pluck('school_calendars.year')
+                    .uniq
+                    .reject(&:blank?).sort
   end
 
   def all_entities

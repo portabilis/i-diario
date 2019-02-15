@@ -11,7 +11,6 @@ class BaseSynchronizer
     self.entity_id = entity_id
 
     create_worker_state
-    start_workers
   end
 
   protected
@@ -23,10 +22,6 @@ class BaseSynchronizer
       worker_batch: worker_batch,
       kind: worker_name
     )
-  end
-
-  def start_workers
-    worker_batch.start!
     worker_state.start!
   end
 
