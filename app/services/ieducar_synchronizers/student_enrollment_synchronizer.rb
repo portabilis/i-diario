@@ -78,7 +78,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         changed_at: record_classroom['data_atualizacao'].to_s,
         sequence: record_classroom['sequencial_fechamento'],
         show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
-        period: record['turno_id']
+        period: record_classroom['turno_id']
       )
     end
   end
@@ -124,14 +124,14 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         student_enrollment.student_enrollment_classrooms.destroy_all
 
         record['enturmacoes'].each do |record_classroom|
-          create_student_entrrollment_classroom(student_enrollment, record_classroom, record['turno_id'])
+          create_student_entrrollment_classroom(student_enrollment, record_classroom, record_classroom['turno_id'])
         end
       end
     else
       record['enturmacoes'].each do |record_classroom|
         next if student_enrollment.student_enrollment_classrooms.find_by(api_code: record_classroom['sequencial'])
 
-        create_student_entrrollment_classroom(student_enrollment, record_classroom, record['turno_id'])
+        create_student_entrrollment_classroom(student_enrollment, record_classroom, record_classroom['turno_id'])
       end
     end
   end
