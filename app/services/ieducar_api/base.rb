@@ -87,7 +87,10 @@ module IeducarApi
         raise ApiError, error.message
       end
 
-      raise ApiError, result['msgs'].map { |r| r['msg'] }.join(', ') if result['any_error_msg'].present?
+      response = IeducarResponseDecorator.new(result)
+      raise_exception = response.any_error_message? && !response.known_error?
+
+      raise ApiError, result['msgs'].map { |r| r['msg'] }.join(', ') if raise_exception
 
       result
     end

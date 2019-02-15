@@ -6,6 +6,8 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :student_enrollment
 
+  has_enumeration_for :period, with: Periods, skip_validation: true
+
   default_scope { visible }
 
   scope :by_classroom, lambda { |classroom_id| where(classroom_id: classroom_id) }
