@@ -60,7 +60,11 @@ class StepsFetcher
   end
 
   def old_steps_by_step_number(step_number)
-    school_calendar_steps.where(SchoolCalendarStep.arel_table[:step_number].lt(step_number))
+    if school_calendar_classroom.present?
+      school_calendar_steps.where(SchoolCalendarClassroomStep.arel_table[:step_number].lt(step_number))
+    else
+      school_calendar_steps.where(SchoolCalendarStep.arel_table[:step_number].lt(step_number))
+    end
   end
 
   def old_steps_by_date(date)
