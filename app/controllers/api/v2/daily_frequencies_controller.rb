@@ -5,7 +5,7 @@ module Api
 
       def index
         frequency_type_resolver = FrequencyTypeResolver.new(classroom, teacher)
-        @daily_frequencies = DailyFrequency.by_classroom_id(params[:classroom_id])
+        @daily_frequencies = DailyFrequency.by_classroom_id(params[:classroom_id]).by_period(period)
         @daily_frequencies = @daily_frequencies.general_frequency if frequency_type_resolver.general?
         @daily_frequencies = @daily_frequencies.by_discipline_id(params[:discipline_id]) unless frequency_type_resolver.general?
 
@@ -45,7 +45,8 @@ module Api
           discipline_id: params[:discipline_id],
           frequency_date: params[:frequency_date],
           class_numbers: @class_numbers,
-          school_calendar: current_school_calendar
+          school_calendar: current_school_calendar,
+          period: period
         }
       end
 
@@ -71,6 +72,14 @@ module Api
 
       def user_id
         @user_id ||= params[:user_id] || 1
+      end
+
+      def period
+        TeacherPeriodFetcher.new(
+          current_teacher.id,
+          current_user.current_classroom_id,
+          current_user.current_discipline_id
+        ).teacher_period
       end
     end
   end
