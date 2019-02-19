@@ -54,6 +54,7 @@ gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.
 gem 'rubyzip', '1.2.2', require: 'zip'
 gem 'sdoc', '0.4.1', group: :doc
 gem 'sidekiq', '5.0.3'
+gem 'sidekiq-status', '1.1.1'
 gem 'sidekiq-unique-jobs', '4.0.18'
 gem 'simple_form', '3.1.0'
 gem 'sinatra', '1.4.6', require: nil
