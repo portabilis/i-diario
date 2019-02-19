@@ -1,6 +1,4 @@
 class SchoolCalendarsCreator
-  class InvalidSchoolCalendarError < StandardError;end
-  class InvalidClassroomCalendarError < StandardError; end
   def self.create!(school_calendar)
     new(school_calendar).create!
   end
@@ -20,7 +18,7 @@ class SchoolCalendarsCreator
           message = invalid.to_s
           message.slice!("A validação falhou: ")
 
-          raise InvalidSchoolCalendarError, I18n.t(
+          raise SchoolCalendarSynchronizerService::InvalidSchoolCalendarError, I18n.t(
             '.school_calendars.create_and_update_batch.error_on_unity',
             unity_name: invalid.record.unity.name,
             error_message: message
@@ -34,7 +32,7 @@ class SchoolCalendarsCreator
           message = invalid.to_s
           message.slice!("A validação falhou: ")
 
-          raise InvalidClassroomCalendarError, I18n.t(
+          raise SchoolCalendarSynchronizerService::InvalidClassroomCalendarError, I18n.t(
             '.school_calendars.create_and_update_batch.error_on_classroom',
             unity_name: invalid.record.classroom.unity.name,
             classroom_name: invalid.record.classroom.description,
