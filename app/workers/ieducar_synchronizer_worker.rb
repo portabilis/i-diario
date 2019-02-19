@@ -42,7 +42,9 @@ class IeducarSynchronizerWorker
           configuration = IeducarApiConfiguration.current
           break unless configuration.persisted?
 
-          synchronization = configuration.start_synchronization(User.first)
+          synchronization = IeducarApiSynchronization.started.first ||
+            configuration.start_synchronization(User.first)
+
           if synchronization.present?
             synchronization.job_id = jid unless synchronization.job_id
           end
