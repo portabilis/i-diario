@@ -107,11 +107,8 @@ class IeducarSynchronizerWorker
 
         worker_batch.with_lock do
           worker_batch.update(total_workers: total.sum)
-
-          if worker_batch.all_workers_finished?
-            worker_batch.end!
-            synchronization.mark_as_completed!
-          end
+          worker_batch.end!
+          synchronization.mark_as_completed!
         end
       rescue StandardError => error
         synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.class != Sidekiq::Shutdown
