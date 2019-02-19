@@ -63,11 +63,14 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def create_and_update_batch
-      selected_school_calendars(params[:synchronize]).each do |school_calendar|
-        SchoolCalendarSynchronizerService.synchronize(school_calendar)
-      end
+    selected_school_calendars(params[:synchronize]).each do |school_calendar|
+      SchoolCalendarSynchronizerService.synchronize(school_calendar)
+    end
 
-      redirect_to school_calendars_path, notice: t('.notice')
+    redirect_to school_calendars_path, notice: t('.notice')
+  rescue SchoolCalendarSynchronizerService::InvalidSchoolCalendarError,
+         SchoolCalendarSynchronizerService::InvalidClassroomCalendarError => error
+    redirect_to school_calendars_path, alert: error.message
   end
 
   def years_from_unity
