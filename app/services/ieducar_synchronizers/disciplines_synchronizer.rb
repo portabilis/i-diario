@@ -1,8 +1,8 @@
 class DisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch["disciplinas"]
+    update_records api.fetch['disciplinas']
 
-    finish_worker('DisciplinesSynchronizer')
+    finish_worker
   end
 
   protected
@@ -13,10 +13,10 @@ class DisciplinesSynchronizer < BaseSynchronizer
 
   def update_records(collection)
     collection.each do |record|
-      Discipline.find_or_initialize_by(api_code: record["id"]).tap do |discipline|
-        discipline.description = record["nome"]
-        discipline.sequence = record["ordenamento"]
-        discipline.knowledge_area = knowledge_area(record["area_conhecimento_id"])
+      Discipline.find_or_initialize_by(api_code: record['id']).tap do |discipline|
+        discipline.description = record['nome']
+        discipline.sequence = record['ordenamento']
+        discipline.knowledge_area = knowledge_area(record['area_conhecimento_id'])
         discipline.save! if discipline.changed?
       end
     end

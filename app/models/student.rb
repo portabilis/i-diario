@@ -40,11 +40,17 @@ class Student < ActiveRecord::Base
   end
 
   def to_s
+    return I18n.t('.student.display_name_format', social_name: social_name, name: name) if social_name.present?
+
     name
   end
 
+  def display_name
+    @display_name ||= social_name || name
+  end
+
   def first_name
-    name.blank? ? '' : name.split(' ')[0]
+    display_name.blank? ? '' : display_name.split(' ')[0]
   end
 
   def average(classroom, discipline, step)

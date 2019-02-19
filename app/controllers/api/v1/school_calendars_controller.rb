@@ -1,10 +1,15 @@
-class Api::V1::SchoolCalendarsController < Api::V1::BaseController
-  respond_to :json
+module Api
+  module V1
+    class SchoolCalendarsController < Api::V1::BaseController
+      respond_to :json
 
-  def index
-    unity = Unity.find_by_id(params[:unity_id])
-    return unless unity
+      def index
+        unity = Unity.find(id: params[:unity_id])
 
-    render json: CurrentSchoolCalendarFetcher.new(unity, nil).fetch
+        return unless unity
+
+        render json: CurrentSchoolCalendarFetcher.new(unity, nil).fetch
+      end
+    end
   end
 end

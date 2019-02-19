@@ -20,7 +20,8 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
         unity_id: classroom.unity_id,
         student: student,
         step_id: step.id,
-        recorded_at: 1.business_days.after(step.start_at)
+        recorded_at: 1.business_days.after(step.start_at),
+        step_number: step.step_number
       )
       exam.save(validate: false)
     end

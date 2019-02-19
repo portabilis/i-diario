@@ -12,9 +12,7 @@ module SchoolTermable
   end
 
   def to_number
-    return if steps.blank?
-
-    (steps.ordered.index(self) || 0) + 1
+    step_number
   end
 
   def raw_school_term

@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe Navigation, :type => :service do
+describe Navigation, type: :service do
   let(:item) { :dashboard }
   let(:context){ double }
 

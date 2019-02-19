@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe EntityCreator, :type => :service do
+RSpec.describe EntityCreator, type: :service do
   describe "with correct params" do
     let(:options) do
       {

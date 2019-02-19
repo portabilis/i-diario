@@ -1,16 +1,21 @@
 class WorkerState < ActiveRecord::Base
-  belongs_to :user
+  include LifeCycleTimeLoggable
 
-  validates :job_id, :kind, :user, presence: true
+  belongs_to :user
+  belongs_to :worker_batch
+
+  validates :kind, presence: true
 
   def mark_with_error!(message)
-    update_columns(
+    update(
       status: ApiSynchronizationStatus::ERROR,
       error_message: message
     )
   end
 
   def mark_as_completed!
-    update_column :status, ApiSynchronizationStatus::COMPLETED
+    update(
+      status: ApiSynchronizationStatus::COMPLETED
+    )
   end
 end

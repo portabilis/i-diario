@@ -2,10 +2,14 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch(ano: years.first, escola: unity_api_code)['matriculas']
 
-    finish_worker('StudentEnrollmentSynchronizer-' << years.first << '-' << unity_api_code)
+    finish_worker
   end
 
   protected
+
+  def worker_name
+    "#{self.class}-#{years.first}-#{unity_api_code}"
+  end
 
   def api
     IeducarApi::StudentEnrollments.new(synchronization.to_api)
@@ -25,14 +29,17 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
     end
 
     updated_student_ids.uniq.each do |student_id|
-      classroom_ids = StudentEnrollmentClassroom.unscoped
-                                                .by_student(student_id)
+      classroom_ids = StudentEnrollmentClassroom.by_student(student_id)
                                                 .pluck(:classroom_id)
                                                 .compact
                                                 .uniq
 
       classroom_ids.each do |classroom_id|
-        DeleteInvalidPresenceRecordWorker.perform_async(entity_id, student_id, classroom_id)
+        DeleteInvalidPresenceRecordWorker.perform_async(
+          entity_id,
+          student_id,
+          classroom_id
+        )
       end
     end
   end
@@ -71,8 +78,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         changed_at: record_classroom['data_atualizacao'].to_s,
         sequence: record_classroom['sequencial_fechamento'],
         show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
-        visible: record_classroom['mostrar_enturmacao'],
-        period: record['turno_id']
+        period: record_classroom['turno_id']
       )
     end
   end
@@ -80,10 +86,11 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
   def update_existing_student_enrollment(record, student_enrollment, updated_student_ids)
     return unless student_id(record)
 
-    if record['data_atualizacao'].blank? ||
-       student_enrollment.changed_at.blank? ||
-       record['data_atualizacao'].to_s > student_enrollment.changed_at.to_s
+    date_changed = record['data_atualizacao'].blank? ||
+                   student_enrollment.changed_at.blank? ||
+                   record['data_atualizacao'].to_s > student_enrollment.changed_at.to_s
 
+    if date_changed
       student_enrollment.update(
         status: record['situacao'],
         student_id: student_id(record),
@@ -117,14 +124,14 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         student_enrollment.student_enrollment_classrooms.destroy_all
 
         record['enturmacoes'].each do |record_classroom|
-          create_student_entrrollment_classroom(student_enrollment, record_classroom, record['turno_id'])
+          create_student_entrrollment_classroom(student_enrollment, record_classroom, record_classroom['turno_id'])
         end
       end
     else
       record['enturmacoes'].each do |record_classroom|
         next if student_enrollment.student_enrollment_classrooms.find_by(api_code: record_classroom['sequencial'])
 
-        create_student_entrrollment_classroom(student_enrollment, record_classroom, record['turno_id'])
+        create_student_entrrollment_classroom(student_enrollment, record_classroom, record_classroom['turno_id'])
       end
     end
   end
@@ -146,7 +153,6 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
       changed_at: record_classroom['data_atualizacao'].to_s,
       sequence: record_classroom['sequencial_fechamento'],
       show_as_inactive_when_not_in_date: record_classroom['apresentar_fora_da_data'],
-      visible: record_classroom['mostrar_enturmacao'],
       period: period
     )
   end

@@ -1,6 +1,7 @@
 ---
 :logfile: ./log/sidekiq_low.log
 :concurrency: 5
+:tag: low
 staging:
   :concurrency: 10
 production:

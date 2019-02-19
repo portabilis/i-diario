@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "rails_helper"
 
-describe Navigation::BreadcrumbsBuilder, :type => :service do
+describe Navigation::BreadcrumbsBuilder, type: :service do
   subject { described_class.new(feature, context) }
 
   describe "#build" do
