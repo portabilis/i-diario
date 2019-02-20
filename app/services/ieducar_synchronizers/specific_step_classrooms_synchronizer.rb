@@ -1,4 +1,4 @@
-class SpecificStepClassroomsSynchronizer
+class SpecificStepClassroomsSynchronizer < BaseSynchronizer
   def synchronize!
     specific_step_classrooms_api.each do |turma|
       classroom_id = Classroom.find_by(api_code: turma['turma_id']).try(:id)
