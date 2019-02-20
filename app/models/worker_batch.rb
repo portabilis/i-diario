@@ -32,4 +32,12 @@ class WorkerBatch < ActiveRecord::Base
       yield if block_given? && all_workers_finished?
     end
   end
+
+  private
+
+  def reset
+    self.total_workers = 0
+    self.done_workers = 0
+    self.completed_workers = []
+  end
 end

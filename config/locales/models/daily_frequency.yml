@@ -13,6 +13,7 @@ pt-BR:
         frequency_date: "Data"
         class_number: "Aula"
         school_calendar_id: "Calendário"
+        period: "Período"
     errors:
       models:
         daily_frequency:

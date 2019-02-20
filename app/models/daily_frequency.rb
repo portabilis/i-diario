@@ -95,7 +95,7 @@ class DailyFrequency < ActiveRecord::Base
   def ensure_belongs_to_step
     return if school_calendar.blank? || frequency_date.blank?
 
-    step = StepsFetcher.new(classroom).step(frequency_date)
+    step = StepsFetcher.new(classroom).step_by_date(frequency_date)
     errors.add(:frequency_date, I18n.t('errors.messages.not_school_calendar_day')) if step.blank?
   end
 end

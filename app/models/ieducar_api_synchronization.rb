@@ -42,42 +42,25 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def running?
-    number_of_checks = 3
-    number_of_checks.times do
-      return true if job_is_running?
-    end
-
-    false
+    started?
+    # Sidekiq::Status::status(job_id).in?([:queued, :working, :retrying, :interrupted])
   end
 
   def self.cancel_not_running_synchronizations(current_entity, options = {})
     restart = options.fetch(:restart, false)
 
     started.reject(&:running?).each do |sync|
+      sync.mark_as_error! I18n.t('ieducar_api_synchronization.public_error_feedback'),
+                          I18n.t('ieducar_api_synchronization.private_error_feedback')
+
       if restart
-        job_id = IeducarSynchronizerWorker.perform_async(current_entity.id, sync.id)
+        configuration = IeducarApiConfiguration.current
+        new_sync = configuration.start_synchronization(sync.author)
+
+        job_id = IeducarSynchronizerWorker.perform_async(current_entity.id, new_sync.id)
 
         sync.set_job_id!(job_id)
-      else
-        sync.mark_as_error! I18n.t('ieducar_api_synchronization.public_error_feedback'),
-                            I18n.t('ieducar_api_synchronization.private_error_feedback')
       end
     end
-  end
-
-  private
-
-  def job_is_running?
-    running = Sidekiq::Queue.new('default').find_job(job_id)
-    running ||= Sidekiq::ScheduledSet.new.find_job(job_id)
-    running ||= Sidekiq::RetrySet.new.find_job(job_id)
-
-    if running.blank? && Sidekiq::Workers.new.size > 0
-      Sidekiq::Workers.new.each do |process_id, thread_id, work|
-        (running = work['payload']['jid'] == job_id) && break
-      end
-    end
-
-    running
   end
 end

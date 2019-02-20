@@ -111,10 +111,12 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       )
     }
     let!(:school_term_recovery_diary_record) {
+      step = StepsFetcher.new(recovery_diary_record.classroom).step_by_date(recovery_diary_record.recorded_at)
       create(
         :current_school_term_recovery_diary_record,
         recovery_diary_record: recovery_diary_record,
-        step_id: StepsFetcher.new(recovery_diary_record.classroom).step(recovery_diary_record.recorded_at).id
+        step_id: step.id,
+        step_number: step.step_number
       )
     }
     context 'hasnt complementary exams' do
