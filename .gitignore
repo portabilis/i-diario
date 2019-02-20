@@ -17,7 +17,8 @@ config/secrets.yml
 config/google_drive.json
 config/puma.rb
 /public/uploads
-/public/relatorios
+/public/relatorios/*
+!/public/relatorios/.keep
 
 ## Environment normalisation:
 /.bundle
