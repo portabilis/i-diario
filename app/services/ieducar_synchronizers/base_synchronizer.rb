@@ -9,7 +9,7 @@ class BaseSynchronizer
   def initialize(synchronization, worker_batch, years, unity_api_code, entity_id)
     self.synchronization = synchronization
     self.worker_batch = worker_batch
-    self.years = years
+    self.years = Array(years).compact
     self.unity_api_code = unity_api_code
     self.entity_id = entity_id
 
