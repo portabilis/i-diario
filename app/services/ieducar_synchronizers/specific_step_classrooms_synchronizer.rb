@@ -3,10 +3,9 @@ class SpecificStepClassroomsSynchronizer < BaseSynchronizer
     specific_step_classrooms_api.each do |turma|
       classroom_id = Classroom.find_by(api_code: turma['turma_id']).try(:id)
 
-      SpecificStepsSynchronizerWorker.new.perform(
-        entity_id,
-        synchronization.id,
-        worker_batch.id,
+      SpecificStepsSynchronizer.synchronize!(
+        synchronization,
+        worker_batch,
         classroom_id,
         turma['turma_id']
       )
@@ -17,7 +16,7 @@ class SpecificStepClassroomsSynchronizer < BaseSynchronizer
 
   def specific_step_classrooms_api
     @specific_step_classrooms_api ||= IeducarApi::SpecificStepClassrooms.new(
-      IeducarApiSynchronization.find(synchronization.id).to_api
+      synchronization.to_api
     ).fetch['turmas']
   end
 end
