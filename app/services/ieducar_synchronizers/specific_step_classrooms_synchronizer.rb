@@ -4,7 +4,7 @@ class SpecificStepClassroomsSynchronizer < BaseSynchronizer
       classroom_id = Classroom.find_by(api_code: turma['turma_id']).try(:id)
 
       SpecificStepsSynchronizerWorker.new.perform(
-        entity.id,
+        entity_id,
         synchronization.id,
         worker_batch.id,
         classroom_id,
