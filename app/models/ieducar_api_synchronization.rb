@@ -42,7 +42,8 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def running?
-    Sidekiq::Status::status(job_id).in?([:queued, :working, :retrying, :interrupted])
+    started?
+    # Sidekiq::Status::status(job_id).in?([:queued, :working, :retrying, :interrupted])
   end
 
   def self.cancel_not_running_synchronizations(current_entity, options = {})
