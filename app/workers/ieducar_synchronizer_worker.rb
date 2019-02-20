@@ -110,7 +110,7 @@ class IeducarSynchronizerWorker
   end
 
   def all_entities
-    Entity.all
+    Entity.active
   end
 
   def increment_total(total_in_batch, &block)
