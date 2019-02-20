@@ -5,6 +5,20 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
     finish_worker
   end
 
+  def self.synchronize_in_batch!(synchronization, worker_batch, years = nil, unity_api_code = nil, entity_id = nil)
+    years.each do |year|
+      Unity.with_api_code.each do |unity|
+        StudentEnrollmentSynchronizer.synchronize!(
+          synchronization,
+          worker_batch,
+          [year],
+          unity.api_code,
+          entity_id
+        )
+      end
+    end
+  end
+
   protected
 
   def worker_name
