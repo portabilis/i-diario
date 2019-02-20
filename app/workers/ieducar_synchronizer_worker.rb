@@ -64,6 +64,8 @@ class IeducarSynchronizerWorker
 
         total BASIC_SYNCHRONIZERS.size
         BASIC_SYNCHRONIZERS.each_with_index do |klass, index|
+          at(index + 1, klass)
+
           increment_total(total_in_batch) do
             klass.constantize.synchronize!(
               synchronization,
@@ -71,8 +73,6 @@ class IeducarSynchronizerWorker
               years_to_synchronize
             )
           end
-
-          at(index + 1, klass)
         end
 
         total_in_batch << SpecificStepClassroomsSynchronizer.synchronize!(
