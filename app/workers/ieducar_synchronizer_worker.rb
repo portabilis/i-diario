@@ -124,11 +124,10 @@ class IeducarSynchronizerWorker
   end
 
   def years_to_synchronize
+    # TODO voltar a sincronizar todos os anos uma vez por semana (Sábado)
     @years ||= Unity.with_api_code
                     .joins(:school_calendars)
-                    .pluck('school_calendars.year')
-                    .uniq
-                    .reject(&:blank?).sort
+                    .pluck('school_calendars.year').uniq.compact.sort[-2..-1]
   end
 
   def all_entities
