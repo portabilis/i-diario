@@ -69,7 +69,7 @@ class IeducarSynchronizerWorker
         total BASIC_SYNCHRONIZERS.size
 
         BASIC_SYNCHRONIZERS.each_with_index do |klass, index|
-          at(index, klass)
+          at(index, "#{entity.name} - #{klass} (#{index}/#{BASIC_SYNCHRONIZERS.size})")
 
           increment_total(total_in_batch) do
             klass.constantize.synchronize_in_batch!(
