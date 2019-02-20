@@ -1,6 +1,9 @@
 class BaseSynchronizer
-  def self.synchronize!(synchronization, worker_batch, years = nil, unity_api_code = nil, entity_id = nil)
-    new(synchronization, worker_batch, years, unity_api_code, entity_id).synchronize!
+  class << self
+    def synchronize!(synchronization, worker_batch, years = nil, unity_api_code = nil, entity_id = nil)
+      new(synchronization, worker_batch, years, unity_api_code, entity_id).synchronize!
+    end
+    alias_method 'synchronize_in_batch!', 'synchronize!'
   end
 
   def initialize(synchronization, worker_batch, years, unity_api_code, entity_id)

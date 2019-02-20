@@ -44,7 +44,11 @@ class IeducarSynchronizerWorker
     RecoveryExamRulesSynchronizer.to_s,
     CoursesGradesClassroomsSynchronizer.to_s,
     TeachersSynchronizer.to_s,
-    StudentEnrollmentDependenceSynchronizer.to_s
+    StudentEnrollmentDependenceSynchronizer.to_s,
+    ExamRulesSynchronizer.to_s,
+    StudentEnrollmentSynchronizer.to_s,
+    SpecificStepClassroomsSynchronizer.to_s,
+    StudentEnrollmentExemptedDisciplinesSynchronizer.to_s
   ].freeze
 
   def perform_for_entity(entity, synchronization_id)
@@ -63,51 +67,19 @@ class IeducarSynchronizerWorker
         total_in_batch = []
 
         total BASIC_SYNCHRONIZERS.size
+
         BASIC_SYNCHRONIZERS.each_with_index do |klass, index|
-          at(index + 1, klass)
+          at(index, klass)
 
           increment_total(total_in_batch) do
-            klass.constantize.synchronize!(
+            klass.constantize.synchronize_in_batch!(
               synchronization,
               worker_batch,
-              years_to_synchronize
+              years_to_synchronize,
+              nil,
+              entity.id
             )
           end
-        end
-
-        total_in_batch << SpecificStepClassroomsSynchronizer.synchronize!(
-          entity.id,
-          synchronization.id,
-          worker_batch.id
-        )
-
-        years_to_synchronize.each do |year|
-          increment_total(total_in_batch) do
-            ExamRulesSynchronizer.synchronize!(
-              synchronization,
-              worker_batch,
-              [year]
-            )
-          end
-
-          Unity.with_api_code.each do |unity|
-            increment_total(total_in_batch) do
-              StudentEnrollmentSynchronizer.synchronize!(
-                synchronization,
-                worker_batch,
-                [year],
-                unity.api_code,
-                entity.id
-              )
-            end
-          end
-        end
-
-        increment_total(total_in_batch) do
-          StudentEnrollmentExemptedDisciplinesSynchronizer.synchronize!(
-            synchronization,
-            worker_batch
-          )
         end
 
         worker_batch.with_lock do
@@ -115,6 +87,8 @@ class IeducarSynchronizerWorker
           worker_batch.end!
           synchronization.mark_as_completed!
         end
+
+        at(BASIC_SYNCHRONIZERS.size)
       rescue StandardError => error
         synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.class != Sidekiq::Shutdown
 
