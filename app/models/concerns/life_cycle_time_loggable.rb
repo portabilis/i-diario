@@ -5,6 +5,7 @@ module LifeCycleTimeLoggable
     return if status == ApiSynchronizationStatus::STARTED
 
     with_lock do
+      reset
       self.status = ApiSynchronizationStatus::STARTED
       self.started_at = Time.zone.now
       save!
@@ -18,5 +19,8 @@ module LifeCycleTimeLoggable
       status: ApiSynchronizationStatus::COMPLETED,
       ended_at: Time.zone.now
     )
+  end
+
+  def reset
   end
 end
