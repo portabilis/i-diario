@@ -4,6 +4,11 @@ class IeducarSynchronizerWorker
 
   sidekiq_options unique: :until_and_while_executing, retry: false, dead: false
 
+  # Sidekiq-status expiration
+  def expiration
+    @expiration ||= 60 * 60 * 24 * 2 # 2 days
+  end
+
   def perform(entity_id = nil, synchronization_id = nil)
     if entity_id && synchronization_id
       perform_for_entity(
