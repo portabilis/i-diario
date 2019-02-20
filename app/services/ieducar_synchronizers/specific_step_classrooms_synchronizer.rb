@@ -17,7 +17,7 @@ class SpecificStepClassroomsSynchronizer
 
   def specific_step_classrooms_api
     @specific_step_classrooms_api ||= IeducarApi::SpecificStepClassrooms.new(
-      IeducarApiSynchronization.find(synchronization_id).to_api
+      IeducarApiSynchronization.find(synchronization.id).to_api
     ).fetch['turmas']
   end
 end
