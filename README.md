@@ -12,7 +12,7 @@ Portal do professor integrado com o software livre [i-Educar](https://github.com
 - Instalar a gem Bundler:
 
 ```bash
-$ gem install bundler
+$ gem install bundler -v '1.17.3'
 ```
 
 - Baixar o i-Diário:
