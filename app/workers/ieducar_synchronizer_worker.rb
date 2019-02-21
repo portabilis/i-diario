@@ -97,6 +97,8 @@ class IeducarSynchronizerWorker
       rescue StandardError => error
         synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.class != Sidekiq::Shutdown
 
+        Honeybadger.notify(error)
+
         raise error
       end
     end
