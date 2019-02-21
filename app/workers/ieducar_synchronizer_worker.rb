@@ -73,7 +73,6 @@ class IeducarSynchronizerWorker
 
         worker_batch.with_lock do
           worker_batch.update(total_workers: total_in_batch.sum)
-          worker_batch.end!
           synchronization.mark_as_completed!
         end
 
