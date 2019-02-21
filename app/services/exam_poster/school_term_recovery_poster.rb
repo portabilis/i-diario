@@ -36,11 +36,11 @@ module ExamPoster
 
       classroom_ids.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms.where(classroom_id: classroom)
-        score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
+          score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
 
           next unless can_post?(classroom)
           next unless correct_score_type(classroom.exam_rule.score_type)
