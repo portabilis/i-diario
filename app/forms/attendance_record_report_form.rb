@@ -95,7 +95,7 @@ class AttendanceRecordReportForm
   end
 
   def global_absence?
-    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)
+    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
     frequency_type_definer.define!
     frequency_type_definer.frequency_type == FrequencyTypes::GENERAL
   end
