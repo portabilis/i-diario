@@ -26,7 +26,7 @@ gem 'foreigner', '1.6.1'
 gem 'google_drive', '2.1.12', require: false
 gem 'handlebars_assets', '0.23.2'
 gem 'has_scope', '0.5.1'
-gem 'honeybadger', '3.3.0'
+gem 'honeybadger', '4.2.1'
 gem 'i18n_alchemy', '0.2.1', github: 'giustin/i18n_alchemy', branch: 'master', tag: 'v0.2.1'
 gem 'jbuilder', '2.2.16'
 gem 'js-routes', '1.1.2'
