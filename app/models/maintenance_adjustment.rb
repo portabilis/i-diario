@@ -6,6 +6,8 @@ class MaintenanceAdjustment < ActiveRecord::Base
   has_associated_audits
 
   has_and_belongs_to_many :unities
+  has_enumeration_for :status, with: MaintenanceAdjustmentStatus
+  has_enumeration_for :kind, with: MaintenanceAdjustmentKinds
 
   validates :kind, :unities, :year, presence: true
   validates :year, mask: { with: "9999", message: :incorrect_format }

@@ -10,7 +10,8 @@ pt-BR:
         year: 'Ano'
         kind: 'Tipo'
         unities: 'Escolas'
-        status: 'Status'
+        status: 'Situação'
+        error_message: 'Mensagem de erro'
         observations: 'Observações'
 
   maintenance_adjustments:
