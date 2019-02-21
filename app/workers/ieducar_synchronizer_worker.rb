@@ -21,18 +21,7 @@ class IeducarSynchronizerWorker
           configuration = IeducarApiConfiguration.current
           next unless configuration.persisted?
 
-          synchronization = IeducarApiSynchronization.started.first ||
-            configuration.start_synchronization(User.first)
-
-          next if synchronization.running?
-
-          jid = IeducarSynchronizerWorker.perform_in(
-            5.seconds,
-            entity.id,
-            synchronization.id
-          )
-
-          synchronization.update(job_id: jid)
+          IeducarApiSynchronization.started.first || configuration.start_synchronization(User.first, entity.id)
         end
       end
     end
@@ -60,14 +49,9 @@ class IeducarSynchronizerWorker
     entity.using_connection do
       begin
         synchronization = IeducarApiSynchronization.find(synchronization_id)
+        worker_batch = synchronization.worker_batch
 
         break unless synchronization.started?
-
-        worker_batch = WorkerBatch.find_or_create_by!(
-          main_job_class: IeducarSynchronizerWorker.to_s,
-          main_job_id: synchronization.job_id
-        )
-        worker_batch.start!
 
         total_in_batch = []
 
