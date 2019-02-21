@@ -37,7 +37,6 @@ class BaseSynchronizer
       worker_batch.save!
 
       if worker_batch.all_workers_finished?
-        worker_batch.end!
         synchronization.mark_as_completed!
       end
     end

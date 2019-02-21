@@ -52,12 +52,14 @@ class IeducarApiSynchronization < ActiveRecord::Base
     self.full_error_message = full_error_message
 
     save(validate: false)
+    worker_batch.try(:end!)
   end
 
   def mark_as_completed!
     update_last_synchronization_date
 
     update_attribute(:status, ApiSynchronizationStatus::COMPLETED)
+    worker_batch.try(:end!)
   end
 
   def notified!
