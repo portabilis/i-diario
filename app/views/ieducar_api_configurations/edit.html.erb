@@ -46,4 +46,34 @@
       </button>
     </footer>
   <% end %>
+
+
+</div>
+<div class="well">
+  <h3>Sincronizações</h2>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+      <thead>
+        <tr>
+          <th>Iniciado em</th>
+          <th>Finalizado em</th>
+          <th>Tempo em andamento</th>
+          <th>Tempo estimado</th>
+          <th>Estado atual</th>
+        </tr>
+      </thead>
+
+      <tbody id="resources-tbody">
+        <% average_time = IeducarApiSynchronization.average_time %>
+        <% if started_sync = IeducarApiSynchronization.started.first %>
+          <%= render 'sync', sync: started_sync, average_time: average_time %>
+        <% end %>
+
+        <% if last_sync = IeducarApiSynchronization.where(status: [:completed, :error]).last %>
+          <%= render 'sync', sync: last_sync, average_time: average_time %>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
 </div>
