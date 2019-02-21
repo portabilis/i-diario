@@ -93,7 +93,7 @@ class IeducarSynchronizerWorker
           synchronization.mark_as_completed!
         end
 
-        at(BASIC_SYNCHRONIZERS.size)
+        at(BASIC_SYNCHRONIZERS.size, "#{entity.name} - Finalizado!")
       rescue StandardError => error
         synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.class != Sidekiq::Shutdown
 
