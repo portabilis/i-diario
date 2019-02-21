@@ -1,0 +1,7 @@
+<tr>
+  <td><%= l(sync.started_at, format: :short) %></td>
+  <td><%= l(sync.ended_at, format: :short) if sync.ended_at %></td>
+  <td><%= sync.time_running %> minutos</td>
+  <td><%= "#{average_time} minutos" if average_time %></td>
+  <td><%= t("enumerations.api_synchronization_status.#{sync.status}") %> <%= "(#{Sidekiq::Status::pct_complete(sync.job_id)}%)" if sync.started? %></td>
+</tr>
