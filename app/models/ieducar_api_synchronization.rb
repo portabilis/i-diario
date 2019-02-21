@@ -18,10 +18,10 @@ class IeducarApiSynchronization < ActiveRecord::Base
   scope :unnotified, -> { where(notified: false) }
 
   def worker_batch
-    @worker_batch ||= WorkerBatch.find_by(
+    @worker_batch ||= WorkerBatch.where(
       main_job_class: 'IeducarSynchronizerWorker',
       main_job_id: job_id
-    )
+    ).first
   end
 
   def time_running
