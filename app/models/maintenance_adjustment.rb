@@ -15,6 +15,7 @@ class MaintenanceAdjustment < ActiveRecord::Base
   scope :by_year, lambda { |year| where(year: year) }
   scope :by_status, lambda { |status| where(status: status) }
   scope :ordered, -> { order(:created_at) }
+  scope :completed, -> { by_status('completed') }
 
   def to_s
     MaintenanceAdjustmentKinds.t(kind)
