@@ -22,6 +22,10 @@ module IeducarApi
     end
 
     def fetch(params = {})
+      params.reverse_merge!(
+        modified: last_synchronization_date
+      )
+
       assign_staging_secret_keys if Rails.env.staging?
 
       request(RequestMethods::GET, params) do |endpoint, request_params|
@@ -91,6 +95,10 @@ module IeducarApi
       raise ApiError, result['msgs'].map { |r| r['msg'] }.join(', ') if raise_exception
 
       result
+    end
+
+    def last_synchronization_date
+      @last_synchronization_date ||= IeducarApiConfiguration.current.synchronized_at
     end
   end
 end
