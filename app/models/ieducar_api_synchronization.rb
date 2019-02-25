@@ -1,11 +1,13 @@
 class IeducarApiSynchronization < ActiveRecord::Base
   acts_as_copy_target
 
-  has_enumeration_for :status, with: ApiSynchronizationStatus, create_helpers: true,
-    create_scopes: true
+  has_enumeration_for :status,
+                      with: ApiSynchronizationStatus,
+                      create_helpers: true,
+                      create_scopes: true
 
   belongs_to :ieducar_api_configuration
-  belongs_to :author, class_name: "User"
+  belongs_to :author, class_name: 'User'
 
   validates :ieducar_api_configuration, presence: true
   validates :ieducar_api_configuration_id, uniqueness: { scope: :status }, if: :started?
@@ -15,17 +17,18 @@ class IeducarApiSynchronization < ActiveRecord::Base
   scope :unnotified, -> { where(notified: false) }
 
   def self.completed_unnotified
-    self.completed.unnotified.last
+    completed.unnotified.last
   end
 
   def self.last_error
-    self.error.unnotified.last
+    error.unnotified.last
   end
 
   def mark_as_error!(message, full_error_message='')
     self.status = ApiSynchronizationStatus::ERROR
     self.error_message = message
     self.full_error_message = full_error_message
+
     save(validate: false)
   end
 
@@ -72,8 +75,8 @@ class IeducarApiSynchronization < ActiveRecord::Base
     running ||= Sidekiq::ScheduledSet.new.find_job(job_id)
     running ||= Sidekiq::RetrySet.new.find_job(job_id)
 
-    if running.blank? && Sidekiq::Workers.new.size > 0
-      Sidekiq::Workers.new.each do |process_id, thread_id, work|
+    if running.blank? && !Sidekiq::Workers.new.empty?
+      Sidekiq::Workers.new.each do |_process_id, _thread_id, work|
         (running = work['payload']['jid'] == job_id) && break
       end
     end

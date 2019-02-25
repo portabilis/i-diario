@@ -5,13 +5,17 @@ class IeducarApiConfiguration < ActiveRecord::Base
 
   include Audit
 
-  has_many :synchronizations, class_name: "IeducarApiSynchronization"
+  has_many :synchronizations, class_name: 'IeducarApiSynchronization', dependent: :restrict_with_error
 
   validates :url, :token, :secret_token, :unity_code, presence: true
-  validates :url, format: { with: /^(http|https):\/\/[a-z0-9.:]+$/, multiline: true, message: "formato de url inválido" }, allow_blank: true
+  validates :url, allow_blank: true, format: {
+    with: /^(http|https):\/\/[a-z0-9.:]+$/,
+    multiline: true,
+    message: 'formato de url inválido'
+  }
 
   def self.current
-    self.first.presence || new
+    first.presence || new
   end
 
   def start_synchronization(user = nil)

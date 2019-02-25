@@ -40,6 +40,7 @@ class IeducarSynchronizerWorker
 
         if synchronization.blank?
           configuration = IeducarApiConfiguration.current
+
           break unless configuration.persisted?
 
           synchronization = configuration.start_synchronization(User.first)
@@ -120,11 +121,11 @@ class IeducarSynchronizerWorker
   end
 
   def years_to_synchronize
-    @years ||= Unity.with_api_code
-                    .joins(:school_calendars)
-                    .pluck('school_calendars.year')
-                    .uniq
-                    .reject(&:blank?).sort
+    @years_to_synchronize ||= Unity.with_api_code
+                                   .joins(:school_calendars)
+                                   .pluck('school_calendars.year')
+                                   .uniq
+                                   .reject(&:blank?).sort
   end
 
   def all_entities
