@@ -33,6 +33,8 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def mark_as_completed!
+    update_last_synchronization_date
+
     update_attribute(:status, ApiSynchronizationStatus::COMPLETED)
   end
 
@@ -75,12 +77,16 @@ class IeducarApiSynchronization < ActiveRecord::Base
     running ||= Sidekiq::ScheduledSet.new.find_job(job_id)
     running ||= Sidekiq::RetrySet.new.find_job(job_id)
 
-    if running.blank? && !Sidekiq::Workers.new.empty?
+    if running.blank? && !Sidekiq::Workers.new.size.zero?
       Sidekiq::Workers.new.each do |_process_id, _thread_id, work|
         (running = work['payload']['jid'] == job_id) && break
       end
     end
 
     running
+  end
+
+  def update_last_synchronization_date
+    IeducarApiConfiguration.current.update_synchronized_at!
   end
 end

@@ -38,4 +38,9 @@ class IeducarApiConfiguration < ActiveRecord::Base
       unity_id: unity_code
     }
   end
+
+  def update_synchronized_at!
+    self.synchronized_at = Time.zone.now
+    save!
+  end
 end
