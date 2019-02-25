@@ -71,8 +71,29 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def running?
-    started?
-    # Sidekiq::Status::status(job_id).in?([:queued, :working, :retrying, :interrupted])
+    started? && job_is_running?
+  end
+
+  # Primeiro verifica no Sidekiq::Status;
+  #
+  # Caso não tenha dado lá, irá verificar direto no Sidekiq. Isso é necessário
+  # pois o Sidekiq::Status não está estável o sificiente.
+  def job_is_running?
+    if Sidekiq::Status::get_all(job_id)
+      return Sidekiq::Status::status(job_id).in?([:queued, :working, :retrying, :interrupted])
+    end
+
+    running = Sidekiq::Queue.new('default').find_job(job_id) ||
+              Sidekiq::ScheduledSet.new.find_job(job_id) ||
+              Sidekiq::RetrySet.new.find_job(job_id)
+
+    if running.blank?
+      Sidekiq::Workers.new.each do |_process_id, _thread_id, work|
+        (running = work['payload']['jid'] == job_id) && break
+      end
+    end
+
+    running
   end
 
   def self.cancel_not_running_synchronizations(current_entity, options = {})
