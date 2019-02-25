@@ -1,8 +1,12 @@
 class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch(escola_id: unities,
-                             get_series: true,
-                             get_turmas: true)['cursos']
+    update_records(
+      api.fetch(
+        escola_id: unities,
+        get_series: true,
+        get_turmas: true
+      )['cursos']
+    )
 
     finish_worker
   end
@@ -16,63 +20,68 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
   def update_records(collection)
     ActiveRecord::Base.transaction do
       collection.each do |record|
-        course = courses.find_by(api_code: record['id'])
+        course_record = HashDecorator.new(record)
+        course = Course.find_by(api_code: course_record.id)
 
         if course.present?
-          course.update_attribute(:description, record['nome'])
+          course.update(
+            description: course_record.nome
+          )
         else
-          course = courses.create!(
-            api_code: record['id'],
-            description: record['nome']
+          course = Course.create!(
+            api_code: course_record.id,
+            description: course_record.nome
           )
         end
 
-        update_grades(course, record['series'])
+        update_grades(course, course_record.series)
       end
     end
   end
 
   def update_grades(course, collection)
-    collection.each do |record|
-      grade = grades.find_by(api_code: record['id'])
+    collection.each do |grade_record|
+      grade = Grade.find_by(api_code: grade_record.id)
 
       if grade.present?
         grade.update(
-          description: record['nome'],
+          description: grade_record.nome,
           course: course
         )
       else
-        grade = grades.create!(
-          api_code: record['id'],
-          description: record['nome'],
+        grade = Grade.create!(
+          api_code: grade_record.id,
+          description: grade_record.nome,
           course: course
         )
       end
-      update_classrooms(grade, record['turmas']) if record['turmas']
+
+      update_classrooms(grade, grade_record.turmas) if grade_record.turmas
     end
   end
 
   def update_classrooms(grade, collection)
-    collection.each do |record|
-      classroom = classrooms.find_by(api_code: record['cod_turma'])
+    collection.each do |classroom_record|
+      classroom = Classroom.find_by(api_code: classroom_record.cod_turma)
+      unity = Unity.find_by(api_code: classroom_record.escola_id)
 
       if classroom.present?
         classroom.update(
-          description: record['nm_turma'],
-          unity_id: Unity.find_by(api_code: record['escola_id']).try(:id),
-          unity_code: record['escola_id'],
-          period: record['turma_turno_id'],
+          description: classroom_record.nm_turma,
+          unity_id: unity.try(:id),
+          unity_code: classroom_record.escola_id,
+          period: classroom_record.turma_turno_id,
           grade: grade
         )
       else
-        classrooms.create!(
-          api_code: record['cod_turma'],
-          description: record['nm_turma'],
-          unity_id: Unity.find_by(api_code: record['escola_id']).try(:id),
-          unity_code: record['escola_id'],
-          period: record['turma_turno_id'],
+        Classroom.create!(
+          api_code: classroom_record.cod_turma,
+          description: classroom_record.nm_turma,
+          unity_id: unity.try(:id),
+          unity_code: classroom_record.escola_id,
+          period: classroom_record.turma_turno_id,
           grade: grade,
-          year: record['ano']
+          year: classroom_record.ano
         )
       end
     end
@@ -80,17 +89,5 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
 
   def unities
     Unity.with_api_code.collect(&:api_code).uniq.flatten
-  end
-
-  def courses(klass = Course)
-    klass
-  end
-
-  def grades(klass = Grade)
-    klass
-  end
-
-  def classrooms(klass = Classroom)
-    klass
   end
 end

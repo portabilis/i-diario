@@ -3,12 +3,12 @@ class Course < ActiveRecord::Base
 
   audited
 
-  has_many :grades
+  has_many :grades, dependent: :restrict_with_error
 
   validates :description, :api_code, presence: true
   validates :api_code, uniqueness: true
-  scope :by_unity, lambda { |unity| by_unity(unity) }
 
+  scope :by_unity, ->(unity) { by_unity(unity) }
   scope :ordered, -> { order(arel_table[:description].asc) }
 
   def self.by_unity(unity)
