@@ -78,17 +78,14 @@ class IeducarApiSynchronization < ActiveRecord::Base
       return Sidekiq::Status::status(job_id).in?([:queued, :working, :retrying, :interrupted])
     end
 
-    running = Sidekiq::Queue.new('default').find_job(job_id) ||
-              Sidekiq::ScheduledSet.new.find_job(job_id) ||
-              Sidekiq::RetrySet.new.find_job(job_id)
-
-    if running.blank?
-      Sidekiq::Workers.new.each do |_process_id, _thread_id, work|
-        (running = work['payload']['jid'] == job_id) && break
-      end
+    running = Sidekiq::Queue.new('default').find_job(job_id)
+    running ||= Sidekiq::ScheduledSet.new.find_job(job_id)
+    running ||= Sidekiq::RetrySet.new.find_job(job_id)
+    running ||= Sidekiq::Workers.new.any? do |_process_id, _thread_id, work|
+      work['payload']['jid'] == job_id
     end
 
-    running
+    running.present?
   end
 
   def self.cancel_not_running_synchronizations(current_entity, options = {})
