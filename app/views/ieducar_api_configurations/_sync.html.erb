@@ -1,5 +1,5 @@
 <tr>
-  <td><%= l(sync.started_at, format: :short) %></td>
+  <td><%= l(sync.started_at, format: :short) if sync.started_at %></td>
   <td><%= l(sync.ended_at, format: :short) if sync.ended_at %></td>
   <td><%= sync.time_running %> minutos</td>
   <td><%= "#{average_time} minutos" if average_time %></td>

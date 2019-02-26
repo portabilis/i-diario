@@ -23,6 +23,8 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def time_running
+    return unless started_at
+
     if ended_at
       ((ended_at - started_at) / 60.0).round
     else
