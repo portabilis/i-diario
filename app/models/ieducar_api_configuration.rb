@@ -28,6 +28,11 @@ class IeducarApiConfiguration < ActiveRecord::Base
       )
       worker_batch.start!
 
+      Rails.logger.info(key: 'IeducarApiConfiguration#start_synchronization',
+                        from: "#{binding.of_caller(7).eval('self.class')}##{binding.of_caller(7).eval('__method__')}",
+                        sync_id: synchronization.id,
+                        entity_id: entity_id)
+
       synchronization
     end
   end
