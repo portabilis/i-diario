@@ -52,6 +52,7 @@ class User < ActiveRecord::Base
 
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
+  validate :uniqueness_of_login
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :email_ordered, -> { order(email: :asc)  }
@@ -98,10 +99,6 @@ class User < ActiveRecord::Base
       (
         users.cpf != '' AND
         REGEXP_REPLACE(users.cpf, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
-      ) OR
-      (
-        users.phone != '' AND
-        REGEXP_REPLACE(users.phone, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
       )
     ), credential: credential).first
   end
@@ -300,5 +297,27 @@ class User < ActiveRecord::Base
          receive_news_related_tools_for_parents? || receive_news_related_all_matters?)
       errors.add(:receive_news, :must_fill_receive_news_options)
     end
+  end
+
+  def uniqueness_of_login
+    return unless validate_login?
+
+    errors.add(:login, :taken) if exists_login?(login)
+    errors.add(:cpf, :taken) if exists_login?(cpf)
+    errors.add(:email, :taken) if exists_login?(email)
+  end
+
+  def validate_login?
+    id.nil? || login != login_was || cpf != cpf_was || email != email_was
+  end
+
+  def exists_login?(login)
+    User.where.not(id: id)
+        .where(<<-SQL, login: login)
+          users.login = :login OR
+          users.email = :login OR
+          REGEXP_REPLACE(users.cpf, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:login, '[^\\d]+', '', 'g')
+        SQL
+        .exists?
   end
 end
