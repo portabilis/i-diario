@@ -21,7 +21,9 @@ class DailyFrequenciesController < ApplicationController
     @discipline = params[:daily_frequency][:discipline_id]
 
     if validate_class_numbers && validate_discipline && @daily_frequency.valid?
-      absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
+      absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom,
+                                                      current_teacher,
+                                                      year: @daily_frequency.classroom.year)
       absence_type_definer.define!
 
       @daily_frequencies = create_global_frequencies if absence_type_definer.frequency_type == FrequencyTypes::GENERAL
@@ -193,7 +195,9 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def validate_class_numbers
-    absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
+    absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom,
+                                                    current_teacher,
+                                                    year: @daily_frequency.classroom.year)
     absence_type_definer.define!
 
     if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@class_numbers.nil? || @class_numbers.empty?)
@@ -206,7 +210,9 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def validate_discipline
-    absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom, current_teacher)
+    absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom,
+                                                    current_teacher,
+                                                    year: @daily_frequency.classroom.year)
     absence_type_definer.define!
 
     if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@discipline.nil? || @discipline.empty?)
