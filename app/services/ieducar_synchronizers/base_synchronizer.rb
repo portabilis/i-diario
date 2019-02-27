@@ -43,4 +43,12 @@ class BaseSynchronizer
   def worker_name
     self.class.to_s
   end
+
+  def api
+    @api = api_class.new(synchronization.to_api)
+  end
+
+  def api_class
+    IeducarApi::Base
+  end
 end
