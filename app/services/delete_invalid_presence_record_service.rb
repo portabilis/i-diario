@@ -5,26 +5,31 @@ class DeleteInvalidPresenceRecordService
   end
 
   def run!
-    daily_frequency_students = DailyFrequencyStudent
-      .joins(:daily_frequency)
-      .by_classroom_id(@classroom_id)
-      .by_student_id(@student_id)
-      .where(
-        <<-SQL
-          NOT EXISTS(
-            SELECT 1
-              FROM student_enrollments AS se
-              JOIN student_enrollment_classrooms AS sec
-                ON sec.classroom_id = daily_frequencies.classroom_id
-              AND sec.student_enrollment_id = se.id
-              AND daily_frequencies.frequency_date >= CAST(sec.joined_at AS DATE)
-              AND (COALESCE(sec.left_at, '') = '' OR
-                    daily_frequencies.frequency_date < CAST(sec.left_at AS DATE))
-            WHERE se.student_id = #{@student_id}
-          )
-        SQL
-      )
+    daily_frequency_students = DailyFrequencyStudent.joins(:daily_frequency)
+                                                    .by_classroom_id(@classroom_id)
+                                                    .by_student_id(@student_id)
+                                                    .where(not_exists_a_valid_enrollment_sql)
 
     daily_frequency_students.destroy_all
+  end
+
+  private
+
+  def not_exists_a_valid_enrollment_sql
+    <<-SQL
+      NOT EXISTS(
+        SELECT 1
+          FROM student_enrollments
+          JOIN student_enrollment_classrooms ON (
+            student_enrollment_classrooms.classroom_id = daily_frequencies.classroom_id AND
+            student_enrollment_classrooms.student_enrollment_id = student_enrollments.id AND
+            daily_frequencies.frequency_date >= CAST(student_enrollment_classrooms.joined_at AS DATE) AND
+            (COALESCE(student_enrollment_classrooms.left_at, '') = '' OR
+             daily_frequencies.frequency_date < CAST(student_enrollment_classrooms.left_at AS DATE)
+            )
+          )
+        WHERE student_enrollments.student_id = #{@student_id}
+      )
+    SQL
   end
 end
