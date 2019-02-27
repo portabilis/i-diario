@@ -11,8 +11,8 @@ class DisciplinesSynchronizer < BaseSynchronizer
 
   protected
 
-  def api
-    IeducarApi::Disciplines.new(synchronization.to_api)
+  def api_class
+    IeducarApi::Disciplines
   end
 
   def update_records(collection)

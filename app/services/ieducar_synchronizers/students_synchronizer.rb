@@ -1,6 +1,6 @@
 class StudentsSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records(
+    update_students(
       HashDecorator.new(
         api.fetch['alunos']
       )
@@ -11,33 +11,22 @@ class StudentsSynchronizer < BaseSynchronizer
 
   protected
 
-  def api
-    IeducarApi::Students.new(synchronization.to_api)
+  def api_class
+    IeducarApi::Students
   end
 
-  def update_records(collection)
+  def update_students(students)
     ActiveRecord::Base.transaction do
-      collection.each do |student_record|
-        student = Student.find_by(api_code: student_record.aluno_id)
+      students.each do |student_record|
+        Student.find_or_initialize_by(api_code: student_record.id).tap do |student|
+          student.name = student_record.nome_aluno
+          student.social_name = student_record.nome_social
+          student.avatar_url = student_record.foto_aluno
+          student.birth_date = student_record.data_nascimento
+          student.uses_differentiated_exam_rule = student_record.utiliza_regra_diferenciada
+          student.api = true
 
-        if student.present?
-          student.update(
-            name: student_record.nome_aluno,
-            social_name: student_record.nome_social,
-            avatar_url: student_record.foto_aluno,
-            birth_date: student_record.data_nascimento,
-            uses_differentiated_exam_rule: student_record.utiliza_regra_diferenciada
-          )
-        elsif student_record.nome_aluno.present?
-          Student.create!(
-            api_code: student_record.aluno_id,
-            name: student_record.nome_aluno,
-            social_name: student_record.nome_social,
-            avatar_url: student_record.foto_aluno,
-            birth_date: student_record.data_nascimento,
-            api: true,
-            uses_differentiated_exam_rule: student_record.utiliza_regra_diferenciada
-          )
+          student.save! if student.changed?
         end
       end
     end

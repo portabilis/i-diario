@@ -1,10 +1,8 @@
 class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
   def synchronize!
     ActiveRecord::Base.transaction do
-      destroy_records
-
       years.each do |year|
-        create_records(
+        update_dependences(
           HashDecorator.new(
             api.fetch(ano: year)['matriculas']
           )
@@ -17,24 +15,30 @@ class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
 
   protected
 
-  def api
-    IeducarApi::StudentEnrollmentDependences.new(synchronization.to_api)
+  def api_class
+    IeducarApi::StudentEnrollmentDependences
   end
 
-  def create_records(collection)
-    return if collection.blank?
+  def update_dependences(dependences)
+    dependences.each do |dependence_record|
+      StudentEnrollmentDependence.find_or_initialize_by(api_code: dependence_record.id).tap do |dependence|
+        dependence.student_enrollment_id = student_enrollment(record.matricula_id).try(:id)
+        dependence.student_enrollment_code = record.matricula_id
+        dependence.discipline_id = discipline(record.disciplina_id).try(:id)
+        dependence.discipline_code = record.disciplina_id
 
-    collection.each do |record|
-      StudentEnrollmentDependence.create!(
-        student_enrollment_id: StudentEnrollment.find_by(api_code: record.matricula_id).try(:id),
-        student_enrollment_code: record.matricula_id,
-        discipline_id: Discipline.find_by(api_code: record.disciplina_id).try(:id),
-        discipline_code: record.disciplina_id
-      )
+        dependence.save! if dependence.changed?
+      end
     end
   end
 
-  def destroy_records
-    StudentEnrollmentDependence.destroy_all
+  def student_enrollment(student_enrollment_id)
+    @student_enrollments ||= {}
+    @student_enrollments[student_enrollment_id] ||= StudentEnrollment.find_by(api_code: student_enrollment_id)
+  end
+
+  def discipline(discipline_id)
+    @disciplines ||= {}
+    @disciplines[discipline_id] ||= Discipline.find_by(api_code: discipline_id)
   end
 end

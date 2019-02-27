@@ -1,6 +1,6 @@
 class DeficienciesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records(
+    update_deficiencies(
       HashDecorator.new(
         api.fetch['deficiencias']
       )
@@ -11,24 +11,17 @@ class DeficienciesSynchronizer < BaseSynchronizer
 
   protected
 
-  def api
-    IeducarApi::Deficiencies.new(synchronization.to_api)
+  def api_class
+    IeducarApi::Deficiencies
   end
 
-  def update_records(collection)
+  def update_deficiencies(deficiencies)
     ActiveRecord::Base.transaction do
-      collection.each do |deficiency_record|
-        deficiency = Deficiency.find_by(api_code: deficiency_record.id)
+      deficiencies.each do |deficiency_record|
+        Deficiency.find_or_initialize_by(api_code: deficiency_record.id).tap do |deficiency|
+          deficiency.description = deficiency_record.nome
 
-        if deficiency.present?
-          deficiency.update(
-            name: deficiency_record.nome
-          )
-        elsif deficiency_record.nome.present?
-          Deficiency.create!(
-            api_code: deficiency_record.id,
-            name: deficiency_record.nome
-          )
+          deficiency.save! if deficiency.changed?
         end
       end
     end

@@ -14,43 +14,46 @@ class TeachersSynchronizer < BaseSynchronizer
 
   protected
 
-  def api
-    IeducarApi::Teachers.new(synchronization.to_api)
+  def api_class
+    IeducarApi::Teachers
   end
 
-  def update_records(collection, year)
+  def update_records(discipline_classrooms, year)
     ActiveRecord::Base.transaction do
-      update_discipline_classrooms(collection, year)
+      update_discipline_classrooms(discipline_classrooms, year)
     end
   end
 
-  def update_discipline_classrooms(collection, year)
+  def update_discipline_classrooms(discipline_classrooms, year)
     existing_ids = []
 
-    collection.each do |record|
-      existing_ids << record.id
-      teacher = update_or_create_teacher(record)
+    discipline_classrooms.each do |discipline_classroom_record|
+      existing_ids << discipline_classroom_record.id
+      teacher = update_teacher(discipline_classroom_record)
+
       next unless teacher
 
-      teacher_discipline_classrooms = discipline_classrooms.unscoped.where(
-        api_code: record.id
+      teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
+        api_code: discipline_classroom_record.id
       )
 
       max_changed_at = teacher_discipline_classrooms.maximum(:changed_at)
-      discipline_classrooms = record.disciplinas_turmas
+      discipline_classrooms = discipline_classroom_record.disciplinas_turmas
 
-      if !max_changed_at || record.updated_at > max_changed_at || teacher_discipline_classrooms.count != discipline_classrooms.count
+      if !max_changed_at ||
+         discipline_classroom_record.updated_at > max_changed_at ||
+         teacher_discipline_classrooms.count != discipline_classrooms.count
         teacher_discipline_classrooms.destroy_all
-        create_discipline_classrooms(record, year, teacher)
+        create_discipline_classrooms(discipline_classroom_record, year, teacher)
       end
 
       discipline_classrooms.each do |discipline_classroom|
         next if discipline_classroom.tipo_nota.nil?
 
         teacher_discipline_classroom = TeacherDisciplineClassroom.find_by(
-          teacher_api_code: record.servidor_id,
+          teacher_api_code: discipline_classroom_record.servidor_id,
           discipline_api_code: discipline_classroom.disciplina_id,
-          api_code: record.id
+          api_code: discipline_classroom_record.id
         )
         teacher_discipline_classroom.update!(score_type: discipline_classroom.tipo_nota)
       end
@@ -62,13 +65,15 @@ class TeachersSynchronizer < BaseSynchronizer
   private
 
   def destroy_inexisting_teacher_discipline_classrooms(year, existing_ids)
-    discipline_classrooms.where(year: year).where.not(api_code: existing_ids).destroy_all
+    TeacherDisciplineClassroom.where(year: year)
+                              .where.not(api_code: existing_ids)
+                              .destroy_all
   end
 
-  def create_discipline_classrooms(collection, year, teacher)
-    collection.disciplinas_turmas.each do |discipline_classroom|
-      discipline_classrooms.create!(
-        api_code: collection.id,
+  def create_discipline_classrooms(discipline_classroom_record, year, teacher)
+    discipline_classroom_record.disciplinas_turmas.each do |discipline_classroom|
+      TeacherDisciplineClassroom.create!(
+        api_code: discipline_classroom_record.id,
         year: year,
         active: true,
         teacher_id: teacher.id,
@@ -78,41 +83,24 @@ class TeachersSynchronizer < BaseSynchronizer
         classroom_id: Classroom.find_by(api_code: discipline_classroom.turma_id).try(:id),
         classroom_api_code: discipline_classroom.turma_id,
         allow_absence_by_discipline: discipline_classroom.permite_lancar_faltas_componente,
-        changed_at: collection.updated_at,
-        period: collection.turno_id
+        changed_at: discipline_classroom_record.updated_at,
+        period: discipline_classroom_record.turno_id
       )
     end
   end
 
-  def teachers(klass = Teacher)
-    klass
-  end
+  def update_teacher(teacher_record)
+    Teacher.find_or_initialize_by(api_code: teacher_record.id).tap do |teacher|
+      teacher.name = teacher_record.name
+      teacher.active = teacher_record.ativo == IeducarBooleanState::ACTIVE
 
-  def discipline_classrooms(klass = TeacherDisciplineClassroom)
-    klass
-  end
-
-  def update_or_create_teacher(record)
-    teacher = teachers.find_by(api_code: record.servidor_id)
-    active = (record.ativo == IeducarBooleanState::ACTIVE)
-
-    if teacher
-      teacher.update(
-        name: record.name,
-        active: active
-      )
-    elsif record.name.present?
-      teacher = teachers.create!(
-        api_code: record.servidor_id,
-        name: record.name,
-        active: active
-      )
+      teacher.save! if teacher.changed?
     end
-
-    teacher
   end
 
   def inactive_all_alocations_prior_to(year)
-    discipline_classrooms.unscoped.where('year < ?', year).destroy_all
+    TeacherDisciplineClassroom.unscoped
+                              .where('year < ?', year)
+                              .destroy_all
   end
 end

@@ -15,80 +15,58 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
 
   protected
 
-  def api
-    IeducarApi::Lectures.new(synchronization.to_api)
+  def api_class
+    IeducarApi::Lectures
   end
 
-  def update_courses(collection)
+  def update_courses(courses)
     ActiveRecord::Base.transaction do
-      collection.each do |record|
-        course = Course.find_by(api_code: record.id)
+      courses.each do |course_record|
+        Course.find_or_initialize_by(api_code: course_record.id).tap do |course|
+          course.description = course_record.nome
 
-        if course.present?
-          course.update(
-            description: record.nome
-          )
-        else
-          course = Course.create!(
-            api_code: record.id,
-            description: record.nome
-          )
+          course.save! if course.changed?
+
+          update_grades(course, course_record.series)
         end
-
-        update_grades(course, record.series)
       end
     end
   end
 
-  def update_grades(course, collection)
-    collection.each do |record|
-      grade = Grade.find_by(api_code: record.id)
+  def update_grades(course, grades)
+    grades.each do |grade_record|
+      Grade.find_or_initialize_by(api_code: grade_record.id).tap do |grade|
+        grade.description = grade_record.nome
+        grade.course = course
 
-      if grade.present?
-        grade.update(
-          description: record.nome,
-          course: course
-        )
-      else
-        grade = Grade.create!(
-          api_code: record.id,
-          description: record.nome,
-          course: course
-        )
+        grade.save! if grade.changed?
+
+        update_classrooms(grade, grade_record.turmas) if grade_record.turmas
       end
-
-      update_classrooms(grade, record.turmas) if record.turmas
     end
   end
 
-  def update_classrooms(grade, collection)
-    collection.each do |record|
-      classroom = Classroom.find_by(api_code: record.cod_turma)
-      unity = Unity.find_by(api_code: record.escola_id)
+  def update_classrooms(grade, classrooms)
+    classrooms.each do |classroom_record|
+      unity = Unity.find_by(api_code: classroom_record.escola_id)
 
-      if classroom.present?
-        classroom.update(
-          description: record.nm_turma,
-          unity_id: unity.try(:id),
-          unity_code: record.escola_id,
-          period: record.turma_turno_id,
-          grade: grade
-        )
-      else
-        Classroom.create!(
-          api_code: record.cod_turma,
-          description: record.nm_turma,
-          unity_id: unity.try(:id),
-          unity_code: record.escola_id,
-          period: record.turma_turno_id,
-          grade: grade,
-          year: record.ano
-        )
+      Classroom.find_or_initialize_by(api_code: classroom_record.id).tap do |classroom|
+        classroom.description = classroom_record.nm_turma
+        classroom.unity_id = unity.try(:id)
+        classroom.unity_code = classroom_record.escola_id
+        classroom.period = classroom_record.turma_turno_id
+        classroom.grade = grade
+        classroom.year = classroom_record.ano
+
+        classroom.save! if classroom.changed?
       end
     end
   end
 
   def unities
-    Unity.with_api_code.collect(&:api_code).uniq.flatten
+    Unity.with_api_code
+         .collect(&:api_code)
+         .uniq
+         .flatten
   end
 end
