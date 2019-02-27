@@ -1,7 +1,12 @@
 class TeachersSynchronizer < BaseSynchronizer
   def synchronize!
     years.each do |year|
-      update_records(api.fetch(ano: year)['servidores'], year)
+      update_records(
+        HashDecorator.new(
+          api.fetch(ano: year)['servidores']
+        ),
+        year
+      )
     end
 
     finish_worker
@@ -23,31 +28,31 @@ class TeachersSynchronizer < BaseSynchronizer
     existing_ids = []
 
     collection.each do |record|
-      existing_ids << record['id']
+      existing_ids << record.id
       teacher = update_or_create_teacher(record)
       next unless teacher
 
       teacher_discipline_classrooms = discipline_classrooms.unscoped.where(
-        api_code: record['id']
+        api_code: record.id
       )
 
       max_changed_at = teacher_discipline_classrooms.maximum(:changed_at)
-      discipline_classrooms = record['disciplinas_turmas']
+      discipline_classrooms = record.disciplinas_turmas
 
-      if !max_changed_at || record['updated_at'] > max_changed_at || teacher_discipline_classrooms.count != discipline_classrooms.count
+      if !max_changed_at || record.updated_at > max_changed_at || teacher_discipline_classrooms.count != discipline_classrooms.count
         teacher_discipline_classrooms.destroy_all
         create_discipline_classrooms(record, year, teacher)
       end
 
       discipline_classrooms.each do |discipline_classroom|
-        next if discipline_classroom['tipo_nota'].nil?
+        next if discipline_classroom.tipo_nota.nil?
 
         teacher_discipline_classroom = TeacherDisciplineClassroom.find_by(
-          teacher_api_code: record['servidor_id'],
-          discipline_api_code: discipline_classroom['disciplina_id'],
-          api_code: record['id']
+          teacher_api_code: record.servidor_id,
+          discipline_api_code: discipline_classroom.disciplina_id,
+          api_code: record.id
         )
-        teacher_discipline_classroom.update!(score_type: discipline_classroom['tipo_nota'])
+        teacher_discipline_classroom.update!(score_type: discipline_classroom.tipo_nota)
       end
     end
 
@@ -61,20 +66,20 @@ class TeachersSynchronizer < BaseSynchronizer
   end
 
   def create_discipline_classrooms(collection, year, teacher)
-    collection['disciplinas_turmas'].each do |discipline_classroom|
+    collection.disciplinas_turmas.each do |discipline_classroom|
       discipline_classrooms.create!(
-        api_code: collection['id'],
+        api_code: collection.id,
         year: year,
         active: true,
         teacher_id: teacher.id,
         teacher_api_code: teacher.api_code,
-        discipline_id: Discipline.find_by(api_code: discipline_classroom['disciplina_id']).try(:id),
-        discipline_api_code: discipline_classroom['disciplina_id'],
-        classroom_id: Classroom.find_by(api_code: discipline_classroom['turma_id']).try(:id),
-        classroom_api_code: discipline_classroom['turma_id'],
-        allow_absence_by_discipline: discipline_classroom['permite_lancar_faltas_componente'],
-        changed_at: collection['updated_at'],
-        period: collection['turno_id']
+        discipline_id: Discipline.find_by(api_code: discipline_classroom.disciplina_id).try(:id),
+        discipline_api_code: discipline_classroom.disciplina_id,
+        classroom_id: Classroom.find_by(api_code: discipline_classroom.turma_id).try(:id),
+        classroom_api_code: discipline_classroom.turma_id,
+        allow_absence_by_discipline: discipline_classroom.permite_lancar_faltas_componente,
+        changed_at: collection.updated_at,
+        period: collection.turno_id
       )
     end
   end
@@ -88,18 +93,18 @@ class TeachersSynchronizer < BaseSynchronizer
   end
 
   def update_or_create_teacher(record)
-    teacher = teachers.find_by(api_code: record['servidor_id'])
-    active = (record['ativo'] == IeducarBooleanState::ACTIVE)
+    teacher = teachers.find_by(api_code: record.servidor_id)
+    active = (record.ativo == IeducarBooleanState::ACTIVE)
 
     if teacher
-      teacher.update_columns(
-        name: record['name'],
+      teacher.update(
+        name: record.name,
         active: active
       )
-    elsif record['name'].present?
+    elsif record.name.present?
       teacher = teachers.create!(
-        api_code: record['servidor_id'],
-        name: record['name'],
+        api_code: record.servidor_id,
+        name: record.name,
         active: active
       )
     end

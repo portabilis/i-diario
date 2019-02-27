@@ -36,9 +36,7 @@ class BaseSynchronizer
       worker_batch.completed_workers = (worker_batch.completed_workers << worker_name) if Rails.logger.debug?
       worker_batch.save!
 
-      if worker_batch.all_workers_finished?
-        synchronization.mark_as_completed!
-      end
+      synchronization.mark_as_completed! if worker_batch.all_workers_finished?
     end
   end
 

@@ -30,19 +30,18 @@ class IeducarSynchronizerWorker
   private
 
   BASIC_SYNCHRONIZERS = [
-    KnowledgeAreasSynchronizer.to_s,
-    DisciplinesSynchronizer.to_s,
-    StudentsSynchronizer.to_s,
+    CoursesGradesClassroomsSynchronizer.to_s,
     DeficienciesSynchronizer.to_s,
+    DisciplinesSynchronizer.to_s,
+    ExamRulesSynchronizer.to_s,
+    KnowledgeAreasSynchronizer.to_s,
     RoundingTablesSynchronizer.to_s,
     RecoveryExamRulesSynchronizer.to_s,
-    CoursesGradesClassroomsSynchronizer.to_s,
-    TeachersSynchronizer.to_s,
     StudentEnrollmentDependenceSynchronizer.to_s,
-    ExamRulesSynchronizer.to_s,
+    StudentEnrollmentExemptedDisciplinesSynchronizer.to_s,
     StudentEnrollmentSynchronizer.to_s,
-    SpecificStepClassroomsSynchronizer.to_s,
-    StudentEnrollmentExemptedDisciplinesSynchronizer.to_s
+    StudentsSynchronizer.to_s,
+    TeachersSynchronizer.to_s
   ].freeze
 
   def perform_for_entity(entity, synchronization_id)

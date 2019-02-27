@@ -1,6 +1,10 @@
 class RecoveryExamRulesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch['regras-recuperacao']
+    update_records(
+      HashDecorator.new(
+        api.fetch['regras-recuperacao']
+      )
+    )
 
     finish_worker
   end
@@ -13,32 +17,29 @@ class RecoveryExamRulesSynchronizer < BaseSynchronizer
 
   def update_records(collection)
     ActiveRecord::Base.transaction do
-      collection.each do |record|
-        recovery_exam_rule = recovery_exam_rules.find_by(api_code: record['id'])
+      collection.each do |recovery_exam_rule_record|
+        recovery_exam_rule = RecoveryExamRule.find_by(api_code: recovery_exam_rule_record.id)
+        exam_rule = ExamRule.find_by(api_code: recovery_exam_rule_record.regra_avaliacao_id)
 
         if recovery_exam_rule.present?
           recovery_exam_rule.update(
-            description: record['descricao'],
-            steps: record['etapas_recuperadas'],
-            average: record['media'],
-            maximum_score: record['nota_maxima'],
-            exam_rule_id: ExamRule.find_by(api_code: record['regra_avaliacao_id']).try(:id)
+            description: recovery_exam_rule_record.descricao,
+            steps: recovery_exam_rule_record.etapas_recuperadas,
+            average: recovery_exam_rule_record.media,
+            maximum_score: recovery_exam_rule_record.nota_maxima,
+            exam_rule_id: exam_rule.try(:id)
           )
         else
-          recovery_exam_rules.create(
-            api_code: record['id'],
-            description: record['descricao'],
-            steps: record['etapas_recuperadas'],
-            average: record['media'],
-            maximum_score: record['nota_maxima'],
-            exam_rule_id: ExamRule.find_by(api_code: record['regra_avaliacao_id']).try(:id)
+          RecoveryExamRule.create(
+            api_code: recovery_exam_rule_record.id,
+            description: recovery_exam_rule_record.descricao,
+            steps: recovery_exam_rule_record.etapas_recuperadas,
+            average: recovery_exam_rule_record.media,
+            maximum_score: recovery_exam_rule_record.nota_maxima,
+            exam_rule_id: exam_rule.try(:id)
           )
         end
       end
     end
-  end
-
-  def recovery_exam_rules(klass = RecoveryExamRule)
-    klass
   end
 end

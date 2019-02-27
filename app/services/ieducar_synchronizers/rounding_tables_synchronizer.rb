@@ -1,6 +1,10 @@
 class RoundingTablesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch['tabelas']
+    update_records(
+      HashDecorator.new(
+        api.fetch['tabelas']
+      )
+    )
 
     finish_worker
   end
@@ -13,41 +17,34 @@ class RoundingTablesSynchronizer < BaseSynchronizer
 
   def update_records(collection)
     ActiveRecord::Base.transaction do
-      rounding_table_values.delete_all
-      collection.each do |record|
-        rounding_table = rounding_tables.find_by(api_code: record['id'])
+      RoundingTableValue.delete_all
+
+      collection.each do |rounding_table_record|
+        rounding_table = RoundingTable.find_by(api_code: rounding_table_record.id)
 
         if rounding_table.present?
           rounding_table.update(
-            name: record['nome']
+            name: rounding_table_record.nome
           )
         else
-          rounding_table = rounding_tables.create!(
-            api_code: record['id'],
-            name: record['nome']
+          rounding_table = RoundingTable.create!(
+            api_code: rounding_table_record.id,
+            name: rounding_table_record.nome
           )
         end
 
-        record['valores'].each do |api_value|
-          rounding_table_values.create!(
-            rounding_table_api_code: record['id'],
+        rounding_table_record.valores.each do |rounding_table_value_record|
+          RoundingTableValue.create!(
+            rounding_table_api_code: rounding_table_record.id,
             rounding_table_id: rounding_table.id,
-            label: api_value['rotulo'],
-            description: api_value['descricao'],
-            value: api_value['valor_maximo'],
-            exact_decimal_place: api_value['casa_decimal_exata'],
-            action: api_value['acao']
+            label: rounding_table_value_record.rotulo,
+            description: rounding_table_value_record.descricao,
+            value: rounding_table_value_record.valor_maximo,
+            exact_decimal_place: rounding_table_value_record.casa_decimal_exata,
+            action: rounding_table_value_record.acao
           )
         end
       end
     end
-  end
-
-  def rounding_tables(klass = RoundingTable)
-    klass
-  end
-
-  def rounding_table_values(klass = RoundingTableValue)
-    klass
   end
 end
