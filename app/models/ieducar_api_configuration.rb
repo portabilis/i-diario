@@ -16,7 +16,11 @@ class IeducarApiConfiguration < ActiveRecord::Base
 
   def start_synchronization(user = nil, entity_id = nil)
     transaction do
-      synchronization = synchronizations.create(status: ApiSynchronizationStatus::STARTED, author: user)
+      synchronization = IeducarApiSynchronization.started.first
+
+      return synchronization if synchronization
+
+      synchronization = synchronizations.create!(status: ApiSynchronizationStatus::STARTED, author: user)
 
       job_id = IeducarSynchronizerWorker.perform_in(5.seconds, entity_id, synchronization.id)
 

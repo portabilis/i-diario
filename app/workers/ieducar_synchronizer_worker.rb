@@ -21,7 +21,7 @@ class IeducarSynchronizerWorker
           configuration = IeducarApiConfiguration.current
           next unless configuration.persisted?
 
-          IeducarApiSynchronization.started.first || configuration.start_synchronization(User.first, entity.id)
+          configuration.start_synchronization(User.first, entity.id)
         end
       end
     end
