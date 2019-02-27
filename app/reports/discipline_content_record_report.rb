@@ -115,7 +115,7 @@ class DisciplineContentRecordReport < BaseReport
     @classroom_cell = make_cell(content: @discipline_content_record.first.content_record.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @teacher_cell = make_cell(content: @current_teacher.name, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} a #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
-    @daily_record_cell = make_cell(content: @discipline_content_record.first.content_record.daily_activities_record, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4], colspan: 2)
+    @daily_record_cell = make_cell(content: @discipline_content_record.first.content_record.daily_activities_record, borders: [:bottom, :left, :right], size: 10, width: 240, align: :justify, padding: [0, 4, 4, 4], colspan: 2)
   end
 
   def identification
