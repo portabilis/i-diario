@@ -37,6 +37,7 @@ class IeducarSynchronizerWorker
     KnowledgeAreasSynchronizer.to_s,
     RoundingTablesSynchronizer.to_s,
     RecoveryExamRulesSynchronizer.to_s,
+    SpecificStepsSynchronizer.to_s,
     StudentEnrollmentDependenceSynchronizer.to_s,
     StudentEnrollmentExemptedDisciplinesSynchronizer.to_s,
     StudentEnrollmentSynchronizer.to_s,
@@ -88,13 +89,13 @@ class IeducarSynchronizerWorker
 
   def years_to_synchronize
     # TODO voltar a sincronizar todos os anos uma vez por semana (Sábado)
-    @years ||= Unity.with_api_code
-                    .joins(:school_calendars)
-                    .pluck('school_calendars.year')
-                    .uniq
-                    .sort
-                    .compact
-                    .last(2)
+    @years_to_synchronize ||= Unity.with_api_code
+                                   .joins(:school_calendars)
+                                   .pluck('school_calendars.year')
+                                   .uniq
+                                   .sort
+                                   .compact
+                                   .last(2)
   end
 
   def all_entities
