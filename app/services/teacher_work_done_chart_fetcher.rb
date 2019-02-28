@@ -20,6 +20,7 @@ class TeacherWorkDoneChartFetcher
         discipline: discipline,
         date: avaliation.test_date,
         show_inactive: false,
+        score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
         search_type: :by_date
       ).student_enrollments
       all_daily_note_students_count += students.count
