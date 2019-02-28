@@ -24,7 +24,6 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
       courses.each do |course_record|
         Course.find_or_initialize_by(api_code: course_record.id).tap do |course|
           course.description = course_record.nome
-
           course.save! if course.changed?
 
           update_grades(course, course_record.series)
@@ -38,7 +37,6 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
       Grade.find_or_initialize_by(api_code: grade_record.id).tap do |grade|
         grade.description = grade_record.nome
         grade.course = course
-
         grade.save! if grade.changed?
 
         update_classrooms(grade, grade_record.turmas) if grade_record.turmas
