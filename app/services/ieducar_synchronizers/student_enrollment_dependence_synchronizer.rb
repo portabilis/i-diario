@@ -26,7 +26,6 @@ class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
         dependence.student_enrollment_code = record.matricula_id
         dependence.discipline_id = discipline(record.disciplina_id).try(:id)
         dependence.discipline_code = record.disciplina_id
-
         dependence.save! if dependence.changed?
       end
     end

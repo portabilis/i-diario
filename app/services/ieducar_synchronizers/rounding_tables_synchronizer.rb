@@ -20,7 +20,6 @@ class RoundingTablesSynchronizer < BaseSynchronizer
       rounding_tables.each do |rounding_table_record|
         RoundingTable.find_or_initialize_by(api_code: rounding_table_record.id).tap do |rounding_table|
           rounding_table.name = rounding_table_record.nome
-
           rounding_table.save! if rounding_table.changed?
 
           update_rounding_table_values(rounding_table, rounding_table_record.valores)

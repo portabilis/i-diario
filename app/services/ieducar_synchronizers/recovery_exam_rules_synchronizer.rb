@@ -24,8 +24,9 @@ class RecoveryExamRulesSynchronizer < BaseSynchronizer
           recovery_exam_rule.average = recovery_exam_rule_record.media
           recovery_exam_rule.maximum_score = recovery_exam_rule_record.nota_maxima
           recovery_exam_rule.exam_rule_id = exam_rule(recovery_exam_rule_record.regra_avaliacao_id).try(:id)
-
           recovery_exam_rule.save! if recovery_exam_rule.changed?
+
+          recovery_exam_rule.discard_or_undiscard(recovery_exam_rule_record.deleted_at.present?)
         end
       end
     end

@@ -93,8 +93,9 @@ class TeachersSynchronizer < BaseSynchronizer
     Teacher.find_or_initialize_by(api_code: teacher_record.id).tap do |teacher|
       teacher.name = teacher_record.name
       teacher.active = teacher_record.ativo == IeducarBooleanState::ACTIVE
-
       teacher.save! if teacher.changed?
+
+      teacher.discard_or_undiscard(teacher_record.deleted_at.present?)
     end
   end
 

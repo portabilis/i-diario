@@ -57,8 +57,9 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
         classroom.period = classroom_record.turma_turno_id
         classroom.grade = grade
         classroom.year = classroom_record.ano
-
         classroom.save! if classroom.changed?
+
+        classroom.discard_or_undiscard(classroom_record.deleted_at.present?)
       end
     end
   end

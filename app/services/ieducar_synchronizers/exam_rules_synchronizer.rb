@@ -49,7 +49,6 @@ class ExamRulesSynchronizer < BaseSynchronizer
           exam_rule.rounding_table_concept_api_code = exam_rule_record.tabela_arredondamento_id_conceitual
           exam_rule.differentiated_exam_rule_api_code = exam_rule_record.regra_diferenciada_id
           exam_rule.differentiated_exam_rule_id = exam_rule(exam_rule_record.regra_diferenciada_id).try(:id)
-
           exam_rule.save! if exam_rule.changed?
         end
 

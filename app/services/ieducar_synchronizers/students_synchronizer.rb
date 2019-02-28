@@ -25,8 +25,9 @@ class StudentsSynchronizer < BaseSynchronizer
           student.birth_date = student_record.data_nascimento
           student.uses_differentiated_exam_rule = student_record.utiliza_regra_diferenciada
           student.api = true
-
           student.save! if student.changed?
+
+          student.discard_or_undiscard(student_record.deleted_at.present?)
         end
       end
     end
