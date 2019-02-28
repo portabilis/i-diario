@@ -104,6 +104,7 @@ class DisciplineContentRecordsController < ApplicationController
         :unity_id,
         :classroom_id,
         :record_date,
+        :daily_activities_record,
         :content_ids
       ]
     )
