@@ -36,6 +36,7 @@
                   t('helpers.links.destroy_html'),
                   knowledge_area_content_record_path(knowledge_area_content_record),
                   class: 'btn btn-danger apply_tooltip',
+                  disabled: !content_record_destroy?(knowledge_area_content_record.content_record),
                   method: 'delete',
                   data: {
                     confirm: t('views.index.confirm'),
