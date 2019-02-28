@@ -18,7 +18,7 @@ class StudentsSynchronizer < BaseSynchronizer
   def update_students(students)
     ActiveRecord::Base.transaction do
       students.each do |student_record|
-        Student.find_or_initialize_by(api_code: student_record.id).tap do |student|
+        Student.find_or_initialize_by(api_code: student_record.aluno_id).tap do |student|
           student.name = student_record.nome_aluno
           student.social_name = student_record.nome_social
           student.avatar_url = student_record.foto_aluno

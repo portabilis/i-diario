@@ -48,11 +48,11 @@ class ExamRulesSynchronizer < BaseSynchronizer
           ).try(:id)
           exam_rule.rounding_table_concept_api_code = exam_rule_record.tabela_arredondamento_id_conceitual
           exam_rule.differentiated_exam_rule_api_code = exam_rule_record.regra_diferenciada_id
-          exam_rule.differentiated_exam_rule_id = exam_rule(exam_rule_record.regra_diferenciada_id).try(:id)
+          exam_rule.differentiated_exam_rule_id = exam_rules(exam_rule_record.regra_diferenciada_id).try(:id)
           exam_rule.save! if exam_rule.changed?
-        end
 
-        update_classrooms_exam_rule(exam_rule, exam_rule_record.turmas)
+          update_classrooms_exam_rule(exam_rule, exam_rule_record.turmas)
+        end
       end
     end
   end
@@ -70,7 +70,7 @@ class ExamRulesSynchronizer < BaseSynchronizer
     @rounding_tables[rounding_table_id] ||= RoundingTable.find_by(api_code: rounding_table_id)
   end
 
-  def exam_rule(exam_rule_id)
+  def exam_rules(exam_rule_id)
     @exam_rules ||= {}
     @exam_rules[exam_rule_id] ||= ExamRule.find_by(api_code: exam_rule_id)
   end

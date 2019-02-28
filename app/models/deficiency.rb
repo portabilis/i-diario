@@ -1,4 +1,6 @@
 class Deficiency < ActiveRecord::Base
+  include Discard::Model
+
   audited
 
   include Audit

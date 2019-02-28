@@ -3,7 +3,7 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
     update_courses(
       HashDecorator.new(
         api.fetch(
-          escola_id: unities,
+          escola_id: unities_code,
           get_series: true,
           get_turmas: true
         )['cursos']
@@ -48,11 +48,9 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
 
   def update_classrooms(grade, classrooms)
     classrooms.each do |classroom_record|
-      unity = Unity.find_by(api_code: classroom_record.escola_id)
-
-      Classroom.find_or_initialize_by(api_code: classroom_record.id).tap do |classroom|
+      Classroom.find_or_initialize_by(api_code: classroom_record.cod_turma).tap do |classroom|
         classroom.description = classroom_record.nm_turma
-        classroom.unity_id = unity.try(:id)
+        classroom.unity_id = unity(classroom_record.escola_id).try(:id)
         classroom.unity_code = classroom_record.escola_id
         classroom.period = classroom_record.turma_turno_id
         classroom.grade = grade
@@ -64,10 +62,15 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
     end
   end
 
-  def unities
+  def unities_code
     Unity.with_api_code
          .collect(&:api_code)
          .uniq
          .flatten
+  end
+
+  def unity(unity_id)
+    @unities ||= {}
+    @unities[unity_id] ||= ExamRule.find_by(api_code: unity_id)
   end
 end

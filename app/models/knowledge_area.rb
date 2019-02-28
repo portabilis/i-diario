@@ -1,4 +1,6 @@
 class KnowledgeArea < ActiveRecord::Base
+  include Discard::Model
+
   acts_as_copy_target
 
   audited
