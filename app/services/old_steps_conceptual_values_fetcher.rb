@@ -32,7 +32,7 @@ class OldStepsConceptualValuesFetcher
   end
 
   def old_steps
-    @old_steps ||= StepsFetcher.new(@classroom).old_steps(@current_step.start_at)
+    @old_steps ||= StepsFetcher.new(@classroom).old_steps(@current_step.step_number)
   end
 
   def rounding_table_value_of(value)

@@ -8,6 +8,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan)
       .includes(:knowledge_areas, teaching_plan: [:unity, :grade])
       .by_unity(current_user_unity)
+      .by_year(current_user_school_year)
       .by_teacher_id_or_is_null(current_teacher.try(:id))
 
     @knowledge_area_teaching_plans = @knowledge_area_teaching_plans

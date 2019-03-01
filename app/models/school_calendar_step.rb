@@ -17,6 +17,7 @@ class SchoolCalendarStep < ActiveRecord::Base
   scope :by_school_calendar_id, ->(school_calendar_id) { where(school_calendar_id: school_calendar_id) }
   scope :by_unity, ->(unity_id) { joins(:school_calendar).where(school_calendars: { unity_id: unity_id }) }
   scope :by_year, ->(year) { joins(:school_calendar).where(school_calendars: { year: year }) }
+  scope :by_step_number, ->(step_number) { where(step_number: step_number) }
   scope :by_step_year, ->(year) { where('EXTRACT(YEAR FROM start_at) = ?', year) }
   scope :started_after_and_before, lambda { |date|
     where(arel_table[:start_at].lteq(date)).where(arel_table[:end_at].gteq(date))

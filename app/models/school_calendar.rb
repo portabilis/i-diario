@@ -46,6 +46,10 @@ class SchoolCalendar < ActiveRecord::Base
     steps.all.started_after_and_before(date).first
   end
 
+  def step_by_number(step_number)
+    steps.find_by(step_number: step_number)
+  end
+
   def posting_step(date)
     steps.all.posting_date_after_and_before(date).first
   end

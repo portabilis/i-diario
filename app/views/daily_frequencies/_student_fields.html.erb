@@ -3,9 +3,9 @@
     <%= sequence %>
   </td>
   <td>
-    <span class="<%= frequency_student_name_class(dependence, active, exempted_from_discipline) %>">
-      <%= frequency_student_name(student, dependence, active, exempted_from_discipline) %>
-    </span>
+    <% name_class = frequency_student_name_class(dependence, active, exempted_from_discipline) %>
+    <% student_name = frequency_student_name(student, dependence, active, exempted_from_discipline) %>
+    <span class="<%= name_class %>"><%= student_name %></span>
   </td>
 
   <% @daily_frequencies.each do |daily_frequency| %>

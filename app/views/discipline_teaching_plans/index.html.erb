@@ -4,9 +4,6 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-            <td>
-              <%= f.input :by_year, label: false, placeholder: t('.by_year') %>
-            </td>
             <td></td>
             <td>
               <%= f.input :by_grade, as: :select2, elements: @grades,
@@ -36,7 +33,6 @@
           </tr>
 
           <tr>
-            <th width="108px"><%= TeachingPlan.human_attribute_name :year %></th>
             <th><%= TeachingPlan.human_attribute_name :unity %></th>
             <th><%= TeachingPlan.human_attribute_name :grade %></th>
             <th><%= DisciplineTeachingPlan.human_attribute_name :discipline %></th>

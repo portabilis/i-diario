@@ -1,8 +1,8 @@
 class RoundingTablesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch["tabelas"]
+    update_records api.fetch['tabelas']
 
-    finish_worker('RoundingTablesSynchronizer')
+    finish_worker
   end
 
   protected
@@ -15,28 +15,28 @@ class RoundingTablesSynchronizer < BaseSynchronizer
     ActiveRecord::Base.transaction do
       rounding_table_values.delete_all
       collection.each do |record|
-        rounding_table = nil
+        rounding_table = rounding_tables.find_by(api_code: record['id'])
 
-        if rounding_table = rounding_tables.find_by(api_code: record["id"])
+        if rounding_table.present?
           rounding_table.update(
-            name: record["nome"]
+            name: record['nome']
           )
         else
           rounding_table = rounding_tables.create!(
-            api_code: record["id"],
-            name: record["nome"]
+            api_code: record['id'],
+            name: record['nome']
           )
         end
 
-        record["valores"].each do |api_value|
+        record['valores'].each do |api_value|
           rounding_table_values.create!(
-            rounding_table_api_code: record["id"],
+            rounding_table_api_code: record['id'],
             rounding_table_id: rounding_table.id,
-            label: api_value["rotulo"],
-            description: api_value["descricao"],
-            value: api_value["valor_maximo"],
-            exact_decimal_place: api_value["casa_decimal_exata"],
-            action: api_value["acao"]
+            label: api_value['rotulo'],
+            description: api_value['descricao'],
+            value: api_value['valor_maximo'],
+            exact_decimal_place: api_value['casa_decimal_exata'],
+            action: api_value['acao']
           )
         end
       end

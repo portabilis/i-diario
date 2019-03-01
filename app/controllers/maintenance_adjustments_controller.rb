@@ -47,6 +47,10 @@ class MaintenanceAdjustmentsController < ApplicationController
     respond_with @maintenance_adjustment
   end
 
+  def any_completed
+    render json: { any_completed: MaintenanceAdjustment.where(id: params[:ids]).completed.exists? }
+  end
+
   private
 
   def set_maintenance_adjustment

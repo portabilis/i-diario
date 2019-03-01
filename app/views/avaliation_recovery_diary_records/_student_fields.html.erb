@@ -8,10 +8,10 @@
       <%= f.hidden_field :_destroy %>
     <% end %>
 
-    <%= f.input :student_id, as: :hidden %>
-    <span class="<%= recovery_diary_record_student_name_class(f.object) %>">
-      <%= recovery_diary_record_student_name(f.object) %>
-    </span>
+    <% present(f.object) do |student| %>
+      <%= f.input :student_id, as: :hidden %>
+      <span class="<%= student.student_name_class %>"><%= student.student_name %></span>
+    <% end %>
   </td>
 
   <td>
