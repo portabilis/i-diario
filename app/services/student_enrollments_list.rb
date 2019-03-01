@@ -43,6 +43,7 @@ class StudentEnrollmentsList
     students_enrollments ||= StudentEnrollment.by_classroom(classroom)
                                               .by_discipline(discipline)
                                               .by_score_type(score_type, classroom)
+                                              .joins(:student)
                                               .includes(:student)
                                               .includes(:dependences)
                                               .active
@@ -137,6 +138,13 @@ class StudentEnrollmentsList
 
   def order_by_sequence_and_name(students_enrollments)
     ids = students_enrollments.map(&:id)
-    StudentEnrollment.where(id: ids).ordered.to_a
+    start_at = @start_at || @date
+    end_at = @end_at || @date
+
+    StudentEnrollment.where(id: ids).by_classroom(@classroom)
+                     .by_date_range(start_at, end_at)
+                     .active
+                     .ordered
+                     .to_a
   end
 end
