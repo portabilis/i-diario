@@ -141,7 +141,8 @@ class StudentEnrollmentsList
     start_at = @start_at || @date
     end_at = @end_at || @date
 
-    StudentEnrollment.where(id: ids).by_classroom(@classroom)
+    StudentEnrollment.where(id: ids)
+                     .by_classroom(@classroom)
                      .by_date_range(start_at, end_at)
                      .active
                      .ordered

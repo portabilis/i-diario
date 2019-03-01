@@ -21,9 +21,6 @@ class StudentEnrollment < ActiveRecord::Base
   scope :with_recovery_note_in_step, lambda { |step, discipline_id| with_recovery_note_in_step_query(step, discipline_id) }
   scope :active, -> { where(active: 1) }
   scope :ordered, -> { joins(:student, :student_enrollment_classrooms).order('sequence ASC, students.name ASC') }
-  scope :order_by_sequence, lambda { |classroom_id, start_date, end_date|
-    joins(:student).merge(Student.order_by_sequence(classroom_id, start_date, end_date))
-  }
 
   def self.by_discipline_query(discipline_id)
     unless discipline_id.blank?
