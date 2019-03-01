@@ -48,7 +48,7 @@ class IeducarSynchronizerWorker
   def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
       begin
-        synchronization = IeducarApiSynchronization.find(synchronization_id)
+        synchronization = IeducarApiSynchronization.started.find(synchronization_id)
         worker_batch = synchronization.worker_batch
 
         break unless synchronization.started?
