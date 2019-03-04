@@ -14,8 +14,31 @@ class IeducarApiConfiguration < ActiveRecord::Base
     self.first.presence || new
   end
 
-  def start_synchronization(user = nil)
-    synchronizations.create(status: ApiSynchronizationStatus::STARTED, author: user)
+  def start_synchronization(user = nil, entity_id = nil)
+    transaction do
+      synchronization = IeducarApiSynchronization.started.first
+
+      return synchronization if synchronization
+
+      synchronization = synchronizations.create!(status: ApiSynchronizationStatus::STARTED, author: user)
+
+      job_id = IeducarSynchronizerWorker.perform_in(5.seconds, entity_id, synchronization.id)
+
+      synchronization.set_job_id!(job_id)
+
+      worker_batch = WorkerBatch.find_or_create_by!(
+        main_job_class: IeducarSynchronizerWorker.to_s,
+        main_job_id: synchronization.job_id
+      )
+      worker_batch.start!
+
+      Rails.logger.info(key: 'IeducarApiConfiguration#start_synchronization',
+                        from: "#{binding.of_caller(7).eval('self.class')}##{binding.of_caller(7).eval('__method__')}",
+                        sync_id: synchronization.id,
+                        entity_id: entity_id)
+
+      synchronization
+    end
   end
 
   def synchronization_in_progress?
