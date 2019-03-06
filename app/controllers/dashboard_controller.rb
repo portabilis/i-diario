@@ -21,7 +21,7 @@ class DashboardController < ApplicationController
   end
 
   def dashboard_current_school_calendar
-    CurrentSchoolCalendarFetcher.new(current_user_unity, nil).fetch
+    CurrentSchoolCalendarFetcher.new(current_user_unity, current_user_classroom).fetch
   end
 
   def current_school_calendar_steps
