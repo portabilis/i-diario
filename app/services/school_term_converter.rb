@@ -10,8 +10,9 @@ class SchoolTermConverter
   end
 
   def convert
-    return unless @step
-    return unless school_term_type
+    return if @step.blank?
+    return if school_term_type.blank?
+
     school_term_type.key_for(index_of_step)
   end
 
