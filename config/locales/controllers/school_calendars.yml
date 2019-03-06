@@ -3,6 +3,8 @@ pt-BR:
     index:
       by_year: 'Filtrar ano'
       by_unity_id: 'Filtrar escola'
+    synchronize:
+      classroom_not_found: 'Não será possível sincronizar o calendário letivo da escola %{unity_name}. A turma %{classroom_code} possui etapas especificas e não está sincronizada.'
     create_and_update_batch:
       notice: 'Calendários letivos sincronizados com sucesso.'
       alert:  'Ocorreu um erro ao sincronizar os calendários letivos. Por favor, tente novamente.'

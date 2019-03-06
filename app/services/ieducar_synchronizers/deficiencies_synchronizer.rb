@@ -1,8 +1,8 @@
 class DeficienciesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch["deficiencias"]
+    update_records api.fetch['deficiencias']
 
-    finish_worker('DeficienciesSynchronizer')
+    finish_worker
   end
 
   protected
@@ -14,12 +14,14 @@ class DeficienciesSynchronizer < BaseSynchronizer
   def update_records(collection)
     ActiveRecord::Base.transaction do
       collection.each do |record|
-        if deficiency = deficiencies.find_by(api_code: record["id"])
-          deficiency.update(name: record["nome"])
-        elsif record["nome"].present?
+        deficiency = deficiencies.find_by(api_code: record['id'])
+
+        if deficiency.present?
+          deficiency.update(name: record['nome'])
+        elsif record['nome'].present?
           deficiencies.create!(
-            api_code: record["id"],
-            name: record["nome"]
+            api_code: record['id'],
+            name: record['nome']
           )
         end
       end

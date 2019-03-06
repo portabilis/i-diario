@@ -1,12 +1,11 @@
 <tbody id="resources-tbody">
   <% if @discipline_teaching_plans.empty? %>
     <tr>
-      <td class="no_record_found" colspan="8"><%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @discipline_teaching_plans.each do |discipline_teaching_plan| %>
       <tr>
-        <td><%= discipline_teaching_plan.teaching_plan.year %></td>
         <td><%= discipline_teaching_plan.teaching_plan.unity %></td>
         <td><%= discipline_teaching_plan.teaching_plan.grade %></td>
         <td><%= discipline_teaching_plan.discipline %></td>

@@ -9,7 +9,7 @@
         <td><%= avaliation_exemption.avaliation.unity.name %></td>
         <td><%= avaliation_exemption.avaliation.classroom.grade.description %></td>
         <td><%= avaliation_exemption.avaliation.classroom.description %></td>
-        <td><%= avaliation_exemption.student.name %></td>
+        <td><span class="multiline"><%= avaliation_exemption.student.to_s %></span/></td>
         <td><%= "#{avaliation_exemption.avaliation.description} (#{avaliation_exemption.avaliation.discipline.description})" %></td>
         <td><%= avaliation_exemption.created_at %></td>
         <td>

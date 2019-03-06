@@ -4,6 +4,7 @@ FactoryGirl.define do
     student
     recorded_at { Time.zone.today }
     unity_id 1
+    step_number 1
 
     before(:create) do |conceptual_exam|
       student_enrollment = create(:student_enrollment, student: conceptual_exam.student)

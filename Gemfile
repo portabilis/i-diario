@@ -11,6 +11,7 @@ gem 'audited-activerecord', '4.0.0.rc1', git: 'https://github.com/portabilis/aud
 gem 'non-stupid-digest-assets', '1.0.9'
 gem 'aws-sdk', '2.9.7'
 gem 'backbone-nested-attributes', '0.3.0', git: 'git://github.com/samuelsimoes/backbone-nested-attributes.git'
+gem 'binding_of_caller', '0.8.0'
 gem 'bulk_insert', '1.1.0'
 gem 'carrierwave', '0.11.2'
 gem 'cocoon', '1.2.6'
@@ -26,7 +27,7 @@ gem 'foreigner', '1.6.1'
 gem 'google_drive', '2.1.12', require: false
 gem 'handlebars_assets', '0.23.2'
 gem 'has_scope', '0.5.1'
-gem 'honeybadger', '3.3.0'
+gem 'honeybadger', '4.2.1'
 gem 'i18n_alchemy', '0.2.1', github: 'giustin/i18n_alchemy', branch: 'master', tag: 'v0.2.1'
 gem 'jbuilder', '2.2.16'
 gem 'js-routes', '1.1.2'
@@ -53,19 +54,19 @@ gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.
 gem 'rubyzip', '1.2.2', require: 'zip'
 gem 'sdoc', '0.4.1', group: :doc
 gem 'sidekiq', '5.0.3'
+gem 'sidekiq-status', '1.1.1'
 gem 'sidekiq-unique-jobs', '4.0.18'
 gem 'simple_form', '3.1.0'
 gem 'sinatra', '1.4.6', require: nil
 gem 'therubyracer', '0.12.2'
 gem 'twitter-bootstrap-rails', '3.2.0'
-gem 'uglifier', '2.7.2'
+gem 'uglifier', '4.1.20'
 gem 'uri_validator', '0.2.0'
 gem 'validates_timeliness', '3.0.14'
 
 instance_eval File.read('Gemfile.plugins') if File.exists?('Gemfile.plugins')
 
 group :development do
-  gem 'binding_of_caller', '0.7.2'
   gem 'meta_request', '0.6.0'
   gem 'pry-byebug', '3.4.2'
   gem 'pry-remote', '0.1.8'

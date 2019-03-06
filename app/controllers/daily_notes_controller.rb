@@ -260,7 +260,7 @@ class DailyNotesController < ApplicationController
   def student_exempted_from_discipline?(student_enrollment, daily_note)
     discipline_id = daily_note.discipline.id
     test_date = daily_note.avaliation.test_date
-    step = StepsFetcher.new(daily_note.classroom).step(test_date)
+    step = StepsFetcher.new(daily_note.classroom).step_by_date(test_date)
     step_number = step.to_number
 
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)

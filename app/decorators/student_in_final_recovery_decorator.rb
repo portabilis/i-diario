@@ -2,11 +2,9 @@ class StudentInFinalRecoveryDecorator
   include Decore
   include Decore::Proxy
 
-  attr_accessor :needed_score
+  delegate :to_s, to: :component
 
-  def needed_score=(value)
-    @needed_score = value
-  end
+  attr_writer :needed_score
 
   def needed_score
     I18n::Alchemy::NumericParser.localize(@needed_score)

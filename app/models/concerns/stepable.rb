@@ -5,7 +5,7 @@ module Stepable
 
   included do
     validates_date :recorded_at
-    validates :classroom_id, :recorded_at, presence: true
+    validates :classroom_id, :recorded_at, :step_number, presence: true
     validates :step_id, presence: true, unless: :ignore_step
     validates :recorded_at, not_in_future: true, unless: :ignore_date_validates
     validates :recorded_at, posting_date: true, unless: :ignore_date_validates
@@ -14,6 +14,10 @@ module Stepable
   end
 
   module ClassMethods
+    def by_step_number(step_number)
+      where(step_number: step_number)
+    end
+
     def by_recorded_at_between(start_at, end_at)
       where(arel_table[:recorded_at].gteq(start_at)).where(arel_table[:recorded_at].lteq(end_at))
     end
@@ -21,7 +25,7 @@ module Stepable
     def by_step_id(classroom, step_id)
       step = StepsFetcher.new(classroom).steps.find(step_id)
 
-      by_recorded_at_between(step.start_at, step.end_at)
+      by_step_number(step.step_number)
     end
   end
 
@@ -32,7 +36,7 @@ module Stepable
   def step
     return steps_fetcher.steps.find(step_id) if step_id.present?
 
-    steps_fetcher.step(recorded_at)
+    steps_fetcher.step(step_number)
   end
 
   def school_calendar

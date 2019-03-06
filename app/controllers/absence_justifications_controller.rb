@@ -94,8 +94,18 @@ class AbsenceJustificationsController < ApplicationController
 
   def resource_params
     params.require(:absence_justification).permit(
-      :student_id, :absence_date, :justification, :absence_date_end,
-      :unity_id, :classroom_id, :discipline_id
+      :student_id,
+      :absence_date,
+      :justification,
+      :absence_date_end,
+      :unity_id,
+      :classroom_id,
+      :discipline_id,
+      absence_justification_attachments_attributes: [
+        :id,
+        :attachment,
+        :_destroy
+      ]
     )
   end
 

@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "rails_helper"
 
-describe Navigation::MenuRender, :type => :service do
+describe Navigation::MenuRender, type: :service do
   let :current_user do
     User.new(admin: true)
   end
