@@ -1,6 +1,9 @@
 class KnowledgeAreaLessonPlan < ActiveRecord::Base
   include Audit
   include Filterable
+  include TeacherRelationable
+
+  teacher_relation_columns only: :knowledge_areas
 
   acts_as_copy_target
 

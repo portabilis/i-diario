@@ -1,5 +1,8 @@
 class KnowledgeAreaContentRecord < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :knowledge_areas
 
   audited
   acts_as_copy_target

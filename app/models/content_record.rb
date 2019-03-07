@@ -1,5 +1,9 @@
 class ContentRecord < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :classroom
+
   audited except: [:teacher_id]
   has_associated_audits
 

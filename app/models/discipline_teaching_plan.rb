@@ -1,5 +1,8 @@
 class DisciplineTeachingPlan < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :discipline
 
   audited
   has_associated_audits
@@ -40,6 +43,10 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   validates :discipline, presence: true
 
   validate :uniqueness_of_discipline_teaching_plan, if: :teaching_plan
+
+  def ignore_teacher
+    true
+  end
 
   private
 

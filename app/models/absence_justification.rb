@@ -1,10 +1,13 @@
 class AbsenceJustification < ActiveRecord::Base
+  include Audit
+  include Filterable
+  include TeacherRelationable
+
+  teacher_relation_columns only: [:classroom, :discipline]
+
   acts_as_copy_target
 
   audited
-
-  include Audit
-  include Filterable
 
   before_destroy :valid_for_destruction?
   before_destroy :remove_attachments, if: :valid_for_destruction?

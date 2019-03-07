@@ -1,14 +1,16 @@
 class ConceptualExam < ActiveRecord::Base
   include Audit
   include Stepable
-  include Filterable
+  include TeacherRelationable
+
+  teacher_relation_columns only: :classroom
 
   acts_as_copy_target
 
   audited
   has_associated_audits
 
-  attr_accessor :unity_id, :teacher_id
+  attr_accessor :unity_id
 
   before_destroy :valid_for_destruction?
 

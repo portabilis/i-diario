@@ -37,6 +37,8 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record.content_record.teacher = current_teacher
     @discipline_content_record.content_record.content_ids = content_ids
     @discipline_content_record.content_record.origin = OriginTypes::WEB
+    @discipline_content_record.content_record.teacher = current_teacher
+    @discipline_content_record.teacher_id = current_teacher_id
 
     authorize @discipline_content_record
 
@@ -57,6 +59,7 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record = DisciplineContentRecord.find(params[:id])
     @discipline_content_record.assign_attributes(resource_params)
     @discipline_content_record.content_record.content_ids = content_ids
+    @discipline_content_record.teacher_id = current_teacher_id
 
     authorize @discipline_content_record
 

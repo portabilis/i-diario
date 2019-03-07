@@ -36,7 +36,8 @@ class ComplementaryExamsController < ApplicationController
   def create
     @complementary_exam = ComplementaryExam.new.localized
     @complementary_exam.assign_attributes(resource_params)
-    @complementary_exam.step_number = @complementary_exam.step.step_number
+    @complementary_exam.step_number = @complementary_exam.step.try(:step_number)
+    @complementary_exam.teacher_id = current_teacher_id
 
     authorize @complementary_exam
 
@@ -58,6 +59,7 @@ class ComplementaryExamsController < ApplicationController
   def update
     @complementary_exam = ComplementaryExam.find(params[:id]).localized
     @complementary_exam.assign_attributes(resource_params)
+    @complementary_exam.teacher_id = current_teacher_id
 
     authorize @complementary_exam
 

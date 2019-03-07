@@ -27,7 +27,7 @@ class TransferNotesController < ApplicationController
   def create
     @transfer_note = TransferNote.new.localized
     @transfer_note.assign_attributes(resource_params)
-    @transfer_note.step_number = @transfer_note.step.step_number
+    @transfer_note.step_number = @transfer_note.step.try(:step_number)
     @transfer_note.teacher = current_teacher
 
     authorize @transfer_note
