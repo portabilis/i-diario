@@ -59,6 +59,11 @@ class UsersController < ApplicationController
     end
   end
 
+  def select2_remote
+    users = UserDecorator.data_for_select2_remote(params[:description])
+    render json: users
+  end
+
   def export_selected
     users_split = params[:ids].split(',')
     @exported_users = User.where(id: users_split).ordered.email_ordered
