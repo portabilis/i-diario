@@ -11,6 +11,7 @@ pt-BR:
         content_record_id: "Registro de conteúdo"
         knowledge_areas: "Áreas de conhecimento"
         knowledge_area_ids: "Áreas de conhecimento"
+        author: "Autor"
     errors:
       models:
         knowledge_area_content_record:

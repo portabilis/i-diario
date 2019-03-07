@@ -11,6 +11,7 @@ pt-BR:
         lesson_plan_id: "Plano de aula"
         discipline: "Disciplina"
         discipline_id: "Disciplina"
+        author: "Autor"
     errors:
       models:
         lesson_plan:
