@@ -2,7 +2,7 @@ namespace :entity do
   desc "Delete frequencies from inactive students"
   task delete_frequency_from_inactive_students: :environment do
     name = ENV['NAME']
-    entities = name == 'all' ? Entity.all : Entity.where(name: name)
+    entities = name == 'all' ? Entity.active : Entity.where(name: name)
     if entities
       entities.each do |entity|
         entity.using_connection do

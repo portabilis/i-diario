@@ -58,23 +58,21 @@ module ExamPoster
         next unless can_post?(classroom)
         next if frequency_by_discipline?(classroom)
 
+        start_date = step_start_at(classroom)
+        end_date = step_end_at(classroom)
+
         daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
                                           .by_frequency_date_between(
-                                            step_start_at(classroom),
-                                            step_end_at(classroom)
+                                            start_date,
+                                            end_date
                                           )
                                           .general_frequency
 
         students = fetch_students(daily_frequencies)
 
         students.each do |student|
-          daily_frequency_students = DailyFrequencyStudent.general_by_classroom_student_date_between(
-            classroom,
-            student.id,
-            step_start_at(classroom),
-            step_end_at(classroom)
-          )
-          value = daily_frequency_students.absences.count
+          value = AbsenceCountService.new(student, classroom, start_date, end_date).count
+
           absences[classroom.api_code][student.api_code]['valor'] = value
         end
       end
@@ -93,12 +91,14 @@ module ExamPoster
           next unless frequency_by_discipline?(classroom)
 
           discipline = teacher_discipline_classroom.discipline
+          start_date = step_start_at(classroom)
+          end_date = step_end_at(classroom)
 
           daily_frequencies = DailyFrequency.by_classroom_id(classroom.id)
                                             .by_discipline_id(discipline.id)
                                             .by_frequency_date_between(
-                                              step_start_at(classroom),
-                                              step_end_at(classroom)
+                                              start_date,
+                                              end_date
                                             )
 
           next unless daily_frequencies.any?
@@ -106,18 +106,9 @@ module ExamPoster
           students = fetch_students(daily_frequencies)
 
           students.each do |student|
-            daily_frequency_students = DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(
-              classroom.id,
-              discipline.id,
-              student.id,
-              step_start_at(classroom),
-              step_end_at(classroom)
-            ).active
+            value = AbsenceCountService.new(student, classroom, start_date, end_date, discipline).count
 
-            if daily_frequency_students.any?
-              value = daily_frequency_students.absences.count
-              absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
-            end
+            absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
           end
         end
       end

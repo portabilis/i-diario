@@ -8,6 +8,8 @@ class SpecificStepsSynchronizer < BaseSynchronizer
     self.worker_batch = worker_batch
     self.classroom_id = classroom_id
     self.api_classroom_id = api_classroom_id
+
+    create_worker_state
   end
 
   def synchronize!
@@ -22,12 +24,16 @@ class SpecificStepsSynchronizer < BaseSynchronizer
       end
     end
 
-    finish_worker('SpecificStepsSynchronizer-' << api_classroom_id)
+    finish_worker
   end
 
   protected
 
   attr_accessor :classroom_id, :api_classroom_id
+
+  def worker_name
+    "#{self.class}-#{api_classroom_id}"
+  end
 
   def specific_steps_api
     IeducarApi::SpecificSteps.new(synchronization.to_api)

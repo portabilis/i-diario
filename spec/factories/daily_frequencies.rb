@@ -6,6 +6,7 @@ FactoryGirl.define do
     classroom
     discipline
     class_number 1
+    period 1
     association :school_calendar, factory: :school_calendar_with_one_step
 
     trait :current do

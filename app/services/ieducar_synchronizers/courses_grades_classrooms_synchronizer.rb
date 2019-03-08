@@ -4,7 +4,7 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
                              get_series: true,
                              get_turmas: true)['cursos']
 
-    finish_worker('CoursesGradesClassroomsSynchronizer')
+    finish_worker
   end
 
   protected

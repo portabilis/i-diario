@@ -2,7 +2,7 @@ class ConceptualExamsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_teacher
+  before_action :require_current_teacher, :adjusted_period
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
@@ -55,6 +55,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = find_or_initialize_conceptual_exam
     authorize @conceptual_exam
     @conceptual_exam.assign_attributes(resource_params)
+    @conceptual_exam.step_number = @conceptual_exam.step.step_number
 
     respond_to_save if @conceptual_exam.save
 
@@ -69,7 +70,7 @@ class ConceptualExamsController < ApplicationController
   def edit
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
     @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
-    @conceptual_exam.step_id = steps_fetcher.step(@conceptual_exam.recorded_at).try(:id)
+    @conceptual_exam.step_id = find_step_id
 
     authorize @conceptual_exam
 
@@ -101,7 +102,7 @@ class ConceptualExamsController < ApplicationController
   def destroy
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
     @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
-    @conceptual_exam.step_id = steps_fetcher.step(@conceptual_exam.recorded_at).try(:id)
+    @conceptual_exam.step_id = find_step_id
 
     authorize @conceptual_exam
 
@@ -157,6 +158,10 @@ class ConceptualExamsController < ApplicationController
         :_destroy
       ]
     )
+  end
+
+  def find_step_id
+    steps_fetcher.step(@conceptual_exam.step_number).try(:id)
   end
 
   def find_conceptual_exam
@@ -277,8 +282,10 @@ class ConceptualExamsController < ApplicationController
     @disciplines = fetcher.disciplines
     @disciplines = @disciplines.by_score_type(:concept, @conceptual_exam.try(:student_id)) if @disciplines.present?
 
-    step_number = steps_fetcher.step(@conceptual_exam.recorded_at).try(:to_number)
-    exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(@conceptual_exam.classroom_id, step_number)
+    exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(
+      @conceptual_exam.classroom_id,
+      @conceptual_exam.step_number
+    )
 
     @disciplines = @disciplines.where.not(id: exempted_discipline_ids)
   end
@@ -294,7 +301,8 @@ class ConceptualExamsController < ApplicationController
       start_at: start_at,
       end_at: end_at,
       score_type: StudentEnrollmentScoreTypeFilters::CONCEPT,
-      search_type: :by_date_range
+      search_type: :by_date_range,
+      period: @period
     ).student_enrollments
   end
 
@@ -379,10 +387,21 @@ class ConceptualExamsController < ApplicationController
   helper_method :old_values
 
   def student_exempted_from_discipline?(discipline_id, exempted_disciplines)
-    step_number = steps_fetcher.step(@conceptual_exam.recorded_at).try(:to_number)
-
     exempted_disciplines.by_discipline(discipline_id)
-                        .by_step_number(step_number)
+                        .by_step_number(@conceptual_exam.step_number)
                         .any?
+  end
+
+  def current_teacher_period
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      current_user.current_classroom_id,
+      current_user.current_discipline_id
+    ).teacher_period
+  end
+
+  def adjusted_period
+    teacher_period = current_teacher_period
+    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
   end
 end

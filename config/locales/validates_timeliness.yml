@@ -9,6 +9,8 @@ pt-BR:
       on_or_before: "deve ser igual ou antes de %{restriction}"
       after: "deve ser depois de %{restriction}"
       on_or_after: "deve ser igual ou depois de %{restriction}"
+      on_or_before_message: 'não pode ser maior que a Data final'
+      on_or_after_message: 'deve ser maior ou igual a Data inicial'
   validates_timeliness:
     error_value_formats:
       date: '%d/%m/%Y'

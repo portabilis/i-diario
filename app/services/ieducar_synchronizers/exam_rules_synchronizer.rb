@@ -2,10 +2,24 @@ class ExamRulesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch(ano: years.first)['regras']
 
-    finish_worker('ExamRulesSynchronizer-' << years.first)
+    finish_worker
+  end
+
+  def self.synchronize_in_batch!(synchronization, worker_batch, years = nil, unity_api_code = nil, entity_id = nil)
+    years.each do |year|
+      ExamRulesSynchronizer.synchronize!(
+        synchronization,
+        worker_batch,
+        [year]
+      )
+    end
   end
 
   protected
+
+  def worker_name
+    "#{self.class}-#{years.first}"
+  end
 
   def api
     IeducarApi::ExamRules.new(synchronization.to_api)

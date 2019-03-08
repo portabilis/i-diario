@@ -12,6 +12,7 @@ pt-BR:
         class_numbers: "Aulas"
         start_at: "Data inicial"
         end_at: "Data final"
+        period: "Período"
 
     errors:
       models:

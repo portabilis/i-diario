@@ -1,10 +1,11 @@
 class FrequencyTypeDefiner
   attr_reader :frequency_type
 
-  def initialize(classroom, teacher, exam_rule = nil)
+  def initialize(classroom, teacher, exam_rule = nil, year: nil)
     @classroom = classroom
     @teacher = teacher
     @exam_rule = exam_rule || classroom.try(:exam_rule)
+    @year = year
   end
 
   def define!
@@ -42,7 +43,7 @@ class FrequencyTypeDefiner
   end
 
   def current_year
-    CurrentSchoolYearFetcher.new(unity).fetch
+    @year || CurrentSchoolYearFetcher.new(unity).fetch
   end
 
   def unity
