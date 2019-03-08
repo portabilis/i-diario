@@ -1,4 +1,5 @@
 require 'sidekiq/web'
+require 'sidekiq-status/web'
 
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
@@ -140,7 +141,11 @@ Rails.application.routes.draw do
     end
     resources :courses, only: [:index]
     resources :lectures, only: [:index]
-    resources :maintenance_adjustments, concerns: :history, except: :show
+    resources :maintenance_adjustments, concerns: :history, except: :show do
+      collection do
+        get :any_completed
+      end
+    end
 
     resources :grades, only: [:index]
 

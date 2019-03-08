@@ -17,7 +17,8 @@ module Api
           frequency_date: params[:frequency_date],
           class_numbers: [params[:class_number]],
           discipline_id: params[:discipline_id],
-          school_calendar: current_school_calendar
+          school_calendar: current_school_calendar,
+          period: period
         )
         creator.find_or_create!
 
@@ -58,6 +59,14 @@ module Api
 
       def current_school_calendar
         @current_school_calendar ||= CurrentSchoolCalendarFetcher.new(unity, classroom).fetch
+      end
+
+      def period
+        TeacherPeriodFetcher.new(
+          params['teacher_id'],
+          params['classroom_id'],
+          params['discipline_id']
+        ).teacher_period
       end
     end
   end

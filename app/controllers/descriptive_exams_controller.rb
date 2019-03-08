@@ -1,5 +1,6 @@
 class DescriptiveExamsController < ApplicationController
   before_action :require_teacher
+  before_action :adjusted_period, only: [:edit, :update]
 
   def new
     @descriptive_exam = DescriptiveExam.new
@@ -130,7 +131,8 @@ class DescriptiveExamsController < ApplicationController
       start_at: @descriptive_exam.step.start_at,
       end_at: @descriptive_exam.step.end_at,
       show_inactive_outside_step: false,
-      search_type: :by_date_range
+      search_type: :by_date_range,
+      period: @period
     ).student_enrollments
   end
 
@@ -218,5 +220,18 @@ class DescriptiveExamsController < ApplicationController
 
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
+  end
+
+  def current_teacher_period
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      current_user.current_classroom_id,
+      current_user.current_discipline_id
+    ).teacher_period
+  end
+
+  def adjusted_period
+    teacher_period = current_teacher_period
+    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
   end
 end

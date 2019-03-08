@@ -1,12 +1,5 @@
 class IeducarApiConfigurationsController < ApplicationController
   def edit
-    IeducarApiSynchronization.cancel_not_running_synchronizations(
-      current_user,
-      restart: false
-    )
-
-    check_for_notifications
-
     @ieducar_api_configuration = IeducarApiConfiguration.current
 
     authorize @ieducar_api_configuration

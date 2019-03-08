@@ -4,6 +4,7 @@ class AttendanceRecordReportController < ApplicationController
   def form
     @attendance_record_report_form = AttendanceRecordReportForm.new(
       unity_id: current_user_unity.id,
+      period: current_teacher_period,
       school_calendar_year: current_user_school_year
     )
     fetch_collections
@@ -42,6 +43,7 @@ class AttendanceRecordReportController < ApplicationController
   def resource_params
     params.require(:attendance_record_report_form).permit(:unity_id,
                                                           :classroom_id,
+                                                          :period,
                                                           :discipline_id,
                                                           :class_numbers,
                                                           :start_at,
@@ -62,5 +64,13 @@ class AttendanceRecordReportController < ApplicationController
     rescue ArgumentError
       @attendance_record_report_form.end_at = ''
     end
+  end
+
+  def current_teacher_period
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      current_user.current_classroom_id,
+      current_user.current_discipline_id
+    ).teacher_period
   end
 end

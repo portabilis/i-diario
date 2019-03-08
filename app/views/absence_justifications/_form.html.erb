@@ -2,7 +2,7 @@
   <%= javascript_include_tag 'views/absence_justifications/form' %>
 <% end %>
 
-<%= simple_form_for @absence_justification, html: { class: "smart-form" } do |f| %>
+<%= simple_form_for @absence_justification, html: { class: "smart-form", id: 'absence_justification' } do |f| %>
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
 
@@ -40,6 +40,53 @@
         <%= f.input :justification %>
       </div>
     </div>
+
+  <div class="row textarea">
+    <div class="col col-sm-12">
+      <legend>Anexos</legend>
+      <div class="alert alert-info fade in">
+        <i class="fa-fw fa fa-info"></i>
+        Somente arquivos nos formatos jpeg, jpg, png, gif, pdf, odt, doc, docx, ods, xls, xlsx, odp, ppt, pptx, odg, xml, csv. Tamanho máximo por arquivo: 3MB
+      </div>
+      <br>
+      <% if f.object.errors[:absence_justification_attachments].present? %>
+        <div class="alert alert-danger alert-block ">
+          <i class="fa-fw fa fa-times"></i>
+          <span class="help-inline">
+            <%= f.object.errors[:absence_justification_attachments].join "<br />" %>
+          </span>
+        </div>
+      <% end %>
+      <table class="table table-striped table-bordered table-condensed records">
+        <thead>
+          <tr>
+            <th>Anexo</th>
+            <td width="73px"></td>
+          </tr>
+        </thead>
+
+        <tbody id="absence-justification-attachments">
+          <%= f.simple_fields_for :absence_justification_attachments, f.object.absence_justification_attachments do |attachment| %>
+            <% if attachment.object.persisted? %>
+              <%= render 'absence_justification_attachment_show', f: attachment %>
+            <% else %>
+              <%= render 'absence_justification_attachment_fields', f: attachment %>
+            <% end %>
+          <% end %>
+        </tbody>
+        <tfoot class="links">
+          <tr>
+            <td colspan="2">
+              <%= link_to_add_association t('.add_attachment'), f, :absence_justification_attachments,
+                class: 'btn btn-success btn-sm',
+                :"data-association-insertion-method" => "append",
+                :"data-association-insertion-node" => "#absence-justification-attachments" %>
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
 
   <%= hidden_field_tag :current_date, Time.now.strftime("%d/%m/%Y") %>
   <%= hidden_field_tag :teacher_id, current_teacher %>
