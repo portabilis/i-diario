@@ -75,7 +75,7 @@ class Avaliation < ActiveRecord::Base
   attr_accessor :include
 
   def self.by_step_id(classroom, step_id)
-    step = StepsFetcher.new(classroom).step_by_id(step_id)
+    step = StepsFetcher.new(classroom).steps.find(step_id)
 
     where(arel_table[:test_date].gteq(step.start_at)).where(arel_table[:test_date].lteq(step.end_at))
   end

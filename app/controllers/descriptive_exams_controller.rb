@@ -87,7 +87,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def find_step_number
-    steps_fetcher.step_by_id(@descriptive_exam.step_id).step_number
+    steps_fetcher.step_by_id(@descriptive_exam.step_id).try(:step_number)
   end
 
   def find_or_create_descriptive_exam
