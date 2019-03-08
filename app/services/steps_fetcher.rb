@@ -15,6 +15,10 @@ class StepsFetcher
     school_calendar_steps.started_after_and_before(date).first
   end
 
+  def step_by_id(step_id)
+    school_calendar_steps.find_by(id: step_id)
+  end
+
   def current_step
     step_by_date(Date.current)
   end

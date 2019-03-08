@@ -44,7 +44,7 @@ class DisciplineTeachingPlan < ActiveRecord::Base
 
   validate :uniqueness_of_discipline_teaching_plan, if: :teaching_plan
 
-  def ignore_teacher
+  def optional_teacher
     true
   end
 

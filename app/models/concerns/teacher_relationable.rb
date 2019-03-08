@@ -1,7 +1,7 @@
 module TeacherRelationable
   extend ActiveSupport::Concern
 
-  attr_accessor :teacher_id, :validation_type, :ignore_teacher
+  attr_accessor :teacher_id, :validation_type, :optional_teacher
 
   included do
     before_destroy :set_validation_type_to_destroy
@@ -44,7 +44,7 @@ module TeacherRelationable
   private
 
   def set_teacher_id
-    return if ignore_teacher && (!defined?(teacher) || teacher.nil?)
+    return if optional_teacher && (!defined?(teacher) || teacher.nil?)
 
     self.teacher_id = teacher.id if defined?(teacher) && !teacher.nil?
   end
@@ -58,7 +58,7 @@ module TeacherRelationable
   end
 
   def validate_columns?
-    return false if ignore_teacher && teacher_id.nil?
+    return false if optional_teacher && teacher_id.nil?
 
     valid_validation_type?
   end
@@ -84,7 +84,7 @@ module TeacherRelationable
   end
 
   def ensure_has_teacher_id_informed
-    return if ignore_teacher
+    return if optional_teacher
 
     raise ArgumentError if valid_validation_type? && teacher_id.blank?
   end

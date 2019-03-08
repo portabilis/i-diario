@@ -9,7 +9,7 @@ class StudentsController < ApplicationController
       step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
 
       if step_id.present?
-        step = steps_fetcher.steps.find(step_id)
+        step = steps_fetcher.step_by_id(step_id)
         start_date ||= step.start_at
         end_date ||= step.end_at
       end
@@ -91,7 +91,7 @@ class StudentsController < ApplicationController
   end
 
   def step
-    @step ||= steps_fetcher.steps.find(params[:step_id])
+    @step ||= steps_fetcher.step_by_id(params[:step_id])
   end
 
   def configuration

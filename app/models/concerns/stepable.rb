@@ -23,7 +23,7 @@ module Stepable
     end
 
     def by_step_id(classroom, step_id)
-      step = StepsFetcher.new(classroom).steps.find(step_id)
+      step = StepsFetcher.new(classroom).step_by_id(step_id)
 
       by_step_number(step.step_number)
     end
@@ -34,7 +34,7 @@ module Stepable
   end
 
   def step
-    return steps_fetcher.steps.find(step_id) if step_id.present?
+    return steps_fetcher.step_by_id(step_id) if step_id.present?
 
     steps_fetcher.step(step_number)
   end

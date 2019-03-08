@@ -87,7 +87,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def find_step_number
-    steps_fetcher.steps.find(@descriptive_exam.step_id).step_number
+    steps_fetcher.step_by_id(@descriptive_exam.step_id).step_number
   end
 
   def find_or_create_descriptive_exam
@@ -121,9 +121,13 @@ class DescriptiveExamsController < ApplicationController
   def recorded_at_by_step
     @descriptive_exam.step_id = steps_fetcher.steps.first.id if opinion_type_by_year?
 
-    date = (@descriptive_exam.step_id.present?) ? steps_fetcher.steps.find(@descriptive_exam.step_id).end_at : Date.current
+    date = if @descriptive_exam.step_id.present?
+             steps_fetcher.step_by_id(@descriptive_exam.step_id).end_at
+           else
+             Date.current
+           end
 
-    (Date.current > date) ? date : Date.current
+    Date.current > date ? date : Date.current
   end
 
   def fetch_student_enrollments

@@ -129,7 +129,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def exempted_disciplines
-    step = steps_fetcher.steps.find(params[:step_id])
+    step = steps_fetcher.step_by_id(params[:step_id])
     student_enrollments = student_enrollments(step.start_at, step.end_at)
 
     exempted_disciplines = student_enrollments.find do |item|

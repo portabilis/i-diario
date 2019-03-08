@@ -81,7 +81,7 @@ class ComplementaryExamsController < ApplicationController
   def settings
     classroom = Classroom.find(params[:classroom_id])
     discipline = Discipline.find(params[:discipline_id])
-    step = StepsFetcher.new(classroom).steps.find(params[:step_id])
+    step = StepsFetcher.new(classroom).step_by_id(params[:step_id])
 
     render(json: _complementary_exam_settings(classroom, discipline, step))
   end

@@ -67,7 +67,7 @@ class DailyFrequency < ActiveRecord::Base
     super(value)
   end
 
-  def ignore_teacher
+  def optional_teacher
     true
   end
 

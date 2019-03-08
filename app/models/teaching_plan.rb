@@ -68,7 +68,7 @@ class TeachingPlan < ActiveRecord::Base
     end
   end
 
-  def ignore_teacher
+  def optional_teacher
     true
   end
 

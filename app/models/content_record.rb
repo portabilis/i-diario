@@ -4,7 +4,7 @@ class ContentRecord < ActiveRecord::Base
 
   teacher_relation_columns only: :classroom
 
-  audited except: [:teacher_id]
+  audited
   has_associated_audits
 
   acts_as_copy_target
