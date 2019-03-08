@@ -66,7 +66,7 @@ class ContentsForKnowledgeAreaRecordFetcher
   end
 
   def school_term
-    step = StepsFetcher.new(@classroom).step(@date.to_date)
+    step = StepsFetcher.new(@classroom).step_by_date(@date.to_date)
     school_term = step.try(:raw_school_term) || ''
     school_term = '' if school_term == SchoolTermTypes::YEARLY
     school_term
