@@ -41,9 +41,10 @@ class ContentsForDisciplineRecordFetcher
   def teaching_plans
     @teaching_plans ||= begin
       teaching_plans = DisciplineTeachingPlan.includes(teaching_plan: :contents)
-                                             .by_grade(@classroom.grade.id)
+                                             .by_unity(@classroom.unity_id)
+                                             .by_grade(@classroom.grade_id)
                                              .by_discipline(@discipline.id)
-                                             .by_year(@date.to_date.year)
+                                             .by_year(school_calendar_year)
                                              .by_school_term(school_term)
 
       teacher_teaching_plans = teaching_plans.by_teacher_id(@teacher.id)
@@ -65,8 +66,16 @@ class ContentsForDisciplineRecordFetcher
     end
   end
 
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(@classroom)
+  end
+
+  def school_calendar_year
+    steps_fetcher.school_calendar.try(:year) || @date.to_date.year
+  end
+
   def school_term
-    step = StepsFetcher.new(@classroom).step_by_date(@date.to_date)
+    step = steps_fetcher.step_by_date(@date.to_date)
     school_term = step.try(:raw_school_term) || ''
     school_term = '' if school_term == SchoolTermTypes::YEARLY
     school_term
