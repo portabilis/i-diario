@@ -6,13 +6,14 @@ class TeacherPeriodFetcher
   end
 
   def teacher_period
-    period = TeacherDisciplineClassroom.find_by(
-      teacher_id: @teacher_id,
-      classroom_id: @classroom_id,
-      discipline_id: @discipline_id
-    ).period
-    period ||= Classroom.find(@classroom_id).period.to_i
+    period = if @teacher_id
+               TeacherDisciplineClassroom.find_by(
+                 teacher_id: @teacher_id,
+                 classroom_id: @classroom_id,
+                 discipline_id: @discipline_id
+               ).period
+             end
 
-    period
+    period || Classroom.find(@classroom_id).period.to_i
   end
 end
