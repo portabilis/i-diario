@@ -275,6 +275,8 @@ class DailyFrequenciesController < ApplicationController
         :period
       )
     )
+  rescue ActiveRecord::RecordNotUnique
+    retry
   end
 
   def student_has_dependence?(student_enrollment, discipline)
