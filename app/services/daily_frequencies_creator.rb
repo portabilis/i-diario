@@ -35,32 +35,32 @@ class DailyFrequenciesCreator
   end
 
   def find_or_create_daily_frequency_students
-    student_enrollments.each do |student_enrollment|
-      student = student_enrollment.student
-      dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
-      @daily_frequencies.each do |daily_frequency|
-        find_or_create_daily_frequency_student(daily_frequency, student, dependence)
+    @daily_frequencies.each do |daily_frequency|
+      student_ids = daily_frequency.students.map(&:student_id)
+
+      student_enrollments(student_ids).each do |student_enrollment|
+        find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
       end
     end
   end
 
-  def find_or_create_daily_frequency_student(daily_frequency, student, dependence)
-    begin
-      daily_frequency.students.find_or_create_by(student_id: student.id) do |daily_frequency_student|
-        daily_frequency_student.dependence = dependence
-        daily_frequency_student.present = true
-        daily_frequency_student.active = true
-      end
-    rescue ActiveRecord::RecordNotUnique
+  def find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
+    daily_frequency.students.find_or_create_by(student_id: student_enrollment.student_id) do |daily_frequency_student|
+      daily_frequency_student.dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
+      daily_frequency_student.present = true
+      daily_frequency_student.active = true
     end
+  rescue ActiveRecord::RecordNotUnique
+    retry
   end
 
-  def student_enrollments
+  def student_enrollments(not_student_ids)
     @student_enrollments ||= begin
       if first_daily_frequency.blank?
         student_enrollments = []
       else
         student_enrollments = StudentEnrollment.includes(:student)
+                                               .where.not(student_id: not_student_ids)
                                                .by_classroom(first_daily_frequency.classroom)
                                                .by_discipline(first_daily_frequency.discipline)
                                                .by_date(@params[:frequency_date])
