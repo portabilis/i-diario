@@ -10,8 +10,6 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   has_many :knowledge_area_teaching_plan_knowledge_areas, dependent: :destroy
   has_many :knowledge_areas, through: :knowledge_area_teaching_plan_knowledge_areas
 
-  before_destroy :remove_attachments
-
   delegate :contents, to: :teaching_plan
 
   accepts_nested_attributes_for :teaching_plan
@@ -108,10 +106,5 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
     if knowledge_area_teaching_plans.any?
       errors.add(:base, :uniqueness_of_knowledge_area_teaching_plan)
     end
-  end
-
-  def remove_attachments
-    teaching_plan.teaching_plan_attachments.each(&:destroy)
-    teaching_plan.save
   end
 end

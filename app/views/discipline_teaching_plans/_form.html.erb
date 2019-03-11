@@ -1,4 +1,5 @@
 <% content_for :js do %>
+  <%= javascript_include_tag 'attachemnt_size_validator' %>
   <%= javascript_include_tag 'views/discipline_teaching_plans/form' %>
 <% end %>
 
@@ -120,7 +121,7 @@
           <legend>Anexos</legend>
           <div class="alert alert-info fade in">
             <i class="fa-fw fa fa-info"></i>
-            Somente arquivos nos formatos jpeg, jpg, png, gif, pdf, odt, doc, docx, ods, xls, xlsx, odp, ppt, pptx, odg, xml, csv. Tamanho máximo por arquivo: 3MB
+            <%= t('.format_message') + ' ' + t('.size_message') %>
           </div>
           <br>
           <% if teaching_plan_form.object.errors[:teaching_plan_attachments].present? %>
@@ -134,7 +135,7 @@
           <table class="table table-striped table-bordered table-condensed records">
             <thead>
               <tr>
-                <th>Anexo</th>
+                <th><%= t('.attachments') %></th>
                 <td width="73px"></td>
               </tr>
             </thead>

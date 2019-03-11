@@ -9,8 +9,6 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   belongs_to :teaching_plan, dependent: :destroy
   belongs_to :discipline
 
-  before_destroy :remove_attachments
-
   delegate :contents, to: :teaching_plan
 
   accepts_nested_attributes_for :teaching_plan
@@ -57,10 +55,5 @@ class DisciplineTeachingPlan < ActiveRecord::Base
     discipline_teaching_plans = discipline_teaching_plans.where.not(id: id) if persisted?
 
     errors.add(:base, :uniqueness_of_discipline_teaching_plan) if discipline_teaching_plans.any?
-  end
-
-  def remove_attachments
-    teaching_plan.teaching_plan_attachments.each(&:destroy)
-    teaching_plan.save
   end
 end
