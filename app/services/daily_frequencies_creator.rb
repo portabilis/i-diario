@@ -39,13 +39,13 @@ class DailyFrequenciesCreator
       student_ids = daily_frequency.students.map(&:student_id)
 
       student_enrollments(student_ids).each do |student_enrollment|
-        find_or_create_daily_frequency_student(daily_frequency, student_enrollment.student)
+        find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
       end
     end
   end
 
-  def find_or_create_daily_frequency_student(daily_frequency, student)
-    daily_frequency.students.find_or_create_by(student_id: student.id) do |daily_frequency_student|
+  def find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
+    daily_frequency.students.find_or_create_by(student_id: student_enrollment.student_id) do |daily_frequency_student|
       daily_frequency_student.dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
       daily_frequency_student.present = true
       daily_frequency_student.active = true
