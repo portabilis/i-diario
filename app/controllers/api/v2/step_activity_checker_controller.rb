@@ -11,9 +11,9 @@ module Api
 
                          check_by_unity(unity_id, step_number)
                        else
-                         classroom_id = Classroom.find_by(api_code: params[:classroom_id]).id
+                         @classroom = Classroom.find_by(api_code: params[:classroom_id])
 
-                         check_by_classroom(classroom_id, step_number)
+                         check_by_classroom(@classroom.id, step_number)
                        end
 
         render json: has_activity
@@ -42,7 +42,7 @@ module Api
       end
 
       def check_by_classroom(classroom_id, step_number)
-        calendar_step = school_classroom_calendar_step(classroom_id, step_number)
+        calendar_step = school_classroom_calendar_step(step_number)
 
         daily_frequencies = frequencies_in_step(
           calendar_step.school_calendar_id,
@@ -70,10 +70,8 @@ module Api
                           .first
       end
 
-      def school_classroom_calendar_step(classroom_id, step_number)
-        classroom = Classroom.find(classroom_id)
-
-        StepsFetcher.new(classroom).step(step_number)
+      def school_classroom_calendar_step(step_number)
+        StepsFetcher.new(@classroom).step(step_number)
       end
 
       def frequencies_in_step(school_calendar_id, start_at, end_at)
