@@ -32,6 +32,12 @@ module Api
 
         return true if daily_frequencies.any?
 
+        avaliations = Avaliation.by_unity_id(unity_id)
+                                .by_school_calendar_step(calendar_step.id)
+                                .limit(1)
+
+        return true if avaliations.any?
+
         false
       end
 
@@ -45,6 +51,12 @@ module Api
         ).by_classroom_id(classroom_id)
 
         return true if daily_frequencies.any?
+
+        avaliations = Avaliation.by_classroom_id(classroom_id)
+                                .by_school_calendar_classroom_step(calendar_step.id)
+                                .limit(1)
+
+        return true if avaliations.any?
 
         false
       end
