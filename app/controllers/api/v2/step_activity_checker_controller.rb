@@ -24,35 +24,27 @@ module Api
       def check_by_unity(unity_id, step_number)
         calendar_step = school_calendar_step(unity_id, step_number)
 
-        daily_frequencies = frequencies_in_step(
+        return true if frequencies_in_step(
           calendar_step.school_calendar_id,
           calendar_step.start_at,
           calendar_step.end_at
-        ).by_unity_id(unity_id)
+        ).by_unity_id(unity_id).exists?
 
-        return true if daily_frequencies.any?
+        return true if Avaliation.by_unity_id(unity_id)
+                                 .by_school_calendar_step(calendar_step.id)
+                                 .exists?
 
-        avaliations = Avaliation.by_unity_id(unity_id)
-                                .by_school_calendar_step(calendar_step.id)
-                                .limit(1)
-
-        return true if avaliations.any?
-
-        conceptual_exams = conceptual_exams_in_step(
+        return true if conceptual_exams_in_step(
           step_number,
           calendar_step.start_at,
           calendar_step.end_at
-        ).by_unity(unity_id)
+        ).by_unity(unity_id).exists?
 
-        return true if conceptual_exams.any?
-
-        descriptive_exams = descriptive_exams_in_step(
+        return true if descriptive_exams_in_step(
           step_number,
           calendar_step.start_at,
           calendar_step.end_at
-        ).by_unity_id(unity_id)
-
-        return true if descriptive_exams.any?
+        ).by_unity_id(unity_id).exists?
 
         false
       end
@@ -60,35 +52,27 @@ module Api
       def check_by_classroom(classroom_id, step_number)
         calendar_step = school_classroom_calendar_step(step_number)
 
-        daily_frequencies = frequencies_in_step(
+        return true if frequencies_in_step(
           calendar_step.school_calendar_id,
           calendar_step.start_at,
           calendar_step.end_at
-        ).by_classroom_id(classroom_id)
+        ).by_classroom_id(classroom_id).exists?
 
-        return true if daily_frequencies.any?
+        return true if Avaliation.by_classroom_id(classroom_id)
+                                 .by_school_calendar_classroom_step(calendar_step.id)
+                                 .exists?
 
-        avaliations = Avaliation.by_classroom_id(classroom_id)
-                                .by_school_calendar_classroom_step(calendar_step.id)
-                                .limit(1)
-
-        return true if avaliations.any?
-
-        conceptual_exams = conceptual_exams_in_step(
+        return true if conceptual_exams_in_step(
           step_number,
           calendar_step.start_at,
           calendar_step.end_at
-        ).by_classroom(@classroom)
+        ).by_classroom(@classroom).exists?
 
-        return true if conceptual_exams.any?
-
-        descriptive_exams = descriptive_exams_in_step(
+        return true if descriptive_exams_in_step(
           step_number,
           calendar_step.start_at,
           calendar_step.end_at
-        ).by_classroom_id(@classroom.id)
-
-        return true if descriptive_exams.any?
+        ).by_classroom_id(@classroom.id).exists?
 
         false
       end
