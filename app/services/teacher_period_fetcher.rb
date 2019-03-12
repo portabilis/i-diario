@@ -6,7 +6,7 @@ class TeacherPeriodFetcher
   end
 
   def teacher_period
-    return Classroom.find(@classroom_id).period.to_i if @teacher_id.blank?
+    return classroom_period if @teacher_id.blank?
 
     teacher_discipline_classrooms = TeacherDisciplineClassroom.where(
       teacher_id: @teacher_id,
@@ -17,6 +17,10 @@ class TeacherPeriodFetcher
       teacher_discipline_classrooms = teacher_discipline_classrooms.where(discipline_id: @discipline_id)
     end
 
-    teacher_discipline_classrooms.first.try(:period)
+    teacher_discipline_classrooms.first.try(:period) || classroom_period
+  end
+
+  def classroom_period
+    @classroom_period ||= Classroom.find(@classroom_id).period.to_i
   end
 end
