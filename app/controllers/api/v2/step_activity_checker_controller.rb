@@ -38,6 +38,14 @@ module Api
 
         return true if avaliations.any?
 
+        conceptual_exams = conceptual_exams_in_step(
+          step_number,
+          calendar_step.start_at,
+          calendar_step.end_at
+        ).by_unity(unity_id)
+
+        return true if conceptual_exams.any?
+
         false
       end
 
@@ -58,6 +66,14 @@ module Api
 
         return true if avaliations.any?
 
+        conceptual_exams = conceptual_exams_in_step(
+          step_number,
+          calendar_step.start_at,
+          calendar_step.end_at
+        ).by_classroom(@classroom)
+
+        return true if conceptual_exams.any?
+
         false
       end
 
@@ -77,6 +93,12 @@ module Api
       def frequencies_in_step(school_calendar_id, start_at, end_at)
         DailyFrequency.by_school_calendar_id(school_calendar_id)
                       .by_frequency_date_between(start_at, end_at)
+                      .limit(1)
+      end
+
+      def conceptual_exams_in_step(step_number, start_at, end_at)
+        ConceptualExam.by_recorded_at_between(start_at, end_at)
+                      .where(step_number: step_number)
                       .limit(1)
       end
     end
