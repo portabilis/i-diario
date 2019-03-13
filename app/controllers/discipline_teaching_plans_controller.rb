@@ -134,6 +134,11 @@ class DisciplineTeachingPlansController < ApplicationController
           :id,
           :description,
           :_destroy
+        ],
+        teaching_plan_attachments_attributes: [
+          :id,
+          :attachment,
+          :_destroy
         ]
       ]
     )
