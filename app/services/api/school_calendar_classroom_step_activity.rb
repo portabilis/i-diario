@@ -1,8 +1,8 @@
 module Api
   class SchoolCalendarClassroomStepActivity < BaseSchoolCalendarStepActivity
-    def initialize(classroom_id, calendar_step, step_number)
+    def initialize(classroom_id, step_number)
       @classroom_id = classroom_id
-      @calendar_step = calendar_step
+      @calendar_step = school_classroom_calendar_step(step_number)
       @step_number = step_number
     end
 
@@ -30,6 +30,12 @@ module Api
       ).by_classroom_id(@classroom_id).exists?
 
       false
+    end
+
+    private
+
+    def school_classroom_calendar_step(step_number)
+      StepsFetcher.new(@classroom).step(step_number)
     end
   end
 end

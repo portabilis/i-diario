@@ -1,4 +1,6 @@
 class BaseSchoolCalendarStepActivity
+  private
+
   def frequencies_in_step(school_calendar_id, start_at, end_at)
     DailyFrequency.by_school_calendar_id(school_calendar_id)
                   .by_frequency_date_between(start_at, end_at)
