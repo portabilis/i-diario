@@ -114,6 +114,7 @@ Rails.application.routes.draw do
       collection do
         get :export_all
         get :export_selected
+        get :select2_remote
       end
     end
 
@@ -138,6 +139,7 @@ Rails.application.routes.draw do
         post :create_batch
         get :search
         get :all
+        get :select2_remote
       end
     end
     resources :courses, only: [:index]
