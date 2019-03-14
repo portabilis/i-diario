@@ -129,7 +129,7 @@ $(function(){
                 format: 'json'
             }),
             success: function(data){
-              if(data.user_role.role.access_level == 'teacher' || can_change_school_year){
+              if(data.user_role.role.access_level == 'teacher'){
                 fetchTeachers(
                   unity_id,
                   $('form#user-role #user_current_school_year').val(),
@@ -475,6 +475,12 @@ $(function(){
 
   function valueSelected(select2Element){
     return !(_.isEmpty(select2Element.val()) || select2Element.val() == 0);
+  }
+
+  var valid_current_role = $('#valid_current_role').val();
+
+  if(valid_current_role === "false"){
+    $("#role-modal").modal('show');
   }
 });
 
