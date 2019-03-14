@@ -4,7 +4,7 @@ class TeachersSynchronizer < BaseSynchronizer
       update_records(api.fetch(ano: year)['servidores'], year)
     end
 
-    finish_worker('TeachersSynchronizer')
+    finish_worker
   end
 
   protected

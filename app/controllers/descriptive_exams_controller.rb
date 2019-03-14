@@ -1,5 +1,6 @@
 class DescriptiveExamsController < ApplicationController
   before_action :require_teacher
+  before_action :adjusted_period, only: [:edit, :update]
 
   def new
     @descriptive_exam = DescriptiveExam.new
@@ -10,6 +11,7 @@ class DescriptiveExamsController < ApplicationController
   def create
     @descriptive_exam = DescriptiveExam.new(resource_params)
     @descriptive_exam.recorded_at = recorded_at_by_step
+    @descriptive_exam.step_number = find_step_number
 
     if @descriptive_exam.valid?
       @descriptive_exam = find_or_create_descriptive_exam
@@ -31,7 +33,7 @@ class DescriptiveExamsController < ApplicationController
   def update
     @descriptive_exam = DescriptiveExam.find(params[:id])
     @descriptive_exam.assign_attributes(resource_params)
-    @descriptive_exam.step_id = steps_fetcher.step(@descriptive_exam.recorded_at).try(:id) unless opinion_type_by_year?
+    @descriptive_exam.step_id = find_step_id unless opinion_type_by_year?
 
     authorize @descriptive_exam
 
@@ -79,25 +81,32 @@ class DescriptiveExamsController < ApplicationController
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 
-  def find_or_create_descriptive_exam
-    step_id = @descriptive_exam.step.id
+  def find_step_id
+    steps_fetcher.step(@descriptive_exam.step_number).try(:id)
+  end
 
+  def find_step_number
+    steps_fetcher.steps.find(@descriptive_exam.step_id).step_number
+  end
+
+  def find_or_create_descriptive_exam
     descriptive_exam = DescriptiveExam.by_classroom_id(@descriptive_exam.classroom_id)
                                       .by_discipline_id(@descriptive_exam.discipline_id)
-                                      .by_step_id(@descriptive_exam.classroom, @descriptive_exam.step.id)
+                                      .by_step_id(@descriptive_exam.classroom, @descriptive_exam.step_id)
                                       .first
 
-    unless descriptive_exam.present?
+    if descriptive_exam.blank?
       descriptive_exam = DescriptiveExam.create!(
         classroom_id: @descriptive_exam.classroom_id,
         discipline_id: @descriptive_exam.discipline_id,
         recorded_at: @descriptive_exam.recorded_at,
         opinion_type: @descriptive_exam.opinion_type,
-        step_id: @descriptive_exam.step_id
+        step_id: @descriptive_exam.step_id,
+        step_number: @descriptive_exam.step_number
       )
     end
 
-    descriptive_exam.update_attribute(:opinion_type, @descriptive_exam.opinion_type)
+    descriptive_exam.update(opinion_type: @descriptive_exam.opinion_type)
 
     descriptive_exam
   end
@@ -122,7 +131,8 @@ class DescriptiveExamsController < ApplicationController
       start_at: @descriptive_exam.step.start_at,
       end_at: @descriptive_exam.step.end_at,
       show_inactive_outside_step: false,
-      search_type: :by_date_range
+      search_type: :by_date_range,
+      period: @period
     ).student_enrollments
   end
 
@@ -210,5 +220,18 @@ class DescriptiveExamsController < ApplicationController
 
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
+  end
+
+  def current_teacher_period
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      current_user.current_classroom_id,
+      current_user.current_discipline_id
+    ).teacher_period
+  end
+
+  def adjusted_period
+    teacher_period = current_teacher_period
+    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
   end
 end

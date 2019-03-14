@@ -48,6 +48,7 @@
                   </td>
 
                   <% school_calendar.steps.each_with_index do |step, index| %>
+                    <input type="hidden" name="synchronize[][steps][][step_number]" value="<%= step.step_number %>">
                     <input type="hidden" name="synchronize[][steps][][start_at]" value="<%= step.start_at %>">
                     <input type="hidden" name="synchronize[][steps][][end_at]" value="<%= step.end_at %>">
                     <input type="hidden" name="synchronize[][steps][][start_date_for_posting]" value="<%= step.start_date_for_posting %>">
@@ -61,6 +62,7 @@
                     <input type="hidden" name="synchronize[][classrooms][][step_type_description]" value="<%= classroom.step_type_description %>">
 
                     <% classroom.classroom_steps.each_with_index do |step, index| %>
+                      <input type="hidden" name="synchronize[][classrooms][][steps][][step_number]" value="<%= step.step_number %>">
                       <input type="hidden" name="synchronize[][classrooms][][steps][][start_at]" value="<%= step.start_at %>">
                       <input type="hidden" name="synchronize[][classrooms][][steps][][end_at]" value="<%= step.end_at %>">
                       <input type="hidden" name="synchronize[][classrooms][][steps][][start_date_for_posting]" value="<%= step.start_date_for_posting %>">

@@ -1,8 +1,8 @@
 class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch["dispensas"]
+    update_records api.fetch['dispensas']
 
-    finish_worker('StudentEnrollmentExemptedDisciplinesSynchronizer')
+    finish_worker
   end
 
   protected
@@ -16,18 +16,24 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
       dispensed_discipline_ids_to_keep = []
 
       collection.each do |record|
-        student_enrollment = StudentEnrollment.find_by_api_code(record["matricula_id"])
+        student_enrollment = StudentEnrollment.find_by(api_code: record['matricula_id'])
         student_enrollment_id = student_enrollment.try(&:id)
-        discipline_id = Discipline.find_by_api_code(record["disciplina_id"]).try(&:id)
+        discipline_id = Discipline.find_by(api_code: record['disciplina_id']).try(&:id)
 
-        if student_enrollment_id.present? && discipline_id.present?
-          dispensed_disciplines = StudentEnrollmentExemptedDiscipline.find_or_create_by(student_enrollment_id: student_enrollment_id,
-                                                                                        discipline_id: discipline_id)
-          dispensed_disciplines.update_attribute(:steps, record["etapas"])
+        next unless student_enrollment_id.present? && discipline_id.present?
 
-          dispensed_discipline_ids_to_keep << dispensed_disciplines.id
-          remove_dispensed_exams_and_frequencies(student_enrollment, discipline_id, record["etapas"].split(','))
-        end
+        dispensed_disciplines = StudentEnrollmentExemptedDiscipline.find_or_create_by(
+          student_enrollment_id: student_enrollment_id,
+          discipline_id: discipline_id
+        )
+        dispensed_disciplines.update_attribute(:steps, record['etapas'])
+
+        dispensed_discipline_ids_to_keep << dispensed_disciplines.id
+        remove_dispensed_exams_and_frequencies(
+          student_enrollment,
+          discipline_id,
+          record['etapas'].split(',')
+        )
       end
 
       destroy_inexisting_dispensed_disciplines(dispensed_discipline_ids_to_keep)
@@ -36,14 +42,16 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
 
   def remove_dispensed_exams_and_frequencies(student_enrollment, discipline_id, steps)
     classroom = student_enrollment.student_enrollment_classrooms.first.classroom
-    return unless classroom.present?
+
+    return if classroom.blank?
+
     school_calendar = CurrentSchoolCalendarFetcher.new(classroom.unity, classroom).fetch
-    return unless school_calendar.present?
+
+    return if school_calendar.blank?
 
     steps.each do |step_number|
-
-      step = school_calendar.steps.ordered.find{|step|
-        step.to_number == step_number.to_i
+      step = school_calendar.steps.ordered.find { |school_calendar_step|
+        school_calendar_step.to_number == step_number.to_i
       }
 
       next unless step
@@ -57,8 +65,8 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
                       .delete_all
 
       student_conceptual_exams = ConceptualExam.where(student_id: student_enrollment.student_id)
-                                                .where(recorded_at: start_date..end_date)
-                                                .pluck(:id)
+                                               .where(recorded_at: start_date..end_date)
+                                               .pluck(:id)
 
       ConceptualExamValue.where(discipline_id: discipline_id)
                          .where(conceptual_exam_id: student_conceptual_exams)
@@ -69,7 +77,6 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
                            .by_frequency_date_between(start_date, end_date)
                            .delete_all
     end
-
   end
 
   def destroy_inexisting_dispensed_disciplines(dispensed_discipline_ids_to_keep)

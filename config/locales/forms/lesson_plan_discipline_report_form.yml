@@ -8,6 +8,7 @@ pt-BR:
         discipline_id: "Disciplina"
         class_numbers: "Aulas"
         unity_id: "Escola"
+        author: "Autor"
 
     errors:
       models:

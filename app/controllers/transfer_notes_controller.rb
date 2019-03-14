@@ -27,6 +27,7 @@ class TransferNotesController < ApplicationController
   def create
     @transfer_note = TransferNote.new.localized
     @transfer_note.assign_attributes(resource_params)
+    @transfer_note.step_number = @transfer_note.step.step_number
     @transfer_note.teacher = current_teacher
 
     authorize @transfer_note
@@ -40,7 +41,7 @@ class TransferNotesController < ApplicationController
 
   def edit
     @transfer_note = TransferNote.find(params[:id]).localized
-    @transfer_note.step_id = steps_fetcher.step(@transfer_note.recorded_at).try(:id)
+    @transfer_note.step_id = steps_fetcher.step(@transfer_note.step_number).try(:id)
     @students_ordered = @transfer_note.daily_note_students.ordered
 
     authorize @transfer_note
