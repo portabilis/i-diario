@@ -23,6 +23,12 @@
           <%= f.input :secret_token %>
         </div>
       </div>
+
+       <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :api_security_token, readonly: true %>
+        </div>
+       </div>
     </fieldset>
 
     <footer>
