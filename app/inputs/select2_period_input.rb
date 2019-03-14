@@ -13,7 +13,7 @@ class Select2PeriodInput < Select2Input
   end
 
   def parse_collection
-    classroom_period = options[:user].current_classroom.period
+    classroom_period = options[:user].current_classroom.try(:period)
     periods = JSON.parse(PeriodsDecorator.data_for_select2)
 
     if classroom_period == Periods::FULL
