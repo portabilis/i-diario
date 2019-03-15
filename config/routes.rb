@@ -301,6 +301,7 @@ Rails.application.routes.draw do
     post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
 
     get '/reports/partial_score_record', to: 'partial_score_record_report#form', as: 'partial_score_record_report'
+    get '/reports/partial_score_record/students_by_daily_note', to: 'partial_score_record_report#students_by_daily_note', as: 'students_by_daily_note'
     post '/reports/partial_score_record', to: 'partial_score_record_report#report', as: 'exam_record_report'
 
     get '/reports/observation_record', to: 'observation_record_report#form', as: 'observation_record_report'
