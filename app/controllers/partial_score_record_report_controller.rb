@@ -37,11 +37,9 @@ class PartialScoreRecordReportController < ApplicationController
                           .select(:student_id)
     ).ordered
 
-    if params['classroom_id'].present?
-      respond_with @students_by_daily_note
-    else
-      @students_by_daily_note
-    end
+    respond_with @students_by_daily_note if params['classroom_id'].present?
+
+    @students_by_daily_note
   end
 
   private
