@@ -4,6 +4,7 @@ pt-BR:
       by_classroom_id: "Filtrar turma"
       by_discipline_id: "Filtrar disciplina"
       by_date: "Filtrar data"
+      by_author: "Filtrar autor"
       new_html: "<i class='fa fa-plus'></i> Novo plano de aula"
     content_fields:
       remove: "Remover"

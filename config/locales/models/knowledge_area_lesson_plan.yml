@@ -11,7 +11,7 @@ pt-BR:
         lesson_plan_id: "Plano de aula"
         knowledge_areas: "Áreas de conhecimento"
         knowledge_area_ids: "Áreas de conhecimento"
-
+        author: "Autor"
     errors:
       models:
         knowledge_area_lesson_plan:

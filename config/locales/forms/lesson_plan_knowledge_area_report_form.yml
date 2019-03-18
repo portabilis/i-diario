@@ -7,6 +7,7 @@ pt-BR:
         date_end: "Data final"
         knowledge_area_id: "Áreas de conhecimento"
         unity_id: "Escola"
+        author: "Autor"
 
     errors:
       models:

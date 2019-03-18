@@ -1,4 +1,4 @@
-class TeachingPlanDecorator
+class LessonPlanDecorator
   include Decore
   include Decore::Proxy
 

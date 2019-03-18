@@ -35,11 +35,11 @@ class StepsFetcher
     old_steps_by_step_number(step_number)
   end
 
-  private
-
   def school_calendar
     @school_calendar ||= SchoolCalendar.find_by(unity_id: @classroom.unity_id, year: @classroom.year)
   end
+
+  private
 
   def school_calendar_classroom
     @school_calendar_classroom ||= school_calendar.classrooms.find_by(classroom_id: @classroom.id)

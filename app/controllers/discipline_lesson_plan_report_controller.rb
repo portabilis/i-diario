@@ -57,10 +57,14 @@ class DisciplineLessonPlanReportController < ApplicationController
   end
 
   def resource_params
-    params.require(:discipline_lesson_plan_report_form).permit(:unity_id, :classroom_id,
-                                                                          :discipline_id,
-                                                                          :date_start,
-                                                                          :date_end)
+    params.require(:discipline_lesson_plan_report_form).permit(
+      :unity_id,
+      :classroom_id,
+      :discipline_id,
+      :date_start,
+      :date_end,
+      :author
+    )
   end
 
   def clear_invalid_dates
