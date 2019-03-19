@@ -3,8 +3,6 @@ class TeachersSynchronizer < BaseSynchronizer
     years.each do |year|
       update_records(api.fetch(ano: year)['servidores'], year)
     end
-
-    finish_worker
   end
 
   protected

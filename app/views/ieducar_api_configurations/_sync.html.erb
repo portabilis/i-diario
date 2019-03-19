@@ -1,7 +1,41 @@
+<% sync_id = SecureRandom.uuid %>
 <tr>
+  <% if with_environment %>
+    <td><%= entity_name %></td>
+  <% end %>
   <td><%= l(sync.started_at, format: :short) if sync.started_at %></td>
   <td><%= l(sync.ended_at, format: :short) if sync.ended_at %></td>
   <td><%= sync.time_running %> minutos</td>
   <td><%= "#{average_time} minutos" if average_time %></td>
-  <td><%= t("enumerations.api_synchronization_status.#{sync.status}") %> <%= "(#{Sidekiq::Status::pct_complete(sync.job_id)}%)" if sync.started? %></td>
+  <td>
+    <%= t("enumerations.api_synchronization_status.#{sync.status}") %> <%= "(#{sync.done_percentage}%)" if sync.started? %>
+    <% if sync.error? %>
+      <a href="#" data-toggle="modal" data-target="#<%= sync_id %>">
+        <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+      </a>
+    <% end %>
+  </td>
 </tr>
+
+<% if sync.error? %>
+  <div class="modal fade" id="<%= sync_id %>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">Erro completo</h4>
+        </div>
+        <div class="modal-body">
+          <%= sync.error_message.html_safe %>
+          <% if current_user.admin? %>
+            <hr>
+            <%= sync.full_error_message.html_safe %>
+          <% end %>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('ieducar_api_configuration.sync_error_modal.close') %></button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

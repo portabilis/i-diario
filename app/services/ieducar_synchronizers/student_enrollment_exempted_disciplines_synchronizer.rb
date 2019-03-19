@@ -1,8 +1,6 @@
 class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch['dispensas']
-
-    finish_worker
   end
 
   protected

@@ -7,7 +7,7 @@ RSpec.describe KnowledgeAreasSynchronizer do
   describe '#synchronize!' do
     it 'creates knowledge areas' do
       VCR.use_cassette('all_knowledge_areas') do
-        described_class.synchronize!(synchronization, worker_batch)
+        described_class.synchronize_in_batch!(synchronization, worker_batch)
 
         expect(KnowledgeArea.count).to eq 14
         first = KnowledgeArea.order(:id).first
@@ -26,7 +26,7 @@ RSpec.describe KnowledgeAreasSynchronizer do
                                 'api_code': '8',
                                 'sequence': 2)
 
-        described_class.synchronize!(synchronization, worker_batch)
+        described_class.synchronize_in_batch!(synchronization, worker_batch)
 
         expect(KnowledgeArea.count).to eq 14
         expect(knowledge_area.reload).to have_attributes(
