@@ -1,4 +1,3 @@
-# TODO ver por que não está sendo usado
 class SpecificStepsSynchronizer < BaseSynchronizer
   def self.synchronize!(synchronization, worker_batch, classroom_id, api_classroom_id)
     new(synchronization, worker_batch, classroom_id, api_classroom_id).synchronize!
@@ -9,8 +8,6 @@ class SpecificStepsSynchronizer < BaseSynchronizer
     self.worker_batch = worker_batch
     self.classroom_id = classroom_id
     self.api_classroom_id = api_classroom_id
-
-    create_worker_state(worker_batch)
   end
 
   def synchronize!
