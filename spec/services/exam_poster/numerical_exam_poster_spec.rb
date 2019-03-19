@@ -146,6 +146,20 @@ RSpec.describe ExamPoster::NumericalExamPoster do
         ).to match(request)
       end
     end
+
+    it 'expects to call score_rounder with correct params' do
+      score_rounder = double(:score_rounder)
+
+      expect(ScoreRounder).to receive(:new)
+        .with(classroom, RoundedAvaliations::NUMERICAL_EXAM)
+        .and_return(score_rounder)
+        .at_least(:once)
+      expect(score_rounder).to receive(:round)
+        .with(anything)
+        .at_least(:once)
+
+      subject.post!
+    end
   end
 
   context 'when discipline is exempted' do

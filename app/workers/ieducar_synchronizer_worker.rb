@@ -48,10 +48,11 @@ class IeducarSynchronizerWorker
   def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
       begin
-        synchronization = IeducarApiSynchronization.find(synchronization_id)
-        worker_batch = synchronization.worker_batch
+        synchronization = IeducarApiSynchronization.started.find_by_id(synchronization_id)
 
-        break unless synchronization.started?
+        break unless synchronization.try(:started?)
+
+        worker_batch = synchronization.worker_batch
 
         total_in_batch = []
 

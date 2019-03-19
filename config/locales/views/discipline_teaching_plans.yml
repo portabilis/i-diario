@@ -5,11 +5,15 @@ pt-BR:
       by_year: "Filtrar ano"
       by_grade: "Filtrar série"
       by_discipline: "Filtrar disciplina"
-      by_school_term_type: "Filtrar tipo de período escolar"
+      by_school_term: "Filtrar período"
+      by_school_term_type: "Filtrar tipo de período"
       by_author: "Filtrar autor"
     form:
+      attachments: "Anexos"
       add_content: "Adicionar conteúdo"
       add_attachment: "Adicionar anexo"
+      format_message: "Somente arquivos nos formatos jpeg, jpg, png, gif, pdf, odt, doc, docx, ods, xls, xlsx, odp, ppt, pptx, odg, xml, csv."
+      size_message: "Tamanho máximo por arquivo: 3MB"
     content_fields:
       remove: "Remover"
     lesson_plan_attachment_fields:

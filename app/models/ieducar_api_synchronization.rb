@@ -76,7 +76,7 @@ class IeducarApiSynchronization < ActiveRecord::Base
   # Caso não tenha dado lá, irá verificar direto no Sidekiq. Isso é necessário
   # pois o Sidekiq::Status não está estável o sificiente.
   def job_is_running?
-    if Sidekiq::Status::get_all(job_id)
+    if Sidekiq::Status::get_all(job_id).present?
       return Sidekiq::Status::status(job_id).in?([:queued, :working, :retrying, :interrupted])
     end
 

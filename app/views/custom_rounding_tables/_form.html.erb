@@ -31,6 +31,10 @@
         <%= f.association :grades, as: :select2, elements: @filtered_grades, multiple: true,
           input_html: { value: f.object.grade_ids.join(','), data: { without_json_parser: true } } %>
       </div>
+      <div class='col col-sm-6'>
+        <%= f.input :rounded_avaliations, as: :select2, elements: @rounded_avaliations, multiple: true,
+          input_html: { value: f.object.rounded_avaliations.join(','), data: { without_json_parser: true } } %>
+      </div>
     </div>
   </fieldset>
 

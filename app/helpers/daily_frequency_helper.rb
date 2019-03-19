@@ -9,7 +9,8 @@ module DailyFrequencyHelper
       start_at: l(daily_frequency.frequency_date.at_beginning_of_month),
       end_at: l(daily_frequency.frequency_date.end_of_month),
       school_calendar_year: daily_frequency.frequency_date.year,
-      current_teacher_id: current_teacher.id
+      current_teacher_id: current_teacher.id,
+      period: daily_frequency.period
     }
   end
 
@@ -25,7 +26,8 @@ module DailyFrequencyHelper
       start_at: l(start_at),
       end_at: l(end_at),
       school_calendar_year: daily_frequency.frequency_date.year,
-      current_teacher_id: current_teacher.id
+      current_teacher_id: current_teacher.id,
+      period: daily_frequency.period
     }
   end
 
