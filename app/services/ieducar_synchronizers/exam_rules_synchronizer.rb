@@ -1,17 +1,19 @@
 class ExamRulesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch(ano: years.first)['regras']
-
-    finish_worker
   end
 
   def self.synchronize_in_batch!(synchronization, worker_batch, years = nil, unity_api_code = nil, entity_id = nil)
-    years.each do |year|
-      ExamRulesSynchronizer.synchronize!(
-        synchronization,
-        worker_batch,
-        [year]
-      )
+    super do
+      years.each do |year|
+        ExamRulesSynchronizer.new(
+          synchronization,
+          worker_batch,
+          [year],
+          unity_api_code,
+          entity_id
+        ).synchronize!
+      end
     end
   end
 

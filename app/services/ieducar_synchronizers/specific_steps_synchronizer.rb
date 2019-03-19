@@ -1,3 +1,4 @@
+# TODO ver por que não está sendo usado
 class SpecificStepsSynchronizer < BaseSynchronizer
   def self.synchronize!(synchronization, worker_batch, classroom_id, api_classroom_id)
     new(synchronization, worker_batch, classroom_id, api_classroom_id).synchronize!
@@ -23,8 +24,6 @@ class SpecificStepsSynchronizer < BaseSynchronizer
         )
       end
     end
-
-    finish_worker
   end
 
   protected

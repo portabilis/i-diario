@@ -1,13 +1,7 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
-  include Sidekiq::Status::Worker
 
   sidekiq_options unique: :until_and_while_executing, retry: false, dead: false
-
-  # Sidekiq-status expiration
-  def expiration
-    @expiration ||= 60 * 60 * 24 * 2 # 2 days
-  end
 
   def perform(entity_id = nil, synchronization_id = nil)
     if entity_id && synchronization_id
@@ -53,31 +47,18 @@ class IeducarSynchronizerWorker
         break unless synchronization.try(:started?)
 
         worker_batch = synchronization.worker_batch
+        worker_batch.start!
+        worker_batch.update(total_workers: BASIC_SYNCHRONIZERS.size)
 
-        total_in_batch = []
-
-        total BASIC_SYNCHRONIZERS.size
-
-        BASIC_SYNCHRONIZERS.each_with_index do |klass, index|
-          at(index, "#{entity.name} - #{klass} (#{index}/#{BASIC_SYNCHRONIZERS.size})")
-
-          increment_total(total_in_batch) do
-            klass.constantize.synchronize_in_batch!(
-              synchronization,
-              worker_batch,
-              years_to_synchronize,
-              nil,
-              entity.id
-            )
-          end
+        BASIC_SYNCHRONIZERS.each do |klass|
+          klass.constantize.synchronize_in_batch!(
+            synchronization,
+            worker_batch,
+            years_to_synchronize,
+            nil,
+            entity.id
+          )
         end
-
-        worker_batch.with_lock do
-          worker_batch.update(total_workers: total_in_batch.sum)
-          synchronization.mark_as_completed!
-        end
-
-        at(BASIC_SYNCHRONIZERS.size, "#{entity.name} - Finalizado!")
       rescue StandardError => error
         synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.class != Sidekiq::Shutdown
 
@@ -101,11 +82,5 @@ class IeducarSynchronizerWorker
 
   def all_entities
     Entity.active
-  end
-
-  def increment_total(total_in_batch, &block)
-    total_in_batch << 1
-
-    block.yield
   end
 end

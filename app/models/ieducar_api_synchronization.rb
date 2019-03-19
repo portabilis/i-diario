@@ -71,14 +71,11 @@ class IeducarApiSynchronization < ActiveRecord::Base
     started? && job_is_running?
   end
 
-  # Primeiro verifica no Sidekiq::Status;
-  #
-  # Caso não tenha dado lá, irá verificar direto no Sidekiq. Isso é necessário
-  # pois o Sidekiq::Status não está estável o sificiente.
+  # Irá ver se o batch rodou até o fim. Se não rodou e está há mais de uma hora
+  # sem updates, vai fazer um double check no sidekiq.
   def job_is_running?
-    if Sidekiq::Status::get_all(job_id).present?
-      return Sidekiq::Status::status(job_id).in?([:queued, :working, :retrying, :interrupted])
-    end
+    return false if worker_batch.completed?
+    return true if worker_batch.updated_at < 1.hour.ago
 
     running = Sidekiq::Queue.new('default').find_job(job_id)
     running ||= Sidekiq::ScheduledSet.new.find_job(job_id)
