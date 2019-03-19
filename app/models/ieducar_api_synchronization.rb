@@ -11,7 +11,7 @@ class IeducarApiSynchronization < ActiveRecord::Base
   validates :ieducar_api_configuration_id, uniqueness: { scope: :status }, if: :started?
 
   delegate :to_api, to: :ieducar_api_configuration
-  delegate :started_at, :ended_at, to: :worker_batch, allow_nil: true
+  delegate :done_percentage, :started_at, :ended_at, to: :worker_batch, allow_nil: true
 
   scope :unnotified, -> { where(notified: false) }
 
