@@ -8,19 +8,43 @@ class AdminSynchronization
     private
 
     def mount
-      Entity.active.map do |entity|
+      started = []
+      finished = []
+
+      Entity.active.each do |entity|
         entity.using_connection do
-          [
-            entity.name,
-            {
-              started_sync: sync_struct(IeducarApiSynchronization.started.first),
-              finished_sync: sync_struct(IeducarApiSynchronization.where(status: [:completed, :error]).last),
-              last_status: IeducarApiSynchronization.last.try(:status),
-              average_time: IeducarApiSynchronization.average_time
-            }
-          ]
+          started << mount_started(entity)
+          finished << mount_finished(entity)
         end
-      end.group_by { |k,v| v[:last_status] }
+      end
+
+      (started + finished).compact.group_by { |_, v| v[:status] }
+    end
+
+    def mount_finished(entity)
+      if last_sync = IeducarApiSynchronization.where(status: [:completed, :error]).last
+        [
+          entity.name,
+          {
+            finished_sync: sync_struct(last_sync),
+            status: last_sync.status,
+            average_time: IeducarApiSynchronization.average_time
+          }
+        ]
+      end
+    end
+
+    def mount_started(entity)
+      if started = IeducarApiSynchronization.started.first
+        [
+          entity.name,
+          {
+            started_sync: sync_struct(started),
+            status: started.status,
+            average_time: IeducarApiSynchronization.average_time
+          }
+        ]
+      end
     end
 
     def sync_struct(sync)
