@@ -8,7 +8,10 @@ class IeducarSynchronizerWorker
 
     Entity.find(entity_id).using_connection do
       synchronization = IeducarApiSynchronization.find(synchronization_id)
-      synchronization.mark_as_error!('Erro desconhecido.', exception.message)
+      synchronization.mark_as_error!(
+        I18n.t('ieducar_api.error.messages.sync_error'),
+        exception.message
+      )
     end
   end
 
@@ -71,7 +74,9 @@ class IeducarSynchronizerWorker
       rescue Sidekiq::Shutdown => error
         raise error
       rescue StandardError => error
-        synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.message != '502 Bad Gateway'
+        if error.message != '502 Bad Gateway'
+          synchronization.mark_as_error!(I18n.t('ieducar_api.error.messages.sync_error'), error.message)
+        end
 
         raise error
       end
