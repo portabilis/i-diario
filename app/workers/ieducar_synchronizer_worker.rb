@@ -1,7 +1,19 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, retry: false, dead: false
+  sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false
+
+  sidekiq_retries_exhausted do |msg, exception|
+    entity_id, synchronization_id = msg['args']
+
+    Entity.find(entity_id).using_connection do
+      synchronization = IeducarApiSynchronization.find(synchronization_id)
+      synchronization.mark_as_error!(
+        I18n.t('ieducar_api.error.messages.sync_error'),
+        exception.message
+      )
+    end
+  end
 
   def perform(entity_id = nil, synchronization_id = nil)
     if entity_id && synchronization_id
@@ -59,10 +71,12 @@ class IeducarSynchronizerWorker
             entity.id
           )
         end
+      rescue Sidekiq::Shutdown => error
+        raise error
       rescue StandardError => error
-        synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.class != Sidekiq::Shutdown
-
-        Honeybadger.notify(error)
+        if error.message != '502 Bad Gateway'
+          synchronization.mark_as_error!(I18n.t('ieducar_api.error.messages.sync_error'), error.message)
+        end
 
         raise error
       end
