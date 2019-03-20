@@ -47,12 +47,14 @@ class User < ActiveRecord::Base
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
   validates :password, length: { minimum: 8 }, allow_blank: true
+  validates :login, uniqueness: true
 
   validates_associated :user_roles
 
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
-  validate :uniqueness_of_login
+  validate :login_is_not_a_cpf
+  validate :login_is_not_an_email
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :email_ordered, -> { order(email: :asc)  }
@@ -299,25 +301,15 @@ class User < ActiveRecord::Base
     end
   end
 
-  def uniqueness_of_login
-    return unless validate_login?
+  def login_is_not_a_cpf
+    return unless CPF.valid?(login)
 
-    errors.add(:login, :taken) if exists_login?(login)
-    errors.add(:cpf, :taken) if exists_login?(cpf)
-    errors.add(:email, :taken) if exists_login?(email)
+    errors.add(:login, :is_not_a_cpf)
   end
 
-  def validate_login?
-    id.nil? || login != login_was || cpf != cpf_was || email != email_was
-  end
+  def login_is_not_an_email
+    return unless login =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
 
-  def exists_login?(login)
-    User.where.not(id: id)
-        .where(<<-SQL, login: login)
-          users.login = :login OR
-          users.email = :login OR
-          REGEXP_REPLACE(users.cpf, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:login, '[^\\d]+', '', 'g')
-        SQL
-        .exists?
+    errors.add(:login, :is_not_an_email)
   end
 end
