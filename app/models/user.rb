@@ -47,7 +47,7 @@ class User < ActiveRecord::Base
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
   validates :password, length: { minimum: 8 }, allow_blank: true
-  validates :login, uniqueness: true
+  validates :login, uniqueness: true, allow_blank: true
 
   validates_associated :user_roles
 
