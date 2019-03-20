@@ -59,10 +59,10 @@ class IeducarSynchronizerWorker
             entity.id
           )
         end
+      rescue Sidekiq::Shutdown => error
+        raise error
       rescue StandardError => error
-        synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.class != Sidekiq::Shutdown
-
-        Honeybadger.notify(error)
+        synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.message != '502 Bad Gateway'
 
         raise error
       end
