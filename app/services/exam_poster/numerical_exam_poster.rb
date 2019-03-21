@@ -41,6 +41,7 @@ module ExamPoster
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
+          score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::NUMERICAL_EXAM)
 
           next unless can_post?(classroom)
 
@@ -70,7 +71,7 @@ module ExamPoster
 
             next unless school_term_recovery
 
-            recovery_value = ScoreRounder.new(classroom).round(school_term_recovery)
+            recovery_value = score_rounder.round(school_term_recovery)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.warnings?

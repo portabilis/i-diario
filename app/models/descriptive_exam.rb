@@ -18,6 +18,7 @@ class DescriptiveExam < ActiveRecord::Base
 
   delegate :unity, to: :classroom, allow_nil: true
 
+  scope :by_unity_id, ->(unity_id) { joins(:classroom).where(classrooms: { unity_id: unity_id }) }
   scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
   scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
 

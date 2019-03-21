@@ -9,8 +9,6 @@ class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
         )
       end
     end
-
-    finish_worker
   end
 
   protected

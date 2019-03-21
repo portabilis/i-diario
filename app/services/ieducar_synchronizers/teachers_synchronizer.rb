@@ -8,8 +8,6 @@ class TeachersSynchronizer < BaseSynchronizer
         year
       )
     end
-
-    finish_worker
   end
 
   protected

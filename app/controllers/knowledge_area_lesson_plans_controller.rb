@@ -5,18 +5,22 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    @knowledge_area_lesson_plans = apply_scopes(KnowledgeAreaLessonPlan)
-      .select(
-        KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
-        LessonPlan.arel_table[:start_at],
-        LessonPlan.arel_table[:end_at]
-      )
-      .includes(:knowledge_areas, lesson_plan: [:classroom])
-      .filter(filtering_params(params[:search]))
-      .by_classroom_id(current_user_classroom)
-      .by_teacher_id(current_teacher)
-      .uniq
-      .ordered
+    author_type = (params[:filter] || []).delete(:by_author)
+
+    @knowledge_area_lesson_plans = apply_scopes(
+      KnowledgeAreaLessonPlan.includes(:knowledge_areas, lesson_plan: [:classroom])
+                             .by_classroom_id(current_user_classroom)
+                             .uniq
+                             .ordered
+    ).select(
+      KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
+      LessonPlan.arel_table[:start_at],
+      LessonPlan.arel_table[:end_at]
+    )
+
+    if author_type.present?
+      @knowledge_area_lesson_plans = @knowledge_area_lesson_plans.by_author(author_type, current_teacher)
+    end
 
     authorize @knowledge_area_lesson_plans
 
@@ -169,15 +173,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
                                                                      :start_at,
                                                                      :end_at
                                                                     ])
-  end
-
-  def filtering_params(params)
-    params = {} unless params
-    params.slice(
-      :by_classroom_id,
-      :by_knowledge_area_id,
-      :by_date
-    )
   end
 
   def contents

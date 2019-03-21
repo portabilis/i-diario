@@ -2,7 +2,7 @@ class ConceptualExamsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_teacher
+  before_action :require_current_teacher, :adjusted_period
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
@@ -301,7 +301,8 @@ class ConceptualExamsController < ApplicationController
       start_at: start_at,
       end_at: end_at,
       score_type: StudentEnrollmentScoreTypeFilters::CONCEPT,
-      search_type: :by_date_range
+      search_type: :by_date_range,
+      period: @period
     ).student_enrollments
   end
 
@@ -389,5 +390,18 @@ class ConceptualExamsController < ApplicationController
     exempted_disciplines.by_discipline(discipline_id)
                         .by_step_number(@conceptual_exam.step_number)
                         .any?
+  end
+
+  def current_teacher_period
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      current_user.current_classroom_id,
+      current_user.current_discipline_id
+    ).teacher_period
+  end
+
+  def adjusted_period
+    teacher_period = current_teacher_period
+    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
   end
 end

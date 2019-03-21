@@ -20,7 +20,11 @@ class IeducarApiConfiguration < ActiveRecord::Base
 
   def start_synchronization(user = nil, entity_id = nil)
     transaction do
-      synchronization = synchronizations.create(status: ApiSynchronizationStatus::STARTED, author: user)
+      synchronization = IeducarApiSynchronization.started.first
+
+      return synchronization if synchronization
+
+      synchronization = synchronizations.create!(status: ApiSynchronizationStatus::STARTED, author: user)
 
       job_id = IeducarSynchronizerWorker.perform_in(5.seconds, entity_id, synchronization.id)
 
@@ -31,6 +35,13 @@ class IeducarApiConfiguration < ActiveRecord::Base
         main_job_id: synchronization.job_id
       )
       worker_batch.start!
+
+      Rails.logger.info(
+        key: 'IeducarApiConfiguration#start_synchronization',
+        from: "#{binding.of_caller(7).eval('self.class')}##{binding.of_caller(7).eval('__method__')}",
+        sync_id: synchronization.id,
+        entity_id: entity_id
+      )
 
       synchronization
     end

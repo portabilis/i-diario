@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @discipline_lesson_plans.empty? %>
     <tr>
-      <td class="no_record_found" colspan="6"><%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @discipline_lesson_plans.each do |discipline_lesson_plan| %>
@@ -11,6 +11,7 @@
         <td class="discipline"><%= discipline_lesson_plan.discipline %></td>
         <td class="start_at"><%= l(discipline_lesson_plan.lesson_plan.start_at) %></td>
         <td class="end_at" ><%= l(discipline_lesson_plan.lesson_plan.end_at) %></td>
+        <td><%= discipline_lesson_plan.lesson_plan.decorator.author(current_teacher) %></td>
         <td class="actions">
           <%= link_to(
                 t('helpers.links.copy_html'),
@@ -38,6 +39,7 @@
                   t('helpers.links.destroy_html'),
                   discipline_lesson_plan_path(discipline_lesson_plan),
                   class: 'btn btn-danger apply_tooltip',
+                  disabled: !lesson_plan_destroy?(discipline_lesson_plan.lesson_plan),
                   method: 'delete',
                   data: {
                     confirm: t('views.index.confirm'),

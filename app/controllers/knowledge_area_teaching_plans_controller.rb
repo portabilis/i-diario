@@ -5,14 +5,22 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
 
   def index
-    @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan)
-      .includes(:knowledge_areas, teaching_plan: [:unity, :grade])
-      .by_unity(current_user_unity)
-      .by_year(current_user_school_year)
-      .by_teacher_id_or_is_null(current_teacher.try(:id))
+    author_type = (params[:filter] || []).delete(:by_author)
 
-    @knowledge_area_teaching_plans = @knowledge_area_teaching_plans
-      .by_grade(current_user_classroom.try(:grade_id)) unless current_user_is_employee_or_administrator?
+    @knowledge_area_teaching_plans = apply_scopes(
+      KnowledgeAreaTeachingPlan.includes(:knowledge_areas, teaching_plan: [:unity, :grade])
+                               .by_unity(current_user_unity)
+                               .by_year(current_user_school_year)
+    )
+
+    unless current_user_is_employee_or_administrator?
+      @knowledge_area_teaching_plans =
+        @knowledge_area_teaching_plans.by_grade(current_user_classroom.try(:grade_id))
+    end
+
+    if author_type.present?
+      @discipline_teaching_plans = @discipline_teaching_plans.by_author(author_type, current_teacher)
+    end
 
     authorize @knowledge_area_teaching_plans
 
@@ -135,6 +143,11 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
         contents_attributes: [
           :id,
           :description,
+          :_destroy
+        ],
+        teaching_plan_attachments_attributes: [
+          :id,
+          :attachment,
           :_destroy
         ]
       ]

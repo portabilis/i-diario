@@ -2,11 +2,18 @@ class IeducarSynchronizerWorker
   include Sidekiq::Worker
   include Sidekiq::Status::Worker
 
-  sidekiq_options unique: :until_and_while_executing, retry: false, dead: false
+  sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false
 
-  # Sidekiq-status expiration
-  def expiration
-    @expiration ||= 60 * 60 * 24 * 2 # 2 days
+  sidekiq_retries_exhausted do |msg, exception|
+    entity_id, synchronization_id = msg['args']
+
+    Entity.find(entity_id).using_connection do
+      synchronization = IeducarApiSynchronization.find(synchronization_id)
+      synchronization.mark_as_error!(
+        I18n.t('ieducar_api.error.messages.sync_error'),
+        exception.message
+      )
+    end
   end
 
   def perform(entity_id = nil, synchronization_id = nil)
@@ -21,7 +28,7 @@ class IeducarSynchronizerWorker
           configuration = IeducarApiConfiguration.current
           next unless configuration.persisted?
 
-          IeducarApiSynchronization.started.first || configuration.start_synchronization(User.first, entity.id)
+          configuration.start_synchronization(User.first, entity.id)
         end
       end
     end
@@ -30,57 +37,47 @@ class IeducarSynchronizerWorker
   private
 
   BASIC_SYNCHRONIZERS = [
-    CoursesGradesClassroomsSynchronizer.to_s,
-    DeficienciesSynchronizer.to_s,
-    DisciplinesSynchronizer.to_s,
-    ExamRulesSynchronizer.to_s,
     KnowledgeAreasSynchronizer.to_s,
+    DisciplinesSynchronizer.to_s,
+    StudentsSynchronizer.to_s,
+    DeficienciesSynchronizer.to_s,
     RoundingTablesSynchronizer.to_s,
     RecoveryExamRulesSynchronizer.to_s,
+    CoursesGradesClassroomsSynchronizer.to_s,
+    TeachersSynchronizer.to_s,
     SpecificStepsSynchronizer.to_s,
     StudentEnrollmentDependenceSynchronizer.to_s,
-    StudentEnrollmentExemptedDisciplinesSynchronizer.to_s,
+    ExamRulesSynchronizer.to_s,
     StudentEnrollmentSynchronizer.to_s,
-    StudentsSynchronizer.to_s,
-    TeachersSynchronizer.to_s
+    StudentEnrollmentExemptedDisciplinesSynchronizer.to_s
   ].freeze
 
   def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
       begin
-        synchronization = IeducarApiSynchronization.find(synchronization_id)
+        synchronization = IeducarApiSynchronization.started.find_by_id(synchronization_id)
+
+        break unless synchronization.try(:started?)
+
         worker_batch = synchronization.worker_batch
+        worker_batch.start!
+        worker_batch.update(total_workers: BASIC_SYNCHRONIZERS.size)
 
-        break unless synchronization.started?
-
-        total_in_batch = []
-
-        total BASIC_SYNCHRONIZERS.size
-
-        BASIC_SYNCHRONIZERS.each_with_index do |klass, index|
-          at(index, "#{entity.name} - #{klass} (#{index}/#{BASIC_SYNCHRONIZERS.size})")
-
-          increment_total(total_in_batch) do
-            klass.constantize.synchronize_in_batch!(
-              synchronization,
-              worker_batch,
-              years_to_synchronize,
-              nil,
-              entity.id
-            )
-          end
+        BASIC_SYNCHRONIZERS.each do |klass|
+          klass.constantize.synchronize_in_batch!(
+            synchronization,
+            worker_batch,
+            years_to_synchronize,
+            nil,
+            entity.id
+          )
         end
-
-        worker_batch.with_lock do
-          worker_batch.update(total_workers: total_in_batch.sum)
-          synchronization.mark_as_completed!
-        end
-
-        at(BASIC_SYNCHRONIZERS.size, "#{entity.name} - Finalizado!")
+      rescue Sidekiq::Shutdown => error
+        raise error
       rescue StandardError => error
-        synchronization.mark_as_error!('Erro desconhecido.', error.message) if error.class != Sidekiq::Shutdown
-
-        Honeybadger.notify(error)
+        if error.message != '502 Bad Gateway'
+          synchronization.mark_as_error!(I18n.t('ieducar_api.error.messages.sync_error'), error.message)
+        end
 
         raise error
       end
@@ -89,22 +86,16 @@ class IeducarSynchronizerWorker
 
   def years_to_synchronize
     # TODO voltar a sincronizar todos os anos uma vez por semana (Sábado)
-    @years_to_synchronize ||= Unity.with_api_code
-                                   .joins(:school_calendars)
-                                   .pluck('school_calendars.year')
-                                   .uniq
-                                   .sort
-                                   .compact
-                                   .last(2)
+    @years ||= Unity.with_api_code
+                    .joins(:school_calendars)
+                    .pluck('school_calendars.year')
+                    .uniq
+                    .sort
+                    .compact
+                    .last(2)
   end
 
   def all_entities
     Entity.active
-  end
-
-  def increment_total(total_in_batch, &block)
-    total_in_batch << 1
-
-    block.yield
   end
 end

@@ -13,7 +13,7 @@ class IeducarApiSynchronization < ActiveRecord::Base
   validates :ieducar_api_configuration_id, uniqueness: { scope: :status }, if: :started?
 
   delegate :to_api, to: :ieducar_api_configuration
-  delegate :started_at, :ended_at, to: :worker_batch, allow_nil: true
+  delegate :done_percentage, :started_at, :ended_at, to: :worker_batch, allow_nil: true
 
   scope :unnotified, -> { where(notified: false) }
 
@@ -25,6 +25,8 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def time_running
+    return unless started_at
+
     if ended_at
       ((ended_at - started_at) / 60.0).round
     else
@@ -74,26 +76,20 @@ class IeducarApiSynchronization < ActiveRecord::Base
     started? && job_is_running?
   end
 
-  # Primeiro verifica no Sidekiq::Status;
-  #
-  # Caso não tenha dado lá, irá verificar direto no Sidekiq. Isso é necessário
-  # pois o Sidekiq::Status não está estável o sificiente.
+  # Irá ver se o batch rodou até o fim. Se não rodou e está há mais de uma hora
+  # sem updates, vai fazer um double check no sidekiq.
   def job_is_running?
-    if Sidekiq::Status::get_all(job_id)
-      return Sidekiq::Status::status(job_id).in?([:queued, :working, :retrying, :interrupted])
+    return false if worker_batch.completed?
+    return true if worker_batch.updated_at < 1.hour.ago
+
+    running = Sidekiq::Queue.new('default').find_job(job_id)
+    running ||= Sidekiq::ScheduledSet.new.find_job(job_id)
+    running ||= Sidekiq::RetrySet.new.find_job(job_id)
+    running ||= Sidekiq::Workers.new.any? do |_process_id, _thread_id, work|
+      work['payload']['jid'] == job_id
     end
 
-    running = Sidekiq::Queue.new('default').find_job(job_id) ||
-              Sidekiq::ScheduledSet.new.find_job(job_id) ||
-              Sidekiq::RetrySet.new.find_job(job_id)
-
-    if running.blank?
-      Sidekiq::Workers.new.each do |_process_id, _thread_id, work|
-        (running = work['payload']['jid'] == job_id) && break
-      end
-    end
-
-    running
+    running.present?
   end
 
   def self.cancel_not_running_synchronizations(current_entity, options = {})
