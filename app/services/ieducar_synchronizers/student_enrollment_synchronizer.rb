@@ -8,8 +8,6 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         )['matriculas']
       )
     )
-
-    finish_worker
   end
 
   def self.synchronize_in_batch!(synchronization, worker_batch, years = nil, unity_api_code = nil, entity_id = nil)

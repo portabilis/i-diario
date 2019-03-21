@@ -9,8 +9,6 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
         )['cursos']
       )
     )
-
-    finish_worker
   end
 
   protected

@@ -5,8 +5,6 @@ class RoundingTablesSynchronizer < BaseSynchronizer
         api.fetch['tabelas']
       )
     )
-
-    finish_worker
   end
 
   protected

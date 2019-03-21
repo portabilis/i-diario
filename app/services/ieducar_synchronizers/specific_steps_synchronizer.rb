@@ -5,8 +5,6 @@ class SpecificStepsSynchronizer < BaseSynchronizer
         api.fetch['etapas']
       )
     )
-
-    finish_worker
   end
 
   protected

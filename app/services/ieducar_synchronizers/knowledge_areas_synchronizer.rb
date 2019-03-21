@@ -5,8 +5,6 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
         api.fetch['areas']
       )
     )
-
-    finish_worker
   end
 
   protected

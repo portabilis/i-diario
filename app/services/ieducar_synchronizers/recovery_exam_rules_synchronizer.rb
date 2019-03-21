@@ -5,8 +5,6 @@ class RecoveryExamRulesSynchronizer < BaseSynchronizer
         api.fetch['regras-recuperacao']
       )
     )
-
-    finish_worker
   end
 
   protected

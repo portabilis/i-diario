@@ -5,8 +5,6 @@ class DeficienciesSynchronizer < BaseSynchronizer
         api.fetch['deficiencias']
       )
     )
-
-    finish_worker
   end
 
   protected

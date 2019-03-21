@@ -5,8 +5,6 @@ class DisciplinesSynchronizer < BaseSynchronizer
         api.fetch['disciplinas']
       )
     )
-
-    finish_worker
   end
 
   protected

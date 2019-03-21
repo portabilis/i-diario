@@ -5,8 +5,6 @@ class StudentsSynchronizer < BaseSynchronizer
         api.fetch['alunos']
       )
     )
-
-    finish_worker
   end
 
   protected

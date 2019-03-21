@@ -54,8 +54,6 @@ class TeachersSynchronizer < BaseSynchronizer
           api_code: discipline_classroom_record.id
         )
 
-        binding.pry if teacher_discipline_classroom.blank?
-
         teacher_discipline_classroom.update!(score_type: discipline_classroom.tipo_nota)
       end
     end
