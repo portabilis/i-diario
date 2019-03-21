@@ -5,17 +5,30 @@ class IeducarSynchronizerWorker
   sidekiq_options unique: :until_and_while_executing, retry: false, dead: false
 
   def perform(entity_id = nil, synchronization_id = nil)
-    if entity_id
+    if entity_id && synchronization_id
       perform_for_entity(
         Entity.find(entity_id),
         synchronization_id
       )
     else
       all_entities.each do |entity|
-        IeducarSynchronizerWorker.perform_async(
-          entity.id,
-          synchronization_id
-        )
+        entity.using_connection do
+          configuration = IeducarApiConfiguration.current
+          next unless configuration.persisted?
+
+          synchronization = IeducarApiSynchronization.started.first ||
+            configuration.start_synchronization(User.first)
+
+          next if synchronization.running?
+
+          jid = IeducarSynchronizerWorker.perform_in(
+            5.seconds,
+            entity.id,
+            synchronization.id
+          )
+
+          synchronization.update(job_id: jid)
+        end
       end
     end
   end
@@ -37,34 +50,21 @@ class IeducarSynchronizerWorker
   def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
       begin
-        synchronization = IeducarApiSynchronization.find_by(id: synchronization_id)
+        synchronization = IeducarApiSynchronization.find(synchronization_id)
 
-        if synchronization.blank?
-          configuration = IeducarApiConfiguration.current
+        break unless synchronization.started?
 
-          break unless configuration.persisted?
-
-          synchronization = IeducarApiSynchronization.started.first ||
-            configuration.start_synchronization(User.first)
-
-          if synchronization.present?
-            synchronization.job_id = jid unless synchronization.job_id
-          end
-        end
-
-        break unless synchronization.persisted? && synchronization.started?
-
-        worker_batch = WorkerBatch.create!(
+        worker_batch = WorkerBatch.find_or_create_by!(
           main_job_class: IeducarSynchronizerWorker.to_s,
           main_job_id: synchronization.job_id
         )
         worker_batch.start!
 
-        total = []
+        total_in_batch = []
 
         total BASIC_SYNCHRONIZERS.size
         BASIC_SYNCHRONIZERS.each_with_index do |klass, index|
-          increment_total(total) do
+          increment_total(total_in_batch) do
             klass.constantize.synchronize!(
               synchronization,
               worker_batch,
@@ -75,14 +75,14 @@ class IeducarSynchronizerWorker
           at(index + 1, klass)
         end
 
-        total << SpecificStepClassroomsSynchronizer.synchronize!(
+        total_in_batch << SpecificStepClassroomsSynchronizer.synchronize!(
           entity.id,
           synchronization.id,
           worker_batch.id
         )
 
         years_to_synchronize.each do |year|
-          increment_total(total) do
+          increment_total(total_in_batch) do
             ExamRulesSynchronizer.synchronize!(
               synchronization,
               worker_batch,
@@ -91,7 +91,7 @@ class IeducarSynchronizerWorker
           end
 
           Unity.with_api_code.each do |unity|
-            increment_total(total) do
+            increment_total(total_in_batch) do
               StudentEnrollmentSynchronizer.synchronize!(
                 synchronization,
                 worker_batch,
@@ -103,7 +103,7 @@ class IeducarSynchronizerWorker
           end
         end
 
-        increment_total(total) do
+        increment_total(total_in_batch) do
           StudentEnrollmentExemptedDisciplinesSynchronizer.synchronize!(
             synchronization,
             worker_batch
@@ -111,7 +111,7 @@ class IeducarSynchronizerWorker
         end
 
         worker_batch.with_lock do
-          worker_batch.update(total_workers: total.sum)
+          worker_batch.update(total_workers: total_in_batch.sum)
           worker_batch.end!
           synchronization.mark_as_completed!
         end
@@ -135,8 +135,8 @@ class IeducarSynchronizerWorker
     Entity.all
   end
 
-  def increment_total(total, &block)
-    total << 1
+  def increment_total(total_in_batch, &block)
+    total_in_batch << 1
 
     block.yield
   end
