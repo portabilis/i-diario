@@ -53,8 +53,8 @@ class User < ActiveRecord::Base
 
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
-  validate :login_is_not_a_cpf
-  validate :login_is_not_an_email
+  validate :can_not_be_a_cpf
+  validate :can_not_be_an_email
 
   scope :ordered, -> { order(arel_table[:first_name].asc) }
   scope :email_ordered, -> { order(email: :asc)  }
@@ -301,15 +301,15 @@ class User < ActiveRecord::Base
     end
   end
 
-  def login_is_not_a_cpf
+  def can_not_be_a_cpf
     return unless CPF.valid?(login)
 
-    errors.add(:login, :is_not_a_cpf)
+    errors.add(:login, :can_not_be_a_cpf)
   end
 
-  def login_is_not_an_email
+  def can_not_be_an_email
     return unless login =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
 
-    errors.add(:login, :is_not_an_email)
+    errors.add(:login, :can_not_be_an_email)
   end
 end

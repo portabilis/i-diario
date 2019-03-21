@@ -51,7 +51,7 @@ pt-BR:
             cpf:
               incorrect_format: "formato incorreto"
             login:
-              is_not_a_cpf: "não pode ser um CPF"
-              is_not_an_email: "não pode ser um email"
+              can_not_be_a_cpf: "não pode ser um CPF"
+              can_not_be_an_email: "não pode ser um email"
             receive_news:
               must_fill_receive_news_options: "Por favor, selecione pelo menos uma das opções abaixo."
