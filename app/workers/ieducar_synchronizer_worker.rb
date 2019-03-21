@@ -1,5 +1,6 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
+  include Sidekiq::Status::Worker
 
   sidekiq_options unique: :until_and_while_executing, retry: false, dead: false
 
@@ -61,7 +62,8 @@ class IeducarSynchronizerWorker
 
         total = []
 
-        BASIC_SYNCHRONIZERS.each do |klass|
+        total BASIC_SYNCHRONIZERS.size
+        BASIC_SYNCHRONIZERS.each_with_index do |klass, index|
           increment_total(total) do
             klass.constantize.synchronize!(
               synchronization,
@@ -69,6 +71,8 @@ class IeducarSynchronizerWorker
               years_to_synchronize
             )
           end
+
+          at(index + 1, klass)
         end
 
         total << SpecificStepClassroomsSynchronizer.synchronize!(
