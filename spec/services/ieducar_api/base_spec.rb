@@ -11,6 +11,11 @@ RSpec.describe IeducarApi::Base, type: :service do
   let(:staging_secret_key) { PRIVATE_SECRET_KEY }
   let(:unity_id) { 1 }
 
+  before do
+    Rails.application.secrets.staging_access_key = staging_access_key
+    Rails.application.secrets.staging_secret_key = staging_secret_key
+  end
+
   context 'ensure obligatory params' do
     it 'requires url' do
       expect {
@@ -236,14 +241,17 @@ RSpec.describe IeducarApi::Base, type: :service do
         Rails.stub_chain(:env, production?: true)
         subject.access_key = nil
         subject.secret_key = nil
-        expect {
-          subject.send_post(
-            path: path,
-            resource: resource,
-            etapa: 1,
-            faltas: 1
-          )
-        }.to raise_error('Chave de acesso inválida!')
+
+        VCR.use_cassette('post_invalid_access_key') do
+          expect {
+            subject.send_post(
+              path: path,
+              resource: resource,
+              etapa: 1,
+              faltas: 1
+            )
+          }.to raise_error('Chave de acesso inválida!')
+        end
       end
 
       it 'access_key is the staging access_key' do

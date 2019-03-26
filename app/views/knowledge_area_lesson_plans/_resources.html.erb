@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @knowledge_area_lesson_plans.empty? %>
     <tr>
-      <td class="no_record_found" colspan="5"><%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="7"><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @knowledge_area_lesson_plans.each do |knowledge_area_lesson_plan| %>
@@ -17,6 +17,7 @@
         </td>
         <td class="start_at"><%= l(knowledge_area_lesson_plan.lesson_plan.start_at) %></td>
         <td class="end_at"><%= l(knowledge_area_lesson_plan.lesson_plan.end_at) %></td>
+        <td><%= knowledge_area_lesson_plan.lesson_plan.decorator.author(current_teacher) %></td>
         <td class="actions">
            <%= link_to(
                 t('helpers.links.copy_html'),
@@ -43,6 +44,7 @@
                   t('helpers.links.destroy_html'),
                   knowledge_area_lesson_plan_path(knowledge_area_lesson_plan),
                   class: 'btn btn-danger apply_tooltip',
+                  disabled: !lesson_plan_destroy?(knowledge_area_lesson_plan.lesson_plan),
                   method: 'delete',
                   data: {
                     confirm: t('views.index.confirm'),

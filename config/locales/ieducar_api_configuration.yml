@@ -11,3 +11,4 @@ pt-BR:
         token: "Chave de acesso"
         secret_token: "Chave secreta"
         unity_code: "Código da instituição"
+        api_security_token: "Token de segurança do i-diário"

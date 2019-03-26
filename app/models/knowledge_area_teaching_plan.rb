@@ -14,24 +14,27 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
 
   accepts_nested_attributes_for :teaching_plan
 
-  scope :by_year, lambda { |year| joins(:teaching_plan).where(teaching_plans: { year: year }) }
-  scope :by_unity, lambda { |unity| joins(:teaching_plan).where(teaching_plans: { unity_id: unity }) }
-  scope :by_grade, lambda { |grade| joins(:teaching_plan).where(teaching_plans: { grade_id: grade }) }
-  scope :by_school_term_type, lambda { |school_term_type| joins(:teaching_plan).where(teaching_plans: { school_term_type: school_term_type }) }
-  scope :by_school_term, lambda { |school_term| joins(:teaching_plan).where(teaching_plans: { school_term: school_term }) }
-  scope :by_knowledge_area, lambda { |knowledge_area| by_knowledge_area(knowledge_area) }
-  scope :by_teacher_id, lambda { |teacher_id| joins(:teaching_plan).where(teaching_plans: { teacher_id: teacher_id }) }
-  scope :by_teacher_id_or_is_null, lambda { |teacher_id|
-    joins(:teaching_plan)
-      .where("teaching_plans.teacher_id #{(teacher_id ? '= ' << teacher_id.to_s : 'IS NULL')} OR
-              (#{teacher_id || 'NULL'} IS NOT NULL AND teaching_plans.teacher_id IS NULL)")
+  scope :by_year, ->(year) { joins(:teaching_plan).where(teaching_plans: { year: year }) }
+  scope :by_unity, ->(unity) { joins(:teaching_plan).where(teaching_plans: { unity_id: unity }) }
+  scope :by_grade, ->(grade) { joins(:teaching_plan).where(teaching_plans: { grade_id: grade }) }
+  scope :by_school_term_type, lambda { |school_term_type|
+    joins(:teaching_plan).where(teaching_plans: { school_term_type: school_term_type })
   }
-  scope :by_author, lambda { |author_type|
-    joins(:teaching_plan)
-      .where("CASE '#{author_type}'
-                WHEN '#{PlansAuthors::MY_PLANS}' THEN teaching_plans.teacher_id IS NOT NULL
-                ELSE teaching_plans.teacher_id IS NULL
-              END")
+  scope :by_school_term, lambda { |school_term|
+    joins(:teaching_plan).where(teaching_plans: { school_term: school_term })
+  }
+  scope :by_knowledge_area, ->(knowledge_area) { by_knowledge_area(knowledge_area) }
+  scope :by_teacher_id, ->(teacher_id) { joins(:teaching_plan).where(teaching_plans: { teacher_id: teacher_id }) }
+  scope :by_other_teacher_id, lambda { |teacher_id|
+    joins(:teaching_plan).where.not(teaching_plans: { teacher_id: [teacher_id, nil] })
+  }
+  scope :by_secretary, -> { joins(:teaching_plan).where(teaching_plans: { teacher_id: nil }) }
+  scope :by_author, lambda { |author_type, current_teacher_id|
+    if author_type == PlansAuthors::MY_PLANS
+      joins(:teaching_plan).merge(TeachingPlan.where(teacher_id: current_teacher_id))
+    else
+      joins(:teaching_plan).merge(TeachingPlan.where.not(teacher_id: current_teacher_id))
+    end
   }
 
   validates :teaching_plan, presence: true

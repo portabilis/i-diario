@@ -16,6 +16,7 @@ class StudentEnrollmentsList
     @opinion_type = params.fetch(:opinion_type, nil)
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, false)
     @include_date_range = params.fetch(:include_date_range, false)
+    @period = params.fetch(:period, nil)
     ensure_has_valid_params
 
     adjust_date_range_by_year if opinion_type_by_year?
@@ -29,7 +30,7 @@ class StudentEnrollmentsList
 
   attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive,
                 :show_inactive_outside_step, :score_type, :opinion_type, :with_recovery_note_in_step,
-                :include_date_range
+                :include_date_range, :period
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -54,6 +55,7 @@ class StudentEnrollmentsList
                                                  .by_date_not_before(start_at)
     end
 
+    students_enrollments = students_enrollments.by_period(period) if period
     students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
     students_enrollments = students_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 

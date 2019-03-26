@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @knowledge_area_content_records.empty? %>
     <tr>
-      <td class="no_record_found" colspan="4"><%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="5"><%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @knowledge_area_content_records.each do |knowledge_area_content_record| %>
@@ -15,6 +15,7 @@
           <% end %>
         </td>
         <td class="record_date"><%= l(knowledge_area_content_record.content_record.record_date) %></td>
+        <td><%= knowledge_area_content_record.content_record.decorator.author(current_teacher) %></td>
         <td class="actions">
           <%= link_to(
                 t('helpers.links.copy_html'),
@@ -35,6 +36,7 @@
                   t('helpers.links.destroy_html'),
                   knowledge_area_content_record_path(knowledge_area_content_record),
                   class: 'btn btn-danger apply_tooltip',
+                  disabled: !content_record_destroy?(knowledge_area_content_record.content_record),
                   method: 'delete',
                   data: {
                     confirm: t('views.index.confirm'),

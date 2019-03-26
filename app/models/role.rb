@@ -18,10 +18,11 @@ class Role < ActiveRecord::Base
   accepts_nested_attributes_for :permissions
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
+  before_validation :remove_not_unique_user_unity
+
   validates :author, :name, :access_level, presence: true
   validates :name, uniqueness: { case_sensitive: false }, allow_blank: true
 
-  validate :uniqueness_of_user_unity
   validate :permissions_must_match_access_level
 
   scope :ordered, -> { order(arel_table[:name].asc) }
@@ -56,20 +57,21 @@ class Role < ActiveRecord::Base
     permissions.each do |permission|
       next if permission.permission == Permissions::DENIED
       unless permission.access_level_has_feature?(access_level)
-        errors.add(:permissions, I18n.t('roles.errors.permission_must_match_access_level',feature: permission.feature_humanize, access_level: access_level_humanize))
+        errors.add(:permissions, I18n.t('roles.errors.permission_must_match_access_level', feature: permission.feature_humanize, access_level: access_level_humanize))
       end
     end
   end
 
-  def uniqueness_of_user_unity
+  def remove_not_unique_user_unity
     return unless user_roles
 
     user_unity = []
 
-    user_roles.reject(&:marked_for_destruction?).each do |user_role|
+    user_roles.each do |user_role|
+      next if user_role.marked_for_destruction?
+
       if user_unity.include?([user_role.user_id, user_role.unity_id])
-        errors.add(:user_roles, :invalid)
-        user_role.errors.add(:user_id, :taken)
+        user_role.mark_for_destruction
       else
         user_unity.push([user_role.user_id, user_role.unity_id])
       end

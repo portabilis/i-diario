@@ -7,8 +7,6 @@ class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
         create_records(api.fetch(ano: year)['matriculas'])
       end
     end
-
-    finish_worker
   end
 
   protected

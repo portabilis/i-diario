@@ -37,7 +37,8 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
       :yearly,
       grade: classroom.grade,
       teacher_id: teacher.id,
-      year: school_calendar.year
+      year: school_calendar.year,
+      unity: classroom.unity
     )
 
     create(:discipline_teaching_plan, teaching_plan: teaching_plan, discipline: discipline)

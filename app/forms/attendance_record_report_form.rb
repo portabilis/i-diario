@@ -3,6 +3,7 @@ class AttendanceRecordReportForm
 
   attr_accessor :unity_id,
                 :classroom_id,
+                :period,
                 :discipline_id,
                 :class_numbers,
                 :start_at,
@@ -19,6 +20,7 @@ class AttendanceRecordReportForm
   }
   validates :unity_id, presence: true
   validates :classroom_id, presence: true
+  validates :period, presence: true
   validates :discipline_id, presence: true, unless: :global_absence?
   validates :class_numbers, presence: true, unless: :global_absence?
   validates :start_at, presence: true
@@ -30,6 +32,7 @@ class AttendanceRecordReportForm
   def daily_frequencies
     if global_absence?
       DailyFrequency.by_classroom_id(classroom_id)
+                    .by_period(period)
                     .by_frequency_date_between(start_at, end_at)
                     .general_frequency
                     .includes(students: :student)
@@ -39,6 +42,7 @@ class AttendanceRecordReportForm
 
     else
       DailyFrequency.by_classroom_id(classroom_id)
+                    .by_period(period)
                     .by_discipline_id(discipline_id)
                     .by_class_number(class_numbers.split(','))
                     .by_frequency_date_between(start_at, end_at)
@@ -75,13 +79,16 @@ class AttendanceRecordReportForm
   end
 
   def students_enrollments
+    adjusted_period = period != Periods::FULL ? period : nil
+
     StudentEnrollmentsList.new(
       classroom: classroom_id,
       discipline: discipline_id,
       start_at: start_at,
       end_at: end_at,
       search_type: :by_date_range,
-      show_inactive: false
+      show_inactive: false,
+      period: adjusted_period
     ).student_enrollments
   end
 
