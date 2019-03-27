@@ -25,6 +25,23 @@ class PartialScoreRecordReportController < ApplicationController
     end
   end
 
+  def students_by_daily_note
+    classroom_id = params['classroom_id'].presence || @partial_score_record_report_form.classroom_id
+
+    @students_by_daily_note ||= Student.where(
+      id: DailyNoteStudent.by_classroom_id(classroom_id)
+                          .by_test_date_between(
+                            current_school_calendar.first_day,
+                            current_school_calendar.last_day
+                          )
+                          .select(:student_id)
+    ).ordered
+
+    respond_with @students_by_daily_note if params['classroom_id'].present?
+
+    @students_by_daily_note
+  end
+
   private
 
   def school_calendar_steps
@@ -44,9 +61,7 @@ class PartialScoreRecordReportController < ApplicationController
   helper_method :school_calendar_classroom_steps
 
   def students
-    @students ||= Student.where(id: DailyNoteStudent.by_classroom_id(@partial_score_record_report_form.classroom_id)
-                                                    .by_test_date_between(current_school_calendar.first_day, current_school_calendar.last_day)
-                                                    .select(:student_id)).ordered
+    students_by_daily_note
   end
   helper_method :students
 

@@ -1,0 +1,12 @@
+pt-BR:
+  ieducar_api_configuration:
+    sync_title: 'Sincronizações'
+    sync_table:
+      environment: 'Ambiente'
+      started_at: 'Iniciado em'
+      ended_at: 'Finalizado em'
+      time: 'Tempo em andamento'
+      estimated_time: 'Tempo estimado'
+      status: 'Estado atual'
+    sync_error_modal:
+      close: 'Fechar'

@@ -10,7 +10,7 @@ namespace :db do
       ENV["SCOPE"].blank? || (ENV["SCOPE"] == migration.scope)
     end
 
-    Entity.find_each(batch_size: 100) do |entity|
+    Entity.active.find_each(batch_size: 100) do |entity|
       entity.using_connection do
         puts "Migrating db: #{entity.domain}"
 

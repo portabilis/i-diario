@@ -20,7 +20,7 @@ $(function () {
     if (!_.isEmpty(classroom_id)) {
 
       $.ajax({
-        url: Routes.students_pt_br_path({
+        url: Routes.students_by_daily_note_pt_br_path({
           classroom_id: classroom_id,
           score_type: 'numeric',
           format: 'json'
@@ -38,7 +38,7 @@ $(function () {
   });
 
   function fetchStudentsSuccess(data) {
-    var students = _.map(data.students, function(student) {
+    var students = _.map(data.partial_score_record_report, function(student) {
       return { id: student.id, text: student.name };
     });
 
@@ -57,7 +57,6 @@ $(function () {
   }
 
   // on load
-  fetchStudents();
   toggleStepField();
 
   function fetchSchoolSteps() {
