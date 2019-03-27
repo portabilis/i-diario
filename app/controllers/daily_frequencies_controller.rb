@@ -7,10 +7,9 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency.unity = current_user_unity
     @daily_frequency.frequency_date = Time.zone.today
     @class_numbers = []
+    @period = current_teacher_period
 
     authorize @daily_frequency
-
-    fetch_avaliations
   end
 
   def create
@@ -19,6 +18,7 @@ class DailyFrequenciesController < ApplicationController
     @class_numbers = params[:class_numbers].split(',')
     @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]
+    @period = params[:daily_frequency][:period]
 
     if validate_class_numbers && validate_discipline && @daily_frequency.valid?
       absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom,
@@ -31,7 +31,6 @@ class DailyFrequenciesController < ApplicationController
 
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
     else
-      fetch_avaliations
       clear_invalid_date
 
       render :new
@@ -41,6 +40,8 @@ class DailyFrequenciesController < ApplicationController
   def edit_multiple
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number.includes(:students)
     @daily_frequency = @daily_frequencies.first
+    teacher_period = current_teacher_period
+    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
 
     authorize @daily_frequency
 
@@ -113,6 +114,14 @@ class DailyFrequenciesController < ApplicationController
 
   private
 
+  def current_teacher_period
+    TeacherPeriodFetcher.new(
+      current_teacher.id,
+      current_user.current_classroom_id,
+      current_user.current_discipline_id
+    ).teacher_period
+  end
+
   def create_unpersisted_students
     @daily_frequencies.each do |daily_frequency|
       persisted_student_ids = daily_frequency.students.map(&:student_id)
@@ -149,7 +158,8 @@ class DailyFrequenciesController < ApplicationController
       classroom: @daily_frequency.classroom,
       discipline: @daily_frequency.discipline,
       date: @daily_frequency.frequency_date,
-      search_type: :by_date
+      search_type: :by_date,
+      period: @period
     ).student_enrollments
   end
 
@@ -173,7 +183,7 @@ class DailyFrequenciesController < ApplicationController
 
   def resource_params
     params.require(:daily_frequency).permit(
-      :unity_id, :classroom_id, :discipline_id, :frequency_date
+      :unity_id, :classroom_id, :discipline_id, :frequency_date, :period
     )
   end
 
@@ -228,6 +238,7 @@ class DailyFrequenciesController < ApplicationController
     params = resource_params
     params[:discipline_id] = nil
     params[:class_number] = nil
+    params[:period] = @period
 
     [find_by_or_create_daily_frequency(params)]
   end
@@ -238,6 +249,7 @@ class DailyFrequenciesController < ApplicationController
     @class_numbers.each do |class_number|
       params = resource_params
       params[:class_number] = class_number
+      params[:period] = @period
 
       daily_frequencies << find_by_or_create_daily_frequency(params)
     end
@@ -248,7 +260,8 @@ class DailyFrequenciesController < ApplicationController
   def find_by_or_create_daily_frequency(params)
     DailyFrequency.create_with(
       params.slice(
-        :unity_id
+        :unity_id,
+        :period
       ).merge(
         origin: OriginTypes::WEB,
         school_calendar_id: current_school_calendar.id
@@ -258,7 +271,8 @@ class DailyFrequenciesController < ApplicationController
         :classroom_id,
         :frequency_date,
         :discipline_id,
-        :class_number
+        :class_number,
+        :period
       )
     )
   rescue ActiveRecord::RecordNotUnique

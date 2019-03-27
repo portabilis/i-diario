@@ -12,6 +12,7 @@ pt-BR:
         invalid_fetch: "Requisição não pode ser realizada. É necessário informar o %{field}."
         invalid_post: "Requisição não pode ser realizada. É necessário informar o %{field}."
         post_error: "Ocorreu um erro ao efetuar o envio. Entre em contato com o administrador."
+        sync_error: "Erro inesperado. Se persistir, entre em contato com o administrador."
 
   boolean:
     "yes": "Sim"

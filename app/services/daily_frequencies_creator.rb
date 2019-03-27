@@ -35,39 +35,47 @@ class DailyFrequenciesCreator
   end
 
   def find_or_create_daily_frequency_students
-    student_enrollments.each do |student_enrollment|
-      student = student_enrollment.student
-      dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
-      @daily_frequencies.each do |daily_frequency|
-        find_or_create_daily_frequency_student(daily_frequency, student, dependence)
+    @daily_frequencies.each do |daily_frequency|
+      student_ids = daily_frequency.students.map(&:student_id)
+
+      student_enrollments(student_ids).each do |student_enrollment|
+        find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
       end
     end
   end
 
-  def find_or_create_daily_frequency_student(daily_frequency, student, dependence)
-    begin
-      daily_frequency.students.find_or_create_by(student_id: student.id) do |daily_frequency_student|
-        daily_frequency_student.dependence = dependence
-        daily_frequency_student.present = true
-        daily_frequency_student.active = true
-      end
-    rescue ActiveRecord::RecordNotUnique
+  def find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
+    daily_frequency.students.find_or_create_by(student_id: student_enrollment.student_id) do |daily_frequency_student|
+      daily_frequency_student.dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
+      daily_frequency_student.present = true
+      daily_frequency_student.active = true
     end
+  rescue ActiveRecord::RecordNotUnique
+    retry
   end
 
-  def student_enrollments
-    @student_enrollments ||=
+  def student_enrollments(not_student_ids)
+    @student_enrollments ||= begin
       if first_daily_frequency.blank?
-        []
+        student_enrollments = []
       else
-        StudentEnrollment.includes(:student)
-                         .by_classroom(first_daily_frequency.classroom)
-                         .by_discipline(first_daily_frequency.discipline)
-                         .by_date(@params[:frequency_date])
-                         .exclude_exempted_disciplines(first_daily_frequency.discipline_id, step_number)
-                         .active
-                         .ordered
+        student_enrollments = StudentEnrollment.includes(:student)
+                                               .where.not(student_id: not_student_ids)
+                                               .by_classroom(first_daily_frequency.classroom)
+                                               .by_discipline(first_daily_frequency.discipline)
+                                               .by_date(@params[:frequency_date])
+                                               .exclude_exempted_disciplines(
+                                                 first_daily_frequency.discipline_id,
+                                                 step_number
+                                               )
+                                               .active
+                                               .ordered
+
+        student_enrollments.by_period(student_period) if student_period
       end
+
+      student_enrollments
+    end
   end
 
   def first_daily_frequency
@@ -82,5 +90,9 @@ class DailyFrequenciesCreator
 
   def step_number
     @step_number ||= first_daily_frequency.school_calendar.step(first_daily_frequency.frequency_date).try(:to_number) || 0
+  end
+
+  def student_period
+    @params[:period] != Periods::FULL.to_i ? @params[:period] : nil
   end
 end

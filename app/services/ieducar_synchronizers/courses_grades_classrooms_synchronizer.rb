@@ -3,8 +3,6 @@ class CoursesGradesClassroomsSynchronizer < BaseSynchronizer
     update_records api.fetch(escola_id: unities,
                              get_series: true,
                              get_turmas: true)['cursos']
-
-    finish_worker
   end
 
   protected

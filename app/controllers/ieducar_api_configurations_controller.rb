@@ -2,6 +2,10 @@ class IeducarApiConfigurationsController < ApplicationController
   def edit
     @ieducar_api_configuration = IeducarApiConfiguration.current
 
+    if @ieducar_api_configuration.api_security_token.blank?
+      @ieducar_api_configuration.update(api_security_token: SecureRandom.hex(15))
+    end
+
     authorize @ieducar_api_configuration
     render :edit
   end

@@ -6,6 +6,27 @@
 
 Portal do professor integrado com o software livre [i-Educar](https://github.com/portabilis/i-educar)
 
+## Comunicação
+
+Acreditamos que o sucesso do projeto depende diretamente da interação clara e
+objetiva entre os membros da Comunidade. Por isso, estamos definindo algumas
+políticas para que estas interações nos ajudem a crescer juntos! Você pode
+consultar algumas destas boas práticas em nosso [código de
+conduta](https://github.com/portabilis/i-diario/blob/master/CODE_OF_CONDUCT.md).
+
+Além disso, gostamos de meios de comunicação assíncrona, onde não há necessidade de
+respostas em tempo real. Isso facilita a produtividade individual dos
+colaboradores do projeto.
+
+| Canal de comunicação | Objetivos |
+|----------------------|-----------|
+| [Fórum](https://forum.ieducar.org) | - Tirar dúvidas <br>- Discussões de como instalar a plataforma<br> - Discussões de como usar funcionalidades<br> - Suporte entre membros de comunidade<br> - FAQ da comunidade (sobre o produto e funcionalidades) |
+| [Issues do Github](https://github.com/portabilis/i-diario/issues/new/choose) | - Sugestão de novas funcionalidades<br> - Reportar bugs<br> - Discussões técnicas |
+| [Telegram](https://t.me/ieducar ) | - Comunicar novidades sobre o projeto<br> - Movimentar a comunidade<br>  - Falar tópicos que **não** demandem discussões profundas |
+
+Qualquer outro grupo de discussão não é reconhecido oficialmente pela
+comunidade i-Educar e não terá suporte da Portabilis - mantenedora do projeto.
+
 ## Instalação
 
 - Instalar o Ruby 2.2.6 (Recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))

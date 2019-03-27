@@ -7,6 +7,7 @@ pt-BR:
     dashboard: "Dashboard"
     ieducar_api_configurations: "API de integração"
     general_configurations: "Configurações gerais"
+    admin_synchronizations: "Sincronizações"
     unities: "Unidades"
     roles: "Permissões"
     entity_configurations: "Entidade"

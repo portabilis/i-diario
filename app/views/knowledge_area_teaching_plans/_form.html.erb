@@ -1,9 +1,10 @@
 <% content_for :js do %>
+  <%= javascript_include_tag 'attachemnt_size_validator' %>
   <%= javascript_include_tag 'views/knowledge_area_teaching_plans/form' %>
 <% end %>
 
 
-<%= simple_form_for @knowledge_area_teaching_plan, html: { class: 'smart-form' } do |f| %>
+<%= simple_form_for @knowledge_area_teaching_plan, html: { class: 'smart-form', id: 'knowledge_area_teaching_plan' } do |f| %>
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
 
@@ -112,6 +113,53 @@
         <div class="col col-sm-12">
           <%= teaching_plan_form.input :references, input_html: { class: 'col col-sm-12' },
                 readonly: action_name == 'show' %>
+        </div>
+      </div>
+
+      <div class="row textarea">
+        <div class="col col-sm-12">
+          <legend><%= t('.attachments') %></legend>
+          <div class="alert alert-info fade in">
+            <i class="fa-fw fa fa-info"></i>
+            <%= t('.format_message') + ' ' + t('.size_message') %>
+          </div>
+          <br>
+          <% if teaching_plan_form.object.errors[:teaching_plan_attachments].present? %>
+            <div class="alert alert-danger alert-block ">
+              <i class="fa-fw fa fa-times"></i>
+              <span class="help-inline">
+                <%= teaching_plan_form.object.errors[:teaching_plan_attachments].join "<br />" %>
+              </span>
+            </div>
+          <% end %>
+          <table class="table table-striped table-bordered table-condensed records">
+            <thead>
+              <tr>
+                <th>Anexo</th>
+                <td width="73px"></td>
+              </tr>
+            </thead>
+
+            <tbody id="teaching-plan-attachments">
+              <%= teaching_plan_form.simple_fields_for :teaching_plan_attachments, teaching_plan_form.object.teaching_plan_attachments do |attachment| %>
+                <% if attachment.object.persisted? %>
+                  <%= render 'teaching_plan_attachment_show', f: attachment %>
+                <% else %>
+                  <%= render 'teaching_plan_attachment_fields', f: attachment %>
+                <% end %>
+              <% end %>
+            </tbody>
+            <tfoot class="links">
+              <tr>
+                <td colspan="2">
+                  <%= link_to_add_association t('.add_attachment'), teaching_plan_form, :teaching_plan_attachments,
+                    class: 'btn btn-success btn-sm',
+                    :"data-association-insertion-method" => "append",
+                    :"data-association-insertion-node" => "#teaching-plan-attachments" %>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
       </div>
     </fieldset>

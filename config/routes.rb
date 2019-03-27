@@ -1,5 +1,4 @@
 require 'sidekiq/web'
-require 'sidekiq-status/web'
 
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
@@ -44,6 +43,7 @@ Rails.application.routes.draw do
       end
       namespace :v2 do
         resources :exam_rules, only: [:index]
+        get 'step_activity', to: 'step_activity#check'
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index]
         resources :teacher_disciplines, only: [:index]
@@ -113,6 +113,7 @@ Rails.application.routes.draw do
       collection do
         get :export_all
         get :export_selected
+        get :select2_remote
       end
     end
 
@@ -129,6 +130,7 @@ Rails.application.routes.draw do
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
     resource :terms_dictionaries, only: [:edit, :update], concerns: :history
+    resources :admin_synchronizations, only: [:index]
     resources :backup_files, only: [:index, :create]
     resources :unities, concerns: :history do
       collection do
@@ -137,6 +139,7 @@ Rails.application.routes.draw do
         post :create_batch
         get :search
         get :all
+        get :select2_remote
       end
     end
     resources :courses, only: [:index]

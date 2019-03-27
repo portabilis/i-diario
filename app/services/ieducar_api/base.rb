@@ -82,8 +82,6 @@ module IeducarApi
       rescue SocketError, RestClient::ResourceNotFound
         raise ApiError, 'URL do i-Educar informada não é válida.'
       rescue StandardError => error
-        Honeybadger.notify(error)
-
         raise ApiError, error.message
       end
 

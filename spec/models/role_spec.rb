@@ -11,16 +11,6 @@ RSpec.describe Role, :type => :model do
     it { should validate_presence_of :author }
     it { should validate_presence_of :name }
 
-    it "should validate uniqueness of user and unity" do
-      user_role = UserRole.new(user: users(:john_doe), unity: unities(:escola_y))
-
-      subject.user_roles = [user_role, user_role]
-
-      subject.valid?
-
-      expect(subject.errors[:user_roles]).to eq ["não é válido"]
-    end
-
     it "should validate permissions must match access level" do
       subject.access_level = AccessLevel::TEACHER
 

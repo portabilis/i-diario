@@ -11,7 +11,7 @@
         <td><%= discipline_teaching_plan.discipline %></td>
         <td><%= discipline_teaching_plan.teaching_plan.school_term_type_humanize %></td>
         <td><%= discipline_teaching_plan.teaching_plan.school_term_humanize %></td>
-        <td><%= discipline_teaching_plan.teaching_plan.decorator.author %></td>
+        <td><%= discipline_teaching_plan.teaching_plan.decorator.author(current_teacher) %></td>
         <td class="actions">
           <%= link_to(
                 t('helpers.links.show_html'),
@@ -28,13 +28,12 @@
                 t('helpers.links.edit_html'),
                 edit_discipline_teaching_plan_path(discipline_teaching_plan),
                 class: 'btn btn-success apply_tooltip',
-                disabled: !(discipline_teaching_plan.teaching_plan.teacher_id == current_teacher.try(:id) || current_user_is_employee_or_administrator?),
                 data: { original_title: t('views.index.tooltips.edit') }) %>
           <%= link_to(
                   t('helpers.links.destroy_html'),
                   discipline_teaching_plan_path(discipline_teaching_plan),
                   class: 'btn btn-danger apply_tooltip',
-                  disabled: !(discipline_teaching_plan.teaching_plan.teacher_id == current_teacher.try(:id) || current_user_is_employee_or_administrator?),
+                  disabled: !teaching_plan_destroy?(discipline_teaching_plan.teaching_plan),
                   method: 'delete',
                   data: {
                     confirm: t('views.index.confirm'),

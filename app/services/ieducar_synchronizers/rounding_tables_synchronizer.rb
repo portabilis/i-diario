@@ -1,8 +1,6 @@
 class RoundingTablesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch['tabelas']
-
-    finish_worker
   end
 
   protected
