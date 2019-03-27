@@ -107,6 +107,6 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def update_last_synchronization_date
-    IeducarApiConfiguration.current.update_synchronized_at!
+    IeducarApiConfiguration.current.update_synchronized_at!(started_at)
   end
 end

@@ -1,5 +1,5 @@
 class Teacher < ActiveRecord::Base
-  include Discard::Model
+  include Discardable
 
   acts_as_copy_target
 
@@ -12,6 +12,8 @@ class Teacher < ActiveRecord::Base
   validates :name, :api_code, presence: true
   validates :api_code, uniqueness: true
   validates :active, inclusion: { in: [true, false] }
+
+  default_scope -> { kept }
 
   scope :by_id, ->(id) { where(id: id) }
   scope :by_unity_id, ->(unity_id) { by_unity_id(unity_id) }

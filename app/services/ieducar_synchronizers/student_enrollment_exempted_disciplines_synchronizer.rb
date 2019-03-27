@@ -5,8 +5,8 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
 
   protected
 
-  def api
-    IeducarApi::StudentEnrollmentExemptedDisciplines.new(synchronization.to_api)
+  def api_class
+    IeducarApi::StudentEnrollmentExemptedDisciplines
   end
 
   def update_records(collection)

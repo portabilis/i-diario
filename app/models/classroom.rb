@@ -1,5 +1,5 @@
 class Classroom < ActiveRecord::Base
-  include Discard::Model
+  include Discardable
 
   acts_as_copy_target
 

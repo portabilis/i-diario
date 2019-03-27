@@ -1,7 +1,8 @@
 class SynchronizationsController < ApplicationController
   def create
+    full_synchronization = params.fetch(:full, false)
     configuration = IeducarApiConfiguration.current
-    @synchronization = configuration.start_synchronization(current_user, current_entity.id)
+    @synchronization = configuration.start_synchronization(current_user, current_entity.id, full_synchronization)
 
     if @synchronization.persisted?
       respond_with @synchronization, location: edit_ieducar_api_configurations_path

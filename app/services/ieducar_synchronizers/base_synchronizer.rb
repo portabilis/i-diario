@@ -30,6 +30,10 @@ class BaseSynchronizer
 
       synchronization.mark_as_completed! if worker_batch.all_workers_finished?
     end
+
+    def worker_name
+      self.class.to_s
+    end
   end
 
   def initialize(synchronization, worker_batch, years, unity_api_code, entity_id)
@@ -46,12 +50,8 @@ class BaseSynchronizer
 
   attr_accessor :synchronization, :worker_batch, :years, :unity_api_code, :entity_id, :worker_state
 
-  def worker_name
-    self.class.to_s
-  end
-
   def api
-    @api = api_class.new(synchronization.to_api)
+    @api = api_class.new(synchronization.to_api, synchronization.full_synchronization)
   end
 
   def api_class
