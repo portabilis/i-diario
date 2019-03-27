@@ -38,7 +38,7 @@ class DailyNotesController < ApplicationController
   end
 
   def create
-    creator = DailyNoteCreator.new(resource_params.merge(teacher_id: current_teacher_id))
+    creator = DailyNoteCreator.new(resource_params)
     creator.find_or_create
     @daily_note = creator.daily_note
 
@@ -84,7 +84,6 @@ class DailyNotesController < ApplicationController
   def update
     @daily_note = DailyNote.find(params[:id]).localized
     @daily_note.assign_attributes resource_params
-    @daily_note.teacher_id = current_teacher_id
 
     authorize @daily_note
 

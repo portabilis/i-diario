@@ -7,7 +7,7 @@ class FrequencyTypeResolver
   end
 
   def resolve
-    if @classroom.exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
+    if @classroom.exam_rule.present? && @classroom.exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
       return FrequencyTypes::BY_DISCIPLINE
     end
 

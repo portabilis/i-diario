@@ -78,7 +78,9 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   end
 
   def ensure_is_school_day
-    return unless content_record.present? && record_date
+    return unless content_record.present? &&
+                  content_record.school_calendar.present? &&
+                  record_date.present?
 
     unless content_record.school_calendar.school_day?(record_date, grade, classroom)
       errors.add(:base, "")

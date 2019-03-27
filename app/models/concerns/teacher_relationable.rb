@@ -64,23 +64,23 @@ module TeacherRelationable
   end
 
   def validate_classroom?
-    self.class.validate_columns[:classroom] && validate_columns?
+    self.class.validate_columns[:classroom] && validate_columns? && classroom_id.present?
   end
 
   def validate_discipline?
-    self.class.validate_columns[:discipline] && validate_columns?
+    self.class.validate_columns[:discipline] && validate_columns? && discipline_id.present?
   end
 
   def validate_classroom_and_discipline?
-    self.class.validate_columns[:classroom] && self.class.validate_columns[:discipline] && validate_columns?
+    validate_classroom? && validate_discipline?
   end
 
   def validate_grade?
-    self.class.validate_columns[:grade] && validate_columns?
+    self.class.validate_columns[:grade] && validate_columns? && grade_id.present?
   end
 
   def validate_knowledge_areas?
-    self.class.validate_columns[:knowledge_areas] && validate_columns?
+    self.class.validate_columns[:knowledge_areas] && validate_columns? && validate_knowledge_areas.present?
   end
 
   def ensure_has_teacher_id_informed

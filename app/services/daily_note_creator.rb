@@ -1,8 +1,7 @@
 class DailyNoteCreator
-  attr_reader :daily_note, :teacher_id
+  attr_reader :daily_note
 
   def initialize(params)
-    @teacher_id = params.try(:delete, :teacher_id)
     @params = params
   end
 
@@ -12,7 +11,6 @@ class DailyNoteCreator
 
   def find_or_create
     @daily_note = DailyNote.find_or_initialize_by(@params)
-    @daily_note.teacher_id = teacher_id
 
     if @daily_note.new_record?
       student_enrollments = fetch_student_enrollments
