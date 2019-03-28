@@ -151,9 +151,15 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       score_rounder = double(:score_rounder)
 
       expect(ScoreRounder).to receive(:new)
+        .with(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
+        .and_return(score_rounder)
+        .at_least(:once)
+
+      expect(ScoreRounder).to receive(:new)
         .with(classroom, RoundedAvaliations::NUMERICAL_EXAM)
         .and_return(score_rounder)
         .at_least(:once)
+
       expect(score_rounder).to receive(:round)
         .with(anything)
         .at_least(:once)
