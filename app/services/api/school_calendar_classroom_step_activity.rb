@@ -1,7 +1,7 @@
 module Api
   class SchoolCalendarClassroomStepActivity < BaseSchoolCalendarStepActivity
-    def initialize(classroom_id, step_number)
-      @classroom_id = classroom_id
+    def initialize(classroom, step_number)
+      @classroom = classroom
       @calendar_step = school_classroom_calendar_step(step_number)
       @step_number = step_number
     end
@@ -11,9 +11,9 @@ module Api
         @calendar_step.school_calendar_id,
         @calendar_step.start_at,
         @calendar_step.end_at
-      ).by_classroom_id(@classroom_id).exists?
+      ).by_classroom_id(@classroom.id).exists?
 
-      return true if Avaliation.by_classroom_id(@classroom_id)
+      return true if Avaliation.by_classroom_id(@classroom.id)
                                .by_school_calendar_classroom_step(@calendar_step.id)
                                .exists?
 
@@ -27,7 +27,7 @@ module Api
         @step_number,
         @calendar_step.start_at,
         @calendar_step.end_at
-      ).by_classroom_id(@classroom_id).exists?
+      ).by_classroom_id(@classroom.id).exists?
 
       false
     end

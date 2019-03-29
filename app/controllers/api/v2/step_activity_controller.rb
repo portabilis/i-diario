@@ -13,7 +13,7 @@ module Api
                        else
                          @classroom = Classroom.find_by!(api_code: params[:classroom_id])
 
-                         check_by_classroom(@classroom.id, step_number)
+                         check_by_classroom(@classroom, step_number)
                        end
 
         render json: has_activity
@@ -26,8 +26,8 @@ module Api
         activity_checker.any_activity?
       end
 
-      def check_by_classroom(classroom_id, step_number)
-        activity_checker = SchoolCalendarClassroomStepActivity.new(classroom_id, step_number)
+      def check_by_classroom(classroom, step_number)
+        activity_checker = SchoolCalendarClassroomStepActivity.new(classroom, step_number)
         activity_checker.any_activity?
       end
     end
