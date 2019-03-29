@@ -15,9 +15,4 @@ class BaseSchoolCalendarStepActivity
     DescriptiveExam.by_recorded_at_between(start_at, end_at)
                    .where(step_number: step_number)
   end
-
-  def render_invalid_step
-    render json: { message: 'Etapa não encontrada' },
-           status: :not_found
-  end
 end
