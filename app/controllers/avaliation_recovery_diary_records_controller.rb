@@ -262,6 +262,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   end
 
   def student_exempted_from_discipline?(student_enrollment, recovery_diary_record, avaliation_recovery_diary_record)
+    return if recovery_diary_record.discipline.blank?
+
     discipline_id = recovery_diary_record.discipline.id
     test_date = avaliation_recovery_diary_record.avaliation.test_date
     step_number = avaliation_recovery_diary_record.avaliation.school_calendar.step(test_date).to_number

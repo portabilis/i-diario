@@ -80,7 +80,7 @@ module TeacherRelationable
   end
 
   def validate_knowledge_areas?
-    self.class.validate_columns[:knowledge_areas] && validate_columns? && validate_knowledge_areas.present?
+    self.class.validate_columns[:knowledge_areas] && validate_columns? && knowledge_areas.present?
   end
 
   def ensure_has_teacher_id_informed
