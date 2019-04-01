@@ -16,6 +16,7 @@ class AvaliationMultipleCreatorForm
   validate :at_least_one_assigned_avaliation
 
   def initialize(attributes = {})
+    @teacher_id = attributes[:teacher_id]
     @avaliations = []
     super
   end
@@ -74,7 +75,8 @@ class AvaliationMultipleCreatorForm
         description: self.description,
         weight: self.weight,
         observations: self.observations,
-        school_calendar_id: self.school_calendar_id
+        school_calendar_id: self.school_calendar_id,
+        teacher_id: teacher_id
       )
       @avaliations << avaliation
     end

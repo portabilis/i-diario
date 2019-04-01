@@ -17,12 +17,13 @@ class ObservationDiaryRecordsController < ApplicationController
   def new
     @observation_diary_record = ObservationDiaryRecord.new.localized
     @observation_diary_record.school_calendar_id = current_school_calendar.id
-    @observation_diary_record.teacher_id = current_teacher.id
+    @observation_diary_record.teacher = current_teacher
     @observation_diary_record.date = Time.zone.today
   end
 
   def create
     @observation_diary_record = ObservationDiaryRecord.new(resource_params)
+    @observation_diary_record.teacher = current_teacher
 
     authorize @observation_diary_record
 

@@ -65,7 +65,9 @@ class AvaliationsController < ApplicationController
   def create_multiple_classrooms
     authorize Avaliation.new
 
-    @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new(params[:avaliation_multiple_creator_form])
+    @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new(
+      params[:avaliation_multiple_creator_form].merge(teacher_id: current_teacher_id)
+    )
 
     if @avaliation_multiple_creator_form.save
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
@@ -78,6 +80,7 @@ class AvaliationsController < ApplicationController
   def create
     resource.assign_attributes(resource_params)
     resource.school_calendar = current_school_calendar
+    resource.teacher_id = current_teacher_id
 
     authorize resource
 
@@ -101,6 +104,7 @@ class AvaliationsController < ApplicationController
   def update
     @avaliation = resource
     @avaliation.localized.assign_attributes(resource_params)
+    @avaliation.teacher_id = current_teacher_id
 
     authorize @avaliation
 
@@ -143,7 +147,7 @@ class AvaliationsController < ApplicationController
 
   def respond_to_save
     if params[:commit] == I18n.t('avaliations.form.save_and_edit_daily_notes')
-      creator = DailyNoteCreator.new(avaliation_id: resource.id)
+      creator = DailyNoteCreator.new(avaliation_id: resource.id, teacher_id: current_teacher_id)
       creator.find_or_create
 
       @daily_note = creator.daily_note

@@ -1,10 +1,13 @@
 class Avaliation < ActiveRecord::Base
+  include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: [:classroom, :discipline]
+
   acts_as_copy_target
 
   audited
   has_associated_audits
-
-  include Audit
 
   attr_accessor :test_date_copy, :grades_allow_destroy, :recovery_allow_destroy
 

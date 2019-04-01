@@ -1,6 +1,9 @@
 class TransferNote < ActiveRecord::Base
   include Audit
   include Stepable
+  include TeacherRelationable
+
+  teacher_relation_columns only: [:classroom, :discipline]
 
   audited except: [:teacher_id, :recorded_at]
   has_associated_audits

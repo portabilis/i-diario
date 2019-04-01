@@ -63,6 +63,8 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan = DisciplineLessonPlan.new
     @discipline_lesson_plan.assign_attributes(resource_params)
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
+    @discipline_lesson_plan.lesson_plan.teacher = current_teacher
+    @discipline_lesson_plan.teacher_id = current_teacher_id
 
     authorize @discipline_lesson_plan
 
@@ -82,6 +84,7 @@ class DisciplineLessonPlansController < ApplicationController
   def update
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id])
     @discipline_lesson_plan.assign_attributes(resource_params)
+    @discipline_lesson_plan.teacher_id = current_teacher_id
 
     authorize @discipline_lesson_plan
 
