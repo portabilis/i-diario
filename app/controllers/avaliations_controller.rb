@@ -147,7 +147,7 @@ class AvaliationsController < ApplicationController
 
   def respond_to_save
     if params[:commit] == I18n.t('avaliations.form.save_and_edit_daily_notes')
-      creator = DailyNoteCreator.new(avaliation_id: resource.id, teacher_id: current_teacher_id)
+      creator = DailyNoteCreator.new(avaliation_id: resource.id)
       creator.find_or_create
 
       @daily_note = creator.daily_note
