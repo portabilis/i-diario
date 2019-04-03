@@ -1,7 +1,7 @@
 class DisciplineLessonPlanClonerForm < ActiveRecord::Base
   has_no_table
 
-  attr_accessor :discipline_lesson_plan_id
+  attr_accessor :discipline_lesson_plan_id, :teacher
 
   validates :discipline_lesson_plan_id, presence: true
   has_many :discipline_lesson_plan_item_cloner_form
@@ -15,7 +15,9 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
           discipline_lesson_plan_item_cloner_form.each_with_index do |item, index|
             @current_item_index = index
             new_lesson_plan = discipline_lesson_plan.dup
+            new_lesson_plan.teacher_id = teacher.id
             new_lesson_plan.lesson_plan = discipline_lesson_plan.lesson_plan.dup
+            new_lesson_plan.lesson_plan.teacher = teacher
             new_lesson_plan.lesson_plan.contents = discipline_lesson_plan.lesson_plan.contents
             new_lesson_plan.lesson_plan.start_at = item.start_at
             new_lesson_plan.lesson_plan.end_at = item.end_at

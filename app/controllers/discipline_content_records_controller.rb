@@ -89,7 +89,7 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def clone
-    @form = DisciplineContentRecordClonerForm.new(clone_params)
+    @form = DisciplineContentRecordClonerForm.new(clone_params.merge(teacher: current_teacher))
 
     if @form.clone!
       flash[:success] = "Registro de conteúdo por disciplina copiado com sucesso!"
