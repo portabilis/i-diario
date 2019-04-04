@@ -127,7 +127,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def clone
-    @form = KnowledgeAreaLessonPlanClonerForm.new(clone_params)
+    @form = KnowledgeAreaLessonPlanClonerForm.new(clone_params.merge(teacher: current_teacher))
     if @form.clone!
       flash[:success] = "Plano de aula por área de conhecimento copiado com sucesso!"
     end
