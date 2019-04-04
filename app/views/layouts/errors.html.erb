@@ -4,11 +4,6 @@
     <title><%= @page_title %> - Educar+</title>
     <meta charset="utf-8" />
     <%= stylesheet_link_tag "error_pages" %>
-    <% if show_freshdesk? %>
-      <%= javascript_include_tag 'freshwidget' %>
-      <%= javascript_include_tag 'freshwidget_call' %>
-      <%= javascript_include_tag 'chat_helpdesk' %>
-    <% end %>
   </head>
 
   <body>
@@ -18,17 +13,6 @@
         <div class="col-sm-4 col-sm-offset-2 error-actions">
           <a href="javascript:history.back()" class="btn btn-primary btn-lg" style="width: 100%;">Voltar para a página anterior</a>
         </div>
-        <% if show_freshdesk? %>
-        <div class="col-sm-4 error-actions">
-          <a href="#" class="btn btn-default btn-lg error-page-support-button" style="width: 100%;">Solicitar ajuda a nossa equipe de suporte</a>
-        </div>
-        <script type="text/javascript">
-          document.getElementsByClassName("error-page-support-button")[0].onclick = function() {
-            FreshWidget.show();
-            return false;
-          }
-        </script>
-        <% end %>
       </div>
     </div>
   </body>
