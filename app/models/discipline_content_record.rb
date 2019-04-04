@@ -1,5 +1,8 @@
 class DisciplineContentRecord < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :discipline
 
   audited associated_with: :content_record,
           except: [:content_record_id]

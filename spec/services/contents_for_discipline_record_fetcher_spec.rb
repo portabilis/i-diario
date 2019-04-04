@@ -4,15 +4,23 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
   let(:teacher) { create(:teacher) }
   let(:classroom) { create(:classroom) }
   let(:discipline) { create(:discipline) }
+  let!(:teacher_discipline_classroom) {
+    create(
+      :teacher_discipline_classroom,
+      teacher: teacher,
+      discipline: discipline,
+      classroom: classroom
+    )
+  }
 
   it 'fetches contents from lesson plan' do
-    lesson_plan = create(:lesson_plan, classroom: classroom, teacher_id: teacher.id)
+    lesson_plan = create(:lesson_plan, classroom: classroom, teacher: teacher)
     date = lesson_plan.start_at
 
     teaching_plan = create(
       :teaching_plan,
       grade: classroom.grade,
-      teacher_id: teacher.id,
+      teacher: teacher,
       year: date.year
     )
 
@@ -36,7 +44,7 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
       :teaching_plan,
       :yearly,
       grade: classroom.grade,
-      teacher_id: teacher.id,
+      teacher: teacher,
       year: school_calendar.year,
       unity: classroom.unity
     )

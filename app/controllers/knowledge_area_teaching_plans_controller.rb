@@ -60,13 +60,12 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def create
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.new(resource_params)
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.new(resource_params).localized
+    @knowledge_area_teaching_plan.teaching_plan.teacher = current_teacher
+    @knowledge_area_teaching_plan.teacher_id = current_teacher_id
+    @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
     authorize @knowledge_area_teaching_plan
-
-    @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher.id unless current_user_is_employee_or_administrator?
-    @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
@@ -87,10 +86,11 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def update
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
     @knowledge_area_teaching_plan.assign_attributes(resource_params)
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
+    @knowledge_area_teaching_plan.teacher_id = current_teacher_id
+    @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher_id
 
     authorize @knowledge_area_teaching_plan
 

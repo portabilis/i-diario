@@ -2,6 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe DescriptiveExam, type: :model do
+  subject(:descriptive_exam) { build(:descriptive_exam, :current) }
+
   describe "associations" do
     it { expect(subject).to belong_to(:classroom) }
     it { expect(subject).to belong_to(:discipline) }

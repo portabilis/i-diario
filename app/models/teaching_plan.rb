@@ -1,5 +1,8 @@
 class TeachingPlan < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :grade
 
   audited except: [:old_contents, :teacher_id]
   has_associated_audits
@@ -65,6 +68,10 @@ class TeachingPlan < ActiveRecord::Base
     when SchoolTermTypes::YEARLY
       I18n.t('enumerations.year.yearly')
     end
+  end
+
+  def optional_teacher
+    true
   end
 
   private

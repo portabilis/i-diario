@@ -81,7 +81,7 @@ class SchoolCalendarsController < ApplicationController
 
   def step
     classroom = Classroom.find(params[:classroom_id])
-    @step = StepsFetcher.new(classroom).steps.find(params[:step_id])
+    @step = StepsFetcher.new(classroom).step_by_id(params[:step_id])
 
     render json: @step.to_json
   end

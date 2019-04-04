@@ -91,7 +91,7 @@ class StudentsController < ApplicationController
   end
 
   def step
-    @step ||= steps_fetcher.steps.find(params[:step_id])
+    @step ||= steps_fetcher.step_by_id(params[:step_id])
   end
 
   def configuration

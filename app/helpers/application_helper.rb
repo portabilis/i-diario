@@ -103,21 +103,21 @@ module ApplicationHelper
   end
 
   def entity_copyright
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_copyright", expires_in: 10.minutes) do
+    # Rails.cache.fetch("#{Entity.current.try(:id)}_entity_copyright", expires_in: 10.minutes) do
       "© #{GeneralConfiguration.current.copyright_name} #{Time.zone.today.year}"
-    end
+    # end
   end
 
   def entity_website
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_website", expires_in: 10.minutes) do
+    # Rails.cache.fetch("#{Entity.current.try(:id)}_entity_website", expires_in: 10.minutes) do
       GeneralConfiguration.current.support_url
-    end
+    # end
   end
 
   def entity_freshdesk
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_freshdesk", expires_in: 10.minutes) do
+    # Rails.cache.fetch("#{Entity.current.try(:id)}_entity_freshdesk", expires_in: 10.minutes) do
       GeneralConfiguration.current.support_freshdesk
-    end
+    # end
   end
 
   def alert_by_entity(_entity_name)
