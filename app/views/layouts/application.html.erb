@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <%= render 'layouts/google_tag_manager_head' %>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=Edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -21,6 +22,8 @@
   </head>
 
   <body class="smart-style-2 fixed-header <%= controller_name %>">
+    <%= render 'layouts/google_tag_manager_body' %>
+
     <div id="page-loading" class="hidden">
       <i class="fa fa-cog fa-spin"></i>
       Carregando ...
