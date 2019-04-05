@@ -20,6 +20,8 @@ class Classroom < ActiveRecord::Base
   validates :description, :api_code, :unity_code, :year, :grade, presence: true
   validates :api_code, uniqueness: true
 
+  default_scope -> { kept }
+
   scope :by_unity_and_teacher, lambda { |unity_id, teacher_id| joins(:teacher_discipline_classrooms).where(unity_id: unity_id, teacher_discipline_classrooms: { teacher_id: teacher_id}).uniq }
   scope :by_unity_and_grade, lambda { |unity_id, grade_id| where(unity_id: unity_id, grade_id: grade_id).uniq }
   scope :by_unity, lambda { |unity| where(unity: unity) }

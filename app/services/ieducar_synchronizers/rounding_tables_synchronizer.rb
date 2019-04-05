@@ -7,7 +7,7 @@ class RoundingTablesSynchronizer < BaseSynchronizer
     )
   end
 
-  protected
+  private
 
   def api_class
     IeducarApi::RoundingTables

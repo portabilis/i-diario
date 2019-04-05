@@ -1,17 +1,23 @@
 class BaseSynchronizer
   class << self
-    def synchronize_in_batch!(synchronization, worker_batch, years = nil, unity_api_code = nil, entity_id = nil)
+    def synchronize_in_batch!(params)
+      worker_batch = params[:worker_batch]
       worker_state = create_worker_state(worker_batch)
 
       if block_given?
         yield
       else
-        new(synchronization, worker_batch, years, unity_api_code, entity_id).synchronize!
+        new(
+          synchronization: params[:synchronization],
+          worker_batch: worker_batch,
+          years: params[:years],
+          unity_api_code: params[:unity_api_code],
+          entity_id: params[:entity_id]
+        ).synchronize!
       end
 
       worker_batch.increment(worker_name)
-
-      finish_worker(worker_state, worker_batch, synchronization)
+      finish_worker(worker_state, worker_batch, params[:synchronization])
     end
 
     private
@@ -32,16 +38,16 @@ class BaseSynchronizer
     end
 
     def worker_name
-      self.class.to_s
+      to_s
     end
   end
 
-  def initialize(synchronization, worker_batch, years, unity_api_code, entity_id)
-    self.synchronization = synchronization
-    self.worker_batch = worker_batch
-    self.years = Array(years).compact
-    self.unity_api_code = unity_api_code
-    self.entity_id = entity_id
+  def initialize(params)
+    self.synchronization = params[:synchronization]
+    self.worker_batch = params[:worker_batch]
+    self.years = Array(params[:years]).compact
+    self.unity_api_code = params[:unity_api_code]
+    self.entity_id = params[:entity_id]
 
     worker_batch.touch
   end
@@ -56,5 +62,62 @@ class BaseSynchronizer
 
   def api_class
     IeducarApi::Base
+  end
+
+  def unities_api_code
+    @unities_api_code ||= Unity.with_api_code
+                               .collect(&:api_code)
+                               .uniq
+                               .flatten
+  end
+
+  def unity(api_code)
+    @unities ||= {}
+    @unities[api_code] ||= Unity.find_by(api_code: api_code)
+  end
+
+  def student(api_code)
+    @students ||= {}
+    @students[api_code] ||= Student.find_by(api_code: api_code)
+  end
+
+  def student_enrollment(api_code)
+    @student_enrollments ||= {}
+    @student_enrollments[api_code] ||= StudentEnrollment.find_by(api_code: api_code)
+  end
+
+  def exam_rule(api_code)
+    @exam_rules ||= {}
+    @exam_rules[api_code] ||= ExamRule.find_by(api_code: api_code)
+  end
+
+  def course(api_code)
+    @course ||= {}
+    @course[api_code] ||= Course.find_by(api_code: api_code)
+  end
+
+  def grade(api_code)
+    @grade ||= {}
+    @grade[api_code] ||= Grade.find_by(api_code: api_code)
+  end
+
+  def classroom(api_code)
+    @classrooms ||= {}
+    @classrooms[api_code] ||= Classroom.find_by(api_code: api_code)
+  end
+
+  def discipline(api_code)
+    @disciplines ||= {}
+    @disciplines[api_code] ||= Discipline.find_by(api_code: api_code)
+  end
+
+  def knowledge_area(knowledge_area_id)
+    @knowledge_areas ||= {}
+    @knowledge_areas[knowledge_area_id] ||= KnowledgeArea.find_by(api_code: knowledge_area_id)
+  end
+
+  def rounding_table(api_code)
+    @rounding_tables ||= {}
+    @rounding_tables[api_code] ||= RoundingTable.find_by(api_code: api_code)
   end
 end

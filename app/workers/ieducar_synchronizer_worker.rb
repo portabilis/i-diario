@@ -37,18 +37,20 @@ class IeducarSynchronizerWorker
   private
 
   SYNCHRONIZERS = [
+    DeficienciesSynchronizer.to_s,
+    StudentsSynchronizer.to_s,
     KnowledgeAreasSynchronizer.to_s,
     DisciplinesSynchronizer.to_s,
-    StudentsSynchronizer.to_s,
-    DeficienciesSynchronizer.to_s,
     RoundingTablesSynchronizer.to_s,
-    RecoveryExamRulesSynchronizer.to_s,
-    CoursesGradesClassroomsSynchronizer.to_s,
-    TeachersSynchronizer.to_s,
+    CoursesSynchronizer.to_s,
+    GradesSynchronizer.to_s,
+    ClassroomsSynchronizer.to_s,
     SpecificStepsSynchronizer.to_s,
-    StudentEnrollmentDependenceSynchronizer.to_s,
     ExamRulesSynchronizer.to_s,
+    RecoveryExamRulesSynchronizer.to_s,
+    TeachersSynchronizer.to_s,
     StudentEnrollmentSynchronizer.to_s,
+    StudentEnrollmentDependenceSynchronizer.to_s,
     StudentEnrollmentExemptedDisciplinesSynchronizer.to_s
   ].freeze
 
@@ -65,11 +67,10 @@ class IeducarSynchronizerWorker
 
         SYNCHRONIZERS.each do |klass|
           klass.constantize.synchronize_in_batch!(
-            synchronization,
-            worker_batch,
-            years_to_synchronize,
-            nil,
-            entity.id
+            synchronization: synchronization,
+            worker_batch: worker_batch,
+            years: years_to_synchronize,
+            entity_id: entity.id
           )
         end
       rescue Sidekiq::Shutdown => error

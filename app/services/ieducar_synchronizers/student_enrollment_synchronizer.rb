@@ -5,32 +5,28 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         api.fetch(
           ano: years.first,
           escola: unity_api_code
-        )['matriculas']
+        )['matriculas'] || []
       )
     )
   end
 
-  def self.synchronize_in_batch!(synchronization, worker_batch, years = nil, unity_api_code = nil, entity_id = nil)
+  def self.synchronize_in_batch!(params)
     super do
-      years.each do |year|
+      params[:years].each do |year|
         Unity.with_api_code.each do |unity|
-          StudentEnrollmentSynchronizer.new(
-            synchronization,
-            worker_batch,
-            [year],
-            unity.api_code,
-            entity_id
+          new(
+            synchronization: params[:synchronization],
+            worker_batch: params[:worker_batch],
+            years: [year],
+            unity_api_code: unity.api_code,
+            entity_id: params[:entity_id]
           ).synchronize!
         end
       end
     end
   end
 
-  protected
-
-  def worker_name
-    "#{self.class}-#{years.first}-#{unity_api_code}"
-  end
+  private
 
   def api_class
     IeducarApi::StudentEnrollments
@@ -162,8 +158,6 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
     end
   end
 
-  private
-
   def create_student_enrrollment_classroom(student_enrollment, record_classroom, period)
     classroom_id = classroom(record_classroom.turma_id).try(:id)
 
@@ -180,15 +174,5 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
     )
 
     @updated_records << [student_enrollment.student_id, classroom_id]
-  end
-
-  def student(api_code)
-    @student_ids ||= {}
-    @student_ids[api_code] ||= Student.find_by(api_code: api_code)
-  end
-
-  def classroom(api_code)
-    @classroom_ids ||= {}
-    @classroom_ids[api_code] ||= Classroom.find_by(api_code: api_code)
   end
 end

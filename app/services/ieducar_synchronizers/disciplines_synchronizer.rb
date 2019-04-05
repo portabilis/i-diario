@@ -7,7 +7,7 @@ class DisciplinesSynchronizer < BaseSynchronizer
     )
   end
 
-  protected
+  private
 
   def api_class
     IeducarApi::Disciplines
@@ -22,10 +22,5 @@ class DisciplinesSynchronizer < BaseSynchronizer
         discipline.save! if discipline.changed?
       end
     end
-  end
-
-  def knowledge_area(knowledge_area_id)
-    @knowledge_areas ||= {}
-    @knowledge_areas[knowledge_area_id] ||= KnowledgeArea.find_by(api_code: knowledge_area_id)
   end
 end
