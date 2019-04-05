@@ -23,22 +23,15 @@ RSpec.describe IeducarApi::Grades, type: :service do
         }.to raise_error('É necessário informar pelo menos uma escola')
       end
 
-      it 'is necessary to inform curso_id' do
-        expect {
-          subject.fetch(escola_id: [1])
-        }.to raise_error('É necessário informar pelo menos um curso')
-      end
-
       it 'returns all grades' do
         VCR.use_cassette('grades') do
           result = subject.fetch(
-            escola_id: [124_370],
-            curso_id: [301]
+            escola_id: [30]
           )
 
           expect(result.keys).to include 'series'
 
-          expect(result['series'].size).to eq 4
+          expect(result['series'].size).to eq 6
         end
       end
     end

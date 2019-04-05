@@ -82,4 +82,51 @@ http_interactions:
         inv\u00e1lida!","type":"error"}],"any_error_msg":true}'
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:01:20 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Aluno?access_key=invalid&instituicao_id=1&modified&oper=get&resource=todos-alunos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 05 Apr 2019 12:12:40 GMT
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - i_educar_session=Qp3ZVMBtzwG9radJUH8XXFNFUUSKvnYDzEEdOOQf; expires=Fri, 05-Apr-2019
+        14:12:40 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAx2MwQqDMBBEfyXdcwr26tXP0CKLGWxAs7KbCCL+e6O3mXnD
+        O0k2KLU0I5MnhUnRCXXIEsTevJQkVslqs1Hbn3eotPvxDhfgeIKZuJj2oTQN
+        PksM/Kr/fGy3BaqidH09cTrGp42PIWvB9QctYurwfgAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:36 GMT
 recorded_with: VCR 3.0.0
