@@ -1,43 +1,33 @@
 class StudentsSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records(api.fetch['alunos'])
+    update_students(
+      HashDecorator.new(
+        api.fetch['alunos']
+      )
+    )
   end
 
-  protected
+  private
 
-  def api
-    IeducarApi::Students.new(synchronization.to_api)
+  def api_class
+    IeducarApi::Students
   end
 
-  def update_records(collection)
-    ActiveRecord::Base.transaction do
-      collection.each do |record|
-        student = students.find_by(api_code: record['aluno_id'])
+  def update_students(students)
+    students.each do |student_record|
+      next if student_record.nome_aluno.blank?
 
-        if student.present?
-          student.update(
-            name: record['nome_aluno'],
-            social_name: record['nome_social'],
-            avatar_url: record['foto_aluno'],
-            birth_date: record['data_nascimento'],
-            uses_differentiated_exam_rule: record['utiliza_regra_diferenciada']
-          )
-        elsif record['nome_aluno'].present?
-          students.create!(
-            api_code: record['aluno_id'],
-            name: record['nome_aluno'],
-            social_name: record['nome_social'],
-            avatar_url: record['foto_aluno'],
-            birth_date: record['data_nascimento'],
-            api: true,
-            uses_differentiated_exam_rule: record['utiliza_regra_diferenciada']
-          )
-        end
+      Student.with_discarded.find_or_initialize_by(api_code: student_record.aluno_id).tap do |student|
+        student.name = student_record.nome_aluno
+        student.social_name = student_record.nome_social
+        student.avatar_url = student_record.foto_aluno
+        student.birth_date = student_record.data_nascimento
+        student.uses_differentiated_exam_rule = student_record.utiliza_regra_diferenciada
+        student.api = true
+        student.save! if student.changed?
+
+        student.discard_or_undiscard(student_record.deleted_at.present?)
       end
     end
-  end
-
-  def students(klass = Student)
-    klass
   end
 end

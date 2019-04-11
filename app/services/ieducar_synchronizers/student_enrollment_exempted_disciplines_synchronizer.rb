@@ -1,30 +1,37 @@
 class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch['dispensas']
+    update_exempted_disciplines(
+      HashDecorator.new(
+        api.fetch['dispensas']
+      )
+    )
   end
 
-  protected
+  private
 
-  def api
-    IeducarApi::StudentEnrollmentExemptedDisciplines.new(synchronization.to_api)
+  def api_class
+    IeducarApi::StudentEnrollmentExemptedDisciplines
   end
 
-  def update_records(collection)
+  def update_exempted_disciplines(exempted_disciplines)
     ActiveRecord::Base.transaction do
       dispensed_discipline_ids_to_keep = []
 
-      collection.each do |record|
-        student_enrollment = StudentEnrollment.find_by(api_code: record['matricula_id'])
-        student_enrollment_id = student_enrollment.try(&:id)
-        discipline_id = Discipline.find_by(api_code: record['disciplina_id']).try(&:id)
+      exempted_disciplines.each do |exempted_discipline_record|
+        student_enrollment = student_enrollment(exempted_discipline_record.matricula_id)
+        discipline_id = discipline(exempted_discipline_record.disciplina_id).try(&:id)
 
-        next unless student_enrollment_id.present? && discipline_id.present?
+        next if student_enrollment.blank? || discipline_id.blank?
 
-        dispensed_disciplines = StudentEnrollmentExemptedDiscipline.find_or_create_by(
-          student_enrollment_id: student_enrollment_id,
+        StudentEnrollmentExemptedDiscipline.find_or_initialize_by(
+          student_enrollment_id: student_enrollment.id,
           discipline_id: discipline_id
-        )
-        dispensed_disciplines.update_attribute(:steps, record['etapas'])
+        ).tap do |exempted_discipline|
+          exempted_discipline.steps = exempted_discipline_record.etapas
+          exempted_discipline.save! if exempted_discipline.changed?
+
+          dispensed_discipline_ids_to_keep << dispensed_disciplines.id
+        end
 
         dispensed_discipline_ids_to_keep << dispensed_disciplines.id
         # remove_dispensed_exams_and_frequencies(
@@ -43,16 +50,14 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
 
     return if classroom.blank?
 
-    school_calendar = CurrentSchoolCalendarFetcher.new(classroom.unity, classroom).fetch
+    steps_fetcher = StepsFetcher.new(classroom)
 
-    return if school_calendar.blank?
+    return if school_calendar.school_calendar.blank?
 
     steps.each do |step_number|
-      step = school_calendar.steps.ordered.find { |school_calendar_step|
-        school_calendar_step.to_number == step_number.to_i
-      }
+      step = steps_fetcher.step(step_number)
 
-      next unless step
+      next if step.blank?
 
       start_date = step.start_at
       end_date = step.end_at

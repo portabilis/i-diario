@@ -1,4 +1,6 @@
 class Student < ActiveRecord::Base
+  include Discardable
+
   acts_as_copy_target
 
   audited
@@ -14,6 +16,8 @@ class Student < ActiveRecord::Base
 
   validates :name, presence: true
   validates :api_code, presence: true, if: :api?
+
+  default_scope -> { kept }
 
   scope :api, -> { where(arel_table[:api].eq(true)) }
   scope :ordered, -> { order(:name) }

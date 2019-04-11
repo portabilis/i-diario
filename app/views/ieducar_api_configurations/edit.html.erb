@@ -40,15 +40,18 @@
             Sincronizando
           <% end %>
         <% else %>
-          <%= link_to "Sincronizar", ieducar_api_configurations_synchronizations_path, method: 'post',
+          <%= link_to t('.full_synchronization'), ieducar_api_configurations_synchronizations_path(full: true),
+            method: 'post', class: 'btn bg-color-red txt-color-white' if current_user.admin? %>
+
+          <%= link_to t('.synchronize'), ieducar_api_configurations_synchronizations_path, method: 'post',
             class: 'btn bg-color-red txt-color-white' %>
         <% end %>
 
-        <%= link_to 'Histórico', history_ieducar_api_configurations_path, class: 'btn btn-info' %>
+        <%= link_to t('.history'), history_ieducar_api_configurations_path, class: 'btn btn-info' %>
       <% end %>
 
       <button type="submit" class="btn btn-primary">
-        Salvar
+        <%= t('.save') %>
       </button>
     </footer>
   <% end %>

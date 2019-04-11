@@ -22,7 +22,7 @@ RSpec.describe IeducarApi::Students, type: :service do
 
         expect(result.keys).to include 'alunos'
 
-        expect(result['alunos'].size).to eq 100
+        expect(result['alunos'].size).to eq 29923
       end
     end
   end

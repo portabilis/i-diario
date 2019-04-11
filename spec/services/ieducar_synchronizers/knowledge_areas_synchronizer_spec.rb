@@ -7,14 +7,17 @@ RSpec.describe KnowledgeAreasSynchronizer do
   describe '#synchronize!' do
     it 'creates knowledge areas' do
       VCR.use_cassette('all_knowledge_areas') do
-        described_class.synchronize_in_batch!(synchronization, worker_batch)
+        described_class.synchronize_in_batch!(
+          synchronization: synchronization,
+          worker_batch: worker_batch
+        )
 
         expect(KnowledgeArea.count).to eq 14
         first = KnowledgeArea.order(:id).first
         expect(first).to have_attributes(
-          'description': 'Artes e Música',
-          'api_code': '7',
-          'sequence': 3
+          'description': '1º Ano - Artes',
+          'api_code': '10',
+          'sequence': 99_999
         )
       end
     end
@@ -22,17 +25,20 @@ RSpec.describe KnowledgeAreasSynchronizer do
     it 'updates knowledge area' do
       VCR.use_cassette('all_knowledge_areas') do
         knowledge_area = create(:knowledge_area,
-                                'description': 'ARTES',
+                                'description': 'ED. FÍSICA',
                                 'api_code': '8',
                                 'sequence': 2)
 
-        described_class.synchronize_in_batch!(synchronization, worker_batch)
+        described_class.synchronize_in_batch!(
+          synchronization: synchronization,
+          worker_batch: worker_batch
+        )
 
         expect(KnowledgeArea.count).to eq 14
         expect(knowledge_area.reload).to have_attributes(
-          'description': 'Linguagem Oral e Escrita',
+          'description': 'EDUCAÇÃO FÍSICA',
           'api_code': '8',
-          'sequence': 4
+          'sequence': 99_999
         )
       end
     end

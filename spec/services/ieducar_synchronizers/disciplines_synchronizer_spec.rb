@@ -6,22 +6,28 @@ RSpec.describe DisciplinesSynchronizer do
 
   before do
     VCR.use_cassette('all_knowledge_areas') do
-      KnowledgeAreasSynchronizer.synchronize_in_batch!(synchronization, worker_batch)
+      KnowledgeAreasSynchronizer.synchronize_in_batch!(
+        synchronization: synchronization,
+        worker_batch: worker_batch
+      )
     end
   end
 
   describe '#synchronize!' do
     it 'creates knowledge areas' do
       VCR.use_cassette('all_disciplines') do
-        described_class.synchronize_in_batch!(synchronization, worker_batch)
+        described_class.synchronize_in_batch!(
+          synchronization: synchronization,
+          worker_batch: worker_batch
+        )
 
-        expect(Discipline.count).to eq 278
+        expect(Discipline.count).to eq 332
         first = Discipline.order(:id).first
         expect(first).to have_attributes(
-          'description': 'Adota hábitos de autocuidado relacionado à higiene, alimentação, conforto, segurança, proteção e cuidado com a aparência.',
-          'api_code': '215',
-          'knowledge_area_id': KnowledgeArea.find_by(api_code: 5).id,
-          'sequence': 9
+          'description': 'Abre e fecha zíper e tira os próprios sapatos.',
+          'api_code': '64',
+          'knowledge_area_id': KnowledgeArea.find_by(api_code: 4).id,
+          'sequence': 99_999
         )
       end
     end
@@ -30,18 +36,21 @@ RSpec.describe DisciplinesSynchronizer do
       VCR.use_cassette('all_disciplines') do
         discipline = create(:discipline,
                             'description': 'Adota.',
-                            'api_code': '215',
+                            'api_code': '64',
                             'knowledge_area_id': KnowledgeArea.last.id,
                             'sequence': 10)
 
-        described_class.synchronize_in_batch!(synchronization, worker_batch)
+        described_class.synchronize_in_batch!(
+          synchronization: synchronization,
+          worker_batch: worker_batch
+        )
 
-        expect(Discipline.count).to eq 278
+        expect(Discipline.count).to eq 332
         expect(discipline.reload).to have_attributes(
-          'description': 'Adota hábitos de autocuidado relacionado à higiene, alimentação, conforto, segurança, proteção e cuidado com a aparência.',
-          'api_code': '215',
-          'knowledge_area_id': KnowledgeArea.find_by(api_code: 5).id,
-          'sequence': 9
+          'description': 'Abre e fecha zíper e tira os próprios sapatos.',
+          'api_code': '64',
+          'knowledge_area_id': KnowledgeArea.find_by(api_code: 4).id,
+          'sequence': 99_999
         )
       end
     end

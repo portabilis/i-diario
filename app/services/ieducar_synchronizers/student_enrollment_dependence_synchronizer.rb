@@ -1,46 +1,41 @@
 class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
   def synchronize!
-    ActiveRecord::Base.transaction do
-      destroy_records
+    update_dependences(
+      HashDecorator.new(
+        api.fetch(ano: years.first)['matriculas']
+      )
+    )
+  end
 
-      years.each do |year|
-        create_records(api.fetch(ano: year)['matriculas'])
+  def self.synchronize_in_batch!(params)
+    super do
+      params[:years].each do |year|
+        new(
+          synchronization: params[:synchronization],
+          worker_batch: params[:worker_batch],
+          years: [year],
+          unity_api_code: params[:unity_api_code],
+          entity_id: params[:entity_id]
+        ).synchronize!
       end
     end
   end
 
-  protected
+  private
 
-  def api
-    IeducarApi::StudentEnrollmentDependences.new(synchronization.to_api)
+  def api_class
+    IeducarApi::StudentEnrollmentDependences
   end
 
-  def create_records(collection)
-    if collection.present?
-      collection.each do |record|
-        student_enrollment_dependences.create!(
-          student_enrollment_id: student_enrollments.find_by(api_code: record['matricula_id']).try(:id),
-          student_enrollment_code: record['matricula_id'],
-          discipline_id: disciplines.find_by(api_code: record['disciplina_id']).try(:id),
-          discipline_code: record['disciplina_id']
-        )
+  def update_dependences(dependences)
+    dependences.each do |dependence_record|
+      StudentEnrollmentDependence.find_or_initialize_by(api_code: dependence_record.id).tap do |dependence|
+        dependence.student_enrollment_id = student_enrollment(dependence_record.matricula_id).try(:id)
+        dependence.student_enrollment_code = dependence_record.matricula_id
+        dependence.discipline_id = discipline(dependence_record.disciplina_id).try(:id)
+        dependence.discipline_code = dependence_record.disciplina_id
+        dependence.save! if dependence.changed?
       end
     end
-  end
-
-  def destroy_records
-    student_enrollment_dependences.destroy_all
-  end
-
-  def student_enrollment_dependences(klass = StudentEnrollmentDependence)
-    klass
-  end
-
-  def disciplines(klass = Discipline)
-    klass
-  end
-
-  def student_enrollments(klass = StudentEnrollment)
-    klass
   end
 end

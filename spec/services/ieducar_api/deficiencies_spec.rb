@@ -22,7 +22,7 @@ RSpec.describe IeducarApi::Deficiencies, type: :service do
 
         expect(result.keys).to include 'deficiencias'
 
-        expect(result['deficiencias'].size).to eq 14
+        expect(result['deficiencias'].size).to eq 16
       end
     end
   end

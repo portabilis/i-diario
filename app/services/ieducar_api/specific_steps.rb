@@ -3,7 +3,7 @@ module IeducarApi
     def fetch(params = {})
       params.reverse_merge!(
         path: 'module/Api/Etapas',
-        resource: 'etapas-especificas-por-disciplina'
+        resource: 'etapas-especificas'
       )
 
       super
