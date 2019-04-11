@@ -17,6 +17,9 @@ config/secrets.yml
 config/google_drive.json
 config/puma.rb
 /public/uploads
+/public/404.html
+/public/500.html
+/public/422.html
 /public/relatorios/*
 !/public/relatorios/.keep
 
