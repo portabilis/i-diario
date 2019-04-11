@@ -1,4 +1,5 @@
 class StudentEnrollmentClassroom < ActiveRecord::Base
+  include Discardable
   include Audit
   audited
   has_associated_audits
@@ -7,6 +8,8 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   belongs_to :student_enrollment
 
   has_enumeration_for :period, with: Periods, skip_validation: true
+
+  default_scope -> { kept }
 
   scope :by_classroom, ->(classroom_id) { where(classroom_id: classroom_id) }
   scope :by_date, lambda { |date|

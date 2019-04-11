@@ -14,33 +14,27 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   end
 
   def update_exempted_disciplines(exempted_disciplines)
-    ActiveRecord::Base.transaction do
-      dispensed_discipline_ids_to_keep = []
+    exempted_disciplines.each do |exempted_discipline_record|
+      student_enrollment = student_enrollment(exempted_discipline_record.matricula_id)
+      discipline_id = discipline(exempted_discipline_record.disciplina_id).try(&:id)
 
-      exempted_disciplines.each do |exempted_discipline_record|
-        student_enrollment = student_enrollment(exempted_discipline_record.matricula_id)
-        discipline_id = discipline(exempted_discipline_record.disciplina_id).try(&:id)
+      next if student_enrollment.blank? || discipline_id.blank?
 
-        next if student_enrollment.blank? || discipline_id.blank?
+      StudentEnrollmentExemptedDiscipline.with_discarded.find_or_initialize_by(
+        student_enrollment_id: student_enrollment.id,
+        discipline_id: discipline_id
+      ).tap do |exempted_discipline|
+        exempted_discipline.steps = exempted_discipline_record.etapas
+        exempted_discipline.save! if exempted_discipline.changed?
 
-        StudentEnrollmentExemptedDiscipline.find_or_initialize_by(
-          student_enrollment_id: student_enrollment.id,
-          discipline_id: discipline_id
-        ).tap do |exempted_discipline|
-          exempted_discipline.steps = exempted_discipline_record.etapas
-          exempted_discipline.save! if exempted_discipline.changed?
-
-          dispensed_discipline_ids_to_keep << dispensed_disciplines.id
-        end
-
-        remove_dispensed_exams_and_frequencies(
-          student_enrollment,
-          discipline_id,
-          exempted_discipline_record.etapas.split(',')
-        )
+        exempted_discipline.discard_or_undiscard(exempted_discipline_record.deleted_at.present?)
       end
 
-      destroy_inexisting_dispensed_disciplines(dispensed_discipline_ids_to_keep)
+      # remove_dispensed_exams_and_frequencies(
+      #   student_enrollment,
+      #   discipline_id,
+      #   exempted_discipline_record.etapas.split(',')
+      # )
     end
   end
 
@@ -79,9 +73,5 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
                            .by_frequency_date_between(start_date, end_date)
                            .delete_all
     end
-  end
-
-  def destroy_inexisting_dispensed_disciplines(dispensed_discipline_ids_to_keep)
-    StudentEnrollmentExemptedDiscipline.where.not(id: dispensed_discipline_ids_to_keep).destroy_all
   end
 end
