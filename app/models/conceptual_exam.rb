@@ -1,14 +1,16 @@
 class ConceptualExam < ActiveRecord::Base
   include Audit
   include Stepable
-  include Filterable
+  include TeacherRelationable
+
+  teacher_relation_columns only: :classroom
 
   acts_as_copy_target
 
   audited
   has_associated_audits
 
-  attr_accessor :unity_id, :teacher_id
+  attr_accessor :unity_id
 
   before_destroy :valid_for_destruction?
 
@@ -106,7 +108,7 @@ class ConceptualExam < ActiveRecord::Base
     exam_rule = classroom.exam_rule
     exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if student.uses_differentiated_exam_rule
 
-    return if permited_score_types.include?(exam_rule.score_type)
+    return if exam_rule.blank? || permited_score_types.include?(exam_rule.score_type)
 
     errors.add(:student, :classroom_must_have_conceptual_exam_score_type)
   end

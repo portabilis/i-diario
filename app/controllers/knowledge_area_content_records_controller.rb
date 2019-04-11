@@ -5,11 +5,17 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    @knowledge_area_content_records = apply_scopes(KnowledgeAreaContentRecord)
-      .includes(:knowledge_areas, content_record: [:classroom])
-      .by_classroom_id(current_user_classroom)
-      .by_teacher_id(current_teacher)
-      .ordered
+    author_type = (params[:filter] || []).delete(:by_author)
+
+    @knowledge_area_content_records = apply_scopes(
+      KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
+                                .by_classroom_id(current_user_classroom)
+                                .ordered
+    )
+
+    if author_type.present?
+      @knowledge_area_content_records = @knowledge_area_content_records.by_author(author_type, current_teacher)
+    end
 
     authorize @knowledge_area_content_records
   end
@@ -30,6 +36,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record.content_record.teacher = current_teacher
     @knowledge_area_content_record.content_record.content_ids = content_ids
     @knowledge_area_content_record.content_record.origin = OriginTypes::WEB
+    @knowledge_area_content_record.content_record.teacher = current_teacher
+    @knowledge_area_content_record.teacher_id = current_teacher_id
 
     authorize @knowledge_area_content_record
 
@@ -51,6 +59,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record.assign_attributes(resource_params)
     @knowledge_area_content_record.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_content_record.content_record.content_ids = content_ids
+    @knowledge_area_content_record.teacher_id = current_teacher_id
 
     authorize @knowledge_area_content_record
 
@@ -80,7 +89,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def clone
-    @form = KnowledgeAreaContentRecordClonerForm.new(clone_params)
+    @form = KnowledgeAreaContentRecordClonerForm.new(clone_params.merge(teacher: current_teacher))
 
     if @form.clone!
       flash[:success] = "Registro de conteúdo por área de conhecimento copiado com sucesso!"

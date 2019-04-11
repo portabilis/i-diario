@@ -79,6 +79,8 @@ class AttendanceRecordReportForm
   end
 
   def students_enrollments
+    adjusted_period = period != Periods::FULL ? period : nil
+
     StudentEnrollmentsList.new(
       classroom: classroom_id,
       discipline: discipline_id,
@@ -86,7 +88,7 @@ class AttendanceRecordReportForm
       end_at: end_at,
       search_type: :by_date_range,
       show_inactive: false,
-      period: period
+      period: adjusted_period
     ).student_enrollments
   end
 

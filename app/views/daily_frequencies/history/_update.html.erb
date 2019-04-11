@@ -7,8 +7,9 @@
       <th>Novo valor</th>
     </tr>
   </thead>
+  <tbody>
   <% record.audited_changes.each do |key, values| %>
-    <tbody>
+    <% unless record.auditable.nil? %>
       <tr>
         <td><%= record.auditable.student.name %></td>
         <td>
@@ -18,5 +19,6 @@
         <td><%= raw record.parse(key.to_sym, values, :last) %></td>
       </tr>
     <% end %>
+  <% end %>
   </tbody>
 </table>

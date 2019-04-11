@@ -1,5 +1,8 @@
 class LessonPlan < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :classroom
 
   acts_as_copy_target
 
@@ -10,6 +13,7 @@ class LessonPlan < ActiveRecord::Base
 
   belongs_to :school_calendar
   belongs_to :classroom
+  belongs_to :teacher
 
   has_one :discipline_lesson_plan
   has_one :knowledge_area_lesson_plan

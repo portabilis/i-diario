@@ -1,5 +1,8 @@
 class DisciplineTeachingPlan < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :discipline
 
   audited
   has_associated_audits
@@ -24,23 +27,26 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   }
   scope :by_discipline, ->(discipline) { where(discipline: discipline) }
   scope :by_teacher_id, ->(teacher_id) { joins(:teaching_plan).where(teaching_plans: { teacher_id: teacher_id }) }
-  scope :by_teacher_id_or_is_null, lambda { |teacher_id|
-    joins(:teaching_plan)
-      .where("teaching_plans.teacher_id #{(teacher_id ? '= ' << teacher_id.to_s : 'IS NULL')} OR
-              (#{teacher_id || 'NULL'} IS NOT NULL AND teaching_plans.teacher_id IS NULL)")
+  scope :by_other_teacher_id, lambda { |teacher_id|
+    joins(:teaching_plan).where.not(teaching_plans: { teacher_id: [teacher_id, nil] })
   }
-  scope :by_author, lambda { |author_type|
-    joins(:teaching_plan)
-      .where("CASE '#{author_type}'
-                WHEN '#{PlansAuthors::MY_PLANS}' THEN teaching_plans.teacher_id IS NOT NULL
-                ELSE teaching_plans.teacher_id IS NULL
-              END")
+  scope :by_secretary, -> { joins(:teaching_plan).where(teaching_plans: { teacher_id: nil }) }
+  scope :by_author, lambda { |author_type, current_teacher_id|
+    if author_type == PlansAuthors::MY_PLANS
+      joins(:teaching_plan).merge(TeachingPlan.where(teacher_id: current_teacher_id))
+    else
+      joins(:teaching_plan).merge(TeachingPlan.where.not(teacher_id: current_teacher_id))
+    end
   }
 
   validates :teaching_plan, presence: true
   validates :discipline, presence: true
 
   validate :uniqueness_of_discipline_teaching_plan, if: :teaching_plan
+
+  def optional_teacher
+    true
+  end
 
   private
 

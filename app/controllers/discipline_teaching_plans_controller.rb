@@ -5,14 +5,22 @@ class DisciplineTeachingPlansController < ApplicationController
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
 
   def index
-    @discipline_teaching_plans = apply_scopes(DisciplineTeachingPlan)
-      .includes(:discipline, teaching_plan: [:unity, :grade])
-      .by_unity(current_user_unity)
-      .by_year(current_user_school_year)
-      .by_teacher_id_or_is_null(current_teacher.try(:id))
+    author_type = (params[:filter] || []).delete(:by_author)
 
-    @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.try(:grade))
-      .by_discipline(current_user_discipline) unless current_user_is_employee_or_administrator?
+    @discipline_teaching_plans = apply_scopes(
+      DisciplineTeachingPlan.includes(:discipline, teaching_plan: [:unity, :grade])
+                            .by_unity(current_user_unity)
+                            .by_year(current_user_school_year)
+    )
+
+    unless current_user_is_employee_or_administrator?
+      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.try(:grade))
+                                                             .by_discipline(current_user_discipline)
+    end
+
+    if author_type.present?
+      @discipline_teaching_plans = @discipline_teaching_plans.by_author(author_type, current_teacher)
+    end
 
     authorize @discipline_teaching_plans
 
@@ -52,12 +60,11 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def create
-    @discipline_teaching_plan = DisciplineTeachingPlan.new(resource_params)
-      .localized
+    @discipline_teaching_plan = DisciplineTeachingPlan.new(resource_params).localized
+    @discipline_teaching_plan.teaching_plan.teacher = current_teacher
+    @discipline_teaching_plan.teacher_id = current_teacher_id
 
     authorize @discipline_teaching_plan
-
-    @discipline_teaching_plan.teaching_plan.teacher_id = current_teacher.id unless current_user_is_employee_or_administrator?
 
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
@@ -78,9 +85,9 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def update
-    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id])
-      .localized
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
     @discipline_teaching_plan.assign_attributes(resource_params)
+    @discipline_teaching_plan.teacher_id = current_teacher_id
 
     authorize @discipline_teaching_plan
 

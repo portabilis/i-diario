@@ -303,10 +303,14 @@ class ApplicationController < ActionController::Base
   end
 
   def current_user_is_employee_or_administrator?
-    (current_user.assumed_teacher_id.blank? &&
-      (current_user.current_user_role.role_employee? || current_user.current_user_role.role_administrator?))
+    current_user.assumed_teacher_id.blank? && current_user_role_is_employee_or_administrator?
   end
   helper_method :current_user_is_employee_or_administrator?
+
+  def current_user_role_is_employee_or_administrator?
+    current_user.current_user_role.role_employee? || current_user.current_user_role.role_administrator?
+  end
+  helper_method :current_user_role_is_employee_or_administrator?
 
   def teacher_differentiated_discipline_score_type
     exam_rule = current_user_classroom.exam_rule

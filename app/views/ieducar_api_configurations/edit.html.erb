@@ -23,6 +23,12 @@
           <%= f.input :secret_token %>
         </div>
       </div>
+
+       <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :api_security_token, readonly: true %>
+        </div>
+       </div>
     </fieldset>
 
     <footer>
@@ -49,31 +55,16 @@
 
 
 </div>
-<div class="well">
-  <h3>Sincronizações</h2>
 
-  <div class="table-responsive">
-    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
-      <thead>
-        <tr>
-          <th>Iniciado em</th>
-          <th>Finalizado em</th>
-          <th>Tempo em andamento</th>
-          <th>Tempo estimado</th>
-          <th>Estado atual</th>
-        </tr>
-      </thead>
-
-      <tbody id="resources-tbody">
-        <% average_time = IeducarApiSynchronization.average_time %>
-        <% if started_sync = IeducarApiSynchronization.started.first %>
-          <%= render 'sync', sync: started_sync, average_time: average_time %>
-        <% end %>
-
-        <% if last_sync = IeducarApiSynchronization.where(status: [:completed, :error]).last %>
-          <%= render 'sync', sync: last_sync, average_time: average_time %>
-        <% end %>
-      </tbody>
-    </table>
+<div class="row">
+  <div class="col col-sm-12">
+    <h2><%= t('ieducar_api_configuration.sync_title') %></h2>
+    <%= render 'synchronizations', with_environment: false, entity_syncs: [[
+      nil,
+      {
+        average_time: IeducarApiSynchronization.average_time,
+        started_sync: IeducarApiSynchronization.started.first,
+        finished_sync: IeducarApiSynchronization.where(status: [:completed, :error]).last
+      }]] %>
   </div>
 </div>

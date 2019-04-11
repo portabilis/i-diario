@@ -14,7 +14,7 @@ class DisciplinesController < ApplicationController
     step_id = params[:step_id] || params[:school_calendar_classroom_step_id] || params[:school_calendar_step_id]
 
     classroom = Classroom.find(params[:classroom_id])
-    step_number = StepsFetcher.new(classroom).steps.find(step_id).step_number
+    step_number = StepsFetcher.new(classroom).step_by_id(step_id).try(:step_number)
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, step_number)
 
     @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id).order_by_sequence

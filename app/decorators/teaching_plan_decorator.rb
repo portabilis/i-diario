@@ -1,10 +1,7 @@
 class TeachingPlanDecorator
   include Decore
-  include Decore::Proxy
 
-  def author
-    return I18n.t('enumerations.plans_authors.my_plans') if component.teacher_id
-
-    I18n.t('enumerations.plans_authors.others')
+  def author(current_teacher)
+    PlanAuthorFetcher.new(component, current_teacher).author
   end
 end

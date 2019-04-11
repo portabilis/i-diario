@@ -8,5 +8,6 @@ FactoryGirl.define do
 
     association :teacher, factory: :teacher
     student
+    teacher_id { teacher.id }
   end
 end

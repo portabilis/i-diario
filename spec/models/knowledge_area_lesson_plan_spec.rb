@@ -12,7 +12,7 @@ RSpec.describe KnowledgeAreaLessonPlan, type: :model do
   describe 'validations' do
     it { expect(subject).to validate_presence_of(:lesson_plan) }
 
-    it 'should validate uniqueness of knowledge area lesson plan' do
+    it 'should allow more than one knowledge area lesson plan in the same date' do
       knowledge_area = FactoryGirl.create(:knowledge_area)
       another_lesson_plan = FactoryGirl.create(
         :lesson_plan,
@@ -38,8 +38,8 @@ RSpec.describe KnowledgeAreaLessonPlan, type: :model do
         lesson_plan: lesson_plan
       )
 
-      expect(subject).to_not be_valid
-      expect(subject.errors.messages[:knowledge_area_ids]).to include('já existe um plano de aula para a área de conhecimento informada')
+      expect(subject).to be_valid
+      expect(subject.errors[:knowledge_area_ids].any?).to be(false)
     end
   end
 end

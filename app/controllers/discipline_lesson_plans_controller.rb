@@ -5,20 +5,24 @@ class DisciplineLessonPlansController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    @discipline_lesson_plans = apply_scopes(DisciplineLessonPlan)
-      .select(
-        DisciplineLessonPlan.arel_table[Arel.sql('*')],
-        LessonPlan.arel_table[:start_at],
-        LessonPlan.arel_table[:end_at]
-      )
-      .includes(:discipline, lesson_plan: [:classroom])
-      .filter(filtering_params(params[:search]))
-      .by_unity_id(current_user_unity.id)
-      .by_teacher_id(current_teacher)
-      .by_classroom_id(current_user_classroom)
-      .by_discipline_id(current_user_discipline)
-      .uniq
-      .ordered
+    author_type = (params[:filter] || []).delete(:by_author)
+
+    @discipline_lesson_plans = apply_scopes(
+      DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom])
+                          .by_unity_id(current_user_unity.id)
+                          .by_classroom_id(current_user_classroom)
+                          .by_discipline_id(current_user_discipline)
+                          .uniq
+                          .ordered
+    ).select(
+      DisciplineLessonPlan.arel_table[Arel.sql('*')],
+      LessonPlan.arel_table[:start_at],
+      LessonPlan.arel_table[:end_at]
+    )
+
+    if author_type.present?
+      @discipline_lesson_plans = @discipline_lesson_plans.by_author(author_type, current_teacher)
+    end
 
     authorize @discipline_lesson_plans
 
@@ -59,6 +63,8 @@ class DisciplineLessonPlansController < ApplicationController
     @discipline_lesson_plan = DisciplineLessonPlan.new
     @discipline_lesson_plan.assign_attributes(resource_params)
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
+    @discipline_lesson_plan.lesson_plan.teacher = current_teacher
+    @discipline_lesson_plan.teacher_id = current_teacher_id
 
     authorize @discipline_lesson_plan
 
@@ -78,6 +84,7 @@ class DisciplineLessonPlansController < ApplicationController
   def update
     @discipline_lesson_plan = DisciplineLessonPlan.find(params[:id])
     @discipline_lesson_plan.assign_attributes(resource_params)
+    @discipline_lesson_plan.teacher_id = current_teacher_id
 
     authorize @discipline_lesson_plan
 
@@ -105,7 +112,7 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def clone
-    @form = DisciplineLessonPlanClonerForm.new(clone_params)
+    @form = DisciplineLessonPlanClonerForm.new(clone_params.merge(teacher: current_teacher))
     if @form.clone!
       flash[:success] = "Plano de aula por disciplina copiado com sucesso!"
     end
@@ -155,15 +162,6 @@ class DisciplineLessonPlansController < ApplicationController
                                                                  :start_at,
                                                                  :end_at
                                                                 ])
-  end
-
-  def filtering_params(params)
-    params = {} unless params
-    params.slice(
-      :by_classroom_id,
-      :by_discipline_id,
-      :by_date
-    )
   end
 
   def contents

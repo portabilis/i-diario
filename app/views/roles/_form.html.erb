@@ -1,3 +1,6 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/roles/form' %>
+<% end %>
 <%= simple_form_for @role, html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
 

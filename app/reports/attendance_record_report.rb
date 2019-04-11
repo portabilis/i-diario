@@ -114,7 +114,7 @@ class AttendanceRecordReport < BaseReport
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, daily_frequency.discipline_id)
 
-            self.any_student_with_dependence = self.any_student_with_dependence || student_has_dependence?(student_enrollment, daily_frequency.discipline_id)
+            self.any_student_with_dependence = self.any_student_with_dependence || students[student_id][:dependence]
             students[student_id][:absences] ||= 0
             if !student_frequency.present
               students[student_id][:absences] = students[student_id][:absences] + 1
@@ -267,7 +267,9 @@ class AttendanceRecordReport < BaseReport
   end
 
   def step_number(daily_frequency)
-    step = StepsFetcher.new(daily_frequency.classroom).step_by_date(daily_frequency.frequency_date)
+    @steps ||= StepsFetcher.new(daily_frequency.classroom).steps
+
+    step = @steps.select{ |step| step[:start_at] <= daily_frequency.frequency_date && step[:end_at] >= daily_frequency.frequency_date }.first
 
     step.to_number unless step.nil?
   end
