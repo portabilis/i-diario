@@ -20,15 +20,15 @@ class DeleteInvalidPresenceRecordService
       NOT EXISTS(
         SELECT 1
           FROM student_enrollments
-          JOIN student_enrollment_classrooms ON (
-            student_enrollment_classrooms.classroom_id = daily_frequencies.classroom_id AND
-            student_enrollment_classrooms.student_enrollment_id = student_enrollments.id AND
-            daily_frequencies.frequency_date >= CAST(student_enrollment_classrooms.joined_at AS DATE) AND
-            (COALESCE(student_enrollment_classrooms.left_at, '') = '' OR
-             daily_frequencies.frequency_date < CAST(student_enrollment_classrooms.left_at AS DATE)
-            )
-          )
-        WHERE student_enrollments.student_id = #{@student_id}
+          JOIN student_enrollment_classrooms
+            ON student_enrollment_classrooms.classroom_id = daily_frequencies.classroom_id
+           AND student_enrollment_classrooms.student_enrollment_id = student_enrollments.id
+         WHERE student_enrollments.student_id = #{@student_id}
+           AND daily_frequencies.frequency_date >= CAST(student_enrollment_classrooms.joined_at AS DATE)
+           AND (
+                 COALESCE(student_enrollment_classrooms.left_at, '') = '' OR
+                 daily_frequencies.frequency_date < CAST(student_enrollment_classrooms.left_at AS DATE)
+               )
       )
     SQL
   end

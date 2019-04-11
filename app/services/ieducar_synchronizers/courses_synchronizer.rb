@@ -3,10 +3,16 @@ class CoursesSynchronizer < BaseSynchronizer
     update_courses(
       HashDecorator.new(
         api.fetch(
-          escola_id: unities_api_code
+          escola_id: unity_api_code
         )['cursos']
       )
     )
+  end
+
+  def self.synchronize_in_batch!(params)
+    params[:use_unity_api_code] = true
+
+    super
   end
 
   private
@@ -16,14 +22,12 @@ class CoursesSynchronizer < BaseSynchronizer
   end
 
   def update_courses(courses)
-    ActiveRecord::Base.transaction do
-      courses.each do |course_record|
-        Course.with_discarded.find_or_initialize_by(api_code: course_record.id).tap do |course|
-          course.description = course_record.nome
-          course.save! if course.changed?
+    courses.each do |course_record|
+      Course.with_discarded.find_or_initialize_by(api_code: course_record.id).tap do |course|
+        course.description = course_record.nome
+        course.save! if course.changed?
 
-          course.discard_or_undiscard(course_record.deleted_at.present?)
-        end
+        course.discard_or_undiscard(course_record.deleted_at.present?)
       end
     end
   end

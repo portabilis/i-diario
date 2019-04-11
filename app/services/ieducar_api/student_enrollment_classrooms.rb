@@ -1,9 +1,9 @@
 module IeducarApi
-  class StudentEnrollments < Base
+  class StudentEnrollmentClassrooms < Base
     def fetch(params = {})
       params.reverse_merge!(
         path: 'module/Api/Matricula',
-        resource: 'matriculas-escola'
+        resource: 'movimentacao-enturmacao'
       )
 
       raise ApiError, 'É necessário informar o ano' if params[:ano].blank?

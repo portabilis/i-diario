@@ -16,7 +16,6 @@ class ExamRulesSynchronizer < BaseSynchronizer
           synchronization: params[:synchronization],
           worker_batch: params[:worker_batch],
           years: [year],
-          unity_api_code: params[:unity_api_code],
           entity_id: params[:entity_id]
         ).synchronize!
       end

@@ -3,10 +3,16 @@ class GradesSynchronizer < BaseSynchronizer
     update_grades(
       HashDecorator.new(
         api.fetch(
-          escola_id: unities_api_code
+          escola_id: unity_api_code
         )['series']
       )
     )
+  end
+
+  def self.synchronize_in_batch!(params)
+    params[:use_unity_api_code] = true
+
+    super
   end
 
   private

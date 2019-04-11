@@ -50,6 +50,7 @@ class IeducarSynchronizerWorker
     RecoveryExamRulesSynchronizer.to_s,
     TeachersSynchronizer.to_s,
     StudentEnrollmentSynchronizer.to_s,
+    StudentEnrollmentClassroomSynchronizer.to_s,
     StudentEnrollmentDependenceSynchronizer.to_s,
     StudentEnrollmentExemptedDisciplinesSynchronizer.to_s
   ].freeze
@@ -70,7 +71,8 @@ class IeducarSynchronizerWorker
             synchronization: synchronization,
             worker_batch: worker_batch,
             years: years_to_synchronize,
-            entity_id: entity.id
+            entity_id: entity.id,
+            unities_api_code: unities_api_code
           )
         end
       rescue Sidekiq::Shutdown => error
@@ -83,6 +85,10 @@ class IeducarSynchronizerWorker
         raise error
       end
     end
+  end
+
+  def unities_api_code
+    @unities_api_code ||= Unity.with_api_code.pluck(:api_code)
   end
 
   def years_to_synchronize

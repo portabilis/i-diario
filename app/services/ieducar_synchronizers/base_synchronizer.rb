@@ -4,16 +4,24 @@ class BaseSynchronizer
       worker_batch = params[:worker_batch]
       worker_state = create_worker_state(worker_batch)
 
-      if block_given?
-        yield
-      else
-        new(
-          synchronization: params[:synchronization],
-          worker_batch: worker_batch,
-          years: params[:years],
-          unity_api_code: params[:unity_api_code],
-          entity_id: params[:entity_id]
-        ).synchronize!
+      if params[:use_unity_api_code] && params[:synchronization].full_synchronization
+        unities = params[:unities_api_code]
+      end
+
+      (unities || [1]).each do |unity_api_code|
+        unity_api_code = [params[:unities_api_code]].join(',') unless params[:synchronization].full_synchronization
+
+        if block_given?
+          yield(unity_api_code)
+        else
+          new(
+            synchronization: params[:synchronization],
+            worker_batch: worker_batch,
+            years: params[:years],
+            unity_api_code: unity_api_code,
+            entity_id: params[:entity_id]
+          ).synchronize!
+        end
       end
 
       worker_batch.increment(worker_name)
@@ -45,16 +53,19 @@ class BaseSynchronizer
   def initialize(params)
     self.synchronization = params[:synchronization]
     self.worker_batch = params[:worker_batch]
+    self.entity_id = params[:entity_id]
     self.years = Array(params[:years]).compact
     self.unity_api_code = params[:unity_api_code]
-    self.entity_id = params[:entity_id]
+    self.use_unity_api_code = params[:use_unity_api_code]
+    self.unities_api_code = params[:unities_api_code]
 
     worker_batch.touch
   end
 
   protected
 
-  attr_accessor :synchronization, :worker_batch, :years, :unity_api_code, :entity_id, :worker_state
+  attr_accessor :synchronization, :worker_batch, :worker_state, :entity_id, :years, :unity_api_code,
+                :use_unity_api_code, :unities_api_code
 
   def api
     @api = api_class.new(synchronization.to_api, synchronization.full_synchronization)
@@ -64,13 +75,6 @@ class BaseSynchronizer
     IeducarApi::Base
   end
 
-  def unities_api_code
-    @unities_api_code ||= Unity.with_api_code
-                               .collect(&:api_code)
-                               .uniq
-                               .flatten
-  end
-
   def unity(api_code)
     @unities ||= {}
     @unities[api_code] ||= Unity.find_by(api_code: api_code)
@@ -78,12 +82,12 @@ class BaseSynchronizer
 
   def student(api_code)
     @students ||= {}
-    @students[api_code] ||= Student.find_by(api_code: api_code)
+    @students[api_code] ||= Student.with_discarded.find_by(api_code: api_code)
   end
 
   def student_enrollment(api_code)
     @student_enrollments ||= {}
-    @student_enrollments[api_code] ||= StudentEnrollment.find_by(api_code: api_code)
+    @student_enrollments[api_code] ||= StudentEnrollment.with_discarded.find_by(api_code: api_code)
   end
 
   def exam_rule(api_code)
@@ -93,17 +97,17 @@ class BaseSynchronizer
 
   def course(api_code)
     @course ||= {}
-    @course[api_code] ||= Course.find_by(api_code: api_code)
+    @course[api_code] ||= Course.with_discarded.find_by(api_code: api_code)
   end
 
   def grade(api_code)
     @grade ||= {}
-    @grade[api_code] ||= Grade.find_by(api_code: api_code)
+    @grade[api_code] ||= Grade.with_discarded.find_by(api_code: api_code)
   end
 
   def classroom(api_code)
     @classrooms ||= {}
-    @classrooms[api_code] ||= Classroom.find_by(api_code: api_code)
+    @classrooms[api_code] ||= Classroom.with_discarded.find_by(api_code: api_code)
   end
 
   def discipline(api_code)
@@ -113,7 +117,7 @@ class BaseSynchronizer
 
   def knowledge_area(knowledge_area_id)
     @knowledge_areas ||= {}
-    @knowledge_areas[knowledge_area_id] ||= KnowledgeArea.find_by(api_code: knowledge_area_id)
+    @knowledge_areas[knowledge_area_id] ||= KnowledgeArea.with_discarded.find_by(api_code: knowledge_area_id)
   end
 
   def rounding_table(api_code)
