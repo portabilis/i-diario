@@ -39,6 +39,7 @@ class GeneralConfigurationsController < ApplicationController
       :allows_after_sales_relationship,
       :display_header_on_all_reports_pages,
       :max_descriptive_exam_character_count,
+      :support_url,
       :copyright_name
     )
   end
