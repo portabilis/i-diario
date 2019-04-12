@@ -184,8 +184,8 @@ $(function(){
                                                 data: selectedClassrooms });
       fetchDisciplines();
     }else{
-     $("#role-modal").modal('hide');
-     alert("<%= I18n.t('current_role.check.unlinked') %>");
+      $("#role-modal").modal('hide');
+      bootbox.alert("<%= I18n.t('current_role.check.unlinked') %>");
     }
   }
 
