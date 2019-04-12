@@ -294,6 +294,30 @@ a.parent-dashboard-basic-info-links {
   box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);
 }
 
+
+/* role bar */
+
+#current-role-selector, #current-role-selector > div, #user-role-form {
+    height: 65px !important;
+}
+
+#user-role-form {
+    padding-top: 7px;
+}
+
+#current-role-selector .project-context {
+    bottom: 0;
+    height: 65px;
+}
+
+#user-role-form .select2-choice {
+    overflow: inherit;
+}
+
+#user-role-form .select2-container {
+    display: block;
+}
+
 @media (max-width: 1250px) {
   #current-role-selector {
     display: none !important;
