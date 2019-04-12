@@ -168,20 +168,25 @@ $(function(){
   }
 
   function handleFetchClassroomsSuccess(data){
-    var selectedClassrooms = _.map(data, function(classroom) {
-      return { id: classroom['id'], text: classroom['description'] };
-    });
+    if(data.length > 0){
+      var selectedClassrooms = _.map(data, function(classroom) {
+        return { id: classroom['id'], text: classroom['description'] };
+      });
 
-    if(show_modal_allows_clear){
-      $('form#user-role #user_current_classroom_id').val("");
+      if(show_modal_allows_clear){
+        $('form#user-role #user_current_classroom_id').val("");
+      }
+
+      insertEmptyElement(selectedClassrooms);
+      $('form#user-role #user_current_classroom_id').select2({ formatResult: function(el) {
+                                                                return "<div class='select2-user-result'>" + el.text + "</div>";
+                                                              },
+                                                data: selectedClassrooms });
+      fetchDisciplines();
+    }else{
+     $("#role-modal").modal('hide');
+     alert("<%= I18n.t('current_role.check.unlinked') %>");
     }
-
-    insertEmptyElement(selectedClassrooms);
-    $('form#user-role #user_current_classroom_id').select2({ formatResult: function(el) {
-                                                              return "<div class='select2-user-result'>" + el.text + "</div>";
-                                                            },
-                                              data: selectedClassrooms });
-    fetchDisciplines();
   }
 
   function handleFetchClassroomsError(){
