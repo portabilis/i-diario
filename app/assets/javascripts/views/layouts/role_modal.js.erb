@@ -129,7 +129,7 @@ $(function(){
                 format: 'json'
             }),
             success: function(data){
-              if(data.user_role.role.access_level == 'teacher' || can_change_school_year){
+              if(data.user_role.role.access_level == 'teacher'){
                 fetchTeachers(
                   unity_id,
                   $('form#user-role #user_current_school_year').val(),
@@ -168,20 +168,25 @@ $(function(){
   }
 
   function handleFetchClassroomsSuccess(data){
-    var selectedClassrooms = _.map(data, function(classroom) {
-      return { id: classroom['id'], text: classroom['description'] };
-    });
+    if(data.length > 0){
+      var selectedClassrooms = _.map(data, function(classroom) {
+        return { id: classroom['id'], text: classroom['description'] };
+      });
 
-    if(show_modal_allows_clear){
-      $('form#user-role #user_current_classroom_id').val("");
+      if(show_modal_allows_clear){
+        $('form#user-role #user_current_classroom_id').val("");
+      }
+
+      insertEmptyElement(selectedClassrooms);
+      $('form#user-role #user_current_classroom_id').select2({ formatResult: function(el) {
+                                                                return "<div class='select2-user-result'>" + el.text + "</div>";
+                                                              },
+                                                data: selectedClassrooms });
+      fetchDisciplines();
+    }else{
+      $("#role-modal").modal('hide');
+      bootbox.alert("<%= I18n.t('current_role.check.unlinked') %>");
     }
-
-    insertEmptyElement(selectedClassrooms);
-    $('form#user-role #user_current_classroom_id').select2({ formatResult: function(el) {
-                                                              return "<div class='select2-user-result'>" + el.text + "</div>";
-                                                            },
-                                              data: selectedClassrooms });
-    fetchDisciplines();
   }
 
   function handleFetchClassroomsError(){
@@ -475,6 +480,12 @@ $(function(){
 
   function valueSelected(select2Element){
     return !(_.isEmpty(select2Element.val()) || select2Element.val() == 0);
+  }
+
+  var valid_current_role = $('#valid_current_role').val();
+
+  if(valid_current_role === "false"){
+    $("#role-modal").modal('show');
   }
 });
 
