@@ -1,0 +1,41 @@
+class TeacherRelationFetcher
+  def initialize(params)
+    @teacher_id = params[:teacher_id]
+    @discipline_id = params[:discipline_id]
+    @classroom = params[:classroom]
+    @grade_id = params[:grade]
+    @knowledge_areas = params[:knowledge_areas]
+  end
+
+  def exists_classroom_in_relation?
+    teacher_discipline_classrooms.by_classroom(@classroom).exists?
+  end
+
+  def exists_discipline_in_relation?
+    teacher_discipline_classrooms.by_discipline_id(@discipline_id).exists?
+  end
+
+  def exists_classroom_and_discipline_in_relation?
+    teacher_discipline_classrooms.by_classroom(@classroom)
+                                 .by_discipline_id(@discipline_id)
+                                 .exists?
+  end
+
+  def exists_grade_in_relation?
+    teacher_discipline_classrooms.by_grade_id(@grade_id).exists?
+  end
+
+  def exists_all_knowledge_areas_in_relation?
+    (@knowledge_areas - teacher_knowledge_area_ids).blank?
+  end
+
+  private
+
+  def teacher_discipline_classrooms
+    @teacher_discipline_classrooms ||= TeacherDisciplineClassroom.by_teacher_id(@teacher_id)
+  end
+
+  def teacher_knowledge_area_ids
+    teacher_discipline_classrooms.joins(:discipline).pluck(:knowledge_area_id).uniq
+  end
+end

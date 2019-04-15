@@ -5,9 +5,9 @@ RSpec.describe DailyNoteCreator, type: :service do
   let(:classroom) { avaliation.classroom }
 
   it 'create daily note when avaliation is passed by parameter' do
-    creator = described_class.new({
+    creator = described_class.new(
       avaliation_id: avaliation.id
-    })
+    )
 
     expect { creator.find_or_create }.to change { DailyNote.count }.to(1)
   end
@@ -24,9 +24,9 @@ RSpec.describe DailyNoteCreator, type: :service do
     end
 
     it 'create daily note students' do
-      creator = described_class.new({
+      creator = described_class.new(
         avaliation_id: avaliation.id
-      })
+      )
 
       expect { creator.find_or_create }.to change { DailyNoteStudent.count }.to(1)
     end

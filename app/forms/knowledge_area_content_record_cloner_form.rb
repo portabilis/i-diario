@@ -1,7 +1,7 @@
 class KnowledgeAreaContentRecordClonerForm < ActiveRecord::Base
   has_no_table
 
-  attr_accessor :knowledge_area_content_record_id
+  attr_accessor :knowledge_area_content_record_id, :teacher
 
   validates :knowledge_area_content_record_id, presence: true
   has_many :knowledge_area_content_record_item_cloner_form
@@ -15,7 +15,9 @@ class KnowledgeAreaContentRecordClonerForm < ActiveRecord::Base
           knowledge_area_content_record_item_cloner_form.each_with_index do |item, index|
             @current_item_index = index
             new_content_record = knowledge_area_content_record.dup
+            new_content_record.teacher_id = teacher.id
             new_content_record.content_record = knowledge_area_content_record.content_record.dup
+            new_content_record.content_record.teacher = teacher
             new_content_record.knowledge_areas = knowledge_area_content_record.knowledge_areas
             new_content_record.content_record.contents = knowledge_area_content_record.content_record.contents
             new_content_record.content_record.classroom = @classrooms.find_by_id(item.classroom_id)

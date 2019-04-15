@@ -11,6 +11,15 @@ FactoryGirl.define do
       create(:student_enrollment_classroom, classroom: conceptual_exam.classroom, student_enrollment: student_enrollment)
     end
 
+    after(:build) do |conceptual_exam|
+      teacher_discipline_classroom = create(
+        :teacher_discipline_classroom,
+        classroom: conceptual_exam.classroom
+      )
+
+      conceptual_exam.teacher_id = teacher_discipline_classroom.teacher.id
+    end
+
     factory :conceptual_exam_with_one_value do
       after(:build) do |conceptual_exam|
         discipline_id = create(:discipline).id

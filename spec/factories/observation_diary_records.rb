@@ -16,5 +16,14 @@ FactoryGirl.define do
         )
       end
     end
+
+    after(:build) do |observation_diary_record|
+      create(
+        :teacher_discipline_classroom,
+        classroom: observation_diary_record.classroom,
+        discipline: observation_diary_record.discipline,
+        teacher: observation_diary_record.teacher
+      )
+    end
   end
 end

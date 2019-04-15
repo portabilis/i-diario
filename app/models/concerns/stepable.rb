@@ -11,6 +11,12 @@ module Stepable
     validates :recorded_at, posting_date: true, unless: :ignore_date_validates
     validate :recorded_at_is_in_selected_step
     validate :ensure_is_school_day, unless: :ignore_date_validates
+
+    scope :by_step_id, lambda { |classroom, step_id|
+      step = StepsFetcher.new(classroom).step_by_id(step_id)
+
+      step.present? ? by_step_number(step.step_number) : where('1=2')
+    }
   end
 
   module ClassMethods
@@ -21,12 +27,6 @@ module Stepable
     def by_recorded_at_between(start_at, end_at)
       where(arel_table[:recorded_at].gteq(start_at)).where(arel_table[:recorded_at].lteq(end_at))
     end
-
-    def by_step_id(classroom, step_id)
-      step = StepsFetcher.new(classroom).steps.find(step_id)
-
-      by_step_number(step.step_number)
-    end
   end
 
   def steps_fetcher
@@ -34,7 +34,7 @@ module Stepable
   end
 
   def step
-    return steps_fetcher.steps.find(step_id) if step_id.present?
+    return steps_fetcher.step_by_id(step_id) if step_id.present?
 
     steps_fetcher.step(step_number)
   end
