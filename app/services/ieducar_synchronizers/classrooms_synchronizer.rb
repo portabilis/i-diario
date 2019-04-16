@@ -34,6 +34,8 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
   def update_classrooms(classrooms)
     classrooms.each do |classroom_record|
+      next if classroom_record.escola_id.blank? || classroom_record.serie_id.blank?
+
       Classroom.with_discarded.find_or_initialize_by(api_code: classroom_record.id).tap do |classroom|
         classroom.description = classroom_record.nome
         classroom.unity_id = unity(classroom_record.escola_id).try(:id)
