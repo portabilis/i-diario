@@ -8,7 +8,8 @@ RSpec.describe DisciplinesSynchronizer do
     VCR.use_cassette('all_knowledge_areas') do
       KnowledgeAreasSynchronizer.synchronize_in_batch!(
         synchronization: synchronization,
-        worker_batch: worker_batch
+        worker_batch: worker_batch,
+        unities_api_code: Unity.pluck(:api_code)
       )
     end
   end
@@ -18,7 +19,8 @@ RSpec.describe DisciplinesSynchronizer do
       VCR.use_cassette('all_disciplines') do
         described_class.synchronize_in_batch!(
           synchronization: synchronization,
-          worker_batch: worker_batch
+          worker_batch: worker_batch,
+          unities_api_code: Unity.pluck(:api_code)
         )
 
         expect(Discipline.count).to eq 332
@@ -42,7 +44,8 @@ RSpec.describe DisciplinesSynchronizer do
 
         described_class.synchronize_in_batch!(
           synchronization: synchronization,
-          worker_batch: worker_batch
+          worker_batch: worker_batch,
+          unities_api_code: Unity.pluck(:api_code)
         )
 
         expect(Discipline.count).to eq 332
