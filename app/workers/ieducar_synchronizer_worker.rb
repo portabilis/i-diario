@@ -49,6 +49,7 @@ class IeducarSynchronizerWorker
     ExamRulesSynchronizer.to_s,
     RecoveryExamRulesSynchronizer.to_s,
     TeachersSynchronizer.to_s,
+    TeacherDisciplineClassroomsSynchronizer.to_s,
     StudentEnrollmentSynchronizer.to_s,
     StudentEnrollmentClassroomSynchronizer.to_s,
     StudentEnrollmentDependenceSynchronizer.to_s,

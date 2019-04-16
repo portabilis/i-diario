@@ -80,6 +80,11 @@ class BaseSynchronizer
     @unities[api_code] ||= Unity.find_by(api_code: api_code)
   end
 
+  def teacher(api_code)
+    @teachers ||= {}
+    @teachers[api_code] ||= Teacher.find_by(api_code: api_code)
+  end
+
   def student(api_code)
     @students ||= {}
     @students[api_code] ||= Student.with_discarded.find_by(api_code: api_code)
