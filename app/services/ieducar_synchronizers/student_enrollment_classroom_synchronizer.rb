@@ -11,7 +11,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
   end
 
   def self.synchronize_in_batch!(params)
-    params[:use_unity_api_code] = true
+    params[:filtered_by_unity] = true
 
     super do |unity_api_code|
       params[:years].each do |year|

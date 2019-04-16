@@ -4,13 +4,13 @@ class BaseSynchronizer
       worker_batch = params[:worker_batch]
       worker_state = create_worker_state(worker_batch)
 
-      if params[:use_unity_api_code] && params[:synchronization].full_synchronization
+      if params[:filtered_by_unity] && params[:synchronization].full_synchronization
         unities = params[:unities_api_code]
       end
 
-      (unities || [1]).each do |unity_api_code|
-        unity_api_code = [params[:unities_api_code]].join(',') unless params[:synchronization].full_synchronization
+      unities ||= [params[:unities_api_code].join(',')]
 
+      unities.each do |unity_api_code|
         if block_given?
           yield(unity_api_code)
         else
@@ -56,7 +56,7 @@ class BaseSynchronizer
     self.entity_id = params[:entity_id]
     self.years = Array(params[:years]).compact
     self.unity_api_code = params[:unity_api_code]
-    self.use_unity_api_code = params[:use_unity_api_code]
+    self.filtered_by_unity = params[:filtered_by_unity]
     self.unities_api_code = params[:unities_api_code]
 
     worker_batch.touch
@@ -65,7 +65,7 @@ class BaseSynchronizer
   protected
 
   attr_accessor :synchronization, :worker_batch, :worker_state, :entity_id, :years, :unity_api_code,
-                :use_unity_api_code, :unities_api_code
+                :filtered_by_unity, :unities_api_code
 
   def api
     @api = api_class.new(synchronization.to_api, synchronization.full_synchronization)
