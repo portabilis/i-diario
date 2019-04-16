@@ -9,7 +9,8 @@ RSpec.describe KnowledgeAreasSynchronizer do
       VCR.use_cassette('all_knowledge_areas') do
         described_class.synchronize_in_batch!(
           synchronization: synchronization,
-          worker_batch: worker_batch
+          worker_batch: worker_batch,
+          unities_api_code: Unity.pluck(:api_code)
         )
 
         expect(KnowledgeArea.count).to eq 14
@@ -31,7 +32,8 @@ RSpec.describe KnowledgeAreasSynchronizer do
 
         described_class.synchronize_in_batch!(
           synchronization: synchronization,
-          worker_batch: worker_batch
+          worker_batch: worker_batch,
+          unities_api_code: Unity.pluck(:api_code)
         )
 
         expect(KnowledgeArea.count).to eq 14
