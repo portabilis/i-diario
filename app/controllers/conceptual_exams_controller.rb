@@ -105,6 +105,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
     @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
     @conceptual_exam.step_id = find_step_id
+    @conceptual_exam.validation_type = :destroy
 
     authorize @conceptual_exam
 
