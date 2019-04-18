@@ -48,14 +48,26 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
   end
 
   def create_or_update_teacher_discipline_classrooms(teacher_discipline_classroom_record, discipline_api_code)
+    teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
+
+    return if teacher_id.blank?
+
+    classroom_id = classroom(teacher_discipline_classroom_record.turma_id).try(:id)
+
+    return if classroom_id.blank?
+
+    discipline_id = discipline(discipline_api_code).try(:id)
+
+    return if discipline_id.blank?
+
     TeacherDisciplineClassroom.unscoped.find_or_initialize_by(
       api_code: teacher_discipline_classroom_record.id,
       year: years.first,
-      teacher_id: teacher(teacher_discipline_classroom_record.servidor_id).try(:id),
+      teacher_id: teacher_id,
       teacher_api_code: teacher_discipline_classroom_record.servidor_id,
-      discipline_id: discipline(discipline_api_code).try(:id),
+      discipline_id: discipline_id,
       discipline_api_code: discipline_api_code,
-      classroom_id: classroom(teacher_discipline_classroom_record.turma_id).try(:id),
+      classroom_id: classroom_id,
       classroom_api_code: teacher_discipline_classroom_record.turma_id
     ).tap do |teacher_discipline_classroom|
       teacher_discipline_classroom.allow_absence_by_discipline =
