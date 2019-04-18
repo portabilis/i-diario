@@ -11,10 +11,11 @@ class MaintenanceAdjustmentsController < ApplicationController
   end
 
   def new
-    @maintenance_adjustment = MaintenanceAdjustment.new
-    @maintenance_adjustment.status = MaintenanceAdjustmentStatus::PENDING
+    @maintenance_adjustment = MaintenanceAdjustment.new(status: MaintenanceAdjustmentStatus::PENDING)
     authorize @maintenance_adjustment
   end
+
+  def edit; end
 
   def create
     @maintenance_adjustment = MaintenanceAdjustment.new(maintenance_adjustment_params)
@@ -58,9 +59,9 @@ class MaintenanceAdjustmentsController < ApplicationController
   end
 
   def maintenance_adjustment_params
-    _params = params.require(:maintenance_adjustment).permit(:year, :kind, :observations, :status, :unity_ids)
-    _params[:unity_ids] = _params[:unity_ids].split(",")
-    _params
+    params.require(:maintenance_adjustment)
+          .permit(:year, :kind, :observations, :status)
+          .merge(unity_ids: params[:maintenance_adjustment][:unity_ids].split(','))
   end
 
   def fetch_unities
@@ -68,6 +69,11 @@ class MaintenanceAdjustmentsController < ApplicationController
   end
 
   def start_maintenance_adjustment
-    MaintenanceAdjustmentWorker.perform_async(current_entity.id, maintenance_adjustment_params[:unity_ids], current_user.id, @maintenance_adjustment.id)
+    MaintenanceAdjustmentWorker.perform_async(
+      current_entity.id,
+      @maintenance_adjustment.unity_ids,
+      current_user.id,
+      @maintenance_adjustment.id
+    )
   end
 end

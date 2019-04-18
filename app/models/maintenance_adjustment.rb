@@ -10,12 +10,12 @@ class MaintenanceAdjustment < ActiveRecord::Base
   has_enumeration_for :kind, with: MaintenanceAdjustmentKinds
 
   validates :kind, :unities, :year, presence: true
-  validates :year, mask: { with: "9999", message: :incorrect_format }
+  validates :year, mask: { with: '9999', message: :incorrect_format }
 
-  scope :by_kind, lambda { |kind| where(kind: kind) }
-  scope :by_unity, lambda { |unity_id| joins(:unities).where(maintenance_adjustments_unities: { unity_id: unity_id }) }
-  scope :by_year, lambda { |year| where(year: year) }
-  scope :by_status, lambda { |status| where(status: status) }
+  scope :by_kind, ->(kind) { where(kind: kind) }
+  scope :by_unity, ->(unity_id) { joins(:unities).where(maintenance_adjustments_unities: { unity_id: unity_id }) }
+  scope :by_year, ->(year) { where(year: year) }
+  scope :by_status, ->(status) { where(status: status) }
   scope :ordered, -> { order(:created_at) }
   scope :completed, -> { by_status('completed') }
 
