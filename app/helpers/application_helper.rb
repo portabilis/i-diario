@@ -114,12 +114,6 @@ module ApplicationHelper
     end
   end
 
-  def entity_freshdesk
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_freshdesk", expires_in: 10.minutes) do
-      GeneralConfiguration.current.support_freshdesk
-    end
-  end
-
   def alert_by_entity(_entity_name)
     ''
   end
@@ -141,18 +135,10 @@ module ApplicationHelper
     end
   end
 
-  def freshdesk_enabled?
-    GeneralConfiguration.current.support_freshdesk.present?
-  end
-
   def present(model)
     klass = "#{model.class}Presenter".constantize
     presenter = klass.new(model, self)
 
     yield(presenter) if block_given?
-  end
-
-  def show_freshdesk?
-    freshdesk_enabled? && !Rails.env.test?
   end
 end

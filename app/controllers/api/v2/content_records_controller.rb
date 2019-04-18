@@ -48,15 +48,21 @@ module Api
 
         unless @content_record
           @content_record = ContentRecord.new
-          @content_record.teacher_id = teacher_id
+          @content_record.teacher = Teacher.find(teacher_id)
           @content_record.classroom_id = classroom_id
           @content_record.record_date = record_date
           @content_record.origin = OriginTypes::API_V2
 
           if discipline_id
-            @content_record.build_discipline_content_record(discipline_id: discipline_id)
+            @content_record.build_discipline_content_record(
+              discipline_id: discipline_id,
+              teacher_id: teacher_id
+            )
           elsif knowledge_areas
-            @content_record.build_knowledge_area_content_record(knowledge_areas: knowledge_areas)
+            @content_record.build_knowledge_area_content_record(
+              knowledge_areas: knowledge_areas,
+              teacher_id: teacher_id
+            )
           end
         end
 

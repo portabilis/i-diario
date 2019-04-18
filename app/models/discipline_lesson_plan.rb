@@ -1,6 +1,9 @@
 class DisciplineLessonPlan < ActiveRecord::Base
   include Audit
   include Filterable
+  include TeacherRelationable
+
+  teacher_relation_columns only: :discipline
 
   acts_as_copy_target
 

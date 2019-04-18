@@ -57,6 +57,9 @@ class StudentEnrollment < ActiveRecord::Base
     return where(nil) if score_type == StudentEnrollmentScoreTypeFilters::BOTH
     classroom = Classroom.find(classroom_id)
     exam_rule = classroom.exam_rule
+
+    return where(nil) if exam_rule.blank?
+
     differentiated_exam_rule = exam_rule.differentiated_exam_rule || exam_rule
 
     allowed_score_types = [ScoreTypes::NUMERIC_AND_CONCEPT]
@@ -74,6 +77,9 @@ class StudentEnrollment < ActiveRecord::Base
     return where(nil) unless opinion_type.present? && classroom_id.present?
     classroom = Classroom.find(classroom_id)
     exam_rule = classroom.exam_rule
+
+    return where(nil) if exam_rule.blank?
+
     differentiated_exam_rule = exam_rule.differentiated_exam_rule || exam_rule
 
     exam_rule_included = exam_rule.opinion_type == opinion_type

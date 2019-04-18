@@ -7,6 +7,8 @@ module Api
     end
 
     def any_activity?
+      raise ActiveRecord::RecordNotFound if @calendar_step.nil?
+
       return true if frequencies_in_step(
         @calendar_step.school_calendar_id,
         @calendar_step.start_at,

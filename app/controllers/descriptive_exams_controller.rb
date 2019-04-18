@@ -12,6 +12,7 @@ class DescriptiveExamsController < ApplicationController
     @descriptive_exam = DescriptiveExam.new(resource_params)
     @descriptive_exam.recorded_at = recorded_at_by_step
     @descriptive_exam.step_number = find_step_number
+    @descriptive_exam.teacher_id = current_teacher_id
 
     if @descriptive_exam.valid?
       @descriptive_exam = find_or_create_descriptive_exam
@@ -34,6 +35,7 @@ class DescriptiveExamsController < ApplicationController
     @descriptive_exam = DescriptiveExam.find(params[:id])
     @descriptive_exam.assign_attributes(resource_params)
     @descriptive_exam.step_id = find_step_id unless opinion_type_by_year?
+    @descriptive_exam.teacher_id = current_teacher_id
 
     authorize @descriptive_exam
 
@@ -86,7 +88,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def find_step_number
-    steps_fetcher.steps.find(@descriptive_exam.step_id).step_number
+    steps_fetcher.step_by_id(@descriptive_exam.step_id).try(:step_number)
   end
 
   def find_or_create_descriptive_exam
@@ -102,10 +104,12 @@ class DescriptiveExamsController < ApplicationController
         recorded_at: @descriptive_exam.recorded_at,
         opinion_type: @descriptive_exam.opinion_type,
         step_id: @descriptive_exam.step_id,
-        step_number: @descriptive_exam.step_number
+        step_number: @descriptive_exam.step_number,
+        teacher_id: @descriptive_exam.teacher_id
       )
     end
 
+    descriptive_exam.teacher_id = @descriptive_exam.teacher_id if descriptive_exam.teacher_id.blank?
     descriptive_exam.update(opinion_type: @descriptive_exam.opinion_type)
 
     descriptive_exam
@@ -118,9 +122,13 @@ class DescriptiveExamsController < ApplicationController
   def recorded_at_by_step
     @descriptive_exam.step_id = steps_fetcher.steps.first.id if opinion_type_by_year?
 
-    date = (@descriptive_exam.step_id.present?) ? steps_fetcher.steps.find(@descriptive_exam.step_id).end_at : Date.current
+    date = if @descriptive_exam.step_id.present?
+             steps_fetcher.step_by_id(@descriptive_exam.step_id).end_at
+           else
+             Date.current
+           end
 
-    (Date.current > date) ? date : Date.current
+    Date.current > date ? date : Date.current
   end
 
   def fetch_student_enrollments

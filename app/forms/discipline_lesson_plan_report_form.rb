@@ -13,12 +13,12 @@ class DisciplineLessonPlanReportForm
   validates :date_start, presence: true, date: true, timeliness: {
     on_or_before: :date_end,
     type: :date,
-    on_or_before_message: 'não pode ser maior que a Data final'
+    on_or_before_message: :on_or_before_message
   }
   validates :date_end, presence: true, date: true, timeliness: {
     on_or_after: :date_start,
     type: :date,
-    on_or_after_message: 'deve ser maior ou igual a Data inicial'
+    on_or_after_message: :on_or_after_message
   }
   validates :unity_id,
             :classroom_id,
@@ -52,7 +52,7 @@ class DisciplineLessonPlanReportForm
   def must_have_records
     return if errors.present?
 
-    if report_type == '1'
+    if report_type == ContentRecordReportTypes::LESSON_PLAN
       errors.add(:discipline_lesson_plan, :must_have_discipline_lesson_plan) if discipline_lesson_plan.count.zero?
     elsif discipline_content_record.count.zero?
       errors.add(:discipline_lesson_plan, :must_have_discipline_lesson_plan)
