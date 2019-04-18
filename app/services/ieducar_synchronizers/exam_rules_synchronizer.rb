@@ -51,10 +51,10 @@ class ExamRulesSynchronizer < BaseSynchronizer
         update_classrooms_exam_rule(exam_rule, exam_rule_record.turmas)
 
         if exam_rule_record.regra_diferenciada_id.present?
-          differentiated_exam_rules << {
-            api_code: exam_rule_record.id,
-            differentiated_api_code: exam_rule_record.regra_diferenciada_id
-          }
+          differentiated_exam_rules << [
+            exam_rule_record.id,
+            exam_rule_record.regra_diferenciada_id
+          ]
         end
       end
     end
@@ -71,11 +71,10 @@ class ExamRulesSynchronizer < BaseSynchronizer
   end
 
   def update_differentiated_exam_rules(differentiated_exam_rules)
-    differentiated_exam_rules.each do |differentiated_exam_rule|
-      exam_rule(differentiated_exam_rule[:api_code]).tap do |exam_rule|
-        exam_rule.differentiated_exam_rule_api_code = differentiated_exam_rules[:differentiated_api_code]
-        differentiated_exam_rule_id = exam_rule(differentiated_exam_rules[:differentiated_api_code]).try(:id)
-        exam_rule.differentiated_exam_rule_id = differentiated_exam_rule_id
+    differentiated_exam_rules.each do |api_code, differentiated_api_code|
+      exam_rule(api_code).tap do |exam_rule|
+        exam_rule.differentiated_exam_rule_api_code = differentiated_api_code
+        exam_rule.differentiated_exam_rule_id = exam_rule(differentiated_api_code).try(:id)
         exam_rule.save! if exam_rule.changed?
       end
     end
