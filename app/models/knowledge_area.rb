@@ -19,8 +19,7 @@ class KnowledgeArea < ActiveRecord::Base
   end
 
   def self.by_unity(unity)
-    joins_discipline_and_teacher_discipline_classroom
-      .joins_classroom_and_teacher_discipline_classroom
+    joins_classroom_and_teacher_discipline_classroom
       .where(classrooms: { unity_id: unity })
       .uniq
   end
@@ -32,8 +31,7 @@ class KnowledgeArea < ActiveRecord::Base
   end
 
   def self.by_grade(grade)
-    joins_discipline_and_teacher_discipline_classroom
-      .joins_classroom_and_teacher_discipline_classroom
+    joins_classroom_and_teacher_discipline_classroom
       .where(classrooms: { grade_id: grade })
       .uniq
   end
@@ -52,13 +50,17 @@ class KnowledgeArea < ActiveRecord::Base
   end
 
   def self.joins_classroom_and_teacher_discipline_classroom
-    joins(
-      arel_table.join(Classroom.arel_table)
-        .on(
-          Classroom.arel_table[:id]
-            .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
-        )
-        .join_sources
-    )
+    joins_discipline_and_teacher_discipline_classroom
+      .joins(
+        arel_table.join(Classroom.arel_table)
+          .on(
+            Classroom.arel_table[:id]
+              .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
+          )
+          .join_sources
+      )
   end
+
+  private_class_method :joins_discipline_and_teacher_discipline_classroom
+  private_class_method :joins_classroom_and_teacher_discipline_classroom
 end
