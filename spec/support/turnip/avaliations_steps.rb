@@ -9,7 +9,7 @@ module Turnip
 
       visit root_path
 
-      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: @current_user.email
+      fill_in 'Informe o Nome de usuário, E-mail ou CPF', with: @current_user.email
       fill_in 'Senha', with: @current_user.password
 
       click_button 'Acessar'

@@ -19,7 +19,7 @@ pt-BR:
         cpf: "CPF"
         authorize_email_and_sms: "Autorizar envio de e-mails e mensagens SMS"
         current_password: "Senha atual"
-        credentials: "Informe o Nome de usuário, E-mail, Celular ou CPF"
+        credentials: "Informe o Nome de usuário, E-mail ou CPF"
         kind: "Tipo"
         student: "Aluno"
         student_id: "Aluno"

@@ -78,7 +78,7 @@ module Turnip
     end
 
     step "o login não poderá ser realizado enquanto o acesso estiver pendente" do
-      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: 'mary@mary.com'
+      fill_in 'Informe o Nome de usuário, E-mail ou CPF', with: 'mary@mary.com'
       fill_in 'Senha', with: '11223344'
 
       click_on 'Acessar'
@@ -100,7 +100,7 @@ module Turnip
     end
 
     step "o servidor não poderá logar enquanto o acesso estiver pendente" do
-      fill_in 'Informe o Nome de usuário, E-mail, Celular ou CPF', with: 'tony@stark.com'
+      fill_in 'Informe o Nome de usuário, E-mail ou CPF', with: 'tony@stark.com'
       fill_in 'Senha', with: '11223344'
 
       click_on 'Acessar'
