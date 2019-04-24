@@ -86,7 +86,7 @@ group :test do
   gem 'cpf_faker', '1.3.0'
   gem 'database_cleaner', '1.5.1'
   gem 'factory_girl_rails', '4.5.0'
-  gem 'faker', '1.6.1'
+  gem 'faker', '1.9.1'
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
   gem 'poltergeist', '1.8.1'
   gem 'pry', '0.10.3'
