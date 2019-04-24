@@ -12,7 +12,7 @@ namespace :ieducar_api do
           where('created_at < ?', 1.day.ago)
 
         postings.each do |posting|
-          posting.add_error!('Erro desconhecido, tente novamente.',
+          posting.add_error!(I18n.t('ieducar_api.error.messages.sync_error'),
                              'Processo parado pelo sistema pois estava travado.')
           posting.mark_as_error!
         end

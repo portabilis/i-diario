@@ -14,6 +14,9 @@ navigation:
       icon: "fa-tasks"
       submenus:
         - menu:
+            type: "admin_synchronizations"
+            path: "admin_synchronizations_path"
+        - menu:
             type: "general_configurations"
             path: "edit_general_configurations_path"
         - menu:

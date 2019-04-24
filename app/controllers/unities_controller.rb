@@ -105,6 +105,11 @@ class UnitiesController < ApplicationController
     render json:  @unities
   end
 
+  def select2_remote
+    unities = UnityDecorator.data_for_select2_remote(params[:description])
+    render json: unities
+  end
+
   private
 
   def unity_params

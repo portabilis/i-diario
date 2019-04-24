@@ -1,10 +1,10 @@
 class DailyNote < ActiveRecord::Base
+  include Audit
+
   acts_as_copy_target
 
   audited
   has_associated_audits
-
-  include Audit
 
   belongs_to :avaliation
 

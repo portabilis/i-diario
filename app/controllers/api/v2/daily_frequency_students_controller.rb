@@ -25,11 +25,15 @@ module Api
         daily_frequency = creator.daily_frequencies[0]
 
         if daily_frequency
-          daily_frequency_student = DailyFrequencyStudent.find_or_create_by(
-            daily_frequency_id: daily_frequency.id,
-            student_id: params[:student_id],
-            active: true
-          )
+          daily_frequency_student = begin
+                                      DailyFrequencyStudent.find_or_create_by(
+                                        daily_frequency_id: daily_frequency.id,
+                                        student_id: params[:student_id],
+                                        active: true
+                                      )
+                                    rescue ActiveRecord::RecordNotUnique
+                                      retry
+                                    end
 
           daily_frequency_student.update(present: params[:present])
 
@@ -63,9 +67,9 @@ module Api
 
       def period
         TeacherPeriodFetcher.new(
-          current_teacher.id,
-          current_user.current_classroom_id,
-          current_user.current_discipline_id
+          params['teacher_id'],
+          params['classroom_id'],
+          params['discipline_id']
         ).teacher_period
       end
     end

@@ -60,12 +60,11 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def create
-    @discipline_teaching_plan = DisciplineTeachingPlan.new(resource_params)
-      .localized
+    @discipline_teaching_plan = DisciplineTeachingPlan.new(resource_params).localized
+    @discipline_teaching_plan.teaching_plan.teacher = current_teacher
+    @discipline_teaching_plan.teacher_id = current_teacher_id
 
     authorize @discipline_teaching_plan
-
-    @discipline_teaching_plan.teaching_plan.teacher_id = current_teacher.id unless current_user_is_employee_or_administrator?
 
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
@@ -86,9 +85,9 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def update
-    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id])
-      .localized
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
     @discipline_teaching_plan.assign_attributes(resource_params)
+    @discipline_teaching_plan.teacher_id = current_teacher_id
 
     authorize @discipline_teaching_plan
 
@@ -141,6 +140,11 @@ class DisciplineTeachingPlansController < ApplicationController
         contents_attributes: [
           :id,
           :description,
+          :_destroy
+        ],
+        teaching_plan_attachments_attributes: [
+          :id,
+          :attachment,
           :_destroy
         ]
       ]

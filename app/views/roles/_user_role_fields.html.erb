@@ -1,10 +1,30 @@
 <tr class="nested-fields">
   <td>
-    <%= f.input :user_id, as: :select2, elements: User.ordered, label_html: { class: "hidden" } %>
+    <input
+      class="select2_remote required select2-offscreen"
+      type="hidden"
+      style="width: 100%;"
+      data-data-url="<%= select2_remote_users_path %>"
+      data-init-value="<%= initial_value_for_select2_remote(f.object.user.id, f.object.user.to_s) if f.object.user.present? %>"
+      data-multiple="false"
+      value="<%= f.object.user.try(:id) %>"
+      name="role[user_roles_attributes][<%= local_assigns[:sequence].present? ? sequence : 'cocoonReplaceUniqueId' %>][user_id]"
+      id="role_user_roles_attributes_<%= local_assigns[:sequence].present? ? sequence : 'cocoonReplaceUniqueId' %>_user_id"
+      tabindex="-1" />
   </td>
 
   <td>
-    <%= f.input :unity_id, as: :select2, elements: Unity.ordered, label_html: { class: "hidden" } %>
+    <input
+      class="select2_remote required select2-offscreen"
+      type="hidden"
+      style="width: 100%;"
+      data-data-url="<%= select2_remote_unities_path %>"
+      data-init-value="<%= initial_value_for_select2_remote(f.object.unity.id, f.object.unity.to_s) if f.object.unity.present? %>"
+      data-multiple="false"
+      value="<%= f.object.unity.try(:id) %>"
+      name="role[user_roles_attributes][<%= local_assigns[:sequence].present? ? sequence : 'cocoonReplaceUniqueId' %>][unity_id]"
+      id="role_user_roles_attributes_<%= local_assigns[:sequence].present? ? sequence : 'cocoonReplaceUniqueId' %>_unity_id"
+      tabindex="-1" />
   </td>
 
   <td class="actions">

@@ -9,8 +9,10 @@
     </thead>
 
     <tbody id="user-roles">
+      <% sequence = -1 %>
       <%= f.association :user_roles do |p| %>
-        <%= render 'user_role_fields', f: p %>
+        <% sequence += 1 %>
+        <%= render 'user_role_fields', sequence: sequence, f: p %>
       <% end %>
     </tbody>
     <tfoot class="links">

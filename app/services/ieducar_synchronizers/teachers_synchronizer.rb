@@ -3,8 +3,6 @@ class TeachersSynchronizer < BaseSynchronizer
     years.each do |year|
       update_records(api.fetch(ano: year)['servidores'], year)
     end
-
-    finish_worker
   end
 
   protected
@@ -47,6 +45,9 @@ class TeachersSynchronizer < BaseSynchronizer
           discipline_api_code: discipline_classroom['disciplina_id'],
           api_code: record['id']
         )
+
+        next if teacher_discipline_classroom.blank?
+
         teacher_discipline_classroom.update!(score_type: discipline_classroom['tipo_nota'])
       end
     end

@@ -14,13 +14,16 @@ class CustomRoundingTable < ActiveRecord::Base
   accepts_nested_attributes_for :custom_rounding_table_values, allow_destroy: true
 
   validates :name, uniqueness: true
-  validates :name, :year, :unities, :courses, :grades, presence: true
+  validates :name, :year, :unities, :courses, :grades, :rounded_avaliations, presence: true
 
-  scope :by_name, lambda { |name| where('name ilike ?', "%#{name}%") }
-  scope :by_unity, lambda { |unity_id| joins(:unities).where(custom_rounding_tables_unities: { unity_id: unity_id }) }
-  scope :by_course, lambda { |course_id| joins(:courses).where(custom_rounding_tables_courses: { course_id: course_id }) }
-  scope :by_grade, lambda { |grade_id| joins(:grades).where(custom_rounding_tables_grades: { grade_id: grade_id }) }
-  scope :by_year, lambda { |year| where(year: year) }
+  scope :by_name, ->(name) { where('name ilike ?', "%#{name}%") }
+  scope :by_unity, ->(unity_id) { joins(:unities).where(custom_rounding_tables_unities: { unity_id: unity_id }) }
+  scope :by_course, lambda { |course_id|
+    joins(:courses).where(custom_rounding_tables_courses: { course_id: course_id })
+  }
+  scope :by_grade, ->(grade_id) { joins(:grades).where(custom_rounding_tables_grades: { grade_id: grade_id }) }
+  scope :by_avaliation, ->(avaliation) { where('? = ANY(rounded_avaliations)', avaliation) }
+  scope :by_year, ->(year) { where(year: year) }
   scope :ordered, -> { order(:name) }
 
   def to_s

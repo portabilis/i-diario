@@ -31,7 +31,10 @@ class RolesController < ApplicationController
   end
 
   def edit
-    @role = Role.find(params[:id])
+    @role = Role.where(id: params[:id]).includes(
+      :permissions,
+      user_roles: [:user, :unity]
+    ).first
 
     authorize @role
 
@@ -69,6 +72,16 @@ class RolesController < ApplicationController
   end
 
   private
+
+  def users
+    @users ||= User.ordered
+  end
+  helper_method :users
+
+  def unities
+    @unities ||= Unity.ordered
+  end
+  helper_method :unities
 
   def role_params
     params.require(:role).permit(

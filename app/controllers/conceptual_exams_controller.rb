@@ -55,7 +55,8 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = find_or_initialize_conceptual_exam
     authorize @conceptual_exam
     @conceptual_exam.assign_attributes(resource_params)
-    @conceptual_exam.step_number = @conceptual_exam.step.step_number
+    @conceptual_exam.step_number = @conceptual_exam.step.try(:step_number)
+    @conceptual_exam.teacher_id = current_teacher_id
 
     respond_to_save if @conceptual_exam.save
 
@@ -85,6 +86,7 @@ class ConceptualExamsController < ApplicationController
   def update
     @conceptual_exam = ConceptualExam.find(params[:id])
     @conceptual_exam.assign_attributes(resource_params)
+    @conceptual_exam.teacher_id = current_teacher_id
 
     authorize @conceptual_exam
 
@@ -127,7 +129,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def exempted_disciplines
-    step = steps_fetcher.steps.find(params[:step_id])
+    step = steps_fetcher.step_by_id(params[:step_id])
     student_enrollments = student_enrollments(step.start_at, step.end_at)
 
     exempted_disciplines = student_enrollments.find do |item|

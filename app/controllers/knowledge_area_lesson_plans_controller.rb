@@ -65,6 +65,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
+    @knowledge_area_lesson_plan.lesson_plan.teacher = current_teacher
+    @knowledge_area_lesson_plan.teacher_id = current_teacher_id
 
     authorize @knowledge_area_lesson_plan
 
@@ -93,6 +95,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id])
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
+    @knowledge_area_lesson_plan.teacher_id = current_teacher_id
 
     authorize @knowledge_area_lesson_plan
 
@@ -124,7 +127,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def clone
-    @form = KnowledgeAreaLessonPlanClonerForm.new(clone_params)
+    @form = KnowledgeAreaLessonPlanClonerForm.new(clone_params.merge(teacher: current_teacher))
     if @form.clone!
       flash[:success] = "Plano de aula por área de conhecimento copiado com sucesso!"
     end

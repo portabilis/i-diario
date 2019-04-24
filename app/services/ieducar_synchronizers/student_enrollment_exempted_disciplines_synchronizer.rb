@@ -1,8 +1,6 @@
 class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
     update_records api.fetch['dispensas']
-
-    finish_worker
   end
 
   protected
@@ -29,11 +27,11 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
         dispensed_disciplines.update_attribute(:steps, record['etapas'])
 
         dispensed_discipline_ids_to_keep << dispensed_disciplines.id
-        remove_dispensed_exams_and_frequencies(
-          student_enrollment,
-          discipline_id,
-          record['etapas'].split(',')
-        )
+        # remove_dispensed_exams_and_frequencies(
+        #   student_enrollment,
+        #   discipline_id,
+        #   record['etapas'].split(',')
+        # )
       end
 
       destroy_inexisting_dispensed_disciplines(dispensed_discipline_ids_to_keep)

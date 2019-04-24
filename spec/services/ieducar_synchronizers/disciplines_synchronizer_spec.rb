@@ -6,14 +6,14 @@ RSpec.describe DisciplinesSynchronizer do
 
   before do
     VCR.use_cassette('all_knowledge_areas') do
-      KnowledgeAreasSynchronizer.synchronize!(synchronization, worker_batch)
+      KnowledgeAreasSynchronizer.synchronize_in_batch!(synchronization, worker_batch)
     end
   end
 
   describe '#synchronize!' do
     it 'creates knowledge areas' do
       VCR.use_cassette('all_disciplines') do
-        described_class.synchronize!(synchronization, worker_batch)
+        described_class.synchronize_in_batch!(synchronization, worker_batch)
 
         expect(Discipline.count).to eq 278
         first = Discipline.order(:id).first
@@ -34,7 +34,7 @@ RSpec.describe DisciplinesSynchronizer do
                             'knowledge_area_id': KnowledgeArea.last.id,
                             'sequence': 10)
 
-        described_class.synchronize!(synchronization, worker_batch)
+        described_class.synchronize_in_batch!(synchronization, worker_batch)
 
         expect(Discipline.count).to eq 278
         expect(discipline.reload).to have_attributes(

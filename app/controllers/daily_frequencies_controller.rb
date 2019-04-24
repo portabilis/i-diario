@@ -15,6 +15,7 @@ class DailyFrequenciesController < ApplicationController
   def create
     @daily_frequency = DailyFrequency.new(resource_params)
     @daily_frequency.school_calendar = current_school_calendar
+    @daily_frequency.teacher_id = current_teacher_id
     @class_numbers = params[:class_numbers].split(',')
     @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]
@@ -264,7 +265,8 @@ class DailyFrequenciesController < ApplicationController
         :period
       ).merge(
         origin: OriginTypes::WEB,
-        school_calendar_id: current_school_calendar.id
+        school_calendar_id: current_school_calendar.id,
+        teacher_id: current_teacher_id
       )
     ).find_or_create_by(
       params.slice(
@@ -275,6 +277,8 @@ class DailyFrequenciesController < ApplicationController
         :period
       )
     )
+  rescue ActiveRecord::RecordNotUnique
+    retry
   end
 
   def student_has_dependence?(student_enrollment, discipline)

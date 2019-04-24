@@ -1,5 +1,8 @@
 class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :knowledge_areas
 
   acts_as_copy_target
 
@@ -41,6 +44,10 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   validates :knowledge_area_ids, presence: true
 
   validate :uniqueness_of_knowledge_area_teaching_plan, if: :teaching_plan
+
+  def optional_teacher
+    true
+  end
 
   def knowledge_area_ids
     knowledge_areas.collect(&:id).join(',')

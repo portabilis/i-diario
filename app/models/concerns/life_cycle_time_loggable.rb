@@ -1,6 +1,10 @@
 module LifeCycleTimeLoggable
   extend ActiveSupport::Concern
 
+  included do
+    has_enumeration_for :status, with: ApiSynchronizationStatus, create_helpers: true
+  end
+
   def start!
     return if status == ApiSynchronizationStatus::STARTED
 
