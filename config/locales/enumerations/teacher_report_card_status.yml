@@ -1,0 +1,13 @@
+pt-BR:
+  enumerations:
+    teacher_report_card_status:
+      all: "Todas"
+      approved: "Aprovado"
+      disapproved: "Reprovado"
+      studying: "Cursando"
+      transferred: "Transferido"
+      reclassified: "Reclassificado"
+      abandonment: "Abandono"
+      under_exam: "Em exame"
+      approved_with_exam: "Aprovado com exame"
+      approved_without_exam: "Aprovado sem exame"
