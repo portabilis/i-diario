@@ -1,139 +1,153 @@
 module ExamPoster
   class NumericalExamPoster < Base
+    SCORE_TYPES = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT].freeze
+    DISCIPLINE_SCORE_TYPES = [DisciplineScoreTypes::NUMERIC, nil].freeze
+
     private
 
     def generate_requests
-      post_by_classrooms.each do |classroom_id, classroom_score|
-        classroom_score.each do |student_id, student_score|
-          student_score.each do |discipline_id, discipline_score|
-            requests << {
-              info: {
-                classroom: classroom_id,
-                student: student_id,
-                discipline: discipline_id
-              },
-              request: {
-                etapa: @post_data.step.to_number,
-                resource: 'notas',
-                notas: {
-                  classroom_id => {
-                    student_id => {
-                      discipline_id => discipline_score
-                    }
-                  }
-                }
+      for_each_postable_teacher_discipline_classroom do |teacher_discipline_classroom|
+        for_each_student_with_calculable_average(teacher_discipline_classroom) do |student|
+          student_average = calculate_student_average(teacher_discipline_classroom, student)
+          recovery_score = calculate_recovery_score(teacher_discipline_classroom, student)
+          requests << build_request(teacher_discipline_classroom, student, student_average, recovery_score)
+        end
+      end
+    end
+
+    def for_each_postable_teacher_discipline_classroom
+      classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq.compact
+      classroom_ids.each do |classroom_id|
+        teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
+                                               .by_classroom(classroom_id)
+                                               .by_score_type(DISCIPLINE_SCORE_TYPES)
+        teacher_discipline_classrooms.each do |teacher_discipline_classroom|
+          yield(teacher_discipline_classroom) if can_post?(teacher_discipline_classroom.classroom)
+        end
+      end
+    end
+
+    def fetch_students(teacher_discipline_classroom)
+      fetcher = TeacherScoresFetcher.new(
+        teacher,
+        teacher_discipline_classroom.classroom,
+        teacher_discipline_classroom.discipline,
+        get_step(teacher_discipline_classroom.classroom)
+      )
+      fetcher.fetch!
+      @warning_messages += fetcher.warning_messages if fetcher.warnings?
+      fetcher.scores
+    end
+
+    def for_each_student_with_calculable_average(teacher_discipline_classroom)
+      students = fetch_students(teacher_discipline_classroom)
+      students.each do |student|
+        yield(student) unless skip_student_average_calculation?(teacher_discipline_classroom, student)
+      end
+    end
+
+    def skip_student_average_calculation?(teacher_discipline_classroom, student_score)
+      classroom, discipline = fetch_classroom_and_discipline(teacher_discipline_classroom)
+      return true if exempted_discipline?(classroom, discipline, student_score)
+      return true unless correct_score_type?(student_score, classroom)
+      return true if exempted_discipline_in_step?(classroom, discipline)
+    end
+
+    def calculate_student_average(teacher_discipline_classroom, student)
+      classroom, discipline = fetch_classroom_and_discipline(teacher_discipline_classroom)
+      StudentAverageCalculator.new(student).calculate(classroom, discipline, get_step(classroom))
+    end
+
+    def calculate_recovery_score(teacher_discipline_classroom, student)
+      classroom, discipline = fetch_classroom_and_discipline(teacher_discipline_classroom)
+
+      school_term_recovery = school_term_recovery_diary_record(classroom, discipline)
+      return if school_term_recovery.nil?
+
+      score = recovery_diary_record_student_score(school_term_recovery, student)
+      return if score.nil?
+
+      score = complementary_exam_calculator(classroom, discipline, student).calculate(score)
+      ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY).round(score)
+    end
+
+    def build_request(teacher_discipline_classroom, student, student_average, recovery_score = nil)
+      classroom, discipline = fetch_classroom_and_discipline(teacher_discipline_classroom)
+      student_scores = { 'nota' => student_average }
+      student_scores['recuperacao'] = recovery_score if recovery_score.present?
+      {
+        info: {
+          classroom: classroom.api_code,
+          student: student.api_code,
+          discipline: discipline.api_code
+        },
+        request: {
+          etapa: @post_data.step.to_number,
+          resource: 'notas',
+          notas: {
+            classroom.api_code => {
+              student.api_code => {
+                discipline.api_code => student_scores
               }
             }
-          end
-        end
-      end
+          }
+        }
+      }
     end
 
-    def post_by_classrooms
-      scores = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
-      classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq.compact
-
-      classroom_ids.each do |classroom|
-        teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
-                                               .by_classroom(classroom)
-                                               .by_score_type([DisciplineScoreTypes::NUMERIC, nil])
-
-        teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-          classroom = teacher_discipline_classroom.classroom
-          discipline = teacher_discipline_classroom.discipline
-          score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
-
-          next unless can_post?(classroom)
-
-          teacher_score_fetcher = TeacherScoresFetcher.new(
-            teacher,
-            classroom,
-            discipline,
-            get_step(classroom)
-          )
-          teacher_score_fetcher.fetch!
-
-          student_scores = teacher_score_fetcher.scores
-
-          student_scores.each do |student_score|
-            next if exempted_discipline(classroom, discipline.id, student_score.id)
-            next unless correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
-
-            exempted_discipline_ids =
-              ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
-
-            next if exempted_discipline_ids.include?(discipline.id)
-
-            school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
-            value = StudentAverageCalculator.new(student_score)
-                                            .calculate(classroom, discipline, get_step(classroom))
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
-
-            next unless school_term_recovery
-
-            recovery_value = score_rounder.round(school_term_recovery)
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
-          end
-          @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.warnings?
-        end
-      end
-
-      scores
-    end
-
-    def correct_score_type(differentiated, exam_rule)
-      exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
-      score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
-      score_types.include? exam_rule.score_type
-    end
-
-    def fetch_school_term_recovery_score(classroom, discipline, student)
-      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
-                                                                       .by_discipline_id(discipline)
-                                                                       .by_step_id(
-                                                                         classroom,
-                                                                         get_step(classroom).id
-                                                                       )
-                                                                       .first
-
-      return unless school_term_recovery_diary_record
-
-      student_recovery = RecoveryDiaryRecordStudent.by_student_id(student)
-                                                   .by_recovery_diary_record_id(
-                                                     school_term_recovery_diary_record.recovery_diary_record_id
-                                                   )
-                                                   .first
-
-      score = student_recovery.try(:score)
-
-      if score.present?
-        score = ComplementaryExamCalculator.new(
-          AffectedScoreTypes::STEP_RECOVERY_SCORE,
-          student,
-          discipline.id,
-          classroom.id,
-          get_step(classroom)
-        ).calculate(score)
-      end
-
-      score
-    end
-
-    def exempted_discipline(classroom, discipline_id, student_id)
+    def exempted_discipline?(classroom, discipline, student_score)
       student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom.id)
-                                                               .by_student(student_id)
+                                                               .by_student(student_score.id)
                                                                .active
                                                                .first
+      return if student_enrollment_classroom.nil?
 
-      if student_enrollment_classroom.present?
-        return student_enrollment_classroom.student_enrollment
-                                           .exempted_disciplines
-                                           .by_discipline(discipline_id)
-                                           .by_step_number(get_step(classroom).to_number)
-                                           .any?
-      end
+      student_enrollment_classroom.student_enrollment
+                                  .exempted_disciplines
+                                  .by_discipline(discipline)
+                                  .by_step_number(get_step(classroom).to_number)
+                                  .any?
+    end
 
-      false
+    def correct_score_type?(student_score, classroom)
+      differentiated_exam_rule = student_score.uses_differentiated_exam_rule
+      exam_rule = classroom.exam_rule
+      exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated_exam_rule
+      SCORE_TYPES.include?(exam_rule.score_type)
+    end
+
+    def exempted_discipline_in_step?(classroom, discipline)
+      ids = ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
+      ids.include?(discipline.id)
+    end
+
+    def school_term_recovery_diary_record(classroom, discipline)
+      SchoolTermRecoveryDiaryRecord.by_classroom_id(classroom)
+                                   .by_discipline_id(discipline)
+                                   .by_step_id(classroom, get_step(classroom).id)
+                                   .first
+    end
+
+    def recovery_diary_record_student_score(school_term_recovery_diary_record, student)
+      recovery_diary_record_id = school_term_recovery_diary_record.recovery_diary_record_id
+      RecoveryDiaryRecordStudent.by_student_id(student)
+                                .by_recovery_diary_record_id(recovery_diary_record_id)
+                                .first
+                                .try(:score)
+    end
+
+    def complementary_exam_calculator(classroom, discipline, student)
+      ComplementaryExamCalculator.new(
+        AffectedScoreTypes::STEP_RECOVERY_SCORE,
+        student,
+        discipline.id,
+        classroom.id,
+        get_step(classroom)
+      )
+    end
+
+    def fetch_classroom_and_discipline(teacher_discipline_classroom)
+      [teacher_discipline_classroom.classroom, teacher_discipline_classroom.discipline]
     end
   end
 end
