@@ -2,7 +2,9 @@ class BaseSynchronizer
   class << self
     def synchronize_in_batch!(params)
       worker_batch = params[:worker_batch]
-      worker_state = create_worker_state(worker_batch)
+
+      years = params[:years] if params[:filtered_by_year]
+      years ||= [params[:years].join(',')]
 
       if params[:filtered_by_unity] && params[:synchronization].full_synchronization
         unities = params[:unities_api_code]
@@ -10,31 +12,47 @@ class BaseSynchronizer
 
       unities ||= [params[:unities_api_code].join(',')]
 
-      unities.each do |unity_api_code|
-        if block_given?
-          yield(unity_api_code)
-        else
-          new(
-            synchronization: params[:synchronization],
-            worker_batch: worker_batch,
-            years: params[:years],
-            unity_api_code: unity_api_code,
-            entity_id: params[:entity_id]
-          ).synchronize!
+      years.each do |year|
+        unities.each do |unity_api_code|
+          worker_state = create_worker_state(
+            worker_batch,
+            year,
+            unity_api_code,
+            params[:filtered_by_year],
+            params[:filtered_by_unity]
+          )
+
+          begin
+            new(
+              synchronization: params[:synchronization],
+              worker_batch: worker_batch,
+              year: year,
+              unity_api_code: unity_api_code,
+              entity_id: params[:entity_id]
+            ).synchronize!
+
+            worker_batch.increment
+            finish_worker(worker_state, worker_batch, params[:synchronization])
+          rescue StandardError => error
+            worker_state.mark_with_error!(error.message)
+
+            raise error
+          end
         end
       end
-
-      worker_batch.increment(worker_name)
-      finish_worker(worker_state, worker_batch, params[:synchronization])
     end
 
     private
 
-    def create_worker_state(worker_batch)
+    def create_worker_state(worker_batch, year, unity_api_code, filtered_by_year, filtered_by_unity)
       worker_state = WorkerState.create!(
         worker_batch: worker_batch,
         kind: worker_name
       )
+      meta_data = {}
+      meta_data[:year] = year if filtered_by_year
+      meta_data[:unity_api_code] = unity_api_code if filtered_by_unity
+      worker_state.update(meta_data: meta_data) if filtered_by_year || filtered_by_unity
       worker_state.start!
       worker_state
     end
@@ -54,18 +72,17 @@ class BaseSynchronizer
     self.synchronization = params[:synchronization]
     self.worker_batch = params[:worker_batch]
     self.entity_id = params[:entity_id]
-    self.years = Array(params[:years]).compact
+    self.year = params[:year]
     self.unity_api_code = params[:unity_api_code]
     self.filtered_by_unity = params[:filtered_by_unity]
-    self.unities_api_code = params[:unities_api_code]
 
     worker_batch.touch
   end
 
   protected
 
-  attr_accessor :synchronization, :worker_batch, :worker_state, :entity_id, :years, :unity_api_code,
-                :filtered_by_unity, :unities_api_code
+  attr_accessor :synchronization, :worker_batch, :worker_state, :entity_id, :year, :unity_api_code,
+                :filtered_by_year, :filtered_by_unity
 
   def api
     @api = api_class.new(synchronization.to_api, synchronization.full_synchronization)

@@ -3,23 +3,10 @@ class TeachersSynchronizer < BaseSynchronizer
     update_teachers(
       HashDecorator.new(
         api.fetch(
-          ano: years.first
+          ano: year
         )['servidores']
       )
     )
-  end
-
-  def self.synchronize_in_batch!(params)
-    super do
-      params[:years].each do |year|
-        new(
-          synchronization: params[:synchronization],
-          worker_batch: params[:worker_batch],
-          years: [year],
-          entity_id: params[:entity_id]
-        ).synchronize!
-      end
-    end
   end
 
   private

@@ -3,23 +3,10 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     update_teacher_discipline_classrooms(
       HashDecorator.new(
         api.fetch(
-          ano: years.first
+          ano: year
         )['vinculos']
       )
     )
-  end
-
-  def self.synchronize_in_batch!(params)
-    super do
-      params[:years].each do |year|
-        new(
-          synchronization: params[:synchronization],
-          worker_batch: params[:worker_batch],
-          years: [year],
-          entity_id: params[:entity_id]
-        ).synchronize!
-      end
-    end
   end
 
   private
@@ -62,7 +49,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
     TeacherDisciplineClassroom.unscoped.find_or_initialize_by(
       api_code: teacher_discipline_classroom_record.id,
-      year: years.first,
+      year: year,
       teacher_id: teacher_id,
       teacher_api_code: teacher_discipline_classroom_record.servidor_id,
       discipline_id: discipline_id,

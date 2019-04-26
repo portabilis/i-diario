@@ -9,12 +9,6 @@ class CoursesSynchronizer < BaseSynchronizer
     )
   end
 
-  def self.synchronize_in_batch!(params)
-    params[:filtered_by_unity] = true
-
-    super
-  end
-
   private
 
   def api_class

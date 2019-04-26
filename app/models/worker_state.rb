@@ -6,6 +6,10 @@ class WorkerState < ActiveRecord::Base
 
   validates :kind, presence: true
 
+  def meta_data
+    self[:meta_data].symbolize_keys
+  end
+
   def mark_with_error!(message)
     update(
       status: ApiSynchronizationStatus::ERROR,

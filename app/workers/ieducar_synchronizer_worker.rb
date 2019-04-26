@@ -37,23 +37,23 @@ class IeducarSynchronizerWorker
   private
 
   SYNCHRONIZERS = [
-    DeficienciesSynchronizer.to_s,
-    StudentsSynchronizer.to_s,
-    KnowledgeAreasSynchronizer.to_s,
-    DisciplinesSynchronizer.to_s,
-    RoundingTablesSynchronizer.to_s,
-    CoursesSynchronizer.to_s,
-    GradesSynchronizer.to_s,
-    ClassroomsSynchronizer.to_s,
-    SpecificStepsSynchronizer.to_s,
-    ExamRulesSynchronizer.to_s,
-    RecoveryExamRulesSynchronizer.to_s,
-    TeachersSynchronizer.to_s,
-    TeacherDisciplineClassroomsSynchronizer.to_s,
-    StudentEnrollmentSynchronizer.to_s,
-    StudentEnrollmentClassroomSynchronizer.to_s,
-    StudentEnrollmentDependenceSynchronizer.to_s,
-    StudentEnrollmentExemptedDisciplinesSynchronizer.to_s
+    { klass: DeficienciesSynchronizer.to_s, by_year: false, by_unity: false },
+    { klass: StudentsSynchronizer.to_s, by_year: false, by_unity: false },
+    { klass: KnowledgeAreasSynchronizer.to_s, by_year: false, by_unity: false },
+    { klass: DisciplinesSynchronizer.to_s, by_year: false, by_unity: false },
+    { klass: RoundingTablesSynchronizer.to_s, by_year: false, by_unity: false },
+    { klass: CoursesSynchronizer.to_s, by_year: false, by_unity: true },
+    { klass: GradesSynchronizer.to_s, by_year: false, by_unity: true },
+    { klass: ClassroomsSynchronizer.to_s, by_year: true, by_unity: true },
+    { klass: SpecificStepsSynchronizer.to_s, by_year: false, by_unity: false },
+    { klass: ExamRulesSynchronizer.to_s, by_year: true, by_unity: false },
+    { klass: RecoveryExamRulesSynchronizer.to_s, by_year: false, by_unity: false },
+    { klass: TeachersSynchronizer.to_s, by_year: true, by_unity: false },
+    { klass: TeacherDisciplineClassroomsSynchronizer.to_s, by_year: true, by_unity: false },
+    { klass: StudentEnrollmentSynchronizer.to_s, by_year: true, by_unity: true },
+    { klass: StudentEnrollmentClassroomSynchronizer.to_s, by_year: true, by_unity: true },
+    { klass: StudentEnrollmentDependenceSynchronizer.to_s, by_year: true, by_unity: false },
+    { klass: StudentEnrollmentExemptedDisciplinesSynchronizer.to_s, by_year: false, by_unity: false }
   ].freeze
 
   def perform_for_entity(entity, synchronization_id)
@@ -65,15 +65,17 @@ class IeducarSynchronizerWorker
 
         worker_batch = synchronization.worker_batch
         worker_batch.start!
-        worker_batch.update(total_workers: SYNCHRONIZERS.size)
+        worker_batch.update(total_workers: total_synchronizers(synchronization.full_synchronization))
 
-        SYNCHRONIZERS.each do |klass|
-          klass.constantize.synchronize_in_batch!(
+        SYNCHRONIZERS.each do |synchronizer|
+          synchronizer[:klass].constantize.synchronize_in_batch!(
             synchronization: synchronization,
             worker_batch: worker_batch,
-            years: years_to_synchronize,
             entity_id: entity.id,
-            unities_api_code: unities_api_code
+            years: years_to_synchronize,
+            unities_api_code: unities_api_code,
+            filtered_by_year: synchronizer[:by_year],
+            filtered_by_unity: synchronizer[:by_unity]
           )
         end
       rescue Sidekiq::Shutdown => error
@@ -103,5 +105,53 @@ class IeducarSynchronizerWorker
 
   def all_entities
     Entity.active
+  end
+
+  def total_synchronizers(full_synchronization)
+    return total_synchronizers_with_full_synchronization if full_synchronization
+
+    total_synchronizers_with_simple_synchronization
+  end
+
+  def total_synchronizers_with_full_synchronization
+    (
+      (synchronizers_by_year_and_unity.size * years_to_synchronize.size * unities_api_code.size) +
+      (synchronizers_by_year.size * years_to_synchronize.size) +
+      (synchronizers_by_unity.size * unities_api_code.size) +
+      single_synchronizers.size
+    )
+  end
+
+  def total_synchronizers_with_simple_synchronization
+    (
+      (synchronizers_by_year_and_unity.size * years_to_synchronize.size) +
+      (synchronizers_by_year.size * years_to_synchronize.size) +
+      synchronizers_by_unity.size +
+      single_synchronizers.size
+    )
+  end
+
+  def single_synchronizers
+    @single_synchronizers ||= SYNCHRONIZERS.select { |synchronizer|
+      !synchronizer[:by_year] && !synchronizer[:by_unity]
+    }
+  end
+
+  def synchronizers_by_year
+    @synchronizers_by_year ||= SYNCHRONIZERS.select { |synchronizer|
+      synchronizer[:by_year] && !synchronizer[:by_unity]
+    }
+  end
+
+  def synchronizers_by_unity
+    @synchronizers_by_unity ||= SYNCHRONIZERS.select { |synchronizer|
+      !synchronizer[:by_year] && synchronizer[:by_unity]
+    }
+  end
+
+  def synchronizers_by_year_and_unity
+    @synchronizers_by_year_and_unity ||= SYNCHRONIZERS.select { |synchronizer|
+      synchronizer[:by_year] && synchronizer[:by_unity]
+    }
   end
 end

@@ -3,27 +3,11 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
     update_student_enrollment_classrooms(
       HashDecorator.new(
         api.fetch(
-          ano: years.first,
+          ano: year,
           escola: unity_api_code
         )['enturmacoes']
       )
     )
-  end
-
-  def self.synchronize_in_batch!(params)
-    params[:filtered_by_unity] = true
-
-    super do |unity_api_code|
-      params[:years].each do |year|
-        new(
-          synchronization: params[:synchronization],
-          worker_batch: params[:worker_batch],
-          years: [year],
-          unity_api_code: unity_api_code,
-          entity_id: params[:entity_id]
-        ).synchronize!
-      end
-    end
   end
 
   private
