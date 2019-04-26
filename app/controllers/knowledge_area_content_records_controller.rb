@@ -176,7 +176,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   helper_method :classrooms
 
   def knowledge_areas
-    @knowledge_areas = KnowledgeArea.ordered
+    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
   end
   helper_method :knowledge_areas
 end

@@ -176,6 +176,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_knowledge_areas
-    @knowledge_areas = KnowledgeArea.ordered
+    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
   end
 end
