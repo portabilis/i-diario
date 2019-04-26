@@ -13,10 +13,15 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justifications = apply_scopes(AbsenceJustification.by_unity(current_user_unity)
                                                                .by_classroom(current_user_classroom)
                                                                .by_discipline_id(current_discipline)
-                                                               .by_teacher(current_teacher)
                                                                .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
                                                                .includes(:student).ordered)
+
+    author_type = (params[:search] || []).delete(:by_author)
+
+    if author_type.present?
+      @absence_justifications = @absence_justifications.by_author(author_type, current_teacher)
+    end
 
     authorize @absence_justifications
   end
