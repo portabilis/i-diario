@@ -10,7 +10,8 @@ RSpec.describe KnowledgeAreasSynchronizer do
         described_class.synchronize_in_batch!(
           synchronization: synchronization,
           worker_batch: worker_batch,
-          unities_api_code: Unity.pluck(:api_code)
+          unities_api_code: Unity.pluck(:api_code),
+          years: [Date.current.year]
         )
 
         expect(KnowledgeArea.count).to eq 14
@@ -33,7 +34,8 @@ RSpec.describe KnowledgeAreasSynchronizer do
         described_class.synchronize_in_batch!(
           synchronization: synchronization,
           worker_batch: worker_batch,
-          unities_api_code: Unity.pluck(:api_code)
+          unities_api_code: Unity.pluck(:api_code),
+          years: [Date.current.year]
         )
 
         expect(KnowledgeArea.count).to eq 14
