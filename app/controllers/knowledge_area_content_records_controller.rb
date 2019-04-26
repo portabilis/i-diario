@@ -91,9 +91,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def clone
     @form = KnowledgeAreaContentRecordClonerForm.new(clone_params.merge(teacher: current_teacher))
 
-    if @form.clone!
-      flash[:success] = "Registro de conteúdo por área de conhecimento copiado com sucesso!"
-    end
+    flash[:success] = t('messages.copy_succeed') if @form.clone!
   end
 
   private
