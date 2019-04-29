@@ -5,8 +5,6 @@ class StudentUnifier
   end
 
   def unify!
-    valid = true
-
     ActiveRecord::Base.transaction do
       @secondary_students.each do |secondary_student|
         Student.reflect_on_all_associations(:has_many).each do |association|
@@ -32,12 +30,12 @@ class StudentUnifier
 
         @error = "#{I18n.t('services.student_unification.delete_error')} \
           #{secondary_student.name}: #{secondary_student.errors.full_messages.to_sentence}"
-        valid = false
+
         raise ActiveRecord::Rollback
       end
     end
 
-    valid
+    true
   rescue ActiveRecord::RecordInvalid => exception
     record_detail = ''
 
