@@ -10,14 +10,15 @@ class AbsenceJustificationsController < ApplicationController
     current_discipline = fetch_current_discipline
 
     @classrooms = Classroom.where(id: current_user_classroom)
+
+    author_type = (params[:search] || []).delete(:by_author)
+
     @absence_justifications = apply_scopes(AbsenceJustification.by_unity(current_user_unity)
                                                                .by_classroom(current_user_classroom)
                                                                .by_discipline_id(current_discipline)
                                                                .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
                                                                .includes(:student).ordered)
-
-    author_type = (params[:search] || []).delete(:by_author)
 
     if author_type.present?
       @absence_justifications = @absence_justifications.by_author(author_type, current_teacher)
@@ -118,7 +119,7 @@ class AbsenceJustificationsController < ApplicationController
 
   def filtering_params(params)
     if params
-      params.slice(:by_classroom, :by_student, :by_date)
+      params.slice(:by_classroom, :by_student, :by_date, :by_author)
     else
       {}
     end
