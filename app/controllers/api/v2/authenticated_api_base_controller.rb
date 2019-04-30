@@ -1,6 +1,6 @@
 module Api
   module V2
-    class IeducarApiBaseController < Api::V2::BaseController
+    class AuthenticatedApiBaseController < Api::V2::BaseController
       skip_before_action :api_authenticate_with_header!
       before_action :authenticate_user_from_token!
       rescue_from ActiveRecord::RecordNotFound, with: :render_not_found_response
