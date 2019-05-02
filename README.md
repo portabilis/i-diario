@@ -40,12 +40,18 @@ $ gem install bundler -v '1.17.3'
 
 ```bash
 $ git clone https://github.com/portabilis/i-diario.git
+$ cd i-diario
+```
+
+- Se for usar o Docker:
+
+```bash
+docker-compose up
 ```
 
 - Instalar as gems:
 
 ```bash
-$ cd i-diario
 $ bundle install
 ```
 
@@ -54,6 +60,8 @@ $ bundle install
 ```bash
 $  cp config/database.sample.yml config/database.yml
 ```
+
+Se estiver usando Docker, mudar o `host` para `host: postgres`.
 
 - Criar e configurar o arquivo `config/secrets.yml` conforme o exemplo:
 
