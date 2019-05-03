@@ -1,6 +1,8 @@
 #!/bin/bash
 
-bundle check || bundle install
+bundle check || BUNDLE_JOBS=4 bundle install
+bundle exec rake db:create
+bundle exec rake db:migrate
 
 cp public/404.html.sample public/404.html
 cp public/500.html.sample public/500.html
