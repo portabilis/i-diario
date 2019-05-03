@@ -1,11 +1,19 @@
 #!/bin/bash
 
 bundle check || BUNDLE_JOBS=4 bundle install
-bin/rake db:create
-bin/rake db:migrate
 
-cp public/404.html.sample public/404.html
-cp public/500.html.sample public/500.html
+if ! test -f ".setup"; then
+  echo "development:
+    secret_key_base: $(bundle exec rake secret)" > config/secrets.yml
+
+  bin/rake db:create
+  bin/rake db:migrate
+
+  cp public/404.html.sample public/404.html
+  cp public/500.html.sample public/500.html
+
+  touch .setup
+fi
 
 rm /app/tmp/pids/server.pid
 bin/rails s -b 0.0.0.0
