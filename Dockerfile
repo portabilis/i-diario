@@ -4,11 +4,10 @@ RUN apt-get update -qq
 RUN apt-get install -y build-essential libpq-dev nodejs npm nodejs-legacy
 RUN npm install -g phantomjs-prebuilt
 
-RUN mkdir /app
-WORKDIR /app
+ENV app /app
+RUN mkdir $app
+WORKDIR $app
 
-ADD Gemfile /app/Gemfile
+ENV BUNDLE_PATH /box
 
-RUN BUNDLE_JOBS=4 bundle install
-
-ADD . /app
+ADD . $app
