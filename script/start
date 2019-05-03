@@ -1,10 +1,11 @@
 #!/bin/bash
 
 bundle check || BUNDLE_JOBS=4 bundle install
-bundle exec rake db:create
-bundle exec rake db:migrate
+bin/rake db:create
+bin/rake db:migrate
 
 cp public/404.html.sample public/404.html
 cp public/500.html.sample public/500.html
 
-bundle exec rails s -b 0.0.0.0
+rm /app/tmp/pids/server.pid
+bin/rails s -b 0.0.0.0
