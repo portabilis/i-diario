@@ -47,7 +47,7 @@ class IeducarSynchronizerWorker
         worker_batch.start!
         worker_batch.update(total_workers: total_synchronizers(synchronization.full_synchronization))
 
-        SynchronizationConfigs.synchronizers_without_dependencies.each do |synchronizer|
+        SynchronizationConfigs.without_dependencies.each do |synchronizer|
           SynchronizerBuilderWorker.perform_async(
             klass: synchronizer[:klass],
             synchronization_id: synchronization.id,
@@ -114,25 +114,25 @@ class IeducarSynchronizerWorker
   end
 
   def single_synchronizers
-    @single_synchronizers ||= SynchronizationConfigs::SYNCHRONIZERS.select { |synchronizer|
+    @single_synchronizers ||= SynchronizationConfigs::ALL.select { |synchronizer|
       !synchronizer[:by_year] && !synchronizer[:by_unity]
     }
   end
 
   def synchronizers_by_year
-    @synchronizers_by_year ||= SynchronizationConfigs::SYNCHRONIZERS.select { |synchronizer|
+    @synchronizers_by_year ||= SynchronizationConfigs::ALL.select { |synchronizer|
       synchronizer[:by_year] && !synchronizer[:by_unity]
     }
   end
 
   def synchronizers_by_unity
-    @synchronizers_by_unity ||= SynchronizationConfigs::SYNCHRONIZERS.select { |synchronizer|
+    @synchronizers_by_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
       !synchronizer[:by_year] && synchronizer[:by_unity]
     }
   end
 
   def synchronizers_by_year_and_unity
-    @synchronizers_by_year_and_unity ||= SynchronizationConfigs::SYNCHRONIZERS.select { |synchronizer|
+    @synchronizers_by_year_and_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
       synchronizer[:by_year] && synchronizer[:by_unity]
     }
   end

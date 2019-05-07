@@ -6,20 +6,20 @@ class SynchronizationOrchestrator
   end
 
   def can_synchronize?
-    by_year = SynchronizationConfigs.config(current_worker_name, :by_year)
-    by_unity = SynchronizationConfigs.config(current_worker_name, :by_unity)
+    by_year = SynchronizationConfigs.find_by_klass(current_worker_name)[:by_year]
+    by_unity = SynchronizationConfigs.find_by_klass(current_worker_name)[:by_unity]
 
     return false if worker_initialized?(current_worker_name, by_year, by_unity)
 
-    can_synchronize_worker?(current_worker_name)
+    dependencies_solved?(current_worker_name)
   end
 
   def enqueue_next
-    WorkerState.first.with_lock do
-      SynchronizationConfigs.dependents(current_worker_name).each do |klass|
-        next unless can_synchronize_worker?(klass)
+    worker_state_locked_by_worker_batch do
+      SynchronizationConfigs.dependents_by_klass(current_worker_name).each do |klass|
+        next unless dependencies_solved?(klass)
 
-        call_worker(SynchronizationConfigs.configs(klass))
+        enqueue_job(SynchronizationConfigs.find_by_klass(klass))
       end
     end
   end
@@ -28,40 +28,47 @@ class SynchronizationOrchestrator
 
   attr_accessor :worker_batch, :current_worker_name, :params
 
-  def can_synchronize_worker?(worker_name)
+  def dependencies_solved?(worker_name)
     valid_year = params[:year].to_s.split(',').size == 1
-    current_worker_by_year = SynchronizationConfigs.config(worker_name, :by_year) && valid_year
-    current_worker_by_unity = SynchronizationConfigs.config(worker_name, :by_unity)
+    by_year = SynchronizationConfigs.find_by_klass(worker_name)[:by_year] && valid_year
+    by_unity = SynchronizationConfigs.find_by_klass(worker_name)[:by_unity]
+    dependencies_count = SynchronizationConfigs.dependencies_by_klass(worker_name).size
 
-    count = SynchronizationConfigs.dependencies(worker_name).select { |klass|
-      by_year = SynchronizationConfigs.config(klass, :by_year) && current_worker_by_year
-      by_unity = SynchronizationConfigs.config(klass, :by_unity) && current_worker_by_unity
+    completed_dependencies_count(worker_name, by_year, by_unity) == dependencies_count
+  end
+
+  def completed_dependencies_count(worker_name, current_worker_by_year, current_worker_by_unity)
+    SynchronizationConfigs.dependencies_by_klass(worker_name).select { |klass|
+      by_year = SynchronizationConfigs.find_by_klass(klass)[:by_year] && current_worker_by_year
+      by_unity = SynchronizationConfigs.find_by_klass(klass)[:by_unity] && current_worker_by_unity
 
       worker_completed?(klass, by_year, by_unity)
     }.size
-
-    count == SynchronizationConfigs.dependencies(worker_name).size
   end
 
-  def worker_initialized?(worker_name, by_year, by_unity, status = nil)
-    worker_states = WorkerState.by_worker_batch_id(worker_batch.id)
-                               .by_kind(worker_name)
+  def worker_completed?(worker_name, by_year, by_unity)
+    worker_states = initialized_worker_states_by(worker_name, by_year, by_unity)
 
-    worker_states = worker_states.by_status(status) if status.present?
+    worker_states.by_status(ApiSynchronizationStatus::COMPLETED).exists?
+  end
+
+  def worker_initialized?(worker_name, by_year, by_unity)
+    initialized_worker_states_by(worker_name, by_year, by_unity).exists?
+  end
+
+  def initialized_worker_states_by(worker_name, by_year, by_unity)
+    worker_states = WorkerState.by_worker_batch_id(worker_batch.id)
+                                .by_kind(worker_name)
     worker_states = worker_states.by_meta_data(:year, params[:year]) if by_year && params[:year].present?
 
     if by_unity && params[:unity_api_code].present?
       worker_states = worker_states.by_meta_data(:unity_api_code, params[:unity_api_code])
     end
 
-    worker_states.exists?
+    worker_states
   end
 
-  def worker_completed?(worker_name, by_year, by_unity)
-    worker_initialized?(worker_name, by_year, by_unity, ApiSynchronizationStatus::COMPLETED)
-  end
-
-  def call_worker(synchronizer)
+  def enqueue_job(synchronizer)
     SynchronizerBuilderWorker.perform_async(
       params.slice(
         :entity_id
@@ -75,5 +82,13 @@ class SynchronizationOrchestrator
         filtered_by_unity: synchronizer[:by_unity]
       )
     )
+  end
+
+  def worker_state_locked_by_worker_batch
+    worker_batch.with_lock do
+      worker_batch.touch
+
+      yield
+    end
   end
 end

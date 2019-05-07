@@ -19,7 +19,7 @@ class BaseSynchronizer
       finish_worker(worker_state, worker_batch, params[:synchronization])
       SynchronizationOrchestrator.new(worker_batch, worker_name, params).enqueue_next
     rescue StandardError => error
-      worker_state.mark_with_error!(error.message)
+      worker_state.mark_with_error!(error.message) if error.message != '502 Bad Gateway'
 
       raise error
     end
