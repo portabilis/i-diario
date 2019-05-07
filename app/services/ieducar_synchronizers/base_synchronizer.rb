@@ -1,61 +1,30 @@
 class BaseSynchronizer
   class << self
-    def synchronize_in_batch!(params)
+    def synchronize!(params)
       worker_batch = params[:worker_batch]
+      worker_state = WorkerState.find(params[:worker_state_id])
+      worker_state.start!
 
-      years = params[:years] if params[:filtered_by_year]
-      years ||= [params[:years].join(',')]
+      new(
+        params.slice(
+          :synchronization,
+          :worker_batch,
+          :year,
+          :unity_api_code,
+          :entity_id
+        )
+      ).synchronize!
 
-      if params[:filtered_by_unity] && params[:synchronization].full_synchronization
-        unities = params[:unities_api_code]
-      end
+      worker_batch.increment
+      finish_worker(worker_state, worker_batch, params[:synchronization])
+      SynchronizationOrchestrator.new(worker_batch, worker_name, params).enqueue_next
+    rescue StandardError => error
+      worker_state.mark_with_error!(error.message)
 
-      unities ||= [params[:unities_api_code].join(',')]
-
-      years.each do |year|
-        unities.each do |unity_api_code|
-          worker_state = create_worker_state(
-            worker_batch,
-            year,
-            unity_api_code,
-            params[:filtered_by_year],
-            params[:filtered_by_unity]
-          )
-
-          begin
-            new(
-              synchronization: params[:synchronization],
-              worker_batch: worker_batch,
-              year: year,
-              unity_api_code: unity_api_code,
-              entity_id: params[:entity_id]
-            ).synchronize!
-
-            worker_batch.increment
-            finish_worker(worker_state, worker_batch, params[:synchronization])
-          rescue StandardError => error
-            worker_state.mark_with_error!(error.message)
-
-            raise error
-          end
-        end
-      end
+      raise error
     end
 
     private
-
-    def create_worker_state(worker_batch, year, unity_api_code, filtered_by_year, filtered_by_unity)
-      worker_state = WorkerState.create!(
-        worker_batch: worker_batch,
-        kind: worker_name
-      )
-      meta_data = {}
-      meta_data[:year] = year if filtered_by_year
-      meta_data[:unity_api_code] = unity_api_code if filtered_by_unity
-      worker_state.update(meta_data: meta_data) if filtered_by_year || filtered_by_unity
-      worker_state.start!
-      worker_state
-    end
 
     def finish_worker(worker_state, worker_batch, synchronization)
       worker_state.end!

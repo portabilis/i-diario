@@ -1,0 +1,145 @@
+synchronizers:
+  -
+    klass: StudentsSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      StudentEnrollmentSynchronizer
+    ]
+  -
+    klass: KnowledgeAreasSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      DisciplinesSynchronizer
+    ]
+  -
+    klass: RoundingTablesSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      ExamRulesSynchronizer
+    ]
+  -
+    klass: CoursesSynchronizer
+    by_year: false
+    by_unity: true
+    dependents: [
+      GradesSynchronizer
+    ]
+  -
+    klass: TeachersSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      TeacherDisciplineClassroomsSynchronizer
+    ]
+  -
+    klass: DeficienciesSynchronizer
+    by_year: false
+    by_unity: false
+  -
+    klass: DisciplinesSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      SpecificStepsSynchronizer,
+      TeacherDisciplineClassroomsSynchronizer,
+      StudentEnrollmentDependenceSynchronizer,
+      StudentEnrollmentExemptedDisciplinesSynchronizer
+    ]
+    dependencies: [
+      KnowledgeAreasSynchronizer
+    ]
+  -
+    klass: GradesSynchronizer
+    by_year: false
+    by_unity: true
+    dependents: [
+      ClassroomsSynchronizer
+    ]
+    dependencies: [
+      CoursesSynchronizer
+    ]
+  -
+    klass: ClassroomsSynchronizer
+    by_year: true
+    by_unity: true
+    dependents: [
+      SpecificStepsSynchronizer,
+      TeacherDisciplineClassroomsSynchronizer,
+      StudentEnrollmentClassroomSynchronizer
+    ]
+    dependencies: [
+      GradesSynchronizer
+    ]
+  -
+    klass: SpecificStepsSynchronizer
+    by_year: false
+    by_unity: false
+    dependencies: [
+      DisciplinesSynchronizer,
+      ClassroomsSynchronizer
+    ]
+  -
+    klass: ExamRulesSynchronizer
+    by_year: true
+    by_unity: false
+    dependents: [
+      RecoveryExamRulesSynchronizer
+    ]
+    dependencies: [
+      RoundingTablesSynchronizer
+    ]
+  -
+    klass: RecoveryExamRulesSynchronizer
+    by_year: false
+    by_unity: false
+    dependencies: [
+      ExamRulesSynchronizer
+    ]
+  -
+    klass: TeacherDisciplineClassroomsSynchronizer
+    by_year: true
+    by_unity: false
+    dependencies: [
+      TeachersSynchronizer,
+      DisciplinesSynchronizer,
+      ClassroomsSynchronizer
+    ]
+  -
+    klass: StudentEnrollmentSynchronizer
+    by_year: true
+    by_unity: true
+    dependents: [
+      StudentEnrollmentClassroomSynchronizer,
+      StudentEnrollmentDependenceSynchronizer,
+      StudentEnrollmentExemptedDisciplinesSynchronizer
+    ]
+    dependencies: [
+      StudentsSynchronizer
+    ]
+  -
+    klass: StudentEnrollmentClassroomSynchronizer
+    by_year: true
+    by_unity: true
+    dependencies: [
+      StudentEnrollmentSynchronizer,
+      ClassroomsSynchronizer
+    ]
+  -
+    klass: StudentEnrollmentDependenceSynchronizer
+    by_year: true
+    by_unity: false
+    dependencies: [
+      StudentEnrollmentSynchronizer,
+      DisciplinesSynchronizer
+    ]
+  -
+    klass: StudentEnrollmentExemptedDisciplinesSynchronizer
+    by_year: false
+    by_unity: false
+    dependencies: [
+      StudentEnrollmentSynchronizer,
+      DisciplinesSynchronizer
+    ]

@@ -36,26 +36,6 @@ class IeducarSynchronizerWorker
 
   private
 
-  SYNCHRONIZERS = [
-    { klass: DeficienciesSynchronizer.to_s, by_year: false, by_unity: false },
-    { klass: StudentsSynchronizer.to_s, by_year: false, by_unity: false },
-    { klass: KnowledgeAreasSynchronizer.to_s, by_year: false, by_unity: false },
-    { klass: DisciplinesSynchronizer.to_s, by_year: false, by_unity: false },
-    { klass: RoundingTablesSynchronizer.to_s, by_year: false, by_unity: false },
-    { klass: CoursesSynchronizer.to_s, by_year: false, by_unity: true },
-    { klass: GradesSynchronizer.to_s, by_year: false, by_unity: true },
-    { klass: ClassroomsSynchronizer.to_s, by_year: true, by_unity: true },
-    { klass: SpecificStepsSynchronizer.to_s, by_year: false, by_unity: false },
-    { klass: ExamRulesSynchronizer.to_s, by_year: true, by_unity: false },
-    { klass: RecoveryExamRulesSynchronizer.to_s, by_year: false, by_unity: false },
-    { klass: TeachersSynchronizer.to_s, by_year: true, by_unity: false },
-    { klass: TeacherDisciplineClassroomsSynchronizer.to_s, by_year: true, by_unity: false },
-    { klass: StudentEnrollmentSynchronizer.to_s, by_year: true, by_unity: true },
-    { klass: StudentEnrollmentClassroomSynchronizer.to_s, by_year: true, by_unity: true },
-    { klass: StudentEnrollmentDependenceSynchronizer.to_s, by_year: true, by_unity: false },
-    { klass: StudentEnrollmentExemptedDisciplinesSynchronizer.to_s, by_year: false, by_unity: false }
-  ].freeze
-
   def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
       begin
@@ -67,10 +47,11 @@ class IeducarSynchronizerWorker
         worker_batch.start!
         worker_batch.update(total_workers: total_synchronizers(synchronization.full_synchronization))
 
-        SYNCHRONIZERS.each do |synchronizer|
-          synchronizer[:klass].constantize.synchronize_in_batch!(
-            synchronization: synchronization,
-            worker_batch: worker_batch,
+        SynchronizationConfigs.synchronizers_without_dependencies.each do |synchronizer|
+          SynchronizerBuilderWorker.perform_async(
+            klass: synchronizer[:klass],
+            synchronization_id: synchronization.id,
+            worker_batch_id: worker_batch.id,
             entity_id: entity.id,
             years: years_to_synchronize,
             unities_api_code: unities_api_code,
@@ -99,8 +80,9 @@ class IeducarSynchronizerWorker
                                    .joins(:school_calendars)
                                    .pluck('school_calendars.year')
                                    .uniq
-                                   .sort
                                    .compact
+                                   .sort
+                                   .reverse
   end
 
   def all_entities
@@ -132,25 +114,25 @@ class IeducarSynchronizerWorker
   end
 
   def single_synchronizers
-    @single_synchronizers ||= SYNCHRONIZERS.select { |synchronizer|
+    @single_synchronizers ||= SynchronizationConfigs::SYNCHRONIZERS.select { |synchronizer|
       !synchronizer[:by_year] && !synchronizer[:by_unity]
     }
   end
 
   def synchronizers_by_year
-    @synchronizers_by_year ||= SYNCHRONIZERS.select { |synchronizer|
+    @synchronizers_by_year ||= SynchronizationConfigs::SYNCHRONIZERS.select { |synchronizer|
       synchronizer[:by_year] && !synchronizer[:by_unity]
     }
   end
 
   def synchronizers_by_unity
-    @synchronizers_by_unity ||= SYNCHRONIZERS.select { |synchronizer|
+    @synchronizers_by_unity ||= SynchronizationConfigs::SYNCHRONIZERS.select { |synchronizer|
       !synchronizer[:by_year] && synchronizer[:by_unity]
     }
   end
 
   def synchronizers_by_year_and_unity
-    @synchronizers_by_year_and_unity ||= SYNCHRONIZERS.select { |synchronizer|
+    @synchronizers_by_year_and_unity ||= SynchronizationConfigs::SYNCHRONIZERS.select { |synchronizer|
       synchronizer[:by_year] && synchronizer[:by_unity]
     }
   end
