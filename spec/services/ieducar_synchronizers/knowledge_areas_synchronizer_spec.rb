@@ -3,15 +3,18 @@ require 'rails_helper'
 RSpec.describe KnowledgeAreasSynchronizer do
   let(:synchronization) { create(:ieducar_api_synchronization) }
   let(:worker_batch) { create(:worker_batch) }
+  let(:worker_state) { create(:worker_state, worker_batch: worker_batch) }
 
   describe '#synchronize!' do
     it 'creates knowledge areas' do
       VCR.use_cassette('all_knowledge_areas') do
-        described_class.synchronize_in_batch!(
+        described_class.synchronize!(
           synchronization: synchronization,
           worker_batch: worker_batch,
-          unities_api_code: Unity.pluck(:api_code),
-          years: [Date.current.year]
+          worker_state_id: worker_state.id,
+          year: Date.current.year,
+          unity_api_code: Unity.first.api_code,
+          entity_id: Entity.first.id
         )
 
         expect(KnowledgeArea.count).to eq 14
@@ -31,11 +34,13 @@ RSpec.describe KnowledgeAreasSynchronizer do
                                 'api_code': '8',
                                 'sequence': 2)
 
-        described_class.synchronize_in_batch!(
+        described_class.synchronize!(
           synchronization: synchronization,
           worker_batch: worker_batch,
-          unities_api_code: Unity.pluck(:api_code),
-          years: [Date.current.year]
+          worker_state_id: worker_state.id,
+          year: Date.current.year,
+          unity_api_code: Unity.first.api_code,
+          entity_id: Entity.first.id
         )
 
         expect(KnowledgeArea.count).to eq 14

@@ -3,14 +3,17 @@ require 'rails_helper'
 RSpec.describe DisciplinesSynchronizer do
   let(:synchronization) { create(:ieducar_api_synchronization) }
   let(:worker_batch) { create(:worker_batch) }
+  let(:worker_state) { create(:worker_state, worker_batch: worker_batch) }
 
   before do
     VCR.use_cassette('all_knowledge_areas') do
-      KnowledgeAreasSynchronizer.synchronize_in_batch!(
+      KnowledgeAreasSynchronizer.synchronize!(
         synchronization: synchronization,
         worker_batch: worker_batch,
-        unities_api_code: Unity.pluck(:api_code),
-        years: [Date.current.year]
+        worker_state_id: worker_state.id,
+        year: Date.current.year,
+        unity_api_code: Unity.first.api_code,
+        entity_id: Entity.first.id
       )
     end
   end
@@ -18,11 +21,13 @@ RSpec.describe DisciplinesSynchronizer do
   describe '#synchronize!' do
     it 'creates knowledge areas' do
       VCR.use_cassette('all_disciplines') do
-        described_class.synchronize_in_batch!(
+        described_class.synchronize!(
           synchronization: synchronization,
           worker_batch: worker_batch,
-          unities_api_code: Unity.pluck(:api_code),
-          years: [Date.current.year]
+          worker_state_id: worker_state.id,
+          year: Date.current.year,
+          unity_api_code: Unity.first.api_code,
+          entity_id: Entity.first.id
         )
 
         expect(Discipline.count).to eq 332
@@ -44,11 +49,13 @@ RSpec.describe DisciplinesSynchronizer do
                             'knowledge_area_id': KnowledgeArea.last.id,
                             'sequence': 10)
 
-        described_class.synchronize_in_batch!(
+        described_class.synchronize!(
           synchronization: synchronization,
           worker_batch: worker_batch,
-          unities_api_code: Unity.pluck(:api_code),
-          years: [Date.current.year]
+          worker_state_id: worker_state.id,
+          year: Date.current.year,
+          unity_api_code: Unity.first.api_code,
+          entity_id: Entity.first.id
         )
 
         expect(Discipline.count).to eq 332
