@@ -4,7 +4,7 @@ class BaseSynchronizerWorker
   sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false
 
   sidekiq_retries_exhausted do |msg, exception|
-    params = msg['args']
+    params = msg['args'].first.with_indifferent_access
 
     Entity.find(params[:entity_id]).using_connection do
       synchronization = IeducarApiSynchronization.find(params[:synchronization_id])

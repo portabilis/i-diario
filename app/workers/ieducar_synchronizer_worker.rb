@@ -38,35 +38,25 @@ class IeducarSynchronizerWorker
 
   def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
-      begin
-        synchronization = IeducarApiSynchronization.started.find_by(id: synchronization_id)
+      synchronization = IeducarApiSynchronization.started.find_by(id: synchronization_id)
 
-        break unless synchronization.try(:started?)
+      break unless synchronization.try(:started?)
 
-        worker_batch = synchronization.worker_batch
-        worker_batch.start!
-        worker_batch.update(total_workers: total_synchronizers(synchronization.full_synchronization))
+      worker_batch = synchronization.worker_batch
+      worker_batch.start!
+      worker_batch.update(total_workers: total_synchronizers(synchronization.full_synchronization))
 
-        SynchronizationConfigs.without_dependencies.each do |synchronizer|
-          SynchronizerBuilderWorker.perform_async(
-            klass: synchronizer[:klass],
-            synchronization_id: synchronization.id,
-            worker_batch_id: worker_batch.id,
-            entity_id: entity.id,
-            years: years_to_synchronize,
-            unities_api_code: unities_api_code,
-            filtered_by_year: synchronizer[:by_year],
-            filtered_by_unity: synchronizer[:by_unity]
-          )
-        end
-      rescue Sidekiq::Shutdown => error
-        raise error
-      rescue StandardError => error
-        if error.message != '502 Bad Gateway'
-          synchronization.mark_as_error!(I18n.t('ieducar_api.error.messages.sync_error'), error.message)
-        end
-
-        raise error
+      SynchronizationConfigs.without_dependencies.each do |synchronizer|
+        SynchronizerBuilderWorker.perform_async(
+          klass: synchronizer[:klass],
+          synchronization_id: synchronization.id,
+          worker_batch_id: worker_batch.id,
+          entity_id: entity.id,
+          years: years_to_synchronize,
+          unities_api_code: unities_api_code,
+          filtered_by_year: synchronizer[:by_year],
+          filtered_by_unity: synchronizer[:by_unity]
+        )
       end
     end
   end
