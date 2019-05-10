@@ -110,9 +110,7 @@ module ExamPoster
     end
 
     def correct_score_type?(student_score, classroom)
-      differentiated_exam_rule = student_score.uses_differentiated_exam_rule
-      exam_rule = classroom.exam_rule
-      exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated_exam_rule
+      exam_rule = student_score.uses_differentiated_exam_rule || classroom.exam_rule
       SCORE_TYPES.include?(exam_rule.score_type)
     end
 
