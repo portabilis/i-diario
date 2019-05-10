@@ -1,40 +1,41 @@
 require 'rails_helper'
 
 RSpec.describe ExamPoster::NumericalExamPoster do
-  let!(:exam_posting) do
-    create(:ieducar_api_exam_posting,
-           school_calendar_step: avaliation.current_step,
-           teacher: teacher_discipline_classroom.teacher)
+  let!(:daily_note_student) do
+    current_daily_note = create(:current_daily_note, avaliation: avaliation)
+    create(:daily_note_student, daily_note: current_daily_note, note: 4.0)
   end
-  let!(:daily_note_student) { create(:daily_note_student, daily_note: daily_note, note: 4) }
-  let!(:daily_note) { create(:current_daily_note, avaliation: avaliation) }
-  let!(:avaliation) { create(:current_avaliation, classroom: classroom, school_calendar: school_calendar) }
-  let!(:classroom) { create(:classroom_numeric, unity: unity, exam_rule: exam_rule) }
-  let!(:exam_rule) { create(:exam_rule, recovery_type: RecoveryTypes::PARALLEL) }
-  let!(:test_setting) { create(:test_setting, year: school_calendar.year) }
-  let!(:school_calendar) { create(:current_school_calendar_with_one_step, unity: unity) }
   let!(:unity) { create(:unity) }
+  let!(:school_calendar) { create(:current_school_calendar_with_one_step, unity: unity) }
+  let!(:avaliation) { create(:current_avaliation, classroom: classroom, school_calendar: school_calendar) }
+  let!(:classroom) do
+    exam_rule = create(:exam_rule, recovery_type: RecoveryTypes::PARALLEL)
+    create(:classroom_numeric, unity: unity, exam_rule: exam_rule)
+  end
   let!(:teacher_discipline_classroom) do
     create(:teacher_discipline_classroom,
            classroom: classroom,
            discipline: avaliation.discipline,
            score_type: DisciplineScoreTypes::NUMERIC)
   end
+
+  let!(:test_setting) { create(:test_setting, year: school_calendar.year) }
+  let!(:student_enrollment) { create(:student_enrollment, student: daily_note_student.student) }
   let!(:student_enrollment_classroom) do
     create(:student_enrollment_classroom,
            student_enrollment: student_enrollment,
            classroom: classroom)
   end
-  let!(:student_enrollment) { create(:student_enrollment, student: daily_note_student.student) }
 
-  let(:complementary_exam_setting) {
+  let(:complementary_exam_setting) do
     create(
       :complementary_exam_setting,
       grades: [classroom.grade],
       calculation_type: CalculationTypes::SUM
     )
-  }
-  let(:complementary_exam) {
+  end
+
+  let(:complementary_exam) do
     create(
       :complementary_exam,
       unity: unity,
@@ -44,20 +45,26 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       step_id: school_calendar.steps.first.id,
       complementary_exam_setting: complementary_exam_setting
     )
-  }
-  let(:complementary_exam_student) {
+  end
+
+  let(:complementary_exam_student) do
     create(
       :complementary_exam_student,
       complementary_exam: complementary_exam,
       student: daily_note_student.student
     )
-  }
+  end
 
-  let(:scores) { Hash.new{ |hash, key| hash[key] = Hash.new(&hash.default_proc) } }
+  let!(:exam_posting) do
+    create(:ieducar_api_exam_posting,
+           school_calendar_step: avaliation.current_step,
+           teacher: teacher_discipline_classroom.teacher)
+  end
+
   let(:request) do
     {
       'etapa' => avaliation.current_step.to_number,
-      'resource' => 'notas',
+      'resource' => 'notas'
     }
   end
   let(:info) do
@@ -68,40 +75,50 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     }
   end
 
+  def build_scores_hash(student_average, recovery_score = nil)
+    scores = { 'nota' => student_average.to_f }
+    scores['recuperacao'] = recovery_score.to_f if recovery_score
+    {
+      classroom.api_code => {
+        daily_note_student.student.api_code => {
+          avaliation.discipline.api_code => scores
+        }
+      }
+    }
+  end
+
   subject { described_class.new(exam_posting, Entity.first.id, 'exam_posting_send') }
 
-  context 'hasnt recovery' do
-    context 'hasnt complementary exams' do
+  context 'has not recovery' do
+    context 'has not complementary exams' do
       it 'queued request score match to daily note student score' do
         subject.post!
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
-        request['notas'] = scores
-        expect(
-          Ieducar::SendPostWorker.jobs.first["args"][2]
-        ).to match(request)
+        request['notas'] = build_scores_hash(daily_note_student.note)
+
+        expect(Ieducar::SendPostWorker.jobs.first['args'][2]).to match(request)
       end
     end
 
     context 'has complementary exams for student' do
       before do
-        complementary_exam_student.complementary_exam.complementary_exam_setting.update_attribute(:affected_score, AffectedScoreTypes::STEP_AVERAGE)
+        complementary_exam_student.complementary_exam
+                                  .complementary_exam_setting
+                                  .update!(affected_score: AffectedScoreTypes::STEP_AVERAGE)
       end
 
       it 'change score of queued request' do
         subject.post!
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = (daily_note_student.note + complementary_exam_student.score).to_f
-        request['notas'] = scores
-        expect(
-          Ieducar::SendPostWorker.jobs.first["args"][2]
-        ).to match(request)
+        student_score = daily_note_student.note + complementary_exam_student.score
+        request['notas'] = build_scores_hash(student_score)
+
+        expect(Ieducar::SendPostWorker.jobs.first['args'][2]).to match(request)
       end
     end
   end
 
-
   context 'has recovery' do
     let(:recovery_student) { recovery_diary_record.students.first }
-    let!(:recovery_diary_record) {
+    let!(:recovery_diary_record) do
       create(
         :current_recovery_diary_record,
         unity: unity,
@@ -116,8 +133,9 @@ RSpec.describe ExamPoster::NumericalExamPoster do
           )
         ]
       )
-    }
-    let!(:school_term_recovery_diary_record) {
+    end
+
+    let!(:school_term_recovery_diary_record) do
       step = StepsFetcher.new(recovery_diary_record.classroom).step_by_date(recovery_diary_record.recorded_at)
       create(
         :current_school_term_recovery_diary_record,
@@ -125,40 +143,32 @@ RSpec.describe ExamPoster::NumericalExamPoster do
         step_id: step.id,
         step_number: step.step_number
       )
-    }
-    context 'hasnt complementary exams' do
+    end
+
+    context 'has not complementary exams' do
       it 'queued request score match to recovery score' do
         subject.post!
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score
-        request['notas'] = scores
+        request['notas'] = build_scores_hash(daily_note_student.note, recovery_student.score)
 
-        expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
-          Entity.first.id,
-          exam_posting.id,
-          request,
-          info
-        )
+        expect(Ieducar::SendPostWorker)
+          .to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request, info)
       end
     end
 
     context 'has complementary exams for student' do
       before do
-        complementary_exam_student.complementary_exam.complementary_exam_setting.update_attribute(:affected_score, AffectedScoreTypes::STEP_RECOVERY_SCORE)
+        complementary_exam_student.complementary_exam
+                                  .complementary_exam_setting
+                                  .update!(affected_score: AffectedScoreTypes::STEP_RECOVERY_SCORE)
       end
 
       it 'change score of queued request' do
         subject.post!
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
-        scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score + complementary_exam_student.score
-        request['notas'] = scores
+        recovery_score = recovery_student.score + complementary_exam_student.score
+        request['notas'] = build_scores_hash(daily_note_student.note, recovery_score)
 
-        expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
-          Entity.first.id,
-          exam_posting.id,
-          request,
-          info
-        )
+        expect(Ieducar::SendPostWorker)
+          .to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request, info)
       end
     end
 
@@ -175,9 +185,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
         .and_return(score_rounder)
         .at_least(:once)
 
-      expect(score_rounder).to receive(:round)
-        .with(anything)
-        .at_least(:once)
+      expect(score_rounder).to receive(:round).with(anything).at_least(:once)
 
       subject.post!
     end
@@ -195,12 +203,9 @@ RSpec.describe ExamPoster::NumericalExamPoster do
 
     it 'does not enqueue the requests' do
       subject.post!
-      scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] =
-        daily_note_student.note.to_f
-      request['notas'] = scores
+      request['notas'] = build_scores_hash(daily_note_student.note)
 
-      expect(Ieducar::SendPostWorker)
-        .not_to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+      expect(Ieducar::SendPostWorker).not_to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
     end
   end
 end
