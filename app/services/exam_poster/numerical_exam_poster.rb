@@ -16,15 +16,15 @@ module ExamPoster
     end
 
     def for_each_postable_teacher_discipline_classroom
-      classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq.compact
-      classroom_ids.each do |classroom_id|
-        teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
-                                               .by_classroom(classroom_id)
-                                               .by_score_type(DISCIPLINE_SCORE_TYPES)
-        teacher_discipline_classrooms.each do |teacher_discipline_classroom|
-          yield(teacher_discipline_classroom) if can_post?(teacher_discipline_classroom.classroom)
-        end
+      teacher_discipline_classrooms.each do |teacher_discipline_classroom|
+        yield(teacher_discipline_classroom) if can_post?(teacher_discipline_classroom.classroom)
       end
+    end
+
+    def teacher_discipline_classrooms
+      teacher.teacher_discipline_classrooms
+             .includes(:classroom)
+             .by_score_type(DISCIPLINE_SCORE_TYPES)
     end
 
     def fetch_students(teacher_discipline_classroom)
