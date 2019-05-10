@@ -71,7 +71,7 @@ module ExamPoster
       ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY).round(score)
     end
 
-    def build_request(teacher_discipline_classroom, student, student_average, recovery_score = nil)
+    def build_request(teacher_discipline_classroom, student, student_average, recovery_score)
       classroom, discipline = fetch_classroom_and_discipline(teacher_discipline_classroom)
       student_scores = { 'nota' => student_average }
       student_scores['recuperacao'] = recovery_score if recovery_score.present?
