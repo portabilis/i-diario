@@ -33,6 +33,7 @@ class StudentEnrollmentSynchronizer < BaseSynchronizer
         student_enrollment.changed_at = student_enrollment_record.updated_at
         student_enrollment.active = student_enrollment_record.ativo
         student_enrollment.save! if student_enrollment.changed?
+        student_enrollment.entity_id = entity_id
 
         student_enrollment.discard_or_undiscard(student_enrollment_record.deleted_at.present?)
       end

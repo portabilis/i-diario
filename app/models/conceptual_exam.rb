@@ -1,6 +1,7 @@
 class ConceptualExam < ActiveRecord::Base
   include Audit
   include Stepable
+  include Discardable
   include TeacherRelationable
 
   teacher_relation_columns only: :classroom
@@ -23,6 +24,8 @@ class ConceptualExam < ActiveRecord::Base
   accepts_nested_attributes_for :conceptual_exam_values, allow_destroy: true
 
   has_enumeration_for :status, with: ConceptualExamStatus, create_helpers: true
+
+  default_scope -> { kept }
 
   scope :by_unity, ->(unity) { joins(:classroom).where(classrooms: { unity_id: unity }) }
   scope :by_classroom, ->(classroom) { where(classroom: classroom) }
