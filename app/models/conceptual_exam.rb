@@ -99,6 +99,7 @@ class ConceptualExam < ActiveRecord::Base
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
+      self.validation_type = :destroy
       valid?
       !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end
@@ -136,7 +137,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def uniqueness_of_student
-    return if step.blank? || student_id.blank?
+    return if step.blank? || student_id.blank? || validation_type == :destroy
 
     discipline_ids = conceptual_exam_values.collect(&:discipline_id)
     conceptual_exam = ConceptualExam.joins(:conceptual_exam_values)

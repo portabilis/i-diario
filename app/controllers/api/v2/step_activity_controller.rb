@@ -1,6 +1,6 @@
 module Api
   module V2
-    class StepActivityController < Api::V2::IeducarApiBaseController
+    class StepActivityController < Api::V2::AuthenticatedApiBaseController
       respond_to :json
 
       def check
