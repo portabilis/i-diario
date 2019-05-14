@@ -26,7 +26,7 @@ class ObservationDiaryRecordsUndiscardWorker < BaseStudentDependenciesDiscarderW
 
     undiscard_observation_diary_record_notes(observation_diary_record_notes)
 
-    note_students_to_undiscard.each(&:undiscard)
+    note_students_to_undiscard.undiscard_all
   end
 
   def undiscard_observation_diary_record_notes(observation_diary_record_notes)
