@@ -9,9 +9,15 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
 
   has_enumeration_for :period, with: Periods, skip_validation: true
 
+  attr_accessor :entity_id
+
+  after_discard { StudentDependenciesDiscarder.discard(entity_id, student_enrollment_id) }
+  after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, student_enrollment_id) }
+
   default_scope -> { kept }
 
   scope :by_classroom, ->(classroom_id) { where(classroom_id: classroom_id) }
+  scope :by_year, ->(year) { where('EXTRACT(YEAR FROM CAST(joined_at AS DATE)) = ?', year) }
   scope :by_date, lambda { |date|
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }

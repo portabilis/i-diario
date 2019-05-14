@@ -10,6 +10,11 @@ class StudentEnrollment < ActiveRecord::Base
   has_many :dependences, class_name: 'StudentEnrollmentDependence'
   has_many :exempted_disciplines, class_name: 'StudentEnrollmentExemptedDiscipline'
 
+  attr_accessor :entity_id
+
+  after_discard { StudentDependenciesDiscarder.discard(entity_id, id) }
+  after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, id) }
+
   default_scope -> { kept }
 
   scope :by_classroom, lambda { |classroom_id| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_classroom(classroom_id)) }
@@ -17,6 +22,9 @@ class StudentEnrollment < ActiveRecord::Base
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}
   scope :by_opinion_type, lambda {|opinion_type, classroom_id| by_opinion_type_query(opinion_type, classroom_id)}
   scope :by_student, lambda { |student_id| where(student_id: student_id) }
+  scope :by_year, lambda { |year|
+    joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_year(year))
+  }
   scope :by_date, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date(date)) }
   scope :by_date_range, lambda { |start_at, end_at| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_range(start_at, end_at)) }
   scope :by_date_not_before, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_not_before(date)) }

@@ -62,6 +62,8 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
           changed_student_enrollment_classrooms << [student_enrollment.student_id, classroom_id]
         end
 
+        student_enrollment_classroom.entity_id = entity_id
+
         student_enrollment_classroom.discard_or_undiscard(student_enrollment_classroom_record.deleted_at.present?)
       end
     end

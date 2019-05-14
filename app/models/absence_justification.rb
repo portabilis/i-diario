@@ -1,6 +1,7 @@
 class AbsenceJustification < ActiveRecord::Base
   include Audit
   include Filterable
+  include Discardable
   include TeacherRelationable
 
   teacher_relation_columns only: [:classroom, :discipline]
@@ -37,6 +38,8 @@ class AbsenceJustification < ActiveRecord::Base
 
   validate :period_absence
   validate :no_retroactive_dates
+
+  default_scope -> { kept }
 
   scope :ordered, -> { order(absence_date: :desc) }
   scope :by_teacher, ->(teacher_id) { where(teacher_id: teacher_id)  }
