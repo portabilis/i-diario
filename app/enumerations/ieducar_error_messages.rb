@@ -7,5 +7,6 @@ class IeducarErrorMessages < EnumerateIt::Base
                    exam_score_higher_than_allowed: 1005,
                    student_not_enrolled_in_classroom: 1006,
                    exam_rule_not_defined_for_grade: 1007,
-                   exam_rule_dont_allow_general_absence: 1008
+                   exam_rule_dont_allow_general_absence: 1008,
+                   discipline_dont_enrolled_in_school_levels: 1009
 end
