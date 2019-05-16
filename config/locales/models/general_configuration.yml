@@ -7,12 +7,8 @@ pt-BR:
       general_configuration:
         security_level: "Nível de segurança"
         backup_file: "Último backup"
-        students_default_role: "Permissão padrão para alunos"
         employees_default_role: "Permissão padrão para servidores"
-        parents_default_role: "Permissão padrão para pais"
-        students_default_role_id: "Permissão padrão para alunos"
         employees_default_role_id: "Permissão padrão para servidores"
-        parents_default_role_id: "Permissão padrão para pais"
         allows_after_sales_relationship: "Permite relacionamento direto no pós-venda?"
         display_header_on_all_reports_pages: "Exibir cabeçalho em todas as páginas nos relatórios do diário do professor"
         max_descriptive_exam_character_count: "Quantidade máxima de caracteres permitidos em avaliações descritivas"
