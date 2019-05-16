@@ -91,9 +91,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   def clone
     @form = KnowledgeAreaContentRecordClonerForm.new(clone_params.merge(teacher: current_teacher))
 
-    if @form.clone!
-      flash[:success] = "Registro de conteúdo por área de conhecimento copiado com sucesso!"
-    end
+    flash[:success] = t('messages.copy_succeed') if @form.clone!
   end
 
   private
@@ -176,7 +174,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   helper_method :classrooms
 
   def knowledge_areas
-    @knowledge_areas = KnowledgeArea.ordered
+    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
   end
   helper_method :knowledge_areas
 end

@@ -38,4 +38,9 @@ class IeducarApiConfigurationsController < ApplicationController
       :url, :token, :secret_token, :unity_code
     )
   end
+
+  def show_configuration_form?
+    current_user.can_change?('ieducar_api_configurations')
+  end
+  helper_method :show_configuration_form?
 end

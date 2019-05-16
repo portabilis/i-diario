@@ -40,7 +40,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
           @knowledge_area_lesson_plan,
           current_teacher
         )
-        send_pdf(t("routes.knowledge_area_lesson_plans"), knowledge_area_lesson_plan_pdf.render)
+        send_pdf(t('routes.knowledge_area_lesson_plans'), knowledge_area_lesson_plan_pdf.render)
       end
     end
   end
@@ -56,7 +56,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     authorize @knowledge_area_lesson_plan
 
     @unities = fetch_unities
-    @classrooms =  fetch_classrooms
+    @classrooms = fetch_classrooms
     @knowledge_areas = fetch_knowledge_area
   end
 
@@ -74,7 +74,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
       @unities = fetch_unities
-      @classrooms =  fetch_classrooms
+      @classrooms = fetch_classrooms
       @knowledge_areas = fetch_knowledge_area
 
       render :new
@@ -87,7 +87,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     authorize @knowledge_area_lesson_plan
 
     @unities = fetch_unities
-    @classrooms =  fetch_classrooms
+    @classrooms = fetch_classrooms
     @knowledge_areas = fetch_knowledge_area
   end
 
@@ -103,7 +103,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
       @unities = fetch_unities
-      @classrooms =  fetch_classrooms
+      @classrooms = fetch_classrooms
       @knowledge_areas = fetch_knowledge_area
 
       render :edit
@@ -128,9 +128,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
   def clone
     @form = KnowledgeAreaLessonPlanClonerForm.new(clone_params.merge(teacher: current_teacher))
-    if @form.clone!
-      flash[:success] = "Plano de aula por área de conhecimento copiado com sucesso!"
-    end
+
+    flash[:success] = t('messages.copy_succeed') if @form.clone!
   end
 
   private
@@ -188,11 +187,10 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.where(id: current_user_classroom)
-    .ordered
+    Classroom.where(id: current_user_classroom).ordered
   end
 
   def fetch_knowledge_area
-    KnowledgeArea.all
+    KnowledgeArea.by_teacher(current_teacher).ordered
   end
 end

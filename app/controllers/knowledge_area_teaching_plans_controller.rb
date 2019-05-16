@@ -29,8 +29,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def show
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
 
     authorize @knowledge_area_teaching_plan
 
@@ -42,7 +41,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
           current_entity_configuration,
           @knowledge_area_teaching_plan
         )
-        send_pdf(t("routes.knowledge_area_teaching_plans"), knowledge_area_teaching_plan_pdf.render)
+        send_pdf(t('routes.knowledge_area_teaching_plans'), knowledge_area_teaching_plan_pdf.render)
       end
     end
   end
@@ -77,8 +76,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def edit
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
 
     authorize @knowledge_area_teaching_plan
 
@@ -104,8 +102,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def destroy
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
 
     authorize @knowledge_area_teaching_plan
 
@@ -168,14 +165,14 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_user_unity)
-      .by_year(current_school_calendar.year)
-      .ordered
-    @grades = @grades.where(id: current_user_classroom.try(:grade_id))
-                     .ordered unless current_user_is_employee_or_administrator?
+    @grades = Grade.by_unity(current_user_unity).by_year(current_school_calendar.year).ordered
+
+    return if current_user_is_employee_or_administrator?
+
+    @grades = @grades.where(id: current_user_classroom.try(:grade_id)).ordered
   end
 
   def fetch_knowledge_areas
-    @knowledge_areas = KnowledgeArea.ordered
+    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
   end
 end
