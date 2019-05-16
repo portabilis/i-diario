@@ -31,6 +31,22 @@ module Api
         @calendar_step.end_at
       ).by_classroom_id(@classroom.id).exists?
 
+      return true if recoveries_in_step(
+        @calendar_step.start_at,
+        @calendar_step.end_at
+      ).by_classroom_id(@classroom.id).exists?
+
+      return true if transfer_notes_in_step(
+        @calendar_step.start_at,
+        @calendar_step.end_at
+      ).by_classroom_id(@classroom.id).exists?
+
+      return true if complementary_exams_in_step(
+        @step_number,
+        @calendar_step.start_at,
+        @calendar_step.end_at
+      ).by_classroom_id(@classroom.id).exists?
+
       false
     end
 

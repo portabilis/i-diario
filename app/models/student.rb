@@ -9,6 +9,16 @@ class Student < ActiveRecord::Base
 
   has_many :student_biometrics
   has_many :student_enrollments
+  has_many :absence_justifications
+  has_many :avaliation_exemptions
+  has_many :complementary_exam_students
+  has_many :conceptual_exams
+  has_many :daily_frequency_students
+  has_many :daily_note_students
+  has_many :descriptive_exam_students
+  has_many :observation_diary_record_note_students
+  has_many :recovery_diary_record_students
+  has_many :transfer_notes
 
   attr_accessor :exempted_from_discipline
 

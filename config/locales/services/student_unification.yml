@@ -1,0 +1,6 @@
+pt-BR:
+  services:
+    student_unification:
+      delete_error: 'Erro ao excluir aluno'
+      unification_error: 'Erro ao realizar unificação'
+      unexpected_error: 'Ocorreu um erro'
