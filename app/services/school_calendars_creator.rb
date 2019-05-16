@@ -51,7 +51,8 @@ class SchoolCalendarsCreator
     school_calendar = SchoolCalendar.create!(
       year: school_calendar['year'],
       unity_id: school_calendar['unity_id'],
-      number_of_classes: school_calendar['number_of_classes']
+      number_of_classes: school_calendar['number_of_classes'],
+      step_type_description: school_calendar['step_type_description']
     )
 
     school_calendar
@@ -74,7 +75,8 @@ class SchoolCalendarsCreator
     calendars_for_classrooms.each do |classroom_params|
       school_calendar_classroom = SchoolCalendarClassroom.create!(
         school_calendar: school_calendar,
-        classroom: Classroom.find_by_id(classroom_params['id'])
+        step_type_description: classroom_params['step_type_description'],
+        classroom: Classroom.find_by(id: classroom_params['id'])
       )
       classroom_steps = classroom_params['steps'] || []
       create_school_calendar_classroom_steps!(classroom_steps, school_calendar_classroom)

@@ -76,8 +76,8 @@ class ContentsForDisciplineRecordFetcher
 
   def school_term
     step = steps_fetcher.step_by_date(@date.to_date)
-    school_term = step.try(:raw_school_term) || ''
-    school_term = '' if school_term == SchoolTermTypes::YEARLY
+    school_term = SchoolTermConverter.convert(step)
+    school_term = '' if school_term.to_s == SchoolTermTypes::YEARLY.to_s
     school_term
   end
 end

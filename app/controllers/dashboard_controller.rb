@@ -17,14 +17,17 @@ class DashboardController < ApplicationController
   end
 
   def fetch_current_school_calendar_step
-    @current_school_calendar_step = dashboard_current_school_calendar.step(Time.zone.today).try(:id)
-  end
-
-  def dashboard_current_school_calendar
-    CurrentSchoolCalendarFetcher.new(current_user_unity, nil).fetch
+    return if current_user_classroom.blank?
+    @current_school_calendar_step = steps_fetcher.step_by_date(Time.zone.today).try(:id)
   end
 
   def current_school_calendar_steps
-    dashboard_current_school_calendar.try(:steps) || []
+    return [] if current_user_classroom.blank?
+
+    steps_fetcher.steps
+  end
+
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 end
