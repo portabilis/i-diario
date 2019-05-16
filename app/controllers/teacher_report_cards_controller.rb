@@ -3,7 +3,7 @@ class TeacherReportCardsController < ApplicationController
 
   def form
     @teacher_report_card_form = TeacherReportCardForm.new(unity_id: current_user_unity.id)
-    @teacher_report_card_form.status = 0
+    @teacher_report_card_form.status = TeacherReportCardStatus::ALL
     authorize(TeacherReportCard, :show?)
   end
 
