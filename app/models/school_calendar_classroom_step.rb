@@ -48,7 +48,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
       TestSetting.arel_table[:year].eq(school_calendar_classroom.school_calendar.year)
         .and(
           TestSetting.arel_table[:exam_setting_type].eq(ExamSettingTypes::GENERAL)
-          .or(TestSetting.arel_table[:school_term].eq())
+          .or(TestSetting.arel_table[:school_term].eq(school_term))
         )
     )
     .order(school_term: :desc)
