@@ -68,6 +68,16 @@ class ExamRecordReportForm
       .order(recorded_at: :asc)
   end
 
+  def school_term_recoveries
+    @school_term_recoveries ||= SchoolTermRecoveryDiaryRecord
+      .includes(:recovery_diary_record)
+      .by_unity_id(unity_id)
+      .by_classroom_id(classroom_id)
+      .by_discipline_id(discipline_id)
+      .by_recorded_at((classroom_step || step).start_at...(classroom_step || step).end_at)
+      .order(recorded_at: :asc)
+  end
+
   private
 
   def must_have_daily_notes

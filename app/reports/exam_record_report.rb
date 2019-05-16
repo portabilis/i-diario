@@ -9,11 +9,11 @@ class ExamRecordReport < BaseReport
   # This factor represent the quantitty of students with social name needed to reduce 1 student by page
   SOCIAL_NAME_REDUCTION_FACTOR = 3
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
-    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
+    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -22,6 +22,7 @@ class ExamRecordReport < BaseReport
     @daily_notes = daily_notes
     @students_enrollments = students_enrollments
     @complementary_exams = complementary_exams
+    @school_term_recoveries = school_term_recoveries
 
     header
     content
@@ -107,6 +108,10 @@ class ExamRecordReport < BaseReport
       exams << complementary_exam
     end
 
+    @school_term_recoveries.each do |school_term_recovery|
+      exams << school_term_recovery
+    end
+
     exams.to_a
     sliced_exams = exams.each_slice(10).to_a
     pos = 0
@@ -122,6 +127,9 @@ class ExamRecordReport < BaseReport
           daily_note_id = recoveries_ids[pos]
           pos += 1
         elsif complementary_exam_record(exam)
+          avaliation_id = nil
+          daily_note_id = nil
+        elsif school_term_recovery_record(exam)
           avaliation_id = nil
           daily_note_id = nil
         else
@@ -152,6 +160,12 @@ class ExamRecordReport < BaseReport
           elsif complementary_exam_record(exam)
             complementary_student = ComplementaryExamStudent.find_by(complementary_exam_id: exam.id, student_id: student_id)
             score = complementary_student.present? ? complementary_student.try(:score) : NullDailyNoteStudent.new.note
+          elsif school_term_recovery_record(exam)
+            recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student_id, recovery_diary_record_id: exam.recovery_diary_record_id)
+            score = recovery_student.present? ? recovery_student.try(:score) : NullDailyNoteStudent.new.note
+            if recovery_student.try(:score).present? && recovery_student.score > averages[student_enrollment.student_id]
+              averages[student_enrollment.student_id] =  recovery_student.score
+            end
           end
 
           student = Student.find(student_id)
@@ -294,6 +308,10 @@ class ExamRecordReport < BaseReport
     record.class.to_s == "ComplementaryExam"
   end
 
+  def school_term_recovery_record(record)
+    record.class.to_s == "SchoolTermRecoveryDiaryRecord"
+  end
+
   def localize_score(value)
     return value unless value.is_a? Numeric
     number_with_precision(value, precision: @test_setting.number_of_decimal_places||1)
@@ -311,6 +329,8 @@ class ExamRecordReport < BaseReport
       "Rec. #{record.avaliation_recovery_diary_record.avaliation}\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}</font>"
     elsif complementary_exam_record(record)
       "#{record.complementary_exam_setting.description}\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}\n#{record.complementary_exam_setting.maximum_score}</font>"
+    elsif school_term_recovery_record(record)
+      "Recuperação da etapa\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}"
     else
       "#{record.avaliation.to_s}\n<font size='7'>#{record.test_date.strftime("%d/%m")}</font>\n<font size='7'>#{record.avaliation.try(:weight)}</font>"
     end
