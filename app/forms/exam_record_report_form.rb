@@ -70,7 +70,7 @@ class ExamRecordReportForm
 
   def school_term_recoveries
     @school_term_recoveries ||= SchoolTermRecoveryDiaryRecord
-      .includes(:recovery_diary_record)
+      .includes(recovery_diary_record: :discipline)
       .by_unity_id(unity_id)
       .by_classroom_id(classroom_id)
       .by_discipline_id(discipline_id)
