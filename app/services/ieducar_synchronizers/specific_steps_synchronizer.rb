@@ -2,7 +2,10 @@ class SpecificStepsSynchronizer < BaseSynchronizer
   def synchronize!
     update_specific_steps(
       HashDecorator.new(
-        api.fetch['etapas']
+        api.fetch(
+          ano: year,
+          escola: unity_api_code
+        )['etapas']
       )
     )
   end

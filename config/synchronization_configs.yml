@@ -75,8 +75,8 @@ synchronizers:
     ]
   -
     klass: SpecificStepsSynchronizer
-    by_year: false
-    by_unity: false
+    by_year: true
+    by_unity: true
     dependencies: [
       DisciplinesSynchronizer,
       ClassroomsSynchronizer
