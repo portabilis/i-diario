@@ -13,8 +13,6 @@ $(function () {
   var $avaliation = $('#avaliation_exemption_avaliation_id');
   var $student = $('#avaliation_exemption_student_id');
   var $avaliation_date = $('#avaliation_exemption_avaliation_date');
-  var $classroomStepContainer = $('[classroom-step-container]');
-  var $schoolStepContainer = $('[school-step-container]');
 
   $course.on('change', function(){
     fetchGrades();
