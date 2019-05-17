@@ -40,7 +40,8 @@ class ConceptualExam < ActiveRecord::Base
         unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
     )
   }
-  scope :ordered, -> {
+  scope :ordered, -> { order(recorded_at: :desc) }
+  scope :ordered_by_date_and_student, -> {
     joins(:student)
     .order(recorded_at: :desc)
     .order(Student.arel_table[:name])
