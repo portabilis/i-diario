@@ -40,7 +40,12 @@ class ConceptualExam < ActiveRecord::Base
         unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
     )
   }
-  scope :ordered, -> { order(recorded_at: :desc) }
+  scope :ordered, -> {
+    joins(:student)
+    .order(recorded_at: :desc)
+    .order(Student.arel_table[:name])
+    .select(Student.arel_table[:name])
+  }
 
   validates :student, :unity_id, presence: true
   validate :student_must_have_conceptual_exam_score_type
