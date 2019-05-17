@@ -1,2 +1,2 @@
 general_configuration:
-  employees_default_role: secretary
+  employee_default_role_id: secretary

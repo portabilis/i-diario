@@ -7,13 +7,3 @@ secretary:
   name: "Secretária"
   access_level: "teacher"
   author: john_doe
-
-parent:
-  name: "Pais"
-  access_level: "parent"
-  author: john_doe
-
-student:
-  name: "Aluno"
-  access_level: "student"
-  author: john_doe
