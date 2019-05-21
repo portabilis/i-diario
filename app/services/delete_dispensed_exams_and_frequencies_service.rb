@@ -55,9 +55,13 @@ class DeleteDispensedExamsAndFrequenciesService
                                         .by_step_number(step_number)
                                         .pluck(:id)
 
-    ConceptualExamValue.by_discipline_id(@discipline_id)
-                       .by_conceptual_exam_id(conceptual_exam_ids)
-                       .destroy_all
+    conceptual_exam_values = ConceptualExamValue.by_discipline_id(@discipline_id)
+                                                .by_conceptual_exam_id(conceptual_exam_ids)
+
+    conceptual_exam_values.each do |conceptual_exam_value|
+      conceptual_exam_value.conceptual_exam.validation_type = :destroy
+      conceptual_exam_value.destroy
+    end
   end
 
   def destroy_invalid_descriptive_exams(student_id, classroom_id, step_number)
