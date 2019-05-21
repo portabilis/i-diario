@@ -18,7 +18,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     end
 
     context 'with a relocation within the same classroom' do
-      it 'returns the classroom enrollment with higer api_code' do
+      it 'returns the classroom enrollment with higher api_code' do
         student_enrollment = create_student_enrollment
         create_student_enrollment_classroom(
           student_enrollment,
@@ -32,7 +32,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     end
 
     context 'with a transference within the same classroom' do
-      it 'returns the enrollment with higer id' do
+      it 'returns the enrollment with higher id' do
         student_enrollment = create_student_enrollment(4)
         create_student_enrollment_classroom(
           student_enrollment,
@@ -47,7 +47,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     end
 
     context 'with a reclassification within the same classroom' do
-      it 'returns the enrollment with higer id' do
+      it 'returns the enrollment with higher id' do
         student_enrollment = create_student_enrollment(5)
         create_student_enrollment_classroom(
           student_enrollment,
@@ -62,7 +62,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     end
 
     context 'with a relocation and a transference within the same classroom' do
-      it 'returns the enrollment with higer id' do
+      it 'returns the enrollment with higher id' do
         student_enrollment = create_student_enrollment
         create_student_enrollment_classroom(
           student_enrollment,
@@ -77,7 +77,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     end
 
     context 'with a relocation and a reclassification within the same classroom' do
-      it 'returns the enrollment with higer id' do
+      it 'returns the enrollment with higher id' do
         student_enrollment = create_student_enrollment
         create_student_enrollment_classroom(
           student_enrollment,
@@ -92,7 +92,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     end
 
     context 'with a transference and a relocation within the same classroom' do
-      it 'returns the classroom enrollment with higer api_code' do
+      it 'returns the classroom enrollment with higher api_code' do
         student_enrollment = create_student_enrollment(4)
         create_student_enrollment_classroom(
           student_enrollment,
@@ -107,7 +107,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     end
 
     context 'with a transference and a reclassification within the same classroom' do
-      it 'returns the enrollment with higer id' do
+      it 'returns the enrollment with higher id' do
         student_enrollment = create_student_enrollment(4)
         create_student_enrollment_classroom(
           student_enrollment,
@@ -122,7 +122,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     end
 
     context 'with a reclassification and a relocation within the same classroom' do
-      it 'returns the classroom enrollment with higer api_code' do
+      it 'returns the classroom enrollment with higher api_code' do
         student_enrollment = create_student_enrollment(5)
         create_student_enrollment_classroom(
           student_enrollment,
@@ -136,7 +136,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     end
 
     context 'with a reclassification and a transference within the same classroom' do
-      it 'returns the enrollment with higer id' do
+      it 'returns the enrollment with higher id' do
         student_enrollment = create_student_enrollment(5)
         create_student_enrollment_classroom(
           student_enrollment,
