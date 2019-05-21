@@ -20,7 +20,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :active, lambda {
     joins(:student_enrollment).where(student_enrollments: { active: IeducarBooleanState::ACTIVE })
   }
-  scope :ordered, -> { joins(:student_enrollment).order('student_enrollments.id', :api_code, :joined_at) }
+  scope :ordered, -> { order(:student_enrollment_id, :api_code, :joined_at) }
 
   def self.by_date_range(start_at, end_at)
     where("(CASE
