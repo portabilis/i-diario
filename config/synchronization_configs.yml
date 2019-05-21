@@ -2,7 +2,7 @@ synchronizers:
   -
     klass: StudentsSynchronizer
     by_year: false
-    by_unity: false
+    by_unity: true
     dependents: [
       StudentEnrollmentSynchronizer
     ]
