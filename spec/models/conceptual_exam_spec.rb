@@ -43,4 +43,43 @@ RSpec.describe ConceptualExam, type: :model do
       end
     end
   end
+
+  describe '#merge_conceptual_exam_values' do
+    it 'overrides the new value over the persisted one' do
+      subject.save!(validate: false)
+      conceptual_exam_value = create(:conceptual_exam_value, value: 100, conceptual_exam: subject)
+      expect(subject.conceptual_exam_values.first.value).to eq 100
+
+      attributes = {
+        conceptual_exam_values_attributes: {
+          '1' => {
+            discipline_id: conceptual_exam_value.discipline_id,
+            value: 200
+          },
+          '2' => {
+            discipline_id: Discipline.first.id,
+            value: 300
+          }
+        }
+      }
+      subject.assign_attributes(attributes)
+
+      subject.merge_conceptual_exam_values
+
+      expect(subject.conceptual_exam_values.size).to eq 2
+      expect(subject.conceptual_exam_values.first.value).to eq 200
+      expect(subject.conceptual_exam_values.last.value).to eq 300
+    end
+
+    it 'maintains only the persited if do not have new values' do
+      subject.save!(validate: false)
+      create(:conceptual_exam_value, value: 100, conceptual_exam: subject)
+      expect(subject.conceptual_exam_values.first.value).to eq 100
+
+      subject.merge_conceptual_exam_values
+
+      expect(subject.conceptual_exam_values.size).to eq 1
+      expect(subject.conceptual_exam_values.first.value).to eq 100
+    end
+  end
 end

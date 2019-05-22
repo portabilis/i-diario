@@ -55,6 +55,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = find_or_initialize_conceptual_exam
     authorize @conceptual_exam
     @conceptual_exam.assign_attributes(resource_params)
+    @conceptual_exam.merge_conceptual_exam_values
     @conceptual_exam.step_number = @conceptual_exam.step.try(:step_number)
     @conceptual_exam.teacher_id = current_teacher_id
 
