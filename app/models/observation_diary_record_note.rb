@@ -8,11 +8,10 @@ class ObservationDiaryRecordNote < ActiveRecord::Base
   has_associated_audits
 
   belongs_to :observation_diary_record, -> { with_discarded }, inverse_of: :notes
-  has_many(
-    :note_students,
-    class_name: 'ObservationDiaryRecordNoteStudent',
-    dependent: :destroy
-  )
+  has_many :note_students, -> { with_discarded },
+           class_name: 'ObservationDiaryRecordNoteStudent',
+           dependent: :destroy,
+           inverse_of: :observation_diary_record_note
   has_many :students, through: :note_students
 
   default_scope -> { kept }
