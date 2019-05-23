@@ -28,6 +28,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
         discard_inexisting_teacher_discipline_classrooms(
           teacher_discipline_classroom_record.id,
+          teacher_discipline_classroom_record.tipo_nota,
           existing_discipline_api_codes
         )
       end
@@ -55,13 +56,13 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       discipline_id: discipline_id,
       discipline_api_code: discipline_api_code,
       classroom_id: classroom_id,
-      classroom_api_code: teacher_discipline_classroom_record.turma_id
+      classroom_api_code: teacher_discipline_classroom_record.turma_id,
+      score_type: teacher_discipline_classroom_record.tipo_nota
     ).tap do |teacher_discipline_classroom|
       teacher_discipline_classroom.allow_absence_by_discipline =
         teacher_discipline_classroom_record.permite_lancar_faltas_componente
       teacher_discipline_classroom.changed_at = teacher_discipline_classroom_record.updated_at
       teacher_discipline_classroom.period = teacher_discipline_classroom_record.turno_id
-      teacher_discipline_classroom.score_type = teacher_discipline_classroom_record.tipo_nota
       teacher_discipline_classroom.active = true if teacher_discipline_classroom.active.nil?
       teacher_discipline_classroom.save! if teacher_discipline_classroom.changed?
 
@@ -69,18 +70,21 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     end
   end
 
-  def discard_inexisting_teacher_discipline_classrooms(api_code, existing_discipline_api_codes)
-    teacher_discipline_classrooms_to_discard(
+  def discard_inexisting_teacher_discipline_classrooms(api_code, score_type, existing_discipline_api_codes)
+    teacher_discipline_classrooms_to_discard = teacher_discipline_classrooms_to_discard(
       api_code,
+      score_type,
       existing_discipline_api_codes
-    ).each do |teacher_discipline_classroom|
+    )
+
+    teacher_discipline_classrooms_to_discard.each do |teacher_discipline_classroom|
       teacher_discipline_classroom.discard_or_undiscard(true)
     end
   end
 
-  def teacher_discipline_classrooms_to_discard(api_code, existing_discipline_api_codes)
+  def teacher_discipline_classrooms_to_discard(api_code, score_type, existing_discipline_api_codes)
     TeacherDisciplineClassroom.unscoped
-                              .where(api_code: api_code)
+                              .where(api_code: api_code, score_type: score_type)
                               .where.not(discipline_api_code: existing_discipline_api_codes)
   end
 end
