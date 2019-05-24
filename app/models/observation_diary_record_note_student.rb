@@ -6,7 +6,7 @@ class ObservationDiaryRecordNoteStudent < ActiveRecord::Base
   audited except: [:observation_diary_record_note_id],
           associated_with: :observation_diary_record_note
 
-  belongs_to :observation_diary_record_note, -> { with_discarded }, inverse_of: :note_students
+  belongs_to :observation_diary_record_note, inverse_of: :note_students
   belongs_to :student
 
   default_scope -> { kept }

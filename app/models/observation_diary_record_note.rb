@@ -7,8 +7,8 @@ class ObservationDiaryRecordNote < ActiveRecord::Base
           except: [:observation_diary_record_id]
   has_associated_audits
 
-  belongs_to :observation_diary_record, -> { with_discarded }, inverse_of: :notes
-  has_many :note_students, -> { with_discarded },
+  belongs_to :observation_diary_record, inverse_of: :notes
+  has_many :note_students,
            class_name: 'ObservationDiaryRecordNoteStudent',
            dependent: :destroy,
            inverse_of: :observation_diary_record_note
