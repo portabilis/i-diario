@@ -20,7 +20,7 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
       student_enrollment = student_enrollment(exempted_discipline_record.matricula_id)
       discipline_id = discipline(exempted_discipline_record.disciplina_id).try(&:id)
 
-      next if student_enrollment.blank? || discipline_id.blank? || exempted_discipline_record.etapas.blank?
+      next if student_enrollment.blank? || discipline_id.blank?
 
       StudentEnrollmentExemptedDiscipline.with_discarded.find_or_initialize_by(
         student_enrollment_id: student_enrollment.id,
@@ -28,10 +28,13 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
       ).tap do |exempted_discipline|
         exempted_discipline.steps = exempted_discipline_record.etapas
 
+        discard_exempted_discipline = exempted_discipline_record.deleted_at.present? ||
+                                      exempted_discipline_record.etapas.blank?
+
         if exempted_discipline.changed?
           exempted_discipline.save!
 
-          if exempted_discipline_record.deleted_at.blank?
+          unless discard_exempted_discipline
             changed_student_enrollment_exempted_disciplines << [
               student_enrollment.id,
               discipline_id,
@@ -40,7 +43,7 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
           end
         end
 
-        exempted_discipline.discard_or_undiscard(exempted_discipline_record.deleted_at.present?)
+        exempted_discipline.discard_or_undiscard(discard_exempted_discipline)
       end
     end
 
