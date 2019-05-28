@@ -194,24 +194,6 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     text_box_truncate('Referências', (@knowledge_area_lesson_plan.lesson_plan.bibliography || '-'))
   end
 
-  def text_box_truncate(title, information)
-    start_new_page if cursor < 45
-
-    draw_text(title, size: 8, style: :bold, at: [5, cursor - 10])
-
-    begin
-      text_height = height_of(information, width: bounds.width - 10, size: 10) + 30
-      box_height = (text_height > cursor ? cursor : text_height)
-
-      bounding_box([0, cursor], width: bounds.width, height: box_height - 5) do
-        stroke_bounds
-        information = text_box(information, width: bounds.width - 10, overflow: :truncate, size: 10, at: [5, box_height - 20])
-      end
-
-      start_new_page unless information.blank?
-    end while information.present?
-  end
-
   def additional_information
     additional_information_table_data = [
       [@additional_information_header_cell],
