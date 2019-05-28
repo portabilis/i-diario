@@ -1,9 +1,11 @@
 class Deficiency < ActiveRecord::Base
+  include Audit
   include Discardable
 
   audited
 
-  include Audit
+  has_many :deficiency_students, dependent: :destroy
+  has_many :students, through: :deficiency_students
 
   validates :name, presence: true
 

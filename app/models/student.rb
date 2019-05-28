@@ -21,6 +21,8 @@ class Student < ActiveRecord::Base
   has_many :observation_diary_record_note_students
   has_many :recovery_diary_record_students
   has_many :transfer_notes
+  has_many :deficiency_students, dependent: :destroy
+  has_many :deficiencies, through: :deficiency_students
 
   attr_accessor :exempted_from_discipline
 

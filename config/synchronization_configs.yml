@@ -4,7 +4,8 @@ synchronizers:
     by_year: false
     by_unity: true
     dependents: [
-      StudentEnrollmentSynchronizer
+      StudentEnrollmentSynchronizer,
+      DeficienciesSynchronizer
     ]
   -
     klass: KnowledgeAreasSynchronizer
@@ -37,7 +38,10 @@ synchronizers:
   -
     klass: DeficienciesSynchronizer
     by_year: false
-    by_unity: false
+    by_unity: true
+    dependencies: [
+      StudentsSynchronizer
+    ]
   -
     klass: DisciplinesSynchronizer
     by_year: false
