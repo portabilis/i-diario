@@ -88,7 +88,7 @@ module ExamPoster
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           next unless can_post?(classroom)
-          next unless frequency_by_discipline?(classroom)
+          next unless classroom_frequency_by_discipline?(classroom)
 
           discipline = teacher_discipline_classroom.discipline
           start_date = step_start_at(classroom)
@@ -179,6 +179,10 @@ module ExamPoster
         classroom,
         teacher
       )
+    end
+
+    def classroom_frequency_by_discipline?(classroom)
+      classroom.exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
     end
   end
 end
