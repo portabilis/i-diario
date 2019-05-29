@@ -24,10 +24,8 @@ class StudentsUpdateUsesDifferentiatedExamRuleWorker
   end
 
   def perform_by_student(student, unity_id)
-    student.with_lock do
-      student.uses_differentiated_exam_rule = uses_differentiated_exam_rule(student, unity_id)
-      student.save! if student.changed?
-    end
+    student.uses_differentiated_exam_rule = uses_differentiated_exam_rule(student, unity_id)
+    student.save! if student.changed?
   end
 
   def uses_differentiated_exam_rule(student, unity_id)
