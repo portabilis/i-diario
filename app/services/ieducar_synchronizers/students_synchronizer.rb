@@ -25,6 +25,7 @@ class StudentsSynchronizer < BaseSynchronizer
         student.avatar_url = student_record.foto_aluno
         student.birth_date = student_record.data_nascimento
         student.api = true
+        student.uses_differentiated_exam_rule = false if student.uses_differentiated_exam_rule.nil?
         student.save! if student.changed?
 
         student.discard_or_undiscard(student_record.deleted_at.present?)

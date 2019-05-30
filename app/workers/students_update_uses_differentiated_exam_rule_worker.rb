@@ -1,6 +1,8 @@
 class StudentsUpdateUsesDifferentiatedExamRuleWorker
   include Sidekiq::Worker
 
+  sidekiq_options unique: :until_and_while_executing, queue: :low
+
   def perform(params)
     params = params.with_indifferent_access
 
