@@ -8,8 +8,16 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     @knowledge_area_teaching_plan = knowledge_area_teaching_plan
     attributes
 
-    header
-    body
+    if @display_header_on_all_reports_pages
+      header
+      body
+    else
+      bounding_box([0, cursor], width: bounds.width, height: bounds.height - GAP) do
+        header
+        body
+      end
+    end
+
     footer
 
     self
