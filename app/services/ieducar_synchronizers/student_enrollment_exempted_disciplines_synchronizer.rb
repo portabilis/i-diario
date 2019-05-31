@@ -2,7 +2,10 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
     update_exempted_disciplines(
       HashDecorator.new(
-        api.fetch['dispensas']
+        api.fetch(
+          ano: year,
+          escola: unity_api_code
+        )['dispensas']
       )
     )
   end

@@ -2,9 +2,7 @@ class ExamRulesSynchronizer < BaseSynchronizer
   def synchronize!
     update_exam_rules(
       HashDecorator.new(
-        api.fetch(
-          ano: year
-        )['regras']
+        api.fetch['regras']
       )
     )
   end

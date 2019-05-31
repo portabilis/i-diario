@@ -3,7 +3,8 @@ class StudentEnrollmentDependenceSynchronizer < BaseSynchronizer
     update_dependences(
       HashDecorator.new(
         api.fetch(
-          ano: year
+          ano: year,
+          escola: unity_api_code
         )['matriculas']
       )
     )
