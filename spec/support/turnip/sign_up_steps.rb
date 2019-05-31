@@ -83,7 +83,7 @@ module Turnip
 
       click_on 'Acessar'
 
-      wait_for(page).to have_content 'A sua conta não foi ativada ainda.'
+      wait_for(page).to have_content 'A sua conta não está ativa.'
     end
 
     step "informo os dados para o acesso do servidor" do
@@ -105,7 +105,7 @@ module Turnip
 
       click_on 'Acessar'
 
-      wait_for(page).to have_content 'A sua conta não foi ativada ainda.'
+      wait_for(page).to have_content 'A sua conta não está ativa.'
     end
 
     step "informo os dados para o acesso de pai, aluno e servidor" do
