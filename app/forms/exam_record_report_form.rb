@@ -69,6 +69,7 @@ class ExamRecordReportForm
   end
 
   def school_term_recoveries
+    return [] unless GeneralConfiguration.current.show_school_term_recovery_in_exam_record_report?
     @school_term_recoveries ||= SchoolTermRecoveryDiaryRecord
       .includes(recovery_diary_record: :discipline)
       .by_unity_id(unity_id)
