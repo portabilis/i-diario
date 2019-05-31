@@ -39,7 +39,6 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :students, dependent: :restrict_with_error
 
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
-  has_many :worker_states, dependent: :destroy
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
