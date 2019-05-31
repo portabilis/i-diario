@@ -37,6 +37,30 @@ class ExamRecordReport < BaseReport
 
   private
 
+  def student_enrolled_on_date?(student_id, date)
+    student_list(date).include?(student_id)
+  end
+
+  def student_list(date)
+    student_list ||= {}
+    student_list[date] ||= StudentEnrollmentsList.new(
+      classroom: classroom,
+      discipline: discipline,
+      date: date,
+      search_type: :by_date,
+      show_inactive: false
+    ).student_enrollments
+    .map(&:student_id)
+  end
+
+  def classroom
+    @classroom ||= @daily_notes.first.classroom
+  end
+
+  def discipline
+    @discipline ||= @daily_notes.first.discipline
+  end
+
   def header
     exam_header = make_cell(content: 'Registro de avaliações', size: 12, font_style: :bold, background_color: 'DEDEDE', height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 5)
     begin
@@ -54,10 +78,10 @@ class ExamRecordReport < BaseReport
     step_header = make_cell(content: 'Etapa', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, width: 200, colspan: 2, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, width: 200, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
-    classroom_cell = make_cell(content: @daily_notes.first.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    classroom_cell = make_cell(content: classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     year_cell = make_cell(content: @year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     step_cell = make_cell(content: @school_calendar_step.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    discipline_cell = make_cell(content: (@daily_notes.first.discipline ? @daily_notes.first.discipline.description : 'Geral'), size: 10, colspan: 2, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    discipline_cell = make_cell(content: (discipline ? discipline.description : 'Geral'), size: 10, colspan: 2, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     teacher_cell = make_cell(content: @teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
 
     first_table_data = [[exam_header],
@@ -85,8 +109,8 @@ class ExamRecordReport < BaseReport
       averages[student_enrollment.student_id] = StudentAverageCalculator.new(
         student_enrollment.student
       ).calculate(
-        @daily_notes.first.classroom,
-        @daily_notes.first.discipline,
+        classroom,
+        discipline,
         @school_calendar_step
       )
     end
@@ -162,9 +186,10 @@ class ExamRecordReport < BaseReport
             score = complementary_student.present? ? complementary_student.try(:score) : NullDailyNoteStudent.new.note
           elsif school_term_recovery_record(exam)
             recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student_id, recovery_diary_record_id: exam.recovery_diary_record_id)
-            score = recovery_student.present? ? recovery_student.try(:score) : NullDailyNoteStudent.new.note
+
+            score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_id, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
             if recovery_student.try(:score).present? && recovery_student.score > averages[student_enrollment.student_id]
-              averages[student_enrollment.student_id] =  recovery_student.score
+              averages[student_enrollment.student_id] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY).round(recovery_student.score)
             end
           end
 
