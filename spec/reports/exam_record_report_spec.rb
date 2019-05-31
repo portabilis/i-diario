@@ -35,6 +35,7 @@ RSpec.describe ExamRecordReport, type: :report do
       test_setting,
       daily_notes,
       students,
+      [],
       []
     ).render
 
