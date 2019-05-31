@@ -72,7 +72,8 @@ synchronizers:
     dependents: [
       SpecificStepsSynchronizer,
       TeacherDisciplineClassroomsSynchronizer,
-      StudentEnrollmentClassroomSynchronizer
+      StudentEnrollmentClassroomSynchronizer,
+      ExamRulesSynchronizer
     ]
     dependencies: [
       GradesSynchronizer
@@ -93,7 +94,8 @@ synchronizers:
       RecoveryExamRulesSynchronizer
     ]
     dependencies: [
-      RoundingTablesSynchronizer
+      RoundingTablesSynchronizer,
+      ClassroomsSynchronizer
     ]
   -
     klass: RecoveryExamRulesSynchronizer
