@@ -75,7 +75,7 @@ class IeducarApiSynchronization < ActiveRecord::Base
   # sem updates, vai fazer um double check no sidekiq.
   def job_is_running?
     return false if worker_batch.completed?
-    return true if worker_batch.updated_at < 1.hour.ago
+    return true if worker_batch.updated_at > 1.hour.ago
 
     running = Sidekiq::Queue.new('default').find_job(job_id)
     running ||= Sidekiq::ScheduledSet.new.find_job(job_id)
