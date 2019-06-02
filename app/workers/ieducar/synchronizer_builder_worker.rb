@@ -79,9 +79,7 @@ class SynchronizerBuilderWorker < BaseSynchronizerWorker
       :worker_batch_id,
       :entity_id,
       :year,
-      :years,
       :unity_api_code,
-      :unities_api_code,
       :filtered_by_year,
       :filtered_by_unity
     ).merge(
