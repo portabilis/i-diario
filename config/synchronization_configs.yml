@@ -72,11 +72,11 @@ synchronizers:
     dependents: [
       SpecificStepsSynchronizer,
       TeacherDisciplineClassroomsSynchronizer,
-      StudentEnrollmentClassroomSynchronizer,
-      ExamRulesSynchronizer
+      StudentEnrollmentClassroomSynchronizer
     ]
     dependencies: [
-      GradesSynchronizer
+      GradesSynchronizer,
+      ExamRulesSynchronizer
     ]
   -
     klass: SpecificStepsSynchronizer
