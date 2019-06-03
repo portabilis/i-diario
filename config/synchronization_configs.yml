@@ -91,11 +91,11 @@ synchronizers:
     by_year: false
     by_unity: false
     dependents: [
-      RecoveryExamRulesSynchronizer
+      RecoveryExamRulesSynchronizer,
+      ClassroomsSynchronizer
     ]
     dependencies: [
-      RoundingTablesSynchronizer,
-      ClassroomsSynchronizer
+      RoundingTablesSynchronizer
     ]
   -
     klass: RecoveryExamRulesSynchronizer
