@@ -133,7 +133,7 @@ class User < ActiveRecord::Base
   end
 
   def active_for_authentication?
-    super && actived?
+    super && active?
   end
 
   def logged_as

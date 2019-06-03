@@ -114,7 +114,7 @@ class Signup
 
   def status
     if parent_role? && !student_role? && !employee_role?
-      UserStatus::ACTIVED
+      UserStatus::ACTIVE
     else
       UserStatus::PENDING
     end
