@@ -134,8 +134,8 @@ class PartialScoreRecordReport < BaseReport
       disciplines[discipline.id] = discipline_scores
     end
 
-    scores_max = disciplines.map { |_key, hash| hash.length }.max
-    number_of_scores = !scores_max.zero? && !scores_max.nil? ? scores_max : 1
+    number_of_scores = disciplines.map { |_key, hash| hash.length }.max
+    number_of_scores = 1 if number_of_scores.nil? || number_of_scores.zero?
     header_cell = make_cell(content: 'Informações gerais', size: 12, font_style: :bold, height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2 + number_of_scores)
     subheader_cells << make_cell(content: 'Disciplina', align: :left, size: 8, font_style: :bold, width: 156, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4])
     number_of_scores.times do
