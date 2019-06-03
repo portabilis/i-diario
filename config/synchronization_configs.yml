@@ -22,11 +22,32 @@ synchronizers:
       ExamRulesSynchronizer
     ]
   -
+    klass: ExamRulesSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      RecoveryExamRulesSynchronizer,
+      CoursesSynchronizer
+    ]
+    dependencies: [
+      RoundingTablesSynchronizer
+    ]
+  -
+    klass: RecoveryExamRulesSynchronizer
+    by_year: false
+    by_unity: false
+    dependencies: [
+      ExamRulesSynchronizer
+    ]
+  -
     klass: CoursesSynchronizer
     by_year: false
     by_unity: true
     dependents: [
       GradesSynchronizer
+    ]
+    dependencies: [
+      ExamRulesSynchronizer
     ]
   -
     klass: TeachersSynchronizer
@@ -75,8 +96,7 @@ synchronizers:
       StudentEnrollmentClassroomSynchronizer
     ]
     dependencies: [
-      GradesSynchronizer,
-      ExamRulesSynchronizer
+      GradesSynchronizer
     ]
   -
     klass: SpecificStepsSynchronizer
@@ -85,24 +105,6 @@ synchronizers:
     dependencies: [
       DisciplinesSynchronizer,
       ClassroomsSynchronizer
-    ]
-  -
-    klass: ExamRulesSynchronizer
-    by_year: false
-    by_unity: false
-    dependents: [
-      RecoveryExamRulesSynchronizer,
-      ClassroomsSynchronizer
-    ]
-    dependencies: [
-      RoundingTablesSynchronizer
-    ]
-  -
-    klass: RecoveryExamRulesSynchronizer
-    by_year: false
-    by_unity: false
-    dependencies: [
-      ExamRulesSynchronizer
     ]
   -
     klass: TeacherDisciplineClassroomsSynchronizer
