@@ -145,8 +145,8 @@ RSpec.describe User, type: :model do
       expect(subject).to_not be_active_for_authentication
     end
 
-    it 'can authenticate if status is actived' do
-      subject.status = UserStatus::ACTIVED
+    it 'can authenticate if status is active' do
+      subject.status = UserStatus::ACTIVE
 
       expect(subject).to be_active_for_authentication
     end
