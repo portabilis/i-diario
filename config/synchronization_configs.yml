@@ -1,11 +1,10 @@
 synchronizers:
   -
-    klass: StudentsSynchronizer
+    klass: TeachersSynchronizer
     by_year: false
-    by_unity: true
+    by_unity: false
     dependents: [
-      StudentEnrollmentSynchronizer,
-      DeficienciesSynchronizer
+      DisciplinesSynchronizer
     ]
   -
     klass: KnowledgeAreasSynchronizer
@@ -20,6 +19,36 @@ synchronizers:
     by_unity: false
     dependents: [
       ExamRulesSynchronizer
+    ]
+  -
+    klass: DisciplinesSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      StudentsSynchronizer,
+      CoursesSynchronizer
+    ]
+    dependencies: [
+      TeachersSynchronizer,
+      KnowledgeAreasSynchronizer
+    ]
+  -
+    klass: StudentsSynchronizer
+    by_year: false
+    by_unity: true
+    dependents: [
+      StudentEnrollmentSynchronizer,
+      DeficienciesSynchronizer
+    ]
+    dependencies: [
+      DisciplinesSynchronizer
+    ]
+  -
+    klass: DeficienciesSynchronizer
+    by_year: false
+    by_unity: true
+    dependencies: [
+      StudentsSynchronizer
     ]
   -
     klass: ExamRulesSynchronizer
@@ -47,34 +76,8 @@ synchronizers:
       GradesSynchronizer
     ]
     dependencies: [
-      ExamRulesSynchronizer
-    ]
-  -
-    klass: TeachersSynchronizer
-    by_year: false
-    by_unity: false
-    dependents: [
-      TeacherDisciplineClassroomsSynchronizer
-    ]
-  -
-    klass: DeficienciesSynchronizer
-    by_year: false
-    by_unity: true
-    dependencies: [
-      StudentsSynchronizer
-    ]
-  -
-    klass: DisciplinesSynchronizer
-    by_year: false
-    by_unity: false
-    dependents: [
-      SpecificStepsSynchronizer,
-      TeacherDisciplineClassroomsSynchronizer,
-      StudentEnrollmentDependenceSynchronizer,
-      StudentEnrollmentExemptedDisciplinesSynchronizer
-    ]
-    dependencies: [
-      KnowledgeAreasSynchronizer
+      ExamRulesSynchronizer,
+      DisciplinesSynchronizer
     ]
   -
     klass: GradesSynchronizer
@@ -103,7 +106,6 @@ synchronizers:
     by_year: true
     by_unity: true
     dependencies: [
-      DisciplinesSynchronizer,
       ClassroomsSynchronizer
     ]
   -
@@ -111,8 +113,6 @@ synchronizers:
     by_year: true
     by_unity: true
     dependencies: [
-      TeachersSynchronizer,
-      DisciplinesSynchronizer,
       ClassroomsSynchronizer
     ]
   -
@@ -140,14 +140,12 @@ synchronizers:
     by_year: true
     by_unity: true
     dependencies: [
-      StudentEnrollmentSynchronizer,
-      DisciplinesSynchronizer
+      StudentEnrollmentSynchronizer
     ]
   -
     klass: StudentEnrollmentExemptedDisciplinesSynchronizer
     by_year: true
     by_unity: true
     dependencies: [
-      StudentEnrollmentSynchronizer,
-      DisciplinesSynchronizer
+      StudentEnrollmentSynchronizer
     ]
