@@ -13,17 +13,6 @@ $(function () {
   var $avaliation = $('#avaliation_exemption_avaliation_id');
   var $student = $('#avaliation_exemption_student_id');
   var $avaliation_date = $('#avaliation_exemption_avaliation_date');
-  var $classroomStepContainer = $('[classroom-step-container]');
-  var $schoolStepContainer = $('[school-step-container]');
-
-  function toggleStepField() {
-    if (!_.isEmpty($classroom.select2('val'))) {
-      fetchSchoolSteps();
-      fetchClassroomSteps();
-    }
-  }
-
-  toggleStepField();
 
   $course.on('change', function(){
     fetchGrades();
@@ -35,8 +24,6 @@ $(function () {
 
   $classroom.on('change', function(){
     fetchDisciplines();
-    fetchSchoolSteps();
-    fetchClassroomSteps();
     fetchAvaliationsSchoolStep();
     fetchAvaliationsClassroomStep();
   });
@@ -308,78 +295,4 @@ $(function () {
   function handleFetchStudentsError() {
     flashMessages.error('Ocorreu um erro ao buscar os alunos da avaliação selecionada.');
   };
-
-  function fetchSchoolSteps() {
-    var unity_id = $unity.select2('val');
-    $school_calendar_step.select2('val', '');
-    $school_calendar_step.select2({ data: [] });
-
-    if (!_.isEmpty(unity_id)) {
-      var filter = {
-        by_unity: unity_id,
-        by_year: $year.val()
-      };
-      $.ajax({
-        url: Routes.school_calendar_steps_pt_br_path({
-          filter: filter,
-          format: 'json'
-        }),
-        success: fetchSchoolStepsSuccess,
-        error: fetchSchoolStepsError
-      });
-    }
-  };
-
-  function fetchSchoolStepsSuccess(data) {
-    var school_steps = _.map(data.school_calendar_steps, function (school_calendar_step) {
-      return { id: school_calendar_step.id, text: school_calendar_step.school_term };
-    });
-    $school_calendar_step.select2({ data: school_steps});
-  };
-
-  function fetchSchoolStepsError() {
-    flashMessages.error('Ocorreu um erro ao buscar as etapas!')
-  };
-
-  function fetchClassroomSteps() {
-    var classroom_id = $classroom.select2('val');
-
-    $school_calendar_classroom_step.select2('val', '');
-    $school_calendar_classroom_step.select2({ data: [] });
-
-    if (!_.isEmpty(classroom_id)) {
-      var filter = {
-        by_classroom: classroom_id
-      };
-      $.ajax({
-        url: Routes.school_calendar_classroom_steps_pt_br_path({
-          filter: filter,
-          format: 'json'
-        }),
-        success: fetchClassroomsStepsSuccess,
-        error: fetchClassroomsStepsError
-      });
-    }
-  };
-
-  function fetchClassroomsStepsSuccess(data) {
-    var classroom_steps = _.map(data.school_calendar_classroom_steps, function (school_calendar_classroom_step) {
-      return { id: school_calendar_classroom_step.id, text: school_calendar_classroom_step.school_term };
-    });
-
-    if (!_.isEmpty(classroom_steps)) {
-      $schoolStepContainer.addClass("hidden");
-      $classroomStepContainer.removeClass("hidden");
-    }else {
-      $schoolStepContainer.removeClass("hidden");
-      $classroomStepContainer.addClass("hidden");
-    }
-
-    $school_calendar_classroom_step.select2({ data: classroom_steps});
-  };
-
-  function fetchClassroomsStepsError() {
-    flashMessages.error('Ocorreu um erro ao buscar as etapas!')
-  };
-
 });

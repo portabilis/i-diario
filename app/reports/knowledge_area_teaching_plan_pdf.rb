@@ -8,8 +8,16 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     @knowledge_area_teaching_plan = knowledge_area_teaching_plan
     attributes
 
-    header
-    body
+    if @display_header_on_all_reports_pages
+      header
+      body
+    else
+      bounding_box([0, cursor], width: bounds.width, height: bounds.height - GAP) do
+        header
+        body
+      end
+    end
+
     footer
 
     self
@@ -46,7 +54,7 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     organ_name = @entity_configuration ? @entity_configuration.organ_name : ''
 
     entity_organ_and_unity_cell = make_cell(
-      content: "#{entity_name}\n#{organ_name}\n#{@knowledge_area_teaching_plan.teaching_plan.unity.name}",
+      content: "#{entity_name}\n#{organ_name}\n#{teaching_plan.unity.name}",
       size: 12,
       leading: 1.5,
       align: :center,
@@ -108,37 +116,22 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     knowledge_area_descriptions = (knowledge_areas.map { |descriptions| descriptions}.join(", "))
 
     @unity_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 7)
-    @unity_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 7)
+    @unity_cell = make_cell(content: teaching_plan.unity.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 7)
 
     @knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 3)
     @knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 3)
 
     @classroom_header = make_cell(content: 'Série', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 4)
-    @classroom_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.grade.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
+    @classroom_cell = make_cell(content: teaching_plan.grade.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
 
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 3)
-    @teacher_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 3)
+    @teacher_cell = make_cell(content: teaching_plan.teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 3)
 
     @year_header = make_cell(content: 'Ano', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @year_cell = make_cell(content: @knowledge_area_teaching_plan.teaching_plan.year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @year_cell = make_cell(content: teaching_plan.year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     @period_header = make_cell(content: 'Período escolar', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @period_cell = make_cell(content: (@knowledge_area_teaching_plan.teaching_plan.school_term_type == SchoolTermTypes::YEARLY ? @knowledge_area_teaching_plan.teaching_plan.school_term_type_humanize : @knowledge_area_teaching_plan.teaching_plan.school_term_humanize), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
-
-    objective_cell_content = inline_formated_cell_header('Objetivos') + (@knowledge_area_teaching_plan.teaching_plan.objectives.present? ? @knowledge_area_teaching_plan.teaching_plan.objectives : '-')
-    @objective_cell = make_cell(content: objective_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    content_cell_content = inline_formated_cell_header('Conteúdos') + (@knowledge_area_teaching_plan.teaching_plan.contents.present? ? @knowledge_area_teaching_plan.teaching_plan.contents_ordered.map(&:to_s).join(", ") : '-')
-    @content_cell = make_cell(content: content_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    methodology_cell_content = inline_formated_cell_header('Metodologia') + (@knowledge_area_teaching_plan.teaching_plan.methodology.present? ? @knowledge_area_teaching_plan.teaching_plan.methodology : '-')
-    @methodology_cell = make_cell(content: methodology_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    evaluation_cell_content = inline_formated_cell_header('Avaliação') + (@knowledge_area_teaching_plan.teaching_plan.evaluation.present? ? @knowledge_area_teaching_plan.teaching_plan.evaluation : '-')
-    @evaluation_cell = make_cell(content: evaluation_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
-
-    reference_cell_content = inline_formated_cell_header('Referências') + (@knowledge_area_teaching_plan.teaching_plan.references.present? ? @knowledge_area_teaching_plan.teaching_plan.references : '-')
-    @reference_cell = make_cell(content: reference_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    @period_cell = make_cell(content: (teaching_plan.school_term_type == SchoolTermTypes::YEARLY ? teaching_plan.school_term_type_humanize : teaching_plan.school_term_humanize), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
   end
 
   def general_information
@@ -165,12 +158,7 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
 
   def class_plan
     class_plan_table_data = [
-      [@class_plan_header_cell],
-      [@objective_cell],
-      [@content_cell],
-      [@methodology_cell],
-      [@evaluation_cell],
-      [@reference_cell]
+      [@class_plan_header_cell]
     ]
 
     table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
@@ -180,6 +168,22 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+
+    objectives = teaching_plan.objectives || '-'
+    content = teaching_plan.present? ? teaching_plan.contents_ordered.map(&:to_s).join(', ') : '-'
+    methodology = teaching_plan.methodology || '-'
+    evaluation = teaching_plan.evaluation || '-'
+    references = teaching_plan.references || '-'
+
+    text_box_truncate('Objetivos', objectives)
+    text_box_truncate('Conteúdos', content)
+    text_box_truncate('Metodologia', methodology)
+    text_box_truncate('Avaliação', evaluation)
+    text_box_truncate('Referências', references)
+  end
+
+  def teaching_plan
+    @teaching_plan ||= @knowledge_area_teaching_plan.teaching_plan
   end
 
   def body

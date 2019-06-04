@@ -39,11 +39,10 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :students, dependent: :restrict_with_error
 
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
-  has_many :worker_states, dependent: :destroy
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
-  validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true
+  validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true, uniqueness: { case_sensitive: false }
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
   validates :password, length: { minimum: 8 }, allow_blank: true

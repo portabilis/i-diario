@@ -1,5 +1,6 @@
 pt-BR:
   school_calendars:
+    invalid_unity: 'Você não possuí acesso a essa unidade'
     index:
       by_year: 'Filtrar ano'
       by_unity_id: 'Filtrar escola'

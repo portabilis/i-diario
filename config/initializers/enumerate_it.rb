@@ -2,9 +2,9 @@ ActiveRecord::Base.extend EnumerateIt
 
 module EnumerateIt
   class Base
-    def self.to_select
+    def self.to_select(include_empty_element = true)
       elements = to_a.map { |arr| { id: arr[1], name: arr[0], text: arr[0] } }
-      insert_empty_element(elements)
+      insert_empty_element(elements) if include_empty_element
       elements
     end
 

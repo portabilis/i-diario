@@ -1,11 +1,16 @@
 class SchoolCalendarsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
+  before_action :check_user_unity, only: [:edit, :update, :destroy]
 
   def index
     @school_calendars = apply_scopes(SchoolCalendar).includes(:unity)
                                                     .filter(filtering_params(params[:search]))
                                                     .ordered
+
+    unless show_all_unities?
+      @school_calendars = @school_calendars.by_unity_id(current_user_unity)
+    end
 
     authorize @school_calendars
 
@@ -134,4 +139,16 @@ class SchoolCalendarsController < ApplicationController
       ]
     )
   end
+
+  def check_user_unity
+    return if show_all_unities?
+    return if current_user_unity.try(:id) == resource.unity_id
+
+    redirect_to(school_calendars_path, alert: I18n.t('school_calendars.invalid_unity'))
+  end
+
+  def show_all_unities?
+    @show_all_unities ||= current_user.current_user_role.role_administrator?
+  end
+  helper_method :show_all_unities?
 end

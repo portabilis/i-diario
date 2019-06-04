@@ -17,12 +17,15 @@
         <div class="col col-sm-4">
           <%= f.input :classroom_id, as: :select2_classroom, user: current_user, input_html: { value: @teacher_report_card_form.classroom_id } %>
         </div>
-        <div class="row">
-          <div class="col col-sm-4">
-          <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
-                classroom_id: @teacher_report_card_form.classroom_id,
-                required: true, input_html: { value: @teacher_report_card_form.discipline_id } %>
-          </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-4">
+        <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+              classroom_id: @teacher_report_card_form.classroom_id,
+              required: true, input_html: { value: @teacher_report_card_form.discipline_id } %>
+        </div>
+        <div class="col col-sm-4">
+          <%= f.input :status, as: :select2, elements: TeacherReportCardStatus.to_select(false).to_json %>
         </div>
       </div>
     </fieldset>
