@@ -59,7 +59,8 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
     changed_student_enrollment_classrooms.uniq.each do |student_id, classroom_id|
       next if student_id.blank? || classroom_id.blank?
 
-      DeleteInvalidPresenceRecordWorker.perform_async(
+      DeleteInvalidPresenceRecordWorker.perform_in(
+        5.seconds,
         entity_id,
         student_id,
         classroom_id
