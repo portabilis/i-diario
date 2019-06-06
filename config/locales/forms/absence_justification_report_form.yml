@@ -7,3 +7,4 @@ pt-BR:
         discipline_id: "Disciplina"
         absence_date: "Data inicial"
         absence_date_end: "Data final"
+        author: 'Autor'
