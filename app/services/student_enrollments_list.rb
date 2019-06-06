@@ -6,21 +6,24 @@ class StudentEnrollmentsList
   ].freeze
 
   def initialize(params)
-    fetch_params_to_attributes([
-      { param: :classroom },
-      { param: :discipline },
-      { param: :date },
-      { param: :start_at },
-      { param: :end_at },
-      { param: :opinion_type },
-      { param: :search_type,  default: :by_date },
-      { param: :show_inactive,  default: true },
-      { param: :show_inactive_outside_step, default: true },
-      { param: :with_recovery_note_in_step,  default: false },
-      { param: :include_date_range,  default: false },
-      { param: :period },
-      { param: :score_type, default: StudentEnrollmentScoreTypeFilters::BOTH },
-    ], params)
+    fetch_params_to_attributes(
+      [
+        { param: :classroom },
+        { param: :discipline },
+        { param: :date },
+        { param: :start_at },
+        { param: :end_at },
+        { param: :opinion_type },
+        { param: :search_type, default: :by_date },
+        { param: :show_inactive, default: true },
+        { param: :show_inactive_outside_step, default: true },
+        { param: :with_recovery_note_in_step,  default: false },
+        { param: :include_date_range, default: false },
+        { param: :period },
+        { param: :score_type, default: StudentEnrollmentScoreTypeFilters::BOTH }
+      ],
+      params
+    )
 
     ensure_has_valid_params
     adjust_date_range_by_year
@@ -56,14 +59,17 @@ class StudentEnrollmentsList
 
     if include_date_range
       student_enrollments = student_enrollments
-          .includes(:student_enrollment_classrooms)
-          .by_date_range(start_at, end_at)
-          .by_date_not_before(start_at)
+                           .includes(:student_enrollment_classrooms)
+                           .by_date_range(start_at, end_at)
+                           .by_date_not_before(start_at)
     end
 
     student_enrollments = student_enrollments.by_period(period) if period
     student_enrollments = student_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
-    student_enrollments = student_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
+
+    if with_recovery_note_in_step
+      student_enrollments = student_enrollments.with_recovery_note_in_step(step, discipline)
+    end
 
     student_enrollments
   end
@@ -71,11 +77,11 @@ class StudentEnrollmentsList
   def active_student_enrollments
     @active_student_enrollments ||= begin
       StudentEnrollment.by_classroom(classroom)
-        .by_discipline(discipline)
-        .by_score_type(score_type, classroom)
-        .includes(:student)
-        .includes(:dependences)
-        .active
+                       .by_discipline(discipline)
+                       .by_score_type(score_type, classroom)
+                       .includes(:student)
+                       .includes(:dependences)
+                       .active
     end
   end
 
@@ -98,8 +104,7 @@ class StudentEnrollmentsList
         if !any_active_enrollment
           unique_student_enrollments << student_enrollments_for_student.show_as_inactive.first
         end
-      else
-        if show_inactive_outside_step || student_active?(student_enrollment)
+      elsif show_inactive_outside_step || student_active?(student_enrollment)
           unique_student_enrollments << student_enrollment
         end
       end
@@ -142,7 +147,7 @@ class StudentEnrollmentsList
   end
 
   def adjust_date_range_by_year
-    return if !opinion_type_by_year?
+    return unless opinion_type_by_year?
 
     school_calendar = step.school_calendar
     @start_at = school_calendar.first_day
