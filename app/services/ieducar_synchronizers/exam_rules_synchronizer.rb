@@ -14,6 +14,8 @@ class ExamRulesSynchronizer < BaseSynchronizer
   end
 
   def update_exam_rules(exam_rules)
+    differentiated_exam_rules = []
+
     exam_rules.each do |exam_rule_record|
       ExamRule.find_or_initialize_by(api_code: exam_rule_record.id).tap do |exam_rule|
         exam_rule.score_type = exam_rule_record.tipo_nota
@@ -28,6 +30,25 @@ class ExamRulesSynchronizer < BaseSynchronizer
           exam_rule_record.tabela_arredondamento_id_conceitual
         ).try(:id)
         exam_rule.rounding_table_concept_api_code = exam_rule_record.tabela_arredondamento_id_conceitual
+        exam_rule.save! if exam_rule.changed?
+
+        if exam_rule_record.regra_diferenciada_id.present?
+          differentiated_exam_rules << [
+            exam_rule_record.id,
+            exam_rule_record.regra_diferenciada_id
+          ]
+        end
+      end
+    end
+
+    update_differentiated_exam_rules(differentiated_exam_rules)
+  end
+
+  def update_differentiated_exam_rules(differentiated_exam_rules)
+    differentiated_exam_rules.each do |api_code, differentiated_api_code|
+      exam_rule(api_code).tap do |exam_rule|
+        exam_rule.differentiated_exam_rule_api_code = differentiated_api_code
+        exam_rule.differentiated_exam_rule_id = exam_rule(differentiated_api_code).try(:id)
         exam_rule.save! if exam_rule.changed?
       end
     end
