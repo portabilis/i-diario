@@ -100,6 +100,23 @@ class ConceptualExam < ActiveRecord::Base
     end
   end
 
+  def merge_conceptual_exam_values
+    grouped_conceptual_exam_values = conceptual_exam_values.group_by { |e|
+      [e.conceptual_exam_id, e.discipline_id]
+    }
+
+    self.conceptual_exam_values = grouped_conceptual_exam_values.map do |_key, conceptual_exam_values|
+      next conceptual_exam_values.first if conceptual_exam_values.size == 1
+
+      persisted = conceptual_exam_values.find(&:persisted?)
+      new_record = conceptual_exam_values.find(&:new_record?)
+
+      persisted.value = new_record.value if new_record.present?
+
+      persisted
+    end
+  end
+
   private
 
   def student_must_have_conceptual_exam_score_type
