@@ -316,7 +316,7 @@ class ConceptualExamsController < ApplicationController
       @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
 
       if @conceptual_exam.student_id.present? &&
-         @student_enrollments.find { |enrollment| enrollment[:student_id] = @conceptual_exam.student_id }.blank?
+         @student_enrollments.find { |enrollment| enrollment[:student_id] == @conceptual_exam.student_id }.blank?
         @student_enrollments << StudentEnrollment.by_student(@conceptual_exam.student_id).first
       end
 
