@@ -57,6 +57,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       before do
         get :index, locale: 'pt-BR'
       end
+
       it 'lists all plans' do
         expect(assigns(:discipline_teaching_plans)).to include(
           current_teacher_discipline_teaching_plan,
@@ -66,7 +67,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     end
 
     context 'with author filter' do
-      context 'when the autor is the current teacher' do
+      context 'when the author is the current teacher' do
         before do
           get :index, locale: 'pt-BR', fitler: { by_author: PlansAuthors::MY_PLANS }
         end
@@ -76,7 +77,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
         end
       end
 
-      context 'when the autor is other teacher' do
+      context 'when the author is other teacher' do
         before do
           get :index, locale: 'pt-BR', fitler: { by_author: PlansAuthors::OTHERS }
         end
