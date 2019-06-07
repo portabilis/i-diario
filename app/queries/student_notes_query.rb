@@ -30,6 +30,7 @@ class StudentNotesQuery
 
   def other_enrollments_daily_note_students
     daily_notes = DailyNoteStudent.none
+
     other_enrollments.each do |enrollment|
       daily_notes += daily_note_students_query(
         student,
