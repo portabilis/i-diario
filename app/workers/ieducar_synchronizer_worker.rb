@@ -76,7 +76,7 @@ class IeducarSynchronizerWorker
   end
 
   def all_entities
-    Entity.need_migration.active
+    Entity.where(migrate: false).active
   end
 
   def total_synchronizers(full_synchronization)
