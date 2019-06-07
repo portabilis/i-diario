@@ -20,6 +20,7 @@ pt-BR:
         classroom_id: "Turma"
         discipline: "Disciplina"
         discipline_id: "Disciplina"
+        author: "Autor"
 
     errors:
       models:

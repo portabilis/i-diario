@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    absence_justification_authors:
+      my_justifications: 'Minhas justificativas'
+      others: 'Outras'
