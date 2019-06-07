@@ -4,6 +4,6 @@ class RemoveColumnCompletedWorkersFromWorkerBatch < ActiveRecord::Migration
   end
 
   def down
-    add_column :worker_batches, :completed_workers, :array, default: []
+    add_column :worker_batches, :completed_workers, :string, array: true, default: []
   end
 end
