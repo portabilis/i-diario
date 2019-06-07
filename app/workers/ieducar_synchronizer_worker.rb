@@ -95,6 +95,6 @@ class IeducarSynchronizerWorker
   end
 
   def all_entities
-    Entity.active
+    Entity.need_migration.active
   end
 end
