@@ -83,7 +83,10 @@ $(function() {
 
   function handleFetchYearsSuccess(data, callback) {
     var selectedYears = _.map(data.school_calendars, function (year) {
-      return { id: year['id'], text: year['name'] };
+      return {
+        id: year.id,
+        text: year.name
+      };
     });
 
     insertEmptyElement(selectedYears);
@@ -96,7 +99,9 @@ $(function() {
     });
 
     if (selectedYears.length > 1 && !can_change_school_year) {
-      $('form#user-role-form #user_current_school_year').select2('val', selectedYears[1]['id']);
+      var selectedYear = selectedYears[1];
+
+      $('form#user-role-form #user_current_school_year').select2('val', selectedYear.id);
     }
 
     callback();
@@ -172,7 +177,10 @@ $(function() {
 
   function handleFetchClassroomsSuccess(data) {
     var selectedClassrooms = _.map(data, function(classroom) {
-      return { id: classroom['id'], text: classroom['description'] };
+      return {
+        id: classroom.id,
+        text: classroom.description
+      };
     });
 
     $('form#user-role-form #user_current_classroom_id').val("");
@@ -207,8 +215,8 @@ $(function() {
   function handleFetchUnitiesSuccess(data) {
     var selectedUnities = _.map(data.unities, function(unity) {
       return { 
-          id: unity['id'],
-          text: unity['name'] 
+          id: unity.id,
+          text: unity.name
       };
     });
 
@@ -229,8 +237,6 @@ $(function() {
   function handleFetchUnitiessError() {
     flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_schools_error') %>");
   }
-
-  $('form#user-role-form #user_current_user_role_id').on('change', fetchRole);
 
   function fetchRole() {
     var user_role_id = $('form#user-role-form #user_current_user_role_id').val();
@@ -262,11 +268,13 @@ $(function() {
 
         case 'employee':
           toggleEmployeeFields(data.user_role.unity_id);
+
           $('form#user-role-form #user_current_unity_id').val(data.user_role.unity_id);
           break;
 
         case 'teacher':
           toggleTeacherFields(data.user_role.unity_id);
+
           $('form#user-role-form #user_current_unity_id').val(data.user_role.unity_id);
           break;
 
@@ -280,61 +288,7 @@ $(function() {
     function handleFetchRoleError() {
       flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
     }
-  };
-
-  $('form#user-role-form #user_current_unity_id').on('change', function() {
-    $('#assumed-teacher-field-container').hide();
-    $('#classroom-field-container').hide();
-    $('#discipline-field-container').hide();
-
-    var unity_id = $(this).val();
-    var emptyElements = insertEmptyElement([]);
-
-    $('form#user-role-form #user_assumed_teacher_id').select2("data", emptyElements);
-    $('form#user-role-form #user_current_classroom_id').select2("data", emptyElements);
-    $('form#user-role-form #user_current_discipline_id').select2("data", emptyElements);
-    
-    checkUnityType(unity_id);
-    fetchYears(unity_id);
-  });
-
-  $('form#user-role-form #user_current_school_year').on('change', function () {
-    var emptyElements = insertEmptyElement([]);
-    
-    $('form#user-role-form #user_assumed_teacher_id').select2("data", emptyElements);
-    $('form#user-role-form #user_current_classroom_id').select2("data", emptyElements);
-    $('form#user-role-form #user_current_discipline_id').select2("data", emptyElements);
-    fetchTeachers($('form#user-role-form #user_current_unity_id').val(), $('#current_school_year').val());
-    checkUnityType($('form#user-role-form #user_current_unity_id').val());
-    
-    if (role_unity_id) {
-      fetchClassroomsByTeacherAndUnityAndYear(
-        $('form#user-role-form #user_teacher_id').val(),
-        role_unity_id,
-        $('form#user-role-form #user_current_school_year').val()
-      );
-    }
-  });
-
-  $('form#user-role-form #user_assumed_teacher_id').on('change', function() {
-    var teacher_id = $(this).val();
-
-    if (valueSelected($(this))) {
-      $('#classroom-field-container').show();
-      $('#discipline-field-container').show();
-      
-      var unity_id = currentUnityId();
-      
-      fetchClassroomsByTeacherAndUnityAndYear(teacher_id, unity_id, $('form#user-role-form #user_current_school_year').val());
-    } else {
-      $("form#user-role-form #user_current_classroom_id").val('');
-      $("form#user-role-form #user_current_discipline_id").val('');
-      $('#classroom-field-container').hide();
-      $('#discipline-field-container').hide();
-    }
-  });
-
-  $('form#user-role-form #user_current_classroom_id').on('change', fetchDisciplines);
+  }
 
   function fetchDisciplines() {
     var classroom_id = $("form#user-role-form #user_current_classroom_id").val();
@@ -342,12 +296,12 @@ $(function() {
     var params = {
       filter: filter,
       format: 'json'
-    }
+    };
 
     if (
-      $("#assumed-teacher-field-container").is(":visible")
-      || (!$("formform#user-role-form #user-role").is(":visible")
-      && $("form#user-role-form #user_assumed_teacher_id").val().length)
+      $("#assumed-teacher-field-container").is(":visible") ||
+      (!$("formform#user-role-form #user-role").is(":visible") &&
+      $("form#user-role-form #user_assumed_teacher_id").val().length)
     ) {
       filter.by_teacher_id = $("form#user-role-form #user_assumed_teacher_id").val();
     } else {
@@ -374,7 +328,10 @@ $(function() {
 
   function handleFetchDisciplinesSuccess(data) {
     var selectedDisciplines = _.map(data.disciplines, function(discipline) {
-      return { id: discipline['id'], text: discipline['description'] };
+      return {
+        id: discipline.id,
+        text: discipline.description
+      };
     });
 
     $('form#user-role-form #user_current_discipline_id').val("");
@@ -523,6 +480,66 @@ $(function() {
     return !(_.isEmpty(select2Element.val()) || select2Element.val() == 0);
   }
 
+  function currentUnityId() {
+    return $("form#user-role-form #user_current_unity_id").val();
+  }
+
+  $('form#user-role-form #user_current_user_role_id').on('change', fetchRole);
+
+  $('form#user-role-form #user_current_unity_id').on('change', function() {
+    $('#assumed-teacher-field-container').hide();
+    $('#classroom-field-container').hide();
+    $('#discipline-field-container').hide();
+
+    var unity_id = $(this).val();
+    var emptyElements = insertEmptyElement([]);
+
+    $('form#user-role-form #user_assumed_teacher_id').select2("data", emptyElements);
+    $('form#user-role-form #user_current_classroom_id').select2("data", emptyElements);
+    $('form#user-role-form #user_current_discipline_id').select2("data", emptyElements);
+
+    checkUnityType(unity_id);
+    fetchYears(unity_id);
+  });
+
+  $('form#user-role-form #user_current_school_year').on('change', function () {
+    var emptyElements = insertEmptyElement([]);
+
+    $('form#user-role-form #user_assumed_teacher_id').select2("data", emptyElements);
+    $('form#user-role-form #user_current_classroom_id').select2("data", emptyElements);
+    $('form#user-role-form #user_current_discipline_id').select2("data", emptyElements);
+    fetchTeachers($('form#user-role-form #user_current_unity_id').val(), $('#current_school_year').val());
+    checkUnityType($('form#user-role-form #user_current_unity_id').val());
+
+    if (role_unity_id) {
+      fetchClassroomsByTeacherAndUnityAndYear(
+        $('form#user-role-form #user_teacher_id').val(),
+        role_unity_id,
+        $('form#user-role-form #user_current_school_year').val()
+      );
+    }
+  });
+
+  $('form#user-role-form #user_assumed_teacher_id').on('change', function() {
+    var teacher_id = $(this).val();
+
+    if (valueSelected($(this))) {
+      $('#classroom-field-container').show();
+      $('#discipline-field-container').show();
+
+      var unity_id = currentUnityId();
+
+      fetchClassroomsByTeacherAndUnityAndYear(teacher_id, unity_id, $('form#user-role-form #user_current_school_year').val());
+    } else {
+      $("form#user-role-form #user_current_classroom_id").val('');
+      $("form#user-role-form #user_current_discipline_id").val('');
+      $('#classroom-field-container').hide();
+      $('#discipline-field-container').hide();
+    }
+  });
+
+  $('form#user-role-form #user_current_classroom_id').on('change', fetchDisciplines);
+
   $('#user-role-form').on('ajax:success', function() {
     location.href = Routes.root_pt_br_path;
   });
@@ -534,24 +551,20 @@ $(function() {
   $('#user-role-form').on('ajax:error', function(event, request) {
     $('#page-loading').addClass('hidden');
 
-    var invalidFields = request.responseJSON||{};
+    var invalidFields = request.responseJSON || {};
 
-    if (invalidFields['current_user_role_id'] !== undefined) {
+    if (invalidFields.current_user_role_id !== undefined) {
       alert("<%= I18n.t('layouts.error_messages.needs_profile') %>");
-    } else if (invalidFields['current_unity_id'] !== undefined) {
+    } else if (invalidFields.current_unity_id !== undefined) {
       alert("<%= I18n.t('layouts.error_messages.needs_unity') %>");
-    } else if (invalidFields['current_classroom_id'] !== undefined) {
+    } else if (invalidFields.current_classroom_id !== undefined) {
       alert("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
-    } else if (invalidFields['current_discipline_id'] !== undefined) {
+    } else if (invalidFields.current_discipline_id !== undefined) {
       alert("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
     } else {
       alert("<%= I18n.t('layouts.error_messages.unknown_error') %>");
     }
   });
-
-  function currentUnityId() {
-    return $("form#user-role-form #user_current_unity_id").val();
-  }
 
   $('#header input.select2').on('select2-open', function() {
     $('.select2-search:visible').attr('style', 'margin-top: 5px;');
