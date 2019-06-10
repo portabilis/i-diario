@@ -38,6 +38,8 @@ class StudentNotesQuery
         classroom,
         enrollment.joined_at,
         enrollment.left_at
+      ).where(
+        transfer_note_id: nil
       )
     end
 
