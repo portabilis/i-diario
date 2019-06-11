@@ -318,16 +318,6 @@ $(function() {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas dispensadas.');
   };
 
-  if($('#current_action_').val() == 'new'){
-    $student.trigger('change');
-  }
-
-  $step.on('change', function() {
-    fetchStudents();
-    $student.select2('val', '');
-    removeDisciplines();
-  });
-
   $student.on('change', function(){
     $.get(
       Routes.find_conceptual_exam_by_student_conceptual_exams_pt_br_path(
@@ -349,6 +339,16 @@ $(function() {
         fetchDisciplines();
       }
     });
+  });
+
+  if($('#current_action_').val() == 'new'){
+    $student.trigger('change');
+  }
+
+  $step.on('change', function() {
+    fetchStudents();
+    $student.select2('val', '');
+    removeDisciplines();
   });
 
   fetchExamRule();
