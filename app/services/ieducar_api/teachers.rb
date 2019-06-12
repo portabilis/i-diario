@@ -6,8 +6,6 @@ module IeducarApi
         resource: 'servidores'
       )
 
-      raise ApiError, 'É necessário informar o ano' if params[:ano].blank?
-
       super
     end
 

@@ -2,9 +2,7 @@ class TeachersSynchronizer < BaseSynchronizer
   def synchronize!
     update_teachers(
       HashDecorator.new(
-        api.fetch(
-          ano: year
-        )['servidores']
+        api.fetch['servidores']
       )
     )
   end
