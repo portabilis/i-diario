@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 RSpec.describe DisciplineTeachingPlansController, type: :controller do
-  let(:user) { create(:user_with_user_role) }
+  let(:user) { create(:user_with_user_role, admin: false) }
   let(:user_role) { user.user_roles.first }
   let(:unity) { user_role.unity }
   let(:current_teacher) { create(:teacher) }
@@ -43,6 +43,8 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
   describe 'GET discipline_teaching_plans#index' do
     before(:each) do
+      allow(controller).to receive(:authenticate_user!)
+      allow(controller).to receive(:authorize).and_return(true)
       allow(controller).to receive(:current_user_is_employee_or_administrator?).and_return(false)
       allow(controller).to receive(:current_teacher).and_return(current_teacher)
       allow(controller).to receive(:current_user_unity).and_return(unity)

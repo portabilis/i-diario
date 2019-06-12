@@ -28,11 +28,6 @@ RSpec.configure do |config|
     ActiveRecord::FixtureSet.create_fixtures(fixture_path, fixtures)
   end
 
-  config.before(:example, type: :controller) do
-    allow(controller).to receive(:authenticate_user!)
-    allow(controller).to receive(:authorize).and_return(true)
-  end
-
   config.after :each do |example|
     page.driver.restart if defined?(page.driver.restart)
   end
