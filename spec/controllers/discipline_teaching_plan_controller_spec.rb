@@ -43,7 +43,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
   describe 'GET discipline_teaching_plans#index' do
     before(:each) do
-      allow(controller).to receive(:authenticate_user!)
+      sign_in user
       allow(controller).to receive(:authorize).and_return(true)
       allow(controller).to receive(:current_user_is_employee_or_administrator?).and_return(false)
       allow(controller).to receive(:current_teacher).and_return(current_teacher)
