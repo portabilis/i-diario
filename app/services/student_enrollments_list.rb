@@ -106,7 +106,6 @@ class StudentEnrollmentsList
         end
       elsif show_inactive_outside_step || student_active?(student_enrollment)
           unique_student_enrollments << student_enrollment
-        end
       end
     end
 
