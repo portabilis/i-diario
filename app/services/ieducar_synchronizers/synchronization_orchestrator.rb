@@ -15,12 +15,10 @@ class SynchronizationOrchestrator
   end
 
   def enqueue_next
-    worker_state_locked_by_worker_batch do
-      SynchronizationConfigs.dependents_by_klass(current_worker_name).each do |klass|
-        next unless dependencies_solved?(klass)
+    SynchronizationConfigs.dependents_by_klass(current_worker_name).each do |klass|
+      next unless dependencies_solved?(klass)
 
-        enqueue_job(SynchronizationConfigs.find_by_klass(klass))
-      end
+      enqueue_job(SynchronizationConfigs.find_by_klass(klass))
     end
   end
 
@@ -58,7 +56,7 @@ class SynchronizationOrchestrator
 
   def initialized_worker_states_by(worker_name, by_year, by_unity)
     worker_states = WorkerState.by_worker_batch_id(worker_batch.id)
-                                .by_kind(worker_name)
+                               .by_kind(worker_name)
     worker_states = worker_states.by_meta_data(:year, params[:year]) if by_year && params[:year].present?
 
     if by_unity && params[:unity_api_code].present?
@@ -75,20 +73,12 @@ class SynchronizationOrchestrator
       ).merge(
         klass: synchronizer[:klass],
         synchronization_id: params[:synchronization].id,
-        worker_batch_id: params[:worker_batch].id,
+        worker_batch_id: worker_batch.id,
         years: params[:year].to_s.split(','),
         unities_api_code: params[:unity_api_code].to_s.split(','),
         filtered_by_year: synchronizer[:by_year],
         filtered_by_unity: synchronizer[:by_unity]
       )
     )
-  end
-
-  def worker_state_locked_by_worker_batch
-    worker_batch.with_lock do
-      worker_batch.touch
-
-      yield
-    end
   end
 end
