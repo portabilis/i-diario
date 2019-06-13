@@ -17,7 +17,10 @@ class BaseSynchronizer
 
       worker_batch.increment
       finish_worker(worker_state, worker_batch, params[:synchronization])
-      SynchronizationOrchestrator.new(worker_batch, worker_name, params).enqueue_next
+      SynchronizerBuilderEnqueueWorker.perform_in(
+        5.seconds,
+        synchronizer_builder_enqueue_worker_params(params, worker_batch.id)
+      )
     rescue StandardError => error
       worker_state.mark_with_error!(error.message) if error.message != '502 Bad Gateway'
 
@@ -35,6 +38,18 @@ class BaseSynchronizer
     def worker_name
       to_s
     end
+
+    def synchronizer_builder_enqueue_worker_params(params, worker_batch_id)
+      params.slice(
+        :entity_id,
+        :year,
+        :unity_api_code
+      ).merge(
+        klass: worker_name,
+        synchronization_id: params[:synchronization].id,
+        worker_batch_id: worker_batch_id
+      )
+    end
   end
 
   def initialize(params)
@@ -44,8 +59,6 @@ class BaseSynchronizer
     self.year = params[:year]
     self.unity_api_code = params[:unity_api_code]
     self.filtered_by_unity = params[:filtered_by_unity]
-
-    worker_batch.touch
   end
 
   protected
