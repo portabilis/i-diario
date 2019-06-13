@@ -7,7 +7,8 @@ class AbsenceJustificationReportForm
                 :absence_date,
                 :absence_date_end,
                 :school_calendar_year,
-                :current_teacher_id
+                :current_teacher_id,
+                :author
 
   validates :absence_date, presence: true, date: true, not_in_future: true, timeliness: { on_or_before: :absence_date_end, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
   validates :absence_date_end, presence: true, date: true, not_in_future: true, timeliness: { on_or_after: :absence_date, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
@@ -20,7 +21,7 @@ class AbsenceJustificationReportForm
 
   def absence_justification
     if frequence_type_by_discipline?
-      AbsenceJustification.by_teacher(current_teacher_id)
+      AbsenceJustification.by_author(author, current_teacher_id)
                           .by_unity(unity_id)
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
@@ -28,7 +29,7 @@ class AbsenceJustificationReportForm
                           .by_date_range(absence_date, absence_date_end)
                           .ordered
     else
-      AbsenceJustification.by_teacher(current_teacher_id)
+      AbsenceJustification.by_author(author, current_teacher_id)
                           .by_unity(unity_id)
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
