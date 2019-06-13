@@ -15,7 +15,7 @@ class StudentEnrollmentClassroomFetcher
                                                       .last
   end
 
-  def fetch_previous_enrollments
+  def previous_enrollments
     StudentEnrollmentClassroom.by_student(@student)
                               .by_classroom(@classroom)
                               .by_date_range(@start_date, @end_date)

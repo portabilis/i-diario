@@ -28,18 +28,20 @@ class StudentNotesQuery
     daily_note_students_query(student, discipline, classroom, start_at, end_at)
   end
 
-  def other_enrollments_daily_note_students
-    daily_notes = DailyNoteStudent.none
+  def previous_enrollments_daily_note_students
+    daily_notes = []
 
     other_enrollments.each do |enrollment|
-      daily_notes += daily_note_students_query(
-        student,
-        discipline,
-        classroom,
-        enrollment.joined_at,
-        enrollment.left_at
-      ).where(
-        transfer_note_id: nil
+      daily_notes.concat(
+        daily_note_students_query(
+          student,
+          discipline,
+          classroom,
+          enrollment.joined_at,
+          enrollment.left_at
+        ).where(
+          transfer_note_id: nil
+        )
       )
     end
 
@@ -113,6 +115,6 @@ class StudentNotesQuery
   end
 
   def other_enrollments
-    @other_enrollments ||= student_enrollment_classroom_fetcher.fetch_previous_enrollments
+    @other_enrollments ||= student_enrollment_classroom_fetcher.previous_enrollments
   end
 end
