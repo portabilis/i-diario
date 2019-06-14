@@ -31,7 +31,7 @@ class StudentNotesQuery
   def previous_enrollments_daily_note_students
     daily_notes = []
 
-    other_enrollments.each do |enrollment|
+    previous_enrollments.each do |enrollment|
       daily_notes.concat(
         daily_note_students_query(
           student,
@@ -114,7 +114,7 @@ class StudentNotesQuery
     @student_enrollment_classroom ||= student_enrollment_classroom_fetcher.current_enrollment
   end
 
-  def other_enrollments
-    @other_enrollments ||= student_enrollment_classroom_fetcher.previous_enrollments
+  def previous_enrollments
+    @previous_enrollments ||= student_enrollment_classroom_fetcher.previous_enrollments
   end
 end
