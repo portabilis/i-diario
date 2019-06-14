@@ -19,7 +19,7 @@ class StudentEnrollmentClassroomFetcher
     StudentEnrollmentClassroom.by_student(@student)
                               .by_classroom(@classroom)
                               .by_date_range(@start_date, @end_date)
-                              .where.not(id: current_enrollment.id)
+                              .where.not(id: current_enrollment.try(:id))
                               .active
   end
 end
