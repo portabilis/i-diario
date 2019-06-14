@@ -20,7 +20,7 @@ Rails/ReversibleMigration:
   Enabled: false
 
 Style/BlockDelimiters:
-  EnforcedStyle: semantic
+  EnforcedStyle: line_count_based
 
 Style/ConditionalAssignment:
   EnforcedStyle: assign_to_condition
