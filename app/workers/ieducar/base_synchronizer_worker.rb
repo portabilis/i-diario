@@ -1,7 +1,7 @@
 class BaseSynchronizerWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false
+  sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false, queue: :synchronizer
 
   sidekiq_retries_exhausted do |msg, exception|
     params = msg['args'].first.with_indifferent_access
