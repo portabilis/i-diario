@@ -1,6 +1,10 @@
 ---
-:logfile: ./log/sidekiq_synchronizer_enqueue_next_job.log
-:concurrency: 1
-:tag: synchronizer_enqueue_next_job
+:logfile: ./log/sidekiq_synchronizer.log
+:concurrency: 5
+:tag: synchronizer
+staging:
+  :concurrency: 10
+production:
+  :concurrency: 30
 :queues:
-  - [synchronizer_enqueue_next_job, 1]
+  - [synchronizer, 1]
