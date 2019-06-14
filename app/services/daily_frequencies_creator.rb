@@ -23,7 +23,7 @@ class DailyFrequenciesCreator
   def find_or_create_daily_frequencies
     @daily_frequencies =
       @class_numbers.map do |class_number|
-        daily_frequency = find_or_create_daily_frequency(@params.merge({class_number: class_number}))
+        daily_frequency = find_or_create_daily_frequency(@params.merge(class_number: class_number))
         daily_frequency if daily_frequency.persisted?
       end.compact
   end
@@ -45,11 +45,22 @@ class DailyFrequenciesCreator
   end
 
   def find_or_create_daily_frequency_student(daily_frequency, student_enrollment)
-    daily_frequency.students.find_or_create_by(student_id: student_enrollment.student_id) do |daily_frequency_student|
-      daily_frequency_student.dependence = student_has_dependence?(student_enrollment.id, first_daily_frequency.discipline_id)
+    daily_frequency_student = daily_frequency.students
+                                             .find_or_initialize_by(student_id: student_enrollment.student_id)
+
+    if daily_frequency_student.new_record?
+      daily_frequency_student.dependence = student_has_dependence?(
+        student_enrollment.id,
+        first_daily_frequency.discipline_id
+      )
+
       daily_frequency_student.present = true
       daily_frequency_student.active = true
+
+      daily_frequency_student.save
     end
+
+    daily_frequency_student
   rescue ActiveRecord::RecordNotUnique
     retry
   end
@@ -89,7 +100,11 @@ class DailyFrequenciesCreator
   end
 
   def step_number
-    @step_number ||= first_daily_frequency.school_calendar.step(first_daily_frequency.frequency_date).try(:to_number) || 0
+    frequency_date = first_daily_frequency.school_calendar
+                                          .step(first_daily_frequency.frequency_date)
+                                          .try(:to_number)
+
+    frequency_date || 0
   end
 
   def student_period
