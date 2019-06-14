@@ -34,7 +34,8 @@ class SchoolCalendarsParser
       school_calendar = SchoolCalendar.new(
         unity: unity,
         year: school_calendar_from_api['ano'].to_i,
-        number_of_classes: 4
+        number_of_classes: 4,
+        step_type_description: school_calendar_from_api['descricao']
       )
 
       school_calendar_from_api['etapas'].each do |step|
@@ -50,7 +51,8 @@ class SchoolCalendarsParser
       steps_from_classrooms = get_school_calendar_classroom_steps(school_calendar_from_api['etapas_de_turmas'])
       steps_from_classrooms.each do |classroom_step|
         classroom = SchoolCalendarClassroom.new(
-          classroom: find_classroom_by_api_code(classroom_step['turma_id'], unity)
+          classroom: find_classroom_by_api_code(classroom_step['turma_id'], unity),
+          step_type_description: classroom_step['descricao']
         )
         steps = []
         classroom_step['etapas'].each do |step|
@@ -91,6 +93,7 @@ class SchoolCalendarsParser
 
       unity = Unity.find_by(api_code: unity_api_code)
       school_calendar = SchoolCalendar.by_year(year).by_unity_api_code(unity_api_code).first
+      school_calendar.step_type_description = school_calendar_from_api['descricao']
 
       school_calendar_from_api['etapas'].each_with_index do |step, index|
         school_calendar_step = school_calendar.steps[index]
@@ -123,6 +126,7 @@ class SchoolCalendarsParser
       steps_from_classrooms.each_with_index do |classroom_step, classroom_index|
         school_calendar_classroom = SchoolCalendarClassroom.by_classroom_api_code(classroom_step['turma_id']).first
         if school_calendar_classroom
+          update_classroom_step_type_description(school_calendar.classrooms.detect { |c| c.id == school_calendar_classroom.id }, classroom_step['descricao'])
           existing_school_calendar_classroom_ids << school_calendar_classroom.id
 
           classroom_step['etapas'].each_with_index do |step, step_index|
@@ -147,7 +151,8 @@ class SchoolCalendarsParser
           end
         else
           classroom = SchoolCalendarClassroom.new(
-            classroom: find_classroom_by_api_code(classroom_step['turma_id'], unity)
+            classroom: find_classroom_by_api_code(classroom_step['turma_id'], unity),
+            step_type_description: classroom_step['descricao']
           )
           steps = []
           classroom_step['etapas'].each do |step|
@@ -231,13 +236,19 @@ class SchoolCalendarsParser
     end
   end
 
+  def update_classroom_step_type_description(school_calendar_classroom, description)
+    return unless school_calendar_classroom
+
+    school_calendar_classroom.step_type_description = description
+  end
+
   def school_calendar_need_synchronization?(school_calendar)
     school_calendar.changed? ||
     school_calendar.steps.any? do |step|
       step.new_record? || step.changed? || step.marked_for_destruction?
     end ||
     school_calendar.classrooms.any? do |school_calendar_classroom|
-      school_calendar_classroom.new_record? || school_calendar_classroom.marked_for_destruction?
+      school_calendar_classroom.new_record? || school_calendar_classroom.changed? || school_calendar_classroom.marked_for_destruction?
     end
   end
 

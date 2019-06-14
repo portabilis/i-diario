@@ -11,10 +11,13 @@ class TeacherPendingAvaliationsFetcher
     teacher_avaliations = Avaliation
                           .by_classroom_id(classroom)
                           .by_discipline_id(discipline)
-                          .by_school_calendar_step(school_calendar_step)
                           .by_status(DailyNoteStatuses::INCOMPLETE)
 
-    teacher_avaliations
+    if classroom.calendar
+      teacher_avaliations.by_school_calendar_classroom_step(school_calendar_step)
+    else
+      teacher_avaliations.by_school_calendar_step(school_calendar_step)
+    end
   end
 
   private

@@ -10,6 +10,8 @@ class ConceptualExamValue < ActiveRecord::Base
   validates :conceptual_exam, presence: true
   validates :discipline_id, presence: true
 
+  validates :conceptual_exam_id, uniqueness: { scope: :discipline_id }
+
   before_destroy :valid_for_destruction?
 
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }

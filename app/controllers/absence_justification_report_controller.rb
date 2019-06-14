@@ -30,8 +30,10 @@ class AbsenceJustificationReportController < ApplicationController
   private
 
   def fetch_absences
+    author_type = (params[:absence_justification_report_form] || []).delete(:author)
+
     if @absence_justification_report_form.frequence_type_by_discipline?
-      @absence_justifications = AbsenceJustification.by_teacher(current_teacher)
+      @absence_justifications = AbsenceJustification.by_author(author_type, current_teacher)
                                                     .by_unity(current_user_unity.id)
                                                     .by_school_calendar_report(current_school_calendar)
                                                     .by_classroom(@absence_justification_report_form.classroom_id)
@@ -39,7 +41,7 @@ class AbsenceJustificationReportController < ApplicationController
                                                     .by_date_range(@absence_justification_report_form.absence_date, @absence_justification_report_form.absence_date_end)
                                                     .order(absence_date: :asc)
     else
-      @absence_justifications = AbsenceJustification.by_teacher(current_teacher)
+      @absence_justifications = AbsenceJustification.by_author(author_type, current_teacher)
                                                     .by_unity(current_user_unity.id)
                                                     .by_school_calendar_report(current_school_calendar)
                                                     .by_classroom(@absence_justification_report_form.classroom_id)
@@ -55,7 +57,8 @@ class AbsenceJustificationReportController < ApplicationController
                                                               :absence_date,
                                                               :absence_date_end,
                                                               :school_calendar_year,
-                                                              :current_teacher_id)
+                                                              :current_teacher_id,
+                                                              :author)
   end
 
   def clear_invalid_dates

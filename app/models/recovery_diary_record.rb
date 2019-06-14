@@ -24,8 +24,12 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   has_one :avaliation_recovery_diary_record
 
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_student_id, lambda { |student_id| joins(:students).where(recovery_diary_record_students: { student_id: student_id }) }
+  scope :by_recorded_at_between, lambda { |start_at, end_at|
+    where(arel_table[:recorded_at].gteq(start_at)).where(arel_table[:recorded_at].lteq(end_at))
+  }
 
   validates_date :recorded_at
   validates :unity, presence: true

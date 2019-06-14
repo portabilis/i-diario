@@ -81,11 +81,8 @@ class StudentNotesQuery
   end
 
   def student_enrollment_classroom
-    @student_enrollment_classroom ||= StudentEnrollmentClassroom.by_student(student)
-                                                                .by_classroom(classroom)
-                                                                .by_date_range(step_start_at, step_end_at)
-                                                                .active
-                                                                .ordered
-                                                                .last
+    @student_enrollment_classroom ||= StudentEnrollmentClassroomFetcher.new(
+      student, classroom, step_start_at, step_end_at
+    ).fetch
   end
 end

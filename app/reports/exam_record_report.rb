@@ -9,11 +9,11 @@ class ExamRecordReport < BaseReport
   # This factor represent the quantitty of students with social name needed to reduce 1 student by page
   SOCIAL_NAME_REDUCTION_FACTOR = 3
 
-  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
-    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
+  def self.build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
+    new(:landscape).build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
   end
 
-  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams)
+  def build(entity_configuration, teacher, year, school_calendar_step, test_setting, daily_notes, students_enrollments, complementary_exams, school_term_recoveries)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -22,6 +22,7 @@ class ExamRecordReport < BaseReport
     @daily_notes = daily_notes
     @students_enrollments = students_enrollments
     @complementary_exams = complementary_exams
+    @school_term_recoveries = school_term_recoveries
 
     header
     content
@@ -35,6 +36,30 @@ class ExamRecordReport < BaseReport
   attr_accessor :any_student_with_dependence
 
   private
+
+  def student_enrolled_on_date?(student_id, date)
+    student_list(date).include?(student_id)
+  end
+
+  def student_list(date)
+    student_list ||= {}
+    student_list[date] ||= StudentEnrollmentsList.new(
+      classroom: classroom,
+      discipline: discipline,
+      date: date,
+      search_type: :by_date,
+      show_inactive: false
+    ).student_enrollments
+    .map(&:student_id)
+  end
+
+  def classroom
+    @classroom ||= @daily_notes.first.classroom
+  end
+
+  def discipline
+    @discipline ||= @daily_notes.first.discipline
+  end
 
   def header
     exam_header = make_cell(content: 'Registro de avaliações', size: 12, font_style: :bold, background_color: 'DEDEDE', height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 5)
@@ -53,10 +78,10 @@ class ExamRecordReport < BaseReport
     step_header = make_cell(content: 'Etapa', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, width: 200, colspan: 2, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
     teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, width: 200, borders: [:top, :left, :right], padding: [2, 2, 4, 4], height: 2)
-    classroom_cell = make_cell(content: @daily_notes.first.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    classroom_cell = make_cell(content: classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     year_cell = make_cell(content: @year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     step_cell = make_cell(content: @school_calendar_step.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    discipline_cell = make_cell(content: (@daily_notes.first.discipline ? @daily_notes.first.discipline.description : 'Geral'), size: 10, colspan: 2, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    discipline_cell = make_cell(content: (discipline ? discipline.description : 'Geral'), size: 10, colspan: 2, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     teacher_cell = make_cell(content: @teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
 
     first_table_data = [[exam_header],
@@ -84,8 +109,8 @@ class ExamRecordReport < BaseReport
       averages[student_enrollment.student_id] = StudentAverageCalculator.new(
         student_enrollment.student
       ).calculate(
-        @daily_notes.first.classroom,
-        @daily_notes.first.discipline,
+        classroom,
+        discipline,
         @school_calendar_step
       )
     end
@@ -107,6 +132,10 @@ class ExamRecordReport < BaseReport
       exams << complementary_exam
     end
 
+    @school_term_recoveries.each do |school_term_recovery|
+      exams << school_term_recovery
+    end
+
     exams.to_a
     sliced_exams = exams.each_slice(10).to_a
     pos = 0
@@ -122,6 +151,9 @@ class ExamRecordReport < BaseReport
           daily_note_id = recoveries_ids[pos]
           pos += 1
         elsif complementary_exam_record(exam)
+          avaliation_id = nil
+          daily_note_id = nil
+        elsif school_term_recovery_record(exam)
           avaliation_id = nil
           daily_note_id = nil
         else
@@ -152,6 +184,13 @@ class ExamRecordReport < BaseReport
           elsif complementary_exam_record(exam)
             complementary_student = ComplementaryExamStudent.find_by(complementary_exam_id: exam.id, student_id: student_id)
             score = complementary_student.present? ? complementary_student.try(:score) : NullDailyNoteStudent.new.note
+          elsif school_term_recovery_record(exam)
+            recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student_id, recovery_diary_record_id: exam.recovery_diary_record_id)
+
+            score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_id, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
+            if recovery_student.try(:score).present? && recovery_student.score > averages[student_enrollment.student_id]
+              averages[student_enrollment.student_id] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY).round(recovery_student.score)
+            end
           end
 
           student = Student.find(student_id)
@@ -294,6 +333,10 @@ class ExamRecordReport < BaseReport
     record.class.to_s == "ComplementaryExam"
   end
 
+  def school_term_recovery_record(record)
+    record.class.to_s == "SchoolTermRecoveryDiaryRecord"
+  end
+
   def localize_score(value)
     return value unless value.is_a? Numeric
     number_with_precision(value, precision: @test_setting.number_of_decimal_places||1)
@@ -311,6 +354,8 @@ class ExamRecordReport < BaseReport
       "Rec. #{record.avaliation_recovery_diary_record.avaliation}\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}</font>"
     elsif complementary_exam_record(record)
       "#{record.complementary_exam_setting.description}\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}\n#{record.complementary_exam_setting.maximum_score}</font>"
+    elsif school_term_recovery_record(record)
+      "Recuperação da etapa\n<font size='7'>#{record.recorded_at.strftime("%d/%m")}"
     else
       "#{record.avaliation.to_s}\n<font size='7'>#{record.test_date.strftime("%d/%m")}</font>\n<font size='7'>#{record.avaliation.try(:weight)}</font>"
     end

@@ -103,7 +103,7 @@ $(function() {
                 format: 'json'
             }),
             success: function(data){
-              if(data.user_role.role.access_level == 'teacher' || can_change_school_year){
+              if(data.user_role.role.access_level == 'teacher'){
                 fetchTeachers(
                   unity_id,
                   $('form#user-role-form #user_current_school_year').val(),

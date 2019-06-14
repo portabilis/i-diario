@@ -28,6 +28,7 @@
               <%= f.simple_fields_for school_calendar do |s| %>
                 <tr id="unity_<%= school_calendar.unity.id %>">
                   <input type="hidden" name="synchronize[][school_calendar_id]" value="<%= school_calendar.id %>">
+                  <input type="hidden" name="synchronize[][step_type_description]" value="<%= school_calendar.step_type_description %>">
 
                   <td>
                     <label>
@@ -58,6 +59,7 @@
                   <% school_calendar.classrooms.each_with_index do |classroom, index| %>
                     <input type="hidden" name="synchronize[][classrooms][][id]" value="<%= classroom.classroom_id %>">
                     <input type="hidden" name="synchronize[][classrooms][][_destroy]" value="<%= classroom.marked_for_destruction? %>">
+                    <input type="hidden" name="synchronize[][classrooms][][step_type_description]" value="<%= classroom.step_type_description %>">
 
                     <% classroom.classroom_steps.each_with_index do |step, index| %>
                       <input type="hidden" name="synchronize[][classrooms][][steps][][step_number]" value="<%= step.step_number %>">

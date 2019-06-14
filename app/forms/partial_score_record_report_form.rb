@@ -21,7 +21,7 @@ class PartialScoreRecordReportForm
                                              .by_classroom_id(classroom_id)
                                              .by_student_id(student_id)
                                              .exclude_discipline_ids(exempted_disciplines)
-                                             .by_test_date_between(school_calendar.first_day, school_calendar.last_day)
+                                             .by_test_date_between(step.start_at, step.end_at)
                                              .order_by_discipline_and_date
   end
 
