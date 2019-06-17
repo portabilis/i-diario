@@ -11,12 +11,17 @@ class SynchronizationOrchestrator
 
     return false if worker_initialized?(current_worker_name, by_year, by_unity)
 
-    dependencies_solved?(current_worker_name)
+    dependencies_solved?(current_worker_name, by_year, by_unity)
   end
 
   def enqueue_next
     SynchronizationConfigs.dependents_by_klass(current_worker_name).each do |klass|
-      next unless dependencies_solved?(klass)
+      by_year = SynchronizationConfigs.find_by_klass(klass)[:by_year]
+      by_unity = SynchronizationConfigs.find_by_klass(klass)[:by_unity]
+
+      next if by_year && params[:year].blank?
+      next if by_unity && params[:unity_api_code].blank?
+      next unless dependencies_solved?(klass, by_year, by_unity)
 
       enqueue_job(SynchronizationConfigs.find_by_klass(klass))
     end
@@ -26,10 +31,7 @@ class SynchronizationOrchestrator
 
   attr_accessor :worker_batch, :current_worker_name, :params
 
-  def dependencies_solved?(worker_name)
-    valid_year = params[:year].to_s.split(',').size == 1
-    by_year = SynchronizationConfigs.find_by_klass(worker_name)[:by_year] && valid_year
-    by_unity = SynchronizationConfigs.find_by_klass(worker_name)[:by_unity]
+  def dependencies_solved?(worker_name, by_year, by_unity)
     dependencies_count = SynchronizationConfigs.dependencies_by_klass(worker_name).size
 
     completed_dependencies_count(worker_name, by_year, by_unity) == dependencies_count
