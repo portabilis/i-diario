@@ -71,7 +71,7 @@ synchronizers:
   -
     klass: CoursesSynchronizer
     by_year: false
-    by_unity: true
+    by_unity: false
     dependents: [
       GradesSynchronizer
     ]
@@ -82,7 +82,7 @@ synchronizers:
   -
     klass: GradesSynchronizer
     by_year: false
-    by_unity: true
+    by_unity: false
     dependents: [
       ClassroomsSynchronizer
     ]
