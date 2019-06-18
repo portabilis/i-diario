@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Página não encontrada</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <div class="error-header">
+          <h1>Oops!</h1>
+          <h2>404 - Página não encontrada :(</h2>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-8 col-sm-offset-2 error-details">
+          <p>Desculpe, mas a página que você solicitou não foi encontrada</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-sm-4 col-sm-offset-2 error-actions">
+          <a href="javascript:history.back()" class="btn btn-primary btn-lg" style="width: 100%;">Voltar para a página anterior</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

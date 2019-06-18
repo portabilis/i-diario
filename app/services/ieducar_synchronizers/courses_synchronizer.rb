@@ -2,9 +2,7 @@ class CoursesSynchronizer < BaseSynchronizer
   def synchronize!
     update_courses(
       HashDecorator.new(
-        api.fetch(
-          escola_id: unity_api_code
-        )['cursos']
+        api.fetch['cursos']
       )
     )
   end

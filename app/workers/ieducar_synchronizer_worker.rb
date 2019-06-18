@@ -98,7 +98,7 @@ class IeducarSynchronizerWorker
     (
       (synchronizers_by_year_and_unity.size * years_to_synchronize.size) +
       (synchronizers_by_year.size * years_to_synchronize.size) +
-      synchronizers_by_unity.size +
+      (unities_api_code.present? ? synchronizers_by_unity.size : 0) +
       single_synchronizers.size
     )
   end

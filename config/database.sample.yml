@@ -2,15 +2,15 @@ default: &default
   adapter: postgresql
   encoding: utf8
   pool: 5
-  owner: educacao
-  username: educacao
-  password: educacao
-  template: template0
+  username: 'postgres'
+  password: 'postgres'
+  # host: postgres
+  host: localhost
 
 development:
   <<: *default
-  database: educacao_development
+  database: idiario_development
 
 test:
   <<: *default
-  database: educacao_test
+  database: idiario_test
