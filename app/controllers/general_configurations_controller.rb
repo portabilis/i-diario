@@ -40,7 +40,8 @@ class GeneralConfigurationsController < ApplicationController
       :display_header_on_all_reports_pages,
       :max_descriptive_exam_character_count,
       :support_url,
-      :copyright_name
+      :copyright_name,
+      :show_school_term_recovery_in_exam_record_report
     )
   end
 

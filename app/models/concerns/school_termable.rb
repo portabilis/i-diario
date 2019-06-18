@@ -15,20 +15,12 @@ module SchoolTermable
     step_number
   end
 
-  def raw_school_term
-    @raw_school_term ||= school_calendar_parent.school_step(self).to_s
+  def step_type_description
+    @step_type_description ||= school_calendar_parent.step_type_description
   end
 
   def school_term
-    if raw_school_term.end_with?(SchoolTermTypes::BIMESTER)
-      I18n.t("enumerations.bimesters.#{raw_school_term}")
-    elsif raw_school_term.end_with?(SchoolTermTypes::TRIMESTER)
-      I18n.t("enumerations.trimesters.#{raw_school_term}")
-    elsif raw_school_term.end_with?(SchoolTermTypes::SEMESTER)
-      I18n.t("enumerations.semesters.#{raw_school_term}")
-    elsif raw_school_term.end_with?(SchoolTermTypes::YEARLY)
-      I18n.t("enumerations.year.#{raw_school_term}")
-    end
+    "#{to_number}º #{step_type_description}"
   end
 
   private

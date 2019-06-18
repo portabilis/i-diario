@@ -64,6 +64,6 @@ class TestSettingUpdatePolicy
   end
 
   def allowed_fields_to_change_on_test_setting
-    ['maximum_score', 'updated_at', 'number_of_decimal_places']
+    ['maximum_score', 'updated_at']
   end
 end

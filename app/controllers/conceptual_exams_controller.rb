@@ -12,7 +12,7 @@ class ConceptualExamsController < ApplicationController
                                                     .by_unity(current_user_unity)
                                                     .by_classroom(current_user_classroom)
                                                     .by_teacher(current_teacher_id)
-                                                    .ordered
+                                                    .ordered_by_date_and_student
 
     @conceptual_exams = @conceptual_exams.by_step_id(current_user_classroom, step_id) if step_id.present?
     @conceptual_exams = @conceptual_exams.by_status(current_user_classroom, current_teacher_id, status) if status.present?
@@ -55,6 +55,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = find_or_initialize_conceptual_exam
     authorize @conceptual_exam
     @conceptual_exam.assign_attributes(resource_params)
+    @conceptual_exam.merge_conceptual_exam_values
     @conceptual_exam.step_number = @conceptual_exam.step.try(:step_number)
     @conceptual_exam.teacher_id = current_teacher_id
 
@@ -105,6 +106,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = ConceptualExam.find(params[:id]).localized
     @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
     @conceptual_exam.step_id = find_step_id
+    @conceptual_exam.validation_type = :destroy
 
     authorize @conceptual_exam
 

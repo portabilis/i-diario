@@ -5,7 +5,11 @@
         <thead>
           <tr>
               <td width="10%"><%= f.input :by_year, label: false, placeholder: t('.by_year') %></td>
-              <td><%= f.input :by_unity_id, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity_id') %></td>
+              <td>
+                <% if show_all_unities? %>
+                  <%= f.input :by_unity_id, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity_id') %>
+                <% end %>
+              </td>
               <td></td>
               <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px"><%= link_to t('.synchronize_html'), synchronize_school_calendars_path, class: "btn btn-info pull-right" %></td>
             </tr>

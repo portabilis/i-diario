@@ -11,6 +11,7 @@ gem 'audited-activerecord', '4.0.0.rc1', git: 'https://github.com/portabilis/aud
 gem 'aws-sdk', '2.9.7'
 gem 'backbone-nested-attributes', '0.3.0', git: 'https://github.com/samuelsimoes/backbone-nested-attributes.git'
 gem 'binding_of_caller', '0.8.0'
+gem 'bootbox-rails', '~>0.4'
 gem 'bulk_insert', '1.1.0'
 gem 'carrierwave', '0.11.2'
 gem 'cocoon', '1.2.6'
@@ -65,6 +66,9 @@ gem 'uglifier', '4.1.20'
 gem 'uri_validator', '0.2.0'
 gem 'validates_timeliness', '3.0.14'
 
+# Adiciona gem de dependencia para fixar a versão com suporte ao ruby 2.2.6
+gem 'public_suffix', '3.0.3'
+
 instance_eval File.read('Gemfile.plugins') if File.exists?('Gemfile.plugins')
 
 group :development do
@@ -85,7 +89,7 @@ group :test do
   gem 'cpf_faker', '1.3.0'
   gem 'database_cleaner', '1.5.1'
   gem 'factory_girl_rails', '4.5.0'
-  gem 'faker', '1.6.1'
+  gem 'faker', '1.9.1'
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
   gem 'poltergeist', '1.8.1'
   gem 'pry', '0.10.3'

@@ -42,7 +42,7 @@ class AvaliationsTestSettingUpdater
     test_setting = TestSetting.find_by(year: avaliation.test_date.year, exam_setting_type: ExamSettingTypes::GENERAL)
 
     if test_setting.nil?
-      school_term = school_calendar.school_term(avaliation.test_date)
+      school_term = SchoolTermConverter.convert(school_calendar.step(avaliation.test_date))
       test_setting = TestSetting.find_by(year: avaliation.test_date.year, school_term: school_term)
     end
 

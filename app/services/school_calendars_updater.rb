@@ -10,7 +10,10 @@ class SchoolCalendarsUpdater
   def update!
     ActiveRecord::Base.transaction do
       if @school_calendar['school_calendar_id'].present?
-        school_calendar = SchoolCalendar.find_by_id(@school_calendar['school_calendar_id'])
+        school_calendar = SchoolCalendar.find_by(id: @school_calendar['school_calendar_id'])
+        if school_calendar.step_type_description != @school_calendar['step_type_description']
+          school_calendar.update!(step_type_description: @school_calendar['step_type_description'])
+        end
 
         begin
           update_school_calendar_steps(school_calendar)
@@ -73,6 +76,10 @@ class SchoolCalendarsUpdater
       school_calendar_classroom = SchoolCalendarClassroom.find_by(classroom_id: classroom_params['id'])
 
       if school_calendar_classroom.present?
+        if school_calendar_classroom.step_type_description != classroom_params['step_type_description']
+          school_calendar_classroom.update!(step_type_description: classroom_params['step_type_description'])
+        end
+
         school_calendar_classroom_ids_marked_for_destruction << school_calendar_classroom.id if classroom_params['_destroy'] == 'true'
 
         (classroom_params['steps'] || []).each do |step_params|
@@ -120,9 +127,10 @@ class SchoolCalendarsUpdater
   end
 
   def create_school_calendar_classroom!(classroom_params, school_calendar)
-    school_calendar_classroom = SchoolCalendarClassroom.create!(
+    SchoolCalendarClassroom.create!(
       school_calendar: school_calendar,
-      classroom: Classroom.find_by_id(classroom_params['id'])
+      step_type_description: classroom_params['step_type_description'],
+      classroom: Classroom.find_by(id: classroom_params['id'])
     )
   end
 

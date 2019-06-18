@@ -1,11 +1,11 @@
 FactoryGirl.define do
   factory :user do
-    sequence(:email) { |n| "user#{n}@example.com" }
+    email { Faker::Internet.unique.email }
     password   '12345678'
     password_confirmation '12345678'
     first_name 'User'
     last_name  'Example'
-    login      'user.example'
+    login      { Faker::Name.unique.name }
     phone      '(11) 99887766'
     cpf        { Faker::CPF.pretty }
     admin      true

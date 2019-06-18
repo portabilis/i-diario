@@ -92,11 +92,4 @@ $(function () {
 
     checkboxes.prop("checked", $(this).prop('checked'));
   });
-
-  var valid_current_role = $('#valid_current_role').val();
-
-  if(valid_current_role === "false"){
-    $('#user_current_user_role_id').trigger('change');
-    $("#role-modal").modal('show');
-  }
 });

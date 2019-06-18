@@ -3,6 +3,7 @@ class TeacherReportCardsController < ApplicationController
 
   def form
     @teacher_report_card_form = TeacherReportCardForm.new(unity_id: current_user_unity.id)
+    @teacher_report_card_form.status = TeacherReportCardStatus::ALL
     authorize(TeacherReportCard, :show?)
   end
 
@@ -29,7 +30,8 @@ class TeacherReportCardsController < ApplicationController
         classroom_id: classroom.api_code,
         discipline_id: discipline.api_code,
         ano: year,
-        professor: current_teacher.to_s
+        professor: current_teacher.to_s,
+        situacao: @teacher_report_card_form.status
       })
       send_pdf(t("routes.teacher_report_cards"), report)
     else
@@ -65,7 +67,7 @@ class TeacherReportCardsController < ApplicationController
 
   def resource_params
     params.require(:teacher_report_card_form).permit(
-      :unity_id, :classroom_id, :discipline_id
+      :unity_id, :classroom_id, :discipline_id, :status
     )
   end
 end

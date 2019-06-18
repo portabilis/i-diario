@@ -41,6 +41,15 @@ class ConceptualExam < ActiveRecord::Base
     )
   }
   scope :ordered, -> { order(recorded_at: :desc) }
+  scope :ordered_by_date_and_student, -> {
+    joins(
+      arel_table.join(Student.arel_table).on(
+        Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id])
+      ).join_sources
+    ).order(recorded_at: :desc)
+    .order(Student.arel_table[:name])
+    .select(Student.arel_table[:name])
+  }
 
   validates :student, :unity_id, presence: true
   validate :student_must_have_conceptual_exam_score_type
@@ -94,8 +103,26 @@ class ConceptualExam < ActiveRecord::Base
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
+      self.validation_type = :destroy
       valid?
       !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
+  end
+
+  def merge_conceptual_exam_values
+    grouped_conceptual_exam_values = conceptual_exam_values.group_by { |e|
+      [e.conceptual_exam_id, e.discipline_id]
+    }
+
+    self.conceptual_exam_values = grouped_conceptual_exam_values.map do |_key, conceptual_exam_values|
+      next conceptual_exam_values.first if conceptual_exam_values.size == 1
+
+      persisted = conceptual_exam_values.find(&:persisted?)
+      new_record = conceptual_exam_values.find(&:new_record?)
+
+      persisted.value = new_record.value if new_record.present?
+
+      persisted
     end
   end
 
@@ -131,7 +158,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def uniqueness_of_student
-    return if step.blank? || student_id.blank?
+    return if step.blank? || student_id.blank? || validation_type == :destroy
 
     discipline_ids = conceptual_exam_values.collect(&:discipline_id)
     conceptual_exam = ConceptualExam.joins(:conceptual_exam_values)
