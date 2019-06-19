@@ -47,3 +47,6 @@ config/initializers/backport_pg_10_support_to_rails_4.rb
 
 # Optinal plugins
 Gemfile.plugins
+
+# Setup
+.setup
