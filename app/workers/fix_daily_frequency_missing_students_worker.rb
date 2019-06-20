@@ -3,7 +3,7 @@ class FixDailyFrequencyMissingStudentsWorker
 
   def perform(entity_id = nil)
     entities = Entity.where(id: entity_id) if entity_id.present?
-    entities ||= Entity.active
+    entities ||= Entity.need_migration.active
 
     entities.each do |entity|
       entity.using_connection do
