@@ -1,20 +1,19 @@
 class CoursesGradesClassroomsSynchronizerWorker
   include Sidekiq::Worker
+  include EntityWorker
 
-  def perform(entity_id, synchronization_id, worker_batch_id)
-    Entity.find(entity_id).using_connection do
-      synchronization = IeducarApiSynchronization.find(synchronization_id)
-      worker_batch = WorkerBatch.find(worker_batch_id)
+  def perform_in_entity(synchronization_id, worker_batch_id)
+    synchronization = IeducarApiSynchronization.find(synchronization_id)
+    worker_batch = WorkerBatch.find(worker_batch_id)
 
-      begin
-        CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, worker_batch)
-      rescue IeducarApi::Base::ApiError => e
-        synchronization.mark_as_error!(e.message)
-      rescue Exception => exception
-        synchronization.mark_as_error!('Ocorreu um erro desconhecido.')
+    begin
+      CoursesGradesClassroomsSynchronizer.synchronize!(synchronization, worker_batch)
+    rescue IeducarApi::Base::ApiError => e
+      synchronization.mark_as_error!(e.message)
+    rescue Exception => exception
+      synchronization.mark_as_error!('Ocorreu um erro desconhecido.')
 
-        raise exception
-      end
+      raise exception
     end
   end
 end
