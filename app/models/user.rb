@@ -254,6 +254,26 @@ class User < ActiveRecord::Base
     current_user_role.role.access_level
   end
 
+  def administrator?
+    self.current_user_role.role.access_level === 'administrator'
+  end
+
+  def employee?
+    self.current_user_role.role.access_level === 'employee'
+  end
+
+  def parent?
+    self.current_user_role.role.access_level === 'parent'
+  end
+
+  def student?
+    self.current_user_role.role.access_level === 'student'
+  end
+
+  def teacher?
+    self.current_user_role.role.access_level === 'teacher'
+  end
+
   protected
 
   def email_required?
