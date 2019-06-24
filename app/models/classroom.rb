@@ -18,9 +18,9 @@ class Classroom < ActiveRecord::Base
   validates :description, :api_code, :unity_code, :year, :grade, presence: true
   validates :api_code, uniqueness: true
 
-  scope :by_unity_and_teacher, lambda { |unity_id, teacher_id| joins(:teacher_discipline_classrooms).where(unity_id: unity_id, teacher_discipline_classrooms: { teacher_id: teacher_id}).uniq }
+  scope :by_unity, lambda { |unity_id| where(unity_id: unity_id) }
+  scope :by_unity_and_teacher, lambda { |unity_id, teacher_id| joins(:teacher_discipline_classrooms).where(unity_id: unity_id, teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_unity_and_grade, lambda { |unity_id, grade_id| where(unity_id: unity_id, grade_id: grade_id).uniq }
-  scope :by_unity, lambda { |unity| where(unity: unity) }
   scope :different_than, lambda { |classroom_id| where(arel_table[:id].not_eq(classroom_id)) }
   scope :by_grade, lambda { |grade_id| where(grade_id: grade_id) }
   scope :by_year, lambda { |year| where(year: year) }
