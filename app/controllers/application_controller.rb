@@ -250,10 +250,10 @@ class ApplicationController < ActionController::Base
   def current_user_available_classrooms
     return [] unless current_user_unity
     @current_user_available_classrooms ||= begin
-      if current_teacher
+      if current_teacher && current_user.teacher?
         classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher).ordered
       else
-        classrooms = Classroom.by_unit(current_user_unity)
+        classrooms = Classroom.by_unity(current_user_unity)
       end
 
       if current_school_calendar.try(:year)
