@@ -1,6 +1,12 @@
 require 'spec_helper'
 
 RSpec.describe DisciplineTeachingPlansController, type: :controller do
+  let(:entity) { Entity.find_by(domain: 'test.host') }
+  around(:each) do |example|
+    entity.using_connection do
+      example.run
+    end
+  end
   let(:user) { create(:user_with_user_role, admin: false) }
   let(:user_role) { user.user_roles.first }
   let(:unity) { user_role.unity }

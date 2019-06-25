@@ -28,10 +28,6 @@ RSpec.configure do |config|
     ActiveRecord::FixtureSet.create_fixtures(fixture_path, fixtures)
   end
 
-  config.before(:example, type: :controller) do
-    connect_to_entity
-  end
-
   config.after :each do |example|
     page.driver.restart if defined?(page.driver.restart)
   end

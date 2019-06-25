@@ -8,11 +8,6 @@ module ControllerHelpers
       allow(controller).to receive_messages(current_user: user)
     end
   end
-
-  def connect_to_entity
-    entity = Entity.find_by(domain: 'test.host').send(:connection_spec)
-    ActiveRecord::Base.establish_connection(entity)
-  end
 end
 
 RSpec.configure do |config|
