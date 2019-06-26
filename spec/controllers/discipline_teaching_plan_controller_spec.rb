@@ -137,14 +137,14 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
       it 'fails to create and renders the new template' do
         allow(controller).to receive(:fetch_collections).and_return([])
         params[:discipline_teaching_plan][:discipline_id] = nil
-        post :create, params.merge(params)
+        expect { post :create, params.merge(params) }.to_not change(DisciplineTeachingPlan, :count)
         expect(response).to render_template(:new)
       end
     end
 
     context 'with success' do
       it 'creates and redirects to discipline_teaching_plans#index' do
-        post :create, params.merge(params)
+        expect { post :create, params.merge(params) }.to change(DisciplineTeachingPlan, :count).by(1)
         expect(response).to redirect_to(discipline_teaching_plans_path)
       end
     end
