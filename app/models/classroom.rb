@@ -19,12 +19,12 @@ class Classroom < ActiveRecord::Base
   validates :api_code, uniqueness: true
 
   scope :by_unity, -> (unity_id) { where(unity_id: unity_id) }
-  scope :by_unity_and_teacher, lambda do |unity_id, teacher_id|
+  scope :by_unity_and_teacher, lambda { |unity_id, teacher_id|
     joins(:teacher_discipline_classrooms)
       .where(unity_id: unity_id, teacher_discipline_classrooms: {
         teacher_id: teacher_id
       }).uniq
-  end
+  }
   scope :by_unity_and_grade, -> (unity_id, grade_id) { where(unity_id: unity_id, grade_id: grade_id).uniq }
   scope :different_than, -> (classroom_id) { where(arel_table[:id].not_eq(classroom_id)) }
   scope :by_grade, -> (grade_id) { where(grade_id: grade_id) }
