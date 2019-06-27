@@ -67,6 +67,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       teacher_discipline_classroom.period = teacher_discipline_classroom_record.turno_id
       teacher_discipline_classroom.active = true if teacher_discipline_classroom.active.nil?
       teacher_discipline_classroom.save! if teacher_discipline_classroom.changed?
+
+      teacher_discipline_classroom.discard_or_undiscard(false)
     end
   end
 
