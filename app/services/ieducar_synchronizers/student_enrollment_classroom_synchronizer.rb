@@ -60,7 +60,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
       next if student_id.blank? || classroom_id.blank?
 
       DeleteInvalidPresenceRecordWorker.perform_in(
-        5.seconds,
+        1.second,
         entity_id,
         student_id,
         classroom_id
