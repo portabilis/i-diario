@@ -56,7 +56,7 @@ class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   def delete_dispensed_exams_and_frequencies(changed_student_enrollment_exempted_disciplines)
     changed_student_enrollment_exempted_disciplines.uniq.each do |student_enrollment_id, discipline_id, steps|
       DeleteDispensedExamsAndFrequenciesWorker.perform_in(
-        5.seconds,
+        1.second,
         entity_id,
         student_enrollment_id,
         discipline_id,

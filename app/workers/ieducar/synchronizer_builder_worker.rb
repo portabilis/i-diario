@@ -15,7 +15,7 @@ class SynchronizerBuilderWorker < BaseSynchronizerWorker
           params[:unity_api_code] = unity_api_code
 
           SynchronizerExecuterEnqueueWorker.perform_in(
-            5.seconds,
+            1.second,
             params
           )
         end

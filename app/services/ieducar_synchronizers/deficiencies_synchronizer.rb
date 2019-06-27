@@ -88,7 +88,7 @@ class DeficienciesSynchronizer < BaseSynchronizer
 
   def update_students_uses_differentiated_exam_rule(deficiency_id: nil, student_id: nil)
     StudentsUpdateUsesDifferentiatedExamRuleWorker.perform_in(
-      5.seconds,
+      1.second,
       entity_id: entity_id,
       deficiency_id: deficiency_id,
       student_id: student_id,
