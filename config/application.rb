@@ -16,7 +16,9 @@ module Educacao
     config.autoload_paths += %W(
       #{config.root}/lib
       #{config.root}/app/workers
+      #{config.root}/app/workers/ieducar
       #{config.root}/app/workers/concerns
+      #{config.root}/app/workers/student_dependencies_discarder
       #{config.root}/app/services
       #{config.root}/app/services/ieducar_synchronizers
       #{config.root}/app/queries

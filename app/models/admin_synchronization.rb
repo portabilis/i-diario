@@ -11,7 +11,7 @@ class AdminSynchronization
       started = []
       finished = []
 
-      Entity.need_migration.active.each do |entity|
+      Entity.where(migrate: false).active.each do |entity|
         entity.using_connection do
           started << mount_started(entity)
           finished << mount_finished(entity)

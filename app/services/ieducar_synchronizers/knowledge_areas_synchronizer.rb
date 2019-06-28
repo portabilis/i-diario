@@ -1,20 +1,28 @@
 class KnowledgeAreasSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch['areas']
+    update_knowledge_areas(
+      HashDecorator.new(
+        api.fetch['areas']
+      )
+    )
   end
 
-  protected
+  private
 
-  def api
-    IeducarApi::KnowledgeAreas.new(synchronization.to_api)
+  def api_class
+    IeducarApi::KnowledgeAreas
   end
 
-  def update_records(collection)
-    collection.each do |record|
-      KnowledgeArea.find_or_initialize_by(api_code: record['id']).tap do |knowledge_area|
-        knowledge_area.description = record['nome']
-        knowledge_area.sequence = record['ordenamento_ac']
+  def update_knowledge_areas(knowledge_areas)
+    knowledge_areas.each do |knowledge_area_record|
+      KnowledgeArea.with_discarded.find_or_initialize_by(
+        api_code: knowledge_area_record.id
+      ).tap do |knowledge_area|
+        knowledge_area.description = knowledge_area_record.nome
+        knowledge_area.sequence = knowledge_area_record.ordenamento_ac
         knowledge_area.save! if knowledge_area.changed?
+
+        knowledge_area.discard_or_undiscard(knowledge_area_record.deleted_at.present?)
       end
     end
   end

@@ -19,6 +19,11 @@ class StudentEnrollmentsList
     @period = params.fetch(:period, nil)
     ensure_has_valid_params
 
+    if search_type == :by_year && params[:year].blank?
+      classroom = Classroom.find(@classroom)
+      @year = classroom.year
+    end
+
     adjust_date_range_by_year if opinion_type_by_year?
   end
 
@@ -28,7 +33,7 @@ class StudentEnrollmentsList
 
   private
 
-  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive,
+  attr_accessor :classroom, :discipline, :year, :date, :start_at, :end_at, :search_type, :show_inactive,
                 :show_inactive_outside_step, :score_type, :opinion_type, :with_recovery_note_in_step,
                 :include_date_range, :period
 
@@ -98,6 +103,8 @@ class StudentEnrollmentsList
       enrollments_on_period = enrollments_on_period.by_date(date)
     elsif search_type == :by_date_range
       enrollments_on_period = enrollments_on_period.by_date_range(start_at, end_at)
+    elsif search_type == :by_year
+      enrollments_on_period = enrollments_on_period.by_year(year)
     end
 
     enrollments_on_period.active.any?
