@@ -1,4 +1,6 @@
 class Classroom < ActiveRecord::Base
+  include Discardable
+
   acts_as_copy_target
 
   audited
@@ -18,25 +20,39 @@ class Classroom < ActiveRecord::Base
   validates :description, :api_code, :unity_code, :year, :grade, presence: true
   validates :api_code, uniqueness: true
 
-  scope :by_unity, -> (unity_id) { where(unity_id: unity_id) }
+  default_scope -> { kept }
+
   scope :by_unity_and_teacher, lambda { |unity_id, teacher_id|
     joins(:teacher_discipline_classrooms)
-      .where(unity_id: unity_id, teacher_discipline_classrooms: {
-        teacher_id: teacher_id
-      }).uniq
+      .where(unity_id: unity_id, teacher_discipline_classrooms: { teacher_id: teacher_id })
+      .uniq
   }
-  scope :by_unity_and_grade, -> (unity_id, grade_id) { where(unity_id: unity_id, grade_id: grade_id).uniq }
-  scope :different_than, -> (classroom_id) { where(arel_table[:id].not_eq(classroom_id)) }
-  scope :by_grade, -> (grade_id) { where(grade_id: grade_id) }
-  scope :by_year, -> (year) { where(year: year) }
-  scope :by_period, -> (period) { where(period: period) }
-  scope :by_teacher_id, -> (teacher_id) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
-  scope :by_score_type, -> (score_type) { where('exam_rules.score_type' => score_type).includes(:exam_rule) }
+
+  scope :by_unity, ->(unity) { where(unity: unity) }
+  scope :by_unity_and_grade, ->(unity_id, grade_id) { where(unity_id: unity_id, grade_id: grade_id).uniq }
+  scope :different_than, ->(classroom_id) { where(arel_table[:id].not_eq(classroom_id)) }
+  scope :by_grade, ->(grade_id) { where(grade_id: grade_id) }
+  scope :by_year, ->(year) { where(year: year) }
+  scope :by_period, ->(period) { where(period: period) }
+
+  scope :by_teacher_id, lambda { |teacher_id|
+    joins(:teacher_discipline_classrooms)
+      .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
+      .uniq
+  }
+
+  scope :by_score_type, ->(score_type) { where('exam_rules.score_type' => score_type).includes(:exam_rule) }
   scope :ordered, -> { order(arel_table[:description].asc) }
-  scope :by_api_code, -> (api_code) { where(api_code: api_code) }
-  scope :by_teacher_discipline, -> (discipline_id) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { discipline_id: discipline_id }).uniq }
-  scope :by_api_code, -> (api_code) { where(api_code: api_code) }
-  scope :by_id, -> (id) { where(id: id) }
+  scope :by_api_code, ->(api_code) { where(api_code: api_code) }
+
+  scope :by_teacher_discipline, lambda { |discipline_id|
+    joins(:teacher_discipline_classrooms)
+      .where(teacher_discipline_classrooms: { discipline_id: discipline_id })
+      .uniq
+  }
+
+  scope :by_api_code, ->(api_code) { where(api_code: api_code) }
+  scope :by_id, ->(id) { where(id: id) }
   scope :with_grade, -> { where.not(grade: nil) }
 
   def to_s

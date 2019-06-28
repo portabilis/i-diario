@@ -179,4 +179,172 @@ http_interactions:
         Ano"},{"id":"30","nome":"8\u00ba Ano"},{"id":"38","nome":"9\u00ba Ano"}]}],"oper":"get","resource":"cursos","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Wed, 18 Nov 2015 12:54:25 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Curso?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola_id%5B%5D=124370&instituicao_id=1&modified&oper=get&resource=cursos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 05 Apr 2019 12:12:50 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Curso?escola_id[]=124370&resource=cursos&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:46 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Curso?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola_id%5B%5D=124370&instituicao_id=1&modified&oper=get&resource=cursos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 05 Apr 2019 12:12:51 GMT
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - i_educar_session=F8bKpUId9eaqrtQfh9jIohKyqgN6T8hU0sOgUNUc; expires=Fri, 05-Apr-2019
+        14:12:51 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA6tWSi4tKs4vVrKKjtVRyi9ILVKyUkpPLVHSUSpKLc4vLUpO
+        BQpA1ego5RanQ5Um5lXGpxYV5RfFA8WUrNISc4pTawE/JgaTTgAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:46 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Curso?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola_id%5B%5D=30&instituicao_id=1&modified&oper=get&resource=cursos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 05 Apr 2019 12:57:54 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Curso?escola_id[]=30&resource=cursos&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:51:49 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Curso?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&escola_id%5B%5D=30&instituicao_id=1&modified&oper=get&resource=cursos&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 05 Apr 2019 12:57:55 GMT
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - i_educar_session=CuEYuSrplsnis2mHMXVAQAUzLv4Ie4RTq26NUJGG; expires=Fri, 05-Apr-2019
+        14:57:55 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAAzXOwQrDIAwG4FcpOVvQClvnfYc9QzeKaFoKVkvUwyh996Vj
+        u4QQvp/8O7hKOWUwww6LBwMaBMS0Iq93X519Vinx+p06NY842ViWwKhu3hb0
+        oy1MO6lurdRt1zfqYmRvpGLiMeCfxBrC8RKQNiQOzFgYEOZUyZ3Pfj0ErHk+
+        6zC18T0iUaKRb2AmGzIeH4alDOSyAAAA
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:51:50 GMT
 recorded_with: VCR 3.0.0

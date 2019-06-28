@@ -1,4 +1,6 @@
 class Grade < ActiveRecord::Base
+  include Discardable
+
   acts_as_copy_target
 
   audited
@@ -7,6 +9,8 @@ class Grade < ActiveRecord::Base
   has_many :classrooms
 
   has_and_belongs_to_many :custom_rounding_tables
+
+  default_scope -> { kept }
 
   scope :by_unity, lambda { |unity| by_unity(unity) }
   scope :by_course, lambda { |course_id| where(course_id: course_id) }

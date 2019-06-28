@@ -54,7 +54,7 @@ http_interactions:
         Motta Cardoso","situacao":"Aprovado","ano":"2011","turma_id":"49","turma_nome":"Pr\u00e9
         Escolar I \" B \"","escola_nome":"E.e.b.m 12 De Maio","curso_nome":"Educa\u00e7\u00e3o
         Infantil","serie_nome":"Pr\u00e9-escolar 1 (4 Anos)","ultima_enturmacao":"","data_entrada":"02\/03\/2011","data_saida":[],"user_can_access":false,"transferencia_em_aberto":false}],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
-    http_version:
+    http_version: 
   recorded_at: Tue, 25 Nov 2014 18:47:50 GMT
 - request:
     method: get
@@ -94,7 +94,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"matriculas":[],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
-    http_version:
+    http_version: 
   recorded_at: Wed, 18 Nov 2015 12:26:25 GMT
 - request:
     method: get
@@ -179,7 +179,7 @@ http_interactions:
         Ana Cl\u00e1udia Picksius","situacao":"Em andamento","ano":"2015","turma_id":"4098","turma_nome":"3\u00ba
         Ano 2","escola_nome":"Emeb Pref. Frederico Lampe","curso_nome":"Ensino Fundamental
         - 1\u00ba A 5\u00ba","serie_nome":"3\u00ba Ano","ultima_enturmacao":"","data_entrada":"17\/09\/2015","data_saida":"24\/09\/2015","user_can_access":false,"user_can_change_date":false,"codigo_situacao":"3","user_can_change_situacao":false,"transferencia_em_aberto":false,"dependencia":"f"}],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
-    http_version:
+    http_version: 
   recorded_at: Wed, 18 Nov 2015 12:55:38 GMT
 - request:
     method: get
@@ -273,7 +273,7 @@ http_interactions:
         Ana Cl\u00e1udia Picksius","situacao":"Em andamento","ano":"2015","turma_id":"4098","turma_nome":"3\u00ba
         Ano 2","escola_nome":"Emeb Pref. Frederico Lampe","curso_nome":"Ensino Fundamental
         - 1\u00ba A 5\u00ba","serie_nome":"3\u00ba Ano","ultima_enturmacao":"","data_entrada":"17\/09\/2015","data_saida":"24\/09\/2015","user_can_access":false,"user_can_change_date":false,"codigo_situacao":"3","user_can_change_situacao":false,"transferencia_em_aberto":false,"dependencia":"f"}],"oper":"get","resource":"matriculas","msgs":[],"any_error_msg":false}'
-    http_version:
+    http_version: 
   recorded_at: Wed, 18 Nov 2015 13:38:33 GMT
 - request:
     method: get
@@ -329,6 +329,106 @@ http_interactions:
         mais sobre o i-Educar e a Portabilis, \u003ca href=\"http://blog.portabilis.com.br\"
         target=\"_blank\"\u003eacesse nosso blog\u003c/a\u003e \u0026nbsp;\u0026nbsp;\u0026nbsp;
         \u0026copy; Portabilis - Todos os direitos reservados\u003c/p\u003e\r\n","facebook_url":"https://www.facebook.com/portabilis","twitter_url":"https://twitter.com/portabilis","linkedin_url":"https://www.linkedin.com/company/portabilis-tecnologia","created_at":"2017-05-17T13:12:35.083Z","updated_at":"2017-05-25T17:28:35.263Z","ieducar_suspension_message_id":null,"new_education_suspension_message_id":null,"ieducar_show_onboarding":false,"new_education_show_onboarding":false}'
-    http_version:
+    http_version: 
   recorded_at: Wed, 01 Mar 2017 03:31:00 GMT
-recorded_with: VCR 3.0.3
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&aluno_id%5B%5D=18625&aluno_id%5B%5D=18627&instituicao_id=1&modified&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 05 Apr 2019 12:12:56 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Aluno?aluno_id[]=18625&aluno_id[]=18627&resource=matriculas&only_valid_boletim=true&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:51 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Aluno?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&aluno_id%5B%5D=18625&aluno_id%5B%5D=18627&instituicao_id=1&modified&only_valid_boletim=true&oper=get&resource=matriculas&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 05 Apr 2019 12:12:57 GMT
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - i_educar_session=f7Xok1isJV4MRaIs9pjGUufdmc0QpUwLDD8MCvdZ; expires=Fri, 05-Apr-2019
+        14:12:57 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA9XYbU/iMBwA8K/S7NVdArmue/bdxGmWgHA4faOXpW6FazI6
+        020mF+N3v3bOMYrxCMdU3kD273P7S/eHJ22FS06TKsOFdnL7pNFUO9Ec3XNt
+        baBRVpS0rGiC87gu0EWQFEme4ebZgJ4nYknFi6YKEo8F4ZQ0NWQxzir22oNr
+        I6cNsXxFRHBWz4FicEMJ5RjMCJffsicxPBbDi0ojMQZmaS4bMxlAsO68rPiq
+        mY5pQLeNNH07dxWE9xj4l1PgIDi8WS+hqRFMgnMw8eehD/z5OIgCcBpGweVo
+        ej2PwHh6FkRR2K7xtQ0rKMvBecVSvCKsxBkYAg/4LC/At/rznDJMi+/tbqjT
+        YXIhVVZSMVXRgZxyvc7bXwMtxWUd5DjF9R7e/YDo7kez4Lq0wFSWydqVGCBO
+        MItxkpBCHOMCZwXpxJPfmC1JLNqRtjDJU7rM487+Gtp2k3Vx00xMiRULcTxM
+        HFdMVjG+J7xcl6fkgbC0LhVdLrTnQUPKRoauH4iUeyhS/gPPH/EmKXeTlGEb
+        nkrKXp8hsPVPJ2XvQQq6LSm3P1J6r6QsA5r73lK67sJNVXafqBwFFXRMFZXV
+        QWV9IKqQyRW9wcragxWCLSvnWFmZtg3Ng7Ey+2Rlb7JClrd1V5kdVuZXYGXu
+        wwq1rOxjZWV4umUcjJXRJytLYYUMqLIyOqwMCIeTz2Zl7JNXrV+C1tGy0j3H
+        Ohgr1Ccrc5OVLlJClRXqsEJf4bZC+7ByWlbmsbISMsydbiu0ScpQPPWaVSEF
+        lG7bKighZSSoTPzoOgovp1ucRkEIZsHP60D8OpzN5WEn6eUonAVbhtIqwbKc
+        1L/giJELNAvMSpqpZma8ruENX4biAO2elpuCjl3TQUdLx4HeTjfSR9GJmpXQ
+        f+nRVT3jYBR+TTtbU1MzJgnJfBOSiuxAqMy+UTk73Ud1qvKOqjcSJ0tVdYVX
+        FclAisEVzR4xuKhoTStnVLmU7uUfUux9VhZSWZ0S3tGgcyo9lGTJxYtpgsuq
+        pHWX29r8cXAh33xnU3Dlnwbz/4C2PYfds/F3bNUp1cFt2b3YEivLHwgXD0tS
+        ihE4KfKKJ3J3On+KDrRVsSxeNgKzPzHhPOexiDUdP/8F8u3WWEMVAAA=
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:52 GMT
+recorded_with: VCR 3.0.0

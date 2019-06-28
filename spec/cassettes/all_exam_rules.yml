@@ -120,4 +120,209 @@ http_interactions:
       string: '{"regras":[{"id":"7","tabela_arredondamento_id":"4","tipo_nota":"2","tipo_presenca":"1","parecer_descritivo":"2","tipo_recuperacao":"0","media_recuperacao_paralela":null,"nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"5176"},{"turma_id":"5178"},{"turma_id":"5199"},{"turma_id":"5179"},{"turma_id":"5198"},{"turma_id":"5200"}]},{"id":"3","tabela_arredondamento_id":"2","tipo_nota":"2","tipo_presenca":"1","parecer_descritivo":"3","tipo_recuperacao":"0","media_recuperacao_paralela":null,"nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"5174"},{"turma_id":"5175"},{"turma_id":"5173"},{"turma_id":"5172"}]},{"id":"1","tabela_arredondamento_id":"5","tipo_nota":"1","tipo_presenca":"2","parecer_descritivo":"0","tipo_recuperacao":"1","media_recuperacao_paralela":"7.000","nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"5189"},{"turma_id":"5191"},{"turma_id":"5194"},{"turma_id":"5190"},{"turma_id":"5196"},{"turma_id":"5197"},{"turma_id":"5177"},{"turma_id":"5181"},{"turma_id":"5192"},{"turma_id":"5193"}]},{"id":"4","tabela_arredondamento_id":"5","tipo_nota":"1","tipo_presenca":"1","parecer_descritivo":"3","tipo_recuperacao":"1","media_recuperacao_paralela":"10.000","nota_maxima_geral":"10","nota_maxima_exame":"10","turmas":[{"turma_id":"5182"},{"turma_id":"5183"},{"turma_id":"5184"},{"turma_id":"5185"},{"turma_id":"5195"},{"turma_id":"5201"},{"turma_id":"5186"},{"turma_id":"5187"},{"turma_id":"5180"},{"turma_id":"5188"}]}],"oper":"get","resource":"regras","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:35:24 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&instituicao_id=1&modified&oper=get&resource=regras&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 05 Apr 2019 12:12:45 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Regra?ano=2017&resource=regras&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:41 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&instituicao_id=1&modified&oper=get&resource=regras&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 05 Apr 2019 12:12:46 GMT
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - i_educar_session=kD7hyrGANYF2niarFv4Iqc3R7R8QndOfoNILOwLB; expires=Fri, 05-Apr-2019
+        14:12:46 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        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
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:41 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=regras&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 14 Jun 2019 20:50:45 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Regra?resource=regras&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:07:16 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=regras&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 14 Jun 2019 20:50:46 GMT
+      Set-Cookie:
+      - i_educar_session=VhuXIHNoKR9XODuEgmxb50ur3HQw0hSJUiUuVRLw; expires=Fri, 14-Jun-2019
+        22:50:46 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA+2Y4UrDMBDHX0XyeYNmder6KiLhbG4l0DYlTWUy9u5e6oZV
+        XMJA4tr1Y+4uyfHjkvtze2awMNCy7HnPlGQZ42zBLLxiCQKMQalrCRXWVoug
+        W+S6zlHZDkqW1V1ZUqhqtKi1hdNWt24MtljnzrYiWwMGczRCYpsbZdWbPjr6
+        YPJ1DRrIwZkTMlcoFQztgk6AklI63eouFBXsVAWioJjS3e62Dh24o8RPjq6R
+        YFEKsO7uhG+WyXqZ8ju+ztI0SzYU0oMSUm3RUPIKJHwSSdhhcWS38rPzuQPs
+        VpewS8bILvWz87m/sftC5UHHJ1V2j350939bdtNi9xSV3bS+u42f3cNcd+fZ
+        9UfF6xUTgxcQKbEa7Tjh+f60iApvlCqFr6PCO/tsxwnP1xEu0Xg3+efFVXkT
+        e7ZxZd7Enm1A580NwwMv0GxnjfyTHR/Au5JmewYev254PDCN8vWT2/zzhvQC
+        UuWfx6DXWHp8UHqBYd6skn+j97JgmpKhVYG2j211Z3J3/HFIT2m3hZvVUyjU
+        7wKN0UaQjWVbKFs8fAAkqF7gzxcAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:07:17 GMT
 recorded_with: VCR 3.0.0

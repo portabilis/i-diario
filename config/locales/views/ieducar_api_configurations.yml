@@ -10,3 +10,9 @@ pt-BR:
       status: 'Estado atual'
     sync_error_modal:
       close: 'Fechar'
+  ieducar_api_configurations:
+    edit:
+      synchronize: 'Sincronizar'
+      full_synchronization: 'Sincronização completa'
+      history: 'Histórico'
+      save: 'Salvar'

@@ -3,7 +3,7 @@ class FixDailyFrequencyMissingStudentsWorker
 
   def perform(entity_id = nil)
     entities = Entity.where(id: entity_id) if entity_id.present?
-    entities ||= Entity.need_migration.active
+    entities ||= Entity.where(migrate: false).active
 
     entities.each do |entity|
       entity.using_connection do
@@ -11,9 +11,8 @@ class FixDailyFrequencyMissingStudentsWorker
 
         worker_batch = WorkerBatch.create!(
           main_job_class: 'FixDailyFrequencyMissingStudentsWorker',
-          main_job_id: self.jid,
-          total_workers: frequencies.count,
-          entity_id: entity.id
+          main_job_id: jid,
+          total_workers: frequencies.count
         )
 
         frequencies.each do |daily_frequency|

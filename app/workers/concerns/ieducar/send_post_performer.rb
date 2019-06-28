@@ -8,7 +8,7 @@ module Ieducar
 
         yield(posting, params)
 
-        posting.worker_batch.increment(params) do
+        posting.worker_batch.increment do
           posting.finish!
         end
       end
