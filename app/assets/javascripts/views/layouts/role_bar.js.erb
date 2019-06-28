@@ -4,7 +4,7 @@ $(function() {
   const flashMessages = new FlashMessages();
 
   const $form = $('#user-role-form');
-  const $btn = $form.find('button');
+  const $btn = $form.find('button[type="submit"]');
   const $loader = $('#page-loading');
   const teacherId = getValue($form.find('#user_teacher_id'));
 
@@ -470,6 +470,44 @@ $(function() {
       flashMessages.error("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
     } else {
       flashMessages.error("<%= I18n.t('layouts.error_messages.unknown_error') %>");
+    }
+  });
+});
+
+$(function () {
+  'use strict';
+
+  const $body = $('body');
+  const $loginInfo = $('.login-info a');
+  const $roleBar = $('#current-role-selector');
+  const $closeBar = $('.role-cancel');
+
+  $loginInfo.click(function (e) {
+    if ($roleBar.is(':hidden')) {
+      $roleBar.show();
+      $body.css({ overflow: 'hidden' });
+    }
+
+    e.preventDefault();
+  });
+
+  $closeBar.click(function (e) {
+    if ($roleBar.is(':visible')) {
+      $roleBar.hide();
+      $body.css({ overflow: 'auto' });
+    }
+
+    e.preventDefault();
+  });
+
+  $(window).resize(function () {
+    const size = $(window).width();
+    const limit = 1250;
+
+    if (size >= limit) {
+      $roleBar.show();
+    } else {
+      $roleBar.hide();
     }
   });
 });
