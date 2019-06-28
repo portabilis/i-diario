@@ -1,0 +1,82 @@
+#current-role-selector {
+  margin-top: 8px;
+}
+
+#current-role-selector .select2-search {
+  padding-top: 4px;
+}
+
+#role-field-container {
+  width: 180px;
+}
+
+#unity-field-container,
+#classroom-field-container,
+#assumed-teacher-field-container {
+  width: 165px;
+}
+
+#school-year-field-container {
+  width: 95px;
+}
+
+#discipline-field-container {
+  width: 220px;
+}
+
+.select-role {
+  display: inline-block;
+  position: relative;
+  top: -15px;
+}
+
+.role-cancel {
+  display: none;
+}
+
+@media (max-width: 1250px) {
+  #header > #current-role-selector {
+    background-color: rgba(255, 255, 255, .75);
+    display: none;
+    float: none;
+    height: 100vh;
+    left: 0;
+    margin: 0;
+    overflow: auto;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 9;
+  }
+
+  #user-role-form {
+    background-color: rgb(39, 51, 59);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+    box-sizing: border-box;
+    margin: 20px auto;
+    padding: 25px;
+    width: 320px;
+  }
+
+  #role-field-container,
+  #unity-field-container,
+  #classroom-field-container,
+  #assumed-teacher-field-container,
+  #school-year-field-container,
+  #discipline-field-container {
+    display: block;
+    margin-bottom: 15px;
+    padding: 0;
+    width: 270px;
+  }
+
+  .select-role {
+    display: block;
+    top: 0;
+  }
+
+  .role-cancel {
+    display: inline-block;
+  }
+}
