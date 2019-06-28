@@ -67,7 +67,7 @@ class StepsFetcher
     return if school_calendar.blank?
 
     school_calendar_steps.each do |step|
-      return step if step.step_number == step_number
+      return step if step.step_number == step_number.to_i
     end
 
     nil

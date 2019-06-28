@@ -5,24 +5,32 @@ class IeducarApiConfiguration < ActiveRecord::Base
 
   include Audit
 
-  has_many :synchronizations, class_name: "IeducarApiSynchronization"
+  has_many :synchronizations, class_name: 'IeducarApiSynchronization', dependent: :restrict_with_error
 
   validates :url, :token, :secret_token, :unity_code, presence: true
-  validates :url, format: { with: /^(http|https):\/\/[a-z0-9.:]+$/, multiline: true, message: "formato de url inválido" }, allow_blank: true
+  validates :url, allow_blank: true, format: {
+    with: /^(http|https):\/\/[a-z0-9.:\-]+$/,
+    multiline: true,
+    message: 'formato de url inválido'
+  }
 
   def self.current
-    self.first.presence || new
+    first.presence || new
   end
 
-  def start_synchronization(user = nil, entity_id = nil)
+  def start_synchronization(user = nil, entity_id = nil, full_synchronization = false)
     transaction do
       synchronization = IeducarApiSynchronization.started.first
 
       return synchronization if synchronization
 
-      synchronization = synchronizations.create!(status: ApiSynchronizationStatus::STARTED, author: user)
+      synchronization = synchronizations.create!(
+        status: ApiSynchronizationStatus::STARTED,
+        author: user,
+        full_synchronization: full_synchronization
+      )
 
-      job_id = IeducarSynchronizerWorker.perform_in(5.seconds, entity_id, synchronization.id)
+      job_id = IeducarSynchronizerWorker.perform_in(1.second, entity_id, synchronization.id)
 
       synchronization.set_job_id!(job_id)
 
@@ -32,10 +40,12 @@ class IeducarApiConfiguration < ActiveRecord::Base
       )
       worker_batch.start!
 
-      Rails.logger.info(key: 'IeducarApiConfiguration#start_synchronization',
-                        from: "#{binding.of_caller(7).eval('self.class')}##{binding.of_caller(7).eval('__method__')}",
-                        sync_id: synchronization.id,
-                        entity_id: entity_id)
+      Rails.logger.info(
+        key: 'IeducarApiConfiguration#start_synchronization',
+        from: "#{binding.of_caller(7).eval('self.class')}##{binding.of_caller(7).eval('__method__')}",
+        sync_id: synchronization.id,
+        entity_id: entity_id
+      )
 
       synchronization
     end
@@ -56,5 +66,10 @@ class IeducarApiConfiguration < ActiveRecord::Base
       secret_key: secret_token,
       unity_id: unity_code
     }
+  end
+
+  def update_synchronized_at!(synchronization_date)
+    self.synchronized_at = synchronization_date
+    save!
   end
 end

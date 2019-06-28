@@ -18,12 +18,18 @@ RSpec.describe IeducarApi::Deficiencies, type: :service do
   describe '#fetch' do
     it 'returns all deficiencies' do
       VCR.use_cassette('all_deficiencies') do
-        result = subject.fetch
+        result = subject.fetch(escola: unity_id)
 
         expect(result.keys).to include 'deficiencias'
 
-        expect(result['deficiencias'].size).to eq 14
+        expect(result['deficiencias'].size).to eq 34
       end
+    end
+
+    it 'necessary to inform school' do
+      expect {
+        subject.fetch
+      }.to raise_error('É necessário informar pelo menos uma escola')
     end
   end
 end

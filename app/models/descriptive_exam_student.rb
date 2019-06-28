@@ -8,6 +8,8 @@ class DescriptiveExamStudent < ActiveRecord::Base
   belongs_to :descriptive_exam
   belongs_to :student
 
+  scope :by_student_id, ->(student_id) { where(student_id: student_id) }
+  scope :by_descriptive_exam_id, ->(descriptive_exam_id) { where(descriptive_exam_id: descriptive_exam_id) }
   scope :by_classroom, lambda { |classroom_id|
     joins(:descriptive_exam).includes(:descriptive_exam).merge(DescriptiveExam.by_classroom_id(classroom_id))
   }
