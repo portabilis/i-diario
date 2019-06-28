@@ -472,6 +472,10 @@ $(function() {
       flashMessages.error("<%= I18n.t('layouts.error_messages.unknown_error') %>");
     }
   });
+
+  $('#header input.select2').on('select2-open', function(){
+    $('.select2-search:visible').css({ marginTop: 5 });
+  });
 });
 
 $(function () {

@@ -12,8 +12,9 @@
   float: left;
 }
 
-#current-role-selector .select2-search {
-  padding-top: 4px;
+#user-role-form .project-context {
+  display: block;
+  padding: 8px 8px 0 8px;
 }
 
 #role-field-container {
@@ -41,6 +42,17 @@
 
 .role-cancel {
   display: none;
+}
+
+.user-info {
+  margin-left: 8px;
+}
+
+.user-info img {
+  border-radius: 4px;
+  display: block;
+  width: 48px;
+  height: 48px;
 }
 
 @media (max-width: 1250px) {
@@ -72,6 +84,10 @@
     float: none;
   }
 
+  #user-role-form .project-context {
+    padding: 0;
+  }
+
   #role-field-container,
   #unity-field-container,
   #classroom-field-container,
@@ -91,5 +107,9 @@
 
   .role-cancel {
     display: inline-block;
+  }
+
+  .user-info {
+    display: none;
   }
 }
