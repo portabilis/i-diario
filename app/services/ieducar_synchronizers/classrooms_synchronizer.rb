@@ -37,7 +37,15 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.save! if classroom.changed?
 
         classroom.discard_or_undiscard(classroom_record.deleted_at.present?)
+
+        remove_current_classroom_id_in_user_selectors(classroom.id) if classroom_record.deleted_at.present?
       end
+    end
+  end
+
+  def remove_current_classroom_id_in_user_selectors(classroom_id)
+    Classroom.with_discarded.find_by(id: classroom_id).users.each do |user|
+      user.update(current_classroom_id: nil)
     end
   end
 end
