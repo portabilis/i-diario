@@ -27,7 +27,7 @@ FactoryGirl.define do
         descriptive_exam.step_id = school_calendar.step_by_number(1).id
       end
 
-      descriptive_exam.recorded_at = descriptive_exam.step.start_at if descriptive_exam.recorded_at.blank?
+      descriptive_exam.recorded_at ||= descriptive_exam.step.start_at
       descriptive_exam.step_number = descriptive_exam.step.step_number if descriptive_exam.step_number.zero?
     end
   end

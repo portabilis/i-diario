@@ -106,6 +106,29 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
       end
     end
 
+    context 'when there are invalid recovery diary record students' do
+      let!(:recovery_diary_record) {
+        create(
+          :recovery_diary_record_with_students,
+          :current,
+          classroom: classroom,
+          unity: classroom.unity,
+          discipline: discipline
+        )
+      }
+      let!(:recovery_diary_record_student) {
+        create(
+          :recovery_diary_record_student,
+          recovery_diary_record: recovery_diary_record,
+          student: student_enrollment.student
+        )
+      }
+
+      it 'destroys invalid recovery diary record students' do
+        expect { subject.run! }.to change { RecoveryDiaryRecordStudent.count }.from(6).to(5)
+      end
+    end
+
     context 'when there are invalid conceptual exam values' do
       let!(:conceptual_exam) {
         create(
