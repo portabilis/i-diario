@@ -9,7 +9,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
 
   validates :url, :token, :secret_token, :unity_code, presence: true
   validates :url, allow_blank: true, format: {
-    with: /^(http|https):\/\/[a-z0-9.:]+$/,
+    with: /^(http|https):\/\/[a-z0-9.:\-]+$/,
     multiline: true,
     message: 'formato de url inválido'
   }
@@ -30,7 +30,7 @@ class IeducarApiConfiguration < ActiveRecord::Base
         full_synchronization: full_synchronization
       )
 
-      job_id = IeducarSynchronizerWorker.perform_in(5.seconds, entity_id, synchronization.id)
+      job_id = IeducarSynchronizerWorker.perform_in(1.second, entity_id, synchronization.id)
 
       synchronization.set_job_id!(job_id)
 

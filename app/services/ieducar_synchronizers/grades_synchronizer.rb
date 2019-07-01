@@ -2,9 +2,7 @@ class GradesSynchronizer < BaseSynchronizer
   def synchronize!
     update_grades(
       HashDecorator.new(
-        api.fetch(
-          escola_id: unity_api_code
-        )['series']
+        api.fetch['series']
       )
     )
   end

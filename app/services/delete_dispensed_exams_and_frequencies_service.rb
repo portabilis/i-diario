@@ -34,6 +34,7 @@ class DeleteDispensedExamsAndFrequenciesService
         classroom_id = classroom.id
 
         destroy_invalid_daily_note_students(student_id, classroom_id, start_date, end_date)
+        destroy_invalid_recovery_diary_record_students(student_id, classroom_id, start_date, end_date)
         destroy_invalid_conceptual_exams(student_id, classroom_id, step_number)
         destroy_invalid_descriptive_exams(student_id, classroom_id, step_number)
         destroy_invalid_daily_frequency_students(student_id, classroom_id, start_date, end_date)
@@ -47,6 +48,16 @@ class DeleteDispensedExamsAndFrequenciesService
                     .by_discipline_id(@discipline_id)
                     .by_test_date_between(start_date, end_date)
                     .destroy_all
+  end
+
+  def destroy_invalid_recovery_diary_record_students(student_id, classroom_id, start_date, end_date)
+    recovery_diary_record_ids = RecoveryDiaryRecord.by_classroom_id(classroom_id)
+                                                   .by_discipline_id(@discipline_id)
+                                                   .by_recorded_at_between(start_date, end_date)
+
+    RecoveryDiaryRecordStudent.by_student_id(student_id)
+                              .by_recovery_diary_record_id(recovery_diary_record_ids)
+                              .destroy_all
   end
 
   def destroy_invalid_conceptual_exams(student_id, classroom_id, step_number)

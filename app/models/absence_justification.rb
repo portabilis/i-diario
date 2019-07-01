@@ -59,6 +59,13 @@ class AbsenceJustification < ActiveRecord::Base
   scope :by_school_calendar, ->(school_calendar) { where('school_calendar_id = ? OR school_calendar_id IS NULL', school_calendar) }
   scope :by_date, ->(date) { by_date_query(date) }
   scope :by_school_calendar_report, ->(school_calendar) { where(school_calendar: school_calendar)  }
+  scope :by_author, lambda { |author_type, current_teacher_id|
+    if author_type == AbsenceJustificationAuthors::MY_JUSTIFICATIONS
+      where(teacher_id: current_teacher_id)
+    else
+      where.not(teacher_id: current_teacher_id)
+    end
+  }
 
   private
 

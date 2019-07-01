@@ -1,7 +1,7 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false
+  sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false, queue: :synchronizer
 
   sidekiq_retries_exhausted do |msg, exception|
     entity_id, synchronization_id = msg['args']
@@ -76,7 +76,7 @@ class IeducarSynchronizerWorker
   end
 
   def all_entities
-    Entity.need_migration.active
+    Entity.where(migrate: false).active
   end
 
   def total_synchronizers(full_synchronization)
@@ -98,7 +98,7 @@ class IeducarSynchronizerWorker
     (
       (synchronizers_by_year_and_unity.size * years_to_synchronize.size) +
       (synchronizers_by_year.size * years_to_synchronize.size) +
-      synchronizers_by_unity.size +
+      (unities_api_code.present? ? synchronizers_by_unity.size : 0) +
       single_synchronizers.size
     )
   end

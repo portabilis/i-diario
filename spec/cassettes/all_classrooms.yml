@@ -683,4 +683,95 @@ http_interactions:
         YwEA
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:06:37 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&escola=1&instituicao_id=1&modified&oper=get&resource=turmas-por-escola&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 14 Jun 2019 20:22:55 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Turma?ano=2017&escola=1&resource=turmas-por-escola&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:02:00 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Turma?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&escola=1&instituicao_id=1&modified&oper=get&resource=turmas-por-escola&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 14 Jun 2019 20:22:56 GMT
+      Set-Cookie:
+      - i_educar_session=n7mXlReSBnsAOseGvQajFTDdLyr1RAb07ZmQxcCt; expires=Fri, 14-Jun-2019
+        22:22:56 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA93Z0W6CMBQG4FcxvdaEtqCUu73D7jZDOqiGBKkpsmQxvvuK
+        aCTucGWPnuyyLQU++TlgObJD53a6ZdnHkVUly1jMlWJz1tid8S3+2UXRl569
+        NXbGfbdurO8VEV/5hmkLW+v8PK0f9Ltq7NCMfbPoXHtpyijyHa1xlbl0+KYz
+        W6dz/a3rShf6siVfAiNltTHONEWly+FwTVfXc9btS30wZa4PwzmpRZQsJJ/x
+        JJMy48LvqTS1uW7STzrNr0xxPiWAKf4Zk8NM+c+Y8sYUWKGNCThj2Bk0tRSc
+        CewMGlsKztXNKZFyC2qe7UxhZ8jcknAq2BkytxSc5/GLM8aqt8mkExrBcUrY
+        GbTeUnDGsDNovaXgHNXbBCm3QhFwprAzZG5JOBXsDJlbCk4xqrfLULnld87p
+        +xP6BXCcEnY+lFuKzhh2PpRbis5RvV0h5ZYTYKYwM2RsKTAVzAyZWgJMOVoa
+        SrFCO/1Qgf6W4jg57AyaWgrO0cNTIV1PuSLglLAz5PWk4BSj+/O9X79+5Eoq
+        ld6/700JoXVOnLdaZCABYYIqnFzZexpQ4ALl5Jr704SRwBVGrxcuUYWTlfR5
+        IeX3wAceFSQLKTKQgPBPRoMKCRRSXODLCul6zuzeOD9haw7nQ7W2c0XPHL7J
+        L/bWLQaaH9612/4r/bqn/+TGOety38eyja5bc/oFEev1EckfAAA=
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:02:01 GMT
 recorded_with: VCR 3.0.0

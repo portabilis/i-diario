@@ -29,24 +29,11 @@ comunidade i-Educar e não terá suporte da Portabilis - mantenedora do projeto.
 
 ## Instalação
 
-- Instalar o Ruby 2.2.6 (Recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
-- Instalar a gem Bundler:
-
-```bash
-$ gem install bundler -v '1.17.3'
-```
-
 - Baixar o i-Diário:
 
 ```bash
 $ git clone https://github.com/portabilis/i-diario.git
-```
-
-- Instalar as gems:
-
-```bash
 $ cd i-diario
-$ bundle install
 ```
 
 - Copiar o exemplo de configurações de banco de dados e configurar:
@@ -55,11 +42,39 @@ $ bundle install
 $  cp config/database.sample.yml config/database.yml
 ```
 
+### Com Docker
+
+No `config/database.yml` mudar o `host` para `host: postgres`.
+
+- Rode `docker-compose up`.
+
+Por baixo dos panos, será feito:
+- setup do `secret_key_base`;
+- setup do banco;
+- setup das páginas de erro.
+
+Pule para o [**Configuração da Aplicação**](#Configuração-da-Aplicação).
+
+### Sem Docker
+
+- Instalar o Ruby 2.2.6 (Recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
+- Instalar a gem Bundler:
+
+```bash
+$ gem install bundler -v '1.17.3'
+```
+
+- Instalar as gems:
+
+```bash
+$ bundle install
+```
+
 - Criar e configurar o arquivo `config/secrets.yml` conforme o exemplo:
 
 ```yaml
 development:
-  secret_key_base: CHAVE_SECRETA_AQUI
+  secret_key_base: CHAVE_SECRETA
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
@@ -72,6 +87,21 @@ $ bundle exec rake db:create
 $ bundle exec rake db:migrate
 ```
 
+- Criar páginas de erro simples para desenvolvimento:
+
+```bash
+$ cp public/404.html.sample public/404.html
+$ cp public/500.html.sample public/500.html
+```
+
+- Iniciar o servidor:
+
+```bash
+$ bundle exec rails server
+```
+
+## Configuração da Aplicação
+
 - Criar uma entidade:
 
 ```bash
@@ -80,9 +110,22 @@ $ bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefei
 
 - Criar um usuário administrador:
 
+Abra o `rails console`.
+
+Sem docker:
+
 ```bash
 $ bundle exec rails console
 ```
+
+Com docker:
+
+```bash
+$ docker exec -it idiario bundle exec rails console
+```
+
+Crie um usuário administrador.
+
 ```ruby
 Entity.last.using_connection {
   User.create!(
@@ -96,11 +139,7 @@ Entity.last.using_connection {
 }
 ```
 
-- Iniciar o servidor e acessar http://localhost:3000 para acessar o sistema:
-
-```bash
-$ bundle exec rails server
-```
+Para acessar o sistema, use a URL http://localhost:3000
 
 ## Sincronização com i-Educar
 

@@ -6,7 +6,7 @@ namespace :ieducar_api do
 
   desc 'Cancela envio de notas travados há 1 dia ou mais'
   task cancel: :environment do
-    Entity.active.each do |entity|
+    Entity.where(migrate: false).active.each do |entity|
       entity.using_connection do
         postings = IeducarApiExamPosting.where(status: :started).
           where('created_at < ?', 1.day.ago)

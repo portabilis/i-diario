@@ -28,9 +28,10 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
         end
 
         discard_inexisting_teacher_discipline_classrooms(
-          teacher_discipline_classroom_record.id,
-          teacher_discipline_classroom_record.tipo_nota,
-          existing_discipline_api_codes
+          teacher_discipline_classrooms_to_discard(
+            teacher_discipline_classroom_record,
+            existing_discipline_api_codes
+          )
         )
       end
     end
@@ -67,25 +68,26 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       teacher_discipline_classroom.active = true if teacher_discipline_classroom.active.nil?
       teacher_discipline_classroom.save! if teacher_discipline_classroom.changed?
 
-      teacher_discipline_classroom.discard_or_undiscard(teacher_discipline_classroom_record.deleted_at.present?)
+      teacher_discipline_classroom.discard_or_undiscard(false)
     end
   end
 
-  def discard_inexisting_teacher_discipline_classrooms(api_code, score_type, existing_discipline_api_codes)
-    teacher_discipline_classrooms_to_discard = teacher_discipline_classrooms_to_discard(
-      api_code,
-      score_type,
-      existing_discipline_api_codes
-    )
-
+  def discard_inexisting_teacher_discipline_classrooms(teacher_discipline_classrooms_to_discard)
     teacher_discipline_classrooms_to_discard.each do |teacher_discipline_classroom|
       teacher_discipline_classroom.discard_or_undiscard(true)
     end
   end
 
-  def teacher_discipline_classrooms_to_discard(api_code, score_type, existing_discipline_api_codes)
-    TeacherDisciplineClassroom.unscoped
-                              .where(api_code: api_code, score_type: score_type)
-                              .where.not(discipline_api_code: existing_discipline_api_codes)
+  def teacher_discipline_classrooms_to_discard(teacher_discipline_classroom_record, existing_discipline_api_codes)
+    if teacher_discipline_classroom_record.deleted_at.present?
+      TeacherDisciplineClassroom.where(api_code: teacher_discipline_classroom_record.id)
+    else
+      TeacherDisciplineClassroom.unscoped
+                                .where(
+                                  api_code: teacher_discipline_classroom_record.id,
+                                  score_type: teacher_discipline_classroom_record.tipo_nota
+                                )
+                                .where.not(discipline_api_code: existing_discipline_api_codes)
+    end
   end
 end

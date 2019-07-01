@@ -18,12 +18,18 @@ RSpec.describe IeducarApi::Students, type: :service do
   describe '#fetch' do
     it 'returns all students' do
       VCR.use_cassette('all_students') do
-        result = subject.fetch
+        result = subject.fetch(escola: unity_id)
 
         expect(result.keys).to include 'alunos'
 
-        expect(result['alunos'].size).to eq 29923
+        expect(result['alunos'].size).to eq 2092
       end
+    end
+
+    it 'necessary to inform school' do
+      expect {
+        subject.fetch
+      }.to raise_error('É necessário informar pelo menos uma escola')
     end
   end
 end
