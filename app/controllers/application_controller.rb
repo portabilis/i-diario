@@ -232,7 +232,7 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_available_years
 
   def current_user_available_teachers
-    return [] if current_user_unity.blank? && current_user_classroom.blank?
+    return [] if current_user_unity.blank? || current_user_classroom.blank?
     @current_user_available_teachers ||= begin
       teachers = Teacher.by_unity_id(current_user_unity)
                         .by_classroom(current_user_classroom)
