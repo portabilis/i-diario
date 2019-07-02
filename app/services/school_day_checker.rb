@@ -46,9 +46,8 @@ class SchoolDayChecker
 
       return false if any_global_event?(events_by_date_without_frequency.by_period(classroom.period))
       return true if any_global_event?(events_by_date_with_frequency.by_period(classroom.period))
-
+      return false if steps_fetcher.step_by_date(date).nil?
     else
-
       if @grade_id.present?
         return false if any_grade_event?(events_by_date_without_frequency, @grade_id)
         return true if any_grade_event?(events_by_date_with_frequency, @grade_id)
@@ -56,11 +55,6 @@ class SchoolDayChecker
 
       return false if any_global_event?(events_by_date_without_frequency)
       return true if any_global_event?(events_by_date_with_frequency)
-    end
-
-    if @classroom_id.present? && classroom.try(:calendar)
-      return false if classroom.calendar.classroom_step(date).nil?
-    else
       return false if @school_calendar.step(date).nil?
     end
 
@@ -99,6 +93,10 @@ class SchoolDayChecker
          .without_grade
          .without_classroom
          .any?
+  end
+
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(classroom)
   end
 
   def classroom
