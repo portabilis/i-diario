@@ -255,23 +255,23 @@ class User < ActiveRecord::Base
   end
 
   def administrator?
-    current_user_role.role.access_level == 'administrator'
+    current_user_role.role.access_level == AccessLevel::ADMINISTRATOR
   end
 
   def employee?
-    current_user_role.role.access_level == 'employee'
+    current_user_role.role.access_level == AccessLevel::EMPLOYEE
   end
 
   def parent?
-    current_user_role.role.access_level == 'parent'
+    current_user_role.role.access_level == AccessLevel::PARENT
   end
 
   def student?
-    current_user_role.role.access_level == 'student'
+    current_user_role.role.access_level == AccessLevel::STUDENT
   end
 
   def teacher?
-    current_user_role.role.access_level == 'teacher'
+    current_user_role.role.access_level == AccessLevel::TEACHER
   end
 
   protected
