@@ -10,6 +10,7 @@ pt-BR:
       discipline: "Disciplina"
       change_profile: "Alterar perfil"
       cancel: "Cancelar"
+      edit_profile: "Editar meus dados"
     error_messages:
       needs_profile: 'É necessário selecionar um perfil para continuar a navegação'
       needs_unity: 'É necessário selecionar uma unidade para continuar a navegação'
