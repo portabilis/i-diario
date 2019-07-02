@@ -4,7 +4,7 @@ $(function() {
   const flashMessages = new FlashMessages();
 
   const $form = $('#user-role-form');
-  const $btn = $form.find('button[type="submit"]');
+  const $submitBtn = $form.find('button[type="submit"]');
   const $loader = $('#page-loading');
   const teacherId = getValue($form.find('#user_teacher_id'));
 
@@ -451,12 +451,12 @@ $(function() {
 
   $form.on('ajax:send', function() {
     $loader.removeClass('hidden');
-    $btn.prop('disabled', true);
+    $submitBtn.prop('disabled', true);
   });
 
   $form.on('ajax:error', function(event, request) {
     $loader.addClass('hidden');
-    $btn.prop('disabled', false);
+    $submitBtn.prop('disabled', false);
 
     const invalidFields = request.responseJSON || {};
 
