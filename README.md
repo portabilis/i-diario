@@ -143,10 +143,17 @@ Para acessar o sistema, use a URL http://localhost:3000
 
 ## Sincronização com i-Educar
 
+- Para executar a sincronização é necessário estar com o sidekiq rodando:
+```bash
+$ bundle exec sidekiq -d
+```
 - Acessar Configurações > Api de Integraçao e configurar os dados do sincronismo
 - Acessar Configurações > Unidades e clicar em **Sincronizar**
 - Acessar Calendário letivo, clicar em **Sincronizar** e configurar os calendários
-- Acessar Configurações > Api de Integração e clicar no botão de sincronizar
+- Acessar Configurações > Api de Integração
+  - Existem dois botões nessa tela:
+  - Sincronizar: Ao clicar nesse botão, será verificado a ultima data de sincronização e somente vai sincronizar os dados inseridos/atualizados/deletados após essa data.
+  - Sincronização completa: Esse botão apenas aparece para o usuário administrador e ao clicar nesse botão, não vai fazer a verificação de data, sincronizando todos os dados de todos os anos.
 
 _Nota: Após esses primeiros passos, recomendamos que a sincronização rode pelo menos diariamente para manter o i-Diário atualizado com o i-Educar_
 
@@ -159,4 +166,30 @@ $ RAILS_ENV=test bundle exec rake db:migrate
 
 ```bash
 $ bin/rspec spec
+```
+
+## Upgrades
+
+### Upgrade para a versão 1.1.0
+
+Nessa atualização a sincronização entre i-educar e i-diário foi completamente reestruturada e com isso o i-diário passa a ter dependência da versão **2.1.18** do i-educar.
+
+Para o upgrade é necessário:
+
+* Atualizar o fonte para a versão 1.1.0
+* Parar o sidekiq:
+```bash
+$ ps -ef | grep sidekiq | grep -v grep | awk '{print $2}' | xargs kill -TERM && sleep 20
+```
+* Rodar as migrations:
+```bash
+$ bundle exec rake db:migrate
+```
+* Iniciar o sidekiq:
+```bash
+$ bundle exec sidekiq -d --logfile log/sidekiq.log
+```
+* Executar a rake task que vai remover as enturmações e rodar a sincronização completa em todas as entidades:
+```bash
+$ bundle exec rake upgrade:versions:1_1_0
 ```
