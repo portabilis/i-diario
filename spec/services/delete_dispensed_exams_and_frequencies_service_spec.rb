@@ -75,20 +75,26 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
         expect { subject.run! }.to change { DailyNoteStudent.count }.from(2).to(1)
       end
 
-      context 'when student_enrollment_classroom does not have classroom' do
+      shared_examples 'invalid_daily_note_students' do
         it 'does not destroy invalid daily note students' do
-          student_enrollment_classroom.update(classroom_id: nil)
-
           expect { subject.run! }.not_to(change { DailyNoteStudent.count })
         end
       end
 
-      context 'when steps_fetcher does not find the school_calendar' do
-        it 'does not destroy invalid daily note students' do
-          school_calendar.update(unity: unity)
-
-          expect { subject.run! }.not_to(change { DailyNoteStudent.count })
+      context 'when student_enrollment_classroom does not have classroom' do
+        before do
+          student_enrollment_classroom.update(classroom_id: nil)
         end
+
+        it_behaves_like 'invalid_daily_note_students'
+      end
+
+      context 'when steps_fetcher does not find the school_calendar' do
+        before do
+          school_calendar.update(unity: unity)
+        end
+
+        it_behaves_like 'invalid_daily_note_students'
       end
 
       context 'when step does not exists' do
@@ -100,9 +106,7 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
           )
         end
 
-        it 'does not destroy invalid daily note students' do
-          expect { subject.run! }.not_to(change { DailyNoteStudent.count })
-        end
+        it_behaves_like 'invalid_daily_note_students'
       end
     end
 
