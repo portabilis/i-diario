@@ -54,8 +54,9 @@ class SchoolCalendar < ActiveRecord::Base
     steps.all.posting_date_after_and_before(date).first
   end
 
-  def school_term_day?(school_term, date)
-    real_school_term = SchoolTermConverter.convert(step(date))
+  def school_term_day?(school_term, date, classroom = nil)
+    step = classroom.present? ? StepsFetcher.new(classroom).step_by_date(date) : step(date)
+    real_school_term = SchoolTermConverter.convert(step)
     real_school_term.to_sym == school_term.to_sym
   end
 

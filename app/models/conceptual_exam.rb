@@ -1,6 +1,7 @@
 class ConceptualExam < ActiveRecord::Base
   include Audit
   include Stepable
+  include Discardable
   include TeacherRelationable
 
   teacher_relation_columns only: :classroom
@@ -24,9 +25,13 @@ class ConceptualExam < ActiveRecord::Base
 
   has_enumeration_for :status, with: ConceptualExamStatus, create_helpers: true
 
+  default_scope -> { kept }
+
   scope :by_unity, ->(unity) { joins(:classroom).where(classrooms: { unity_id: unity }) }
   scope :by_classroom, ->(classroom) { where(classroom: classroom) }
+  scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
+  scope :by_step_number, ->(step_number) { where(step_number: step_number) }
   scope :by_discipline, lambda { |discipline|
     join_conceptual_exam_values.where(conceptual_exam_values: { discipline: discipline })
   }

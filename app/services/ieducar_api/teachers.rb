@@ -3,10 +3,8 @@ module IeducarApi
     def fetch(params = {})
       params.reverse_merge!(
         path: 'module/Api/Servidor',
-        resource: 'servidores-disciplinas-turmas'
+        resource: 'servidores'
       )
-
-      raise ApiError, 'É necessário informar o ano' if params[:ano].blank?
 
       super
     end

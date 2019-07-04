@@ -452,4 +452,326 @@ http_interactions:
         - 3","escola_id":"703025","turno_id":"2"},{"id":"5172","nome":"Turma - 4","escola_id":"703025","turno_id":"2"}],"oper":"get","resource":"turmas-por-escola","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Wed, 01 Mar 2017 03:35:23 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&instituicao_id=1&modified&oper=get&resource=turmas-por-escola&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 05 Apr 2019 12:12:41 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Turma?ano=2017&resource=turmas-por-escola&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:37 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Turma?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&instituicao_id=1&modified&oper=get&resource=turmas-por-escola&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 05 Apr 2019 12:12:42 GMT
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - i_educar_session=DbTR0u0RGnluM1KRblxzgXQ8EJPQk7eQXVCZELvI; expires=Fri, 05-Apr-2019
+        14:12:42 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        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
+        YwEA
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:37 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Turma?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&escola=1&instituicao_id=1&modified&oper=get&resource=turmas-por-escola&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 14 Jun 2019 20:22:55 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Turma?ano=2017&escola=1&resource=turmas-por-escola&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:02:00 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Turma?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&escola=1&instituicao_id=1&modified&oper=get&resource=turmas-por-escola&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 14 Jun 2019 20:22:56 GMT
+      Set-Cookie:
+      - i_educar_session=n7mXlReSBnsAOseGvQajFTDdLyr1RAb07ZmQxcCt; expires=Fri, 14-Jun-2019
+        22:22:56 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA93Z0W6CMBQG4FcxvdaEtqCUu73D7jZDOqiGBKkpsmQxvvuK
+        aCTucGWPnuyyLQU++TlgObJD53a6ZdnHkVUly1jMlWJz1tid8S3+2UXRl569
+        NXbGfbdurO8VEV/5hmkLW+v8PK0f9Ltq7NCMfbPoXHtpyijyHa1xlbl0+KYz
+        W6dz/a3rShf6siVfAiNltTHONEWly+FwTVfXc9btS30wZa4PwzmpRZQsJJ/x
+        JJMy48LvqTS1uW7STzrNr0xxPiWAKf4Zk8NM+c+Y8sYUWKGNCThj2Bk0tRSc
+        CewMGlsKztXNKZFyC2qe7UxhZ8jcknAq2BkytxSc5/GLM8aqt8mkExrBcUrY
+        GbTeUnDGsDNovaXgHNXbBCm3QhFwprAzZG5JOBXsDJlbCk4xqrfLULnld87p
+        +xP6BXCcEnY+lFuKzhh2PpRbis5RvV0h5ZYTYKYwM2RsKTAVzAyZWgJMOVoa
+        SrFCO/1Qgf6W4jg57AyaWgrO0cNTIV1PuSLglLAz5PWk4BSj+/O9X79+5Eoq
+        ld6/700JoXVOnLdaZCABYYIqnFzZexpQ4ALl5Jr704SRwBVGrxcuUYWTlfR5
+        IeX3wAceFSQLKTKQgPBPRoMKCRRSXODLCul6zuzeOD9haw7nQ7W2c0XPHL7J
+        L/bWLQaaH9612/4r/bqn/+TGOety38eyja5bc/oFEev1EckfAAA=
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:02:01 GMT
 recorded_with: VCR 3.0.0

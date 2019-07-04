@@ -2,13 +2,14 @@ module IeducarApi
   class Base
     class ApiError < RuntimeError; end
 
-    attr_accessor :url, :access_key, :secret_key, :unity_id
+    attr_accessor :url, :access_key, :secret_key, :unity_id, :full_synchronization
 
-    def initialize(options = {})
+    def initialize(options = {}, full_synchronization = false)
       self.url = options.delete(:url)
       self.access_key = options.delete(:access_key)
       self.secret_key = options.delete(:secret_key)
       self.unity_id = options.delete(:unity_id)
+      self.full_synchronization = full_synchronization
 
       Honeybadger.context(
         url: url,
@@ -22,6 +23,8 @@ module IeducarApi
     end
 
     def fetch(params = {})
+      params.reverse_merge!(modified: last_synchronization_date) unless full_synchronization
+
       assign_staging_secret_keys if Rails.env.staging?
 
       request(RequestMethods::GET, params) do |endpoint, request_params|
@@ -91,6 +94,10 @@ module IeducarApi
       raise ApiError, result['msgs'].map { |r| r['msg'] }.join(', ') if raise_exception
 
       result
+    end
+
+    def last_synchronization_date
+      @last_synchronization_date ||= IeducarApiConfiguration.current.synchronized_at
     end
   end
 end

@@ -1,0 +1,151 @@
+synchronizers:
+  -
+    klass: TeachersSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      DisciplinesSynchronizer
+    ]
+  -
+    klass: KnowledgeAreasSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      DisciplinesSynchronizer
+    ]
+  -
+    klass: RoundingTablesSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      ExamRulesSynchronizer
+    ]
+  -
+    klass: DisciplinesSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      StudentsSynchronizer,
+      CoursesSynchronizer
+    ]
+    dependencies: [
+      TeachersSynchronizer,
+      KnowledgeAreasSynchronizer
+    ]
+  -
+    klass: StudentsSynchronizer
+    by_year: false
+    by_unity: true
+    dependents: [
+      StudentEnrollmentSynchronizer,
+      DeficienciesSynchronizer
+    ]
+    dependencies: [
+      DisciplinesSynchronizer
+    ]
+  -
+    klass: DeficienciesSynchronizer
+    by_year: false
+    by_unity: true
+    dependencies: [
+      StudentsSynchronizer
+    ]
+  -
+    klass: ExamRulesSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      RecoveryExamRulesSynchronizer,
+      CoursesSynchronizer
+    ]
+    dependencies: [
+      RoundingTablesSynchronizer
+    ]
+  -
+    klass: RecoveryExamRulesSynchronizer
+    by_year: false
+    by_unity: false
+    dependencies: [
+      ExamRulesSynchronizer
+    ]
+  -
+    klass: CoursesSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      GradesSynchronizer
+    ]
+    dependencies: [
+      ExamRulesSynchronizer,
+      DisciplinesSynchronizer
+    ]
+  -
+    klass: GradesSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      ClassroomsSynchronizer
+    ]
+    dependencies: [
+      CoursesSynchronizer
+    ]
+  -
+    klass: ClassroomsSynchronizer
+    by_year: true
+    by_unity: true
+    dependents: [
+      SpecificStepsSynchronizer,
+      TeacherDisciplineClassroomsSynchronizer,
+      StudentEnrollmentClassroomSynchronizer
+    ]
+    dependencies: [
+      GradesSynchronizer
+    ]
+  -
+    klass: SpecificStepsSynchronizer
+    by_year: true
+    by_unity: true
+    dependencies: [
+      ClassroomsSynchronizer
+    ]
+  -
+    klass: TeacherDisciplineClassroomsSynchronizer
+    by_year: true
+    by_unity: true
+    dependencies: [
+      ClassroomsSynchronizer
+    ]
+  -
+    klass: StudentEnrollmentSynchronizer
+    by_year: true
+    by_unity: true
+    dependents: [
+      StudentEnrollmentClassroomSynchronizer,
+      StudentEnrollmentDependenceSynchronizer,
+      StudentEnrollmentExemptedDisciplinesSynchronizer
+    ]
+    dependencies: [
+      StudentsSynchronizer
+    ]
+  -
+    klass: StudentEnrollmentClassroomSynchronizer
+    by_year: true
+    by_unity: true
+    dependencies: [
+      StudentEnrollmentSynchronizer,
+      ClassroomsSynchronizer
+    ]
+  -
+    klass: StudentEnrollmentDependenceSynchronizer
+    by_year: true
+    by_unity: true
+    dependencies: [
+      StudentEnrollmentSynchronizer
+    ]
+  -
+    klass: StudentEnrollmentExemptedDisciplinesSynchronizer
+    by_year: true
+    by_unity: true
+    dependencies: [
+      StudentEnrollmentSynchronizer
+    ]
