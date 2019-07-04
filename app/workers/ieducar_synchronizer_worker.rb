@@ -15,7 +15,7 @@ class IeducarSynchronizerWorker
     end
   end
 
-  def perform(entity_id = nil, synchronization_id = nil)
+  def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false)
     if entity_id.present? && synchronization_id.present?
       perform_for_entity(
         Entity.find(entity_id),
@@ -28,7 +28,7 @@ class IeducarSynchronizerWorker
 
           next unless configuration.persisted?
 
-          configuration.start_synchronization(User.first, entity.id)
+          configuration.start_synchronization(User.first, entity.id, full_synchronization)
         end
       end
     end
