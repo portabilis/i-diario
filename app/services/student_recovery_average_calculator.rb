@@ -11,7 +11,7 @@ class StudentRecoveryAverageCalculator
       parallel_recovery_average
     elsif recovery_type == RecoveryTypes::SPECIFIC
       # FIXME Remove this when possible
-      if Entity.current.name == 'saomigueldoscampos' || Entity.current.name == 'clientetest3'
+      if EntitySingletoon.current.name == 'saomigueldoscampos' || EntitySingletoon.current.name == 'clientetest3'
         specific_recovery_sum
       else
         specific_recovery_average

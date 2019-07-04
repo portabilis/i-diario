@@ -14,7 +14,7 @@ RSpec.describe EntityWorker do
     attr_accessor :entity, :args
 
     def perform_in_entity *args
-      @entity = Entity.current
+      @entity = EntitySingletoon.current
       @args = args
     end
   end
@@ -53,7 +53,7 @@ RSpec.describe EntityWorker do
 
   describe ".perform_current_entity" do
     it "should call perform_async with current entity" do
-      Entity.current = entity
+      EntitySingletoon.set entity
 
       allow(DummyWorker).to receive(:perform).with(entity.id, :foo, :bar).and_return(nil)
 

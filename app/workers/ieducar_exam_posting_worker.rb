@@ -24,17 +24,17 @@ class IeducarExamPostingWorker
 
     case posting.post_type
     when ApiPostingTypes::NUMERICAL_EXAM
-      ExamPoster::NumericalExamPoster.post!(posting, Entity.current.id, queue)
+      ExamPoster::NumericalExamPoster.post!(posting, EntitySingletoon.current.id, queue)
     when ApiPostingTypes::CONCEPTUAL_EXAM
-      ExamPoster::ConceptualExamPoster.post!(posting, Entity.current.id, queue)
+      ExamPoster::ConceptualExamPoster.post!(posting, EntitySingletoon.current.id, queue)
     when ApiPostingTypes::DESCRIPTIVE_EXAM
-      ExamPoster::DescriptiveExamPoster.post!(posting, Entity.current.id, queue)
+      ExamPoster::DescriptiveExamPoster.post!(posting, EntitySingletoon.current.id, queue)
     when ApiPostingTypes::ABSENCE
-      ExamPoster::AbsencePoster.post!(posting, Entity.current.id, queue)
+      ExamPoster::AbsencePoster.post!(posting, EntitySingletoon.current.id, queue)
     when ApiPostingTypes::FINAL_RECOVERY
-      ExamPoster::FinalRecoveryPoster.post!(posting, Entity.current.id, queue)
+      ExamPoster::FinalRecoveryPoster.post!(posting, EntitySingletoon.current.id, queue)
     when ApiPostingTypes::SCHOOL_TERM_RECOVERY
-      ExamPoster::SchoolTermRecoveryPoster.post!(posting, Entity.current.id, queue)
+      ExamPoster::SchoolTermRecoveryPoster.post!(posting, EntitySingletoon.current.id, queue)
     end
   end
 end

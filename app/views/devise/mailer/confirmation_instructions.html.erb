@@ -3,5 +3,5 @@
 <p>Você pode confirmar sua conta através do link abaixo:</p>
 
 <p><%= link_to 'Confirmo minha conta', confirmation_url(@resource,
-                                                        host: Entity.current_domain,
+                                                        host: EntitySingletoon.current_domain,
                                                         confirmation_token: @token) %></p>
