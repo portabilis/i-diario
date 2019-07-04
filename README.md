@@ -152,8 +152,8 @@ $ bundle exec sidekiq -d
 - Acessar Calendário letivo, clicar em **Sincronizar** e configurar os calendários
 - Acessar Configurações > Api de Integração
   - Existem dois botões nessa tela:
-  - Sincronizar: Ao clicar nesse botão, será verificado a ultima data de sincronização e somente vai sincronizar os dados inseridos/atualizados/deletados após essa data.
-  - Sincronização completa: Esse botão apenas aparece para o usuário administrador e ao clicar nesse botão, não vai fazer a verificação de data, sincronizando todos os dados de todos os anos.
+    - Sincronizar: Ao clicar nesse botão, será verificado a ultima data de sincronização e somente vai sincronizar os dados inseridos/atualizados/deletados após essa data.
+    - Sincronização completa: Esse botão apenas aparece para o usuário administrador e ao clicar nesse botão, não vai fazer a verificação de data, sincronizando todos os dados de todos os anos.
 
 _Nota: Após esses primeiros passos, recomendamos que a sincronização rode pelo menos diariamente para manter o i-Diário atualizado com o i-Educar_
 
