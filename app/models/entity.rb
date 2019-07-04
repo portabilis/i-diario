@@ -1,19 +1,11 @@
 class Entity < ActiveRecord::Base
   acts_as_copy_target
 
-  cattr_accessor :current
-
   validates :name, :domain, :config, presence: true
   validates :domain, uniqueness: { case_sensitive: false }, allow_blank: true
 
   scope :need_migration, -> { where(migrate: true) }
   scope :active, -> { where(disabled: false) }
-
-  def self.current_domain
-    raise Exception.new("Entity not found") if self.current.blank?
-
-    self.current.domain
-  end
 
   def using_connection(&block)
     Honeybadger.context(entity: { name: name, id: id })
