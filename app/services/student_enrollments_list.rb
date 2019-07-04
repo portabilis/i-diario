@@ -49,10 +49,10 @@ class StudentEnrollmentsList
     students_enrollments ||= StudentEnrollment.by_classroom(classroom)
                                               .by_discipline(discipline)
                                               .by_score_type(score_type, classroom)
+                                              .joins(:student)
                                               .includes(:student)
                                               .includes(:dependences)
                                               .active
-                                              .ordered
 
     if include_date_range
       students_enrollments = students_enrollments.includes(:student_enrollment_classrooms)
@@ -67,6 +67,8 @@ class StudentEnrollmentsList
     students_enrollments = reject_duplicated_students(students_enrollments)
 
     students_enrollments = remove_not_displayable_students(students_enrollments)
+
+    students_enrollments = order_by_sequence_and_name(students_enrollments)
 
     students_enrollments
   end
@@ -141,5 +143,18 @@ class StudentEnrollmentsList
 
   def opinion_type_by_year?
     [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(@opinion_type)
+  end
+
+  def order_by_sequence_and_name(students_enrollments)
+    ids = students_enrollments.map(&:id)
+    start_at = @start_at || @date
+    end_at = @end_at || @date
+
+    StudentEnrollment.where(id: ids)
+                     .by_classroom(@classroom)
+                     .by_date_range(start_at, end_at)
+                     .active
+                     .ordered
+                     .to_a
   end
 end
