@@ -71,7 +71,7 @@ RSpec.describe IeducarApi::Base, type: :service do
 
           expect(result.keys).to include 'alunos'
 
-          expect(result['alunos'].size).to eq(117_573)
+          expect(result['alunos'].size).to eq(29_923)
         end
       end
     end

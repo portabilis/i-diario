@@ -1,80 +1,56 @@
 class ExamRulesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch(ano: years.first)['regras']
+    update_exam_rules(
+      HashDecorator.new(
+        api.fetch['regras']
+      )
+    )
   end
 
-  def self.synchronize_in_batch!(synchronization, worker_batch, years = nil, unity_api_code = nil, entity_id = nil)
-    super do
-      years.each do |year|
-        ExamRulesSynchronizer.new(
-          synchronization,
-          worker_batch,
-          [year],
-          unity_api_code,
-          entity_id
-        ).synchronize!
-      end
-    end
+  private
+
+  def api_class
+    IeducarApi::ExamRules
   end
 
-  protected
+  def update_exam_rules(exam_rules)
+    differentiated_exam_rules = []
 
-  def worker_name
-    "#{self.class}-#{years.first}"
-  end
+    exam_rules.each do |exam_rule_record|
+      ExamRule.find_or_initialize_by(api_code: exam_rule_record.id).tap do |exam_rule|
+        exam_rule.score_type = exam_rule_record.tipo_nota
+        exam_rule.frequency_type = exam_rule_record.tipo_presenca
+        exam_rule.recovery_type = exam_rule_record.tipo_recuperacao
+        exam_rule.parallel_recovery_average = exam_rule_record.media_recuperacao_paralela
+        exam_rule.opinion_type = exam_rule_record.parecer_descritivo
+        exam_rule.final_recovery_maximum_score = exam_rule_record.nota_maxima_exame
+        exam_rule.rounding_table_id = rounding_table(exam_rule_record.tabela_arredondamento_id).try(:id)
+        exam_rule.rounding_table_api_code = exam_rule_record.tabela_arredondamento_id
+        exam_rule.rounding_table_concept_id = rounding_table(
+          exam_rule_record.tabela_arredondamento_id_conceitual
+        ).try(:id)
+        exam_rule.rounding_table_concept_api_code = exam_rule_record.tabela_arredondamento_id_conceitual
+        exam_rule.save! if exam_rule.changed?
 
-  def api
-    IeducarApi::ExamRules.new(synchronization.to_api)
-  end
-
-  def update_records(collection)
-    ActiveRecord::Base.transaction do
-      collection.each do |record|
-        exam_rule = exam_rules.find_by(api_code: record['id'])
-
-        if exam_rule.present?
-          exam_rule.update(
-            score_type: record['tipo_nota'],
-            frequency_type: record['tipo_presenca'],
-            recovery_type: record['tipo_recuperacao'],
-            parallel_recovery_average: record['media_recuperacao_paralela'],
-            opinion_type: record['parecer_descritivo'],
-            final_recovery_maximum_score: record['nota_maxima_exame'],
-            rounding_table_id: RoundingTable.find_by(api_code: record['tabela_arredondamento_id']).try(:id),
-            rounding_table_api_code: record['tabela_arredondamento_id'],
-            rounding_table_concept_id: RoundingTable.find_by(api_code: record['tabela_arredondamento_id_conceitual']).try(:id),
-            rounding_table_concept_api_code: record['tabela_arredondamento_id_conceitual'],
-            differentiated_exam_rule_api_code: record['regra_diferenciada_id'],
-            differentiated_exam_rule_id: ExamRule.find_by(api_code: record['regra_diferenciada_id']).try(:id)
-          )
-        else
-          exam_rule = exam_rules.create(
-            api_code: record['id'],
-            score_type: record['tipo_nota'],
-            frequency_type: record['tipo_presenca'],
-            recovery_type: record['tipo_recuperacao'],
-            parallel_recovery_average: record['media_recuperacao_paralela'],
-            opinion_type: record['parecer_descritivo'],
-            final_recovery_maximum_score: record['nota_maxima_exame'],
-            rounding_table_id: RoundingTable.find_by(api_code: record['tabela_arredondamento_id']).try(:id),
-            rounding_table_api_code: record['tabela_arredondamento_id'],
-            rounding_table_concept_id: RoundingTable.find_by(api_code: record['tabela_arredondamento_id_conceitual']).try(:id),
-            rounding_table_concept_api_code: record['tabela_arredondamento_id_conceitual'],
-            differentiated_exam_rule_api_code: record['regra_diferenciada_id'],
-            differentiated_exam_rule_id: ExamRule.find_by(api_code: record['regra_diferenciada_id']).try(:id)
-          )
-        end
-
-        record['turmas'].each do |api_classroom|
-          turma = Classroom.find_by(api_code: api_classroom['turma_id'])
-
-          turma.update_attribute(:exam_rule_id, exam_rule.id) if turma.present?
+        if exam_rule_record.regra_diferenciada_id.present?
+          differentiated_exam_rules << [
+            exam_rule_record.id,
+            exam_rule_record.regra_diferenciada_id
+          ]
         end
       end
     end
+
+    update_differentiated_exam_rules(differentiated_exam_rules)
   end
 
-  def exam_rules(klass = ExamRule)
-    klass
+  def update_differentiated_exam_rules(differentiated_exam_rules)
+    differentiated_exam_rules.each do |api_code, differentiated_api_code|
+      exam_rule(api_code).tap do |exam_rule|
+        exam_rule.differentiated_exam_rule_api_code = differentiated_api_code
+        exam_rule.differentiated_exam_rule_id = exam_rule(differentiated_api_code).try(:id)
+        exam_rule.save! if exam_rule.changed?
+      end
+    end
   end
 end

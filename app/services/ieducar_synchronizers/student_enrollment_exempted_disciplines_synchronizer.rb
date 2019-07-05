@@ -1,83 +1,67 @@
 class StudentEnrollmentExemptedDisciplinesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch['dispensas']
+    update_exempted_disciplines(
+      HashDecorator.new(
+        api.fetch(
+          ano: year,
+          escola: unity_api_code
+        )['dispensas']
+      )
+    )
   end
 
-  protected
+  private
 
-  def api
-    IeducarApi::StudentEnrollmentExemptedDisciplines.new(synchronization.to_api)
+  def api_class
+    IeducarApi::StudentEnrollmentExemptedDisciplines
   end
 
-  def update_records(collection)
-    ActiveRecord::Base.transaction do
-      dispensed_discipline_ids_to_keep = []
+  def update_exempted_disciplines(exempted_disciplines)
+    changed_student_enrollment_exempted_disciplines = []
 
-      collection.each do |record|
-        student_enrollment = StudentEnrollment.find_by(api_code: record['matricula_id'])
-        student_enrollment_id = student_enrollment.try(&:id)
-        discipline_id = Discipline.find_by(api_code: record['disciplina_id']).try(&:id)
+    exempted_disciplines.each do |exempted_discipline_record|
+      student_enrollment = student_enrollment(exempted_discipline_record.matricula_id)
+      discipline_id = discipline(exempted_discipline_record.disciplina_id).try(&:id)
 
-        next unless student_enrollment_id.present? && discipline_id.present?
+      next if student_enrollment.blank? || discipline_id.blank?
 
-        dispensed_disciplines = StudentEnrollmentExemptedDiscipline.find_or_create_by(
-          student_enrollment_id: student_enrollment_id,
-          discipline_id: discipline_id
-        )
-        dispensed_disciplines.update_attribute(:steps, record['etapas'])
+      StudentEnrollmentExemptedDiscipline.with_discarded.find_or_initialize_by(
+        student_enrollment_id: student_enrollment.id,
+        discipline_id: discipline_id
+      ).tap do |exempted_discipline|
+        exempted_discipline.steps = exempted_discipline_record.etapas
 
-        dispensed_discipline_ids_to_keep << dispensed_disciplines.id
-        # remove_dispensed_exams_and_frequencies(
-        #   student_enrollment,
-        #   discipline_id,
-        #   record['etapas'].split(',')
-        # )
+        discard_exempted_discipline = exempted_discipline_record.deleted_at.present? ||
+                                      exempted_discipline_record.etapas.blank?
+
+        if exempted_discipline.changed?
+          exempted_discipline.save!
+
+          unless discard_exempted_discipline
+            changed_student_enrollment_exempted_disciplines << [
+              student_enrollment.id,
+              discipline_id,
+              exempted_discipline_record.etapas.split(',')
+            ]
+          end
+        end
+
+        exempted_discipline.discard_or_undiscard(discard_exempted_discipline)
       end
-
-      destroy_inexisting_dispensed_disciplines(dispensed_discipline_ids_to_keep)
     end
+
+    delete_dispensed_exams_and_frequencies(changed_student_enrollment_exempted_disciplines)
   end
 
-  def remove_dispensed_exams_and_frequencies(student_enrollment, discipline_id, steps)
-    classroom = student_enrollment.student_enrollment_classrooms.first.classroom
-
-    return if classroom.blank?
-
-    school_calendar = CurrentSchoolCalendarFetcher.new(classroom.unity, classroom).fetch
-
-    return if school_calendar.blank?
-
-    steps.each do |step_number|
-      step = school_calendar.steps.ordered.find { |school_calendar_step|
-        school_calendar_step.to_number == step_number.to_i
-      }
-
-      next unless step
-
-      start_date = step.start_at
-      end_date = step.end_at
-
-      DailyNoteStudent.by_student_id(student_enrollment.student_id)
-                      .by_discipline_id(discipline_id)
-                      .by_test_date_between(start_date, end_date)
-                      .delete_all
-
-      student_conceptual_exams = ConceptualExam.where(student_id: student_enrollment.student_id)
-                                               .where(recorded_at: start_date..end_date)
-                                               .pluck(:id)
-
-      ConceptualExamValue.where(discipline_id: discipline_id)
-                         .where(conceptual_exam_id: student_conceptual_exams)
-                         .delete_all
-
-      DailyFrequencyStudent.by_student_id(student_enrollment.student_id)
-                           .by_discipline_id(discipline_id)
-                           .by_frequency_date_between(start_date, end_date)
-                           .delete_all
+  def delete_dispensed_exams_and_frequencies(changed_student_enrollment_exempted_disciplines)
+    changed_student_enrollment_exempted_disciplines.uniq.each do |student_enrollment_id, discipline_id, steps|
+      DeleteDispensedExamsAndFrequenciesWorker.perform_in(
+        1.second,
+        entity_id,
+        student_enrollment_id,
+        discipline_id,
+        steps
+      )
     end
-  end
-
-  def destroy_inexisting_dispensed_disciplines(dispensed_discipline_ids_to_keep)
-    StudentEnrollmentExemptedDiscipline.where.not(id: dispensed_discipline_ids_to_keep).destroy_all
   end
 end

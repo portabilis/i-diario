@@ -35,6 +35,8 @@ class PartialScoreRecordReportController < ApplicationController
                             current_school_calendar.last_day
                           )
                           .select(:student_id)
+    ).where(
+      id: student_ids_with_student_enrollments(classroom_id)
     ).ordered
 
     respond_with @students_by_daily_note if params['classroom_id'].present?
@@ -43,6 +45,16 @@ class PartialScoreRecordReportController < ApplicationController
   end
 
   private
+
+  def student_ids_with_student_enrollments(classroom_id)
+    student_enrollments_list = StudentEnrollmentsList.new(
+      classroom: classroom_id,
+      discipline: current_user.current_discipline_id,
+      search_type: :by_year
+    )
+
+    student_enrollments_list.student_enrollments.map(&:student_id)
+  end
 
   def school_calendar_steps
     @school_calendar_steps ||= SchoolCalendarStep.where(school_calendar: current_school_calendar)
