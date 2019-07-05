@@ -156,5 +156,6 @@ class StudentEnrollmentsList
                      .active
                      .ordered
                      .to_a
+                     .uniq
   end
 end
