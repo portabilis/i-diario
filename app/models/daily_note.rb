@@ -10,7 +10,7 @@ class DailyNote < ActiveRecord::Base
 
   has_one :daily_note_status
   has_many :students, -> {
-    includes(:student).order('students.name')
+    joins(:student).includes(:student).order('students.name')
   }, class_name: 'DailyNoteStudent', dependent: :destroy
 
   accepts_nested_attributes_for :students, allow_destroy: true, reject_if: proc { |attributes|
