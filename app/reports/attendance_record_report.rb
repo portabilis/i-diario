@@ -220,15 +220,15 @@ class AttendanceRecordReport < BaseReport
     page_footer do
       repeat(:all) do
         draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
-        draw_text('____________________________', size: 8, at: [117, 0])
+        draw_text('________________________________________', size: 8, at: [117, 0])
 
-        draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
-        draw_text('____________________________', size: 8, at: [429, 0])
+        draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [300, 0])
+        draw_text('________________________________________', size: 8, at: [470, 0])
 
-        draw_text('Data:', size: 8, style: :bold, at: [559, 0])
-        draw_text('________________', size: 8, at: [581, 0])
+        draw_text('Data:', size: 8, style: :bold, at: [652, 0])
+        draw_text('________________', size: 8, at: [674, 0])
 
-        if(self.any_student_with_dependence)
+        if self.any_student_with_dependence
           draw_text('* Alunos cursando dependência', size: 8, at: [0, 47])
         end
       end
@@ -259,7 +259,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def student_slice_size(students)
-    student_with_social_name_count = students.select { |(key, value)|
+    student_with_social_name_count = students.select { |(_key, value)|
       value[:social_name].present?
     }.length
 
