@@ -29,7 +29,8 @@ module ExamPoster
           Ieducar::SendPostWorker.set(queue: @queue).perform_async(
             entity_id,
             @post_data.id,
-            request
+            request[:request],
+            request[:info]
           )
         end
       else
@@ -61,9 +62,7 @@ module ExamPoster
       current_step_exam_poster = "#{@entity_id}_#{classroom.id}_#{step_number}_current_step_exam_poster"
 
       Rails.cache.fetch(current_step_exam_poster, expires_in: 5.minutes) do
-        StepsFetcher.new(classroom).steps.find do |step|
-          step.to_number == step_number
-        end
+        StepsFetcher.new(classroom).step(step_number)
       end
     end
 

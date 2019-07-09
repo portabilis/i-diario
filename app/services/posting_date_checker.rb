@@ -15,7 +15,7 @@ class PostingDateChecker
   private
 
   def step
-    @step ||= StepsFetcher.new(@classroom).step(@record_date)
+    @step ||= StepsFetcher.new(@classroom).step_by_date(@record_date)
   end
 
   def thread_origin_type_is_api?

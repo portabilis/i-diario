@@ -10,6 +10,10 @@
             <td><%= f.input :by_classroom_description, label: false, placeholder: t('.by_classroom_description') %></td>
             <td><%= f.input :by_discipline_description, label: false, placeholder: t('.by_discipline_description') %></td>
             <td><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
+            <td>
+              <%= f.input :by_author, as: :select2, elements: PlansAuthors.to_select.to_json,
+                label: false, placeholder: t('.by_author') %>
+            </td>
             <td><%= link_to t('.new_html'), new_discipline_content_record_path, class: 'btn btn-primary pull-right' %></td>
           </tr>
 
@@ -17,6 +21,7 @@
             <th><%= ContentRecord.human_attribute_name :classroom %></th>
             <th><%= DisciplineContentRecord.human_attribute_name :discipline %>
             <th><%= ContentRecord.human_attribute_name :record_date %></th>
+            <th width="10%"><%= DisciplineContentRecord.human_attribute_name :author %></th>
             <td width="160px"></td>
           </tr>
         </thead>
@@ -24,7 +29,7 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="4">
+          <td colspan="5">
             <div id="page_entries_info" class="pull-left hidden-xs">
               <%= page_entries_info @discipline_content_records %>
             </div>

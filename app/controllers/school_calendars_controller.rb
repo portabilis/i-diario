@@ -1,11 +1,16 @@
 class SchoolCalendarsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
+  before_action :check_user_unity, only: [:edit, :update, :destroy]
 
   def index
     @school_calendars = apply_scopes(SchoolCalendar).includes(:unity)
                                                     .filter(filtering_params(params[:search]))
                                                     .ordered
+
+    unless show_all_unities?
+      @school_calendars = @school_calendars.by_unity_id(current_user_unity)
+    end
 
     authorize @school_calendars
 
@@ -52,30 +57,25 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def synchronize
-    @school_calendars = SchoolCalendarsParser.parse!(IeducarApiConfiguration.current)
+    begin
+      @school_calendars = SchoolCalendarsParser.parse!(IeducarApiConfiguration.current)
 
-    authorize(SchoolCalendar, :create?)
-    authorize(SchoolCalendar, :update?)
+      authorize(SchoolCalendar, :create?)
+      authorize(SchoolCalendar, :update?)
+    rescue SchoolCalendarsParser::ClassroomNotFoundError => error
+      redirect_to edit_ieducar_api_configurations_path, alert: error.to_s
+    end
   end
 
   def create_and_update_batch
-    begin
-      selected_school_calendars(params[:synchronize]).each do |school_calendar|
-        SchoolCalendarSynchronizerService.synchronize(school_calendar)
-      end
-
-      redirect_to school_calendars_path, notice: t('.notice')
-    rescue SchoolCalendarsCreator::InvalidSchoolCalendarError,
-           SchoolCalendarsCreator::InvalidClassroomCalendarError,
-           SchoolCalendarsUpdater::InvalidSchoolCalendarError,
-           SchoolCalendarsUpdater::InvalidClassroomCalendarError => error
-
-      redirect_to synchronize_school_calendars_path, alert: error.to_s
-    rescue StandardError => error
-      Honeybadger.notify(error)
-
-      redirect_to synchronize_school_calendars_path, alert: t('.alert')
+    selected_school_calendars(params[:synchronize]).each do |school_calendar|
+      SchoolCalendarSynchronizerService.synchronize(school_calendar)
     end
+
+    redirect_to school_calendars_path, notice: t('.notice')
+  rescue SchoolCalendarSynchronizerService::InvalidSchoolCalendarError,
+         SchoolCalendarSynchronizerService::InvalidClassroomCalendarError => error
+    redirect_to school_calendars_path, alert: error.message
   end
 
   def years_from_unity
@@ -86,7 +86,7 @@ class SchoolCalendarsController < ApplicationController
 
   def step
     classroom = Classroom.find(params[:classroom_id])
-    @step = StepsFetcher.new(classroom).steps.find(params[:step_id])
+    @step = StepsFetcher.new(classroom).step_by_id(params[:step_id])
 
     render json: @step.to_json
   end
@@ -117,6 +117,7 @@ class SchoolCalendarsController < ApplicationController
       :number_of_classes,
       steps_attributes: [
         :id,
+        :step_number,
         :start_at,
         :end_at,
         :start_date_for_posting,
@@ -129,6 +130,7 @@ class SchoolCalendarsController < ApplicationController
         :_destroy,
         classroom_steps_attributes: [
           :id,
+          :step_number,
           :start_at,
           :end_at,
           :start_date_for_posting,
@@ -137,4 +139,16 @@ class SchoolCalendarsController < ApplicationController
       ]
     )
   end
+
+  def check_user_unity
+    return if show_all_unities?
+    return if current_user_unity.try(:id) == resource.unity_id
+
+    redirect_to(school_calendars_path, alert: I18n.t('school_calendars.invalid_unity'))
+  end
+
+  def show_all_unities?
+    @show_all_unities ||= current_user.current_user_role.role_administrator?
+  end
+  helper_method :show_all_unities?
 end

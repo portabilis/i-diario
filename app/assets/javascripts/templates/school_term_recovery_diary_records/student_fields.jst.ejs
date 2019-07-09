@@ -7,11 +7,9 @@
     </div>
 
     <% if(exempted_from_discipline) { %>
-      <span class="exempted-student-from-discipline">
-        ****<%= name %>
-      </span>
+      <span class="exempted-student-from-discipline">****<%= name %></span>
     <% } else { %>
-      <%= name %>
+      <span class="multiline"><%= name %></span>
     <% } %>
   </td>
 

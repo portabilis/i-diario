@@ -1,5 +1,9 @@
 class ObservationDiaryRecord < ActiveRecord::Base
+  include Discardable
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: [:classroom, :discipline]
 
   acts_as_copy_target
   audited
@@ -17,6 +21,8 @@ class ObservationDiaryRecord < ActiveRecord::Base
   belongs_to :discipline
   has_many :notes, class_name: 'ObservationDiaryRecordNote', dependent: :destroy
   accepts_nested_attributes_for :notes, allow_destroy: true
+
+  default_scope -> { kept }
 
   scope :by_unity, -> unity_ids { joins(:classroom).where(classrooms: { unity_id: unity_ids }) }
   scope :by_teacher, -> teacher_ids { where(teacher_id: teacher_ids) }

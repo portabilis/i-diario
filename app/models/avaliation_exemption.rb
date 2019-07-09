@@ -1,4 +1,6 @@
 class AvaliationExemption < ActiveRecord::Base
+  include Discardable
+
   acts_as_copy_target
 
   belongs_to :avaliation
@@ -38,6 +40,8 @@ class AvaliationExemption < ActiveRecord::Base
   delegate :grade_id, :grade, to: :classroom, prefix: false, allow_nil: true
   delegate :course_id, to: :grade, prefix: false, allow_nil: true
 
+  default_scope -> { kept }
+
   scope :by_unity, lambda { |unity_id| joins(:avaliation).merge(Avaliation.by_unity_id(unity_id))}
   scope :by_student, lambda { |student_id| where(student_id: student_id) }
   scope :by_avaliation, lambda { |avaliation_id| where(avaliation_id: avaliation_id) }
@@ -61,8 +65,10 @@ class AvaliationExemption < ActiveRecord::Base
   }
 
   scope :by_student_name, lambda { |student_name|
-    joins(:student)
-    .where('unaccent(students.name) ILIKE unaccent(?)', "%#{student_name}%" )
+    joins(:student).where(
+      "(unaccent(students.name) ILIKE unaccent('%#{student_name}%') or
+        unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
+    )
   }
 
   scope :by_avaliation_description, lambda { |avaliation_description|

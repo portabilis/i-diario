@@ -1,6 +1,9 @@
 class ComplementaryExam < ActiveRecord::Base
   include Audit
   include Stepable
+  include TeacherRelationable
+
+  teacher_relation_columns only: [:classroom, :discipline]
 
   acts_as_copy_target
 
@@ -22,7 +25,6 @@ class ComplementaryExam < ActiveRecord::Base
 
   scope :by_complementary_exam_setting, lambda { |complementary_exam_setting_id| where(complementary_exam_setting_id: complementary_exam_setting_id) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
-  scope :by_step_id, lambda { |classroom, step_id| self.by_step_id_scope(classroom, step_id) }
   scope :by_grade_id, lambda { |grade_id| joins(:classroom).merge(Classroom.by_grade(grade_id)) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
@@ -48,11 +50,6 @@ class ComplementaryExam < ActiveRecord::Base
   end
 
   private
-
-  def self.by_step_id_scope(classroom, step_id)
-    step = StepsFetcher.new(classroom).steps.find_by_id(step_id)
-    self.by_date_range(step.start_at, step.end_at)
-  end
 
   def at_least_one_score
     errors.add(:students, :at_least_one_score) if students.reject(&:marked_for_destruction?).reject{|s| s.score.blank? }.empty?

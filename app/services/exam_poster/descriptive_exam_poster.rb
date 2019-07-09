@@ -6,11 +6,17 @@ module ExamPoster
       post_by_step.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, descriptive_exam|
           requests << {
-            etapa: @post_data.step.to_number,
-            resource: 'pareceres-por-etapa-geral',
-            pareceres: {
-              classroom_id => {
-                student_id => descriptive_exam
+            info: {
+              classroom: classroom_id,
+              student: student_id
+            },
+            request: {
+              etapa: @post_data.step.to_number,
+              resource: 'pareceres-por-etapa-geral',
+              pareceres: {
+                classroom_id => {
+                  student_id => descriptive_exam
+                }
               }
             }
           }
@@ -20,10 +26,16 @@ module ExamPoster
       post_by_year.each do |classroom_id, classroom_descriptive_exam|
         classroom_descriptive_exam.each do |student_id, descriptive_exam|
           requests << {
-            resource: 'pareceres-anual-geral',
-            pareceres: {
-              classroom_id => {
-                student_id => descriptive_exam
+            info: {
+              classroom: classroom_id,
+              student: student_id
+            },
+            request: {
+              resource: 'pareceres-anual-geral',
+              pareceres: {
+                classroom_id => {
+                  student_id => descriptive_exam
+                }
               }
             }
           }
@@ -34,11 +46,18 @@ module ExamPoster
         classroom_descriptive_exam.each do |student_id, student_descriptive_exam|
           student_descriptive_exam.each do |discipline_id, discipline_descriptive_exam|
             requests << {
-              resource: 'pareceres-anual-por-componente',
-              pareceres: {
-                classroom_id => {
-                  student_id => {
-                    discipline_id => discipline_descriptive_exam
+              info: {
+                classroom: classroom_id,
+                student: student_id,
+                discipline: discipline_id
+              },
+              request: {
+                resource: 'pareceres-anual-por-componente',
+                pareceres: {
+                  classroom_id => {
+                    student_id => {
+                      discipline_id => discipline_descriptive_exam
+                    }
                   }
                 }
               }
@@ -51,12 +70,19 @@ module ExamPoster
         classroom_descriptive_exam.each do |student_id, student_descriptive_exam|
           student_descriptive_exam.each do |discipline_id, discipline_descriptive_exam|
             requests << {
-              etapa: @post_data.step.to_number,
-              resource: 'pareceres-por-etapa-e-componente',
-              pareceres: {
-                classroom_id => {
-                  student_id => {
-                    discipline_id => discipline_descriptive_exam
+              info: {
+                classroom: classroom_id,
+                student: student_id,
+                discipline: discipline_id
+              },
+              request: {
+                etapa: @post_data.step.to_number,
+                resource: 'pareceres-por-etapa-e-componente',
+                pareceres: {
+                  classroom_id => {
+                    student_id => {
+                      discipline_id => discipline_descriptive_exam
+                    }
                   }
                 }
               }

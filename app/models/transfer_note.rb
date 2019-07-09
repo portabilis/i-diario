@@ -1,6 +1,9 @@
 class TransferNote < ActiveRecord::Base
   include Audit
   include Stepable
+  include TeacherRelationable
+
+  teacher_relation_columns only: [:classroom, :discipline]
 
   audited except: [:teacher_id, :recorded_at]
   has_associated_audits
@@ -31,8 +34,11 @@ class TransferNote < ActiveRecord::Base
   scope :by_discipline_description, lambda { |description|
     joins(:discipline).where('unaccent(disciplines.description) ILIKE unaccent(?)', "%#{description}%")
   }
-  scope :by_student_name, lambda { |name|
-    joins(:student).where('unaccent(students.name) ILIKE unaccent(?)', "%#{name}%")
+  scope :by_student_name, lambda { |student_name|
+    joins(:student).where(
+      "(unaccent(students.name) ILIKE unaccent('%#{student_name}%') or
+        unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
+    )
   }
   scope :by_transfer_date, lambda { |transfer_date| where(transfer_date: transfer_date.to_date) }
   scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }

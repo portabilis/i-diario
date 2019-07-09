@@ -22,26 +22,20 @@ class SchoolCalendarClassroom < ActiveRecord::Base
 
   validates :classroom, :school_calendar, presence: true
 
-  SCHOOL_TERMS = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters, 1 => Year }.freeze
-
   def classroom_step(date)
     classroom_steps.all.started_after_and_before(date).first
+  end
+
+  def step_by_number(step_number)
+    classroom_steps.find_by(step_number: step_number)
   end
 
   def posting_step(date)
     classroom_steps.all.posting_date_after_and_before(date).first
   end
 
-  def school_term(date)
-    school_step(classroom_step(date))
-  end
-
-  def school_step(step)
-    index_of_step = classroom_steps.find_index(step)
-
-    if (school_term = SCHOOL_TERMS[classroom_steps.size])
-      school_term.key_for(index_of_step)
-    end
+  def steps
+    classroom_steps
   end
 
   def first_day

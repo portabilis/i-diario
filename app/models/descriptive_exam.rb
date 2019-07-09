@@ -1,6 +1,9 @@
 class DescriptiveExam < ActiveRecord::Base
   include Audit
   include Stepable
+  include TeacherRelationable
+
+  teacher_relation_columns only: [:classroom, :discipline]
 
   acts_as_copy_target
 
@@ -18,8 +21,10 @@ class DescriptiveExam < ActiveRecord::Base
 
   delegate :unity, to: :classroom, allow_nil: true
 
+  scope :by_unity_id, ->(unity_id) { joins(:classroom).where(classrooms: { unity_id: unity_id }) }
   scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
   scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
+  scope :by_step_number, ->(step_number) { where(step_number: step_number) }
 
   validates :unity, presence: true
   validates :opinion_type, presence: true

@@ -1,40 +1,35 @@
 class SpecificStepsSynchronizer < BaseSynchronizer
-  def self.synchronize!(synchronization, worker_batch, classroom_id, api_classroom_id)
-    new(synchronization, worker_batch, classroom_id, api_classroom_id).synchronize!
-  end
-
-  def initialize(synchronization, worker_batch, classroom_id, api_classroom_id)
-    self.synchronization = synchronization
-    self.worker_batch = worker_batch
-    self.classroom_id = classroom_id
-    self.api_classroom_id = api_classroom_id
-  end
-
   def synchronize!
-    if classroom_id
-      specific_steps_api.fetch(turma_id: api_classroom_id)['etapas'].each do |specific_step|
-        update_or_create_specific_step(classroom_id, specific_step['disciplina_id'], specific_step['etapas_utilizadas'], Time.parse(specific_step['updated_at']))
-      end
-    end
-
-    finish_worker('SpecificStepsSynchronizer-' << api_classroom_id)
+    update_specific_steps(
+      HashDecorator.new(
+        api.fetch(
+          ano: year,
+          escola: unity_api_code
+        )['etapas']
+      )
+    )
   end
 
-  protected
+  private
 
-  attr_accessor :classroom_id, :api_classroom_id
+  USE_SPECIFIC_STEP = '1'.freeze
 
-  def specific_steps_api
-    IeducarApi::SpecificSteps.new(synchronization.to_api)
+  def api_class
+    IeducarApi::SpecificSteps
   end
 
-  def update_or_create_specific_step(classroom_id, discipline_api_id, used_steps, ieducar_updated_at)
-    ActiveRecord::Base.transaction do
-      discipline_id = Discipline.find_by_api_code(discipline_api_id).try(:id)
+  def update_specific_steps(specific_steps)
+    specific_steps.each do |specific_step_record|
+      SpecificStep.with_discarded.find_or_initialize_by(
+        classroom_id: classroom(specific_step_record.turma_id).try(:id),
+        discipline_id: discipline(specific_step_record.disciplina_id).try(:id)
+      ).tap do |specific_step|
+        specific_step.used_steps = specific_step_record.etapas_utilizadas
+        specific_step.save! if specific_step.changed?
 
-      if discipline_id
-        specific_step = SpecificStep.find_or_create_by!(classroom_id: classroom_id, discipline_id: discipline_id)
-        specific_step.update_attribute(:used_steps, used_steps)
+        discard_specific_step = specific_step_record.deleted_at.present? ||
+                                specific_step_record.etapas_especificas != USE_SPECIFIC_STEP
+        specific_step.discard_or_undiscard(discard_specific_step)
       end
     end
   end

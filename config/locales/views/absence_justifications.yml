@@ -1,4 +1,7 @@
 pt-BR:
   absence_justifications:
     index:
+      by_author: "Filtrar autor"
       new_html: "<i class='fa fa-plus'></i> Nova justificativa de falta"
+    form:
+      add_attachment: "Adicionar anexo"

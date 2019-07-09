@@ -17,7 +17,11 @@ config/secrets.yml
 config/google_drive.json
 config/puma.rb
 /public/uploads
-/public/relatorios
+/public/404.html
+/public/500.html
+/public/422.html
+/public/relatorios/*
+!/public/relatorios/.keep
 
 ## Environment normalisation:
 /.bundle
@@ -43,3 +47,6 @@ config/initializers/backport_pg_10_support_to_rails_4.rb
 
 # Optinal plugins
 Gemfile.plugins
+
+# Setup
+.setup

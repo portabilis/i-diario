@@ -48,7 +48,6 @@ class AvaliationExemptionsController < ApplicationController
     if @avaliation_exemption.update_attributes(avaliation_exemption_params)
       respond_with @avaliation_exemption, location: avaliation_exemptions_path
     else
-      @school_calendar_year = current_school_calendar.year
       fetch_collections
       render :edit
     end
@@ -81,6 +80,7 @@ class AvaliationExemptionsController < ApplicationController
   end
 
   def fetch_collections
+    @school_calendar_year = current_school_calendar.year
     fetch_avaliations
     fetch_students
     fetch_school_calendar_steps
@@ -94,7 +94,7 @@ class AvaliationExemptionsController < ApplicationController
 
   def fetch_students
     @students = []
-    if @avaliation_exemption.avaliation.classroom.present?
+    if @avaliation_exemption.avaliation.try(:classroom).present?
       @student_ids = StudentEnrollment
         .by_classroom(current_user_classroom)
         .by_discipline(current_user_discipline)
@@ -108,7 +108,7 @@ class AvaliationExemptionsController < ApplicationController
   end
 
   def fetch_school_calendar_steps
-    @school_calendar_steps ||= SchoolCalendarStep.by_school_calendar_id(@avaliation_exemption.school_calendar_id)
+    @school_calendar_steps ||= current_school_calendar.steps
   end
 
   def fetch_school_calendar_classroom_steps

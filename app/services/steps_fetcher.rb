@@ -7,8 +7,20 @@ class StepsFetcher
     school_calendar_steps
   end
 
-  def step(date)
-    step_by_date(date)
+  def step(step_number)
+    step_by_number(step_number)
+  end
+
+  def step_by_date(date)
+    return if school_calendar.blank?
+
+    school_calendar_steps.started_after_and_before(date).first
+  end
+
+  def step_by_id(step_id)
+    return if school_calendar.blank?
+
+    school_calendar_steps.find_by(id: step_id)
   end
 
   def current_step
@@ -19,30 +31,54 @@ class StepsFetcher
     (step_id.to_i == step_by_date(date).try(:id))
   end
 
+  def step_belongs_to_number?(step_id, step_number)
+    (step_id.to_i == step_by_number(step_number).try(:id))
+  end
+
   def step_type
     school_calendar_classroom.present? ? StepTypes::CLASSROOM : StepTypes::GENERAL
   end
 
-  def old_steps(date)
-    old_steps_by_date(date)
+  def old_steps(step_number)
+    old_steps_by_step_number(step_number)
   end
-
-  private
 
   def school_calendar
     @school_calendar ||= SchoolCalendar.find_by(unity_id: @classroom.unity_id, year: @classroom.year)
   end
 
+  private
+
   def school_calendar_classroom
-    @school_calendar_classroom ||= school_calendar.classrooms.find_by_classroom_id(@classroom.id)
+    return if school_calendar.blank?
+
+    @school_calendar_classroom ||= school_calendar.classrooms.find_by(classroom_id: @classroom.id)
   end
 
   def school_calendar_steps
-    @steps ||= school_calendar_classroom.present? ? school_calendar_classroom.classroom_steps : school_calendar.steps
+    return if school_calendar.blank?
+
+    @school_calendar_steps ||= begin
+      school_calendar_classroom.present? ? school_calendar_classroom.classroom_steps : school_calendar.steps
+    end
   end
 
-  def step_by_date(date)
-    school_calendar_steps.started_after_and_before(date).first
+  def step_by_number(step_number)
+    return if school_calendar.blank?
+
+    school_calendar_steps.each do |step|
+      return step if step.step_number == step_number.to_i
+    end
+
+    nil
+  end
+
+  def old_steps_by_step_number(step_number)
+    if school_calendar_classroom.present?
+      school_calendar_steps.where(SchoolCalendarClassroomStep.arel_table[:step_number].lt(step_number))
+    else
+      school_calendar_steps.where(SchoolCalendarStep.arel_table[:step_number].lt(step_number))
+    end
   end
 
   def old_steps_by_date(date)

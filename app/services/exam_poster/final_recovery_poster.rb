@@ -8,10 +8,16 @@ module ExamPoster
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
             requests << {
-              notas: {
-                classroom_id => {
-                  student_id => {
-                    discipline_id => discipline_score
+              info: {
+                student: student_id,
+                discipline: discipline_id
+              },
+              request: {
+                notas: {
+                  classroom_id => {
+                    student_id => {
+                      discipline_id => discipline_score
+                    }
                   }
                 }
               }
@@ -37,9 +43,12 @@ module ExamPoster
 
         classroom_api_code = final_recovery_diary_record.recovery_diary_record.classroom.api_code
         discipline_api_code = final_recovery_diary_record.recovery_diary_record.discipline.api_code
+        score_rounder = ScoreRounder.new(
+          final_recovery_diary_record.recovery_diary_record.classroom,
+          RoundedAvaliations::FINAL_RECOVERY
+        )
 
         final_recovery_diary_record.recovery_diary_record.students.each do |student|
-          score_rounder = ScoreRounder.new(final_recovery_diary_record.recovery_diary_record.classroom)
           value = score_rounder.round(student.score)
 
           params[classroom_api_code][student.student.api_code][discipline_api_code]['nota'] = value

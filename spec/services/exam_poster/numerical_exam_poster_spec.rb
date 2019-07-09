@@ -60,6 +60,13 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       'resource' => 'notas',
     }
   end
+  let(:info) do
+    {
+      classroom: classroom.api_code,
+      student: daily_note_student.student.api_code,
+      discipline: teacher_discipline_classroom.discipline.api_code
+    }
+  end
 
   subject { described_class.new(exam_posting, Entity.first.id, 'exam_posting_send') }
 
@@ -111,10 +118,12 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       )
     }
     let!(:school_term_recovery_diary_record) {
+      step = StepsFetcher.new(recovery_diary_record.classroom).step_by_date(recovery_diary_record.recorded_at)
       create(
         :current_school_term_recovery_diary_record,
         recovery_diary_record: recovery_diary_record,
-        step_id: StepsFetcher.new(recovery_diary_record.classroom).step(recovery_diary_record.recorded_at).id
+        step_id: step.id,
+        step_number: step.step_number
       )
     }
     context 'hasnt complementary exams' do
@@ -123,9 +132,13 @@ RSpec.describe ExamPoster::NumericalExamPoster do
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score
         request['notas'] = scores
-        expect(
-          Ieducar::SendPostWorker.jobs.first["args"][2]
-        ).to match(request)
+
+        expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+          Entity.first.id,
+          exam_posting.id,
+          request,
+          info
+        )
       end
     end
 
@@ -139,10 +152,34 @@ RSpec.describe ExamPoster::NumericalExamPoster do
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['nota'] = daily_note_student.note.to_f
         scores[classroom.api_code][daily_note_student.student.api_code][avaliation.discipline.api_code]['recuperacao'] = recovery_student.score + complementary_exam_student.score
         request['notas'] = scores
-        expect(
-          Ieducar::SendPostWorker.jobs.first["args"][2]
-        ).to match(request)
+
+        expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+          Entity.first.id,
+          exam_posting.id,
+          request,
+          info
+        )
       end
+    end
+
+    it 'expects to call score_rounder with correct params' do
+      score_rounder = double(:score_rounder)
+
+      expect(ScoreRounder).to receive(:new)
+        .with(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
+        .and_return(score_rounder)
+        .at_least(:once)
+
+      expect(ScoreRounder).to receive(:new)
+        .with(classroom, RoundedAvaliations::NUMERICAL_EXAM)
+        .and_return(score_rounder)
+        .at_least(:once)
+
+      expect(score_rounder).to receive(:round)
+        .with(anything)
+        .at_least(:once)
+
+      subject.post!
     end
   end
 

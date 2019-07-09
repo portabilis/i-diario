@@ -16,7 +16,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
 
     it 'destroys content record when content was not in the params' do
       content_record = create(:content_record,
-                              teacher_id: teacher_discipline_classroom.teacher_id,
+                              teacher: teacher_discipline_classroom.teacher,
                               classroom_id: teacher_discipline_classroom.classroom_id)
 
       create(:discipline_content_record,
@@ -40,7 +40,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
 
     it 'creates content' do
       content_record = create(:content_record,
-                              teacher_id: teacher_discipline_classroom.teacher_id,
+                              teacher: teacher_discipline_classroom.teacher,
                               classroom_id: teacher_discipline_classroom.classroom_id)
 
       create(:discipline_content_record,

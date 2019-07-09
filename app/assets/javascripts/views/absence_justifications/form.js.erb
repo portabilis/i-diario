@@ -4,9 +4,10 @@ $(function() {
       $studentDiv = $("[data-student]"),
       $classroom = $("#absence_justification_classroom_id"),
       $discipline = $("#absence_justification_discipline_id"),
+      $absenceDate = $("#absence_justification_absence_date"),
+      $absenceDateEnd = $("#absence_justification_absence_date_end"),
       $student = $("#absence_justification_student_id");
 
-  var currentDate = $('#current_date').val();
   var teacherId = $('#teacher_id').val();
 
   // on change
@@ -49,17 +50,24 @@ $(function() {
   }
 
   function fetchStudents() {
-    var classroom_id = $classroom.select2('val');
+    const classroom_id = $classroom.select2('val');
+    const startDate = $absenceDate.val();
+    const endDate = $absenceDateEnd.val();
 
     $student.select2('val', '');
     $student.select2({ data: [] });
 
-    if (!_.isEmpty(classroom_id)) {
+    const filter = {
+      classroom: classroom_id,
+      start_at: startDate,
+      end_at: startDate,
+      show_inactive: false
+    };
 
+    if (!_.isEmpty(classroom_id) && !_.isEmpty(startDate) && !_.isEmpty(startDate)) {
       $.ajax({
-        url: Routes.students_pt_br_path({
-          date: currentDate,
-          classroom_id: classroom_id,
+        url: Routes.by_date_range_student_enrollments_lists_pt_br_path({
+          filter: filter,
           format: 'json'
         }),
         success: fetchStudentsSuccess,
@@ -69,8 +77,8 @@ $(function() {
   };
 
   function fetchStudentsSuccess(data) {
-    var students = _.map(data.students, function(student) {
-      return { id: student.id, text: student.name };
+    const students = (data.student_enrollments_lists||[]).map(studentEnrollment => {
+      return { id: studentEnrollment['student']['id'], text: studentEnrollment['student']['name'] };
     });
 
     $student.select2({ data: students });
@@ -140,4 +148,23 @@ $(function() {
       $disciplineDiv.hide();
     }
   }
+
+  function onChangeFileElement(){
+    if (this.files[0].size > 3145728) {
+      $(this).closest(".control-group").find('span').remove();
+      $(this).closest(".control-group").addClass("error");
+      $(this).after('<span class="help-inline">tamanho máximo por arquivo: 3 MB</span>');
+      $(this).val("");
+    }else {
+      $(this).closest(".control-group").removeClass("error");
+      $(this).closest(".control-group").find('span').remove();
+    }
+  }
+
+  $('#absence_justification').on('cocoon:after-insert', function(e, item) {
+    $(item).find('input.file').on('change', onChangeFileElement);
+  });
+
+  $absenceDate.on('change', fetchStudents);
+  $absenceDateEnd.on('change', fetchStudents);
 });

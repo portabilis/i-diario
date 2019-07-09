@@ -1,7 +1,7 @@
 class DisciplineContentRecordClonerForm< ActiveRecord::Base
   has_no_table
 
-  attr_accessor :discipline_content_record_id
+  attr_accessor :discipline_content_record_id, :teacher
 
   validates :discipline_content_record_id, presence: true
   has_many :discipline_content_record_item_cloner_form
@@ -15,7 +15,9 @@ class DisciplineContentRecordClonerForm< ActiveRecord::Base
           discipline_content_record_item_cloner_form.each_with_index do |item, index|
             @current_item_index = index
             new_content_record = discipline_content_record.dup
+            new_content_record.teacher_id = teacher.id
             new_content_record.content_record = discipline_content_record.content_record.dup
+            new_content_record.content_record.teacher = teacher
             new_content_record.content_record.contents = discipline_content_record.content_record.contents
             new_content_record.content_record.classroom = @classrooms.find_by_id(item.classroom_id)
             new_content_record.content_record.record_date = item.record_date

@@ -5,13 +5,19 @@ class DisciplineContentRecordsController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    @discipline_content_records = apply_scopes(DisciplineContentRecord)
-      .includes(:discipline, content_record: [:classroom])
-      .by_unity_id(current_user_unity.id)
-      .by_classroom_id(current_user_classroom)
-      .by_discipline_id(current_user_discipline)
-      .by_teacher_id(current_teacher)
-      .ordered
+    author_type = (params[:filter] || []).delete(:by_author)
+
+    @discipline_content_records = apply_scopes(
+      DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
+                             .by_unity_id(current_user_unity.id)
+                             .by_classroom_id(current_user_classroom)
+                             .by_discipline_id(current_user_discipline)
+                             .ordered
+    )
+
+    if author_type.present?
+      @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
+    end
 
     authorize @discipline_content_records
   end
@@ -31,6 +37,8 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record.content_record.teacher = current_teacher
     @discipline_content_record.content_record.content_ids = content_ids
     @discipline_content_record.content_record.origin = OriginTypes::WEB
+    @discipline_content_record.content_record.teacher = current_teacher
+    @discipline_content_record.teacher_id = current_teacher_id
 
     authorize @discipline_content_record
 
@@ -51,6 +59,7 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record = DisciplineContentRecord.find(params[:id])
     @discipline_content_record.assign_attributes(resource_params)
     @discipline_content_record.content_record.content_ids = content_ids
+    @discipline_content_record.teacher_id = current_teacher_id
 
     authorize @discipline_content_record
 
@@ -80,7 +89,7 @@ class DisciplineContentRecordsController < ApplicationController
   end
 
   def clone
-    @form = DisciplineContentRecordClonerForm.new(clone_params)
+    @form = DisciplineContentRecordClonerForm.new(clone_params.merge(teacher: current_teacher))
 
     if @form.clone!
       flash[:success] = "Registro de conteúdo por disciplina copiado com sucesso!"
@@ -104,6 +113,7 @@ class DisciplineContentRecordsController < ApplicationController
         :unity_id,
         :classroom_id,
         :record_date,
+        :daily_activities_record,
         :content_ids
       ]
     )

@@ -42,7 +42,7 @@ class AbsenceAdjustmentsService
 
       next if absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
 
-      if classroom_id != daily_frequency.classroom_id && discipline_id != daily_frequency.discipline_id
+      if classroom_id != daily_frequency.classroom_id || discipline_id != daily_frequency.discipline_id
         classroom_id = daily_frequency.classroom_id
         discipline_id = daily_frequency.discipline_id
 

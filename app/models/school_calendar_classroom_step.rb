@@ -28,6 +28,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   scope :posting_date_after_and_before, lambda { |date|
     where(arel_table[:start_date_for_posting].lteq(date).and(arel_table[:end_date_for_posting].gteq(date)))
   }
+  scope :by_step_number, ->(step_number) { where(step_number: step_number) }
   scope :by_step_year, ->(year) { where('EXTRACT(YEAR FROM start_at) = ?', year) }
   scope :ordered, -> { order(:start_at) }
 
@@ -42,11 +43,12 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   end
 
   def test_setting
+    school_term = SchoolTermConverter.convert(school_calendar_classroom.classroom_step(start_at))
     TestSetting.where(
       TestSetting.arel_table[:year].eq(school_calendar_classroom.school_calendar.year)
         .and(
           TestSetting.arel_table[:exam_setting_type].eq(ExamSettingTypes::GENERAL)
-          .or(TestSetting.arel_table[:school_term].eq(school_calendar_classroom.school_term(start_at)))
+          .or(TestSetting.arel_table[:school_term].eq(school_term))
         )
     )
     .order(school_term: :desc)

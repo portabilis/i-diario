@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe PostingDateChecker, :type => :service do
+RSpec.describe PostingDateChecker, type: :service do
   let(:classroom) { create(:classroom) }
   let(:school_calendar) { create(:school_calendar, unity: classroom.unity) }
   let(:school_calendar_step) { create(:school_calendar_step, school_calendar: school_calendar) }

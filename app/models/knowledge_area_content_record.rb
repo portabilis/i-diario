@@ -1,5 +1,8 @@
 class KnowledgeAreaContentRecord < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :knowledge_areas
 
   audited
   acts_as_copy_target
@@ -22,6 +25,13 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
 
   scope :ordered, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date].desc) }
   scope :order_by_content_record_date, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date]) }
+  scope :by_author, lambda { |author_type, current_teacher_id|
+    if author_type == PlansAuthors::MY_PLANS
+      joins(:content_record).merge(ContentRecord.where(teacher_id: current_teacher_id))
+    else
+      joins(:content_record).merge(ContentRecord.where.not(teacher_id: current_teacher_id))
+    end
+  }
 
   validates :content_record, presence: true
   validates :knowledge_area_ids, presence: true
@@ -68,7 +78,9 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   end
 
   def ensure_is_school_day
-    return unless content_record.present? && record_date
+    return unless content_record.present? &&
+                  content_record.school_calendar.present? &&
+                  record_date.present?
 
     unless content_record.school_calendar.school_day?(record_date, grade, classroom)
       errors.add(:base, "")

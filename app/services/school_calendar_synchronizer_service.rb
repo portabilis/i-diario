@@ -1,4 +1,7 @@
 class SchoolCalendarSynchronizerService
+  class InvalidSchoolCalendarError < StandardError; end
+  class InvalidClassroomCalendarError < StandardError; end
+
   def self.synchronize(school_calendar)
     new(school_calendar).synchronize
   end

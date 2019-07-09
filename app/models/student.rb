@@ -1,4 +1,6 @@
 class Student < ActiveRecord::Base
+  include Discardable
+
   acts_as_copy_target
 
   audited
@@ -9,11 +11,25 @@ class Student < ActiveRecord::Base
 
   has_many :student_biometrics
   has_many :student_enrollments
+  has_many :absence_justifications
+  has_many :avaliation_exemptions
+  has_many :complementary_exam_students
+  has_many :conceptual_exams
+  has_many :daily_frequency_students
+  has_many :daily_note_students
+  has_many :descriptive_exam_students
+  has_many :observation_diary_record_note_students
+  has_many :recovery_diary_record_students
+  has_many :transfer_notes
+  has_many :deficiency_students, dependent: :destroy
+  has_many :deficiencies, through: :deficiency_students
 
   attr_accessor :exempted_from_discipline
 
   validates :name, presence: true
   validates :api_code, presence: true, if: :api?
+
+  default_scope -> { kept }
 
   scope :api, -> { where(arel_table[:api].eq(true)) }
   scope :ordered, -> { order(:name) }
@@ -40,11 +56,17 @@ class Student < ActiveRecord::Base
   end
 
   def to_s
+    return I18n.t('.student.display_name_format', social_name: social_name, name: name) if social_name.present?
+
     name
   end
 
+  def display_name
+    @display_name ||= social_name || name
+  end
+
   def first_name
-    name.blank? ? '' : name.split(' ')[0]
+    display_name.blank? ? '' : display_name.split(' ')[0]
   end
 
   def average(classroom, discipline, step)

@@ -16,7 +16,13 @@ class StudentEnrollmentsList
     @opinion_type = params.fetch(:opinion_type, nil)
     @with_recovery_note_in_step = params.fetch(:with_recovery_note_in_step, false)
     @include_date_range = params.fetch(:include_date_range, false)
+    @period = params.fetch(:period, nil)
     ensure_has_valid_params
+
+    if search_type == :by_year && params[:year].blank?
+      classroom = Classroom.find(@classroom)
+      @year = classroom.year
+    end
 
     adjust_date_range_by_year if opinion_type_by_year?
   end
@@ -27,9 +33,9 @@ class StudentEnrollmentsList
 
   private
 
-  attr_accessor :classroom, :discipline, :date, :start_at, :end_at, :search_type, :show_inactive,
+  attr_accessor :classroom, :discipline, :year, :date, :start_at, :end_at, :search_type, :show_inactive,
                 :show_inactive_outside_step, :score_type, :opinion_type, :with_recovery_note_in_step,
-                :include_date_range
+                :include_date_range, :period
 
   def ensure_has_valid_params
     if search_type == :by_date
@@ -43,10 +49,10 @@ class StudentEnrollmentsList
     students_enrollments ||= StudentEnrollment.by_classroom(classroom)
                                               .by_discipline(discipline)
                                               .by_score_type(score_type, classroom)
+                                              .joins(:student)
                                               .includes(:student)
                                               .includes(:dependences)
                                               .active
-                                              .ordered
 
     if include_date_range
       students_enrollments = students_enrollments.includes(:student_enrollment_classrooms)
@@ -54,12 +60,15 @@ class StudentEnrollmentsList
                                                  .by_date_not_before(start_at)
     end
 
+    students_enrollments = students_enrollments.by_period(period) if period
     students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
     students_enrollments = students_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
     students_enrollments = reject_duplicated_students(students_enrollments)
 
     students_enrollments = remove_not_displayable_students(students_enrollments)
+
+    students_enrollments = order_by_sequence_and_name(students_enrollments)
 
     students_enrollments
   end
@@ -96,6 +105,8 @@ class StudentEnrollmentsList
       enrollments_on_period = enrollments_on_period.by_date(date)
     elsif search_type == :by_date_range
       enrollments_on_period = enrollments_on_period.by_date_range(start_at, end_at)
+    elsif search_type == :by_year
+      enrollments_on_period = enrollments_on_period.by_year(year)
     end
 
     enrollments_on_period.active.any?
@@ -120,7 +131,7 @@ class StudentEnrollmentsList
   def step
     @step ||= begin
       step_date = date || start_at
-      StepsFetcher.new(Classroom.find(classroom)).step(step_date)
+      StepsFetcher.new(Classroom.find(classroom)).step_by_date(step_date)
     end
   end
 
@@ -132,5 +143,19 @@ class StudentEnrollmentsList
 
   def opinion_type_by_year?
     [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(@opinion_type)
+  end
+
+  def order_by_sequence_and_name(students_enrollments)
+    ids = students_enrollments.map(&:id)
+    start_at = @start_at || @date
+    end_at = @end_at || @date
+
+    StudentEnrollment.where(id: ids)
+                     .by_classroom(@classroom)
+                     .by_date_range(start_at, end_at)
+                     .active
+                     .ordered
+                     .to_a
+                     .uniq
   end
 end

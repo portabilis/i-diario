@@ -4,10 +4,20 @@ FactoryGirl.define do
     student
     recorded_at { Time.zone.today }
     unity_id 1
+    step_number 1
 
     before(:create) do |conceptual_exam|
       student_enrollment = create(:student_enrollment, student: conceptual_exam.student)
       create(:student_enrollment_classroom, classroom: conceptual_exam.classroom, student_enrollment: student_enrollment)
+    end
+
+    after(:build) do |conceptual_exam|
+      teacher_discipline_classroom = create(
+        :teacher_discipline_classroom,
+        classroom: conceptual_exam.classroom
+      )
+
+      conceptual_exam.teacher_id = teacher_discipline_classroom.teacher.id
     end
 
     factory :conceptual_exam_with_one_value do

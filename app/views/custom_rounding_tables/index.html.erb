@@ -4,17 +4,21 @@
       <table class='table table-bordered table-only-inner-bordered table-striped table-condensed table-hover' id='resources'>
         <thead>
           <tr>
-            <td style='width: 25%;'>
+            <td style='width: 21%;'>
               <%= f.input :by_name, label: false, placeholder: t('.by_name') %>
             </td>
-            <td style='width: 30%;'>
+            <td style='width: 26%;'>
               <%= f.input :by_unity, as: :select2, elements: @unities, label: false, placeholder: t('.by_unity') %>
             </td>
-            <td style='width: 23%;'>
+            <td style='width: 19%;'>
               <%= f.input :by_course, as: :select2, elements: @courses, label: false, placeholder: t('.by_course') %>
             </td>
             <td style='width: 12%;'>
               <%= f.input :by_grade, as: :select2, elements: @grades, label: false, placeholder: t('.by_grade') %>
+            </td>
+            <td style='width: 12%;'>
+              <%= f.input :by_avaliation, as: :select2, elements: @rounded_avaliations, label: false,
+                placeholder: t('.by_avaliation') %>
             </td>
             <td style='width: 10%;'>
               <%= f.input :by_year, label: false, placeholder: t('.by_year') %>
@@ -26,6 +30,7 @@
             <th><%= CustomRoundingTable.human_attribute_name :unities %></th>
             <th><%= CustomRoundingTable.human_attribute_name :courses %></th>
             <th><%= CustomRoundingTable.human_attribute_name :grades %></th>
+            <th><%= CustomRoundingTable.human_attribute_name :avaliations %></th>
             <th><%= CustomRoundingTable.human_attribute_name :year %></th>
             <th></th>
           </tr>
@@ -34,7 +39,7 @@
         <%= render 'resources' %>
 
         <tfoot id='paginator' class='remote'>
-          <td colspan='6'>
+          <td colspan='7'>
             <div id='page_entries_info' class='pull-left hidden-xs'>
               <%= page_entries_info @custom_rounding_tables %>
             </div>

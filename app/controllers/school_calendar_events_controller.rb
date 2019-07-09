@@ -2,6 +2,7 @@ class SchoolCalendarEventsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
   respond_to :json, only: [:grades, :classrooms]
+  before_action :check_user_unity
 
   def index
     @school_calendar_events = apply_scopes(school_calendar.events).includes(:grade, :classroom)
@@ -123,4 +124,16 @@ class SchoolCalendarEventsController < ApplicationController
       @school_calendar_event.end_date = ''
     end
   end
+
+  def check_user_unity
+    return if show_all_unities?
+    return if current_user_unity.try(:id) == school_calendar.unity_id
+
+    redirect_to(school_calendars_path, alert: I18n.t('school_calendars.invalid_unity'))
+  end
+
+  def show_all_unities?
+    @show_all_unities ||= current_user.current_user_role.role_administrator?
+  end
+  helper_method :show_all_unities?
 end

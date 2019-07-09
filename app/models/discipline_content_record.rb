@@ -1,5 +1,8 @@
 class DisciplineContentRecord < ActiveRecord::Base
   include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: :discipline
 
   audited associated_with: :content_record,
           except: [:content_record_id]
@@ -23,6 +26,13 @@ class DisciplineContentRecord < ActiveRecord::Base
 
   scope :ordered, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date].desc) }
   scope :order_by_content_record_date, -> { joins(:content_record).order(ContentRecord.arel_table[:record_date]) }
+  scope :by_author, lambda { |author_type, current_teacher_id|
+    if author_type == PlansAuthors::MY_PLANS
+      joins(:content_record).merge(ContentRecord.where(teacher_id: current_teacher_id))
+    else
+      joins(:content_record).merge(ContentRecord.where.not(teacher_id: current_teacher_id))
+    end
+  }
 
   validates :content_record, presence: true
   validates :discipline, presence: true

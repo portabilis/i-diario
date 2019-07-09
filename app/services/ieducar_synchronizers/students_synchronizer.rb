@@ -1,41 +1,35 @@
 class StudentsSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch["alunos"]
-
-    finish_worker('StudentsSynchronizer')
+    update_students(
+      HashDecorator.new(
+        api.fetch(
+          escola: unity_api_code
+        )['alunos']
+      )
+    )
   end
 
-  protected
+  private
 
-  def api
-    IeducarApi::Students.new(synchronization.to_api)
+  def api_class
+    IeducarApi::Students
   end
 
-  def update_records(collection)
-    ActiveRecord::Base.transaction do
-      collection.each do |record|
-        if student = students.find_by(api_code: record["aluno_id"])
-          student.update(
-            name: record["nome_aluno"],
-            avatar_url: record["foto_aluno"],
-            birth_date: record["data_nascimento"],
-            uses_differentiated_exam_rule: record["utiliza_regra_diferenciada"]
-          )
-        elsif record["nome_aluno"].present?
-          students.create!(
-            api_code: record["aluno_id"],
-            name: record["nome_aluno"],
-            avatar_url: record["foto_aluno"],
-            birth_date: record["data_nascimento"],
-            api: true,
-            uses_differentiated_exam_rule: record["utiliza_regra_diferenciada"]
-          )
-        end
+  def update_students(students)
+    students.each do |student_record|
+      next if student_record.nome_aluno.blank?
+
+      Student.with_discarded.find_or_initialize_by(api_code: student_record.aluno_id).tap do |student|
+        student.name = student_record.nome_aluno
+        student.social_name = student_record.nome_social
+        student.avatar_url = student_record.foto_aluno
+        student.birth_date = student_record.data_nascimento
+        student.api = true
+        student.uses_differentiated_exam_rule = false if student.uses_differentiated_exam_rule.nil?
+        student.save! if student.changed?
+
+        student.discard_or_undiscard(student_record.deleted_at.present?)
       end
     end
-  end
-
-  def students(klass = Student)
-    klass
   end
 end

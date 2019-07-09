@@ -7,12 +7,19 @@ module ExamPoster
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
             requests << {
-              etapa: @post_data.step.to_number,
-              resource: 'notas',
-              notas: {
-                classroom_id => {
-                  student_id => {
-                    discipline_id => discipline_score
+              info: {
+                classroom: classroom_id,
+                student: student_id,
+                discipline: discipline_id
+              },
+              request: {
+                etapa: @post_data.step.to_number,
+                resource: 'notas',
+                notas: {
+                  classroom_id => {
+                    student_id => {
+                      discipline_id => discipline_score
+                    }
                   }
                 }
               }
@@ -34,6 +41,7 @@ module ExamPoster
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
+          score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
 
           next unless can_post?(classroom)
 
@@ -63,7 +71,7 @@ module ExamPoster
 
             next unless school_term_recovery
 
-            recovery_value = ScoreRounder.new(classroom).round(school_term_recovery)
+            recovery_value = score_rounder.round(school_term_recovery)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.warnings?

@@ -36,6 +36,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def create
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.new.localized
     @school_term_recovery_diary_record.assign_attributes(resource_params)
+    @school_term_recovery_diary_record.step_number = @school_term_recovery_diary_record.step.try(:step_number)
+    @school_term_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
 
     authorize @school_term_recovery_diary_record
 
@@ -50,10 +52,11 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def edit
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
-    recorded_at = @school_term_recovery_diary_record.recorded_at
-    @school_term_recovery_diary_record.step_id = steps_fetcher.step(recorded_at).try(:id)
+    step_number = @school_term_recovery_diary_record.step_number
+    @school_term_recovery_diary_record.step_id = steps_fetcher.step(step_number).try(:id)
 
     if @school_term_recovery_diary_record.step_id.blank?
+      recorded_at = @school_term_recovery_diary_record.recorded_at
       flash[:alert] = t('errors.general.calendar_step_not_found', date: recorded_at)
 
       return redirect_to school_term_recovery_diary_records_path
@@ -73,6 +76,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def update
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.find(params[:id]).localized
     @school_term_recovery_diary_record.assign_attributes(resource_params)
+    @school_term_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
 
     authorize @school_term_recovery_diary_record
 

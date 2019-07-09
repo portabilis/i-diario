@@ -12,6 +12,16 @@ FactoryGirl.define do
       school_term_type SchoolTermTypes::YEARLY
       school_term ''
     end
+
+    after(:build) do |teaching_plan|
+      classroom = create(:classroom, grade: teaching_plan.grade)
+
+      create(
+        :teacher_discipline_classroom,
+        classroom: classroom,
+        teacher: teaching_plan.teacher
+      )
+    end
   end
 
   factory :teaching_plan_without_contents, class: TeachingPlan do

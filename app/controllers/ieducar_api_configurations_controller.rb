@@ -1,11 +1,10 @@
 class IeducarApiConfigurationsController < ApplicationController
   def edit
-    IeducarApiSynchronization.
-      cancel_not_running_synchronizations(current_user, restart: false)
-
-    check_for_notifications
-
     @ieducar_api_configuration = IeducarApiConfiguration.current
+
+    if @ieducar_api_configuration.api_security_token.blank?
+      @ieducar_api_configuration.update(api_security_token: SecureRandom.hex(15))
+    end
 
     authorize @ieducar_api_configuration
     render :edit
@@ -39,4 +38,9 @@ class IeducarApiConfigurationsController < ApplicationController
       :url, :token, :secret_token, :unity_code
     )
   end
+
+  def show_configuration_form?
+    current_user.can_change?('ieducar_api_configurations')
+  end
+  helper_method :show_configuration_form?
 end

@@ -46,30 +46,17 @@ class SchoolCalendar < ActiveRecord::Base
     steps.all.started_after_and_before(date).first
   end
 
+  def step_by_number(step_number)
+    steps.find_by(step_number: step_number)
+  end
+
   def posting_step(date)
     steps.all.posting_date_after_and_before(date).first
   end
 
-  def school_term(date)
-    school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters, 1 => Year }
-    index_of_step = steps.find_index(step(date))
-
-    if school_term = school_terms[steps.count]
-      school_term.key_for(index_of_step)
-    end
-  end
-
-  def school_step(step)
-    school_terms = { 4 => Bimesters, 3 => Trimesters, 2 => Semesters, 1 => Year }
-    index_of_step = steps.find_index(step)
-
-    if school_term = school_terms[steps.size]
-      school_term.key_for(index_of_step)
-    end
-  end
-
-  def school_term_day?(school_term, date)
-    real_school_term = school_term(date)
+  def school_term_day?(school_term, date, classroom = nil)
+    step = classroom.present? ? StepsFetcher.new(classroom).step_by_date(date) : step(date)
+    real_school_term = SchoolTermConverter.convert(step)
     real_school_term.to_sym == school_term.to_sym
   end
 

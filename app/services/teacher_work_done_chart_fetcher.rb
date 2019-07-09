@@ -9,7 +9,12 @@ class TeacherWorkDoneChartFetcher
   def fetch!
     teacher_avaliations = Avaliation.by_classroom_id(classroom)
                                     .by_discipline_id(discipline)
-                                    .by_school_calendar_step(school_calendar_step)
+
+    if classroom.calendar
+      teacher_avaliations = teacher_avaliations.by_school_calendar_classroom_step(school_calendar_step)
+    else
+      teacher_avaliations = teacher_avaliations.by_school_calendar_step(school_calendar_step)
+    end
 
     completed_daily_note_students_count = 0
     all_daily_note_students_count = 0
@@ -20,6 +25,7 @@ class TeacherWorkDoneChartFetcher
         discipline: discipline,
         date: avaliation.test_date,
         show_inactive: false,
+        score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
         search_type: :by_date
       ).student_enrollments
       all_daily_note_students_count += students.count

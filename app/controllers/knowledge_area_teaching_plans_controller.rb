@@ -5,13 +5,22 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
 
   def index
-    @knowledge_area_teaching_plans = apply_scopes(KnowledgeAreaTeachingPlan)
-      .includes(:knowledge_areas, teaching_plan: [:unity, :grade])
-      .by_unity(current_user_unity)
-      .by_teacher_id_or_is_null(current_teacher.try(:id))
+    author_type = (params[:filter] || []).delete(:by_author)
 
-    @knowledge_area_teaching_plans = @knowledge_area_teaching_plans
-      .by_grade(current_user_classroom.try(:grade_id)) unless current_user_is_employee_or_administrator?
+    @knowledge_area_teaching_plans = apply_scopes(
+      KnowledgeAreaTeachingPlan.includes(:knowledge_areas, teaching_plan: [:unity, :grade])
+                               .by_unity(current_user_unity)
+                               .by_year(current_user_school_year)
+    )
+
+    unless current_user_is_employee_or_administrator?
+      @knowledge_area_teaching_plans =
+        @knowledge_area_teaching_plans.by_grade(current_user_classroom.try(:grade_id))
+    end
+
+    if author_type.present?
+      @discipline_teaching_plans = @discipline_teaching_plans.by_author(author_type, current_teacher)
+    end
 
     authorize @knowledge_area_teaching_plans
 
@@ -20,8 +29,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def show
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
 
     authorize @knowledge_area_teaching_plan
 
@@ -33,7 +41,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
           current_entity_configuration,
           @knowledge_area_teaching_plan
         )
-        send_pdf(t("routes.knowledge_area_teaching_plans"), knowledge_area_teaching_plan_pdf.render)
+        send_pdf(t('routes.knowledge_area_teaching_plans'), knowledge_area_teaching_plan_pdf.render)
       end
     end
   end
@@ -51,13 +59,12 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def create
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.new(resource_params)
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.new(resource_params).localized
+    @knowledge_area_teaching_plan.teaching_plan.teacher = current_teacher
+    @knowledge_area_teaching_plan.teacher_id = current_teacher_id
+    @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
     authorize @knowledge_area_teaching_plan
-
-    @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher.id unless current_user_is_employee_or_administrator?
-    @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
@@ -69,8 +76,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def edit
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
 
     authorize @knowledge_area_teaching_plan
 
@@ -78,10 +84,11 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def update
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
     @knowledge_area_teaching_plan.assign_attributes(resource_params)
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
+    @knowledge_area_teaching_plan.teacher_id = current_teacher_id
+    @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher_id
 
     authorize @knowledge_area_teaching_plan
 
@@ -95,8 +102,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def destroy
-    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id])
-      .localized
+    @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
 
     authorize @knowledge_area_teaching_plan
 
@@ -135,6 +141,11 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
           :id,
           :description,
           :_destroy
+        ],
+        teaching_plan_attachments_attributes: [
+          :id,
+          :attachment,
+          :_destroy
         ]
       ]
     )
@@ -154,14 +165,14 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_user_unity)
-      .by_year(current_school_calendar.year)
-      .ordered
-    @grades = @grades.where(id: current_user_classroom.try(:grade_id))
-                     .ordered unless current_user_is_employee_or_administrator?
+    @grades = Grade.by_unity(current_user_unity).by_year(current_school_calendar.year).ordered
+
+    return if current_user_is_employee_or_administrator?
+
+    @grades = @grades.where(id: current_user_classroom.try(:grade_id)).ordered
   end
 
   def fetch_knowledge_areas
-    @knowledge_areas = KnowledgeArea.ordered
+    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
   end
 end

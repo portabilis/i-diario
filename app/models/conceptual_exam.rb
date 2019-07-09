@@ -1,14 +1,17 @@
 class ConceptualExam < ActiveRecord::Base
   include Audit
   include Stepable
-  include Filterable
+  include Discardable
+  include TeacherRelationable
+
+  teacher_relation_columns only: :classroom
 
   acts_as_copy_target
 
   audited
   has_associated_audits
 
-  attr_accessor :unity_id, :teacher_id
+  attr_accessor :unity_id
 
   before_destroy :valid_for_destruction?
 
@@ -22,9 +25,13 @@ class ConceptualExam < ActiveRecord::Base
 
   has_enumeration_for :status, with: ConceptualExamStatus, create_helpers: true
 
+  default_scope -> { kept }
+
   scope :by_unity, ->(unity) { joins(:classroom).where(classrooms: { unity_id: unity }) }
   scope :by_classroom, ->(classroom) { where(classroom: classroom) }
+  scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
+  scope :by_step_number, ->(step_number) { where(step_number: step_number) }
   scope :by_discipline, lambda { |discipline|
     join_conceptual_exam_values.where(conceptual_exam_values: { discipline: discipline })
   }
@@ -33,9 +40,21 @@ class ConceptualExam < ActiveRecord::Base
       arel_table.join(Student.arel_table).on(
         Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id])
       ).join_sources
-    ).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student_name}%")
+    ).where(
+      "(unaccent(students.name) ILIKE unaccent('%#{student_name}%') or
+        unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
+    )
   }
   scope :ordered, -> { order(recorded_at: :desc) }
+  scope :ordered_by_date_and_student, -> {
+    joins(
+      arel_table.join(Student.arel_table).on(
+        Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id])
+      ).join_sources
+    ).order(recorded_at: :desc)
+    .order(Student.arel_table[:name])
+    .select(Student.arel_table[:name])
+  }
 
   validates :student, :unity_id, presence: true
   validate :student_must_have_conceptual_exam_score_type
@@ -89,8 +108,26 @@ class ConceptualExam < ActiveRecord::Base
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
+      self.validation_type = :destroy
       valid?
       !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
+    end
+  end
+
+  def merge_conceptual_exam_values
+    grouped_conceptual_exam_values = conceptual_exam_values.group_by { |e|
+      [e.conceptual_exam_id, e.discipline_id]
+    }
+
+    self.conceptual_exam_values = grouped_conceptual_exam_values.map do |_key, conceptual_exam_values|
+      next conceptual_exam_values.first if conceptual_exam_values.size == 1
+
+      persisted = conceptual_exam_values.find(&:persisted?)
+      new_record = conceptual_exam_values.find(&:new_record?)
+
+      persisted.value = new_record.value if new_record.present?
+
+      persisted
     end
   end
 
@@ -103,7 +140,7 @@ class ConceptualExam < ActiveRecord::Base
     exam_rule = classroom.exam_rule
     exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if student.uses_differentiated_exam_rule
 
-    return if permited_score_types.include?(exam_rule.score_type)
+    return if exam_rule.blank? || permited_score_types.include?(exam_rule.score_type)
 
     errors.add(:student, :classroom_must_have_conceptual_exam_score_type)
   end
@@ -126,7 +163,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def uniqueness_of_student
-    return if step.blank? || student_id.blank?
+    return if step.blank? || student_id.blank? || validation_type == :destroy
 
     discipline_ids = conceptual_exam_values.collect(&:discipline_id)
     conceptual_exam = ConceptualExam.joins(:conceptual_exam_values)

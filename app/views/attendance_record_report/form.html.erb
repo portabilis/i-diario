@@ -22,6 +22,10 @@
           <%= f.input :classroom_id, as: :select2_classroom, user: current_user,
                 input_html: { value: @attendance_record_report_form.classroom_id } %>
         </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :period, as: :select2_period, user: current_user %>
+        </div>
       </div>
 
 

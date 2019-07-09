@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe EntityDatabaseCreator, :type => :service do
+RSpec.describe EntityDatabaseCreator, type: :service do
   it "creates a new database" do
     connection = double(:connection)
     database = "name"

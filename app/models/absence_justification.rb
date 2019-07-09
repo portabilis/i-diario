@@ -1,12 +1,17 @@
 class AbsenceJustification < ActiveRecord::Base
+  include Audit
+  include Filterable
+  include Discardable
+  include TeacherRelationable
+
+  teacher_relation_columns only: [:classroom, :discipline]
+
   acts_as_copy_target
 
   audited
 
-  include Audit
-  include Filterable
-
   before_destroy :valid_for_destruction?
+  before_destroy :remove_attachments, if: :valid_for_destruction?
 
   belongs_to :student
   belongs_to :unity
@@ -14,6 +19,10 @@ class AbsenceJustification < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :school_calendar
   belongs_to :teacher
+
+  has_many :absence_justification_attachments, dependent: :destroy
+
+  accepts_nested_attributes_for :absence_justification_attachments, allow_destroy: true
 
   validates_date :absence_date, :absence_date_end
   validates :teacher,          presence: true
@@ -30,10 +39,17 @@ class AbsenceJustification < ActiveRecord::Base
   validate :period_absence
   validate :no_retroactive_dates
 
+  default_scope -> { kept }
+
   scope :ordered, -> { order(absence_date: :desc) }
   scope :by_teacher, ->(teacher_id) { where(teacher_id: teacher_id)  }
   scope :by_classroom, ->(classroom_id) { where('classroom_id = ? OR classroom_id IS NULL', classroom_id) }
-  scope :by_student, ->(student) { joins(:student).where('unaccent(students.name) ILIKE unaccent(?)', "%#{student}%") }
+  scope :by_student, lambda { |student_name|
+    joins(:student).where(
+      "(unaccent(students.name) ILIKE unaccent('%#{student_name}%') or
+        unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
+    )
+  }
   scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
   scope :by_date_range, lambda { |absence_date, absence_date_end|
@@ -43,6 +59,13 @@ class AbsenceJustification < ActiveRecord::Base
   scope :by_school_calendar, ->(school_calendar) { where('school_calendar_id = ? OR school_calendar_id IS NULL', school_calendar) }
   scope :by_date, ->(date) { by_date_query(date) }
   scope :by_school_calendar_report, ->(school_calendar) { where(school_calendar: school_calendar)  }
+  scope :by_author, lambda { |author_type, current_teacher_id|
+    if author_type == AbsenceJustificationAuthors::MY_JUSTIFICATIONS
+      where(teacher_id: current_teacher_id)
+    else
+      where.not(teacher_id: current_teacher_id)
+    end
+  }
 
   private
 
@@ -94,5 +117,10 @@ class AbsenceJustification < ActiveRecord::Base
       !(errors[:absence_date_end].include?(forbidden_error) || errors[:absence_date].include?(forbidden_error))
     end
   end
+
+  def remove_attachments
+    absence_justification_attachments.each(&:destroy)
+  end
+
   private_class_method :by_date_query
 end

@@ -1,4 +1,5 @@
 class StudentEnrollment < ActiveRecord::Base
+  include Discardable
   include Audit
   audited
   has_associated_audits
@@ -9,16 +10,25 @@ class StudentEnrollment < ActiveRecord::Base
   has_many :dependences, class_name: 'StudentEnrollmentDependence'
   has_many :exempted_disciplines, class_name: 'StudentEnrollmentExemptedDiscipline'
 
-  has_enumeration_for :period, with: Periods, skip_validation: true
+  attr_accessor :entity_id
+
+  after_discard { StudentDependenciesDiscarder.discard(entity_id, id) }
+  after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, id) }
+
+  default_scope -> { kept }
 
   scope :by_classroom, lambda { |classroom_id| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_classroom(classroom_id)) }
   scope :by_discipline, lambda {|discipline_id| by_discipline_query(discipline_id)}
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}
   scope :by_opinion_type, lambda {|opinion_type, classroom_id| by_opinion_type_query(opinion_type, classroom_id)}
   scope :by_student, lambda { |student_id| where(student_id: student_id) }
+  scope :by_year, lambda { |year|
+    joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_year(year))
+  }
   scope :by_date, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date(date)) }
   scope :by_date_range, lambda { |start_at, end_at| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_range(start_at, end_at)) }
   scope :by_date_not_before, lambda { |date| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_date_not_before(date)) }
+  scope :by_period, lambda { |period| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_period(period)) }
   scope :show_as_inactive, lambda { joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.show_as_inactive) }
   scope :with_recovery_note_in_step, lambda { |step, discipline_id| with_recovery_note_in_step_query(step, discipline_id) }
   scope :active, -> { where(active: 1) }
@@ -58,6 +68,9 @@ class StudentEnrollment < ActiveRecord::Base
     return where(nil) if score_type == StudentEnrollmentScoreTypeFilters::BOTH
     classroom = Classroom.find(classroom_id)
     exam_rule = classroom.exam_rule
+
+    return where(nil) if exam_rule.blank?
+
     differentiated_exam_rule = exam_rule.differentiated_exam_rule || exam_rule
 
     allowed_score_types = [ScoreTypes::NUMERIC_AND_CONCEPT]
@@ -75,6 +88,9 @@ class StudentEnrollment < ActiveRecord::Base
     return where(nil) unless opinion_type.present? && classroom_id.present?
     classroom = Classroom.find(classroom_id)
     exam_rule = classroom.exam_rule
+
+    return where(nil) if exam_rule.blank?
+
     differentiated_exam_rule = exam_rule.differentiated_exam_rule || exam_rule
 
     exam_rule_included = exam_rule.opinion_type == opinion_type

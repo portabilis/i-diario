@@ -96,7 +96,6 @@ class SchoolCalendarEvent < ActiveRecord::Base
             AND (grade_id IS NULL OR grade_id = ?)
             AND (course_id iS NULL or course_id = ?)
             ORDER BY COALESCE(classroom_id, 0) DESC, COALESCE(grade_id,0) DESC
-            LIMIT 1
             )', classroom.period, classroom.id, classroom.grade.id, classroom.grade.course_id)
   end
 

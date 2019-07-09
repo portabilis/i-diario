@@ -7,12 +7,19 @@ module ExamPoster
         classroom_score.each do |student_id, student_score|
           student_score.each do |discipline_id, discipline_score|
             requests << {
-              etapa: @post_data.step.to_number,
-              resource: 'recuperacoes',
-              notas: {
-                classroom_id => {
-                  student_id => {
-                    discipline_id => discipline_score
+              info: {
+                classroom: classroom_id,
+                student: student_id,
+                discipline: discipline_id
+              },
+              request: {
+                etapa: @post_data.step.to_number,
+                resource: 'recuperacoes',
+                notas: {
+                  classroom_id => {
+                    student_id => {
+                      discipline_id => discipline_score
+                    }
                   }
                 }
               }
@@ -33,6 +40,7 @@ module ExamPoster
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom
           discipline = teacher_discipline_classroom.discipline
+          score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
 
           next unless can_post?(classroom)
           next unless correct_score_type(classroom.exam_rule.score_type)
@@ -55,7 +63,7 @@ module ExamPoster
 
             value = StudentAverageCalculator.new(student_score)
                                             .calculate(classroom, discipline, get_step(classroom))
-            recovery_value = ScoreRounder.new(classroom).round(school_term_recovery)
+            recovery_value = score_rounder.round(school_term_recovery)
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
             scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
           end
@@ -76,10 +84,10 @@ module ExamPoster
 
             score = student_recovery.try(:score)
 
-            if score
-              value = ScoreRounder.new(classroom).round(score)
-              scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = value
-            end
+            next if score.blank?
+
+            value = score_rounder.round(score)
+            scores[classroom.api_code][student.api_code][discipline.api_code]['recuperacao'] = value
           end
         end
       end

@@ -1,105 +1,129 @@
 class IeducarSynchronizerWorker
   include Sidekiq::Worker
 
-  sidekiq_options unique: :until_and_while_executing, retry: false, dead: false
+  sidekiq_options unique: :until_and_while_executing, retry: 3, dead: false, queue: :synchronizer
 
-  def perform(entity_id = nil, synchronization_id = nil)
-    if entity_id
-      entity = Entity.find(entity_id)
-      perform_for_entity(entity, synchronization_id)
+  sidekiq_retries_exhausted do |msg, exception|
+    entity_id, synchronization_id = msg['args']
+
+    Entity.find(entity_id).using_connection do
+      synchronization = IeducarApiSynchronization.find(synchronization_id)
+      synchronization.mark_as_error!(
+        I18n.t('ieducar_api.error.messages.sync_error'),
+        exception.message
+      )
+    end
+  end
+
+  def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false)
+    if entity_id.present? && synchronization_id.present?
+      perform_for_entity(
+        Entity.find(entity_id),
+        synchronization_id
+      )
     else
       all_entities.each do |entity|
-        IeducarSynchronizerWorker.perform_async(entity.id, synchronization_id)
+        entity.using_connection do
+          configuration = IeducarApiConfiguration.current
+
+          next unless configuration.persisted?
+
+          configuration.start_synchronization(User.first, entity.id, full_synchronization)
+        end
       end
     end
   end
 
   private
 
-  BASIC_SYNCHRONIZERS = [
-    'KnowledgeAreasSynchronizer',
-    'DisciplinesSynchronizer',
-    'StudentsSynchronizer',
-    'DeficienciesSynchronizer',
-    'RoundingTablesSynchronizer',
-    'RecoveryExamRulesSynchronizer',
-    'CoursesGradesClassroomsSynchronizer',
-    'TeachersSynchronizer',
-    'StudentEnrollmentDependenceSynchronizer'
-  ]
-
   def perform_for_entity(entity, synchronization_id)
     entity.using_connection do
-      begin
-        unless synchronization = IeducarApiSynchronization.find_by_id(synchronization_id)
-          configuration = IeducarApiConfiguration.current
-          break unless configuration.persisted?
+      synchronization = IeducarApiSynchronization.started.find_by(id: synchronization_id)
 
-          if synchronization = configuration.start_synchronization(User.first)
-            synchronization.job_id = self.jid unless synchronization.job_id
-          end
-        end
+      break unless synchronization.try(:started?)
 
-        break unless synchronization.persisted? && synchronization.started?
+      worker_batch = synchronization.worker_batch
+      worker_batch.start!
+      worker_batch.update(total_workers: total_synchronizers(synchronization.full_synchronization))
 
-        worker_batch = WorkerBatch.create!(main_job_class: 'IeducarSynchronizerWorker', main_job_id: synchronization.job_id)
-
-        total = []
-
-        BASIC_SYNCHRONIZERS.each do |klass|
-          increment_total(total) do
-            klass.constantize.synchronize!(synchronization, worker_batch, years_to_synchronize)
-          end
-        end
-
-        total << SpecificStepClassroomsSynchronizer.synchronize!(entity.id, synchronization.id, worker_batch.id)
-
-        years_to_synchronize.each do |year|
-          increment_total(total) do
-
-            ExamRulesSynchronizer.synchronize!(synchronization, worker_batch, [year])
-          end
-
-          Unity.with_api_code.each do |unity|
-            increment_total(total) do
-
-              StudentEnrollmentSynchronizer.synchronize!(synchronization, worker_batch, [year], unity.api_code, entity.id)
-            end
-          end
-        end
-
-        increment_total(total) do
-          StudentEnrollmentExemptedDisciplinesSynchronizer.synchronize!(synchronization, worker_batch)
-        end
-
-        worker_batch.with_lock do
-          worker_batch.update_attribute(:total_workers, total.sum)
-
-          if worker_batch.all_workers_finished?
-            synchronization.mark_as_completed!
-          end
-        end
-      rescue Exception => e
-        if e.class != Sidekiq::Shutdown
-          synchronization.mark_as_error!('Erro desconhecido.', e.message)
-        end
-
-        raise e
+      SynchronizationConfigs.without_dependencies.each do |synchronizer|
+        SynchronizerBuilderWorker.perform_async(
+          klass: synchronizer[:klass],
+          synchronization_id: synchronization.id,
+          worker_batch_id: worker_batch.id,
+          entity_id: entity.id,
+          years: years_to_synchronize,
+          unities_api_code: unities_api_code,
+          filtered_by_year: synchronizer[:by_year],
+          filtered_by_unity: synchronizer[:by_unity]
+        )
       end
     end
   end
 
+  def unities_api_code
+    @unities_api_code ||= Unity.with_api_code.pluck(:api_code)
+  end
+
   def years_to_synchronize
-    @years ||= Unity.with_api_code.joins(:school_calendars).pluck('school_calendars.year').uniq.reject(&:blank?).sort
+    @years_to_synchronize ||= Unity.with_api_code
+                                   .joins(:school_calendars)
+                                   .pluck('school_calendars.year')
+                                   .uniq
+                                   .compact
+                                   .sort
+                                   .reverse
   end
 
   def all_entities
-    Entity.all
+    Entity.active
   end
 
-  def increment_total(total, &block)
-    total << 1
+  def total_synchronizers(full_synchronization)
+    return total_synchronizers_with_full_synchronization if full_synchronization
 
-    block.call
+    total_synchronizers_with_simple_synchronization
+  end
+
+  def total_synchronizers_with_full_synchronization
+    (
+      (synchronizers_by_year_and_unity.size * years_to_synchronize.size * unities_api_code.size) +
+      (synchronizers_by_year.size * years_to_synchronize.size) +
+      (synchronizers_by_unity.size * unities_api_code.size) +
+      single_synchronizers.size
+    )
+  end
+
+  def total_synchronizers_with_simple_synchronization
+    (
+      (synchronizers_by_year_and_unity.size * years_to_synchronize.size) +
+      (synchronizers_by_year.size * years_to_synchronize.size) +
+      (unities_api_code.present? ? synchronizers_by_unity.size : 0) +
+      single_synchronizers.size
+    )
+  end
+
+  def single_synchronizers
+    @single_synchronizers ||= SynchronizationConfigs::ALL.select { |synchronizer|
+      !synchronizer[:by_year] && !synchronizer[:by_unity]
+    }
+  end
+
+  def synchronizers_by_year
+    @synchronizers_by_year ||= SynchronizationConfigs::ALL.select { |synchronizer|
+      synchronizer[:by_year] && !synchronizer[:by_unity]
+    }
+  end
+
+  def synchronizers_by_unity
+    @synchronizers_by_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
+      !synchronizer[:by_year] && synchronizer[:by_unity]
+    }
+  end
+
+  def synchronizers_by_year_and_unity
+    @synchronizers_by_year_and_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
+      synchronizer[:by_year] && synchronizer[:by_unity]
+    }
   end
 end

@@ -26,4 +26,14 @@ class CustomRoundingTableDecorator
       content_tag(:p, content_tag(:span, u, class: 'label label-info label-list'))
     end.join.html_safe
   end
+
+  def rounded_avaliations_labels
+    return if component.rounded_avaliations.blank?
+
+    component.rounded_avaliations.map { |rounded_avaliation|
+      value = RoundedAvaliations.to_hash.key(rounded_avaliation)
+
+      content_tag(:p, content_tag(:span, value, class: 'label label-info label-list'))
+    }.join.html_safe
+  end
 end

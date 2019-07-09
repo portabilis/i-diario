@@ -3,6 +3,7 @@ class AttendanceRecordReportForm
 
   attr_accessor :unity_id,
                 :classroom_id,
+                :period,
                 :discipline_id,
                 :class_numbers,
                 :start_at,
@@ -11,14 +12,19 @@ class AttendanceRecordReportForm
                 :current_teacher_id,
                 :school_calendar
 
-  validates :start_at, presence: true, date: true, timeliness: { on_or_before: :end_at, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
-  validates :end_at, presence: true, date: true, timeliness: { on_or_after: :start_at, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
-  validates :unity_id,       presence: true
-  validates :classroom_id,   presence: true
-  validates :discipline_id,  presence: true, unless: :global_absence?
-  validates :class_numbers,  presence: true, unless: :global_absence?
-  validates :start_at,       presence: true
-  validates :end_at,         presence: true
+  validates :start_at, presence: true, date: true, timeliness: {
+    on_or_before: :end_at, type: :date, on_or_before_message: I18n.t('errors.messages.on_or_before_message')
+  }
+  validates :end_at, presence: true, date: true, timeliness: {
+    on_or_after: :start_at, type: :date, on_or_after_message: I18n.t('errors.messages.on_or_after_message')
+  }
+  validates :unity_id, presence: true
+  validates :classroom_id, presence: true
+  validates :period, presence: true
+  validates :discipline_id, presence: true, unless: :global_absence?
+  validates :class_numbers, presence: true, unless: :global_absence?
+  validates :start_at, presence: true
+  validates :end_at, presence: true
   validates :school_calendar_year, presence: true
   validates :school_calendar, presence: true
   validate :must_have_daily_frequencies
@@ -26,6 +32,7 @@ class AttendanceRecordReportForm
   def daily_frequencies
     if global_absence?
       DailyFrequency.by_classroom_id(classroom_id)
+                    .by_period(period)
                     .by_frequency_date_between(start_at, end_at)
                     .general_frequency
                     .includes(students: :student)
@@ -35,6 +42,7 @@ class AttendanceRecordReportForm
 
     else
       DailyFrequency.by_classroom_id(classroom_id)
+                    .by_period(period)
                     .by_discipline_id(discipline_id)
                     .by_class_number(class_numbers.split(','))
                     .by_frequency_date_between(start_at, end_at)
@@ -48,11 +56,15 @@ class AttendanceRecordReportForm
   def school_calendar_events
     events_by_day = []
     events = school_calendar.events
-                   .without_frequency
-                   .by_date_between(start_at, end_at)
-                   .all_events_for_classroom(classroom)
-                   .where(SchoolCalendarEvent.arel_table[:discipline_id].eq(nil).or(SchoolCalendarEvent.arel_table[:discipline_id].eq(discipline_id)))
-                   .ordered
+                            .without_frequency
+                            .by_date_between(start_at, end_at)
+                            .all_events_for_classroom(classroom)
+                            .where(
+                              SchoolCalendarEvent.arel_table[:discipline_id].eq(nil).or(
+                                SchoolCalendarEvent.arel_table[:discipline_id].eq(discipline_id)
+                              )
+                            )
+                            .ordered
 
     events.each do |event|
       (event.start_date..event.end_date).each do |date|
@@ -67,13 +79,16 @@ class AttendanceRecordReportForm
   end
 
   def students_enrollments
+    adjusted_period = period != Periods::FULL ? period : nil
+
     StudentEnrollmentsList.new(
       classroom: classroom_id,
       discipline: discipline_id,
       start_at: start_at,
       end_at: end_at,
       search_type: :by_date_range,
-      show_inactive: false
+      show_inactive: false,
+      period: adjusted_period
     ).student_enrollments
   end
 
@@ -95,17 +110,15 @@ class AttendanceRecordReportForm
   end
 
   def global_absence?
-    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher)
+    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
     frequency_type_definer.define!
     frequency_type_definer.frequency_type == FrequencyTypes::GENERAL
   end
 
   def must_have_daily_frequencies
-    return unless errors.blank?
+    return if errors.present?
 
-    if daily_frequencies.count == 0
-      errors.add(:daily_frequencies, :must_have_daily_frequencies)
-    end
+    errors.add(:daily_frequencies, :must_have_daily_frequencies) if daily_frequencies.count.zero?
   end
 
   def classroom

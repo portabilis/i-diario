@@ -4,9 +4,6 @@
       <table id="resources" class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
         <thead>
           <tr>
-            <td>
-              <%= f.input :by_year, label: false, placeholder: t('.by_year') %>
-            </td>
             <td></td>
             <td>
               <%= f.input :by_grade, as: :select2, elements: @grades,
@@ -24,7 +21,7 @@
             <td>
               <%= f.input :by_school_term, as: :select2,
                     elements: (Bimesters.to_select + Trimesters.to_select + Semesters.to_select).uniq.to_json,
-                    label: false, placeholder: t('.by_school_term_type') %>
+                    label: false, placeholder: t('.by_school_term') %>
             </td>
             <td>
               <%= f.input :by_author, as: :select2, elements: PlansAuthors.to_select.to_json, label: false, placeholder: t('.by_author') %>
@@ -36,7 +33,6 @@
           </tr>
 
           <tr>
-            <th width="108px"><%= TeachingPlan.human_attribute_name :year %></th>
             <th><%= TeachingPlan.human_attribute_name :unity %></th>
             <th><%= TeachingPlan.human_attribute_name :grade %></th>
             <th><%= KnowledgeAreaTeachingPlan.human_attribute_name :knowledge_areas %></th>

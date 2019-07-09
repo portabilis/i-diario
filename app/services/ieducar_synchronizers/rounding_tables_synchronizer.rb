@@ -1,53 +1,44 @@
 class RoundingTablesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch["tabelas"]
-
-    finish_worker('RoundingTablesSynchronizer')
+    update_rounding_tables(
+      HashDecorator.new(
+        api.fetch['tabelas']
+      )
+    )
   end
 
-  protected
+  private
 
-  def api
-    IeducarApi::RoundingTables.new(synchronization.to_api)
+  def api_class
+    IeducarApi::RoundingTables
   end
 
-  def update_records(collection)
+  def update_rounding_tables(rounding_tables)
     ActiveRecord::Base.transaction do
-      rounding_table_values.delete_all
-      collection.each do |record|
-        rounding_table = nil
+      rounding_tables.each do |rounding_table_record|
+        RoundingTable.find_or_initialize_by(api_code: rounding_table_record.id).tap do |rounding_table|
+          rounding_table.name = rounding_table_record.nome
+          rounding_table.save! if rounding_table.changed?
 
-        if rounding_table = rounding_tables.find_by(api_code: record["id"])
-          rounding_table.update(
-            name: record["nome"]
-          )
-        else
-          rounding_table = rounding_tables.create!(
-            api_code: record["id"],
-            name: record["nome"]
-          )
-        end
-
-        record["valores"].each do |api_value|
-          rounding_table_values.create!(
-            rounding_table_api_code: record["id"],
-            rounding_table_id: rounding_table.id,
-            label: api_value["rotulo"],
-            description: api_value["descricao"],
-            value: api_value["valor_maximo"],
-            exact_decimal_place: api_value["casa_decimal_exata"],
-            action: api_value["acao"]
-          )
+          update_rounding_table_values(rounding_table, rounding_table_record.valores)
         end
       end
     end
   end
 
-  def rounding_tables(klass = RoundingTable)
-    klass
-  end
+  def update_rounding_table_values(rounding_table, rounding_table_values)
+    rounding_table.values.delete_all
 
-  def rounding_table_values(klass = RoundingTableValue)
-    klass
+    rounding_table_values.each do |rounding_table_value_record|
+      RoundingTableValue.create!(
+        rounding_table_api_code: rounding_table.api_code,
+        rounding_table_id: rounding_table.id,
+        label: rounding_table_value_record.rotulo,
+        description: rounding_table_value_record.descricao,
+        value: rounding_table_value_record.valor_maximo,
+        exact_decimal_place: rounding_table_value_record.casa_decimal_exata,
+        action: rounding_table_value_record.acao
+      )
+    end
   end
 end

@@ -13,6 +13,18 @@ FactoryGirl.define do
       unless SchoolCalendar.find_by(year: 2015, unity_id: recovery_diary_record.unity_id)
         create(:school_calendar_with_one_step, year: 2015, unity_id: recovery_diary_record.unity_id)
       end
+
+      teacher_discipline_classroom = create(
+        :teacher_discipline_classroom,
+        classroom: recovery_diary_record.classroom,
+        discipline: recovery_diary_record.discipline
+      )
+
+      recovery_diary_record.teacher_id = teacher_discipline_classroom.teacher.id
+    end
+
+    trait :current do
+      recorded_at { Time.zone.today }
     end
 
     factory :current_recovery_diary_record do

@@ -2,19 +2,27 @@ require 'rails_helper'
 
 RSpec.describe ExamPoster::ConceptualExamPoster do
   let!(:exam_posting) do
-    create(:ieducar_api_exam_posting,
-           school_calendar_step: school_calendar.steps.first,
-           teacher: teacher_discipline_classroom.teacher)
+    create(
+      :ieducar_api_exam_posting,
+      school_calendar_step: school_calendar.steps.first,
+      teacher: teacher_discipline_classroom.teacher
+    )
   end
   let!(:conceptual_exam) do
-    create(:conceptual_exam_with_one_value, step_id: school_calendar.steps.first.id, classroom: classroom)
+    create(
+      :conceptual_exam_with_one_value,
+      step_id: school_calendar.steps.first.id,
+      classroom: classroom
+    )
   end
   let!(:school_calendar) { create(:school_calendar, :school_calendar_with_semester_steps, :current) }
   let!(:discipline) { conceptual_exam.conceptual_exam_values.first.discipline }
   let!(:teacher_discipline_classroom) do
-    create(:teacher_discipline_classroom,
-           classroom: classroom,
-           discipline: discipline)
+    create(
+      :teacher_discipline_classroom,
+      classroom: classroom,
+      discipline: discipline
+    )
   end
 
   subject { described_class.new(exam_posting, Entity.first.id, 'exam_posting_send') }
@@ -27,31 +35,44 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     context 'when student uses_differentiated_exam_rule' do
       let!(:conceptual_exam) do
         student = create(:student, uses_differentiated_exam_rule: true)
-        create(:conceptual_exam_with_one_value,
-              step_id: school_calendar.steps.first.id,
-              classroom: classroom,
-              student: student)
+        create(
+          :conceptual_exam_with_one_value,
+          step_id: school_calendar.steps.first.id,
+          classroom: classroom,
+          student: student
+        )
       end
 
       it 'enqueue the requests' do
         subject.post!
 
         request = {
-          etapa: exam_posting.step.to_number,
-          resource: 'notas',
-          notas: {
-            classroom.api_code => {
-              conceptual_exam.student.api_code => {
-                discipline.api_code => {
-                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+          info: {
+            classroom: classroom.api_code,
+            student: conceptual_exam.student.api_code,
+            discipline: discipline.api_code
+          },
+          request: {
+            etapa: exam_posting.step.to_number,
+            resource: 'notas',
+            notas: {
+              classroom.api_code => {
+                conceptual_exam.student.api_code => {
+                  discipline.api_code => {
+                    nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+                  }
                 }
               }
             }
           }
         }
 
-        expect(Ieducar::SendPostWorker).
-          to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+        expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+          Entity.first.id,
+          exam_posting.id,
+          request[:request],
+          request[:info]
+        )
       end
     end
   end
@@ -73,21 +94,32 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
         subject.post!
 
         request = {
-          etapa: exam_posting.step.to_number,
-          resource: 'notas',
-          notas: {
-            classroom.api_code => {
-              conceptual_exam.student.api_code => {
-                discipline.api_code => {
-                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+          info: {
+            classroom: classroom.api_code,
+            student: conceptual_exam.student.api_code,
+            discipline: discipline.api_code
+          },
+          request: {
+            etapa: exam_posting.step.to_number,
+            resource: 'notas',
+            notas: {
+              classroom.api_code => {
+                conceptual_exam.student.api_code => {
+                  discipline.api_code => {
+                    nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+                  }
                 }
               }
             }
           }
         }
 
-        expect(Ieducar::SendPostWorker).
-          to_not have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+        expect(Ieducar::SendPostWorker).not_to have_enqueued_sidekiq_job(
+          Entity.first.id,
+          exam_posting.id,
+          request[:request],
+          request[:info]
+        )
       end
     end
 
@@ -103,21 +135,32 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
         subject.post!
 
         request = {
-          etapa: exam_posting.step.to_number,
-          resource: 'notas',
-          notas: {
-            classroom.api_code => {
-              conceptual_exam.student.api_code => {
-                discipline.api_code => {
-                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+          info: {
+            classroom: classroom.api_code,
+            student: conceptual_exam.student.api_code,
+            discipline: discipline.api_code
+          },
+          request: {
+            etapa: exam_posting.step.to_number,
+            resource: 'notas',
+            notas: {
+              classroom.api_code => {
+                conceptual_exam.student.api_code => {
+                  discipline.api_code => {
+                    nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+                  }
                 }
               }
             }
           }
         }
 
-        expect(Ieducar::SendPostWorker).
-          to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+        expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+          Entity.first.id,
+          exam_posting.id,
+          request[:request],
+          request[:info]
+        )
       end
     end
 
@@ -133,21 +176,32 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
         subject.post!
 
         request = {
-          etapa: exam_posting.step.to_number,
-          resource: 'notas',
-          notas: {
-            classroom.api_code => {
-              conceptual_exam.student.api_code => {
-                discipline.api_code => {
-                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+          info: {
+            classroom: classroom.api_code,
+            student: conceptual_exam.student.api_code,
+            discipline: discipline.api_code
+          },
+          request: {
+            etapa: exam_posting.step.to_number,
+            resource: 'notas',
+            notas: {
+              classroom.api_code => {
+                conceptual_exam.student.api_code => {
+                  discipline.api_code => {
+                    nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+                  }
                 }
               }
             }
           }
         }
 
-        expect(Ieducar::SendPostWorker).
-          to_not have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+        expect(Ieducar::SendPostWorker).not_to have_enqueued_sidekiq_job(
+          Entity.first.id,
+          exam_posting.id,
+          request[:request],
+          request[:info]
+        )
       end
     end
   end
@@ -161,21 +215,32 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
       subject.post!
 
       request = {
-        etapa: exam_posting.step.to_number,
-        resource: 'notas',
-        notas: {
-          classroom.api_code => {
-            conceptual_exam.student.api_code => {
-              discipline.api_code => {
-                nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+        info: {
+          classroom: classroom.api_code,
+          student: conceptual_exam.student.api_code,
+          discipline: discipline.api_code
+        },
+        request: {
+          etapa: exam_posting.step.to_number,
+          resource: 'notas',
+          notas: {
+            classroom.api_code => {
+              conceptual_exam.student.api_code => {
+                discipline.api_code => {
+                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+                }
               }
             }
           }
         }
       }
 
-      expect(Ieducar::SendPostWorker).
-        to_not have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+      expect(Ieducar::SendPostWorker).not_to have_enqueued_sidekiq_job(
+        Entity.first.id,
+        exam_posting.id,
+        request[:request],
+        request[:info]
+      )
     end
   end
 
@@ -186,21 +251,32 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
       subject.post!
 
       request = {
-        etapa: exam_posting.step.to_number,
-        resource: 'notas',
-        notas: {
-          classroom.api_code => {
-            conceptual_exam.student.api_code => {
-              discipline.api_code => {
-                nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+        info: {
+          classroom: classroom.api_code,
+          student: conceptual_exam.student.api_code,
+          discipline: discipline.api_code
+        },
+        request: {
+          etapa: exam_posting.step.to_number,
+          resource: 'notas',
+          notas: {
+            classroom.api_code => {
+              conceptual_exam.student.api_code => {
+                discipline.api_code => {
+                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+                }
               }
             }
           }
         }
       }
 
-      expect(Ieducar::SendPostWorker).
-        to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+      expect(Ieducar::SendPostWorker).to have_enqueued_sidekiq_job(
+        Entity.first.id,
+        exam_posting.id,
+        request[:request],
+        request[:info]
+      )
     end
   end
 
@@ -219,21 +295,32 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
       subject.post!
 
       request = {
-        etapa: exam_posting.step.to_number,
-        resource: 'notas',
-        notas: {
-          classroom.api_code => {
-            conceptual_exam.student.api_code => {
-              discipline.api_code => {
-                nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+        info: {
+          classroom: classroom.api_code,
+          student: conceptual_exam.student.api_code,
+          discipline: discipline.api_code
+        },
+        request: {
+          etapa: exam_posting.step.to_number,
+          resource: 'notas',
+          notas: {
+            classroom.api_code => {
+              conceptual_exam.student.api_code => {
+                discipline.api_code => {
+                  nota: conceptual_exam.conceptual_exam_values.first.value.to_s
+                }
               }
             }
           }
         }
       }
 
-      expect(Ieducar::SendPostWorker)
-        .not_to have_enqueued_sidekiq_job(Entity.first.id, exam_posting.id, request)
+      expect(Ieducar::SendPostWorker).not_to have_enqueued_sidekiq_job(
+        Entity.first.id,
+        exam_posting.id,
+        request[:request],
+        request[:info]
+      )
     end
   end
 end

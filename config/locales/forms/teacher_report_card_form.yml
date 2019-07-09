@@ -5,3 +5,4 @@ pt-BR:
         unity_id: "Escola"
         classroom_id: "Turma"
         discipline_id: "Disciplina"
+        status: "Situação"

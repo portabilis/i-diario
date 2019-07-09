@@ -5,6 +5,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
   let(:classroom) { create(:classroom, :current) }
   let(:default_class_numbers) { ['1'] }
   let(:two_class_numbers) { ['1', '2'] }
+  let(:period) { 1 }
   let(:frequency_start_at) { Date.parse("#{school_calendar.year}-01-01") }
   let(:student_enrollment) { create(:student_enrollment) }
   let(:school_calendar) do
@@ -22,7 +23,8 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     creator = described_class.new({
       unity: classroom.unity,
       classroom_id: classroom.id,
-      school_calendar: school_calendar
+      school_calendar: school_calendar,
+      period: period
     })
 
     expect { creator.find_or_create! }.to change { DailyFrequency.count }.to(1)
@@ -36,7 +38,8 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       unity: classroom.unity,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
-      frequency_date: frequency_start_at - 1.day
+      frequency_date: frequency_start_at - 1.day,
+      period: period
     })
 
     expect { creator.find_or_create! }.to_not change { DailyFrequency.count }
@@ -51,7 +54,8 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       class_numbers: default_class_numbers,
-      discipline_id: discipline.id
+      discipline_id: discipline.id,
+      period: period
     })
 
     creator.find_or_create!
@@ -69,7 +73,8 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       class_numbers: two_class_numbers,
-      discipline_id: discipline.id
+      discipline_id: discipline.id,
+      period: period
     })
 
     expect { creator.find_or_create! }.to change { DailyFrequency.count }.to(2)
@@ -84,7 +89,8 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       class_numbers: default_class_numbers,
-      discipline_id: discipline.id
+      discipline_id: discipline.id,
+      period: period
     })
 
     creator.find_or_create!
@@ -109,7 +115,8 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       class_numbers: default_class_numbers,
-      discipline_id: discipline.id
+      discipline_id: discipline.id,
+      period: period
     })
 
     creator.find_or_create!

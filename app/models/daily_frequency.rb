@@ -1,10 +1,13 @@
 class DailyFrequency < ActiveRecord::Base
+  include Audit
+  include TeacherRelationable
+
+  teacher_relation_columns only: [:classroom, :discipline]
+
   acts_as_copy_target
 
   audited
   has_associated_audits
-
-  include Audit
 
   before_destroy :valid_for_destruction?
 
@@ -13,11 +16,13 @@ class DailyFrequency < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :school_calendar
 
+  has_enumeration_for :period, with: Periods, skip_validation: true
+
   has_many :students, -> { includes(:student).order('students.name') }, class_name: 'DailyFrequencyStudent', dependent: :destroy
   accepts_nested_attributes_for :students, allow_destroy: true
 
   validates_date :frequency_date
-  validates :unity, :classroom, :school_calendar, presence: true
+  validates :unity, :classroom, :school_calendar, :period, presence: true
   validates :frequency_date, presence: true, school_calendar_day: true, posting_date: true
 
   validate :frequency_date_must_be_less_than_or_equal_to_today
@@ -37,10 +42,12 @@ class DailyFrequency < ActiveRecord::Base
 
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
+  scope :by_period, ->(period) { where(period: period) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :by_frequency_date, lambda { |frequency_date| where(frequency_date: frequency_date.to_date) }
   scope :by_frequency_date_between, lambda { |start_at, end_at| where(frequency_date: start_at.to_date..end_at.to_date) }
   scope :by_class_number, lambda { |class_number| where(class_number: class_number) }
+  scope :by_school_calendar_id, ->(school_calendar_id) { where(school_calendar_id: school_calendar_id) }
   scope :general_frequency, lambda { where(discipline_id: nil, class_number: nil) }
   scope :has_frequency_for_student, lambda{ |student_id| joins(:students).merge(DailyFrequencyStudent.by_student_id(student_id)) }
   scope :order_by_student_name, -> { order('students.name') }
@@ -62,6 +69,10 @@ class DailyFrequency < ActiveRecord::Base
     return origin if persisted?
 
     super(value)
+  end
+
+  def optional_teacher
+    true
   end
 
   private
@@ -92,7 +103,7 @@ class DailyFrequency < ActiveRecord::Base
   def ensure_belongs_to_step
     return if school_calendar.blank? || frequency_date.blank?
 
-    step = StepsFetcher.new(classroom).step(frequency_date)
+    step = StepsFetcher.new(classroom).step_by_date(frequency_date)
     errors.add(:frequency_date, I18n.t('errors.messages.not_school_calendar_day')) if step.blank?
   end
 end

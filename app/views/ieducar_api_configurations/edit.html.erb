@@ -1,49 +1,76 @@
-<div class="widget-body no-padding">
-  <%= simple_form_for @ieducar_api_configuration,
-    url: ieducar_api_configurations_path, method: :patch, html: { class: "smart-form" } do |f| %>
-    <%= f.error_notification %>
+<% if show_configuration_form? %>
+  <div class="widget-body no-padding">
+    <%= simple_form_for @ieducar_api_configuration,
+      url: ieducar_api_configurations_path, method: :patch, html: { class: "smart-form" } do |f| %>
+      <%= f.error_notification %>
 
-    <fieldset>
-      <div class="row">
-        <div class="col col-sm-6">
-          <%= f.input :url %>
+      <fieldset>
+        <div class="row">
+          <div class="col col-sm-6">
+            <%= f.input :url %>
+          </div>
+
+          <div class="col col-sm-6">
+            <%= f.input :unity_code %>
+          </div>
         </div>
 
-        <div class="col col-sm-6">
-          <%= f.input :unity_code %>
-        </div>
-      </div>
+        <div class="row">
+          <div class="col col-sm-6">
+            <%= f.input :token %>
+          </div>
 
-      <div class="row">
-        <div class="col col-sm-6">
-          <%= f.input :token %>
+          <div class="col col-sm-6">
+            <%= f.input :secret_token %>
+          </div>
         </div>
 
-        <div class="col col-sm-6">
-          <%= f.input :secret_token %>
-        </div>
-      </div>
-    </fieldset>
+         <div class="row">
+          <div class="col col-sm-6">
+            <%= f.input :api_security_token, readonly: true %>
+          </div>
+         </div>
+      </fieldset>
 
-    <footer>
-      <% if @ieducar_api_configuration.persisted? %>
-        <% if @ieducar_api_configuration.synchronization_in_progress? %>
-          <%= link_to "#",
-            class: 'btn bg-color-red txt-color-white' do %>
-            <i class="fa fa-cog fa-spin"></i>
-            Sincronizando
-          <% end %>
-        <% else %>
-          <%= link_to "Sincronizar", ieducar_api_configurations_synchronizations_path, method: 'post',
-            class: 'btn bg-color-red txt-color-white' %>
+      <footer>
+        <% if @ieducar_api_configuration.persisted? %>
+          <%= link_to t('.history'), history_ieducar_api_configurations_path, class: 'btn btn-info' %>
         <% end %>
 
-        <%= link_to 'Histórico', history_ieducar_api_configurations_path, class: 'btn btn-info' %>
-      <% end %>
+        <button type="submit" class="btn btn-primary">
+          <%= t('.save') %>
+        </button>
+      </footer>
+    <% end %>
+  </div>
+<% end %>
 
-      <button type="submit" class="btn btn-primary">
-        Salvar
-      </button>
-    </footer>
-  <% end %>
+<div class="row">
+  <div class="col col-sm-12">
+    <% if @ieducar_api_configuration.persisted? %>
+      <% if @ieducar_api_configuration.synchronization_in_progress? %>
+        <%= link_to "#",
+          class: 'btn bg-color-red txt-color-white pull-right', style: 'margin-top: 20px;' do %>
+          <i class="fa fa-cog fa-spin"></i>
+          Sincronizando
+        <% end %>
+      <% else %>
+        <%= link_to t('.full_synchronization'), ieducar_api_configurations_synchronizations_path(full: true),
+          method: 'post', class: 'btn bg-color-red txt-color-white pull-right', style: 'margin-top: 20px; margin-left: 10px;' if current_user.admin? %>
+
+        <%= link_to t('.synchronize'), ieducar_api_configurations_synchronizations_path, method: 'post',
+          class: 'btn bg-color-red txt-color-white pull-right', style: 'margin-top: 20px;' %>
+      <% end %>
+    <% end %>
+
+    <h2><%= t('ieducar_api_configuration.sync_title') %></h2>
+
+    <%= render 'synchronizations', with_environment: false, entity_syncs: [[
+      nil,
+      {
+        average_time: IeducarApiSynchronization.average_time,
+        started_sync: IeducarApiSynchronization.started.first,
+        finished_sync: IeducarApiSynchronization.where(status: [:completed, :error]).last
+      }]] %>
+  </div>
 </div>

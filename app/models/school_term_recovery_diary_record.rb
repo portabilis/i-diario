@@ -34,7 +34,11 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   validate :recovery_type_must_allow_recovery_for_classroom
   validate :uniqueness_of_school_term_recovery_diary_record
 
-  delegate :classroom, :classroom_id, :discipline_id, to: :recovery_diary_record
+  delegate :classroom, :classroom_id, :discipline_id, :discipline, to: :recovery_diary_record
+
+  def test_date
+    recorded_at
+  end
 
   private
 
@@ -95,6 +99,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
+      recovery_diary_record.validation_type = :destroy
       recovery_diary_record.valid?
       forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
       if recovery_diary_record.errors[:recorded_at].include?(forbidden_error)

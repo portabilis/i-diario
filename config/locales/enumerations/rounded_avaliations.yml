@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    rounded_avaliations:
+      numerical_exam: Avaliações numéricas
+      school_term_recovery: Recuperações de etapas
+      final_recovery: Recuperações finais

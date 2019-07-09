@@ -1,45 +1,32 @@
 class RecoveryExamRulesSynchronizer < BaseSynchronizer
   def synchronize!
-    update_records api.fetch["regras-recuperacao"]
-
-    finish_worker('RecoveryExamRulesSynchronizer')
+    update_recovery_exam_rules(
+      HashDecorator.new(
+        api.fetch['regras-recuperacao']
+      )
+    )
   end
 
-  protected
+  private
 
-  def api
-    IeducarApi::RecoveryExamRules.new(synchronization.to_api)
+  def api_class
+    IeducarApi::RecoveryExamRules
   end
 
-  def update_records(collection)
-    ActiveRecord::Base.transaction do
-      collection.each do |record|
+  def update_recovery_exam_rules(recovery_exam_rules)
+    recovery_exam_rules.each do |recovery_exam_rule_record|
+      RecoveryExamRule.with_discarded.find_or_initialize_by(
+        api_code: recovery_exam_rule_record.id
+      ).tap do |recovery_exam_rule|
+        recovery_exam_rule.description = recovery_exam_rule_record.descricao
+        recovery_exam_rule.steps = recovery_exam_rule_record.etapas_recuperadas
+        recovery_exam_rule.average = recovery_exam_rule_record.media
+        recovery_exam_rule.maximum_score = recovery_exam_rule_record.nota_maxima
+        recovery_exam_rule.exam_rule_id = exam_rule(recovery_exam_rule_record.regra_avaliacao_id).try(:id)
+        recovery_exam_rule.save! if recovery_exam_rule.changed?
 
-        recovery_exam_rule = nil
-
-        if recovery_exam_rule = recovery_exam_rules.find_by(api_code: record["id"])
-          recovery_exam_rule.update(
-            description: record["descricao"],
-            steps: record["etapas_recuperadas"],
-            average: record["media"],
-            maximum_score: record["nota_maxima"],
-            exam_rule_id: ExamRule.find_by(api_code: record["regra_avaliacao_id"]).try(:id)
-          )
-        else
-          recovery_exam_rule = recovery_exam_rules.create(
-            api_code: record["id"],
-            description: record["descricao"],
-            steps: record["etapas_recuperadas"],
-            average: record["media"],
-            maximum_score: record["nota_maxima"],
-            exam_rule_id: ExamRule.find_by(api_code: record["regra_avaliacao_id"]).try(:id)
-          )
-        end
+        recovery_exam_rule.discard_or_undiscard(recovery_exam_rule_record.deleted_at.present?)
       end
     end
-  end
-
-  def recovery_exam_rules(klass = RecoveryExamRule)
-    klass
   end
 end

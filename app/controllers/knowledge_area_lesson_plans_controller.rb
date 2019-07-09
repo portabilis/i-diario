@@ -5,18 +5,22 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    @knowledge_area_lesson_plans = apply_scopes(KnowledgeAreaLessonPlan)
-      .select(
-        KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
-        LessonPlan.arel_table[:start_at],
-        LessonPlan.arel_table[:end_at]
-      )
-      .includes(:knowledge_areas, lesson_plan: [:classroom])
-      .filter(filtering_params(params[:search]))
-      .by_classroom_id(current_user_classroom)
-      .by_teacher_id(current_teacher)
-      .uniq
-      .ordered
+    author_type = (params[:filter] || []).delete(:by_author)
+
+    @knowledge_area_lesson_plans = apply_scopes(
+      KnowledgeAreaLessonPlan.includes(:knowledge_areas, lesson_plan: [:classroom])
+                             .by_classroom_id(current_user_classroom)
+                             .uniq
+                             .ordered
+    ).select(
+      KnowledgeAreaLessonPlan.arel_table[Arel.sql('*')],
+      LessonPlan.arel_table[:start_at],
+      LessonPlan.arel_table[:end_at]
+    )
+
+    if author_type.present?
+      @knowledge_area_lesson_plans = @knowledge_area_lesson_plans.by_author(author_type, current_teacher)
+    end
 
     authorize @knowledge_area_lesson_plans
 
@@ -36,7 +40,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
           @knowledge_area_lesson_plan,
           current_teacher
         )
-        send_pdf(t("routes.knowledge_area_lesson_plans"), knowledge_area_lesson_plan_pdf.render)
+        send_pdf(t('routes.knowledge_area_lesson_plans'), knowledge_area_lesson_plan_pdf.render)
       end
     end
   end
@@ -52,7 +56,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     authorize @knowledge_area_lesson_plan
 
     @unities = fetch_unities
-    @classrooms =  fetch_classrooms
+    @classrooms = fetch_classrooms
     @knowledge_areas = fetch_knowledge_area
   end
 
@@ -61,6 +65,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
+    @knowledge_area_lesson_plan.lesson_plan.teacher = current_teacher
+    @knowledge_area_lesson_plan.teacher_id = current_teacher_id
 
     authorize @knowledge_area_lesson_plan
 
@@ -68,7 +74,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
       @unities = fetch_unities
-      @classrooms =  fetch_classrooms
+      @classrooms = fetch_classrooms
       @knowledge_areas = fetch_knowledge_area
 
       render :new
@@ -81,7 +87,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     authorize @knowledge_area_lesson_plan
 
     @unities = fetch_unities
-    @classrooms =  fetch_classrooms
+    @classrooms = fetch_classrooms
     @knowledge_areas = fetch_knowledge_area
   end
 
@@ -89,6 +95,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id])
     @knowledge_area_lesson_plan.assign_attributes(resource_params)
     @knowledge_area_lesson_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
+    @knowledge_area_lesson_plan.teacher_id = current_teacher_id
 
     authorize @knowledge_area_lesson_plan
 
@@ -96,7 +103,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       respond_with @knowledge_area_lesson_plan, location: knowledge_area_lesson_plans_path
     else
       @unities = fetch_unities
-      @classrooms =  fetch_classrooms
+      @classrooms = fetch_classrooms
       @knowledge_areas = fetch_knowledge_area
 
       render :edit
@@ -120,10 +127,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def clone
-    @form = KnowledgeAreaLessonPlanClonerForm.new(clone_params)
-    if @form.clone!
-      flash[:success] = "Plano de aula por área de conhecimento copiado com sucesso!"
-    end
+    @form = KnowledgeAreaLessonPlanClonerForm.new(clone_params.merge(teacher: current_teacher))
+
+    flash[:success] = t('messages.copy_succeed') if @form.clone!
   end
 
   private
@@ -171,15 +177,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
                                                                     ])
   end
 
-  def filtering_params(params)
-    params = {} unless params
-    params.slice(
-      :by_classroom_id,
-      :by_knowledge_area_id,
-      :by_date
-    )
-  end
-
   def contents
     Content.ordered
   end
@@ -190,11 +187,10 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def fetch_classrooms
-    Classroom.where(id: current_user_classroom)
-    .ordered
+    Classroom.where(id: current_user_classroom).ordered
   end
 
   def fetch_knowledge_area
-    KnowledgeArea.all
+    KnowledgeArea.by_teacher(current_teacher).ordered
   end
 end

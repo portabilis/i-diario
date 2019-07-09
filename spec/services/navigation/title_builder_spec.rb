@@ -1,7 +1,7 @@
 # encoding: utf-8
 require "rails_helper"
 
-describe Navigation::TitleBuilder, :type => :service do
+describe Navigation::TitleBuilder, type: :service do
   subject { described_class.new(feature, show_icon, context) }
 
   let(:feature) { "dashboard" }

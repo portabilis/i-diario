@@ -198,6 +198,20 @@ RSpec.describe StudentAverageCalculator, type: :service do
         end
       end
     end
+
+    it 'expects to call score_rounder with correct params' do
+      score_rounder = double(:score_rounder)
+
+      expect(ScoreRounder).to receive(:new)
+        .with(classroom, RoundedAvaliations::NUMERICAL_EXAM)
+        .and_return(score_rounder)
+        .at_least(:once)
+      expect(score_rounder).to receive(:round)
+        .with(anything)
+        .at_least(:once)
+
+      subject.calculate(classroom, discipline, school_calendar_step)
+    end
   end
 
   def stub_school_calendar_step
@@ -268,7 +282,7 @@ RSpec.describe StudentAverageCalculator, type: :service do
   def stub_score_rounder
     stub_const('ScoreRounder', Class.new)
     allow(ScoreRounder).to(
-      receive(:new).with(classroom).and_return(score_rounder)
+      receive(:new).with(classroom, RoundedAvaliations::NUMERICAL_EXAM).and_return(score_rounder)
     )
   end
 

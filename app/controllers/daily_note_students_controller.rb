@@ -10,7 +10,7 @@ class DailyNoteStudentsController < ApplicationController
   def old_notes
     return unless params[:step_id].present? && params[:student_id].present?
 
-    step = StepsFetcher.new(Classroom.find(params[:classroom_id])).steps.find(params[:step_id])
+    step = StepsFetcher.new(Classroom.find(params[:classroom_id])).step_by_id(params[:step_id])
 
     daily_note_students = DailyNoteStudent.by_discipline_id(params[:discipline_id])
                                           .by_student_id(params[:student_id])
@@ -63,7 +63,7 @@ class DailyNoteStudentsController < ApplicationController
       @students << {
         sequence: sequence,
         id: note_student.student_id,
-        name: note_student.student.name,
+        name: note_student.student.to_s,
         note: note_student.note,
         dependence: note_student.dependence,
         exempted_from_discipline: note_student.exempted_from_discipline,
@@ -79,7 +79,7 @@ class DailyNoteStudentsController < ApplicationController
       @students << {
         sequence: sequence,
         id: note_student.student_id,
-        name: note_student.student.name,
+        name: note_student.student.to_s,
         note: note_student.note,
         dependence: note_student.dependence,
         exempted_from_discipline: note_student.exempted_from_discipline,
