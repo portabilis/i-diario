@@ -12,7 +12,7 @@ class ConceptualExamsController < ApplicationController
                                                     .by_unity(current_user_unity)
                                                     .by_classroom(current_user_classroom)
                                                     .by_teacher(current_teacher_id)
-                                                    .ordered
+                                                    .ordered_by_date_and_student
 
     @conceptual_exams = @conceptual_exams.by_step_id(current_user_classroom, step_id) if step_id.present?
     @conceptual_exams = @conceptual_exams.by_status(current_user_classroom, current_teacher_id, status) if status.present?
@@ -55,6 +55,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = find_or_initialize_conceptual_exam
     authorize @conceptual_exam
     @conceptual_exam.assign_attributes(resource_params)
+    @conceptual_exam.merge_conceptual_exam_values
     @conceptual_exam.step_number = @conceptual_exam.step.try(:step_number)
     @conceptual_exam.teacher_id = current_teacher_id
 
@@ -316,7 +317,7 @@ class ConceptualExamsController < ApplicationController
       @student_enrollments ||= student_enrollments(@conceptual_exam.step.start_at, @conceptual_exam.step.end_at)
 
       if @conceptual_exam.student_id.present? &&
-         @student_enrollments.find { |enrollment| enrollment[:student_id] = @conceptual_exam.student_id }.blank?
+         @student_enrollments.find { |enrollment| enrollment[:student_id] == @conceptual_exam.student_id }.blank?
         @student_enrollments << StudentEnrollment.by_student(@conceptual_exam.student_id).first
       end
 

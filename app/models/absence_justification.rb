@@ -1,6 +1,7 @@
 class AbsenceJustification < ActiveRecord::Base
   include Audit
   include Filterable
+  include Discardable
   include TeacherRelationable
 
   teacher_relation_columns only: [:classroom, :discipline]
@@ -38,6 +39,8 @@ class AbsenceJustification < ActiveRecord::Base
   validate :period_absence
   validate :no_retroactive_dates
 
+  default_scope -> { kept }
+
   scope :ordered, -> { order(absence_date: :desc) }
   scope :by_teacher, ->(teacher_id) { where(teacher_id: teacher_id)  }
   scope :by_classroom, ->(classroom_id) { where('classroom_id = ? OR classroom_id IS NULL', classroom_id) }
@@ -56,6 +59,13 @@ class AbsenceJustification < ActiveRecord::Base
   scope :by_school_calendar, ->(school_calendar) { where('school_calendar_id = ? OR school_calendar_id IS NULL', school_calendar) }
   scope :by_date, ->(date) { by_date_query(date) }
   scope :by_school_calendar_report, ->(school_calendar) { where(school_calendar: school_calendar)  }
+  scope :by_author, lambda { |author_type, current_teacher_id|
+    if author_type == AbsenceJustificationAuthors::MY_JUSTIFICATIONS
+      where(teacher_id: current_teacher_id)
+    else
+      where.not(teacher_id: current_teacher_id)
+    end
+  }
 
   private
 

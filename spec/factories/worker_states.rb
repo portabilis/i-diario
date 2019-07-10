@@ -1,7 +1,6 @@
 FactoryGirl.define do
   factory :worker_state do
-    job_id 123
+    worker_batch
     kind 'worker'
-    user
   end
 end

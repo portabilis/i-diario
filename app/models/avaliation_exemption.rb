@@ -1,4 +1,6 @@
 class AvaliationExemption < ActiveRecord::Base
+  include Discardable
+
   acts_as_copy_target
 
   belongs_to :avaliation
@@ -24,7 +26,7 @@ class AvaliationExemption < ActiveRecord::Base
 
   validates :student_id,
             presence: true,
-            uniqueness: { scope: [:avaliation_id] }
+            uniqueness: { scope: [:avaliation_id, :discarded_at] }
 
   validate :ensure_no_score_for_avaliation
   validate :avaliation_test_date_must_be_valid_posting_date
@@ -37,6 +39,8 @@ class AvaliationExemption < ActiveRecord::Base
   delegate :test_date, to: :avaliation, prefix: true, allow_nil: true
   delegate :grade_id, :grade, to: :classroom, prefix: false, allow_nil: true
   delegate :course_id, to: :grade, prefix: false, allow_nil: true
+
+  default_scope -> { kept }
 
   scope :by_unity, lambda { |unity_id| joins(:avaliation).merge(Avaliation.by_unity_id(unity_id))}
   scope :by_student, lambda { |student_id| where(student_id: student_id) }

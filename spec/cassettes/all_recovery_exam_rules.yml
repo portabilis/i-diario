@@ -44,4 +44,88 @@ http_interactions:
         2","etapas_recuperadas":["4"],"media":"60.0000","nota_maxima":"100.0000"}],"oper":"get","resource":"regras-recuperacao","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Wed, 18 Nov 2015 12:41:25 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=regras-recuperacao&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 05 Apr 2019 12:12:52 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Regra?resource=regras-recuperacao&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:47 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=regras-recuperacao&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 05 Apr 2019 12:12:53 GMT
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - i_educar_session=Tp6lvFX1oXJrokGgCFsSP2VwUAoOEYEgsQDQfc24; expires=Fri, 05-Apr-2019
+        14:12:53 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA22LQQqAMAwE/7Ln+oF+RaSEEntRUzb2IOLfDXj1OMPMDWqj
+        +EStoyuliiHPS4IFIaPpiRSR22DVED99wu7Nv02OqyhpLOGQV9lcnxc+OZTs
+        ZgAAAA==
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:48 GMT
 recorded_with: VCR 3.0.0

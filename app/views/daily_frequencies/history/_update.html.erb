@@ -9,7 +9,7 @@
   </thead>
   <tbody>
   <% record.audited_changes.each do |key, values| %>
-    <% unless record.auditable.nil? %>
+    <% if record.auditable.present? && record.auditable.student.present? %>
       <tr>
         <td><%= record.auditable.student.name %></td>
         <td>

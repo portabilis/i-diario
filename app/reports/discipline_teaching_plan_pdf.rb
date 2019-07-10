@@ -8,8 +8,16 @@ class DisciplineTeachingPlanPdf < BaseReport
     @discipline_teaching_plan = discipline_teaching_plan
     attributes
 
-    header
-    body
+    if @display_header_on_all_reports_pages
+      header
+      body
+    else
+      bounding_box([0, cursor], width: bounds.width, height: bounds.height - GAP) do
+        header
+        body
+      end
+    end
+
     footer
 
     self
@@ -83,11 +91,6 @@ class DisciplineTeachingPlanPdf < BaseReport
     teacher_attribute
     year_attribute
     period_attribute
-    objective_attribute
-    content_attribute
-    methodology_attribute
-    evaluation_attribute
-    reference_attribute
   end
 
   def general_information
@@ -114,12 +117,7 @@ class DisciplineTeachingPlanPdf < BaseReport
 
   def class_plan
     class_plan_table_data = [
-      [@class_plan_header_cell],
-      [@objective_cell],
-      [@content_cell],
-      [@methodology_cell],
-      [@evaluation_cell],
-      [@reference_cell]
+      [@class_plan_header_cell]
     ]
 
     table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
@@ -129,6 +127,18 @@ class DisciplineTeachingPlanPdf < BaseReport
       column(0).border_left_width = 0.25
       column(-1).border_right_width = 0.25
     end
+
+    objectives = teaching_plan.objectives || '-'
+    content = teaching_plan.contents.present? ? teaching_plan.contents_ordered.map(&:to_s).join(', ') : '-'
+    methodology = teaching_plan.methodology || '-'
+    evaluation = teaching_plan.evaluation || '-'
+    references = teaching_plan.references || '-'
+
+    text_box_truncate('Objetivos', objectives)
+    text_box_truncate('Conteúdos', content)
+    text_box_truncate('Metodologia', methodology)
+    text_box_truncate('Avaliação', evaluation)
+    text_box_truncate('Referências', references)
   end
 
   def body
@@ -280,72 +290,7 @@ class DisciplineTeachingPlanPdf < BaseReport
     teaching_plan.school_term_humanize
   end
 
-  def objective_attribute
-    text = teaching_plan.objectives || '-'
-
-    objective_cell_content = inline_formated_cell_header('Objetivos') + text
-    @objective_cell = make_cell(
-      content: objective_cell_content,
-      size: 10,
-      borders: [:bottom, :left, :right, :top],
-      padding: [0, 2, 4, 4],
-      colspan: 4
-    )
-  end
-
-  def content_attribute
-    text = (teaching_plan.contents.present? ? teaching_plan.contents_ordered.map(&:to_s).join(', ') : '-')
-
-    content_cell_content = inline_formated_cell_header('Conteúdos') + text
-    @content_cell = make_cell(
-      content: content_cell_content,
-      size: 10,
-      borders: [:bottom, :left, :right, :top],
-      padding: [0, 2, 4, 4],
-      colspan: 4
-    )
-  end
-
-  def methodology_attribute
-    text = teaching_plan.methodology || '-'
-
-    methodology_cell_content = inline_formated_cell_header('Metodologia') + text
-    @methodology_cell = make_cell(
-      content: methodology_cell_content,
-      size: 10,
-      borders: [:bottom, :left, :right, :top],
-      padding: [0, 2, 4, 4],
-      colspan: 4
-    )
-  end
-
-  def evaluation_attribute
-    text = teaching_plan.evaluation || '-'
-
-    evaluation_cell_content = inline_formated_cell_header('Avaliação') + text
-    @evaluation_cell = make_cell(
-      content: evaluation_cell_content,
-      size: 10,
-      borders: [:bottom, :left, :right, :top],
-      padding: [0, 2, 4, 4],
-      colspan: 4
-    )
-  end
-
-  def reference_attribute
-    text = teaching_plan.references || '-'
-
-    reference_cell_content = inline_formated_cell_header('Referências') + text
-    @reference_cell = make_cell(
-      content: reference_cell_content,
-      size: 10,
-      borders: [:bottom, :left, :right, :top],
-      padding: [0, 2, 4, 4],
-      colspan: 4
-    )
-  end
-
   def teaching_plan
-    @discipline_teaching_plan.teaching_plan
+    @teaching_plan ||= @discipline_teaching_plan.teaching_plan
   end
 end
