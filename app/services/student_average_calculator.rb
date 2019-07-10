@@ -7,7 +7,9 @@ class StudentAverageCalculator
     result = 0.0
 
     student_notes_query = StudentNotesQuery.new(student, discipline, classroom, step.start_at, step.end_at)
-    @daily_note_students = student_notes_query.daily_note_students + student_notes_query.transfer_notes
+    @daily_note_students = student_notes_query.daily_note_students + student_notes_query.transfer_notes +
+                           student_notes_query.previous_enrollments_daily_note_students
+
     @recovery_diary_records = student_notes_query.recovery_diary_records
 
     if daily_note_students.any? || recovery_diary_records.any?
