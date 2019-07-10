@@ -6,7 +6,17 @@ class AttendanceRecordReport < BaseReport
   SOCIAL_NAME_REDUCTION_FACTOR = 2
 
   def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar, second_teacher_signature)
-    new(:landscape).build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar, second_teacher_signature)
+    new(:landscape)
+      .build(entity_configuration,
+             teacher,
+             year,
+             start_at,
+             end_at,
+             daily_frequencies,
+             student_enrollments,
+             events,
+             school_calendar,
+             second_teacher_signature)
   end
 
   def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar, second_teacher_signature)
@@ -125,7 +135,8 @@ class AttendanceRecordReport < BaseReport
               students[student_id][:absences] = students[student_id][:absences] + 1
             end
 
-            (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
+            (students[student_id][:attendances] ||= []) <<
+              make_cell(content: student_frequency.to_s, align: :center)
           end
         else
           school_calendar_event = daily_frequency_or_event
@@ -188,7 +199,7 @@ class AttendanceRecordReport < BaseReport
         sequence += 1
       end
 
-      bottom_offset = @second_teacher_signature ? 24 : 0;
+      bottom_offset = @second_teacher_signature ? 24 : 0
       sliced_students_cells = students_cells.each_slice(student_slice_size(students)).to_a
 
       sliced_students_cells.each_with_index do |students_cells_slice, index|
@@ -252,7 +263,7 @@ class AttendanceRecordReport < BaseReport
         draw_text('Data:', size: 8, style: :bold, at: [652, 0])
         draw_text('________________', size: 8, at: [674, 0])
 
-        if self.any_student_with_dependence
+        if any_student_with_dependence
           offset = @second_teacher_signature ? 24 : 0
           draw_text('* Alunos cursando dependência', size: 8, at: [0, 47 + offset])
         end
@@ -289,8 +300,9 @@ class AttendanceRecordReport < BaseReport
     }.length
 
     second_signature_offset = @second_teacher_signature ? 3 : 0
+    social_name_factor = (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
 
-    STUDENT_BY_PAGE_COUNT - second_signature_offset - (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
+    STUDENT_BY_PAGE_COUNT - second_signature_offset - social_name_factor
   end
 
   def step_number(daily_frequency)
