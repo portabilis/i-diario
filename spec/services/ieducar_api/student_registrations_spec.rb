@@ -22,7 +22,7 @@ RSpec.describe IeducarApi::StudentRegistrations, type: :service do
 
         expect(result.keys).to include 'matriculas'
 
-        expect(result['matriculas'].size).to eq 5
+        expect(result['matriculas'].size).to eq 9
       end
     end
 

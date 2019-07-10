@@ -23,6 +23,10 @@ FactoryGirl.define do
       recovery_diary_record.teacher_id = teacher_discipline_classroom.teacher.id
     end
 
+    trait :current do
+      recorded_at { Time.zone.today }
+    end
+
     factory :current_recovery_diary_record do
       recorded_at { Time.zone.today }
     end

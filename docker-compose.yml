@@ -1,26 +1,13 @@
-version: "4"
-
-volumes:
-  dot_ssh:
-  socket_dir:
+version: "3.7"
 
 services:
-  ssh-agent: # https://github.com/nardeas/docker-ssh-agent
-    container_name: ssh-agent-idiario
-    image: nardeas/ssh-agent:latest
-    volumes:
-      - "dot_ssh:/root/.ssh"
-      - "socket_dir:/.ssh-agent"
-    environment:
-      - SSH_AUTH_SOCK=/.ssh-agent/socket
-
   postgres:
     image: postgres:9.4-alpine
     container_name: postgres94-idiario
     ports:
       - "5432:5432"
     volumes:
-      - /var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=postgres
 
@@ -33,17 +20,23 @@ services:
   app:
     build: .
     container_name: idiario
-    command: /bin/bash
+    command: ./script/start
     tty: true
     volumes:
       - .:/app
-      - "dot_ssh:/root/.ssh"
-      - "socket_dir:/.ssh-agent"
+      - box:/box
     ports:
-      - "4000:4000"
+      - "3000:3000"
     depends_on:
-      - ssh-agent
       - postgres
       - redis
-    environment:
-      - SSH_AUTH_SOCK=/.ssh-agent/socket
+
+  box:
+    image: busybox
+    volumes:
+      - box:/box
+
+volumes:
+  app:
+  box:
+  pg_data:

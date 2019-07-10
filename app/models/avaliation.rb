@@ -160,7 +160,9 @@ class Avaliation < ActiveRecord::Base
   def is_school_term_day?
     return if test_setting.nil? || test_setting.exam_setting_type == ExamSettingTypes::GENERAL
 
-    errors.add(:test_date, :must_be_school_term_day) if !school_calendar.school_term_day?(test_setting.school_term, test_date)
+    return if school_calendar.school_term_day?(test_setting.school_term, test_date, classroom)
+
+    errors.add(:test_date, :must_be_school_term_day)
   end
 
   def should_validate_classroom_score_type?

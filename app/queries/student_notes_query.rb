@@ -7,11 +7,11 @@ class StudentNotesQuery
     @step_end_at = step_end_at.to_date
   end
 
-  def daily_note_students
+  def daily_note_students_query(student, discipline, classroom, start_date, end_date)
     DailyNoteStudent.by_student_id(student)
                     .by_discipline_id(discipline)
                     .by_classroom_id(classroom)
-                    .by_test_date_between(start_at, end_at)
+                    .by_test_date_between(start_date, end_date)
                     .includes(
                       daily_note: [
                         avaliation: [
@@ -22,6 +22,30 @@ class StudentNotesQuery
                         ]
                       ]
                     )
+  end
+
+  def daily_note_students
+    daily_note_students_query(student, discipline, classroom, start_at, end_at)
+  end
+
+  def previous_enrollments_daily_note_students
+    daily_notes = []
+
+    previous_enrollments.each do |enrollment|
+      daily_notes.concat(
+        daily_note_students_query(
+          student,
+          discipline,
+          classroom,
+          enrollment.joined_at,
+          enrollment.left_at
+        ).where(
+          transfer_note_id: nil
+        )
+      )
+    end
+
+    daily_notes
   end
 
   def recovery_diary_records
@@ -80,9 +104,17 @@ class StudentNotesQuery
     Date.parse(left_at)
   end
 
-  def student_enrollment_classroom
-    @student_enrollment_classroom ||= StudentEnrollmentClassroomFetcher.new(
+  def student_enrollment_classroom_fetcher
+    @student_enrollment_classroom_fetcher ||= StudentEnrollmentClassroomFetcher.new(
       student, classroom, step_start_at, step_end_at
-    ).fetch
+    )
+  end
+
+  def student_enrollment_classroom
+    @student_enrollment_classroom ||= student_enrollment_classroom_fetcher.current_enrollment
+  end
+
+  def previous_enrollments
+    @previous_enrollments ||= student_enrollment_classroom_fetcher.previous_enrollments
   end
 end

@@ -19,11 +19,11 @@ RSpec.describe IeducarApi::Lectures, type: :service do
     context 'all lectures' do
       it 'returns all lectures' do
         VCR.use_cassette('lectures') do
-          result = subject.fetch(escola_id: [124_370])
+          result = subject.fetch(escola_id: [30])
 
           expect(result.keys).to include 'cursos'
 
-          expect(result['cursos'].size).to eq 5
+          expect(result['cursos'].size).to eq 1
         end
       end
     end
