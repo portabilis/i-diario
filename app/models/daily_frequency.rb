@@ -18,7 +18,10 @@ class DailyFrequency < ActiveRecord::Base
 
   has_enumeration_for :period, with: Periods, skip_validation: true
 
-  has_many :students, -> { joins(:student).includes(:student).order('students.name') }, class_name: 'DailyFrequencyStudent', dependent: :destroy
+  has_many :students, lambda {
+    joins(:student).includes(:student).order('students.name')
+  }, class_name: 'DailyFrequencyStudent', dependent: :destroy
+
   accepts_nested_attributes_for :students, allow_destroy: true
 
   validates_date :frequency_date
