@@ -26,7 +26,7 @@ class AvaliationExemption < ActiveRecord::Base
 
   validates :student_id,
             presence: true,
-            uniqueness: { scope: [:avaliation_id] }
+            uniqueness: { scope: [:avaliation_id, :discarded_at] }
 
   validate :ensure_no_score_for_avaliation
   validate :avaliation_test_date_must_be_valid_posting_date
