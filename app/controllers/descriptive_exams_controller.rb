@@ -39,8 +39,6 @@ class DescriptiveExamsController < ApplicationController
 
     authorize @descriptive_exam
 
-    destroy_students_not_found
-
     if @descriptive_exam.save
       respond_with @descriptive_exam, location: new_descriptive_exam_path
     else
@@ -195,16 +193,6 @@ class DescriptiveExamsController < ApplicationController
         id: classroom.exam_rule.differentiated_exam_rule.opinion_type,
         text: 'Aluno com deficiência'
       }
-    end
-  end
-
-  def destroy_students_not_found
-    @descriptive_exam.students.each do |student|
-      student_exists = resource_params[:students_attributes].any? do |student_params|
-        student_params.last[:student_id].to_i == student.student.id
-      end
-
-      student.destroy unless student_exists
     end
   end
 
