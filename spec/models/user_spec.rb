@@ -28,41 +28,6 @@ RSpec.describe User, type: :model do
     it { expect(subject).to allow_value('admin@example.com').for(:email) }
     it { expect(subject).to_not allow_value('admin@examplecom', 'adminexample.com').for(:email).with_message('use apenas letras (a-z), números e pontos.') }
 
-    describe '#user_roles' do
-      it 'validates uniqueness of student role' do
-        subject = User.new
-
-        subject.user_roles << UserRole.new(role: roles(:student))
-        subject.user_roles << UserRole.new(role: roles(:student))
-
-        subject.valid?
-
-        expect(subject.errors['user_roles']).to include('não é válido')
-      end
-
-      it 'validates uniqueness of parent role' do
-        subject = User.new
-
-        subject.user_roles << UserRole.new(role: roles(:parent))
-        subject.user_roles << UserRole.new(role: roles(:parent))
-
-        subject.valid?
-
-        expect(subject.errors['user_roles']).to include('não é válido')
-      end
-
-      it 'accepts diferent roles' do
-        subject = User.new
-
-        subject.user_roles.build(user: subject, role: roles(:parent))
-        subject.user_roles.build(user: subject, role: roles(:student))
-
-        subject.valid?
-
-        expect(subject.errors['user_roles']).to be_blank
-      end
-    end
-
     context 'when without email and without cpf' do
       it 'should require email or cpf' do
         subject.email = nil
