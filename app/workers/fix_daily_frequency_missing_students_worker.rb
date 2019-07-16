@@ -11,9 +11,8 @@ class FixDailyFrequencyMissingStudentsWorker
 
         worker_batch = WorkerBatch.create!(
           main_job_class: 'FixDailyFrequencyMissingStudentsWorker',
-          main_job_id: self.jid,
-          total_workers: frequencies.count,
-          entity_id: entity.id
+          main_job_id: jid,
+          total_workers: frequencies.count
         )
 
         frequencies.each do |daily_frequency|

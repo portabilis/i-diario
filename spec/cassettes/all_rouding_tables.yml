@@ -8,7 +8,7 @@ http_interactions:
       string: ''
     headers:
       Accept:
-      - ! '*/*; q=0.5, application/xml'
+      - "*/*; q=0.5, application/xml"
       Accept-Encoding:
       - gzip, deflate
       User-Agent:
@@ -37,7 +37,7 @@ http_interactions:
       - application/json; charset=UTF-8
     body:
       encoding: US-ASCII
-      string: ! '{"tabelas":[{"id":"1","nome":"0","descricao":"","valor_maximo":"0.400"},{"id":"1","nome":"0.5","descricao":"","valor_maximo":"0.900"},{"id":"1","nome":"1","descricao":"","valor_maximo":"1.400"},{"id":"1","nome":"1.5","descricao":"","valor_maximo":"1.900"},{"id":"1","nome":"2","descricao":"","valor_maximo":"2.400"},{"id":"1","nome":"2.5","descricao":"","valor_maximo":"2.900"},{"id":"1","nome":"3","descricao":"","valor_maximo":"3.400"},{"id":"1","nome":"3.5","descricao":"","valor_maximo":"3.900"},{"id":"1","nome":"4","descricao":"","valor_maximo":"4.000"},{"id":"1","nome":"4.5","descricao":"","valor_maximo":"4.900"},{"id":"1","nome":"5","descricao":"","valor_maximo":"5.400"},{"id":"1","nome":"5.5","descricao":"","valor_maximo":"5.900"},{"id":"1","nome":"6","descricao":"","valor_maximo":"6.400"},{"id":"1","nome":"6.5","descricao":"","valor_maximo":"6.900"},{"id":"1","nome":"7","descricao":"","valor_maximo":"7.400"},{"id":"1","nome":"7.5","descricao":"","valor_maximo":"7.900"},{"id":"1","nome":"8","descricao":"","valor_maximo":"8.400"},{"id":"1","nome":"8.5","descricao":"","valor_maximo":"8.900"},{"id":"1","nome":"9","descricao":"","valor_maximo":"9.400"},{"id":"1","nome":"9.5","descricao":"","valor_maximo":"9.900"},{"id":"1","nome":"10","descricao":"","valor_maximo":"10.000"},{"id":"4","nome":"PP","descricao":"progrediu
+      string: '{"tabelas":[{"id":"1","nome":"0","descricao":"","valor_maximo":"0.400"},{"id":"1","nome":"0.5","descricao":"","valor_maximo":"0.900"},{"id":"1","nome":"1","descricao":"","valor_maximo":"1.400"},{"id":"1","nome":"1.5","descricao":"","valor_maximo":"1.900"},{"id":"1","nome":"2","descricao":"","valor_maximo":"2.400"},{"id":"1","nome":"2.5","descricao":"","valor_maximo":"2.900"},{"id":"1","nome":"3","descricao":"","valor_maximo":"3.400"},{"id":"1","nome":"3.5","descricao":"","valor_maximo":"3.900"},{"id":"1","nome":"4","descricao":"","valor_maximo":"4.000"},{"id":"1","nome":"4.5","descricao":"","valor_maximo":"4.900"},{"id":"1","nome":"5","descricao":"","valor_maximo":"5.400"},{"id":"1","nome":"5.5","descricao":"","valor_maximo":"5.900"},{"id":"1","nome":"6","descricao":"","valor_maximo":"6.400"},{"id":"1","nome":"6.5","descricao":"","valor_maximo":"6.900"},{"id":"1","nome":"7","descricao":"","valor_maximo":"7.400"},{"id":"1","nome":"7.5","descricao":"","valor_maximo":"7.900"},{"id":"1","nome":"8","descricao":"","valor_maximo":"8.400"},{"id":"1","nome":"8.5","descricao":"","valor_maximo":"8.900"},{"id":"1","nome":"9","descricao":"","valor_maximo":"9.400"},{"id":"1","nome":"9.5","descricao":"","valor_maximo":"9.900"},{"id":"1","nome":"10","descricao":"","valor_maximo":"10.000"},{"id":"4","nome":"PP","descricao":"progrediu
         pouco","valor_maximo":"4.999"},{"id":"4","nome":"PR","descricao":"progrediu
         regularmente","valor_maximo":"7.999"},{"id":"4","nome":"PM","descricao":"progrediu
         muito","valor_maximo":"10.000"},{"id":"2","nome":"S","descricao":"Sim","valor_maximo":"5.999"},{"id":"2","nome":"EF","descricao":"Em
@@ -47,4 +47,98 @@ http_interactions:
         Alcan\u00e7ado","valor_maximo":"9.999"}],"oper":"get","resource":"tabelas-de-arredondamento","msgs":[],"any_error_msg":false}'
     http_version: 
   recorded_at: Thu, 16 Jul 2015 21:40:45 GMT
-recorded_with: VCR 2.9.3
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=tabelas-de-arredondamento&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Fri, 05 Apr 2019 12:12:53 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Regra?resource=tabelas-de-arredondamento&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:49 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Regra?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&instituicao_id=1&modified&oper=get&resource=tabelas-de-arredondamento&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.2.6p396
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Date:
+      - Fri, 05 Apr 2019 12:12:54 GMT
+      X-Xss-Protection:
+      - '0'
+      Set-Cookie:
+      - i_educar_session=nt4OuKEGFgZ3Sr7VzmWUsWeTc0Yo952WiASfnDYW; expires=Fri, 05-Apr-2019
+        14:12:54 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA62XwW6jMBCGXwX5nEQYSAjcomivUZXd2+4KTfEkQgLM2hB1
+        W/Xd16aJ1JJWmszmRjz2P9/YE/zzInp4xBqsyH++iEqJXERiJlrdoHv8McaC
+        DpT5NYQhxjpQGLS6BxuUui2x6georFvQV50ufOAscIJaG3xTNbofau0C311A
+        oS1NVcL4G5vO4GV20cBT1fjxdJFlmRsuwUKhsKwaqAt8Aq/eDnU9EzAK+OfX
+        2bsEm0mCjQ1O+Iz2OsWam2I7SfGtCTqjS7R23Bu3K7Y3w7hb6XnPrrPLcBGG
+        ISf9bpJ+dzmXg8E/A7a9Hq7TrW4p9vdMDJ2CHlUBvT/NUGbzMJpH60DKPIrz
+        SAqPNPaKpPVKOzTjWOaxp+0iv2qX8GOtb6ST0sJFwjvHcLEkyTPbRBLEJZdd
+        ktgllz0iiEdc9ojEHnHZY4J4zGWPSewxlz0hiCdc9oTEnnDZKeJLLvuSxL7k
+        sq8I4isu+4rEftMb+r18ShBPuewpiZ19W68J4msu+5rEzrYBGUE847JnJPZs
+        kTKvD8rFeptFuck0JFemYfNAtZDjzA8Wz7mvE6j/Nlk3VbC8qkB6f/MIAbQ6
+        8Eup9ewn5ewR6uoZ7mkZ99MtO+dwVs2UFdSNc42fmHD2X+PhLhaZ/VbZ7qZf
+        AVvtCvSJDq5PgvbiTqGr3YTPOuf+ftlN0h0aFz5i75RdH+jBlL6Bzt9fc4Vz
+        MAaVbhX4I/FcjT36fnGrof1boDGe0h5FfoDa4us/zTbv3L0NAAA=
+    http_version: 
+  recorded_at: Wed, 01 Mar 2017 03:06:49 GMT
+recorded_with: VCR 3.0.0

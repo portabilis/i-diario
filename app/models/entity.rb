@@ -6,7 +6,6 @@ class Entity < ActiveRecord::Base
   validates :name, :domain, :config, presence: true
   validates :domain, uniqueness: { case_sensitive: false }, allow_blank: true
 
-  scope :need_migration, -> { where(migrate: true) }
   scope :active, -> { where(disabled: false) }
 
   def self.current_domain

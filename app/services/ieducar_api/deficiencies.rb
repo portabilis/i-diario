@@ -6,6 +6,8 @@ module IeducarApi
         resource: 'deficiencias'
       )
 
+      raise ApiError, 'É necessário informar pelo menos uma escola' if params[:escola].blank?
+
       super
     end
   end

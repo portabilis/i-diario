@@ -1,4 +1,5 @@
 class ObservationDiaryRecord < ActiveRecord::Base
+  include Discardable
   include Audit
   include TeacherRelationable
 
@@ -21,6 +22,8 @@ class ObservationDiaryRecord < ActiveRecord::Base
   has_many :notes, class_name: 'ObservationDiaryRecordNote', dependent: :destroy
   accepts_nested_attributes_for :notes, allow_destroy: true
 
+  default_scope -> { kept }
+
   scope :by_unity, -> unity_ids { joins(:classroom).where(classrooms: { unity_id: unity_ids }) }
   scope :by_teacher, -> teacher_ids { where(teacher_id: teacher_ids) }
   scope :by_classroom, -> classroom_ids { where(classroom_id: classroom_ids) }
@@ -37,7 +40,10 @@ class ObservationDiaryRecord < ActiveRecord::Base
   validates(
     :date,
     presence: true,
-    uniqueness: { scope: [:school_calendar_id, :teacher_id, :classroom_id, :discipline_id] },
+    uniqueness: {
+      scope: [:school_calendar_id, :teacher_id, :classroom_id, :discipline_id],
+      conditions: -> { where(discarded_at: nil) }
+    },
     not_in_future: true,
     school_calendar_day: true,
     posting_date: true

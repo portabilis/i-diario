@@ -188,8 +188,9 @@ class ExamRecordReport < BaseReport
             recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student_id, recovery_diary_record_id: exam.recovery_diary_record_id)
 
             score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_id, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
-            if recovery_student.try(:score).present? && recovery_student.score > averages[student_enrollment.student_id]
-              averages[student_enrollment.student_id] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY).round(recovery_student.score)
+            if recovery_student.try(:score).present?
+              recovery_average = SchoolTermAverageCalculator.new(classroom).calculate(averages[student_enrollment.student_id], recovery_student.score)
+              averages[student_enrollment.student_id] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY).round(recovery_average)
             end
           end
 
