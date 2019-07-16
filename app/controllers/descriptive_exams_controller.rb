@@ -17,6 +17,8 @@ class DescriptiveExamsController < ApplicationController
     if @descriptive_exam.valid?
       @descriptive_exam = find_or_create_descriptive_exam
 
+      authorize @descriptive_exam if @new_descriptive_exam
+
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
       render :new
@@ -94,6 +96,7 @@ class DescriptiveExamsController < ApplicationController
                                       .by_discipline_id(@descriptive_exam.discipline_id)
                                       .by_step_id(@descriptive_exam.classroom, @descriptive_exam.step_id)
                                       .first
+    @new_descriptive_exam = false
 
     if descriptive_exam.blank?
       descriptive_exam = DescriptiveExam.create!(
@@ -105,6 +108,8 @@ class DescriptiveExamsController < ApplicationController
         step_number: @descriptive_exam.step_number,
         teacher_id: @descriptive_exam.teacher_id
       )
+
+      @new_descriptive_exam = true
     end
 
     descriptive_exam.teacher_id = @descriptive_exam.teacher_id if descriptive_exam.teacher_id.blank?
