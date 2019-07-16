@@ -15,11 +15,12 @@ class IeducarSynchronizerWorker
     end
   end
 
-  def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false)
+  def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false, last_two_years = true)
     if entity_id.present? && synchronization_id.present?
       perform_for_entity(
         Entity.find(entity_id),
-        synchronization_id
+        synchronization_id,
+        last_two_years
       )
     else
       all_entities.each do |entity|
@@ -28,7 +29,7 @@ class IeducarSynchronizerWorker
 
           next unless configuration.persisted?
 
-          configuration.start_synchronization(User.first, entity.id, full_synchronization)
+          configuration.start_synchronization(User.first, entity.id, full_synchronization, last_two_years)
         end
       end
     end
@@ -36,11 +37,13 @@ class IeducarSynchronizerWorker
 
   private
 
-  def perform_for_entity(entity, synchronization_id)
+  def perform_for_entity(entity, synchronization_id, last_two_years)
     entity.using_connection do
       synchronization = IeducarApiSynchronization.started.find_by(id: synchronization_id)
 
       break unless synchronization.try(:started?)
+
+      years_to_synchronize(last_two_years)
 
       worker_batch = synchronization.worker_batch
       worker_batch.start!
@@ -65,14 +68,20 @@ class IeducarSynchronizerWorker
     @unities_api_code ||= Unity.with_api_code.pluck(:api_code)
   end
 
-  def years_to_synchronize
-    @years_to_synchronize ||= Unity.with_api_code
-                                   .joins(:school_calendars)
-                                   .pluck('school_calendars.year')
-                                   .uniq
-                                   .compact
-                                   .sort
-                                   .reverse
+  def years_to_synchronize(last_two_years = false)
+    @years_to_synchronize ||= begin
+      years = Unity.with_api_code
+                   .joins(:school_calendars)
+                   .pluck('school_calendars.year')
+                   .uniq
+                   .compact
+                   .sort
+                   .reverse
+
+      years = years.take(2) if last_two_years
+
+      years
+    end
   end
 
   def all_entities

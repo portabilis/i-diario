@@ -36,24 +36,29 @@
     </div>
 
     <div class="row">
-      <div class="col col-sm-3">
-        <%= f.input :phone, as: :tel %>
+      <div class="col col-sm-6">
+        <%= f.input :student, as: :autocomplete %>
       </div>
 
+      <div class="col col-sm-6">
+        <%= f.input :teacher_id, as: :select2, elements: @teachers %>
+      </div>
+    </div>
+    <div class="row">
       <div class="col col-sm-3">
         <%= f.input :status, as: :select2, elements: UserStatus.to_select.to_json %>
       </div>
 
-      <div class="col col-sm-6">
-        <%= f.input :student, as: :autocomplete %>
+      <div class="col col-sm-3">
+        <%= f.input :expiration_date %>
       </div>
-    </div>
-    <div class="row">
-      <div class="col col-sm-6">
-        <%= f.input :teacher_id, as: :select2, elements: @teachers %>
+
+      <div class="col col-sm-3">
+        <%= f.input :phone, as: :tel %>
       </div>
+
       <% if current_user.can_change?("can_change_user_password") %>
-        <div class="col col-sm-6">
+        <div class="col col-sm-3">
           <%= f.input :password, hint: "Preencha apenas se desejar alterar a senha" %>
         </div>
       <% end %>
