@@ -38,4 +38,8 @@ class ExamRule < ActiveRecord::Base
       rounding_table
     end
   end
+
+  def calculate_school_term_average?
+    calculate_avg_parallel_exams?
+  end
 end

@@ -104,6 +104,12 @@ class User < ActiveRecord::Base
     ), credential: credential).first
   end
 
+  def expired?
+    return false if expiration_date.blank?
+
+    Date.today >= expiration_date
+  end
+
   def can_show?(feature)
     if feature == "general_configurations"
       return admin?
@@ -133,7 +139,7 @@ class User < ActiveRecord::Base
   end
 
   def active_for_authentication?
-    super && actived?
+    super && actived? && !expired?
   end
 
   def logged_as
