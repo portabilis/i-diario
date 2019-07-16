@@ -9,7 +9,7 @@ class UsersController < ApplicationController
   end
 
   def edit
-    @user = User.find(params[:id])
+    @user = User.find(params[:id]).localized
 
     @teachers = Teacher.active.order_by_name
 
@@ -78,6 +78,7 @@ class UsersController < ApplicationController
     params.require(:user).permit(
       :first_name, :last_name, :phone, :email, :cpf, :login, :status,
       :authorize_email_and_sms, :student_id, :teacher_id, :password,
+      :expiration_date,
       :user_roles_attributes => [
         :id, :role_id, :unity_id, :_destroy
       ]

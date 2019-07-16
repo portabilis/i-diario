@@ -147,15 +147,21 @@ class StudentEnrollmentsList
 
   def order_by_sequence_and_name(students_enrollments)
     ids = students_enrollments.map(&:id)
-    start_at = @start_at || @date
-    end_at = @end_at || @date
+    enrollments = StudentEnrollment.where(id: ids)
+                                   .by_classroom(@classroom)
 
-    StudentEnrollment.where(id: ids)
-                     .by_classroom(@classroom)
-                     .by_date_range(start_at, end_at)
-                     .active
-                     .ordered
-                     .to_a
-                     .uniq
+    enrollments = if search_type != :by_year
+                    start_at = @start_at || @date
+                    end_at = @end_at || @date
+
+                    enrollments.by_date_range(start_at, end_at)
+                  else
+                    enrollments.by_year(year)
+                  end
+
+    enrollments.active
+               .ordered
+               .to_a
+               .uniq
   end
 end
