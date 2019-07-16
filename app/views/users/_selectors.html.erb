@@ -1,3 +1,11 @@
+<a id="user-info-selector" href=""#>
+  <%= gravatar_image_tag current_user.email, 48, alt: current_user.navigation_display %>
+  <%= content_tag :span do -%>
+    <%= truncate current_user.navigation_display, length: 16 %>
+    <i class="fa fa-angle-right" aria-hidden="true"></i>
+  <% end -%>
+</a>
+
 <div id="current-role-selector">
   <%= simple_form_for user, remote: true, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
     <%= f.hidden_field :id, value: f.object.id %>

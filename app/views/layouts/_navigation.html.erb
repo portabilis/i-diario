@@ -3,18 +3,6 @@
 <% end %>
 
 <aside id="left-panel">
-  <div class="login-info login-info-navigation">
-    <span>
-      <% if user_signed_in? %>
-        <%= link_to "#", title: I18n.t('layouts.application.edit_profile') do %>
-          <%= gravatar_image_tag current_user.email %>
-          <%= content_tag :span, current_user.navigation_display %>
-          <%= content_tag :i, "", class: "fa fa-angle-down" %>
-        <% end %>
-      <% end %>
-    </span>
-  </div>
-
   <nav>
     <%= menus %>
   </nav>

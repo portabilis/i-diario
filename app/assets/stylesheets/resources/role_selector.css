@@ -55,7 +55,32 @@
   height: 48px;
 }
 
+#user-info-selector {
+  display: none;
+}
+
 @media (max-width: 1250px) {
+  #user-info-selector {
+    color: #bfbfbf;
+    display: block;
+    float: left;
+    font-weight: bold;
+    margin: 8px 0 0 8px;
+    text-transform: uppercase;
+  }
+
+  #user-info-selector img {
+    border-radius: 4px;
+    display: block;
+    float: left;
+    margin-right: 8px;
+  }
+
+  #user-info-selector span {
+    display: inline-block;
+    margin-top: 14px;
+  }
+
   #header > #current-role-selector {
     background-color: rgba(255, 255, 255, .75);
     display: none;
