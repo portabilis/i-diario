@@ -11,6 +11,18 @@ RSpec.describe TestSettingFetcher, type: :service do
     )
   }
 
+  context 'when does not receive classroom' do
+    it 'raises ArgumentError to classroom' do
+      expect { described_class.current(nil) }.to raise_error(ArgumentError)
+    end
+  end
+
+  context 'when does not receive step' do
+    it 'raises ArgumentError to step' do
+      expect { described_class.by_step(nil) }.to raise_error(ArgumentError)
+    end
+  end
+
   context 'test setting type is general' do
     let!(:general_test_setting) {
       create(
@@ -21,11 +33,11 @@ RSpec.describe TestSettingFetcher, type: :service do
     }
 
     context 'test setting exist for step year' do
-      it 'return test setting of year of step' do
+      it 'returns test setting of year of step' do
         expect(described_class.by_step(school_calendar.steps.first)).to eq(general_test_setting)
       end
 
-      it 'return current test setting as general' do
+      it 'returns current test setting as general' do
         expect(described_class.current(classroom)).to eq(general_test_setting)
       end
     end
@@ -35,11 +47,11 @@ RSpec.describe TestSettingFetcher, type: :service do
         general_test_setting.update(year: general_test_setting.year + 1)
       end
 
-      it 'return nil' do
+      it 'returns nil' do
         expect(described_class.by_step(school_calendar.steps.first)).to be(nil)
       end
 
-      it 'return nil to current test setting as general' do
+      it 'returns nil to current test setting as general' do
         expect(described_class.current(classroom)).to eq(nil)
       end
     end
@@ -56,11 +68,11 @@ RSpec.describe TestSettingFetcher, type: :service do
     }
 
     context 'test setting exists for step year and school_term' do
-      it 'return test setting of school term of step' do
+      it 'returns test setting of school term of step' do
         expect(described_class.by_step(school_calendar.steps.first)).to eq(step_test_setting)
       end
 
-      it 'return current test setting of step' do
+      it 'returns current test setting of step' do
         expect(described_class.current(classroom)).to eq(step_test_setting)
       end
     end
@@ -72,11 +84,11 @@ RSpec.describe TestSettingFetcher, type: :service do
         )
       end
 
-      it 'return nil' do
+      it 'returns nil' do
         expect(described_class.by_step(school_calendar.steps.first)).to be(nil)
       end
 
-      it 'return nil to current test setting of step' do
+      it 'returns nil to current test setting of step' do
         expect(described_class.current(classroom)).to eq(nil)
       end
     end

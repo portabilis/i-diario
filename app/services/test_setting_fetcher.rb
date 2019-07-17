@@ -12,10 +12,14 @@ class TestSettingFetcher
   end
 
   def current
+    raise ArgumentError if @classroom.blank?
+
     by_step(current_step)
   end
 
   def by_step(step)
+    raise ArgumentError if step.blank?
+
     general_test_setting = general_test_setting(step)
 
     return general_test_setting if general_test_setting.present?
