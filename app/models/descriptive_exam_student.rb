@@ -1,4 +1,5 @@
 class DescriptiveExamStudent < ActiveRecord::Base
+  include Discardable
   acts_as_copy_target
 
   audited associated_with: :descriptive_exam, except: [:descriptive_exam_id, :dependence]
