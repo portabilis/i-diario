@@ -172,7 +172,7 @@ class ApplicationController < ActionController::Base
   end
 
   def current_test_setting
-    CurrentTestSettingFetcher.new(current_school_calendar).fetch
+    TestSettingFetcher.current(current_classroom)
   end
 
   def require_current_teacher

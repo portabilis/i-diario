@@ -82,7 +82,7 @@ module ExamPoster
     end
 
     def current_test_setting
-      CurrentTestSettingFetcher.new(@step.school_calendar).fetch
+      TestSettingFetcher.current(@classroom)
     end
   end
 end

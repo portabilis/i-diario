@@ -1,26 +1,59 @@
 class TestSettingFetcher
-  def initialize(school_calendar_step)
-    @school_calendar_step = school_calendar_step
+  def self.current(classroom)
+    new(classroom).current
   end
 
-  def self.fetch(school_calendar_step)
-    new(school_calendar_step).fetch
+  def self.by_step(step)
+    new(step.try(:classroom)).by_step(step)
   end
 
-  def fetch
-    test_seting = TestSetting.find_by(
-      exam_setting_type: ExamSettingTypes::GENERAL,
-      year: @school_calendar_step.school_calendar.year
+  def initialize(classroom = nil)
+    @classroom = classroom
+  end
+
+  def current
+    by_step(current_step)
+  end
+
+  def by_step(step)
+    general_test_setting = general_test_setting(step)
+
+    return general_test_setting if general_test_setting.present?
+
+    TestSetting.find_by(
+      year: step.school_calendar.year,
+      school_term: school_term(step)
     )
+  end
 
-    if test_seting.blank?
-      school_term = @school_calendar_step.school_term
-      test_seting = TestSetting.find_by(
-        year: @school_calendar_step.school_calendar.year,
-        school_term: school_term
-      )
-    end
+  private
 
-    test_seting
+  def general_test_setting(step)
+    TestSetting.find_by(
+      exam_setting_type: ExamSettingTypes::GENERAL,
+      year: step.school_calendar.year
+    )
+  end
+
+  def current_step
+    StepsFetcher.new(@classroom).step_by_date(Date.current)
+  end
+
+  def school_term(step)
+    avaliation_school_term(step).presence || step_school_term(step)
+  end
+
+  def avaliation_school_term(step)
+    return if @classroom.blank?
+
+    Avaliation.by_classroom_id(@classroom.id)
+              .by_test_date_between(step.start_at, step.end_at)
+              .first
+              .try(:test_setting)
+              .try(:school_term)
+  end
+
+  def step_school_term(step)
+    SchoolTermConverter.convert(step)
   end
 end
