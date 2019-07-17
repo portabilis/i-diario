@@ -8,7 +8,7 @@ class ExamRule < ActiveRecord::Base
   has_enumeration_for :score_type, with: ScoreTypes
   has_enumeration_for :frequency_type, with: FrequencyTypes
   has_enumeration_for :opinion_type, with: OpinionTypes
-  has_enumeration_for :recovery_type, with: RecoveryTypes
+  has_enumeration_for :parallel_exams_calculation_type, with: ParallelExamsCalculationTypes
 
   belongs_to :rounding_table
   belongs_to :differentiated_exam_rule, class_name: 'ExamRule'
@@ -40,6 +40,10 @@ class ExamRule < ActiveRecord::Base
   end
 
   def calculate_school_term_average?
-    calculate_avg_parallel_exams?
+    parallel_exams_calculation_type == ParallelExamsCalculationTypes::AVERAGE
+  end
+
+  def calculate_school_term_sum?
+    parallel_exams_calculation_type == ParallelExamsCalculationTypes::SUM
   end
 end
