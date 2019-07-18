@@ -8,6 +8,7 @@ class ExamRule < ActiveRecord::Base
   has_enumeration_for :score_type, with: ScoreTypes
   has_enumeration_for :frequency_type, with: FrequencyTypes
   has_enumeration_for :opinion_type, with: OpinionTypes
+  has_enumeration_for :recovery_type, with: RecoveryTypes
   has_enumeration_for :parallel_exams_calculation_type, with: ParallelExamsCalculationTypes
 
   belongs_to :rounding_table
