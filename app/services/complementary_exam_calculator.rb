@@ -12,6 +12,12 @@ class ComplementaryExamCalculator
     maximum_score && maximum_score < score ? maximum_score : score
   end
 
+  def calculate_integral(score)
+    return score unless integral_complementary_exam_score.present?
+
+    ((score + integral_complementary_exam_score.sum(:score).to_f) / 2)
+  end
+
   private
 
   def maximum_score
@@ -50,6 +56,12 @@ class ComplementaryExamCalculator
   def sum_substitution_complementary_exam_score
     @sum_substitution_complementary_exam_score ||= begin
       complementary_exam_students_by_calculation(CalculationTypes::SUM).sum(:score).to_f
+    end
+  end
+
+  def integral_complementary_exam_score
+    @integral_complementary_exam_score ||= begin
+      complementary_exam_students_by_calculation(CalculationTypes::INTEGRAL)
     end
   end
 
