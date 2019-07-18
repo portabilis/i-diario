@@ -33,6 +33,16 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
             existing_discipline_api_codes
           )
         )
+
+        classroom_id = classroom(teacher_discipline_classroom_record.turma_id).try(:id)
+        teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
+
+        CreateEmptyConceptualExamValueWorker.perform_in(
+          1.second,
+          entity_id,
+          classroom_id,
+          teacher_id
+        )
       end
     end
   end
