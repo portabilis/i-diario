@@ -30,7 +30,7 @@ class ExamRulesSynchronizer < BaseSynchronizer
           exam_rule_record.tabela_arredondamento_id_conceitual
         ).try(:id)
         exam_rule.rounding_table_concept_api_code = exam_rule_record.tabela_arredondamento_id_conceitual
-        exam_rule.parallel_exams_calculation_type = exam_rule_record.tipo_calculo_recuperacao_paralela.to_i || 1
+        exam_rule.parallel_exams_calculation_type = exam_rule_record.tipo_calculo_recuperacao_paralela.to_i || ParallelExamsCalculationTypes::SUBSTITUTION
         exam_rule.save! if exam_rule.changed?
 
         if exam_rule_record.regra_diferenciada_id.present?
