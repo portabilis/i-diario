@@ -75,4 +75,25 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
       end
     end
   end
+
+  context 'integral calculation type' do
+    initial_score = 100
+
+    context 'when there are no integral exams' do
+      it 'returns same value passed as parameter' do
+        expect(subject.calculate_integral(initial_score)).to eq(initial_score)
+      end
+    end
+
+    context 'when there are integral exams' do
+      before do
+        complementary_exam_setting.update_attribute(:calculation_type, CalculationTypes::INTEGRAL)
+      end
+
+      it 'returns score + integral exams scores divided by 2' do
+        integral_score = subject.send(:integral_complementary_exam_score).sum(:score).to_f
+        expect(subject.calculate_integral(initial_score)).to eq((initial_score + integral_score) / 2)
+      end
+    end
+  end
 end
