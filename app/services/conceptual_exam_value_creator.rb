@@ -4,6 +4,8 @@ class ConceptualExamValueCreator
   end
 
   def initialize(classroom_id, teacher_id)
+    raise ArgumentError if classroom_id.blank? || teacher_id.blank?
+
     @classroom = Classroom.find(classroom_id)
     @teacher_id = teacher_id
   end
