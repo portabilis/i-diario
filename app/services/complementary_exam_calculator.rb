@@ -13,7 +13,7 @@ class ComplementaryExamCalculator
   end
 
   def calculate_integral(score)
-    return score unless integral_complementary_exam_score.present?
+    return score if integral_complementary_exam_score.blank?
 
     ((score + integral_complementary_exam_score.sum(:score).to_f) / 2)
   end
