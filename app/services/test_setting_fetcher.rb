@@ -4,6 +4,8 @@ class TestSettingFetcher
   end
 
   def self.by_step(step)
+    raise ArgumentError if step.blank?
+
     new(step.try(:classroom)).by_step(step)
   end
 
@@ -18,7 +20,7 @@ class TestSettingFetcher
   end
 
   def by_step(step)
-    raise ArgumentError if step.blank?
+    return if step.blank?
 
     general_test_setting = general_test_setting(step)
 
