@@ -4,6 +4,8 @@ class RemoteGrade
   attr_accessor :attributes
 
   def self.all(collection)
+    return [] if collection.blank?
+
     collection.map do |record|
       new(record)
     end
