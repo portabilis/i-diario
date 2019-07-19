@@ -207,6 +207,7 @@ RSpec.describe StudentAverageCalculator, type: :service do
         .with(classroom, RoundedAvaliations::NUMERICAL_EXAM)
         .and_return(score_rounder)
         .at_least(:once)
+
       expect(score_rounder).to receive(:round)
         .with(anything)
         .at_least(:once)
@@ -238,11 +239,17 @@ RSpec.describe StudentAverageCalculator, type: :service do
 
   def stub_complementary_exam_calculator
     stub_const('ComplementaryExamCalculator', Class.new)
+
     allow(ComplementaryExamCalculator).to(
       receive(:new).with(AffectedScoreTypes::STEP_AVERAGE, student, discipline, classroom, school_calendar_step).and_return(complementary_exam_calculator)
     )
+
     allow(complementary_exam_calculator).to(
       receive(:calculate).with(anything) { |value| value }
+    )
+
+    allow(complementary_exam_calculator).to(
+      receive(:calculate_integral).with(anything) { |value| value }
     )
   end
 
