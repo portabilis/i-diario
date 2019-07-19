@@ -56,6 +56,7 @@ RSpec.describe StudentAverageCalculator, type: :service do
   let(:daily_note_students) { [] }
   let(:recovery_diary_records) { [] }
   let(:transfer_notes) { [] }
+  let(:previous_enrollments_daily_note_students) { [] }
 
   subject do
     StudentAverageCalculator.new(student)
@@ -230,6 +231,9 @@ RSpec.describe StudentAverageCalculator, type: :service do
     allow(student_notes_query).to receive(:daily_note_students).and_return(daily_note_students)
     allow(student_notes_query).to receive(:recovery_diary_records).and_return(recovery_diary_records)
     allow(student_notes_query).to receive(:transfer_notes).and_return(transfer_notes)
+    allow(student_notes_query).to(
+      receive(:previous_enrollments_daily_note_students).and_return(previous_enrollments_daily_note_students)
+    )
   end
 
   def stub_complementary_exam_calculator
