@@ -20,24 +20,24 @@ class TestSettingFetcher
   end
 
   def by_step(step)
-    return if step.blank?
-
-    general_test_setting = general_test_setting(step)
+    year = step.try(:school_calendar).try(:year) || Date.current.year
+    general_test_setting = general_test_setting(year)
 
     return general_test_setting if general_test_setting.present?
+    return if step.blank?
 
     TestSetting.find_by(
-      year: step.school_calendar.year,
+      year: year,
       school_term: school_term(step)
     )
   end
 
   private
 
-  def general_test_setting(step)
+  def general_test_setting(year)
     TestSetting.find_by(
       exam_setting_type: ExamSettingTypes::GENERAL,
-      year: step.school_calendar.year
+      year: year
     )
   end
 
