@@ -3,6 +3,7 @@ class StudentDependenciesDiscarder
     AvaliationExemptionsDiscardWorker.perform_async(entity_id, student_enrollment_id)
     ObservationDiaryRecordsDiscardWorker.perform_async(entity_id, student_enrollment_id)
     ConceptualExamsDiscardWorker.perform_async(entity_id, student_enrollment_id)
+    DescriptiveExamStudentsDiscardWorker.perform_async(entity_id, student_enrollment_id)
     AbsenceJustificationsDiscardWorker.perform_async(entity_id, student_enrollment_id)
   end
 
@@ -10,6 +11,7 @@ class StudentDependenciesDiscarder
     AvaliationExemptionsUndiscardWorker.perform_async(entity_id, student_enrollment_id)
     ObservationDiaryRecordsUndiscardWorker.perform_async(entity_id, student_enrollment_id)
     ConceptualExamsUndiscardWorker.perform_async(entity_id, student_enrollment_id)
+    DescriptiveExamStudentsUndiscardWorker.perform_async(entity_id, student_enrollment_id)
     AbsenceJustificationsUndiscardWorker.perform_async(entity_id, student_enrollment_id)
   end
 end
