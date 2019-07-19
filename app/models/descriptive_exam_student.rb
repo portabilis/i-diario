@@ -12,7 +12,11 @@ class DescriptiveExamStudent < ActiveRecord::Base
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
   scope :by_descriptive_exam_id, ->(descriptive_exam_id) { where(descriptive_exam_id: descriptive_exam_id) }
   scope :by_classroom, lambda { |classroom_id|
-    joins(:descriptive_exam).includes(:descriptive_exam).merge(DescriptiveExam.by_classroom_id(classroom_id))
+    joins(:student, :descriptive_exam)
+      .includes(:descriptive_exam)
+      .merge(
+        DescriptiveExam.by_classroom_id(classroom_id)
+      )
   }
   scope :by_classroom_and_discipline, lambda { |classroom_id, discipline_id|
     joins(:descriptive_exam).includes(:descriptive_exam).merge(
