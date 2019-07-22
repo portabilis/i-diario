@@ -40,7 +40,10 @@ class ObservationDiaryRecord < ActiveRecord::Base
   validates(
     :date,
     presence: true,
-    uniqueness: { scope: [:school_calendar_id, :teacher_id, :classroom_id, :discipline_id] },
+    uniqueness: {
+      scope: [:school_calendar_id, :teacher_id, :classroom_id, :discipline_id],
+      conditions: -> { where(discarded_at: nil) }
+    },
     not_in_future: true,
     school_calendar_day: true,
     posting_date: true
