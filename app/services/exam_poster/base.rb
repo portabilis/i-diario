@@ -74,9 +74,13 @@ module ExamPoster
       @classrooms ||= teacher.classrooms.uniq
     end
 
+    def classroom_ids
+      @classroom_ids ||= teacher.classrooms.pluck(:id).uniq
+    end
+
     def discipline_ids
       @discipline_ids ||= TeacherDisciplineClassroom.where(
-        classroom_id: classrooms.pluck(:id),
+        classroom_id: classroom_ids,
         teacher_id: teacher.id
       ).pluck(:discipline_id).uniq
     end
