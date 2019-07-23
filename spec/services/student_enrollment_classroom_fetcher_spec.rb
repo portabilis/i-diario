@@ -4,7 +4,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
   let(:student) { create(:student) }
   let(:classroom) { create(:classroom) }
 
-  describe '#fetch' do
+  describe '#current_enrollment' do
     subject do
       described_class.new(student, classroom, '2019-01-01', '2019-03-01')
     end
@@ -13,7 +13,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
       it 'returns that enrollment' do
         create_student_enrollment_classroom(create_student_enrollment)
 
-        expect(subject.fetch).to eq(@student_enrollment_classroom)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom)
       end
     end
 
@@ -27,7 +27,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
         )
         create_relocation(student_enrollment, '2019-02-01', '')
 
-        expect(subject.fetch).to eq(@student_enrollment_classroom1)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom1)
       end
     end
 
@@ -42,7 +42,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
 
         create_transference('2019-02-01', '')
 
-        expect(subject.fetch).to eq(@student_enrollment_classroom2)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom2)
       end
     end
 
@@ -57,7 +57,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
 
         create_reclassification('2019-02-01', '')
 
-        expect(subject.fetch).to eq(@student_enrollment_classroom3)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom3)
       end
     end
 
@@ -72,7 +72,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
         create_relocation(student_enrollment, '2019-02-01', '2019-02-28')
         create_transference('2019-03-01', '')
 
-        expect(subject.fetch).to eq(@student_enrollment_classroom2)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom2)
       end
     end
 
@@ -87,7 +87,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
         create_relocation(student_enrollment, '2019-02-01', '2019-02-28')
         create_reclassification('2019-03-01', '')
 
-        expect(subject.fetch).to eq(@student_enrollment_classroom3)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom3)
       end
     end
 
@@ -102,7 +102,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
 
         create_relocation(create_student_enrollment, '2019-02-01', '')
 
-        expect(subject.fetch).to eq(@student_enrollment_classroom1)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom1)
       end
     end
 
@@ -117,7 +117,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
 
         create_reclassification('2019-02-01', '')
 
-        expect(subject.fetch).to eq(@student_enrollment_classroom3)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom3)
       end
     end
 
@@ -131,7 +131,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
         )
 
         create_relocation(create_student_enrollment, '2019-02-01', '')
-        expect(subject.fetch).to eq(@student_enrollment_classroom1)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom1)
       end
     end
 
@@ -145,7 +145,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
         )
 
         create_transference('2019-03-01', '')
-        expect(subject.fetch).to eq(@student_enrollment_classroom2)
+        expect(subject.current_enrollment).to eq(@student_enrollment_classroom2)
       end
     end
   end
