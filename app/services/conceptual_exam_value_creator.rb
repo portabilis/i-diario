@@ -1,6 +1,6 @@
 class ConceptualExamValueCreator
   def self.create_empty_by(classroom_id, teacher_id)
-    new(classroom_id, teacher_id).create_empty_conceptual_exam_value
+    new(classroom_id, teacher_id).create_empty
   end
 
   def initialize(classroom_id, teacher_id)
@@ -10,7 +10,7 @@ class ConceptualExamValueCreator
     @teacher_id = teacher_id
   end
 
-  def create_empty_conceptual_exam_value
+  def create_empty
     ConceptualExam.where(classroom_id: @classroom.id).each do |conceptual_exam|
       TeacherDisciplineClassroom.by_teacher_id(@teacher_id)
                                 .by_classroom(@classroom)
