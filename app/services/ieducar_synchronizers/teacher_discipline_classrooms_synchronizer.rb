@@ -34,7 +34,9 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           )
         )
 
-        classroom_id = classroom(teacher_discipline_classroom_record.turma_id).try(:id)
+        classroom = classroom(teacher_discipline_classroom_record.turma_id)
+        classroom_id = classroom.try(:id) unless classroom.discarded?
+
         teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
 
         next if classroom_id.nil? || teacher_id.nil?
