@@ -5,7 +5,7 @@ FactoryGirl.define do
     password_confirmation '12345678'
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
-    login { first_name << last_name }
+    login { "#{first_name}_#{Faker::Name.middle_name}_#{last_name}" }
     phone '(11) 99887766'
     cpf { Faker::CPF.pretty }
     admin true
