@@ -3,7 +3,7 @@ FactoryGirl.define do
     association :author, factory: :user
 
     sequence(:api_code, &:to_s)
-    name { Faker::University.name }
+    name { Faker::University.unique.name }
     unit_type UnitTypes::SCHOOL_UNIT
   end
 end
