@@ -1,7 +1,8 @@
 FactoryGirl.define do
   factory :conceptual_exam_value do
-    discipline { create(:discipline) }
+    discipline
     conceptual_exam
-    value 5
+
+    value { rand(0..10) }
   end
 end

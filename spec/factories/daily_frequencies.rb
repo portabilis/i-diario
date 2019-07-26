@@ -1,16 +1,15 @@
 FactoryGirl.define do
   factory :daily_frequency do
-    frequency_date { Time.zone.today }
-
     unity
     classroom
     discipline
-    class_number 1
-    period 1
     association :school_calendar, factory: :school_calendar_with_one_step
 
+    frequency_date { Date.current }
+    class_number { rand(1..5) }
+    period { Periods.to_a.sample[1] }
+
     trait :current do
-      frequency_date { Time.zone.today }
       association :classroom, factory: [:classroom, :current]
       association :school_calendar, factory: :current_school_calendar_with_one_step
     end
