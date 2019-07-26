@@ -32,8 +32,8 @@ class ConceptualExamValueCreator
 
   def join_conceptual_exam
     <<-SQL
-    LEFT JOIN conceptual_exams
-           ON conceptual_exams.classroom_id = teacher_discipline_classrooms.classroom_id
+      JOIN conceptual_exams
+        ON conceptual_exams.classroom_id = teacher_discipline_classrooms.classroom_id
     SQL
   end
 
