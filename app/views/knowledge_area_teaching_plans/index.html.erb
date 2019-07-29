@@ -24,7 +24,7 @@
                     label: false, placeholder: t('.by_school_term') %>
             </td>
             <td>
-              <%= f.input :by_author, as: :select2, elements: PlansAuthors.to_select.to_json, label: false, placeholder: t('.by_author') %>
+              <%= f.input :by_author, as: :select2_plans, label: false %>
             </td>
             <td>
               <%= link_to t('.new_html'), new_knowledge_area_teaching_plan_path,
