@@ -34,19 +34,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
           )
         )
 
-        classroom = classroom(teacher_discipline_classroom_record.turma_id)
-        classroom_id = classroom.try(:id) unless classroom.nil? && classroom.discarded?
-
-        teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
-
-        next if classroom_id.nil? || teacher_id.nil?
-
-        CreateEmptyConceptualExamValueWorker.perform_in(
-          1.second,
-          entity_id,
-          classroom_id,
-          teacher_id
-        )
+        create_empty_conceptual_exam_value(teacher_discipline_classroom_record)
       end
     end
   end
@@ -103,5 +91,21 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
                                 )
                                 .where.not(discipline_api_code: existing_discipline_api_codes)
     end
+  end
+
+  def create_empty_conceptual_exam_value(teacher_discipline_classroom_record)
+    classroom = classroom(teacher_discipline_classroom_record.turma_id)
+    classroom_id = classroom.try(:id) unless classroom.nil? && classroom.discarded?
+
+    teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
+
+    return if classroom_id.nil? || teacher_id.nil?
+
+    CreateEmptyConceptualExamValueWorker.perform_in(
+      1.second,
+      entity_id,
+      classroom_id,
+      teacher_id
+    )
   end
 end
