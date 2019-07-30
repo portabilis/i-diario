@@ -95,11 +95,13 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
   def create_empty_conceptual_exam_value(teacher_discipline_classroom_record)
     classroom = classroom(teacher_discipline_classroom_record.turma_id)
-    classroom_id = classroom.try(:id) unless classroom.nil? && classroom.discarded?
+    classroom_id = classroom.try(:id)
 
     teacher_id = teacher(teacher_discipline_classroom_record.servidor_id).try(:id)
 
-    return if classroom_id.nil? || teacher_id.nil?
+    return if teacher_id.nil?
+    return if classroom_id.nil?
+    return if classroom.discarded?
 
     CreateEmptyConceptualExamValueWorker.perform_in(
       1.second,
