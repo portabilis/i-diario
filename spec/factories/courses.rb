@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :course do
-    sequence(:description) { |n| "Course #{n}" }
-    sequence(:api_code)    { |n| n.to_s }
+    sequence(:api_code, &:to_s)
+    description { Faker::Educator.course }
   end
 end

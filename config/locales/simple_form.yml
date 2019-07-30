@@ -10,6 +10,11 @@ pt-BR:
     error_notification:
       default_message: "Por favor, verifique os campos obrigatórios e tente novamente."
 
+    inputs:
+      select2:
+        plans:
+          by_author: 'Filtrar autor'
+
     # Labels and hints examples
     # labels:
     #   defaults:

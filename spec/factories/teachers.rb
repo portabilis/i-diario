@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :teacher do
-    sequence(:name) { |n| "Example Teacher #{n}" }
-    sequence(:api_code) { |n| n.to_s }
+    sequence(:api_code, &:to_s)
+    name { Faker::Name.unique.name_with_middle }
   end
 end

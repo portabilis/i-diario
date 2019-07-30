@@ -107,7 +107,7 @@ RSpec.describe TestSetting, type: :model do
   end
 
   describe 'default values' do
-    before { subject = TestSetting.new }
+    subject { TestSetting.new }
 
     it { expect(subject.maximum_score).to eq(10) }
     it { expect(subject.number_of_decimal_places).to eq(2) }

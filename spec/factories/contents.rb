@@ -1,5 +1,5 @@
 FactoryGirl.define do
   factory :content do
-    description 'Content'
+    description { Faker::Lorem.unique.sentence }
   end
 end

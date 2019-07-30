@@ -5,7 +5,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    author_type = (params[:filter] || []).delete(:by_author)
+    author_type = PlansAuthors::MY_PLANS if params[:filter].nil?
+    author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_lesson_plans = apply_scopes(
       KnowledgeAreaLessonPlan.includes(:knowledge_areas, lesson_plan: [:classroom])

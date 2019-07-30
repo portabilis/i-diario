@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :knowledge_area do
-    sequence(:description) { |n| "Example Knowledge Area #{n}" }
-    sequence(:api_code)    { |n| n.to_s }
+    sequence(:api_code, &:to_s)
+    description { Faker::Lorem.unique.sentence }
   end
 end

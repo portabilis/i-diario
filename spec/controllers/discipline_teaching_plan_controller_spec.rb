@@ -98,7 +98,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
     context 'without author filter' do
       before do
-        get :index, locale: 'pt-BR'
+        get :index, locale: 'pt-BR', filter: { by_author: '' }
       end
 
       it 'lists all plans' do
@@ -112,7 +112,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     context 'with author filter' do
       context 'when the author is the current teacher' do
         before do
-          get :index, locale: 'pt-BR', fitler: { by_author: PlansAuthors::MY_PLANS }
+          get :index, locale: 'pt-BR', filter: { by_author: PlansAuthors::MY_PLANS }
         end
 
         it 'lists the current teacher plans' do
@@ -122,7 +122,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
       context 'when the author is other teacher' do
         before do
-          get :index, locale: 'pt-BR', fitler: { by_author: PlansAuthors::OTHERS }
+          get :index, locale: 'pt-BR', filter: { by_author: PlansAuthors::OTHERS }
         end
 
         it 'lists the other teachers plans' do
