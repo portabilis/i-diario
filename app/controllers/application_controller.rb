@@ -172,7 +172,15 @@ class ApplicationController < ActionController::Base
   end
 
   def current_test_setting
-    TestSettingFetcher.current(current_user.try(:current_classroom))
+    TestSettingFetcher.current(current_user.try(:current_classroom)) || default_test_setting
+  end
+
+  def default_test_setting
+    TestSettingFetcher.by_step(steps_fetcher.steps.first)
+  end
+
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 
   def require_current_teacher
@@ -185,20 +193,6 @@ class ApplicationController < ActionController::Base
   def require_current_teacher_discipline_classrooms
     unless current_teacher && current_teacher.teacher_discipline_classrooms.any?
       flash[:alert] = t('errors.general.require_current_teacher_discipline_classrooms')
-      redirect_to root_path
-    end
-  end
-
-  def require_current_test_setting
-    unless current_test_setting
-      flash[:alert] = t('errors.general.require_current_test_setting')
-      redirect_to root_path
-    end
-  end
-
-  def require_valid_school_calendar(school_calendar)
-    if school_calendar.steps.count > MAX_STEPS_FOR_SCHOOL_CALENDAR
-      flash[:alert] = I18n.t('errors.general.school_calendar_steps_more_than_limit', unity: current_user_unity)
       redirect_to root_path
     end
   end
