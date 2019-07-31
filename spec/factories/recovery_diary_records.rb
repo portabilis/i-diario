@@ -1,10 +1,10 @@
 FactoryGirl.define do
   factory :recovery_diary_record do
-    recorded_at '2015-01-02'
-
-    unity
     classroom
+    unity { classroom.unity }
     discipline
+
+    recorded_at '2015-01-02'
 
     after(:build) do |recovery_diary_record|
       school_calendar = SchoolCalendar.find_by(year: 2015, unity_id: nil)
@@ -24,11 +24,11 @@ FactoryGirl.define do
     end
 
     trait :current do
-      recorded_at { Time.zone.today }
+      recorded_at { Date.current }
     end
 
     factory :current_recovery_diary_record do
-      recorded_at { Time.zone.today }
+      recorded_at { Date.current }
     end
 
     factory :recovery_diary_record_with_students do
@@ -42,7 +42,7 @@ FactoryGirl.define do
       end
 
       factory :current_recovery_diary_record_with_students do
-        recorded_at { Time.zone.today }
+        recorded_at { Date.current }
       end
     end
   end

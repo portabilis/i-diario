@@ -5,7 +5,8 @@ class DisciplineContentRecordsController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    author_type = (params[:filter] || []).delete(:by_author)
+    author_type = PlansAuthors::MY_PLANS if params[:filter].nil?
+    author_type ||= (params[:filter] || []).delete(:by_author)
 
     @discipline_content_records = apply_scopes(
       DisciplineContentRecord.includes(:discipline, content_record: [:classroom])
