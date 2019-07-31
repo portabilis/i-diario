@@ -1,7 +1,8 @@
 FactoryGirl.define do
   factory :student_enrollment do
     student
+
     status 3
-    active 1
+    active { IeducarBooleanState::ACTIVE }
   end
 end

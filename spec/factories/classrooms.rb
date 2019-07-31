@@ -1,17 +1,17 @@
 FactoryGirl.define do
   factory :classroom do
-    description 'Example Classroom'
-    year        2020
-    sequence(:api_code) { |n| n.to_s }
-    unity_code  '1234'
-    period '1'
-
     unity
     exam_rule
     grade
 
+    description { Faker::Lorem.unique.sentence }
+    year 2020
+    sequence(:api_code, &:to_s)
+    unity_code { unity.api_code }
+    period { Periods.to_a.sample[1] }
+
     trait :current do
-      year { Time.zone.today.year }
+      year { Date.current.year }
     end
 
     factory :classroom_numeric_and_concept do

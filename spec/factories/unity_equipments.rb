@@ -1,8 +1,8 @@
 FactoryGirl.define do
   factory :unity_equipment do
-    sequence(:code) { |n| "#{n}" }
-    biometric_type BiometricTypes::SAGEM
+    unity
 
-    association :unity, factory: :unity
+    sequence(:code, &:to_s)
+    biometric_type BiometricTypes::SAGEM
   end
 end
