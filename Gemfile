@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.2.6'
+ruby '2.3.7'
 
 gem 'active_model_serializers', '0.9.3'
 gem 'activerecord-connections', git: 'https://github.com/ricardohsd/activerecord-connections.git'
