@@ -125,30 +125,46 @@ $(function() {
   }
 
   hideAndResetOnEvent([
+    $unityContainer,
     $yearContainer,
     $classroomContainer,
     $teacherContainer,
     $disciplineContainer
-  ], 'profile:role');
+  ], 'pre:profile:role');
+
+  hideAndResetOnEvent([
+    $yearContainer,
+    $classroomContainer,
+    $teacherContainer,
+    $disciplineContainer
+  ], 'pre:profile:unity');
 
   hideAndResetOnEvent([
     $classroomContainer,
     $teacherContainer,
     $disciplineContainer
-  ], 'profile:unity');
+  ], 'pre:profile:year');
 
   hideAndResetOnEvent([
     $teacherContainer,
     $disciplineContainer
-  ], 'profile:year');
+  ], 'pre:profile:classroom');
 
   hideAndResetOnEvent([
     $disciplineContainer
-  ], 'profile:classroom');
+  ], 'pre:profile:teacher');
 
   $roleField.on('change', function () {
     const $this = $(this);
     const roleId = getValue($this);
+
+    triggerEventOnContainers([
+      $unityContainer,
+      $yearContainer,
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:role');
 
     if (!roleId) {
       return;
@@ -158,11 +174,7 @@ $(function() {
 
     $.when(getProfileRole(roleId)).then(function () {
       triggerEventOnContainers([
-        $unityContainer,
-        $yearContainer,
-        $classroomContainer,
-        $teacherContainer,
-        $disciplineContainer
+        $unityContainer
       ], 'profile:role');
     }, function () {
       flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
@@ -220,6 +232,13 @@ $(function() {
   $unityField.on('change', function () {
     const unityId = getValue($(this));
 
+    triggerEventOnContainers([
+      $yearContainer,
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:unity');
+
     if (!unityId) {
       return;
     }
@@ -244,10 +263,7 @@ $(function() {
         });
       } else {
         triggerEventOnContainers([
-          $yearContainer,
-          $classroomContainer,
-          $teacherContainer,
-          $disciplineContainer
+          $yearContainer
         ], 'profile:unity');
       }
     });
@@ -287,6 +303,12 @@ $(function() {
   $yearField.on('change', function () {
     const year = getValue($(this));
 
+    triggerEventOnContainers([
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:year');
+
     if (!year) {
       return;
     }
@@ -294,9 +316,7 @@ $(function() {
     profileData['year'] = year;
 
     triggerEventOnContainers([
-      $classroomContainer,
-      $teacherContainer,
-      $disciplineContainer
+      $classroomContainer
     ], 'profile:year');
   });
 
@@ -339,6 +359,11 @@ $(function() {
   $classroomField.on('change', function () {
     const classroomId = getValue($(this));
 
+    triggerEventOnContainers([
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:classroom');
+
     if (!classroomId) {
       return;
     }
@@ -346,8 +371,7 @@ $(function() {
     profileData['classroom'] = classroomId;
 
     triggerEventOnContainers([
-      $teacherContainer,
-      $disciplineContainer
+      $teacherContainer
     ], 'profile:classroom');
   });
 
@@ -394,6 +418,10 @@ $(function() {
 
   $teacherField.on('change', function () {
     const teacherId = getValue($(this));
+
+    triggerEventOnContainers([
+      $disciplineContainer
+    ], 'pre:profile:teacher');
 
     if (!teacherId) {
       return;
@@ -477,10 +505,6 @@ $(function() {
   $('#header input.select2').on('select2-open', function(){
     $('.select2-search:visible').css({ marginTop: 5 });
   });
-
-  (function () {
-    console.log($roleField);
-  })();
 });
 
 $(function () {
