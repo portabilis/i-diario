@@ -20,6 +20,7 @@
       <%= f.input :current_user_role_id,
                   as: :select2,
                   elements: user.user_roles.includes(:unity),
+                  input_html: {"data-placeholder" => t('layouts.application.select')},
                   label: false,
                   wrapper: false,
                   width: '100px' %>
@@ -27,22 +28,45 @@
 
     <div id="unity-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['administrator']) %>">
       <span class="label"><%= t('layouts.application.unit') %></span>
-      <%= f.input :current_unity_id, as: :select2, elements: current_unities, label: false, wrapper: false, class: 'administrator' %>
+      <%= f.input :current_unity_id,
+                  as: :select2,
+                  elements: current_unities,
+                  input_html: {"data-placeholder" => t('layouts.application.select')},
+                  label: false,
+                  wrapper: false,
+                  class: 'administrator' %>
     </div>
 
     <div id="school-year-field-container" class="project-context"  style="<%= 'display: none;'.html_safe unless can_change_school_year? && user_role.role.access_level.in?(%w(administrator employee teacher)) %>" >
       <span class="label"><%= t('layouts.application.school_year') %></span>
-      <%= f.input :current_school_year, as: :select2, elements: current_user_available_years.to_json, label: false, wrapper: false %>
+      <%= f.input :current_school_year,
+                  as: :select2,
+                  elements: current_user_available_years.to_json,
+                  input_html: {"data-placeholder" => t('layouts.application.select')},
+                  label: false,
+                  wrapper: false %>
     </div>
 
     <div id="classroom-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || (user_role.role.access_level.in?(%w(administrator employee)) && f.object.assumed_teacher_id.present?) %>">
       <span class="label"><%= t('layouts.application.classroom') %></span>
-      <%= f.input :current_classroom_id, as: :select2, elements: current_user_available_classrooms, class: 'teacher', data: { dropdown: '.project-context .project-selector.classroom' }, wrapper: false, label: false %>
+      <%= f.input :current_classroom_id,
+                  as: :select2,
+                  elements: current_user_available_classrooms,
+                  input_html: {"data-placeholder" => t('layouts.application.select')},
+                  class: 'teacher',
+                  data: { dropdown: '.project-context .project-selector.classroom' },
+                  wrapper: false,
+                  label: false %>
     </div>
 
     <div id="assumed-teacher-field-container" class="project-context" style="<%= ' display: none;'.html_safe unless user_role.role.access_level.in?(%w(administrator employee)) && f.object.current_unity.try(:school_unit?) %>">
       <span class="label"><%= t('layouts.application.teacher') %></span>
-      <%= f.input :assumed_teacher_id, as: :select2, elements: current_user_available_teachers, label: false, wrapper: false %>
+      <%= f.input :assumed_teacher_id,
+                  as: :select2,
+                  elements: current_user_available_teachers,
+                  input_html: {"data-placeholder" => t('layouts.application.select')},
+                  label: false,
+                  wrapper: false %>
     </div>
 
     <div id="discipline-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || (user_role.role.access_level.in?(%w(administrator employee)) && f.object.assumed_teacher_id.present?) %>">
@@ -52,6 +76,7 @@
                   wrapper: false,
                   label: false,
                   elements: current_user_available_disciplines,
+                  input_html: {"data-placeholder" => t('layouts.application.select')},
                   class: 'teacher',
                   data: { dropdown: '.project-context .project-selector.discipline' } %>
     </div>

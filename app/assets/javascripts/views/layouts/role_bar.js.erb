@@ -98,6 +98,7 @@ $(function() {
     options = _.isEmpty(options) ? [] : insertEmptyOption(options);
 
     field.select2({
+      placeholder: "<%= I18n.t('layouts.application.select') %>",
       formatResult: function(el) {
         return "<div class='select2-user-result'>" + el.text + "</div>";
       },
@@ -476,6 +477,10 @@ $(function() {
   $('#header input.select2').on('select2-open', function(){
     $('.select2-search:visible').css({ marginTop: 5 });
   });
+
+  (function () {
+    console.log($roleField);
+  })();
 });
 
 $(function () {
