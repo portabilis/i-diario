@@ -33,7 +33,7 @@ class DailyFrequency < ActiveRecord::Base
   validate :ensure_belongs_to_step
 
   scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
-        lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at=Time.zone.now|
+        lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at = Time.zone.now|
           where(unity_id: unity_id,
                 classroom_id: classroom_id,
                 discipline_id: discipline_id,
