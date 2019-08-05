@@ -6,6 +6,8 @@ module Api
     end
 
     def any_activity?
+      return true if DailyNote.by_classroom_id(@classroom_id).by_teacher_id(@teacher_id).exists?
+
       return true if DailyFrequency.by_classroom_id(@classroom_id).by_teacher_id(@teacher_id).exists?
 
       return true if ConceptualExam.by_classroom_id(@classroom_id).by_teacher(@teacher_id).exists?
