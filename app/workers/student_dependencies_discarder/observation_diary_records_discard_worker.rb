@@ -19,7 +19,7 @@ class ObservationDiaryRecordsDiscardWorker < BaseStudentDependenciesDiscarderWor
         classroom_id_column,
         date_column
       ),
-      student_enrollment_id: student_enrollment_id
+      student_id: student_id
     )
 
     observation_diary_record_notes = []
