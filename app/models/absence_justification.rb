@@ -13,7 +13,7 @@ class AbsenceJustification < ActiveRecord::Base
   before_destroy :valid_for_destruction?
   before_destroy :remove_attachments, if: :valid_for_destruction?
 
-  belongs_to :student
+  has_and_belongs_to_many :students
   belongs_to :unity
   belongs_to :classroom
   belongs_to :discipline
@@ -26,7 +26,6 @@ class AbsenceJustification < ActiveRecord::Base
 
   validates_date :absence_date, :absence_date_end
   validates :teacher,          presence: true
-  validates :student_id,       presence: true
   validates :unity,            presence: true
   validates :classroom_id,     presence: true
   validates :school_calendar,  presence: true
@@ -36,6 +35,7 @@ class AbsenceJustification < ActiveRecord::Base
                                if: :frequence_type_by_discipline?
   validates :justification,    presence: true
 
+  validate :at_least_one_student
   validate :period_absence
   validate :no_retroactive_dates
 
@@ -51,7 +51,9 @@ class AbsenceJustification < ActiveRecord::Base
     )
   }
   scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
-  scope :by_student_id, ->(student_id) { where(student_id: student_id) }
+  scope :by_student_id, lambda { |student_id|
+    joins(:students).where(absence_justifications_students: { student_id: student_id })
+  }
   scope :by_date_range, lambda { |absence_date, absence_date_end|
     where('(NOT (absence_date > ? OR absence_date_end < ?))', absence_date_end, absence_date)
   }
@@ -88,18 +90,22 @@ class AbsenceJustification < ActiveRecord::Base
   end
 
   def period_absence
-    absence_justifications = AbsenceJustification.by_classroom(classroom)
-                                                 .by_student_id(student_id)
-                                                 .by_discipline_id(discipline_id)
-                                                 .by_date_range(absence_date, absence_date_end)
+    student_ids.each do |student_id|
+      absence_justifications = AbsenceJustification.by_classroom(classroom)
+                                                   .by_student_id(student_id)
+                                                   .by_discipline_id(discipline_id)
+                                                   .by_date_range(absence_date, absence_date_end)
 
-    absence_justifications = absence_justifications.where.not(id: id) if persisted?
+      absence_justifications = absence_justifications.where.not(id: id) if persisted?
 
-    if absence_justifications.any?
+      next if absence_justifications.blank?
+
       errors.add(:base, :discipline_period_absence) if frequence_type_by_discipline?
       errors.add(:base, :general_period_absence, teacher: absence_justifications.first.teacher.name) unless frequence_type_by_discipline?
       errors.add(:absence_date, :taken)
       errors.add(:absence_date_end, :taken)
+
+      break
     end
   end
 
@@ -122,5 +128,8 @@ class AbsenceJustification < ActiveRecord::Base
     absence_justification_attachments.each(&:destroy)
   end
 
+  def at_least_one_student
+    errors.add(:base, :at_least_one_student) if student_ids.blank?
+  end
   private_class_method :by_date_query
 end
