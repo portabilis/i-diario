@@ -80,8 +80,8 @@ class ComplementaryExamSetting < ActiveRecord::Base
   end
 
   def integral_calculation_score
-    return true if calculation_type != CalculationTypes::INTEGRAL
-    return true if affected_score == AffectedScoreTypes::STEP_AVERAGE
+    return unless self.integral?
+    return if self.step_average?
 
     errors.add(:base, :integral_calculation_score)
   end
