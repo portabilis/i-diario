@@ -139,7 +139,7 @@ class User < ActiveRecord::Base
   end
 
   def active_for_authentication?
-    super && actived? && !expired?
+    super && active? && !expired?
   end
 
   def logged_as
