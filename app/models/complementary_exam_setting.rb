@@ -80,8 +80,8 @@ class ComplementaryExamSetting < ActiveRecord::Base
   end
 
   def integral_calculation_score
-    return unless self.integral?
-    return if self.step_average?
+    return unless integral?
+    return if step_average?
 
     errors.add(:base, :integral_calculation_score)
   end
