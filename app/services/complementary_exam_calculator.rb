@@ -13,6 +13,8 @@ class ComplementaryExamCalculator
   end
 
   def calculate_integral(score)
+    integral_score = students_by_calculation(CalculationTypes::INTEGRAL)
+
     return score if integral_score.blank?
 
     ((score + integral_score.sum(:score).to_f) / 2)
@@ -52,10 +54,6 @@ class ComplementaryExamCalculator
 
   def sum_substitution_score
     @sum_substitution_score ||= students_by_calculation(CalculationTypes::SUM).sum(:score).to_f
-  end
-
-  def integral_score
-    @integral_complementary_exams ||= students_by_calculation(CalculationTypes::INTEGRAL)
   end
 
   def students_by_calculation(calculation)
