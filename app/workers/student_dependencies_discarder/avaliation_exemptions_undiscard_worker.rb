@@ -17,7 +17,7 @@ class AvaliationExemptionsUndiscardWorker < BaseStudentDependenciesDiscarderWork
         classroom_id_column,
         date_column
       ),
-      student_enrollment_id: student_enrollment_id
+      student_id: student_id
     )
   end
 end

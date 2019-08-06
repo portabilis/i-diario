@@ -28,7 +28,7 @@ class ConceptualExamsDiscardWorker < BaseStudentDependenciesDiscarderWorker
         start_at_column,
         end_at_column
       ),
-      student_enrollment_id: student_enrollment_id
+      student_id: student_id
     )
   end
 end

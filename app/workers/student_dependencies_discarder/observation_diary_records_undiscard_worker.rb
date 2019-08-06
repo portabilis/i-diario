@@ -19,7 +19,7 @@ class ObservationDiaryRecordsUndiscardWorker < BaseStudentDependenciesDiscarderW
         classroom_id_column,
         date_column
       ),
-      student_enrollment_id: student_enrollment_id
+      student_id: student_id
     )
 
     observation_diary_record_notes = note_students_to_undiscard.map(&:observation_diary_record_note)
