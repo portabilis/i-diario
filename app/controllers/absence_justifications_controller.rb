@@ -61,6 +61,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification = AbsenceJustification.find(params[:id]).localized
     @absence_justification.unity = current_user_unity
     fetch_collections
+    fetch_students
 
     authorize @absence_justification
   end
@@ -137,7 +138,8 @@ class AbsenceJustificationsController < ApplicationController
     student_enrollments = StudentEnrollmentsList.new(
       classroom: current_user_classroom,
       discipline: fetch_current_discipline,
-      search_type: :by_year
+      search_type: :by_date,
+      date: Date.current
     ).student_enrollments
 
     student_ids = student_enrollments.collect(&:student_id)

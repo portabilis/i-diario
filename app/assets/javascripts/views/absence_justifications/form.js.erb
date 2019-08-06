@@ -6,7 +6,7 @@ $(function() {
       $discipline = $("#absence_justification_discipline_id"),
       $absenceDate = $("#absence_justification_absence_date"),
       $absenceDateEnd = $("#absence_justification_absence_date_end"),
-      $student = $("#absence_justification_student_id");
+      $student = $("#absence_justification_student_ids");
 
   var teacherId = $('#teacher_id').val();
 
@@ -81,7 +81,7 @@ $(function() {
       return { id: studentEnrollment['student']['id'], text: studentEnrollment['student']['name'] };
     });
 
-    $student.select2({ data: students });
+    $student.select2({ data: students, multiple: true });
   };
 
   function fetchStudentsError() {
@@ -118,10 +118,6 @@ $(function() {
   function fetchDisciplinesError() {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas!')
   };
-
-  if ($classroom.val() != '' && $classroom.val() != 'empty') {
-    fetchStudents();
-  }
 
   // togglers
   if ($classroom.val() != '' && $classroom.val() != 'empty') {

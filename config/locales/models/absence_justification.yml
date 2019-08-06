@@ -12,7 +12,7 @@ pt-BR:
         justification: "Justificativa"
         absence_date: "Data inicial"
         absence_date_end: "Data final"
-        student_id: "Aluno"
+        students: "Alunos"
         student: "Aluno"
         unity: "Escola"
         unity_id: "Escola"
