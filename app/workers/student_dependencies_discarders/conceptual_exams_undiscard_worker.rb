@@ -1,8 +1,10 @@
 class ConceptualExamsUndiscardWorker < BaseStudentDependenciesDiscarderWorker
-  def perform(entity_id, student_enrollment_id)
+  def perform(entity_id, student_id)
     super do
-      undiscardable_conceptual_exams(student_enrollment_id).each do |conceptual_exam|
-        conceptual_exam.discarded_at = null
+      undiscardable_conceptual_exams(student_id).each do |conceptual_exam|
+        next if conceptual_exam_exists?(conceptual_exam, student_id)
+
+        conceptual_exam.discarded_at = nil
         conceptual_exam.save!(validate: false)
       end
     end
@@ -10,8 +12,7 @@ class ConceptualExamsUndiscardWorker < BaseStudentDependenciesDiscarderWorker
 
   private
 
-  def undiscardable_conceptual_exams(student_enrollment_id)
-    student_id = find_student(student_enrollment_id)
+  def undiscardable_conceptual_exams(student_id)
     classroom_id_column = 'conceptual_exams.classroom_id'
     step_number_column = 'conceptual_exams.step_number'
     start_at_column = 'step.start_at'
@@ -30,5 +31,11 @@ class ConceptualExamsUndiscardWorker < BaseStudentDependenciesDiscarderWorker
       ),
       student_id: student_id
     )
+  end
+
+  def conceptual_exam_exists?(conceptual_exam, student_id)
+    ConceptualExam.by_classroom_id(conceptual_exam.classroom_id)
+                  .by_student_id(student_id)
+                  .by_step_number(conceptual_exam.step_number).exists?
   end
 end

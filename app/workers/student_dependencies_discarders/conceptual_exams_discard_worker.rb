@@ -1,7 +1,7 @@
 class ConceptualExamsDiscardWorker < BaseStudentDependenciesDiscarderWorker
-  def perform(entity_id, student_enrollment_id)
+  def perform(entity_id, student_id)
     super do
-      discardable_conceptual_exams(student_enrollment_id).each do |conceptual_exam|
+      discardable_conceptual_exams(student_id).each do |conceptual_exam|
         conceptual_exam.discarded_at = Time.current
         conceptual_exam.save!(validate: false)
       end
@@ -10,8 +10,7 @@ class ConceptualExamsDiscardWorker < BaseStudentDependenciesDiscarderWorker
 
   private
 
-  def discardable_conceptual_exams(student_enrollment_id)
-    student_id = find_student(student_enrollment_id)
+  def discardable_conceptual_exams(student_id)
     classroom_id_column = 'conceptual_exams.classroom_id'
     step_number_column = 'conceptual_exams.step_number'
     start_at_column = 'step.start_at'
