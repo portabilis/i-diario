@@ -91,7 +91,7 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
       end
 
       it 'returns score + integral exams scores divided by 2' do
-        integral_score = subject.send(:integral_complementary_exam_score).sum(:score).to_f
+        integral_score = subject.send(:integral_score).sum(:score).to_f
         expect(subject.calculate_integral(initial_score)).to eq((initial_score + integral_score) / 2)
       end
     end

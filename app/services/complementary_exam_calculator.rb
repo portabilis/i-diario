@@ -8,14 +8,14 @@ class ComplementaryExamCalculator
   end
 
   def calculate(score)
-    score = make_complementary_exams_calculations(score)
+    score = make_calculations(score)
     maximum_score && maximum_score < score ? maximum_score : score
   end
 
   def calculate_integral(score)
-    return score if integral_complementary_exam_score.blank?
+    return score if integral_score.blank?
 
-    ((score + integral_complementary_exam_score.sum(:score).to_f) / 2)
+    ((score + integral_score.sum(:score).to_f) / 2)
   end
 
   private
@@ -28,12 +28,12 @@ class ComplementaryExamCalculator
     @test_setting ||= TestSettingFetcher.fetch(@step)
   end
 
-  def make_complementary_exams_calculations(score)
-    return substitution_complementary_exam_score if substitution_complementary_exam_score.present?
-    score += sum_substitution_complementary_exam_score
+  def make_calculations(score)
+    return substitution_score if substitution_score.present?
+    score += sum_substitution_score
 
-    if substitution_if_greather_complementary_exam_score.present? && substitution_if_greather_complementary_exam_score > score
-      substitution_if_greather_complementary_exam_score
+    if substitution_if_greather_score.present? && substitution_if_greather_score > score
+      substitution_if_greather_score
     else
       score
     end
@@ -41,31 +41,31 @@ class ComplementaryExamCalculator
 
   attr_accessor :affected_score, :student_id, :discipline_id, :classroom_id, :step
 
-  def substitution_complementary_exam_score
-    @substitution_complementary_exam_score ||= begin
-      complementary_exam_students_by_calculation(CalculationTypes::SUBSTITUTION).first.try(:score)
+  def substitution_score
+    @substitution_score ||= begin
+      students_by_calculation(CalculationTypes::SUBSTITUTION).first.try(:score)
     end
   end
 
-  def substitution_if_greather_complementary_exam_score
-    @substitution_if_greather_complementary_exam_score ||= begin
-      complementary_exam_students_by_calculation(CalculationTypes::SUBSTITUTION_IF_GREATER).first.try(:score)
+  def substitution_if_greather_score
+    @substitution_if_greather_score ||= begin
+      students_by_calculation(CalculationTypes::SUBSTITUTION_IF_GREATER).first.try(:score)
     end
   end
 
-  def sum_substitution_complementary_exam_score
-    @sum_substitution_complementary_exam_score ||= begin
-      complementary_exam_students_by_calculation(CalculationTypes::SUM).sum(:score).to_f
+  def sum_substitution_score
+    @sum_substitution_score ||= begin
+      students_by_calculation(CalculationTypes::SUM).sum(:score).to_f
     end
   end
 
-  def integral_complementary_exam_score
-    @integral_complementary_exam_score ||= begin
-      complementary_exam_students_by_calculation(CalculationTypes::INTEGRAL)
+  def integral_score
+    @integral_complementary_exams ||= begin
+      students_by_calculation(CalculationTypes::INTEGRAL)
     end
   end
 
-  def complementary_exam_students_by_calculation(calculation)
+  def students_by_calculation(calculation)
     ComplementaryExamStudent.by_complementary_exam_id(
       ComplementaryExam.by_classroom_id(classroom_id)
                        .by_discipline_id(discipline_id)
