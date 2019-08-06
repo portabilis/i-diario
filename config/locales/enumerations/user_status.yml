@@ -2,4 +2,4 @@ pt-BR:
   enumerations:
     user_status:
       pending: "Pendente"
-      actived: "Ativado"
+      active: "Ativo"

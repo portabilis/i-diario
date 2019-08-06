@@ -5,7 +5,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    author_type = (params[:filter] || []).delete(:by_author)
+    author_type = PlansAuthors::MY_PLANS if params[:filter].nil?
+    author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_content_records = apply_scopes(
       KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
