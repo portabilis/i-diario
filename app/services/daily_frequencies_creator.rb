@@ -89,7 +89,11 @@ class DailyFrequenciesCreator
   end
 
   def step_number
-    @step_number ||= first_daily_frequency.school_calendar.step(first_daily_frequency.frequency_date).try(:to_number) || 0
+    @step_number ||= steps_fetcher.step_by_date(first_daily_frequency.frequency_date).try(:to_number) || 0
+  end
+
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(first_daily_frequency.classroom)
   end
 
   def student_period

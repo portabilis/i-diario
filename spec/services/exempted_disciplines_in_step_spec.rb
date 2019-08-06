@@ -4,7 +4,7 @@ RSpec.describe ExemptedDisciplinesInStep, type: :service do
   FIRST_STEP_NUMBER = 1
   SECOND_STEP_NUMBER = 2
 
-  let!(:classroom) { create(:classroom, :current) }
+  let!(:classroom) { create(:classroom) }
   let!(:discipline) { create(:discipline) }
   let!(:specific_step) do
     create(
