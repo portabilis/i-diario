@@ -5,7 +5,8 @@ class DisciplineTeachingPlansController < ApplicationController
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
 
   def index
-    author_type = (params[:filter] || []).delete(:by_author)
+    author_type = PlansAuthors::MY_PLANS if params[:filter].nil?
+    author_type ||= (params[:filter] || []).delete(:by_author)
 
     @discipline_teaching_plans = apply_scopes(
       DisciplineTeachingPlan.includes(:discipline, teaching_plan: [:unity, :grade])
