@@ -3,17 +3,13 @@ class BaseStudentDependenciesDiscarderWorker
 
   sidekiq_options unique: :until_and_while_executing, queue: :low
 
-  def perform(entity_id, student_enrollment_id)
+  def perform(entity_id, student_id)
     Entity.find(entity_id).using_connection do
       yield
     end
   end
 
   protected
-
-  def find_student(student_enrollment_id)
-    StudentEnrollment.with_discarded.find(student_enrollment_id).student_id
-  end
 
   def joins_step_by_step_number_and_classroom(classroom_id_column, step_number_column)
     <<-SQL

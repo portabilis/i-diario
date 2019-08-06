@@ -11,8 +11,8 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
 
   attr_accessor :entity_id
 
-  after_discard { StudentDependenciesDiscarder.discard(entity_id, student_enrollment_id) }
-  after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, student_enrollment_id) }
+  after_discard { StudentDependenciesDiscarder.discard(entity_id, student_id) }
+  after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, student_id) }
 
   default_scope -> { kept }
 
@@ -30,6 +30,8 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     joins(:student_enrollment).where(student_enrollments: { active: IeducarBooleanState::ACTIVE })
   }
   scope :ordered, -> { order(:joined_at, :index) }
+
+  delegate :student_id, to: :student_enrollment
 
   def self.by_date_range(start_at, end_at)
     where("(CASE

@@ -12,8 +12,8 @@ class StudentEnrollment < ActiveRecord::Base
 
   attr_accessor :entity_id
 
-  after_discard { StudentDependenciesDiscarder.discard(entity_id, id) }
-  after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, id) }
+  after_discard { StudentDependenciesDiscarder.discard(entity_id, student_id) }
+  after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, student_id) }
 
   default_scope -> { kept }
 
