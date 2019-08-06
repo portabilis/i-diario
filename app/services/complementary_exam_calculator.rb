@@ -42,27 +42,20 @@ class ComplementaryExamCalculator
   attr_accessor :affected_score, :student_id, :discipline_id, :classroom_id, :step
 
   def substitution_score
-    @substitution_score ||= begin
-      students_by_calculation(CalculationTypes::SUBSTITUTION).first.try(:score)
-    end
+    @substitution_score ||= students_by_calculation(CalculationTypes::SUBSTITUTION).first.try(:score)
   end
 
   def substitution_if_greather_score
-    @substitution_if_greather_score ||= begin
-      students_by_calculation(CalculationTypes::SUBSTITUTION_IF_GREATER).first.try(:score)
-    end
+    @substitution_if_greather_score ||= students_by_calculation(CalculationTypes::SUBSTITUTION_IF_GREATER)
+                                          .first.try(:score)
   end
 
   def sum_substitution_score
-    @sum_substitution_score ||= begin
-      students_by_calculation(CalculationTypes::SUM).sum(:score).to_f
-    end
+    @sum_substitution_score ||= students_by_calculation(CalculationTypes::SUM).sum(:score).to_f
   end
 
   def integral_score
-    @integral_complementary_exams ||= begin
-      students_by_calculation(CalculationTypes::INTEGRAL)
-    end
+    @integral_complementary_exams ||= students_by_calculation(CalculationTypes::INTEGRAL)
   end
 
   def students_by_calculation(calculation)
