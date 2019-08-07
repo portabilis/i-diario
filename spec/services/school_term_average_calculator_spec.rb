@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe SchoolTermAverageCalculator, type: :service do
-  let(:classroom) { create(:classroom, :current) }
+  let(:classroom) { create(:classroom) }
 
   subject do
     described_class.new(

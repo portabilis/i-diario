@@ -9,9 +9,9 @@ class UserUpdater
   end
 
   def update!
-    if user.actived? && !user.activation_sent?
+    if user.active? && !user.activation_sent?
       user.transaction do
-        UserMailer.notify_actived(user, entity).deliver_now
+        UserMailer.notify_activation(user, entity).deliver_now
         user.activation_sent!
       end
     end
