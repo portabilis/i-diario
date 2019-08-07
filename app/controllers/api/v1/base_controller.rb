@@ -37,8 +37,6 @@ module Api
         validation_method2 = Rails.application.secrets[:AUTH_VALIDATION_METHOD2] || '=='
         token2 = Rails.application.secrets[:AUTH_TOKEN2]
 
-        binding.pry
-
         if request.headers[header_name1].send(validation_method1, token1) ||
             token2.present? && request.headers[header_name2].send(validation_method2, token2)
           return
