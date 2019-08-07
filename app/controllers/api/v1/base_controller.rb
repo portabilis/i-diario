@@ -5,6 +5,7 @@ module Api
       skip_before_action :configure_permitted_parameters
       skip_before_action :check_for_notifications
       before_action :api_authenticate_with_header!
+      rescue_from ActiveRecord::RecordNotFound, with: :render_not_found_response
 
       private
 
@@ -22,6 +23,11 @@ module Api
                status: :unauthorized
       end
 
+      def render_not_found_response
+        render json: { message: 'Elemento não encontrado' },
+               status: :not_found
+      end
+
       def api_authenticate_with_header!
         header_name1 = Rails.application.secrets[:AUTH_HEADER_NAME1] || 'TOKEN'
         validation_method1 = Rails.application.secrets[:AUTH_VALIDATION_METHOD1] || '=='
@@ -31,16 +37,22 @@ module Api
         validation_method2 = Rails.application.secrets[:AUTH_VALIDATION_METHOD2] || '=='
         token2 = Rails.application.secrets[:AUTH_TOKEN2]
 
+        binding.pry
+
         if request.headers[header_name1].send(validation_method1, token1) ||
             token2.present? && request.headers[header_name2].send(validation_method2, token2)
           return
         end
 
-        render_invalid_token
+        authenticate_api!
       end
 
       def authenticate_api!
-        render_invalid_token unless ieducar_api.authenticate!(params[:token])
+        api_security_token = IeducarApiConfiguration.current.api_security_token
+
+        return if Devise.secure_compare(api_security_token, request.headers['token'])
+
+        render_invalid_token
       end
 
       def ieducar_api
