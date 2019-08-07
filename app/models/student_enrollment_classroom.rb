@@ -31,7 +31,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   }
   scope :ordered, -> { order(:joined_at, :index) }
 
-  delegate :student_id, to: :student_enrollment
+  delegate :student_id, to: :student_enrollment, allow_nil: true
 
   def self.by_date_range(start_at, end_at)
     where("(CASE
