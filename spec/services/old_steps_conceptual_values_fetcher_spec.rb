@@ -1,19 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
-  let(:classroom) { create(:classroom, :current) }
-  let(:school_calendar) {
+  let(:classroom) {
     create(
-      :school_calendar,
-      :school_calendar_with_trimester_steps,
-      :current,
-      unity: classroom.unity
+      :classroom,
+      :with_classroom_trimester_steps
     )
   }
+  let(:steps) { classroom.calendar.classroom_steps }
   let(:student) { create(:student) }
 
   before do
-    school_calendar.steps.each do |step|
+    steps.each do |step|
       exam = build(
         :conceptual_exam_with_one_value,
         classroom: classroom,
@@ -29,7 +27,7 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
 
   context 'has 2 steps with conceptual exams posted before current steps' do
     subject do
-      described_class.new(classroom, student, school_calendar.steps[2])
+      described_class.new(classroom, student, steps[2])
     end
 
     it 'return the two steps' do
@@ -41,7 +39,7 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
 
   context 'has 2 steps with conceptual exams posted after and equal current step' do
     subject do
-      described_class.new(classroom, student, school_calendar.steps[0])
+      described_class.new(classroom, student, steps[0])
     end
 
     it 'dont return any step' do

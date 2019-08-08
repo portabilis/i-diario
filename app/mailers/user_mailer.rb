@@ -1,7 +1,7 @@
 class UserMailer < ActionMailer::Base
   default from: "Notificação Educar+ <no@reply.com.br>"
 
-  def notify_actived(user, entity)
+  def notify_activation(user, entity)
     @user = user
     @entity = entity
 

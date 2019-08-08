@@ -2,10 +2,11 @@ FactoryGirl.define do
   factory :descriptive_exam do
     classroom
     discipline
+
     opinion_type OpinionTypes::BY_YEAR_AND_DISCIPLINE
 
     trait :current do
-      association :classroom, factory: [:classroom, :current]
+      classroom
     end
 
     after(:build) do |descriptive_exam|
