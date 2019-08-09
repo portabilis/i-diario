@@ -1,5 +1,5 @@
 module V1
-  class CommandController < Api::V2::AuthenticatedApiBaseController
+  class CommandController < Api::V1::BaseController
 
     def request_command
       render json: {
