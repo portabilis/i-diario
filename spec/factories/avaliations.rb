@@ -12,7 +12,7 @@ FactoryGirl.define do
     factory :current_avaliation do
       test_date { Date.current }
       association :school_calendar, factory: :current_school_calendar_with_one_step
-      association :classroom, factory: :classroom_numeric_and_concept
+      association :classroom, factory: [:classroom, :score_type_numeric_and_concept]
     end
 
     after(:build) do |avaliation|

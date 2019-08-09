@@ -30,7 +30,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   context 'when has differentiated_exam_rules' do
     let(:differentiated_exam_rule) { create(:exam_rule, score_type: ScoreTypes::CONCEPT) }
     let(:exam_rule) { create(:exam_rule, differentiated_exam_rule: differentiated_exam_rule) }
-    let!(:classroom) { create(:classroom_numeric, unity: school_calendar.unity, exam_rule: exam_rule) }
+    let!(:classroom) { create(:classroom, :score_type_numeric, unity: school_calendar.unity, exam_rule: exam_rule) }
 
     context 'when student uses_differentiated_exam_rule' do
       let!(:conceptual_exam) do
@@ -78,7 +78,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when classroom score type is numeric and concept' do
-    let!(:classroom) { create(:classroom_numeric_and_concept, unity: school_calendar.unity) }
+    let!(:classroom) { create(:classroom, :score_type_numeric_and_concept, unity: school_calendar.unity) }
 
     context 'when discipline score type is numeric after being concept' do
       let!(:teacher_discipline_classroom) do
@@ -207,7 +207,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when classroom score type is numeric after being concept' do
-    let!(:classroom) { create(:classroom_concept, unity: school_calendar.unity) }
+    let!(:classroom) { create(:classroom, :score_type_concept, unity: school_calendar.unity) }
 
     it 'does not enqueue the requests' do
       classroom.exam_rule.update_column(:score_type, ScoreTypes::NUMERIC)
@@ -245,7 +245,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when classroom score type is concept' do
-    let!(:classroom) { create(:classroom_concept, unity: school_calendar.unity) }
+    let!(:classroom) { create(:classroom, :score_type_concept, unity: school_calendar.unity) }
 
     it 'enqueues the requests' do
       subject.post!
@@ -281,7 +281,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when discipline is exempted' do
-    let!(:classroom) { create(:classroom_concept, unity: school_calendar.unity) }
+    let!(:classroom) { create(:classroom, :score_type_concept, unity: school_calendar.unity) }
     let!(:specific_step) do
       create(
         :specific_step,
