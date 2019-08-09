@@ -20,7 +20,8 @@ class SchoolTermAverageCalculator
   end
 
   def calculate_average(average, recovery_score)
-    (recovery_score.to_f + average.to_f) / 2
+    new_average = (recovery_score.to_f + average.to_f) / 2
+    new_average > average ? new_average : average
   end
 
   def calculate_average?
