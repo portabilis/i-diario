@@ -15,10 +15,12 @@ RSpec.describe SchoolTermAverageCalculator, type: :service do
     end
 
     context 'recovery_score is a number' do
-      it 'returns average of parameters' do
+      it 'returns average of parameters if greater than first' do
         expect(subject.calculate(4, 6)).to eq(5)
         expect(subject.calculate(6, 6)).to eq(6)
         expect(subject.calculate(1, 2)).to eq(1.5)
+        expect(subject.calculate(2, 1)).to eq(2)
+        expect(subject.calculate(6, 0)).to eq(6)        
       end
     end
 
