@@ -107,7 +107,7 @@ class User < ActiveRecord::Base
   def expired?
     return false if expiration_date.blank?
 
-    Date.today >= expiration_date
+    Date.current >= expiration_date
   end
 
   def can_show?(feature)

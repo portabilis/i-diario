@@ -9,7 +9,7 @@ class PostingDateChecker
     return true unless User.current
     return true if User.current.can_change?(Features::IEDUCAR_API_EXAM_POSTING_WITHOUT_RESTRICTIONS)
     return false unless step
-    return (step.start_date_for_posting..step.end_date_for_posting) === Date.today
+    return (step.start_date_for_posting..step.end_date_for_posting) === Date.current
   end
 
   private
