@@ -1,6 +1,7 @@
 $(function() {
   'use strict';
 
+  const breakpoint = 1250;
   const flashMessages = new FlashMessages();
 
   const $form = $('#user-role-form');
@@ -23,6 +24,13 @@ $(function() {
   const $teacherContainer = $form.find('#assumed-teacher-field-container');
   const $disciplineContainer = $form.find('#discipline-field-container');
 
+  // other elements
+  const $body = $('html, body');
+  const $loginInfo = $('#user-info-selector');
+  const $roleBar = $('#current-role-selector');
+  const $closeBar = $('.role-cancel');
+  const $errorsContainer = $form.find('.errors-container');
+
   let profileRole = {};
 
   let profileData = {
@@ -33,6 +41,20 @@ $(function() {
     teacher: getValue($teacherField),
     discipline: getValue($disciplineField)
   };
+
+  function isModal() {
+    const size = $(window).width();
+
+    return size < breakpoint;
+  }
+
+  function setError(msg) {
+    if (isModal()) {
+      $errorsContainer.show().text(msg);
+    } else {
+      flashMessages.error(msg);
+    }
+  }
 
   function getProfileRole(roleId) {
     const defer = $.Deferred();
@@ -177,7 +199,7 @@ $(function() {
         $unityContainer
       ], 'profile:role');
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
     });
   });
 
@@ -225,7 +247,7 @@ $(function() {
         setValue($field, profileRole.unity_id);
       }
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_schools_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_schools_error') %>");
     });
   });
 
@@ -296,7 +318,7 @@ $(function() {
         setValue($field, years[1].id);
       }
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_years_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_years_error') %>");
     });
   });
 
@@ -352,7 +374,7 @@ $(function() {
 
       $this.show();
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>");
     });
   });
 
@@ -412,7 +434,7 @@ $(function() {
         $this.show();
       }
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>");
     });
   });
 
@@ -460,7 +482,7 @@ $(function() {
 
       $this.show();
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>");
     });
   });
 
@@ -490,30 +512,19 @@ $(function() {
     const invalidFields = request.responseJSON || {};
 
     if (invalidFields.current_user_role_id !== undefined) {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.needs_profile') %>");
+      setError("<%= I18n.t('layouts.error_messages.needs_profile') %>");
     } else if (invalidFields.current_unity_id !== undefined) {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.needs_unity') %>");
+      setError("<%= I18n.t('layouts.error_messages.needs_unity') %>");
     } else if (invalidFields.current_classroom_id !== undefined) {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
+      setError("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
     } else if (invalidFields.current_discipline_id !== undefined) {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
+      setError("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
     } else {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.unknown_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.unknown_error') %>");
     }
   });
 
-  $('#header input.select2').on('select2-open', function(){
-    $('.select2-search:visible').css({ marginTop: 5 });
-  });
-});
-
-$(function () {
-  'use strict';
-
-  const $body = $('html, body');
-  const $loginInfo = $('#user-info-selector');
-  const $roleBar = $('#current-role-selector');
-  const $closeBar = $('.role-cancel');
+  //...
 
   $loginInfo.click(function (e) {
     if ($roleBar.is(':hidden')) {
@@ -533,14 +544,15 @@ $(function () {
     e.preventDefault();
   });
 
-  $(window).resize(function () {
-    const size = $(window).width();
-    const limit = 1250;
+  $('#header input.select2').on('select2-open', function() {
+    $('.select2-search:visible').css({ marginTop: 5 });
+  });
 
-    if (size >= limit) {
-      $roleBar.show();
-    } else {
+  $(window).resize(function () {
+    if (isModal()) {
       $roleBar.hide();
+    } else {
+      $roleBar.show();
     }
   });
 });

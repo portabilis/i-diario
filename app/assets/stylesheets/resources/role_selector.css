@@ -59,6 +59,10 @@
   display: none;
 }
 
+.errors-container {
+  display: none;
+}
+
 @media (max-width: 1250px) {
   #user-info-selector {
     color: #bfbfbf;
@@ -136,5 +140,14 @@
 
   .user-info {
     display: none;
+  }
+
+  .errors-container {
+    background: white;
+    border-radius: 4px;
+    color: #953b39;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding: 10px;
   }
 }

@@ -11,6 +11,8 @@
     <%= f.hidden_field :id, value: f.object.id %>
     <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
 
+    <div class="errors-container"></div>
+
     <div class="user-info">
       <%= gravatar_image_tag current_user.email, 48, alt: current_user.navigation_display %>
     </div>
