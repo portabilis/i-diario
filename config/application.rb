@@ -18,7 +18,7 @@ module Educacao
       #{config.root}/app/workers
       #{config.root}/app/workers/ieducar
       #{config.root}/app/workers/concerns
-      #{config.root}/app/workers/student_dependencies_discarder
+      #{config.root}/app/workers/student_dependencies_discarders
       #{config.root}/app/services
       #{config.root}/app/services/ieducar_synchronizers
       #{config.root}/app/queries

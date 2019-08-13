@@ -1,14 +1,13 @@
 class AvaliationExemptionsUndiscardWorker < BaseStudentDependenciesDiscarderWorker
-  def perform(entity_id, student_enrollment_id)
+  def perform(entity_id, student_id)
     super do
-      undiscardable_avaliation_exemptions(student_enrollment_id).undiscard_all
+      undiscardable_avaliation_exemptions(student_id).undiscard_all
     end
   end
 
   private
 
-  def undiscardable_avaliation_exemptions(student_enrollment_id)
-    student_id = find_student(student_enrollment_id)
+  def undiscardable_avaliation_exemptions(student_id)
     classroom_id_column = 'avaliations.classroom_id'
     date_column = 'avaliations.test_date'
 
@@ -17,7 +16,7 @@ class AvaliationExemptionsUndiscardWorker < BaseStudentDependenciesDiscarderWork
         classroom_id_column,
         date_column
       ),
-      student_enrollment_id: student_enrollment_id
+      student_id: student_id
     )
   end
 end

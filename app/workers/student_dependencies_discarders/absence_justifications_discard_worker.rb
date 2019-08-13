@@ -1,7 +1,7 @@
 class AbsenceJustificationsDiscardWorker < BaseStudentDependenciesDiscarderWorker
-  def perform(entity_id, student_enrollment_id)
+  def perform(entity_id, student_id)
     super do
-      discardable_absence_justifications(student_enrollment_id).each do |absence_justification|
+      discardable_absence_justifications(student_id).each do |absence_justification|
         absence_justification.discarded_at = Time.current
         absence_justification.save!(validate: false)
       end
@@ -10,8 +10,7 @@ class AbsenceJustificationsDiscardWorker < BaseStudentDependenciesDiscarderWorke
 
   private
 
-  def discardable_absence_justifications(student_enrollment_id)
-    student_id = find_student(student_enrollment_id)
+  def discardable_absence_justifications(student_id)
     classroom_id_column = 'absence_justifications.classroom_id'
     start_at_column = 'absence_justifications.absence_date'
     end_at_column = 'absence_justifications.absence_date_end'
@@ -22,7 +21,7 @@ class AbsenceJustificationsDiscardWorker < BaseStudentDependenciesDiscarderWorke
         start_at_column,
         end_at_column
       ),
-      student_enrollment_id: student_enrollment_id
+      student_id: student_id
     )
   end
 end

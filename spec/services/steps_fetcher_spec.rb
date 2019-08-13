@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe StepsFetcher, type: :service do
   let!(:unity) { create(:unity) }
-  let!(:classroom) { create(:classroom_numeric_and_concept, unity: unity) }
+  let!(:classroom) { create(:classroom, :score_type_numeric_and_concept, unity: unity) }
   let!(:school_calendar) {
     create(
       :school_calendar,
