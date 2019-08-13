@@ -1,7 +1,10 @@
 FactoryGirl.define do
   factory :school_calendar_classroom do
     classroom
-    school_calendar
+
+    school_calendar {
+      classroom.calendar.try(:school_calendar) || create(:school_calendar, unity: classroom.unity)
+    }
 
     trait :school_calendar_classroom_with_trimester_steps do
       after(:build) do |school_calendar_classroom|

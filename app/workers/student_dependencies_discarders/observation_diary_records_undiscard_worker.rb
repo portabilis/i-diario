@@ -1,14 +1,13 @@
 class ObservationDiaryRecordsUndiscardWorker < BaseStudentDependenciesDiscarderWorker
-  def perform(entity_id, student_enrollment_id)
+  def perform(entity_id, student_id)
     super do
-      undiscard_observation_diary_record_note_students(student_enrollment_id)
+      undiscard_observation_diary_record_note_students(student_id)
     end
   end
 
   private
 
-  def undiscard_observation_diary_record_note_students(student_enrollment_id)
-    student_id = find_student(student_enrollment_id)
+  def undiscard_observation_diary_record_note_students(student_id)
     classroom_id_column = 'observation_diary_records.classroom_id'
     date_column = 'observation_diary_records.date'
 

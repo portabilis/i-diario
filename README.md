@@ -132,7 +132,7 @@ Entity.last.using_connection {
     email: 'admin@domain.com.br',
     password: '123456789',
     password_confirmation: '123456789',
-    status: 'actived',
+    status: 'active',
     kind: 'employee',
     admin:  true
   )

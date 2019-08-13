@@ -38,8 +38,12 @@ class SchoolCalendar < ActiveRecord::Base
     "#{year}"
   end
 
+  def school_day_checker(date, grade_id = nil, classroom_id = nil, discipline_id = nil)
+    SchoolDayChecker.new(self, date, grade_id, classroom_id, discipline_id)
+  end
+
   def school_day?(date, grade_id = nil, classroom_id = nil, discipline_id = nil)
-    SchoolDayChecker.new(self, date, grade_id, classroom_id, discipline_id).school_day?
+    school_day_checker(date, grade_id, classroom_id, discipline_id).school_day?
   end
 
   def step(date)

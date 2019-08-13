@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-ruby '2.2.6'
+ruby '2.3.7'
 
 gem 'active_model_serializers', '0.9.3'
 gem 'activerecord-connections', git: 'https://github.com/ricardohsd/activerecord-connections.git'
@@ -61,6 +61,7 @@ gem 'sidekiq', '5.0.3'
 gem 'sidekiq-unique-jobs', '4.0.18'
 gem 'simple_form', '3.1.0'
 gem 'sinatra', '1.4.6', require: nil
+gem 'skylight'
 gem 'therubyracer', '0.12.2'
 gem 'twitter-bootstrap-rails', '3.2.0'
 gem 'uglifier', '4.1.20'
