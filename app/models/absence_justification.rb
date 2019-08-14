@@ -62,9 +62,11 @@ class AbsenceJustification < ActiveRecord::Base
     where('(NOT (absence_date > ? OR absence_date_end < ?))', absence_date_end, absence_date)
   }
   scope :by_unity, ->(unity) { where('unity_id = ? OR unity_id IS NULL', unity) }
-  scope :by_school_calendar, ->(school_calendar) { where('school_calendar_id = ? OR school_calendar_id IS NULL', school_calendar) }
+  scope :by_school_calendar, lambda { |school_calendar|
+    where('school_calendar_id = ? OR school_calendar_id IS NULL', school_calendar)
+  }
   scope :by_date, ->(date) { by_date_query(date) }
-  scope :by_school_calendar_report, ->(school_calendar) { where(school_calendar: school_calendar)  }
+  scope :by_school_calendar_report, ->(school_calendar) { where(school_calendar: school_calendar) }
   scope :by_author, lambda { |author_type, current_teacher_id|
     if author_type == AbsenceJustificationAuthors::MY_JUSTIFICATIONS
       where(teacher_id: current_teacher_id)
@@ -87,10 +89,10 @@ class AbsenceJustification < ActiveRecord::Base
   def no_retroactive_dates
     return if absence_date.nil? || absence_date_end.nil?
 
-    if absence_date > absence_date_end
-      errors.add(:absence_date, 'não pode ser maior que a Data final')
-      errors.add(:absence_date_end, 'deve ser maior ou igual a Data inicial')
-    end
+    return if absence_date <= absence_date_end
+
+    errors.add(:absence_date, :not_greater_than_final)
+    errors.add(:absence_date_end, :not_less_than_initial)
   end
 
   def period_absence
@@ -108,7 +110,11 @@ class AbsenceJustification < ActiveRecord::Base
       next if absence_justifications.blank?
 
       errors.add(:base, :discipline_period_absence) if frequence_type_by_discipline?
-      errors.add(:base, :general_period_absence, teacher: absence_justifications.first.teacher.name) unless frequence_type_by_discipline?
+
+      unless frequence_type_by_discipline?
+        errors.add(:base, :general_period_absence, teacher: absence_justifications.first.teacher.name)
+      end
+
       errors.add(:absence_date, :taken)
       errors.add(:absence_date_end, :taken)
 

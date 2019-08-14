@@ -27,9 +27,11 @@ pt-BR:
         absence_justification:
           attributes:
               absence_date:
-                taken:  'já existe uma justificativa para esta data'
+                taken: 'já existe uma justificativa para esta data'
+                not_greater_than_final: 'não pode ser maior que a Data final'
               absence_date_end:
-                taken:  'já existe uma justificativa para esta data'
+                taken: 'já existe uma justificativa para esta data'
+                not_less_than_initial: 'deve ser maior ou igual a Data inicial'
               base:
                 discipline_period_absence: 'Já existe uma justificativa para a disciplina e período informados'
                 general_period_absence: "Já existe uma justificativa no período informado para o professor %{teacher}"
