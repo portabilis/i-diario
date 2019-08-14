@@ -19,6 +19,7 @@ class Discipline < ActiveRecord::Base
 
   belongs_to :knowledge_area
   has_many :teacher_discipline_classrooms, dependent: :destroy
+  has_and_belongs_to_many :absence_justifications
 
   validates :description, :api_code, :knowledge_area_id, presence: true
   validates :api_code, uniqueness: true

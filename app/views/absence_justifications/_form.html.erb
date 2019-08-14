@@ -16,8 +16,12 @@
       </div>
       <div class="row" data-discipline>
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2_discipline, user: current_user,
+          <%= f.association :disciplines, as: :select2_discipline,
+                elements: @disciplines,
+                multiple: true,
+                user: current_user,
                 classroom_id: @absence_justification.classroom_id,
+                admin_and_employee_unlock: true,
                 required: true %>
         </div>
       </div>

@@ -15,10 +15,11 @@ class AbsenceJustificationsController < ApplicationController
 
     @absence_justifications = apply_scopes(AbsenceJustification.by_unity(current_user_unity)
                                                                .by_classroom(current_user_classroom)
-                                                               .by_discipline_id(current_discipline)
                                                                .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
                                                                .includes(:students).ordered)
+
+    @absence_justifications = @absence_justifications.by_discipline_id(current_discipline) if current_discipline
 
     if author_type.present?
       @absence_justifications = @absence_justifications.by_author(author_type, current_teacher)
@@ -109,7 +110,7 @@ class AbsenceJustificationsController < ApplicationController
       :absence_date_end,
       :unity_id,
       :classroom_id,
-      :discipline_id,
+      :discipline_ids,
       absence_justification_attachments_attributes: [
         :id,
         :attachment,
@@ -118,6 +119,7 @@ class AbsenceJustificationsController < ApplicationController
     )
 
     parameters[:student_ids] = parameters[:student_ids].split(',')
+    parameters[:discipline_ids] = parameters[:discipline_ids].split(',')
 
     parameters
   end

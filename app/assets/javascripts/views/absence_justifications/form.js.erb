@@ -3,7 +3,7 @@ $(function() {
       $disciplineDiv = $("[data-discipline]"),
       $studentDiv = $("[data-student]"),
       $classroom = $("#absence_justification_classroom_id"),
-      $discipline = $("#absence_justification_discipline_id"),
+      $discipline = $("#absence_justification_discipline_ids"),
       $absenceDate = $("#absence_justification_absence_date"),
       $absenceDateEnd = $("#absence_justification_absence_date_end"),
       $student = $("#absence_justification_student_ids");
@@ -39,11 +39,11 @@ $(function() {
         if (examRule.frequency_type == 2 || examRule.allow_frequency_by_discipline) {
           $disciplineDiv.show();
         }else {
-          $("#absence_justification_discipline_id").select2("data", []);
+          $("#absence_justification_discipline_ids").select2("data", []);
           $disciplineDiv.hide();
         }
       }else {
-        $("#absence_justification_discipline_id").select2("data", []);
+        $("#absence_justification_discipline_ids").select2("data", []);
         $disciplineDiv.hide();
       }
     });
@@ -140,7 +140,7 @@ $(function() {
     if (show) {
       $disciplineDiv.show();
     }else {
-      $("#absence_justification_discipline_id").select2("data", []);
+      $("#absence_justification_discipline_ids").select2("data", []);
       $disciplineDiv.hide();
     }
   }
