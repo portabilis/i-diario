@@ -38,15 +38,9 @@ class AvaliationsTestSettingUpdater
   end
 
   def get_test_setting(avaliation)
-    school_calendar = SchoolCalendar.find_by(unity_id: avaliation.unity_id, year: avaliation.test_date.year)
-    test_setting = TestSetting.find_by(year: avaliation.test_date.year, exam_setting_type: ExamSettingTypes::GENERAL)
+    avaliation_step = StepsFetcher.new(avaliation.classroom).step_by_date(avaliation.test_date)
 
-    if test_setting.nil?
-      school_term = SchoolTermConverter.convert(school_calendar.step(avaliation.test_date))
-      test_setting = TestSetting.find_by(year: avaliation.test_date.year, school_term: school_term)
-    end
-
-    test_setting
+    TestSettingFetcher.by_step(avaliation_step)
   end
 
   def success

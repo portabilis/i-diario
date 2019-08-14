@@ -1,15 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe ConceptualExam, type: :model do
-  let(:unity) { create(:unity) }
-  let(:classroom) { create(:classroom, :current, unity: unity) }
-  let(:school_calendar) { create(:current_school_calendar_with_one_step, unity: unity) }
+  let(:classroom) { create(:classroom, :with_classroom_semester_steps) }
 
   subject do
     build(
       :conceptual_exam,
       classroom: classroom,
-      step_id: school_calendar.steps.first.id
+      step_id: classroom.calendar.classroom_steps.first.id
     )
   end
 

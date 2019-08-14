@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
   describe '#run!' do
-    let!(:classroom) { create(:classroom_numeric_and_concept) }
+    let!(:classroom) { create(:classroom, :score_type_numeric_and_concept) }
     let!(:discipline) { create(:discipline) }
     let!(:other_discipline) { create(:discipline) }
     let(:unity) { create(:unity) }

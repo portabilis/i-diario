@@ -32,7 +32,7 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   scope :by_step_year, ->(year) { where('EXTRACT(YEAR FROM start_at) = ?', year) }
   scope :ordered, -> { order(:start_at) }
 
-  delegate :classroom, :school_calendar_id, to: :school_calendar_classroom
+  delegate :classroom, :classroom_id, :school_calendar_id, to: :school_calendar_classroom
 
   def school_calendar_step_day?(date)
     step_from_date = school_calendar_classroom.classroom_step(date)
@@ -42,17 +42,12 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
     school_calendar.school_day?(date, classroom.grade, classroom)
   end
 
+  def first_school_calendar_date
+    school_calendar.school_day_checker(start_at, classroom.grade_id, classroom_id).next_school_day
+  end
+
   def test_setting
-    school_term = SchoolTermConverter.convert(school_calendar_classroom.classroom_step(start_at))
-    TestSetting.where(
-      TestSetting.arel_table[:year].eq(school_calendar_classroom.school_calendar.year)
-        .and(
-          TestSetting.arel_table[:exam_setting_type].eq(ExamSettingTypes::GENERAL)
-          .or(TestSetting.arel_table[:school_term].eq(school_term))
-        )
-    )
-    .order(school_term: :desc)
-    .first
+    TestSettingFetcher.by_step(self)
   end
 
   def school_calendar

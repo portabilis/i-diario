@@ -13,6 +13,7 @@ pt-BR:
         start_at: "Data inicial"
         end_at: "Data final"
         period: "Período"
+        second_teacher_signature: "Assinatura do(a) segundo(a) professor(a)"
 
     errors:
       models:

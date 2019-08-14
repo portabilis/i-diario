@@ -27,7 +27,7 @@ class ComplementaryExamCalculator
   end
 
   def test_setting
-    @test_setting ||= TestSettingFetcher.fetch(@step)
+    @test_setting ||= TestSettingFetcher.by_step(@step)
   end
 
   def make_calculations(score)

@@ -1,15 +1,20 @@
 require 'rails_helper'
 
 RSpec.describe ComplementaryExamCalculator, type: :service do
-  let(:classroom) { create(:classroom, :current) }
-  let(:school_calendar) { create(:current_school_calendar_with_one_step, unity: classroom.unity) }
+  let(:classroom) {
+    create(
+      :classroom,
+      :with_classroom_semester_steps
+    )
+  }
+  let(:step) { classroom.calendar.classroom_steps.first }
   let(:complementary_exam_setting) { create(:complementary_exam_setting_with_two_grades) }
   let(:complementary_exam) {
     create(
       :complementary_exam,
       classroom: classroom,
-      recorded_at: school_calendar.steps.first.school_day_dates[0],
-      step_id: school_calendar.steps.first.id,
+      recorded_at: step.first_school_calendar_date,
+      step_id: step.id,
       complementary_exam_setting: complementary_exam_setting
     )
   }

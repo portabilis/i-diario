@@ -1,8 +1,10 @@
 class DescriptiveExamStudentsUndiscardWorker < BaseStudentDependenciesDiscarderWorker
-  def perform(entity_id, student_enrollment_id)
+  def perform(entity_id, student_id)
     super do
-      undiscardable_descriptive_exam_students(student_enrollment_id).each do |descriptive_exam_student|
-        descriptive_exam_student.discarded_at = null
+      undiscardable_descriptive_exam_students(student_id).each do |descriptive_exam_student|
+        next if descriptive_exam_student_exists?(descriptive_exam_student, student_id)
+
+        descriptive_exam_student.discarded_at = nil
         descriptive_exam_student.save!(validate: false)
       end
     end
@@ -10,8 +12,7 @@ class DescriptiveExamStudentsUndiscardWorker < BaseStudentDependenciesDiscarderW
 
   private
 
-  def undiscardable_descriptive_exam_students(student_enrollment_id)
-    student_id = find_student(student_enrollment_id)
+  def undiscardable_descriptive_exam_students(student_id)
     classroom_id_column = 'descriptive_exams.classroom_id'
     step_number_column = 'descriptive_exams.step_number'
     start_at_column = 'step.start_at'
@@ -33,5 +34,10 @@ class DescriptiveExamStudentsUndiscardWorker < BaseStudentDependenciesDiscarderW
                             ),
                             student_id: student_id
                           )
+  end
+
+  def descriptive_exam_student_exists?(descriptive_exam_student, student_id)
+    DescriptiveExamStudent.by_descriptive_exam_id(descriptive_exam_student.descriptive_exam_id)
+                          .by_student_id(student_id).exists?
   end
 end
