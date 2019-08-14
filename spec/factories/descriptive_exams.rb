@@ -21,7 +21,7 @@ FactoryGirl.define do
       if descriptive_exam.step_id.blank?
         school_calendar = create(
           :school_calendar,
-          :school_calendar_with_trimester_steps,
+          :with_trimester_steps,
           year: descriptive_exam.classroom.year,
           unity: descriptive_exam.classroom.unity
         )

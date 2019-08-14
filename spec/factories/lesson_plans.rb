@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :lesson_plan do
     classroom
-    association :school_calendar, factory: :school_calendar_with_one_step
+    association :school_calendar, factory: [:school_calendar, :with_one_step]
 
     start_at '30/06/2020'
     end_at '30/07/2020'

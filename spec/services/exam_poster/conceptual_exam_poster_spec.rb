@@ -15,7 +15,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
       classroom: classroom
     )
   end
-  let!(:school_calendar) { create(:school_calendar, :school_calendar_with_semester_steps, :current) }
+  let!(:school_calendar) { create(:school_calendar, :with_semester_steps) }
   let!(:discipline) { conceptual_exam.conceptual_exam_values.first.discipline }
   let!(:teacher_discipline_classroom) do
     create(

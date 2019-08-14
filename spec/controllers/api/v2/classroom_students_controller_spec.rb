@@ -27,7 +27,7 @@ RSpec.describe Api::V2::ClassroomStudentsController, type: :controller do
     end
 
     it 'returns students when has school calender and enrollments' do
-      school_calendar = create(:school_calendar_with_one_step, unity: classroom.unity, year: Date.current.year)
+      school_calendar = create(:school_calendar, :with_one_step, unity: classroom.unity)
       frequency_start_at = Date.parse("#{school_calendar.year}-01-01")
       student_enrollment = create(:student_enrollment)
       classroom.student_enrollments << student_enrollment

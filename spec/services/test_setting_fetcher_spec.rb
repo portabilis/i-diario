@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TestSettingFetcher, type: :service do
-  let(:school_calendar) { create(:current_school_calendar_with_one_step) }
+  let(:school_calendar) { create(:school_calendar, :with_one_step) }
   let(:test_setting) { create(:test_setting, year: school_calendar.year) }
 
   context 'test setting type is general' do
