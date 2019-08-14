@@ -18,7 +18,7 @@
     </div>
 
     <div id="role-field-container" class="project-context">
-      <span class="label"><%= t('layouts.application.role') %></span>
+      <span class="label required"><%= t('layouts.application.role') %></span>
       <%= f.input :current_user_role_id,
                   as: :select2,
                   elements: user.user_roles.includes(:unity),

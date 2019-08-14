@@ -17,6 +17,11 @@
   padding: 8px 8px 0 8px;
 }
 
+#user-role-form .label.required::after {
+  content: ' *';
+  color: #953b39;
+}
+
 #role-field-container {
   width: 180px;
 }

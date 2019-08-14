@@ -31,6 +31,12 @@ $(function() {
   const $closeBar = $('.role-cancel');
   const $errorsContainer = $form.find('.errors-container');
 
+  const requiredContainersPerRole = {
+    administrator: [$unityContainer, $yearContainer, $teacherContainer, $disciplineContainer],
+    teacher: [$yearContainer, $classroomContainer, $disciplineContainer],
+    employee: [$yearContainer, $classroomContainer, $disciplineContainer]
+  };
+
   let profileRole = {};
 
   let profileData = {
@@ -146,6 +152,24 @@ $(function() {
     })
   }
 
+  function makeRequiredFields(role) {
+    $.each([
+      $unityContainer,
+      $yearContainer,
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], function () {
+      $(this).find('span.label').removeClass('required');
+    });
+
+    const containers = requiredContainersPerRole[role];
+
+    $.each(containers, function () {
+      $(this).find('span.label').addClass('required');
+    });
+  }
+
   hideAndResetOnEvent([
     $unityContainer,
     $yearContainer,
@@ -198,6 +222,8 @@ $(function() {
       triggerEventOnContainers([
         $unityContainer
       ], 'profile:role');
+
+      makeRequiredFields(profileRole.role.access_level);
     }, function () {
       setError("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
     });
@@ -523,6 +549,13 @@ $(function() {
       setError("<%= I18n.t('layouts.error_messages.unknown_error') %>");
     }
   });
+
+  if (getValue($roleField)) {
+    getProfileRole(getValue($roleField)).then(function (d) {
+      $('#page-loading').hide();
+      makeRequiredFields(d.role.access_level);
+    });
+  }
 
   //...
 
