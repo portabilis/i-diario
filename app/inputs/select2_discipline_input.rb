@@ -4,8 +4,8 @@ class Select2DisciplineInput < Select2Input
     raise "User must be passed" unless options[:user].is_a? User
 
     if options[:user].current_discipline.present?
-      input_html_options[:readonly] = 'readonly' unless unlock_field?
-      input_html_options[:value] = options[:user].current_discipline.id
+      input_html_options[:readonly] = 'readonly' unless options[:admin_or_employee].presence
+      input_html_options[:value] = options[:user].current_discipline.id unless options[:admin_or_employee].presence
     end
 
     super(wrapper_options)
@@ -16,7 +16,7 @@ class Select2DisciplineInput < Select2Input
 
     disciplines = []
 
-    if unlock_field?
+    if options[:admin_or_employee].presence
       disciplines = Discipline.by_classroom(user.current_classroom_id).by_teacher_id(user.assumed_teacher_id)
     elsif user.current_discipline.present?
       disciplines = [ user.current_discipline ]
@@ -31,13 +31,5 @@ class Select2DisciplineInput < Select2Input
     options[:elements] = disciplines
 
     super
-  end
-
-  def unlock_field?
-    @unlock_field ||= options[:admin_and_employee_unlock].presence && admin_or_employee(options[:user])
-  end
-
-  def admin_or_employee(user)
-    @admin_or_employee ||= user.current_user_role.role_employee? || user.current_user_role.role_administrator?
   end
 end

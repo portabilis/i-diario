@@ -19,7 +19,7 @@ pt-BR:
         classroom: "Turma"
         classroom_id: "Turma"
         discipline: "Disciplina"
-        discipline_id: "Disciplina"
+        disciplines: "Disciplinas"
         author: "Autor"
 
     errors:
