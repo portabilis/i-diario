@@ -82,7 +82,6 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
   end
 
   def remove_attachments
-    lesson_plan.lesson_plan_attachments.each { |lesson_plan_attachment| lesson_plan_attachment.attachment = nil }
-    lesson_plan.save
+    lesson_plan.lesson_plan_attachments.each(&:destroy)
   end
 end
