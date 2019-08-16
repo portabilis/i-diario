@@ -143,7 +143,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     teacher_cell = make_cell(
-      content: @absence_justifications.first.teacher ? @absence_justifications.first.teacher.name : "-",
+      content: @absence_justifications.first.teacher ? @absence_justifications.first.teacher.name : '-',
       size: 10,
       borders: [:left, :right, :bottom],
       padding: [0, 2, 4, 4]
@@ -157,8 +157,8 @@ class AbsenceJustificationReport < BaseReport
       padding: [2, 2, 4, 4]
     )
 
-    initial_date = @absence_justification_report_form.absence_date ? @absence_justification_report_form.absence_date : ''
-    final_date = @absence_justification_report_form.absence_date_end ? @absence_justification_report_form.absence_date_end : ''
+    initial_date = @absence_justification_report_form.absence_date || ''
+    final_date = @absence_justification_report_form.absence_date_end || ''
 
     period_cell = make_cell(
       content: "#{initial_date} a #{final_date}",
@@ -323,8 +323,8 @@ class AbsenceJustificationReport < BaseReport
     start_new_page if cursor < 45
 
     move_down 30
-    text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
-    text_box("______________________________________________\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
+    text_box('_' * 50 + "\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
+    text_box('_' * 50 + "\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
   end
 
   def absence_justification_students_cell(absence_justification)
