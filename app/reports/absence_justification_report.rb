@@ -7,9 +7,12 @@ class AbsenceJustificationReport < BaseReport
     @entity_configuration = entity_configuration
     @absence_justifications = absence_justifications
     @absence_justification_report_form = absence_justification_report_form
-    @disciplines = Discipline.where(id: [absence_justification_report_form.discipline_ids])
-                             .map(&:description)
-                             .join(', ')
+
+    if absence_justification_report_form.frequence_type_by_discipline?
+      @disciplines = Discipline.where(id: [absence_justification_report_form.discipline_ids])
+                               .map(&:description)
+                               .join(', ')
+    end
 
     header
     body

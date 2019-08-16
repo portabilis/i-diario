@@ -20,14 +20,22 @@ class AbsenceJustificationReportForm
 
   def absence_justification
     if frequence_type_by_discipline?
-      AbsenceJustification.by_author(author, current_teacher_id)
-                          .by_unity(unity_id)
-                          .by_school_calendar_report(school_calendar_year)
-                          .by_classroom(classroom_id)
-                          .by_disciplines(discipline_ids)
-                          .by_date_range(absence_date, absence_date_end)
-                          .uniq
-                          .ordered
+      absence_justifications = AbsenceJustification.by_author(author, current_teacher_id)
+                                                   .by_unity(unity_id)
+                                                   .by_school_calendar_report(school_calendar_year)
+                                                   .by_classroom(classroom_id)
+                                                   .by_disciplines(discipline_ids)
+                                                   .by_date_range(absence_date, absence_date_end)
+
+      disciplines = discipline_ids.map(&:to_i)
+
+      absence_justifications.each do |absence_justification|
+        if (disciplines - absence_justification.disciplines.map(&:id)).any?
+          absence_justifications = absence_justifications.where.not(id: absence_justification.id)
+        end
+      end
+
+      absence_justifications.uniq.ordered
     else
       AbsenceJustification.by_author(author, current_teacher_id)
                           .by_unity(unity_id)
