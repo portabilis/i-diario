@@ -241,7 +241,14 @@ RSpec.describe StudentAverageCalculator, type: :service do
     stub_const('ComplementaryExamCalculator', Class.new)
 
     allow(ComplementaryExamCalculator).to(
-      receive(:new).with(AffectedScoreTypes::STEP_AVERAGE, student, discipline, classroom, school_calendar_step).and_return(complementary_exam_calculator)
+      receive(:new)
+        .with(
+          [AffectedScoreTypes::STEP_AVERAGE, AffectedScoreTypes::BOTH],
+          student,
+          discipline,
+          classroom,
+          school_calendar_step
+        ).and_return(complementary_exam_calculator)
     )
 
     allow(complementary_exam_calculator).to(
