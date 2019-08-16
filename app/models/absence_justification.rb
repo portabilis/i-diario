@@ -44,7 +44,7 @@ class AbsenceJustification < ActiveRecord::Base
   scope :by_teacher, ->(teacher_id) { where(teacher_id: teacher_id)  }
   scope :by_classroom, ->(classroom_id) { where('classroom_id = ? OR classroom_id IS NULL', classroom_id) }
   scope :by_student, lambda { |student_name|
-    joins(:student).where(
+    joins(:students).where(
       "(unaccent(students.name) ILIKE unaccent('%#{student_name}%') or
         unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
     )
