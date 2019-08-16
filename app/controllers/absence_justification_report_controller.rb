@@ -37,8 +37,9 @@ class AbsenceJustificationReportController < ApplicationController
                                                     .by_unity(current_user_unity.id)
                                                     .by_school_calendar_report(current_school_calendar)
                                                     .by_classroom(@absence_justification_report_form.classroom_id)
-                                                    .by_discipline_id(@absence_justification_report_form.discipline_id)
+                                                    .by_disciplines(@absence_justification_report_form.discipline_ids)
                                                     .by_date_range(@absence_justification_report_form.absence_date, @absence_justification_report_form.absence_date_end)
+                                                    .uniq
                                                     .order(absence_date: :asc)
     else
       @absence_justifications = AbsenceJustification.by_author(author_type, current_teacher)
@@ -51,14 +52,20 @@ class AbsenceJustificationReportController < ApplicationController
   end
 
   def resource_params
-    params.require(:absence_justification_report_form).permit(:unity,
-                                                              :classroom_id,
-                                                              :discipline_id,
-                                                              :absence_date,
-                                                              :absence_date_end,
-                                                              :school_calendar_year,
-                                                              :current_teacher_id,
-                                                              :author)
+    parameters = params.require(:absence_justification_report_form).permit(
+      :unity,
+      :classroom_id,
+      :discipline_ids,
+      :absence_date,
+      :absence_date_end,
+      :school_calendar_year,
+      :current_teacher_id,
+      :author
+    )
+
+    parameters[:discipline_ids] = parameters[:discipline_ids].split(',')
+
+    parameters
   end
 
   def clear_invalid_dates

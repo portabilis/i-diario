@@ -7,6 +7,9 @@ class AbsenceJustificationReport < BaseReport
     @entity_configuration = entity_configuration
     @absence_justifications = absence_justifications
     @absence_justification_report_form = absence_justification_report_form
+    @disciplines = Discipline.where(id: [absence_justification_report_form.discipline_ids])
+                             .map(&:description)
+                             .join(', ')
 
     header
     body
@@ -102,7 +105,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     discipline_header = make_cell(
-      content: 'Disciplina',
+      content: 'Disciplinas',
       size: 8,
       font_style: :bold,
       borders: [:left, :right],
@@ -110,7 +113,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     discipline_cell = make_cell(
-      content: @absence_justifications.first.discipline ? @absence_justifications.first.discipline.description : 'Geral',
+      content: @disciplines.presence || 'Geral',
       size: 10,
       borders: [:left, :right, :bottom],
       padding: [0, 2, 4, 4]
@@ -222,7 +225,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     student_header = make_cell(
-      content: 'Aluno',
+      content: 'Alunos',
       size: 8,
       font_style: :bold,
       borders: [:left, :right, :top],
@@ -265,7 +268,7 @@ class AbsenceJustificationReport < BaseReport
       )
 
       student_cell = make_cell(
-        content: absence_justification.student.name,
+        content: absence_justification_students_cell(absence_justification),
         size: 10,
         width: 220,
         align: :left
@@ -322,5 +325,9 @@ class AbsenceJustificationReport < BaseReport
     move_down 30
     text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
     text_box("______________________________________________\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
+  end
+
+  def absence_justification_students_cell(absence_justification)
+    absence_justification.students.map(&:name).join(', ')
   end
 end

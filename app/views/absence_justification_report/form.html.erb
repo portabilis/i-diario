@@ -1,7 +1,6 @@
 <% content_for :js do %>
   <%= javascript_include_tag 'views/absence_justification_report/form' %>
 <% end %>
-
 <%= simple_form_for @absence_justification_report_form, url: absence_justification_report_path, method: :post, html: { class: "smart-form", target: '_blank' } do |f| %>
   <%= f.error_notification unless @absence_justification_report_form.errors[:base].any? %>
   <div class="alert alert-danger <%= 'hidden' unless @absence_justification_report_form.errors[:base].any? %>">
@@ -20,9 +19,12 @@
               input_html: { value: @absence_justification_report_form.classroom_id } %>
       </div>
       <div class="col col-sm-4" data-discipline>
-        <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+        <%= f.input :discipline_ids, as: :select2_discipline,
+              multiple:true,
+              user: current_user,
               classroom_id: @absence_justification_report_form.classroom_id,
-              required: true, input_html: { value: @absence_justification_report_form.discipline_id } %>
+              admin_or_employee: current_user_role_is_employee_or_administrator?,
+              required: true %>
       </div>
     </div>
 
