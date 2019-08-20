@@ -1,28 +1,32 @@
 FactoryGirl.define do
   factory :avaliation do
     discipline
-    classroom
     test_setting
-    association :school_calendar, factory: [:school_calendar, :with_one_step]
 
-    test_date '03/02/2020'
+    association :classroom, factory: [:classroom, :with_classroom_semester_steps]
+    school_calendar { classroom.calendar.try(:school_calendar) || create(:school_calendar, :with_one_step) }
+
+    test_date { Date.current }
     classes { rand(1..5).to_s }
     description { Faker::Lorem.unique.sentence }
 
-    factory :current_avaliation do
-      test_date { Date.current }
-      association :school_calendar, factory: [:school_calendar, :with_one_step]
-      association :classroom, factory: [:classroom, :score_type_numeric_and_concept]
+    transient do
+      teacher nil
     end
 
-    after(:build) do |avaliation|
-      teacher_discipline_classroom = create(
-        :teacher_discipline_classroom,
-        classroom: avaliation.classroom,
-        discipline: avaliation.discipline
-      )
+    trait :with_teacher_discipline_classroom do
+      after(:build) do |avaliation, evaluator|
+        teacher = Teacher.find(avaliation.teacher_id) if avaliation.teacher_id.present?
+        teacher ||= evaluator.teacher || create(:teacher)
+        avaliation.teacher_id = teacher.id if avaliation.teacher_id.blank?
 
-      avaliation.teacher_id = teacher_discipline_classroom.teacher.id
+        create(
+          :teacher_discipline_classroom,
+          classroom: avaliation.classroom,
+          discipline: avaliation.discipline,
+          teacher: teacher
+        )
+      end
     end
   end
 end

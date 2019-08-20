@@ -36,7 +36,8 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
     context 'when there are invalid daily note students' do
       let(:avaliation1) {
         create(
-          :current_avaliation,
+          :avaliation,
+          :with_teacher_discipline_classroom,
           classroom: classroom,
           discipline: discipline,
           school_calendar: school_calendar
@@ -44,7 +45,8 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
       }
       let(:avaliation2) {
         create(
-          :current_avaliation,
+          :avaliation,
+          :with_teacher_discipline_classroom,
           classroom: classroom,
           school_calendar: school_calendar
         )
