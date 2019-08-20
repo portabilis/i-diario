@@ -5,16 +5,15 @@ RSpec.describe AbsenceJustification, type: :model do
 
   describe 'associations' do
     it { expect(subject).to belong_to(:teacher) }
-    it { expect(subject).to belong_to(:student) }
+    it { expect(subject).to have_and_belong_to_many (:students) }
     it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to belong_to(:classroom) }
-    it { expect(subject).to belong_to(:discipline) }
+    it { expect(subject).to have_and_belong_to_many (:disciplines) }
     it { expect(subject).to belong_to(:school_calendar) }
   end
 
   describe 'validations' do
     it { expect(subject).to validate_presence_of(:teacher) }
-    it { expect(subject).to validate_presence_of(:student_id) }
     it { expect(subject).to validate_presence_of(:absence_date) }
     it { expect(subject).to validate_school_calendar_day_of(:absence_date) }
     it { expect(subject).to validate_presence_of(:absence_date_end) }
@@ -32,33 +31,31 @@ RSpec.describe AbsenceJustification, type: :model do
           :with_teacher_discipline_classroom,
           :by_discipline
         )
-        student = create(:student)
-        discipline = classroom.teacher_discipline_classrooms.first.discipline
+
         school_calendar = classroom.calendar.school_calendar
         teacher = classroom.teacher_discipline_classrooms.first.teacher
         first_school_calendar_date = classroom.calendar.classroom_steps.first.first_school_calendar_date
-        create(
+        absence = create(
           :absence_justification,
           unity: classroom.unity,
           school_calendar: school_calendar,
           classroom: classroom,
-          discipline: discipline,
-          student: student,
           absence_date: first_school_calendar_date,
           absence_date_end: first_school_calendar_date + 2,
           teacher: teacher
         )
+
         subject = build(
           :absence_justification,
           unity: classroom.unity,
           school_calendar: school_calendar,
           classroom: classroom,
-          student: student,
-          discipline: discipline,
           absence_date: first_school_calendar_date + 1,
           absence_date_end: first_school_calendar_date + 1,
           teacher: teacher
         )
+        subject.students << absence.students.first
+        subject.disciplines << absence.disciplines.first
 
         expect(subject).to_not be_valid
         expect(subject.errors.messages[:base]).to(
