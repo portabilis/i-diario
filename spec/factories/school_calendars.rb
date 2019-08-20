@@ -2,10 +2,10 @@ FactoryGirl.define do
   factory :school_calendar do
     unity
 
-    year 2020
+    year Date.current.year
     number_of_classes { rand(1..5) }
 
-    factory :school_calendar_with_one_step do
+    trait :with_one_step do
       after(:build) do |school_calendar|
         school_calendar.steps.build(
           attributes_for(
@@ -18,13 +18,9 @@ FactoryGirl.define do
           )
         )
       end
-
-      factory :current_school_calendar_with_one_step do
-        year { Date.current.year }
-      end
     end
 
-    trait :school_calendar_with_trimester_steps do
+    trait :with_trimester_steps do
       after(:build) do |school_calendar|
         (1..3).each do |trimester|
           school_calendar.steps.build(
@@ -41,7 +37,7 @@ FactoryGirl.define do
       end
     end
 
-    trait :school_calendar_with_semester_steps do
+    trait :with_semester_steps do
       after(:build) do |school_calendar|
         (1..2).each do |semester|
           school_calendar.steps.build(
@@ -56,10 +52,6 @@ FactoryGirl.define do
           )
         end
       end
-    end
-
-    trait :current do
-      year { Date.current.year }
     end
   end
 end

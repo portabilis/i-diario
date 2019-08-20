@@ -12,7 +12,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
   let!(:classroom) { create(:classroom, :score_type_numeric, unity: unity, exam_rule: exam_rule) }
   let!(:exam_rule) { create(:exam_rule, recovery_type: RecoveryTypes::PARALLEL) }
   let!(:test_setting) { create(:test_setting, year: school_calendar.year) }
-  let!(:school_calendar) { create(:current_school_calendar_with_one_step, unity: unity) }
+  let!(:school_calendar) { create(:school_calendar, :with_one_step, unity: unity) }
   let!(:unity) { create(:unity) }
   let!(:teacher_discipline_classroom) do
     create(:teacher_discipline_classroom,

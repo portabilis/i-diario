@@ -35,7 +35,8 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
 
   it 'fetches contents from teaching plan' do
     school_calendar = create(
-      :school_calendar_with_one_step,
+      :school_calendar,
+      :with_one_step,
       unity_id: classroom.unity_id,
       year: classroom.year
     )

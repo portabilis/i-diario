@@ -9,6 +9,12 @@ class SchoolTermConverter
     new(step).convert
   end
 
+  def self.correct_term(school_term)
+    return school_term unless school_term.end_with?(SchoolTermTypes::BIMESTER_EJA)
+
+    "#{school_term[/.*?_/]}#{SchoolTermTypes::SEMESTER}"
+  end
+
   def convert
     return if @step.blank?
     return if school_term_type.blank?
