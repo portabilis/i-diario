@@ -184,4 +184,8 @@ $(function () {
 
   $eventType.on('change', togleLegendContainerVisibility);
   togleLegendContainerVisibility();
+
+  if(!_.isEmpty($classroom.val())){
+    checkExamRule({ classroom_id: $classroom.val() });
+  }
 });
