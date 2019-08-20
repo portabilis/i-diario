@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ObservationDiaryRecordNoteStudent do
-  let(:school_calendar) { create(:school_calendar_with_one_step, year: 2015) }
+  let(:school_calendar) { create(:school_calendar, :with_one_step, year: 2015) }
   let(:exam_rule) { create(:exam_rule, frequency_type: FrequencyTypes::BY_DISCIPLINE) }
   let(:classroom) { create(:classroom, exam_rule: exam_rule) }
   let(:observation_diary_record) do

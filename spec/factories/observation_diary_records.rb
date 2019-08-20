@@ -3,7 +3,7 @@ FactoryGirl.define do
     classroom
     teacher
     discipline
-    association :school_calendar, factory: :school_calendar_with_one_step
+    association :school_calendar, factory: [:school_calendar, :with_one_step]
 
     date '05/04/2016'
 

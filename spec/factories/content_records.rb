@@ -14,7 +14,8 @@ FactoryGirl.define do
     before(:create) do |content_record, evaluator|
       content_record.contents = create_list(:content, evaluator.contents_count)
       school_calendar = create(
-        :school_calendar_with_one_step,
+        :school_calendar,
+        :with_one_step,
         unity: content_record.unity,
         year: content_record.classroom.year
       )

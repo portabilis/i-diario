@@ -14,7 +14,7 @@ FactoryGirl.define do
 
       next if school_term_recovery_diary_record.step_id.present?
 
-      school_calendar = create(:school_calendar, :current, :school_calendar_with_trimester_steps)
+      school_calendar = create(:school_calendar, :with_trimester_steps)
       step = school_calendar.step(school_term_recovery_diary_record.recorded_at)
       school_term_recovery_diary_record.step_id = step.id
       school_term_recovery_diary_record.step_number = step.step_number

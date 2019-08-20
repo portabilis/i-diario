@@ -1,15 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe TestSettingFetcher, type: :service do
-  let!(:classroom) { create(:classroom, :current) }
-  let!(:school_calendar) {
-    create(
-      :school_calendar,
-      :school_calendar_with_trimester_steps,
-      unity: classroom.unity,
-      year: classroom.year
-    )
-  }
+  let!(:classroom) { create(:classroom, :with_classroom_trimester_steps) }
+  let!(:step) { classroom.calendar.classroom_steps.first }
 
   context 'when does not receive classroom' do
     it 'raises ArgumentError to classroom' do
@@ -34,7 +27,7 @@ RSpec.describe TestSettingFetcher, type: :service do
 
     context 'test setting exist for step year' do
       it 'returns test setting of year of step' do
-        expect(described_class.by_step(school_calendar.steps.first)).to eq(general_test_setting)
+        expect(described_class.by_step(step)).to eq(general_test_setting)
       end
 
       it 'returns current test setting as general' do
@@ -48,7 +41,7 @@ RSpec.describe TestSettingFetcher, type: :service do
       end
 
       it 'returns nil' do
-        expect(described_class.by_step(school_calendar.steps.first)).to be(nil)
+        expect(described_class.by_step(step)).to be(nil)
       end
 
       it 'returns nil to current test setting as general' do
@@ -69,7 +62,7 @@ RSpec.describe TestSettingFetcher, type: :service do
 
     context 'test setting exists for step year and school_term' do
       it 'returns test setting of school term of step' do
-        expect(described_class.by_step(school_calendar.steps.first)).to eq(step_test_setting)
+        expect(described_class.by_step(step)).to eq(step_test_setting)
       end
 
       it 'returns current test setting of step' do
@@ -85,7 +78,7 @@ RSpec.describe TestSettingFetcher, type: :service do
       end
 
       it 'returns nil' do
-        expect(described_class.by_step(school_calendar.steps.first)).to be(nil)
+        expect(described_class.by_step(step)).to be(nil)
       end
 
       it 'returns nil to current test setting of step' do

@@ -10,8 +10,7 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
     let!(:school_calendar) {
       create(
         :school_calendar,
-        :school_calendar_with_semester_steps,
-        :current,
+        :with_semester_steps,
         unity: classroom.unity
       )
     }
