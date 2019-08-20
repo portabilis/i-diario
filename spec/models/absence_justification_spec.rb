@@ -5,16 +5,15 @@ RSpec.describe AbsenceJustification, type: :model do
 
   describe "associations" do
     it { expect(subject).to belong_to(:teacher) }
-    it { expect(subject).to belong_to(:student) }
+    it { expect(subject).to have_and_belong_to_many(:students) }
     it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to belong_to(:classroom) }
-    it { expect(subject).to belong_to(:discipline) }
+    it { expect(subject).to have_and_belong_to_many(:disciplines) }
     it { expect(subject).to belong_to(:school_calendar) }
   end
 
   describe "validations" do
     it { expect(subject).to validate_presence_of(:teacher) }
-    it { expect(subject).to validate_presence_of(:student_id) }
     it { expect(subject).to validate_presence_of(:absence_date) }
     it { expect(subject).to validate_school_calendar_day_of(:absence_date) }
     it { expect(subject).to validate_presence_of(:absence_date_end) }
@@ -36,10 +35,6 @@ RSpec.describe AbsenceJustification, type: :model do
         classroom = FactoryGirl.create(
           :classroom,
           exam_rule: exam_rule
-        )
-
-        student = FactoryGirl.create(
-          :student
         )
 
         unity = FactoryGirl.create(
@@ -67,8 +62,6 @@ RSpec.describe AbsenceJustification, type: :model do
           unity: unity,
           school_calendar: school_calendar,
           classroom: classroom,
-          discipline: discipline,
-          student: student,
           absence_date: '12/04/2016',
           absence_date_end: '14/04/2016',
           teacher: teacher_discipline_classroom.teacher
@@ -79,8 +72,6 @@ RSpec.describe AbsenceJustification, type: :model do
           unity: unity,
           school_calendar: school_calendar,
           classroom: classroom,
-          student: student,
-          discipline: discipline,
           absence_date: '13/04/2016',
           absence_date_end: '13/04/2016',
           teacher: teacher_discipline_classroom.teacher
