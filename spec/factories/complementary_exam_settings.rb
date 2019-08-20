@@ -7,7 +7,7 @@ FactoryGirl.define do
     maximum_score { rand(1..10) }
     number_of_decimal_places { rand(0..2) }
 
-    factory :complementary_exam_setting_with_two_grades do
+    trait :with_two_grades do
       grades { create_list(:grade, 2) }
     end
   end
