@@ -8,7 +8,14 @@ RSpec.describe ExamPoster::NumericalExamPoster do
   end
   let!(:daily_note_student) { create(:daily_note_student, daily_note: daily_note, note: 4) }
   let!(:daily_note) { create(:current_daily_note, avaliation: avaliation) }
-  let!(:avaliation) { create(:current_avaliation, classroom: classroom, school_calendar: school_calendar) }
+  let!(:avaliation) {
+    create(
+      :avaliation,
+      :with_teacher_discipline_classroom,
+      classroom: classroom,
+      school_calendar: school_calendar
+    )
+  }
   let!(:classroom) { create(:classroom, :score_type_numeric, unity: unity, exam_rule: exam_rule) }
   let!(:exam_rule) { create(:exam_rule, recovery_type: RecoveryTypes::PARALLEL) }
   let!(:test_setting) { create(:test_setting, year: school_calendar.year) }

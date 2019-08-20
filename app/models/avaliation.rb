@@ -147,6 +147,10 @@ class Avaliation < ActiveRecord::Base
 
   private
 
+  def steps_fetcher
+    StepsFetcher.new(classroom)
+  end
+
   def self.by_school_calendar_step_query(school_calendar_step_id)
     school_calendar_step = SchoolCalendarStep.find(school_calendar_step_id)
     self.by_test_date_between(school_calendar_step.start_at, school_calendar_step.end_at)
@@ -178,8 +182,9 @@ class Avaliation < ActiveRecord::Base
   end
 
   def step
-    return unless school_calendar
-    school_calendar.step(test_date)
+    return if classroom.blank?
+
+    steps_fetcher.step_by_date(test_date)
   end
 
   def uniqueness_of_avaliation
