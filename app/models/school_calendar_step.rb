@@ -54,16 +54,7 @@ class SchoolCalendarStep < ActiveRecord::Base
   end
 
   def test_setting
-    school_term = SchoolTermConverter.convert(school_calendar.step(start_at))
-    TestSetting.where(
-      TestSetting.arel_table[:year].eq(school_calendar.year)
-        .and(
-          TestSetting.arel_table[:exam_setting_type].eq(ExamSettingTypes::GENERAL)
-          .or(TestSetting.arel_table[:school_term].eq(school_term))
-        )
-    )
-    .order(school_term: :desc)
-    .first
+    TestSettingFetcher.by_step(self)
   end
 
   def school_calendar_parent
