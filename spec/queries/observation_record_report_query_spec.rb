@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ObservationRecordReportQuery, type: :query do
-  let(:school_calendar) { create(:school_calendar_with_one_step, year: 2016) }
+  let(:school_calendar) { create(:school_calendar, :with_one_step, year: 2016) }
   let(:exam_rule) { create(:exam_rule, frequency_type: FrequencyTypes::BY_DISCIPLINE) }
   let(:classroom_one) { create(:classroom, exam_rule: exam_rule) }
   let(:classroom_two) { create(:classroom, exam_rule: exam_rule) }
