@@ -13,7 +13,6 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
   belongs_to :lesson_plan, dependent: :destroy
 
   before_destroy :valid_for_destruction?
-  before_destroy :remove_attachments, if: :valid_for_destruction?
 
   has_many :knowledge_area_lesson_plan_knowledge_areas, dependent: :destroy
   has_many :knowledge_areas, through: :knowledge_area_lesson_plan_knowledge_areas
@@ -79,9 +78,5 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
         true
       end
     end
-  end
-
-  def remove_attachments
-    lesson_plan.lesson_plan_attachments.each(&:destroy)
   end
 end
