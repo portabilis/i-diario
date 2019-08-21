@@ -3,7 +3,7 @@ FactoryGirl.define do
     avaliation
 
     factory :current_daily_note do
-      association :avaliation, factory: :current_avaliation
+      association :avaliation, factory: [:avaliation, :with_teacher_discipline_classroom]
     end
   end
 end

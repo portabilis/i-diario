@@ -113,6 +113,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
   def destroy
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.find(params[:id])
+    @knowledge_area_lesson_plan.teacher_id = current_teacher_id
+    @knowledge_area_lesson_plan.lesson_plan.teacher_id = current_teacher_id
 
     @knowledge_area_lesson_plan.destroy
 

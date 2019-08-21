@@ -6,8 +6,7 @@ RSpec.describe StepsFetcher, type: :service do
   let!(:school_calendar) {
     create(
       :school_calendar,
-      :school_calendar_with_trimester_steps,
-      :current,
+      :with_trimester_steps,
       unity: unity
     )
   }

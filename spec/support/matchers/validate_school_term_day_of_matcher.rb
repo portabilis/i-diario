@@ -31,7 +31,7 @@ class ValidateSchoolTermDayOfMatcher
   private
 
   def allow_day_in_school_term
-    school_calendar = FactoryGirl.create(:school_calendar_with_one_step)
+    school_calendar = create(:school_calendar, :with_one_step)
     school_term = school_calendar.steps.first
     @subject.school_calendar_step = school_term
     @subject.send("#{@attribute}=", school_term.end_at)
@@ -42,7 +42,7 @@ class ValidateSchoolTermDayOfMatcher
   end
 
   def disallow_day_not_in_school_term
-    school_calendar = FactoryGirl.create(:school_calendar_with_one_step)
+    school_calendar = create(:school_calendar, :with_one_step)
     school_term = school_calendar.steps.first
     @subject.school_calendar_step = school_term
     @subject.send("#{@attribute}=", school_term.end_at + 1.day)

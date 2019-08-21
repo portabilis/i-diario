@@ -12,7 +12,7 @@ FactoryGirl.define do
 
     trait :current do
       classroom
-      association :school_calendar, factory: :current_school_calendar_with_one_step
+      association :school_calendar, factory: [:school_calendar, :with_one_step]
     end
 
     trait :without_discipline do
