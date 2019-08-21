@@ -49,7 +49,7 @@ module TestSettingValidations
   def tests_weight_less_or_equal_maximum_score
     tests_weight = tests.to_a.select { |test| !test.marked_for_destruction? && test.weight }.sum(&:weight)
 
-    errors.add(:tests, :tests_weight_less_or_equal_maximum_score) if tests_weight > maximum_score
+    errors.add(:tests, :tests_weight_less_or_equal_maximum_score) unless tests_weight <= maximum_score
   end
 
   def ensure_can_destroy_test_settings

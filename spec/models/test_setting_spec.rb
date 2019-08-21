@@ -98,7 +98,7 @@ RSpec.describe TestSetting, type: :model do
         it 'they should be less or equal to maximum score' do
           subject.maximum_score = 100
           expect(subject).to_not be_valid
-          expect(subject.errors.messages[:tests]).to include('A soma dos pesos das avaliações deve resultar no mesmo valor da nota máxima')
+          expect(subject.errors.messages[:tests]).to include('A soma dos pesos das avaliações deve resultar em um valor menor ou igual da nota máxima')
         end
       end
     end
