@@ -13,8 +13,8 @@ class AbsenceJustification < ActiveRecord::Base
   before_destroy :valid_for_destruction?
   before_destroy :remove_attachments, if: :valid_for_destruction?
 
-  has_and_belongs_to_many :students
-  has_and_belongs_to_many :disciplines
+  deferred_has_and_belongs_to_many :students
+  deferred_has_and_belongs_to_many :disciplines
   belongs_to :unity
   belongs_to :classroom
   belongs_to :school_calendar
