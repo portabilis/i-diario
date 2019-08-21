@@ -1,4 +1,4 @@
-<a id="user-info-selector" href=""#>
+<a id="user-info-selector" href="#">
   <%= gravatar_image_tag current_user.email, 48, alt: current_user.navigation_display %>
   <%= content_tag :span do -%>
     <%= t('layouts.application.change_profile') %>
@@ -89,3 +89,9 @@
     </div>
   <% end %>
 </div>
+
+<script>
+  window.profile = {
+      access_level: <%= raw current_user.current_user_role.present? ? "'#{current_user.current_user_role.role.access_level}'" : "null" %>
+  };
+</script>

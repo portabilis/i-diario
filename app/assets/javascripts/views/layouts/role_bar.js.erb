@@ -152,7 +152,7 @@ $(function() {
     })
   }
 
-  function makeRequiredFields(role) {
+  function markRequiredFields(role) {
     $.each([
       $unityContainer,
       $yearContainer,
@@ -223,7 +223,7 @@ $(function() {
         $unityContainer
       ], 'profile:role');
 
-      makeRequiredFields(profileRole.role.access_level);
+      markRequiredFields(profileRole.role.access_level);
     }, function () {
       setError("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
     });
@@ -541,8 +541,12 @@ $(function() {
       setError("<%= I18n.t('layouts.error_messages.needs_profile') %>");
     } else if (invalidFields.current_unity_id !== undefined) {
       setError("<%= I18n.t('layouts.error_messages.needs_unity') %>");
+    } else if (invalidFields.current_school_year !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_year') %>");
     } else if (invalidFields.current_classroom_id !== undefined) {
       setError("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
+    } else if (invalidFields.assumed_teacher_id !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_teacher') %>");
     } else if (invalidFields.current_discipline_id !== undefined) {
       setError("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
     } else {
@@ -550,14 +554,9 @@ $(function() {
     }
   });
 
-  if (getValue($roleField)) {
-    getProfileRole(getValue($roleField)).then(function (d) {
-      $('#page-loading').hide();
-      makeRequiredFields(d.role.access_level);
-    });
+  if (window.profile.access_level) {
+      markRequiredFields(window.profile.access_level);
   }
-
-  //...
 
   $loginInfo.click(function (e) {
     if ($roleBar.is(':hidden')) {

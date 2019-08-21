@@ -12,7 +12,8 @@ class CurrentRoleForm
                 :current_school_year
 
   validates :current_user_role_id, presence: true
-  validates :current_classroom_id, :current_discipline_id, :current_school_year, presence: true, if: :require_allocation?
+  validates :current_school_year, presence: true, if: :require_year?, unless: :unity_is_cost_center?
+  validates :assumed_teacher_id, :current_discipline_id, presence: true, if: :require_allocation?
   validates :current_unity_id,  presence: true, if: :require_unity?
 
   def initialize(attributes = {})
@@ -23,8 +24,11 @@ class CurrentRoleForm
 
   def save
     return false unless valid?
-    @params[:current_classroom_id] = @params[:current_discipline_id] = nil unless require_allocation?
+    @params[:assumed_teacher_id] =
+      @params[:current_classroom_id] = @params[:current_discipline_id] = nil unless require_allocation?
+
     @params[:current_unity_id] = nil unless require_unity?
+
     current_user.update_attributes(@params)
   end
 
@@ -46,8 +50,12 @@ class CurrentRoleForm
     @user_teacher ||= Teacher.find_by_id(assumed_teacher_id)
   end
 
+  def classroom
+    @classroom ||= Classroom.find_by_id(current_classroom_id)
+  end
+
   def require_allocation?
-    access_level == AccessLevel::TEACHER || user_teacher
+    access_level == AccessLevel::TEACHER || classroom
   end
 
   def is_admin?
@@ -62,7 +70,15 @@ class CurrentRoleForm
     access_level == AccessLevel::TEACHER
   end
 
+  def require_year?
+    is_admin? || is_employee? || is_teacher?
+  end
+
   def require_unity?
     is_admin? || is_employee? || is_teacher?
+  end
+
+  def unity_is_cost_center?
+    Unity.find(@params[:current_unity_id]).unit_type == 'cost_center'
   end
 end
