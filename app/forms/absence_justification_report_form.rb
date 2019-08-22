@@ -18,7 +18,7 @@ class AbsenceJustificationReportForm
   validate :at_least_one_discipline, if: :frequence_type_by_discipline?
   validate :must_find_absence
 
-  def absence_justification
+  def absence_justifications
     if frequence_type_by_discipline?
       absence_justifications = AbsenceJustification.by_author(author, current_teacher_id)
                                                    .by_unity(unity_id)
@@ -60,7 +60,7 @@ class AbsenceJustificationReportForm
   def must_find_absence
     return if errors.present?
 
-    errors.add(:base, 'Não foram encontrados resultados para a pesquisa!') if absence_justification.blank?
+    errors.add(:base, 'Não foram encontrados resultados para a pesquisa!') if absence_justifications.blank?
   end
 
   def classroom

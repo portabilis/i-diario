@@ -1,11 +1,11 @@
 class AbsenceJustificationReport < BaseReport
-  def self.build(entity_configuration, absence_justifications, absence_justification_report_form)
-    new.build(entity_configuration, absence_justifications, absence_justification_report_form)
+  def self.build(entity_configuration, absence_justification_report_form)
+    new.build(entity_configuration, absence_justification_report_form)
   end
 
-  def build(entity_configuration, absence_justifications, absence_justification_report_form)
+  def build(entity_configuration, absence_justification_report_form)
     @entity_configuration = entity_configuration
-    @absence_justifications = absence_justifications
+    @absence_justifications = absence_justification_report_form.absence_justifications
     @absence_justification_report_form = absence_justification_report_form
 
     if absence_justification_report_form.frequence_type_by_discipline?

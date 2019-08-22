@@ -15,10 +15,10 @@ class AbsenceJustificationReportController < ApplicationController
     @absence_justification_report_form.current_teacher_id = current_teacher
 
     if @absence_justification_report_form.valid?
-      fetch_absences
-      absence_justification_report = AbsenceJustificationReport.build(current_entity_configuration,
-                                                                      @absence_justifications,
-                                                                      @absence_justification_report_form)
+      absence_justification_report = AbsenceJustificationReport.build(
+        current_entity_configuration,
+        @absence_justification_report_form
+      )
 
       send_pdf(t('routes.absence_justification'), absence_justification_report.render)
     else
@@ -28,45 +28,6 @@ class AbsenceJustificationReportController < ApplicationController
   end
 
   private
-
-  def fetch_absences
-    author_type = (params[:absence_justification_report_form] || []).delete(:author)
-
-    if @absence_justification_report_form.frequence_type_by_discipline?
-      @absence_justifications = AbsenceJustification.by_author(author_type, current_teacher)
-                                                    .by_unity(current_user_unity.id)
-                                                    .by_school_calendar_report(current_school_calendar)
-                                                    .by_classroom(@absence_justification_report_form.classroom_id)
-                                                    .by_disciplines(
-                                                      @absence_justification_report_form.discipline_ids
-                                                    )
-                                                    .by_date_range(
-                                                      @absence_justification_report_form.absence_date,
-                                                      @absence_justification_report_form.absence_date_end
-                                                    ).uniq
-
-      discipline_ids = @absence_justification_report_form.discipline_ids.map(&:to_i)
-      absence_justification_ids = []
-
-      @absence_justifications.each do |absence_justification|
-        if (discipline_ids - absence_justification.disciplines.map(&:id)).any?
-          absence_justification_ids << absence_justification.id
-        end
-      end
-
-      @absence_justifications = @absence_justifications.where.not(id: absence_justification_ids)
-                                                       .order(absence_date: :asc)
-
-      @absence_justifications
-    else
-      @absence_justifications = AbsenceJustification.by_author(author_type, current_teacher)
-                                                    .by_unity(current_user_unity.id)
-                                                    .by_school_calendar_report(current_school_calendar)
-                                                    .by_classroom(@absence_justification_report_form.classroom_id)
-                                                    .by_date_range(@absence_justification_report_form.absence_date, @absence_justification_report_form.absence_date_end)
-                                                    .order(absence_date: :asc)
-    end
-  end
 
   def resource_params
     parameters = params.require(:absence_justification_report_form).permit(
