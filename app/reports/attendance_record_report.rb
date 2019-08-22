@@ -202,12 +202,17 @@ class AttendanceRecordReport < BaseReport
       bottom_offset = @second_teacher_signature ? 24 : 0
       sliced_students_cells = students_cells.each_slice(student_slice_size(students)).to_a
 
-      sliced_students_cells.each_with_index do |students_cells_slice, index|
+      sliced_students_cells.each_with_index do |students_cells_slice, slice_index|
         data = [
           first_headers_and_class_numbers_cells,
           days_header_and_cells,
           months_header_and_cells
         ]
+
+        if slice_index == sliced_students_cells.count - 1 && index == sliced_frequencies_and_events.count - 1
+          students_cells_slice <<
+            [{ content: "Aulas dadas: #{frequencies_and_events.count}", colspan: 44, align: :center }]
+        end
 
         data.concat(students_cells_slice)
 
@@ -231,7 +236,7 @@ class AttendanceRecordReport < BaseReport
 
         text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
-        start_new_page if index < sliced_students_cells.count - 1
+        start_new_page if slice_index < sliced_students_cells.count - 1
       end
 
       text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
