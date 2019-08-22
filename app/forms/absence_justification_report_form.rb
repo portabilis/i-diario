@@ -26,16 +26,19 @@ class AbsenceJustificationReportForm
                                                    .by_classroom(classroom_id)
                                                    .by_disciplines(discipline_ids)
                                                    .by_date_range(absence_date, absence_date_end)
+                                                   .uniq
 
       disciplines = discipline_ids.map(&:to_i)
+      absence_justification_ids = []
 
       absence_justifications.each do |absence_justification|
         if (disciplines - absence_justification.disciplines.map(&:id)).any?
-          absence_justifications = absence_justifications.where.not(id: absence_justification.id)
+          absence_justification_ids << absence_justification.id
         end
       end
+      absence_justifications = absence_justifications.where.not(id: absence_justification_ids).ordered
 
-      absence_justifications.uniq.ordered
+      absence_justifications
     else
       AbsenceJustification.by_author(author, current_teacher_id)
                           .by_unity(unity_id)

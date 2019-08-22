@@ -43,17 +43,21 @@ class AbsenceJustificationReportController < ApplicationController
                                                     .by_date_range(
                                                       @absence_justification_report_form.absence_date,
                                                       @absence_justification_report_form.absence_date_end
-                                                    )
+                                                    ).uniq
 
       discipline_ids = @absence_justification_report_form.discipline_ids.map(&:to_i)
+      absence_justification_ids = []
 
       @absence_justifications.each do |absence_justification|
         if (discipline_ids - absence_justification.disciplines.map(&:id)).any?
-          @absence_justifications = @absence_justifications.where.not(id: absence_justification.id)
+          absence_justification_ids << absence_justification.id
         end
       end
 
-      @absence_justifications.uniq.order(absence_date: :asc)
+      @absence_justifications = @absence_justifications.where.not(id: absence_justification_ids)
+                                                       .order(absence_date: :asc)
+
+      @absence_justifications
     else
       @absence_justifications = AbsenceJustification.by_author(author_type, current_teacher)
                                                     .by_unity(current_user_unity.id)
