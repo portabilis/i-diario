@@ -20,7 +20,9 @@ class AbsenceJustificationReportForm
 
   def absence_justifications
     if frequence_type_by_discipline?
-      absence_justifications = AbsenceJustification.by_author(author, current_teacher_id)
+      absence_justifications = AbsenceJustification.includes(:disciplines)
+                                                   .includes(:students)
+                                                   .by_author(author, current_teacher_id)
                                                    .by_unity(unity_id)
                                                    .by_school_calendar_report(school_calendar_year)
                                                    .by_classroom(classroom_id)
@@ -40,7 +42,9 @@ class AbsenceJustificationReportForm
 
       absence_justifications
     else
-      AbsenceJustification.by_author(author, current_teacher_id)
+      AbsenceJustification.includes(:disciplines)
+                          .includes(:students)
+                          .by_author(author, current_teacher_id)
                           .by_unity(unity_id)
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
