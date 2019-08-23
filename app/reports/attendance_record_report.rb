@@ -211,7 +211,7 @@ class AttendanceRecordReport < BaseReport
 
         if slice_index == sliced_students_cells.count - 1 && index == sliced_frequencies_and_events.count - 1
           students_cells_slice <<
-            [{ content: "Aulas dadas: #{frequencies_and_events.count}", colspan: 44, align: :center }]
+            [{ content: "Aulas dadas: #{daily_frequencies.count}", colspan: 44, align: :center }]
         end
 
         data.concat(students_cells_slice)
