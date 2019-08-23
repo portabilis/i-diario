@@ -2,10 +2,16 @@ require 'rails_helper'
 
 RSpec.describe Api::V2::ContentRecordsController, type: :controller do
   describe '#sync' do
-    let(:teacher_discipline_classroom) { create(:teacher_discipline_classroom) }
+    let(:teacher_discipline_classroom) {
+      create(
+        :teacher_discipline_classroom,
+        :with_classroom_semester_steps,
+        :current
+      )
+    }
 
     around(:each) do |example|
-      Entity.find_by_domain("test.host").using_connection do
+      Entity.find_by(domain: 'test.host').using_connection do
         example.run
       end
     end
@@ -15,13 +21,19 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
     end
 
     it 'destroys content record when content was not in the params' do
-      content_record = create(:content_record,
-                              teacher: teacher_discipline_classroom.teacher,
-                              classroom_id: teacher_discipline_classroom.classroom_id)
+      content_record = create(
+        :content_record,
+        :with_contents,
+        teacher: teacher_discipline_classroom.teacher,
+        classroom_id: teacher_discipline_classroom.classroom_id
+      )
 
-      create(:discipline_content_record,
-             content_record: content_record,
-             discipline_id: teacher_discipline_classroom.discipline_id)
+      create(
+        :discipline_content_record,
+        content_record: content_record,
+        discipline_id: teacher_discipline_classroom.discipline_id,
+        teacher_id: teacher_discipline_classroom.teacher_id
+      )
 
       params = {
         record_date: content_record.record_date.to_s,
@@ -29,35 +41,41 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
         teacher_id: teacher_discipline_classroom.teacher_id,
         discipline_id: teacher_discipline_classroom.discipline_id,
         contents: nil,
-        format: "json",
-        locale: "en"
+        format: 'json',
+        locale: 'en'
       }
 
-      expect do
+      expect {
         xhr :post, :sync, params
-      end.to change { ContentRecord.count }.to(0)
+      }.to change { ContentRecord.count }.to(0)
     end
 
     it 'creates content' do
-      content_record = create(:content_record,
-                              teacher: teacher_discipline_classroom.teacher,
-                              classroom_id: teacher_discipline_classroom.classroom_id)
+      content_record = create(
+        :content_record,
+        :with_contents,
+        teacher: teacher_discipline_classroom.teacher,
+        classroom_id: teacher_discipline_classroom.classroom_id
+      )
 
-      create(:discipline_content_record,
-             content_record: content_record,
-             discipline_id: teacher_discipline_classroom.discipline_id)
+      create(
+        :discipline_content_record,
+        content_record: content_record,
+        discipline_id: teacher_discipline_classroom.discipline_id,
+        teacher_id: teacher_discipline_classroom.teacher_id
+      )
 
-      content_1 = { id: Content.first.id }
-      content_2 = { description: 'algebra linear para crianças de até um ano' }
+      content1 = { id: Content.first.id }
+      content2 = { description: 'algebra linear para crianças de até um ano' }
 
       params = {
         record_date: content_record.record_date.to_s,
         classroom_id: teacher_discipline_classroom.classroom_id,
         teacher_id: teacher_discipline_classroom.teacher_id,
         discipline_id: teacher_discipline_classroom.discipline_id,
-        contents: [content_1, content_2],
-        format: "json",
-        locale: "en"
+        contents: [content1, content2],
+        format: 'json',
+        locale: 'en'
       }
 
       content_record.contents << content_record.contents.first
@@ -65,7 +83,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
       xhr :post, :sync, params
 
       expect(content_record.reload.contents.pluck(:description)).
-        to match_array [Content.first.description, content_2[:description]]
+        to match_array [Content.first.description, content2[:description]]
     end
   end
 end
