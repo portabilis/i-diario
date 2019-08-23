@@ -13,7 +13,10 @@ class AbsenceJustificationsController < ApplicationController
 
     author_type = (params[:search] || []).delete(:by_author)
 
-    @absence_justifications = apply_scopes(AbsenceJustification.by_unity(current_user_unity)
+    @absence_justifications = apply_scopes(AbsenceJustification.includes(:teacher)
+                                                               .includes(:classroom)
+                                                               .includes(:unity)
+                                                               .by_unity(current_user_unity)
                                                                .by_classroom(current_user_classroom)
                                                                .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
