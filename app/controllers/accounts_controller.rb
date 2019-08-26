@@ -7,11 +7,8 @@ class AccountsController < ApplicationController
     @user = current_user
     @user.has_to_validate_receive_news_fields = true
 
-    if @user.update_with_password(user_params)
-      respond_with @user, location: edit_account_path
-    else
-      render :edit
-    end
+    @user.update_with_password(user_params)
+    respond_with @user, location: edit_account_path
   end
 
   protected
