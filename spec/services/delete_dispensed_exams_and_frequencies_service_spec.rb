@@ -190,7 +190,6 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
       let(:daily_frequency1) {
         create(
           :daily_frequency,
-          :current,
           classroom: classroom,
           discipline: discipline
         )
@@ -198,7 +197,6 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
       let(:daily_frequency2) {
         create(
           :daily_frequency,
-          :current,
           classroom: classroom
         )
       }
