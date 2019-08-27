@@ -19,6 +19,9 @@ class GradeExamRulesSynchronizer < BaseSynchronizer
   def update_grade_exam_rules(grade_exam_rules)
     grade_exam_rules.each do |grade_exam_rule|
       grade = grade(grade_exam_rule.serie_id)
+
+      next if grade.blank?
+
       exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_id)
       differentiated_exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_diferenciada_id)
 
