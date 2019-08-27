@@ -43,21 +43,21 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
         )
       }
       let(:daily_note1) {
-        create(:current_daily_note, avaliation: avaliation1)
+        create(:daily_note, avaliation: avaliation1)
       }
       let(:daily_note2) {
-        create(:current_daily_note, avaliation: avaliation2)
+        create(:daily_note, avaliation: avaliation2)
       }
       let!(:daily_note_student1) {
         create(
-          :current_daily_note_student,
+          :daily_note_student,
           daily_note: daily_note1,
           student: student_enrollment.student
         )
       }
       let!(:daily_note_student2) {
         create(
-          :current_daily_note_student,
+          :daily_note_student,
           daily_note: daily_note2,
           student: student_enrollment.student
         )

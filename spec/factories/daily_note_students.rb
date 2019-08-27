@@ -4,9 +4,5 @@ FactoryGirl.define do
     student
 
     active true
-
-    factory :current_daily_note_student do
-      association :daily_note, factory: :current_daily_note
-    end
   end
 end

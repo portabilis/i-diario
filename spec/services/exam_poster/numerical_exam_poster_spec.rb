@@ -35,7 +35,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       discipline: discipline
     )
   }
-  let!(:daily_note) { create(:current_daily_note, avaliation: avaliation) }
+  let!(:daily_note) { create(:daily_note, avaliation: avaliation) }
   let!(:daily_note_student) {
     create(
       :daily_note_student,
