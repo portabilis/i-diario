@@ -23,6 +23,8 @@ class Student < ActiveRecord::Base
   has_many :transfer_notes
   has_many :deficiency_students, dependent: :destroy
   has_many :deficiencies, through: :deficiency_students
+  has_many :student_unifications
+  has_many :student_unification_students
 
   attr_accessor :exempted_from_discipline
 
