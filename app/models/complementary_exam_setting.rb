@@ -16,6 +16,7 @@ class ComplementaryExamSetting < ActiveRecord::Base
   validate :uniqueness_of_calculation_type_by_grade
   validate :uniqueness_of_initials_and_description_by_affected_score
   validate :grades_in_use_cant_be_removed
+  validate :integral_calculation_score
 
   scope :by_description, lambda { |description| where("unaccent(complementary_exam_settings.description) ILIKE unaccent('%#{description}%')") }
   scope :by_initials, lambda { |initials| where("unaccent(complementary_exam_settings.initials) ILIKE unaccent('%#{initials}%')") }
@@ -76,5 +77,12 @@ class ComplementaryExamSetting < ActiveRecord::Base
     return true if complementary_exams.count == complementary_exams.by_grade_id(grade_ids).count
 
     errors.add(:base, :grades_in_use_cant_be_removed)
+  end
+
+  def integral_calculation_score
+    return unless integral?
+    return if step_average?
+
+    errors.add(:base, :integral_calculation_score)
   end
 end
