@@ -7,16 +7,16 @@ FactoryGirl.define do
     recovery_type RecoveryTypes::DONT_USE
     final_recovery_maximum_score 10
 
-    factory :exam_rule_by_discipline do
+    trait :frequency_type_by_discipline do
       frequency_type FrequencyTypes::BY_DISCIPLINE
     end
 
-    factory :exam_rule_numeric_and_concept do
+    trait :score_type_numeric_and_concept do
       score_type ScoreTypes::NUMERIC_AND_CONCEPT
       recovery_type RecoveryTypes::PARALLEL
     end
 
-    factory :exam_rule_concept do
+    trait :score_type_concept do
       score_type ScoreTypes::CONCEPT
     end
   end
