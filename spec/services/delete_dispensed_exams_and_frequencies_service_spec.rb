@@ -152,18 +152,18 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
       let(:descriptive_exam1) {
         create(
           :descriptive_exam,
-          :current,
+          :with_teacher_discipline_classroom,
           classroom: classroom,
           discipline: discipline,
-          step_id: classroom.calendar.classroom_steps.first.id
+          step: classroom.calendar.classroom_steps.first
         )
       }
       let(:descriptive_exam2) {
         create(
           :descriptive_exam,
-          :current,
+          :with_teacher_discipline_classroom,
           classroom: classroom,
-          step_id: classroom.calendar.classroom_steps.last.id
+          step: classroom.calendar.classroom_steps.last
         )
       }
       let!(:descriptive_exam_student1) {
