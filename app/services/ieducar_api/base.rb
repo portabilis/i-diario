@@ -23,7 +23,8 @@ module IeducarApi
     end
 
     def fetch(params = {})
-      params.reverse_merge!(modified: last_synchronization_date) unless full_synchronization
+      ignore_modified = params.delete(:ignore_modified)
+      params.reverse_merge!(modified: last_synchronization_date) unless full_synchronization || ignore_modified
 
       assign_staging_secret_keys if Rails.env.staging?
 
