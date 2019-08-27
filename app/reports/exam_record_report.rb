@@ -103,6 +103,7 @@ class ExamRecordReport < BaseReport
 
   def daily_notes_table
     averages = {}
+    school_term_recovery_scores = {}
     self.any_student_with_dependence = false
 
     @students_enrollments.each do |student_enrollment|
@@ -189,8 +190,7 @@ class ExamRecordReport < BaseReport
 
             score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_id, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
 
-            recovery_average = SchoolTermAverageCalculator.new(classroom).calculate(averages[student_enrollment.student_id], recovery_student.try(:score))
-            averages[student_enrollment.student_id] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY).round(recovery_average)
+            school_term_recovery_scores[student_enrollment.student_id] = recovery_student.try(:score)
           end
 
           student = Student.find(student_id)
@@ -230,6 +230,11 @@ class ExamRecordReport < BaseReport
 
         (10 - data_column_count).times { student_cells << nil }
         if daily_notes_slice == sliced_exams.last
+          recovery_average = SchoolTermAverageCalculator.new(classroom)
+                                                        .calculate(averages[key], school_term_recovery_scores[key])
+          averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
+                                      .round(recovery_average)
+
           average = localize_score(averages[key])
           student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)
         else

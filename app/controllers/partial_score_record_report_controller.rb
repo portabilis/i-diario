@@ -1,6 +1,4 @@
 class PartialScoreRecordReportController < ApplicationController
-  before_action :require_current_test_setting
-
   def form
     @partial_score_record_report_form = PartialScoreRecordReportForm.new
     @partial_score_record_report_form.classroom_id = current_user.current_classroom_id

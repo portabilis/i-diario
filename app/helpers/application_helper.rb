@@ -141,4 +141,8 @@ module ApplicationHelper
 
     yield(presenter) if block_given?
   end
+
+  def default_steps
+    (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
+  end
 end

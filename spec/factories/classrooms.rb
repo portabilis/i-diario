@@ -63,7 +63,7 @@ FactoryGirl.define do
 
     trait :with_classroom_trimester_steps do
       after(:create) do |classroom, evaluator|
-        school_calendar = evaluator.school_calendar || create(:school_calendar, :current, unity: classroom.unity)
+        school_calendar = evaluator.school_calendar || create(:school_calendar, unity: classroom.unity)
 
         create(
           :school_calendar_classroom,
@@ -76,7 +76,7 @@ FactoryGirl.define do
 
     trait :with_classroom_semester_steps do
       after(:create) do |classroom, evaluator|
-        school_calendar = evaluator.school_calendar || create(:school_calendar, :current, unity: classroom.unity)
+        school_calendar = evaluator.school_calendar || create(:school_calendar, unity: classroom.unity)
 
         create(
           :school_calendar_classroom,

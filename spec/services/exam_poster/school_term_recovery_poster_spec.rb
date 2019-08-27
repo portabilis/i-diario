@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe ExamPoster::SchoolTermRecoveryPoster do
   let!(:unity) { create(:unity) }
   let!(:exam_rule) { create(:exam_rule_numeric_and_concept) }
-  let!(:school_calendar) { create(:school_calendar_with_one_step, :current, unity: unity) }
-  let!(:classroom) { create(:classroom_numeric, unity: unity, exam_rule: exam_rule) }
+  let!(:school_calendar) { create(:school_calendar, :with_one_step, unity: unity) }
+  let!(:classroom) { create(:classroom, :score_type_numeric, unity: unity, exam_rule: exam_rule) }
   let!(:recovery_diary_record) {
     create(
       :recovery_diary_record_with_students,

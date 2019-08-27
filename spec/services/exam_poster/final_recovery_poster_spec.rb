@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe ExamPoster::FinalRecoveryPoster do
   let!(:unity) { create(:unity) }
-  let!(:school_calendar) { create(:school_calendar_with_one_step, :current, unity: unity) }
-  let!(:classroom) { create(:classroom_numeric, unity: unity) }
+  let!(:school_calendar) { create(:school_calendar, :with_one_step, unity: unity) }
+  let!(:classroom) { create(:classroom, :score_type_numeric, unity: unity) }
   let!(:recovery_diary_record) {
     create(
       :recovery_diary_record_with_students,

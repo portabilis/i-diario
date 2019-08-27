@@ -26,7 +26,6 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
       let!(:daily_frequency_1) {
         create(
           :daily_frequency,
-          :current,
           unity: classroom.unity,
           classroom: classroom,
           school_calendar: school_calendar,
@@ -36,7 +35,6 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
       let!(:daily_frequency_2) {
         create(
           :daily_frequency,
-          :current,
           unity: classroom.unity,
           school_calendar: school_calendar,
           classroom: classroom,
@@ -73,7 +71,6 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
       let!(:daily_frequency_1) {
         create(
           :daily_frequency,
-          :current,
           :without_discipline,
           unity: classroom.unity,
           classroom: classroom,
@@ -108,6 +105,6 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
       auditable_type: 'DailyFrequency',
       auditable_id: daily_frequency.id
     ).first
-    audit.update_column(:user_id, user.id)
+    audit.update(user_id: user.id)
   end
 end

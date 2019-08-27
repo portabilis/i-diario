@@ -2,26 +2,18 @@ require 'rails_helper'
 
 RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
   describe '#run!' do
-    let!(:classroom) { create(:classroom_numeric_and_concept) }
+    let!(:classroom) {
+      create(
+        :classroom,
+        :with_classroom_semester_steps,
+        :with_student_enrollment_classroom,
+        :score_type_numeric_and_concept
+      )
+    }
     let!(:discipline) { create(:discipline) }
-    let!(:other_discipline) { create(:discipline) }
-    let(:unity) { create(:unity) }
-    let!(:student_enrollment) { create(:student_enrollment) }
-    let!(:school_calendar) {
-      create(
-        :school_calendar,
-        :school_calendar_with_semester_steps,
-        :current,
-        unity: classroom.unity
-      )
-    }
-    let!(:student_enrollment_classroom) {
-      create(
-        :student_enrollment_classroom,
-        classroom: classroom,
-        student_enrollment: student_enrollment
-      )
-    }
+    let!(:school_calendar) { classroom.calendar.school_calendar }
+    let!(:student_enrollment_classroom) { classroom.student_enrollment_classrooms.first }
+    let!(:student_enrollment) { student_enrollment_classroom.student_enrollment }
     let(:first_semester) { 1 }
     let(:second_semester) { 2 }
     let(:inexisting_step) { 3 }
@@ -37,35 +29,35 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
     context 'when there are invalid daily note students' do
       let(:avaliation1) {
         create(
-          :current_avaliation,
+          :avaliation,
+          :with_teacher_discipline_classroom,
           classroom: classroom,
-          discipline: discipline,
-          school_calendar: school_calendar
+          discipline: discipline
         )
       }
       let(:avaliation2) {
         create(
-          :current_avaliation,
-          classroom: classroom,
-          school_calendar: school_calendar
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          classroom: classroom
         )
       }
       let(:daily_note1) {
-        create(:current_daily_note, avaliation: avaliation1)
+        create(:daily_note, avaliation: avaliation1)
       }
       let(:daily_note2) {
-        create(:current_daily_note, avaliation: avaliation2)
+        create(:daily_note, avaliation: avaliation2)
       }
       let!(:daily_note_student1) {
         create(
-          :current_daily_note_student,
+          :daily_note_student,
           daily_note: daily_note1,
           student: student_enrollment.student
         )
       }
       let!(:daily_note_student2) {
         create(
-          :current_daily_note_student,
+          :daily_note_student,
           daily_note: daily_note2,
           student: student_enrollment.student
         )
@@ -91,7 +83,7 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
 
       context 'when steps_fetcher does not find the school_calendar' do
         before do
-          school_calendar.update(unity: unity)
+          school_calendar.update(unity: create(:unity))
         end
 
         it_behaves_like 'invalid_daily_note_students'
@@ -136,9 +128,10 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
     context 'when there are invalid conceptual exam values' do
       let!(:conceptual_exam) {
         create(
-          :conceptual_exam_with_one_value,
+          :conceptual_exam,
+          :with_teacher_discipline_classroom,
+          :with_one_value,
           classroom: classroom,
-          step_id: school_calendar.steps.first.id,
           student: student_enrollment.student
         )
       }
@@ -159,18 +152,18 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
       let(:descriptive_exam1) {
         create(
           :descriptive_exam,
-          :current,
+          :with_teacher_discipline_classroom,
           classroom: classroom,
           discipline: discipline,
-          step_id: school_calendar.steps.first.id
+          step: classroom.calendar.classroom_steps.first
         )
       }
       let(:descriptive_exam2) {
         create(
           :descriptive_exam,
-          :current,
+          :with_teacher_discipline_classroom,
           classroom: classroom,
-          step_id: school_calendar.steps.last.id
+          step: classroom.calendar.classroom_steps.last
         )
       }
       let!(:descriptive_exam_student1) {
@@ -197,7 +190,6 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
       let(:daily_frequency1) {
         create(
           :daily_frequency,
-          :current,
           classroom: classroom,
           discipline: discipline
         )
@@ -205,7 +197,6 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
       let(:daily_frequency2) {
         create(
           :daily_frequency,
-          :current,
           classroom: classroom
         )
       }

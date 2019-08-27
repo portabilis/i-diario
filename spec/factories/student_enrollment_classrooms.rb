@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :student_enrollment_classroom do
     student_enrollment
-    association :classroom, factory: :classroom_numeric_and_concept
+    association :classroom, factory: [:classroom, :score_type_numeric_and_concept]
 
     sequence(:api_code, &:to_s)
     classroom_code { classroom.api_code }
