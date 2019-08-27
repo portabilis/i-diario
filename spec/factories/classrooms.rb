@@ -19,7 +19,7 @@ FactoryGirl.define do
     end
 
     trait :score_type_numeric_and_concept do
-      association :exam_rule, factory: :exam_rule_numeric_and_concept
+      association :exam_rule, factory: [:exam_rule, :score_type_numeric_and_concept]
     end
 
     trait :score_type_numeric do
@@ -27,11 +27,11 @@ FactoryGirl.define do
     end
 
     trait :score_type_concept do
-      association :exam_rule, factory: :exam_rule_concept
+      association :exam_rule, factory: [:exam_rule, :score_type_concept]
     end
 
     trait :by_discipline do
-      association :exam_rule, factory: :exam_rule_by_discipline
+      association :exam_rule, factory: [:exam_rule, :frequency_type_by_discipline]
     end
 
     trait :with_teacher_discipline_classroom do
