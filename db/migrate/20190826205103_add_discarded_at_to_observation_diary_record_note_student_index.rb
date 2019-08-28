@@ -6,6 +6,7 @@ class AddDiscardedAtToObservationDiaryRecordNoteStudentIndex < ActiveRecord::Mig
     add_index :observation_diary_record_note_students,
               [:observation_diary_record_note_id, :student_id, :discarded_at],
               unique: true,
-              name: 'observation_diary_record_note_students_idx'
+              name: 'observation_diary_record_note_students_idx',
+              where: 'discarded_at IS NULL'
   end
 end
