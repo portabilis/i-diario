@@ -117,6 +117,7 @@ class ExamRecordReport < BaseReport
     end
 
     exams = []
+    integral_complementary_exams = []
     recoveries_avaliation_id = []
     recoveries_ids = []
 
@@ -130,11 +131,20 @@ class ExamRecordReport < BaseReport
     end
 
     @complementary_exams.each do |complementary_exam|
+      if complementary_exam.complementary_exam_setting.calculation_type == "integral"
+        integral_complementary_exams << complementary_exam
+        next
+      end
+
       exams << complementary_exam
     end
 
     @school_term_recoveries.each do |school_term_recovery|
       exams << school_term_recovery
+    end
+
+    integral_complementary_exams.each do |integral_exam|
+      exams << integral_exam
     end
 
     exams.to_a
