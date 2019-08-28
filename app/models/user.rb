@@ -217,7 +217,7 @@ class User < ActiveRecord::Base
 
     @current_classroom ||= begin
       classroom = Classroom.find_by(id: current_classroom_id)
-      update_attribute(:current_classroom_id, nil) if classroom.nil?
+      update(current_classroom_id: nil) if classroom.nil?
 
       classroom
     end
