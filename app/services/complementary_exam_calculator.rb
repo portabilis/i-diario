@@ -9,8 +9,10 @@ class ComplementaryExamCalculator
 
   def calculate(score)
     score = make_calculations(score)
-    maximum_score && maximum_score < score ? maximum_score : score
+    calculate_integral(maximum_score && maximum_score < score ? maximum_score : score)
   end
+
+  private
 
   def calculate_integral(score)
     integral_score = students_by_calculation(CalculationTypes::INTEGRAL)
@@ -19,8 +21,6 @@ class ComplementaryExamCalculator
 
     ((score + integral_score.sum(:score).to_f) / 2)
   end
-
-  private
 
   def maximum_score
     @maximum_score ||= test_setting.try(:maximum_score)

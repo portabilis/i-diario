@@ -23,16 +23,13 @@ class StudentAverageCalculator
       end
     end
 
-    complementary_calculator = ComplementaryExamCalculator.new(
+    result = ComplementaryExamCalculator.new(
       [AffectedScoreTypes::STEP_AVERAGE, AffectedScoreTypes::BOTH],
       student,
       discipline,
       classroom,
       step
-    )
-
-    result = complementary_calculator.calculate(result)
-    result = complementary_calculator.calculate_integral(result)
+    ).calculate(result)
 
     ScoreRounder.new(classroom, RoundedAvaliations::NUMERICAL_EXAM).round(result)
   end
