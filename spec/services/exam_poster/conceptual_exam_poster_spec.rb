@@ -1,47 +1,52 @@
 require 'rails_helper'
 
 RSpec.describe ExamPoster::ConceptualExamPoster do
-  let!(:exam_posting) do
+  let!(:discipline) { create(:discipline) }
+  let!(:conceptual_exam) {
     create(
-      :ieducar_api_exam_posting,
-      school_calendar_step: school_calendar.steps.first,
-      teacher: teacher_discipline_classroom.teacher
-    )
-  end
-  let!(:conceptual_exam) do
-    create(
-      :conceptual_exam_with_one_value,
-      step_id: school_calendar.steps.first.id,
+      :conceptual_exam,
+      :with_teacher_discipline_classroom,
+      :with_student_enrollment_classroom,
+      :with_one_value,
+      discipline: discipline,
       classroom: classroom
     )
-  end
-  let!(:school_calendar) { create(:school_calendar, :with_semester_steps) }
-  let!(:discipline) { conceptual_exam.conceptual_exam_values.first.discipline }
-  let!(:teacher_discipline_classroom) do
+  }
+  let!(:exam_posting) {
     create(
-      :teacher_discipline_classroom,
-      classroom: classroom,
-      discipline: discipline
+      :ieducar_api_exam_posting,
+      school_calendar_classroom_step: classroom.calendar.classroom_steps.first,
+      teacher: classroom.teacher_discipline_classrooms.first.teacher
     )
-  end
+  }
 
   subject { described_class.new(exam_posting, Entity.first.id, 'exam_posting_send') }
 
   context 'when has differentiated_exam_rules' do
     let(:differentiated_exam_rule) { create(:exam_rule, score_type: ScoreTypes::CONCEPT) }
     let(:exam_rule) { create(:exam_rule, differentiated_exam_rule: differentiated_exam_rule) }
-    let!(:classroom) { create(:classroom, :score_type_numeric, unity: school_calendar.unity, exam_rule: exam_rule) }
+    let!(:classroom) {
+      create(
+        :classroom,
+        :with_classroom_semester_steps,
+        :score_type_numeric,
+        exam_rule: exam_rule
+      )
+    }
 
     context 'when student uses_differentiated_exam_rule' do
-      let!(:conceptual_exam) do
+      let!(:conceptual_exam) {
         student = create(:student, uses_differentiated_exam_rule: true)
         create(
-          :conceptual_exam_with_one_value,
-          step_id: school_calendar.steps.first.id,
+          :conceptual_exam,
+          :with_teacher_discipline_classroom,
+          :with_student_enrollment_classroom,
+          :with_one_value,
+          discipline: discipline,
           classroom: classroom,
           student: student
         )
-      end
+      }
 
       it 'enqueue the requests' do
         subject.post!
@@ -78,18 +83,26 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when classroom score type is numeric and concept' do
-    let!(:classroom) { create(:classroom, :score_type_numeric_and_concept, unity: school_calendar.unity) }
+    let!(:classroom) {
+      create(
+        :classroom,
+        :with_classroom_semester_steps,
+        :score_type_numeric_and_concept
+      )
+    }
 
     context 'when discipline score type is numeric after being concept' do
-      let!(:teacher_discipline_classroom) do
-        create(:teacher_discipline_classroom,
-               classroom: classroom,
-               discipline: discipline,
-               score_type: DisciplineScoreTypes::CONCEPT)
-      end
+      let!(:teacher_discipline_classroom) {
+        create(
+          :teacher_discipline_classroom,
+          classroom: classroom,
+          discipline: discipline,
+          score_type: DisciplineScoreTypes::CONCEPT
+        )
+      }
 
       it 'does not enqueue the requests' do
-        teacher_discipline_classroom.update_column(:score_type, DisciplineScoreTypes::NUMERIC)
+        teacher_discipline_classroom.update(score_type: DisciplineScoreTypes::NUMERIC)
 
         subject.post!
 
@@ -124,12 +137,14 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     end
 
     context 'when discipline score type is concept' do
-      let!(:teacher_discipline_classroom) do
-        create(:teacher_discipline_classroom,
-               classroom: classroom,
-               discipline: discipline,
-               score_type: DisciplineScoreTypes::CONCEPT)
-      end
+      let!(:teacher_discipline_classroom) {
+        create(
+          :teacher_discipline_classroom,
+          classroom: classroom,
+          discipline: discipline,
+          score_type: DisciplineScoreTypes::CONCEPT
+        )
+      }
 
       it 'enqueues the requests' do
         subject.post!
@@ -165,12 +180,14 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
     end
 
     context 'when discipline score type is numeric' do
-      let!(:teacher_discipline_classroom) do
-        create(:teacher_discipline_classroom,
-               classroom: classroom,
-               discipline: discipline,
-               score_type: DisciplineScoreTypes::NUMERIC)
-      end
+      let!(:teacher_discipline_classroom) {
+        create(
+          :teacher_discipline_classroom,
+          classroom: classroom,
+          discipline: discipline,
+          score_type: DisciplineScoreTypes::NUMERIC
+        )
+      }
 
       it 'does not enqueue the requests' do
         subject.post!
@@ -207,10 +224,16 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when classroom score type is numeric after being concept' do
-    let!(:classroom) { create(:classroom, :score_type_concept, unity: school_calendar.unity) }
+    let!(:classroom) {
+      create(
+        :classroom,
+        :with_classroom_semester_steps,
+        :score_type_concept
+      )
+    }
 
     it 'does not enqueue the requests' do
-      classroom.exam_rule.update_column(:score_type, ScoreTypes::NUMERIC)
+      classroom.exam_rule.update(score_type: ScoreTypes::NUMERIC)
 
       subject.post!
 
@@ -245,7 +268,13 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when classroom score type is concept' do
-    let!(:classroom) { create(:classroom, :score_type_concept, unity: school_calendar.unity) }
+    let!(:classroom) {
+      create(
+        :classroom,
+        :with_classroom_semester_steps,
+        :score_type_concept
+      )
+    }
 
     it 'enqueues the requests' do
       subject.post!
@@ -281,15 +310,21 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
   end
 
   context 'when discipline is exempted' do
-    let!(:classroom) { create(:classroom, :score_type_concept, unity: school_calendar.unity) }
-    let!(:specific_step) do
+    let!(:classroom) {
+      create(
+        :classroom,
+        :with_classroom_semester_steps,
+        :score_type_concept
+      )
+    }
+    let!(:specific_step) {
       create(
         :specific_step,
         classroom: classroom,
         discipline: discipline,
-        used_steps: (school_calendar.steps.first.to_number + 1)
+        used_steps: (classroom.calendar.classroom_steps.first.to_number + 1)
       )
-    end
+    }
 
     it 'does not enqueue the requests' do
       subject.post!
