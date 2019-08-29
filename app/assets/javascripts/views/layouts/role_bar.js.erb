@@ -34,7 +34,7 @@ $(function() {
   const requiredContainersPerRole = {
     administrator: [$unityContainer, $yearContainer, $teacherContainer, $disciplineContainer],
     teacher: [$yearContainer, $classroomContainer, $disciplineContainer],
-    employee: [$yearContainer, $classroomContainer, $disciplineContainer]
+    employee: [$yearContainer, $teacherContainer, $disciplineContainer]
   };
 
   let profileRole = {};
