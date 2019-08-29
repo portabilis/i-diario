@@ -1,7 +1,8 @@
 FactoryGirl.define do
   factory :recovery_diary_record do
-    classroom
     discipline
+
+    association :classroom, factory: [:classroom, :score_type_numeric_and_concept]
 
     unity { classroom.unity }
 
@@ -13,7 +14,11 @@ FactoryGirl.define do
     end
 
     trait :with_classroom_semester_steps do
-      association :classroom, factory: [:classroom, :with_classroom_semester_steps]
+      association :classroom, factory: [
+        :classroom,
+        :score_type_numeric_and_concept,
+        :with_classroom_semester_steps
+      ]
     end
 
     trait :with_teacher_discipline_classroom do
