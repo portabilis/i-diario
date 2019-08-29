@@ -45,15 +45,15 @@ class StudentUnificationsSynchronizer < BaseSynchronizer
 
           next if !unification.active && new_record
 
-          unify_or_restore(unification.active, student_id, new_record)
+          unify_or_restore(unification.active, student_id, unification.duplicates_id)
         end
       end
     end
   end
 
-  def unify_or_restore(unify, student_id)
+  def unify_or_restore(unify, student_id, duplicates_id)
     main_student = Student.with_discarded.find(student_id)
-    secondary_students = Student.with_discarded.where(id: unification.duplicates_id)
+    secondary_students = Student.with_discarded.where(id: duplicates_id)
 
     if unify
       StudentUnifier.new(main_student, secondary_students).unify!
