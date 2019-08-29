@@ -15,7 +15,7 @@ class ComplementaryExamCalculator
   private
 
   def calculate_integral(score)
-    integral_score = students_by_calculation(CalculationTypes::INTEGRAL)
+    integral_score = exams_by_calculation(CalculationTypes::INTEGRAL)
 
     return score if integral_score.blank?
 
@@ -44,19 +44,19 @@ class ComplementaryExamCalculator
   attr_accessor :affected_score, :student_id, :discipline_id, :classroom_id, :step
 
   def substitution_score
-    @substitution_score ||= students_by_calculation(CalculationTypes::SUBSTITUTION).first.try(:score)
+    @substitution_score ||= exams_by_calculation(CalculationTypes::SUBSTITUTION).first.try(:score)
   end
 
   def substitution_if_greather_score
     @substitution_if_greather_score ||=
-      students_by_calculation(CalculationTypes::SUBSTITUTION_IF_GREATER).first.try(:score)
+      exams_by_calculation(CalculationTypes::SUBSTITUTION_IF_GREATER).first.try(:score)
   end
 
   def sum_substitution_score
-    @sum_substitution_score ||= students_by_calculation(CalculationTypes::SUM).sum(:score).to_f
+    @sum_substitution_score ||= exams_by_calculation(CalculationTypes::SUM).sum(:score).to_f
   end
 
-  def students_by_calculation(calculation)
+  def exams_by_calculation(calculation)
     ComplementaryExamStudent.by_complementary_exam_id(
       ComplementaryExam.by_classroom_id(classroom_id)
                        .by_discipline_id(discipline_id)
