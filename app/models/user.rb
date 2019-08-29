@@ -266,6 +266,10 @@ class User < ActiveRecord::Base
     current_user_role.role.access_level
   end
 
+  def cpf_as_integer
+    cpf.gsub(/[^\d]/, '')
+  end
+
   protected
 
   def email_required?
