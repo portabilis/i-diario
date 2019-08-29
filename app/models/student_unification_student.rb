@@ -1,4 +1,4 @@
-class StudentUnificationStudent
+class StudentUnificationStudent < ActiveRecord::Base
   include Audit
 
   audited

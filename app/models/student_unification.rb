@@ -1,9 +1,8 @@
-class StudentUnification
+class StudentUnification < ActiveRecord::Base
   include Audit
 
   audited
 
   belongs_to :student
-  has_many :unified_students, through: :student_unification_students
-  accepts_nested_attributes_for :unified_students
+  has_many :unified_students, class_name: 'StudentUnificationStudent', dependent: :restrict_with_error
 end
