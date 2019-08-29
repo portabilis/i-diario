@@ -1,17 +1,22 @@
 require 'rails_helper'
 
 RSpec.describe ObservationDiaryRecord do
-  let(:school_calendar) { create(:school_calendar, :with_one_step, year: 2015) }
-  let(:exam_rule) { create(:exam_rule, frequency_type: FrequencyTypes::BY_DISCIPLINE) }
-  let(:classroom) { create(:classroom, exam_rule: exam_rule) }
-  subject do
-    build(
-      :observation_diary_record_with_notes,
-      school_calendar: school_calendar,
-      classroom: classroom,
-      date: '17/03/2015'
+  let(:classroom) {
+    create(
+      :classroom,
+      :with_classroom_semester_steps,
+      :by_discipline
     )
-  end
+  }
+
+  subject {
+    create(
+      :observation_diary_record,
+      :with_teacher_discipline_classroom,
+      :with_notes,
+      classroom: classroom
+    )
+  }
 
   describe 'associations' do
     it { expect(subject).to belong_to(:school_calendar) }
@@ -29,23 +34,18 @@ RSpec.describe ObservationDiaryRecord do
     it { expect(subject).to validate_school_calendar_day_of(:date) }
     it { expect(subject).to validate_presence_of(:notes) }
 
-    xit 'should require unique value for date scoped to school_calendar_id, ' \
+    it 'should require unique value for date scoped to school_calendar_id, ' \
        'teacher_id, classroom_id, discipline_id' do
-      create(
-        :observation_diary_record_with_notes,
-        school_calendar: school_calendar,
+      observation_diary_record = build(
+        :observation_diary_record,
+        :with_notes,
         classroom: classroom,
-        date: '17/03/2015'
+        teacher: subject.teacher,
+        discipline: subject.discipline
       )
 
-      expect(subject).to(
-        validate_uniqueness_of(:date).scoped_to(
-          :school_calendar_id,
-          :teacher_id,
-          :classroom_id,
-          :discipline_id
-        )
-      )
+      expect(observation_diary_record).to_not be_valid
+      expect(observation_diary_record.errors[:date]).to include('já está em uso')
     end
   end
 end
