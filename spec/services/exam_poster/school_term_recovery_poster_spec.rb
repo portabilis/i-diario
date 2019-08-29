@@ -2,12 +2,14 @@ require 'rails_helper'
 
 RSpec.describe ExamPoster::SchoolTermRecoveryPoster do
   let!(:unity) { create(:unity) }
-  let!(:exam_rule) { create(:exam_rule_numeric_and_concept) }
+  let!(:exam_rule) { create(:exam_rule, :score_type_numeric_and_concept) }
   let!(:school_calendar) { create(:school_calendar, :with_one_step, unity: unity) }
   let!(:classroom) { create(:classroom, :score_type_numeric, unity: unity, exam_rule: exam_rule) }
   let!(:recovery_diary_record) {
     create(
-      :recovery_diary_record_with_students,
+      :recovery_diary_record,
+      :with_teacher_discipline_classroom,
+      :with_students,
       classroom: classroom,
       recorded_at: school_calendar.steps.last.start_at + 1.day
     )

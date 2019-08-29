@@ -214,7 +214,13 @@ class User < ActiveRecord::Base
 
   def current_classroom
     return unless current_classroom_id
-    @current_classroom ||= Classroom.find(current_classroom_id)
+
+    @current_classroom ||= begin
+      classroom = Classroom.find_by(id: current_classroom_id)
+      update(current_classroom_id: nil) if classroom.nil?
+
+      classroom
+    end
   end
 
   def current_discipline

@@ -46,7 +46,7 @@ module Stepable
   private
 
   def ensure_is_school_day
-    return unless recorded_at.present? && school_calendar.present?
+    return unless classroom.present? && recorded_at.present? && school_calendar.present?
     return if school_calendar.school_day?(recorded_at, classroom.grade, classroom, nil)
 
     errors.add(:recorded_at, :not_school_term_day)
