@@ -105,10 +105,10 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
     context 'when there are invalid recovery diary record students' do
       let!(:recovery_diary_record) {
         create(
-          :recovery_diary_record_with_students,
-          :current,
+          :recovery_diary_record,
+          :with_teacher_discipline_classroom,
+          :with_students,
           classroom: classroom,
-          unity: classroom.unity,
           discipline: discipline
         )
       }
