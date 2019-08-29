@@ -131,7 +131,7 @@ class ExamRecordReport < BaseReport
     end
 
     @complementary_exams.each do |complementary_exam|
-      if complementary_exam.complementary_exam_setting.calculation_type == "integral"
+      if complementary_exam.complementary_exam_setting.integral?
         integral_complementary_exams << complementary_exam
         next
       end
@@ -242,8 +242,6 @@ class ExamRecordReport < BaseReport
         if daily_notes_slice == sliced_exams.last
           recovery_score = if school_term_recovery_scores[key]
                              calculate_recovery_score(key, school_term_recovery_scores[key])
-                           else
-                             nil
                            end
 
           recovery_average = SchoolTermAverageCalculator.new(classroom)

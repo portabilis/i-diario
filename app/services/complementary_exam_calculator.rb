@@ -48,8 +48,8 @@ class ComplementaryExamCalculator
   end
 
   def substitution_if_greather_score
-    @substitution_if_greather_score ||= students_by_calculation(CalculationTypes::SUBSTITUTION_IF_GREATER)
-                                          .first.try(:score)
+    @substitution_if_greather_score ||=
+      students_by_calculation(CalculationTypes::SUBSTITUTION_IF_GREATER).first.try(:score)
   end
 
   def sum_substitution_score
