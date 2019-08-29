@@ -1,12 +1,12 @@
 FactoryGirl.define do
   factory :school_term_recovery_diary_record do
-    association :recovery_diary_record, factory: :recovery_diary_record_with_students
+    association :recovery_diary_record, factory: [
+      :recovery_diary_record,
+      :with_teacher_discipline_classroom,
+      :with_students
+    ]
 
     step_number 1
-
-    factory :current_school_term_recovery_diary_record do
-      association :recovery_diary_record, factory: :current_recovery_diary_record_with_students
-    end
 
     after(:build) do |school_term_recovery_diary_record|
       recorded_at = school_term_recovery_diary_record.recovery_diary_record.recorded_at

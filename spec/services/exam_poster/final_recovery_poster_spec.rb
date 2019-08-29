@@ -6,7 +6,9 @@ RSpec.describe ExamPoster::FinalRecoveryPoster do
   let!(:classroom) { create(:classroom, :score_type_numeric, unity: unity) }
   let!(:recovery_diary_record) {
     create(
-      :recovery_diary_record_with_students,
+      :recovery_diary_record,
+      :with_teacher_discipline_classroom,
+      :with_students,
       classroom: classroom,
       recorded_at: school_calendar.steps.last.start_at + 1.day
     )
