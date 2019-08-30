@@ -45,20 +45,20 @@ class StudentUnificationsSynchronizer < BaseSynchronizer
 
           next if !unification.active && new_record
 
-          unify_or_restore(unification.active, student_id, unification.duplicates_id)
+          unify_or_revert(unification.active, student_id, unification.duplicates_id)
         end
       end
     end
   end
 
-  def unify_or_restore(unify, student_id, duplicates_id)
+  def unify_or_revert(unify, student_id, duplicates_id)
     main_student = Student.with_discarded.find(student_id)
     secondary_students = Student.with_discarded.where(id: duplicates_id)
 
     if unify
-      StudentUnifier.new(main_student, secondary_students).unify!
+      StudentUnificationService.new(main_student, secondary_students).run!
     else
-      StudentRestorer.new(main_student, secondary_students).restore!
+      StudentUnificationReverterService.new(main_student, secondary_students).run!
     end
   end
 end
