@@ -1,6 +1,4 @@
 class StudentUnification < ActiveRecord::Base
-  include Audit
-
   audited
 
   belongs_to :student
