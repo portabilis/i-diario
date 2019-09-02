@@ -55,7 +55,7 @@ $(function() {
     const endDate = $absenceDateEnd.val();
 
     $student.select2('val', '');
-    $student.select2({ data: [] });
+    $student.select2({ data: [], multiple: true });
 
     const filter = {
       classroom: classroom_id,
