@@ -34,11 +34,9 @@ class StudentUnificationsSynchronizer < BaseSynchronizer
 
           student_unification.save!
 
-          secondary_students = []
-
-          unification.duplicates_id.each do |api_code|
-            secondary_students << student(api_code)
-          end
+          secondary_students = unification.duplicates_id.map { |api_code|
+            student(api_code)
+          }
 
           if new_record
             secondary_students.each do |secondary_student|
@@ -57,7 +55,10 @@ class StudentUnificationsSynchronizer < BaseSynchronizer
   end
 
   def unify_or_revert(unify, main_student, secondary_students)
-    StudentUnificationService.new(main_student, secondary_students).run! if unify
-    StudentUnificationReverterService.new(main_student, secondary_students).run! unless unify
+    if unify
+      StudentUnificationService.new(main_student, secondary_students).run!
+    else
+      StudentUnificationReverterService.new(main_student, secondary_students).run!
+    end
   end
 end
