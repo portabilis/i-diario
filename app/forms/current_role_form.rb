@@ -13,7 +13,8 @@ class CurrentRoleForm
 
   validates :current_user_role_id, presence: true
   validates :current_school_year, presence: true, if: :require_year?, unless: :unity_is_cost_center?
-  validates :assumed_teacher_id, :current_discipline_id, presence: true, if: :require_allocation?
+  validates :current_classroom_id, presence: true, if: :is_teacher?
+  validates :current_discipline_id, :assumed_teacher_id, presence: true, if: :require_allocation?
   validates :current_unity_id, presence: true, if: :require_unity?
 
   def initialize(attributes = {})
