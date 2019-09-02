@@ -24,6 +24,7 @@ class StudentUnificationReverterService
             record.student_id = secondary_student.id
             record.save!(validate: false)
           rescue ActiveRecord::RecordNotUnique
+          rescue ActiveRecord::StatementInvalid
           end
         end
       end

@@ -22,6 +22,7 @@ class StudentUnificationService
             record.student_id = @main_student.id
             record.save!(validate: false)
           rescue ActiveRecord::RecordNotUnique
+          rescue ActiveRecord::StatementInvalid
           end
         end
       end
