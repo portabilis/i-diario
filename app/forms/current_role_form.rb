@@ -80,7 +80,7 @@ class CurrentRoleForm
   end
 
   def unity_is_cost_center?
-    return false unless @params[:current_unity_id].present?
+    return false if @params[:current_unity_id].blank?
     Unity.find(@params[:current_unity_id]).unit_type == 'cost_center'
   end
 end
