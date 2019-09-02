@@ -14,7 +14,7 @@
       <div class="col col-sm-4">
         <%= f.association :classroom, as: :select2_classroom, user: current_user %>
       </div>
-      <div class="row" data-discipline>
+      <div data-discipline>
         <div class="col col-sm-4">
           <%= f.association :disciplines, as: :select2_discipline,
                 elements: @disciplines,
