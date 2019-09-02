@@ -18,7 +18,7 @@ class StudentUnificationReverterService
         next if KEEP_ASSOCIATIONS.include?(association.name)
 
         @main_student.send(association.name).each do |record|
-          next unless unified?(association.class_name, record.id, secondary_student.id)
+          next unless unified?(record, secondary_student.id)
 
           begin
             record.student_id = secondary_student.id
@@ -30,13 +30,13 @@ class StudentUnificationReverterService
     end
   end
 
-  def unified?(class_name, id, secondary_student_id)
-    Audited::Adapters::ActiveRecord::Audit.where(
-      auditable_type: class_name,
-      auditable_id: id,
-      action: 'update'
-    ).where(
-      "audited_changes ILIKE '%student_id:%#{secondary_student_id}%#{@main_student.id}%'"
-    ).exists?
+  def unified?(record, secondary_student_id)
+    audits = record.audits
+                   .where(action: 'update')
+                   .where("audited_changes ILIKE '%student_id:%'")
+
+    return if audits.empty?
+
+    audits.any? { |audit| audit.audited_changes['student_id'] == [@main_student.id, secondary_student_id] }
   end
 end
