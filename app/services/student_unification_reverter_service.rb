@@ -37,6 +37,6 @@ class StudentUnificationReverterService
 
     return if audits.empty?
 
-    audits.any? { |audit| audit.audited_changes['student_id'] == [@main_student.id, secondary_student_id] }
+    audits.any? { |audit| audit.audited_changes['student_id'] == [secondary_student_id, @main_student.id] }
   end
 end
