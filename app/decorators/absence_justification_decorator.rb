@@ -44,7 +44,7 @@ class AbsenceJustificationDecorator
           student_label_for(component.students.offset(3))
         end
       } +
-        content_tag(:div, class: 'panel panel-default', style: 'border: none') {
+        content_tag(:div, class: 'panel-default', style: 'border: none') {
           content_tag(:div, role: 'tab', id: "heading#{component.id}") do
             link_to(
               "Mostrar mais #{component.students.size - 3}",
