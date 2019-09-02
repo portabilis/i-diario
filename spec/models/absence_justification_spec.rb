@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe AbsenceJustification, type: :model do
   subject(:absence_justification) { build(:absence_justification) }
 
-  describe "associations" do
+  describe 'associations' do
     it { expect(subject).to belong_to(:teacher) }
     it { expect(subject).to belong_to(:student) }
     it { expect(subject).to belong_to(:unity) }
@@ -12,7 +12,7 @@ RSpec.describe AbsenceJustification, type: :model do
     it { expect(subject).to belong_to(:school_calendar) }
   end
 
-  describe "validations" do
+  describe 'validations' do
     it { expect(subject).to validate_presence_of(:teacher) }
     it { expect(subject).to validate_presence_of(:student_id) }
     it { expect(subject).to validate_presence_of(:absence_date) }
@@ -22,72 +22,48 @@ RSpec.describe AbsenceJustification, type: :model do
     it { expect(subject).to validate_presence_of(:justification) }
     it { expect(subject).to validate_presence_of(:unity) }
     it { expect(subject).to validate_presence_of(:classroom_id) }
-    it { expect(subject).to validate_presence_of(:school_calendar)}
+    it { expect(subject).to validate_presence_of(:school_calendar) }
 
-    context "given that I have a record persisted" do
-      fixtures :students, :absence_justifications
-
-      # FIXME: Ajustar junto com o refactor das factories
-      xit "should validate if is a valid date on a absence with frequence type by discipline" do
-        exam_rule = FactoryGirl.create(
-          :exam_rule_by_discipline
-        )
-
-        classroom = FactoryGirl.create(
+    context 'given that I have a record persisted' do
+      it 'should validate if is a valid date on a absence with frequence type by discipline' do
+        classroom = create(
           :classroom,
-          exam_rule: exam_rule
+          :with_classroom_semester_steps,
+          :with_teacher_discipline_classroom,
+          :by_discipline
         )
-
-        student = FactoryGirl.create(
-          :student
-        )
-
-        unity = FactoryGirl.create(
-          :unity
-        )
-
-        discipline = FactoryGirl.create(
-          :discipline
-        )
-
-        school_calendar = FactoryGirl.create(
-          :school_calendar_with_one_step,
-          year: 2016,
-          unity: unity
-        )
-
-        teacher_discipline_classroom = create(
-          :teacher_discipline_classroom,
-          classroom: classroom,
-          discipline: discipline
-        )
-
-        absence_justification = FactoryGirl.create(
+        student = create(:student)
+        discipline = classroom.teacher_discipline_classrooms.first.discipline
+        school_calendar = classroom.calendar.school_calendar
+        teacher = classroom.teacher_discipline_classrooms.first.teacher
+        first_school_calendar_date = classroom.calendar.classroom_steps.first.first_school_calendar_date
+        create(
           :absence_justification,
-          unity: unity,
+          unity: classroom.unity,
           school_calendar: school_calendar,
           classroom: classroom,
           discipline: discipline,
           student: student,
-          absence_date: '12/04/2016',
-          absence_date_end: '14/04/2016',
-          teacher: teacher_discipline_classroom.teacher
+          absence_date: first_school_calendar_date,
+          absence_date_end: first_school_calendar_date + 2,
+          teacher: teacher
         )
-
-        subject = FactoryGirl.build(
+        subject = build(
           :absence_justification,
-          unity: unity,
+          unity: classroom.unity,
           school_calendar: school_calendar,
           classroom: classroom,
           student: student,
           discipline: discipline,
-          absence_date: '13/04/2016',
-          absence_date_end: '13/04/2016',
-          teacher: teacher_discipline_classroom.teacher
+          absence_date: first_school_calendar_date + 1,
+          absence_date_end: first_school_calendar_date + 1,
+          teacher: teacher
         )
 
         expect(subject).to_not be_valid
-        expect(subject.errors.messages[:base]).to include('Já existe uma justificativa para a disciplina e período informados')
+        expect(subject.errors.messages[:base]).to(
+          include('Já existe uma justificativa para a disciplina e período informados')
+        )
       end
     end
   end

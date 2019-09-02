@@ -1,23 +1,57 @@
 FactoryGirl.define do
   factory :lesson_plan do
-    classroom
-    association :school_calendar, factory: :school_calendar_with_one_step
+    association :classroom, factory: [:classroom, :with_classroom_semester_steps]
+    school_calendar { classroom.calendar.try(:school_calendar) || create(:school_calendar, :with_one_step) }
 
-    start_at '30/06/2020'
-    end_at '30/07/2020'
     contents { [create(:content)] }
 
-    factory :lesson_plan_without_contents do
+    transient do
+      step nil
+      teacher nil
+      discipline nil
+    end
+
+    trait :without_contents do
       contents []
     end
 
-    after(:build) do |lesson_plan|
-      teacher_discipline_classroom = create(
-        :teacher_discipline_classroom,
-        classroom: lesson_plan.classroom
-      )
+    after(:build) do |lesson_plan, evaluator|
+      if lesson_plan.classroom.calendar.present?
+        step = evaluator.step || lesson_plan.classroom.calendar.classroom_steps.first
+      end
 
-      lesson_plan.teacher_id = teacher_discipline_classroom.teacher.id
+      lesson_plan.start_at ||= step.try(:first_school_calendar_date) || Date.current
+      lesson_plan.end_at ||= lesson_plan.start_at + 30.days
+    end
+
+    trait :with_teacher_discipline_classroom do
+      after(:build) do |lesson_plan, evaluator|
+        teacher = Teacher.find(lesson_plan.teacher_id) if lesson_plan.teacher_id.present?
+        teacher ||= evaluator.teacher || create(:teacher)
+        lesson_plan.teacher_id ||= teacher.id
+        discipline = evaluator.discipline || create(:discipline)
+
+        create(
+          :teacher_discipline_classroom,
+          classroom: lesson_plan.classroom,
+          discipline: discipline,
+          teacher: teacher
+        )
+      end
+    end
+
+    trait :with_one_discipline_lesson_plan do
+      after(:build) do |lesson_plan, evaluator|
+        discipline = evaluator.discipline || create(:discipline)
+
+        lesson_plan.build_discipline_lesson_plan(
+          attributes_for(
+            :discipline_lesson_plan,
+            discipline_id: discipline.id,
+            teacher_id: lesson_plan.teacher_id
+          )
+        )
+      end
     end
   end
 end

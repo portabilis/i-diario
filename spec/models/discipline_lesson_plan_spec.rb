@@ -1,45 +1,62 @@
 require 'rails_helper'
 
 RSpec.describe DisciplineLessonPlan, type: :model do
-  subject { FactoryGirl.build(:discipline_lesson_plan) }
+  subject {
+    build(
+      :discipline_lesson_plan,
+      :with_teacher_discipline_classroom
+    )
+  }
 
   describe 'associations' do
-    # FIXME: Ajustar junto com o refactor das factories
-    xit { expect(subject).to belong_to(:lesson_plan) }
-    xit { expect(subject).to belong_to(:discipline) }
+    it { expect(subject).to belong_to(:lesson_plan) }
+    it { expect(subject).to belong_to(:discipline) }
   end
 
   describe 'validations' do
-    # FIXME: Ajustar junto com o refactor das factories
-    xit { expect(subject).to validate_presence_of(:lesson_plan) }
-    xit { expect(subject).to validate_presence_of(:discipline) }
+    it { expect(subject).to validate_presence_of(:lesson_plan) }
+    it { expect(subject).to validate_presence_of(:discipline) }
 
-    xit 'should allow more than one discipline lesson plan in the same date' do
-      another_lesson_plan = FactoryGirl.create(
-        :lesson_plan,
-        start_at: '30/06/2020',
-        end_at: '30/06/2020'
-      )
-      another_discipline_lesson_plan = FactoryGirl.create(
-        :discipline_lesson_plan,
-        lesson_plan: another_lesson_plan
-      )
+    context 'more than one discipline lesson plan in the same date' do
+      let!(:teacher) { create(:teacher) }
+      let!(:discipline) { create(:discipline) }
+      let!(:classroom) {
+        create(
+          :classroom,
+          :with_classroom_semester_steps,
+          :with_teacher_discipline_classroom,
+          teacher: teacher,
+          discipline: discipline
+        )
+      }
+      let!(:lesson_plan) {
+        create(
+          :lesson_plan,
+          :with_one_discipline_lesson_plan,
+          classroom: classroom,
+          discipline: discipline,
+          teacher_id: teacher.id
+        )
+      }
 
-      lesson_plan = FactoryGirl.create(
-        :lesson_plan,
-        school_calendar: another_lesson_plan.school_calendar,
-        classroom: another_lesson_plan.classroom,
-        start_at: '01/06/2020',
-        end_at: '01/07/2020'
-      )
-      subject = FactoryGirl.build(
-        :discipline_lesson_plan,
-        lesson_plan: lesson_plan,
-        discipline: another_discipline_lesson_plan.discipline
-      )
+      it 'permits create a new discipline_lesson_plan' do
+        another_lesson_plan = create(
+          :lesson_plan,
+          classroom: classroom,
+          teacher_id: teacher.id,
+          start_at: Date.current,
+          end_at: Date.current + 1.day
+        )
+        subject = build(
+          :discipline_lesson_plan,
+          lesson_plan: another_lesson_plan,
+          discipline: discipline,
+          teacher_id: teacher.id
+        )
 
-      expect(subject).to be_valid
-      expect(subject.errors[:lesson_plan].any?).to be(false)
+        expect(subject).to be_valid
+        expect(subject.errors[:lesson_plan].any?).to be(false)
+      end
     end
   end
 end

@@ -18,6 +18,7 @@ RSpec.describe ComplementaryExamSettingsFetcher, type: :service do
   let(:complementary_exam) {
     create(
       :complementary_exam,
+      :with_teacher_discipline_classroom,
       classroom: classroom,
       discipline: discipline,
       recorded_at: step.first_school_calendar_date,
