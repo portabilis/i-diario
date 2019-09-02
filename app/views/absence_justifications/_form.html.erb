@@ -37,7 +37,7 @@
         <%= f.input :absence_date_end %>
       </div>
         <div class="col col-sm-4" data-student>
-          <%= f.association :students, as: :select2, elements: @students, multiple: true,
+          <%= f.association :students, as: :select2, elements: @students, multiple: true, required: true,
           input_html: { value: f.object.student_ids.join(','), data: { without_json_parser: true } } %>
         </div>
     </div>
