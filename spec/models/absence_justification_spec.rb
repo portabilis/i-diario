@@ -5,6 +5,7 @@ RSpec.describe AbsenceJustification, type: :model do
 
   describe 'associations' do
     it { expect(subject).to belong_to(:teacher) }
+    it { expect(subject).to belong_to(:user) }
     it { expect(subject).to have_and_belong_to_many (:students) }
     it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to belong_to(:classroom) }
@@ -34,6 +35,7 @@ RSpec.describe AbsenceJustification, type: :model do
 
         school_calendar = classroom.calendar.school_calendar
         teacher = classroom.teacher_discipline_classrooms.first.teacher
+        user = create(:user, assumed_teacher_id: teacher.id)
         first_school_calendar_date = classroom.calendar.classroom_steps.first.first_school_calendar_date
         absence = create(
           :absence_justification,
@@ -42,7 +44,8 @@ RSpec.describe AbsenceJustification, type: :model do
           classroom: classroom,
           absence_date: first_school_calendar_date,
           absence_date_end: first_school_calendar_date + 2,
-          teacher: teacher
+          teacher: teacher,
+          user: user
         )
 
         subject = build(
@@ -52,7 +55,8 @@ RSpec.describe AbsenceJustification, type: :model do
           classroom: classroom,
           absence_date: first_school_calendar_date + 1,
           absence_date_end: first_school_calendar_date + 1,
-          teacher: teacher
+          teacher: teacher,
+          user: user
         )
         subject.students << absence.students.first
         subject.disciplines << absence.disciplines.first
