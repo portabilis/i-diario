@@ -8,6 +8,8 @@ class AbsenceJustificationReportForm
                 :absence_date_end,
                 :school_calendar_year,
                 :current_teacher_id,
+                :current_user,
+                :employee_or_admin,
                 :author
 
   validates :absence_date, presence: true, date: true, not_in_future: true, timeliness: { on_or_before: :absence_date_end, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
@@ -22,7 +24,7 @@ class AbsenceJustificationReportForm
     if frequence_type_by_discipline?
       absence_justifications = AbsenceJustification.includes(:disciplines)
                                                    .includes(:students)
-                                                   .by_author(author, current_teacher_id)
+                                                   .by_author(author, user_id)
                                                    .by_unity(unity_id)
                                                    .by_school_calendar_report(school_calendar_year)
                                                    .by_classroom(classroom_id)
@@ -44,7 +46,7 @@ class AbsenceJustificationReportForm
     else
       AbsenceJustification.includes(:disciplines)
                           .includes(:students)
-                          .by_author(author, current_teacher_id)
+                          .by_author(author, user_id)
                           .by_unity(unity_id)
                           .by_school_calendar_report(school_calendar_year)
                           .by_classroom(classroom_id)
@@ -73,5 +75,14 @@ class AbsenceJustificationReportForm
 
   def at_least_one_discipline
     errors.add(:base, :at_least_one_discipline) if discipline_ids.blank?
+  end
+
+  def user_id
+    @user_id ||= if employee_or_admin
+                   teacher_id = current_user.try(:assumed_teacher_id)
+                   User.find_by(teacher_id: teacher_id).try(:id)
+                 else
+                   current_user.try(:id)
+                 end
   end
 end
