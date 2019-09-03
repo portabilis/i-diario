@@ -35,5 +35,7 @@ pt-BR:
               base:
                 discipline_period_absence: 'Já existe uma justificativa para a disciplina e período informados'
                 general_period_absence: "Já existe uma justificativa no período informado para o professor %{teacher}"
-                at_least_one_student: 'Deve selecionar pelo menos um aluno'
-                at_least_one_discipline: 'Deve selecionar pelo menos uma disciplina'
+              students:
+                at_least_one_student: 'deve selecionar pelo menos um aluno'
+              disciplines:
+                at_least_one_discipline: 'deve selecionar pelo menos uma disciplina'

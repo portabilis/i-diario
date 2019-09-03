@@ -142,11 +142,11 @@ class AbsenceJustification < ActiveRecord::Base
   end
 
   def at_least_one_student
-    errors.add(:base, :at_least_one_student) if student_ids.blank?
+    errors.add(:students, :at_least_one_student) if student_ids.blank?
   end
 
   def at_least_one_discipline
-    errors.add(:base, :at_least_one_discipline) if discipline_ids.blank?
+    errors.add(:disciplines, :at_least_one_discipline) if discipline_ids.blank?
   end
 
   private_class_method :by_date_query
