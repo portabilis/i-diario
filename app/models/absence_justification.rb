@@ -26,14 +26,14 @@ class AbsenceJustification < ActiveRecord::Base
   accepts_nested_attributes_for :absence_justification_attachments, allow_destroy: true
 
   validates_date :absence_date, :absence_date_end
-  validates :teacher,          presence: true
+  validates :teacher, presence: true
   validates :user, presence: true
-  validates :unity,            presence: true
-  validates :classroom_id,     presence: true
-  validates :school_calendar,  presence: true
+  validates :unity, presence: true
+  validates :classroom_id, presence: true
+  validates :school_calendar, presence: true
   validates :absence_date_end, presence: true, school_calendar_day: true, posting_date: true
-  validates :absence_date,     presence: true, school_calendar_day: true, posting_date: true
-  validates :justification,    presence: true
+  validates :absence_date, presence: true, school_calendar_day: true, posting_date: true
+  validates :justification, presence: true
 
   validate :at_least_one_student
   validate :at_least_one_discipline, if: :frequence_type_by_discipline?

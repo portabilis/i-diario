@@ -1,7 +1,5 @@
 class AbsenceJustificationsController < ApplicationController
-
   before_action :require_current_teacher
-
 
   has_scope :page, default: 1
   has_scope :per, default: 10
