@@ -19,6 +19,7 @@ class AbsenceJustification < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :school_calendar
   belongs_to :teacher
+  belongs_to :user
 
   has_many :absence_justification_attachments, dependent: :destroy
 
@@ -26,6 +27,7 @@ class AbsenceJustification < ActiveRecord::Base
 
   validates_date :absence_date, :absence_date_end
   validates :teacher,          presence: true
+  validates :user, presence: true
   validates :unity,            presence: true
   validates :classroom_id,     presence: true
   validates :school_calendar,  presence: true
@@ -67,11 +69,11 @@ class AbsenceJustification < ActiveRecord::Base
   }
   scope :by_date, ->(date) { by_date_query(date) }
   scope :by_school_calendar_report, ->(school_calendar) { where(school_calendar: school_calendar) }
-  scope :by_author, lambda { |author_type, current_teacher_id|
+  scope :by_author, lambda { |author_type, current_user_id|
     if author_type == AbsenceJustificationAuthors::MY_JUSTIFICATIONS
-      where(teacher_id: current_teacher_id)
+      where(user_id: current_user_id)
     else
-      where.not(teacher_id: current_teacher_id)
+      where.not(user_id: current_user_id)
     end
   }
 

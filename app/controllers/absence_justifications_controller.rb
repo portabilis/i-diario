@@ -25,7 +25,14 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justifications = @absence_justifications.by_discipline_id(current_discipline) if current_discipline
 
     if author_type.present?
-      @absence_justifications = @absence_justifications.by_author(author_type, current_teacher)
+      user_id = if current_user_role_is_employee_or_administrator?
+                  teacher_id = current_user.try(:assumed_teacher_id)
+                  User.find_by(teacher_id: teacher_id).try(:id)
+                else
+                  current_user.try(:id)
+                end
+
+      @absence_justifications = @absence_justifications.by_author(author_type, user_id)
     end
 
     authorize @absence_justifications
@@ -46,6 +53,7 @@ class AbsenceJustificationsController < ApplicationController
   def create
     @absence_justification = AbsenceJustification.new(resource_params)
     @absence_justification.teacher = current_teacher
+    @absence_justification.user = current_user
     @absence_justification.unity = current_user_unity
     @absence_justification.school_calendar = current_school_calendar
 

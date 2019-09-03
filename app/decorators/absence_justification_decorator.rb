@@ -4,8 +4,8 @@ class AbsenceJustificationDecorator
   include ActionView::Context
   include ActionView::Helpers::UrlHelper
 
-  def author(current_teacher)
-    PlanAuthorFetcher.new(component, current_teacher).author
+  def author(current_user, employee_or_admin)
+    AbsenceJustificationAuthorFetcher.new(component, current_user, employee_or_admin).author
   end
 
   def students_labels

@@ -17,7 +17,7 @@ class Select2DisciplineInput < Select2Input
     disciplines = []
 
     if options[:admin_or_employee].presence
-      disciplines = Discipline.by_classroom(user.current_classroom_id).by_teacher_id(user.assumed_teacher_id)
+      disciplines = Discipline.by_classroom(user.current_classroom_id)
     elsif user.current_discipline.present?
       disciplines = [ user.current_discipline ]
     elsif user.current_teacher.present? && options[:grade_id]

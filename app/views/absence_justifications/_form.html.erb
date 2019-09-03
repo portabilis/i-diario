@@ -17,7 +17,6 @@
       <div data-discipline>
         <div class="col col-sm-4">
           <%= f.association :disciplines, as: :select2_discipline,
-                elements: @disciplines,
                 multiple: true,
                 user: current_user,
                 classroom_id: @absence_justification.classroom_id,
