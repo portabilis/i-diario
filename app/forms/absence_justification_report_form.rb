@@ -8,8 +8,7 @@ class AbsenceJustificationReportForm
                 :absence_date_end,
                 :school_calendar_year,
                 :current_teacher_id,
-                :current_user,
-                :employee_or_admin,
+                :user_id,
                 :author
 
   validates :absence_date, presence: true, date: true, not_in_future: true, timeliness: {
@@ -83,14 +82,5 @@ class AbsenceJustificationReportForm
 
   def at_least_one_discipline
     errors.add(:base, :at_least_one_discipline) if discipline_ids.blank?
-  end
-
-  def user_id
-    @user_id ||= if employee_or_admin
-                   teacher_id = current_user.try(:assumed_teacher_id)
-                   User.find_by(teacher_id: teacher_id).try(:id)
-                 else
-                   current_user.try(:id)
-                 end
   end
 end

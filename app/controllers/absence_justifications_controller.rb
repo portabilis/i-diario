@@ -23,12 +23,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justifications = @absence_justifications.by_discipline_id(current_discipline) if current_discipline
 
     if author_type.present?
-      user_id = if current_user_role_is_employee_or_administrator?
-                  teacher_id = current_user.try(:assumed_teacher_id)
-                  User.find_by(teacher_id: teacher_id).try(:id)
-                else
-                  current_user.try(:id)
-                end
+      user_id = UserDiscriminatorService.new(current_user, current_user_role_is_employee_or_administrator?).user_id
 
       @absence_justifications = @absence_justifications.by_author(author_type, user_id)
     end

@@ -13,8 +13,7 @@ class AbsenceJustificationReportController < ApplicationController
     @absence_justification_report_form.unity_id = current_user_unity.id
     @absence_justification_report_form.school_calendar_year = current_school_calendar
     @absence_justification_report_form.current_teacher_id = current_teacher
-    @absence_justification_report_form.current_user = current_user
-    @absence_justification_report_form.employee_or_admin = current_user_role_is_employee_or_administrator?
+    @absence_justification_report_form.user_id = user_id
 
     if @absence_justification_report_form.valid?
       absence_justification_report = AbsenceJustificationReport.build(
@@ -60,5 +59,12 @@ class AbsenceJustificationReportController < ApplicationController
     rescue ArgumentError
       @absence_justification_report_form.absence_date_end = ''
     end
+  end
+
+  def user_id
+    @user_id ||= UserDiscriminatorService.new(
+      current_user,
+      current_user_role_is_employee_or_administrator?
+    ).user_id
   end
 end

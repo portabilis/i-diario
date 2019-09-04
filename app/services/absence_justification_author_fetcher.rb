@@ -14,12 +14,7 @@ class AbsenceJustificationAuthorFetcher
   private
 
   def my_plans?
-    user_id = if @employee_or_admin
-                teacher_id = @current_user.try(:assumed_teacher_id)
-                User.find_by(teacher_id: teacher_id).try(:id)
-              else
-                @current_user.try(:id)
-              end
+    user_id = UserDiscriminatorService.new(@current_user, @employee_or_admin).user_id
 
     @component.user.try(:id) == user_id && !@component.user.nil?
   end
