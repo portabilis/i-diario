@@ -5,7 +5,13 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    author_type = PlansAuthors::MY_PLANS if params[:filter].nil?
+    restore_param = true
+
+    if params[:filter].nil?
+      author_type = PlansAuthors::MY_PLANS
+      restore_param = false
+    end
+
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_lesson_plans = apply_scopes(
@@ -21,6 +27,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     if author_type.present?
       @knowledge_area_lesson_plans = @knowledge_area_lesson_plans.by_author(author_type, current_teacher)
+      params[:filter][:by_author] = author_type if restore_param
     end
 
     authorize @knowledge_area_lesson_plans

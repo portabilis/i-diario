@@ -22,6 +22,7 @@ class AbsenceJustificationsController < ApplicationController
 
     if author_type.present?
       @absence_justifications = @absence_justifications.by_author(author_type, current_teacher)
+      params[:search][:by_author] = author_type
     end
 
     authorize @absence_justifications
