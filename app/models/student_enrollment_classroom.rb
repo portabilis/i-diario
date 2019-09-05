@@ -17,7 +17,9 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   default_scope -> { kept }
 
   scope :by_classroom, ->(classroom_id) { where(classroom_id: classroom_id) }
-  scope :by_year, ->(year) { where('EXTRACT(YEAR FROM CAST(joined_at AS DATE)) = ?', year) }
+  scope :by_year, ->(year) {
+    joins(:classroom).merge(Classroom.by_year(year))
+  }
   scope :by_date, lambda { |date|
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
