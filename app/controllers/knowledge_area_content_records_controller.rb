@@ -5,13 +5,8 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    restore_param = true
-
-    if params[:filter].nil?
-      author_type = PlansAuthors::MY_PLANS
-      restore_param = false
-    end
-
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_content_records = apply_scopes(
@@ -22,7 +17,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
     if author_type.present?
       @knowledge_area_content_records = @knowledge_area_content_records.by_author(author_type, current_teacher)
-      params[:filter][:by_author] = author_type if restore_param
+      params[:filter][:by_author] = author_type
     end
 
     authorize @knowledge_area_content_records
