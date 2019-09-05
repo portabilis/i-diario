@@ -68,6 +68,8 @@ class ApplicationPolicy
       record.model_name
     elsif record.class.respond_to?(:model_name)
       record.class.model_name
+    else
+      record
     end
 
     klass.to_s.underscore.pluralize
