@@ -4,15 +4,11 @@ FactoryGirl.define do
     teacher
     discipline
 
+    year { Date.current.year }
     classroom_api_code { classroom.api_code }
     teacher_api_code { teacher.api_code }
     discipline_api_code { discipline.api_code }
-    sequence(:year) { |n| 2020 + n }
     allow_absence_by_discipline 0
-
-    trait :current do
-      year { Date.current.year }
-    end
 
     trait :with_classroom_semester_steps do
       association :classroom, factory: [:classroom, :with_classroom_semester_steps]

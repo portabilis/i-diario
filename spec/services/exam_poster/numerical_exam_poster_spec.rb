@@ -120,7 +120,8 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     let(:recovery_student) { recovery_diary_record.students.first }
     let!(:recovery_diary_record) {
       create(
-        :current_recovery_diary_record,
+        :recovery_diary_record,
+        :with_teacher_discipline_classroom,
         unity: classroom.unity,
         classroom: classroom,
         discipline: avaliation.discipline,
@@ -137,7 +138,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     let!(:school_term_recovery_diary_record) {
       step = StepsFetcher.new(recovery_diary_record.classroom).step_by_date(recovery_diary_record.recorded_at)
       create(
-        :current_school_term_recovery_diary_record,
+        :school_term_recovery_diary_record,
         recovery_diary_record: recovery_diary_record,
         step_id: step.id,
         step_number: step.step_number
