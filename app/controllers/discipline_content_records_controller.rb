@@ -24,7 +24,7 @@ class DisciplineContentRecordsController < ApplicationController
 
     if author_type.present?
       @discipline_content_records = @discipline_content_records.by_author(author_type, current_teacher)
-      params[:filter][:by_author] if restore_param
+      params[:filter][:by_author] = author_type if restore_param
     end
 
     authorize @discipline_content_records
