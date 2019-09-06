@@ -23,6 +23,13 @@ class ComplementaryExam < ActiveRecord::Base
 
   accepts_nested_attributes_for :students, allow_destroy: true
 
+  scope :by_teacher_id,
+        lambda { |teacher_id|
+          joins(discipline: :teacher_discipline_classrooms)
+            .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
+            .uniq
+        }
+
   scope :by_complementary_exam_setting, lambda { |complementary_exam_setting_id| where(complementary_exam_setting_id: complementary_exam_setting_id) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_grade_id, lambda { |grade_id| joins(:classroom).merge(Classroom.by_grade(grade_id)) }

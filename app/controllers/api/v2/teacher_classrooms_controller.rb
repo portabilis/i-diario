@@ -16,6 +16,14 @@ module Api
 
         @classrooms
       end
+
+      def has_activities
+        teacher_id = Teacher.find_by!(api_code: params[:teacher_id])
+        classroom_id = Classroom.find_by!(api_code: params[:classroom_id])
+        checker = TeacherClassroomActivity.new(teacher_id, classroom_id)
+
+        render json: checker.any_activity?
+      end
     end
   end
 end
