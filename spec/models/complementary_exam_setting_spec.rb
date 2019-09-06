@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe ComplementaryExamSetting, type: :model do
-  let(:complementary_exam_setting_with_two_grades) { create(:complementary_exam_setting_with_two_grades) }
+  let(:complementary_exam_setting_with_two_grades) { create(:complementary_exam_setting, :with_two_grades) }
   let(:classroom) {
     create(
       :classroom,
@@ -13,6 +13,7 @@ RSpec.describe ComplementaryExamSetting, type: :model do
   let(:complementary_exam) {
     create(
       :complementary_exam,
+      :with_teacher_discipline_classroom,
       classroom: classroom,
       recorded_at: step.first_school_calendar_date,
       step_id: step.id,
@@ -57,7 +58,13 @@ RSpec.describe ComplementaryExamSetting, type: :model do
         end
 
         context 'has the same grades and same affected score of another setting' do
-          let(:another_setting) { create(:complementary_exam_setting_with_two_grades, calculation_type: CalculationTypes::SUBSTITUTION) }
+          let(:another_setting) {
+            create(
+              :complementary_exam_setting,
+              :with_two_grades,
+              calculation_type: CalculationTypes::SUBSTITUTION
+            )
+          }
           before do
             subject.grade_ids = another_setting.grade_ids
             subject.affected_score = another_setting.affected_score

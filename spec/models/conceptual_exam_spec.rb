@@ -1,13 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe ConceptualExam, type: :model do
-  let(:classroom) { create(:classroom, :with_classroom_semester_steps) }
-
   subject do
-    build(
+    create(
       :conceptual_exam,
-      classroom: classroom,
-      step_id: classroom.calendar.classroom_steps.first.id
+      :with_teacher_discipline_classroom,
+      :with_student_enrollment_classroom,
+      :with_one_value
     )
   end
 
@@ -18,14 +17,14 @@ RSpec.describe ConceptualExam, type: :model do
   end
 
   describe 'validations' do
-    # it { expect(subject).to validate_presence_of(:classroom) } -- verificar como resolver
+    it { expect(subject).to validate_presence_of(:classroom_id) }
     it { expect(subject).to validate_presence_of(:student) }
     it { expect(subject).to validate_presence_of(:recorded_at) }
     it { expect(subject).to validate_not_in_future_of(:recorded_at) }
-    # it { expect(subject).to validate_school_term_day_of(:recorded_at) } -- Verificar outra forma de fazer
+    it { expect(subject).to validate_school_term_day_of(:recorded_at) }
 
     it 'should require student to have conceptual exam score type' do
-      invalid_score_types = [ ScoreTypes::DONT_USE, ScoreTypes::NUMERIC ]
+      invalid_score_types = [ScoreTypes::DONT_USE, ScoreTypes::NUMERIC]
       expected_message = I18n.t(
         '.activerecord.errors.models.conceptual_exam.attributes.student' \
         '.classroom_must_have_conceptual_exam_score_type'
@@ -44,9 +43,7 @@ RSpec.describe ConceptualExam, type: :model do
 
   describe '#merge_conceptual_exam_values' do
     it 'overrides the new value over the persisted one' do
-      subject.save!(validate: false)
-      conceptual_exam_value = create(:conceptual_exam_value, value: 100, conceptual_exam: subject)
-      expect(subject.conceptual_exam_values.first.value).to eq 100
+      conceptual_exam_value = subject.conceptual_exam_values.first
 
       attributes = {
         conceptual_exam_values_attributes: {
@@ -70,14 +67,12 @@ RSpec.describe ConceptualExam, type: :model do
     end
 
     it 'maintains only the persited if do not have new values' do
-      subject.save!(validate: false)
-      create(:conceptual_exam_value, value: 100, conceptual_exam: subject)
-      expect(subject.conceptual_exam_values.first.value).to eq 100
+      conceptual_exam_value = subject.conceptual_exam_values.first
 
       subject.merge_conceptual_exam_values
 
       expect(subject.conceptual_exam_values.size).to eq 1
-      expect(subject.conceptual_exam_values.first.value).to eq 100
+      expect(subject.conceptual_exam_values.first.value).to eq conceptual_exam_value.value
     end
   end
 end

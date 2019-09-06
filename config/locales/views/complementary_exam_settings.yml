@@ -11,3 +11,4 @@ pt-BR:
       substitution_calculation_type_html: "<strong>Substituição</strong>: A nota lançada para essa avaliação substituirá a Nota afetada."
       sum_calculation_type_html: "<strong>Soma</strong>: A nota lançada para essa avaliação será somada a Nota afetada."
       substitution_if_greater_calculation_type_html: "<strong>Substituição se maior</strong>: A nota lançada para essa avaliação, se for maior, substituirá a Nota afetada."
+      integral_calculation_type_html: "<strong>Integral</strong>: A nota lançada para essa avaliação será somada às demais notas cujo total será dividido por 2."

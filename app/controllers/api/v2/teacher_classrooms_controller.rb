@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 module Api
   module V2
     class TeacherClassroomsController < Api::V2::BaseController
@@ -19,7 +17,6 @@ module Api
         @classrooms
       end
 
-      # rubocop:disable Naming/PredicateName
       def has_activities
         teacher_id = Teacher.find_by!(api_code: params[:teacher_id])
         classroom_id = Classroom.find_by!(api_code: params[:classroom_id])
@@ -27,7 +24,6 @@ module Api
 
         render json: checker.any_activity?
       end
-      # rubocop:enable Naming/PredicateName
     end
   end
 end

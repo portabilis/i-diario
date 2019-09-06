@@ -13,12 +13,12 @@ RSpec.describe OldStepsConceptualValuesFetcher, type: :service do
   before do
     steps.each do |step|
       exam = build(
-        :conceptual_exam_with_one_value,
+        :conceptual_exam,
+        :with_one_value,
         classroom: classroom,
-        unity_id: classroom.unity_id,
         student: student,
         step_id: step.id,
-        recorded_at: 1.business_days.after(step.start_at),
+        recorded_at: step.first_school_calendar_date,
         step_number: step.step_number
       )
       exam.save(validate: false)

@@ -3,7 +3,6 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_test_setting
 
   def index
     @final_recovery_diary_records = apply_scopes(FinalRecoveryDiaryRecord)

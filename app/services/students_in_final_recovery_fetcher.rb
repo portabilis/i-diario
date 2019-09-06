@@ -21,7 +21,7 @@ class StudentsInFinalRecoveryFetcher
 
     students.map do |student|
       needed_score = api_students.find { |api_student|
-        api_student['id'] == student.api_code
+        api_student['id'].to_s == student.api_code
       }['nota_exame'].to_f
 
       decorated_student = StudentInFinalRecoveryDecorator.new(student)

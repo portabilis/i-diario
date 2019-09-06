@@ -40,7 +40,7 @@
         </div>
 
         <div id="test_setting_school_term_div" class="col col-sm-3">
-          <%= f.input :school_term, as: :select2, elements: (Bimesters.to_select + Trimesters.to_select + Semesters.to_select).uniq.to_json, required: true %>
+          <%= f.input :school_term, as: :select2, elements: default_steps.to_json, required: true %>
         </div>
       </div>
 

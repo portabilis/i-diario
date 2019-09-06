@@ -1,5 +1,12 @@
 synchronizers:
   -
+    klass: UnityParamsSynchronizer
+    by_year: false
+    by_unity: false
+    dependents: [
+      ExamRulesSynchronizer
+    ]
+  -
     klass: TeachersSynchronizer
     by_year: false
     by_unity: false
@@ -59,6 +66,7 @@ synchronizers:
       CoursesSynchronizer
     ]
     dependencies: [
+      UnityParamsSynchronizer,
       RoundingTablesSynchronizer
     ]
   -
@@ -96,7 +104,8 @@ synchronizers:
     dependents: [
       SpecificStepsSynchronizer,
       TeacherDisciplineClassroomsSynchronizer,
-      StudentEnrollmentClassroomSynchronizer
+      StudentEnrollmentClassroomSynchronizer,
+      GradeExamRulesSynchronizer
     ]
     dependencies: [
       GradesSynchronizer
@@ -148,4 +157,12 @@ synchronizers:
     by_unity: true
     dependencies: [
       StudentEnrollmentSynchronizer
+    ]
+  -
+    klass: GradeExamRulesSynchronizer
+    by_year: true
+    by_unity: false
+    only_simple_synchronization: true
+    dependencies: [
+      ClassroomsSynchronizer
     ]

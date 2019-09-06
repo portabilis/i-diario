@@ -8,10 +8,11 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
     )
   }
   let(:step) { classroom.calendar.classroom_steps.first }
-  let(:complementary_exam_setting) { create(:complementary_exam_setting_with_two_grades) }
+  let(:complementary_exam_setting) { create(:complementary_exam_setting, :with_two_grades) }
   let(:complementary_exam) {
     create(
       :complementary_exam,
+      :with_teacher_discipline_classroom,
       classroom: classroom,
       recorded_at: step.first_school_calendar_date,
       step_id: step.id,
@@ -77,6 +78,25 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
 
       it 'return value passed as parameter' do
         expect(subject.calculate(score)).to eq(complementary_exam_student.score)
+      end
+    end
+  end
+
+  context 'integral calculation type' do
+    context 'when there are no integral exams' do
+      it 'returns same value passed as parameter' do
+        expect(subject.send(:calculate_integral, score)).to eq(score)
+      end
+    end
+
+    context 'when there are integral exams' do
+      before do
+        complementary_exam_setting.update_attribute(:calculation_type, CalculationTypes::INTEGRAL)
+      end
+
+      it 'returns score + integral exams scores divided by 2' do
+        integral_score = subject.send(:exams_by_calculation, CalculationTypes::INTEGRAL).sum(:score).to_f
+        expect(subject.send(:calculate_integral, score)).to eq((score + integral_score) / 2)
       end
     end
   end
