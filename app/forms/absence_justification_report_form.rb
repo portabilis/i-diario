@@ -3,7 +3,7 @@ class AbsenceJustificationReportForm
 
   attr_accessor :unity_id,
                 :classroom_id,
-                :discipline_ids,
+                :discipline_id,
                 :absence_date,
                 :absence_date_end,
                 :school_calendar_year,
@@ -23,43 +23,25 @@ class AbsenceJustificationReportForm
   }
   validates :unity_id, presence: true
   validates :classroom_id, presence: true
+  validates :discipline_id, presence: true, if: :frequence_type_by_discipline?
 
-  validate :at_least_one_discipline, if: :frequence_type_by_discipline?
   validate :must_find_absence
 
   def absence_justifications
+    @absence_justifications ||= AbsenceJustification.includes(:disciplines)
+                                                    .includes(:students)
+                                                    .by_unity(unity_id)
+                                                    .by_school_calendar_report(school_calendar_year)
+                                                    .by_classroom(classroom_id)
+                                                    .by_date_range(absence_date, absence_date_end)
+
     if frequence_type_by_discipline?
-      absence_justifications = AbsenceJustification.includes(:disciplines)
-                                                   .includes(:students)
-                                                   .by_author(author, user_id)
-                                                   .by_unity(unity_id)
-                                                   .by_school_calendar_report(school_calendar_year)
-                                                   .by_classroom(classroom_id)
-                                                   .by_disciplines(discipline_ids)
-                                                   .by_date_range(absence_date, absence_date_end)
-                                                   .uniq
-
-      disciplines = discipline_ids.map(&:to_i)
-      absence_justification_ids = []
-
-      absence_justifications.each do |absence_justification|
-        if (disciplines - absence_justification.disciplines.map(&:id)).any?
-          absence_justification_ids << absence_justification.id
-        end
-      end
-      absence_justifications = absence_justifications.where.not(id: absence_justification_ids).ordered
-
-      absence_justifications
-    else
-      AbsenceJustification.includes(:disciplines)
-                          .includes(:students)
-                          .by_author(author, user_id)
-                          .by_unity(unity_id)
-                          .by_school_calendar_report(school_calendar_year)
-                          .by_classroom(classroom_id)
-                          .by_date_range(absence_date, absence_date_end)
-                          .ordered
+      @absence_justifications = @absence_justifications.by_discipline_id(discipline_id)
     end
+
+    @absence_justifications = @absence_justifications.by_author(author, user_id) if author.present?
+
+    @absence_justifications.ordered.uniq
   end
 
   def frequence_type_by_discipline?
@@ -78,9 +60,5 @@ class AbsenceJustificationReportForm
 
   def classroom
     Classroom.find(classroom_id) if classroom_id.present?
-  end
-
-  def at_least_one_discipline
-    errors.add(:base, :at_least_one_discipline) if discipline_ids.blank?
   end
 end

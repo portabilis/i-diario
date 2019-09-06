@@ -9,10 +9,12 @@ class AbsenceJustificationReport < BaseReport
     @absence_justification_report_form = absence_justification_report_form
 
     if absence_justification_report_form.frequence_type_by_discipline?
-      @disciplines = Discipline.where(id: [absence_justification_report_form.discipline_ids])
-                               .map(&:description)
-                               .join(', ')
+      @discipline_description = Discipline.find_by(
+        id: @absence_justification_report_form.discipline_id
+      ).try(:description)
     end
+
+    @teacher_name = Teacher.find_by(id: @absence_justification_report_form.current_teacher_id).try(:name)
 
     header
     body
@@ -108,7 +110,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     discipline_header = make_cell(
-      content: 'Disciplinas',
+      content: 'Disciplina',
       size: 8,
       font_style: :bold,
       borders: [:left, :right],
@@ -116,7 +118,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     discipline_cell = make_cell(
-      content: @disciplines.presence || 'Geral',
+      content: @discipline_description || 'Geral',
       size: 10,
       borders: [:left, :right, :bottom],
       padding: [0, 2, 4, 4]
@@ -146,7 +148,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     teacher_cell = make_cell(
-      content: @absence_justifications.first.teacher ? @absence_justifications.first.teacher.name : '-',
+      content: @teacher_name || '-',
       size: 10,
       borders: [:left, :right, :bottom],
       padding: [0, 2, 4, 4]
@@ -326,8 +328,8 @@ class AbsenceJustificationReport < BaseReport
     start_new_page if cursor < 45
 
     move_down 30
-    text_box('_' * 50 + "\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
-    text_box('_' * 50 + "\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
+    text_box('_' * 45 + "\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
+    text_box('_' * 45 + "\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
   end
 
   def absence_justification_students_cell(absence_justification)

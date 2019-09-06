@@ -31,20 +31,16 @@ class AbsenceJustificationReportController < ApplicationController
   private
 
   def resource_params
-    parameters = params.require(:absence_justification_report_form).permit(
+    params.require(:absence_justification_report_form).permit(
       :unity,
       :classroom_id,
-      :discipline_ids,
+      :discipline_id,
       :absence_date,
       :absence_date_end,
       :school_calendar_year,
       :current_teacher_id,
       :author
     )
-
-    parameters[:discipline_ids] = parameters[:discipline_ids].split(',')
-
-    parameters
   end
 
   def clear_invalid_dates

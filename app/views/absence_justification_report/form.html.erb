@@ -19,11 +19,9 @@
               input_html: { value: @absence_justification_report_form.classroom_id } %>
       </div>
       <div class="col col-sm-4" data-discipline>
-        <%= f.input :discipline_ids, as: :select2_discipline,
-              multiple:true,
+        <%= f.input :discipline_id, as: :select2_discipline,
               user: current_user,
               classroom_id: @absence_justification_report_form.classroom_id,
-              admin_or_employee: current_user_role_is_employee_or_administrator?,
               required: true %>
       </div>
     </div>
@@ -37,8 +35,7 @@
     </div>
 
     <div class="col col-sm-4">
-        <%= f.input :author, as: :select2, elements: AbsenceJustificationAuthors.to_select.to_json,
-        input_html: { value: AbsenceJustificationAuthors::MY_JUSTIFICATIONS } %>
+        <%= f.input :author, as: :select2, elements: AbsenceJustificationAuthors.to_select.to_json %>
     </div>
 
     <%= hidden_field_tag :teacher_id, current_teacher %>
