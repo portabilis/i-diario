@@ -34,7 +34,9 @@ $(function() {
   const requiredContainersPerRole = {
     administrator: [$unityContainer, $yearContainer, $teacherContainer, $disciplineContainer],
     teacher: [$yearContainer, $classroomContainer, $disciplineContainer],
-    employee: [$yearContainer, $teacherContainer, $disciplineContainer]
+    employee: [$yearContainer, $teacherContainer, $disciplineContainer],
+    parent: [],
+    student: []
   };
 
   let profileRole = {};
@@ -250,7 +252,7 @@ $(function() {
         clearOptions($field);
       });
 
-      return;
+      return true;
     }
 
     $.when(getProfileRole(profileRole.role_id || null)).then(function () {
