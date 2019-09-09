@@ -3,10 +3,10 @@ $(function() {
       $disciplineDiv = $("[data-discipline]"),
       $studentDiv = $("[data-student]"),
       $classroom = $("#absence_justification_classroom_id"),
-      $discipline = $("#absence_justification_discipline_id"),
+      $discipline = $("#absence_justification_discipline_ids"),
       $absenceDate = $("#absence_justification_absence_date"),
       $absenceDateEnd = $("#absence_justification_absence_date_end"),
-      $student = $("#absence_justification_student_id");
+      $student = $("#absence_justification_student_ids");
 
   var teacherId = $('#teacher_id').val();
 
@@ -39,11 +39,11 @@ $(function() {
         if (examRule.frequency_type == 2 || examRule.allow_frequency_by_discipline) {
           $disciplineDiv.show();
         }else {
-          $("#absence_justification_discipline_id").select2("data", []);
+          $("#absence_justification_discipline_ids").select2("data", []);
           $disciplineDiv.hide();
         }
       }else {
-        $("#absence_justification_discipline_id").select2("data", []);
+        $("#absence_justification_discipline_ids").select2("data", []);
         $disciplineDiv.hide();
       }
     });
@@ -55,7 +55,7 @@ $(function() {
     const endDate = $absenceDateEnd.val();
 
     $student.select2('val', '');
-    $student.select2({ data: [] });
+    $student.select2({ data: [], multiple: true });
 
     const filter = {
       classroom: classroom_id,
@@ -81,7 +81,7 @@ $(function() {
       return { id: studentEnrollment['student']['id'], text: studentEnrollment['student']['name'] };
     });
 
-    $student.select2({ data: students });
+    $student.select2({ data: students, multiple: true });
   };
 
   function fetchStudentsError() {
@@ -119,10 +119,6 @@ $(function() {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas!')
   };
 
-  if ($classroom.val() != '' && $classroom.val() != 'empty') {
-    fetchStudents();
-  }
-
   // togglers
   if ($classroom.val() != '' && $classroom.val() != 'empty') {
     checkExamRule({ classroom_id: $classroom.val() });
@@ -144,7 +140,7 @@ $(function() {
     if (show) {
       $disciplineDiv.show();
     }else {
-      $("#absence_justification_discipline_id").select2("data", []);
+      $("#absence_justification_discipline_ids").select2("data", []);
       $disciplineDiv.hide();
     }
   }

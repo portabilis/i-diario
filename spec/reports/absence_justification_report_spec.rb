@@ -18,10 +18,10 @@ RSpec.describe AbsenceJustificationReport, type: :report do
     )
 
     absence_justifications = AbsenceJustification.all
+    allow(absence_justification_report_form).to receive(:absence_justifications).and_return(absence_justifications)
 
     subject = AbsenceJustificationReport.build(
       entity_configuration,
-      absence_justifications,
       absence_justification_report_form
     ).render
 

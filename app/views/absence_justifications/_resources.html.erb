@@ -8,10 +8,15 @@
       <tr>
         <td><%= absence_justification.unity ? absence_justification.unity : "Não informado" %></td>
         <td><%= absence_justification.classroom ? absence_justification.classroom : "Não informado" %></td>
-        <td><span class="multiline"><%= absence_justification.student %></span></td>
+        <td><span class="multiline"><%= absence_justification.decorator.students_labels %></span></td>
         <td width="70"><%= l absence_justification.absence_date %></td>
         <td width="70"><%= l absence_justification.absence_date_end %></td>
-        <td><%= absence_justification.decorator.author(current_teacher) %></td>
+        <td>
+        <%= absence_justification.decorator.author(
+          current_user,
+          current_user_role_is_employee_or_administrator?
+          ) %>
+        </td>
         <td class="actions">
           <%= link_to 'Editar', edit_absence_justification_path(absence_justification),
             class: "btn btn-success" %>
