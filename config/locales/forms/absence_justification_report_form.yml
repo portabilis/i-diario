@@ -8,3 +8,7 @@ pt-BR:
         absence_date: "Data inicial"
         absence_date_end: "Data final"
         author: 'Autor'
+    errors:
+      models:
+        absence_justification_report_form:
+          at_least_one_discipline: 'Deve selecionar pelo menos uma disciplina'
