@@ -5,7 +5,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
 
   def index
-    author_type = PlansAuthors::MY_PLANS if params[:filter].nil?
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_teaching_plans = apply_scopes(
@@ -21,6 +22,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     if author_type.present?
       @knowledge_area_teaching_plans = @knowledge_area_teaching_plans.by_author(author_type, current_teacher)
+      params[:filter][:by_author] = author_type
     end
 
     authorize @knowledge_area_teaching_plans

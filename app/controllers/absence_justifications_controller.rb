@@ -26,6 +26,7 @@ class AbsenceJustificationsController < ApplicationController
       user_id = UserDiscriminatorService.new(current_user, current_user_role_is_employee_or_administrator?).user_id
 
       @absence_justifications = @absence_justifications.by_author(author_type, user_id)
+      params[:search][:by_author] = author_type
     end
 
     authorize @absence_justifications
