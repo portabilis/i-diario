@@ -1,0 +1,11 @@
+$(function() {
+   $("[id^='show_more']").click(function () {
+      var students_left = $(this).data('more');
+
+     if ($(this).hasClass('collapsed')) {
+       $(this).text('Mostrar menos')
+     } else {
+       $(this).text('Mostrar mais ' + students_left)
+     }
+   });
+});

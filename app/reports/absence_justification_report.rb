@@ -1,12 +1,20 @@
 class AbsenceJustificationReport < BaseReport
-  def self.build(entity_configuration, absence_justifications, absence_justification_report_form)
-    new.build(entity_configuration, absence_justifications, absence_justification_report_form)
+  def self.build(entity_configuration, absence_justification_report_form)
+    new.build(entity_configuration, absence_justification_report_form)
   end
 
-  def build(entity_configuration, absence_justifications, absence_justification_report_form)
+  def build(entity_configuration, absence_justification_report_form)
     @entity_configuration = entity_configuration
-    @absence_justifications = absence_justifications
+    @absence_justifications = absence_justification_report_form.absence_justifications
     @absence_justification_report_form = absence_justification_report_form
+
+    if absence_justification_report_form.frequence_type_by_discipline?
+      @discipline_description = Discipline.find_by(
+        id: @absence_justification_report_form.discipline_id
+      ).try(:description)
+    end
+
+    @teacher_name = Teacher.find_by(id: @absence_justification_report_form.current_teacher_id).try(:name)
 
     header
     body
@@ -110,7 +118,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     discipline_cell = make_cell(
-      content: @absence_justifications.first.discipline ? @absence_justifications.first.discipline.description : 'Geral',
+      content: @discipline_description || 'Geral',
       size: 10,
       borders: [:left, :right, :bottom],
       padding: [0, 2, 4, 4]
@@ -140,7 +148,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     teacher_cell = make_cell(
-      content: @absence_justifications.first.teacher ? @absence_justifications.first.teacher.name : "-",
+      content: @teacher_name || '-',
       size: 10,
       borders: [:left, :right, :bottom],
       padding: [0, 2, 4, 4]
@@ -154,8 +162,8 @@ class AbsenceJustificationReport < BaseReport
       padding: [2, 2, 4, 4]
     )
 
-    initial_date = @absence_justification_report_form.absence_date ? @absence_justification_report_form.absence_date : ''
-    final_date = @absence_justification_report_form.absence_date_end ? @absence_justification_report_form.absence_date_end : ''
+    initial_date = @absence_justification_report_form.absence_date || ''
+    final_date = @absence_justification_report_form.absence_date_end || ''
 
     period_cell = make_cell(
       content: "#{initial_date} a #{final_date}",
@@ -222,7 +230,7 @@ class AbsenceJustificationReport < BaseReport
     )
 
     student_header = make_cell(
-      content: 'Aluno',
+      content: 'Alunos',
       size: 8,
       font_style: :bold,
       borders: [:left, :right, :top],
@@ -265,7 +273,7 @@ class AbsenceJustificationReport < BaseReport
       )
 
       student_cell = make_cell(
-        content: absence_justification.student.name,
+        content: absence_justification_students_cell(absence_justification),
         size: 10,
         width: 220,
         align: :left
@@ -320,7 +328,11 @@ class AbsenceJustificationReport < BaseReport
     start_new_page if cursor < 45
 
     move_down 30
-    text_box("______________________________________________\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
-    text_box("______________________________________________\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
+    text_box('_' * 45 + "\nProfessor(a)", size: 10, align: :center, at: [0, cursor], width: 260)
+    text_box('_' * 45 + "\nCoordenador(a)/diretor(a)", size: 10, align: :center, at: [306, cursor], width: 260)
+  end
+
+  def absence_justification_students_cell(absence_justification)
+    absence_justification.students.map(&:name).join(', ')
   end
 end

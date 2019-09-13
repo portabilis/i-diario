@@ -92,20 +92,29 @@ class DailyNote < ActiveRecord::Base
   private
 
   def self.by_teacher_id_query(teacher_id)
+    avaliation = Avaliation.arel_table
+    daily_note = DailyNote.arel_table
+    teacher_discipline_classroom = TeacherDisciplineClassroom.arel_table
+
     joins(
-      arel_table.join(TeacherDisciplineClassroom.arel_table, Arel::Nodes::OuterJoin)
+      arel_table.join(avaliation, Arel::Nodes::InnerJoin)
+        .on(avaliation[:id].eq(daily_note[:avaliation_id]))
+      .join_sources
+    ).joins(
+       arel_table.join(teacher_discipline_classroom, Arel::Nodes::InnerJoin)
         .on(
-          TeacherDisciplineClassroom.arel_table[:classroom_id]
-            .eq(DailyNote.arel_table[:classroom_id])
-            .and(
-              TeacherDisciplineClassroom.arel_table[:discipline_id]
-                .eq(DailyNote.arel_table[:discipline_id])
+          teacher_discipline_classroom[:classroom_id]
+            .eq(avaliation[:classroom_id])
+            .and(teacher_discipline_classroom[:discipline_id]
+              .eq(avaliation[:discipline_id])
             )
         )
-        .join_sources
-      )
-      .where(TeacherDisciplineClassroom.arel_table[:teacher_id].eq(teacher_id)
-      .and(TeacherDisciplineClassroom.arel_table[:active].eq('t')))
+       .join_sources
+    )
+    .where(
+      teacher_discipline_classroom[:teacher_id].eq(teacher_id)
+        .and(teacher_discipline_classroom[:active].eq('t'))
+    )
   end
 
   def ensure_not_has_avaliation_recovery
