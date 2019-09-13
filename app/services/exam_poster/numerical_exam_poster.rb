@@ -108,7 +108,7 @@ module ExamPoster
 
       if score.present?
         score = ComplementaryExamCalculator.new(
-          AffectedScoreTypes::STEP_RECOVERY_SCORE,
+          [AffectedScoreTypes::STEP_RECOVERY_SCORE, AffectedScoreTypes::BOTH],
           student,
           discipline.id,
           classroom.id,

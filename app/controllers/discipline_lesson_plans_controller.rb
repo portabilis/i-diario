@@ -5,7 +5,8 @@ class DisciplineLessonPlansController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    author_type = PlansAuthors::MY_PLANS if params[:filter].nil?
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @discipline_lesson_plans = apply_scopes(
@@ -23,6 +24,7 @@ class DisciplineLessonPlansController < ApplicationController
 
     if author_type.present?
       @discipline_lesson_plans = @discipline_lesson_plans.by_author(author_type, current_teacher)
+      params[:filter][:by_author] = author_type
     end
 
     authorize @discipline_lesson_plans

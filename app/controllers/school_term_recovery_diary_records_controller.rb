@@ -19,7 +19,13 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
       .by_discipline_id(current_user_discipline)
       .ordered
 
-    @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_step_id(current_user_classroom, step_id) if step_id.present?
+    if step_id.present?
+      @school_term_recovery_diary_records = @school_term_recovery_diary_records.by_step_id(
+        current_user_classroom,
+        step_id
+      )
+      params[:filter][:by_step_id] = step_id
+    end
 
     authorize @school_term_recovery_diary_records
   end

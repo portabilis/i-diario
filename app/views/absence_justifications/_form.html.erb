@@ -14,11 +14,16 @@
       <div class="col col-sm-4">
         <%= f.association :classroom, as: :select2_classroom, user: current_user %>
       </div>
-      <div class="row" data-discipline>
+      <div data-discipline>
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2_discipline, user: current_user,
+          <%= f.association :disciplines, as: :select2_discipline,
+                multiple: true,
+                user: current_user,
                 classroom_id: @absence_justification.classroom_id,
-                required: true %>
+                admin_or_employee: current_user_role_is_employee_or_administrator?,
+                required: true,
+                input_html: { value: f.object.discipline_ids.join(','),
+                data: { without_json_parser: true } } %>
         </div>
       </div>
     </div>
@@ -31,7 +36,8 @@
         <%= f.input :absence_date_end %>
       </div>
         <div class="col col-sm-4" data-student>
-          <%= f.input :student_id, as: :select2, elements: [] %>
+          <%= f.association :students, as: :select2, elements: @students, multiple: true, required: true,
+          input_html: { value: f.object.student_ids.join(','), data: { without_json_parser: true } } %>
         </div>
     </div>
     <div class="row">

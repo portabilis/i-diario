@@ -3,3 +3,4 @@ pt-BR:
     affected_score_types:
       step_average: "Média da etapa"
       step_recovery_score: "Nota de recuperação da etapa"
+      both: "Ambas"
