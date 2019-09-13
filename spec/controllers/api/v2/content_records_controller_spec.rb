@@ -5,8 +5,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
     let(:teacher_discipline_classroom) {
       create(
         :teacher_discipline_classroom,
-        :with_classroom_semester_steps,
-        :current
+        :with_classroom_semester_steps
       )
     }
 

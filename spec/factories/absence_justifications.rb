@@ -1,7 +1,13 @@
 FactoryGirl.define do
   factory :absence_justification do
     teacher
-    student
+    students do
+      create_list(:student, 1)
+    end
+
+    disciplines do
+      create_list(:discipline, 1)
+    end
 
     teacher_id { teacher.id }
     absence_date { Date.current }

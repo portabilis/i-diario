@@ -1,11 +1,11 @@
 absence_justification_a:
-  student: bary_allen
+  students: bary_allen
   absence_date: '2015-01-02'
   absence_date_end: '2015-01-02'
   justification: 'Consulta médica'
 
 absence_justification_b:
-  student: bruce_wayne
+  students: bruce_wayne
   absence_date: '2015-01-01'
   absence_date_end: '2015-01-01'
   justification: 'Problema com transporte público'

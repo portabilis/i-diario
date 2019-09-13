@@ -12,14 +12,14 @@ pt-BR:
         justification: "Justificativa"
         absence_date: "Data inicial"
         absence_date_end: "Data final"
-        student_id: "Aluno"
+        students: "Alunos"
         student: "Aluno"
         unity: "Escola"
         unity_id: "Escola"
         classroom: "Turma"
         classroom_id: "Turma"
         discipline: "Disciplina"
-        discipline_id: "Disciplina"
+        disciplines: "Disciplinas"
         author: "Autor"
 
     errors:
@@ -27,9 +27,15 @@ pt-BR:
         absence_justification:
           attributes:
               absence_date:
-                taken:  'já existe uma justificativa para esta data'
+                taken: 'já existe uma justificativa para esta data'
+                not_greater_than_final: 'não pode ser maior que a Data final'
               absence_date_end:
-                taken:  'já existe uma justificativa para esta data'
+                taken: 'já existe uma justificativa para esta data'
+                not_less_than_initial: 'deve ser maior ou igual a Data inicial'
               base:
                 discipline_period_absence: 'Já existe uma justificativa para a disciplina e período informados'
                 general_period_absence: "Já existe uma justificativa no período informado para o professor %{teacher}"
+              students:
+                at_least_one_student: 'deve selecionar pelo menos um aluno'
+              disciplines:
+                at_least_one_discipline: 'deve selecionar pelo menos uma disciplina'

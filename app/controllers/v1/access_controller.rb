@@ -1,5 +1,5 @@
 module V1
-  class AccessController < Api::V2::AuthenticatedApiBaseController
+  class AccessController < Api::V1::BaseController
     def request_access
 
       verifier = RequestAccessVerifier.new(
