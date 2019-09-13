@@ -71,7 +71,11 @@ module Navigation
     end
 
     def policy(feature)
-      klass = feature.singularize.camelcase.constantize
+      klass = begin
+        feature.singularize.camelcase.constantize
+      rescue
+        feature
+      end
 
       begin
         Pundit::PolicyFinder.new(klass).policy!.new(current_user, klass)
