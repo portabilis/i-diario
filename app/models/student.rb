@@ -11,7 +11,8 @@ class Student < ActiveRecord::Base
 
   has_many :student_biometrics
   has_many :student_enrollments
-  has_and_belongs_to_many :absence_justifications
+  has_many :absence_justifications_students
+  has_many :absence_justifications, through: :absence_justifications_students
   has_many :avaliation_exemptions
   has_many :complementary_exam_students
   has_many :conceptual_exams
