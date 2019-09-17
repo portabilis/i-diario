@@ -1,5 +1,6 @@
 class ComplementaryExamStudent < ActiveRecord::Base
   include Audit
+  include Discardable
 
   audited associated_with: :complementary_exam, except: [:complementary_exam_id]
 

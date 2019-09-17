@@ -1,4 +1,6 @@
 class DailyFrequencyStudent < ActiveRecord::Base
+  include Discardable
+
   acts_as_copy_target
 
   audited associated_with: :daily_frequency, except: [:daily_frequency_id, :active]

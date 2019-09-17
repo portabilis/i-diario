@@ -2,6 +2,7 @@ class TransferNote < ActiveRecord::Base
   include Audit
   include Stepable
   include TeacherRelationable
+  include Discardable
 
   teacher_relation_columns only: [:classroom, :discipline]
 

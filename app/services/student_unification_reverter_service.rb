@@ -24,6 +24,7 @@ class StudentUnificationReverterService
           begin
             record.student_id = secondary_student.id
             record.save!(validate: false)
+            record.update_column(:discarded_at, nil) unless record.discarded_at.nil?
           rescue ActiveRecord::RecordNotUnique
           rescue ActiveRecord::StatementInvalid => exception
             db_check_messages = ['check_conceptual_exam_is_unique', 'check_descriptive_exam_is_unique']
