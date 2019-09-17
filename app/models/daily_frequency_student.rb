@@ -16,6 +16,8 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   validates :student, :daily_frequency, presence: true
 
+  default_scope -> { kept }
+
   scope :absences, -> { where("COALESCE(daily_frequency_students.present, 'f') = 'f' ")}
   scope :presents, -> { where("daily_frequency_students.present = 't' ")}
   scope :active, -> { where(active: true) }
