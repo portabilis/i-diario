@@ -5,4 +5,6 @@ class AbsenceJustificationsStudent < ActiveRecord::Base
 
   belongs_to :student
   belongs_to :absence_justification
+
+  default_scope -> { kept }
 end
