@@ -26,7 +26,7 @@ class CreateFunctionCheckToKeepUniqueAbsenceJustificationsStudents < ActiveRecor
               ON absence_justifications_students.absence_justification_id = absence_justifications.id
             JOIN absence_justifications_disciplines
               ON absence_justifications_disciplines.absence_justification_id = absence_justifications.id
-             AND absence_justifications.id = _absence_justification_id
+           WHERE absence_justifications.id = _absence_justification_id
         ) LOOP
           IF EXISTS(
             SELECT 1
