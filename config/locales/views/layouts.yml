@@ -2,6 +2,13 @@ pt-BR:
   layouts:
     application:
       current_user_role: "Perfil atual:"
+      role: "Perfil"
+      unit: "Unidade"
+      school_year: "Ano letivo"
+      classroom: "Turma"
+      teacher: "Professor"
+      discipline: "Disciplina"
+      change_profile: "Alterar perfil"
     error_messages:
       needs_profile: 'É necessário selecionar um perfil para continuar a navegação'
       needs_unity: 'É necessário selecionar uma unidade para continuar a navegação'

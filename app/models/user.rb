@@ -266,6 +266,26 @@ class User < ActiveRecord::Base
     current_user_role.role.access_level
   end
 
+  def administrator?
+    current_user_role.role.access_level == AccessLevel::ADMINISTRATOR
+  end
+
+  def employee?
+    current_user_role.role.access_level == AccessLevel::EMPLOYEE
+  end
+
+  def parent?
+    current_user_role.role.access_level == AccessLevel::PARENT
+  end
+
+  def student?
+    current_user_role.role.access_level == AccessLevel::STUDENT
+  end
+
+  def teacher?
+    current_user_role.role.access_level == AccessLevel::TEACHER
+  end
+
   def cpf_as_integer
     cpf.gsub(/[^\d]/, '')
   end
