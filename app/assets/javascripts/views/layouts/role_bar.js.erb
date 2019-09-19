@@ -1,10 +1,11 @@
 $(function() {
   'use strict';
 
+  const breakpoint = 1250;
   const flashMessages = new FlashMessages();
 
   const $form = $('#user-role-form');
-  const $btn = $form.find('button');
+  const $submitBtn = $form.find('button[type="submit"]');
   const $loader = $('#page-loading');
   const teacherId = getValue($form.find('#user_teacher_id'));
 
@@ -23,6 +24,21 @@ $(function() {
   const $teacherContainer = $form.find('#assumed-teacher-field-container');
   const $disciplineContainer = $form.find('#discipline-field-container');
 
+  // other elements
+  const $body = $('html, body');
+  const $loginInfo = $('#user-info-selector');
+  const $roleBar = $('#current-role-selector');
+  const $closeBar = $('.role-cancel');
+  const $errorsContainer = $form.find('.errors-container');
+
+  const requiredContainersPerRole = {
+    administrator: [$unityContainer, $yearContainer, $teacherContainer, $disciplineContainer],
+    teacher: [$yearContainer, $classroomContainer, $disciplineContainer],
+    employee: [$yearContainer, $teacherContainer, $disciplineContainer],
+    parent: [],
+    student: []
+  };
+
   let profileRole = {};
 
   let profileData = {
@@ -33,6 +49,20 @@ $(function() {
     teacher: getValue($teacherField),
     discipline: getValue($disciplineField)
   };
+
+  function isModal() {
+    const size = $(window).width();
+
+    return size < breakpoint;
+  }
+
+  function setError(msg) {
+    if (isModal()) {
+      $errorsContainer.show().text(msg);
+    } else {
+      flashMessages.error(msg);
+    }
+  }
 
   function getProfileRole(roleId) {
     const defer = $.Deferred();
@@ -98,6 +128,7 @@ $(function() {
     options = _.isEmpty(options) ? [] : insertEmptyOption(options);
 
     field.select2({
+      placeholder: "<%= I18n.t('layouts.application.select') %>",
       formatResult: function(el) {
         return "<div class='select2-user-result'>" + el.text + "</div>";
       },
@@ -123,31 +154,65 @@ $(function() {
     })
   }
 
+  function markRequiredFields(role) {
+    $.each([
+      $unityContainer,
+      $yearContainer,
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], function () {
+      $(this).find('span.label').removeClass('required');
+    });
+
+    const containers = requiredContainersPerRole[role];
+
+    $.each(containers, function () {
+      $(this).find('span.label').addClass('required');
+    });
+  }
+
+  hideAndResetOnEvent([
+    $unityContainer,
+    $yearContainer,
+    $classroomContainer,
+    $teacherContainer,
+    $disciplineContainer
+  ], 'pre:profile:role');
+
   hideAndResetOnEvent([
     $yearContainer,
     $classroomContainer,
     $teacherContainer,
     $disciplineContainer
-  ], 'profile:role');
+  ], 'pre:profile:unity');
 
   hideAndResetOnEvent([
     $classroomContainer,
     $teacherContainer,
     $disciplineContainer
-  ], 'profile:unity');
+  ], 'pre:profile:year');
 
   hideAndResetOnEvent([
     $teacherContainer,
     $disciplineContainer
-  ], 'profile:year');
+  ], 'pre:profile:classroom');
 
   hideAndResetOnEvent([
     $disciplineContainer
-  ], 'profile:classroom');
+  ], 'pre:profile:teacher');
 
   $roleField.on('change', function () {
     const $this = $(this);
     const roleId = getValue($this);
+
+    triggerEventOnContainers([
+      $unityContainer,
+      $yearContainer,
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:role');
 
     if (!roleId) {
       return;
@@ -157,14 +222,12 @@ $(function() {
 
     $.when(getProfileRole(roleId)).then(function () {
       triggerEventOnContainers([
-        $unityContainer,
-        $yearContainer,
-        $classroomContainer,
-        $teacherContainer,
-        $disciplineContainer
+        $unityContainer
       ], 'profile:role');
+
+      markRequiredFields(profileRole.role.access_level);
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
     });
   });
 
@@ -189,7 +252,7 @@ $(function() {
         clearOptions($field);
       });
 
-      return;
+      return true;
     }
 
     $.when(getProfileRole(profileRole.role_id || null)).then(function () {
@@ -212,12 +275,19 @@ $(function() {
         setValue($field, profileRole.unity_id);
       }
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_schools_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_schools_error') %>");
     });
   });
 
   $unityField.on('change', function () {
     const unityId = getValue($(this));
+
+    triggerEventOnContainers([
+      $yearContainer,
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:unity');
 
     if (!unityId) {
       return;
@@ -243,10 +313,7 @@ $(function() {
         });
       } else {
         triggerEventOnContainers([
-          $yearContainer,
-          $classroomContainer,
-          $teacherContainer,
-          $disciplineContainer
+          $yearContainer
         ], 'profile:unity');
       }
     });
@@ -279,12 +346,18 @@ $(function() {
         setValue($field, years[1].id);
       }
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_years_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_years_error') %>");
     });
   });
 
   $yearField.on('change', function () {
     const year = getValue($(this));
+
+    triggerEventOnContainers([
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:year');
 
     if (!year) {
       return;
@@ -293,9 +366,7 @@ $(function() {
     profileData['year'] = year;
 
     triggerEventOnContainers([
-      $classroomContainer,
-      $teacherContainer,
-      $disciplineContainer
+      $classroomContainer
     ], 'profile:year');
   });
 
@@ -331,12 +402,17 @@ $(function() {
 
       $this.show();
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>");
     });
   });
 
   $classroomField.on('change', function () {
     const classroomId = getValue($(this));
+
+    triggerEventOnContainers([
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:classroom');
 
     if (!classroomId) {
       return;
@@ -345,8 +421,7 @@ $(function() {
     profileData['classroom'] = classroomId;
 
     triggerEventOnContainers([
-      $teacherContainer,
-      $disciplineContainer
+      $teacherContainer
     ], 'profile:classroom');
   });
 
@@ -387,12 +462,16 @@ $(function() {
         $this.show();
       }
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>");
     });
   });
 
   $teacherField.on('change', function () {
     const teacherId = getValue($(this));
+
+    triggerEventOnContainers([
+      $disciplineContainer
+    ], 'pre:profile:teacher');
 
     if (!teacherId) {
       return;
@@ -431,7 +510,7 @@ $(function() {
 
       $this.show();
     }, function () {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>");
     });
   });
 
@@ -451,25 +530,64 @@ $(function() {
 
   $form.on('ajax:send', function() {
     $loader.removeClass('hidden');
-    $btn.prop('disabled', true);
+    $submitBtn.prop('disabled', true);
   });
 
   $form.on('ajax:error', function(event, request) {
     $loader.addClass('hidden');
-    $btn.prop('disabled', false);
+    $submitBtn.prop('disabled', false);
 
     const invalidFields = request.responseJSON || {};
 
     if (invalidFields.current_user_role_id !== undefined) {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.needs_profile') %>");
+      setError("<%= I18n.t('layouts.error_messages.needs_profile') %>");
     } else if (invalidFields.current_unity_id !== undefined) {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.needs_unity') %>");
+      setError("<%= I18n.t('layouts.error_messages.needs_unity') %>");
+    } else if (invalidFields.current_school_year !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_year') %>");
     } else if (invalidFields.current_classroom_id !== undefined) {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
+      setError("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
+    } else if (invalidFields.assumed_teacher_id !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_teacher') %>");
     } else if (invalidFields.current_discipline_id !== undefined) {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
+      setError("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
     } else {
-      flashMessages.error("<%= I18n.t('layouts.error_messages.unknown_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.unknown_error') %>");
+    }
+  });
+
+  if (window.profile.access_level) {
+      markRequiredFields(window.profile.access_level);
+  }
+
+  $loginInfo.click(function (e) {
+    if ($roleBar.is(':hidden')) {
+      $roleBar.show();
+      $body.css({ overflow: 'hidden' });
+    }
+
+    e.preventDefault();
+  });
+
+  $closeBar.click(function (e) {
+    if ($roleBar.is(':visible')) {
+      $roleBar.hide();
+      $body.css({ overflow: 'auto' });
+    }
+
+    e.preventDefault();
+  });
+
+  $('#header input.select2').on('select2-open', function() {
+    $('.select2-search:visible').css({ marginTop: 5 });
+  });
+
+  $(window).resize(function () {
+    if (isModal()) {
+      $roleBar.hide();
+    } else {
+      $roleBar.show();
+      $errorsContainer.hide();
     }
   });
 });
