@@ -13,15 +13,12 @@ $(function () {
     trimValue: true
   });
 
-  $.ajaxSetup({
-    beforeSend: function () {
-      $('#page-loading').removeClass('hidden');
-    },
-    complete: function () {
-      if ($.active === 1) {
-        $('#page-loading').addClass('hidden');
-      }
-    }
+  $(document).ajaxStart(function() {
+    $('#page-loading').removeClass('hidden');
+  });
+
+  $(document).ajaxStop(function () {
+    $('#page-loading').addClass('hidden');
   });
 
   $.extend($.validator.messages, {
