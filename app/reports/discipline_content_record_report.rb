@@ -108,14 +108,12 @@ class DisciplineContentRecordReport < BaseReport
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
-    @daily_record_header = make_cell(content: 'Registro diário das atividades', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
 
     @unity_cell = make_cell(content:  @discipline_content_record.first.content_record.classroom.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4], colspan: 2)
     @discipline_cell = make_cell(content: @discipline_content_record.first.discipline.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @classroom_cell = make_cell(content: @discipline_content_record.first.content_record.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @teacher_cell = make_cell(content: @current_teacher.name, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} a #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
-    @daily_record_cell = make_cell(content: @discipline_content_record.first.content_record.daily_activities_record, borders: [:bottom, :left, :right], size: 10, width: 240, align: :justify, padding: [0, 4, 4, 4], colspan: 2)
   end
 
   def identification
@@ -128,10 +126,6 @@ class DisciplineContentRecordReport < BaseReport
       [@teacher_header, @period_header],
       [@teacher_cell, @period_cell]
     ]
-
-    if @discipline_content_record.first.content_record.daily_activities_record.present?
-      identification_table_data << [@daily_record_header] << [@daily_record_cell]
-    end
 
     table(identification_table_data, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -158,11 +152,11 @@ class DisciplineContentRecordReport < BaseReport
 
     @discipline_content_record.each do |discipline_content_record|
       date_cell = make_cell(content: discipline_content_record.content_record.record_date.strftime("%d/%m/%Y"), size: 10, align: :left, width: 60)
-      conteudo_cell = make_cell(content: discipline_content_record.content_record.contents_ordered.map(&:to_s).join(", "), size: 10, align: :left)
+      content_cell = make_cell(content: content_cell_content(discipline_content_record.content_record), size: 10, align: :left)
 
       general_information_cells << [
         date_cell,
-        conteudo_cell
+        content_cell
       ]
     end
 
@@ -192,6 +186,12 @@ class DisciplineContentRecordReport < BaseReport
       general_information
       signatures
     end
+  end
+
+  def content_cell_content(content_record)
+    content = content_record.contents_ordered.map(&:to_s).join(", ")
+    content = "#{content}\n#{content_record.daily_activities_record}" unless content_record.daily_activities_record.blank?
+    content
   end
 
   def signatures
