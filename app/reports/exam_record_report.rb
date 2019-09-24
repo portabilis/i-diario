@@ -263,7 +263,7 @@ class ExamRecordReport < BaseReport
         sequence_cell = make_cell(content: (students_cells.count + 1).to_s, align: :center)
         scores = []
         10.times { scores << make_cell(content: '', align: :center) }
-        student_cells = [sequence_cell, { content: '', colspan: 2 }].concat(scores)
+        student_cells = [sequence_cell, { content: '' }].concat(scores)
         student_cells << make_cell(content: '', align: :center)
         students_cells << student_cells
       end
