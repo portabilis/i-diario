@@ -99,6 +99,7 @@ module ExamPoster
         next unless can_post?(classroom)
 
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
+                                      .joins(:student)
                                       .includes(:student, :descriptive_exam)
                                       .merge(
                                         DescriptiveExam.by_classroom_id(classroom.id)
@@ -107,7 +108,6 @@ module ExamPoster
                                       .ordered
 
         exams.each do |exam|
-          next if exam.student.blank?
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
             OpinionTypes::BY_STEP, classroom.exam_rule
@@ -129,7 +129,6 @@ module ExamPoster
         exams = DescriptiveExamStudent.by_classroom(classroom).ordered
 
         exams.each do |exam|
-          next if exam.student.blank?
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
             OpinionTypes::BY_YEAR, classroom.exam_rule
@@ -159,7 +158,6 @@ module ExamPoster
         exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).ordered
 
         exams.each do |exam|
-          next if exam.student.blank?
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
             OpinionTypes::BY_YEAR_AND_DISCIPLINE,
@@ -197,7 +195,6 @@ module ExamPoster
                                       .ordered
 
         exams.each do |exam|
-          next if exam.student.blank?
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
             OpinionTypes::BY_STEP_AND_DISCIPLINE,
