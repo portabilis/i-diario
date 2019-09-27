@@ -17,6 +17,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   let(:current_teacher_teaching_plan) {
     create(
       :teaching_plan,
+      :with_teacher_discipline_classroom,
       teacher: current_teacher,
       unity: unity,
       year: classroom.year,
@@ -26,6 +27,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   let(:other_teacher_teaching_plan) {
     create(
       :teaching_plan,
+      :with_teacher_discipline_classroom,
       teacher: other_teacher,
       unity: unity,
       year: classroom.year,

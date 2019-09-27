@@ -1,7 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe KnowledgeAreaTeachingPlan, type: :model do
-  subject { FactoryGirl.build(:knowledge_area_teaching_plan) }
+  subject {
+    build(
+      :knowledge_area_teaching_plan,
+      :with_teacher_discipline_classroom
+    )
+  }
 
   describe 'associations' do
     it { expect(subject).to belong_to(:teaching_plan) }
@@ -14,10 +19,11 @@ RSpec.describe KnowledgeAreaTeachingPlan, type: :model do
     it { expect(subject).to validate_presence_of(:knowledge_area_ids) }
 
     it 'should validate uniqueness of knowledge area teaching plan' do
-      knowledge_area = FactoryGirl.create(:knowledge_area)
+      knowledge_area = create(:knowledge_area)
 
       another_knowledge_area_teaching_plan = create(
         :knowledge_area_teaching_plan,
+        :with_teacher_discipline_classroom,
         knowledge_area_ids: knowledge_area.id
       )
 
