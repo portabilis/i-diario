@@ -50,6 +50,10 @@ $(function() {
   }
 
   function fetchStudents() {
+    if(!checkFormat($absenceDate.val()) || !checkFormat($absenceDateEnd.val())){
+      return;
+    }
+
     const classroom_id = $classroom.select2('val');
     const startDate = $absenceDate.val();
     const endDate = $absenceDateEnd.val();
@@ -160,6 +164,16 @@ $(function() {
   $('#absence_justification').on('cocoon:after-insert', function(e, item) {
     $(item).find('input.file').on('change', onChangeFileElement);
   });
+
+  function checkFormat(date) {
+    re = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+
+    if(date != '' && !date.match(re)) {
+      return false;
+    }
+
+    return true;
+  }
 
   $absenceDate.on('change', fetchStudents);
   $absenceDateEnd.on('change', fetchStudents);
