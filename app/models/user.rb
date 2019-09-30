@@ -267,22 +267,17 @@ class User < ActiveRecord::Base
   end
 
   def administrator?
+    return false unless current_user_role
     current_user_role.role.access_level == AccessLevel::ADMINISTRATOR
   end
 
   def employee?
+    return false unless current_user_role
     current_user_role.role.access_level == AccessLevel::EMPLOYEE
   end
 
-  def parent?
-    current_user_role.role.access_level == AccessLevel::PARENT
-  end
-
-  def student?
-    current_user_role.role.access_level == AccessLevel::STUDENT
-  end
-
   def teacher?
+    return false unless current_user_role
     current_user_role.role.access_level == AccessLevel::TEACHER
   end
 
