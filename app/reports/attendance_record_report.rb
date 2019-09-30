@@ -330,11 +330,19 @@ class AttendanceRecordReport < BaseReport
   end
 
   def display_knowledge_area_as_discipline?
-    TeacherDisciplineClassroom.by_classroom(classroom.id)
-                              .by_teacher_id(@teacher.id)
-                              .by_discipline_id(discipline.id)
-                              .first
-                              .try(:allow_absence_by_discipline)
+    teacher_allow_absence_by_discipline? && classroom_has_general_absence?
+  end
+
+  def classroom_has_general_absence?
+    classroom.exam_rule.try(:frequency_type) == FrequencyTypes::GENERAL
+  end
+
+  def teacher_allow_absence_by_discipline?
+    @teacher_allow_absence_by_discipline ||= TeacherDisciplineClassroom.by_classroom(classroom.id)
+                                                                       .by_teacher_id(@teacher.id)
+                                                                       .by_discipline_id(discipline.id)
+                                                                       .first
+                                                                       .try(:allow_absence_by_discipline)
   end
 
   def general_frequency?
