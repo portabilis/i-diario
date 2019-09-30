@@ -7,7 +7,6 @@ FactoryGirl.define do
 
     transient do
       step nil
-      teacher nil
       discipline nil
     end
 
@@ -22,12 +21,27 @@ FactoryGirl.define do
 
       lesson_plan.start_at ||= step.try(:first_school_calendar_date) || Date.current
       lesson_plan.end_at ||= lesson_plan.start_at + 30.days
+
+      teacher = Teacher.find(lesson_plan.teacher_id) if lesson_plan.teacher_id.present?
+      teacher ||= lesson_plan.teacher || create(:teacher)
+
+      if teacher.blank?
+        discipline = evaluator.discipline || create(:discipline)
+        teacher_discipline_classroom = create(
+          :teacher_discipline_classroom,
+          classroom: lesson_plan.classroom,
+          discipline: discipline
+        )
+
+        lesson_plan.teacher ||= teacher_discipline_classroom.teacher
+      end
     end
 
     trait :with_teacher_discipline_classroom do
       after(:build) do |lesson_plan, evaluator|
         teacher = Teacher.find(lesson_plan.teacher_id) if lesson_plan.teacher_id.present?
-        teacher ||= evaluator.teacher || create(:teacher)
+        teacher ||= lesson_plan.teacher || create(:teacher)
+        lesson_plan.teacher ||= teacher
         lesson_plan.teacher_id ||= teacher.id
         discipline = evaluator.discipline || create(:discipline)
 

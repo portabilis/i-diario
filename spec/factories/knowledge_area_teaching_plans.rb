@@ -13,10 +13,15 @@ FactoryGirl.define do
 
       before(:create) do |knowledge_area_teaching_plan, evaluator|
         teacher = evaluator.teacher || create(:teacher)
-        knowledge_area_teaching_plan.teacher_id ||= evaluator.teacher.id if evaluator.teacher.present?
-        classroom = evaluator.classroom || create(:classroom)
-        discipline = evaluator.discipline || create(:discipline)
-        knowledge_area_teaching_plan.knowledge_area_ids ||= discipline.knowledge_area_id
+        knowledge_area_teaching_plan.teacher_id ||= teacher.id
+        classroom = evaluator.classroom || create(:classroom, :with_classroom_semester_steps)
+        first_knowledge_area_id = knowledge_area_teaching_plan.knowledge_area_ids.split(',').first
+        knowledge_area_id = first_knowledge_area_id || create(:knowledge_area).id
+        discipline = evaluator.discipline || create(:discipline, knowledge_area_id: knowledge_area_id)
+
+        if knowledge_area_teaching_plan.knowledge_area_ids.blank?
+          knowledge_area_teaching_plan.knowledge_area_ids = knowledge_area_id
+        end
 
         teaching_plan = create(
           :teaching_plan,
