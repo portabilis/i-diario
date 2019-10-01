@@ -5,4 +5,5 @@ NonStupidDigestAssets.whitelist += %w(
   500.html
   422.html
   404.html
+  bg.svg
 )
