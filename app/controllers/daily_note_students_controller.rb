@@ -38,14 +38,19 @@ class DailyNoteStudentsController < ApplicationController
     @normal_students = []
     @dependence_students = []
 
-    daily_note = @daily_note_students.first.daily_note
-    date_for_search = params[:search][:recorded_at].to_date
+    if @daily_note_students.any?
+      daily_note = @daily_note_students.first.daily_note
+      date_for_search = params[:search][:recorded_at].to_date
 
-    student_enrollments = fetch_student_enrollments(daily_note.classroom, daily_note.discipline, date_for_search)
+      student_enrollments = fetch_student_enrollments(daily_note.classroom, daily_note.discipline, date_for_search)
 
-    student_enrollments.each do |student_enrollment|
-      if student = Student.find_by_id(student_enrollment.student_id)
-        note_student = @daily_note_students.where(student_id: student.id).first || DailyNoteStudent.new(student: student)
+      student_enrollments.each do |student_enrollment|
+        student = Student.find_by(id: student_enrollment.student_id)
+        next unless student
+
+        note_student = @daily_note_students.where(student_id: student.id).first ||
+                       DailyNoteStudent.new(student: student)
+
         note_student.dependence = student_has_dependence?(student_enrollment, daily_note.discipline)
         note_student.active = student_active_on_date?(student_enrollment, daily_note.classroom, date_for_search)
         note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, daily_note)
@@ -53,38 +58,38 @@ class DailyNoteStudentsController < ApplicationController
         @normal_students << note_student unless note_student.dependence
         @dependence_students << note_student if note_student.dependence
       end
-    end
 
-    sequence = 0
+      sequence = 0
 
-    @normal_students.each do |note_student|
-      sequence += 1
+      @normal_students.each do |note_student|
+        sequence += 1
 
-      @students << {
-        sequence: sequence,
-        id: note_student.student_id,
-        name: note_student.student.to_s,
-        note: note_student.note,
-        dependence: note_student.dependence,
-        exempted_from_discipline: note_student.exempted_from_discipline,
-        active: note_student.active
-      }
-    end
+        @students << {
+          sequence: sequence,
+          id: note_student.student_id,
+          name: note_student.student.to_s,
+          note: note_student.note,
+          dependence: note_student.dependence,
+          exempted_from_discipline: note_student.exempted_from_discipline,
+          active: note_student.active
+        }
+      end
 
-    sequence = 0
+      sequence = 0
 
-    @dependence_students.each do |note_student|
-      sequence += 1
+      @dependence_students.each do |note_student|
+        sequence += 1
 
-      @students << {
-        sequence: sequence,
-        id: note_student.student_id,
-        name: note_student.student.to_s,
-        note: note_student.note,
-        dependence: note_student.dependence,
-        exempted_from_discipline: note_student.exempted_from_discipline,
-        active: note_student.active
-      }
+        @students << {
+          sequence: sequence,
+          id: note_student.student_id,
+          name: note_student.student.to_s,
+          note: note_student.note,
+          dependence: note_student.dependence,
+          exempted_from_discipline: note_student.exempted_from_discipline,
+          active: note_student.active
+        }
+      end
     end
 
     respond_with @students
