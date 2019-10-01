@@ -78,7 +78,9 @@ class AvaliationRecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def dates_are_set?
-    recovery_diary_record.recorded_at.present? && avaliation.test_date.present? if recovery_diary_record
+    return unless recovery_diary_record && avaliation
+
+    recovery_diary_record.recorded_at.present? && avaliation.test_date.present?
   end
 
   def self_assign_to_recovery_diary_record
