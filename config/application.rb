@@ -57,7 +57,5 @@ module Educacao
         s3_credentials: "#{Rails.root}/config/aws.yml"
       }
     end
-
-    config.exceptions_app = routes
   end
 end
