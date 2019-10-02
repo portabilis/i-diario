@@ -347,7 +347,8 @@ class ExamRecordReport < BaseReport
     discipline_id = exam.discipline.id
 
     test_date = exam.test_date
-    step_number = exam.school_calendar.step(test_date).to_number
+    steps_fetcher = StepsFetcher.new(exam.classroom)
+    step_number = steps_fetcher.step_by_date(test_date).to_number
 
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)
