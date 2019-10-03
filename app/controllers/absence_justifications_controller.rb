@@ -14,12 +14,11 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justifications = apply_scopes(AbsenceJustification.includes(:teacher)
                                                                .includes(:classroom)
                                                                .includes(:unity)
-                                                               .joins(:absence_justifications_students)
                                                                .by_unity(current_user_unity)
                                                                .by_classroom(current_user_classroom)
                                                                .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
-                                                               .includes(:students).uniq.ordered)
+                                                               .includes(:students).ordered)
 
     @absence_justifications = @absence_justifications.by_discipline_id(current_discipline) if current_discipline
 

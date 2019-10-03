@@ -2,7 +2,6 @@ class TransferNote < ActiveRecord::Base
   include Audit
   include Stepable
   include TeacherRelationable
-  include Discardable
 
   teacher_relation_columns only: [:classroom, :discipline]
 
@@ -28,8 +27,6 @@ class TransferNote < ActiveRecord::Base
 
   validates :unity_id, :discipline_id, :student_id, :teacher, presence: true
   validate :at_least_one_daily_note_student
-
-  default_scope -> { kept }
 
   scope :by_classroom_description, lambda { |description|
     joins(:classroom).where('unaccent(classrooms.description) ILIKE unaccent(?)', "%#{description}%")
