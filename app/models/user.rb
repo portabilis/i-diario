@@ -266,6 +266,25 @@ class User < ActiveRecord::Base
     current_user_role.role.access_level
   end
 
+  def administrator?
+    return false unless current_user_role
+    current_user_role.role.access_level == AccessLevel::ADMINISTRATOR
+  end
+
+  def employee?
+    return false unless current_user_role
+    current_user_role.role.access_level == AccessLevel::EMPLOYEE
+  end
+
+  def teacher?
+    return false unless current_user_role
+    current_user_role.role.access_level == AccessLevel::TEACHER
+  end
+
+  def cpf_as_integer
+    cpf.gsub(/[^\d]/, '')
+  end
+
   protected
 
   def email_required?

@@ -98,6 +98,8 @@ class ConceptualExam < ActiveRecord::Base
       discipline_id: discipline_ids
     )
 
+    return ConceptualExamStatus::INCOMPLETE if values.blank?
+
     return ConceptualExamStatus::INCOMPLETE if values.any? { |conceptual_exam_value|
       conceptual_exam_value.value.blank?
     }

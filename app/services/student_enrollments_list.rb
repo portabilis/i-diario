@@ -60,7 +60,6 @@ class StudentEnrollmentsList
                                                  .by_date_not_before(start_at)
     end
 
-    students_enrollments = students_enrollments.by_period(period) if period
     students_enrollments = students_enrollments.by_opinion_type(opinion_type, classroom) if opinion_type
     students_enrollments = students_enrollments.with_recovery_note_in_step(step, discipline) if with_recovery_note_in_step
 
@@ -150,6 +149,7 @@ class StudentEnrollmentsList
     enrollments = StudentEnrollment.where(id: ids)
                                    .by_classroom(@classroom)
 
+    enrollments = enrollments.by_period(period) if period
     enrollments = if search_type != :by_year
                     start_at = @start_at || @date
                     end_at = @end_at || @date

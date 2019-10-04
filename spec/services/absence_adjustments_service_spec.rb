@@ -29,7 +29,8 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
           unity: classroom.unity,
           classroom: classroom,
           school_calendar: school_calendar,
-          discipline: discipline
+          discipline: discipline,
+          class_number: 1
         )
       }
       let!(:daily_frequency_2) {

@@ -294,10 +294,13 @@ a.parent-dashboard-basic-info-links {
   box-shadow: 3px 0px 12px rgba(0, 0, 0, 0.175);
 }
 
-@media (max-width: 1250px) {
-  #current-role-selector {
-    display: none !important;
-  }
+.login-info-navigation {
+  border-radius: 20px;
+  margin-top: 15px !important;
+}
+
+.login-info-navigation span {
+  padding: 5px 5px 7px !important;
 }
 
 @media (min-width: 1250px) {

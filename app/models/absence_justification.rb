@@ -64,7 +64,7 @@ class AbsenceJustification < ActiveRecord::Base
   scope :by_date_range, lambda { |absence_date, absence_date_end|
     where('(NOT (absence_date > ? OR absence_date_end < ?))', absence_date_end, absence_date)
   }
-  scope :by_unity, ->(unity) { where('unity_id = ? OR unity_id IS NULL', unity) }
+  scope :by_unity, ->(unity_id) { where(unity_id: [unity_id, nil]) }
   scope :by_school_calendar, lambda { |school_calendar|
     where('school_calendar_id = ? OR school_calendar_id IS NULL', school_calendar)
   }
