@@ -1,6 +1,4 @@
 class DailyNoteStudent < ActiveRecord::Base
-  include Discardable
-
   acts_as_copy_target
 
   audited associated_with: [:daily_note, :transfer_note], except: [:daily_note_id, :transfer_note_id, :active]
@@ -21,8 +19,6 @@ class DailyNoteStudent < ActiveRecord::Base
   validates :student,    presence: true
   validates :daily_note, presence: true
   validates :note, numericality: { greater_than_or_equal_to: 0, less_than_or_equal_to: lambda { |daily_note_student| daily_note_student.maximum_score } }, allow_blank: true
-
-  default_scope -> { kept }
 
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_note).merge(DailyNote.by_discipline_id(discipline_id)) }
