@@ -6,7 +6,7 @@ RSpec.describe AbsenceJustification, type: :model do
   describe 'associations' do
     it { expect(subject).to belong_to(:teacher) }
     it { expect(subject).to belong_to(:user) }
-    it { expect(subject).to have_and_belong_to_many(:students) }
+    it { expect(subject).to have_many(:students) }
     it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to belong_to(:classroom) }
     it { expect(subject).to have_and_belong_to_many(:disciplines) }

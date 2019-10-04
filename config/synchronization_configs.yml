@@ -45,7 +45,8 @@ synchronizers:
     by_unity: true
     dependents: [
       StudentEnrollmentSynchronizer,
-      DeficienciesSynchronizer
+      DeficienciesSynchronizer,
+      StudentUnificationsSynchronizer
     ]
     dependencies: [
       DisciplinesSynchronizer
@@ -165,4 +166,11 @@ synchronizers:
     only_simple_synchronization: true
     dependencies: [
       ClassroomsSynchronizer
+    ]
+  -
+    klass: StudentUnificationsSynchronizer
+    by_year: false
+    by_unity: true
+    dependencies: [
+      StudentsSynchronizer
     ]
