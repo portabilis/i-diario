@@ -36,7 +36,7 @@ class StudentUnificationsSynchronizer < BaseSynchronizer
 
           secondary_students = unification.duplicates_id.map { |api_code|
             student(api_code)
-          }
+          }.compact
 
           if new_record
             secondary_students.each do |secondary_student|
