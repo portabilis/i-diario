@@ -39,6 +39,8 @@ $(function() {
     student: []
   };
 
+  let documentWidth = $(document).width();
+
   let profileRole = {};
 
   let profileData = {
@@ -583,11 +585,19 @@ $(function() {
   });
 
   $(window).resize(function () {
+    let currDocumentWidth = $(document).width();
+
+    if (currDocumentWidth === documentWidth) {
+      return true;
+    }
+
     if (isModal()) {
       $roleBar.hide();
     } else {
       $roleBar.show();
       $errorsContainer.hide();
     }
+
+    documentWidth = currDocumentWidth;
   });
 });
