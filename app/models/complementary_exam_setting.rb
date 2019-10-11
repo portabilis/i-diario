@@ -17,6 +17,7 @@ class ComplementaryExamSetting < ActiveRecord::Base
   validate :uniqueness_of_initials_and_description_by_affected_score
   validate :grades_in_use_cant_be_removed
   validate :integral_calculation_score
+  validates :year, presence: true, mask: { with: '9999', message: :incorrect_format }
 
   scope :by_description, lambda { |description| where("unaccent(complementary_exam_settings.description) ILIKE unaccent('%#{description}%')") }
   scope :by_initials, lambda { |initials| where("unaccent(complementary_exam_settings.initials) ILIKE unaccent('%#{initials}%')") }

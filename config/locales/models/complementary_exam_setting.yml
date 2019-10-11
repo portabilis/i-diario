@@ -16,6 +16,7 @@ pt-BR:
         number_of_decimal_places: "Número de casas decimais"
         grade_ids: "Séries"
         grades: "Séries"
+        year: "Ano"
 
     errors:
       models:
