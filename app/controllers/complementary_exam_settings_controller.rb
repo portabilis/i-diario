@@ -101,6 +101,7 @@ class ComplementaryExamSettingsController < ApplicationController
                   :affected_score,
                   :calculation_type,
                   :maximum_score,
-                  :number_of_decimal_places)
+                  :number_of_decimal_places,
+                  :year)
   end
 end
