@@ -299,8 +299,8 @@ class ExamRecordReport < BaseReport
     ComplementaryExamCalculator.new(
       [AffectedScoreTypes::STEP_RECOVERY_SCORE, AffectedScoreTypes::BOTH],
       student_id,
-      discipline,
-      classroom,
+      discipline.id,
+      classroom.id,
       @school_calendar_step
     ).calculate(score)
   end

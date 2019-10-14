@@ -25,9 +25,9 @@ class StudentAverageCalculator
 
     result = ComplementaryExamCalculator.new(
       [AffectedScoreTypes::STEP_AVERAGE, AffectedScoreTypes::BOTH],
-      student,
-      discipline,
-      classroom,
+      student.id,
+      discipline.id,
+      classroom.id,
       step
     ).calculate(result)
 
