@@ -1,3 +1,4 @@
+require 'rails_helper'
 require 'spec_helper_lite'
 require 'enumerate_it'
 
@@ -5,9 +6,9 @@ require 'app/services/student_average_calculator'
 require 'app/queries/student_notes_query'
 
 RSpec.describe StudentAverageCalculator, type: :service do
-  let(:student) { double(:student) }
-  let(:classroom) { double(:classroom) }
-  let(:discipline) { double(:discipline) }
+  let(:student) { create(:student) }
+  let(:classroom) { create(:classroom) }
+  let(:discipline) { create(:discipline) }
   let(:school_calendar_step) { double(:school_calendar_step) }
   let(:start_at) { double(:start_at) }
   let(:end_at) { double(:end_at) }
@@ -244,9 +245,9 @@ RSpec.describe StudentAverageCalculator, type: :service do
       receive(:new)
         .with(
           [AffectedScoreTypes::STEP_AVERAGE, AffectedScoreTypes::BOTH],
-          student,
-          discipline,
-          classroom,
+          student.id,
+          discipline.id,
+          classroom.id,
           school_calendar_step
         ).and_return(complementary_exam_calculator)
     )
