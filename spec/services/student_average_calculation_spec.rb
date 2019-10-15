@@ -1,4 +1,3 @@
-require 'rails_helper'
 require 'spec_helper_lite'
 require 'enumerate_it'
 
@@ -6,9 +5,9 @@ require 'app/services/student_average_calculator'
 require 'app/queries/student_notes_query'
 
 RSpec.describe StudentAverageCalculator, type: :service do
-  let(:student) { create(:student) }
-  let(:classroom) { create(:classroom) }
-  let(:discipline) { create(:discipline) }
+  let(:student) { double(:student) }
+  let(:classroom) { double(:classroom) }
+  let(:discipline) { double(:discipline) }
   let(:school_calendar_step) { double(:school_calendar_step) }
   let(:start_at) { double(:start_at) }
   let(:end_at) { double(:end_at) }
@@ -28,6 +27,8 @@ RSpec.describe StudentAverageCalculator, type: :service do
   let(:students_2) { double(:students_2) }
   let(:student_1) { double(:student_1) }
   let(:student_2) { double(:student_2) }
+  let(:discipline_id) { double(:discipline_id) }
+  let(:classroom_id) { double(:classroom_id) }
 
   let(:daily_note_student_1) { double(:daily_note_student_1) }
   let(:daily_note_student_2) { double(:daily_note_student_2) }
@@ -77,6 +78,8 @@ RSpec.describe StudentAverageCalculator, type: :service do
     stub_recovery_diary_record_2
     stub_avaliations
     stub_student
+    stub_discipline
+    stub_classroom
     stub_recovery_diary_records
     stub_avaliation_recovery_diary_records
     stub_complementary_exam_calculator
@@ -333,6 +336,14 @@ RSpec.describe StudentAverageCalculator, type: :service do
 
   def stub_student
     allow(student).to receive(:id).and_return(student_1)
+  end
+
+  def stub_discipline
+    allow(discipline).to receive(:id).and_return(discipline_id)
+  end
+
+  def stub_classroom
+    allow(classroom).to receive(:id).and_return(classroom_id)
   end
 
   def stub_recovery_diary_records
