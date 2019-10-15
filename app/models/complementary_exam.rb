@@ -47,7 +47,7 @@ class ComplementaryExam < ActiveRecord::Base
   validates :complementary_exam_setting, presence: true
   validates :recorded_at, posting_date: true
 
-  validate :recorded_at_settings_year
+  validate :recorded_at_year_in_settings_year
   validate :at_least_one_score
 
   delegate :maximum_score, to: :complementary_exam_setting
@@ -75,8 +75,8 @@ class ComplementaryExam < ActiveRecord::Base
     end
   end
 
-  def recorded_at_settings_year
-    return unless complementary_exam_setting
+  def recorded_at_year_in_settings_year
+    return if complementary_exam_setting.blank?
     return if recorded_at.year == complementary_exam_setting.year
 
     errors.add(:recorded_at, :must_be_same_avaliation_setting_year)
