@@ -2,31 +2,45 @@ require 'rails_helper'
 
 RSpec.describe ContentsForDisciplineRecordFetcher do
   let(:teacher) { create(:teacher) }
-  let(:classroom) { create(:classroom) }
   let(:discipline) { create(:discipline) }
-  let!(:teacher_discipline_classroom) {
+  let(:classroom) {
     create(
-      :teacher_discipline_classroom,
-      teacher: teacher,
+      :classroom,
+      :with_teacher_discipline_classroom,
+      :with_classroom_semester_steps,
       discipline: discipline,
-      classroom: classroom
+      teacher: teacher
     )
   }
 
-  # FIXME: Ajustar junto com o refactor das factories
-  xit 'fetches contents from lesson plan' do
-    lesson_plan = create(:lesson_plan, classroom: classroom, teacher: teacher)
+  it 'fetches contents from lesson plan' do
+    lesson_plan = create(
+      :lesson_plan,
+      classroom: classroom,
+      teacher: teacher,
+      teacher_id: teacher.id
+    )
     date = lesson_plan.start_at
-
     teaching_plan = create(
       :teaching_plan,
       grade: classroom.grade,
       teacher: teacher,
+      teacher_id: teacher.id,
       year: date.year
     )
 
-    create(:discipline_lesson_plan, lesson_plan: lesson_plan, discipline: discipline)
-    create(:discipline_teaching_plan, teaching_plan: teaching_plan, discipline: discipline)
+    create(
+      :discipline_lesson_plan,
+      lesson_plan: lesson_plan,
+      discipline: discipline,
+      teacher_id: teacher.id
+    )
+    create(
+      :discipline_teaching_plan,
+      teaching_plan: teaching_plan,
+      discipline: discipline,
+      teacher_id: teacher.id
+    )
 
     subject = described_class.new(teacher, classroom, discipline, date)
 
@@ -34,20 +48,16 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
   end
 
   it 'fetches contents from teaching plan' do
-    school_calendar = create(
-      :school_calendar,
-      :with_one_step,
-      unity_id: classroom.unity_id,
-      year: classroom.year
-    )
-    date = 1.business_days.after(Date.parse("#{school_calendar.year}-01-01"))
+    date = classroom.calendar.classroom_steps.first.first_school_calendar_date
 
     teaching_plan = create(
       :teaching_plan,
-      :yearly,
+      school_term_type: SchoolTermTypes::SEMESTER,
+      school_term: Semesters::FIRST_SEMESTER,
       grade: classroom.grade,
       teacher: teacher,
-      year: school_calendar.year,
+      teacher_id: teacher.id,
+      year: classroom.calendar.school_calendar.year,
       unity: classroom.unity
     )
 

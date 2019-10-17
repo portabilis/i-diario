@@ -1,11 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe DailyNoteCreator, type: :service do
-  let(:avaliation) { create(:current_avaliation) }
-  let(:classroom) { avaliation.classroom }
+  let(:avaliation) {
+    create(
+      :avaliation,
+      :with_teacher_discipline_classroom
+    )
+  }
 
-  # FIXME: Ajustar junto com o refactor das factories
-  xit 'create daily note when avaliation is passed by parameter' do
+  it 'create daily note when avaliation is passed by parameter' do
     creator = described_class.new(
       avaliation_id: avaliation.id
     )
@@ -18,15 +21,14 @@ RSpec.describe DailyNoteCreator, type: :service do
 
     before do
       StudentEnrollmentClassroom.create!(
-        classroom: classroom,
+        classroom: avaliation.classroom,
         student_enrollment: student_enrollment,
         joined_at: Date.current.beginning_of_year,
         left_at: ''
       )
     end
 
-    # FIXME: Ajustar junto com o refactor das factories
-    xit 'create daily note students' do
+    it 'create daily note students' do
       creator = described_class.new(
         avaliation_id: avaliation.id
       )

@@ -66,7 +66,7 @@ class AttendanceRecordReport < BaseReport
     classroom_cell = make_cell(content: @daily_frequencies.first.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4, colspan: 2)
     year_cell = make_cell(content: @year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     period_cell = make_cell(content: "De #{@start_at} a #{@end_at}", size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    discipline_cell = make_cell(content: (@daily_frequencies.first.discipline ? @daily_frequencies.first.discipline.description : 'Geral'), size: 10, colspan: 3, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    discipline_cell = make_cell(content: discipline_display, size: 10, colspan: 3, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     teacher_cell = make_cell(content: @teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
 
     first_table_data = [[attendance_header],
@@ -320,5 +320,44 @@ class AttendanceRecordReport < BaseReport
 
   def frequency_in_period(daily_frequency)
     step_number(daily_frequency).present?
+  end
+
+  def discipline_display
+    return 'Geral' if general_frequency?
+    return knowledge_area.to_s if display_knowledge_area_as_discipline?
+
+    discipline.to_s
+  end
+
+  def display_knowledge_area_as_discipline?
+    teacher_allow_absence_by_discipline? && classroom_has_general_absence?
+  end
+
+  def classroom_has_general_absence?
+    classroom.exam_rule.try(:frequency_type) == FrequencyTypes::GENERAL
+  end
+
+  def teacher_allow_absence_by_discipline?
+    @teacher_allow_absence_by_discipline ||= TeacherDisciplineClassroom.by_classroom(classroom.id)
+                                                                       .by_teacher_id(@teacher.id)
+                                                                       .by_discipline_id(discipline.id)
+                                                                       .first
+                                                                       .try(:allow_absence_by_discipline)
+  end
+
+  def general_frequency?
+    discipline.blank?
+  end
+
+  def knowledge_area
+    @knowledge_area ||= discipline.knowledge_area
+  end
+
+  def discipline
+    @discipline ||= @daily_frequencies.first.discipline
+  end
+
+  def classroom
+    @classroom ||= @daily_frequencies.first.classroom
   end
 end

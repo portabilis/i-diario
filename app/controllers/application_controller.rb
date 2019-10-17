@@ -247,7 +247,7 @@ class ApplicationController < ActionController::Base
       classrooms = if current_teacher.present? && current_user.teacher?
                      Classroom.by_unity_and_teacher(current_user_unity, current_teacher).ordered
                    else
-                     Classroom.by_unity(current_user_unity)
+                     Classroom.by_unity(current_user_unity).ordered
                    end
 
       if current_school_calendar.try(:year)
