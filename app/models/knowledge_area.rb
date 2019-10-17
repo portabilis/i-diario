@@ -17,6 +17,11 @@ class KnowledgeArea < ActiveRecord::Base
 
   scope :by_unity, lambda { |unity| by_unity(unity) }
   scope :by_teacher, lambda { |teacher| by_teacher(teacher) }
+  scope :by_teacher_and_classroom, lambda { |teacher, classroom_id|
+    by_teacher(teacher).merge(
+      where(teacher_discipline_classrooms: { classroom_id: classroom_id })
+    )
+  }
   scope :by_grade, lambda { |grade| by_grade(grade) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:disciplines).where(disciplines: { id: discipline_id }) }
   scope :ordered, -> { order(arel_table[:description].asc) }
