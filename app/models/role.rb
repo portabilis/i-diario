@@ -61,18 +61,35 @@ class Role < ActiveRecord::Base
   end
 
   def remove_not_unique_user_unity
-    return unless user_roles
+    return if user_roles.blank?
 
-    user_unity = []
+    duplicated_user_roles = user_roles.group(:user_id, :unity_id)
+                                      .having('COUNT(1) > 1')
+                                      .select(:user_id, :unity_id, 'COUNT(1) AS count')
+
+    return if duplicated_user_roles.blank?
+
+    adjusted_user_roles = []
 
     user_roles.each do |user_role|
       next if user_role.marked_for_destruction?
 
-      if user_unity.include?([user_role.user_id, user_role.unity_id])
-        user_role.mark_for_destruction
-      else
-        user_unity.push([user_role.user_id, user_role.unity_id])
-      end
+      current_duplicated_user_roles = duplicated_user_roles.find_by(
+        user_id: user_role.user_id,
+        unity_id: user_role.unity_id
+      )
+
+      next if current_duplicated_user_roles.blank?
+
+      adjusted_user_roles_count = adjusted_user_roles.count { |user_id, unity_id|
+        user_id == user_role.user_id && unity_id == user_role.unity_id
+      }
+
+      next if adjusted_user_roles_count == (current_duplicated_user_roles.count - 1)
+      next if User.find(user_role.user_id).current_user_role_id == user_role.id
+
+      user_role.mark_for_destruction
+      adjusted_user_roles << [user_role.user_id, user_role.unity_id]
     end
   end
 end
