@@ -36,13 +36,7 @@ class AvaliationsController < ApplicationController
   end
 
   def new
-    if current_test_setting.blank?
-      flash[:error] = t('errors.avaliations.require_setting')
-
-      redirect_to avaliations_path
-
-      return
-    end
+    redirect_to avaliations_path and return unless test_setting?
 
     redirect_to avaliations_path, alert: "A disciplina selecionada não possui nota numérica" unless [teacher_differentiated_discipline_score_type, teacher_discipline_score_type].any? {|discipline_score_type| discipline_score_type != DisciplineScoreTypes::CONCEPT }
 
@@ -57,6 +51,8 @@ class AvaliationsController < ApplicationController
   end
 
   def multiple_classrooms
+    redirect_to avaliations_path and return unless test_setting?
+
     @avaliation_multiple_creator_form                     = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id  = current_school_calendar.id
     @avaliation_multiple_creator_form.test_setting_id     = current_test_setting.id
@@ -228,5 +224,13 @@ class AvaliationsController < ApplicationController
     end
 
     { reason: reasons.join(" e ") }
+  end
+
+  def test_setting?
+    return true if current_test_setting.present?
+
+    flash[:error] = t('errors.avaliations.require_setting')
+
+    false
   end
 end
