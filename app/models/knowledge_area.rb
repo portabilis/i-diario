@@ -17,7 +17,11 @@ class KnowledgeArea < ActiveRecord::Base
 
   scope :by_unity, lambda { |unity| by_unity(unity) }
   scope :by_teacher, lambda { |teacher| by_teacher(teacher) }
-  scope :by_classroom_id, ->(classroom_id) { by_classroom_id(classroom_id) }
+  scope :by_classroom_id, lambda { |classroom_id|
+    joins(disciplines: :teacher_discipline_classrooms)
+      .where(teacher_discipline_classrooms: { classroom_id: classroom_id })
+      .uniq
+  }
   scope :by_grade, lambda { |grade| by_grade(grade) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:disciplines).where(disciplines: { id: discipline_id }) }
   scope :ordered, -> { order(arel_table[:description].asc) }
@@ -59,12 +63,6 @@ class KnowledgeArea < ActiveRecord::Base
           .join_sources
       )
       .where(teacher_discipline_classrooms: { teacher_id: teacher })
-      .uniq
-  end
-
-  def self.by_classroom_id(classroom_id)
-    joins(disciplines: :teacher_discipline_classrooms)
-      .where(teacher_discipline_classrooms: { classroom_id: classroom_id })
       .uniq
   end
 
