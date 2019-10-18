@@ -36,6 +36,14 @@ class AvaliationsController < ApplicationController
   end
 
   def new
+    if current_test_setting.blank?
+      flash[:error] = t('errors.avaliations.require_setting')
+
+      redirect_to avaliations_path
+
+      return
+    end
+
     redirect_to avaliations_path, alert: "A disciplina selecionada não possui nota numérica" unless [teacher_differentiated_discipline_score_type, teacher_discipline_score_type].any? {|discipline_score_type| discipline_score_type != DisciplineScoreTypes::CONCEPT }
 
     @avaliation = resource
