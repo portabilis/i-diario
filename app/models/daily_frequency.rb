@@ -9,7 +9,16 @@ class DailyFrequency < ActiveRecord::Base
   audited
   has_associated_audits
 
-  before_destroy :valid_for_destruction?
+  before_destroy do
+    if valid_for_destruction?
+      Student.unscoped do
+        DailyFrequencyStudent.with_discarded
+                             .joins(:student)
+                             .by_daily_frequency_id(id)
+                             .destroy_all
+      end
+    end
+  end
 
   belongs_to :unity
   belongs_to :classroom
@@ -20,7 +29,7 @@ class DailyFrequency < ActiveRecord::Base
 
   has_many :students, lambda {
     joins(:student).order('students.name')
-  }, class_name: 'DailyFrequencyStudent', dependent: :destroy
+  }, class_name: 'DailyFrequencyStudent'
 
   accepts_nested_attributes_for :students, allow_destroy: true
 
