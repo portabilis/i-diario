@@ -36,7 +36,7 @@ class AvaliationsController < ApplicationController
   end
 
   def new
-    redirect_to avaliations_path and return unless test_setting?
+    return if redirect_to_avaliations
 
     redirect_to avaliations_path, alert: "A disciplina selecionada não possui nota numérica" unless [teacher_differentiated_discipline_score_type, teacher_discipline_score_type].any? {|discipline_score_type| discipline_score_type != DisciplineScoreTypes::CONCEPT }
 
@@ -51,7 +51,7 @@ class AvaliationsController < ApplicationController
   end
 
   def multiple_classrooms
-    redirect_to avaliations_path and return unless test_setting?
+    return if redirect_to_avaliations
 
     @avaliation_multiple_creator_form                     = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id  = current_school_calendar.id
@@ -224,6 +224,10 @@ class AvaliationsController < ApplicationController
     end
 
     { reason: reasons.join(" e ") }
+  end
+
+  def redirect_to_avaliations
+    !test_setting? && redirect_to(avaliations_path)
   end
 
   def test_setting?
