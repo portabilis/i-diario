@@ -31,7 +31,7 @@ class ConceptualExamsController < ApplicationController
     discipline_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
 
     unless discipline_score_types.any? { |discipline_score_type| discipline_score_type != DisciplineScoreTypes::NUMERIC }
-      redirect_to(conceptual_exams_path, alert: I18n.t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam'))
+      redirect_to(conceptual_exams_path, alert: I18n.t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')) && return
     end
 
     @conceptual_exam = ConceptualExam.new(
