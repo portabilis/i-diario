@@ -16,7 +16,7 @@ class UserRole < ActiveRecord::Base
 
   after_save :update_current_user_role_id, on: :update
 
-  before_destroy :set_current_user_role_id_nil_on_destroy
+  before_destroy :set_current_user_role_id_nil
 
   def to_s
     if require_unity?
@@ -46,7 +46,7 @@ class UserRole < ActiveRecord::Base
     user.update(current_user_role_id: nil)
   end
 
-  def set_current_user_role_id_nil_on_destroy
+  def set_current_user_role_id_nil
     return if user.current_user_role_id != id
 
     user.update(current_user_role_id: nil)
