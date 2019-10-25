@@ -20,13 +20,13 @@ class ComplementaryExamSetting < ActiveRecord::Base
 
   scope :by_description, lambda { |description|
     where(
-      "unaccent(complementary_exam_settings.description) ILIKE unaccent(:description)",
+      'unaccent(complementary_exam_settings.description) ILIKE unaccent(:description)',
       description: "%#{description}%"
     )
   }
   scope :by_initials, lambda { |initials|
     where(
-      "unaccent(complementary_exam_settings.initials) ILIKE unaccent(:initials)",
+      'unaccent(complementary_exam_settings.initials) ILIKE unaccent(:initials)',
       initials: "%#{initials}%"
     )
   }
