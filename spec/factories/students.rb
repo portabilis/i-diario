@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :student do
-    sequence(:name) { |n| "Student #{n}" }
-    sequence(:api_code) { |n| n.to_s }
+    sequence(:api_code, &:to_s)
+    name { Faker::Name.unique.name_with_middle }
     api true
   end
 end

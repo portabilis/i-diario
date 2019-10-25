@@ -41,6 +41,11 @@ class Unity < ActiveRecord::Base
       '? BETWEEN start_at AND end_at', date
     )
   }
+  scope :by_posting_date, lambda { |date|
+    joins(school_calendars: :steps).where(
+      '? BETWEEN start_date_for_posting AND end_date_for_posting', date
+    )
+  }
   scope :by_unity, -> unity { where(id: unity) }
 
   #search scopes

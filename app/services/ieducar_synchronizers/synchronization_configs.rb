@@ -5,16 +5,16 @@ class SynchronizationConfigs
   KLASSES = ALL.map { |config| config[:klass] }
 
   class << self
-    def find_by_klass(klass)
+    def find(klass)
       ALL.find { |config| config[:klass] == klass }
     end
 
     def dependents_by_klass(klass)
-      find_by_klass(klass)[:dependents] || []
+      find(klass)[:dependents] || []
     end
 
     def dependencies_by_klass(klass)
-      find_by_klass(klass)[:dependencies] || []
+      find(klass)[:dependencies] || []
     end
 
     def without_dependencies

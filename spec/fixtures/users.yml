@@ -7,11 +7,11 @@ john_doe:
   phone: '(11) 99887766'
   cpf: '639.290.118-32'
   authorize_email_and_sms: false
-  status: 'actived'
+  status: 'active'
   kind: 'employee'
   students: bary_allen, bruce_wayne, miss_marvel
   admin: true
-  current_user_role: users_permission
+  current_user_role: john_doe_user_role
 
 mary_jane:
   email: "mary_jane@example.com"
@@ -26,4 +26,4 @@ mary_jane:
   student: bary_allen
   authorize_email_and_sms: false
   admin: false
-  current_user_role: users_permission
+  current_user_role: mary_jane_user_role

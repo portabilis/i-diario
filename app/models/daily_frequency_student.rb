@@ -1,4 +1,6 @@
 class DailyFrequencyStudent < ActiveRecord::Base
+  include Discardable
+
   acts_as_copy_target
 
   audited associated_with: :daily_frequency, except: [:daily_frequency_id, :active]
@@ -14,9 +16,12 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   validates :student, :daily_frequency, presence: true
 
+  default_scope -> { kept }
+
   scope :absences, -> { where("COALESCE(daily_frequency_students.present, 'f') = 'f' ")}
   scope :presents, -> { where("daily_frequency_students.present = 't' ")}
   scope :active, -> { where(active: true) }
+  scope :by_daily_frequency_id, ->(daily_frequency_id) { where(daily_frequency_id: daily_frequency_id) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:daily_frequency).merge(DailyFrequency.by_classroom_id(classroom_id)) }
   scope :by_discipline_id, lambda { |discipline_id| joins(:daily_frequency).merge(DailyFrequency.by_discipline_id(discipline_id)) }
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }

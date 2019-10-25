@@ -6,7 +6,7 @@ module UserHelper
     case situation
     when UserStatus::PENDING
       'label label-default'
-    when UserStatus::ACTIVED
+    when UserStatus::ACTIVE
       'label label-success'
     end
   end

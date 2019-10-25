@@ -18,7 +18,7 @@ module Educacao
       #{config.root}/app/workers
       #{config.root}/app/workers/ieducar
       #{config.root}/app/workers/concerns
-      #{config.root}/app/workers/student_dependencies_discarder
+      #{config.root}/app/workers/student_dependencies_discarders
       #{config.root}/app/services
       #{config.root}/app/services/ieducar_synchronizers
       #{config.root}/app/queries
@@ -57,7 +57,5 @@ module Educacao
         s3_credentials: "#{Rails.root}/config/aws.yml"
       }
     end
-
-    config.exceptions_app = routes
   end
 end

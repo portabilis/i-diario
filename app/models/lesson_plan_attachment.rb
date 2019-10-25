@@ -1,4 +1,6 @@
 class LessonPlanAttachment < ActiveRecord::Base
+  audited
+
   belongs_to :lesson_plan
 
   has_attached_file :attachment,

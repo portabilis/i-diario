@@ -23,9 +23,20 @@ module Api
                                                 .exclude_exempted_disciplines(discipline_id, step_number)
                                                 .active
                                                 .ordered
+
+        @student_enrollments = @student_enrollments.by_period(teacher_period) if params[:teacher_id].present?
+        @student_enrollments
       end
 
       private
+
+      def teacher_period
+        @teacher_period ||= TeacherPeriodFetcher.new(
+          params[:teacher_id],
+          params[:classroom_id],
+          params[:discipline_id]
+        ).teacher_period
+      end
 
       def step_number(frequency_date)
         school_calendar.step(frequency_date) || 0

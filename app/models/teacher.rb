@@ -15,6 +15,13 @@ class Teacher < ActiveRecord::Base
   scope :by_unity_id, ->(unity_id) { by_unity_id(unity_id) }
   scope :by_year, ->(year) { filter_current_teachers_by_year(year) }
   scope :active, -> { active_query }
+  scope :by_classroom, lambda { |classroom_id|
+    joins(:teacher_discipline_classrooms).where(
+      teacher_discipline_classrooms: {
+        classroom_id: classroom_id
+      }
+    )
+  }
   scope :by_daily_frequency, lambda { |daily_frequency|
     joins(:teacher_discipline_classrooms).where(
       teacher_discipline_classrooms: {

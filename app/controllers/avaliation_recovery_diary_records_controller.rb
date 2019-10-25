@@ -3,7 +3,6 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_test_setting
 
   def index
     @avaliation_recovery_diary_records = apply_scopes(AvaliationRecoveryDiaryRecord)
@@ -199,6 +198,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   def fetch_student_enrollments
     return unless @avaliation_recovery_diary_record.avaliation
+    return unless @avaliation_recovery_diary_record.recovery_diary_record.recorded_at
+
     StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
                                discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
                                score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,

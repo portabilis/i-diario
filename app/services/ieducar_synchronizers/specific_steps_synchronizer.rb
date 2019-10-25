@@ -12,7 +12,7 @@ class SpecificStepsSynchronizer < BaseSynchronizer
 
   private
 
-  USE_SPECIFIC_STEP = '1'.freeze
+  USE_SPECIFIC_STEP = 1
 
   def api_class
     IeducarApi::SpecificSteps

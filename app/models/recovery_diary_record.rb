@@ -23,6 +23,13 @@ class RecoveryDiaryRecord < ActiveRecord::Base
   has_one :final_recovery_diary_record
   has_one :avaliation_recovery_diary_record
 
+  scope :by_teacher_id,
+        lambda { |teacher_id|
+          joins(discipline: :teacher_discipline_classrooms)
+            .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
+            .uniq
+        }
+
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }

@@ -94,20 +94,18 @@ RSpec.describe TestSetting, type: :model do
       end
 
       context 'when there are assigned tests' do
-        before { subject.average_calculation_type = AverageCalculationTypes::SUM }
-        it 'validates tests weight equal maximum score' do
+        before { subject.tests << FactoryGirl.build(:test_setting_test, weight: 101) }
+        it 'they should be less or equal to maximum score' do
           subject.maximum_score = 100
-          subject.tests << FactoryGirl.build(:test_setting_test, weight: 10)
-
           expect(subject).to_not be_valid
-          expect(subject.errors.messages[:tests]).to include('A soma dos pesos das avaliações deve resultar no mesmo valor da nota máxima')
+          expect(subject.errors.messages[:tests]).to include('A soma dos pesos das avaliações deve resultar em um valor menor ou igual da nota máxima')
         end
       end
     end
   end
 
   describe 'default values' do
-    before { subject = TestSetting.new }
+    subject { TestSetting.new }
 
     it { expect(subject.maximum_score).to eq(10) }
     it { expect(subject.number_of_decimal_places).to eq(2) }

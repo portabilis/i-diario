@@ -1,3 +1,3 @@
 class UserStatus < EnumerateIt::Base
-  associate_values :pending, :actived
+  associate_values :pending, :active
 end

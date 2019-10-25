@@ -110,18 +110,23 @@ RSpec.describe User, type: :model do
       expect(subject).to_not be_active_for_authentication
     end
 
-    it 'can authenticate if status is actived' do
-      subject.status = UserStatus::ACTIVED
+    it 'can authenticate if status is active' do
+      subject.status = UserStatus::ACTIVE
 
       expect(subject).to be_active_for_authentication
     end
   end
 
   describe '#set_current_user_role!' do
-    subject { create(:user_with_user_role) }
+    subject { create(:user) }
 
-    it 'should update the #current_user_role_id' do
-      expect { subject.set_current_user_role!(subject.user_roles.first.id) }.to change{ subject.current_user_role_id }.from(nil).to(subject.user_roles.first.id)
+    it 'updates the #current_user_role_id' do
+      user_role = create(:user_role)
+      subject.user_roles << user_role
+
+      expect {
+        subject.set_current_user_role!(user_role.id)
+      }.to change { subject.current_user_role_id }.from(nil).to(user_role.id)
     end
   end
 end

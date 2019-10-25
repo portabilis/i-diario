@@ -1,5 +1,6 @@
 class ComplementaryExamStudent < ActiveRecord::Base
   include Audit
+  include Discardable
 
   audited associated_with: :complementary_exam, except: [:complementary_exam_id]
 
@@ -9,6 +10,8 @@ class ComplementaryExamStudent < ActiveRecord::Base
 
   belongs_to :complementary_exam
   belongs_to :student
+
+  default_scope -> { kept }
 
   scope :by_student_id, lambda { |student_id| where(student_id: student_id) }
   scope :by_complementary_exam_id, lambda { |complementary_exam_id| where(complementary_exam_id: complementary_exam_id) }

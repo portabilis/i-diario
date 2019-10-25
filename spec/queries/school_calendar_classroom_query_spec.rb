@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe SchoolCalendarClassroomQuery, type: :query do
   let(:unity) { create(:unity) }
-  let!(:default_school_calendar) { create(:school_calendar_with_one_step, year: 2016, unity: unity) }
+  let!(:default_school_calendar) { create(:school_calendar, :with_one_step, year: 2016, unity: unity) }
   let(:classroom_one) { create(:classroom, year: 2016, unity: unity) }
   let(:classroom_two) { create(:classroom, year: 2017, unity: unity) }
 

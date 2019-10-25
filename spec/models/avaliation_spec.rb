@@ -1,8 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe Avaliation, type: :model do
-  let(:school_calendar) { SchoolCalendar.find_by_year(2015) }
-  subject { FactoryGirl.build(:avaliation) }
+  let(:classroom) { create(:classroom, :with_classroom_semester_steps) }
+  let(:step) { classroom.calendar.classroom_steps.first }
+
+  subject do
+    build(
+      :avaliation,
+      :with_teacher_discipline_classroom
+    )
+  end
 
   describe 'attributes' do
     it { expect(subject).to respond_to(:weight) }
@@ -27,9 +34,16 @@ RSpec.describe Avaliation, type: :model do
     it { expect(subject).to validate_school_calendar_day_of(:test_date) }
 
     context 'when classroom present' do
-      let(:exam_rule_with_concept_score_type) { FactoryGirl.build(:exam_rule, score_type: ScoreTypes::CONCEPT) }
-      let(:classroom_with_concept_score_type) { FactoryGirl.build(:classroom, exam_rule: exam_rule_with_concept_score_type) }
-      subject { FactoryGirl.build(:avaliation, classroom: classroom_with_concept_score_type) }
+      let(:exam_rule_with_concept_score_type) { build(:exam_rule, score_type: ScoreTypes::CONCEPT) }
+      let(:classroom_with_concept_score_type) { build(:classroom, exam_rule: exam_rule_with_concept_score_type) }
+
+      subject do
+        build(
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          classroom: classroom_with_concept_score_type
+        )
+      end
 
       it 'should validate that classroom score type is numeric' do
         expect(subject).to_not be_valid
@@ -38,38 +52,59 @@ RSpec.describe Avaliation, type: :model do
     end
 
     context 'when there is already an avaliation with the classroom/discipline/test_date and class number' do
-      let(:another_avaliation) { create(:avaliation, test_date: '03/02/2015',
-                                                     classes: '1',
-                                                     school_calendar: school_calendar) }
-      subject { build(:avaliation, classroom: another_avaliation.classroom,
-                                   discipline: another_avaliation.discipline,
-                                   test_date: another_avaliation.test_date,
-                                   classes: '1',
-                                   school_calendar: another_avaliation.school_calendar) }
+      let(:another_avaliation) {
+        create(
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          classroom: classroom,
+          test_date: step.first_school_calendar_date,
+          classes: '1'
+        )
+      }
 
-      # FIXME: Ajustar junto com o refactor das factories
-      xit 'should not be valid' do
+      subject do
+        build(
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          classroom: another_avaliation.classroom,
+          discipline: another_avaliation.discipline,
+          test_date: another_avaliation.test_date,
+          classes: '1',
+          school_calendar: another_avaliation.school_calendar
+        )
+      end
+
+      it 'should not be valid' do
         expect(subject).to_not be_valid
         expect(subject.errors[:classes]).to include('já existe uma avaliação para a aula informada')
       end
     end
 
     context 'when configuration with sum calculation type' do
-      let(:test_setting_with_sum_calculation_type) { FactoryGirl.create(:test_setting_with_sum_calculation_type) }
-      subject { FactoryGirl.build(:avaliation, test_date: '03/02/2015',
-                                               school_calendar: school_calendar,
-                                               test_setting: test_setting_with_sum_calculation_type) }
+      let(:test_setting_with_sum_calculation_type) { create(:test_setting_with_sum_calculation_type) }
+
+      subject do
+        build(
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          classroom: classroom,
+          test_date: step.first_school_calendar_date,
+          test_setting: test_setting_with_sum_calculation_type
+        )
+      end
 
       it { expect(subject).to validate_presence_of(:test_setting_test) }
 
-      # FIXME: Ajustar junto com o refactor das factories
-      xit 'should validate that test_setting_test is unique per step/classroom/discipline' do
-        another_avaliation = FactoryGirl.create(:avaliation, test_date: '03/02/2015',
-                                                             school_calendar: school_calendar,
-                                                             discipline: subject.discipline,
-                                                             classroom: subject.classroom,
-                                                             test_setting: subject.test_setting,
-                                                             test_setting_test: subject.test_setting.tests.first)
+      it 'should validate that test_setting_test is unique per step/classroom/discipline' do
+        another_avaliation = create(
+          :avaliation,
+          test_date: subject.test_date,
+          discipline: subject.discipline,
+          classroom: subject.classroom,
+          test_setting: subject.test_setting,
+          test_setting_test: subject.test_setting.tests.first,
+          teacher_id: subject.teacher_id
+        )
         subject.test_setting_test = another_avaliation.test_setting_test
 
         expect(subject).to_not be_valid
@@ -78,24 +113,35 @@ RSpec.describe Avaliation, type: :model do
     end
 
     context 'when configuration with sum calculation type that allow break up' do
-      let(:test_setting_with_sum_calculation_type_that_allow_break_up) { FactoryGirl.create(:test_setting_with_sum_calculation_type_that_allow_break_up) }
-      subject { FactoryGirl.build(:avaliation, school_calendar: school_calendar,
-                                               test_date: '03/02/2015',
-                                               test_setting: test_setting_with_sum_calculation_type_that_allow_break_up,
-                                               test_setting_test: test_setting_with_sum_calculation_type_that_allow_break_up.tests.first) }
+      let(:test_setting_with_sum_calculation_type_that_allow_break_up) {
+        create(:test_setting_with_sum_calculation_type_that_allow_break_up)
+      }
+
+      subject do
+        build(
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          classroom: classroom,
+          test_date: step.first_school_calendar_date,
+          test_setting: test_setting_with_sum_calculation_type_that_allow_break_up,
+          test_setting_test: test_setting_with_sum_calculation_type_that_allow_break_up.tests.first
+        )
+      end
 
       it { expect(subject).to validate_presence_of(:description) }
       it { expect(subject).to validate_presence_of(:weight) }
 
-      # FIXME: Ajustar junto com o refactor das factories
-      xit 'should not validate that test_setting_test is unique per step/classroom/discipline' do
-        another_avaliation = FactoryGirl.create(:avaliation, school_calendar: school_calendar,
-                                                             classroom: subject.classroom,
-                                                             discipline: subject.discipline,
-                                                             test_date: '04/02/2015',
-                                                             test_setting: subject.test_setting,
-                                                             test_setting_test: subject.test_setting.tests.first,
-                                                             weight: 5)
+      it 'should not validate that test_setting_test is unique per step/classroom/discipline' do
+        another_avaliation = create(
+          :avaliation,
+          classroom: subject.classroom,
+          discipline: subject.discipline,
+          test_date: subject.test_date + 1,
+          test_setting: subject.test_setting,
+          test_setting_test: subject.test_setting.tests.first,
+          teacher_id: subject.teacher_id,
+          weight: 5
+        )
         subject.weight = 5
         subject.test_setting_test = another_avaliation.test_setting_test
 
@@ -110,15 +156,17 @@ RSpec.describe Avaliation, type: :model do
         expect(subject.errors[:weight]).to include("deve ser menor ou igual a #{subject.test_setting_test.weight}")
       end
 
-      # FIXME: Ajustar junto com o refactor das factories
-      xit 'should validate that weight plus the weight of other avaliations with same test_setting_test is less than or equal to test_setting_test.weight' do
-        another_avaliation = FactoryGirl.create(:avaliation, school_calendar: school_calendar,
-                                                             classroom: subject.classroom,
-                                                             discipline: subject.discipline,
-                                                             test_date: '03/02/2015',
-                                                             test_setting: subject.test_setting,
-                                                             test_setting_test: subject.test_setting.tests.first,
-                                                             weight: subject.test_setting.tests.first.weight / 2)
+      it 'should validate that weight plus the weight of other avaliations with same test_setting_test is less than or equal to test_setting_test.weight' do
+        another_avaliation = create(
+          :avaliation,
+          classroom: subject.classroom,
+          discipline: subject.discipline,
+          test_date: subject.test_date,
+          test_setting: subject.test_setting,
+          test_setting_test: subject.test_setting.tests.first,
+          teacher_id: subject.teacher_id,
+          weight: subject.test_setting.tests.first.weight / 2
+        )
         subject.test_setting_test = another_avaliation.test_setting_test
         subject.weight = another_avaliation.weight * 2
 
@@ -126,15 +174,17 @@ RSpec.describe Avaliation, type: :model do
         expect(subject.errors[:weight]).to include("deve ser menor ou igual a #{subject.test_setting_test.weight - another_avaliation.weight}")
       end
 
-      # FIXME: Ajustar junto com o refactor das factories
-      xit 'should validate that test_setting_test is still available' do
-        another_avaliation = FactoryGirl.create(:avaliation, school_calendar: school_calendar,
-                                                             classroom: subject.classroom,
-                                                             discipline: subject.discipline,
-                                                             test_date: '03/02/2015',
-                                                             test_setting: subject.test_setting,
-                                                             test_setting_test: subject.test_setting.tests.first,
-                                                             weight: subject.test_setting.tests.first.weight)
+      it 'should validate that test_setting_test is still available' do
+        another_avaliation = create(
+          :avaliation,
+          classroom: subject.classroom,
+          discipline: subject.discipline,
+          test_date: subject.test_date,
+          test_setting: subject.test_setting,
+          test_setting_test: subject.test_setting.tests.first,
+          teacher_id: subject.teacher_id,
+          weight: subject.test_setting.tests.first.weight
+        )
         subject.test_setting_test = another_avaliation.test_setting_test
         subject.weight = another_avaliation.weight
 
@@ -145,8 +195,17 @@ RSpec.describe Avaliation, type: :model do
     end
 
     context 'when configuration with arithmetic calculation type' do
-      let(:test_setting_with_arithmetic_calculation_type) { FactoryGirl.create(:test_setting, average_calculation_type: AverageCalculationTypes::ARITHMETIC) }
-      subject { FactoryGirl.build(:avaliation, test_setting: test_setting_with_arithmetic_calculation_type) }
+      let(:test_setting_with_arithmetic_calculation_type) {
+        create(:test_setting, average_calculation_type: AverageCalculationTypes::ARITHMETIC)
+      }
+
+      subject do
+        build(
+          :avaliation,
+          :with_teacher_discipline_classroom,
+          test_setting: test_setting_with_arithmetic_calculation_type
+        )
+      end
 
       it { expect(subject).to validate_presence_of(:description) }
     end
