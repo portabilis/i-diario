@@ -4,5 +4,9 @@ FactoryGirl.define do
 
     name { Faker::Lorem.unique.sentence }
     access_level AccessLevel::TEACHER
+
+    trait :administrator do
+      access_level AccessLevel::ADMINISTRATOR
+    end
   end
 end
