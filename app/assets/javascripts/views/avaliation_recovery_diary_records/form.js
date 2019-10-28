@@ -68,7 +68,7 @@ $(function () {
   };
 
   function checkFormat(date) {
-    var re = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+    var re = /^\d{2}\/\d{2}\/\d{4}$/;
 
     if(date != '' && !date.match(re)) {
       return false;

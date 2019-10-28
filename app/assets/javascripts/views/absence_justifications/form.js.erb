@@ -166,7 +166,7 @@ $(function() {
   });
 
   function checkFormat(date) {
-    re = /^\d{1,2}\/\d{1,2}\/\d{4}$/;
+    re = /^\d{2}\/\d{2}\/\d{4}$/;
 
     if(date != '' && !date.match(re)) {
       return false;
