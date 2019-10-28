@@ -17,6 +17,8 @@ class ScoreRounder
   private
 
   def rounded_score_by_action(score, rounding_table_value)
+    return score unless score.is_a?(Numeric)
+
     rounded_score = score
 
     if rounding_table_value.present?

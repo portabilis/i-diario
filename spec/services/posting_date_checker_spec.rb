@@ -1,11 +1,8 @@
 require 'spec_helper'
 
 RSpec.describe PostingDateChecker, type: :service do
-  let(:classroom) { create(:classroom) }
-  let(:school_calendar) { create(:school_calendar, unity: classroom.unity) }
-  let(:school_calendar_step) { create(:school_calendar_step, school_calendar: school_calendar) }
-
-  let(:user) { create(:user_with_user_role) }
+  let(:classroom) { create(:classroom, :with_classroom_semester_steps) }
+  let(:step) { classroom.calendar.classroom_steps.first }
 
   before do
     User.current = create(:user_with_user_role)
@@ -13,7 +10,7 @@ RSpec.describe PostingDateChecker, type: :service do
   end
 
   subject do
-    described_class.new(classroom, school_calendar_step.start_at)
+    described_class.new(classroom, step.start_at)
   end
 
   context 'user current is nil' do
@@ -78,8 +75,8 @@ RSpec.describe PostingDateChecker, type: :service do
 
       context 'current date is on posting period of record_date step' do
         before do
-          school_calendar_step.update_attribute(:start_date_for_posting, Date.today)
-          school_calendar_step.update_attribute(:end_date_for_posting, Date.today)
+          step.update_attribute(:start_date_for_posting, Date.current)
+          step.update_attribute(:end_date_for_posting, Date.current)
         end
 
         it { expect(subject.check).to be(true) }
@@ -87,8 +84,8 @@ RSpec.describe PostingDateChecker, type: :service do
 
       context 'current date isnt on posting period of record_date step' do
         before do
-          school_calendar_step.update_attribute(:start_date_for_posting, Date.today+1)
-          school_calendar_step.update_attribute(:end_date_for_posting, Date.today+1)
+          step.update_attribute(:start_date_for_posting, Date.current + 1)
+          step.update_attribute(:end_date_for_posting, Date.current + 1)
         end
 
         it { expect(subject.check).to be(false) }
@@ -96,7 +93,7 @@ RSpec.describe PostingDateChecker, type: :service do
 
       context 'record_date doest have a step' do
         subject do
-          described_class.new(classroom, school_calendar_step.start_at-1)
+          described_class.new(classroom, step.start_at - 1)
         end
 
         it { expect(subject.check).to be(false) }

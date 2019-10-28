@@ -97,7 +97,7 @@ class IeducarSynchronizerWorker
   def total_synchronizers_with_full_synchronization
     (
       (synchronizers_by_year_and_unity.size * years_to_synchronize.size * unities_api_code.size) +
-      (synchronizers_by_year.size * years_to_synchronize.size) +
+      (synchronizers_by_year_to_full_synchronization.size * years_to_synchronize.size) +
       (synchronizers_by_unity.size * unities_api_code.size) +
       single_synchronizers.size
     )
@@ -121,6 +121,12 @@ class IeducarSynchronizerWorker
   def synchronizers_by_year
     @synchronizers_by_year ||= SynchronizationConfigs::ALL.select { |synchronizer|
       synchronizer[:by_year] && !synchronizer[:by_unity]
+    }
+  end
+
+  def synchronizers_by_year_to_full_synchronization
+    @synchronizers_by_year_to_full_synchronization ||= SynchronizationConfigs::ALL.select { |synchronizer|
+      synchronizer[:by_year] && !synchronizer[:by_unity] && !synchronizer[:only_simple_synchronization]
     }
   end
 

@@ -47,3 +47,4 @@ pt-BR:
   errors:
     avaliations:
       require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
+      require_setting: "É necessário configurar uma avaliação numérica"

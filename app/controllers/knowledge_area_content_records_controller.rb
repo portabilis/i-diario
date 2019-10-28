@@ -5,7 +5,9 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    author_type = (params[:filter] || []).delete(:by_author)
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_content_records = apply_scopes(
       KnowledgeAreaContentRecord.includes(:knowledge_areas, content_record: [:classroom])
@@ -15,6 +17,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
 
     if author_type.present?
       @knowledge_area_content_records = @knowledge_area_content_records.by_author(author_type, current_teacher)
+      params[:filter][:by_author] = author_type
     end
 
     authorize @knowledge_area_content_records
@@ -174,7 +177,9 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   helper_method :classrooms
 
   def knowledge_areas
-    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
+    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher)
+                                    .by_classroom_id(current_user_classroom.id)
+                                    .ordered
   end
   helper_method :knowledge_areas
 end

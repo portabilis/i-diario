@@ -45,7 +45,11 @@ Rails.application.routes.draw do
         resources :exam_rules, only: [:index]
         get 'step_activity', to: 'step_activity#check'
         resources :teacher_unities, only: [:index]
-        resources :teacher_classrooms, only: [:index]
+        resources :teacher_classrooms, only: [:index] do
+          collection do
+            get :has_activities
+          end
+        end
         resources :teacher_disciplines, only: [:index]
         resources :school_calendars, only: [:index]
         resources :daily_frequencies, only: [:create, :index]

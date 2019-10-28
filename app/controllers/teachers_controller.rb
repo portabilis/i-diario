@@ -4,7 +4,7 @@ class TeachersController < ApplicationController
       year = current_school_calendar.try(:year)
     end
 
-    @teachers = apply_scopes(Teacher)
+    @teachers = apply_scopes(Teacher).order_by_name
     @teachers = @teachers.by_year(year) if year
 
     respond_with @teachers

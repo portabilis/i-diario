@@ -14,8 +14,15 @@ class ConceptualExamsController < ApplicationController
                                                     .by_teacher(current_teacher_id)
                                                     .ordered_by_date_and_student
 
-    @conceptual_exams = @conceptual_exams.by_step_id(current_user_classroom, step_id) if step_id.present?
-    @conceptual_exams = @conceptual_exams.by_status(current_user_classroom, current_teacher_id, status) if status.present?
+    if step_id.present?
+      @conceptual_exams = @conceptual_exams.by_step_id(current_user_classroom, step_id)
+      params[:filter][:by_step] = step_id
+    end
+
+    if status.present?
+      @conceptual_exams = @conceptual_exams.by_status(current_user_classroom, current_teacher_id, status)
+      params[:filter][:by_status] = status
+    end
 
     authorize @conceptual_exams
   end
@@ -23,9 +30,18 @@ class ConceptualExamsController < ApplicationController
   def new
     discipline_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
 
-    unless discipline_score_types.any? { |discipline_score_type| discipline_score_type != DisciplineScoreTypes::NUMERIC }
-      redirect_to(conceptual_exams_path, alert: I18n.t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam'))
+    not_concept_score = discipline_score_types.none? { |discipline_score_type|
+      discipline_score_type == DisciplineScoreTypes::CONCEPT
+    }
+
+    if not_concept_score
+      redirect_to(
+        conceptual_exams_path,
+        alert: I18n.t('conceptual_exams.new.current_discipline_does_not_have_conceptual_exam')
+      )
     end
+
+    return if performed?
 
     @conceptual_exam = ConceptualExam.new(
       unity_id: current_user_unity.id,

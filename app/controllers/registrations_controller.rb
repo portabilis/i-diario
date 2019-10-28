@@ -10,7 +10,7 @@ class RegistrationsController < ApplicationController
     @signup = Signup.new(params[:signup])
 
     if @user = @signup.save
-      if @user.actived?
+      if @user.active?
         flash[:notice] = I18n.t('devise.registrations.signed_up')
         sign_in_and_redirect @user
       else

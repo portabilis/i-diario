@@ -6,7 +6,7 @@ Rails.application.configure do
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = false
 
-  config.assets.js_compressor = Uglifier.new(harmony: true)
+  config.assets.js_compressor = false
   # Do not eager load code on boot.
   config.eager_load = false
 

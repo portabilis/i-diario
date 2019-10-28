@@ -16,6 +16,8 @@ class UserRole < ActiveRecord::Base
 
   after_save :update_current_user_role_id, on: :update
 
+  before_destroy :set_current_user_role_id_nil
+
   def to_s
     if require_unity?
       "#{role_name} (Nível: #{role_access_level_humanize}) - #{unity_name}"
@@ -40,6 +42,12 @@ class UserRole < ActiveRecord::Base
     return if user.current_unity_id.blank?
     return if unity_id == unity_id_was
     return if user.current_unity_id != unity_id_was
+
+    user.update(current_user_role_id: nil)
+  end
+
+  def set_current_user_role_id_nil
+    return if user.current_user_role_id != id
 
     user.update(current_user_role_id: nil)
   end

@@ -1,0 +1,9 @@
+john_doe_user_role:
+  user: john_doe
+  role: admin
+  unity: escola_y
+
+mary_jane_user_role:
+  user: mary_jane
+  role: admin
+  unity: escola_y

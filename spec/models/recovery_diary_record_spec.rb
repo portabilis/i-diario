@@ -1,7 +1,14 @@
 require 'rails_helper'
 
 RSpec.describe RecoveryDiaryRecord, type: :model do
-  subject(:recovery_diary_record) { build(:recovery_diary_record_with_students) }
+  subject(:recovery_diary_record) {
+    build(
+      :recovery_diary_record,
+      :with_classroom_semester_steps,
+      :with_teacher_discipline_classroom,
+      :with_students
+    )
+  }
 
   describe 'attributes' do
     it { expect(subject).to respond_to(:recorded_at) }
@@ -20,15 +27,16 @@ RSpec.describe RecoveryDiaryRecord, type: :model do
     it { expect(subject).to validate_presence_of(:unity) }
     it { expect(subject).to validate_presence_of(:discipline) }
     it { expect(subject).to validate_presence_of(:recorded_at) }
-    # TODO Verificar
-    #it { expect(subject).to validate_school_calendar_day_of(:recorded_at) }
+    it { expect(subject).to validate_school_calendar_day_of(:recorded_at) }
 
     it 'should require at least one student' do
       subject.save
-      subject.students.each { |student| student.mark_for_destruction }
+      subject.students.each(&:mark_for_destruction)
 
       expect(subject).to_not be_valid
-      expect(subject.errors[:students]).to include('Nenhum aluno em recuperação foi encontrado a partir dos dados informados')
+      expect(subject.errors[:students]).to include(
+        'Nenhum aluno em recuperação foi encontrado a partir dos dados informados'
+      )
     end
   end
 end
