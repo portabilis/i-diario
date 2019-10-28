@@ -17,6 +17,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
 
     before do
       User.current = create(:user, admin: true)
+      request.env['REQUEST_PATH'] = '/api/v2/content_records/sync'
     end
 
     it 'destroys content record when content was not in the params' do

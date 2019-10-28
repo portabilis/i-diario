@@ -11,6 +11,10 @@ RSpec.describe Api::V2::ClassroomStudentsController, type: :controller do
       end
     end
 
+    before do
+      request.env['REQUEST_PATH'] = '/api/v2/classroom_students'
+    end
+
     it 'returns no student when does not have calendar' do
       params = {
         classroom_id: classroom.id,
