@@ -18,8 +18,18 @@ class ComplementaryExamSetting < ActiveRecord::Base
   validate :grades_in_use_cant_be_removed
   validate :integral_calculation_score
 
-  scope :by_description, lambda { |description| where("unaccent(complementary_exam_settings.description) ILIKE unaccent('%#{description}%')") }
-  scope :by_initials, lambda { |initials| where("unaccent(complementary_exam_settings.initials) ILIKE unaccent('%#{initials}%')") }
+  scope :by_description, lambda { |description|
+    where(
+      'unaccent(complementary_exam_settings.description) ILIKE unaccent(:description)',
+      description: "%#{description}%"
+    )
+  }
+  scope :by_initials, lambda { |initials|
+    where(
+      'unaccent(complementary_exam_settings.initials) ILIKE unaccent(:initials)',
+      initials: "%#{initials}%"
+    )
+  }
   scope :by_affected_score, lambda { |affected_score| where(affected_score: affected_score) }
   scope :by_calculation_type, lambda { |calculation_type| where(calculation_type: calculation_type) }
   scope :by_grade_id, lambda { |grade_id| by_grade_id_scope(grade_id) }
