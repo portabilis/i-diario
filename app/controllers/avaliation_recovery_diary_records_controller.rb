@@ -53,7 +53,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       @school_calendar_steps = current_school_calendar.steps
       @student_notes = fetch_student_notes
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
-      reload_students_list
+      reload_students_list if daily_note_students.present?
 
       render :new
     end
