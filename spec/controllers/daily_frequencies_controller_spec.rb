@@ -42,13 +42,34 @@ RSpec.describe DailyFrequenciesController, type: :controller do
         students_count: 3
       )
     }
+    let!(:daily_frequency_3) {
+      create(
+        :daily_frequency,
+        :with_students,
+        students_count: 3
+      )
+    }
 
-    it 'deletes all daily_frequencies and daily_frequency_students' do
-      daily_frequencies_ids = [daily_frequency_1.id, daily_frequency_2.id]
+    shared_examples 'delete_all_frequencies' do
+      it 'deletes all daily_frequencies and daily_frequency_students' do
+        daily_frequencies_ids = [daily_frequency_1.id, daily_frequency_2.id]
 
-      expect {
-        delete :destroy_multiple, locale: 'pt-BR', daily_frequencies_ids: daily_frequencies_ids
-      }.to change(DailyFrequency, :count).by(-2)
+        expect {
+          delete :destroy_multiple, locale: 'pt-BR', daily_frequencies_ids: daily_frequencies_ids
+        }.to change(DailyFrequency, :count).by(-2)
+      end
+    end
+
+    context 'when just has daily_frequencies and daily_frequency_students' do
+      it_behaves_like 'delete_all_frequencies'
+    end
+
+    context 'when has discarded daily_frequency_students' do
+      before do
+        daily_frequency_1.students.last.discard
+      end
+
+      it_behaves_like 'delete_all_frequencies'
     end
   end
 end
