@@ -10,6 +10,15 @@ FactoryGirl.define do
     cpf { Faker::CPF.pretty }
     admin true
 
+    trait :with_user_role_administrator do
+      after(:create) do |user|
+        user_role = create(:user_role, :administrator)
+        user.user_roles << user_role
+        user.current_user_role = user_role
+        user.save!
+      end
+    end
+
     factory :user_with_user_role do
       after(:create) do |user|
         user_role = create(:user_role)
