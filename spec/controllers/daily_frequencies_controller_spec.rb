@@ -25,6 +25,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
     allow(controller).to receive(:current_user_school_year).and_return(classroom.year)
     allow(controller).to receive(:current_user_classroom).and_return(classroom)
     allow(controller).to receive(:current_user_discipline).and_return(discipline)
+    request.env['REQUEST_PATH'] = '/diario-de-frequencia/destroy_multiple'
   end
 
   describe 'DELETE #destroy_multiple' do
