@@ -99,6 +99,7 @@ module ExamPoster
         next unless can_post?(classroom)
 
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
+                                      .joins(:student)
                                       .includes(:student, :descriptive_exam)
                                       .merge(
                                         DescriptiveExam.by_classroom_id(classroom.id)

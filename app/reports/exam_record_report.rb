@@ -103,6 +103,7 @@ class ExamRecordReport < BaseReport
 
   def daily_notes_table
     averages = {}
+    school_term_recovery_scores = {}
     self.any_student_with_dependence = false
 
     @students_enrollments.each do |student_enrollment|
@@ -116,6 +117,7 @@ class ExamRecordReport < BaseReport
     end
 
     exams = []
+    integral_complementary_exams = []
     recoveries_avaliation_id = []
     recoveries_ids = []
 
@@ -129,11 +131,20 @@ class ExamRecordReport < BaseReport
     end
 
     @complementary_exams.each do |complementary_exam|
+      if complementary_exam.complementary_exam_setting.integral?
+        integral_complementary_exams << complementary_exam
+        next
+      end
+
       exams << complementary_exam
     end
 
     @school_term_recoveries.each do |school_term_recovery|
       exams << school_term_recovery
+    end
+
+    integral_complementary_exams.each do |integral_exam|
+      exams << integral_exam
     end
 
     exams.to_a
@@ -145,7 +156,6 @@ class ExamRecordReport < BaseReport
       students = {}
 
       daily_notes_slice.each do |exam|
-        content = ''
         if recovery_record(exam)
           avaliation_id = recoveries_avaliation_id[pos]
           daily_note_id = recoveries_ids[pos]
@@ -170,7 +180,7 @@ class ExamRecordReport < BaseReport
           if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student_enrollment.student_id, avaliation_id))
             student_note = ExemptedDailyNoteStudent.new
             averages[student_enrollment.student_id] = "D" if exempted_from_discipline
-          elsif (avaliation_id.present?)
+          elsif avaliation_id.present?
             daily_note_student = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note_id, active: true)
             student_note = daily_note_student || NullDailyNoteStudent.new
           end
@@ -188,10 +198,8 @@ class ExamRecordReport < BaseReport
             recovery_student = RecoveryDiaryRecordStudent.find_by(student_id: student_id, recovery_diary_record_id: exam.recovery_diary_record_id)
 
             score = recovery_student.present? ? recovery_student.try(:score) : (student_enrolled_on_date?(student_id, exam.recorded_at) ? '' :NullDailyNoteStudent.new.note)
-            if recovery_student.try(:score).present?
-              recovery_average = SchoolTermAverageCalculator.new(classroom).calculate(averages[student_enrollment.student_id], recovery_student.score)
-              averages[student_enrollment.student_id] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY).round(recovery_average)
-            end
+
+            school_term_recovery_scores[student_enrollment.student_id] = recovery_student.try(:score)
           end
 
           student = Student.find(student_id)
@@ -220,7 +228,7 @@ class ExamRecordReport < BaseReport
       sequence = 1
       sequence_reseted = false
       students.each do |key, value|
-        if(!sequence_reseted && value[:dependence])
+        if !sequence_reseted && value[:dependence]
           sequence = 1
           sequence_reseted = true
         end
@@ -230,7 +238,17 @@ class ExamRecordReport < BaseReport
         data_column_count = value[:scores].count + (value[:recoveries].nil? ? 0 : value[:recoveries].count)
 
         (10 - data_column_count).times { student_cells << nil }
+
         if daily_notes_slice == sliced_exams.last
+          recovery_score = if school_term_recovery_scores[key]
+                             calculate_recovery_score(key, school_term_recovery_scores[key])
+                           end
+
+          recovery_average = SchoolTermAverageCalculator.new(classroom)
+                                                        .calculate(averages[key], recovery_score)
+          averages[key] = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
+                                      .round(recovery_average)
+
           average = localize_score(averages[key])
           student_cells << make_cell(content: "#{average}", font_style: :bold, align: :center)
         else
@@ -245,7 +263,7 @@ class ExamRecordReport < BaseReport
         sequence_cell = make_cell(content: (students_cells.count + 1).to_s, align: :center)
         scores = []
         10.times { scores << make_cell(content: '', align: :center) }
-        student_cells = [sequence_cell, { content: '', colspan: 2 }].concat(scores)
+        student_cells = [sequence_cell, { content: '' }].concat(scores)
         student_cells << make_cell(content: '', align: :center)
         students_cells << student_cells
       end
@@ -275,6 +293,16 @@ class ExamRecordReport < BaseReport
 
       start_new_page if index < sliced_exams.count - 1
     end
+  end
+
+  def calculate_recovery_score(student_id, score)
+    ComplementaryExamCalculator.new(
+      [AffectedScoreTypes::STEP_RECOVERY_SCORE, AffectedScoreTypes::BOTH],
+      student_id,
+      discipline.id,
+      classroom.id,
+      @school_calendar_step
+    ).calculate(score)
   end
 
   def student_slice_size(students)
@@ -319,7 +347,8 @@ class ExamRecordReport < BaseReport
     discipline_id = exam.discipline.id
 
     test_date = exam.test_date
-    step_number = exam.school_calendar.step(test_date).to_number
+    steps_fetcher = StepsFetcher.new(exam.classroom)
+    step_number = steps_fetcher.step_by_date(test_date).to_number
 
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)

@@ -1,48 +1,50 @@
 FactoryGirl.define do
   factory :recovery_diary_record do
-    recorded_at '2015-01-02'
-
-    unity
-    classroom
     discipline
 
-    after(:build) do |recovery_diary_record|
-      school_calendar = SchoolCalendar.find_by(year: 2015, unity_id: nil)
-      school_calendar.destroy if school_calendar
+    association :classroom, factory: [:classroom, :score_type_numeric_and_concept]
 
-      unless SchoolCalendar.find_by(year: 2015, unity_id: recovery_diary_record.unity_id)
-        create(:school_calendar_with_one_step, year: 2015, unity_id: recovery_diary_record.unity_id)
+    unity { classroom.unity }
+
+    recorded_at { Date.current }
+
+    transient do
+      students_count 5
+      teacher nil
+    end
+
+    trait :with_classroom_semester_steps do
+      association :classroom, factory: [
+        :classroom,
+        :score_type_numeric_and_concept,
+        :with_classroom_semester_steps
+      ]
+    end
+
+    trait :with_teacher_discipline_classroom do
+      after(:build) do |recovery_diary_record, evaluator|
+        teacher = Teacher.find(recovery_diary_record.teacher_id) if recovery_diary_record.teacher_id.present?
+        teacher ||= evaluator.teacher || create(:teacher)
+        recovery_diary_record.teacher_id = teacher.id if recovery_diary_record.teacher_id.blank?
+
+        create(
+          :teacher_discipline_classroom,
+          classroom: recovery_diary_record.classroom,
+          discipline: recovery_diary_record.discipline,
+          teacher: teacher
+        )
       end
-
-      teacher_discipline_classroom = create(
-        :teacher_discipline_classroom,
-        classroom: recovery_diary_record.classroom,
-        discipline: recovery_diary_record.discipline
-      )
-
-      recovery_diary_record.teacher_id = teacher_discipline_classroom.teacher.id
     end
 
-    trait :current do
-      recorded_at { Time.zone.today }
-    end
-
-    factory :current_recovery_diary_record do
-      recorded_at { Time.zone.today }
-    end
-
-    factory :recovery_diary_record_with_students do
-      transient { students_count 5 }
-
+    trait :with_students do
       after(:build) do |recovery_diary_record, evaluator|
         evaluator.students_count.times do
-          recovery_diary_record_student = build(:recovery_diary_record_student, recovery_diary_record: recovery_diary_record)
+          recovery_diary_record_student = build(
+            :recovery_diary_record_student,
+            recovery_diary_record: recovery_diary_record
+          )
           recovery_diary_record.students << recovery_diary_record_student
         end
-      end
-
-      factory :current_recovery_diary_record_with_students do
-        recorded_at { Time.zone.today }
       end
     end
   end

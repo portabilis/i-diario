@@ -148,7 +148,11 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def show_all_unities?
-    @show_all_unities ||= current_user.current_user_role.role_administrator?
+    @show_all_unities ||= current_user_role.try(:role_administrator?)
   end
   helper_method :show_all_unities?
+
+  def current_user_role
+    current_user.current_user_role || current_user.user_roles.first
+  end
 end

@@ -34,7 +34,7 @@ module Turnip
     step 'que existe uma unidade cadastrada' do
       click_menu 'Configurações > Unidades'
 
-      within :xpath, '//table/tbody/tr[position()=1]' do
+      within :xpath, '//table/tbody/tr[position()=2]' do
         wait_for(page).to have_content 'Escola A Unidade escolar'
       end
     end

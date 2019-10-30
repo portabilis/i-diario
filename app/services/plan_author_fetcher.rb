@@ -5,15 +5,9 @@ class PlanAuthorFetcher
   end
 
   def author
-    if @component.is_a?(AbsenceJustification)
-      return I18n.t('enumerations.absence_justification_authors.my_justifications') if my_plans?
+    return I18n.t('enumerations.plans_authors.my_plans') if my_plans?
 
-      I18n.t('enumerations.absence_justification_authors.others')
-    else
-      return I18n.t('enumerations.plans_authors.my_plans') if my_plans?
-
-      I18n.t('enumerations.plans_authors.others')
-    end
+    I18n.t('enumerations.plans_authors.others')
   end
 
   private

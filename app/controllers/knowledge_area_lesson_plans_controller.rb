@@ -5,7 +5,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    author_type = (params[:filter] || []).delete(:by_author)
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_lesson_plans = apply_scopes(
       KnowledgeAreaLessonPlan.includes(:knowledge_areas, lesson_plan: [:classroom])
@@ -20,6 +22,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
 
     if author_type.present?
       @knowledge_area_lesson_plans = @knowledge_area_lesson_plans.by_author(author_type, current_teacher)
+      params[:filter][:by_author] = author_type
     end
 
     authorize @knowledge_area_lesson_plans
@@ -191,6 +194,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def fetch_knowledge_area
-    KnowledgeArea.by_teacher(current_teacher).ordered
+    KnowledgeArea.by_teacher(current_teacher).by_classroom_id(current_user_classroom.id).ordered
   end
 end

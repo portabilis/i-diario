@@ -1,12 +1,21 @@
 require 'rails_helper'
 
 RSpec.describe DisciplineLessonPlanPdf, type: :report do
-  # FIXME: Ajustar junto com o refactor das factories
-  xit "should be created" do
+  it 'should be created' do
     entity_configuration = create(:entity_configuration)
-    teacher_discipline_classroom = create(:teacher_discipline_classroom)
-    lesson_plan = create(:lesson_plan, classroom: teacher_discipline_classroom.classroom)
-    discipline_lesson_plan = create(:discipline_lesson_plan, discipline: teacher_discipline_classroom.discipline, lesson_plan: lesson_plan)
+    classroom = create(:classroom, :with_teacher_discipline_classroom, :with_classroom_semester_steps)
+    teacher_discipline_classroom = classroom.teacher_discipline_classrooms.first
+    lesson_plan = create(
+      :lesson_plan,
+      classroom: classroom,
+      teacher_id: teacher_discipline_classroom.teacher_id
+    )
+    discipline_lesson_plan = create(
+      :discipline_lesson_plan,
+      lesson_plan: lesson_plan,
+      discipline: teacher_discipline_classroom.discipline,
+      teacher_id: teacher_discipline_classroom.teacher_id
+    )
 
     subject = DisciplineLessonPlanPdf.build(
       entity_configuration,

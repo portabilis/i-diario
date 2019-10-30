@@ -1,29 +1,66 @@
 FactoryGirl.define do
   factory :conceptual_exam do
-    classroom
     student
-    recorded_at { Time.zone.today }
-    unity_id 1
-    step_number 1
 
-    before(:create) do |conceptual_exam|
-      student_enrollment = create(:student_enrollment, student: conceptual_exam.student)
-      create(:student_enrollment_classroom, classroom: conceptual_exam.classroom, student_enrollment: student_enrollment)
+    association :classroom, factory: [:classroom, :score_type_concept, :with_classroom_semester_steps]
+
+    unity_id { classroom.unity_id }
+
+    transient do
+      discipline nil
+      teacher nil
+      student_enrollment nil
     end
 
     after(:build) do |conceptual_exam|
-      teacher_discipline_classroom = create(
-        :teacher_discipline_classroom,
-        classroom: conceptual_exam.classroom
-      )
+      if conceptual_exam.classroom.calendar.present?
+        step = conceptual_exam.classroom.calendar.classroom_steps.first
+      end
 
-      conceptual_exam.teacher_id = teacher_discipline_classroom.teacher.id
+      if conceptual_exam.recorded_at.blank?
+        conceptual_exam.recorded_at = step.try(:first_school_calendar_date) || Date.current
+      end
+
+      conceptual_exam.step_number = step.try(:step_number) || 1 if conceptual_exam.step_number.zero?
+      conceptual_exam.step_id = step.try(:id) if conceptual_exam.step_id.blank?
     end
 
-    factory :conceptual_exam_with_one_value do
-      after(:build) do |conceptual_exam|
-        discipline_id = create(:discipline).id
-        conceptual_exam.conceptual_exam_values.build(attributes_for(:conceptual_exam_value, discipline_id: discipline_id))
+    trait :with_teacher_discipline_classroom do
+      after(:build) do |conceptual_exam, evaluator|
+        teacher = Teacher.find(conceptual_exam.teacher_id) if conceptual_exam.teacher_id.present?
+        teacher ||= evaluator.teacher || create(:teacher)
+        conceptual_exam.teacher_id = teacher.id if conceptual_exam.teacher_id.blank?
+        discipline = evaluator.discipline || create(:discipline)
+
+        create(
+          :teacher_discipline_classroom,
+          classroom: conceptual_exam.classroom,
+          discipline: discipline,
+          teacher: teacher
+        )
+      end
+    end
+
+    trait :with_student_enrollment_classroom do
+      after(:build) do |conceptual_exam, evaluator|
+        student_enrollment = evaluator.student_enrollment
+        student_enrollment ||= create(:student_enrollment, student: conceptual_exam.student)
+
+        create(
+          :student_enrollment_classroom,
+          classroom: conceptual_exam.classroom,
+          student_enrollment: student_enrollment
+        )
+      end
+    end
+
+    trait :with_one_value do
+      after(:build) do |conceptual_exam, evaluator|
+        discipline = evaluator.discipline || create(:discipline)
+
+        conceptual_exam.conceptual_exam_values.build(
+          attributes_for(:conceptual_exam_value, discipline_id: discipline.id)
+        )
       end
     end
   end

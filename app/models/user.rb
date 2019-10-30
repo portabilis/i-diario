@@ -107,7 +107,7 @@ class User < ActiveRecord::Base
   def expired?
     return false if expiration_date.blank?
 
-    Date.today >= expiration_date
+    Date.current >= expiration_date
   end
 
   def can_show?(feature)
@@ -139,7 +139,7 @@ class User < ActiveRecord::Base
   end
 
   def active_for_authentication?
-    super && actived? && !expired?
+    super && active? && !expired?
   end
 
   def logged_as
@@ -214,7 +214,13 @@ class User < ActiveRecord::Base
 
   def current_classroom
     return unless current_classroom_id
-    @current_classroom ||= Classroom.find(current_classroom_id)
+
+    @current_classroom ||= begin
+      classroom = Classroom.find_by(id: current_classroom_id)
+      update(current_classroom_id: nil) if classroom.nil?
+
+      classroom
+    end
   end
 
   def current_discipline
@@ -258,6 +264,25 @@ class User < ActiveRecord::Base
   def current_access_level
     return unless current_user_role
     current_user_role.role.access_level
+  end
+
+  def administrator?
+    return false unless current_user_role
+    current_user_role.role.access_level == AccessLevel::ADMINISTRATOR
+  end
+
+  def employee?
+    return false unless current_user_role
+    current_user_role.role.access_level == AccessLevel::EMPLOYEE
+  end
+
+  def teacher?
+    return false unless current_user_role
+    current_user_role.role.access_level == AccessLevel::TEACHER
+  end
+
+  def cpf_as_integer
+    cpf.gsub(/[^\d]/, '')
   end
 
   protected

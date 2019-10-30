@@ -1,24 +1,34 @@
 require 'rails_helper'
 
 RSpec.describe ComplementaryExamSettingsFetcher, type: :service do
-  let(:unity) { create(:unity) }
-  let(:classroom) { create(:classroom, :current, unity: unity) }
+  let(:classroom) {
+    create(
+      :classroom,
+      :with_classroom_semester_steps
+    )
+  }
   let(:discipline) { create(:discipline) }
-  let(:school_calendar) { create(:current_school_calendar_with_one_step, unity: unity) }
-  let!(:complementary_exam_setting) { create(:complementary_exam_setting, grade_ids: [classroom.grade_id]) }
+  let(:step) { classroom.calendar.classroom_steps.first }
+  let!(:complementary_exam_setting) {
+    create(
+      :complementary_exam_setting,
+      grade_ids: [classroom.grade_id]
+    )
+  }
   let(:complementary_exam) {
     create(
       :complementary_exam,
+      :with_teacher_discipline_classroom,
       classroom: classroom,
       discipline: discipline,
-      recorded_at: school_calendar.steps.first.school_day_dates[0],
-      step_id: school_calendar.steps.first.id,
+      recorded_at: step.first_school_calendar_date,
+      step_id: step.id,
       complementary_exam_setting: complementary_exam_setting
     )
   }
 
   subject do
-    described_class.new(classroom, discipline, school_calendar.steps.first)
+    described_class.new(classroom, discipline, step)
   end
 
   describe "#settings" do

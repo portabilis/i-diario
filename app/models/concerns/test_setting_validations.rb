@@ -14,7 +14,7 @@ module TestSettingValidations
     validate :uniqueness_of_general_test_setting,        if: :general?
     validate :uniqueness_of_by_school_term_test_setting, if: :by_school_term?
     validate :at_least_one_assigned_test, if: :sum?
-    validate :tests_weight_equal_maximum_score, if: :should_validate_tests_weight?
+    validate :tests_weight_less_or_equal_maximum_score, if: :should_validate_tests_weight?
     validate :ensure_can_destroy_test_settings
   end
 
@@ -46,10 +46,10 @@ module TestSettingValidations
     sum? && tests.any? { |test| !test.marked_for_destruction? } && maximum_score
   end
 
-  def tests_weight_equal_maximum_score
+  def tests_weight_less_or_equal_maximum_score
     tests_weight = tests.to_a.select { |test| !test.marked_for_destruction? && test.weight }.sum(&:weight)
 
-    errors.add(:tests, :tests_weight_equal_maximum_score) if tests_weight != maximum_score
+    errors.add(:tests, :tests_weight_less_or_equal_maximum_score) unless tests_weight <= maximum_score
   end
 
   def ensure_can_destroy_test_settings

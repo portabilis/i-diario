@@ -1,483 +1,603 @@
 $(function() {
-   "use strict";
+  'use strict';
 
-  var role_unity_id = null;
-  var can_change_school_year = false;
-  var flashMessages = new FlashMessages();
+  const breakpoint = 1250;
+  const flashMessages = new FlashMessages();
 
-  function fetchTeachers(unity_id, year, teacher_id){
-    var filter = { by_unity_id: unity_id, by_year: year };
-    if(typeof teacher_id != 'undefined'){
-      filter['by_id'] = teacher_id;
-      $('form#user-role-form #assumed-teacher-field-container').hide();
-      $('form#user-role-form #user_assumed_teacher_id').val(teacher_id);
-      $('form#user-role-form #user_assumed_teacher_id').trigger('change');
-    }
-    unity_id = String(unity_id);
+  const $form = $('#user-role-form');
+  const $submitBtn = $form.find('button[type="submit"]');
+  const $loader = $('#page-loading');
+  const teacherId = getValue($form.find('#user_teacher_id'));
 
-    if(!_.isEmpty(unity_id) && !_.isEmpty(year)){
-      $.ajax({
-        url: Routes.teachers_pt_br_path({
-            filter: filter,
-            format: 'json'
-        }),
-        success: handleFetchTeachersSuccess,
-        error: handleFetchTeachersError
-      });
-    } else {
-      handleFetchTeachersSuccess([]);
-    }
-  }
+  // fields
+  const $roleField = $form.find('#user_current_user_role_id');
+  const $unityField = $form.find('#user_current_unity_id');
+  const $yearField = $form.find('#user_current_school_year');
+  const $classroomField = $form.find('#user_current_classroom_id');
+  const $teacherField = $form.find('#user_assumed_teacher_id');
+  const $disciplineField = $form.find('#current_discipline_id');
 
-  function handleFetchTeachersSuccess(data){
-    var selectedTeachers = _.map(data, function(teacher) {
-      return { id: teacher['id'], text: teacher['name'] };
-    });
+  // field containers
+  const $unityContainer = $form.find('#unity-field-container');
+  const $yearContainer = $form.find('#school-year-field-container');
+  const $classroomContainer = $form.find('#classroom-field-container');
+  const $teacherContainer = $form.find('#assumed-teacher-field-container');
+  const $disciplineContainer = $form.find('#discipline-field-container');
 
-    insertEmptyElement(selectedTeachers);
-    $('form#user-role-form #user_assumed_teacher_id').select2({ formatResult: function(el) {
-                                                    return "<div class='select2-user-result'>" + el.text + "</div>";
-                                                  },
-                                    data: selectedTeachers });
-    if(_.isNull($('form#user-role-form #user_assumed_teacher_id').select2("data"))){
-      $('form#user-role-form #user_assumed_teacher_id').val("");
-      $('#classroom-field-container').hide();
-      $('#discipline-field-container').hide();
-    }
-  }
+  // other elements
+  const $body = $('html, body');
+  const $loginInfo = $('#user-info-selector');
+  const $roleBar = $('#current-role-selector');
+  const $closeBar = $('.role-cancel');
+  const $errorsContainer = $form.find('.errors-container');
 
-  function handleFetchTeachersError(){
-    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>");
-  }
-
-  function fetchYears(unity_id, callback){
-    callback = callback || function(){};
-    unity_id = String(unity_id);
-     if(!_.isEmpty(unity_id)){
-      $.ajax({
-        url: Routes.years_from_unity_school_calendars_pt_br_path({
-            unity_id: unity_id,
-            format: 'json'
-        }),
-        success: function(data){
-          handleFetchYearsSuccess(data, callback);
-        },
-        error: handleFetchYearsError
-      });
-    }
-  }
-
-  function handleFetchYearsSuccess(data, callback){
-    var selectedYears = _.map(data.school_calendars, function(year) {
-      return { id: year['id'], text: year['name'] };
-    });
-     insertEmptyElement(selectedYears);
-    $('form#user-role-form #user_current_school_year').select2({ formatResult: function(el) {
-                                                    return "<div class='select2-user-result'>" + el.text + "</div>";
-                                                  },
-                                    data: selectedYears });
-     if (selectedYears.length > 1 && !can_change_school_year) {
-      $('form#user-role-form #user_current_school_year').select2('val', selectedYears[1]['id']);
-    }
-    callback();
-  }
-   function handleFetchYearsError(){
-    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_years_error') %>");
-  }
-
-  function checkUnityType(unity_id){
-
-    var filter = { by_unity_id: unity_id };
-    unity_id = String(unity_id);
-
-    if(!_.isEmpty(unity_id)){
-      $.getJSON(Routes.unities_pt_br_path() + "/"+unity_id, function(data){
-        if(data && data.unit_type == "school_unit"){
-          if (can_change_school_year) {
-            $('#school-year-field-container').show();
-          }
-          $('#assumed-teacher-field-container').show();
-          var user_role_id = $('form#user-role-form #user_current_user_role_id').val();
-          $.ajax({
-            url: Routes.user_role_pt_br_path( user_role_id, {
-                format: 'json'
-            }),
-            success: function(data){
-              if(data.user_role.role.access_level == 'teacher'){
-                fetchTeachers(
-                  unity_id,
-                  $('form#user-role-form #user_current_school_year').val(),
-                  $('form#user-role-form #user_teacher_id').val()
-                );
-              }else{
-                fetchTeachers(unity_id, $('form#user-role-form #user_current_school_year').val());
-              }
-            },
-            error: function(){
-              flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
-            }
-          });
-        }else{
-          $('#assumed-teacher-field-container').hide();
-          $('#school-year-field-container').hide();
-        }
-      });
-    }
-  }
-
-  function fetchClassroomsByTeacherAndUnityAndYear(teacher_id, unity_id, year){
-    unity_id = String(unity_id);
-    teacher_id = String(teacher_id);
-    year = String(year);
-
-    var filter = { by_teacher_id: teacher_id, by_unity: unity_id, by_year: year };
-    if(!_.isEmpty(teacher_id) && !_.isEmpty(unity_id) && !_.isEmpty(year)){
-      $.ajax({
-        url: Routes.classrooms_pt_br_path({
-            filter: filter,
-            format: 'json'
-        }),
-        success: handleFetchClassroomsSuccess,
-        error: handleFetchClassroomsError
-      });
-    }
-  }
-
-  function handleFetchClassroomsSuccess(data){
-    var selectedClassrooms = _.map(data, function(classroom) {
-      return { id: classroom['id'], text: classroom['description'] };
-    });
-
-    $('form#user-role-form #user_current_classroom_id').val("");
-
-    insertEmptyElement(selectedClassrooms);
-    $('form#user-role-form #user_current_classroom_id').select2({ formatResult: function(el) {
-                                                              return "<div class='select2-user-result'>" + el.text + "</div>";
-                                                            },
-                                              data: selectedClassrooms });
-    fetchDisciplines();
-  }
-
-  function handleFetchClassroomsError(){
-    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>");
-  }
-
-  function fetchUnities(){
-    $.ajax({
-      url: Routes.search_unities_pt_br_path({
-          format: 'json',
-          per: 9999999
-      }),
-      success: handleFetchUnitiesSuccess,
-      error: handleFetchUnitiessError
-    });
-
-  }
-
-  function handleFetchUnitiesSuccess(data){
-    var selectedUnities = _.map(data.unities, function(unity) {
-      return { id: unity['id'], text: unity['name'] };
-    });
-
-    if(_.isEmpty(selectedUnities)){
-      $('form#user-role-form #user_current_unity_id').val("");
-    }
-
-    insertEmptyElement(selectedUnities);
-    $('form#user-role-form #user_current_unity_id').select2({ formatResult: function(el) {
-                                                          return "<div class='select2-user-result'>" + el.text + "</div>";
-                                                        },
-                                          data: selectedUnities });
-  }
-
-  function handleFetchUnitiessError(){
-    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_schools_error') %>");
-  }
-
-  $('form#user-role-form #user_current_user_role_id').on('change', fetchRole);
-
-  function fetchRole() {
-    var user_role_id = $('form#user-role-form #user_current_user_role_id').val();
-
-    if(_.isEmpty(user_role_id)){
-      $('#no-role-selected-alert').removeClass('hidden');
-    }else{
-      $('#no-role-selected-alert').addClass('hidden');
-    }
-
-    if(valueSelected($('form#user-role-form #user_current_user_role_id'))){
-      $.ajax({
-        url: Routes.user_role_pt_br_path( user_role_id, {
-            format: 'json'
-        }),
-        success: handleFetchRoleSuccess,
-        error: handleFetchRoleError
-      });
-    }else{
-      toggleNoProfileSelectedFields();
-    }
-
-    function handleFetchRoleSuccess(data){
-      role_unity_id = null;
-      can_change_school_year = data.user_role.can_change_school_year;
-      switch (data.user_role.role.access_level) {
-        case 'administrator':
-          toggleAdministratorFields();
-          break;
-
-        case 'employee':
-          toggleEmployeeFields(data.user_role.unity_id);
-          $('form#user-role-form #user_current_unity_id').val(data.user_role.unity_id);
-          break;
-
-        case 'teacher':
-          toggleTeacherFields(data.user_role.unity_id);
-          $('form#user-role-form #user_current_unity_id').val(data.user_role.unity_id);
-          break;
-
-        case 'parent':
-        case 'student':
-          toggleParentAndStudentFields();
-          break;
-      }
-    }
-
-    function handleFetchRoleError(){
-      flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
-    }
+  const requiredContainersPerRole = {
+    administrator: [$unityContainer, $yearContainer, $teacherContainer, $disciplineContainer],
+    teacher: [$yearContainer, $classroomContainer, $disciplineContainer],
+    employee: [$yearContainer, $teacherContainer, $disciplineContainer],
+    parent: [],
+    student: []
   };
 
-  $('form#user-role-form #user_current_unity_id').on('change', function(){
-    $('#assumed-teacher-field-container').hide();
-    $('#classroom-field-container').hide();
-    $('#discipline-field-container').hide();
+  let documentWidth = $(document).width();
 
-    var unity_id = $(this).val();
+  let profileRole = {};
 
-    var emptyElements = insertEmptyElement([]);
+  let profileData = {
+    role: getValue($roleField),
+    unity: getValue($unityField),
+    year: getValue($yearField),
+    classroom: getValue($classroomField),
+    teacher: getValue($teacherField),
+    discipline: getValue($disciplineField)
+  };
 
-    $('form#user-role-form #user_assumed_teacher_id').select2("data", emptyElements);
-    $('form#user-role-form #user_current_classroom_id').select2("data", emptyElements);
-    $('form#user-role-form #user_current_discipline_id').select2("data", emptyElements);
-    checkUnityType(unity_id);
-    fetchYears(unity_id);
-  });
+  function isModal() {
+    const size = $(window).width();
 
-  $('form#user-role-form #user_current_school_year').on('change', function () {
-    var emptyElements = insertEmptyElement([]);
-    $('form#user-role-form #user_assumed_teacher_id').select2("data", emptyElements);
-    $('form#user-role-form #user_current_classroom_id').select2("data", emptyElements);
-    $('form#user-role-form #user_current_discipline_id').select2("data", emptyElements);
-    fetchTeachers($('form#user-role-form #user_current_unity_id').val(), $('#current_school_year').val());
-    checkUnityType($('form#user-role-form #user_current_unity_id').val());
-    if (role_unity_id) {
-      fetchClassroomsByTeacherAndUnityAndYear($('form#user-role-form #user_teacher_id').val(), role_unity_id, $('form#user-role-form #user_current_school_year').val());
+    return size < breakpoint;
+  }
+
+  function setError(msg) {
+    if (isModal()) {
+      $errorsContainer.show().text(msg);
+    } else {
+      flashMessages.error(msg);
     }
-  });
+  }
 
-  $('form#user-role-form #user_assumed_teacher_id').on('change', function(){
-    var teacher_id = $(this).val();
+  function getProfileRole(roleId) {
+    const defer = $.Deferred();
+    const currentRoleId = profileRole.role_id || null;
 
-    if(valueSelected($(this))){
-      $('#classroom-field-container').show();
-      $('#discipline-field-container').show();
-      var unity_id = currentUnityId();
-      fetchClassroomsByTeacherAndUnityAndYear(teacher_id, unity_id, $('form#user-role-form #user_current_school_year').val());
-    }else{
-      $("form#user-role-form #user_current_classroom_id").val('');
-      $("form#user-role-form #user_current_discipline_id").val('');
-      $('#classroom-field-container').hide();
-      $('#discipline-field-container').hide();
-    }
-  });
-
-  $('form#user-role-form #user_current_classroom_id').on('change', fetchDisciplines);
-
-  function fetchDisciplines(){
-    var classroom_id = $("form#user-role-form #user_current_classroom_id").val();
-    var filter = { by_classroom: classroom_id };
-    var params = {
-      filter: filter,
-      format: 'json'
+    if (roleId === null) {
+      roleId = getValue($roleField);
     }
 
-    if($("#assumed-teacher-field-container").is(":visible") ||
-          (!$("formform#user-role-form #user-role").is(":visible") && $("form#user-role-form #user_assumed_teacher_id").val().length ) ){
-      filter.by_teacher_id = $("form#user-role-form #user_assumed_teacher_id").val();
-    }else{
-      params.use_user_teacher = true;
-    }
-
-    if(!_.isEmpty(classroom_id)){
-      $.ajax({
-        url: Routes.search_disciplines_pt_br_path(params),
-        success: handleFetchDisciplinesSuccess,
-        error: handleFetchDisciplinesError
+    if (roleId !== null && parseInt(currentRoleId, 10) === parseInt(roleId, 10)) {
+      defer.resolve(profileRole);
+    } else {
+      const request = $.ajax({
+        url: Routes.user_role_pt_br_path(roleId, { format: 'json' })
       });
-    }else{
-      var selectedDisciplines = [];
-      insertEmptyElement(selectedDisciplines);
-      $('form#user-role-form #user_current_discipline_id').select2({ formatResult: function(el) {
-                                                                  return "<div class='select2-user-result'>" + el.text + "</div>";
-                                                               },
-                                                 data: selectedDisciplines });
-    }
-  }
 
-  function handleFetchDisciplinesSuccess(data){
-    var selectedDisciplines = _.map(data.disciplines, function(discipline) {
-      return { id: discipline['id'], text: discipline['description'] };
-    });
+      request.done(function (data) {
+        profileRole = data.user_role;
 
-    $('form#user-role-form #user_current_discipline_id').val("");
-    $('form#user-role #user_current_discipline_id').val("");
+        defer.resolve(data.user_role);
+      });
 
-    insertEmptyElement(selectedDisciplines);
-    $('form#user-role-form #user_current_discipline_id').select2({ formatResult: function(el) {
-                                                                return "<div class='select2-user-result'>" + el.text + "</div>";
-                                                             },
-                                               data: selectedDisciplines });
-  }
-
-  function handleFetchDisciplinesError(){
-    flashMessages.error("<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>");
-  }
-
-  function toggleNoProfileSelectedFields(){
-
-    $("form#user-role-form #user_current_teacher_id").val('');
-    $("form#user-role-form #user_current_unity_id").val('');
-    $("form#user-role-form #user_current_classroom_id").val('');
-    $("form#user-role-form #user_current_discipline_id").val('');
-    $("form#user-role-form #user_current_school_year").val('');
-
-    $('#assumed-teacher-field-container').hide();
-    $('#unity-field-container').hide();
-    $('#classroom-field-container').hide();
-    $('#discipline-field-container').hide();
-    $('#school-year-field-container').hide();
-  }
-
-  function toggleAdministratorFields(){
-    $('#classroom-field-container').hide();
-    $('#discipline-field-container').hide();
-    $('#assumed-teacher-field-container').hide();
-
-    $('#unity-field-container').show();
-
-    fetchUnities();
-    if(valueSelected($('form#user-role-form #user_current_unity_id'))){
-      if (can_change_school_year) {
-        $('#school-year-field').show();
-      }
-      $('#assumed-teacher-field-container').show();
-      fetchYears($('form#user-role-form #user_current_unity_id').val(), function(){
-        fetchTeachers($('form#user-role-form #user_current_unity_id').val(), $('form#user-role-form #user_current_school_year').val());
-        checkUnityType($('form#user-role-form #user_current_unity_id').val());
-
-        if(valueSelected($('form#user-role-form #user_assumed_teacher_id'))){
-          $('#discipline-field-container').show();
-          $('#classroom-field-container').show();
-          fetchClassroomsByTeacherAndUnityAndYear($('form#user-role-form #user_assumed_teacher_id').val(), $('form#user-role-form #user_current_unity_id').val(), $('form#user-role-form #user_current_school_year').val());
-        }
+      request.fail(function () {
+        defer.reject();
       });
     }
+
+    return defer.promise();
   }
 
-  function toggleEmployeeFields(unity_id){
-    $('#unity-field-container').hide();
-    $('#classroom-field-container').hide();
-    $('#discipline-field-container').hide();
-    $('#school-year-field-container').hide();
-    $('#assumed-teacher-field-container').hide();
+  function getValue (field) {
+    const value = field.val();
 
-    $("form#user-role-form #user_assumed_teacher_id").select2('val', '');
-    $("form#user-role-form #user_current_unity_id").select2('val', '');
-    $("form#user-role-form #user_current_classroom_id").select2('val', '');
-    $("form#user-role-form #user_current_discipline_id").select2('val', '');
-    $("form#user-role-form #school-year-field-container").select2('val', '');
+    if (_.isEmpty(value) || parseInt(value, 10) === 0) {
+      return null;
+    }
 
-    $("form#user-role-form #user_current_unity_id").val('');
+    return value;
+  }
 
-    checkUnityType(unity_id);
+  function setValue (field, value) {
+    field.select2('val', value);
+    field.val(value);
+    field.trigger('change');
+  }
 
-    fetchYears(unity_id, function(){
-      fetchTeachers(unity_id, $('form#user-role-form #user_current_school_year').val());
+  function insertEmptyOption (options) {
+    options.unshift({
+      id: 'empty',
+      text: '<option></option>'
+    });
 
-      if(valueSelected($('form#user-role-form #user_assumed_teacher_id'))){
-        $('#discipline-field-container').show();
-        $('#classroom-field-container').show();
-        fetchClassroomsByTeacherAndUnityAndYear($('form#user-role-form #user_assumed_teacher_id').val(), unity_id, $('form#user-role-form #user_current_school_year').val());
+    return options;
+  }
+
+  function clearOptions (elm) {
+    elm.val('');
+    elm.select2('val', '');
+    elm.select2({data: []});
+  }
+
+  function setOptions (field, options) {
+    options = _.isEmpty(options) ? [] : insertEmptyOption(options);
+
+    field.select2({
+      placeholder: "<%= I18n.t('layouts.application.select') %>",
+      formatResult: function(el) {
+        return "<div class='select2-user-result'>" + el.text + "</div>";
+      },
+      data: options
+    });
+  }
+
+  function hideAndResetOnEvent (containers, event) {
+    $.each(containers, function () {
+      const $this = $(this);
+      const $field = $this.find('input.select2');
+
+      $this.on(event, function () {
+        $this.hide();
+        clearOptions($field);
+      });
+    })
+  }
+
+  function triggerEventOnContainers (containers, event) {
+    $.each(containers, function () {
+      $(this).trigger(event);
+    })
+  }
+
+  function markRequiredFields(role) {
+    $.each([
+      $unityContainer,
+      $yearContainer,
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], function () {
+      $(this).find('span.label').removeClass('required');
+    });
+
+    const containers = requiredContainersPerRole[role];
+
+    $.each(containers, function () {
+      $(this).find('span.label').addClass('required');
+    });
+  }
+
+  hideAndResetOnEvent([
+    $unityContainer,
+    $yearContainer,
+    $classroomContainer,
+    $teacherContainer,
+    $disciplineContainer
+  ], 'pre:profile:role');
+
+  hideAndResetOnEvent([
+    $yearContainer,
+    $classroomContainer,
+    $teacherContainer,
+    $disciplineContainer
+  ], 'pre:profile:unity');
+
+  hideAndResetOnEvent([
+    $classroomContainer,
+    $teacherContainer,
+    $disciplineContainer
+  ], 'pre:profile:year');
+
+  hideAndResetOnEvent([
+    $teacherContainer,
+    $disciplineContainer
+  ], 'pre:profile:classroom');
+
+  hideAndResetOnEvent([
+    $disciplineContainer
+  ], 'pre:profile:teacher');
+
+  $roleField.on('change', function () {
+    const $this = $(this);
+    const roleId = getValue($this);
+
+    triggerEventOnContainers([
+      $unityContainer,
+      $yearContainer,
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:role');
+
+    if (!roleId) {
+      return;
+    }
+
+    profileData['role'] = roleId;
+
+    $.when(getProfileRole(roleId)).then(function () {
+      triggerEventOnContainers([
+        $unityContainer
+      ], 'profile:role');
+
+      markRequiredFields(profileRole.role.access_level);
+    }, function () {
+      setError("<%= I18n.t('layouts.error_messages.fetch_access_level_error') %>");
+    });
+  });
+
+  $unityContainer.on('profile:role', function () {
+    const $this = $(this);
+    const $field = $this.find('input.select2');
+
+    $this.hide();
+    clearOptions($field);
+
+    if (['parent', 'student'].indexOf(profileRole.role.access_level) !== -1) {
+      $.each([
+        $yearContainer,
+        $classroomContainer,
+        $teacherContainer,
+        $disciplineContainer
+      ], function () {
+        const $this = $(this);
+        const $field = $this.find('input.select2');
+
+        $this.hide();
+        clearOptions($field);
+      });
+
+      return true;
+    }
+
+    $.when(getProfileRole(profileRole.role_id || null)).then(function () {
+      return $.ajax({
+        url: Routes.search_unities_pt_br_path({
+          format: 'json',
+          per: 9999999
+        })
+      });
+    }).then(function (data) {
+      const unities = _.map(data.unities, function (unity) {
+        return { id: unity['id'], text: unity['name'] };
+      });
+
+      setOptions($field, unities);
+
+      if (profileRole.role.access_level === 'administrator') {
+        $this.show();
+      } else {
+        setValue($field, profileRole.unity_id);
+      }
+    }, function () {
+      setError("<%= I18n.t('layouts.error_messages.fetch_schools_error') %>");
+    });
+  });
+
+  $unityField.on('change', function () {
+    const unityId = getValue($(this));
+
+    triggerEventOnContainers([
+      $yearContainer,
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:unity');
+
+    if (!unityId) {
+      return;
+    }
+
+    profileData['unity'] = unityId;
+
+    const request = $.getJSON(Routes.unities_pt_br_path() + '/' + unityId);
+
+    request.done(function (data) {
+      if (data.unit_type === 'cost_center') {
+        $.each([
+          $yearContainer,
+          $classroomContainer,
+          $teacherContainer,
+          $disciplineContainer
+        ], function () {
+          const $this = $(this);
+          const $field = $this.find('input.select2');
+
+          $this.hide();
+          clearOptions($field);
+        });
+      } else {
+        triggerEventOnContainers([
+          $yearContainer
+        ], 'profile:unity');
       }
     });
-  }
+  });
 
-  function toggleTeacherFields(unity_id){
-    $('#unity-field-container').hide();
-    $('#assumed-teacher-field-container').hide();
-    if (can_change_school_year) {
-      $('#school-year-field-container').show();
-    }
+  $yearContainer.on('profile:unity', function () {
+    const $this = $(this);
+    const $field = $this.find('input.select2');
 
-    $("form#user-role-form #user_assumed_teacher_id").val('');
-    $("form#user-role-form #user_current_unity_id").val('');
+    $this.hide();
+    clearOptions($field);
 
-    $('#classroom-field-container').show();
-    $('#discipline-field-container').show();
+    $.when(getProfileRole(profileRole.role_id || null)).then(function () {
+      return $.ajax({
+        url: Routes.years_from_unity_school_calendars_pt_br_path({
+          unity_id: profileData.unity,
+          format: 'json'
+        })
+      });
+    }).then(function (data) {
+      const years = _.map(data.school_calendars, function (year) {
+        return { id: year['id'], text: year['name'] };
+      });
 
-    fetchYears(unity_id, function(){
-      fetchClassroomsByTeacherAndUnityAndYear($('form#user-role-form #user_teacher_id').val(), unity_id, $('form#user-role #user_current_school_year').val());
+      setOptions($field, years);
+
+      if (profileRole.can_change_school_year) {
+        $this.show();
+      } else {
+        setValue($field, years[1].id);
+      }
+    }, function () {
+      setError("<%= I18n.t('layouts.error_messages.fetch_years_error') %>");
     });
-  }
+  });
 
-  function toggleParentAndStudentFields(){
-    $("form#user-role-form #user_current_teacher_id").val('');
-    $("form#user-role-form #user_current_unity_id").val('');
+  $yearField.on('change', function () {
+    const year = getValue($(this));
 
-    $('#classroom-field-container').hide();
-    $('#discipline-field-container').hide();
-    $('#unity-field-container').hide();
-    $('#assumed-teacher-field-container').hide();
-    $('#school-year-field-container').hide();
-  }
+    triggerEventOnContainers([
+      $classroomContainer,
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:year');
 
-  function insertEmptyElement(elementArray){
-    if(!_.isEmpty(elementArray)){
-      elementArray.unshift({ id: "empty", text: "<option></option>" });
+    if (!year) {
+      return;
     }
-  }
 
-  function valueSelected(select2Element){
-    return !(_.isEmpty(select2Element.val()) || select2Element.val() == 0);
-  }
+    profileData['year'] = year;
 
-  $('#user-role-form').on('ajax:success', function(){
+    triggerEventOnContainers([
+      $classroomContainer
+    ], 'profile:year');
+  });
+
+  $classroomContainer.on('profile:year', function () {
+    const $this = $(this);
+    const $field = $this.find('input.select2');
+
+    $this.hide();
+    clearOptions($field);
+
+    let filters = {
+      by_unity: profileData.unity,
+      by_year: profileData.year
+    };
+
+    $.when(getProfileRole(profileRole.role_id || null)).then(function () {
+      if (profileRole.role.access_level === 'teacher') {
+        filters['by_teacher_id'] = teacherId;
+      }
+
+      return $.ajax({
+        url: Routes.classrooms_pt_br_path({
+          filter: filters,
+          format: 'json'
+        })
+      });
+    }).then(function (data) {
+      const classrooms = _.map(data, function(classroom) {
+        return { id: classroom.id,  text: classroom.description };
+      });
+
+      setOptions($field, classrooms);
+
+      $this.show();
+    }, function () {
+      setError("<%= I18n.t('layouts.error_messages.fetch_classrooms_error') %>");
+    });
+  });
+
+  $classroomField.on('change', function () {
+    const classroomId = getValue($(this));
+
+    triggerEventOnContainers([
+      $teacherContainer,
+      $disciplineContainer
+    ], 'pre:profile:classroom');
+
+    if (!classroomId) {
+      return;
+    }
+
+    profileData['classroom'] = classroomId;
+
+    triggerEventOnContainers([
+      $teacherContainer
+    ], 'profile:classroom');
+  });
+
+  $teacherContainer.on('profile:classroom', function () {
+    const $this = $(this);
+    const $field = $this.find('input.select2');
+
+    $this.hide();
+    clearOptions($field);
+
+    let filters = {
+      by_unity_id: profileData.unity,
+      by_year: profileData.year,
+      by_classroom: profileData.classroom
+    };
+
+    $.when(getProfileRole(profileRole.role_id || null)).then(function () {
+      if (profileRole.role.access_level === 'teacher') {
+        filters['by_id'] = teacherId;
+      }
+
+      return $.ajax({
+        url: Routes.teachers_pt_br_path({
+          filter: filters,
+          format: 'json'
+        })
+      });
+    }).then(function (data) {
+      const teachers = _.map(data, function (teacher) {
+        return { id: teacher.id,  text: teacher.name };
+      });
+
+      setOptions($field, teachers);
+
+      if (profileRole.role.access_level === 'teacher') {
+        setValue($field, teacherId);
+      } else {
+        $this.show();
+      }
+    }, function () {
+      setError("<%= I18n.t('layouts.error_messages.fetch_teachers_error') %>");
+    });
+  });
+
+  $teacherField.on('change', function () {
+    const teacherId = getValue($(this));
+
+    triggerEventOnContainers([
+      $disciplineContainer
+    ], 'pre:profile:teacher');
+
+    if (!teacherId) {
+      return;
+    }
+
+    profileData['teacher'] = teacherId;
+
+    $disciplineContainer.trigger('profile:teacher');
+  });
+
+  $disciplineContainer.on('profile:teacher', function () {
+    const $this = $(this);
+    const $field = $this.find('input.select2');
+
+    $this.hide();
+    clearOptions($field);
+
+    const filters = {
+      by_classroom: profileData.classroom,
+      by_teacher_id: profileData.teacher
+    };
+
+    $.when(getProfileRole(profileRole.role_id || null)).then(function () {
+      return $.ajax({
+        url: Routes.search_disciplines_pt_br_path({
+          format: 'json',
+          filter: filters
+        })
+      });
+    }).then(function (data) {
+      const disciplines = _.map(data.disciplines, function(discipline) {
+        return { id: discipline.id, text: discipline.description };
+      });
+
+      setOptions($field, disciplines);
+
+      $this.show();
+    }, function () {
+      setError("<%= I18n.t('layouts.error_messages.fetch_discipines_error') %>");
+    });
+  });
+
+  $disciplineField.on('change', function () {
+    const disciplineId = getValue($(this));
+
+    if (!disciplineId) {
+      return;
+    }
+
+    profileData['discipline'] = disciplineId;
+  });
+
+  $form.on('ajax:success', function() {
     location.href = Routes.root_pt_br_path;
   });
-  $('#user-role-form').on('ajax:send', function(){
-    $('#page-loading').removeClass('hidden');
+
+  $form.on('ajax:send', function() {
+    $loader.removeClass('hidden');
+    $submitBtn.prop('disabled', true);
   });
-  $('#user-role-form').on('ajax:error', function(event, request){
-    $('#page-loading').addClass('hidden');
-    var invalidFields = request.responseJSON||{};
-    if (invalidFields['current_user_role_id'] !== undefined) {
-     alert("<%= I18n.t('layouts.error_messages.needs_profile') %>");
-    } else if(invalidFields['current_unity_id'] !== undefined) {
-      alert("<%= I18n.t('layouts.error_messages.needs_unity') %>");
-    } else if(invalidFields['current_classroom_id'] !== undefined) {
-      alert("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
-    } else if(invalidFields['current_discipline_id'] !== undefined) {
-      alert("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
+
+  $form.on('ajax:error', function(event, request) {
+    $loader.addClass('hidden');
+    $submitBtn.prop('disabled', false);
+
+    const invalidFields = request.responseJSON || {};
+
+    if (invalidFields.current_user_role_id !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_profile') %>");
+    } else if (invalidFields.current_unity_id !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_unity') %>");
+    } else if (invalidFields.current_school_year !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_year') %>");
+    } else if (invalidFields.current_classroom_id !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
+    } else if (invalidFields.assumed_teacher_id !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_teacher') %>");
+    } else if (invalidFields.current_discipline_id !== undefined) {
+      setError("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
     } else {
-      alert("<%= I18n.t('layouts.error_messages.unknown_error') %>");
+      setError("<%= I18n.t('layouts.error_messages.unknown_error') %>");
     }
   });
 
-  function currentUnityId(){
-    return $("form#user-role-form #user_current_unity_id").val();
+  if (window.profile.access_level) {
+      markRequiredFields(window.profile.access_level);
   }
 
-  $('#header input.select2').on('select2-open', function(){
-    $('.select2-search:visible').attr('style', 'margin-top: 5px;');
+  $loginInfo.click(function (e) {
+    if ($roleBar.is(':hidden')) {
+      $roleBar.show();
+      $body.css({ overflow: 'hidden' });
+    }
+
+    e.preventDefault();
+  });
+
+  $closeBar.click(function (e) {
+    if ($roleBar.is(':visible')) {
+      $roleBar.hide();
+      $body.css({ overflow: 'auto' });
+    }
+
+    e.preventDefault();
+  });
+
+  $('#header input.select2').on('select2-open', function() {
+    $('.select2-search:visible').css({ marginTop: 5 });
+  });
+
+  $(window).resize(function () {
+    let currDocumentWidth = $(document).width();
+
+    if (currDocumentWidth === documentWidth) {
+      return true;
+    }
+
+    if (isModal()) {
+      $roleBar.hide();
+    } else {
+      $roleBar.show();
+      $errorsContainer.hide();
+    }
+
+    documentWidth = currDocumentWidth;
   });
 });

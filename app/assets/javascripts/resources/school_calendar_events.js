@@ -12,6 +12,29 @@ $(function () {
       $classroom = $('#school_calendar_event_classroom_id'),
       $discipline = $('#school_calendar_event_discipline_id');
 
+  var fetchExamRule = function (params, callback) {
+    $.getJSON('/exam_rules?' + $.param(params)).always(function (data) {
+      callback(data);
+    });
+  };
+
+  var checkExamRule = function(params){
+    fetchExamRule(params, function(data){
+      var examRule = data.exam_rule;
+      if (!$.isEmptyObject(examRule)) {
+        if (examRule.frequency_type == 2 || examRule.allow_frequency_by_discipline) {
+          $('.school_calendar_event_discipline_id').show();
+        }else {
+          $discipline.val('').select2({ data: [] });
+          $('.school_calendar_event_discipline_id').hide();
+        }
+      }else {
+        $discipline.val('').select2({ data: [] });
+        $('.school_calendar_event_discipline_id').hide();
+      }
+    });
+  }
+
   var fetchGrades = function (params, callback) {
     if (_.isEmpty(window.grades)) {
       $.getJSON(Routes.grades_pt_br_path(params)).always(function (data) {
@@ -127,6 +150,8 @@ $(function () {
         $discipline.val($discipline.find('option:first-child').val()).trigger('change');
       });
     }
+
+    checkExamRule({ classroom_id: e.val });
   });
 
   var isEventTypeEqualTo = function(type) {
@@ -159,4 +184,8 @@ $(function () {
 
   $eventType.on('change', togleLegendContainerVisibility);
   togleLegendContainerVisibility();
+
+  if(!_.isEmpty($classroom.val())){
+    checkExamRule({ classroom_id: $classroom.val() });
+  }
 });

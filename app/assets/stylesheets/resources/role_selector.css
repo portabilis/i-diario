@@ -1,0 +1,162 @@
+#current-role-selector {
+  margin-top: 8px;
+}
+
+#user-role-form:after {
+  clear: both;
+  content: '';
+  display: table;
+}
+
+#user-role-form > * {
+  float: left;
+}
+
+#user-role-form .select2-search-choice-close {
+  display: none !important;
+}
+
+#user-role-form .project-context {
+  display: block;
+  padding: 8px 8px 0 8px;
+}
+
+#user-role-form .label.required::after {
+  content: ' *';
+  color: #953b39;
+}
+
+#role-field-container {
+  width: 180px;
+}
+
+#unity-field-container,
+#classroom-field-container,
+#assumed-teacher-field-container {
+  width: 165px;
+}
+
+#school-year-field-container {
+  width: 95px;
+}
+
+#discipline-field-container {
+  width: 220px;
+}
+
+.select-role {
+  position: relative;
+  top: 10px;
+}
+
+.role-cancel {
+  display: none;
+}
+
+.user-info {
+  margin-left: 8px;
+}
+
+.user-info img {
+  border-radius: 4px;
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+
+#user-info-selector {
+  display: none;
+}
+
+.errors-container {
+  display: none;
+}
+
+@media (max-width: 1250px) {
+  #user-info-selector {
+    color: #bfbfbf;
+    display: block;
+    float: left;
+    font-weight: bold;
+    margin: 8px 0 0 8px;
+    text-transform: uppercase;
+  }
+
+  #user-info-selector img {
+    border-radius: 4px;
+    display: block;
+    float: left;
+    margin-right: 8px;
+  }
+
+  #user-info-selector span {
+    display: inline-block;
+    margin-top: 14px;
+  }
+
+  #header > #current-role-selector {
+    background-color: rgba(255, 255, 255, .75);
+    display: none;
+    float: none;
+    height: 100vh;
+    left: 0;
+    margin: 0;
+    overflow: auto;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 9;
+  }
+
+  #user-role-form {
+    background-color: rgb(39, 51, 59);
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .5);
+    box-sizing: border-box;
+    margin: 20px auto;
+    padding: 25px;
+    width: 320px;
+  }
+
+  #user-role-form > * {
+    float: none;
+  }
+
+  #user-role-form .project-context {
+    padding: 0;
+  }
+
+  #role-field-container,
+  #unity-field-container,
+  #classroom-field-container,
+  #assumed-teacher-field-container,
+  #school-year-field-container,
+  #discipline-field-container {
+    display: block;
+    margin-bottom: 15px;
+    padding: 0;
+    width: 270px;
+  }
+
+  .select-role {
+    display: block;
+    top: 0;
+  }
+
+  .role-cancel {
+    display: inline-block;
+  }
+
+  .user-info {
+    display: none;
+  }
+
+  .errors-container {
+    background: white;
+    border-radius: 4px;
+    color: #953b39;
+    font-weight: bold;
+    margin-bottom: 20px;
+    padding: 10px;
+  }
+}

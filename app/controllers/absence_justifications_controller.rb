@@ -1,7 +1,5 @@
 class AbsenceJustificationsController < ApplicationController
-
   before_action :require_current_teacher
-
 
   has_scope :page, default: 1
   has_scope :per, default: 10
@@ -13,15 +11,23 @@ class AbsenceJustificationsController < ApplicationController
 
     author_type = (params[:search] || []).delete(:by_author)
 
-    @absence_justifications = apply_scopes(AbsenceJustification.by_unity(current_user_unity)
+    @absence_justifications = apply_scopes(AbsenceJustification.includes(:teacher)
+                                                               .includes(:classroom)
+                                                               .includes(:unity)
+                                                               .joins(:absence_justifications_students)
+                                                               .by_unity(current_user_unity)
                                                                .by_classroom(current_user_classroom)
-                                                               .by_discipline_id(current_discipline)
                                                                .by_school_calendar(current_school_calendar)
                                                                .filter(filtering_params(params[:search]))
-                                                               .includes(:student).ordered)
+                                                               .includes(:students).uniq.ordered)
+
+    @absence_justifications = @absence_justifications.by_discipline_id(current_discipline) if current_discipline
 
     if author_type.present?
-      @absence_justifications = @absence_justifications.by_author(author_type, current_teacher)
+      user_id = UserDiscriminatorService.new(current_user, current_user_role_is_employee_or_administrator?).user_id
+
+      @absence_justifications = @absence_justifications.by_author(author_type, user_id)
+      params[:search][:by_author] = author_type
     end
 
     authorize @absence_justifications
@@ -34,6 +40,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification.unity = current_user_unity
     @absence_justification.school_calendar = current_school_calendar
     fetch_collections
+    fetch_students
 
     authorize @absence_justification
   end
@@ -41,6 +48,7 @@ class AbsenceJustificationsController < ApplicationController
   def create
     @absence_justification = AbsenceJustification.new(resource_params)
     @absence_justification.teacher = current_teacher
+    @absence_justification.user = current_user
     @absence_justification.unity = current_user_unity
     @absence_justification.school_calendar = current_school_calendar
 
@@ -51,6 +59,7 @@ class AbsenceJustificationsController < ApplicationController
     else
       clear_invalid_dates
       fetch_collections
+      fetch_students
       render :new
     end
   end
@@ -59,6 +68,7 @@ class AbsenceJustificationsController < ApplicationController
     @absence_justification = AbsenceJustification.find(params[:id]).localized
     @absence_justification.unity = current_user_unity
     fetch_collections
+    fetch_students
 
     authorize @absence_justification
   end
@@ -99,20 +109,25 @@ class AbsenceJustificationsController < ApplicationController
   protected
 
   def resource_params
-    params.require(:absence_justification).permit(
-      :student_id,
+    parameters = params.require(:absence_justification).permit(
+      :student_ids,
       :absence_date,
       :justification,
       :absence_date_end,
       :unity_id,
       :classroom_id,
-      :discipline_id,
+      :discipline_ids,
       absence_justification_attachments_attributes: [
         :id,
         :attachment,
         :_destroy
       ]
     )
+
+    parameters[:student_ids] = parameters[:student_ids].split(',')
+    parameters[:discipline_ids] = parameters[:discipline_ids].split(',')
+
+    parameters
   end
 
   private
@@ -126,6 +141,18 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   protected
+
+  def fetch_students
+    student_enrollments = StudentEnrollmentsList.new(
+      classroom: current_user_classroom,
+      discipline: fetch_current_discipline,
+      search_type: :by_date,
+      date: Date.current
+    ).student_enrollments
+
+    student_ids = student_enrollments.collect(&:student_id)
+    @students = Student.where(id: student_ids)
+  end
 
   def fetch_collections
     @unities = Unity.by_teacher(current_teacher_id).ordered
