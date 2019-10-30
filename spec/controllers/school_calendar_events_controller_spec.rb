@@ -17,7 +17,6 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:current_user_unity).and_return(unity)
-    request.env['REQUEST_PATH'] = "/calendarios-letivo/#{school_calendar.id}/eventos"
   end
 
   describe 'GET #index' do
