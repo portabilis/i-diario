@@ -17,6 +17,7 @@ RSpec.describe SchoolCalendarsController, type: :controller do
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:current_user_unity).and_return(unity)
+    request.env['REQUEST_PATH'] = ''
   end
 
   describe 'GET #index' do
