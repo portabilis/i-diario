@@ -35,6 +35,14 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     @classrooms = fetch_classrooms
     @school_calendar_steps = current_school_calendar.steps
 
+    if current_test_setting.blank?
+      flash[:error] = t('errors.avaliations.require_setting')
+
+      redirect_to(avaliation_recovery_diary_records_path)
+    end
+
+    return if performed?
+
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
 
