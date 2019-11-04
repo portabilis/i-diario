@@ -56,6 +56,10 @@ class ComplementaryExam < ActiveRecord::Base
     recorded_at
   end
 
+  def ignore_date_validates
+    !(new_record? || recorded_at != recorded_at_was)
+  end
+
   private
 
   def at_least_one_score

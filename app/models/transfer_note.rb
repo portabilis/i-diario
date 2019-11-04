@@ -55,6 +55,10 @@ class TransferNote < ActiveRecord::Base
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
 
+  def ignore_date_validates
+    !(new_record? || recorded_at != recorded_at_was)
+  end
+
   private
 
   def set_transfer_date
