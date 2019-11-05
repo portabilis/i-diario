@@ -47,6 +47,10 @@ class DisciplineLessonPlansController < ApplicationController
         )
         send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
       end
+
+      format.html do
+        redirect_to discipline_lesson_plans_path
+      end
     end
   end
 

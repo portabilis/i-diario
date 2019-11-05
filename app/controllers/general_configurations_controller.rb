@@ -39,7 +39,8 @@ class GeneralConfigurationsController < ApplicationController
       :max_descriptive_exam_character_count,
       :support_url,
       :copyright_name,
-      :show_school_term_recovery_in_exam_record_report
+      :show_school_term_recovery_in_exam_record_report,
+      :display_knowledge_area_as_discipline
     )
   end
 

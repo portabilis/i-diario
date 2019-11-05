@@ -324,7 +324,10 @@ class AttendanceRecordReport < BaseReport
 
   def discipline_display
     return 'Geral' if general_frequency?
-    return knowledge_area.to_s if display_knowledge_area_as_discipline?
+
+    if GeneralConfiguration.current.display_knowledge_area_as_discipline && display_knowledge_area_as_discipline?
+      return knowledge_area.to_s
+    end
 
     discipline.to_s
   end
