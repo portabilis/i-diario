@@ -36,6 +36,14 @@ RSpec.describe ComplementaryExamSetting, type: :model do
   end
 
   context 'Validations' do
+    it { expect(subject).to validate_presence_of(:description) }
+    it { expect(subject).to validate_presence_of(:initials) }
+    it { expect(subject).to validate_presence_of(:affected_score) }
+    it { expect(subject).to validate_presence_of(:calculation_type) }
+    it { expect(subject).to validate_presence_of(:maximum_score) }
+    it { expect(subject).to validate_presence_of(:number_of_decimal_places) }
+    it { expect(subject).to validate_presence_of(:year) }
+
     describe '#uniqueness_of_calculation_type_by_grade' do
       context 'calculation type isnt substitution' do
         before do
