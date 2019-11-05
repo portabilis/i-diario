@@ -1,5 +1,6 @@
 class DailyFrequenciesController < ApplicationController
   before_action :require_teacher
+  before_action :require_current_clasroom
   before_action :set_number_of_classes, only: [:new, :create, :edit_multiple, :update_multiple]
 
   def new
