@@ -183,7 +183,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def ensure_student_is_in_classroom
-    return if recorded_at.blank? || student_id.blank? || classroom_id.blank?
+    return if recorded_at.blank? || student_id.blank? || classroom_id.blank? || validation_type == :destroy
     return if StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
 
     errors.add(:base, :student_is_not_in_classroom)
