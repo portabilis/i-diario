@@ -148,7 +148,7 @@ $(function () {
         });
       }
     } else {
-       $recorded_at.val($recorded_at.data('oldDate'));
+      $recorded_at.val($recorded_at.data('oldDate'));
 
       if (with_recovery_note_in_step) {
         flashMessages.error('Nenhum aluno encontrado, verifique se existe recuperação de etapa lançada para etapa informada.');
@@ -179,10 +179,10 @@ $(function () {
 
   function buildStudentFiled(element_id, student, index = null){
     var html = JST['templates/complementary_exams/student_fields']({
-        id: student.id,
-        name: student.name,
-        element_id: element_id
-      });
+      id: student.id,
+      name: student.name,
+      element_id: element_id
+    });
 
     var $tbody = $('#complementary-exam-students');
 
