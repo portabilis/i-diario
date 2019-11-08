@@ -114,7 +114,7 @@ $(function () {
 
         loadDecimalMasks();
       } else {
-        _.each(student_enrollments_lists, function(student_enrollment) {
+        $.each(student_enrollments_lists, function(index, student_enrollment) {
           var fetched_id = student_enrollment.student.id;
 
           fetched_ids.push(fetched_id);
@@ -129,7 +129,7 @@ $(function () {
             } else {
               var element_id = new Date().getTime() + element_counter++;
 
-              buildStudentFiled(element_id, student_enrollment.student);
+              buildStudentFiled(element_id, student_enrollment.student, index);
             }
             existing_ids.push(fetched_id);
           }
@@ -177,14 +177,20 @@ $(function () {
     $('.nested-fields input.decimal').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
-  function buildStudentFiled(element_id, student){
+  function buildStudentFiled(element_id, student, index = null){
     var html = JST['templates/complementary_exams/student_fields']({
         id: student.id,
         name: student.name,
         element_id: element_id
       });
 
-    $('#complementary-exam-students').append(html);
+    var $tbody = $('#complementary-exam-students');
+
+    if ($.isNumeric(index)) {
+      $(html).insertAfter($tbody.children("tr")[index]);
+    } else {
+      $tbody.append(html);
+    }
   }
 
   $step.on('change', function() {
