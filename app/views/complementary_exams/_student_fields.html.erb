@@ -1,4 +1,6 @@
-<tr class="nested-fields <%= f.object.persisted? ? 'existing' : 'dynamic' %>" style="<%= 'display: none;' if f.object.marked_for_destruction? %>">
+<tr class="nested-fields"
+    style="<%= 'display: none;' if f.object.marked_for_destruction? %>"
+    id="<%= f.object.student_id %>">
   <td>
     <% if f.object.persisted? %>
       <%= f.hidden_field :id %>
