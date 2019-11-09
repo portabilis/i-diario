@@ -98,7 +98,7 @@ $(function () {
       var existing_ids = [];
       var fetched_ids = [];
 
-      $('#complementary-exam-students').children("tr").each(function () {
+      $('#complementary-exam-students').children('tr').each(function () {
         if (!$(this).hasClass('destroy')){
           existing_ids.push(parseInt(this.id));
         }
@@ -120,12 +120,8 @@ $(function () {
           fetched_ids.push(fetched_id);
 
           if ($.inArray(fetched_id, existing_ids) == -1) {
-            var student_row = $('#' + fetched_id);
-
-            if(student_row.length != 0 && student_row.hasClass('destroy')){
-              student_row.show();
-              student_row.removeClass('destroy');
-              $('.nested-fields#' + fetched_id + ' [id$=_destroy]').val(false);
+            if($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')){
+              restoreStudent(fetched_id);
             } else {
               var element_id = new Date().getTime() + element_counter++;
 
@@ -138,12 +134,8 @@ $(function () {
         loadDecimalMasks();
 
         _.each(existing_ids, function (existing_id) {
-          var student_row = $('#' + existing_id);
-
           if ($.inArray(existing_id, fetched_ids) == -1) {
-            student_row.hide();
-            student_row.addClass('destroy');
-            $('.nested-fields#' + existing_id + ' [id$=_destroy]').val(true);
+            removeStudent(existing_id);
           }
         });
       }
@@ -161,6 +153,18 @@ $(function () {
   function handleFetchStudentsError() {
     flashMessages.error('Ocorreu um erro ao buscar os alunos.');
   };
+
+  function removeStudent(id){
+    $('#' + id).hide();
+    $('#' + id).addClass('destroy');
+    $('.nested-fields#' + id + ' [id$=_destroy]').val(true);
+  }
+
+  function restoreStudent(id){
+    $('#' + id).show();
+    $('#' + id).removeClass('destroy');
+    $('.nested-fields#' + id + ' [id$=_destroy]').val(false);
+  }
 
   function hideNoItemMessage() {
     $('.no_item_found').hide();
@@ -187,7 +191,7 @@ $(function () {
     var $tbody = $('#complementary-exam-students');
 
     if ($.isNumeric(index)) {
-      $(html).insertAfter($tbody.children("tr")[index]);
+      $(html).insertAfter($tbody.children('tr')[index]);
     } else {
       $tbody.append(html);
     }
