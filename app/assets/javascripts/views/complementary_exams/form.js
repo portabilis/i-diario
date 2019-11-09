@@ -109,7 +109,7 @@ $(function () {
         _.each(student_enrollments_lists, function(student_enrollment) {
           var element_id = new Date().getTime() + element_counter++;
 
-          buildStudentFiled(element_id, student_enrollment.student);
+          buildStudentField(element_id, student_enrollment.student);
         });
 
         loadDecimalMasks();
@@ -125,7 +125,7 @@ $(function () {
             } else {
               var element_id = new Date().getTime() + element_counter++;
 
-              buildStudentFiled(element_id, student_enrollment.student, index);
+              buildStudentField(element_id, student_enrollment.student, index);
             }
             existing_ids.push(fetched_id);
           }
@@ -181,7 +181,7 @@ $(function () {
     $('.nested-fields input.decimal').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
-  function buildStudentFiled(element_id, student, index = null){
+  function buildStudentField(element_id, student, index = null){
     var html = JST['templates/complementary_exams/student_fields']({
       id: student.id,
       name: student.name,
