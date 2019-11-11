@@ -121,16 +121,10 @@ $(function () {
       existing_ids.shift();
 
       if (_.isEmpty(existing_ids)){
-        var legend = JST['templates/avaliation_recovery_diary_records/footer'];
-
         _.each(daily_note_students, function(daily_note_student) {
           var element_id = new Date().getTime() + element_counter++;
 
           buildStudentField(element_id, daily_note_student);
-
-          if (last_item == daily_note_student) {
-            $('#recovery-diary-record-students').append(legend);
-          }
         });
 
         loadDecimalMasks();
