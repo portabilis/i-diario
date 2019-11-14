@@ -134,6 +134,10 @@ class ConceptualExam < ActiveRecord::Base
     end
   end
 
+  def ignore_date_validates
+    !(new_record? || recorded_at != recorded_at_was)
+  end
+
   private
 
   def student_must_have_conceptual_exam_score_type

@@ -57,6 +57,10 @@ class ComplementaryExam < ActiveRecord::Base
     recorded_at
   end
 
+  def ignore_date_validates
+    !(new_record? || recorded_at != recorded_at_was)
+  end
+
   private
 
   def at_least_one_score
@@ -77,7 +81,7 @@ class ComplementaryExam < ActiveRecord::Base
 
   def recorded_at_year_in_settings_year
     return if complementary_exam_setting.blank?
-    return if recorded_at.year == complementary_exam_setting.year
+    return if recorded_at.try(:year) == complementary_exam_setting.year
 
     errors.add(:recorded_at, :must_be_same_avaliation_setting_year)
   end

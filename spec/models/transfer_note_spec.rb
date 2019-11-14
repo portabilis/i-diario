@@ -1,40 +1,30 @@
 require 'rails_helper'
 
-RSpec.describe ComplementaryExam, type: :model do
+RSpec.describe TransferNote, type: :model do
   subject do
-    create(
-      :complementary_exam,
-      :with_teacher_discipline_classroom
-    )
+    create(:transfer_note, :with_teacher_discipline_classroom)
   end
 
   describe 'associations' do
-    it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to belong_to(:classroom) }
     it { expect(subject).to belong_to(:discipline) }
-    it { expect(subject).to belong_to(:complementary_exam_setting) }
+    it { expect(subject).to belong_to(:student) }
+    it { expect(subject).to belong_to(:teacher) }
   end
 
   describe 'validations' do
-    it { expect(subject).to validate_presence_of(:unity) }
     it { expect(subject).to validate_presence_of(:classroom_id) }
-    it { expect(subject).to validate_presence_of(:discipline) }
-    it { expect(subject).to validate_presence_of(:complementary_exam_setting) }
+    it { expect(subject).to validate_presence_of(:discipline_id) }
+    it { expect(subject).to validate_presence_of(:student_id) }
+    it { expect(subject).to validate_presence_of(:teacher) }
     it { expect(subject).to validate_presence_of(:recorded_at) }
     it { expect(subject).to validate_not_in_future_of(:recorded_at) }
     it { expect(subject).to validate_school_term_day_of(:recorded_at) }
 
-    it 'should validate the year of recorded_at is the same as the year of the settings of the exam' do
-      expect(subject.complementary_exam_setting.year).to eq(subject.recorded_at.year)
-    end
-
     context 'recorded_at validations' do
-      context 'creating a new complementary_exam' do
+      context 'creating a new transfer_note' do
         subject do
-          build(
-            :complementary_exam,
-            :with_teacher_discipline_classroom
-          )
+          build(:transfer_note, :with_teacher_discipline_classroom)
         end
 
         context 'when recorded_at is in step range' do
@@ -46,7 +36,7 @@ RSpec.describe ComplementaryExam, type: :model do
             subject.recorded_at = subject.step.end_at + 1.day
           end
 
-          it 'requires complementary_exam to have a recorded_at in step range' do
+          it 'requires transfer_note to have a recorded_at in step range' do
             expected_message = I18n.t('errors.messages.not_school_term_day')
 
             subject.valid?
@@ -56,7 +46,7 @@ RSpec.describe ComplementaryExam, type: :model do
         end
       end
 
-      context 'updating a existing complementary_exam' do
+      context 'updating a existing transfer_note' do
         context 'when recorded_at is out of step range' do
           context 'recorded_at has not changed' do
             before do
@@ -72,7 +62,7 @@ RSpec.describe ComplementaryExam, type: :model do
               subject.recorded_at = subject.step.end_at + 1.day
             end
 
-            it 'requires complementary_exam to have a recorded_at in step range' do
+            it 'requires transfer_note to have a recorded_at in step range' do
               expected_message = I18n.t('errors.messages.not_school_term_day')
 
               subject.valid?

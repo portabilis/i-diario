@@ -40,6 +40,10 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     recorded_at
   end
 
+  def ignore_date_validates
+    !(new_record? || recorded_at != recorded_at_was)
+  end
+
   private
 
   def self.by_teacher_id_query(teacher_id)
@@ -61,6 +65,8 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
   end
 
   def set_recorded_at
+    return if recovery_diary_record.blank?
+
     self.recovery_diary_record.recorded_at = recorded_at
   end
 
