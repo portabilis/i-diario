@@ -24,6 +24,10 @@ RSpec.describe ComplementaryExam, type: :model do
     it { expect(subject).to validate_not_in_future_of(:recorded_at) }
     it { expect(subject).to validate_school_term_day_of(:recorded_at) }
 
+    it 'should validate the year of recorded_at is the same as the year of the settings of the exam' do
+      expect(subject.complementary_exam_setting.year).to eq(subject.recorded_at.year)
+    end
+
     context 'recorded_at validations' do
       context 'creating a new complementary_exam' do
         subject do

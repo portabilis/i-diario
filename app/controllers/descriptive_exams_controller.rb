@@ -1,5 +1,6 @@
 class DescriptiveExamsController < ApplicationController
   before_action :require_teacher
+  before_action :require_current_clasroom
   before_action :adjusted_period, only: [:edit, :update]
 
   def new

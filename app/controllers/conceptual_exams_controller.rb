@@ -2,7 +2,9 @@ class ConceptualExamsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_teacher, :adjusted_period
+  before_action :require_current_teacher
+  before_action :require_current_clasroom
+  before_action :adjusted_period
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
