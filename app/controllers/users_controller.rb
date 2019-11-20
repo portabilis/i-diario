@@ -75,11 +75,9 @@ class UsersController < ApplicationController
   private
 
   def roles
-    if current_user.has_administrator_access_level? || current_user.admin?
-      Role.ordered
-    else
-      Role.exclude_administrator_roles.ordered
-    end
+    return Role.ordered if current_user.has_administrator_access_level? || current_user.admin?
+
+    Role.exclude_administrator_roles.ordered
   end
   helper_method :roles
 
