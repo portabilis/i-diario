@@ -75,10 +75,24 @@ $ bundle install
 ```yaml
 development:
   secret_key_base: CHAVE_SECRETA
+  SMTP_ADDRESS: SMTP_ADDRESS
+  SMTP_PORT: SMTP_PORT
+  SMTP_DOMAIN: SMTP_DOMAIN
+  SMTP_USER_NAME: SMTP_USER_NAME
+  SMTP_PASSWORD: SMTP_PASSWORD
+  BUCKET_NAME: S3_BUCKET_NAME
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
 
+- Criar e configurar o arquivo `config/aws.yml` conforme o exemplo:
+
+```yaml
+development:
+  access_key_id: AWS_ACCESS_KEY_ID
+  secret_access_key: AWS_SECRET_ACCESS_KEY
+
+```
 
 - Criar o banco de dados:
 
