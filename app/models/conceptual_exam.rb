@@ -41,8 +41,9 @@ class ConceptualExam < ActiveRecord::Base
         Student.arel_table[:id].eq(ConceptualExam.arel_table[:student_id])
       ).join_sources
     ).where(
-      "(unaccent(students.name) ILIKE unaccent('%#{student_name}%') or
-        unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
+      "(unaccent(students.name) ILIKE unaccent(:student_name) or
+        unaccent(students.social_name) ILIKE unaccent(:student_name))",
+      student_name: "%#{student_name}%"
     )
   }
   scope :ordered, -> { order(recorded_at: :desc) }
@@ -133,6 +134,10 @@ class ConceptualExam < ActiveRecord::Base
     end
   end
 
+  def ignore_date_validates
+    !(new_record? || recorded_at != recorded_at_was)
+  end
+
   private
 
   def student_must_have_conceptual_exam_score_type
@@ -182,7 +187,7 @@ class ConceptualExam < ActiveRecord::Base
   end
 
   def ensure_student_is_in_classroom
-    return if recorded_at.blank? || student_id.blank? || classroom_id.blank?
+    return if recorded_at.blank? || student_id.blank? || classroom_id.blank? || validation_type == :destroy
     return if StudentEnrollment.by_student(student_id).by_classroom(classroom_id).by_date(recorded_at).exists?
 
     errors.add(:base, :student_is_not_in_classroom)

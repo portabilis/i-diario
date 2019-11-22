@@ -190,6 +190,14 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def require_current_clasroom
+    return if current_user_classroom
+
+    flash.now[:warning] = t('current_role.check.warning')
+
+    redirect_to root_path
+  end
+
   def require_current_teacher_discipline_classrooms
     unless current_teacher && current_teacher.teacher_discipline_classrooms.any?
       flash[:alert] = t('errors.general.require_current_teacher_discipline_classrooms')
@@ -349,11 +357,21 @@ class ApplicationController < ActionController::Base
   end
 
   def set_honeybadger_context
+    if request.env['REQUEST_PATH'].include?('api/v2')
+      classroom_id = params[:classroom_id]
+      teacher_id = params[:teacher_id]
+      discipline_id = params[:discipline_id]
+    else
+      classroom_id = current_user_classroom.try(:id)
+      teacher_id = current_teacher.try(:id)
+      discipline_id = current_user_discipline.try(:id)
+    end
+
     Honeybadger.context(
       entity: current_entity.try(:name),
-      classroom_id: params[:classroom_id],
-      teacher_id: params[:teacher_id],
-      discipline_id: params[:discipline_id]
+      classroom_id: classroom_id,
+      teacher_id: teacher_id,
+      discipline_id: discipline_id
     )
   end
 

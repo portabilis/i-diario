@@ -39,8 +39,9 @@ class TransferNote < ActiveRecord::Base
   }
   scope :by_student_name, lambda { |student_name|
     joins(:student).where(
-      "(unaccent(students.name) ILIKE unaccent('%#{student_name}%') or
-        unaccent(students.social_name) ILIKE unaccent('%#{student_name}%'))"
+      "(unaccent(students.name) ILIKE unaccent(:student_name) or
+        unaccent(students.social_name) ILIKE unaccent(:student_name))",
+      student_name: "%#{student_name}%"
     )
   }
   scope :by_transfer_date, lambda { |transfer_date| where(transfer_date: transfer_date.to_date) }
@@ -53,6 +54,10 @@ class TransferNote < ActiveRecord::Base
   }
 
   delegate :unity, :unity_id, to: :classroom, allow_nil: true
+
+  def ignore_date_validates
+    !(new_record? || recorded_at != recorded_at_was)
+  end
 
   private
 

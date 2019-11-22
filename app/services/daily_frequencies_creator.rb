@@ -29,9 +29,24 @@ class DailyFrequenciesCreator
   end
 
   def find_or_create_daily_frequency(params)
-    DailyFrequency.create(params.merge(origin: @origin))
+    DailyFrequency.create_with(
+      params.slice(
+        :unity_id,
+        :school_calendar
+      ).merge(
+        origin: @origin
+      )
+    ).find_or_create_by(
+      params.slice(
+        :classroom_id,
+        :frequency_date,
+        :period,
+        :discipline_id,
+        :class_number
+      )
+    )
   rescue ActiveRecord::RecordNotUnique
-    DailyFrequency.find_by(params)
+    retry
   end
 
   def find_or_create_daily_frequency_students

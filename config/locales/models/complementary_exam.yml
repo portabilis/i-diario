@@ -25,3 +25,5 @@ pt-BR:
           attributes:
             students:
               at_least_one_score: "É necessário informar ao menos uma nota"
+            recorded_at:
+              must_be_same_avaliation_setting_year: "deve ser no mesmo ano da avaliação"

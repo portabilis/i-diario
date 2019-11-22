@@ -1,8 +1,8 @@
 module Api
   class SchoolCalendarStepActivity < BaseSchoolCalendarStepActivity
-    def initialize(unity_id, step_number)
+    def initialize(unity_id, year, step_number)
       @unity_id = unity_id
-      @calendar_step = school_calendar_step(unity_id, step_number)
+      @calendar_step = school_calendar_step(unity_id, year, step_number)
       @step_number = step_number
     end
 
@@ -52,9 +52,7 @@ module Api
 
     private
 
-    def school_calendar_step(unity_id, step_number)
-      year = CurrentSchoolYearFetcher.new(unity_id).fetch
-
+    def school_calendar_step(unity_id, year, step_number)
       SchoolCalendarStep.by_unity(unity_id)
                         .by_year(year)
                         .by_step_number(step_number)

@@ -190,14 +190,12 @@ $(function() {
     if (!_.isEmpty(disciplines)) {
       hideNoItemMessage();
 
-      disciplines = _.sortBy(disciplines, function(discipline) {
-        return [
-          discipline.knowledge_area_sequence,
-          discipline.knowledge_area_description,
-          discipline.sequence,
-          discipline.description
-        ];
-      });
+      disciplines = _.chain(disciplines)
+                     .sortBy('description')
+                     .sortBy('sequence')
+                     .sortBy('knowledge_area_description')
+                     .sortBy('knowledge_area_sequence')
+                     .value();
 
       var element_counter = 0;
       var disciplinesGroupedByKnowledgeArea = _.groupBy(disciplines, function(discipline) {

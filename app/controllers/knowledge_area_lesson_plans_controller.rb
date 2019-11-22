@@ -45,6 +45,10 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         )
         send_pdf(t('routes.knowledge_area_lesson_plans'), knowledge_area_lesson_plan_pdf.render)
       end
+
+      format.html do
+        redirect_to knowledge_area_lesson_plans_path
+      end
     end
   end
 
@@ -194,6 +198,9 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def fetch_knowledge_area
-    KnowledgeArea.by_teacher(current_teacher).by_classroom_id(current_user_classroom.id).ordered
+    knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
+    knowledge_areas = knowledge_areas.by_classroom_id(current_user_classroom.id) if current_user_classroom
+
+    knowledge_areas
   end
 end

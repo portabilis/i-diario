@@ -17,13 +17,24 @@ class ComplementaryExamSetting < ActiveRecord::Base
   validate :uniqueness_of_initials_and_description_by_affected_score
   validate :grades_in_use_cant_be_removed
   validate :integral_calculation_score
+  validates :year, presence: true, mask: { with: '9999', message: :incorrect_format }
 
-  scope :by_description, lambda { |description| where("unaccent(complementary_exam_settings.description) ILIKE unaccent('%#{description}%')") }
-  scope :by_initials, lambda { |initials| where("unaccent(complementary_exam_settings.initials) ILIKE unaccent('%#{initials}%')") }
+  scope :by_description, lambda { |description|
+    where(
+      'unaccent(complementary_exam_settings.description) ILIKE unaccent(:description)',
+      description: "%#{description}%"
+    )
+  }
+  scope :by_initials, lambda { |initials|
+    where(
+      'unaccent(complementary_exam_settings.initials) ILIKE unaccent(:initials)',
+      initials: "%#{initials}%"
+    )
+  }
   scope :by_affected_score, lambda { |affected_score| where(affected_score: affected_score) }
   scope :by_calculation_type, lambda { |calculation_type| where(calculation_type: calculation_type) }
   scope :by_grade_id, lambda { |grade_id| by_grade_id_scope(grade_id) }
-  scope :ordered, -> { order(:description) }
+  scope :ordered, -> { order(year: :desc, description: :asc) }
 
   has_enumeration_for :affected_score, with: AffectedScoreTypes, create_helpers: true
   has_enumeration_for :calculation_type, with: CalculationTypes, create_helpers: true

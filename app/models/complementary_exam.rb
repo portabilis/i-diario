@@ -47,6 +47,7 @@ class ComplementaryExam < ActiveRecord::Base
   validates :complementary_exam_setting, presence: true
   validates :recorded_at, posting_date: true
 
+  validate :recorded_at_year_in_settings_year
   validate :at_least_one_score
 
   delegate :maximum_score, to: :complementary_exam_setting
@@ -54,6 +55,10 @@ class ComplementaryExam < ActiveRecord::Base
 
   def test_date
     recorded_at
+  end
+
+  def ignore_date_validates
+    !(new_record? || recorded_at != recorded_at_was)
   end
 
   private
@@ -72,5 +77,12 @@ class ComplementaryExam < ActiveRecord::Base
       valid?
       !errors[:recorded_at].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end
+  end
+
+  def recorded_at_year_in_settings_year
+    return if complementary_exam_setting.blank?
+    return if recorded_at.try(:year) == complementary_exam_setting.year
+
+    errors.add(:recorded_at, :must_be_same_avaliation_setting_year)
   end
 end
