@@ -63,6 +63,7 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record.assign_attributes(resource_params)
     @discipline_content_record.content_record.content_ids = content_ids
     @discipline_content_record.teacher_id = current_teacher_id
+    @discipline_content_record.current_user = current_user
 
     authorize @discipline_content_record
 

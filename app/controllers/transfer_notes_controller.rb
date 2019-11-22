@@ -52,6 +52,7 @@ class TransferNotesController < ApplicationController
 
   def update
     @transfer_note = TransferNote.find(params[:id]).localized
+    @transfer_note.current_user = current_user
     @transfer_note.assign_attributes(resource_params)
 
     authorize @transfer_note

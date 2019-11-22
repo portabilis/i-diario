@@ -1,7 +1,9 @@
 class DisciplineContentRecord < ActiveRecord::Base
   include Audit
+  include ColumnsLockable
   include TeacherRelationable
 
+  not_updatable only: [:classroom_id, :discipline_id]
   teacher_relation_columns only: :discipline
 
   audited associated_with: :content_record,
@@ -14,6 +16,8 @@ class DisciplineContentRecord < ActiveRecord::Base
   accepts_nested_attributes_for :content_record
 
   belongs_to :discipline
+
+  delegate :classroom_id, :classroom, to: :content_record
 
   scope :by_unity_id, lambda { |unity_id| joins(content_record: :classroom).where(Classroom.arel_table[:unity_id].eq(unity_id) ) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:content_record).where(content_records: { teacher_id: teacher_id }) }

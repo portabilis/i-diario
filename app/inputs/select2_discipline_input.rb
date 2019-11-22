@@ -5,7 +5,11 @@ class Select2DisciplineInput < Select2Input
 
     if options[:user].current_discipline.present?
       input_html_options[:readonly] = 'readonly' unless options[:admin_or_employee].presence
-      input_html_options[:value] = options[:user].current_discipline.id unless options[:admin_or_employee].presence
+      input_html_options[:value] = if options[:record]&.persisted?
+                                     options[:record].discipline_id
+                                   else
+                                     options[:user].current_discipline.id unless options[:admin_or_employee].presence
+                                   end
     end
 
     super(wrapper_options)
@@ -16,7 +20,9 @@ class Select2DisciplineInput < Select2Input
 
     disciplines = []
 
-    if options[:admin_or_employee].presence
+    if options[:record]&.persisted?
+      disciplines = [options[:record].discipline]
+    elsif options[:admin_or_employee].presence
       disciplines = Discipline.by_classroom(user.current_classroom_id)
     elsif user.current_discipline.present?
       disciplines = [ user.current_discipline ]

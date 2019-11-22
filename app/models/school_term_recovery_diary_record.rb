@@ -14,6 +14,8 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   accepts_nested_attributes_for :recovery_diary_record
 
+  delegate :classroom, :classroom_id, :discipline, :discipline_id, to: :recovery_diary_record
+
   scope :by_unity_id, lambda { |unity_id|
     joins(:recovery_diary_record).where(recovery_diary_records: { unity_id: unity_id })
   }

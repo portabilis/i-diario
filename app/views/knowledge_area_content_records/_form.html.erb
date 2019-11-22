@@ -16,7 +16,8 @@
 
 
         <div class="col col-sm-4">
-          <%= content_record.association :classroom, as: :select2_classroom, user: current_user %>
+          <%= content_record.association :classroom, as: :select2_classroom, user: current_user,
+              record: f.object %>
         </div>
 
         <div class="col col-sm-4">

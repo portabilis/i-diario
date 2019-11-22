@@ -108,6 +108,7 @@ class AvaliationsController < ApplicationController
     @avaliation = resource
     @avaliation.localized.assign_attributes(resource_params)
     @avaliation.teacher_id = current_teacher_id
+    @avaliation.current_user = current_user
 
     authorize @avaliation
 

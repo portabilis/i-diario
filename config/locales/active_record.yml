@@ -27,6 +27,7 @@ pt-BR:
       not_allowed_to_post_in_date: "Não é possível alterar registros fora das datas de lançamento da etapa"
       not_school_term_day: "deve ser um dia letivo da etapa informada"
       not_belongs_to_teacher: "não pertence ao professor"
+      not_selected_in_profile: "não está selecionado no perfil"
       odd: "deve ser ímpar"
       record_invalid: ! "A validação falhou: %{errors}"
       restrict_dependent_destroy:
