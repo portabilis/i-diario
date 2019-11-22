@@ -33,6 +33,8 @@ class TestSetting < ActiveRecord::Base
       '-'
     when school_term.end_with?(SchoolTermTypes::BIMESTER)
       I18n.t("enumerations.bimesters.#{school_term}")
+    when school_term.end_with?(SchoolTermTypes::BIMESTER_EJA)
+      I18n.t("enumerations.bimesters_eja.#{school_term}")
     when school_term.end_with?(SchoolTermTypes::TRIMESTER)
       I18n.t("enumerations.trimesters.#{school_term}")
     when school_term.end_with?(SchoolTermTypes::SEMESTER)
@@ -48,7 +50,7 @@ class TestSetting < ActiveRecord::Base
       false
     end
   end
- 
+
   def sum_calculation_type?
     average_calculation_type == AverageCalculationTypes::SUM
   end

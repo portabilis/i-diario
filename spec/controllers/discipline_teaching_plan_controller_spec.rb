@@ -17,6 +17,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   let(:current_teacher_teaching_plan) {
     create(
       :teaching_plan,
+      :with_teacher_discipline_classroom,
       teacher: current_teacher,
       unity: unity,
       year: classroom.year,
@@ -26,6 +27,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   let(:other_teacher_teaching_plan) {
     create(
       :teaching_plan,
+      :with_teacher_discipline_classroom,
       teacher: other_teacher,
       unity: unity,
       year: classroom.year,
@@ -88,6 +90,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     allow(controller).to receive(:current_user_school_year).and_return(classroom.year)
     allow(controller).to receive(:current_user_classroom).and_return(classroom)
     allow(controller).to receive(:current_user_discipline).and_return(discipline)
+    request.env['REQUEST_PATH'] = '/discipline_teaching_plans'
   end
 
   describe 'GET discipline_teaching_plans#index' do
@@ -98,7 +101,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
     context 'without author filter' do
       before do
-        get :index, locale: 'pt-BR'
+        get :index, locale: 'pt-BR', filter: { by_author: '' }
       end
 
       it 'lists all plans' do
@@ -112,7 +115,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     context 'with author filter' do
       context 'when the author is the current teacher' do
         before do
-          get :index, locale: 'pt-BR', fitler: { by_author: PlansAuthors::MY_PLANS }
+          get :index, locale: 'pt-BR', filter: { by_author: PlansAuthors::MY_PLANS }
         end
 
         it 'lists the current teacher plans' do
@@ -122,7 +125,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
 
       context 'when the author is other teacher' do
         before do
-          get :index, locale: 'pt-BR', fitler: { by_author: PlansAuthors::OTHERS }
+          get :index, locale: 'pt-BR', filter: { by_author: PlansAuthors::OTHERS }
         end
 
         it 'lists the other teachers plans' do

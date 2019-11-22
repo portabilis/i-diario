@@ -1,15 +1,22 @@
 require 'rails_helper'
 
-RSpec.describe ComplementaryExamSetting, :type => :model do
-  let(:complementary_exam_setting_with_two_grades) { create(:complementary_exam_setting_with_two_grades) }
-  let(:classroom) { create(:classroom, :current, grade: complementary_exam_setting_with_two_grades.grades.first) }
-  let(:school_calendar) { create(:current_school_calendar_with_one_step, unity: classroom.unity) }
+RSpec.describe ComplementaryExamSetting, type: :model do
+  let(:complementary_exam_setting_with_two_grades) { create(:complementary_exam_setting, :with_two_grades) }
+  let(:classroom) {
+    create(
+      :classroom,
+      :with_classroom_semester_steps,
+      grade: complementary_exam_setting_with_two_grades.grades.first
+    )
+  }
+  let(:step) { classroom.calendar.classroom_steps.first }
   let(:complementary_exam) {
     create(
       :complementary_exam,
+      :with_teacher_discipline_classroom,
       classroom: classroom,
-      recorded_at: school_calendar.steps.first.school_day_dates[0],
-      step_id: school_calendar.steps.first.id,
+      recorded_at: step.first_school_calendar_date,
+      step_id: step.id,
       complementary_exam_setting: complementary_exam_setting_with_two_grades
     )
   }
@@ -29,6 +36,14 @@ RSpec.describe ComplementaryExamSetting, :type => :model do
   end
 
   context 'Validations' do
+    it { expect(subject).to validate_presence_of(:description) }
+    it { expect(subject).to validate_presence_of(:initials) }
+    it { expect(subject).to validate_presence_of(:affected_score) }
+    it { expect(subject).to validate_presence_of(:calculation_type) }
+    it { expect(subject).to validate_presence_of(:maximum_score) }
+    it { expect(subject).to validate_presence_of(:number_of_decimal_places) }
+    it { expect(subject).to validate_presence_of(:year) }
+
     describe '#uniqueness_of_calculation_type_by_grade' do
       context 'calculation type isnt substitution' do
         before do
@@ -51,7 +66,13 @@ RSpec.describe ComplementaryExamSetting, :type => :model do
         end
 
         context 'has the same grades and same affected score of another setting' do
-          let(:another_setting) { create(:complementary_exam_setting_with_two_grades, calculation_type: CalculationTypes::SUBSTITUTION) }
+          let(:another_setting) {
+            create(
+              :complementary_exam_setting,
+              :with_two_grades,
+              calculation_type: CalculationTypes::SUBSTITUTION
+            )
+          }
           before do
             subject.grade_ids = another_setting.grade_ids
             subject.affected_score = another_setting.affected_score

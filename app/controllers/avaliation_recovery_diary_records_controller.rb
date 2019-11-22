@@ -3,7 +3,6 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
-  before_action :require_current_test_setting
 
   def index
     @avaliation_recovery_diary_records = apply_scopes(AvaliationRecoveryDiaryRecord)
@@ -36,6 +35,14 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
     @classrooms = fetch_classrooms
     @school_calendar_steps = current_school_calendar.steps
 
+    if current_test_setting.blank?
+      flash[:error] = t('errors.avaliations.require_setting')
+
+      redirect_to(avaliation_recovery_diary_records_path)
+    end
+
+    return if performed?
+
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
 
@@ -54,7 +61,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
       @school_calendar_steps = current_school_calendar.steps
       @student_notes = fetch_student_notes
       @number_of_decimal_places = current_test_setting.number_of_decimal_places
-      reload_students_list
+      reload_students_list if daily_note_students.present?
 
       render :new
     end
@@ -199,6 +206,8 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
 
   def fetch_student_enrollments
     return unless @avaliation_recovery_diary_record.avaliation
+    return unless @avaliation_recovery_diary_record.recovery_diary_record.recorded_at
+
     StudentEnrollmentsList.new(classroom: @avaliation_recovery_diary_record.recovery_diary_record.classroom,
                                discipline: @avaliation_recovery_diary_record.recovery_diary_record.discipline,
                                score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,

@@ -172,7 +172,15 @@ class ApplicationController < ActionController::Base
   end
 
   def current_test_setting
-    CurrentTestSettingFetcher.new(current_school_calendar).fetch
+    TestSettingFetcher.current(current_user.try(:current_classroom)) || default_test_setting
+  end
+
+  def default_test_setting
+    TestSettingFetcher.by_step(steps_fetcher.steps.first)
+  end
+
+  def steps_fetcher
+    @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 
   def require_current_teacher
@@ -182,23 +190,17 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def require_current_clasroom
+    return if current_user_classroom
+
+    flash.now[:warning] = t('current_role.check.warning')
+
+    redirect_to root_path
+  end
+
   def require_current_teacher_discipline_classrooms
     unless current_teacher && current_teacher.teacher_discipline_classrooms.any?
       flash[:alert] = t('errors.general.require_current_teacher_discipline_classrooms')
-      redirect_to root_path
-    end
-  end
-
-  def require_current_test_setting
-    unless current_test_setting
-      flash[:alert] = t('errors.general.require_current_test_setting')
-      redirect_to root_path
-    end
-  end
-
-  def require_valid_school_calendar(school_calendar)
-    if school_calendar.steps.count > MAX_STEPS_FOR_SCHOOL_CALENDAR
-      flash[:alert] = I18n.t('errors.general.school_calendar_steps_more_than_limit', unity: current_user_unity)
       redirect_to root_path
     end
   end
@@ -232,9 +234,12 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_available_years
 
   def current_user_available_teachers
-    return [] unless current_user_unity
+    return [] if current_user_unity.blank? || current_user_classroom.blank?
     @current_user_available_teachers ||= begin
-      teachers = Teacher.by_unity_id(current_user_unity).order_by_name
+      teachers = Teacher.by_unity_id(current_user_unity)
+                        .by_classroom(current_user_classroom)
+                        .order_by_name
+
       if current_school_calendar.try(:year)
         teachers.by_year(current_school_calendar.try(:year))
       else
@@ -245,9 +250,14 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_available_teachers
 
   def current_user_available_classrooms
-    return [] unless current_user_unity && current_teacher
+    return [] if current_user_unity.blank?
     @current_user_available_classrooms ||= begin
-      classrooms = Classroom.by_unity_and_teacher(current_user_unity, current_teacher).ordered
+      classrooms = if current_teacher.present? && current_user.teacher?
+                     Classroom.by_unity_and_teacher(current_user_unity, current_teacher).ordered
+                   else
+                     Classroom.by_unity(current_user_unity).ordered
+                   end
+
       if current_school_calendar.try(:year)
         classrooms.by_year(current_school_calendar.try(:year))
       else
@@ -347,11 +357,21 @@ class ApplicationController < ActionController::Base
   end
 
   def set_honeybadger_context
+    if request.env['REQUEST_PATH'].include?('api/v2')
+      classroom_id = params[:classroom_id]
+      teacher_id = params[:teacher_id]
+      discipline_id = params[:discipline_id]
+    else
+      classroom_id = current_user_classroom.try(:id)
+      teacher_id = current_teacher.try(:id)
+      discipline_id = current_user_discipline.try(:id)
+    end
+
     Honeybadger.context(
       entity: current_entity.try(:name),
-      classroom_id: params[:classroom_id],
-      teacher_id: params[:teacher_id],
-      discipline_id: params[:discipline_id]
+      classroom_id: classroom_id,
+      teacher_id: teacher_id,
+      discipline_id: discipline_id
     )
   end
 

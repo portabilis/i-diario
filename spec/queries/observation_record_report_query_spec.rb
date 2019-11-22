@@ -1,32 +1,44 @@
 require 'rails_helper'
 
 RSpec.describe ObservationRecordReportQuery, type: :query do
-  let(:school_calendar) { create(:school_calendar_with_one_step, year: 2016) }
-  let(:exam_rule) { create(:exam_rule, frequency_type: FrequencyTypes::BY_DISCIPLINE) }
-  let(:classroom_one) { create(:classroom, exam_rule: exam_rule) }
-  let(:classroom_two) { create(:classroom, exam_rule: exam_rule) }
-  let(:discipline) { create(:discipline) }
   let(:teacher) { create(:teacher) }
-
-  let(:teacher_id) { teacher.id }
-  let(:classroom_id) { classroom_one.id }
-  let(:discipline_id) { discipline.id }
-  let(:start_at) { '01/04/2016' }
-  let(:end_at) { '15/04/2016' }
+  let(:discipline) { create(:discipline) }
+  let(:exam_rule) { create(:exam_rule, :frequency_type_by_discipline) }
+  let(:classroom_one) {
+    create(
+      :classroom,
+      :with_classroom_semester_steps,
+      :with_teacher_discipline_classroom,
+      exam_rule: exam_rule,
+      discipline: discipline,
+      teacher: teacher
+    )
+  }
+  let(:classroom_two) {
+    create(
+      :classroom,
+      :with_classroom_semester_steps,
+      :with_teacher_discipline_classroom,
+      exam_rule: exam_rule,
+      discipline: discipline,
+      teacher: teacher
+    )
+  }
+  let(:start_at) { Date.current }
+  let(:end_at) { Date.current + 15.days }
 
   subject do
     ObservationRecordReportQuery.new(
-      teacher_id,
-      classroom_id,
-      discipline_id,
+      teacher.id,
+      classroom_one.id,
+      discipline.id,
       start_at,
       end_at
     )
   end
 
   describe '#observation_diary_records' do
-    # FIXME: Ajustar junto com o refactor das factories
-    xit 'should filter by teacher_id' do
+    it 'should filter by teacher_id' do
       observation_diary_record_one = create_observation_diary_record
       observation_diary_record_two = create_observation_diary_record_with_different(:teacher)
 
@@ -34,8 +46,7 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
       expect(subject.observation_diary_records).not_to include(observation_diary_record_two)
     end
 
-    # FIXME: Ajustar junto com o refactor das factories
-    xit 'should filter by classroom_id' do
+    it 'should filter by classroom_id' do
       observation_diary_record_one = create_observation_diary_record
       observation_diary_record_two = create_observation_diary_record_with_different(:classroom)
 
@@ -43,8 +54,7 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
       expect(subject.observation_diary_records).not_to include(observation_diary_record_two)
     end
 
-    # FIXME: Ajustar junto com o refactor das factories
-    xit 'should filter by discipline_id' do
+    it 'should filter by discipline_id' do
       observation_diary_record_one = create_observation_diary_record
       observation_diary_record_two = create_observation_diary_record_with_different(:discipline)
 
@@ -52,8 +62,7 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
       expect(subject.observation_diary_records).not_to include(observation_diary_record_two)
     end
 
-    # FIXME: Ajustar junto com o refactor das factories
-    xit 'should filter by date' do
+    it 'should filter by date' do
       observation_diary_record_one = create_observation_diary_record
       observation_diary_record_two = create_observation_diary_record_with_different(:date)
 
@@ -68,19 +77,19 @@ RSpec.describe ObservationRecordReportQuery, type: :query do
 
   def create_observation_diary_record_with_different(attribute)
     attributes = {
-      school_calendar: school_calendar,
       teacher: teacher,
       classroom: classroom_one,
-      discipline: discipline,
-      date: '01/04/2016'
+      discipline: discipline
     }
 
     attributes.delete(attribute) unless attribute == :nothing
     attributes[:classroom] = classroom_two if attribute == :classroom
-    attributes[:date] = '20/04/2016' if attribute == :date
+    attributes[:date] = Date.current - 20.days if attribute == :date
 
     create(
-      :observation_diary_record_with_notes,
+      :observation_diary_record,
+      :with_teacher_discipline_classroom,
+      :with_notes,
       attributes
     )
   end

@@ -20,6 +20,7 @@ class ComplementaryExamsController < ApplicationController
       .ordered
     if step_id
       @complementary_exams = @complementary_exams.by_step_id(current_user_classroom, step_id)
+      params[:filter][:by_step_id] = step_id
     end
 
     authorize @complementary_exams

@@ -8,34 +8,40 @@ class AbsenceJustificationReportForm
                 :absence_date_end,
                 :school_calendar_year,
                 :current_teacher_id,
+                :user_id,
                 :author
 
-  validates :absence_date, presence: true, date: true, not_in_future: true, timeliness: { on_or_before: :absence_date_end, type: :date, on_or_before_message: 'não pode ser maior que a Data final' }
-  validates :absence_date_end, presence: true, date: true, not_in_future: true, timeliness: { on_or_after: :absence_date, type: :date, on_or_after_message: 'deve ser maior ou igual a Data inicial' }
-  validates :unity_id,         presence: true
-  validates :classroom_id,     presence: true
-  validates :discipline_id,    presence: true,
-                               if: :frequence_type_by_discipline?
+  validates :absence_date, presence: true, date: true, not_in_future: true, timeliness: {
+    on_or_before: :absence_date_end,
+    type: :date,
+    on_or_before_message: :on_or_before_message
+  }
+  validates :absence_date_end, presence: true, date: true, not_in_future: true, timeliness: {
+    on_or_after: :absence_date,
+    type: :date,
+    on_or_after_message: :on_or_after_message
+  }
+  validates :unity_id, presence: true
+  validates :classroom_id, presence: true
+  validates :discipline_id, presence: true, if: :frequence_type_by_discipline?
 
   validate :must_find_absence
 
-  def absence_justification
+  def absence_justifications
+    @absence_justifications ||= AbsenceJustification.includes(:disciplines)
+                                                    .includes(:students)
+                                                    .by_unity(unity_id)
+                                                    .by_school_calendar_report(school_calendar_year)
+                                                    .by_classroom(classroom_id)
+                                                    .by_date_range(absence_date, absence_date_end)
+
     if frequence_type_by_discipline?
-      AbsenceJustification.by_author(author, current_teacher_id)
-                          .by_unity(unity_id)
-                          .by_school_calendar_report(school_calendar_year)
-                          .by_classroom(classroom_id)
-                          .by_discipline_id(discipline_id)
-                          .by_date_range(absence_date, absence_date_end)
-                          .ordered
-    else
-      AbsenceJustification.by_author(author, current_teacher_id)
-                          .by_unity(unity_id)
-                          .by_school_calendar_report(school_calendar_year)
-                          .by_classroom(classroom_id)
-                          .by_date_range(absence_date, absence_date_end)
-                          .ordered
+      @absence_justifications = @absence_justifications.by_discipline_id(discipline_id)
     end
+
+    @absence_justifications = @absence_justifications.by_author(author, user_id) if author.present?
+
+    @absence_justifications.ordered.uniq
   end
 
   def frequence_type_by_discipline?
@@ -49,7 +55,7 @@ class AbsenceJustificationReportForm
   def must_find_absence
     return if errors.present?
 
-    errors.add(:base, 'Não foram encontrados resultados para a pesquisa!') if absence_justification.blank?
+    errors.add(:base, 'Não foram encontrados resultados para a pesquisa!') if absence_justifications.blank?
   end
 
   def classroom

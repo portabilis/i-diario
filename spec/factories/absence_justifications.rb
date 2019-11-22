@@ -1,13 +1,17 @@
-# encoding: utf-8
-
 FactoryGirl.define do
   factory :absence_justification do
-    absence_date  '2015-01-02'
-    absence_date_end  '2015-01-02'
-    justification 'Consulta médica'
+    teacher
+    students do
+      create_list(:student, 1)
+    end
 
-    association :teacher, factory: :teacher
-    student
+    disciplines do
+      create_list(:discipline, 1)
+    end
+
     teacher_id { teacher.id }
+    absence_date { Date.current }
+    absence_date_end { Date.current + 1 }
+    justification { Faker::Lorem.sentence }
   end
 end

@@ -9,7 +9,16 @@ class DailyFrequency < ActiveRecord::Base
   audited
   has_associated_audits
 
-  before_destroy :valid_for_destruction?
+  before_destroy do
+    if valid_for_destruction?
+      Student.unscoped do
+        DailyFrequencyStudent.with_discarded
+                             .joins(:student)
+                             .by_daily_frequency_id(id)
+                             .destroy_all
+      end
+    end
+  end
 
   belongs_to :unity
   belongs_to :classroom
@@ -19,8 +28,8 @@ class DailyFrequency < ActiveRecord::Base
   has_enumeration_for :period, with: Periods, skip_validation: true
 
   has_many :students, lambda {
-    joins(:student).includes(:student).order('students.name')
-  }, class_name: 'DailyFrequencyStudent', dependent: :destroy
+    joins(:student).order('students.name')
+  }, class_name: 'DailyFrequencyStudent'
 
   accepts_nested_attributes_for :students, allow_destroy: true
 
@@ -33,15 +42,27 @@ class DailyFrequency < ActiveRecord::Base
   validate :ensure_belongs_to_step
 
   scope :by_unity_classroom_discipline_class_number_and_frequency_date_between,
-        lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at=Time.zone.now| where(unity_id: unity_id,
-                                                                                                             classroom_id: classroom_id,
-                                                                                                             discipline_id: discipline_id,
-                                                                                                             class_number: class_number,
-                                                                                                             frequency_date: start_at.to_date..end_at.to_date).includes(students: :student) }
+        lambda { |unity_id, classroom_id, discipline_id, class_number, start_at, end_at = Time.zone.now|
+          where(unity_id: unity_id,
+                classroom_id: classroom_id,
+                discipline_id: discipline_id,
+                class_number: class_number,
+                frequency_date: start_at.to_date..end_at.to_date).includes(students: :student)
+        }
+
   scope :by_unity_classroom_and_frequency_date_between,
-        lambda { |unity_id, classroom_id, start_at, end_at = Time.zone.now| where(unity_id: unity_id,
-                                                                                  classroom_id: classroom_id,
-                                                                                  frequency_date: start_at.to_date..end_at.to_date).includes(students: :student) }
+        lambda { |unity_id, classroom_id, start_at, end_at = Time.zone.now|
+          where(unity_id: unity_id,
+                classroom_id: classroom_id,
+                frequency_date: start_at.to_date..end_at.to_date).includes(students: :student)
+        }
+
+  scope :by_teacher_id,
+        lambda { |teacher_id|
+          joins(discipline: :teacher_discipline_classrooms)
+            .where(teacher_discipline_classrooms: { teacher_id: teacher_id })
+            .uniq
+        }
 
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }

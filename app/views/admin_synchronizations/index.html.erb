@@ -1,5 +1,9 @@
 <div class="well">
-  <h1><%= t('admin_synchronizations.title') %> <%= l(DateTime.parse(@entity_syncs.updated_at), format: :short) %></h2>
+  <h1><%= t('admin_synchronizations.title') %>
+    <% if @entity_syncs.updated_at.present? %>
+      <%= l(DateTime.parse(@entity_syncs.updated_at), format: :short) %>
+    <% end %>
+  </h2>
   <% if @entity_syncs.started.present? %>
     <h2><%= t('enumerations.api_synchronization_status.started') %></h2>
 

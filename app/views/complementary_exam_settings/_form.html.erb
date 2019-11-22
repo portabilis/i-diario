@@ -11,6 +11,10 @@
     <i class="fa-fw fa fa-info"></i>
       <%= t('.substitution_if_greater_calculation_type_html') %>
   </p>
+  <p class="alert alert-info calculation-type-info hidden" id="integral-calculation-type-info">
+    <i class="fa-fw fa fa-info"></i>
+      <%= t('.integral_calculation_type_html') %>
+  </p>
 </div>
 
 <div class="widget-body no-padding">
@@ -53,6 +57,10 @@
         <div class="col col-sm-3">
           <%= f.input :grade_ids, as: :select2, elements: grades, multiple: true,
           input_html: { value: f.object.grade_ids.join(','), data: { without_json_parser: true } } %>
+        </div>
+
+        <div class="col col-sm-3">
+          <%= f.input :year, as: :integer %>
         </div>
       </div>
     </fieldset>

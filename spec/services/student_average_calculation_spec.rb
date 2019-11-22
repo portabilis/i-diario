@@ -27,6 +27,8 @@ RSpec.describe StudentAverageCalculator, type: :service do
   let(:students_2) { double(:students_2) }
   let(:student_1) { double(:student_1) }
   let(:student_2) { double(:student_2) }
+  let(:discipline_id) { double(:discipline_id) }
+  let(:classroom_id) { double(:classroom_id) }
 
   let(:daily_note_student_1) { double(:daily_note_student_1) }
   let(:daily_note_student_2) { double(:daily_note_student_2) }
@@ -76,6 +78,8 @@ RSpec.describe StudentAverageCalculator, type: :service do
     stub_recovery_diary_record_2
     stub_avaliations
     stub_student
+    stub_discipline
+    stub_classroom
     stub_recovery_diary_records
     stub_avaliation_recovery_diary_records
     stub_complementary_exam_calculator
@@ -207,6 +211,7 @@ RSpec.describe StudentAverageCalculator, type: :service do
         .with(classroom, RoundedAvaliations::NUMERICAL_EXAM)
         .and_return(score_rounder)
         .at_least(:once)
+
       expect(score_rounder).to receive(:round)
         .with(anything)
         .at_least(:once)
@@ -238,11 +243,24 @@ RSpec.describe StudentAverageCalculator, type: :service do
 
   def stub_complementary_exam_calculator
     stub_const('ComplementaryExamCalculator', Class.new)
+
     allow(ComplementaryExamCalculator).to(
-      receive(:new).with(AffectedScoreTypes::STEP_AVERAGE, student, discipline, classroom, school_calendar_step).and_return(complementary_exam_calculator)
+      receive(:new)
+        .with(
+          [AffectedScoreTypes::STEP_AVERAGE, AffectedScoreTypes::BOTH],
+          student.id,
+          discipline.id,
+          classroom.id,
+          school_calendar_step
+        ).and_return(complementary_exam_calculator)
     )
+
     allow(complementary_exam_calculator).to(
       receive(:calculate).with(anything) { |value| value }
+    )
+
+    allow(complementary_exam_calculator).to(
+      receive(:calculate_integral).with(anything) { |value| value }
     )
   end
 
@@ -318,6 +336,14 @@ RSpec.describe StudentAverageCalculator, type: :service do
 
   def stub_student
     allow(student).to receive(:id).and_return(student_1)
+  end
+
+  def stub_discipline
+    allow(discipline).to receive(:id).and_return(discipline_id)
+  end
+
+  def stub_classroom
+    allow(classroom).to receive(:id).and_return(classroom_id)
   end
 
   def stub_recovery_diary_records

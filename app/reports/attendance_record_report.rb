@@ -5,11 +5,21 @@ class AttendanceRecordReport < BaseReport
   # This factor represent the quantitty of students with social name needed to reduce 1 student by page
   SOCIAL_NAME_REDUCTION_FACTOR = 2
 
-  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
-    new(:landscape).build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
+  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar, second_teacher_signature)
+    new(:landscape)
+      .build(entity_configuration,
+             teacher,
+             year,
+             start_at,
+             end_at,
+             daily_frequencies,
+             student_enrollments,
+             events,
+             school_calendar,
+             second_teacher_signature)
   end
 
-  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar)
+  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar, second_teacher_signature)
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -19,6 +29,7 @@ class AttendanceRecordReport < BaseReport
     @students_enrollments = student_enrollments
     @events = events
     @school_calendar = school_calendar
+    @second_teacher_signature = ActiveRecord::Type::Boolean.new.type_cast_from_user(second_teacher_signature)
 
     self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
 
@@ -55,7 +66,7 @@ class AttendanceRecordReport < BaseReport
     classroom_cell = make_cell(content: @daily_frequencies.first.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4, colspan: 2)
     year_cell = make_cell(content: @year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     period_cell = make_cell(content: "De #{@start_at} a #{@end_at}", size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
-    discipline_cell = make_cell(content: (@daily_frequencies.first.discipline ? @daily_frequencies.first.discipline.description : 'Geral'), size: 10, colspan: 3, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
+    discipline_cell = make_cell(content: discipline_display, size: 10, colspan: 3, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
     teacher_cell = make_cell(content: @teacher.name, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], height: 4)
 
     first_table_data = [[attendance_header],
@@ -79,12 +90,12 @@ class AttendanceRecordReport < BaseReport
     self.any_student_with_dependence = false
 
     daily_frequencies = @daily_frequencies.reject { |daily_frequency| !daily_frequency.students.any? }
-
     frequencies_and_events = daily_frequencies.to_a + @events.to_a
 
     frequencies_and_events = frequencies_and_events.sort_by do |obj|
       daily_frequency?(obj) ? obj.frequency_date : obj[:date]
     end
+
     sliced_frequencies_and_events = frequencies_and_events.each_slice(40).to_a
 
     sliced_frequencies_and_events.each_with_index do |frequencies_and_events_slice, index|
@@ -96,30 +107,36 @@ class AttendanceRecordReport < BaseReport
       frequencies_and_events_slice.each do |daily_frequency_or_event|
         if daily_frequency?(daily_frequency_or_event)
           daily_frequency = daily_frequency_or_event
+
           next unless frequency_in_period(daily_frequency)
 
           class_numbers << make_cell(content: "#{daily_frequency.class_number}", background_color: 'FFFFFF', align: :center)
           days << make_cell(content: "#{daily_frequency.frequency_date.day}", background_color: 'FFFFFF', align: :center)
           months << make_cell(content: "#{daily_frequency.frequency_date.month}", background_color: 'FFFFFF', align: :center)
+
           @students_enrollments.each do |student_enrollment|
             student_id = student_enrollment.student_id
+
             if exempted_from_discipline?(student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
             else
               student_frequency = daily_frequency.students.select{ |student| student.student_id == student_id && student.active == true }.first
               student_frequency ||= NullDailyFrequencyStudent.new
             end
+
             student = student_enrollment.student
             (students[student_id] ||= {})[:name] = student.to_s
             students[student_id] = {} if students[student_id].nil?
             students[student_id][:dependence] = students[student_id][:dependence] || student_has_dependence?(student_enrollment, daily_frequency.discipline_id)
-
             self.any_student_with_dependence = self.any_student_with_dependence || students[student_id][:dependence]
             students[student_id][:absences] ||= 0
+
             if !student_frequency.present
               students[student_id][:absences] = students[student_id][:absences] + 1
             end
-          (students[student_id][:attendances] ||= []) << make_cell(content: "#{student_frequency}", align: :center)
+
+            (students[student_id][:attendances] ||= []) <<
+              make_cell(content: student_frequency.to_s, align: :center)
           end
         else
           school_calendar_event = daily_frequency_or_event
@@ -148,51 +165,66 @@ class AttendanceRecordReport < BaseReport
       day_header = make_cell(content: 'Dia', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
       month_header = make_cell(content: 'Mês', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center)
       absences_header = make_cell(content: 'Faltas', size: 8, font_style: :bold, background_color: 'FFFFFF', align: :center, valign: :center, rowspan: 3)
-
       first_headers_and_class_numbers_cells = [sequential_number_header, student_name_header, class_number_header].concat(class_numbers)
+
       (40 - class_numbers.count).times { first_headers_and_class_numbers_cells << make_cell(content: '', background_color: 'FFFFFF') }
+
       first_headers_and_class_numbers_cells << absences_header
       days_header_and_cells = [day_header].concat(days)
+
       (40 - days.count).times { days_header_and_cells << make_cell(content: '', background_color: 'FFFFFF') }
+
       months_header_and_cells = [month_header].concat(months)
+
       (40 - months.count).times { months_header_and_cells << make_cell(content: '', background_color: 'FFFFFF') }
 
       students_cells = []
-      students = students.sort_by { |(key, value)| value[:dependence] ? 1 : 0 }
+      students = students.sort_by { |(_key, value)| value[:dependence] ? 1 : 0 }
       sequence = 1
       sequence_reseted = false
-      students.each do |key, value|
-        if(!sequence_reseted && value[:dependence])
+
+      students.each do |_key, value|
+        if !sequence_reseted && value[:dependence]
           sequence = 1
           sequence_reseted = true
         end
 
         sequence_cell = make_cell(content: sequence.to_s, align: :center)
         student_cells = [sequence_cell, { content: (value[:dependence] ? '* ' : '') + value[:name], colspan: 2 }].concat(value[:attendances])
+
         (40 - value[:attendances].count).times { student_cells << nil }
+
         student_cells << make_cell(content: value[:absences].to_s, align: :center)
         students_cells << student_cells
-
         sequence += 1
       end
 
+      bottom_offset = @second_teacher_signature ? 24 : 0
       sliced_students_cells = students_cells.each_slice(student_slice_size(students)).to_a
 
-      sliced_students_cells.each_with_index do |students_cells_slice, index|
+      sliced_students_cells.each_with_index do |students_cells_slice, slice_index|
         data = [
           first_headers_and_class_numbers_cells,
           days_header_and_cells,
           months_header_and_cells
         ]
+
+        if slice_index == sliced_students_cells.count - 1 && index == sliced_frequencies_and_events.count - 1
+          students_cells_slice <<
+            [{ content: "Aulas dadas: #{daily_frequencies.count}", colspan: 44, align: :center }]
+        end
+
         data.concat(students_cells_slice)
 
         column_widths = { 0 => 20, 1 => 140, 43 => 30 }
+
         (3..42).each { |i| column_widths[i] = 13 }
 
         page_content do
           table(data, row_colors: ['FFFFFF', 'DEDEDE'], cell_style: { size: 8, padding: [2, 2, 2, 2] },
                 column_widths: column_widths, width: bounds.width) do |t|
             t.cells.border_width = 0.25
+
             t.before_rendering_page do |page|
               page.row(0).border_top_width = 0.25
               page.row(-1).border_bottom_width = 0.25
@@ -202,12 +234,15 @@ class AttendanceRecordReport < BaseReport
           end
         end
 
-        text_box(self.legend, size: 8, at: [0, 30], width: 825, height: 20)
-        start_new_page if index < sliced_students_cells.count - 1
+        text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
+
+        start_new_page if slice_index < sliced_students_cells.count - 1
       end
 
-      text_box(self.legend, size: 8, at: [0, 30], width: 825, height: 20)
+      text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
+
       self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
+
       start_new_page if index < sliced_frequencies_and_events.count - 1
     end
   end
@@ -219,17 +254,23 @@ class AttendanceRecordReport < BaseReport
   def footer
     page_footer do
       repeat(:all) do
+        if @second_teacher_signature
+          draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 24])
+          draw_text('________________________________________', size: 8, at: [117, 24])
+        end
+
         draw_text('Assinatura do(a) professor(a):', size: 8, style: :bold, at: [0, 0])
-        draw_text('____________________________', size: 8, at: [117, 0])
+        draw_text('________________________________________', size: 8, at: [117, 0])
 
-        draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [259, 0])
-        draw_text('____________________________', size: 8, at: [429, 0])
+        draw_text('Assinatura do(a) coordenador(a)/diretor(a):', size: 8, style: :bold, at: [300, 0])
+        draw_text('________________________________________', size: 8, at: [470, 0])
 
-        draw_text('Data:', size: 8, style: :bold, at: [559, 0])
-        draw_text('________________', size: 8, at: [581, 0])
+        draw_text('Data:', size: 8, style: :bold, at: [652, 0])
+        draw_text('________________', size: 8, at: [674, 0])
 
-        if(self.any_student_with_dependence)
-          draw_text('* Alunos cursando dependência', size: 8, at: [0, 47])
+        if any_student_with_dependence
+          offset = @second_teacher_signature ? 24 : 0
+          draw_text('* Alunos cursando dependência', size: 8, at: [0, 47 + offset])
         end
       end
     end
@@ -259,11 +300,14 @@ class AttendanceRecordReport < BaseReport
   end
 
   def student_slice_size(students)
-    student_with_social_name_count = students.select { |(key, value)|
+    student_with_social_name_count = students.select { |(_key, value)|
       value[:social_name].present?
     }.length
 
-    STUDENT_BY_PAGE_COUNT - (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
+    second_signature_offset = @second_teacher_signature ? 3 : 0
+    social_name_factor = (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
+
+    STUDENT_BY_PAGE_COUNT - second_signature_offset - social_name_factor
   end
 
   def step_number(daily_frequency)
@@ -276,5 +320,47 @@ class AttendanceRecordReport < BaseReport
 
   def frequency_in_period(daily_frequency)
     step_number(daily_frequency).present?
+  end
+
+  def discipline_display
+    return 'Geral' if general_frequency?
+
+    if GeneralConfiguration.current.display_knowledge_area_as_discipline && display_knowledge_area_as_discipline?
+      return knowledge_area.to_s
+    end
+
+    discipline.to_s
+  end
+
+  def display_knowledge_area_as_discipline?
+    teacher_allow_absence_by_discipline? && classroom_has_general_absence?
+  end
+
+  def classroom_has_general_absence?
+    classroom.exam_rule.try(:frequency_type) == FrequencyTypes::GENERAL
+  end
+
+  def teacher_allow_absence_by_discipline?
+    @teacher_allow_absence_by_discipline ||= TeacherDisciplineClassroom.by_classroom(classroom.id)
+                                                                       .by_teacher_id(@teacher.id)
+                                                                       .by_discipline_id(discipline.id)
+                                                                       .first
+                                                                       .try(:allow_absence_by_discipline)
+  end
+
+  def general_frequency?
+    discipline.blank?
+  end
+
+  def knowledge_area
+    @knowledge_area ||= discipline.knowledge_area
+  end
+
+  def discipline
+    @discipline ||= @daily_frequencies.first.discipline
+  end
+
+  def classroom
+    @classroom ||= @daily_frequencies.first.classroom
   end
 end

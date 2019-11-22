@@ -1,5 +1,6 @@
 class AttendanceRecordReportController < ApplicationController
   before_action :require_current_teacher
+  before_action :require_current_clasroom
 
   def form
     @attendance_record_report_form = AttendanceRecordReportForm.new(
@@ -23,7 +24,8 @@ class AttendanceRecordReportController < ApplicationController
                                                               @attendance_record_report_form.daily_frequencies,
                                                               @attendance_record_report_form.students_enrollments,
                                                               @attendance_record_report_form.school_calendar_events,
-                                                              current_school_calendar)
+                                                              current_school_calendar,
+                                                              @attendance_record_report_form.second_teacher_signature)
       send_pdf(t("routes.attendance_record"), attendance_record_report.render)
     else
       @attendance_record_report_form.school_calendar_year = current_user_school_year
@@ -49,7 +51,8 @@ class AttendanceRecordReportController < ApplicationController
                                                           :start_at,
                                                           :end_at,
                                                           :school_calendar_year,
-                                                          :current_teacher_id)
+                                                          :current_teacher_id,
+                                                          :second_teacher_signature)
   end
 
   def clear_invalid_dates

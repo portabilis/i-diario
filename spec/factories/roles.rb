@@ -1,8 +1,12 @@
 FactoryGirl.define do
   factory :role do
-    sequence(:name) { |n| "Example Role #{n}" }
+    association :author, factory: :user
+
+    name { Faker::Lorem.unique.sentence }
     access_level AccessLevel::TEACHER
 
-    association :author, factory: :user
+    trait :administrator do
+      access_level AccessLevel::ADMINISTRATOR
+    end
   end
 end

@@ -45,7 +45,7 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
   def remove_current_classroom_id_in_user_selectors(classroom_id)
     Classroom.with_discarded.find_by(id: classroom_id).users.each do |user|
-      user.update(current_classroom_id: nil)
+      user.update(current_classroom_id: nil, assumed_teacher_id: nil)
     end
   end
 end

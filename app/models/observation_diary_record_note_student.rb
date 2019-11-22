@@ -17,6 +17,6 @@ class ObservationDiaryRecordNoteStudent < ActiveRecord::Base
   validates(
     :student,
     presence: true,
-    uniqueness: { scope: :observation_diary_record_note_id }
+    uniqueness: { scope: :observation_diary_record_note_id, conditions: -> { where(discarded_at: nil) } }
   )
 end

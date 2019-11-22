@@ -32,31 +32,11 @@ module DailyFrequencyHelper
   end
 
   def get_start_at(daily_frequency)
-    if daily_frequency.classroom.calendar
-      get_school_calendar_classroom_step(daily_frequency).start_at
-    else
-      get_school_calendar_step(daily_frequency).start_at
-    end
+    StepsFetcher.new(daily_frequency.classroom).step_by_date(daily_frequency.frequency_date).start_at
   end
 
   def get_end_at(daily_frequency)
-    if daily_frequency.classroom.calendar
-      get_school_calendar_classroom_step(daily_frequency).end_at
-    else
-      get_school_calendar_step(daily_frequency).end_at
-    end
-  end
-
-  def get_school_calendar_step(daily_frequency)
-    daily_frequency.school_calendar.step(daily_frequency.frequency_date)
-  end
-
-  def get_school_calendar_classroom_step(daily_frequency)
-    daily_frequency.school_calendar
-                   .classrooms
-                   .by_classroom(daily_frequency.classroom_id)
-                   .first
-                   .classroom_step(daily_frequency.frequency_date)
+    StepsFetcher.new(daily_frequency.classroom).step_by_date(daily_frequency.frequency_date).end_at
   end
 
   def frequency_student_name_class(dependence, active, exempted_from_discipline)

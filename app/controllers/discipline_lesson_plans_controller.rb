@@ -5,7 +5,9 @@ class DisciplineLessonPlansController < ApplicationController
   before_action :require_current_teacher
 
   def index
-    author_type = (params[:filter] || []).delete(:by_author)
+    params[:filter] ||= {}
+    author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
+    author_type ||= (params[:filter] || []).delete(:by_author)
 
     @discipline_lesson_plans = apply_scopes(
       DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom])
@@ -22,6 +24,7 @@ class DisciplineLessonPlansController < ApplicationController
 
     if author_type.present?
       @discipline_lesson_plans = @discipline_lesson_plans.by_author(author_type, current_teacher)
+      params[:filter][:by_author] = author_type
     end
 
     authorize @discipline_lesson_plans
@@ -43,6 +46,10 @@ class DisciplineLessonPlansController < ApplicationController
           current_teacher
         )
         send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
+      end
+
+      format.html do
+        redirect_to discipline_lesson_plans_path
       end
     end
   end

@@ -11,13 +11,15 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
 
   attr_accessor :entity_id
 
-  after_discard { StudentDependenciesDiscarder.discard(entity_id, student_enrollment_id) }
-  after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, student_enrollment_id) }
+  after_discard { StudentDependenciesDiscarder.discard(entity_id, student_id) }
+  after_undiscard { StudentDependenciesDiscarder.undiscard(entity_id, student_id) }
 
   default_scope -> { kept }
 
   scope :by_classroom, ->(classroom_id) { where(classroom_id: classroom_id) }
-  scope :by_year, ->(year) { where('EXTRACT(YEAR FROM CAST(joined_at AS DATE)) = ?', year) }
+  scope :by_year, ->(year) {
+    joins(:classroom).merge(Classroom.by_year(year))
+  }
   scope :by_date, lambda { |date|
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
@@ -30,6 +32,8 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
     joins(:student_enrollment).where(student_enrollments: { active: IeducarBooleanState::ACTIVE })
   }
   scope :ordered, -> { order(:joined_at, :index) }
+
+  delegate :student_id, to: :student_enrollment, allow_nil: true
 
   def self.by_date_range(start_at, end_at)
     where("(CASE
@@ -45,6 +49,8 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   def self.by_period(period)
     joins(:classroom).where(
       "CASE
+         WHEN :period = 4 THEN
+           TRUE
          WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 1 THEN
            student_enrollment_classrooms.period <> 2 OR student_enrollment_classrooms.period IS NULL
          WHEN CAST(classrooms.period AS INTEGER) = 4 AND :period = 2 THEN

@@ -9,7 +9,7 @@ module Stepable
     validates :step_id, presence: true, unless: :ignore_step
     validates :recorded_at, not_in_future: true, unless: :ignore_date_validates
     validates :recorded_at, posting_date: true, unless: :ignore_date_validates
-    validate :recorded_at_is_in_selected_step
+    validate :recorded_at_is_in_selected_step, unless: :ignore_date_validates
     validate :ensure_is_school_day, unless: :ignore_date_validates
 
     scope :by_step_id, lambda { |classroom, step_id|
@@ -46,8 +46,8 @@ module Stepable
   private
 
   def ensure_is_school_day
-    return unless recorded_at.present? && school_calendar.present?
-    return if school_calendar.school_day?(recorded_at, classroom.grade, classroom, nil)
+    return unless classroom.present? && recorded_at.present? && school_calendar.present?
+    return if school_calendar.school_day?(recorded_at, classroom.grade.id, classroom.id, nil)
 
     errors.add(:recorded_at, :not_school_term_day)
   end

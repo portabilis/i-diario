@@ -15,6 +15,7 @@ pt-BR:
         copyright_name: "Empresa mantenedora"
         support_url: "Site"
         show_school_term_recovery_in_exam_record_report: "Exibir Recuperação da etapa no Registro de avaliações"
+        display_knowledge_area_as_discipline: "Exibir área de conhecimento no campo disciplina (Registro de frequência)"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."

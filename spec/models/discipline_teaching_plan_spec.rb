@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe DisciplineTeachingPlan, type: :model do
-  subject { build(:discipline_teaching_plan) }
+  subject { build(:discipline_teaching_plan, :with_teacher_discipline_classroom) }
 
   describe 'associations' do
     it { expect(subject).to belong_to(:teaching_plan).dependent(:destroy) }
@@ -13,7 +13,7 @@ RSpec.describe DisciplineTeachingPlan, type: :model do
     it { expect(subject).to validate_presence_of(:discipline) }
 
     it 'should validate uniqueness of discipline teaching plan' do
-      another_discipline_teaching_plan = create(:discipline_teaching_plan)
+      another_discipline_teaching_plan = create(:discipline_teaching_plan, :with_teacher_discipline_classroom)
 
       teaching_plan = create(
         :teaching_plan,

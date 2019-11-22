@@ -2,29 +2,37 @@ FactoryGirl.define do
   factory :knowledge_area_lesson_plan do
     lesson_plan
 
-    after(:build) do |knowledge_area_lesson_plan|
-      knowledge_area = nil
-      teacher = create(:teacher)
-      knowledge_area_lesson_plan.teacher_id = teacher.id
-      knowledge_area_lesson_plan_knowledge_area = build(
-        :knowledge_area_lesson_plan_knowledge_area,
-        knowledge_area_lesson_plan: knowledge_area_lesson_plan
-      )
+    transient do
+      teacher nil
+      classroom nil
+      discipline nil
+    end
 
-      if knowledge_area_lesson_plan.knowledge_area_ids.present?
-        knowledge_area = KnowledgeArea.find(knowledge_area_lesson_plan.knowledge_area_ids)
-        knowledge_area_lesson_plan_knowledge_area.knowledge_area = knowledge_area
-      else
-        knowledge_area = knowledge_area_lesson_plan_knowledge_area.knowledge_area
+    trait :with_teacher_discipline_classroom do
+      lesson_plan nil
+
+      before(:create) do |knowledge_area_lesson_plan, evaluator|
+        teacher = evaluator.teacher || create(:teacher)
+        knowledge_area_lesson_plan.teacher_id ||= teacher.id
+        classroom = evaluator.classroom || create(:classroom, :with_classroom_semester_steps)
+        first_knowledge_area_id = knowledge_area_lesson_plan.knowledge_area_ids.split(',').first
+        knowledge_area_id = first_knowledge_area_id || create(:knowledge_area).id
+        discipline = evaluator.discipline || create(:discipline, knowledge_area_id: knowledge_area_id)
+
+        if knowledge_area_lesson_plan.knowledge_area_ids.blank?
+          knowledge_area_lesson_plan.knowledge_area_ids = knowledge_area_id
+        end
+
+        lesson_plan = create(
+          :lesson_plan,
+          :with_teacher_discipline_classroom,
+          teacher: teacher,
+          classroom: classroom,
+          discipline: discipline
+        )
+
+        knowledge_area_lesson_plan.lesson_plan = lesson_plan
       end
-
-      discipline = create(:discipline, knowledge_area: knowledge_area)
-
-      create(
-        :teacher_discipline_classroom,
-        discipline: discipline,
-        teacher: teacher
-      )
     end
   end
 end

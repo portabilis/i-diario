@@ -5,7 +5,12 @@ module Turnip
       @current_user.current_user_role = @current_user.user_roles.first
       @current_user.save!
 
-      @school_calendar = create(:school_calendar_with_one_step, year: Time.zone.today.year, unity: @current_user.current_user_role.unity)
+      @school_calendar = create(
+        :school_calendar,
+        :with_one_step,
+        year: Date.current.year,
+        unity: @current_user.current_user_role.unity
+      )
 
       visit root_path
 

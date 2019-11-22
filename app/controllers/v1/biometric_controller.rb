@@ -1,5 +1,5 @@
 module V1
-  class BiometricController < Api::V2::AuthenticatedApiBaseController
+  class BiometricController < Api::V1::BaseController
 
     def send_biometric
       student_api_code = params[:IdAluno]
