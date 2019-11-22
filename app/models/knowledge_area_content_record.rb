@@ -1,9 +1,7 @@
 class KnowledgeAreaContentRecord < ActiveRecord::Base
   include Audit
-  include ColumnsLockable
   include TeacherRelationable
 
-  not_updatable only: :classroom_id
   teacher_relation_columns only: :knowledge_areas
 
   audited

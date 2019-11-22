@@ -3,7 +3,7 @@ class DisciplineContentRecord < ActiveRecord::Base
   include ColumnsLockable
   include TeacherRelationable
 
-  not_updatable only: [:classroom_id, :discipline_id]
+  not_updatable only: :discipline_id
   teacher_relation_columns only: :discipline
 
   audited associated_with: :content_record,
