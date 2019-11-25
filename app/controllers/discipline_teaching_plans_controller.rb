@@ -91,6 +91,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
     @discipline_teaching_plan.assign_attributes(resource_params)
     @discipline_teaching_plan.teacher_id = current_teacher_id
+    @discipline_teaching_plan.current_user = current_user
 
     authorize @discipline_teaching_plan
 
