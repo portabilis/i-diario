@@ -1,7 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe SchoolTermRecoveryDiaryRecord, type: :model do
+  let(:current_user) { create(:user) }
+
   subject(:school_term_recovery_diary_record) { build(:school_term_recovery_diary_record) }
+
+  before do
+    current_user.current_classroom_id = subject.classroom_id
+    current_user.current_discipline_id = subject.discipline_id
+    allow(subject.recovery_diary_record).to receive(:current_user).and_return(current_user)
+  end
 
   describe 'associations' do
     it { expect(subject).to belong_to(:recovery_diary_record).dependent(:destroy) }
@@ -21,6 +29,12 @@ RSpec.describe SchoolTermRecoveryDiaryRecord, type: :model do
         :with_students,
         classroom: classroom
       )
+
+      current_user.current_classroom_id = another_recovery_diary_record.classroom_id
+      current_user.current_discipline_id = another_recovery_diary_record.discipline_id
+
+      another_recovery_diary_record.current_user = current_user
+
       another_school_term_recovery_diary_record = create(
         :school_term_recovery_diary_record,
         recovery_diary_record: another_recovery_diary_record
