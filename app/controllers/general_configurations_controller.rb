@@ -40,7 +40,8 @@ class GeneralConfigurationsController < ApplicationController
       :support_url,
       :copyright_name,
       :show_school_term_recovery_in_exam_record_report,
-      :display_knowledge_area_as_discipline
+      :display_knowledge_area_as_discipline,
+      :display_daily_activies_log
     )
   end
 

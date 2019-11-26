@@ -10,6 +10,7 @@ class BaseReport
 
   def initialize(page_layout = :portrait)
     @display_header_on_all_reports_pages = GeneralConfiguration.current.display_header_on_all_reports_pages
+    @display_daily_activies_log = GeneralConfiguration.current.display_daily_activies_log
 
     @document = Prawn::Document.new(
       page_size: 'A4',
