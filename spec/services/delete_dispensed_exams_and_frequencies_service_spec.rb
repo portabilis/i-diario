@@ -136,7 +136,7 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
           student: student_enrollment.student
         )
         current_user.current_classroom_id = conceptual_exam.classroom_id
-        allow(conceptual_exam).to receive(:current_user).and_return(current_user)
+        allow_any_instance_of(ConceptualExam).to receive(:current_user).and_return(current_user)
 
         conceptual_exam
       }
