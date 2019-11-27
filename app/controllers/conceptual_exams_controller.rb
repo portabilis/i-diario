@@ -342,7 +342,7 @@ class ConceptualExamsController < ApplicationController
 
       @student_ids = @student_enrollments.collect(&:student_id)
 
-      @students = Student.where(id: @student_ids)
+      @students = Student.where(id: @student_ids).ordered
     end
   end
 
