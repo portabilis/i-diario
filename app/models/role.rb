@@ -24,6 +24,7 @@ class Role < ActiveRecord::Base
   validate :permissions_must_match_access_level
 
   scope :ordered, -> { order(arel_table[:name].asc) }
+  scope :exclude_administrator_roles, -> { where.not(access_level: AccessLevel::ADMINISTRATOR) }
 
   def build_permissions!
     Features.list.each do |feature|
