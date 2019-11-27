@@ -55,11 +55,11 @@ Por baixo dos panos, será feito:
 
 Pule para o [**Configuração da Aplicação**](#Configuração-da-Aplicação).
 
-### Sem Docker (Testado em Ubuntu 18.04)
+### Sem Docker (Testado no Ubuntu 18.04)
 
 - Instalar o Ruby 2.3.7 (Recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
 - Instalar Postgres e configurar para fazer coincidir com o configurado em `database.yml`
-- Instalar a libraria `libpq-dev`
+- Instalar a biblioteca `libpq-dev`
 
 ```bash
 $ sudo apt install libpq-dev
