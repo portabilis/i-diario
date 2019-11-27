@@ -357,7 +357,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_honeybadger_context
-    if request.env['REQUEST_PATH'].include?('api/v2')
+    if (request.path || '').include?('api/v2')
       classroom_id = params[:classroom_id]
       teacher_id = params[:teacher_id]
       discipline_id = params[:discipline_id]
