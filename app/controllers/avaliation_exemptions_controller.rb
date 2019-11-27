@@ -42,6 +42,7 @@ class AvaliationExemptionsController < ApplicationController
 
   def update
     @avaliation_exemption = AvaliationExemption.find(params[:id]).localized
+    @avaliation_exemption.current_user = current_user
 
     authorize @avaliation_exemption
 

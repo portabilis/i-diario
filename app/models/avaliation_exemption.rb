@@ -1,5 +1,8 @@
 class AvaliationExemption < ActiveRecord::Base
   include Discardable
+  include ColumnsLockable
+
+  not_updatable only: [:classroom_id, :discipline_id]
 
   acts_as_copy_target
 

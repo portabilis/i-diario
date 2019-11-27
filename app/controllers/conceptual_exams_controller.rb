@@ -106,6 +106,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam = ConceptualExam.find(params[:id])
     @conceptual_exam.assign_attributes(resource_params)
     @conceptual_exam.teacher_id = current_teacher_id
+    @conceptual_exam.current_user = current_user
 
     authorize @conceptual_exam
 

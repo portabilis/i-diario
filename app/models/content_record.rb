@@ -1,7 +1,9 @@
 class ContentRecord < ActiveRecord::Base
   include Audit
+  include ColumnsLockable
   include TeacherRelationable
 
+  not_updatable only: :classroom_id
   teacher_relation_columns only: :classroom
 
   audited

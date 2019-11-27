@@ -46,6 +46,8 @@ module Api
                  .find_by(knowledge_area_content_records: { discipline_id: discipline_id })
           end
 
+        @content_record.not_validate_columns = true
+
         unless @content_record
           @content_record = ContentRecord.new
           @content_record.teacher = Teacher.find(teacher_id)

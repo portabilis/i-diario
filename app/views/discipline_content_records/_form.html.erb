@@ -16,11 +16,12 @@
 
 
         <div class="col col-sm-4">
-          <%= content_record.association :classroom, as: :select2_classroom, user: current_user %>
+          <%= content_record.association :classroom, as: :select2_classroom, user: current_user,
+              record: f.object %>
         </div>
 
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2_discipline, user: current_user,
+          <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
                   classroom_id: @discipline_content_record.content_record.classroom_id %>
         </div>
       </div>

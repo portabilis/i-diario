@@ -63,6 +63,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_content_record.content_record.content_ids = content_ids
     @knowledge_area_content_record.teacher_id = current_teacher_id
+    @knowledge_area_content_record.content_record.current_user = current_user
 
     authorize @knowledge_area_content_record
 

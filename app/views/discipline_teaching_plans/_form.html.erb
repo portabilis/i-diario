@@ -28,7 +28,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.association :discipline, as: :select2_discipline, user: current_user,
+          <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
                 grade_id: @discipline_teaching_plan.teaching_plan.grade_id %>
         </div>
       </div>

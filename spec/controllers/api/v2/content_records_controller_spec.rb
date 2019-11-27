@@ -27,6 +27,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
         teacher: teacher_discipline_classroom.teacher,
         classroom_id: teacher_discipline_classroom.classroom_id
       )
+      content_record.not_validate_columns = true
 
       create(
         :discipline_content_record,
@@ -57,6 +58,7 @@ RSpec.describe Api::V2::ContentRecordsController, type: :controller do
         teacher: teacher_discipline_classroom.teacher,
         classroom_id: teacher_discipline_classroom.classroom_id
       )
+      content_record.not_validate_columns = true
 
       create(
         :discipline_content_record,

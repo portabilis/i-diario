@@ -12,11 +12,11 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.input :classroom_id, as: :select2_classroom, user: current_user %>
+        <%= f.input :classroom_id, as: :select2_classroom, user: current_user, record: f.object %>
       </div>
 
       <div class="col col-sm-4">
-        <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+        <%= f.input :discipline_id, as: :select2_discipline, user: current_user, record: f.object,
           classroom_id: @transfer_note.classroom_id %>
       </div>
     </div>

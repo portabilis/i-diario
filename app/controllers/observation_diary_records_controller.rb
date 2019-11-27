@@ -47,6 +47,7 @@ class ObservationDiaryRecordsController < ApplicationController
 
   def update
     @observation_diary_record = ObservationDiaryRecord.find(params[:id])
+    @observation_diary_record.current_user = current_user
     @observation_diary_record.assign_attributes(resource_params)
 
     authorize @observation_diary_record

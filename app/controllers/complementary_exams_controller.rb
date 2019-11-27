@@ -61,6 +61,7 @@ class ComplementaryExamsController < ApplicationController
     @complementary_exam = ComplementaryExam.find(params[:id]).localized
     @complementary_exam.assign_attributes(resource_params)
     @complementary_exam.teacher_id = current_teacher_id
+    @complementary_exam.current_user = current_user
 
     authorize @complementary_exam
 

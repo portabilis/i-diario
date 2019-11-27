@@ -1,11 +1,19 @@
 require 'rails_helper'
 
 RSpec.describe ComplementaryExam, type: :model do
+  let(:current_user) { create(:user) }
+
   subject do
     create(
       :complementary_exam,
       :with_teacher_discipline_classroom
     )
+  end
+
+  before do
+    current_user.current_classroom_id = subject.classroom_id
+    current_user.current_discipline_id = subject.discipline_id
+    allow(subject).to receive(:current_user).and_return(current_user)
   end
 
   describe 'associations' do

@@ -13,6 +13,8 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   accepts_nested_attributes_for :content_record
   has_and_belongs_to_many :knowledge_areas
 
+  delegate :classroom_id, :classroom, to: :content_record
+
   scope :by_unity_id, lambda { |unity_id| joins(content_record: :classroom).where(Classroom.arel_table[:unity_id].eq(unity_id) ) }
   scope :by_teacher_id, lambda { |teacher_id| joins(:content_record).where(content_records: { teacher_id: teacher_id }) }
   scope :by_classroom_id, lambda { |classroom_id| joins(:content_record).where(content_records: { classroom_id: classroom_id }) }
