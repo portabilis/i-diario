@@ -233,6 +233,7 @@ class Avaliation < ActiveRecord::Base
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
+      self.validation_type = :destroy
       valid?
       !errors[:test_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end

@@ -53,6 +53,7 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
+      content_record.validation_type = :destroy
       content_record.valid?
       forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
       if content_record.errors[:record_date].include?(forbidden_error)
