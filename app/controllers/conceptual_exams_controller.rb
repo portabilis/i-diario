@@ -76,6 +76,7 @@ class ConceptualExamsController < ApplicationController
     @conceptual_exam.merge_conceptual_exam_values
     @conceptual_exam.step_number = @conceptual_exam.step.try(:step_number)
     @conceptual_exam.teacher_id = current_teacher_id
+    @conceptual_exam.current_user = current_user
 
     respond_to_save if @conceptual_exam.save
 
