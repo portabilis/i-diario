@@ -34,14 +34,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="7">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @knowledge_area_lesson_plans %>
-            </div>
-
-            <div class="pull-right">
-              <%= paginate @knowledge_area_lesson_plans %>
-            </div>
+          <td id="pagination-tfoot" colspan="7">
+            <%= render 'shared/pagination', records: @knowledge_area_lesson_plans %>
           </td>
         </tfoot>
       </table>
