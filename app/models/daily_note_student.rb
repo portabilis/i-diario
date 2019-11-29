@@ -44,7 +44,7 @@ class DailyNoteStudent < ActiveRecord::Base
   end
 
   def recovered_note
-    [recovery_note.to_f, note.to_f].max
+    recovery_note.to_f > note.to_f ? recovery_note : note
   end
 
   def recovery_note

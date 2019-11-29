@@ -68,11 +68,7 @@ class StudentAverageCalculator
   end
 
   def avaliation_count
-    count = 0
-
-    daily_note_students.each do |daily_note_student|
-      count += 1 if daily_note_student.recovered_note
-    end
+    count = daily_note_students.size
 
     recovery_diary_records.each do |recovery_diary_record|
       count += 1 if recovery_diary_record.students.find_by_student_id(student.id).try(&:score)
