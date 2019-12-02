@@ -18,7 +18,7 @@ class ContentsController < ApplicationController
       return unless teacher && classroom && knowledge_areas && date
       @contents = ContentsForKnowledgeAreaRecordFetcher.new(teacher, classroom, knowledge_areas, date).fetch
     else
-      @contents = apply_scopes(Content).ordered
+      @contents = apply_scopes(Content)
     end
     respond_with(@contents)
   end
