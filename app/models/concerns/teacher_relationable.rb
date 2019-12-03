@@ -11,6 +11,7 @@ module TeacherRelationable
     validate :ensure_teacher_can_post_to_discipline, if: :validate_discipline?
     validate :ensure_teacher_can_post_to_classroom_and_discipline, if: :validate_classroom_and_discipline?
     validate :ensure_teacher_can_post_to_grade, if: :validate_grade?
+    validate :ensure_teacher_can_post_to_grades, if: :validate_grades?
     validate :ensure_teacher_can_post_to_knowledge_areas, if: :validate_knowledge_areas?
   end
 
@@ -25,6 +26,7 @@ module TeacherRelationable
       @validate_columns[:classroom] = validate_columns.include?(:classroom)
       @validate_columns[:discipline] = validate_columns.include?(:discipline)
       @validate_columns[:grade] = validate_columns.include?(:grade)
+      @validate_columns[:grades] = validate_columns.include?(:grades)
       @validate_columns[:knowledge_areas] = validate_columns.include?(:knowledge_areas)
     end
   end
@@ -35,6 +37,7 @@ module TeacherRelationable
       params[:discipline_id] = discipline_id if validate_discipline?
       params[:classroom] = classroom if validate_classroom?
       params[:grade] = grade_id if validate_grade?
+      params[:grades] = grade_ids if validate_grades?
       params[:knowledge_areas] = knowledge_areas.map(&:id) if validate_knowledge_areas?
 
       TeacherRelationFetcher.new(params)
@@ -79,6 +82,10 @@ module TeacherRelationable
     self.class.validate_columns[:grade] && validate_columns? && grade_id.present?
   end
 
+  def validate_grades?
+    self.class.validate_columns[:grades] && validate_columns? && grade_ids.present?
+  end
+
   def validate_knowledge_areas?
     self.class.validate_columns[:knowledge_areas] && validate_columns? && knowledge_areas.present?
   end
@@ -114,6 +121,12 @@ module TeacherRelationable
     return if teacher_relation_fetcher.exists_grade_in_relation?
 
     errors.add(:grade_id, :not_belongs_to_teacher)
+  end
+
+  def ensure_teacher_can_post_to_grades
+    return if teacher_relation_fetcher.exists_all_grades_in_relation?
+
+    errors.add(:grade_ids, :not_belongs_to_teacher)
   end
 
   def ensure_teacher_can_post_to_knowledge_areas

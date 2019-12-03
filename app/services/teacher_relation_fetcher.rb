@@ -4,6 +4,7 @@ class TeacherRelationFetcher
     @discipline_id = params[:discipline_id]
     @classroom = params[:classroom]
     @grade_id = params[:grade]
+    @grade_ids = params[:grades]
     @knowledge_areas = params[:knowledge_areas]
   end
 
@@ -23,6 +24,14 @@ class TeacherRelationFetcher
 
   def exists_grade_in_relation?
     teacher_discipline_classrooms.by_grade_id(@grade_id).exists?
+  end
+
+  def exists_all_grades_in_relation?
+    @grade_ids.each do |grade_id|
+      return false unless teacher_discipline_classrooms.by_grade_id(grade_id).exists?
+    end
+
+    true
   end
 
   def exists_all_knowledge_areas_in_relation?

@@ -1,4 +1,8 @@
 class ComplementaryExamSetting < ActiveRecord::Base
+  include TeacherRelationable
+
+  teacher_relation_columns only: :grades
+
   acts_as_copy_target
 
   audited
