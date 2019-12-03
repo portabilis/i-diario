@@ -1,6 +1,4 @@
 class ComplementaryExamSettingsController < ApplicationController
-  before_action :require_current_teacher
-
   has_scope :page, default: 1, only: [:index]
   has_scope :per, default: 10, only: [:index]
 
@@ -75,9 +73,8 @@ class ComplementaryExamSettingsController < ApplicationController
   private
 
   def grades
-    @grades ||= Grade.joins(classrooms: [:exam_rule, :teacher_discipline_classrooms])
+    @grades ||= Grade.joins(classrooms: :exam_rule)
                      .merge(ExamRule.where(score_type: ScoreTypes::NUMERIC))
-                     .merge(TeacherDisciplineClassroom.where(teacher_id: current_teacher_id))
                      .ordered
                      .uniq
   end
