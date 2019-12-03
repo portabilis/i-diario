@@ -55,15 +55,11 @@ class DeficienciesSynchronizer < BaseSynchronizer
         student_id: student_id,
         unity_id: unity_id
       ).tap do |deficiency_student|
-        if deficiency_student.changed?
-          deficiency_student.save!
-          deficiency_student.discard_or_undiscard(false)
-
-          update_students_uses_differentiated_exam_rule(
-            student_id: student_id
-          )
-        end
+        deficiency_student.save! if deficiency_student.changed?
+        deficiency_student.discard_or_undiscard(false)
       end
+
+      update_students_uses_differentiated_exam_rule(student_id: student_id)
     end
 
     discard_inexisting_deficiency_students(deficiency_id, student_ids)
