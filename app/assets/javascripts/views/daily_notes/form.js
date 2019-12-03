@@ -1,4 +1,3 @@
-
 $(function() {
   function profileChanged(){
     var $daily_note_classroom_id = $('#daily_note_classroom_id').val();

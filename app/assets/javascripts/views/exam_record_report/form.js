@@ -1,4 +1,3 @@
-
 $(function() {
   function profileChanged(){
     var $exam_record_report_form_classroom_id = $('#exam_record_report_form_classroom_id').val();
