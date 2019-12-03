@@ -20,6 +20,10 @@ class ExamRecordReportController < ApplicationController
     end
   end
 
+  def profile_changed
+    render json: profile_changed?(params[:filter])
+  end
+
   private
 
   def build_by_school_steps

@@ -235,6 +235,7 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do
         get :search
+        get :profile_changed
       end
     end
     resources :daily_note_students, only: [:index] do
@@ -302,6 +303,7 @@ Rails.application.routes.draw do
     post '/reports/absence_justification', to: 'absence_justification_report#report', as: 'absence_justification_report'
 
     get '/reports/exam_record', to: 'exam_record_report#form', as: 'exam_record_report'
+    get '/reports/exam_record/profile_changed', to: 'exam_record_report#profile_changed'
     post '/reports/exam_record', to: 'exam_record_report#report', as: 'exam_record_report'
 
     get '/reports/partial_score_record', to: 'partial_score_record_report#form', as: 'partial_score_record_report'
