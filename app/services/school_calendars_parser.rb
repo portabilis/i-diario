@@ -31,6 +31,10 @@ class SchoolCalendarsParser
 
     new_school_calendars_from_api.map do |school_calendar_from_api|
       unity = Unity.find_by(api_code: school_calendar_from_api['escola_id'])
+      year = school_calendar_from_api['ano']
+
+      next if year > CurrentSchoolYearFetcher.new(unity).fetch
+
       school_calendar = SchoolCalendar.new(
         unity: unity,
         year: school_calendar_from_api['ano'].to_i,
@@ -92,6 +96,9 @@ class SchoolCalendarsParser
       year = school_calendar_from_api['ano'].to_i
 
       unity = Unity.find_by(api_code: unity_api_code)
+
+      next if year > CurrentSchoolYearFetcher.new(unity).fetch
+
       school_calendar = SchoolCalendar.by_year(year).by_unity_api_code(unity_api_code).first
       school_calendar.step_type_description = school_calendar_from_api['descricao']
 
