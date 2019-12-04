@@ -129,7 +129,11 @@ Rails.application.routes.draw do
     end
     resources  :user_roles, only: [:show]
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
-      resources :synchronizations, only: [:index, :create]
+      resources :synchronizations, only: [:index, :create] do
+        collection do
+          get :current_syncronization_data
+        end
+      end
     end
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
