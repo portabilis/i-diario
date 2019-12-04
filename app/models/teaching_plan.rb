@@ -2,7 +2,7 @@ class TeachingPlan < ActiveRecord::Base
   include Audit
   include TeacherRelationable
 
-  teacher_relation_columns only: :grade
+  teacher_relation_columns only: :grades
 
   audited except: [:old_contents, :teacher_id]
   has_associated_audits

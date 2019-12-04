@@ -3,7 +3,6 @@ class TeacherRelationFetcher
     @teacher_id = params[:teacher_id]
     @discipline_id = params[:discipline_id]
     @classroom = params[:classroom]
-    @grade_id = params[:grade]
     @grade_ids = params[:grades]
     @knowledge_areas = params[:knowledge_areas]
   end
@@ -20,10 +19,6 @@ class TeacherRelationFetcher
     teacher_discipline_classrooms.by_classroom(@classroom)
                                  .by_discipline_id(@discipline_id)
                                  .exists?
-  end
-
-  def exists_grade_in_relation?
-    teacher_discipline_classrooms.by_grade_id(@grade_id).exists?
   end
 
   def exists_all_grades_in_relation?
