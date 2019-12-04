@@ -1,3 +1,6 @@
 $('#resources-tbody').replaceWith('<%= escape_javascript(render('resources')) %>');
-$('#paginator .pagination').html('<%= escape_javascript(paginate(@discipline_lesson_plans, remote: true).to_s) %>');
-$('#page_entries_info').html('<%= escape_javascript(page_entries_info(@discipline_lesson_plans, remote: true).to_s) %>');
+$('#pagination-tfoot').html(
+  "<%=
+    escape_javascript(render(partial: 'shared/pagination', locals: { records: @discipline_lesson_plans }))
+  %>"
+);
