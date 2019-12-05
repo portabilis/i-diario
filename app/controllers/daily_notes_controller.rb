@@ -127,6 +127,10 @@ class DailyNotesController < ApplicationController
     render json: @daily_notes
   end
 
+  def profile_changed
+    render json: profile_changed?(params[:filter])
+  end
+
   protected
 
   def fetch_student_enrollments
