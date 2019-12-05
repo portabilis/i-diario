@@ -14,7 +14,7 @@ class RepeatRemoveDuplicatedTeacherDisciplineClassrooms < ActiveRecord::Migratio
         teacher_id: teacher_id,
         classroom_id: classroom_id,
         discipline_id: discipline_id
-      ).where.not(id: correct_id).delete_all
+      ).where.not(id: correct_id).each(&:destroy)
     end
   end
 end
