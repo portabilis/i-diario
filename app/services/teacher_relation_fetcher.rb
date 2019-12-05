@@ -22,11 +22,9 @@ class TeacherRelationFetcher
   end
 
   def exists_all_grades_in_relation?
-    @grade_ids.each do |grade_id|
-      return false unless teacher_discipline_classrooms.by_grade_id(grade_id).exists?
-    end
+    found_grade_ids = teacher_discipline_classrooms.by_grade_id(@grade_ids).pluck(:grade_id)
 
-    true
+    (@grade_ids & found_grade_ids) == @grade_ids
   end
 
   def exists_all_knowledge_areas_in_relation?
