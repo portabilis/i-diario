@@ -162,6 +162,11 @@ $ bundle exec rails server
 
 Para acessar o sistema, use a URL http://localhost:3000
 
+### [PgHero](https://github.com/ankane/pghero)
+
+Usamos o PgHero para monitorar o banco de dados. Recomendamos a leitura da
+documentação.
+
 ## Sincronização com i-Educar
 
 - Para executar a sincronização é necessário estar com o sidekiq rodando:
