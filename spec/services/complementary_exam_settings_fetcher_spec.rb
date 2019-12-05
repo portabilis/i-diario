@@ -12,6 +12,7 @@ RSpec.describe ComplementaryExamSettingsFetcher, type: :service do
   let!(:complementary_exam_setting) {
     create(
       :complementary_exam_setting,
+      :with_teacher_discipline_classroom,
       grade_ids: [classroom.grade_id]
     )
   }
