@@ -17,6 +17,7 @@ $(function() {
 
   function handleRequestSuccess(changed) {
     if (changed){
+      $(":submit").attr("disabled", true);
       location.reload();
     }
   };
