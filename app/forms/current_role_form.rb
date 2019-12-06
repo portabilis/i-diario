@@ -16,6 +16,7 @@ class CurrentRoleForm
   validates :current_classroom_id, presence: true, if: :is_teacher?
   validates :current_discipline_id, :assumed_teacher_id, presence: true, if: :require_allocation?
   validates :current_unity_id, presence: true, if: :require_unity?
+  validate :classroom_exists?, :discipline_exists?, if: :require_allocation?
 
   def initialize(attributes = {})
     @params = attributes
@@ -82,5 +83,17 @@ class CurrentRoleForm
   def unity_is_cost_center?
     return false if @params[:current_unity_id].blank?
     Unity.find(@params[:current_unity_id]).unit_type == 'cost_center'
+  end
+
+  def classroom_exists?
+    return if Classroom.find_by(id: current_classroom_id).present?
+
+    errors.add(:current_classroom_id, :invalid_classroom)
+  end
+
+  def discipline_exists?
+    return if Discipline.find_by(id: current_discipline_id).present?
+
+    errors.add(:current_discipline_id, :invalid_discipline)
   end
 end
