@@ -16,7 +16,8 @@ class CurrentRoleForm
   validates :current_classroom_id, presence: true, if: :is_teacher?
   validates :current_discipline_id, :assumed_teacher_id, presence: true, if: :require_allocation?
   validates :current_unity_id, presence: true, if: :require_unity?
-  validate :classroom_exists?, :discipline_exists?, if: :require_allocation?
+  validate :classroom_belongs_to_teacher?, if: :require_allocation?
+  validate :discipline_belongs_to_teacher?, if: :require_allocation?
 
   def initialize(attributes = {})
     @params = attributes
@@ -85,15 +86,23 @@ class CurrentRoleForm
     Unity.find(@params[:current_unity_id]).unit_type == 'cost_center'
   end
 
-  def classroom_exists?
-    return if Classroom.find_by(id: current_classroom_id).present?
+  def classroom_belongs_to_teacher?
+    return if teacher_relation_fetcher.exists_classroom_in_relation?
 
-    errors.add(:current_classroom_id, :invalid_classroom)
+    errors.add(:current_classroom_id, :not_belongs_to_teacher)
   end
 
-  def discipline_exists?
-    return if Discipline.find_by(id: current_discipline_id).present?
+  def discipline_belongs_to_teacher?
+    return if teacher_relation_fetcher.exists_discipline_in_relation?
 
-    errors.add(:current_discipline_id, :invalid_discipline)
+    errors.add(:current_discipline_id, :not_belongs_to_teacher)
+  end
+
+  def teacher_relation_fetcher
+    params = { teacher_id: assumed_teacher_id }
+    params[:discipline_id] = current_discipline_id
+    params[:classroom] = current_classroom_id
+
+    TeacherRelationFetcher.new(params)
   end
 end
