@@ -1,11 +1,10 @@
 class NullifyInvalidCurrentClassroomIdReferenceFromUsers < ActiveRecord::Migration
   def change
-    User.all.each do |user|
-      current_classroom_id = user.current_classroom_id
+    user_current_classroom_ids = User.pluck(:current_classroom_id).uniq.compact
+    classroom_ids = Classroom.where(id: user_current_classroom_ids).pluck(:id).uniq
 
-      if current_classroom_id.present? && !Classroom.find_by(id: current_classroom_id)
-        user.update(current_classroom_id: nil)
-      end
-    end
+    not_found = user_current_classroom_ids - classroom_ids
+
+    User.where(current_classroom_id: not_found).update_all(current_classroom_id: nil) if not_found.present?
   end
 end

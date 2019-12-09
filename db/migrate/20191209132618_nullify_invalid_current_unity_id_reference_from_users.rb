@@ -1,11 +1,10 @@
 class NullifyInvalidCurrentUnityIdReferenceFromUsers < ActiveRecord::Migration
   def change
-    User.all.each do |user|
-      current_unity_id = user.current_unity_id
+    user_current_unity_ids = User.pluck(:current_unity_id).uniq.compact
+    unity_ids = Unity.where(id: user_current_unity_ids).pluck(:id).uniq
 
-      if current_unity_id.present? && !Unity.find_by(id: current_unity_id)
-        user.update(current_unity_id: nil)
-      end
-    end
+    not_found = user_current_unity_ids - unity_ids
+
+    User.where(current_unity_id: not_found).update_all(current_unity_id: nil) if not_found.present?
   end
 end

@@ -1,11 +1,10 @@
 class NullifyInvalidAssumedTeacherIdReferenceFromUsers < ActiveRecord::Migration
   def change
-    User.all.each do |user|
-      assumed_teacher_id = user.assumed_teacher_id
+    user_assumed_teacher_ids = User.pluck(:assumed_teacher_id).uniq.compact
+    teacher_ids = Teacher.where(id: user_assumed_teacher_ids).pluck(:id).uniq
 
-      if assumed_teacher_id.present? && !Teacher.find_by(id: assumed_teacher_id)
-        user.update(assumed_teacher_id: nil)
-      end
-    end
+    not_found = user_assumed_teacher_ids - teacher_ids
+
+    User.where(assumed_teacher_id: not_found).update_all(assumed_teacher_id: nil) if not_found.present?
   end
 end
