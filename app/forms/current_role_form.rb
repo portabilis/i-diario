@@ -103,7 +103,7 @@ class CurrentRoleForm
       teacher_id: assumed_teacher_id,
       discipline_id: current_discipline_id,
       classroom: current_classroom_id
-     }
+    }
 
     TeacherRelationFetcher.new(params)
   end
