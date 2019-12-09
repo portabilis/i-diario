@@ -99,9 +99,11 @@ class CurrentRoleForm
   end
 
   def teacher_relation_fetcher
-    params = { teacher_id: assumed_teacher_id }
-    params[:discipline_id] = current_discipline_id
-    params[:classroom] = current_classroom_id
+    params = {
+      teacher_id: assumed_teacher_id,
+      discipline_id: current_discipline_id,
+      classroom: current_classroom_id
+     }
 
     TeacherRelationFetcher.new(params)
   end
