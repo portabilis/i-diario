@@ -79,7 +79,9 @@ class ConceptualExam < ActiveRecord::Base
     discipline_ids = TeacherDisciplineClassroom.by_classroom(classroom_id)
                                                .by_teacher_id(teacher_id)
                                                .pluck(:discipline_id)
-    incomplete_conceptual_exams_ids = ConceptualExamValue.active.where(value: nil)
+    incomplete_conceptual_exams_ids = ConceptualExamValue.joins(:conceptual_exam).active
+                                                         .where(value: nil)
+                                                         .where(conceptual_exams: { classroom_id: classroom_id })
                                                          .by_discipline_id(discipline_ids)
                                                          .group(:conceptual_exam_id)
                                                          .pluck(:conceptual_exam_id)
