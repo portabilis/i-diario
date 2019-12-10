@@ -25,6 +25,9 @@ class User < ActiveRecord::Base
   belongs_to :student
   belongs_to :teacher
   belongs_to :current_user_role, class_name: 'UserRole'
+  belongs_to :classroom, foreign_key: :current_classroom_id
+  belongs_to :discipline, foreign_key: :current_discipline_id
+  belongs_to :unity, foreign_key: :current_unity_id
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
