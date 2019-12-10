@@ -13,6 +13,15 @@ class SynchronizationsController < ApplicationController
     end
   end
 
+  def current_syncronization_data
+    current_syncronization = IeducarApiSynchronization.find_by(status: ApiSynchronizationStatus::STARTED)
+
+    render json: {
+      time_running: current_syncronization&.time_running,
+      done_percentage: current_syncronization&.done_percentage
+    }
+  end
+
   private
 
   def flash_for_sync_error
