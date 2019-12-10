@@ -16,7 +16,7 @@ class Content < ActiveRecord::Base
 
   scope :by_description, lambda { |description|
     where("contents.document_tokens @@ plainto_tsquery('portuguese', ?)", description).
-      order("ts_rank_cd(contents.document_tokens, plainto_tsquery('portuguese', '#{description}')) desc")
+      order("ts_rank_cd(contents.document_tokens, plainto_tsquery('portuguese', #{self.sanitize(description)})) desc")
   }
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_id, -> { order(id: :asc) }
