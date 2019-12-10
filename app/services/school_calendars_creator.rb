@@ -76,7 +76,8 @@ class SchoolCalendarsCreator
       school_calendar_classroom = SchoolCalendarClassroom.create!(
         school_calendar: school_calendar,
         step_type_description: classroom_params['step_type_description'],
-        classroom: Classroom.find_by(id: classroom_params['id'])
+        classroom_id: classroom_params['id'],
+        classroom_api_code: classroom_params['classroom_api_code']
       )
       classroom_steps = classroom_params['steps'] || []
       create_school_calendar_classroom_steps!(classroom_steps, school_calendar_classroom)

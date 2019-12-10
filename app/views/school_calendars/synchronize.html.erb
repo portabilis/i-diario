@@ -57,7 +57,8 @@
                   <% end %>
 
                   <% school_calendar.classrooms.each_with_index do |classroom, index| %>
-                    <input type="hidden" name="synchronize[][classrooms][][id]" value="<%= classroom.classroom_id %>">
+                    <input type="hidden" name="synchronize[][classrooms][][id]" value="<%= classroom.try(:classroom_id) %>">
+                    <input type="hidden" name="synchronize[][classrooms][][classroom_api_code]" value="<%= classroom.classroom_api_code %>">
                     <input type="hidden" name="synchronize[][classrooms][][_destroy]" value="<%= classroom.marked_for_destruction? %>">
                     <input type="hidden" name="synchronize[][classrooms][][step_type_description]" value="<%= classroom.step_type_description %>">
 

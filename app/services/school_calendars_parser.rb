@@ -1,6 +1,4 @@
 class SchoolCalendarsParser
-  class ClassroomNotFoundError < StandardError; end
-
   def initialize(configuration)
     @configuration = configuration
   end
@@ -50,9 +48,12 @@ class SchoolCalendarsParser
 
       steps_from_classrooms = get_school_calendar_classroom_steps(school_calendar_from_api['etapas_de_turmas'])
       steps_from_classrooms.each do |classroom_step|
-        classroom = SchoolCalendarClassroom.new(
-          classroom: find_classroom_by_api_code(classroom_step['turma_id'], unity),
-          step_type_description: classroom_step['descricao']
+        classroom = Classroom.find_by(api_code: classroom_step['turma_id'])
+
+        classroom_calendar = SchoolCalendarClassroom.new(
+          classroom_id: classroom.try(:id),
+          step_type_description: classroom_step['descricao'],
+          classroom_api_code: classroom_step['turma_id']
         )
         steps = []
         classroom_step['etapas'].each do |step|
@@ -65,7 +66,7 @@ class SchoolCalendarsParser
           )
         end
 
-        school_calendar.classrooms.build(classroom.attributes).classroom_steps.build(steps.collect{ |step| step.attributes })
+        school_calendar.classrooms.build(classroom_calendar.attributes).classroom_steps.build(steps.collect{ |step| step.attributes })
       end
 
       school_calendar
@@ -91,7 +92,6 @@ class SchoolCalendarsParser
       unity_api_code = school_calendar_from_api['escola_id']
       year = school_calendar_from_api['ano'].to_i
 
-      unity = Unity.find_by(api_code: unity_api_code)
       school_calendar = SchoolCalendar.by_year(year).by_unity_api_code(unity_api_code).first
       school_calendar.step_type_description = school_calendar_from_api['descricao']
 
@@ -150,8 +150,10 @@ class SchoolCalendarsParser
             end
           end
         else
-          classroom = SchoolCalendarClassroom.new(
-            classroom: find_classroom_by_api_code(classroom_step['turma_id'], unity),
+          classroom = Classroom.find_by(api_code: classroom_step['turma_id'])
+
+          classroom_calendar = SchoolCalendarClassroom.new(
+            classroom_id: classroom.try(:id),
             step_type_description: classroom_step['descricao']
           )
           steps = []
@@ -165,7 +167,7 @@ class SchoolCalendarsParser
             )
           end
 
-          school_calendar.classrooms.build(classroom.attributes).classroom_steps.build(steps.collect{ |step| step.attributes })
+          school_calendar.classrooms.build(classroom_calendar.attributes).classroom_steps.build(steps.collect{ |step| step.attributes })
         end
       end
 
@@ -264,17 +266,5 @@ class SchoolCalendarsParser
 
   def get_school_calendar_classroom_steps(classroom_steps)
     classroom_steps.nil? ? [] : classroom_steps
-  end
-
-  def find_classroom_by_api_code(api_code, unity)
-    classroom = Classroom.find_by(api_code: api_code)
-
-    return classroom if classroom.present?
-
-    raise ClassroomNotFoundError, I18n.t(
-      '.school_calendars.synchronize.classroom_not_found',
-      unity_name: unity.name,
-      classroom_code: api_code
-    )
   end
 end
