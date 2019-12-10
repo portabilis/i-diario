@@ -23,7 +23,10 @@ module ColumnsLockable
     return if validation_type == :destroy || not_validate_columns
 
     self.class.not_updatable_columns.each do |not_updatable_column|
-      next if self.send(not_updatable_column) == current_user.send("current_#{not_updatable_column}")
+      column_value = self.send(not_updatable_column)
+
+      next if column_value.blank?
+      next if column_value == current_user.send("current_#{not_updatable_column}")
 
       errors.add(not_updatable_column, :not_selected_in_profile)
     end

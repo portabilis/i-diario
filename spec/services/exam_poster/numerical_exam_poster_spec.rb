@@ -48,6 +48,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
   let(:complementary_exam_setting) {
     create(
       :complementary_exam_setting,
+      :with_teacher_discipline_classroom,
       grades: [classroom.grade],
       calculation_type: CalculationTypes::SUM
     )

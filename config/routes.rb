@@ -2,6 +2,7 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
+  mount PgHero::Engine, at: 'pghero'
 
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
 
@@ -235,6 +236,7 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do
         get :search
+        get :profile_changed
       end
     end
     resources :daily_note_students, only: [:index] do

@@ -70,15 +70,19 @@ class ConceptualExamsController < ApplicationController
   end
 
   def create
-    @conceptual_exam = find_or_initialize_conceptual_exam
-    authorize @conceptual_exam
-    @conceptual_exam.assign_attributes(resource_params)
-    @conceptual_exam.merge_conceptual_exam_values
-    @conceptual_exam.step_number = @conceptual_exam.step.try(:step_number)
-    @conceptual_exam.teacher_id = current_teacher_id
-    @conceptual_exam.current_user = current_user
+    begin
+      @conceptual_exam = find_or_initialize_conceptual_exam
+      authorize @conceptual_exam
+      @conceptual_exam.assign_attributes(resource_params)
+      @conceptual_exam.merge_conceptual_exam_values
+      @conceptual_exam.step_number = @conceptual_exam.step.try(:step_number)
+      @conceptual_exam.teacher_id = current_teacher_id
+      @conceptual_exam.current_user = current_user
 
-    respond_to_save if @conceptual_exam.save
+      respond_to_save if @conceptual_exam.save
+    rescue ActiveRecord::RecordNotUnique
+      retry
+    end
 
     return if performed?
 

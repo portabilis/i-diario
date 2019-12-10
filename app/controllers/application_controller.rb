@@ -350,6 +350,16 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def profile_changed?(params)
+    params.each do |key, value|
+      next if current_user.send(key).to_i == value.to_i
+
+      return true
+    end
+
+    false
+  end
+
   private
 
   def disabled_entity_page?
