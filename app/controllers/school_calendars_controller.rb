@@ -58,7 +58,7 @@ class SchoolCalendarsController < ApplicationController
 
   def synchronize
     begin
-      @school_calendars = SchoolCalendarsParser.parse!(IeducarApiConfiguration.current).compact
+      @school_calendars = SchoolCalendarsParser.parse!(IeducarApiConfiguration.current)
 
       authorize(SchoolCalendar, :create?)
       authorize(SchoolCalendar, :update?)
