@@ -36,7 +36,7 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.exam_rule_id = exam_rule(classroom_record.regra_avaliacao_id).try(:id)
         classroom.save! if classroom.changed?
 
-        if (classroom_calendar = outdated_classroom_calendar?(unity.id, classroom_record.id).presence)
+        if (classroom_calendar = outdated_classroom_calendar(classroom_record.id).presence)
           classroom_calendar.update(classroom_id: classroom.id)
         end
 
@@ -53,17 +53,10 @@ class ClassroomsSynchronizer < BaseSynchronizer
     end
   end
 
-  def outdated_classroom_calendar?(unity_id, classroom_api_code)
-    school_calendar_ids = school_calendar_ids(unity_id)
-
+  def outdated_classroom_calendar(classroom_api_code)
     SchoolCalendarClassroom.find_by(
-      school_calendar_id: school_calendar_ids,
       classroom_id: nil,
       classroom_api_code: classroom_api_code
     )
-  end
-
-  def school_calendar_ids(unity_id)
-    @school_calendar_ids ||= SchoolCalendar.by_unity_id(unity_id).pluck(:id)
   end
 end
