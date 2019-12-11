@@ -104,6 +104,9 @@ class KnowledgeAreaContentRecordReport < BaseReport
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    if @show_daily_activities_in_knowledge_area_content_record_report
+      @daily_acitivies_header = make_cell(content: 'Registro diário das atividades', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    end
 
     @unity_cell = make_cell(content:  @knowledge_area_content_records.first.content_record.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4])
     @classroom_cell = make_cell(content: @knowledge_area_content_records.first.content_record.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
@@ -157,6 +160,10 @@ class KnowledgeAreaContentRecordReport < BaseReport
       @conteudo_header
     ]
 
+    if @show_daily_activities_in_knowledge_area_content_record_report
+      general_information_headers << @daily_acitivies_header
+    end
+
     general_information_cells = []
 
     @knowledge_area_content_records.each do |knowledge_area_content_record|
@@ -165,11 +172,19 @@ class KnowledgeAreaContentRecordReport < BaseReport
       content_cell = make_cell(content: content_cell_content(knowledge_area_content_record.content_record), size: 10, align: :left)
       knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, width: 150, align: :left)
 
+      if @show_daily_activities_in_knowledge_area_content_record_report
+        daily_activties_cell = make_cell(content: knowledge_area_content_record.content_record.daily_activities_record.to_s, size: 10, align: :left)
+      end
+
       general_information_cells << [
         record_date_cell,
         knowledge_area_cell,
         content_cell
       ]
+
+      if @show_daily_activities_in_knowledge_area_content_record_report
+        general_information_cells.last << daily_activties_cell
+      end
     end
 
     general_information_table_data = [general_information_headers]
