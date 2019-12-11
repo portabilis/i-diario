@@ -104,13 +104,11 @@ class KnowledgeAreaContentRecordReport < BaseReport
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @teacher_header = make_cell(content: 'Professor', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
-    @daily_record_header = make_cell(content: 'Registro diário das atividades', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
 
     @unity_cell = make_cell(content:  @knowledge_area_content_records.first.content_record.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4])
     @classroom_cell = make_cell(content: @knowledge_area_content_records.first.content_record.classroom.description, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @teacher_cell = make_cell(content: @current_teacher.name, borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
     @period_cell = make_cell(content: (@date_start == '' || @date_end == '' ? '-' : "#{@date_start} a #{@date_end}"), borders: [:bottom, :left, :right], size: 10, align: :left, padding: [0, 2, 4, 4])
-    @daily_record_cell = make_cell(content: @knowledge_area_content_records.first.content_record.daily_activities_record, borders: [:bottom, :left, :right], size: 10, width: 240, align: :justify, padding: [0, 4, 4, 4], colspan: 2)
 
     @record_date_header = make_cell(content: 'Data', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
@@ -128,10 +126,6 @@ class KnowledgeAreaContentRecordReport < BaseReport
       [@teacher_header, @period_header],
       [@teacher_cell, @period_cell]
     ]
-
-    if @knowledge_area_content_records.first.content_record.daily_activities_record.present?
-      identification_table_data << [@daily_record_header] << [@daily_record_cell]
-    end
 
     table(title_identification, width: bounds.width, header: true) do
       cells.border_width = 0.25
@@ -168,13 +162,13 @@ class KnowledgeAreaContentRecordReport < BaseReport
     @knowledge_area_content_records.each do |knowledge_area_content_record|
       knowledge_area_descriptions = knowledge_area_content_record.knowledge_areas.map(&:description).join(", ")
       record_date_cell = make_cell(content: knowledge_area_content_record.content_record.record_date.strftime("%d/%m/%Y"), size: 10, width: 80, align: :left)
-      conteudo_cell = make_cell(content: knowledge_area_content_record.content_record.contents_ordered.map(&:to_s).join(", "), size: 10, align: :left)
+      content_cell = make_cell(content: content_cell_content(knowledge_area_content_record.content_record), size: 10, align: :left)
       knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, width: 150, align: :left)
 
       general_information_cells << [
         record_date_cell,
         knowledge_area_cell,
-        conteudo_cell
+        content_cell
       ]
     end
 
@@ -204,6 +198,10 @@ class KnowledgeAreaContentRecordReport < BaseReport
       general_information
       signatures
     end
+  end
+
+  def content_cell_content(content_record)
+    content_record.contents_ordered.map(&:to_s).join(', ')
   end
 
   def signatures
