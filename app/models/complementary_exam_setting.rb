@@ -50,6 +50,10 @@ class ComplementaryExamSetting < ActiveRecord::Base
     description
   end
 
+  def optional_teacher
+    true
+  end
+
   private
 
   def self.by_grade_id_scope(grade_id)
