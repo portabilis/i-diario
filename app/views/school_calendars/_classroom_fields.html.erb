@@ -1,4 +1,12 @@
-<h3><%= f.object.classroom %></h3>
+<% if f.object.classroom_id %>
+  <h3><%= f.object.classroom %></h3>
+<% else %>
+  <div class="alert alert-warning">
+    <i class="fa fa-exclamation-circle fa-fw"></i>
+    Precisa <a href='<%= edit_ieducar_api_configurations_path %>'>sincronizar</a>
+    para que seja efetivo o uso desta etapa específica da turma <%= f.object.classroom_api_code %>
+  </div>
+<% end %>
 
 <table class="table table-striped table-bordered table-condensed records">
   <thead>
@@ -12,7 +20,7 @@
 
   <tbody id="school-calendar-classroom-steps">
     <%= f.simple_fields_for :classroom_steps do |step| %>
-      <%= render 'step_fields', f: step %>
+      <%= render 'step_fields', f: step, disabled: f.object.classroom_id.blank? %>
     <% end %>
   </tbody>
 </table>

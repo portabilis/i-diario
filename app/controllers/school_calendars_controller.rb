@@ -57,14 +57,10 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def synchronize
-    begin
-      @school_calendars = SchoolCalendarsParser.parse!(IeducarApiConfiguration.current)
+    @school_calendars = SchoolCalendarsParser.parse!(IeducarApiConfiguration.current)
 
-      authorize(SchoolCalendar, :create?)
-      authorize(SchoolCalendar, :update?)
-    rescue SchoolCalendarsParser::ClassroomNotFoundError => error
-      redirect_to edit_ieducar_api_configurations_path, alert: error.to_s
-    end
+    authorize(SchoolCalendar, :create?)
+    authorize(SchoolCalendar, :update?)
   end
 
   def create_and_update_batch
