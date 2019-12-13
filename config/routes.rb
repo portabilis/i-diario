@@ -174,8 +174,6 @@ Rails.application.routes.draw do
     resources :school_calendars, concerns: :history do
       collection do
         get :step
-        get :synchronize
-        post :create_and_update_batch
         get :years_from_unity
       end
 

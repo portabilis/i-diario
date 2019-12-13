@@ -56,24 +56,6 @@ class SchoolCalendarsController < ApplicationController
     respond_with @school_calendar
   end
 
-  def synchronize
-    @school_calendars = SchoolCalendarsParser.parse!(IeducarApiConfiguration.current)
-
-    authorize(SchoolCalendar, :create?)
-    authorize(SchoolCalendar, :update?)
-  end
-
-  def create_and_update_batch
-    selected_school_calendars(params[:synchronize]).each do |school_calendar|
-      SchoolCalendarSynchronizerService.synchronize(school_calendar)
-    end
-
-    redirect_to school_calendars_path, notice: t('.notice')
-  rescue SchoolCalendarSynchronizerService::InvalidSchoolCalendarError,
-         SchoolCalendarSynchronizerService::InvalidClassroomCalendarError => error
-    redirect_to school_calendars_path, alert: error.message
-  end
-
   def years_from_unity
     @years = YearsFromUnityFetcher.new(params[:unity_id]).fetch.map{ |year| { id: year, name: year } }
 
@@ -88,10 +70,6 @@ class SchoolCalendarsController < ApplicationController
   end
 
   private
-
-  def selected_school_calendars(school_calendars)
-    school_calendars.select { |school_calendar| school_calendar[:unity_id].present? }
-  end
 
   def filtering_params(params)
     params = {} unless params

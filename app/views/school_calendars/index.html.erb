@@ -11,7 +11,11 @@
                 <% end %>
               </td>
               <td></td>
-              <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px"><%= link_to t('.synchronize_html'), synchronize_school_calendars_path, class: "btn btn-info pull-right" %></td>
+              <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px">
+                <a onclick="alert('<%= t('.synchronize_html') %>')" class="btn btn-info pull-right">
+                  <i class="fa fa-refresh"></i> Sincronizar
+                </a>
+              </td>
             </tr>
           <tr>
             <th><%= SchoolCalendar.human_attribute_name :year %></th>
