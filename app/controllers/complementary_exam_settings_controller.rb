@@ -43,6 +43,7 @@ class ComplementaryExamSettingsController < ApplicationController
 
   def update
     @complementary_exam_setting = resource
+    resource.teacher_id = current_teacher_id
     assign_attributes(@complementary_exam_setting.localized)
 
     authorize @complementary_exam_setting
