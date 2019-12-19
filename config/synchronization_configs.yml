@@ -2,9 +2,16 @@ synchronizers:
   -
     klass: SchoolCalendarsSynchronizer
     by_year: false
-    by_unity: false
+    by_unity: true
     dependents: [
-      SchoolCalendarClassroomsSynchronizer
+      DefaultSynchronizer
+    ]
+  -
+    klass: DefaultSynchronizer
+    by_year: false
+    by_unity: false
+    dependencies: [
+      SchoolCalendarsSynchronizer
     ]
   -
     klass: UnityParamsSynchronizer
@@ -184,9 +191,8 @@ synchronizers:
     ]
   -
     klass: SchoolCalendarClassroomsSynchronizer
-    by_year: false
-    by_unity: false
+    by_year: true
+    by_unity: true
     dependencies: [
-      SchoolCalendarsSynchronizer,
       ClassroomsSynchronizer
     ]

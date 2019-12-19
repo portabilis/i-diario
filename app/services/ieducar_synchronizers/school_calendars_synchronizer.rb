@@ -17,6 +17,8 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
 
   def update_school_calendars(school_calendars)
     school_calendars.each do |school_calendar_record|
+      next unless school_calendar_record.ano_em_aberto
+
       unity_id = unity(school_calendar_record.escola_id).try(&:id)
 
       next if unity_id.blank?
