@@ -4,6 +4,8 @@ class ComplementaryExamSettingsController < ApplicationController
 
   respond_to :html, :js, :json
 
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+
   def index
     @complementary_exam_settings = apply_scopes(ComplementaryExamSetting).includes(:grades).ordered
     authorize @complementary_exam_settings

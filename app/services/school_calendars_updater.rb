@@ -10,9 +10,19 @@ class SchoolCalendarsUpdater
   def update!
     ActiveRecord::Base.transaction do
       if @school_calendar['school_calendar_id'].present?
-        school_calendar = SchoolCalendar.find_by(id: @school_calendar['school_calendar_id'])
-        if school_calendar.step_type_description != @school_calendar['step_type_description']
-          school_calendar.update!(step_type_description: @school_calendar['step_type_description'])
+        school_calendar = SchoolCalendar.find_by(
+          id: @school_calendar['school_calendar_id']
+        ).tap do |school_calendar_record|
+          school_calendar_record.step_type_description = @school_calendar['step_type_description']
+          school_calendar_record.opened_year = @school_calendar['opened_year']
+          school_calendar_record.save! if school_calendar_record.changed?
+        end
+
+        unless school_calendar.opened_year
+          remove_closed_years_on_selected_profiles(
+            school_calendar.unity_id,
+            school_calendar.year
+          )
         end
 
         begin
@@ -48,6 +58,17 @@ class SchoolCalendarsUpdater
   end
 
   private
+
+  def remove_closed_years_on_selected_profiles(unity_id, year)
+    return if unity_id.blank? || year.blank?
+
+    RemoveClosedYearsOnSelectedProfilesWorker.perform_in(
+      1.second,
+      current_entity.id,
+      unity_id,
+      year
+    )
+  end
 
   def update_school_calendar_steps(school_calendar)
     school_calendar_steps_ids_marked_for_destruction = []

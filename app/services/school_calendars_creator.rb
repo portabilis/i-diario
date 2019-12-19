@@ -9,7 +9,9 @@ class SchoolCalendarsCreator
 
   def create!
     ActiveRecord::Base.transaction do
-      if @school_calendar['school_calendar_id'].blank?
+      opened_year = ActiveRecord::Type::Boolean.new.type_cast_from_user(@school_calendar['opened_year'])
+
+      if @school_calendar['school_calendar_id'].blank? && opened_year
         begin
           school_calendar = create_school_calendar!(@school_calendar)
           school_calendar_steps = @school_calendar['steps'] || []
@@ -52,7 +54,8 @@ class SchoolCalendarsCreator
       year: school_calendar['year'],
       unity_id: school_calendar['unity_id'],
       number_of_classes: school_calendar['number_of_classes'],
-      step_type_description: school_calendar['step_type_description']
+      step_type_description: school_calendar['step_type_description'],
+      opened_year: school_calendar['ano_em_aberto']
     )
 
     school_calendar

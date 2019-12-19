@@ -33,7 +33,8 @@ class SchoolCalendarsParser
         unity: unity,
         year: school_calendar_from_api['ano'].to_i,
         number_of_classes: 4,
-        step_type_description: school_calendar_from_api['descricao']
+        step_type_description: school_calendar_from_api['descricao'],
+        opened_year: school_calendar_from_api['ano_em_aberto']
       )
 
       school_calendar_from_api['etapas'].each do |step|
@@ -94,6 +95,7 @@ class SchoolCalendarsParser
 
       school_calendar = SchoolCalendar.by_year(year).by_unity_api_code(unity_api_code).first
       school_calendar.step_type_description = school_calendar_from_api['descricao']
+      school_calendar.opened_year = school_calendar_from_api['ano_em_aberto']
 
       school_calendar_from_api['etapas'].each_with_index do |step, index|
         school_calendar_step = school_calendar.steps[index]
