@@ -144,8 +144,6 @@ Rails.application.routes.draw do
     resources :unities, concerns: :history do
       collection do
         delete :destroy_batch
-        get :synchronizations
-        post :create_batch
         get :search
         get :all
         get :select2_remote

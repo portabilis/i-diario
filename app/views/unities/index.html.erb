@@ -26,9 +26,9 @@
           <td><%= f.input :responsible, label: false, placeholder: "Filtrar responsável" %></td>
 
           <td class="actions">
-            <% if policy(Unity).new? %>
-              <%= link_to t('.synchronize_html'), synchronizations_unities_path, class: "btn btn-info" %>
-            <% end %>
+            <a onclick="alert('<%= t('.synchronize_html') %>')" class="btn btn-info">
+              <i class="fa fa-refresh"></i> Sincronizar
+            </a>
           </td>
         </tr>
         <tr>
