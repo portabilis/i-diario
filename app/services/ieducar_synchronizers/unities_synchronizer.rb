@@ -25,7 +25,31 @@ class UnitiesSynchronizer
     worker_state = WorkerState.find(worker_state_id)
     worker_state.start!
 
-    sleep(5.second)
+    schools.each do |school_record|
+      Unity.find_or_initialize_by(
+        name: school_record.nome,
+        api_code: school_record.cod_escola
+      ).tap do |unity|
+        unity.email = school_record.email.try(:strip)
+        unity.phone = self.format_phone(school_record)
+        unity.responsible = school_record.nome_responsavel
+        unity.unit_type = UnitTypes::SCHOOL_UNIT
+        unity.api = true
+        unity.author_id = self.author.id
+
+        unity.address ||= unity.build_address
+        unity.address.street = school_record.logradouro
+        unity.address.zip_code = self.format_cep(school_record.cep)
+        unity.address.number = school_record.numero
+        unity.address.complement = school_record.complemento
+        unity.address.neighborhood = school_record.bairro
+        unity.address.city = school_record.municipio
+        unity.address.state = school_record.uf.try(&:downcase)
+        unity.address.country = 'Brasil'
+
+        unity.save(validate: false) if unity.changed?
+      end
+    end
 
     worker_batch.increment
     worker_state.end!
@@ -47,5 +71,25 @@ class UnitiesSynchronizer
     worker_state.mark_with_error!(error.message) if error.message != '502 Bad Gateway'
 
     raise error
+  end
+
+  def format_phone(record)
+    "(#{record.ddd}) #{record.fone}" if record.fone.present?
+  end
+
+  def format_cep(value)
+    return nil if value.blank? || value.strip.blank?
+
+    value = value.strip.gsub(/[^\d+]/, '')
+
+    return nil if value.length != 8
+
+    pre, suf = value.match(/([0-9]{5})([0-9]{3})/).captures
+
+    "#{pre}-#{suf}"
+  end
+
+  def author
+    @author ||= User.admin.first
   end
 end
