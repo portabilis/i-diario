@@ -12,9 +12,16 @@
               </td>
               <td></td>
               <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px">
-                <a onclick="alert('<%= t('.synchronize_html') %>')" class="btn btn-info pull-right">
+                <a onclick="goToSync()" class="btn btn-info pull-right">
                   <i class="fa fa-refresh"></i> Sincronizar
                 </a>
+                <script>
+                  function goToSync() {
+                    alert('<%= t('.synchronize_html') %>');
+
+                    location.href = Routes.edit_ieducar_api_configurations_pt_br_path();
+                  }
+                </script>
               </td>
             </tr>
           <tr>

@@ -26,9 +26,16 @@
           <td><%= f.input :responsible, label: false, placeholder: "Filtrar responsável" %></td>
 
           <td class="actions">
-            <a onclick="alert('<%= t('.synchronize_html') %>')" class="btn btn-info">
+            <a onclick="goToSync()" class="btn btn-info">
               <i class="fa fa-refresh"></i> Sincronizar
             </a>
+            <script>
+              function goToSync() {
+                alert('<%= t('.synchronize_html') %>');
+
+                location.href = Routes.edit_ieducar_api_configurations_pt_br_path();
+              }
+            </script>
           </td>
         </tr>
         <tr>
