@@ -207,7 +207,7 @@ class ApplicationController < ActionController::Base
 
   def require_allow_to_modify_prev_years
     return if can_change_school_year?
-    return if last_step_end_date_for_posting <= Date.current
+    return if (first_step_start_date_for_posting..last_step_end_date_for_posting).to_a.include?(Date.current)
 
     flash[:alert] = t('errors.general.not_allowed_to_modify_prev_years')
     redirect_to root_path
@@ -373,11 +373,20 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def last_step_end_date_for_posting
-    step = steps_fetcher.steps if current_user_classroom.present?
-    step ||= SchoolCalendar.find_by(unity_id: current_unity_id, year: current_school_year).steps
+  def current_year_steps
+    @current_year_steps ||= begin
+      steps = steps_fetcher.steps if current_user_classroom.present?
+      steps ||= SchoolCalendar.find_by(unity_id: current_user_unity.id, year: current_user_school_year).steps
+      steps
+    end
+  end
 
-    step.last.end_date_for_posting
+  def first_step_start_date_for_posting
+    current_year_steps.first.start_date_for_posting
+  end
+
+  def last_step_end_date_for_posting
+    current_year_steps.last.end_date_for_posting
   end
 
   def disabled_entity_page?
