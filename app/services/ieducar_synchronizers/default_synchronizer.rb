@@ -1,4 +1,6 @@
 class DefaultSynchronizer
+  DEFAULT_SYNCHRONIZER_COUNT = 1
+
   def self.synchronize!(params)
     new(params).synchronize
   end
@@ -11,7 +13,9 @@ class DefaultSynchronizer
   end
 
   def synchronize
-    @synchronization.worker_batch.update(total_workers: total_synchronizers(@synchronization.full_synchronization))
+    @worker_batch.update(
+      total_workers: total_synchronizers(@synchronization.full_synchronization) + DEFAULT_SYNCHRONIZER_COUNT
+    )
 
     SynchronizationConfigs.without_dependencies.each do |synchronizer|
       SynchronizerBuilderWorker.perform_async(
@@ -25,6 +29,14 @@ class DefaultSynchronizer
         filtered_by_unity: synchronizer[:by_unity]
       )
     end
+
+    worker_state = WorkerState.find_by(
+      worker_batch_id: @worker_batch.id,
+      kind: DefaultSynchronizer.to_s
+    )
+
+    @worker_batch.increment
+    worker_state.end!
   end
 
   def unities_api_code
