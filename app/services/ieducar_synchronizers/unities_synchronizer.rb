@@ -21,9 +21,7 @@ class UnitiesSynchronizer
   attr_accessor :synchronization_id, :worker_batch_id, :worker_state_id, :entity_id, :last_two_years
 
   def update_schools(schools)
-    worker_batch = WorkerBatch.find(worker_batch_id)
-    worker_state = WorkerState.find(worker_state_id)
-    worker_state.start!
+    worker_state = start_worker_state
 
     schools.each do |school_record|
       Unity.find_or_initialize_by(
@@ -51,7 +49,7 @@ class UnitiesSynchronizer
       end
     end
 
-    worker_batch.increment
+    increment_worker_batch
     worker_state.end!
 
     unities_api_code = Unity.with_api_code.pluck(:api_code)
@@ -71,6 +69,18 @@ class UnitiesSynchronizer
     worker_state.mark_with_error!(error.message) if error.message != '502 Bad Gateway'
 
     raise error
+  end
+
+  def start_worker_state
+    worker_state = WorkerState.find(worker_state_id)
+    worker_state.start!
+
+    worker_state
+  end
+
+  def increment_worker_batch
+    worker_batch = WorkerBatch.find(worker_batch_id)
+    worker_batch.increment
   end
 
   def format_phone(record)
