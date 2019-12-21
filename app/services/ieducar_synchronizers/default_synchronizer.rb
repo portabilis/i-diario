@@ -10,6 +10,7 @@ class DefaultSynchronizer
     @last_two_years = params[:last_two_years]
     @synchronization = params[:synchronization]
     @worker_batch = params[:worker_batch]
+    @unities_api_code = params[:unities_api_code]
   end
 
   def synchronize
@@ -23,10 +24,11 @@ class DefaultSynchronizer
         synchronization_id: @synchronization.id,
         worker_batch_id: @worker_batch.id,
         entity_id: @entity_id,
-        years: years_to_synchronize(@last_two_years),
+        years: years_to_synchronize,
         unities_api_code: unities_api_code,
         filtered_by_year: synchronizer[:by_year],
-        filtered_by_unity: synchronizer[:by_unity]
+        filtered_by_unity: synchronizer[:by_unity],
+        last_two_years: @last_two_years
       )
     end
 
@@ -39,11 +41,11 @@ class DefaultSynchronizer
     worker_state.end!
   end
 
-  def unities_api_code
-    @unities_api_code ||= Unity.with_api_code.pluck(:api_code)
-  end
+  private
 
-  def years_to_synchronize(last_two_years = false)
+  attr_accessor :unities_api_code, :last_two_years
+
+  def years_to_synchronize
     @years_to_synchronize ||= begin
       years = Unity.with_api_code
                    .joins(:school_calendars)

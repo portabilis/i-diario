@@ -74,6 +74,6 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
   def destroy_removed_steps(school_calendar_classroom_id)
     SchoolCalendarClassroomStep.where(school_calendar_classroom_id: school_calendar_classroom_id)
                                .where.not(id: @school_calendar_classroom_steps_ids)
-                               .each(&:destroy)
+                               .destroy_all
   end
 end

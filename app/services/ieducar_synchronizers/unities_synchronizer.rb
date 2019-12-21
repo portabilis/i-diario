@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 class UnitiesSynchronizer
+  DEFAULT_COUNTRY = 'Brasil'
+
   def self.synchronize!(params)
     synchronization = IeducarApiSynchronization.started.find_by(id: params[:synchronization_id])
     api = IeducarApi::Schools.new(synchronization.to_api, synchronization.full_synchronization)
@@ -18,36 +22,10 @@ class UnitiesSynchronizer
     self.last_two_years = params[:last_two_years]
   end
 
-  attr_accessor :synchronization_id, :worker_batch_id, :worker_state_id, :entity_id, :last_two_years
-
   def update_schools(schools)
     worker_state = start_worker_state
 
-    schools.each do |school_record|
-      Unity.find_or_initialize_by(
-        name: school_record.nome,
-        api_code: school_record.cod_escola
-      ).tap do |unity|
-        unity.email = school_record.email.try(:strip)
-        unity.phone = self.format_phone(school_record)
-        unity.responsible = school_record.nome_responsavel
-        unity.unit_type = UnitTypes::SCHOOL_UNIT
-        unity.api = true
-        unity.author_id = self.author.id
-
-        unity.address ||= unity.build_address
-        unity.address.street = school_record.logradouro
-        unity.address.zip_code = self.format_cep(school_record.cep)
-        unity.address.number = school_record.numero
-        unity.address.complement = school_record.complemento
-        unity.address.neighborhood = school_record.bairro
-        unity.address.city = school_record.municipio
-        unity.address.state = school_record.uf.try(&:downcase)
-        unity.address.country = 'Brasil'
-
-        unity.save(validate: false) if unity.changed?
-      end
-    end
+    create_or_update_schools(schools)
 
     increment_worker_batch
     worker_state.end!
@@ -69,6 +47,38 @@ class UnitiesSynchronizer
     worker_state.mark_with_error!(error.message) if error.message != '502 Bad Gateway'
 
     raise error
+  end
+
+  private
+
+  attr_accessor :synchronization_id, :worker_batch_id, :worker_state_id, :entity_id, :last_two_years
+
+  def create_or_update_schools(schools)
+    schools.each do |school_record|
+      Unity.find_or_initialize_by(
+        name: school_record.nome,
+        api_code: school_record.cod_escola
+      ).tap do |unity|
+        unity.email = school_record.email.try(:strip)
+        unity.phone = format_phone(school_record)
+        unity.responsible = school_record.nome_responsavel
+        unity.unit_type = UnitTypes::SCHOOL_UNIT
+        unity.api = true
+        unity.author_id = author.id
+
+        unity.address ||= unity.build_address
+        unity.address.street = school_record.logradouro
+        unity.address.zip_code = format_cep(school_record.cep)
+        unity.address.number = school_record.numero
+        unity.address.complement = school_record.complemento
+        unity.address.neighborhood = school_record.bairro
+        unity.address.city = school_record.municipio
+        unity.address.state = school_record.uf.try(&:downcase)
+        unity.address.country = DEFAULT_COUNTRY
+
+        unity.save(validate: false) if unity.changed?
+      end
+    end
   end
 
   def start_worker_state
