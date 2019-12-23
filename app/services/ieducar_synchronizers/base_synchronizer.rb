@@ -11,7 +11,9 @@ class BaseSynchronizer
           :worker_batch,
           :year,
           :unity_api_code,
-          :entity_id
+          :unities_api_code,
+          :entity_id,
+          :last_two_years
         )
       ).synchronize!
 
@@ -43,7 +45,9 @@ class BaseSynchronizer
       params.slice(
         :entity_id,
         :year,
-        :unity_api_code
+        :unity_api_code,
+        :unities_api_code,
+        :last_two_years
       ).merge(
         klass: worker_name,
         synchronization_id: params[:synchronization].id,
@@ -58,13 +62,15 @@ class BaseSynchronizer
     self.entity_id = params[:entity_id]
     self.year = params[:year]
     self.unity_api_code = params[:unity_api_code]
+    self.unities_api_code = params[:unities_api_code]
+    self.last_two_years = params[:last_two_years]
     self.filtered_by_unity = params[:filtered_by_unity]
   end
 
   protected
 
   attr_accessor :synchronization, :worker_batch, :worker_state, :entity_id, :year, :unity_api_code,
-                :filtered_by_year, :filtered_by_unity
+                :filtered_by_year, :filtered_by_unity, :unities_api_code, :last_two_years
 
   def api
     @api = api_class.new(synchronization.to_api, synchronization.full_synchronization)

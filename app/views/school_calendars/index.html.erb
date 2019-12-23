@@ -11,7 +11,18 @@
                 <% end %>
               </td>
               <td></td>
-              <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px"><%= link_to t('.synchronize_html'), synchronize_school_calendars_path, class: "btn btn-info pull-right" %></td>
+              <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px">
+                <a onclick="goToSync()" class="btn btn-info pull-right">
+                  <i class="fa fa-refresh"></i> Sincronizar
+                </a>
+                <script>
+                  function goToSync() {
+                    alert('<%= t('.synchronize_html') %>');
+
+                    location.href = Routes.edit_ieducar_api_configurations_pt_br_path();
+                  }
+                </script>
+              </td>
             </tr>
           <tr>
             <th><%= SchoolCalendar.human_attribute_name :year %></th>

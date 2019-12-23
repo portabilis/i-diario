@@ -20,8 +20,10 @@ class SynchronizerExecuterWorker < BaseSynchronizerWorker
       :worker_state_id,
       :year,
       :unity_api_code,
+      :unities_api_code,
       :filtered_by_year,
-      :filtered_by_unity
+      :filtered_by_unity,
+      :last_two_years
     ).merge(
       synchronization: synchronization,
       worker_batch: worker_batch
