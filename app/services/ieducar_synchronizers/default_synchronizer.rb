@@ -10,7 +10,6 @@ class DefaultSynchronizer
     @last_two_years = params[:last_two_years]
     @synchronization = params[:synchronization]
     @worker_batch = params[:worker_batch]
-    @unities_api_code = params[:unities_api_code]
   end
 
   def synchronize
@@ -43,7 +42,11 @@ class DefaultSynchronizer
 
   private
 
-  attr_accessor :unities_api_code, :last_two_years
+  attr_accessor :last_two_years
+
+  def unities_api_code
+    @unities_api_code ||= Unity.with_api_code.pluck(:api_code).uniq
+  end
 
   def years_to_synchronize
     @years_to_synchronize ||= begin
@@ -82,7 +85,7 @@ class DefaultSynchronizer
       (synchronizers_by_year.size * years_to_synchronize.size) +
       (unities_api_code.present? ? synchronizers_by_unity.size : 0) +
       single_synchronizers.size
-    )
+    ) + school_calendars_simple_synchronization_count
   end
 
   def single_synchronizers
@@ -113,5 +116,9 @@ class DefaultSynchronizer
     @synchronizers_by_year_and_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
       synchronizer[:by_year] && synchronizer[:by_unity]
     }
+  end
+
+  def school_calendars_simple_synchronization_count
+    unities_api_code.size - 1
   end
 end
