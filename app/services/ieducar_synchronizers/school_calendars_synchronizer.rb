@@ -4,7 +4,10 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
   def synchronize!
     update_school_calendars(
       HashDecorator.new(
-        api.fetch['escolas']
+        api.fetch(
+          escola: unity_api_code,
+          classroom_steps: false
+        )['escolas']
       )
     )
   end

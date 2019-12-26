@@ -30,7 +30,7 @@ class UnitiesSynchronizer
     increment_worker_batch
     worker_state.end!
 
-    unities_api_code = Unity.with_api_code.pluck(:api_code)
+    unities_api_code = Unity.with_api_code.pluck(:api_code).uniq
 
     SynchronizerBuilderWorker.perform_async(
       klass: SchoolCalendarsSynchronizer.to_s,
