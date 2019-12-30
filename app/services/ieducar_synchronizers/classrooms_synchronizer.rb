@@ -34,6 +34,11 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.grade = grade
         classroom.year = classroom_record.ano
         classroom.exam_rule_id = exam_rule(classroom_record.regra_avaliacao_id).try(:id)
+
+        if !classroom.new_record? && classroom.period_changed?
+          update_period_dependents(classroom.id, classroom.period_was, classroom.period)
+        end
+
         classroom.save! if classroom.changed?
 
         if (classroom_calendar = outdated_classroom_calendar(classroom_record.id).presence)
@@ -58,5 +63,9 @@ class ClassroomsSynchronizer < BaseSynchronizer
       classroom_id: nil,
       classroom_api_code: classroom_api_code
     )
+  end
+
+  def update_period_dependents(classroom_id, old_period, new_period)
+    PeriodUpdaterWorker.perform_in(1.second, entity_id, classroom_id, old_period, new_period)
   end
 end
