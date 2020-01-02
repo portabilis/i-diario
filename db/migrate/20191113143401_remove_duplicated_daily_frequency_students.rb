@@ -16,13 +16,14 @@ class RemoveDuplicatedDailyFrequencyStudents < ActiveRecord::Migration
           HAVING COUNT(1) > 1
         )
         LOOP
-          SELECT MAX(daily_frequency_students.id)
+          SELECT daily_frequency_students.id
             INTO correct_daily_frequency_student_id
             FROM daily_frequency_students
            WHERE daily_frequency_students.daily_frequency_id = daily_frequency_student.daily_frequency_id
              AND daily_frequency_students.student_id = daily_frequency_student.student_id
              AND daily_frequency_students.discarded_at IS NULL
-             AND daily_frequency_students.active;
+        ORDER BY daily_frequency_students.active DESC
+           LIMIT 1;
 
           FOR daily_frequency_student_to_delete IN (
             SELECT daily_frequency_students.id
