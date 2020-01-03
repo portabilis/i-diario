@@ -11,8 +11,6 @@ class UpdatePeriodOnDailyFrequencies < ActiveRecord::Migration
          AND NOT EXISTS (
            SELECT 1
              FROM daily_frequencies AS _daily_frequencies
-             JOIN classrooms AS _classrooms
-               ON _daily_frequencies.classroom_id = _classrooms.id
             WHERE _daily_frequencies.classroom_id = daily_frequencies.classroom_id
               AND _daily_frequencies.frequency_date = daily_frequencies.frequency_date
               AND _daily_frequencies.period = CAST(classrooms.period AS INTEGER)
