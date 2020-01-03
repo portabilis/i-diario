@@ -1,20 +1,22 @@
 class UpdatePeriodOnDailyFrequencies < ActiveRecord::Migration
   def change
-    DailyFrequency.includes(:classroom).joins(:classroom).each do |daily_frequency|
-      classroom = daily_frequency.classroom
-      classroom_period = classroom.period
-      frequecy_period = daily_frequency.period
-
-      next if classroom_period.blank?
-      next if classroom_period == Periods::FULL
-      next if frequecy_period == classroom_period
-      next if DailyFrequency.find_by(
-        classroom_id: classroom.id,
-        frequency_date: daily_frequency.frequency_date,
-        period: classroom_period
-      )
-
-      daily_frequency.update(period: daily_frequency.classroom.period)
-    end
+    execute <<-SQL
+      UPDATE daily_frequencies
+         SET period = CAST(classrooms.period AS INTEGER)
+        FROM classrooms
+       WHERE daily_frequencies.classroom_id = classrooms.id
+         AND daily_frequencies.period <> CAST(classrooms.period AS INTEGER)
+         AND classrooms.period IS NOT NULL
+         AND CAST(classrooms.period AS INTEGER) <> 4
+         AND NOT EXISTS (
+           SELECT 1
+             FROM daily_frequencies AS _daily_frequencies
+             JOIN classrooms AS _classrooms
+               ON _daily_frequencies.classroom_id = _classrooms.id
+            WHERE _daily_frequencies.classroom_id = daily_frequencies.classroom_id
+              AND _daily_frequencies.frequency_date = daily_frequencies.frequency_date
+              AND _daily_frequencies.period = CAST(classrooms.period AS INTEGER)
+         )
+    SQL
   end
 end
