@@ -5,11 +5,7 @@ class Select2DisciplineInput < Select2Input
 
     if options[:user].current_discipline.present?
       input_html_options[:readonly] = 'readonly' unless options[:admin_or_employee].presence
-      input_html_options[:value] = if options[:record]&.persisted?
-                                     options[:record].discipline_id
-                                   else
-                                     options[:user].current_discipline.id unless options[:admin_or_employee].presence
-                                   end
+      input_html_options[:value] = input_value if input_html_options[:value].blank?
     end
 
     super(wrapper_options)
@@ -37,5 +33,13 @@ class Select2DisciplineInput < Select2Input
     options[:elements] = disciplines
 
     super
+  end
+
+  private
+
+  def input_value
+    return options[:record].discipline_id if options[:record]&.persisted?
+
+    options[:user].current_discipline.id unless options[:admin_or_employee].presence
   end
 end
