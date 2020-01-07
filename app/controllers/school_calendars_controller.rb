@@ -57,7 +57,10 @@ class SchoolCalendarsController < ApplicationController
   end
 
   def years_from_unity
-    @years = YearsFromUnityFetcher.new(params[:unity_id]).fetch.map{ |year| { id: year, name: year } }
+    only_opened_years = ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:only_opened_years])
+    @years = YearsFromUnityFetcher.new(params[:unity_id], only_opened_years).fetch.map { |year|
+      { id: year, name: year }
+    }
 
     render json: @years
   end

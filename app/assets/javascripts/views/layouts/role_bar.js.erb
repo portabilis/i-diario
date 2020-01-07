@@ -329,9 +329,12 @@ $(function() {
     clearOptions($field);
 
     $.when(getProfileRole(profileRole.role_id || null)).then(function () {
+      const $only_opened_years = !profileRole.can_change_school_year;
+
       return $.ajax({
         url: Routes.years_from_unity_school_calendars_pt_br_path({
           unity_id: profileData.unity,
+          only_opened_years: $only_opened_years,
           format: 'json'
         })
       });
@@ -342,7 +345,7 @@ $(function() {
 
       setOptions($field, years);
 
-      if (profileRole.can_change_school_year) {
+      if (['parent', 'student'].indexOf(profileRole.role.access_level) === -1) {
         $this.show();
       } else {
         setValue($field, years[1].id);
