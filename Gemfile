@@ -50,6 +50,7 @@ gem 'prawn', '2.1.1', git: 'https://github.com/portabilis/prawn.git', branch: 'm
 gem 'prawn-table', '0.2.2'
 gem 'puma', '3.12.0'
 gem 'pundit', '0.3.0'
+gem 'rack', '1.6.11'
 gem 'rack-cors', '0.4.1 ', require: 'rack/cors'
 gem 'rack-protection', '1.5.5'
 gem 'rails', '4.2.11.1'

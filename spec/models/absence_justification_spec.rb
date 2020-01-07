@@ -9,7 +9,10 @@ RSpec.describe AbsenceJustification, type: :model do
     it { expect(subject).to have_many(:students) }
     it { expect(subject).to belong_to(:unity) }
     it { expect(subject).to belong_to(:classroom) }
-    it { expect(subject).to have_and_belong_to_many(:disciplines) }
+    it { expect(subject).to have_many(:absence_justifications_students) }
+    it { expect(subject).to have_many(:students).through(:absence_justifications_students) }
+    it { expect(subject).to have_many(:absence_justifications_disciplines) }
+    it { expect(subject).to have_many(:disciplines).through(:absence_justifications_disciplines) }
     it { expect(subject).to belong_to(:school_calendar) }
   end
 

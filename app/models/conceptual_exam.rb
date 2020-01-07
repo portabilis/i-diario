@@ -178,7 +178,7 @@ class ConceptualExam < ActiveRecord::Base
 
     discipline_ids = conceptual_exam_values.collect(&:discipline_id)
     conceptual_exam = ConceptualExam.joins(:conceptual_exam_values)
-                                    .by_recorded_at_between(step.start_at, step.end_at)
+                                    .by_step_number(step.step_number)
                                     .where(
                                       student_id: student_id,
                                       classroom_id: classroom_id,
