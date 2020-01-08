@@ -69,12 +69,12 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
     authorize @school_term_recovery_diary_record
 
+    reload_students_list
+
     students_in_recovery = fetch_students_in_recovery
     mark_students_not_in_recovery_for_destruction(students_in_recovery)
     mark_exempted_disciplines(students_in_recovery)
     add_missing_students(students_in_recovery)
-
-    reload_students_list
 
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
@@ -155,7 +155,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def mark_students_not_in_recovery_for_destruction(students_in_recovery)
-    @school_term_recovery_diary_record.recovery_diary_record.students.each do |student|
+    @students.each do |student|
       is_student_in_recovery = students_in_recovery.any? do |student_in_recovery|
         student.student.id == student_in_recovery.id
       end
@@ -165,7 +165,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def mark_exempted_disciplines(students_in_recovery)
-    @school_term_recovery_diary_record.recovery_diary_record.students.each do |student|
+    @students.each do |student|
       exempted_from_discipline = students_in_recovery.find do |student_in_recovery|
         student_in_recovery.id == student.student_id
       end.try(:exempted_from_discipline)
@@ -176,18 +176,19 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def add_missing_students(students_in_recovery)
     students_missing = students_in_recovery.select do |student_in_recovery|
-      @school_term_recovery_diary_record.recovery_diary_record.students.none? do |student|
+      @students.none? do |student|
         student.student.id == student_in_recovery.id
       end
     end
 
     students_missing.each do |student_missing|
-      @school_term_recovery_diary_record.recovery_diary_record.students.build(student: student_missing)
+      student = @school_term_recovery_diary_record.recovery_diary_record.students.build(student: student_missing)
+      @students << student
     end
   end
 
   def any_student_exempted_from_discipline?
-    @school_term_recovery_diary_record.recovery_diary_record.students.any?(&:exempted_from_discipline)
+    @students.any?(&:exempted_from_discipline)
   end
 
   def api_configuration
@@ -223,10 +224,6 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
                      recovery_diary_record.students.build(student: student)
 
       note_student.active = student_active_on_date?(student_enrollment)
-      note_student.exempted_from_discipline = student_exempted_from_discipline?(
-        student_enrollment,
-        @school_term_recovery_diary_record
-      )
 
       @students << note_student
     end
@@ -239,17 +236,5 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
                      .by_classroom(@school_term_recovery_diary_record.recovery_diary_record.classroom)
                      .by_date(@school_term_recovery_diary_record.recovery_diary_record.recorded_at)
                      .any?
-  end
-
-  def student_exempted_from_discipline?(student_enrollment, school_term_recovery_diary_record)
-    return if school_term_recovery_diary_record.recovery_diary_record.discipline.blank?
-
-    discipline_id = school_term_recovery_diary_record.recovery_diary_record.discipline_id
-    step_number = school_term_recovery_diary_record.step_number
-
-    student_enrollment.exempted_disciplines
-                      .by_discipline(discipline_id)
-                      .by_step_number(step_number)
-                      .any?
   end
 end
