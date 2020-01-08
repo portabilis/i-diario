@@ -74,6 +74,8 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     mark_exempted_disciplines(students_in_recovery)
     add_missing_students(students_in_recovery)
 
+    reload_students_list
+
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
     @number_of_decimal_places = current_test_setting.number_of_decimal_places
   end
@@ -190,5 +192,64 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
 
   def api_configuration
     IeducarApiConfiguration.current
+  end
+
+  def fetch_student_enrollments
+    return unless @school_term_recovery_diary_record.recovery_diary_record.recorded_at
+
+    StudentEnrollmentsList.new(
+      classroom: @school_term_recovery_diary_record.recovery_diary_record.classroom,
+      discipline: @school_term_recovery_diary_record.recovery_diary_record.discipline,
+      score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
+      date: @school_term_recovery_diary_record.recovery_diary_record.recorded_at,
+      search_type: :by_date
+    ).student_enrollments
+  end
+
+  def reload_students_list
+    student_enrollments = fetch_student_enrollments
+
+    return unless fetch_student_enrollments
+    return unless @school_term_recovery_diary_record.recovery_diary_record.recorded_at
+
+    @students = []
+
+    student_enrollments.each do |student_enrollment|
+      next unless (student = Student.find_by(id: student_enrollment.student_id))
+
+      recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
+
+      note_student = recovery_diary_record.students.find_by(student_id: student.id) ||
+                     recovery_diary_record.students.build(student: student)
+
+      note_student.active = student_active_on_date?(student_enrollment)
+      note_student.exempted_from_discipline = student_exempted_from_discipline?(
+        student_enrollment,
+        @school_term_recovery_diary_record
+      )
+
+      @students << note_student
+    end
+
+    @students
+  end
+
+  def student_active_on_date?(student_enrollment)
+    StudentEnrollment.where(id: student_enrollment)
+                     .by_classroom(@school_term_recovery_diary_record.recovery_diary_record.classroom)
+                     .by_date(@school_term_recovery_diary_record.recovery_diary_record.recorded_at)
+                     .any?
+  end
+
+  def student_exempted_from_discipline?(student_enrollment, school_term_recovery_diary_record)
+    return if school_term_recovery_diary_record.recovery_diary_record.discipline.blank?
+
+    discipline_id = school_term_recovery_diary_record.recovery_diary_record.discipline_id
+    step_number = school_term_recovery_diary_record.step_number
+
+    student_enrollment.exempted_disciplines
+                      .by_discipline(discipline_id)
+                      .by_step_number(step_number)
+                      .any?
   end
 end
