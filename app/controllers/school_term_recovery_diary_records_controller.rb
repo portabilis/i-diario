@@ -196,34 +196,34 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   end
 
   def fetch_student_enrollments
-    return unless @school_term_recovery_diary_record.recovery_diary_record.recorded_at
+    recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
+    return unless recovery_diary_record.recorded_at
 
     StudentEnrollmentsList.new(
-      classroom: @school_term_recovery_diary_record.recovery_diary_record.classroom,
-      discipline: @school_term_recovery_diary_record.recovery_diary_record.discipline,
+      classroom: recovery_diary_record.classroom,
+      discipline: recovery_diary_record.discipline,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
-      date: @school_term_recovery_diary_record.recovery_diary_record.recorded_at,
+      date: recovery_diary_record.recorded_at,
       search_type: :by_date
     ).student_enrollments
   end
 
   def reload_students_list
-    student_enrollments = fetch_student_enrollments
+    return unless (student_enrollments = fetch_student_enrollments)
 
-    return unless fetch_student_enrollments
-    return unless @school_term_recovery_diary_record.recovery_diary_record.recorded_at
+    recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
+
+    return unless recovery_diary_record.recorded_at
 
     @students = []
 
     student_enrollments.each do |student_enrollment|
       next unless (student = Student.find_by(id: student_enrollment.student_id))
 
-      recovery_diary_record = @school_term_recovery_diary_record.recovery_diary_record
-
       note_student = recovery_diary_record.students.find_by(student_id: student.id) ||
                      recovery_diary_record.students.build(student: student)
 
-      note_student.active = student_active_on_date?(student_enrollment)
+      note_student.active = student_active_on_date?(student_enrollment, recovery_diary_record)
 
       @students << note_student
     end
@@ -231,10 +231,10 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @students
   end
 
-  def student_active_on_date?(student_enrollment)
+  def student_active_on_date?(student_enrollment, recovery_diary_record)
     StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(@school_term_recovery_diary_record.recovery_diary_record.classroom)
-                     .by_date(@school_term_recovery_diary_record.recovery_diary_record.recorded_at)
+                     .by_classroom(recovery_diary_record.classroom)
+                     .by_date(recovery_diary_record.recorded_at)
                      .any?
   end
 end
