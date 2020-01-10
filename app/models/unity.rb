@@ -36,6 +36,10 @@ class Unity < ActiveRecord::Base
   scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }
   scope :by_teacher, -> (teacher_id) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_year, -> (year) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { year: year }).uniq }
+  scope :by_teacher_with_school_calendar_year, lambda {
+    joins(:teacher_discipline_classrooms, :school_calendars)
+      .where(TeacherDisciplineClassroom.arel_table[:year].eq(SchoolCalendar.arel_table[:year])).uniq
+  }
   scope :by_date, lambda { |date|
     joins(school_calendars: :steps).where(
       '? BETWEEN start_at AND end_at', date
