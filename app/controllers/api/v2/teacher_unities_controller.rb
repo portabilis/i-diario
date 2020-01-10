@@ -8,7 +8,7 @@ module Api
 
         @unities = Unity.by_teacher(params[:teacher_id])
                         .by_posting_date(Date.current)
-                        .by_current_school_year
+                        .by_teacher_with_school_calendar_year
                         .ordered
                         .uniq
 
