@@ -62,7 +62,8 @@ class SynchronizerExecuterEnqueueWorker
       :year,
       :unity_api_code,
       :filtered_by_year,
-      :filtered_by_unity
+      :filtered_by_unity,
+      :last_two_years
     ).merge(
       worker_state_id: worker_state_id
     )

@@ -39,7 +39,7 @@
                   class: 'administrator' %>
     </div>
 
-    <div id="school-year-field-container" class="project-context"  style="<%= 'display: none;'.html_safe unless can_change_school_year? && user_role.role.access_level.in?(%w(administrator employee teacher)) %>" >
+    <div id="school-year-field-container" class="project-context"  style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(%w(administrator employee teacher)) %>" >
       <span class="label"><%= t('layouts.application.school_year') %></span>
       <%= f.input :current_school_year,
                   as: :select2,

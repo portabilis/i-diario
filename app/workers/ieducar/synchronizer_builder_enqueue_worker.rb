@@ -24,7 +24,8 @@ class SynchronizerBuilderEnqueueWorker
     params.slice(
       :entity_id,
       :year,
-      :unity_api_code
+      :unity_api_code,
+      :last_two_years
     ).merge(
       synchronization: synchronization
     )

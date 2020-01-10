@@ -3,6 +3,7 @@ class DailyNotesController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_teacher
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
     if params[:filter].present? && params[:filter][:by_step_id].present?
