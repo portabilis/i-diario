@@ -64,9 +64,12 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
       ).tap do |school_calendar_classroom_step|
         school_calendar_classroom_step.start_at = school_calendar_classroom_step_record.data_inicio
         school_calendar_classroom_step.end_at = school_calendar_classroom_step_record.data_fim
-        school_calendar_classroom_step.start_date_for_posting =
-          school_calendar_classroom_step_record.data_inicio
-        school_calendar_classroom_step.end_date_for_posting = school_calendar_classroom_step_record.data_fim
+
+        if school_calendar_classroom_step.new_record?
+          school_calendar_classroom_step.start_date_for_posting =
+            school_calendar_classroom_step_record.data_inicio
+          school_calendar_classroom_step.end_date_for_posting = school_calendar_classroom_step_record.data_fim
+        end
 
         school_calendar_classroom_step.save! if school_calendar_classroom_step.changed?
 
