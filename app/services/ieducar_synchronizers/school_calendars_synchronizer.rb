@@ -61,7 +61,7 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
       ).tap do |school_calendar_step|
         school_calendar_step.start_at = school_calendar_steps_record.data_inicio
         school_calendar_step.end_at = school_calendar_steps_record.data_fim
-        school_calendar_step.start_date_for_posting = school_calendar_steps_record.data_fim
+        school_calendar_step.start_date_for_posting = school_calendar_steps_record.data_inicio
         school_calendar_step.end_date_for_posting = school_calendar_steps_record.data_fim
 
         school_calendar_step.save! if school_calendar_step.changed?
