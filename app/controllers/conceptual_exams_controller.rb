@@ -5,6 +5,7 @@ class ConceptualExamsController < ApplicationController
   before_action :require_current_teacher
   before_action :require_current_clasroom
   before_action :adjusted_period
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)

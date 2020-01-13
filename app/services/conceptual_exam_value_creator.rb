@@ -6,21 +6,17 @@ class ConceptualExamValueCreator
   def initialize(classroom_id, teacher_id)
     raise ArgumentError if classroom_id.blank? || teacher_id.blank?
 
-    @classroom = Classroom.find(classroom_id)
+    @classroom_id = classroom_id
     @teacher_id = teacher_id
   end
 
   def create_empty
-    TeacherDisciplineClassroom.joins(join_conceptual_exam_value)
-                              .joins(join_conceptual_exam)
-                              .select(
-                                'conceptual_exams.id AS conceptual_exam_id,
-                                teacher_discipline_classrooms.discipline_id AS discipline_id'
-                              )
-                              .by_teacher_id(@teacher_id)
-                              .by_classroom(@classroom)
-                              .where('conceptual_exams.discarded_at IS NULL')
-                              .where('conceptual_exam_values.id IS NULL').each do |record|
+    conceptual_exam_values_to_create.each do |record|
+      student_enrollment_id = student_enrollment_id(record.student_id, classroom_id, record.recorded_at)
+
+      next if student_enrollment_id.blank?
+      next if exempted_discipline?(student_enrollment_id, record.discipline_id, record.step_number)
+
       ConceptualExamValue.create!(
         conceptual_exam_id: record.conceptual_exam_id,
         discipline_id: record.discipline_id,
@@ -30,17 +26,48 @@ class ConceptualExamValueCreator
     end
   end
 
-  def join_conceptual_exam
-    <<-SQL
-      JOIN conceptual_exams
-        ON conceptual_exams.classroom_id = teacher_discipline_classrooms.classroom_id
-    SQL
+  private
+
+  attr_accessor :teacher_id, :classroom_id
+
+  def conceptual_exam_values_to_create
+    TeacherDisciplineClassroom.joins(classroom: :conceptual_exams)
+                              .joins(join_conceptual_exam_value)
+                              .by_teacher_id(teacher_id)
+                              .by_classroom(classroom_id)
+                              .where(conceptual_exams: { classroom_id: classroom_id })
+                              .where(conceptual_exam_values: { id: nil })
+                              .select(
+                                <<-SQL
+                                  conceptual_exams.id AS conceptual_exam_id,
+                                  conceptual_exams.student_id AS student_id,
+                                  conceptual_exams.recorded_at AS recorded_at,
+                                  conceptual_exams.step_number AS step_number,
+                                  teacher_discipline_classrooms.discipline_id AS discipline_id
+                                SQL
+                              )
   end
 
   def join_conceptual_exam_value
     <<-SQL
       LEFT JOIN conceptual_exam_values
-             ON conceptual_exam_values.discipline_id = teacher_discipline_classrooms.discipline_id
+             ON conceptual_exam_values.conceptual_exam_id = conceptual_exams.id
+            AND conceptual_exam_values.discipline_id = teacher_discipline_classrooms.discipline_id
     SQL
+  end
+
+  def student_enrollment_id(student_id, classroom_id, recorded_at)
+    StudentEnrollment.by_student(student_id)
+                     .by_classroom(classroom_id)
+                     .by_date(recorded_at)
+                     .first
+                     .try(:id)
+  end
+
+  def exempted_discipline?(student_enrollment_id, discipline_id, step_number)
+    StudentEnrollmentExemptedDiscipline.by_student_enrollment(student_enrollment_id)
+                                       .by_discipline(discipline_id)
+                                       .by_step_number(step_number)
+                                       .exists?
   end
 end

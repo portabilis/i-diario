@@ -144,8 +144,6 @@ Rails.application.routes.draw do
     resources :unities, concerns: :history do
       collection do
         delete :destroy_batch
-        get :synchronizations
-        post :create_batch
         get :search
         get :all
         get :select2_remote
@@ -174,8 +172,6 @@ Rails.application.routes.draw do
     resources :school_calendars, concerns: :history do
       collection do
         get :step
-        get :synchronize
-        post :create_and_update_batch
         get :years_from_unity
       end
 

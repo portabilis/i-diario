@@ -205,6 +205,14 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def require_allow_to_modify_prev_years
+    return if can_change_school_year?
+    return if (first_step_start_date_for_posting..last_step_end_date_for_posting).to_a.include?(Date.current)
+
+    flash[:alert] = t('errors.general.not_allowed_to_modify_prev_years')
+    redirect_to root_path
+  end
+
   def can_change_school_year?
     @can_change_school_year ||= current_user.can_change_school_year?
   end
@@ -226,9 +234,12 @@ class ApplicationController < ActionController::Base
   helper_method :current_user_discipline
 
   def current_user_available_years
-    return [] unless current_user_unity
+    return [] if current_user_unity.blank?
+
     @current_user_available_years ||= begin
-      YearsFromUnityFetcher.new(current_user_unity.id).fetch.map{|year| { id: year, name: year }}
+      only_opened_years = !can_change_school_year?
+      years = YearsFromUnityFetcher.new(current_user_unity.id, only_opened_years).fetch
+      years.map { |year| { id: year, name: year } }
     end
   end
   helper_method :current_user_available_years
@@ -361,6 +372,22 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def current_year_steps
+    @current_year_steps ||= begin
+      steps = steps_fetcher.steps if current_user_classroom.present?
+      steps ||= SchoolCalendar.find_by(unity_id: current_user_unity.id, year: current_user_school_year).steps
+      steps
+    end
+  end
+
+  def first_step_start_date_for_posting
+    current_year_steps.first.start_date_for_posting
+  end
+
+  def last_step_end_date_for_posting
+    current_year_steps.last.end_date_for_posting
+  end
 
   def disabled_entity_page?
     controller_name.eql?('pages') && action_name.eql?('disabled_entity')

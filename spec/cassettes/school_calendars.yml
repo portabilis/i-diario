@@ -38,7 +38,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"escolas":[{"escola_id":"1","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-16"}]},{"escola_id":"98370","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"}]},{"escola_id":"98450","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-08-14","data_fim":"2015-12-15"}]},{"escola_id":"98647","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-10","data_fim":"2015-12-21"}]},{"escola_id":"98671","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-17"}]},{"escola_id":"98698","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-17"}]},{"escola_id":"98701","ano":"2015","etapas":[{"data_inicio":"2015-02-10","data_fim":"2015-04-30"},{"data_inicio":"2015-05-05","data_fim":"2015-07-18"},{"data_inicio":"2015-08-04","data_fim":"2015-09-30"},{"data_inicio":"2015-10-01","data_fim":"2015-12-19"}]},{"escola_id":"98710","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-01","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-09-30"},{"data_inicio":"2015-10-01","data_fim":"2015-12-18"}]},{"escola_id":"105392","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-16"}]},{"escola_id":"109894","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2016-01-30"}]},{"escola_id":"115770","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-17"}]},{"escola_id":"115789","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-17"}]},{"escola_id":"124370","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-04-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-12-09"},{"data_inicio":"2015-09-14","data_fim":"2016-01-16"}]},{"escola_id":"126969","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-17"}]},{"escola_id":"139637","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-12-12"}]},{"escola_id":"703010","ano":"2015","etapas":[{"data_inicio":"2015-02-10","data_fim":"2016-01-30"}]},{"escola_id":"703012","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-16"}]},{"escola_id":"703013","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-16"}]},{"escola_id":"703014","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-16"}]},{"escola_id":"703015","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-05-30"},{"data_inicio":"2015-06-01","data_fim":"2015-09-17"},{"data_inicio":"2015-09-18","data_fim":"2015-12-12"}]},{"escola_id":"703016","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-16"}]},{"escola_id":"703017","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-11-03","data_fim":"2015-12-16"}]},{"escola_id":"703019","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-16"}]},{"escola_id":"703020","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-14"},{"data_inicio":"2015-08-05","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-16"}]},{"escola_id":"703021","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2015-12-16"}]},{"escola_id":"703022","ano":"2016","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-11-14","data_fim":"2015-12-16"},{"data_inicio":"2016-02-09","data_fim":"2016-04-30"},{"data_inicio":"2016-05-04","data_fim":"2016-07-17"},{"data_inicio":"2016-08-03","data_fim":"2016-10-09"},{"data_inicio":"2016-11-14","data_fim":"2016-12-16"}]},{"escola_id":"703023","ano":"2015","etapas":[{"data_inicio":"2015-02-08","data_fim":"2015-04-30"},{"data_inicio":"2015-05-01","data_fim":"2015-07-17"},{"data_inicio":"2015-07-18","data_fim":"2015-09-29"},{"data_inicio":"2015-09-30","data_fim":"2015-11-30"}]},{"escola_id":"703025","ano":"2016","etapas":[{"data_inicio":"2015-02-10","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-22"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-10-14","data_fim":"2016-02-17"},{"data_inicio":"2016-01-01","data_fim":"2016-12-12"}]},{"escola_id":"703028","ano":"2015","etapas":[{"data_inicio":"2015-02-09","data_fim":"2015-04-30"},{"data_inicio":"2015-05-04","data_fim":"2015-07-17"},{"data_inicio":"2015-08-03","data_fim":"2015-10-09"},{"data_inicio":"2015-11-03","data_fim":"2016-02-05"}]},{"escola_id":"98680","ano":"2016","etapas":[{"data_inicio":"2016-02-09","data_fim":"2016-04-30"},{"data_inicio":"2016-05-04","data_fim":"2016-07-22"},{"data_inicio":"2016-08-03","data_fim":"2016-10-09"},{"data_inicio":"2016-10-14","data_fim":"2016-12-17"}]},{"escola_id":"703011","ano":"2016","etapas":[{"data_inicio":"2016-02-02","data_fim":"2016-04-29"},{"data_inicio":"2016-05-02","data_fim":"2016-07-12"},{"data_inicio":"2016-08-01","data_fim":"2016-10-17"},{"data_inicio":"2016-10-18","data_fim":"2016-12-14"}]},{"escola_id":"703018","ano":"2016","etapas":[{"data_inicio":"2016-02-02","data_fim":"2016-04-29"},{"data_inicio":"2016-05-02","data_fim":"2016-07-12"},{"data_inicio":"2016-08-01","data_fim":"2016-10-17"},{"data_inicio":"2016-10-18","data_fim":"2016-12-14"}]}],"oper":"get","resource":"etapas-por-escola","msgs":[],"any_error_msg":false}'
-    http_version: 
+    http_version:
   recorded_at: Thu, 14 Jan 2016 13:52:46 GMT
 - request:
     method: get
@@ -75,7 +75,7 @@ http_interactions:
       string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
         bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
         (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
-    http_version: 
+    http_version:
   recorded_at: Wed, 01 Mar 2017 03:06:50 GMT
 - request:
     method: get
@@ -145,6 +145,111 @@ http_interactions:
         aZ/vjQi5G/pCVP3vHEw49IWTZZB2SGGZjbU5abukxyZNtWOUTUdZT2ATme4F
         lL0vD01quqP+0Rfv9Uq8n9Qe3z3VjT37vj7Ynzf1fvfcrGt74HT+4mnXLE4u
         tF9v9/fH37UO/LWsm2bXLO2x7Ppu9bCvX38Ds0aQpldwAAA=
-    http_version: 
+    http_version:
   recorded_at: Wed, 01 Mar 2017 03:06:51 GMT
+- request:
+    method: get
+    uri: http://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&escola=1&instituicao_id=1&modified&oper=get&resource=etapas-por-escola&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.3.7p456
+  response:
+    status:
+      code: 301
+      message: Moved Permanently
+    headers:
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Date:
+      - Thu, 02 Jan 2020 14:00:33 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '194'
+      Connection:
+      - keep-alive
+      Location:
+      - https://test.ieducar.com.br/module/Api/Escola?ano=2017&escola=1&resource=etapas-por-escola&modified&oper=get&access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC&instituicao_id=1
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>301 Moved Permanently</title></head>\r\n<body
+        bgcolor=\"white\">\r\n<center><h1>301 Moved Permanently</h1></center>\r\n<hr><center>nginx/1.14.0
+        (Ubuntu)</center>\r\n</body>\r\n</html>\r\n"
+    http_version:
+  recorded_at: Wed, 01 Mar 2017 03:21:18 GMT
+- request:
+    method: get
+    uri: https://test.ieducar.com.br/module/Api/Escola?access_key=8IOwGIjiHvbeTklgwo10yVLgwDhhvs&ano=2017&escola=1&instituicao_id=1&modified&oper=get&resource=etapas-por-escola&secret_key=5y8cfq31oGvFdAlGMCLIeSKdfc8pUC
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      Accept-Encoding:
+      - gzip, deflate
+      User-Agent:
+      - rest-client/2.0.2 (linux-gnu x86_64) ruby/2.3.7p456
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - nginx
+      Date:
+      - Thu, 02 Jan 2020 14:00:34 GMT
+      Content-Type:
+      - application/json; charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+      Connection:
+      - keep-alive
+      Vary:
+      - Accept-Encoding
+      Cache-Control:
+      - no-cache, private
+      Set-Cookie:
+      - i_educar_session=8WoOeSEihCliTKFWTT7eFCju2MCsXMoujHeUDXMM; expires=Thu, 02-Jan-2020
+        16:00:34 GMT; Max-Age=7200; path=/; httponly
+      Content-Encoding:
+      - gzip
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        H4sIAAAAAAAAA+1cwW7bMAz9F58bwKJky+pt37DdhiIIUrcI0DSFkx6Gov8+
+        OVm6xqI8u6NVmSrQQ+o4oh8tPj1StF+yer/ePaz22fXPlz+fl5vb7DqD7Cpb
+        Pe7aT7kw9p9b+22zWa/aQ9/rbb0/NLU9XB9WT+eftx/tt6I9e3WwAz1u1pvz
+        EIscFqeB2q/uNtu347o9/nr1dwDwDKAXgA0g7MAye705X8zytl4enpvt8bJu
+        jgO/Aya5AlNcgRVcgWmuwCquwAxXYIIte4iSLTK2/CHYxhmw1VXAVlgBW24E
+        ttIK2HIjsBVXwJb1Zc4WGVvWl2x1o2TLjZItN0q23KjYcqMSbJGxzWIU2/VM
+        sc1iFNssRrHVIIrtSl30rmc/mg0ltGIBahA0e6LGBmhRXwwgPQO0f2N985Id
+        P57XDDOxM0r7N8gZZQsad4Ya6oyixxntEO+RyzxPFrlIFjkki1wmi1ylgtxd
+        9tgK54KtcC7YCmchc9NbMYlQh5WBdJgw1eTOkEOdoULyM0ytwyJGPrEOixj5
+        xDosYuRkOgxyHLkUQ9WIwAaougP0IMcGaJErFDmZDosdObLyiby3Ohvhyjdd
+        BQJzT3+5MCn3dMJGkQkDNGzaSyniCJsuYajpp8HQRSIPu0gUZJIodqp0kJNJ
+        otkhJ5NEs0OerCQqkpFEDvIiGm4PnAAUZbL3XKdyzzGFW/Y2nnyiwsWQBFS4
+        sgqg8/7bGYPrgFi+4OECWdHpvNgjwkGeaOnLIk+09GWRT7wFSRHnEyGfeAsy
+        insOKPJEdZ5FTqbzZoecTOfFrnAxnae/Ws08lUzozotvj8+rh3GOkCNzDuhW
+        TwPYVN3ID2EzgG+R2Q5w0QxLIW3gGPjgXAgMDXzwBD4MDXzwBD68uWLotgaY
+        3gachMlAqG4CQDthCyRIhEq10ChUqoVG4ZBxOshTlmFSxlpu+2zmBU3mjDnO
+        C3MhzylCRHtcoYe6QntcoYe6QntcofsFy2XaJgwFU87BGd2EVZhUpoGLnKK5
+        ZJ7IKVhwFsgRFlTwVaTwp2055OZLPeCrhJGpbl8Y2c0eP5CxHp8VQi8akIzV
+        2uzmbSFsEpTMCnyitayYoza7IfYBm74ZdZoQrk3V3XwNYZOg6jHaZjdiP2BT
+        LXK3IvcWrYhNglgZjZMgVkbb7G5vhfAtQXl5NM5kWncc5ARs2HOHK9QmARvK
+        kazvtKKEsEnAhj2+NahNAjb0rW6+6HEaHwKwhNNyEIAlnM3+EDY/gQ3TaWR0
+        kNNsp3qyGChRm/E8BhLY22Wq7YGmpNkdHLUalQQrw2ibBCvDaJspNKPhs4pg
+        ffoXeyHlJJn3v9MhqXIS4h9tZvdaiGCbdRXNlMUIwvuESkXTvzTOZjKb1Q7y
+        aZ/vjQi5G/pCVP3vHEw49IWTZZB2SGGZjbU5abukxyZNtWOUTUdZT2ATme4F
+        lL0vD01quqP+0Rfv9Uq8n9Qe3z3VjT37vj7Ynzf1fvfcrGt74HT+4mnXLE4u
+        tF9v9/fH37UO/LWsm2bXLO2x7Ppu9bCvX38Ds0aQpldwAAA=
+    http_version:
+  recorded_at: Wed, 01 Mar 2017 03:21:19 GMT
 recorded_with: VCR 3.0.0

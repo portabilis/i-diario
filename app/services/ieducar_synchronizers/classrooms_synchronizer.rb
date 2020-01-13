@@ -41,10 +41,6 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
         classroom.save! if classroom.changed?
 
-        if (classroom_calendar = outdated_classroom_calendar(classroom_record.id).presence)
-          classroom_calendar.update(classroom_id: classroom.id)
-        end
-
         classroom.discard_or_undiscard(classroom_record.deleted_at.present?)
 
         remove_current_classroom_id_in_user_selectors(classroom.id) if classroom_record.deleted_at.present?
@@ -56,13 +52,6 @@ class ClassroomsSynchronizer < BaseSynchronizer
     Classroom.with_discarded.find_by(id: classroom_id).users.each do |user|
       user.update(current_classroom_id: nil, assumed_teacher_id: nil)
     end
-  end
-
-  def outdated_classroom_calendar(classroom_api_code)
-    SchoolCalendarClassroom.find_by(
-      classroom_id: nil,
-      classroom_api_code: classroom_api_code
-    )
   end
 
   def update_period_dependents(classroom_id, old_period, new_period)
