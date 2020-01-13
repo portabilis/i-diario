@@ -33,7 +33,7 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
         unity_id: unity_id,
         year: school_calendar_record.ano
       )).tap do |school_calendar|
-        school_calendar.number_of_classes = DEFAULT_NUMBER_OF_CLASSES
+        school_calendar.number_of_classes = DEFAULT_NUMBER_OF_CLASSES if school_calendar.new_record?
         school_calendar.step_type_description = school_calendar_record.descricao
         school_calendar.opened_year = school_calendar_record.ano_em_aberto
 
