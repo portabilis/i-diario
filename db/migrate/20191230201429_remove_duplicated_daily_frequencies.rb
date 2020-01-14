@@ -17,7 +17,7 @@ class RemoveDuplicatedDailyFrequencies < ActiveRecord::Migration
                         COALESCE(class_number, 0) = COALESCE(?, 0)
                     SQL
                     .where.not(id: correct_id)
-                    .destroy_all
+                    .delete_all
     end
   end
 end
