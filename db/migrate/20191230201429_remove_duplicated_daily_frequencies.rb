@@ -11,6 +11,8 @@ class RemoveDuplicatedDailyFrequencies < ActiveRecord::Migration
     )
 
     daily_frequencies.each do |correct_id, classroom_id, frequency_date, discipline_id, class_number|
+      DailyFrequencyStudent.where.not(daily_frequency_id: correct_id).delete_all
+
       DailyFrequency.where(classroom_id: classroom_id, frequency_date: frequency_date)
                     .where(<<-SQL, discipline_id, class_number)
                         COALESCE(discipline_id, 0) = COALESCE(?, 0) AND
