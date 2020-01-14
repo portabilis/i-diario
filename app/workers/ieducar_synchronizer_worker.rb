@@ -46,4 +46,8 @@ class IeducarSynchronizerWorker
       UnitiesSynchronizerWorker.perform_async(entity.id, synchronization.id, last_two_years)
     end
   end
+
+  def all_entities
+    Entity.active
+  end
 end
