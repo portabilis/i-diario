@@ -1,7 +1,7 @@
 class DailyFrequenciesController < ApplicationController
   before_action :require_teacher
   before_action :require_current_clasroom
-  before_action :set_number_of_classes, only: [:new, :create, :edit_multiple, :update_multiple]
+  before_action :set_number_of_classes, only: [:new, :create, :edit_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
 
   def new
@@ -24,12 +24,17 @@ class DailyFrequenciesController < ApplicationController
     @period = params[:daily_frequency][:period]
 
     if validate_class_numbers && validate_discipline && @daily_frequency.valid?
-      absence_type_definer = FrequencyTypeDefiner.new(@daily_frequency.classroom,
-                                                      current_teacher,
-                                                      year: @daily_frequency.classroom.year)
+      absence_type_definer = FrequencyTypeDefiner.new(
+        @daily_frequency.classroom,
+        current_teacher,
+        year: @daily_frequency.classroom.year
+      )
       absence_type_definer.define!
 
-      @daily_frequencies = create_global_frequencies if absence_type_definer.frequency_type == FrequencyTypes::GENERAL
+      if absence_type_definer.frequency_type == FrequencyTypes::GENERAL
+        @daily_frequencies = create_global_frequencies
+      end
+
       @daily_frequencies ||= create_discipline_frequencies
 
       redirect_to edit_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id))
@@ -41,7 +46,9 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def edit_multiple
-    @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids]).order_by_class_number.includes(:students)
+    @daily_frequencies = DailyFrequency.includes(:students)
+                                       .where(id: params[:daily_frequencies_ids])
+                                       .order_by_class_number
     @daily_frequency = @daily_frequencies.first
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
@@ -55,7 +62,7 @@ class DailyFrequenciesController < ApplicationController
     @any_exempted_from_discipline = false
 
     student_enrollments.each do |student_enrollment|
-      student = Student.find_by_id(student_enrollment.student_id) || nil
+      student = Student.find_by(id: student_enrollment.student_id) || nil
       next unless student
 
       dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
@@ -80,7 +87,7 @@ class DailyFrequenciesController < ApplicationController
     @any_inactive_student = any_inactive_student?
 
     @students.each do |student|
-      @normal_students << student if !student[:dependence]
+      @normal_students << student unless student[:dependence]
       @dependence_students << student if student[:dependence]
     end
   end
@@ -91,11 +98,11 @@ class DailyFrequenciesController < ApplicationController
     if @daily_frequencies.any?
       authorize @daily_frequencies.first
 
-      @daily_frequencies.each { |daily_frequency| daily_frequency.destroy }
+      @daily_frequencies.each(&:destroy)
 
       respond_with @daily_frequencies.first, location: new_daily_frequency_path
     else
-      flash[:alert] =  t('.alert')
+      flash[:alert] = t('.alert')
 
       redirect_to new_daily_frequency_path
     end
@@ -131,16 +138,17 @@ class DailyFrequenciesController < ApplicationController
 
       @students.each do |student|
         next if student[:exempted_from_discipline]
-        if persisted_student_ids.none? { |student_id| student_id == student[:student].id }
-          begin
-            daily_frequency.students.create(
-              student_id: student[:student].id,
-              dependence: student[:dependence],
-              present: true,
-              active: student[:active]
-            )
-          rescue ActiveRecord::RecordNotUnique
-          end
+
+        next unless persisted_student_ids.none? { |student_id| student_id == student[:student].id }
+
+        begin
+          daily_frequency.students.create(
+            student_id: student[:student].id,
+            dependence: student[:dependence],
+            present: true,
+            active: student[:active]
+          )
+        rescue ActiveRecord::RecordNotUnique
         end
       end
     end
@@ -213,7 +221,7 @@ class DailyFrequenciesController < ApplicationController
                                                     year: @daily_frequency.classroom.year)
     absence_type_definer.define!
 
-    if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@class_numbers.nil? || @class_numbers.empty?)
+    if absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE && @class_numbers.blank?
       @error_on_class_numbers = true
       flash.now[:alert] = t('errors.daily_frequencies.class_numbers_required_when_not_global_absence')
       return false
@@ -228,7 +236,7 @@ class DailyFrequenciesController < ApplicationController
                                                     year: @daily_frequency.classroom.year)
     absence_type_definer.define!
 
-    if (absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE) && (@discipline.nil? || @discipline.empty?)
+    if absence_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE && @discipline.blank?
       @error_on_discipline = true
       flash.now[:alert] = t('errors.daily_frequencies.discipline_required_when_not_global_absence')
       return false
@@ -290,15 +298,16 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def student_exempted_from_discipline?(student_enrollment, daily_frequency)
-    return false unless daily_frequency.discipline_id.present?
+    return false if daily_frequency.discipline_id.blank?
 
     discipline_id = daily_frequency.discipline.id
     frequency_date = daily_frequency.frequency_date
     step_number = daily_frequency.school_calendar.step(frequency_date).try(:to_number)
 
-    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                           .by_step_number(step_number)
-                                           .any?
+    student_enrollment.exempted_disciplines
+                      .by_discipline(discipline_id)
+                      .by_step_number(step_number)
+                      .any?
   end
 
   def any_inactive_student?
@@ -306,10 +315,8 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def clear_invalid_date
-    begin
-      resource_params[:frequency_date].to_date
-    rescue ArgumentError
-      @daily_frequency.frequency_date = ''
-    end
+    resource_params[:frequency_date].to_date
+  rescue ArgumentError
+    @daily_frequency.frequency_date = ''
   end
 end
