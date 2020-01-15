@@ -22,16 +22,16 @@ class RemoveDuplicatedDailyFrequencies < ActiveRecord::Migration
                  daily_frequencies.class_number
           HAVING COUNT(1) > 1
         ) LOOP
-        _repeated_daily_frequency_ids := ARRAY[]::INTEGER[];
-        _repeated_daily_frequency_ids := ARRAY(
-          SELECT id
-            FROM daily_frequencies
-           WHERE classroom_id = _daily_frequency.classroom_id
-             AND frequency_date = _daily_frequency.frequency_date
-             AND COALESCE(discipline_id, 0) = COALESCE(_daily_frequency.discipline_id, 0)
-             AND COALESCE(class_number, 0) = COALESCE(_daily_frequency.class_number, 0)
-             AND daily_frequencies.id <> _daily_frequency.correct_id
-        );
+          _repeated_daily_frequency_ids := ARRAY[]::INTEGER[];
+          _repeated_daily_frequency_ids := ARRAY(
+            SELECT id
+              FROM daily_frequencies
+            WHERE classroom_id = _daily_frequency.classroom_id
+              AND frequency_date = _daily_frequency.frequency_date
+              AND COALESCE(discipline_id, 0) = COALESCE(_daily_frequency.discipline_id, 0)
+              AND COALESCE(class_number, 0) = COALESCE(_daily_frequency.class_number, 0)
+              AND daily_frequencies.id <> _daily_frequency.correct_id
+          );
 
           DELETE FROM daily_frequency_students
            WHERE daily_frequency_id = ANY (_repeated_daily_frequency_ids);
