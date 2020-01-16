@@ -67,9 +67,9 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
       teacher_id: teacher_id,
       teacher_api_code: teacher_discipline_classroom_record.servidor_id,
       discipline_id: discipline_id,
-      discipline_api_code: discipline_api_code,
-      classroom_id: classroom_id
+      discipline_api_code: discipline_api_code
     ).tap do |teacher_discipline_classroom|
+      teacher_discipline_classroom.classroom_id = classroom_id
       teacher_discipline_classroom.classroom_api_code = teacher_discipline_classroom_record.turma_id
       teacher_discipline_classroom.allow_absence_by_discipline =
         teacher_discipline_classroom_record.permite_lancar_faltas_componente
