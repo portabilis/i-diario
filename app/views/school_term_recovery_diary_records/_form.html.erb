@@ -67,8 +67,7 @@
             </td>
           </tr>
 
-          <%= recovery_diary_record.association :students,
-            collection: recovery_diary_record.object.students.sort_by { |student| student.student.name.upcase } do |student| %>
+          <%= recovery_diary_record.fields_for :students, @students do |student| %>
             <%= render 'student_fields', f: student %>
           <% end %>
         </tbody>
