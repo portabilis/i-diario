@@ -1,5 +1,7 @@
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/ieducar_api_configurations/sync' %>
+<% unless with_environment %>
+  <% content_for :js do %>
+    <%= javascript_include_tag 'views/ieducar_api_configurations/sync' %>
+  <% end %>
 <% end %>
 
 <% sync_id = SecureRandom.uuid %>
