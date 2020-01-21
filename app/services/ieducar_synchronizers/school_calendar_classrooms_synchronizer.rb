@@ -62,14 +62,18 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
         school_calendar_classroom_id: school_calendar_classroom_id,
         step_number: school_calendar_classroom_step_record.etapa
       ).tap do |school_calendar_classroom_step|
-        school_calendar_classroom_step.start_at = school_calendar_classroom_step_record.data_inicio
-        school_calendar_classroom_step.end_at = school_calendar_classroom_step_record.data_fim
+        start_at = school_calendar_classroom_step_record.data_inicio.to_date
+        end_at = school_calendar_classroom_step_record.data_fim.to_date
+        school_calendar_classroom_step.start_at = start_at
+        school_calendar_classroom_step.end_at = end_at
 
-        if school_calendar_classroom_step.new_record?
-          school_calendar_classroom_step.start_date_for_posting =
-            school_calendar_classroom_step_record.data_inicio
-          school_calendar_classroom_step.end_date_for_posting = school_calendar_classroom_step_record.data_fim
+        new_record = school_calendar_classroom_step.new_record?
+
+        if new_record || school_calendar_classroom_step.start_date_for_posting < start_at
+          school_calendar_classroom_step.start_date_for_posting = start_at
         end
+
+        school_calendar_classroom_step.end_date_for_posting = end_at if new_record
 
         school_calendar_classroom_step.save! if school_calendar_classroom_step.changed?
 
