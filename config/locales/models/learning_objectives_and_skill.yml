@@ -1,0 +1,17 @@
+pt-BR:
+  activerecord:
+    models:
+      learning_objectives_and_skill:
+        one: "Objetivos de aprendizagem e habilidade"
+        other: "Objetivos de aprendizagem e habilidades"
+
+    attributes:
+      learning_objectives_and_skill:
+        code: "Código"
+        description: "Objetivo/habilidade"
+        step: "Etapa"
+        field_of_experience: "Campo de experiência/componente"
+
+  learning_objectives_and_skills:
+    index:
+      new_html: <i class="fa fa-plus"></i> Novo objetivo..
