@@ -73,7 +73,12 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
           school_calendar_classroom_step.start_date_for_posting = start_at
         end
 
-        school_calendar_classroom_step.end_date_for_posting = end_at if new_record
+        start_date_for_posting = school_calendar_classroom_step.start_date_for_posting
+        end_date_for_posting = school_calendar_classroom_step.end_date_for_posting
+
+        if new_record || end_date_for_posting < start_at || end_date_for_posting < start_date_for_posting
+          school_calendar_classroom_step.end_date_for_posting = end_at
+        end
 
         school_calendar_classroom_step.save! if school_calendar_classroom_step.changed?
 

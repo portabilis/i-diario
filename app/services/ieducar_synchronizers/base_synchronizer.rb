@@ -23,7 +23,12 @@ class BaseSynchronizer
         synchronizer_builder_enqueue_worker_params(params, worker_batch.id)
       )
     rescue StandardError => error
-      worker_state.mark_with_error!(error.message) if error.message != '502 Bad Gateway'
+      unity = error.try(:record).try(:unity)
+      unity ||= error.try(:record).try(:school_calendar).try(:unity)
+      unity = "#{unity.api_code} - #{unity.name}: " if unity.present?
+      error_message = "#{unity}#{error.message}"
+
+      worker_state.mark_with_error!(error_message) if error.message != '502 Bad Gateway'
 
       raise error
     end

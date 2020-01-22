@@ -5,12 +5,16 @@ class BaseSynchronizerWorker
 
   sidekiq_retries_exhausted do |msg, exception|
     params = msg['args'].first.with_indifferent_access
+    unity = exception.try(:record).try(:unity)
+    unity ||= exception.try(:record).try(:school_calendar).try(:unity)
+    unity = "#{unity.api_code} - #{unity.name}: " if unity.present?
+    exception_message = "#{unity}#{exception.message}"
 
     Entity.find(params[:entity_id]).using_connection do
       synchronization = IeducarApiSynchronization.find(params[:synchronization_id])
       synchronization.mark_as_error!(
         I18n.t('ieducar_api.error.messages.sync_error'),
-        exception.message
+        exception_message
       )
     end
   end
