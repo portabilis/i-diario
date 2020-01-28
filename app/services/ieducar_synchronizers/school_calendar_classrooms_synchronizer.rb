@@ -13,6 +13,8 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
 
   private
 
+  attr_accessor :reversed
+
   def api_class
     IeducarApi::SchoolCalendars
   end
@@ -54,11 +56,13 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
         end
       end
     end
-  rescue StandardError => error
+  rescue ActiveRecord::RecordInvalid => error
     raise error if error.message.exclude?(I18n.t('ieducar_api.error.messages.must_not_have_conflicting_steps'))
+    raise error if reversed
 
     # Isso e necessario para quando um calendario depender da alteracao da data da etapa de outro calendario
     school_calendars.reverse!
+    @reversed = true
     retry
   end
 
