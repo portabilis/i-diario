@@ -54,6 +54,12 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
         end
       end
     end
+  rescue StandardError => error
+    raise error if error.message.exclude?(I18n.t('ieducar_api.error.messages.must_not_have_conflicting_steps'))
+
+    # Isso e necessario para quando um calendario depender da alteracao da data da etapa de outro calendario
+    school_calendars.reverse!
+    retry
   end
 
   def update_or_create_steps(school_calendar_classroom_record_steps, school_calendar_classroom_id)
