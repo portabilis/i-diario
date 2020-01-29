@@ -15,10 +15,18 @@
         <td><%= learning_objectives_and_skill.step_humanize %></td>
         <td class="actions">
           <% if policy(LearningObjectivesAndSkill).update? %>
-            <%= link_to 'Editar', edit_learning_objectives_and_skill_path(learning_objectives_and_skill), class: "btn btn-success" %>
-            <%= link_to 'Excluir', learning_objectives_and_skill_path(learning_objectives_and_skill), class: "btn btn-danger",
-              title: "Excluir #{learning_objectives_and_skill.to_s}",
-              method: "delete", data: { confirm: "Tem certeza?" } %>
+            <%= link_to 'Editar',
+                        edit_learning_objectives_and_skill_path(learning_objectives_and_skill),
+                        class: "btn btn-success"
+            %>
+
+            <%= link_to 'Excluir',
+                        learning_objectives_and_skill_path(learning_objectives_and_skill),
+                        class: "btn btn-danger",
+                        title: "Excluir #{learning_objectives_and_skill.to_s}",
+                        method: "delete",
+                        data: { confirm: "Tem certeza?" }
+            %>
           <% end %>
         </td>
       </tr>

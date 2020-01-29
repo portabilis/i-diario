@@ -29,7 +29,10 @@
     <% end %>
 
     <% if @learning_objectives_and_skill.persisted? %>
-      <%= link_to 'Histórico', history_learning_objectives_and_skill_path(@learning_objectives_and_skill), class: 'btn btn-info' %>
+      <%= link_to 'Histórico',
+                  history_learning_objectives_and_skill_path(@learning_objectives_and_skill),
+                  class: 'btn btn-info'
+      %>
     <% end %>
 
     <button type="submit" class="btn btn-primary">
