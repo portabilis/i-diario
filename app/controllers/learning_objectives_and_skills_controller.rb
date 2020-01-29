@@ -51,7 +51,11 @@ class LearningObjectivesAndSkillsController < ApplicationController
 
     @learning_objectives_and_skill.destroy
 
-    respond_with @learning_objectives_and_skill, location: learning_objectives_and_skills_path, alert: @learning_objectives_and_skill.errors.to_a
+    respond_with(
+      @learning_objectives_and_skill,
+      location: learning_objectives_and_skills_path,
+      alert: @learning_objectives_and_skill.errors.to_a
+    )
   end
 
   def history
