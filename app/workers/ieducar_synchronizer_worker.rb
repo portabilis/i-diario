@@ -43,7 +43,11 @@ class IeducarSynchronizerWorker
 
       break unless synchronization.try(:started?)
 
-      UnitiesSynchronizerWorker.perform_async(entity.id, synchronization.id, last_two_years)
+      UnitiesSynchronizerWorker.perform_async(
+        entity_id: entity.id,
+        synchronization_id: synchronization.id,
+        last_two_years: last_two_years
+      )
     end
   end
 
