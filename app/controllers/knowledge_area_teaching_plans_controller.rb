@@ -128,6 +128,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def resource_params
     params.require(:knowledge_area_teaching_plan).permit(
       :knowledge_area_ids,
+      :experience_fields,
       teaching_plan_attributes: [
         :id,
         :year,
