@@ -1,6 +1,6 @@
 <div class="row textarea">
   <div class="col col-sm-12">
-    <legend>Conteúdos</legend>
+    <legend><%= model.class.human_attribute_name(:contents) %></legend>
     <br>
     <% if f.object.errors[:contents].present? %>
       <div class="alert alert-danger alert-block ">
@@ -46,7 +46,7 @@
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :objectives, input_html: { class: 'col col-sm-12' } %>
+    <%= f.input :objectives, label: model.class.human_attribute_name(:objectives), input_html: { class: 'col col-sm-12' } %>
   </div>
 </div>
 

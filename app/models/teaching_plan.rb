@@ -1,6 +1,7 @@
 class TeachingPlan < ActiveRecord::Base
   include Audit
   include TeacherRelationable
+  include Translatable
 
   teacher_relation_columns only: :grades
 

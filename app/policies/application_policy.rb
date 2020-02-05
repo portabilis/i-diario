@@ -32,6 +32,14 @@ class ApplicationPolicy
     update?
   end
 
+  def form?
+    update?
+  end
+
+  def save?
+    update?
+  end
+
   def edit_multiple?
     update?
   end

@@ -40,7 +40,7 @@
 
     </fieldset>
     <fieldset>
-      <legend>Conteúdos</legend>
+      <legend><%= @discipline_content_record.class.human_attribute_name(:contents) %></legend>
       <% if content_record.object.errors[:contents].any? %>
         <div class="alert alert-danger fade in">
           <i class="fa-fw fa fa-times"></i>

@@ -1,6 +1,7 @@
 class LessonPlan < ActiveRecord::Base
   include Audit
   include TeacherRelationable
+  include Translatable
 
   teacher_relation_columns only: :classroom
 

@@ -42,7 +42,8 @@ class Features < EnumerateIt::Base
                    :test_settings,
                    :transfer_notes,
                    :unities,
-                   :users
+                   :users,
+                   :translations
 
 
   sort_by :translation

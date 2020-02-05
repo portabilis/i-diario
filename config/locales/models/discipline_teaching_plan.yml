@@ -12,6 +12,8 @@ pt-BR:
         discipline: "Disciplina"
         discipline_id: "Disciplina"
         author: "Autor"
+        objectives: "Objetivos"
+        contents_tags: "Conteúdos"
     errors:
       models:
         discipline_teaching_plan:

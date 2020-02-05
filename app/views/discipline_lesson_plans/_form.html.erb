@@ -26,7 +26,7 @@
         <%= render partial: 'lesson_plans/lesson_plan_date_fields', locals: { f: lesson_plan } %>
       </div>
 
-      <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan } %>
+      <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @discipline_lesson_plan } %>
     </fieldset>
 
     <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>

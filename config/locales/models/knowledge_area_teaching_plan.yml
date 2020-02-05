@@ -12,6 +12,8 @@ pt-BR:
         knowledge_areas: "Áreas de conhecimento"
         knowledge_area_ids: "Áreas de conhecimento"
         author: "Autor"
+        objectives: "Objetivos"
+        contents_tags: "Conteúdos"
     errors:
       models:
         knowledge_area_teaching_plan:

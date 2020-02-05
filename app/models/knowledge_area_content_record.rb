@@ -1,6 +1,7 @@
 class KnowledgeAreaContentRecord < ActiveRecord::Base
   include Audit
   include TeacherRelationable
+  include Translatable
 
   teacher_relation_columns only: :knowledge_areas
 

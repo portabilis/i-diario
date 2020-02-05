@@ -47,14 +47,16 @@
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :objectives, input_html: { class: 'col col-sm-12' },
+          <%= teaching_plan_form.input :objectives,
+                label: @discipline_teaching_plan.class.human_attribute_name(:objectives),
+                input_html: { class: 'col col-sm-12' },
                 readonly: action_name == 'show' %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <legend>Conteúdos</legend>
+          <legend><%= @discipline_teaching_plan.class.human_attribute_name(:contents) %></legend>
           <br>
           <% if teaching_plan_form.object.errors[:contents].present? %>
             <div class="alert alert-danger alert-block">
