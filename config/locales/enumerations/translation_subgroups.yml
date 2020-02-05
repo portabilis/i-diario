@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    translation_subgroups:
+      module: "Módulo"
+      fields: "Campos"

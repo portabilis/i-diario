@@ -147,6 +147,16 @@ navigation:
       icon: "fa-sticky-note-o"
       path: "observation_diary_records_path"
   - menu:
+      type: "bncc"
+      icon: "fa-book"
+      submenus:
+        - menu:
+            type: "learning_objectives_and_skills"
+            path: "learning_objectives_and_skills_path"
+        - menu:
+            type: "translations"
+            path: "translations_path"
+  - menu:
       type: "reports"
       icon: "fa-files-o"
       submenus:

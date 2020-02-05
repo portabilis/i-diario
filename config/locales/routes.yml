@@ -69,6 +69,8 @@ pt-BR:
     complementary_exams: 'diario-de-avaliacoes-complementares'
     knowledge_area_lesson_plan_record: 'registro-de-conteudo-por-areas-de-conhecimento-registros-de-conteudo'
     admin_synchronizations: 'admin-sincronizacoes'
+    learning_objectives_and_skills: 'objetivos-de-aprendizagem-e-habilidades'
+    translations: 'dicionario-de-termos-bncc'
 
     # actions
     edit: 'editar'
