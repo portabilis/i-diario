@@ -6,11 +6,13 @@ class Translation < ActiveRecord::Base
   has_enumeration_for :group, with: TranslationGroups
   has_enumeration_for :subgroup, with: TranslationSubgroups
 
-  validates :key, presence: true
-  validates :label, presence: true
-  validates :group, presence: true
-  validates :subgroup, presence: true
-  validates :order, presence: true
+  with_options presence: true do
+    validates :key
+    validates :label
+    validates :group
+    validates :subgroup
+    validates :order
+  end
 
   scope :ordered, -> { order(:order) }
   scope :order_min, -> { order(Arel::Nodes::Min.new([arel_table[:order]])) }
