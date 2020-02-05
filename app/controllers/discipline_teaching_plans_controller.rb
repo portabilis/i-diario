@@ -142,6 +142,7 @@ class DisciplineTeachingPlansController < ApplicationController
         :evaluation,
         :references,
         :teacher_id,
+        :thematic_unit,
         contents_attributes: [
           :id,
           :description,

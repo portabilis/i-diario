@@ -14,6 +14,7 @@ pt-BR:
         author: "Autor"
         objectives: "Objetivos"
         contents: "Conteúdos"
+        thematic_unit: "Unidade temática"
     errors:
       models:
         lesson_plan:
