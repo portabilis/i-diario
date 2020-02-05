@@ -13,6 +13,8 @@ class IeducarSynchronizerWorker
         exception.message
       )
     end
+
+    Honeybadger.notify(exception)
   end
 
   def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false, last_two_years = true)
