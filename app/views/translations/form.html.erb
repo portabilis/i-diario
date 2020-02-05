@@ -10,7 +10,11 @@
           </div>
         </div>
         <div class="row">
-          <% Translation.where(group: group).where(subgroup: subgroup).ordered.each_with_index do |translation, index| %>
+          <% Translation.where(group: group)
+                        .where(subgroup: subgroup)
+                        .ordered
+                        .each_with_index do |translation, index|
+          %>
             <div class="col-sm-3">
               <div class="control-group string input">
                 <label><%= translation.label %></label>
