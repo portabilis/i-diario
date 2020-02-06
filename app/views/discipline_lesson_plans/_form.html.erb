@@ -1,4 +1,5 @@
 <% content_for :js do %>
+  <%= javascript_include_tag 'list-contents' %>
   <%= javascript_include_tag 'views/discipline_lesson_plans/form' %>
 <% end %>
 
@@ -29,9 +30,8 @@
           <%= f.input :thematic_unit %>
         </div>
       </div>
-
-      <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @discipline_lesson_plan } %>
     </fieldset>
+    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @discipline_lesson_plan } %>
 
     <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
 

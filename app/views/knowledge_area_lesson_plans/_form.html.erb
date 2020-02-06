@@ -1,3 +1,8 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'list-contents' %>
+  <%= javascript_include_tag 'views/knowledge_area_lesson_plans/form' %>
+<% end %>
+
 <%= simple_form_for @knowledge_area_lesson_plan, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
@@ -24,9 +29,9 @@
           <%= f.input :experience_fields %>
         </div>
       </div>
-
-      <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @knowledge_area_lesson_plan } %>
     </fieldset>
+
+    <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @knowledge_area_lesson_plan } %>
 
     <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
 
