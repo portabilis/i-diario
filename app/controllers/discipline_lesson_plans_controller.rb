@@ -133,6 +133,7 @@ class DisciplineLessonPlansController < ApplicationController
       :lesson_plan_id,
       :discipline_id,
       :classes,
+      :thematic_unit,
       lesson_plan_attributes: [
         :id,
         :school_calendar_id,

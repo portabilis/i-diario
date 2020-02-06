@@ -14,6 +14,7 @@ pt-BR:
         author: "Autor"
         objectives: "Objetivos"
         contents_tags: "Conteúdos"
+        thematic_unit: "Unidade temática"
     errors:
       models:
         discipline_teaching_plan:
