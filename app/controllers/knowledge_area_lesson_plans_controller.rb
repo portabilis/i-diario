@@ -146,6 +146,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     params.require(:knowledge_area_lesson_plan).permit(
       :lesson_plan_id,
       :knowledge_area_ids,
+      :experience_fields,
       lesson_plan_attributes: [
         :id,
         :school_calendar_id,

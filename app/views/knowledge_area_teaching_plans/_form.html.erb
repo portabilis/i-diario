@@ -45,6 +45,10 @@
           <%= teaching_plan_form.input :school_term, as: :select2, elements: [], required: true,
                 readonly: action_name == 'show' %>
         </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :experience_fields, readonly: action_name == 'show' %>
+        </div>
       </div>
 
       <div class="row textarea">

@@ -14,6 +14,7 @@ pt-BR:
         author: "Autor"
         objectives: "Objetivos"
         contents_tags: "Conteúdos"
+        experience_fields: "Campos de experiência"
     errors:
       models:
         knowledge_area_teaching_plan:

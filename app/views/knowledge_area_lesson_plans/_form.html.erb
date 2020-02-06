@@ -20,6 +20,9 @@
 
       <div class="row">
         <%= render partial: 'lesson_plans/lesson_plan_date_fields', locals: { f: lesson_plan } %>
+        <div class="col col-sm-4">
+          <%= f.input :experience_fields %>
+        </div>
       </div>
 
       <%= render partial: 'lesson_plans/fields', locals: { f: lesson_plan, model: @knowledge_area_lesson_plan } %>
