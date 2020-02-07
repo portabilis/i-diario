@@ -16,6 +16,8 @@ class IeducarExamPostingWorker
       )
       posting.finish!
     end
+
+    Honeybadger.notify(exception)
   end
 
   def perform(entity_id, posting_id, queue = 'exam_posting_send')

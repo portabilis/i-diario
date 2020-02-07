@@ -21,5 +21,7 @@ class BaseSynchronizerWorker
         exception_message
       )
     end
+
+    Honeybadger.notify(exception)
   end
 end

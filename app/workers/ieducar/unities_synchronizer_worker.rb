@@ -1,11 +1,19 @@
 class UnitiesSynchronizerWorker < BaseSynchronizerWorker
-  def perform(entity_id, synchronization_id, last_two_years)
-    Entity.find(entity_id).using_connection do
-      synchronization = IeducarApiSynchronization.started.find_by(id: synchronization_id)
+  def perform(params)
+    params = params.with_indifferent_access
+
+    Entity.find(params[:entity_id]).using_connection do
+      synchronization = IeducarApiSynchronization.started.find_by(id: params[:synchronization_id])
       @worker_batch = synchronization.worker_batch
       @worker_batch.start!
 
-      params = build_params(entity_id, worker_state_id, synchronization.id, @worker_batch.id, last_two_years)
+      params = build_params(
+        params[:entity_id],
+        worker_state_id,
+        synchronization.id,
+        @worker_batch.id,
+        params[:last_two_years]
+      )
       UnitiesSynchronizer.synchronize!(params)
     end
   end

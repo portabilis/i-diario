@@ -13,6 +13,8 @@ class IeducarSynchronizerWorker
         exception.message
       )
     end
+
+    Honeybadger.notify(exception)
   end
 
   def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false, last_two_years = true)
@@ -43,7 +45,11 @@ class IeducarSynchronizerWorker
 
       break unless synchronization.try(:started?)
 
-      UnitiesSynchronizerWorker.perform_async(entity.id, synchronization.id, last_two_years)
+      UnitiesSynchronizerWorker.perform_async(
+        entity_id: entity.id,
+        synchronization_id: synchronization.id,
+        last_two_years: last_two_years
+      )
     end
   end
 
