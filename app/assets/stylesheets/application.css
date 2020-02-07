@@ -318,3 +318,25 @@ header .project-context {
 span.multiline {
   white-space: pre-line
 }
+
+.new-save-style {
+  border-color: #8ac38b;
+  color: #356635;
+  background-color: #cde0c4;
+  width: 180px;
+}
+
+.new-save-style:hover {
+  background-color: #b6d1a9;
+}
+
+.new-delete-style {
+  border-color: #c26565;
+  color: #953b39;
+  background: #ffffff;
+}
+
+.new-delete-style:hover {
+  background-color: #ececec;
+  color: #953b39;
+}

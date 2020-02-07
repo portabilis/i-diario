@@ -268,7 +268,7 @@ Rails.application.routes.draw do
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
         get :edit_multiple
-        put :update_multiple
+        put :create_or_update_multiple
         delete :destroy_multiple
       end
     end
