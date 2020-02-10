@@ -9,8 +9,8 @@ $(function () {
     message: 'O Diário de frequência foi atualizado e agora é necessário apertar o botão "Salvar" ' +
              'ao fim do lançamento de frequência para que seja lançado com sucesso.',
     buttons: {
-        confirm: { label: 'Salvar', className: 'btn new-save-style' },
-        cancel: { label: 'Continuar sem salvar', className: 'btn new-delete-style' }
+      confirm: { label: 'Salvar', className: 'btn new-save-style' },
+      cancel: { label: 'Continuar sem salvar', className: 'btn new-delete-style' }
     }
   };
 

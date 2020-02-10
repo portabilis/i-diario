@@ -99,12 +99,13 @@
 
       <div class="pull-left">
         <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-left' %>
+        <% daily_frequency_ids = @daily_frequencies.map(&:id) %>
         <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(
-          daily_frequencies_ids: @daily_frequencies.map(&:id)), method: :delete,
+          daily_frequencies_ids: daily_frequency_ids), method: :delete,
           data: { confirm: t('.confirm') }, class: 'btn new-delete-style pull-left'
         %>
         <%= link_to t('views.form.history'), history_multiple_daily_frequency_path(
-          daily_frequencies_ids: @daily_frequencies.map(&:id)), class: 'btn btn-primary pull-left'
+          daily_frequencies_ids: daily_frequency_ids), class: 'btn btn-primary pull-left'
         %>
         <div class="btn-group pull-left dropup" style="margin-left: 5px;">
           <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">

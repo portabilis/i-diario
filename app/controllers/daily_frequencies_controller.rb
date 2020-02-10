@@ -106,7 +106,9 @@ class DailyFrequenciesController < ApplicationController
 
         flash[:success] = t('.daily_frequency_success')
       end
-    rescue StandardError
+    rescue StandardError => error
+      Honeybadger.notify(error)
+
       flash[:alert] = t('.daily_frequency_error')
     end
 
