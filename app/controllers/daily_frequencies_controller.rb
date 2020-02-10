@@ -131,10 +131,10 @@ class DailyFrequenciesController < ApplicationController
 
     return unless flash[:success].present? && receive_email_confirmation
 
-    ReceiptMailer.notify_daily_frequency_success(
+    ReceiptMailer.delay.notify_daily_frequency_success(
       current_user,
       "#{request.base_url}#{edit_multiple_daily_frequencies_path}"
-    ).deliver_now
+    )
   end
 
   def destroy_multiple
