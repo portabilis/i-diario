@@ -1,0 +1,24 @@
+UPDATE translations SET hint = 'Altera o nome do módulo; o caminho das telas de Planos de ensino por disciplina e por áreas de conhecimento' WHERE key = 'navigation.teaching_plans_menu';
+UPDATE translations SET hint = 'Altera o nome do menu; o caminho da tela de Planos de ensino por disciplina; título da listagem e do novo cadastro
+' WHERE key = 'navigation.discipline_teaching_plans';
+UPDATE translations SET hint = 'Altera o nome do menu; o caminho da tela de Planos de ensino por áreas de conhecimento; título da listagem e do novo cadastro' WHERE key = 'navigation.knowledge_area_teaching_plans';
+UPDATE translations SET hint = 'Altera a nomenclatura do campo Objetivos dentro do cadastro de Planos de ensino por disciplina' WHERE key = 'activerecord.attributes.discipline_teaching_plan.objectives';
+UPDATE translations SET hint = 'Altera a nomenclatura do campo Objetivos dentro do cadastro de Planos de ensino por áreas de conhecimento' WHERE key = 'activerecord.attributes.knowledge_area_teaching_plan.objectives';
+UPDATE translations SET hint = 'Altera a nomenclatura da(o) seção/campo Conteúdos dentro do cadastro de Planos de ensino por disciplina' WHERE key = 'activerecord.attributes.knowledge_area_teaching_plan.contents';
+UPDATE translations SET hint = 'Altera a nomenclatura da(o) seção/campo Conteúdos dentro do cadastro de Planos de ensino por áreas de conhecimento' WHERE key = 'activerecord.attributes.discipline_teaching_plan.contents';
+UPDATE translations SET hint = 'Altera o nome do módulo; o caminho das telas de Planos de aula por disciplina e por áreas de conhecimento' WHERE key = 'navigation.lesson_plans_menu';
+UPDATE translations SET hint = 'Altera o nome do módulo; o caminho da tela de Planos de aula por disciplina; título da listagem e do novo cadastro' WHERE key = 'navigation.discipline_lesson_plans';
+UPDATE translations SET hint = 'Altera o nome do módulo; o caminho da tela de Planos de aula por área; título da listagem e do novo cadastro' WHERE key = 'navigation.knowledge_area_lesson_plans';
+UPDATE translations SET hint = 'Altera a nomenclatura do campo Objetivos dentro do cadastro de Planos de aula por disciplina' WHERE key = 'activerecord.attributes.discipline_lesson_plan.objectives';
+UPDATE translations SET hint = 'Altera a nomenclatura do campo Objetivos dentro do cadastro de Planos de aula por áreas de conhecimento' WHERE key = 'activerecord.attributes.knowledge_area_lesson_plan.objectives';
+UPDATE translations SET hint = 'Altera a nomenclatura da(o) seção/campo Conteúdos dentro do cadastro de Planos de aula por áreas de conhecimento' WHERE key = 'activerecord.attributes.knowledge_area_lesson_plan.contents';
+UPDATE translations SET hint = 'Altera a nomenclatura da(o) seção/campo Conteúdos dentro do cadastro de Planos de aula por disciplina' WHERE key = 'activerecord.attributes.discipline_lesson_plan.contents';
+UPDATE translations SET hint = 'Altera o nome do módulo; o caminho das telas de Registros de conteúdos por disciplina e por áreas de conhecimento' WHERE key = 'navigation.content_records_menu';
+UPDATE translations SET hint = 'Altera o nome do módulo; o caminho da tela de Registros de conteúdos por disciplina; título da listagem e do novo cadastro' WHERE key = 'navigation.discipline_content_records';
+UPDATE translations SET hint = 'Altera o nome do módulo; o caminho da tela de Registros de conteúdos por áreas de conhecimento; título da listagem e do novo cadastro' WHERE key = 'navigation.knowledge_area_content_records';
+UPDATE translations SET hint = 'Altera a nomenclatura da(o) seção/campo Conteúdos dentro do cadastro de Registros de conteúdos por áreas de conhecimento' WHERE key = 'activerecord.attributes.knowledge_area_content_record.contents';
+UPDATE translations SET hint = 'Altera a nomenclatura da(o) seção/campo Conteúdos dentro do cadastro de Registros de conteúdos por disciplina' WHERE key = 'activerecord.attributes.discipline_content_record.contents';
+UPDATE translations SET hint = 'Altera a nomenclatura do campo Unidade temática dentro do cadastro de Planos de aula por disciplina' WHERE key = 'activerecord.attributes.discipline_lesson_plan.thematic_unit';
+UPDATE translations SET hint = 'Altera a nomenclatura do campo Unidade temática dentro do cadastro de Planos de ensino por disciplina' WHERE key = 'activerecord.attributes.discipline_teaching_plan.thematic_unit';
+UPDATE translations SET hint = 'Altera a nomenclatura do campo Campos de experiência dentro do cadastro de Planos de aula por áreas de conhecimento' WHERE key = 'activerecord.attributes.knowledge_area_lesson_plan.experience_fields';
+UPDATE translations SET hint = 'Altera a nomenclatura do campo Campos de experiência dentro do cadastro de Planos de ensino por disciplina' WHERE key = 'activerecord.attributes.knowledge_area_teaching_plan.experience_fields';
