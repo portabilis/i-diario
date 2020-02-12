@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
   'use strict';
 
-  const requestContents = (experienceFields) => {
+  const confirmCopyButton = document.getElementById('confirm-copy-objectives-modal');
+
+  const requestContents = (itens) => {
     return new Promise(resolve => {
       const url = Routes.contents_learning_objectives_and_skills_pt_br_path();
-      const params = {
-        experience_fields: experienceFields
-      };
+      let params = {}
+      params[confirmCopyButton.dataset.type] = itens
 
       $.getJSON(url, params).done(resolve);
     });
@@ -27,12 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const copyObjectives = () => {
     const selectedCheckboxs = document.querySelectorAll('[name="experience_fields[]"]:checked');
-    const selectedExperienceFields = Array.from(selectedCheckboxs).map(element => element.dataset.id);
-    if (selectedExperienceFields.length === 0) {
+    const selectedItens = Array.from(selectedCheckboxs).map(element => element.dataset.id);
+    if (selectedItens.length === 0) {
       return;
     }
 
-    requestContents(selectedExperienceFields).then(data => {
+    requestContents(selectedItens).then(data => {
       data['contents'].forEach(content => {
         addElement(content['description']);
       });
@@ -41,5 +42,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  document.getElementById('confirm-copy-objectives-modal').addEventListener('click', copyObjectives);
+  confirmCopyButton.addEventListener('click', copyObjectives);
 });
