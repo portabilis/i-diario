@@ -86,7 +86,9 @@ class LearningObjectivesAndSkillsController < ApplicationController
       :code,
       :description,
       :step,
-      :field_of_experience
+      :field_of_experience,
+      :discipline,
+      :thematic_unit
     )
   end
 end
