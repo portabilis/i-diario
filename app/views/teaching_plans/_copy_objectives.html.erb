@@ -6,10 +6,12 @@
           <span aria-hidden="true">&times;</span>
           <span class="sr-only">Fechar</span>
         </button>
-        <h4 class="modal-title">Copiar objetivos/habilidades por área</h4>
+        <h4 class="modal-title">
+          <%= type == 'disciplines' ? 'Componente curriculares'  : 'Campos de experiência' %>
+        </h4>
       </div>
       <div class="modal-body smart-form">
-        <% BnccExperienceFields.to_a.each do |value| %>
+        <% (type == 'disciplines' ? BnccDisciplines : BnccExperienceFields).to_a.each do |value| %>
           <div class="row">
             <div class="col-sm-12">
               <div class="control-group boolean">
@@ -31,7 +33,7 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">
           Cancelar
         </button>
-        <button type="button" id="confirm-copy-objectives-modal" class="btn btn-primary">
+        <button type="button" data-type="<%= type %>" id="confirm-copy-objectives-modal" class="btn btn-primary">
           Confirmar
         </button>
       </div>

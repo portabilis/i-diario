@@ -69,8 +69,10 @@ class LearningObjectivesAndSkillsController < ApplicationController
   def contents
     @contents = []
 
-    LearningObjectivesAndSkill
-      .where(field_of_experience: params[:experience_fields]).each do |skill|
+    query = LearningObjectivesAndSkill.ordered
+    query = query.where(field_of_experience: params[:experience_fields]) if params[:experience_fields]
+    query = query.where(discipline: params[:disciplines]) if params[:disciplines]
+    query.each do |skill|
       @contents << {
         description: "(#{skill.code}) #{skill.description}"
       }
