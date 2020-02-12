@@ -10,7 +10,9 @@ pt-BR:
         code: "Código"
         description: "Objetivo/habilidade"
         step: "Etapa"
-        field_of_experience: "Campo de experiência/componente"
+        field_of_experience: "Campo de experiência"
+        discipline: "Componente curricular"
+        thematic_unit: "Unidade temática"
 
   learning_objectives_and_skills:
     index:

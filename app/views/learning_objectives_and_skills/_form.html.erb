@@ -1,18 +1,31 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/learning_objectives_and_skills/form' %>
+<% end %>
+
 <%= simple_form_for @learning_objectives_and_skill, html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
 
   <fieldset>
     <div class="row">
-      <div class="col col-sm-2">
+      <div class="col col-sm-4">
         <%= f.input :code %>
       </div>
 
       <div class="col col-sm-4">
         <%= f.input :step, as: :select2, elements: BnccSteps.to_select.to_json %>
       </div>
-
-      <div class="col col-sm-6">
+    </div>
+    <div class="row">
+      <div class="col col-sm-4 only-child-school" style="display: none;">
         <%= f.input :field_of_experience, as: :select2, elements: BnccExperienceFields.to_select.to_json %>
+      </div>
+
+      <div class="col col-sm-4 only-elementary-school" style="display: none;">
+        <%= f.input :discipline, as: :select2, elements: BnccDisciplines.to_select.to_json %>
+      </div>
+
+      <div class="col col-sm-4 only-elementary-school" style="display: none;">
+        <%= f.input :thematic_unit %>
       </div>
     </div>
 

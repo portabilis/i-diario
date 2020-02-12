@@ -6,6 +6,7 @@ class LearningObjectivesAndSkill < ActiveRecord::Base
 
   has_enumeration_for :step, with: BnccSteps, create_helpers: true
   has_enumeration_for :field_of_experience, with: BnccExperienceFields, create_helpers: true
+  has_enumeration_for :discipline, with: BnccDisciplines, create_helpers: true
 
   scope :by_code, ->(code) { where('unaccent(code) ILIKE unaccent(?)', "%#{code}%") }
   scope :by_description, ->(description) { where('unaccent(description) ILIKE unaccent(?)', "%#{description}%") }
