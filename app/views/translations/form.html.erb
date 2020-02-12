@@ -15,13 +15,21 @@
                         .ordered
                         .each_with_index do |translation, index|
           %>
-            <div class="col-sm-3">
-              <div class="control-group string input">
+            <div class="col-sm-4" style="padding: 0px;">
+              <div class="control-group string input" style="padding-left: 10px; padding-right: 10px;">
                 <label><%= translation.label %></label>
-                <input type="text"
-                       class="form-control string"
-                       value="<%= translation.translation %>"
-                       name="translations[<%= translation.id %>]" />
+                <div class="controls input">
+                  <i class="icon-append fa fa-question-circle"></i>
+                  <input type="text"
+                        class="form-control string"
+                        value="<%= translation.translation %>"
+                        name="translations[<%= translation.id %>]"
+                        rel="popover-hover"
+                        data-placement="top"
+                        data-content="<%= translation.hint%>"
+                        data-toggle="popover"
+                  />
+                </div>
               </div>
             </div>
           <% end %>
