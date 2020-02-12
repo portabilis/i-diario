@@ -188,7 +188,12 @@ Rails.application.routes.draw do
 
     resources :discipline_teaching_plans, concerns: :history
     resources :knowledge_area_teaching_plans, concerns: :history
-    resources :learning_objectives_and_skills, concerns: :history
+    resources :learning_objectives_and_skills, concerns: :history do
+      collection do
+        get :contents
+      end
+    end
+
     get '/translations', as: :translations, to: 'translations#form'
     post '/translations', as: :save_translations, to: 'translations#save'
     resources :discipline_lesson_plans, concerns: :history do

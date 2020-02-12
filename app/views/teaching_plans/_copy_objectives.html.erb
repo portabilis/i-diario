@@ -1,0 +1,40 @@
+<div class="modal fade" tabindex="-1" role="dialog" id="copy-objectives-modal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">
+          <span aria-hidden="true">&times;</span>
+          <span class="sr-only">Fechar</span>
+        </button>
+        <h4 class="modal-title">Copiar objetivos/habilidades por área</h4>
+      </div>
+      <div class="modal-body smart-form">
+        <% BnccExperienceFields.to_a.each do |value| %>
+          <div class="row">
+            <div class="col-sm-12">
+              <div class="control-group boolean">
+                <div class="controls input">
+                  <label class="checkbox">
+                    <input type="checkbox"
+                           class="boolean optional"
+                           data-id="<%= value[1] %>"
+                           name="experience_fields[]" />
+                    <%= value[0] %> <i></i>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">
+          Cancelar
+        </button>
+        <button type="button" id="confirm-copy-objectives-modal" class="btn btn-primary">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -66,6 +66,19 @@ class LearningObjectivesAndSkillsController < ApplicationController
     respond_with @learning_objectives_and_skill
   end
 
+  def contents
+    @contents = []
+
+    LearningObjectivesAndSkill
+      .where(field_of_experience: params[:experience_fields]).each do |skill|
+      @contents << {
+        description: "(#{skill.code}) #{skill.description}"
+      }
+    end
+
+    respond_with(contents: @contents)
+  end
+
   private
 
   def learning_objectives_and_skills_params
