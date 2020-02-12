@@ -133,7 +133,8 @@ class DailyFrequenciesController < ApplicationController
 
     ReceiptMailer.delay.notify_daily_frequency_success(
       current_user,
-      "#{request.base_url}#{edit_multiple_daily_frequencies_path}"
+      "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
+      daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y')
     )
   end
 

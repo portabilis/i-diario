@@ -55,9 +55,11 @@ $(function () {
 
   setTimeout(function() {
     $('.alert-success').hide();
-  }, 5000);
+  }, 10000);
 
   $('[name$="[present]"]').on('change', function (e) {
     showConfirmation = true;
   });
+
+  $('.alert-success, .alert-danger').fadeTo(700, 0.1).fadeTo(700, 1.0);
 });
