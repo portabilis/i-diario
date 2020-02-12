@@ -65,7 +65,9 @@
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <legend style="margin-bottom: 10px;"><%= @knowledge_area_teaching_plan.class.human_attribute_name(:contents) %></legend>
+          <legend style="margin-bottom: 10px;">
+            <%= @knowledge_area_teaching_plan.class.human_attribute_name(:contents) %>
+          </legend>
           <% if f.object.errors[:contents].any? %>
             <div class="alert alert-danger fade in">
               <i class="fa-fw fa fa-times"></i>

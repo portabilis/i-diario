@@ -67,16 +67,16 @@ class LearningObjectivesAndSkillsController < ApplicationController
   end
 
   def contents
-    _contents = []
+    @contents = []
 
     LearningObjectivesAndSkill
       .where(field_of_experience: params[:experience_fields]).each do |skill|
-        _contents << {
-          description: "(#{skill.code}) #{skill.description}"
-        }
+      @contents << {
+        description: "(#{skill.code}) #{skill.description}"
+      }
     end
 
-    respond_with({ contents: _contents })
+    respond_with(contents: @contents)
   end
 
   private

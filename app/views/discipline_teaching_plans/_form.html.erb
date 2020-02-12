@@ -7,7 +7,11 @@
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
 <% end %>
 
-<%= simple_form_for @discipline_teaching_plan, html: { class: 'smart-form', id: 'discipline_teaching_plan' } do |f| %>
+<%= simple_form_for @discipline_teaching_plan, html: {
+    class: 'smart-form',
+    id: 'discipline_teaching_plan'
+  } do |f| %>
+
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
 
@@ -63,7 +67,9 @@
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <legend style="margin-bottom: 10px;"><%= @discipline_teaching_plan.class.human_attribute_name(:contents) %></legend>
+          <legend style="margin-bottom: 10px;">
+            <%= @discipline_teaching_plan.class.human_attribute_name(:contents) %>
+          </legend>
           <% if f.object.errors[:contents].any? %>
             <div class="alert alert-danger fade in">
               <i class="fa-fw fa fa-times"></i>
