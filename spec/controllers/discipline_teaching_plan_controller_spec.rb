@@ -69,13 +69,9 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
           school_term_type: SchoolTermTypes::BIMESTER,
           school_term: Bimesters::FIRST_BIMESTER,
           teacher_id: current_teacher.id,
-          contents_attributes: {
-            '1': {
-              description: current_teacher_teaching_plan.contents.first.description,
-              id: '',
-              _destroy: false
-            }
-          }
+          content_descriptions: [
+            Faker::Lorem.sentence
+          ]
         }
       }
     }
