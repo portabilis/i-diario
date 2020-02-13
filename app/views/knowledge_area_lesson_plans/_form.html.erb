@@ -1,6 +1,9 @@
+<%= render 'teaching_plans/copy_objectives', type: 'experience_fields' %>
+
 <% content_for :js do %>
   <%= javascript_include_tag 'list-contents' %>
   <%= javascript_include_tag 'views/knowledge_area_lesson_plans/form' %>
+  <%= javascript_include_tag 'views/layouts/copy-objectives' %>
 <% end %>
 
 <%= simple_form_for @knowledge_area_lesson_plan, html: { class: 'smart-form' } do |f| %>
