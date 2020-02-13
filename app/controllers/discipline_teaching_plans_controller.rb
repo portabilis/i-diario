@@ -138,6 +138,7 @@ class DisciplineTeachingPlansController < ApplicationController
   def resource_params
     params.require(:discipline_teaching_plan).permit(
       :discipline_id,
+      :thematic_unit,
       teaching_plan_attributes: [
         :id,
         :year,
@@ -151,7 +152,6 @@ class DisciplineTeachingPlansController < ApplicationController
         :evaluation,
         :references,
         :teacher_id,
-        :thematic_unit,
         teaching_plan_attachments_attributes: [
           :id,
           :attachment,
