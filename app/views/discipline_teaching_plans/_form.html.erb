@@ -76,9 +76,11 @@
               <%= f.object.errors[:contents].first %>
             </div>
           <% end %>
-          <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
-            Copiar objetivos/habilidades por área
-          </a>
+          <% if action_name != 'show' %>
+            <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
+              Copiar objetivos/habilidades por área
+            </a>
+          <% end %>
 
             <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
               <ul class="list-group checked-list-box" id="contents-list">
@@ -106,21 +108,23 @@
 
         </div>
       </div>
-      <div class="row textarea">
-        <div class="col col-sm-12 contents-select2-container">
-          <%= teaching_plan_form.input :contents_tags,
-              as: :string,
-              input_html: {
-                class: 'select2-content-tags-ajax',
-                value: '',
-                data: {
-                  url: contents_path,
-                  data: []
+      <% if action_name != 'show' %>
+        <div class="row textarea">
+          <div class="col col-sm-12 contents-select2-container">
+            <%= teaching_plan_form.input :contents_tags,
+                as: :string,
+                input_html: {
+                  class: 'select2-content-tags-ajax',
+                  value: '',
+                  data: {
+                    url: contents_path,
+                    data: []
+                  }
                 }
-              }
-          %>
-        </div>
+            %>
+          </div>
       </div>
+      <% end %>
 
       <div class="row textarea">
         <div class="col col-sm-12">
