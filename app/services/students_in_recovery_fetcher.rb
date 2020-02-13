@@ -56,7 +56,7 @@ class StudentsInRecoveryFetcher
 
   def enrollment_students
     @enrollment_students ||= begin
-      end_at = @date > step.end_at ? step.end_at : @date
+      end_at = @date.to_date > step.end_at ? step.end_at : @date.to_date
 
       StudentEnrollmentsList.new(
         classroom: classroom,
