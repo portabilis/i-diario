@@ -14,6 +14,7 @@ class TranslationsController < ApplicationController
     end
 
     Rails.cache.delete(Translation::CACHE_KEY)
+    flash[:success] = "Dicionário de termos da BNCC foi atualizado com sucesso."
 
     redirect_to :translations
   end

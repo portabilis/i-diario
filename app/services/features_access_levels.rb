@@ -64,6 +64,7 @@ class FeaturesAccessLevels
   end
 
   private
+
   def self.admin_only_features
     [
       :data_exportations,
@@ -71,7 +72,9 @@ class FeaturesAccessLevels
       :general_configurations,
       :roles,
       :unities,
-      :terms_dictionaries
+      :terms_dictionaries,
+      :translations,
+      :learning_objectives_and_skills
     ]
   end
 end
