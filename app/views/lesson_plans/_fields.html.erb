@@ -2,6 +2,14 @@
   <legend style="margin-bottom: -10px;">
     <%= model.class.human_attribute_name(:contents) %>
   </legend>
+  <div class="alert alert-danger"
+       id="lesson_plan_copy_from_teaching_plan_alert"
+       style="display: none;"
+  >
+    <i class="fa-fw fa fa-times"></i>
+    Não foi possível copiar <%= Translator.t('navigation.teaching_plans_menu').downcase %>
+    pois não existem registros para a data informada.
+  </div>
   <% if f.object.errors[:contents].any? %>
     <div class="alert alert-danger fade in">
       <i class="fa-fw fa fa-times"></i>
