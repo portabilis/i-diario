@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const checkedExperienceFields = () => {
-     return document.querySelectorAll('[name="experience_fields[]"]:checked');
+    return document.querySelectorAll('[name="experience_fields[]"]:checked');
   };
 
   const copyObjectives = () => {
