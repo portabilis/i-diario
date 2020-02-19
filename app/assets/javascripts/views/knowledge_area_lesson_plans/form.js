@@ -1,9 +1,14 @@
+window['content_list_model_name'] = 'knowledge_area_lesson_plan';
+window['content_list_submodel_name'] = 'lesson_plan';
+
 $(function () {
   'use strict';
   const copyTeachingPlanLink = document.getElementById('copy-from-teaching-plan-link');
   const startAtInput = document.getElementById('knowledge_area_lesson_plan_lesson_plan_attributes_start_at');
   const endAtInput = document.getElementById('knowledge_area_lesson_plan_lesson_plan_attributes_end_at');
   const knowledgeAreasInput = document.getElementById('knowledge_area_lesson_plan_knowledge_area_ids');
+  const copyFromTeachingPlanAlert = document.getElementById('lesson_plan_copy_from_teaching_plan_alert');
+  const flashMessages = new FlashMessages();
 
   $('#knowledge_area_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function(e){
     if(e.val.length){
@@ -44,11 +49,16 @@ $(function () {
   };
 
   const fillContents = (data) => {
-    data.knowledge_area_lesson_plans.forEach(content => addElement(content.description));
+    if (data.knowledge_area_lesson_plans.length) {
+      data.knowledge_area_lesson_plans.forEach(content => addElement(content.description));
+    } else {
+      copyFromTeachingPlanAlert.style.display = 'block';
+    }
   }
 
   copyTeachingPlanLink.addEventListener('click', event => {
     event.preventDefault();
+    copyFromTeachingPlanAlert.style.display = 'none';
 
     if (!knowledgeAreasInput.value) {
       flashMessages.error('É necessário preenchimento das áreas de conhecimento para realizar a cópia.');

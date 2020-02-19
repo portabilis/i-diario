@@ -1,3 +1,6 @@
+window['content_list_model_name'] = 'discipline_lesson_plan';
+window['content_list_submodel_name'] = 'lesson_plan';
+
 $(function () {
   'use strict';
 
@@ -10,6 +13,7 @@ $(function () {
   const copyTeachingPlanLink = document.getElementById('copy-from-teaching-plan-link');
   const startAtInput = document.getElementById('discipline_lesson_plan_lesson_plan_attributes_start_at');
   const endAtInput = document.getElementById('discipline_lesson_plan_lesson_plan_attributes_end_at');
+  const copyFromTeachingPlanAlert = document.getElementById('lesson_plan_copy_from_teaching_plan_alert');
 
   $(".lesson_plan_attachment").on('change', onChangeFileElement);
 
@@ -128,11 +132,16 @@ $(function () {
   };
 
   const fillContents = (data) => {
-    data.discipline_lesson_plans.forEach(content => addElement(content.description));
+    if (data.discipline_lesson_plans.length) {
+      data.discipline_lesson_plans.forEach(content => addElement(content.description));
+    } else {
+      copyFromTeachingPlanAlert.style.display = 'block';
+    }
   }
 
   copyTeachingPlanLink.addEventListener('click', event => {
     event.preventDefault();
+    copyFromTeachingPlanAlert.style.display = 'none';
 
     if (!startAtInput.value || !endAtInput.value) {
       flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
