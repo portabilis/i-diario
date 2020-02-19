@@ -142,6 +142,18 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     flash[:success] = t('messages.copy_succeed') if @form.clone!
   end
 
+  def teaching_plan_contents
+    @teaching_plan_contents = KnowledgeAreaTeachingPlanContentsFetcher.new(
+      current_teacher,
+      current_user_classroom,
+      params[:knowledge_area_ids],
+      params[:start_date],
+      params[:end_date]
+    ).fetch
+
+    respond_with(@teaching_plan_contents)
+  end
+
   private
 
   def content_ids
