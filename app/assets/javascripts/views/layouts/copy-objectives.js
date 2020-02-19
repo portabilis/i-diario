@@ -26,9 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const checkedExperienceFields = () => {
+    return document.querySelectorAll('[name="experience_fields[]"]:checked');
+  };
+
   const copyObjectives = () => {
-    const selectedCheckboxs = document.querySelectorAll('[name="experience_fields[]"]:checked');
-    const selectedItens = Array.from(selectedCheckboxs).map(element => element.dataset.id);
+    const selectedItens = Array.from(checkedExperienceFields()).map(element => element.dataset.id);
     if (selectedItens.length === 0) {
       return;
     }
@@ -43,4 +46,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   confirmCopyButton.addEventListener('click', copyObjectives);
+
+  const clearCheckboxs = () => {
+    checkedExperienceFields().forEach(checkboxInput => {
+      checkboxInput.checked = false;
+    });
+  };
+
+  $('#copy-objectives-modal').on('show.bs.modal', clearCheckboxs);
 });
