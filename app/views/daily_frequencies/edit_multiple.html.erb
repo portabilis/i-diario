@@ -128,7 +128,7 @@
         </div>
       </div>
       <div class="pull-right">
-        <%= f.submit t('.save'), class: 'btn new-save-style' %>
+        <%= f.submit t('.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
       </div>
       <div class="pull-right" style="margin-right: 10px;">
         <%= f.input :receive_email_confirmation, as: :boolean, label: false, inline_label: true %>
