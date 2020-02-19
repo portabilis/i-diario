@@ -28,7 +28,7 @@ class DisciplineLessonPlanPdf < BaseReport
 
   def header
     header_cell = make_cell(
-      content: 'Planos de aula por disciplina',
+      content: Translator.t('navigation.discipline_lesson_plans'),
       size: 12,
       font_style: :bold,
       background_color: 'DEDEDE',
@@ -96,7 +96,7 @@ class DisciplineLessonPlanPdf < BaseReport
     )
 
     @class_plan_header_cell = make_cell(
-      content: 'Plano de aula',
+      content: Translator.t('navigation.lesson_plans_menu'),
       size: 12,
       font_style: :bold,
       background_color: 'DEDEDE',
@@ -137,7 +137,11 @@ class DisciplineLessonPlanPdf < BaseReport
     @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 4)
     @discipline_cell = make_cell(content: @discipline_lesson_plan.discipline.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
 
-    conteudo_cell_content = inline_formated_cell_header('Conteúdos') + (lesson_plan.contents.present? ? lesson_plan.contents_ordered.map(&:to_s).join(", ") : '-')
+    conteudo_cell_content = inline_formated_cell_header(
+      Translator.t('activerecord.attributes.discipline_lesson_plan.contents')
+    ) + (
+      lesson_plan.contents.present? ? lesson_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
+    )
     @conteudo_cell = make_cell(content: conteudo_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
   end
 
@@ -178,7 +182,8 @@ class DisciplineLessonPlanPdf < BaseReport
     end
 
     text_box_truncate('Atividades/metodologia', (lesson_plan.activities || '-'))
-    text_box_truncate('Objetivos', (lesson_plan.objectives || '-'))
+    objectives_label = Translator.t('activerecord.attributes.discipline_lesson_plan.objectives')
+    text_box_truncate(objectives_label, (lesson_plan.objectives || '-'))
     text_box_truncate('Recursos', (lesson_plan.resources || '-'))
     text_box_truncate('Avaliação', (lesson_plan.evaluation || '-'))
     text_box_truncate('Referências', (lesson_plan.bibliography || '-'))
