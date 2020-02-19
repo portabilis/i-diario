@@ -147,12 +147,20 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     @knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
     @knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
+    contents = '-'
+    if @knowledge_area_lesson_plan.lesson_plan.contents.present?
+      contents = @knowledge_area_lesson_plan.lesson_plan.contents_ordered.map(&:to_s).join("\n ")
+    end
     content_cell_content = inline_formated_cell_header(
       Translator.t('activerecord.attributes.knowledge_area_lesson_plan.contents')
-    ) + (
-      @knowledge_area_lesson_plan.lesson_plan.contents.present? ? @knowledge_area_lesson_plan.lesson_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
+    ) + contents
+    @content_cell = make_cell(
+      content: content_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
     )
-    @content_cell = make_cell(content: content_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
 
     opinion_cell_content = inline_formated_cell_header('Parecer') + @knowledge_area_lesson_plan.lesson_plan.opinion.to_s
     @opinion_cell = make_cell(content: opinion_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
