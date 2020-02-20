@@ -13,6 +13,8 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
 
   private
 
+  attr_accessor :reversed
+
   def api_class
     IeducarApi::SchoolCalendars
   end
@@ -54,6 +56,14 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
         end
       end
     end
+  rescue ActiveRecord::RecordInvalid => error
+    raise error if error.message.exclude?(I18n.t('ieducar_api.error.messages.must_not_have_conflicting_steps'))
+    raise error if reversed
+
+    # Isso e necessario para quando um calendario depender da alteracao da data da etapa de outro calendario
+    school_calendars.reverse!
+    @reversed = true
+    retry
   end
 
   def update_or_create_steps(school_calendar_classroom_record_steps, school_calendar_classroom_id)
@@ -73,7 +83,12 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
           school_calendar_classroom_step.start_date_for_posting = start_at
         end
 
-        school_calendar_classroom_step.end_date_for_posting = end_at if new_record
+        start_date_for_posting = school_calendar_classroom_step.start_date_for_posting
+        end_date_for_posting = school_calendar_classroom_step.end_date_for_posting
+
+        if new_record || end_date_for_posting < start_at || end_date_for_posting < start_date_for_posting
+          school_calendar_classroom_step.end_date_for_posting = end_at
+        end
 
         school_calendar_classroom_step.save! if school_calendar_classroom_step.changed?
 

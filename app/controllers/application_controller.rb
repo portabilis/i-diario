@@ -166,9 +166,16 @@ class ApplicationController < ActionController::Base
   helper_method :current_teacher_id
 
   def current_school_calendar
-    return if current_user.admin? && current_user_unity.blank?
+    @current_school_calendar ||=
+      begin
+        return if current_user.admin? && current_user_unity.blank?
 
-    CurrentSchoolCalendarFetcher.new(current_user_unity, current_user_classroom, current_user_school_year).fetch
+        CurrentSchoolCalendarFetcher.new(
+          current_user_unity,
+          current_user_classroom,
+          current_user_school_year
+        ).fetch
+      end
   end
 
   def current_test_setting
@@ -219,7 +226,7 @@ class ApplicationController < ActionController::Base
   helper_method :can_change_school_year?
 
   def current_user_unity
-    @current_user_unity ||= current_user.current_unity
+    @current_user_unity ||= current_user.try(:current_unity)
   end
   helper_method :current_user_unity
 
@@ -406,9 +413,11 @@ class ApplicationController < ActionController::Base
 
     Honeybadger.context(
       entity: current_entity.try(:name),
-      classroom_id: classroom_id,
-      teacher_id: teacher_id,
-      discipline_id: discipline_id
+      current_classroom_id: classroom_id,
+      current_teacher_id: teacher_id,
+      current_discipline_id: discipline_id,
+      current_unity_id: current_user_unity.try(:id),
+      current_year: current_user_school_year
     )
   end
 

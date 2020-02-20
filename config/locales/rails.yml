@@ -13,6 +13,7 @@ pt-BR:
         invalid_post: "Requisição não pode ser realizada. É necessário informar o %{field}."
         post_error: "Ocorreu um erro ao efetuar o envio. Entre em contato com o administrador."
         sync_error: "Erro inesperado. Se persistir, entre em contato com o administrador."
+        must_not_have_conflicting_steps: "A data informada não pode ser um dia letivo em outro calendário escolar"
 
   boolean:
     "yes": "Sim"

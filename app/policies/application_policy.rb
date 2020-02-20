@@ -52,7 +52,7 @@ class ApplicationPolicy
     create?
   end
 
-  def update_multiple?
+  def create_or_update_multiple?
     update?
   end
 
@@ -89,4 +89,3 @@ class ApplicationPolicy
     record.to_s.respond_to?(:underscore) && record.to_s.underscore.split('_').last.eql?('report')
   end
 end
-
