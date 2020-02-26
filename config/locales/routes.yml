@@ -69,6 +69,7 @@ pt-BR:
     complementary_exams: 'diario-de-avaliacoes-complementares'
     knowledge_area_lesson_plan_record: 'registro-de-conteudo-por-areas-de-conhecimento-registros-de-conteudo'
     admin_synchronizations: 'admin-sincronizacoes'
+    infrequency_trackings: 'acompanhamento-de-infrequencias'
 
     # actions
     edit: 'editar'

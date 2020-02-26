@@ -86,6 +86,8 @@ class DailyFrequenciesController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
+        daily_frequency_id = nil
+
         daily_frequencies_params.each do |daily_frequency|
           class_number = daily_frequency.second[:class_number]
           class_number = class_number.to_i.zero? ? nil : class_number
@@ -102,9 +104,13 @@ class DailyFrequenciesController < ApplicationController
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
 
           daily_frequency_record.save
+
+          daily_frequency_id ||= daily_frequency_record.id
         end
 
         flash[:success] = t('.daily_frequency_success')
+
+        insert_unique_daily_frequency_students(daily_frequency_id)
       end
     rescue StandardError => error
       Honeybadger.notify(error)
@@ -347,5 +353,14 @@ class DailyFrequenciesController < ApplicationController
                       .by_discipline(discipline_id)
                       .by_step_number(step_number)
                       .any?
+  end
+
+  def insert_unique_daily_frequency_students(daily_frequency_id)
+    UniqueDailyFrequencyStudentsCreatorWorker.perform_in(
+      1.second,
+      current_entity.id,
+      daily_frequency_id,
+      current_teacher_id
+    )
   end
 end

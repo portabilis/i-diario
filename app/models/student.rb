@@ -36,6 +36,7 @@ class Student < ActiveRecord::Base
 
   scope :api, -> { where(arel_table[:api].eq(true)) }
   scope :ordered, -> { order(:name) }
+  scope :by_name, ->(name) { where('unaccent(name) ILIKE unaccent(?)', "%#{name}%") }
   scope :order_by_sequence, lambda { |classroom_id, start_date, end_date|
     joins(:student_enrollments)
       .merge(

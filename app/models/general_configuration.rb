@@ -14,6 +14,12 @@ class GeneralConfiguration < ActiveRecord::Base
   validates :security_level, presence: true
   validates :allows_after_sales_relationship, presence: true
 
+  with_options presence: true, if: :notify_consecutive_or_alternate_absences do
+    validates :max_consecutive_absence_days
+    validates :max_alternate_absence_days
+    validates :days_to_consider_alternate_absences
+  end
+
   belongs_to :employees_default_role, class_name: 'Role', foreign_key: 'employees_default_role_id'
 
   def self.current

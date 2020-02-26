@@ -23,6 +23,27 @@ class SchoolDayChecker
     date
   end
 
+  def school_dates_list(current_date, dates_size, direction)
+    dates_list = []
+    searches = 1
+    dates_list << current_date if date_is_school_day?(current_date)
+
+    loop do
+      searches += 1
+      current_date = current_date.next_day if direction == :forward
+      current_date = current_date.prev_day if direction == :backward
+
+      break if searches >= (dates_size * 2)
+      next unless date_is_school_day?(current_date)
+
+      dates_list << current_date
+
+      break if dates_list.size == dates_size
+    end
+
+    dates_list
+  end
+
   private
 
   def date_is_school_day?(date)

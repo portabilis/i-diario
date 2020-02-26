@@ -18,6 +18,10 @@ pt-BR:
         display_knowledge_area_as_discipline: "Exibir área de conhecimento no campo disciplina (Registro de frequência)"
         display_daily_activies_log: "Exibir registro diário de atividades (Registro de conteúdos por disciplina)"
         show_daily_activities_in_knowledge_area_content_record_report: "Exibir registro diário de atividades (Registro de conteúdos por área de conhecimento)"
+        notify_consecutive_or_alternate_absences: "Notificar faltas consecutivas e/ou alternadas"
+        max_consecutive_absence_days: "Quantidade de dias corridos"
+        max_alternate_absence_days: "Quantidade de dias alternados"
+        days_to_consider_alternate_absences: "Período de dias para considerar faltas alternadas"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."
