@@ -15,7 +15,7 @@ class DailyFrequency < ActiveRecord::Base
         DailyFrequencyStudent.with_discarded
                              .joins(:student)
                              .by_daily_frequency_id(id)
-                             .destroy_all
+                             .delete_all
       end
     end
   end
