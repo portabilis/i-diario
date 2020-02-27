@@ -13,8 +13,8 @@ class TranslationsController < ApplicationController
       Translation.find(id).update!(translation: translation)
     end
 
-    Rails.cache.delete(Translation::CACHE_KEY)
-    flash[:success] = "Dicionário de termos da BNCC foi atualizado com sucesso."
+    Rails.cache.delete(Translation.cache_key)
+    flash[:success] = 'Dicionário de termos da BNCC foi atualizado com sucesso.'
 
     redirect_to :translations
   end

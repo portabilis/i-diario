@@ -1,5 +1,6 @@
 class Translation < ActiveRecord::Base
   CACHE_KEY = 'translations'.freeze
+  private_constant :CACHE_KEY
 
   audited
 
@@ -31,5 +32,9 @@ class Translation < ActiveRecord::Base
       .order_subgroups
       .select(:subgroup)
       .map(&:subgroup)
+  end
+
+  def self.cache_key
+    "#{Entity.current_domain}-#{CACHE_KEY}"
   end
 end
