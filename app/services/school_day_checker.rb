@@ -23,25 +23,17 @@ class SchoolDayChecker
     date
   end
 
-  def school_dates_list(current_date, dates_size, direction)
-    dates_list = []
-    searches = 1
-    dates_list << current_date if date_is_school_day?(current_date)
+  def school_dates_since(date, number_of_days)
+    selected_school_dates = []
+    last_date_to_check = date - limit_of_dates_to_check(number_of_days)
 
-    loop do
-      searches += 1
-      current_date = current_date.next_day if direction == :forward
-      current_date = current_date.prev_day if direction == :backward
+    date.downto(last_date_to_check).each do |current_date|
+      break if selected_school_dates.size == number_of_days
 
-      break if searches >= (dates_size * 2)
-      next unless date_is_school_day?(current_date)
-
-      dates_list << current_date
-
-      break if dates_list.size == dates_size
+      selected_school_dates << current_date if date_is_school_day?(current_date)
     end
 
-    dates_list
+    selected_school_dates
   end
 
   private
@@ -126,5 +118,9 @@ class SchoolDayChecker
 
   def grade
     @grade ||= Grade.find(@grade_id)
+  end
+
+  def limit_of_dates_to_check(number_of_days)
+    number_of_days * 2
   end
 end
