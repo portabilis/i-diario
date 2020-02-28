@@ -383,7 +383,8 @@ class ApplicationController < ActionController::Base
   def current_year_steps
     @current_year_steps ||= begin
       steps = steps_fetcher.steps if current_user_classroom.present?
-      steps ||= SchoolCalendar.find_by(unity_id: current_user_unity.id, year: current_user_school_year).steps
+      year = current_user_school_year || current_school_calendar.year
+      steps ||= SchoolCalendar.find_by(unity_id: current_user_unity.id, year: year).steps
       steps
     end
   end
