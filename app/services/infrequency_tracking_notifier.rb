@@ -7,8 +7,7 @@ class InfrequencyTrackingNotifier
     return if users_to_notify.blank?
 
     classrooms_with_absences.each do |classroom|
-      school_calendar = school_calendar(classroom)
-      school_dates = school_dates(school_calendar, end_at, classroom)
+      school_dates = school_dates(end_at, classroom)
       start_at = school_dates.first
 
       students_with_absences(classroom.id, start_at).each do |student_id|
@@ -17,46 +16,7 @@ class InfrequencyTrackingNotifier
         unique_daily_frequency_students = students_with_absences_query(start_at).by_student_id(student_id)
         absence_dates = unique_daily_frequency_students.map(&:frequency_date).sort
 
-        InfrequencyTrackingTypes.list.each do |infrequency_tracking_type|
-          notification = nil
-
-          case infrequency_tracking_type
-          when InfrequencyTrackingTypes::CONSECUTIVE_ABSENCES
-            notification = consecutive_absences?(school_dates, absence_dates)
-            consecutive_start_at = consecutive_school_dates(school_dates).last
-            unique_daily_frequency_students = students_with_absences_query(
-              consecutive_start_at
-            ).by_student_id(student_id)
-          when InfrequencyTrackingTypes::ALTERNATING_ABSENCES
-            notification = alternating_absences?(absence_dates)
-            unique_daily_frequency_students = students_with_absences_query(start_at).by_student_id(student_id)
-          end
-
-          next if notification.blank?
-
-          notification_data = []
-          teacher_ids = unique_daily_frequency_students.map(&:absences_by).flatten.uniq
-
-          teacher_ids.each do |teacher_id|
-            absences = unique_daily_frequency_students.by_teacher_id(teacher_id)
-                                                      .pluck(:frequency_date)
-                                                      .map(&:to_s)
-                                                      .sort
-
-            notification_data << {
-              teacher_id: teacher_id,
-              absences: absences
-            }
-          end
-
-          infrequency_tracking = create_infrequency_tracking(
-            student_id,
-            classroom.id,
-            notification_data,
-            infrequency_tracking_type
-          )
-          send_notification(infrequency_tracking, infrequency_tracking_type)
-        end
+        notify_student_by_type(student_id, classroom, start_at, school_dates, absence_dates)
       end
     end
   end
@@ -97,13 +57,13 @@ class InfrequencyTrackingNotifier
                        .notification_date
   end
 
-  def school_dates(school_calendar, end_at, classroom)
+  def school_dates(end_at, classroom)
     days = general_configuration.days_to_consider_alternate_absences
 
     SchoolDayChecker.new(
-      school_calendar, end_at, classroom.grade_id, classroom.id, nil
-    ).school_dates_list(
-      end_at, days, :backward
+      school_calendar(classroom), end_at, classroom.grade_id, classroom.id, nil
+    ).school_dates_since(
+      end_at, days
     ).sort
   end
 
@@ -127,13 +87,15 @@ class InfrequencyTrackingNotifier
   end
 
   def create_infrequency_tracking(student_id, classroom_id, notification_data, infrequency_tracking_type)
-    InfrequencyTracking.create!(
+    infrequency_tracking = InfrequencyTracking.create!(
       student_id: student_id,
       classroom_id: classroom_id,
       notification_date: Date.current,
       notification_data: notification_data,
       notification_type: infrequency_tracking_type
     )
+
+    send_notification(infrequency_tracking, infrequency_tracking_type)
   end
 
   def send_notification(infrequency_tracking, type)
@@ -149,8 +111,13 @@ class InfrequencyTrackingNotifier
     student = infrequency_tracking.student.name
     unity = infrequency_tracking.classroom.unity.name
     classroom = infrequency_tracking.classroom.description
-    absences = general_configuration.max_consecutive_absence_days if type == :consecutive_absences
-    absences = general_configuration.max_alternate_absence_days if type == :alternating_absences
+
+    absences = case type
+               when InfrequencyTrackingTypes::CONSECUTIVE_ABSENCES
+                 general_configuration.max_consecutive_absence_days
+               when InfrequencyTrackingTypes::ALTERNATING_ABSENCES
+                 general_configuration.max_alternate_absence_days
+               end
 
     I18n.t(
       "infrequency_tracking_notifier.description.#{type}",
@@ -165,6 +132,58 @@ class InfrequencyTrackingNotifier
     @users_to_notify ||= begin
       role_ids = RolePermission.where(feature: :infrequency_trackings).pluck(:role_id)
       UserRole.where(role_id: role_ids).map(&:user)
+    end
+  end
+
+  def need_send_notification?(type, school_dates, absence_dates)
+    return alternating_absences?(absence_dates) if type == InfrequencyTrackingTypes::ALTERNATING_ABSENCES
+
+    consecutive_absences?(school_dates, absence_dates)
+  end
+
+  def absences_by_teacher(unique_daily_frequency_students, teacher_id)
+    unique_daily_frequency_students.by_teacher_id(teacher_id)
+                                   .pluck(:frequency_date)
+                                   .map(&:to_s)
+                                   .sort
+  end
+
+  def unique_daily_frequency_students_by_type(type, start_at, student_id, school_dates)
+    if type == InfrequencyTrackingTypes::CONSECUTIVE_ABSENCES
+      students_with_absences_query(
+        consecutive_school_dates(school_dates).last
+      ).by_student_id(student_id)
+    else
+      students_with_absences_query(start_at).by_student_id(student_id)
+    end
+  end
+
+  def notify_student_by_type(student_id, classroom, start_at, school_dates, absence_dates)
+    InfrequencyTrackingTypes.list.each do |infrequency_tracking_type|
+      next unless need_send_notification?(infrequency_tracking_type, school_dates, absence_dates)
+
+      unique_daily_frequency_students = unique_daily_frequency_students_by_type(
+        infrequency_tracking_type,
+        start_at,
+        student_id,
+        school_dates
+      )
+
+      notification_data = []
+      teacher_ids = unique_daily_frequency_students.map(&:absences_by).flatten.uniq
+
+      teacher_ids.each do |teacher_id|
+        absences = absences_by_teacher(unique_daily_frequency_students, teacher_id)
+
+        notification_data << { teacher_id: teacher_id, absences: absences }
+      end
+
+      create_infrequency_tracking(
+        student_id,
+        classroom.id,
+        notification_data,
+        infrequency_tracking_type
+      )
     end
   end
 end
