@@ -12,6 +12,9 @@ pt-BR:
         discipline: "Disciplina"
         discipline_id: "Disciplina"
         author: "Autor"
+        objectives: "Objetivos"
+        contents: "Conteúdos"
+        thematic_unit: "Unidade temática"
     errors:
       models:
         lesson_plan:

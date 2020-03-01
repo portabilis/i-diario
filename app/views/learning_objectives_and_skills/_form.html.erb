@@ -1,0 +1,55 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/learning_objectives_and_skills/form' %>
+<% end %>
+
+<%= simple_form_for @learning_objectives_and_skill, html: { class: "smart-form" } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :code %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :step, as: :select2, elements: BnccSteps.to_select.to_json %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col col-sm-4 only-child-school" style="display: none;">
+        <%= f.input :field_of_experience, as: :select2, elements: BnccExperienceFields.to_select.to_json %>
+      </div>
+
+      <div class="col col-sm-4 only-elementary-school" style="display: none;">
+        <%= f.input :discipline, as: :select2, elements: BnccDisciplines.to_select.to_json %>
+      </div>
+
+      <div class="col col-sm-4 only-elementary-school" style="display: none;">
+        <%= f.input :thematic_unit %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-12">
+        <%= f.input :description %>
+      </div>
+    </div>
+  </fieldset>
+
+  <footer>
+    <%= link_to learning_objectives_and_skills_path, class: "btn btn-default" do %>
+      Voltar
+    <% end %>
+
+    <% if @learning_objectives_and_skill.persisted? %>
+      <%= link_to 'Histórico',
+                  history_learning_objectives_and_skill_path(@learning_objectives_and_skill),
+                  class: 'btn btn-info'
+      %>
+    <% end %>
+
+    <button type="submit" class="btn btn-primary">
+      Salvar
+    </button>
+  </footer>
+<% end %>

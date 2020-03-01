@@ -28,7 +28,7 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
 
   def header
     header_cell = make_cell(
-      content: 'Planos de aula por área de conhecimento',
+      content: Translator.t('navigation.knowledge_area_lesson_plans'),
       size: 12,
       font_style: :bold,
       background_color: 'DEDEDE',
@@ -96,7 +96,7 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     )
 
     @class_plan_header_cell = make_cell(
-      content: ' Plano de aula',
+      content: Translator.t('navigation.lesson_plans_menu'),
       size: 12,
       font_style: :bold,
       background_color: 'DEDEDE',
@@ -147,10 +147,20 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     @knowledge_area_header = make_cell(content: 'Áreas de conhecimento', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
     @knowledge_area_cell = make_cell(content: knowledge_area_descriptions, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
-    @content_cell = []
-    @knowledge_area_lesson_plan.lesson_plan.contents_ordered.each do |content|
-      @content_cell << make_cell(content: content.to_s, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+    contents = '-'
+    if @knowledge_area_lesson_plan.lesson_plan.contents.present?
+      contents = @knowledge_area_lesson_plan.lesson_plan.contents_ordered.map(&:to_s).join("\n ")
     end
+    content_cell_content = inline_formated_cell_header(
+      Translator.t('activerecord.attributes.knowledge_area_lesson_plan.contents')
+    ) + contents
+    @content_cell = make_cell(
+      content: content_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
+    )
 
     opinion_cell_content = inline_formated_cell_header('Parecer') + @knowledge_area_lesson_plan.lesson_plan.opinion.to_s
     @opinion_cell = make_cell(content: opinion_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
@@ -183,9 +193,7 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
 
     class_plan_table_data << [@class_plan_header_cell]
 
-    @content_cell.each do |content|
-      class_plan_table_data << [content]
-    end
+    class_plan_table_data << [@content_cell]
 
     table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
       cells.border_width = 0.25
@@ -196,7 +204,8 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     end
 
     text_box_truncate('Atividades/metodologia', (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
-    text_box_truncate('Objetivos', (@knowledge_area_lesson_plan.lesson_plan.objectives || '-'))
+    objectives_label = Translator.t('activerecord.attributes.knowledge_area_lesson_plan.objectives')
+    text_box_truncate(objectives_label, (@knowledge_area_lesson_plan.lesson_plan.objectives || '-'))
     text_box_truncate('Recursos', (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
     text_box_truncate('Avaliação', (@knowledge_area_lesson_plan.lesson_plan.evaluation || '-'))
     text_box_truncate('Referências', (@knowledge_area_lesson_plan.lesson_plan.bibliography || '-'))

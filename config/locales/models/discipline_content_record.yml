@@ -12,6 +12,7 @@ pt-BR:
         discipline: "Disciplina"
         discipline_id: "Disciplina"
         author: "Autor"
+        contents: "Conteúdos"
     errors:
       models:
         discipline_content_record:

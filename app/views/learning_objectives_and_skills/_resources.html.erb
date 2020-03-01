@@ -1,0 +1,35 @@
+<tbody id="resources-tbody">
+  <% if @learning_objectives_and_skills.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="4"> <%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @learning_objectives_and_skills.each do |learning_objectives_and_skill| %>
+      <tr>
+        <td>
+          <%= link_to edit_learning_objectives_and_skill_path(learning_objectives_and_skill) do %>
+            <%= learning_objectives_and_skill.code %>
+          <% end %>
+        </td>
+        <td><%= learning_objectives_and_skill.description %></td>
+        <td><%= learning_objectives_and_skill.step_humanize %></td>
+        <td class="actions">
+          <% if policy(LearningObjectivesAndSkill).update? %>
+            <%= link_to 'Editar',
+                        edit_learning_objectives_and_skill_path(learning_objectives_and_skill),
+                        class: "btn btn-success"
+            %>
+
+            <%= link_to 'Excluir',
+                        learning_objectives_and_skill_path(learning_objectives_and_skill),
+                        class: "btn btn-danger",
+                        title: "Excluir #{learning_objectives_and_skill.to_s}",
+                        method: "delete",
+                        data: { confirm: "Tem certeza?" }
+            %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>
