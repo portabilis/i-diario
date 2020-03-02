@@ -8,7 +8,7 @@ class PeriodUpdaterService
   def initialize(classroom_id, old_period, new_period)
     raise ArgumentError if classroom_id.blank? || old_period.blank? || new_period.blank?
 
-    @classroom_id = Classroom.find(classroom_id)
+    @classroom_id = Classroom.with_discarded.find(classroom_id)
     @old_period = old_period
     @new_period = new_period
   end
