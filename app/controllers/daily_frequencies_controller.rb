@@ -110,7 +110,11 @@ class DailyFrequenciesController < ApplicationController
 
         flash[:success] = t('.daily_frequency_success')
 
-        insert_unique_daily_frequency_students(daily_frequency_id)
+        UniqueDailyFrequencyStudentsCreator.call_worker(
+          current_entity.id,
+          daily_frequency_id,
+          current_teacher_id
+        )
       end
     rescue StandardError => error
       Honeybadger.notify(error)
@@ -353,14 +357,5 @@ class DailyFrequenciesController < ApplicationController
                       .by_discipline(discipline_id)
                       .by_step_number(step_number)
                       .any?
-  end
-
-  def insert_unique_daily_frequency_students(daily_frequency_id)
-    UniqueDailyFrequencyStudentsCreatorWorker.perform_in(
-      1.second,
-      current_entity.id,
-      daily_frequency_id,
-      current_teacher_id
-    )
   end
 end

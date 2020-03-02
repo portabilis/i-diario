@@ -37,6 +37,14 @@ module Api
 
           daily_frequency_student.update(present: params[:present])
 
+          if (daily_frequency_id = daily_frequency.try(:id))
+            UniqueDailyFrequencyStudentsCreator.call_worker(
+              current_entity.id,
+              daily_frequency_id,
+              current_teacher_id
+            )
+          end
+
           respond_with daily_frequency_student
         else
           render json: []

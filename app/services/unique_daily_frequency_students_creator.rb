@@ -1,6 +1,19 @@
 class UniqueDailyFrequencyStudentsCreator
+  def self.call_worker(entity_id, daily_frequency_id, teacher_id)
+    new.call_worker(entity_id, daily_frequency_id, teacher_id)
+  end
+
   def self.create!(daily_frequency_id, teacher_id)
     new.create!(daily_frequency_id, teacher_id)
+  end
+
+  def call_worker(entity_id, daily_frequency_id, teacher_id)
+    UniqueDailyFrequencyStudentsCreatorWorker.perform_in(
+      1.second,
+      entity_id,
+      daily_frequency_id,
+      teacher_id
+    )
   end
 
   def create!(daily_frequency_id, teacher_id)
