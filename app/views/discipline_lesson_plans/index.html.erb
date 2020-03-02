@@ -17,7 +17,10 @@
             <td>
               <%= f.input :by_author, as: :select2_plans, label: false %>
             </td>
-            <td><%= link_to t('.new_html'), new_discipline_lesson_plan_path, class: 'btn btn-primary pull-right' %></td>
+            <td>
+              <%= link_to t('.new_html'), new_discipline_lesson_plan_path,
+                  class: 'btn btn-primary pull-right', style: 'width: 161px;' %>
+            </td>
           </tr>
 
           <tr>

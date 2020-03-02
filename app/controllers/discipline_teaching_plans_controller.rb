@@ -66,6 +66,7 @@ class DisciplineTeachingPlansController < ApplicationController
   def create
     @discipline_teaching_plan = DisciplineTeachingPlan.new(resource_params).localized
     @discipline_teaching_plan.teaching_plan.teacher = current_teacher
+    @discipline_teaching_plan.teaching_plan.content_ids = content_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
 
     authorize @discipline_teaching_plan
@@ -91,6 +92,7 @@ class DisciplineTeachingPlansController < ApplicationController
   def update
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
     @discipline_teaching_plan.assign_attributes(resource_params)
+    @discipline_teaching_plan.teaching_plan.content_ids = content_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
     @discipline_teaching_plan.current_user = current_user
 
@@ -126,9 +128,17 @@ class DisciplineTeachingPlansController < ApplicationController
 
   private
 
+  def content_ids
+    param_content_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_ids] || []
+    content_descriptions = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_descriptions] || []
+    new_contents_ids = content_descriptions.map{|v| Content.find_or_create_by!(description: v).id }
+    param_content_ids + new_contents_ids
+  end
+
   def resource_params
     params.require(:discipline_teaching_plan).permit(
       :discipline_id,
+      :thematic_unit,
       teaching_plan_attributes: [
         :id,
         :year,
@@ -142,11 +152,6 @@ class DisciplineTeachingPlansController < ApplicationController
         :evaluation,
         :references,
         :teacher_id,
-        contents_attributes: [
-          :id,
-          :description,
-          :_destroy
-        ],
         teaching_plan_attachments_attributes: [
           :id,
           :attachment,
@@ -157,7 +162,15 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def contents
-    Content.ordered
+    @contents = []
+
+    if @discipline_teaching_plan.teaching_plan.contents
+      contents = @discipline_teaching_plan.teaching_plan.contents_ordered
+      contents.each { |content| content.is_editable = true }
+      @contents << contents
+    end
+
+    @contents.flatten.uniq
   end
   helper_method :contents
 

@@ -1,6 +1,7 @@
 class TeachingPlan < ActiveRecord::Base
   include Audit
   include TeacherRelationable
+  include Translatable
 
   teacher_relation_columns only: :grades
 
@@ -25,7 +26,7 @@ class TeachingPlan < ActiveRecord::Base
   validates :school_term, presence: { unless: :yearly? }
 
   has_many :contents_teaching_plans, dependent: :destroy
-  has_many :contents, through: :contents_teaching_plans
+  deferred_has_many :contents, through: :contents_teaching_plans
   has_many :teaching_plan_attachments, dependent: :destroy
 
   has_one :discipline_teaching_plan, dependent: :restrict_with_error

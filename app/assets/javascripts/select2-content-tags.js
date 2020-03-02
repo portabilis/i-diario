@@ -1,22 +1,20 @@
 $(function() {
   'use strict';
 
-  _.each($('.select2-tags'), function(element) {
-    $(element).select2({
-      tags: true,
-      tokenSeparators: [','],
-      createSearchChoice: function (term) {
-          return {
-              id: $.trim(term),
-              text: $.trim(term) + ' (Novo conteúdo)'
-          };
-      },
-      data: $(element).data('elements')
-    });
-  });
+  const getObjectiveCode = (term) => {
+    if (!term.length) {
+      return;
+    }
 
-  _.each($('.select2-tags-ajax'), function(element) {
+    const splitTerm = term.split(' ');
+    if (splitTerm.length > 1) {
+      return;
+    }
 
+    return splitTerm[0];
+  };
+
+  _.each($('.select2-content-tags-ajax'), function(element) {
     $(element).select2({
       tags: true,
       tokenSeparators: [],
@@ -38,14 +36,25 @@ $(function() {
       ajax: {
         dataType: "json",
         url: $(element).data('url'),
+        transport: function (params) {
+          if (!params.data.filter.by_description && !params.data.merge_objectives_by_code) {
+            params.success({ contents: []});
+          } else {
+            $.ajax(params);
+          }
+        },
         delay: 1000,
         data: function (term, page) {
-          var query = {
+          let query = {
             filter: {
-              by_description: term,
               page: page,
               per: 10
-            }
+            },
+            merge_objectives_by_code: getObjectiveCode(term)
+          }
+
+          if ($(element).attr('data-filter-by-description')) {
+            query.filter.by_description = term;
           }
 
           return query;
@@ -66,6 +75,5 @@ $(function() {
         }
       }
     }).select2('data', $(element).data('data'));
-
   });
 });

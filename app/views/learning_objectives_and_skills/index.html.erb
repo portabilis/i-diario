@@ -1,0 +1,42 @@
+<div class="widget-body no-padding">
+  <div class="table-responsive">
+  <%= simple_form_for :filter, {url: learning_objectives_and_skills_path, method: :get,
+                                html: {class: 'filterable_search_form'}} do |f| %>
+    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover"
+           id="resources">
+      <thead>
+        <tr>
+          <td><%= f.input :by_code, label: false, placeholder: "Código" %></td>
+          <td><%= f.input :by_description, label: false, placeholder: "Filtrar objetivo/habilidade" %></td>
+          <td><%= f.input :by_step, as: :select2, label: false,
+                                   prompt: "Filtrar etapa", elements: BnccSteps.to_select.to_json %></td>
+          <td class="actions">
+          </td>
+        </tr>
+        <tr>
+          <th><%= LearningObjectivesAndSkill.human_attribute_name :code %></th>
+          <th><%= LearningObjectivesAndSkill.human_attribute_name :description %></th>
+          <th><%= LearningObjectivesAndSkill.human_attribute_name :step %></th>
+          <td class="actions" style="width: 160px;">
+            <% if policy(LearningObjectivesAndSkill).new? %>
+                <%= link_to t('.new_html'), new_learning_objectives_and_skill_path, class: "btn btn-primary" %>
+            <% end %>
+          </td>
+        </tr>
+      </thead>
+
+      <%= render 'resources' %>
+      <tfoot id="paginator" class="remote">
+        <td colspan="4">
+          <div id="page_entries_info" class="pull-left hidden-xs">
+            <%= page_entries_info @learning_objectives_and_skills %>
+          </div>
+          <div class="pull-right">
+            <%= paginate @learning_objectives_and_skills %>
+          </div>
+        </td>
+      </tfoot>
+    </table>
+  <% end %>
+  </div>
+</div>

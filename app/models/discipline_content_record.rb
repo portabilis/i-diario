@@ -2,6 +2,7 @@ class DisciplineContentRecord < ActiveRecord::Base
   include Audit
   include ColumnsLockable
   include TeacherRelationable
+  include Translatable
 
   not_updatable only: :discipline_id
   teacher_relation_columns only: :discipline
