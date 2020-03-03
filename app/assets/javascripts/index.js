@@ -6,11 +6,18 @@ $(function(){
   var typingTimer;
   var doneTypingInterval = 1000;
 
+  function checkDateField(){
+    var dateField = $('form.filterable_search_form input.datepicker');
+
+    if(dateField.val() != ''){
+      return dateField.data('mask') == '99/99/9999' && _.isEmpty(dateField.val().match(dateRegex));
+    }
+
+    return false;
+  }
 
   var filterableSearch = function(e) {
-    if (!_.isEmpty($(e.target).val()) &&
-        $(e.target).data('mask') == '99/99/9999' &&
-        _.isEmpty($(e.target).val().match(dateRegex)))
+    if (checkDateField())
     {
       // Should not submit search form when date is invalid
       return false;
