@@ -1,6 +1,4 @@
 class DailyFrequenciesController < ApplicationController
-  PRESENCE_DEFAULT = '0'.freeze
-
   before_action :require_teacher
   before_action :require_current_clasroom
   before_action :set_number_of_classes, only: [:new, :create, :edit_multiple]
@@ -82,35 +80,32 @@ class DailyFrequenciesController < ApplicationController
   def create_or_update_multiple
     class_numbers = []
     daily_frequency_attributes = daily_frequency_params
-    daily_frequency_attributes[:discipline_id] = daily_frequency_attributes[:discipline_id].presence
+    daily_frequencies_attributes = daily_frequencies_params
+    receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+      params[:daily_frequency][:receive_email_confirmation]
+    )
 
-    begin
-      ActiveRecord::Base.transaction do
-        daily_frequencies_params.each do |daily_frequency|
-          class_number = daily_frequency.second[:class_number]
-          class_number = class_number.to_i.zero? ? nil : class_number
-          class_numbers << class_number if class_number.present?
-          daily_frequency_attributes = daily_frequency_attributes.merge(class_number: class_number)
-          daily_frequency.second[:class_number] = class_number
+    ActiveRecord::Base.transaction do
+      daily_frequencies_attributes.each_value do |daily_frequency_students_params|
+        daily_frequency_attribute_normalizer = DailyFrequencyAttributesNormalizer.new(
+          daily_frequency_students_params,
+          daily_frequency_attributes
+        )
+        daily_frequency_attribute_normalizer.normalize_daily_frequency!
 
-          daily_frequency.second[:students_attributes].each do |_key, daily_frequency_student|
-            daily_frequency_student[:present] = PRESENCE_DEFAULT if daily_frequency_student[:present].blank?
-          end
+        class_numbers << daily_frequency_students_params[:class_number]
 
-          daily_frequency_students_params = daily_frequency.second
-          daily_frequency_record = find_or_initialize_daily_frequency_by(daily_frequency_attributes)
-          daily_frequency_record.assign_attributes(daily_frequency_students_params)
-
-          daily_frequency_record.save
-        end
-
-        flash[:success] = t('.daily_frequency_success')
+        daily_frequency_record = find_or_initialize_daily_frequency_by(daily_frequency_attributes)
+        daily_frequency_attribute_normalizer.normalize_daily_frequency_students!(
+          daily_frequency_record,
+          daily_frequency_students_params
+        )
+        daily_frequency_record.assign_attributes(daily_frequency_students_params)
+        daily_frequency_record.save!
       end
-    rescue StandardError => error
-      Honeybadger.notify(error)
-
-      flash[:alert] = t('.daily_frequency_error')
     end
+
+    flash[:success] = t('.daily_frequency_success')
 
     edit_multiple_daily_frequencies_path = edit_multiple_daily_frequencies_path(
       daily_frequency: daily_frequency_attributes.slice(
@@ -123,19 +118,19 @@ class DailyFrequenciesController < ApplicationController
       class_numbers: class_numbers
     )
 
+    if receive_email_confirmation
+      ReceiptMailer.delay.notify_daily_frequency_success(
+        current_user,
+        "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
+        daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y')
+      )
+    end
+  rescue StandardError => error
+    Honeybadger.notify(error)
+
+    flash[:alert] = t('.daily_frequency_error')
+  ensure
     redirect_to edit_multiple_daily_frequencies_path
-
-    receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
-      params[:daily_frequency][:receive_email_confirmation]
-    )
-
-    return unless flash[:success].present? && receive_email_confirmation
-
-    ReceiptMailer.delay.notify_daily_frequency_success(
-      current_user,
-      "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
-      daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y')
-    )
   end
 
   def destroy_multiple
