@@ -6,13 +6,19 @@ $(function(){
   var typingTimer;
   var doneTypingInterval = 1000;
 
-
   var filterableSearch = function(e) {
-    if (!_.isEmpty($(e.target).val()) &&
-        $(e.target).data('mask') == '99/99/9999' &&
-        _.isEmpty($(e.target).val().match(dateRegex)))
-    {
-      // Should not submit search form when date is invalid
+    var dateFields = $('form.filterable_search_form input.datepicker');
+    var breakOut = false;
+
+    $(dateFields).each(function(){
+      if(this.value != '' && _.isEmpty(this.value.match(dateRegex))){
+        breakOut = true;
+
+        return false;
+      }
+    });
+
+    if(breakOut){
       return false;
     }
 
