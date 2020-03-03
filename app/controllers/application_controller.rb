@@ -200,7 +200,7 @@ class ApplicationController < ActionController::Base
   def require_current_clasroom
     return if current_user_classroom
 
-    flash.now[:warning] = t('current_role.check.warning')
+    flash[:alert] = t('errors.general.require_current_classroom')
 
     redirect_to root_path
   end
