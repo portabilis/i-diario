@@ -6,20 +6,19 @@ $(function(){
   var typingTimer;
   var doneTypingInterval = 1000;
 
-  function checkDateField(){
-    var dateField = $('form.filterable_search_form input.datepicker');
-
-    if(dateField.val() != ''){
-      return dateField.data('mask') == '99/99/9999' && _.isEmpty(dateField.val().match(dateRegex));
-    }
-
-    return false;
-  }
-
   var filterableSearch = function(e) {
-    if (checkDateField())
-    {
-      // Should not submit search form when date is invalid
+    var dateFields = $('form.filterable_search_form input.datepicker');
+    var breakOut = false;
+
+    $(dateFields).each(function(){
+      if(this.value != '' && _.isEmpty(this.value.match(dateRegex))){
+        breakOut = true;
+
+        return false;
+      }
+    });
+
+    if(breakOut){
       return false;
     }
 
