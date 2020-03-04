@@ -21,7 +21,6 @@ gem 'decore', '0.1.0', git: 'https://github.com/matiasleidemer/decore'
 gem 'deferring', '0.5.0'
 gem 'devise', '3.5.1'
 gem 'discard', '1.0.0'
-gem 'dry-inflector', '0.1.2'
 gem 'ejs', '1.1.1'
 gem 'enumerate_it', '1.3.1'
 gem 'fog', '1.36.0'
@@ -62,7 +61,6 @@ gem 'rubyzip', '1.2.2', require: 'zip'
 gem 'sdoc', '0.4.1', group: :doc
 gem 'sidekiq', '5.0.3'
 gem 'sidekiq-unique-jobs', '4.0.18'
-gem 'signet', '0.11.0'
 gem 'simple_form', '3.1.0'
 gem 'sinatra', '1.4.6', require: nil
 gem 'therubyracer', '0.12.2'
@@ -75,7 +73,9 @@ gem 'validates_timeliness', '3.0.14'
 gem 'public_suffix', '3.0.3'
 
 # Adiciona gem de dependencia para fixar a versão com suporte ao ruby 2.3.7
+gem 'dry-inflector', '0.1.2'
 gem 'launchy', '2.4.3'
+gem 'signet', '0.11.0'
 
 instance_eval File.read('Gemfile.plugins') if File.exists?('Gemfile.plugins')
 
