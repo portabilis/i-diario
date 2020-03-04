@@ -35,7 +35,7 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.year = classroom_record.ano
         classroom.exam_rule_id = exam_rule(classroom_record.regra_avaliacao_id).try(:id)
 
-        if !classroom.new_record? && classroom.period_changed? && classroom.period_was.present?
+        if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
           update_period_dependents(classroom.id, classroom.period_was, classroom.period)
         end
 
