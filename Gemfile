@@ -74,6 +74,9 @@ gem 'validates_timeliness', '3.0.14'
 # Adiciona gem de dependencia para fixar a versão com suporte ao ruby 2.2.6
 gem 'public_suffix', '3.0.3'
 
+# Adiciona gem de dependencia para fixar a versão com suporte ao ruby 2.3.7
+gem 'launchy', '2.4.3'
+
 instance_eval File.read('Gemfile.plugins') if File.exists?('Gemfile.plugins')
 
 group :development do
