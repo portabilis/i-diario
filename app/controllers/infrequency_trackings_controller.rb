@@ -16,7 +16,11 @@ class InfrequencyTrackingsController < ApplicationController
   private
 
   def unities
-    @unities ||= current_unities.by_year(current_user_school_year).reorder('')
+    @unities ||= begin
+      unities = Unity.all if current_user.has_administrator_access_level?
+      unities ||= Unity.by_user_id(current_user.id)
+      unities.by_year(current_user_school_year)
+    end
   end
   helper_method :unities
 

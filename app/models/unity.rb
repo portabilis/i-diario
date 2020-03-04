@@ -51,6 +51,7 @@ class Unity < ActiveRecord::Base
     )
   }
   scope :by_unity, -> unity { where(id: unity) }
+  scope :by_user_id, ->(user_id) { joins(:user_roles).where(user_roles: { user_id: user_id }) }
 
   #search scopes
   scope :search_name, lambda { |search_name| where("unaccent(name) ILIKE unaccent(?)", "%#{search_name}%") }
