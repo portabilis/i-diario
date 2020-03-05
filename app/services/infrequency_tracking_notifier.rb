@@ -137,7 +137,7 @@ class InfrequencyTrackingNotifier
     ).pluck(:role_id)
     user_roles = UserRole.where(role_id: role_ids)
     user_roles = user_roles.where('(unity_id IS NULL OR unity_id = ?)', unity_id) if unity_id.present?
-    user_roles.map(&:user)
+    User.joins(:user_roles).merge(user_roles)
   end
 
   def need_send_notification?(type, school_dates, absence_dates)
@@ -193,8 +193,8 @@ class InfrequencyTrackingNotifier
   end
 
   def update_infrequency_tracking_materialized_views
-    connection = ActiveRecord::Base.connection
-    connection.execute('REFRESH MATERIALIZED VIEW mvw_infrequency_tracking_students')
-    connection.execute('REFRESH MATERIALIZED VIEW mvw_infrequency_tracking_classrooms')
+    database = ActiveRecord::Base.connection_config[:database]
+
+    UpdateInfrequencyTrackingMaterializedViewsWorker.perform_in(1.second, database)
   end
 end
