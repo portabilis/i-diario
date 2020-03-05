@@ -31,6 +31,7 @@ class InfrequencyTrackingsController < ApplicationController
 
   def classrooms
     @classrooms ||= MvwInfrequencyTrackingClassroom.by_year(current_user_school_year)
+                                                   .by_unity_id(unities.pluck(:id))
   end
   helper_method :classrooms
 

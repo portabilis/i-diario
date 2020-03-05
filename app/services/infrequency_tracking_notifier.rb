@@ -105,7 +105,7 @@ class InfrequencyTrackingNotifier
       source: infrequency_tracking,
       title: I18n.t('infrequency_tracking_notifier.title'),
       description: description_by_type(infrequency_tracking, type),
-      users: users_to_notify
+      users: users_to_notify(infrequency_tracking.classroom.unity_id)
     )
   end
 
@@ -130,11 +130,14 @@ class InfrequencyTrackingNotifier
     )
   end
 
-  def users_to_notify
-    @users_to_notify ||= begin
-      role_ids = RolePermission.where(feature: :infrequency_trackings).pluck(:role_id)
-      UserRole.where(role_id: role_ids).map(&:user)
-    end
+  def users_to_notify(unity_id = nil)
+    role_ids = RolePermission.where(
+      feature: :infrequency_trackings,
+      permission: :change
+    ).pluck(:role_id)
+    user_roles = UserRole.where(role_id: role_ids)
+    user_roles = user_roles.where('(unity_id IS NULL OR unity_id = ?)', unity_id) if unity_id.present?
+    user_roles.map(&:user)
   end
 
   def need_send_notification?(type, school_dates, absence_dates)
