@@ -4,10 +4,15 @@ class InfrequencyTrackingsController < ApplicationController
 
   def index
     @infrequency_trackings = apply_scopes(
-      InfrequencyTracking.includes(:student, classroom: [:unity, :grade])
-                         .joins(:classroom)
-                         .merge(classrooms)
-                         .ordered
+      InfrequencyTracking.includes(
+        :mvw_infrequency_tracking_classroom,
+        :student,
+        classroom: [:unity, :grade]
+      ).joins(
+        :mvw_infrequency_tracking_classroom,
+        :student,
+        classroom: [:unity, :grade]
+      ).merge(classrooms).ordered
     )
 
     authorize @infrequency_trackings
@@ -25,13 +30,17 @@ class InfrequencyTrackingsController < ApplicationController
   helper_method :unities
 
   def classrooms
-    @classrooms ||= Classroom.by_unity(unities.pluck(:id))
-                             .by_year(current_user_school_year)
+    @classrooms ||= MvwInfrequencyTrackingClassroom.by_year(current_user_school_year)
   end
   helper_method :classrooms
 
   def grades
-    @grades ||= Grade.joins(:classrooms).merge(classrooms).uniq
+    @grades ||= Grade.joins(:mvw_infrequency_tracking_classrooms).merge(classrooms).uniq
   end
   helper_method :grades
+
+  def students
+    @students ||= MvwInfrequencyTrackingStudent.by_year(current_user_school_year)
+  end
+  helper_method :students
 end

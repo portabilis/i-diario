@@ -3,6 +3,8 @@ class InfrequencyTracking < ActiveRecord::Base
 
   belongs_to :classroom
   belongs_to :student
+  belongs_to :mvw_infrequency_tracking_student, foreign_key: :student_id, inverse_of: :infrequency_trackings
+  belongs_to :mvw_infrequency_tracking_classroom, foreign_key: :classroom_id, inverse_of: :infrequency_trackings
 
   has_enumeration_for :notification_type, with: InfrequencyTrackingTypes
 

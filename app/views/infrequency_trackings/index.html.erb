@@ -18,8 +18,8 @@
                 placeholder: t('.by_classroom_id') %>
             </td>
             <td>
-              <%= f.input :by_student_id, as: :select2_remote, data_url: select2_remote_students_path,
-                label: false, placeholder: t('.by_student_id') %>
+              <%= f.input :by_student_id, as: :select2, elements: students, label: false,
+                placeholder: t('.by_student_id') %>
             </td>
             <td>
               <%= f.input :by_notification_date, as: :date, label: false,

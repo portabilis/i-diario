@@ -19,6 +19,8 @@ class InfrequencyTrackingNotifier
         notify_student_by_type(student_id, classroom, start_at, school_dates, absence_dates)
       end
     end
+
+    update_infrequency_tracking_materialized_views
   end
 
   private
@@ -185,5 +187,11 @@ class InfrequencyTrackingNotifier
         infrequency_tracking_type
       )
     end
+  end
+
+  def update_infrequency_tracking_materialized_views
+    connection = ActiveRecord::Base.connection
+    connection.execute('REFRESH MATERIALIZED VIEW mvw_infrequency_tracking_students')
+    connection.execute('REFRESH MATERIALIZED VIEW mvw_infrequency_tracking_classrooms')
   end
 end
