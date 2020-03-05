@@ -99,33 +99,35 @@
 
       <div class="pull-left">
         <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-left' %>
-        <% daily_frequency_ids = @daily_frequencies.map(&:id) %>
-        <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(
-          daily_frequencies_ids: daily_frequency_ids), method: :delete,
-          data: { confirm: t('.confirm') }, class: 'btn new-delete-style pull-left'
-        %>
-        <%= link_to t('views.form.history'), history_multiple_daily_frequency_path(
-          daily_frequencies_ids: daily_frequency_ids), class: 'btn btn-primary pull-left'
-        %>
-        <div class="btn-group pull-left dropup" style="margin-left: 5px;">
-          <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-            <%= t('.print') %> <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <%= link_to(t('.by_month'), attendance_record_report_path(
-                attendance_record_report_form: params_for_print_month(@daily_frequencies)), method: :post,
-                target: '_blank')
-              %>
-            </li>
-            <li>
-              <%= link_to(t('.by_step'), attendance_record_report_path(
-                attendance_record_report_form: params_for_print_step(@daily_frequencies)), method: :post,
-                target: '_blank')
-              %>
-            </li>
-          </ul>
-        </div>
+        <% daily_frequency_ids = @daily_frequencies.map(&:id).compact %>
+        <% if daily_frequency_ids.present? %>
+          <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(
+            daily_frequencies_ids: daily_frequency_ids), method: :delete,
+            data: { confirm: t('.confirm') }, class: 'btn new-delete-style pull-left'
+          %>
+          <%= link_to t('views.form.history'), history_multiple_daily_frequency_path(
+            daily_frequencies_ids: daily_frequency_ids), class: 'btn btn-primary pull-left'
+          %>
+          <div class="btn-group pull-left dropup" style="margin-left: 5px;">
+            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+              <%= t('.print') %> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <%= link_to(t('.by_month'), attendance_record_report_path(
+                  attendance_record_report_form: params_for_print_month(@daily_frequencies)), method: :post,
+                  target: '_blank')
+                %>
+              </li>
+              <li>
+                <%= link_to(t('.by_step'), attendance_record_report_path(
+                  attendance_record_report_form: params_for_print_step(@daily_frequencies)), method: :post,
+                  target: '_blank')
+                %>
+              </li>
+            </ul>
+          </div>
+        <% end %>
       </div>
       <div class="pull-right">
         <%= f.submit t('.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
