@@ -61,5 +61,9 @@ $(function () {
     showConfirmation = true;
   });
 
+  $('.daily_frequency').on('submit', function (e) {
+    showConfirmation = false;
+  });
+
   $('.alert-success, .alert-danger').fadeTo(700, 0.1).fadeTo(700, 1.0);
 });
