@@ -28,10 +28,11 @@ module Api
         creator = DailyFrequenciesCreator.new(frequency_params)
         creator.find_or_create!
 
-        if (daily_frequency_id = creator.daily_frequencies[0].try(:id))
+        if (daily_frequency = creator.daily_frequencies[0])
           UniqueDailyFrequencyStudentsCreator.call_worker(
             current_entity.id,
-            daily_frequency_id,
+            daily_frequency.classroom_id,
+            daily_frequency.frequency_date,
             current_teacher_id
           )
         end

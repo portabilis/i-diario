@@ -1,39 +1,43 @@
 class UniqueDailyFrequencyStudentsCreator
-  def self.call_worker(entity_id, daily_frequency_id, teacher_id)
-    new.call_worker(entity_id, daily_frequency_id, teacher_id)
+  def self.call_worker(entity_id, classroom_id, frequency_date, teacher_id)
+    new.call_worker(entity_id, classroom_id, frequency_date, teacher_id)
   end
 
-  def self.create!(daily_frequency_id, teacher_id)
-    new.create!(daily_frequency_id, teacher_id)
+  def self.create!(classroom_id, frequency_date, teacher_id)
+    new.create!(classroom_id, frequency_date, teacher_id)
   end
 
-  def call_worker(entity_id, daily_frequency_id, teacher_id)
+  def call_worker(entity_id, classroom_id, frequency_date, teacher_id)
     UniqueDailyFrequencyStudentsCreatorWorker.perform_in(
       1.second,
       entity_id,
-      daily_frequency_id,
+      classroom_id,
+      frequency_date,
       teacher_id
     )
   end
 
-  def create!(daily_frequency_id, teacher_id)
+  def create!(classroom_id, frequency_date, teacher_id)
     daily_frequency_students = {}
-    daily_frequency = DailyFrequency.find(daily_frequency_id)
-    daily_frequencies = DailyFrequency.by_classroom_id(daily_frequency.classroom_id)
-                                      .by_frequency_date(daily_frequency.frequency_date)
+    daily_frequencies = DailyFrequency.by_classroom_id(classroom_id)
+                                      .by_frequency_date(frequency_date)
 
-    daily_frequencies.each do |current_daily_frequency|
-      current_daily_frequency.students.each do |student|
-        daily_frequency_students[student.student_id] ||= { present: false }
-        daily_frequency_students[student.student_id][:present] ||= student.present
-        daily_frequency_students[student.student_id].reverse_merge!(
-          classroom_id: daily_frequency.classroom_id,
-          frequency_date: daily_frequency.frequency_date
-        )
+    if daily_frequencies.present?
+      daily_frequencies.each do |current_daily_frequency|
+        current_daily_frequency.students.each do |student|
+          daily_frequency_students[student.student_id] ||= { present: false }
+          daily_frequency_students[student.student_id][:present] ||= student.present
+          daily_frequency_students[student.student_id].reverse_merge!(
+            classroom_id: classroom_id,
+            frequency_date: frequency_date
+          )
+        end
       end
-    end
 
-    create_or_update_unique_daily_frequency_students(daily_frequency_students, teacher_id)
+      create_or_update_unique_daily_frequency_students(daily_frequency_students, teacher_id)
+    else
+      remove_unique_daily_frequency_students(classroom_id, frequency_date)
+    end
   end
 
   private
@@ -55,5 +59,11 @@ class UniqueDailyFrequencyStudentsCreator
         retry
       end
     end
+  end
+
+  def remove_unique_daily_frequency_students(classroom_id, frequency_date)
+    UniqueDailyFrequencyStudent.by_classroom_id(classroom_id)
+                               .frequency_date(frequency_date)
+                               .destroy_all
   end
 end
