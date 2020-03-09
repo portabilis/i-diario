@@ -92,6 +92,7 @@ Rails.application.routes.draw do
       collection do
         get :search_api
         get :in_recovery
+        get :select2_remote
         get :in_final_recovery, path: '/in_final_recovery/classrooms/:classroom_id/disciplines/:discipline_id'
       end
     end
@@ -298,6 +299,8 @@ Rails.application.routes.draw do
         post :create_or_update
       end
     end
+
+    resources :infrequency_trackings, only: :index
 
     resources :student_enrollments, only: [:index]
     resources :student_enrollments_lists, only: [:index] do

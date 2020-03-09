@@ -1,0 +1,20 @@
+pt-BR:
+  activerecord:
+    models:
+      infrequency_tracking:
+        one: Acompanhamento de infrequência
+        other: Acompanhamento de infrequências
+
+    attributes:
+      infrequency_tracking:
+        unity: Escola
+        unity_id: Escola
+        grade: Série
+        grade_id: Série
+        classroom: Turma
+        classroom_id: Turma
+        student: Aluno
+        student_id: Aluno
+        notification_date: Data da notificação
+        notification_data: Dados da notificação
+        notification_type: Tipo da notificação

@@ -86,6 +86,9 @@ class DailyFrequenciesController < ApplicationController
 
     begin
       ActiveRecord::Base.transaction do
+        classroom_id = nil
+        frequency_date = nil
+
         daily_frequencies_params.each do |daily_frequency|
           class_number = daily_frequency.second[:class_number]
           class_number = class_number.to_i.zero? ? nil : class_number
@@ -102,9 +105,19 @@ class DailyFrequenciesController < ApplicationController
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
 
           daily_frequency_record.save
+
+          classroom_id ||= daily_frequency_record.classroom_id
+          frequency_date ||= daily_frequency_record.frequency_date
         end
 
         flash[:success] = t('.daily_frequency_success')
+
+        UniqueDailyFrequencyStudentsCreator.call_worker(
+          current_entity.id,
+          classroom_id,
+          frequency_date,
+          current_teacher_id
+        )
       end
     rescue StandardError => error
       Honeybadger.notify(error)
@@ -142,9 +155,20 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     if @daily_frequencies.any?
-      authorize @daily_frequencies.first
+      daily_frequency = @daily_frequencies.first
+      classroom_id = daily_frequency.classroom_id
+      frequency_date = daily_frequency.frequency_date
+
+      authorize daily_frequency
 
       @daily_frequencies.each(&:destroy)
+
+      UniqueDailyFrequencyStudentsCreator.call_worker(
+        current_entity.id,
+        classroom_id,
+        frequency_date,
+        current_teacher_id
+      )
 
       respond_with @daily_frequencies.first, location: new_daily_frequency_path
     else

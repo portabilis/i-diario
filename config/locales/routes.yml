@@ -71,6 +71,7 @@ pt-BR:
     admin_synchronizations: 'admin-sincronizacoes'
     learning_objectives_and_skills: 'objetivos-de-aprendizagem-e-habilidades'
     translations: 'dicionario-de-termos-bncc'
+    infrequency_trackings: 'acompanhamento-de-infrequencias'
 
     # actions
     edit: 'editar'

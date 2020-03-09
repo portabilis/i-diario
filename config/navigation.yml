@@ -152,6 +152,9 @@ navigation:
         - menu:
             type: "absence_justifications"
             path: "absence_justifications_path"
+        - menu:
+            type: "infrequency_trackings"
+            path: "infrequency_trackings_path"
   - menu:
       type: "observation_diary_records"
       icon: "fa-sticky-note-o"

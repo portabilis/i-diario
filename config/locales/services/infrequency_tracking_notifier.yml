@@ -1,0 +1,6 @@
+pt-BR:
+  infrequency_tracking_notifier:
+    title: 'Alerta de infrequência'
+    description:
+      consecutive_absences: "O aluno %{student}, %{unity}, %{classroom}, possui %{absences} ou mais faltas consecutivas."
+      alternating_absences: "O aluno %{student}, %{unity}, %{classroom}, possui %{absences} ou mais faltas alternadas."

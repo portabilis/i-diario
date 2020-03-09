@@ -34,8 +34,8 @@ class User < ActiveRecord::Base
 
   has_many :system_notification_targets, dependent: :destroy
   has_many :system_notifications, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
-  has_many :unread_notifications, -> { joins(:targets).where(system_notification_targets: { read: false}) },
-    through: :system_notification_targets, source: :system_notification
+  has_many :unread_notifications, -> { where(system_notification_targets: { read: false }) },
+           through: :system_notification_targets, source: :system_notification
 
   has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
 

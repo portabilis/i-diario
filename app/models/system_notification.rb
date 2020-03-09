@@ -1,5 +1,7 @@
 class SystemNotification < ActiveRecord::Base
-  SOURCES_TO_OPEN_IN_NEW_TAB = []
+  SOURCES_TO_OPEN_IN_NEW_TAB = [
+    'InfrequencyTracking'
+  ].freeze
 
   has_many :targets, class_name: "SystemNotificationTarget", inverse_of: :system_notification
 

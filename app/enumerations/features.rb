@@ -25,6 +25,7 @@ class Features < EnumerateIt::Base
                    :ieducar_api_configurations,
                    :ieducar_api_exam_posting_without_restrictions,
                    :ieducar_api_exam_postings,
+                   :infrequency_trackings,
                    :knowledge_area_content_records,
                    :knowledge_area_lesson_plan_report,
                    :knowledge_area_lesson_plans,

@@ -2,7 +2,7 @@ class GeneralConfigurationsController < ApplicationController
   after_action :clear_cache, only: :update
 
   def edit
-    @general_configuration = GeneralConfiguration.current
+    @general_configuration = GeneralConfiguration.current.localized
 
     authorize @general_configuration
   end
@@ -42,7 +42,11 @@ class GeneralConfigurationsController < ApplicationController
       :show_school_term_recovery_in_exam_record_report,
       :display_knowledge_area_as_discipline,
       :display_daily_activies_log,
-      :show_daily_activities_in_knowledge_area_content_record_report
+      :show_daily_activities_in_knowledge_area_content_record_report,
+      :notify_consecutive_or_alternate_absences,
+      :max_consecutive_absence_days,
+      :max_alternate_absence_days,
+      :days_to_consider_alternate_absences
     )
   end
 
