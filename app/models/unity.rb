@@ -51,6 +51,15 @@ class Unity < ActiveRecord::Base
     )
   }
   scope :by_unity, -> unity { where(id: unity) }
+  scope :by_user_id, ->(user_id) { joins(:user_roles).where(user_roles: { user_id: user_id }) }
+  scope :by_infrequency_tracking_permission, lambda {
+    role_ids = RolePermission.where(
+      feature: :infrequency_trackings,
+      permission: :change
+    ).pluck(:role_id)
+
+    joins(:user_roles).where(user_roles: { role_id: role_ids })
+  }
 
   #search scopes
   scope :search_name, lambda { |search_name| where("unaccent(name) ILIKE unaccent(?)", "%#{search_name}%") }

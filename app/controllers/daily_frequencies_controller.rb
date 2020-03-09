@@ -78,6 +78,7 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def create_or_update_multiple
+    daily_frequency_record = nil
     class_numbers = []
     daily_frequency_attributes = daily_frequency_params
     daily_frequencies_attributes = daily_frequencies_params
@@ -106,6 +107,13 @@ class DailyFrequenciesController < ApplicationController
     end
 
     flash[:success] = t('.daily_frequency_success')
+
+    UniqueDailyFrequencyStudentsCreator.call_worker(
+      current_entity.id,
+      daily_frequency_record.classroom_id,
+      daily_frequency_record.frequency_date,
+      current_teacher_id
+    )
 
     edit_multiple_daily_frequencies_path = edit_multiple_daily_frequencies_path(
       daily_frequency: daily_frequency_attributes.slice(
@@ -137,9 +145,20 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     if @daily_frequencies.any?
-      authorize @daily_frequencies.first
+      daily_frequency = @daily_frequencies.first
+      classroom_id = daily_frequency.classroom_id
+      frequency_date = daily_frequency.frequency_date
+
+      authorize daily_frequency
 
       @daily_frequencies.each(&:destroy)
+
+      UniqueDailyFrequencyStudentsCreator.call_worker(
+        current_entity.id,
+        classroom_id,
+        frequency_date,
+        current_teacher_id
+      )
 
       respond_with @daily_frequencies.first, location: new_daily_frequency_path
     else

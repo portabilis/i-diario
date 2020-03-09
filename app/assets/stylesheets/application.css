@@ -340,3 +340,19 @@ span.multiline {
   background-color: #ececec;
   color: #953b39;
 }
+
+.fieldset {
+  border: 1px solid #ddd !important;
+  position: relative;
+  border-radius: 2px;
+  margin-bottom: 15px;
+}
+
+.fieldset legend {
+  font-size: 13px;
+  font-weight: 200;
+  margin-bottom: -20px;
+  width: auto;
+  border: 0;
+  padding: 5px 5px 5px 10px;
+}

@@ -59,6 +59,7 @@ pt-BR:
     bncc: "BNCC"
     learning_objectives_and_skills: "Objetivos de aprendizagem e habilidades"
     translations: "Dicionário de termos BNCC"
+    infrequency_trackings: "Acompanhamento de infrequências"
 
   enumerations:
     features:
