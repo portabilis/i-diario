@@ -9,7 +9,7 @@ class UniqueDailyFrequencyStudentsCreator
 
   def call_worker(entity_id, classroom_id, frequency_date, teacher_id)
     UniqueDailyFrequencyStudentsCreatorWorker.perform_in(
-      1.second,
+      1.minute,
       entity_id,
       classroom_id,
       frequency_date,
