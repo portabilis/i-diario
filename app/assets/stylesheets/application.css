@@ -19,6 +19,9 @@
  *= require bootstrap-select
  *= require header-select2
  *= require jquery-file-upload/jquery.fileupload
+ *= require offline-theme-chrome
+ *= require offline-language-portuguese-brazil-indicator
+ *= require offline-language-portuguese-brazil
  *= require_tree ./resources
  *= require_self
  */
