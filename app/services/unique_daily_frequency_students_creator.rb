@@ -9,7 +9,7 @@ class UniqueDailyFrequencyStudentsCreator
 
   def call_worker(entity_id, classroom_id, frequency_date, teacher_id)
     UniqueDailyFrequencyStudentsCreatorWorker.perform_in(
-      1.second,
+      1.minute,
       entity_id,
       classroom_id,
       frequency_date,
@@ -25,8 +25,8 @@ class UniqueDailyFrequencyStudentsCreator
     if daily_frequencies.present?
       daily_frequencies.each do |current_daily_frequency|
         current_daily_frequency.students.each do |student|
-          daily_frequency_students[student.student_id] ||= { present: false }
-          daily_frequency_students[student.student_id][:present] ||= student.present
+          daily_frequency_students[student.student_id] ||= {}
+          daily_frequency_students[student.student_id][:present] = student.present || false
           daily_frequency_students[student.student_id].reverse_merge!(
             classroom_id: classroom_id,
             frequency_date: frequency_date
