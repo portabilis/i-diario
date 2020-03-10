@@ -6,7 +6,7 @@ class AdjustPeriodOnDailyFrequencies < ActiveRecord::Migration
       period = Classroom.with_discarded.find(classroom_id).period
 
       if DailyFrequency.find_by(classroom_id: classroom_id, frequency_date: frequency_date, period: period)
-        DailyFrequencyStudent.where(daily_frequency_id: daily_frequency_id).delete_all
+        DailyFrequencyStudent.where(daily_frequency_id: daily_frequency.id).delete_all
         daily_frequency.delete
       else
         daily_frequency.update_column(:period, period)
