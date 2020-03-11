@@ -1,7 +1,7 @@
 @charset "UTF-8";
 /* line 6, ../sass/_content.sass */
 .offline-ui .offline-ui-retry:before {
-  content: "Reconectar";
+  content: "Tentar agora";
 }
 /* line 11, ../sass/_content.sass */
 .offline-ui.offline-ui-up .offline-ui-content:before {
