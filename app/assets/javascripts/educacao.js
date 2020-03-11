@@ -95,12 +95,14 @@ $(function () {
       $offline = $('.offline');
 
   Offline.on('confirmed-down', function () {
+    $('#page-loading').removeClass('hidden');
       $online.fadeOut(function () {
           $offline.fadeIn();
       });
   });
 
   Offline.on('confirmed-up', function () {
+    $('#page-loading').addClass('hidden');
       $offline.fadeOut(function () {
           $online.fadeIn();
       });

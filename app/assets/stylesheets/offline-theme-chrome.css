@@ -595,3 +595,7 @@
 .offline-ui.offline-ui-down.offline-ui-waiting.offline-ui-reconnect-failed-2s {
   padding-right: 0;
 }
+.offline-ui-down {
+  width: 70%;
+  z-index: 1000000;
+}
