@@ -41,9 +41,9 @@
 }
 /* line 42, ../sass/_content.sass */
 .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="second"]:before {
-  content: "Você está desconectado :( Verifique a sua conexão com a internet. Tentando reconectar em " attr(data-retry-in-value) " segundos...";
+  content: "Ops, sua internet parou de funcionar \1F615\00a0 Aguarde alguns segundos, estamos tentando reconectar! " attr(data-retry-in-value) " segundos...";
 }
-@media (max-width: 568px) {
+@media (max-width: 900px) {
   /* line 42, ../sass/_content.sass */
   .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="second"]:before {
     content: "Tentando reconectar em " attr(data-retry-in-value) "s...";
@@ -51,9 +51,9 @@
 }
 /* line 50, ../sass/_content.sass */
 .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="second"][data-retry-in-value="1"]:before {
-  content: "Você está desconectado :( Verifique a sua conexão com a internet. Tentando reconectar em " attr(data-retry-in-value) " segundo...";
+  content: "Ops, sua internet parou de funcionar \1F615\00a0 Aguarde alguns segundos, estamos tentando reconectar! " attr(data-retry-in-value) " segundo...";
 }
-@media (max-width: 568px) {
+@media (max-width: 900px) {
   /* line 50, ../sass/_content.sass */
   .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="second"][data-retry-in-value="1"]:before {
     content: "Tentando reconectar em " attr(data-retry-in-value) "s...";
@@ -61,9 +61,9 @@
 }
 /* line 58, ../sass/_content.sass */
 .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="minute"]:before {
-  content: "Você está desconectado :( Verifique a sua conexão com a internet. Tentando reconectar em " attr(data-retry-in-value) " minutos...";
+  content: "Ops, sua internet parou de funcionar \1F615\00a0 Aguarde alguns segundos, estamos tentando reconectar! " attr(data-retry-in-value) " minutos...";
 }
-@media (max-width: 568px) {
+@media (max-width: 900px) {
   /* line 58, ../sass/_content.sass */
   .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="minute"]:before {
     content: "Tentando reconectar em " attr(data-retry-in-value) "m...";
@@ -71,9 +71,9 @@
 }
 /* line 66, ../sass/_content.sass */
 .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="minute"][data-retry-in-value="1"]:before {
-  content: "Você está desconectado :( Verifique a sua conexão com a internet. Tentando reconectar em " attr(data-retry-in-value) " minuto...";
+  content: "Ops, sua internet parou de funcionar \1F615\00a0 Aguarde alguns segundos, estamos tentando reconectar! " attr(data-retry-in-value) " minuto...";
 }
-@media (max-width: 568px) {
+@media (max-width: 900px) {
   /* line 66, ../sass/_content.sass */
   .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="minute"][data-retry-in-value="1"]:before {
     content: "Tentando reconectar em " attr(data-retry-in-value) "m...";
@@ -81,9 +81,9 @@
 }
 /* line 74, ../sass/_content.sass */
 .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="hour"]:before {
-  content: "Você está desconectado :( Verifique a sua conexão com a internet. Tentando reconectar em " attr(data-retry-in-value) " horas...";
+  content: "Ops, sua internet parou de funcionar \1F615\00a0 Aguarde alguns segundos, estamos tentando reconectar! " attr(data-retry-in-value) " horas...";
 }
-@media (max-width: 568px) {
+@media (max-width: 900px) {
   /* line 74, ../sass/_content.sass */
   .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="hour"]:before {
     content: "Tentando reconectar em " attr(data-retry-in-value) "h...";
@@ -91,9 +91,9 @@
 }
 /* line 82, ../sass/_content.sass */
 .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="hour"][data-retry-in-value="1"]:before {
-  content: "Você está desconectado :( Verifique a sua conexão com a internet. Tentando reconectar em " attr(data-retry-in-value) " hora...";
+  content: "Ops, sua internet parou de funcionar \1F615\00a0 Aguarde alguns segundos, estamos tentando reconectar! " attr(data-retry-in-value) " hora...";
 }
-@media (max-width: 568px) {
+@media (max-width: 900px) {
   /* line 82, ../sass/_content.sass */
   .offline-ui.offline-ui-down.offline-ui-waiting .offline-ui-content[data-retry-in-unit="hour"][data-retry-in-value="1"]:before {
     content: "Tentando reconectar em " attr(data-retry-in-value) "h...";
