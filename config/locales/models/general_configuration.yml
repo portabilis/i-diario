@@ -15,7 +15,6 @@ pt-BR:
         copyright_name: "Empresa mantenedora"
         support_url: "Site"
         show_school_term_recovery_in_exam_record_report: "Exibir Recuperação da etapa no Registro de avaliações"
-        display_knowledge_area_as_discipline: "Exibir área de conhecimento no campo disciplina (Registro de frequência)"
         display_daily_activies_log: "Exibir registro diário de atividades (Registro de conteúdos por disciplina)"
         show_daily_activities_in_knowledge_area_content_record_report: "Exibir registro diário de atividades (Registro de conteúdos por área de conhecimento)"
         notify_consecutive_or_alternate_absences: "Notificar faltas consecutivas e/ou alternadas"

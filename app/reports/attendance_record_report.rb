@@ -5,7 +5,19 @@ class AttendanceRecordReport < BaseReport
   # This factor represent the quantitty of students with social name needed to reduce 1 student by page
   SOCIAL_NAME_REDUCTION_FACTOR = 2
 
-  def self.build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar, second_teacher_signature)
+  def self.build(
+    entity_configuration,
+    teacher,
+    year,
+    start_at,
+    end_at,
+    daily_frequencies,
+    student_enrollments,
+    events,
+    school_calendar,
+    second_teacher_signature,
+    display_knowledge_area_as_discipline
+  )
     new(:landscape)
       .build(entity_configuration,
              teacher,
@@ -16,10 +28,23 @@ class AttendanceRecordReport < BaseReport
              student_enrollments,
              events,
              school_calendar,
-             second_teacher_signature)
+             second_teacher_signature,
+             display_knowledge_area_as_discipline)
   end
 
-  def build(entity_configuration, teacher, year, start_at, end_at, daily_frequencies, student_enrollments, events, school_calendar, second_teacher_signature)
+  def build(
+    entity_configuration,
+    teacher,
+    year,
+    start_at,
+    end_at,
+    daily_frequencies,
+    student_enrollments,
+    events,
+    school_calendar,
+    second_teacher_signature,
+    display_knowledge_area_as_discipline
+  )
     @entity_configuration = entity_configuration
     @teacher = teacher
     @year = year
@@ -30,7 +55,9 @@ class AttendanceRecordReport < BaseReport
     @events = events
     @school_calendar = school_calendar
     @second_teacher_signature = ActiveRecord::Type::Boolean.new.type_cast_from_user(second_teacher_signature)
-
+    @display_knowledge_area_as_discipline = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+      display_knowledge_area_as_discipline
+    )
     self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
 
     header
@@ -325,7 +352,7 @@ class AttendanceRecordReport < BaseReport
   def discipline_display
     return 'Geral' if general_frequency?
 
-    if GeneralConfiguration.current.display_knowledge_area_as_discipline && display_knowledge_area_as_discipline?
+    if @display_knowledge_area_as_discipline && display_knowledge_area_as_discipline?
       return knowledge_area.to_s
     end
 
