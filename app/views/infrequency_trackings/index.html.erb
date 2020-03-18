@@ -1,0 +1,56 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for :filter, { url: infrequency_trackings_path, method: :get,
+    html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover">
+        <thead>
+          <tr>
+            <td>
+              <%= f.input :by_unity_id, as: :select2, elements: unities, label: false,
+                placeholder: t('.by_unity_id') %>
+            </td>
+            <td>
+              <%= f.input :by_grade_id, as: :select2, elements: grades, label: false,
+                placeholder: t('.by_grade_id') %>
+            </td>
+            <td>
+              <%= f.input :by_classroom_id, as: :select2, elements: classrooms, label: false,
+                placeholder: t('.by_classroom_id') %>
+            </td>
+            <td>
+              <%= f.input :by_student_id, as: :select2, elements: students, label: false,
+                placeholder: t('.by_student_id') %>
+            </td>
+            <td>
+              <%= f.input :by_notification_date, as: :date, label: false,
+                placeholder: t('.by_notification_date') %>
+            </td>
+            <td>
+              <%= f.input :by_notification_type, as: :select2, label: false,
+                elements: InfrequencyTrackingDecorator.data_for_select2, placeholder: t('.by_notification_type') %>
+            </td>
+            <td>
+            </td>
+          </tr>
+          <tr>
+            <th><%= InfrequencyTracking.human_attribute_name :unity %></th>
+            <th><%= InfrequencyTracking.human_attribute_name :grade %></th>
+            <th><%= InfrequencyTracking.human_attribute_name :classroom %></th>
+            <th><%= InfrequencyTracking.human_attribute_name :student %></th>
+            <th><%= InfrequencyTracking.human_attribute_name :notification_date %></th>
+            <th><%= InfrequencyTracking.human_attribute_name :notification_type %></th>
+            <td width="50px"></td>
+          </tr>
+        </thead>
+
+        <%= render 'resources' %>
+
+        <tfoot id="paginator" class="remote">
+          <td id="pagination-tfoot" colspan="7">
+            <%= render 'shared/pagination', records: @infrequency_trackings %>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

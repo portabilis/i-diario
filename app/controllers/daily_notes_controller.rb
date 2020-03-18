@@ -3,6 +3,8 @@ class DailyNotesController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_teacher
+  before_action :require_current_clasroom
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
     if params[:filter].present? && params[:filter][:by_step_id].present?
@@ -125,6 +127,10 @@ class DailyNotesController < ApplicationController
     end
 
     render json: @daily_notes
+  end
+
+  def profile_changed
+    render json: profile_changed?(params[:filter])
   end
 
   protected

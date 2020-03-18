@@ -41,6 +41,14 @@ module Api
                           )
                          )
           end
+
+          if (daily_frequency_id = @daily_frequency.try(:id))
+            UniqueDailyFrequencyStudentsCreator.call_worker(
+              current_entity.id,
+              daily_frequency_id,
+              current_teacher_id
+            )
+          end
         else
           render json: @daily_frequency.errors.full_messages,
                  status: :unprocessable_entity
@@ -89,6 +97,14 @@ module Api
                 )
               }
             }
+          end
+
+          if (daily_frequency_id = @daily_frequencies.first.try(:id))
+            UniqueDailyFrequencyStudentsCreator.call_worker(
+              current_entity.id,
+              daily_frequency_id,
+              current_teacher_id
+            )
           end
         else
           render json: @daily_frequency.errors.full_messages,

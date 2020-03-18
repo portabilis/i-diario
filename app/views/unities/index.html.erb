@@ -26,9 +26,16 @@
           <td><%= f.input :responsible, label: false, placeholder: "Filtrar responsável" %></td>
 
           <td class="actions">
-            <% if policy(Unity).new? %>
-              <%= link_to t('.synchronize_html'), synchronizations_unities_path, class: "btn btn-info" %>
-            <% end %>
+            <a onclick="goToSync()" class="btn btn-info">
+              <i class="fa fa-refresh"></i> Sincronizar
+            </a>
+            <script>
+              function goToSync() {
+                alert('<%= t('.synchronize_html') %>');
+
+                location.href = Routes.edit_ieducar_api_configurations_pt_br_path();
+              }
+            </script>
           </td>
         </tr>
         <tr>

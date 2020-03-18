@@ -32,10 +32,19 @@ class Student < ActiveRecord::Base
   validates :name, presence: true
   validates :api_code, presence: true, if: :api?
 
+  after_save :update_name_tokens
+
   default_scope -> { kept }
 
   scope :api, -> { where(arel_table[:api].eq(true)) }
   scope :ordered, -> { order(:name) }
+  scope :by_name, lambda { |name|
+    where(
+      "students.name_tokens @@ plainto_tsquery('portuguese', ?)", name
+    ).order(
+      "ts_rank_cd(students.name_tokens, plainto_tsquery('portuguese', '#{name}')) desc"
+    )
+  }
   scope :order_by_sequence, lambda { |classroom_id, start_date, end_date|
     joins(:student_enrollments)
       .merge(
@@ -78,5 +87,11 @@ class Student < ActiveRecord::Base
 
   def classrooms
     Classroom.joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).uniq
+  end
+
+  private
+
+  def update_name_tokens
+    Student.where(id: id).update_all("name_tokens = to_tsvector('portuguese', name)")
   end
 end

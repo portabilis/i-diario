@@ -1,0 +1,6 @@
+$('#resources-tbody').replaceWith('<%= escape_javascript(render('resources')) %>');
+$('#pagination-tfoot').html(
+  "<%=
+    escape_javascript(render(partial: 'shared/pagination', locals: { records: @infrequency_trackings }))
+  %>"
+);

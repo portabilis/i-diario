@@ -1,5 +1,10 @@
 class AvaliationExemption < ActiveRecord::Base
   include Discardable
+  include ColumnsLockable
+  include TeacherRelationable
+
+  not_updatable only: [:classroom_id, :discipline_id]
+  teacher_relation_columns only: [:classroom, :discipline]
 
   acts_as_copy_target
 

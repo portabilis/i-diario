@@ -1,0 +1,20 @@
+class DisciplineTeachingPlanContentsFetcher < TeachingPlanContentsFetcher
+  def initialize(teacher, classroom, discipline, start_date, end_date)
+    @teacher = teacher
+    @classroom = classroom
+    @discipline = discipline
+    @start_date = start_date
+    @end_date = end_date
+  end
+
+  protected
+
+  def base_query
+    DisciplineTeachingPlan.includes(teaching_plan: :contents)
+                          .by_unity(@classroom.unity_id)
+                          .by_grade(@classroom.grade_id)
+                          .by_discipline(@discipline.id)
+                          .by_year(school_calendar_year)
+                          .by_school_term(school_terms)
+  end
+end

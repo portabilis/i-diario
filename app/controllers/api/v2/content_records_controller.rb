@@ -66,6 +66,8 @@ module Api
           end
         end
 
+        @content_record.not_validate_columns = true
+
         content_ids = []
 
         (contents || []).each do |content|

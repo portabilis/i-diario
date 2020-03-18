@@ -74,6 +74,13 @@ class UsersController < ApplicationController
 
   private
 
+  def roles
+    return Role.ordered if current_user.has_administrator_access_level? || current_user.admin?
+
+    Role.exclude_administrator_roles.ordered
+  end
+  helper_method :roles
+
   def user_params
     params.require(:user).permit(
       :first_name, :last_name, :phone, :email, :cpf, :login, :status,

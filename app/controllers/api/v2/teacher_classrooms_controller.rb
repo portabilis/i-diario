@@ -9,10 +9,15 @@ module Api
 
         return unless teacher_id && unity_id
 
+        active_years = SchoolCalendar.where(
+          opened_year: true,
+          unity_id: unity_id
+        ).pluck(:year).uniq
+
         @classrooms = Classroom.by_unity_and_teacher(
           unity_id,
           teacher_id
-        ).ordered.uniq
+        ).where(year: active_years).uniq
 
         @classrooms
       end

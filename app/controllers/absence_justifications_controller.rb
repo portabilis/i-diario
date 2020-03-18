@@ -4,6 +4,8 @@ class AbsenceJustificationsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+
   def index
     current_discipline = fetch_current_discipline
 
@@ -76,6 +78,7 @@ class AbsenceJustificationsController < ApplicationController
   def update
     @absence_justification = AbsenceJustification.find(params[:id])
     @absence_justification.assign_attributes resource_params
+    @absence_justification.current_user = current_user
     @absence_justification.school_calendar = current_school_calendar if @absence_justification.persisted? && @absence_justification.school_calendar.blank?
     fetch_collections
 

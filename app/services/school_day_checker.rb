@@ -23,6 +23,19 @@ class SchoolDayChecker
     date
   end
 
+  def school_dates_since(date, number_of_days)
+    selected_school_dates = []
+    last_date_to_check = date - limit_of_dates_to_check(number_of_days)
+
+    date.downto(last_date_to_check).each do |current_date|
+      break if selected_school_dates.size == number_of_days
+
+      selected_school_dates << current_date if date_is_school_day?(current_date)
+    end
+
+    selected_school_dates
+  end
+
   private
 
   def date_is_school_day?(date)
@@ -105,5 +118,9 @@ class SchoolDayChecker
 
   def grade
     @grade ||= Grade.find(@grade_id)
+  end
+
+  def limit_of_dates_to_check(number_of_days)
+    number_of_days * 2
   end
 end

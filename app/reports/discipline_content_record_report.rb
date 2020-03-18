@@ -107,7 +107,9 @@ class DisciplineContentRecordReport < BaseReport
     @date_header = make_cell(content: 'Data', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', width: 60, padding: [2, 2, 4, 4])
     @classroom_header = make_cell(content: 'Turma', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
     @conteudo_header = make_cell(content: 'Conteúdos', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
-    @daily_acitivies_header = make_cell(content: 'Registro diário das atividades', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    if @display_daily_activies_log
+      @daily_acitivies_header = make_cell(content: 'Registro diário das atividades', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
+    end
     @period_header = make_cell(content: 'Período', size: 8, font_style: :bold, borders: [:left, :right, :top], background_color: 'FFFFFF', padding: [2, 2, 4, 4])
 
     @unity_cell = make_cell(content:  @discipline_content_record.first.content_record.classroom.unity.name, borders: [:bottom, :left, :right], size: 10, width: 240, align: :left, padding: [0, 2, 4, 4], colspan: 2)
@@ -146,22 +148,25 @@ class DisciplineContentRecordReport < BaseReport
 
     general_information_headers = [
       @date_header,
-      @conteudo_header,
-      @daily_acitivies_header
+      @conteudo_header
     ]
+
+    general_information_headers << @daily_acitivies_header if @display_daily_activies_log
 
     general_information_cells = []
 
     @discipline_content_record.each do |discipline_content_record|
       date_cell = make_cell(content: discipline_content_record.content_record.record_date.strftime("%d/%m/%Y"), size: 10, align: :left, width: 60)
       content_cell = make_cell(content: content_cell_content(discipline_content_record.content_record), size: 10, align: :left)
-      daily_acitivies_cell = make_cell(content: discipline_content_record.content_record.daily_activities_record.to_s, size: 10, align: :left)
+      if @display_daily_activies_log
+        daily_acitivies_cell = make_cell(content: discipline_content_record.content_record.daily_activities_record.to_s, size: 10, align: :left)
+      end
 
       general_information_cells << [
         date_cell,
-        content_cell,
-        daily_acitivies_cell
+        content_cell
       ]
+      general_information_cells.last << daily_acitivies_cell if @display_daily_activies_log
     end
 
     general_information_table_data = [general_information_headers]

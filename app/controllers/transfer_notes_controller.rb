@@ -3,6 +3,8 @@ class TransferNotesController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
+  before_action :require_current_clasroom
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
@@ -52,6 +54,7 @@ class TransferNotesController < ApplicationController
 
   def update
     @transfer_note = TransferNote.find(params[:id]).localized
+    @transfer_note.current_user = current_user
     @transfer_note.assign_attributes(resource_params)
 
     authorize @transfer_note

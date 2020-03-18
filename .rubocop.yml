@@ -36,3 +36,6 @@ Style/SymbolArray:
 
 Style/WordArray:
   EnforcedStyle: brackets
+
+Style/FrozenStringLiteralComment:
+  Enabled: false

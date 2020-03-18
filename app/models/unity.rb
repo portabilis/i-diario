@@ -36,6 +36,10 @@ class Unity < ActiveRecord::Base
   scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }
   scope :by_teacher, -> (teacher_id) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
   scope :by_year, -> (year) { joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { year: year }).uniq }
+  scope :by_teacher_with_school_calendar_year, lambda {
+    joins(:teacher_discipline_classrooms, :school_calendars)
+      .where(TeacherDisciplineClassroom.arel_table[:year].eq(SchoolCalendar.arel_table[:year])).uniq
+  }
   scope :by_date, lambda { |date|
     joins(school_calendars: :steps).where(
       '? BETWEEN start_at AND end_at', date
@@ -47,6 +51,15 @@ class Unity < ActiveRecord::Base
     )
   }
   scope :by_unity, -> unity { where(id: unity) }
+  scope :by_user_id, ->(user_id) { joins(:user_roles).where(user_roles: { user_id: user_id }) }
+  scope :by_infrequency_tracking_permission, lambda {
+    role_ids = RolePermission.where(
+      feature: :infrequency_trackings,
+      permission: :change
+    ).pluck(:role_id)
+
+    joins(:user_roles).where(user_roles: { role_id: role_ids })
+  }
 
   #search scopes
   scope :search_name, lambda { |search_name| where("unaccent(name) ILIKE unaccent(?)", "%#{search_name}%") }

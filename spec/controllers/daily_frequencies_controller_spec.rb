@@ -20,6 +20,7 @@ RSpec.describe DailyFrequenciesController, type: :controller do
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:current_user_is_employee_or_administrator?).and_return(false)
+    allow(controller).to receive(:can_change_school_year?).and_return(true)
     allow(controller).to receive(:current_teacher).and_return(current_teacher)
     allow(controller).to receive(:current_user_unity).and_return(unity)
     allow(controller).to receive(:current_user_school_year).and_return(classroom.year)

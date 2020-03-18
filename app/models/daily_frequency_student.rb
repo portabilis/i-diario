@@ -9,7 +9,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   before_save :nullify_presence_for_inactive_students
 
-  belongs_to :daily_frequency
+  belongs_to :daily_frequency, inverse_of: :students
   belongs_to :student
 
   delegate :frequency_date, :class_number, :classroom_id, to: :daily_frequency

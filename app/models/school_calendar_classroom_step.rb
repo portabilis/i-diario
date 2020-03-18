@@ -30,6 +30,13 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   }
   scope :by_step_number, ->(step_number) { where(step_number: step_number) }
   scope :by_step_year, ->(year) { where('EXTRACT(YEAR FROM start_at) = ?', year) }
+  scope :by_date_range, lambda { |start_date, end_date|
+    where.not(
+      arel_table[:start_at].gt(end_date).or(
+        arel_table[:end_at].lt(start_date)
+      )
+    )
+  }
   scope :ordered, -> { order(:start_at) }
 
   delegate :classroom, :classroom_id, :school_calendar_id, to: :school_calendar_classroom

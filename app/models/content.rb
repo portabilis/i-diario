@@ -14,11 +14,22 @@ class Content < ActiveRecord::Base
 
   validates :description, presence: true
 
-  scope :by_description, lambda { |description| where('f_unaccent(contents.description) ILIKE f_unaccent(?) ', '%'+description+'%') }
+  scope :by_description, lambda { |description|
+    where("contents.document_tokens @@ plainto_tsquery('portuguese', ?)", description).
+      order("ts_rank_cd(contents.document_tokens, plainto_tsquery('portuguese', #{self.sanitize(description)})) desc")
+  }
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_id, -> { order(id: :asc) }
 
+  after_save :update_description_token
+
   def to_s
     description
+  end
+
+  private
+
+  def update_description_token
+    Content.where(id: id).update_all("document_tokens = to_tsvector('portuguese', description)")
   end
 end

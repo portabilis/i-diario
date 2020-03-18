@@ -94,85 +94,18 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as áreas de conhecimento da turma selecionada.');
   };
 
-  var initializeListEvents = function () {
-
-    // Settings
-    var $widget = $(this),
-        $checkbox = $(this).find('input[type=checkbox]').first(),
-        color = "info",
-        style = "list-group-item-",
-        settings = {
-            on: {
-                icon: 'fa fa-check'
-            },
-            off: {
-                icon: 'margin-left-17px'
-            }
-        };
-
-    $widget.css('cursor', 'pointer')
-
-    // Event Handlers
-    $widget.on('click', function () {
-      $checkbox.prop('checked', !$checkbox.is(':checked'));
-      $checkbox.triggerHandler('change');
-      updateDisplay();
-    });
-    $checkbox.on('change', function () {
-        updateDisplay();
-    });
-
-
-    // Actions
-    function updateDisplay() {
-        var isChecked = $checkbox.is(':checked');
-
-        // Set the button's state
-        $widget.data('state', (isChecked) ? "on" : "off");
-
-        // Set the button's icon
-        $widget.find('.state-icon')
-            .removeClass()
-            .addClass('state-icon ' + settings[$widget.data('state')].icon);
-
-        // Update the button's color
-        if (isChecked) {
-            $widget.addClass(style + color + ' active');
-        } else {
-            $widget.removeClass(style + color + ' active');
-        }
-    }
-
-    // Initialization
-    function init() {
-
-        if ($widget.data('checked') == true) {
-            $checkbox.prop('checked', !$checkbox.is(':checked'));
-        }
-
-        updateDisplay();
-
-        $widget.addClass('initialized');
-
-        // Inject the icon if applicable
-        if ($widget.find('.state-icon').length == 0) {
-            $widget.prepend('<span class="state-icon ' + settings[$widget.data('state')].icon + '"></span>');
-        }
-    }
-    init();
-  }
-
-  $('.list-group.checked-list-box .list-group-item').each(initializeListEvents);
-
   $('#knowledge_area_content_record_content_record_attributes_contents_tags').on('change', function(e){
     if(e.val.length){
       var content_description = e.val.join(", ");
       if(content_description.trim().length &&
           !$('input[type=checkbox][data-content_description="'+content_description+'"]').length){
 
-        var html = JST['templates/knowledge_area_content_records/contents_list_manual_item']({
-          description: content_description
+        var html = JST['templates/layouts/contents_list_manual_item']({
+          description: content_description,
+          model_name: 'knowledge_area_content_record',
+          submodel_name: 'content_record'
         });
+
         $('#contents-list').append(html);
         $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
       }else{
@@ -185,33 +118,4 @@ $(function () {
     }
     $(this).select2('val', '');
   });
-
-  window.Select2.class.multi.prototype.clearSearch=function(){
-      var placeholder = this.getPlaceholder(),
-          maxWidth = this.getMaxSearchWidth();
-
-      if (placeholder !== undefined  && this.getVal().length === 0 &&  this.search.val()=="") {
-        this.search.val(placeholder).addClass("select2-default");
-        this.search.width(maxWidth > 0 ? maxWidth : this.container.css("width"));
-      }
-  }
 });
-
-function hideContentRecord(content) {
-  content.find("input[type=checkbox]").prop('checked', true);
-  content.hide();
-}
-
-function editContentRecord(id) {
-  var content = $('#' + id);
-  var inputAddContent = $('.knowledge_area_content_record_content_record_contents_tags .select2-input')
-  inputAddContent.val(content.find("input[type=checkbox]").data('content_description'));
-  inputAddContent.trigger('click');
-  inputAddContent.focus();
-  hideContentRecord(content);
-}
-
-function removeContentRecord(id) {
-  var content = $('#' + id);
-  hideContentRecord(content);
-}

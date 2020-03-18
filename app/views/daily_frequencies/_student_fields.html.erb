@@ -9,8 +9,18 @@
   </td>
 
   <% @daily_frequencies.each do |daily_frequency| %>
-    <%= fields_for 'daily_frequency_student[]', item = daily_frequency.build_or_find_by_student(student), index: nil do |f| %>
+    <% class_number = daily_frequency.class_number || 0 %>
+    <% daily_frequency_path = "daily_frequency[daily_frequencies]" %>
+    <% daily_frequency_student_path = "#{daily_frequency_path}[#{class_number}][students_attributes]" %>
+
+    <input type="hidden" name="<%= daily_frequency_path %>[<%= class_number %>][class_number]"
+      value="<%= class_number %>">
+
+    <% unique_id = "#{class_number.to_s.ljust(10, '0')}#{student.id.to_s.ljust(10, '0')}" %>
+    <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
+      daily_frequency_student = daily_frequency.build_or_find_by_student(student) do |f| %>
       <td>
+        <%= f.hidden_field :id, value: daily_frequency_student.id %>
         <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
         <%= f.hidden_field :student_id, value: student.id %>
         <%= f.hidden_field :dependence, value: dependence %>

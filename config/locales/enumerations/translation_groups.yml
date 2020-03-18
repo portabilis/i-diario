@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    translation_groups:
+      teaching_plans: "Planos de ensino"
+      lesson_plans: "Planos de aula"
+      content_records: "Registros de conteúdos"
