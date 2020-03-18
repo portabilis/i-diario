@@ -279,7 +279,7 @@ class DailyFrequenciesController < ApplicationController
     ).tap do |daily_frequency_record|
       daily_frequency_record.unity_id = params[:unity_id]
       daily_frequency_record.school_calendar_id = current_school_calendar.id
-      daily_frequency_record.teacher_id = current_teacher_id
+      daily_frequency_record.owner_teacher_id = daily_frequency_record.teacher_id = current_teacher_id
       daily_frequency_record.origin = OriginTypes::WEB
     end
 
