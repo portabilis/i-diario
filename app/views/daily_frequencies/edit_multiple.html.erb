@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/daily_frequencies/edit_multiple' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <table class="table table-bordered table-only-inner-bordered">
     <thead>
@@ -14,7 +18,8 @@
     </tbody>
   </table>
 
-  <%= form_tag update_multiple_daily_frequencies_path, method: :put, class: 'smart-form' do %>
+  <%= simple_form_for @daily_frequency, url: create_or_update_multiple_daily_frequencies_path, method: :put,
+    html: { class: 'smart-form daily_frequency' } do |f| %>
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
         <th style="width: 65px;">Sequencial</th>
@@ -29,20 +34,31 @@
         <% end %>
       </thead>
       <tbody>
+        <input type="hidden" value="<%= @new_record %>" id="new_record">
+        <%= f.hidden_field :unity_id %>
+        <%= f.hidden_field :classroom_id %>
+        <%= f.hidden_field :frequency_date %>
+        <%= f.hidden_field :discipline_id %>
+        <%= f.hidden_field :period %>
         <% sequence = 0 %>
         <% @normal_students.each do |normal_student| %>
           <% sequence += 1 %>
-          <%= render 'student_fields', exempted_from_discipline: normal_student[:exempted_from_discipline], student: normal_student[:student], sequence: sequence, dependence: false, active: normal_student[:active]  %>
+          <%= render 'student_fields', exempted_from_discipline: normal_student[:exempted_from_discipline],
+            student: normal_student[:student], sequence: sequence, dependence: false,
+            active: normal_student[:active]
+          %>
         <% end %>
 
         <% sequence = 0 %>
         <% if @dependence_students.any? %>
           <% @dependence_students.each do |dependence_student| %>
             <% sequence += 1 %>
-            <%= render 'student_fields', exempted_from_discipline: dependence_student[:exempted_from_discipline], student: dependence_student[:student], sequence: sequence, dependence: true, active: dependence_student[:active] %>
+            <%= render 'student_fields', exempted_from_discipline: dependence_student[:exempted_from_discipline],
+              student: dependence_student[:student], sequence: sequence, dependence: true,
+              active: dependence_student[:active]
+            %>
           <% end %>
         <% end %>
-
 
         <% if @dependence_students.any? %>
           <tr>
@@ -73,36 +89,52 @@
             </td>
           </tr>
         <% end %>
-
       </tbody>
     </table>
 
     <footer>
-      <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-right' %>
-      <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(daily_frequencies_ids: @daily_frequencies.map(&:id)),
-                                 method: :delete, data: { confirm: t('.confirm') }, class: 'btn btn-danger' %>
-
-      <%= link_to t('views.form.history'),
-                    history_multiple_daily_frequency_path(daily_frequencies_ids: @daily_frequencies.map(&:id)),
-                    class: 'btn btn-info' %>
-
-      <div class="btn-group pull-right dropup">
-        <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-          <%= t('.print') %> <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu">
-          <li>
-            <%= link_to(t('.by_month'), attendance_record_report_path(attendance_record_report_form: params_for_print_month(@daily_frequencies)),
-                  method: :post, target: '_blank') %>
-
-          </li>
-          <li>
-            <%= link_to(t('.by_step'), attendance_record_report_path(attendance_record_report_form: params_for_print_step(@daily_frequencies)),
-                  method: :post, target: '_blank') %>
-          </li>
-        </ul>
+      <div id="flash-messages-bottom">
+        <%= bootstrap_flash %>
       </div>
 
+      <div class="pull-left">
+        <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-left' %>
+        <% daily_frequency_ids = @daily_frequencies.map(&:id).compact %>
+        <% if daily_frequency_ids.present? %>
+          <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(
+            daily_frequencies_ids: daily_frequency_ids), method: :delete,
+            data: { confirm: t('.confirm') }, class: 'btn new-delete-style pull-left'
+          %>
+          <%= link_to t('views.form.history'), history_multiple_daily_frequency_path(
+            daily_frequencies_ids: daily_frequency_ids), class: 'btn btn-primary pull-left'
+          %>
+          <div class="btn-group pull-left dropup" style="margin-left: 5px;">
+            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+              <%= t('.print') %> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <%= link_to(t('.by_month'), attendance_record_report_path(
+                  attendance_record_report_form: params_for_print_month(@daily_frequencies)), method: :post,
+                  target: '_blank')
+                %>
+              </li>
+              <li>
+                <%= link_to(t('.by_step'), attendance_record_report_path(
+                  attendance_record_report_form: params_for_print_step(@daily_frequencies)), method: :post,
+                  target: '_blank')
+                %>
+              </li>
+            </ul>
+          </div>
+        <% end %>
+      </div>
+      <div class="pull-right">
+        <%= f.submit t('.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
+      </div>
+      <div class="pull-right" style="margin-right: 10px;">
+        <%= f.input :receive_email_confirmation, as: :boolean, label: false, inline_label: true %>
+      </div>
     </footer>
   <% end %>
 </div>

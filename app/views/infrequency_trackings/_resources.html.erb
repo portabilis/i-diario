@@ -1,0 +1,26 @@
+<tbody id="resources-tbody">
+  <% if @infrequency_trackings.empty? %>
+    <tr>
+      <td class="no_record_found" colspan="7"> <%= t('views.index.no_record_found')%></td>
+    </tr>
+  <% else %>
+    <% @infrequency_trackings.each do |infrequency_tracking| %>
+      <tr>
+        <td><%= infrequency_tracking.classroom.unity %></td>
+        <td><%= infrequency_tracking.classroom.grade %></td>
+        <td><%= infrequency_tracking.classroom %></td>
+        <td><%= infrequency_tracking.student %></td>
+        <td><%= l(infrequency_tracking.notification_date) %></td>
+        <td><%= infrequency_tracking.decorator.notification_type %></td>
+        <td class="actions">
+          <%= render 'notification_data_modal', data: infrequency_tracking.notification_data,
+            id: infrequency_tracking.id %>
+          <a href="#" title="Detalhes" class="btn btn-sm btn-primary" data-toggle="modal"
+            data-target="#notification-data-modal-<%= infrequency_tracking.id %>">
+            <i class="fa fa-info-circle"></i>
+          </a>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</tbody>

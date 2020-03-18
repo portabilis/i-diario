@@ -1,7 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe ComplementaryExamSetting, type: :model do
-  let(:complementary_exam_setting_with_two_grades) { create(:complementary_exam_setting, :with_two_grades) }
+  subject(:complementary_exam_setting) { create(:complementary_exam_setting, :with_two_grades, :with_teacher_discipline_classroom) }
+  let(:complementary_exam_setting_with_two_grades) {
+    create(:complementary_exam_setting, :with_two_grades, :with_teacher_discipline_classroom)
+  }
   let(:classroom) {
     create(
       :classroom,
@@ -36,6 +39,14 @@ RSpec.describe ComplementaryExamSetting, type: :model do
   end
 
   context 'Validations' do
+    it { expect(subject).to validate_presence_of(:description) }
+    it { expect(subject).to validate_presence_of(:initials) }
+    it { expect(subject).to validate_presence_of(:affected_score) }
+    it { expect(subject).to validate_presence_of(:calculation_type) }
+    it { expect(subject).to validate_presence_of(:maximum_score) }
+    it { expect(subject).to validate_presence_of(:number_of_decimal_places) }
+    it { expect(subject).to validate_presence_of(:year) }
+
     describe '#uniqueness_of_calculation_type_by_grade' do
       context 'calculation type isnt substitution' do
         before do
@@ -62,6 +73,7 @@ RSpec.describe ComplementaryExamSetting, type: :model do
             create(
               :complementary_exam_setting,
               :with_two_grades,
+              :with_teacher_discipline_classroom,
               calculation_type: CalculationTypes::SUBSTITUTION
             )
           }

@@ -4,6 +4,8 @@ class ComplementaryExamSettingsController < ApplicationController
 
   respond_to :html, :js, :json
 
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+
   def index
     @complementary_exam_settings = apply_scopes(ComplementaryExamSetting).includes(:grades).ordered
     authorize @complementary_exam_settings
@@ -22,12 +24,15 @@ class ComplementaryExamSettingsController < ApplicationController
 
   def create
     assign_attributes(resource)
+    resource.teacher_id = current_teacher_id
 
     authorize resource
 
     if resource.save
       respond_with resource, location: complementary_exam_settings_path
     else
+      resource.grade_ids = [] if resource.errors.messages.include?(:grade_ids)
+
       render :new
     end
   end
@@ -40,6 +45,7 @@ class ComplementaryExamSettingsController < ApplicationController
 
   def update
     @complementary_exam_setting = resource
+    resource.teacher_id = current_teacher_id
     assign_attributes(@complementary_exam_setting.localized)
 
     authorize @complementary_exam_setting
@@ -101,6 +107,7 @@ class ComplementaryExamSettingsController < ApplicationController
                   :affected_score,
                   :calculation_type,
                   :maximum_score,
-                  :number_of_decimal_places)
+                  :number_of_decimal_places,
+                  :year)
   end
 end

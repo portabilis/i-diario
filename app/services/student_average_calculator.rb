@@ -57,8 +57,17 @@ class StudentAverageCalculator
   def score_sum
     sum = 0
 
-    daily_note_students.each { |daily_note_student| sum += daily_note_student.recovered_note || 0 }
-    recovery_diary_records.each { |recovery_diary_record| sum += recovery_diary_record.students.find_by_student_id(student.id).try(&:score) || 0 }
+    daily_note_students.each do |daily_note_student|
+      next if avaliation_exempted?(daily_note_student.daily_note.avaliation)
+
+      sum += daily_note_student.recovered_note || 0
+    end
+
+    recovery_diary_records.each do |recovery_diary_record|
+      next if avaliation_exempted?(recovery_diary_record.avaliation_recovery_diary_record.avaliation)
+
+      sum += recovery_diary_record.students.find_by_student_id(student.id).try(&:score) || 0
+    end
 
     sum
   end
@@ -71,11 +80,14 @@ class StudentAverageCalculator
     count = 0
 
     daily_note_students.each do |daily_note_student|
-      count += 1 if daily_note_student.recovered_note
+      count += 1 unless avaliation_exempted?(daily_note_student.daily_note.avaliation)
     end
 
     recovery_diary_records.each do |recovery_diary_record|
-      count += 1 if recovery_diary_record.students.find_by_student_id(student.id).try(&:score)
+      if recovery_diary_record.students.find_by_student_id(student.id).try(&:score) &&
+         !avaliation_exempted?(recovery_diary_record.avaliation_recovery_diary_record.avaliation)
+        count += 1
+      end
     end
 
     count

@@ -2,6 +2,7 @@ class DisciplineLessonPlan < ActiveRecord::Base
   include Audit
   include Filterable
   include TeacherRelationable
+  include Translatable
 
   teacher_relation_columns only: :discipline
 
@@ -14,7 +15,6 @@ class DisciplineLessonPlan < ActiveRecord::Base
   belongs_to :discipline
 
   before_destroy :valid_for_destruction?
-  before_destroy :remove_attachments, if: :valid_for_destruction?
 
   delegate :contents, :classroom, to: :lesson_plan
 
@@ -70,10 +70,5 @@ class DisciplineLessonPlan < ActiveRecord::Base
         true
       end
     end
-  end
-
-  def remove_attachments
-    lesson_plan.lesson_plan_attachments.each { |lesson_plan_attachment| lesson_plan_attachment.destroy }
-    lesson_plan.save
   end
 end

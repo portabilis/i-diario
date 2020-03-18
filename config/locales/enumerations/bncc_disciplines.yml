@@ -1,0 +1,12 @@
+pt-BR:
+  enumerations:
+    bncc_disciplines:
+      portuguese_language: "Língua portuguesa"
+      art: "Arte"
+      physical_education: "Educação física"
+      english_language: "Língua inglesa"
+      mathematics: "Matemática"
+      sciences: "Ciências"
+      geography: "Geografia"
+      history: "História"
+      religious_education: "Ensino religioso"

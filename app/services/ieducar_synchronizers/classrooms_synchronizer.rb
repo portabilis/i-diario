@@ -34,6 +34,11 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.grade = grade
         classroom.year = classroom_record.ano
         classroom.exam_rule_id = exam_rule(classroom_record.regra_avaliacao_id).try(:id)
+
+        if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
+          update_period_dependents(classroom.id, classroom.period_was, classroom.period)
+        end
+
         classroom.save! if classroom.changed?
 
         classroom.discard_or_undiscard(classroom_record.deleted_at.present?)
@@ -45,7 +50,11 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
   def remove_current_classroom_id_in_user_selectors(classroom_id)
     Classroom.with_discarded.find_by(id: classroom_id).users.each do |user|
-      user.update(current_classroom_id: nil)
+      user.update(current_classroom_id: nil, assumed_teacher_id: nil)
     end
+  end
+
+  def update_period_dependents(classroom_id, old_period, new_period)
+    PeriodUpdaterWorker.perform_in(1.second, entity_id, classroom_id, old_period, new_period)
   end
 end

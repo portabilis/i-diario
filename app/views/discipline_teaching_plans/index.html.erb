@@ -28,7 +28,7 @@
             </td>
             <td>
               <%= link_to t('.new_html'), new_discipline_teaching_plan_path,
-                    class: 'btn btn-primary pull-right' %>
+                    class: 'btn btn-primary pull-right', style: 'width: 161px;' %>
             </td>
           </tr>
 
@@ -46,14 +46,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="7">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @discipline_teaching_plans %>
-            </div>
-
-            <div class="pull-right">
-              <%= paginate @discipline_teaching_plans %>
-            </div>
+          <td id="pagination-tfoot" colspan="7">
+            <%= render 'shared/pagination', records: @discipline_teaching_plans %>
           </td>
         </tfoot>
       </table>

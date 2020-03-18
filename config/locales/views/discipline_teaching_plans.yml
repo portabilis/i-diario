@@ -1,7 +1,7 @@
 pt-BR:
   discipline_teaching_plans:
     index:
-      new_html: "<i class='fa fa-plus'></i> Novo plano de ensino"
+      new_html: "<i class='fa fa-plus'></i> Novo"
       by_year: "Filtrar ano"
       by_grade: "Filtrar série"
       by_discipline: "Filtrar disciplina"

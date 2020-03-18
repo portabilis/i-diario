@@ -12,7 +12,7 @@ function createSelect2Remote(all, items, url) {
       $(element).select2({
         ajax: {
           url: (url != '') ? url : $(element).data('data-url'),
-          delay: 250,
+          delay: 1000,
           dataType: "json",
           type: "GET",
           data: function (term) {

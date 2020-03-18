@@ -1,3 +1,6 @@
+window['content_list_model_name'] = 'discipline_teaching_plan';
+window['content_list_submodel_name'] = 'teaching_plan';
+
 $(function() {
   'use strict';
 
@@ -81,4 +84,29 @@ $(function() {
   updateSchoolTermInput();
 
   validate_attachment_size($('#discipline_teaching_plan'));
+
+  $('#discipline_teaching_plan_teaching_plan_attributes_contents_tags').on('change', function(e){
+    if(e.val.length){
+      var content_description = e.val.join(", ");
+      if(content_description.trim().length &&
+          !$('input[type=checkbox][data-content_description="'+content_description+'"]').length){
+
+        var html = JST['templates/layouts/contents_list_manual_item']({
+          description: content_description,
+          model_name: 'discipline_teaching_plan',
+          submodel_name: 'teaching_plan'
+        });
+
+        $('#contents-list').append(html);
+        $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
+      }else{
+        var content_input = $('input[type=checkbox][data-content_description="'+content_description+'"]');
+        content_input.closest('li').show();
+        content_input.prop('checked', true).trigger('change');
+      }
+
+      $('.discipline_teaching_plan_teaching_plan_contents_tags .select2-input').val("");
+    }
+    $(this).select2('val', '');
+  });
 });

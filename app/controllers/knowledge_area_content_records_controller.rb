@@ -3,6 +3,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
     params[:filter] ||= {}
@@ -63,6 +64,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_content_record.content_record.content_ids = content_ids
     @knowledge_area_content_record.teacher_id = current_teacher_id
+    @knowledge_area_content_record.content_record.current_user = current_user
 
     authorize @knowledge_area_content_record
 
@@ -177,9 +179,10 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   helper_method :classrooms
 
   def knowledge_areas
-    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher)
-                                    .by_classroom_id(current_user_classroom.id)
-                                    .ordered
+    @knowledge_areas = KnowledgeArea.by_teacher(current_teacher).ordered
+    @knowledge_areas = @knowledge_areas.by_classroom_id(current_user_classroom.id) if current_user_classroom
+
+    @knowledge_areas
   end
   helper_method :knowledge_areas
 end

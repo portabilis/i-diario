@@ -1,0 +1,47 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for :translations, html: { class: "smart-form" } do |f| %>
+  <% @groups.each do |group| %>
+    <fieldset>
+        <legend style="margin-bottom: 0px;"><%= TranslationGroups.t(group) %></legend>
+        <% Translation.subgroups(group).each do |subgroup| %>
+        <div class="row" style="margin-top: -20px;">
+          <div class="col-sm-5">
+            <h5> <%= TranslationSubgroups.t(subgroup) %></h5>
+          </div>
+        </div>
+        <div class="row">
+          <% Translation.where(group: group)
+                        .where(subgroup: subgroup)
+                        .ordered
+                        .each_with_index do |translation, index|
+          %>
+            <div class="col-sm-4" style="padding: 0px;">
+              <div class="control-group string input" style="padding-left: 10px; padding-right: 10px;">
+                <label><%= translation.label %></label>
+                <div class="controls input">
+                  <i class="icon-append fa fa-question-circle"></i>
+                  <input type="text"
+                        class="form-control string"
+                        value="<%= translation.translation %>"
+                        name="translations[<%= translation.id %>]"
+                        rel="popover-hover"
+                        data-placement="top"
+                        data-content="<%= translation.hint%>"
+                        data-toggle="popover"
+                  />
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <% end %>
+    </fieldset>
+  <% end %>
+
+    <footer>
+      <button type="submit" class="btn btn-primary">
+        Salvar
+      </button>
+    </footer>
+  <% end %>
+</div>

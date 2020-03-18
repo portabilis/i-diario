@@ -63,36 +63,92 @@ $(function () {
 
     if (!_.isEmpty(students)) {
       var element_counter = 0;
-      var any_student_exempted_from_discipline = false;
+      var existing_ids = [];
+      var fetched_ids = [];
 
       hideNoItemMessage();
 
-      _.each(students, function(student) {
-        var element_id = new Date().getTime() + element_counter++;
-
-        var html = JST['templates/school_term_recovery_diary_records/student_fields']({
-            id: student.id,
-            name: student.name,
-            average: student.average,
-            scale: 2,
-            element_id: element_id,
-            exempted_from_discipline: student.exempted_from_discipline
-          });
-
-        if (student.exempted_from_discipline) {
-          any_student_exempted_from_discipline = true;
+      $('#recovery-diary-record-students').children('tr').each(function () {
+        if (!$(this).hasClass('destroy')){
+          existing_ids.push(parseInt(this.id));
         }
-
-        $('#recovery-diary-record-students').append(html);
       });
+      existing_ids.shift();
 
-      if (any_student_exempted_from_discipline) {
-        $('.exempted_students_from_discipline_legend').removeClass('hidden');
+      if (_.isEmpty(existing_ids)){
+        _.each(students, function(student) {
+          var element_id = new Date().getTime() + element_counter++;
+
+          buildStudentField(element_id, student);
+        });
+        loadDecimalMasks();
+      } else {
+        $.each(students, function(index, student) {
+          var fetched_id = student.id;
+
+          fetched_ids.push(fetched_id);
+
+          if ($.inArray(fetched_id, existing_ids) == -1) {
+            if($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')) {
+              restoreStudent(fetched_id);
+            } else {
+              var element_id = new Date().getTime() + element_counter++;
+
+              buildStudentField(element_id, student, index);
+            }
+            existing_ids.push(fetched_id);
+          }
+        });
+
+        loadDecimalMasks();
+
+        _.each(existing_ids, function (existing_id) {
+          if ($.inArray(existing_id, fetched_ids) == -1) {
+            removeStudent(existing_id);
+          }
+        });
       }
+    } else {
+      $recorded_at.val($recorded_at.data('oldDate'));
 
-      loadDecimalMasks();
+      flashMessages.error('Nenhum aluno encontrado.');
     }
   };
+
+  function removeStudent(id){
+    $('#' + id).hide();
+    $('#' + id).addClass('destroy');
+    $('.nested-fields#' + id + ' [id$=_destroy]').val(true);
+  }
+
+  function restoreStudent(id) {
+    $('#' + id).show();
+    $('#' + id).removeClass('destroy');
+    $('.nested-fields#' + id + ' [id$=_destroy]').val(false);
+  }
+
+  $recorded_at.on('focusin', function(){
+    $(this).data('oldDate', $(this).val());
+  });
+
+  function buildStudentField(element_id, student, index = null){
+    var html = JST['templates/school_term_recovery_diary_records/student_fields']({
+      id: student.id,
+      name: student.name,
+      average: student.average,
+      scale: 2,
+      element_id: element_id,
+      exempted_from_discipline: student.exempted_from_discipline
+    });
+
+    var $tbody = $('#recovery-diary-record-students');
+
+    if ($.isNumeric(index)) {
+      $(html).insertAfter($tbody.children('tr')[index]);
+    } else {
+      $tbody.append(html);
+    }
+  }
 
   function handleFetchStudentsInRecoveryError() {
     flashMessages.error('Ocorreu um erro ao buscar os alunos.');
@@ -131,15 +187,6 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as notas lançadas para esta turma nesta etapa.');
   };
 
-  function removeStudents() {
-    $('.nested-fields.dynamic').remove();
-    $('.nested-fields.existing').hide();
-    $('.nested-fields.existing [id$=_destroy]').val(true);
-    $('.exempted_students_from_discipline_legend').addClass('hidden');
-
-    showNoItemMessage();
-  }
-
   function hideNoItemMessage() {
     $('.no_item_found').hide();
   }
@@ -156,12 +203,10 @@ $(function () {
   }
 
   $step.on('change', function() {
-    removeStudents();
     checkPersistedDailyNote();
   });
 
   $recorded_at.on('change', function() {
-    removeStudents();
     checkPersistedDailyNote();
   });
 

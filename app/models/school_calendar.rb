@@ -32,6 +32,7 @@ class SchoolCalendar < ActiveRecord::Base
   scope :by_unity_id, lambda { |unity_id| where(unity_id: unity_id) }
   scope :by_unity_api_code, lambda { |unity_api_code| joins(:unity).where(unities: { api_code: unity_api_code }) }
   scope :by_school_day, lambda { |date| by_school_day(date) }
+  scope :only_opened_years, -> { where(opened_year: true) }
   scope :ordered, -> { joins(:unity).order(year: :desc).order('unities.name') }
 
   def to_s

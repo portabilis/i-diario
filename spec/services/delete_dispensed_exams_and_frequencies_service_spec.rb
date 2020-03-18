@@ -126,14 +126,19 @@ RSpec.describe DeleteDispensedExamsAndFrequenciesService, type: :service do
     end
 
     context 'when there are invalid conceptual exam values' do
+      let(:current_user) { create(:user) }
       let!(:conceptual_exam) {
-        create(
+        conceptual_exam = create(
           :conceptual_exam,
           :with_teacher_discipline_classroom,
           :with_one_value,
           classroom: classroom,
           student: student_enrollment.student
         )
+        current_user.current_classroom_id = conceptual_exam.classroom_id
+        allow_any_instance_of(ConceptualExam).to receive(:current_user).and_return(current_user)
+
+        conceptual_exam
       }
       let!(:conceptual_exam_value) {
         create(

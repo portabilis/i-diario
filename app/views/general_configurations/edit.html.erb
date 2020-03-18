@@ -42,9 +42,40 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
+          <%= f.input :show_daily_activities_in_knowledge_area_content_record_report,
+                        label: false,
+                        inline_label: true %>
+        </div>
+        <div class="col col-sm-6">
+          <%= f.input :display_daily_activies_log, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
           <%= f.input :max_descriptive_exam_character_count, as: :integer %>
         </div>
       </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :notify_consecutive_or_alternate_absences, as: :boolean, label: false, inline_label: true %>
+        </div>
+      </div>
+      <fieldset id="notify_consecutive_or_alternate_absences_fields" class="fieldset">
+        <legend><%= t('.infrequency_tracking_configurations') %></legend>
+          <div class="row">
+            <div class="col col-sm-6">
+              <%= f.input :max_consecutive_absence_days, as: :integer %>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col col-sm-6">
+              <%= f.input :max_alternate_absence_days, as: :integer %>
+            </div>
+            <div class="col col-sm-6">
+              <%= f.input :days_to_consider_alternate_absences, as: :integer %>
+            </div>
+          </div>
+      </fieldset>
       <div class="row">
         <div class="col col-sm-4">
           <%= f.association :employees_default_role, as: :select2, elements: Role.ordered %>

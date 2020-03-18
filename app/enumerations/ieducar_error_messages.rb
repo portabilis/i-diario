@@ -8,5 +8,7 @@ class IeducarErrorMessages < EnumerateIt::Base
                    student_not_enrolled_in_classroom: 1006,
                    exam_rule_not_defined_for_grade: 1007,
                    exam_rule_dont_allow_general_absence: 1008,
-                   discipline_dont_enrolled_in_school_levels: 1009
+                   discipline_dont_enrolled_in_school_levels: 1009,
+                   discipline_not_exists_for_school_class: 1010,
+                   school_class_doesnt_alow_frequency_by_discipline: 1011
 end

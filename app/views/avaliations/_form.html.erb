@@ -17,11 +17,11 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :classroom, as: :select2_classroom, user: current_user %>
+        <%= f.association :classroom, as: :select2_classroom, user: current_user, record: f.object %>
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :discipline, as: :select2_discipline, user: current_user,
+        <%= f.association :discipline, as: :select2_discipline, user: current_user, record: f.object,
                 classroom_id: @avaliation.classroom_id %>
       </div>
     </div>

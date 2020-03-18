@@ -13,6 +13,8 @@ class IeducarSynchronizerWorker
         exception.message
       )
     end
+
+    Honeybadger.notify(exception)
   end
 
   def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false, last_two_years = true)
@@ -43,102 +45,15 @@ class IeducarSynchronizerWorker
 
       break unless synchronization.try(:started?)
 
-      years_to_synchronize(last_two_years)
-
-      worker_batch = synchronization.worker_batch
-      worker_batch.start!
-      worker_batch.update(total_workers: total_synchronizers(synchronization.full_synchronization))
-
-      SynchronizationConfigs.without_dependencies.each do |synchronizer|
-        SynchronizerBuilderWorker.perform_async(
-          klass: synchronizer[:klass],
-          synchronization_id: synchronization.id,
-          worker_batch_id: worker_batch.id,
-          entity_id: entity.id,
-          years: years_to_synchronize,
-          unities_api_code: unities_api_code,
-          filtered_by_year: synchronizer[:by_year],
-          filtered_by_unity: synchronizer[:by_unity]
-        )
-      end
-    end
-  end
-
-  def unities_api_code
-    @unities_api_code ||= Unity.with_api_code.pluck(:api_code)
-  end
-
-  def years_to_synchronize(last_two_years = false)
-    @years_to_synchronize ||= begin
-      years = Unity.with_api_code
-                   .joins(:school_calendars)
-                   .pluck('school_calendars.year')
-                   .uniq
-                   .compact
-                   .sort
-                   .reverse
-
-      years = years.take(2) if last_two_years
-
-      years
+      UnitiesSynchronizerWorker.perform_async(
+        entity_id: entity.id,
+        synchronization_id: synchronization.id,
+        last_two_years: last_two_years
+      )
     end
   end
 
   def all_entities
     Entity.active
-  end
-
-  def total_synchronizers(full_synchronization)
-    return total_synchronizers_with_full_synchronization if full_synchronization
-
-    total_synchronizers_with_simple_synchronization
-  end
-
-  def total_synchronizers_with_full_synchronization
-    (
-      (synchronizers_by_year_and_unity.size * years_to_synchronize.size * unities_api_code.size) +
-      (synchronizers_by_year_to_full_synchronization.size * years_to_synchronize.size) +
-      (synchronizers_by_unity.size * unities_api_code.size) +
-      single_synchronizers.size
-    )
-  end
-
-  def total_synchronizers_with_simple_synchronization
-    (
-      (synchronizers_by_year_and_unity.size * years_to_synchronize.size) +
-      (synchronizers_by_year.size * years_to_synchronize.size) +
-      (unities_api_code.present? ? synchronizers_by_unity.size : 0) +
-      single_synchronizers.size
-    )
-  end
-
-  def single_synchronizers
-    @single_synchronizers ||= SynchronizationConfigs::ALL.select { |synchronizer|
-      !synchronizer[:by_year] && !synchronizer[:by_unity]
-    }
-  end
-
-  def synchronizers_by_year
-    @synchronizers_by_year ||= SynchronizationConfigs::ALL.select { |synchronizer|
-      synchronizer[:by_year] && !synchronizer[:by_unity]
-    }
-  end
-
-  def synchronizers_by_year_to_full_synchronization
-    @synchronizers_by_year_to_full_synchronization ||= SynchronizationConfigs::ALL.select { |synchronizer|
-      synchronizer[:by_year] && !synchronizer[:by_unity] && !synchronizer[:only_simple_synchronization]
-    }
-  end
-
-  def synchronizers_by_unity
-    @synchronizers_by_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
-      !synchronizer[:by_year] && synchronizer[:by_unity]
-    }
-  end
-
-  def synchronizers_by_year_and_unity
-    @synchronizers_by_year_and_unity ||= SynchronizationConfigs::ALL.select { |synchronizer|
-      synchronizer[:by_year] && synchronizer[:by_unity]
-    }
   end
 end

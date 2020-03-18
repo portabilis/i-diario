@@ -1,10 +1,12 @@
 pt-BR:
   errors:
     general:
+      require_current_classroom: "É necessário vincular uma turma ao perfil atual para acessar esse cadastro"
       require_current_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
       require_current_teacher_discipline_classrooms: "É necessário ter turmas vinculadas ao professor atual para acessar esta funcionalidade"
       school_calendar_steps_more_than_limit: "Verificamos que o calendário letivo da escola: %{unity}, possui uma quantidade de etapas acima do permitido."
       calendar_step_not_found: "Não foi localizada uma etapa para a data %{date}."
+      not_allowed_to_modify_prev_years: "Não é permitido lançar ou modificar os dados de anos letivos em que o período das etapas já se encerraram. Para efetuar lançamentos o responsável deve atualizar a data final em Calendário letivo."
   ieducar_api:
     error:
       messages:
@@ -12,6 +14,7 @@ pt-BR:
         invalid_post: "Requisição não pode ser realizada. É necessário informar o %{field}."
         post_error: "Ocorreu um erro ao efetuar o envio. Entre em contato com o administrador."
         sync_error: "Erro inesperado. Se persistir, entre em contato com o administrador."
+        must_not_have_conflicting_steps: "A data informada não pode ser um dia letivo em outro calendário escolar"
 
   boolean:
     "yes": "Sim"

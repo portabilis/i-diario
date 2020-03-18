@@ -12,6 +12,9 @@ pt-BR:
         knowledge_areas: "Áreas de conhecimento"
         knowledge_area_ids: "Áreas de conhecimento"
         author: "Autor"
+        objectives: "Objetivos"
+        contents: "Conteúdos"
+        experience_fields: "Campos de experiência"
     errors:
       models:
         knowledge_area_lesson_plan:

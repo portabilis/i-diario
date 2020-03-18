@@ -15,7 +15,7 @@ class DailyFrequency < ActiveRecord::Base
         DailyFrequencyStudent.with_discarded
                              .joins(:student)
                              .by_daily_frequency_id(id)
-                             .destroy_all
+                             .delete_all
       end
     end
   end
@@ -29,7 +29,7 @@ class DailyFrequency < ActiveRecord::Base
 
   has_many :students, lambda {
     joins(:student).order('students.name')
-  }, class_name: 'DailyFrequencyStudent'
+  }, class_name: 'DailyFrequencyStudent', inverse_of: :daily_frequency
 
   accepts_nested_attributes_for :students, allow_destroy: true
 
@@ -80,6 +80,8 @@ class DailyFrequency < ActiveRecord::Base
   scope :order_by_class_number, -> { order(:class_number) }
   scope :order_by_unity, -> { order(:unity_id) }
   scope :order_by_classroom, -> { order(:classroom_id) }
+
+  attr_accessor :receive_email_confirmation
 
   def find_by_student(student_id)
     students.find_by_student_id(student_id)

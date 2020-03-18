@@ -3,7 +3,7 @@ FactoryGirl.define do
     discipline
 
     association :classroom, factory: [:classroom, :with_classroom_semester_steps]
-    association :complementary_exam_setting, factory: [:complementary_exam_setting, :with_two_grades]
+    association :complementary_exam_setting, factory: [:complementary_exam_setting, :with_two_grades, :with_teacher_discipline_classroom]
     unity { classroom.unity }
 
     transient do

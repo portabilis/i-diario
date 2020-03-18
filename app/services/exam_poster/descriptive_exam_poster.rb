@@ -156,8 +156,7 @@ module ExamPoster
 
         next if exempted_discipline_ids.include?(discipline.id)
 
-        exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline).ordered
-
+        exams = DescriptiveExamStudent.joins(:student).by_classroom_and_discipline(classroom, discipline).ordered
         exams.each do |exam|
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,

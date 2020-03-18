@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    bncc_steps:
+      child_school: "Educação infantil"
+      elementary_school: "Ensino fundamental"

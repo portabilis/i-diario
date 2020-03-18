@@ -56,6 +56,10 @@ pt-BR:
     custom_rounding_tables: "Tabelas de arredondamento"
     complementary_exam_settings: "Avaliações complementares"
     complementary_exams: "Diário de avaliações complementares"
+    bncc: "BNCC"
+    learning_objectives_and_skills: "Objetivos de aprendizagem e habilidades"
+    translations: "Dicionário de termos BNCC"
+    infrequency_trackings: "Acompanhamento de infrequências"
 
   enumerations:
     features:
@@ -64,4 +68,4 @@ pt-BR:
       teacher_report_card: "Boletim do professor"
       ieducar_api_exam_posting_without_restrictions: "Lançamentos sem restrições de datas"
       can_change_user_password: "Permite redefinir senha dos usuários"
-      change_school_year: "Acesso à anos letivos anteriores"
+      change_school_year: "Acesso à anos letivos encerrados"

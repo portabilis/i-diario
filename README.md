@@ -39,7 +39,7 @@ $ cd i-diario
 - Copiar o exemplo de configurações de banco de dados e configurar:
 
 ```bash
-$  cp config/database.sample.yml config/database.yml
+$ cp config/database.sample.yml config/database.yml
 ```
 
 ### Com Docker
@@ -55,9 +55,16 @@ Por baixo dos panos, será feito:
 
 Pule para o [**Configuração da Aplicação**](#Configuração-da-Aplicação).
 
-### Sem Docker
+### Sem Docker (Testado no Ubuntu 18.04)
 
-- Instalar o Ruby 2.2.6 (Recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
+- Instalar o Ruby 2.3.7 (Recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
+- Instalar Postgres e configurar para fazer coincidir com o configurado em `database.yml`
+- Instalar a biblioteca `libpq-dev`
+
+```bash
+$ sudo apt install libpq-dev
+```
+
 - Instalar a gem Bundler:
 
 ```bash
@@ -75,10 +82,24 @@ $ bundle install
 ```yaml
 development:
   secret_key_base: CHAVE_SECRETA
+  SMTP_ADDRESS: SMTP_ADDRESS
+  SMTP_PORT: SMTP_PORT
+  SMTP_DOMAIN: SMTP_DOMAIN
+  SMTP_USER_NAME: SMTP_USER_NAME
+  SMTP_PASSWORD: SMTP_PASSWORD
+  BUCKET_NAME: S3_BUCKET_NAME
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
 
+- Criar e configurar o arquivo `config/aws.yml` conforme o exemplo:
+
+```yaml
+development:
+  access_key_id: AWS_ACCESS_KEY_ID
+  secret_access_key: AWS_SECRET_ACCESS_KEY
+
+```
 
 - Criar o banco de dados:
 
@@ -92,12 +113,6 @@ $ bundle exec rake db:migrate
 ```bash
 $ cp public/404.html.sample public/404.html
 $ cp public/500.html.sample public/500.html
-```
-
-- Iniciar o servidor:
-
-```bash
-$ bundle exec rails server
 ```
 
 ## Configuração da Aplicação
@@ -139,7 +154,18 @@ Entity.last.using_connection {
 }
 ```
 
+Iniciar o servidor:
+
+```bash
+$ bundle exec rails server
+```
+
 Para acessar o sistema, use a URL http://localhost:3000
+
+### [PgHero](https://github.com/ankane/pghero)
+
+Usamos o PgHero para monitorar o banco de dados. Recomendamos a leitura da
+documentação.
 
 ## Sincronização com i-Educar
 

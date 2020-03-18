@@ -1,0 +1,5 @@
+pt-BR:
+  enumerations:
+    infrequency_tracking_types:
+      consecutive_absences: Faltas consecutivas
+      alternating_absences: Faltas alternadas

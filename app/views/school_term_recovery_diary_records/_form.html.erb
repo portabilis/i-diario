@@ -15,12 +15,16 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= recovery_diary_record.association :classroom, as: :select2_classroom, user: current_user %>
+          <%= recovery_diary_record.association :classroom, as: :select2_classroom, user: current_user,
+              record: f.object %>
         </div>
 
         <div class="col col-sm-4">
-          <%= recovery_diary_record.association :discipline, as: :select2_discipline, user: current_user,
-            classroom_id: @school_term_recovery_diary_record.recovery_diary_record.classroom_id %>
+          <%= recovery_diary_record.association :discipline,
+              as: :select2_discipline,
+              user: current_user,
+              record: f.object,
+              classroom_id: @school_term_recovery_diary_record.recovery_diary_record.classroom_id %>
         </div>
       </div>
 
@@ -63,8 +67,7 @@
             </td>
           </tr>
 
-          <%= recovery_diary_record.association :students,
-            collection: recovery_diary_record.object.students.sort_by { |student| student.student.name.upcase } do |student| %>
+          <%= recovery_diary_record.fields_for :students, @students do |student| %>
             <%= render 'student_fields', f: student %>
           <% end %>
         </tbody>

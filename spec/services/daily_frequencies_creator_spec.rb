@@ -21,7 +21,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     student_enrollment_classroom.update_attribute(:joined_at, frequency_start_at)
 
     creator = described_class.new(
-      unity: classroom.unity,
+      unity_id: classroom.unity.id,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       period: period
@@ -34,7 +34,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     student_enrollment_classroom.update_attribute(:joined_at, frequency_start_at - 1.day)
 
     creator = described_class.new(
-      unity: classroom.unity,
+      unity_id: classroom.unity.id,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       frequency_date: frequency_start_at - 1.day,
@@ -48,7 +48,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     student_enrollment_classroom.update_attribute(:joined_at, frequency_start_at)
 
     creator = described_class.new(
-      unity: classroom.unity,
+      unity_id: classroom.unity.id,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       class_numbers: default_class_numbers,
@@ -67,7 +67,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     student_enrollment_classroom.update_attribute(:joined_at, frequency_start_at)
 
     creator = described_class.new(
-      unity: classroom.unity,
+      unity_id: classroom.unity.id,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       class_numbers: two_class_numbers,
@@ -82,7 +82,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     student_enrollment_classroom.update_attribute(:joined_at, frequency_start_at)
 
     creator = described_class.new(
-      unity: classroom.unity,
+      unity_id: classroom.unity.id,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       class_numbers: default_class_numbers,
@@ -110,7 +110,7 @@ RSpec.describe DailyFrequenciesCreator, type: :service do
     )
 
     creator = described_class.new(
-      unity: classroom.unity,
+      unity_id: classroom.unity.id,
       classroom_id: classroom.id,
       school_calendar: school_calendar,
       class_numbers: default_class_numbers,

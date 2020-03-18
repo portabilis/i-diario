@@ -11,7 +11,8 @@ class BaseSynchronizer
           :worker_batch,
           :year,
           :unity_api_code,
-          :entity_id
+          :entity_id,
+          :last_two_years
         )
       ).synchronize!
 
@@ -22,7 +23,12 @@ class BaseSynchronizer
         synchronizer_builder_enqueue_worker_params(params, worker_batch.id)
       )
     rescue StandardError => error
-      worker_state.mark_with_error!(error.message) if error.message != '502 Bad Gateway'
+      unity = error.try(:record).try(:unity)
+      unity ||= error.try(:record).try(:school_calendar).try(:unity)
+      unity = "#{unity.api_code} - #{unity.name}: " if unity.present?
+      error_message = "#{unity}#{error.message}"
+
+      worker_state.mark_with_error!(error_message) if error.message != '502 Bad Gateway'
 
       raise error
     end
@@ -43,7 +49,8 @@ class BaseSynchronizer
       params.slice(
         :entity_id,
         :year,
-        :unity_api_code
+        :unity_api_code,
+        :last_two_years
       ).merge(
         klass: worker_name,
         synchronization_id: params[:synchronization].id,
@@ -58,13 +65,14 @@ class BaseSynchronizer
     self.entity_id = params[:entity_id]
     self.year = params[:year]
     self.unity_api_code = params[:unity_api_code]
+    self.last_two_years = params[:last_two_years]
     self.filtered_by_unity = params[:filtered_by_unity]
   end
 
   protected
 
   attr_accessor :synchronization, :worker_batch, :worker_state, :entity_id, :year, :unity_api_code,
-                :filtered_by_year, :filtered_by_unity
+                :filtered_by_year, :filtered_by_unity, :last_two_years
 
   def api
     @api = api_class.new(synchronization.to_api, synchronization.full_synchronization)

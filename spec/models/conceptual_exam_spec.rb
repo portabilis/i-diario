@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe ConceptualExam, type: :model do
+  let(:current_user) { create(:user) }
+
   subject do
     create(
       :conceptual_exam,
@@ -8,6 +10,11 @@ RSpec.describe ConceptualExam, type: :model do
       :with_student_enrollment_classroom,
       :with_one_value
     )
+  end
+
+  before do
+    current_user.current_classroom_id = subject.classroom_id
+    allow(subject).to receive(:current_user).and_return(current_user)
   end
 
   describe 'associations' do
@@ -37,6 +44,64 @@ RSpec.describe ConceptualExam, type: :model do
         subject.valid?
 
         expect(subject.errors[:student]).to include(expected_message)
+      end
+    end
+
+    context 'recorded_at validations' do
+      context 'creating a new conceptual_exam' do
+        subject do
+          build(
+            :conceptual_exam,
+            :with_teacher_discipline_classroom,
+            :with_student_enrollment_classroom,
+            :with_one_value
+          )
+        end
+
+        context 'when recorded_at is in step range' do
+          it { expect(subject.valid?).to be true }
+        end
+
+        context 'when recorded_at is out of step range' do
+          before do
+            subject.recorded_at = subject.step.end_at + 1.day
+          end
+
+          it 'requires conceptual_exam to have a recorded_at in step range' do
+            expected_message = I18n.t('errors.messages.not_school_term_day')
+
+            subject.valid?
+
+            expect(subject.errors[:recorded_at]).to include(expected_message)
+          end
+        end
+      end
+
+      context 'updating a existing conceptual_exam' do
+        context 'when recorded_at is out of step range' do
+          context 'recorded_at has not changed' do
+            before do
+              subject.recorded_at = subject.step.end_at + 1.day
+              subject.save!(validate: false)
+            end
+
+            it { expect(subject.valid?).to be true }
+          end
+
+          context 'recorded_at has changed' do
+            before do
+              subject.recorded_at = subject.step.end_at + 1.day
+            end
+
+            it 'requires conceptual_exam to have a recorded_at in step range' do
+              expected_message = I18n.t('errors.messages.not_school_term_day')
+
+              subject.valid?
+
+              expect(subject.errors[:recorded_at]).to include(expected_message)
+            end
+          end
+        end
       end
     end
   end

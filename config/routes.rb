@@ -2,6 +2,7 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
+  mount PgHero::Engine, at: 'pghero'
 
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
 
@@ -91,6 +92,7 @@ Rails.application.routes.draw do
       collection do
         get :search_api
         get :in_recovery
+        get :select2_remote
         get :in_final_recovery, path: '/in_final_recovery/classrooms/:classroom_id/disciplines/:discipline_id'
       end
     end
@@ -129,7 +131,11 @@ Rails.application.routes.draw do
     end
     resources  :user_roles, only: [:show]
     resource :ieducar_api_configurations, only: [:edit, :update], concerns: :history do
-      resources :synchronizations, only: [:index, :create]
+      resources :synchronizations, only: [:index, :create] do
+        collection do
+          get :current_syncronization_data
+        end
+      end
     end
     resource :general_configurations, only: [:edit, :update], concerns: :history
     resource :entity_configurations, only: [:edit, :update], concerns: :history
@@ -139,8 +145,6 @@ Rails.application.routes.draw do
     resources :unities, concerns: :history do
       collection do
         delete :destroy_batch
-        get :synchronizations
-        post :create_batch
         get :search
         get :all
         get :select2_remote
@@ -169,8 +173,6 @@ Rails.application.routes.draw do
     resources :school_calendars, concerns: :history do
       collection do
         get :step
-        get :synchronize
-        post :create_and_update_batch
         get :years_from_unity
       end
 
@@ -187,14 +189,24 @@ Rails.application.routes.draw do
 
     resources :discipline_teaching_plans, concerns: :history
     resources :knowledge_area_teaching_plans, concerns: :history
+    resources :learning_objectives_and_skills, concerns: :history do
+      collection do
+        get :contents
+      end
+    end
+
+    get '/translations', as: :translations, to: 'translations#form'
+    post '/translations', as: :save_translations, to: 'translations#save'
     resources :discipline_lesson_plans, concerns: :history do
       collection do
         post :clone
+        get :teaching_plan_contents
       end
     end
     resources :knowledge_area_lesson_plans, concerns: :history do
       collection do
         post :clone
+        get :teaching_plan_contents
       end
     end
     resources :discipline_content_records, concerns: :history do
@@ -235,6 +247,7 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do
         get :search
+        get :profile_changed
       end
     end
     resources :daily_note_students, only: [:index] do
@@ -266,7 +279,7 @@ Rails.application.routes.draw do
     resources :daily_frequencies, only: [:new, :create], concerns: :history do
       collection do
         get :edit_multiple
-        put :update_multiple
+        put :create_or_update_multiple
         delete :destroy_multiple
       end
     end
@@ -286,6 +299,8 @@ Rails.application.routes.draw do
         post :create_or_update
       end
     end
+
+    resources :infrequency_trackings, only: :index
 
     resources :student_enrollments, only: [:index]
     resources :student_enrollments_lists, only: [:index] do
