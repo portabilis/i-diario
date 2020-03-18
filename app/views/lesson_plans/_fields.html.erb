@@ -28,7 +28,7 @@
 
         <% contents.each do |content| %>
           <li class="list-group-item manual" style="display: flex;" id="lesson_plan_<%= content.id %>">
-            <%= check_box_tag("discipline_lesson_plan[lesson_plan_attributes][content_ids][]",
+            <%= check_box_tag("#{model.class.model_name.singular}[lesson_plan_attributes][content_ids][]",
                 content.id, content.id.in?(model.contents.collect(&:id)),
                 hidden: true, 'data-content_description': content.to_s ) %>
             <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>

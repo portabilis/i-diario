@@ -11,7 +11,8 @@ class AttendanceRecordReportForm
                 :school_calendar_year,
                 :current_teacher_id,
                 :school_calendar,
-                :second_teacher_signature
+                :second_teacher_signature,
+                :display_knowledge_area_as_discipline
 
   validates :start_at, presence: true, date: true, timeliness: {
     on_or_before: :end_at, type: :date, on_or_before_message: I18n.t('errors.messages.on_or_before_message')

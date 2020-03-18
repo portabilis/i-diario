@@ -8,8 +8,8 @@ class UniqueDailyFrequencyStudentsCreator
   end
 
   def call_worker(entity_id, classroom_id, frequency_date, teacher_id)
-    UniqueDailyFrequencyStudentsCreatorWorker.perform_in(
-      1.second,
+    UniqueDailyFrequencyStudentsCreatorWorker.perform_at(
+      perform_worker_time,
       entity_id,
       classroom_id,
       frequency_date,
@@ -25,8 +25,8 @@ class UniqueDailyFrequencyStudentsCreator
     if daily_frequencies.present?
       daily_frequencies.each do |current_daily_frequency|
         current_daily_frequency.students.each do |student|
-          daily_frequency_students[student.student_id] ||= { present: false }
-          daily_frequency_students[student.student_id][:present] ||= student.present
+          daily_frequency_students[student.student_id] ||= {}
+          daily_frequency_students[student.student_id][:present] = student.present || false
           daily_frequency_students[student.student_id].reverse_merge!(
             classroom_id: classroom_id,
             frequency_date: frequency_date
@@ -41,6 +41,15 @@ class UniqueDailyFrequencyStudentsCreator
   end
 
   private
+
+  # Random time between 19h and 23h
+  # But at least at 1 minute after the current time
+  def perform_worker_time
+    [
+      Date.current + rand(19...24).hours,
+      Time.current + 1.minute
+    ].max
+  end
 
   def create_or_update_unique_daily_frequency_students(daily_frequency_students, teacher_id)
     daily_frequency_students.each do |student_id, frequency_data|
