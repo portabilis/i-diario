@@ -94,7 +94,8 @@ class DailyFrequenciesController < ApplicationController
         )
         daily_frequency_attribute_normalizer.normalize_daily_frequency!
 
-        class_numbers << daily_frequency_students_params[:class_number]
+        class_number = daily_frequency_students_params[:class_number]
+        class_numbers << class_number if class_number.present?
 
         daily_frequency_record = find_or_initialize_daily_frequency_by(daily_frequency_attributes)
         daily_frequency_attribute_normalizer.normalize_daily_frequency_students!(
