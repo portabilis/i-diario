@@ -3,6 +3,10 @@
 <% end %>
 <div class="widget-body no-padding">
   <%= simple_form_for @teacher_report_card_form, url: teacher_report_cards_path, method: :post, html: { class: "smart-form", target: '_blank' } do |f| %>
+    <div class="alert alert-info">
+      <i class="fa fa-exclamation-circle fa-fw"></i>
+      O Boletim do professor somente irá exibir as notas/faltas após concluído o Envio de avaliações/frequências.
+    </div>
     <%= f.error_notification unless @teacher_report_card_form.errors[:base].any? %>
     <div class="alert alert-danger <%= 'hidden' unless @teacher_report_card_form.errors[:base].any? %>">
       <i class="fa fa-exclamation-circle fa-fw"></i>

@@ -2,6 +2,7 @@ class DisciplineLessonPlan < ActiveRecord::Base
   include Audit
   include Filterable
   include TeacherRelationable
+  include Translatable
 
   teacher_relation_columns only: :discipline
 

@@ -8,7 +8,9 @@ RSpec.describe ComplementaryExamCalculator, type: :service do
     )
   }
   let(:step) { classroom.calendar.classroom_steps.first }
-  let(:complementary_exam_setting) { create(:complementary_exam_setting, :with_two_grades) }
+  let(:complementary_exam_setting) do
+    create(:complementary_exam_setting, :with_two_grades, :with_teacher_discipline_classroom)
+  end
   let(:complementary_exam) {
     create(
       :complementary_exam,

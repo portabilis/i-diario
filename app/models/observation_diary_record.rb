@@ -1,8 +1,10 @@
 class ObservationDiaryRecord < ActiveRecord::Base
   include Discardable
   include Audit
+  include ColumnsLockable
   include TeacherRelationable
 
+  not_updatable only: [:classroom_id, :discipline_id]
   teacher_relation_columns only: [:classroom, :discipline]
 
   acts_as_copy_target
@@ -72,6 +74,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
+      self.validation_type = :destroy
       valid?
       !errors[:date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end

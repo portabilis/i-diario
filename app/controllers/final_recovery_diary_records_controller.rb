@@ -3,6 +3,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
     @final_recovery_diary_records = apply_scopes(FinalRecoveryDiaryRecord)
@@ -72,6 +73,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     @final_recovery_diary_record = FinalRecoveryDiaryRecord.find(params[:id]).localized
     @final_recovery_diary_record.assign_attributes(resource_params)
     @final_recovery_diary_record.recovery_diary_record.teacher_id = current_teacher_id
+    @final_recovery_diary_record.recovery_diary_record.current_user = current_user
 
     authorize @final_recovery_diary_record
 

@@ -17,7 +17,7 @@ module Navigation
     end
 
     def render_title(params)
-      I18n.t(params[:type], :scope => :navigation)
+      Translator.t("navigation.#{params[:type]}")
     end
   end
 end

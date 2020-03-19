@@ -1,6 +1,7 @@
 class LessonPlan < ActiveRecord::Base
   include Audit
   include TeacherRelationable
+  include Translatable
 
   teacher_relation_columns only: :classroom
 
@@ -19,7 +20,7 @@ class LessonPlan < ActiveRecord::Base
   has_one :knowledge_area_lesson_plan
 
   has_many :contents_lesson_plans, dependent: :destroy
-  has_many :contents, through: :contents_lesson_plans
+  deferred_has_many :contents, through: :contents_lesson_plans
   has_many :lesson_plan_attachments, dependent: :destroy
 
   accepts_nested_attributes_for :contents, allow_destroy: true

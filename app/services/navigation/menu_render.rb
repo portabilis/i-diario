@@ -34,7 +34,7 @@ module Navigation
 
           li << link_to(menu_path) do
             link = []
-            link_content = I18n.t(menu[:type], :scope => :navigation)
+            link_content = Translator.t("navigation.#{menu[:type]}")
 
             if menu[:icon]
               link << content_tag(:i, "", :class => "fa fa-lg fa-fw #{menu[:icon]}")

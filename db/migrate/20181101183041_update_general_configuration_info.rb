@@ -6,6 +6,6 @@ class UpdateGeneralConfigurationInfo < ActiveRecord::Migration
     general_configuration.support_freshdesk = 'https://portabilis.freshdesk.com'
     general_configuration.support_url = 'http://portabilis.com.br'
 
-    general_configuration.save
+    general_configuration.save(validate: false)
   end
 end

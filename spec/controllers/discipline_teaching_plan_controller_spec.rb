@@ -69,13 +69,9 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
           school_term_type: SchoolTermTypes::BIMESTER,
           school_term: Bimesters::FIRST_BIMESTER,
           teacher_id: current_teacher.id,
-          contents_attributes: {
-            '1': {
-              description: current_teacher_teaching_plan.contents.first.description,
-              id: '',
-              _destroy: false
-            }
-          }
+          content_descriptions: [
+            Faker::Lorem.sentence
+          ]
         }
       }
     }
@@ -85,6 +81,7 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:current_user_is_employee_or_administrator?).and_return(false)
+    allow(controller).to receive(:can_change_school_year?).and_return(true)
     allow(controller).to receive(:current_teacher).and_return(current_teacher)
     allow(controller).to receive(:current_user_unity).and_return(unity)
     allow(controller).to receive(:current_user_school_year).and_return(classroom.year)

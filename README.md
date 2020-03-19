@@ -39,7 +39,7 @@ $ cd i-diario
 - Copiar o exemplo de configurações de banco de dados e configurar:
 
 ```bash
-$  cp config/database.sample.yml config/database.yml
+$ cp config/database.sample.yml config/database.yml
 ```
 
 ### Com Docker
@@ -55,9 +55,16 @@ Por baixo dos panos, será feito:
 
 Pule para o [**Configuração da Aplicação**](#Configuração-da-Aplicação).
 
-### Sem Docker
+### Sem Docker (Testado no Ubuntu 18.04)
 
-- Instalar o Ruby 2.2.6 (Recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
+- Instalar o Ruby 2.3.7 (Recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
+- Instalar Postgres e configurar para fazer coincidir com o configurado em `database.yml`
+- Instalar a biblioteca `libpq-dev`
+
+```bash
+$ sudo apt install libpq-dev
+```
+
 - Instalar a gem Bundler:
 
 ```bash
@@ -108,12 +115,6 @@ $ cp public/404.html.sample public/404.html
 $ cp public/500.html.sample public/500.html
 ```
 
-- Iniciar o servidor:
-
-```bash
-$ bundle exec rails server
-```
-
 ## Configuração da Aplicação
 
 - Criar uma entidade:
@@ -153,7 +154,18 @@ Entity.last.using_connection {
 }
 ```
 
+Iniciar o servidor:
+
+```bash
+$ bundle exec rails server
+```
+
 Para acessar o sistema, use a URL http://localhost:3000
+
+### [PgHero](https://github.com/ankane/pghero)
+
+Usamos o PgHero para monitorar o banco de dados. Recomendamos a leitura da
+documentação.
 
 ## Sincronização com i-Educar
 

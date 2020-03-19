@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe ConceptualExam, type: :model do
+  let(:current_user) { create(:user) }
+
   subject do
     create(
       :conceptual_exam,
@@ -8,6 +10,11 @@ RSpec.describe ConceptualExam, type: :model do
       :with_student_enrollment_classroom,
       :with_one_value
     )
+  end
+
+  before do
+    current_user.current_classroom_id = subject.classroom_id
+    allow(subject).to receive(:current_user).and_return(current_user)
   end
 
   describe 'associations' do

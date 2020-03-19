@@ -9,7 +9,11 @@ class BaseReport
   GAP = 8.freeze
 
   def initialize(page_layout = :portrait)
-    @display_header_on_all_reports_pages = GeneralConfiguration.current.display_header_on_all_reports_pages
+    current_configuration = GeneralConfiguration.current
+    @display_header_on_all_reports_pages = current_configuration.display_header_on_all_reports_pages
+    @display_daily_activies_log = current_configuration.display_daily_activies_log
+    @show_daily_activities_in_knowledge_area_content_record_report =
+      current_configuration.show_daily_activities_in_knowledge_area_content_record_report
 
     @document = Prawn::Document.new(
       page_size: 'A4',

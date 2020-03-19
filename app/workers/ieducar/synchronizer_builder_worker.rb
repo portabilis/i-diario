@@ -6,7 +6,9 @@ class SynchronizerBuilderWorker < BaseSynchronizerWorker
       synchronization = IeducarApiSynchronization.find(params[:synchronization_id])
       years = params[:years] if params[:filtered_by_year]
       years ||= [params[:years].join(',')]
-      unities = params[:unities_api_code] if params[:filtered_by_unity] && synchronization.full_synchronization
+      by_unity = params[:filtered_by_unity] &&
+                 (synchronization.full_synchronization || params[:klass] == SchoolCalendarsSynchronizer.to_s)
+      unities = params[:unities_api_code] if by_unity
       unities ||= [params[:unities_api_code].join(',')]
 
       years.each do |year|

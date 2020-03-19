@@ -2,8 +2,10 @@ class ConceptualExam < ActiveRecord::Base
   include Audit
   include Stepable
   include Discardable
+  include ColumnsLockable
   include TeacherRelationable
 
+  not_updatable only: :classroom_id
   teacher_relation_columns only: :classroom
 
   acts_as_copy_target
@@ -77,7 +79,9 @@ class ConceptualExam < ActiveRecord::Base
     discipline_ids = TeacherDisciplineClassroom.by_classroom(classroom_id)
                                                .by_teacher_id(teacher_id)
                                                .pluck(:discipline_id)
-    incomplete_conceptual_exams_ids = ConceptualExamValue.active.where(value: nil)
+    incomplete_conceptual_exams_ids = ConceptualExamValue.joins(:conceptual_exam).active
+                                                         .where(value: nil)
+                                                         .where(conceptual_exams: { classroom_id: classroom_id })
                                                          .by_discipline_id(discipline_ids)
                                                          .group(:conceptual_exam_id)
                                                          .pluck(:conceptual_exam_id)
@@ -174,7 +178,7 @@ class ConceptualExam < ActiveRecord::Base
 
     discipline_ids = conceptual_exam_values.collect(&:discipline_id)
     conceptual_exam = ConceptualExam.joins(:conceptual_exam_values)
-                                    .by_recorded_at_between(step.start_at, step.end_at)
+                                    .by_step_number(step.step_number)
                                     .where(
                                       student_id: student_id,
                                       classroom_id: classroom_id,

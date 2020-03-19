@@ -3,6 +3,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
     params[:filter] ||= {}
@@ -64,6 +65,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def create
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.new(resource_params).localized
     @knowledge_area_teaching_plan.teaching_plan.teacher = current_teacher
+    @knowledge_area_teaching_plan.teaching_plan.content_ids = content_ids
     @knowledge_area_teaching_plan.teacher_id = current_teacher_id
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
 
@@ -89,6 +91,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def update
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.find(params[:id]).localized
     @knowledge_area_teaching_plan.assign_attributes(resource_params)
+    @knowledge_area_teaching_plan.teaching_plan.content_ids = content_ids
     @knowledge_area_teaching_plan.knowledge_area_ids = resource_params[:knowledge_area_ids].split(',')
     @knowledge_area_teaching_plan.teacher_id = current_teacher_id
     @knowledge_area_teaching_plan.teaching_plan.teacher_id = current_teacher_id
@@ -124,9 +127,17 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
   private
 
+  def content_ids
+    param_content_ids = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:content_ids] || []
+    content_descriptions = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:content_descriptions] || []
+    new_contents_ids = content_descriptions.map{|v| Content.find_or_create_by!(description: v).id }
+    param_content_ids + new_contents_ids
+  end
+
   def resource_params
     params.require(:knowledge_area_teaching_plan).permit(
       :knowledge_area_ids,
+      :experience_fields,
       teaching_plan_attributes: [
         :id,
         :year,
@@ -140,11 +151,6 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
         :evaluation,
         :references,
         :teacher_id,
-        contents_attributes: [
-          :id,
-          :description,
-          :_destroy
-        ],
         teaching_plan_attachments_attributes: [
           :id,
           :attachment,
@@ -159,7 +165,15 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def contents
-    Content.ordered
+    @contents = []
+
+    if @knowledge_area_teaching_plan.teaching_plan.contents
+      contents = @knowledge_area_teaching_plan.teaching_plan.contents_ordered
+      contents.each { |content| content.is_editable = true }
+      @contents << contents
+    end
+
+    @contents.flatten.uniq
   end
   helper_method :contents
 

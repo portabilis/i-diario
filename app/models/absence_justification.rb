@@ -2,8 +2,10 @@ class AbsenceJustification < ActiveRecord::Base
   include Audit
   include Filterable
   include Discardable
+  include ColumnsLockable
   include TeacherRelationable
 
+  not_updatable only: :classroom_id
   teacher_relation_columns only: [:classroom]
 
   acts_as_copy_target
@@ -13,9 +15,10 @@ class AbsenceJustification < ActiveRecord::Base
   before_destroy :valid_for_destruction?
   before_destroy :remove_attachments, if: :valid_for_destruction?
 
-  has_many :absence_justifications_students
+  has_many :absence_justifications_students, dependent: :destroy
   has_many :students, through: :absence_justifications_students
-  deferred_has_and_belongs_to_many :disciplines
+  has_many :absence_justifications_disciplines, dependent: :destroy
+  has_many :disciplines, through: :absence_justifications_disciplines
   belongs_to :unity
   belongs_to :classroom
   belongs_to :school_calendar
@@ -135,6 +138,7 @@ class AbsenceJustification < ActiveRecord::Base
   def valid_for_destruction?
     @valid_for_destruction if defined?(@valid_for_destruction)
     @valid_for_destruction = begin
+      self.validation_type = :destroy
       valid?
       forbidden_error = I18n.t('errors.messages.not_allowed_to_post_in_date')
       !(errors[:absence_date_end].include?(forbidden_error) || errors[:absence_date].include?(forbidden_error))

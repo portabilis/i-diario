@@ -1,0 +1,15 @@
+pt-BR:
+  infrequency_trackings:
+    index:
+      by_unity_id: Filtrar escola
+      by_grade_id: Filtrar série
+      by_classroom_id: Filtrar turma
+      by_student_id: Filtrar aluno
+      by_notification_date: Filtrar data da notificação
+      by_notification_type: Filtrar tipo da notificação
+    notification_data_modal:
+      notification_data: Dados da notificação
+      teacher: 'Professor(a): '
+      absences: 'Faltas: '
+      close: Fechar
+      total_absences: 'Total de faltas: '

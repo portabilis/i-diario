@@ -40,6 +40,12 @@ class StudentsController < ApplicationController
     end
   end
 
+  def select2_remote
+    students = StudentDecorator.data_for_select2_remote(params[:description])
+
+    render json: students
+  end
+
   def search_api
     begin
       api = IeducarApi::Students.new(configuration.to_api)

@@ -16,6 +16,8 @@ class IeducarExamPostingWorker
       )
       posting.finish!
     end
+
+    Honeybadger.notify(exception)
   end
 
   def perform(entity_id, posting_id, queue = 'exam_posting_send')
@@ -25,7 +27,7 @@ class IeducarExamPostingWorker
       posting = IeducarApiExamPosting.find(posting_id)
 
       case posting.post_type
-      when ApiPostingTypes::NUMERICAL_EXAM
+      when ApiPostingTypes::NUMERICAL_EXAM, ApiPostingTypes::SCHOOL_TERM_RECOVERY
         ExamPoster::NumericalExamPoster.post!(posting, entity_id, queue)
       when ApiPostingTypes::CONCEPTUAL_EXAM
         ExamPoster::ConceptualExamPoster.post!(posting, entity_id, queue)
@@ -35,8 +37,6 @@ class IeducarExamPostingWorker
         ExamPoster::AbsencePoster.post!(posting, entity_id, queue)
       when ApiPostingTypes::FINAL_RECOVERY
         ExamPoster::FinalRecoveryPoster.post!(posting, entity_id, queue)
-      when ApiPostingTypes::SCHOOL_TERM_RECOVERY
-        ExamPoster::SchoolTermRecoveryPoster.post!(posting, entity_id, queue)
       end
     end
   end

@@ -3,7 +3,7 @@ class TeacherRelationFetcher
     @teacher_id = params[:teacher_id]
     @discipline_id = params[:discipline_id]
     @classroom = params[:classroom]
-    @grade_id = params[:grade]
+    @grade_ids = params[:grades]
     @knowledge_areas = params[:knowledge_areas]
   end
 
@@ -21,8 +21,10 @@ class TeacherRelationFetcher
                                  .exists?
   end
 
-  def exists_grade_in_relation?
-    teacher_discipline_classrooms.by_grade_id(@grade_id).exists?
+  def exists_all_grades_in_relation?
+    found_grade_ids = teacher_discipline_classrooms.by_grade_id(@grade_ids).pluck(:grade_id)
+
+    (@grade_ids & found_grade_ids) == @grade_ids
   end
 
   def exists_all_knowledge_areas_in_relation?

@@ -25,14 +25,17 @@ class User < ActiveRecord::Base
   belongs_to :student
   belongs_to :teacher
   belongs_to :current_user_role, class_name: 'UserRole'
+  belongs_to :classroom, foreign_key: :current_classroom_id
+  belongs_to :discipline, foreign_key: :current_discipline_id
+  belongs_to :unity, foreign_key: :current_unity_id
 
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
 
   has_many :system_notification_targets, dependent: :destroy
   has_many :system_notifications, -> { includes(:source) }, through: :system_notification_targets, source: :system_notification
-  has_many :unread_notifications, -> { joins(:targets).where(system_notification_targets: { read: false}) },
-    through: :system_notification_targets, source: :system_notification
+  has_many :unread_notifications, -> { where(system_notification_targets: { read: false }) },
+           through: :system_notification_targets, source: :system_notification
 
   has_many :ieducar_api_exam_postings, class_name: "IeducarApiExamPosting", foreign_key: :author_id, dependent: :restrict_with_error
 
@@ -62,6 +65,7 @@ class User < ActiveRecord::Base
   scope :admin, -> { where(arel_table[:admin].eq(true)) }
   scope :by_unity_id, lambda { |unity_id| joins(:user_roles).where(user_roles: { unity_id: unity_id }) }
   scope :by_current_unity_id, lambda { |unity_id| where(current_unity_id: unity_id) }
+  scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
   scope :full_name, lambda { |full_name| where("unaccent(first_name || ' ' || last_name) ILIKE unaccent(?)", "%#{full_name}%")}
@@ -236,6 +240,11 @@ class User < ActiveRecord::Base
     end
   end
 
+  def has_administrator_access_level?
+    @has_administrator_access_level ||= roles.map(&:access_level).uniq.any? { |access_level|
+      access_level == AccessLevel::ADMINISTRATOR
+    }
+  end
 
   def can_receive_news_related_daily_teacher?
     roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "teacher"].include? access_level}

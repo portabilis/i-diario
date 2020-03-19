@@ -5,7 +5,13 @@ class AvaliationsController < ApplicationController
   respond_to :html, :js, :json
 
   before_action :require_current_teacher, except: [:search]
-  before_action :set_number_of_classes, only: [:new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms]
+  before_action :require_current_clasroom
+  before_action :set_number_of_classes, only: [
+    :new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms
+  ]
+  before_action :require_allow_to_modify_prev_years, only: [
+    :create, :update, :destroy, :create_multiple_classrooms
+  ]
 
   def index
     current_user_unity_id = current_user_unity.id if current_user_unity
@@ -108,6 +114,7 @@ class AvaliationsController < ApplicationController
     @avaliation = resource
     @avaliation.localized.assign_attributes(resource_params)
     @avaliation.teacher_id = current_teacher_id
+    @avaliation.current_user = current_user
 
     authorize @avaliation
 

@@ -1,5 +1,19 @@
 synchronizers:
   -
+    klass: SchoolCalendarsSynchronizer
+    by_year: false
+    by_unity: true
+    dependents: [
+      DefaultSynchronizer
+    ]
+  -
+    klass: DefaultSynchronizer
+    by_year: false
+    by_unity: false
+    dependencies: [
+      SchoolCalendarsSynchronizer
+    ]
+  -
     klass: UnityParamsSynchronizer
     by_year: false
     by_unity: false
@@ -106,7 +120,8 @@ synchronizers:
       SpecificStepsSynchronizer,
       TeacherDisciplineClassroomsSynchronizer,
       StudentEnrollmentClassroomSynchronizer,
-      GradeExamRulesSynchronizer
+      GradeExamRulesSynchronizer,
+      SchoolCalendarClassroomsSynchronizer
     ]
     dependencies: [
       GradesSynchronizer
@@ -173,4 +188,11 @@ synchronizers:
     by_unity: true
     dependencies: [
       StudentsSynchronizer
+    ]
+  -
+    klass: SchoolCalendarClassroomsSynchronizer
+    by_year: true
+    by_unity: true
+    dependencies: [
+      ClassroomsSynchronizer
     ]

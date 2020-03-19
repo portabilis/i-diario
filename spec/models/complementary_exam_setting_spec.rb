@@ -1,7 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe ComplementaryExamSetting, type: :model do
-  let(:complementary_exam_setting_with_two_grades) { create(:complementary_exam_setting, :with_two_grades) }
+  subject(:complementary_exam_setting) { create(:complementary_exam_setting, :with_two_grades, :with_teacher_discipline_classroom) }
+  let(:complementary_exam_setting_with_two_grades) {
+    create(:complementary_exam_setting, :with_two_grades, :with_teacher_discipline_classroom)
+  }
   let(:classroom) {
     create(
       :classroom,
@@ -70,6 +73,7 @@ RSpec.describe ComplementaryExamSetting, type: :model do
             create(
               :complementary_exam_setting,
               :with_two_grades,
+              :with_teacher_discipline_classroom,
               calculation_type: CalculationTypes::SUBSTITUTION
             )
           }

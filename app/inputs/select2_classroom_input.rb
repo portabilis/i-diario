@@ -5,7 +5,11 @@ class Select2ClassroomInput < Select2Input
 
     if options[:user].current_classroom.present?
       input_html_options[:readonly] = 'readonly'
-      input_html_options[:value] = options[:user].current_classroom.id
+      input_html_options[:value] = if options[:record]&.persisted?
+                                     options[:record].classroom_id
+                                   else
+                                     options[:user].current_classroom.id
+                                   end
     end
 
     super(wrapper_options)
@@ -16,7 +20,9 @@ class Select2ClassroomInput < Select2Input
 
     classrooms = []
 
-    if user.current_classroom.present?
+    if options[:record]&.persisted?
+      classrooms = [options[:record].classroom]
+    elsif user.current_classroom.present?
       classrooms = [ user.current_classroom ]
     elsif user.current_teacher.present?
       classrooms = user.current_teacher.classrooms

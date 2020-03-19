@@ -3,6 +3,7 @@ class DisciplineContentRecordsController < ApplicationController
   has_scope :per, default: 10
 
   before_action :require_current_teacher
+  before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
     params[:filter] ||= {}
@@ -63,6 +64,8 @@ class DisciplineContentRecordsController < ApplicationController
     @discipline_content_record.assign_attributes(resource_params)
     @discipline_content_record.content_record.content_ids = content_ids
     @discipline_content_record.teacher_id = current_teacher_id
+    @discipline_content_record.content_record.current_user = current_user
+    @discipline_content_record.current_user = current_user
 
     authorize @discipline_content_record
 

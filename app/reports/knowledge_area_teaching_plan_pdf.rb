@@ -27,7 +27,7 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
 
   def header
     header_cell = make_cell(
-      content: 'Planos de ensino por área de conhecimento',
+      content: Translator.t('navigation.knowledge_area_teaching_plans'),
       size: 12,
       font_style: :bold,
       background_color: 'DEDEDE',
@@ -95,7 +95,7 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     )
 
     @class_plan_header_cell = make_cell(
-      content: 'Plano de ensino',
+      content: Translator.t('navigation.teaching_plans_menu'),
       size: 12,
       font_style: :bold,
       background_color: 'DEDEDE',
@@ -170,13 +170,15 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     end
 
     objectives = teaching_plan.objectives || '-'
-    content = teaching_plan.present? ? teaching_plan.contents_ordered.map(&:to_s).join(', ') : '-'
+    content = teaching_plan.present? ? teaching_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
     methodology = teaching_plan.methodology || '-'
     evaluation = teaching_plan.evaluation || '-'
     references = teaching_plan.references || '-'
 
-    text_box_truncate('Objetivos', objectives)
-    text_box_truncate('Conteúdos', content)
+    objectives_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.objectives')
+    contents_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.contents')
+    text_box_truncate(objectives_label, objectives)
+    text_box_truncate(contents_label, content)
     text_box_truncate('Metodologia', methodology)
     text_box_truncate('Avaliação', evaluation)
     text_box_truncate('Referências', references)

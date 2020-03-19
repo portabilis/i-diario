@@ -13,7 +13,10 @@
             <td>
               <%= f.input :by_author, as: :select2_plans, label: false %>
             </td>
-            <td><%= link_to t('.new_html'), new_discipline_content_record_path, class: 'btn btn-primary pull-right' %></td>
+            <td>
+              <%= link_to t('.new_html'), new_discipline_content_record_path,
+                class: 'btn btn-primary pull-right', style: 'width: 120px;' %>
+            </td>
           </tr>
 
           <tr>
@@ -28,14 +31,8 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="5">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @discipline_content_records %>
-            </div>
-
-            <div class="pull-right">
-              <%= paginate @discipline_content_records %>
-            </div>
+          <td id="pagination-tfoot" colspan="5">
+            <%= render 'shared/pagination', records: @discipline_content_records %>
           </td>
         </tfoot>
       </table>
