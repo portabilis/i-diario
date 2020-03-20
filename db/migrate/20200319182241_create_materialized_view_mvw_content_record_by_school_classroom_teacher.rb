@@ -8,7 +8,8 @@ class CreateMaterializedViewMvwContentRecordBySchoolClassroomTeacher < ActiveRec
              classrooms.id AS classroom_id,
              classrooms.description AS classroom,
              teachers.id AS teacher_id,
-             teachers.name AS teacher
+             teachers.name AS teacher,
+             now() AS last_refresh
         FROM content_records
         JOIN classrooms
           ON classrooms.id = content_records.classroom_id

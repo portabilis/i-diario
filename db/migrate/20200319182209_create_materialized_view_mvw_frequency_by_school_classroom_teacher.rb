@@ -8,7 +8,8 @@ class CreateMaterializedViewMvwFrequencyBySchoolClassroomTeacher < ActiveRecord:
              classrooms.id AS classroom_id,
              classrooms.description AS classroom,
              teachers.id AS teacher_id,
-             teachers.name AS teacher
+             teachers.name AS teacher,
+             now() AS last_refresh
         FROM daily_frequencies
         JOIN classrooms
           ON classrooms.id = daily_frequencies.classroom_id
