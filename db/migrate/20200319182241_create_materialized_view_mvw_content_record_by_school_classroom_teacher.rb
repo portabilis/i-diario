@@ -1,7 +1,7 @@
 class CreateMaterializedViewMvwContentRecordBySchoolClassroomTeacher < ActiveRecord::Migration
   def change
     execute <<-SQL
-      CREATE MATERIALIZED VIEW mvw_content_record_by_school_classroom_teacher AS
+      CREATE MATERIALIZED VIEW mvw_content_record_by_school_classroom_teachers AS
       SELECT content_records.record_date AS record_date,
              unities.id AS unity_id,
              unities.name AS unity,

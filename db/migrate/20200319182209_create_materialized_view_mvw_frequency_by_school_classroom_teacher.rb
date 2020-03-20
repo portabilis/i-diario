@@ -1,7 +1,7 @@
 class CreateMaterializedViewMvwFrequencyBySchoolClassroomTeacher < ActiveRecord::Migration
   def change
     execute <<-SQL
-      CREATE MATERIALIZED VIEW mvw_frequency_by_school_classroom_teacher AS
+      CREATE MATERIALIZED VIEW mvw_frequency_by_school_classroom_teachers AS
       SELECT daily_frequencies.frequency_date AS frequency_date,
              unities.id AS unity_id,
              unities.name AS unity,
