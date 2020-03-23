@@ -195,6 +195,7 @@ Rails.application.routes.draw do
       end
     end
 
+    get '/pedagogical_tracking', as: :pedagogical_tracking, to: 'pedagogical_tracking#index'
     get '/translations', as: :translations, to: 'translations#form'
     post '/translations', as: :save_translations, to: 'translations#save'
     resources :discipline_lesson_plans, concerns: :history do

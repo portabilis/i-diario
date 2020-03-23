@@ -72,6 +72,7 @@ pt-BR:
     learning_objectives_and_skills: 'objetivos-de-aprendizagem-e-habilidades'
     translations: 'dicionario-de-termos-bncc'
     infrequency_trackings: 'acompanhamento-de-infrequencias'
+    pedagogical_tracking: 'acompanhamento-pedagogico'
 
     # actions
     edit: 'editar'

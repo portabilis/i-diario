@@ -1,0 +1,6 @@
+pt-BR:
+  pedagogical_tracking:
+    index:
+      filter_unities: 'Filtrar escola'
+      from: 'Desde'
+      to: 'Até'
