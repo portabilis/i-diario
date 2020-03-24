@@ -1,6 +1,8 @@
 pt-BR:
   pedagogical_tracking:
     index:
-      filter_unities: 'Filtrar escola'
+      filter_unities: 'Escola'
+      filter_frequency: 'Frequência'
+      filter_content_record: 'Registro de conteúdos'
       from: 'Desde'
       to: 'Até'

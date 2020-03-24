@@ -1,0 +1,42 @@
+<div class="widget-body" style="border: 1px solid;padding: 10px;margin-bottom: 15px;">
+  <%= simple_form_for :search, { url: 'pedagogical_tracking_path', method: :get, html: { class: '' } } do |f| %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+        <thead>
+          <tr>
+            <td>
+              <%= f.input :partial_unity_id, as: :select2, elements: unities, label: false, placeholder: t('pedagogical_tracking.index.filter_unities') %>
+            </td>
+            <td>
+              <%= f.input :frequency_operator, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_frequency') %>
+            </td>
+            <td>
+              <%= f.input :content_record_operator, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_content_record') %>
+            </td>
+            <td>
+            </td>
+          </tr>
+        </thead>
+        <tbody id="resources-tbody">
+        <% if @schools_percents.empty? %>
+          <tr>
+            <td class="no_record_found" colspan="4"> <%= t('views.index.no_record_found')%></td>
+          </tr>
+        <% else %>
+          <% @schools_percents.each do |record| %>
+            <tr>
+              <td><%= record.unity_name %></td>
+              <td><%= record.frequency_percentage %></td>
+              <td><%= record.content_record_percentage %></td>
+              <td class="actions">
+                <%= link_to 'Açao', '/',
+                  class: "btn btn-info" %>
+              </td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

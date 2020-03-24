@@ -4,13 +4,23 @@ class PedagogicalTrackingController < ApplicationController
     @updated_at = last_refresh.to_date.strftime('%d/%m/%Y')
     @updated_at_hour = last_refresh.hour
 
-    school_days_by_unity(current_user_school_year)
+    @schools_percents = []
 
-    @school_days = @school_days_by_unity.values.max
+    fetch_all_school_days_by_unity
+
+    @school_days = @all_school_days_by_unity.values.max
 
     @done_frequencies_percentage = total_frequency_done_percentage
 
     @done_content_records_percentage = total_content_record_done_percentage
+
+    @all_school_days_by_unity.each { |unity_id, school_days|
+      @schools_percents << OpenStruct.new(
+        unity_name: Unity.find(unity_id).name,
+        frequency_percentage: school_frequency_done_percentage(unity_id, school_days),
+        content_record_percentage: school_content_record_done_percentage(unity_id, school_days)
+      )
+    }
   end
 
   private
@@ -21,43 +31,20 @@ class PedagogicalTrackingController < ApplicationController
   helper_method :unities
 
   def unities_total
-    @unities_total ||= @school_days_by_unity.size
+    @unities_total ||= @all_school_days_by_unity.size
   end
 
-  def school_days_by_unity(year)
-    @school_days_by_unity = Rails.cache.fetch('school_days_by_unity', expires_in: 1.year) {
-      school_days_by_unity = {}
-
-      unities.each do |unity|
-        school_calendar = SchoolCalendar.by_year(year).by_unity_id(unity.id).first
-
-        next if school_calendar.blank?
-
-        start_date = school_calendar.steps.min_by(&:step_number).start_at
-        end_date = school_calendar.steps.max_by(&:step_number).end_at
-
-        school_days = SchoolDayChecker.new(
-          school_calendar,
-          start_date,
-          nil,
-          nil,
-          nil
-        ).school_dates_between(
-          start_date,
-          end_date
-        ).size
-
-        school_days_by_unity[unity.id] = school_days
-      end
-
-      school_days_by_unity
-    }
+  def fetch_all_school_days_by_unity
+    @all_school_days_by_unity = SchoolDaysCounterService.new(
+      unities: unities,
+      year: current_user_school_year
+    ).all_school_days
   end
 
   def total_frequency_done_percentage
     percentage_sum = 0
 
-    @school_days_by_unity.each do |unity_id, school_days|
+    @all_school_days_by_unity.each do |unity_id, school_days|
       percentage_sum += school_frequency_done_percentage(unity_id, school_days)
     end
 
@@ -67,7 +54,7 @@ class PedagogicalTrackingController < ApplicationController
   def total_content_record_done_percentage
     percentage_sum = 0
 
-    @school_days_by_unity.each do |unity_id, school_days|
+    @all_school_days_by_unity.each do |unity_id, school_days|
       percentage_sum += school_content_record_done_percentage(unity_id, school_days)
     end
 
