@@ -31,19 +31,26 @@ class DailyFrequencyAttributesNormalizer
     class_number_attribute
   end
 
-  def any_daily_frequency_student_not_persisted?(daily_frequency_students_params)
-    daily_frequency_students_params[:students_attributes].any? { |_, attribute| attribute['id'].blank? }
+  def get_not_persisted_daily_frequency_students(daily_frequency_students_params)
+    daily_frequency_students_params[:students_attributes].select { |_, attribute| attribute['id'].blank? }
   end
 
   def update_daily_frequency_students_params(daily_frequency_record, daily_frequency_students_params)
     return if daily_frequency_record.new_record?
-    return unless any_daily_frequency_student_not_persisted?(daily_frequency_students_params)
+
+    not_persisted_daily_frequency_students =
+      get_not_persisted_daily_frequency_students(daily_frequency_students_params)
+
+    return if not_persisted_daily_frequency_students.blank?
 
     persisted_daily_frequency_students = daily_frequency_record.students
 
-    daily_frequency_students_params[:students_attributes].each_value do |value|
+    not_persisted_daily_frequency_students.each_value do |value|
       persisted_daily_frequency_student =
         persisted_daily_frequency_students.find { |freq| freq.student_id.to_s == value['student_id'] }
+
+      persisted_daily_frequency_student || next
+
       value.merge!(
         'id' => persisted_daily_frequency_student.id,
         'daily_frequency_id' => persisted_daily_frequency_student.daily_frequency_id
