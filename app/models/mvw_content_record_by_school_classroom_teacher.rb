@@ -6,5 +6,6 @@ class MvwContentRecordBySchoolClassroomTeacher < ActiveRecord::Base
   scope :by_year, ->(year) { where("EXTRACT(year FROM record_date) = #{year}") }
   scope :by_unity_id, ->(unity_id) { where(unity_id: unity_id) }
   scope :by_teacher_id, ->(teacher_id) { where(teacher_id: teacher_id) }
+  scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
   scope :by_date_between, ->(start_date, end_date) { where(record_date: (start_date..end_date)) }
 end

@@ -19,8 +19,8 @@
   <% end %>
 </div>
 <div class="row" style=" margin-bottom: 20px;">
-  <%= hidden_field_tag 'done_frequencies_percentage', @done_frequencies_percentage.round(2) %>
-  <%= hidden_field_tag 'done_content_records_percentage', @done_content_records_percentage.round(2) %>
+  <%= hidden_field_tag 'done_frequencies_percentage', @school_frequency_done_percentage.round(2) %>
+  <%= hidden_field_tag 'done_content_records_percentage', @school_content_record_done_percentage.round(2) %>
   <div class="col col-sm-4">
     <fieldset>
       <legend>Frequencias</legend>
@@ -38,40 +38,4 @@
   </div>
 </div>
 
-<div class="widget-body" style="border: 1px solid;border-color: #CCC;padding: 10px;margin-bottom: 15px;">
-  <%= simple_form_for :search, { url: 'pedagogical_tracking_path', method: :get, html: { class: 'filterable_search_form' } } do |f| %>
-    <div class="table-responsive">
-      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
-        <thead>
-          <tr>
-            <td>
-              <%= f.input :partial_unity_id, as: :select2, elements: all_unities, label: false, placeholder: t('pedagogical_tracking.index.filter_unities') %>
-            </td>
-            <td>
-              <%= f.input :frequency_operator, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_frequency') %>
-            </td>
-            <td>
-              <%= f.input :content_record_operator, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_content_record') %>
-            </td>
-            <td style="text-align: center;">
-              <span>Açao</span>
-            </td>
-          </tr>
-        </thead>
-
-        <%= render 'resources' %>
-
-        <tfoot id="paginator" class="remote">
-          <td colspan="4">
-            <div id="page_entries_info" class="pull-left hidden-xs">
-              <%= page_entries_info @schools_percents %>
-            </div>
-            <div class="pull-right">
-              <%= paginate @schools_percents %>
-            </div>
-          </td>
-        </tfoot>
-      </table>
-    </div>
-  <% end %>
-</div>
+  <%= render @partial.to_s %>

@@ -20,13 +20,19 @@ class PedagogicalTrackingController < ApplicationController
                                           school_days_by_unity[:school_days]
                                         }[:school_days]
 
-    @done_frequencies_percentage = frequency_done_percentage
+    @school_frequency_done_percentage = school_frequency_done_percentage
 
-    @done_content_records_percentage = content_record_done_percentage
+    @school_content_record_done_percentage = school_content_record_done_percentage
 
-    @schools_percents = Kaminari.paginate_array(
-      schools_percents(@school_days_by_unity)
-    ).page(params[:page]).per(10)
+    @partial = :schools
+
+    @percents = if unity_id
+                  @partial = :classrooms
+
+                  paginate([])
+                else
+                  paginate(filter(percents, params.dig(:filter)))
+                end
   end
 
   private
@@ -55,11 +61,11 @@ class PedagogicalTrackingController < ApplicationController
     ).school_days
   end
 
-  def frequency_done_percentage
+  def school_frequency_done_percentage
     percentage_sum = 0
 
     @school_days_by_unity.each do |unity_id, school_days|
-      percentage_sum += school_frequency_done_percentage(
+      percentage_sum += frequency_done_percentage(
         unity_id,
         school_days[:start_date],
         school_days[:end_date],
@@ -72,11 +78,11 @@ class PedagogicalTrackingController < ApplicationController
     percentage_sum.to_f / unities_total
   end
 
-  def content_record_done_percentage
+  def school_content_record_done_percentage
     percentage_sum = 0
 
     @school_days_by_unity.each do |unity_id, school_days|
-      percentage_sum += school_content_record_done_percentage(
+      percentage_sum += content_record_done_percentage(
         unity_id,
         school_days[:start_date],
         school_days[:end_date],
@@ -89,7 +95,7 @@ class PedagogicalTrackingController < ApplicationController
     percentage_sum.to_f / unities_total
   end
 
-  def school_frequency_done_percentage(unity_id, start_date, end_date, school_days)
+  def frequency_done_percentage(unity_id, start_date, end_date, school_days)
     done_frequencies = MvwFrequencyBySchoolClassroomTeacher.by_year(current_user_school_year)
                                                            .by_unity_id(unity_id)
                                                            .by_date_between(start_date, end_date)
@@ -99,7 +105,7 @@ class PedagogicalTrackingController < ApplicationController
     (done_frequencies * 100).to_f / school_days
   end
 
-  def school_content_record_done_percentage(unity_id, start_date, end_date, school_days)
+  def content_record_done_percentage(unity_id, start_date, end_date, school_days)
     done_content_records = MvwContentRecordBySchoolClassroomTeacher.by_year(current_user_school_year)
                                                                    .by_unity_id(unity_id)
                                                                    .by_date_between(start_date, end_date)
@@ -108,31 +114,47 @@ class PedagogicalTrackingController < ApplicationController
     (done_content_records * 100).to_f / school_days
   end
 
-  def schools_percents(school_days_by_unity)
-    schools_percents = []
+  def percents
+    percents = []
 
-    school_days_by_unity.each { |unity_id, school_days|
+    @school_days_by_unity.each { |unity_id, school_days|
       unity = Unity.find(unity_id)
-      frequency_percentage = school_frequency_done_percentage(
+      frequency_percentage = frequency_done_percentage(
         unity_id,
         school_days[:start_date],
         school_days[:end_date],
         school_days[:school_days]
       )
-      content_record_percentage = school_content_record_done_percentage(
+      content_record_percentage = content_record_done_percentage(
         unity_id,
         school_days[:start_date],
         school_days[:end_date],
         school_days[:school_days]
       )
 
-      schools_percents << OpenStruct.new(
+      percents << OpenStruct.new(
         unity: unity,
         frequency_percentage: frequency_percentage,
         content_record_percentage: content_record_percentage
       )
     }
 
-    schools_percents
+    percents
+  end
+
+  def filter(percents, params)
+    return percents if params.blank?
+
+    if (unity_id = params.dig(:partial_unity_id).presence)
+      percents = percents.select { |school_percent|
+        school_percent.unity.id == unity_id.to_i
+      }
+    end
+
+    percents
+  end
+
+  def paginate(array)
+    Kaminari.paginate_array(array).page(params[:page]).per(10)
   end
 end

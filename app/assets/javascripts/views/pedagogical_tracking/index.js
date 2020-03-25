@@ -49,10 +49,10 @@ var end_date = url.searchParams.get("search[end_date]");
 if (unity_id && unity_id != 'empty') {
   $('#search_unity_id').val(unity_id);
 
-  $('#search_partial_unity_id').val(unity_id);
-  $('#search_partial_unity_id').attr('readonly','readonly');
-  $('#search_frequency_operator').attr('readonly','readonly');
-  $('#search_content_record_operator').attr('readonly','readonly');
+  $('#filter_partial_unity_id').val(unity_id);
+  $('#filter_partial_unity_id').attr('readonly','readonly');
+  $('#filter_frequency_operator').attr('readonly','readonly');
+  $('#filter_content_record_operator').attr('readonly','readonly');
 }
 
 if (start_date) {

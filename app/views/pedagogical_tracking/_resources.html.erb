@@ -1,10 +1,10 @@
 <tbody id="resources-tbody">
-<% if @schools_percents.empty? %>
+<% if @percents.empty? %>
   <tr>
     <td class="no_record_found" colspan="4"> <%= t('views.index.no_record_found')%></td>
   </tr>
 <% else %>
-  <% @schools_percents.each do |record| %>
+  <% @percents.each do |record| %>
     <tr>
       <td><%= record.unity.name %></td>
       <td>
