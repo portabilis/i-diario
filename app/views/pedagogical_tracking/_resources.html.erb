@@ -1,0 +1,35 @@
+<tbody id="resources-tbody">
+<% if @schools_percents.empty? %>
+  <tr>
+    <td class="no_record_found" colspan="4"> <%= t('views.index.no_record_found')%></td>
+  </tr>
+<% else %>
+  <% @schools_percents.each do |record| %>
+    <tr>
+      <td><%= record.unity.name %></td>
+      <td>
+        <%= record.frequency_percentage.round(2) %>%
+        <div class="frequency_percentage_total">
+          <div id="<%= record.unity.id %>_frequency_percentage_done"
+                class="frequency_percentage_done"
+                style="width: <%= record.frequency_percentage.round(2)%>%">
+          </div>
+        </div>
+      </td>
+      <td>
+        <%= record.content_record_percentage.round(2) %>%
+        <div class="content_record_percentage_total">
+          <div id="<%= record.unity.id %>_content_record_percentage_done"
+                class="content_record_percentage_done"
+                style="width: <%= record.content_record_percentage.round(2)%>%">
+          </div>
+        </div>
+      </td>
+      <td class="actions">
+        <%= link_to 'Detalhes', pedagogical_tracking_path('search[unity_id]': record.unity.id),
+          class: "btn btn-info" %>
+      </td>
+    </tr>
+  <% end %>
+<% end %>
+</tbody>

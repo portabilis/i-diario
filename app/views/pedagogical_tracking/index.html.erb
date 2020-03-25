@@ -3,34 +3,34 @@
 <% end %>
 
 <div class="row">
-<%= simple_form_for :search, { url: pedagogical_tracking_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
-  <%= hidden_field_tag 'done_frequencies_percentage', @done_frequencies_percentage %>
-  <%= hidden_field_tag 'done_content_records_percentage', @done_content_records_percentage %>
+  <%= simple_form_for :search, { url: pedagogical_tracking_path, method: :get, html: { class: 'filter_tracking_search_form' } } do |f| %>
   <div class="col col-sm-3">
-    <%= f.input :unity_id, as: :select2, elements: unities, label: false, placeholder: t('.filter_unities') %>
+    <%= f.input :unity_id, as: :select2, elements: all_unities, label: false, placeholder: t('.filter_unities') %>
   </div>
   <div class="col col-sm-3">
-    <%= f.input :from_date, as: :date, label: false, placeholder: t('.from') %>
+    <%= f.input :start_date, as: :date, label: false, placeholder: t('.from') %>
   </div>
   <div class="col col-sm-3">
-    <%= f.input :to_date, as: :date, label: false, placeholder: t('.to') %>
+    <%= f.input :end_date, as: :date, label: false, placeholder: t('.to') %>
   </div>
-  <div class="col col-sm-3">
-    <%= @school_days %> dias letivos
+  <div class="col col-sm-3" style="padding-top: 12px;">
+    <span><%= @school_days %> dias letivos</span>
   </div>
   <% end %>
 </div>
 <div class="row" style=" margin-bottom: 20px;">
+  <%= hidden_field_tag 'done_frequencies_percentage', @done_frequencies_percentage.round(2) %>
+  <%= hidden_field_tag 'done_content_records_percentage', @done_content_records_percentage.round(2) %>
   <div class="col col-sm-4">
     <fieldset>
       <legend>Frequencias</legend>
-      <canvas id="frequency_chart" width="200" height="200" style="border: 1px solid;"></canvas>
+      <canvas id="frequency_chart" width="200" height="200" style="border: 1px solid;border-color: #CCC;"></canvas>
     </fieldset>
   </div>
   <div class="col col-sm-4">
     <fieldset>
       <legend>Registros de conteudo</legend>
-      <canvas id="content_record_chart" width="200" height="200" style="border: 1px solid;"></canvas>
+      <canvas id="content_record_chart" width="200" height="200" style="border: 1px solid;border-color: #CCC;"></canvas>
       </fieldset>
   </div>
   <div class="col col-sm-4">
@@ -38,4 +38,40 @@
   </div>
 </div>
 
-<%= render 'schools' %>
+<div class="widget-body" style="border: 1px solid;border-color: #CCC;padding: 10px;margin-bottom: 15px;">
+  <%= simple_form_for :search, { url: 'pedagogical_tracking_path', method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+        <thead>
+          <tr>
+            <td>
+              <%= f.input :partial_unity_id, as: :select2, elements: all_unities, label: false, placeholder: t('pedagogical_tracking.index.filter_unities') %>
+            </td>
+            <td>
+              <%= f.input :frequency_operator, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_frequency') %>
+            </td>
+            <td>
+              <%= f.input :content_record_operator, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_content_record') %>
+            </td>
+            <td style="text-align: center;">
+              <span>Açao</span>
+            </td>
+          </tr>
+        </thead>
+
+        <%= render 'resources' %>
+
+        <tfoot id="paginator" class="remote">
+          <td colspan="4">
+            <div id="page_entries_info" class="pull-left hidden-xs">
+              <%= page_entries_info @schools_percents %>
+            </div>
+            <div class="pull-right">
+              <%= paginate @schools_percents %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>
