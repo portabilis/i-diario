@@ -42,8 +42,8 @@ class SchoolDaysCounterService
 
     return if school_calendar.blank?
 
-    start_date ||= school_calendar.steps.min_by(&:step_number).start_at
-    end_date ||= school_calendar.steps.max_by(&:step_number).end_at
+    start_date = start_date.presence || school_calendar.steps.min_by(&:step_number).start_at
+    end_date = end_date.presence || school_calendar.steps.max_by(&:step_number).end_at
 
     school_days = SchoolDayChecker.new(
       school_calendar,

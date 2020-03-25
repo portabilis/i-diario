@@ -4,11 +4,11 @@ class PedagogicalTrackingController < ApplicationController
     @updated_at = last_refresh.to_date.strftime('%d/%m/%Y')
     @updated_at_hour = last_refresh.hour
 
-    unity_id = params.dig(:search, :unity_id).presence
+    unity_id = params.dig(:search, :unity_id).presence || params.dig(:unity_id)
     unity_id = nil if unity_id == 'empty'
 
-    start_date = params.dig(:search, :start_date).presence
-    end_date = params.dig(:search, :end_date).presence
+    start_date = params.dig(:search, :start_date).presence || params.dig(:start_date)
+    end_date = params.dig(:search, :end_date).presence || params.dig(:end_date)
 
     start_date = Date.strptime(start_date, '%d/%m/%Y') if start_date.present?
     end_date = Date.strptime(end_date, '%d/%m/%Y') if end_date.present?
@@ -28,8 +28,9 @@ class PedagogicalTrackingController < ApplicationController
 
     @percents = if unity_id
                   @partial = :classrooms
+                  @classrooms = Classroom.where(unity_id: unity_id, year: current_user_school_year).ordered
 
-                  paginate([])
+                  paginate(filter(percents(@classrooms.pluck(:id)), params.dig(:filter)))
                 else
                   paginate(filter(percents, params.dig(:filter)))
                 end
@@ -95,51 +96,87 @@ class PedagogicalTrackingController < ApplicationController
     percentage_sum.to_f / unities_total
   end
 
-  def frequency_done_percentage(unity_id, start_date, end_date, school_days)
+  def frequency_done_percentage(unity_id, start_date, end_date, school_days, classroom_id = nil)
     done_frequencies = MvwFrequencyBySchoolClassroomTeacher.by_year(current_user_school_year)
                                                            .by_unity_id(unity_id)
                                                            .by_date_between(start_date, end_date)
-                                                           .group_by(&:frequency_date)
-                                                           .size
+    done_frequencies = done_frequencies.by_classroom_id(classroom_id) if classroom_id
+
+    done_frequencies = done_frequencies.group_by(&:frequency_date).size
 
     (done_frequencies * 100).to_f / school_days
   end
 
-  def content_record_done_percentage(unity_id, start_date, end_date, school_days)
+  def content_record_done_percentage(unity_id, start_date, end_date, school_days, classroom_id = nil)
     done_content_records = MvwContentRecordBySchoolClassroomTeacher.by_year(current_user_school_year)
                                                                    .by_unity_id(unity_id)
                                                                    .by_date_between(start_date, end_date)
-                                                                   .group_by(&:record_date)
-                                                                   .size
+    done_content_records = done_content_records.by_classroom_id(classroom_id) if classroom_id
+
+    done_content_records = done_content_records.group_by(&:record_date).size
+
     (done_content_records * 100).to_f / school_days
   end
 
-  def percents
+  def percents(classrooms_ids = nil)
     percents = []
 
-    @school_days_by_unity.each { |unity_id, school_days|
+    @school_days_by_unity.each do |unity_id, school_days|
       unity = Unity.find(unity_id)
-      frequency_percentage = frequency_done_percentage(
-        unity_id,
-        school_days[:start_date],
-        school_days[:end_date],
-        school_days[:school_days]
-      )
-      content_record_percentage = content_record_done_percentage(
-        unity_id,
-        school_days[:start_date],
-        school_days[:end_date],
-        school_days[:school_days]
-      )
 
-      percents << OpenStruct.new(
+      if classrooms_ids.present?
+        classrooms_ids.each do |classroom_id|
+          percents << build_percent_table(
+            unity,
+            school_days[:start_date],
+            school_days[:end_date],
+            school_days[:school_days],
+            classroom_id
+          )
+        end
+      else
+        percents << build_percent_table(
+          unity,
+          school_days[:start_date],
+          school_days[:end_date],
+          school_days[:school_days]
+        )
+      end
+    end
+
+    percents
+  end
+
+  def build_percent_table(unity, start_date, end_date, school_days, classroom_id = nil)
+    frequency_percentage = frequency_done_percentage(
+      unity.id,
+      start_date,
+      end_date,
+      school_days,
+      classroom_id
+    )
+    content_record_percentage = content_record_done_percentage(
+      unity.id,
+      start_date,
+      end_date,
+      school_days,
+      classroom_id
+    )
+
+    if classroom_id
+      OpenStruct.new(
+        unity: unity,
+        classroom: Classroom.find(classroom_id),
+        frequency_percentage: frequency_percentage,
+        content_record_percentage: content_record_percentage
+      )
+    else
+      OpenStruct.new(
         unity: unity,
         frequency_percentage: frequency_percentage,
         content_record_percentage: content_record_percentage
       )
-    }
-
-    percents
+    end
   end
 
   def filter(percents, params)
@@ -148,6 +185,12 @@ class PedagogicalTrackingController < ApplicationController
     if (unity_id = params.dig(:partial_unity_id).presence)
       percents = percents.select { |school_percent|
         school_percent.unity.id == unity_id.to_i
+      }
+    end
+
+    if (clasroom_id = params.dig(:partial_classroom_id).presence)
+      percents = percents.select { |school_percent|
+        school_percent.classroom.id == clasroom_id.to_i
       }
     end
 

@@ -1,11 +1,14 @@
 <div class="widget-body" style="border: 1px solid;border-color: #CCC;padding: 10px;margin-bottom: 15px;">
   <%= simple_form_for :filter, { url: pedagogical_tracking_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <%= hidden_field_tag 'unity_id', @percents.first.unity.id %>
+    <%= hidden_field_tag 'start_date' %>
+    <%= hidden_field_tag 'end_date' %>
     <div class="table-responsive">
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
             <td>
-              <%= f.input :partial_classroom_id, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_unities') %>
+              <%= f.input :partial_classroom_id, as: :select2, elements: @classrooms, label: false, placeholder: t('pedagogical_tracking.index.filter_classrooms') %>
             </td>
             <td>
               <%= f.input :frequency_operator, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_frequency') %>

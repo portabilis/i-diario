@@ -57,8 +57,10 @@ if (unity_id && unity_id != 'empty') {
 
 if (start_date) {
   $('#search_start_date').val(start_date);
+  $('#start_date').val(start_date);
 }
 
 if (end_date) {
   $('#search_end_date').val(end_date);
+  $('#end_date').val(end_date);
 }
