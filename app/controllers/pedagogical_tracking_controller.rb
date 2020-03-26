@@ -5,8 +5,6 @@ class PedagogicalTrackingController < ApplicationController
     @updated_at_hour = last_refresh.hour
 
     unity_id = params.dig(:search, :unity_id).presence || params.dig(:unity_id)
-    unity_id = nil if unity_id == 'empty'
-
     start_date = params.dig(:search, :start_date).presence || params.dig(:start_date)
     end_date = params.dig(:search, :end_date).presence || params.dig(:end_date)
 
@@ -164,15 +162,24 @@ class PedagogicalTrackingController < ApplicationController
     )
 
     if classroom_id
+      classroom = Classroom.find(classroom_id)
+
       OpenStruct.new(
-        unity: unity,
-        classroom: Classroom.find(classroom_id),
+        unity_id: unity.id,
+        unity_name: unity.name,
+        classroom_id: classroom.id,
+        start_date: start_date,
+        end_date: end_date,
+        classroom_description: classroom.description,
         frequency_percentage: frequency_percentage,
         content_record_percentage: content_record_percentage
       )
     else
       OpenStruct.new(
-        unity: unity,
+        unity_id: unity.id,
+        unity_name: unity.name,
+        start_date: start_date,
+        end_date: end_date,
         frequency_percentage: frequency_percentage,
         content_record_percentage: content_record_percentage
       )
@@ -182,19 +189,48 @@ class PedagogicalTrackingController < ApplicationController
   def filter(percents, params)
     return percents if params.blank?
 
-    if (unity_id = params.dig(:partial_unity_id).presence)
-      percents = percents.select { |school_percent|
-        school_percent.unity.id == unity_id.to_i
-      }
+    params.delete_if do |_filter, value|
+      value.blank?
     end
 
-    if (clasroom_id = params.dig(:partial_classroom_id).presence)
+    params.each do |filter, value|
+      next if ['frequency_percentage', 'content_record_percentage'].include?(filter)
+
       percents = percents.select { |school_percent|
-        school_percent.classroom.id == clasroom_id.to_i
+        if ['unity_id', 'classroom_id'].include?(filter)
+          school_percent.send(filter).to_i == value.to_i
+        elsif filter == 'frequency_operator'
+          compare(
+            school_percent.send(:frequency_percentage).to_f,
+            value,
+            params[:frequency_percentage].to_f
+          )
+        else
+          compare(
+            school_percent.send(:content_record_percentage).to_f,
+            value,
+            params[:content_record_percentage].to_f
+          )
+        end
       }
     end
 
     percents
+  end
+
+  def compare(percent, with, value)
+    case with
+    when ComparativeOperators::EQUALS
+      percent == value
+    when ComparativeOperators::GREATER_THAN
+      percent > value
+    when ComparativeOperators::LESS_THAN
+      percent < value
+    when ComparativeOperators::GREATER_THAN_OR_EQUAL_TO
+      percent >= value
+    when ComparativeOperators::LESS_THAN_OR_EQUAL_TO
+      percent <= value
+    end
   end
 
   def paginate(array)

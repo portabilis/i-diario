@@ -7,12 +7,12 @@
   <% @percents.each do |record| %>
     <tr>
       <td>
-        <%= record.classroom.present? ? record.classroom.description : record.unity.name %>
+        <%= record.classroom_id.present? ? record.classroom_description : record.unity_name %>
       </td>
       <td>
         <%= record.frequency_percentage.round(2) %>%
         <div class="frequency_percentage_total">
-          <div id="<%= record.classroom.present? ? record.classroom.id : record.unity.id %>_frequency_percentage_done"
+          <div id="<%= record.classroom_id.present? ? record.classroom_id : record.unity_id %>_frequency_percentage_done"
                 class="frequency_percentage_done"
                 style="width: <%= record.frequency_percentage.round(2)%>%">
           </div>
@@ -21,16 +21,14 @@
       <td>
         <%= record.content_record_percentage.round(2) %>%
         <div class="content_record_percentage_total">
-          <div id="<%= record.classroom.present? ? record.classroom.id : record.unity.id  %>_content_record_percentage_done"
+          <div id="<%= record.classroom_id.present? ? record.classroom_id : record.unity_id %>_content_record_percentage_done"
                 class="content_record_percentage_done"
                 style="width: <%= record.content_record_percentage.round(2)%>%">
           </div>
         </div>
       </td>
       <td class="actions" style="text-align: center;">
-        <%= link_to 'Detalhes',
-            record.classroom.present? ? pedagogical_tracking_path('search[classroom_id]': record.classroom.id) : pedagogical_tracking_path('search[unity_id]': record.unity.id),
-            class: "btn btn-info" %>
+        <%= link_to 'Detalhes', pedagogical_tracking_path(link_params(record)), class: "btn btn-info" %>
       </td>
     </tr>
   <% end %>

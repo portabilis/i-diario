@@ -4,6 +4,12 @@ var content_record_chart_ctx = document.getElementById('content_record_chart').g
 var done_frequencies_percentage = $('#done_frequencies_percentage').val();
 var done_content_records_percentage = $('#done_content_records_percentage').val();
 
+function clear_empty(element) {
+  if (element.val === "empty") {
+    $(element.target).select2("val", "");
+  }
+}
+
 function build_pie_chart(ctx, done_percentage){
   new Chart(ctx, {
       type: 'pie',
@@ -31,12 +37,15 @@ build_pie_chart(frequency_chart_ctx, done_frequencies_percentage);
 build_pie_chart(content_record_chart_ctx, done_content_records_percentage);
 
 $('#search_unity_id').on('change', function(e){
+  clear_empty(e);
   $('form.filter_tracking_search_form').trigger("submit");
 });
 $('#search_start_date').on('change', function(e){
+  clear_empty(e);
   $('form.filter_tracking_search_form').trigger("submit");
 });
 $('#search_end_date').on('change', function(e){
+  clear_empty(e);
   $('form.filter_tracking_search_form').trigger("submit");
 });
 
@@ -48,11 +57,6 @@ var end_date = url.searchParams.get("search[end_date]");
 
 if (unity_id && unity_id != 'empty') {
   $('#search_unity_id').val(unity_id);
-
-  $('#filter_partial_unity_id').val(unity_id);
-  $('#filter_partial_unity_id').attr('readonly','readonly');
-  $('#filter_frequency_operator').attr('readonly','readonly');
-  $('#filter_content_record_operator').attr('readonly','readonly');
 }
 
 if (start_date) {
@@ -64,3 +68,54 @@ if (end_date) {
   $('#search_end_date').val(end_date);
   $('#end_date').val(end_date);
 }
+
+if (_.isEmpty($('#filter_frequency_operator').val())){
+  $('#filter_frequency_percentage').attr('readonly', true).val('');
+}
+if (_.isEmpty($('#filter_content_record_operator').val())){
+  $('#filter_content_record_percentage').attr('readonly', true).val('');
+}
+
+$('form.percent_filterable_search_form input, form.percent_filterable_search_form input.select2').on('change',
+  function (e){
+    clear_empty(e);
+
+    if (this.id == 'filter_frequency_operator') {
+      if (_.isEmpty($('#filter_frequency_operator').val())){
+        $('#filter_frequency_percentage').attr('readonly', true).val('');
+      } else {
+        $('#filter_frequency_percentage').removeAttr('readonly');
+        $('#filter_frequency_percentage').focus();
+      }
+    }
+
+    if (this.id == 'filter_content_record_operator') {
+      if (_.isEmpty($('#filter_content_record_operator').val())){
+        $('#filter_content_record_percentage').attr('readonly', true).val('');
+      } else {
+        $('#filter_content_record_percentage').removeAttr('readonly');
+        $('#filter_content_record_percentage').focus();
+      }
+    }
+
+    if ((this.id == 'filter_frequency_percentage' && _.isEmpty($('#filter_frequency_percentage').val())) ||
+        (this.id == 'filter_content_record_percentage' &&_.isEmpty($('#filter_content_record_percentage').val()))) {
+      return false;
+    }
+
+    if ((this.id == 'filter_frequency_operator' && _.isEmpty($('#filter_frequency_percentage').val()) && !($('#filter_frequency_percentage').attr('readonly'))) ||
+        (this.id == 'filter_content_record_operator' && _.isEmpty($('#filter_content_record_percentage').val()) && !($('#filter_frequency_percentage').attr('readonly'))))
+    {
+      return false;
+    }
+
+    $.get(
+      $('form.percent_filterable_search_form').attr('action'),
+      $('form.percent_filterable_search_form').serialize(),
+      null,
+      'script'
+    );
+
+    return false;
+  }
+);

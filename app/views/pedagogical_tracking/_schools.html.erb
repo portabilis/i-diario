@@ -1,5 +1,5 @@
 <div class="widget-body" style="border: 1px solid;border-color: #CCC;padding: 10px;margin-bottom: 15px;">
-  <%= simple_form_for :filter, { url: pedagogical_tracking_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+  <%= simple_form_for :filter, { url: pedagogical_tracking_path, method: :get, html: { class: 'percent_filterable_search_form' } } do |f| %>
     <%= hidden_field_tag 'start_date' %>
     <%= hidden_field_tag 'end_date' %>
     <div class="table-responsive">
@@ -7,13 +7,15 @@
         <thead>
           <tr>
             <td>
-              <%= f.input :partial_unity_id, as: :select2, elements: all_unities, label: false, placeholder: t('pedagogical_tracking.index.filter_unities') %>
+              <%= f.input :unity_id, as: :select2, elements: all_unities, label: false, placeholder: t('pedagogical_tracking.index.filter_unities') %>
             </td>
             <td>
-              <%= f.input :frequency_operator, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_frequency') %>
+              <%= f.input :frequency_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_tracking.index.filter_frequency') %>
+              <%= f.input :frequency_percentage, label: false, input_html: { type: 'number' } %>
             </td>
             <td>
-              <%= f.input :content_record_operator, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_content_record') %>
+              <%= f.input :content_record_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_tracking.index.filter_content_record') %>
+              <%= f.input :content_record_percentage, label: false, input_html: { type: 'number' } %>
             </td>
             <td style="text-align: center;">
               <span>Açao</span>
