@@ -28,9 +28,7 @@
         </div>
       </td>
       <td class="actions" style="text-align: center;">
-        <%= link_to 'Detalhes',
-        record.classroom_id.present? ? '#' : pedagogical_tracking_path(link_params(record)),
-        class: "btn btn-info" %>
+        <%= render_details_link(record) %>
       </td>
     </tr>
   <% end %>

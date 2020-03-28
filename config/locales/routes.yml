@@ -73,7 +73,7 @@ pt-BR:
     translations: 'dicionario-de-termos-bncc'
     infrequency_trackings: 'acompanhamento-de-infrequencias'
     pedagogical_tracking: 'acompanhamento-pedagogico'
-
+    pedagogical_tracking_teachers: 'acompanhamento-pedagogico-professores'
     # actions
     edit: 'editar'
     edit_multiples: 'editar-diversos'

@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/pedagogical_tracking/teacher_detail' %>
+<% end %>
+
 <div class="widget-body" style="border: 1px solid;border-color: #CCC;padding: 10px;margin-bottom: 15px;">
   <%= simple_form_for :filter, { url: pedagogical_tracking_path, method: :get, html: { class: 'percent_filterable_search_form' } } do |f| %>
     <%= hidden_field_tag 'unity_id', @percents.first.unity_id %>
@@ -40,3 +44,5 @@
     </div>
   <% end %>
 </div>
+
+<%= render 'classroom_detail_modal' %>
