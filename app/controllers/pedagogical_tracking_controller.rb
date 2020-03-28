@@ -38,6 +38,7 @@ class PedagogicalTrackingController < ApplicationController
   def teachers
     unity_id = params[:unity_id]
     classroom_id = params[:classroom_id]
+    teacher_id = params[:teacher_id]
     start_date = params[:start_date]
     end_date = params[:end_date]
 
@@ -46,7 +47,7 @@ class PedagogicalTrackingController < ApplicationController
 
     fetch_school_days_by_unity(unity_id, start_date, end_date)
 
-    teachers_ids = params[:teacher_id] ||
+    teachers_ids = [teacher_id].compact.presence ||
                    Teacher.by_classroom(classroom_id).by_year(current_user_school_year).pluck(:id).uniq
 
     @teacher_percents = []
@@ -56,6 +57,15 @@ class PedagogicalTrackingController < ApplicationController
     end
 
     @teacher_percents = @teacher_percents.flatten
+
+    filter_params = params.slice(
+      :frequency_operator,
+      :frequency_percentage,
+      :content_record_operator,
+      :content_record_percentage
+    )
+
+    @teacher_percents = filter(@teacher_percents, filter_params)
 
     respond_with @teacher_percents
   end

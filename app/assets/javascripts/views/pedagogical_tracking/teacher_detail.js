@@ -1,41 +1,7 @@
 $(document).on('click', 'a.open_classroom_detail_modal', function(){
-  var unity_id = $('#search_unity_id').val();
-  var classroom_id = $(this).data('classroom-id');
-  var start_date = $('#search_start_date').val();
-  var end_date = $('#search_end_date').val();
+  $('#modal_classroom_id').val($(this).data('classroom-id'));
 
-  $("#classroom-detail-modal").modal('show');
-
-  var params = {
-    unity_id: unity_id,
-    classroom_id: classroom_id,
-    start_date: start_date,
-    end_date: end_date
-  }
-
-  $.getJSON(Routes.pedagogical_tracking_teachers_pt_br_path(params)).always(function (teachers) {
-    teachers_select = _.map(teachers, function(teacher) {
-      return { id: teacher['teacher_id'], text: teacher['teacher_name'] };
-    });
-    teachers_select.unshift({ id: 'empty', text: '' });
-    $('#search_teacher_teacher_id').select2({ data: teachers_select });
-
-    var $modal_resources_tbody = $('#teacher-modal-resocurces');
-
-    if (!_.isEmpty(teachers)) {
-      $('.no_record_found').remove();
-    }
-
-    $.each(teachers, function(_index, value ) {
-      var html = JST['templates/pedagogical_tracking/modal_resources']({
-        teacher_name: value['teacher_name'],
-        frequency_percentage: value['frequency_percentage'],
-        content_record_percentage: value['content_record_percentage']
-      });
-
-      $modal_resources_tbody.append(html);
-    });
-  });
+  load_teachers(true);
 });
 
 if (_.isEmpty($('#search_teacher_frequency_operator').val())){
@@ -67,13 +33,79 @@ $('form.teacher_percent_filterable_search_form input, form.teacher_percent_filte
       }
     }
 
-    $.get(
-      $('form.teacher_percent_filterable_search_form').attr('action'),
-      $('form.teacher_percent_filterable_search_form').serialize(),
-      null,
-      'script'
-    );
+    if ((this.id == 'search_teacher_frequency_percentage' && _.isEmpty($('#search_teacher_frequency_percentage').val())) ||
+        (this.id == 'search_teacher_content_record_percentage' &&_.isEmpty($('#search_teacher_content_record_percentage').val()))) {
+      return false;
+    }
 
-    return false;
+    if ((this.id == 'search_teacher_frequency_operator' && _.isEmpty($('#search_teacher_frequency_percentage').val()) && !($('#search_teacher_frequency_percentage').attr('readonly'))) ||
+        (this.id == 'search_teacher_content_record_operator' && _.isEmpty($('#search_teacher_content_record_percentage').val()) && !($('#search_teacher_frequency_percentage').attr('readonly'))))
+    {
+      return false;
+    }
+
+    load_teachers();
   }
 );
+
+function load_teachers(load_teachers_select2 = false){
+  var $modal_resources_tbody = $('#teacher-modal-resocurces');
+  $modal_resources_tbody.empty();
+
+  var unity_id = $('#search_unity_id').val();
+  var classroom_id = $('#modal_classroom_id').val();
+  var teacher_id = $('#search_teacher_teacher_id').val();
+  var start_date = $('#search_start_date').val();
+  var end_date = $('#search_end_date').val();
+  var frequency_operator = $('#search_teacher_frequency_operator').val();
+  var frequency_percentage = $('#search_teacher_frequency_percentage').val();
+  var content_record_operator = $('#search_teacher_content_record_operator').val();
+  var content_record_percentage = $('#search_teacher_content_record_percentage').val();
+
+  $("#classroom-detail-modal").modal('show');
+
+  if (load_teachers_select2 || teacher_id == '') {
+    teacher_id = null;
+  }
+
+  var params = {
+    unity_id: unity_id,
+    classroom_id: classroom_id,
+    teacher_id: teacher_id,
+    start_date: start_date,
+    end_date: end_date,
+    frequency_operator: frequency_operator,
+    frequency_percentage: frequency_percentage,
+    content_record_operator: content_record_operator,
+    content_record_percentage: content_record_percentage
+  }
+
+  $.getJSON(Routes.pedagogical_tracking_teachers_pt_br_path(params)).always(function (teachers) {
+    if (load_teachers_select2) {
+      load_select2(teachers)
+    }
+
+    if (!_.isEmpty(teachers)) {
+      $('.no_record_found').remove();
+    }
+
+    $.each(teachers, function(_index, value ) {
+      var html = JST['templates/pedagogical_tracking/modal_resources']({
+        teacher_name: value['teacher_name'],
+        frequency_percentage: value['frequency_percentage'],
+        content_record_percentage: value['content_record_percentage']
+      });
+
+      $modal_resources_tbody.append(html);
+    });
+  });
+}
+
+function load_select2(teachers){
+  $('#search_teacher_teacher_id').val('');
+  teachers_select = _.map(teachers, function(teacher) {
+    return { id: teacher['teacher_id'], text: teacher['teacher_name'] };
+  });
+  teachers_select.unshift({ id: 'empty', text: '' });
+  $('#search_teacher_teacher_id').select2({ data: teachers_select });
+}
