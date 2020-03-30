@@ -22,7 +22,7 @@ class PopulateFieldOwnerTeacherId < ActiveRecord::Migration
                    else
                      user = User.find(user_id)
 
-                     user&.teacher_id || user&.assumed_teacher_id
+                     user&.teacher_id
                    end
 
       next if teacher_id.blank?
