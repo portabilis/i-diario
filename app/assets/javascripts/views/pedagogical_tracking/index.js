@@ -78,7 +78,10 @@ if (_.isEmpty($('#filter_content_record_operator').val())){
 
 var typingTimer;
 
-$('#filter_frequency_percentage, #filter_content_record_percentage').keyup(function() {
+$('#filter_frequency_percentage, \
+  #filter_content_record_percentage, \
+  #search_teacher_frequency_percentage, \
+  #search_teacher_content_record_percentage').keyup(function() {
   clearTimeout(typingTimer);
   var self = $(this);
   typingTimer = setTimeout(function(){

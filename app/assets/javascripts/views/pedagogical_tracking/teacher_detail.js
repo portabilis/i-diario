@@ -14,16 +14,6 @@ if (_.isEmpty($('#search_teacher_content_record_operator').val())){
   $('#search_teacher_content_record_percentage').attr('readonly', true).val('');
 }
 
-var typingTimer;
-
-$('#search_teacher_frequency_percentage, #search_teacher_content_record_percentage').keyup(function() {
-  clearTimeout(typingTimer);
-  var self = $(this);
-  typingTimer = setTimeout(function(){
-    self.trigger('change');
-  }, 1200);
-});
-
 $('form.teacher_percent_filterable_search_form input, form.teacher_percent_filterable_search_form input.select2').on('change',
   function (e){
     clear_empty(e);
