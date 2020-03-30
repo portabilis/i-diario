@@ -1,6 +1,9 @@
 $(document).on('click', 'a.open_classroom_detail_modal', function(){
   $('#modal_classroom_id').val($(this).data('classroom-id'));
-
+  $('#search_teacher_frequency_operator').select2('val', '');
+  $('#search_teacher_content_record_operator').select2('val', '');
+  $('#search_teacher_frequency_percentage').attr('readonly', true).val('');
+  $('#search_teacher_content_record_percentage').attr('readonly', true).val('');
   load_teachers(true);
 });
 
@@ -48,6 +51,8 @@ $('form.teacher_percent_filterable_search_form input, form.teacher_percent_filte
   }
 );
 
+var empty_html = '<tr><td class="no_record_found" colspan="4">Nenhum registro encontrado</td></tr>';
+
 function load_teachers(load_teachers_select2 = false){
   var $modal_resources_tbody = $('#teacher-modal-resocurces');
   $modal_resources_tbody.empty();
@@ -85,19 +90,23 @@ function load_teachers(load_teachers_select2 = false){
       load_select2(teachers)
     }
 
-    if (!_.isEmpty(teachers)) {
-      $('.no_record_found').remove();
+    if (_.isEmpty(teachers)) {
+      $modal_resources_tbody.append(empty_html);
     }
 
     $.each(teachers, function(_index, value ) {
       var html = JST['templates/pedagogical_tracking/modal_resources']({
         teacher_name: value['teacher_name'],
         frequency_percentage: value['frequency_percentage'],
-        content_record_percentage: value['content_record_percentage']
+        content_record_percentage: value['content_record_percentage'],
+        frequency_days: value['frequency_days'],
+        content_record_days: value['content_record_days']
       });
 
       $modal_resources_tbody.append(html);
     });
+
+    $('.apply_tooltip').tooltip({ placement: 'top', container: '.modal'});
   });
 }
 

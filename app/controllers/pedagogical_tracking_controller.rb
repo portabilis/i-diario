@@ -27,7 +27,6 @@ class PedagogicalTrackingController < ApplicationController
     @percents = if unity_id
                   @partial = :classrooms
                   @classrooms = Classroom.where(unity_id: unity_id, year: current_user_school_year).ordered
-                  @teacher_percents = []
 
                   paginate(filter(percents(@classrooms.pluck(:id)), params.dig(:filter)))
                 else
@@ -131,25 +130,25 @@ class PedagogicalTrackingController < ApplicationController
   end
 
   def frequency_done_percentage(unity_id, start_date, end_date, school_days, classroom_id = nil, teacher_id = nil)
-    done_frequencies = MvwFrequencyBySchoolClassroomTeacher.by_year(current_user_school_year)
+    @done_frequencies = MvwFrequencyBySchoolClassroomTeacher.by_year(current_user_school_year)
                                                            .by_unity_id(unity_id)
                                                            .by_date_between(start_date, end_date)
-    done_frequencies = done_frequencies.by_classroom_id(classroom_id) if classroom_id
-    done_frequencies = done_frequencies.by_teacher_id(teacher_id) if teacher_id
-    done_frequencies = done_frequencies.group_by(&:frequency_date).size
+    @done_frequencies = @done_frequencies.by_classroom_id(classroom_id) if classroom_id
+    @done_frequencies = @done_frequencies.by_teacher_id(teacher_id) if teacher_id
+    @done_frequencies = @done_frequencies.group_by(&:frequency_date).size
 
-    ((done_frequencies * 100).to_f / school_days).round(2)
+    ((@done_frequencies * 100).to_f / school_days).round(2)
   end
 
   def content_record_done_percentage(unity_id, start_date, end_date, school_days, classroom_id = nil, teacher_id = nil)
-    done_content_records = MvwContentRecordBySchoolClassroomTeacher.by_year(current_user_school_year)
+    @done_content_records = MvwContentRecordBySchoolClassroomTeacher.by_year(current_user_school_year)
                                                                    .by_unity_id(unity_id)
                                                                    .by_date_between(start_date, end_date)
-    done_content_records = done_content_records.by_classroom_id(classroom_id) if classroom_id
-    done_content_records = done_content_records.by_teacher_id(teacher_id) if teacher_id
-    done_content_records = done_content_records.group_by(&:record_date).size
+    @done_content_records = @done_content_records.by_classroom_id(classroom_id) if classroom_id
+    @done_content_records = @done_content_records.by_teacher_id(teacher_id) if teacher_id
+    @done_content_records = @done_content_records.group_by(&:record_date).size
 
-    ((done_content_records * 100).to_f / school_days).round(2)
+    ((@done_content_records * 100).to_f / school_days).round(2)
   end
 
   def percents(classrooms_ids = nil, teacher_id = nil)
@@ -223,7 +222,9 @@ class PedagogicalTrackingController < ApplicationController
           end_date: end_date,
           teacher_name: teacher.name,
           frequency_percentage: frequency_percentage,
-          content_record_percentage: content_record_percentage
+          content_record_percentage: content_record_percentage,
+          frequency_days: @done_frequencies,
+          content_record_days: @done_content_records
         )
       end
     else
