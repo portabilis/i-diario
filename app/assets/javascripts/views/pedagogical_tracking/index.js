@@ -76,6 +76,16 @@ if (_.isEmpty($('#filter_content_record_operator').val())){
   $('#filter_content_record_percentage').attr('readonly', true).val('');
 }
 
+var typingTimer;
+
+$('#filter_frequency_percentage, #filter_content_record_percentage').keyup(function() {
+  clearTimeout(typingTimer);
+  var self = $(this);
+  typingTimer = setTimeout(function(){
+    self.trigger('change');
+  }, 1200);
+});
+
 $('form.percent_filterable_search_form input, form.percent_filterable_search_form input.select2').on('change',
   function (e){
     clear_empty(e);
