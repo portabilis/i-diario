@@ -11,8 +11,8 @@ $(function() {
         break;
       case 'creating_users_for_students':
         infoTitle = 'Criação de usuários para alunos:';
-        infoDescription = 'Cria usuários para os alunos com situação cursando, onde o login é o código do ' +
-                          'aluno no i-educar e a senha é a data de nascimento.';
+        infoDescription = 'Cria usuários para os alunos com situação cursando, onde o código do aluno no ' +
+                          'i-educar é o login e a senha no i-diário.';
         break;
     }
 
