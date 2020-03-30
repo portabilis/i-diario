@@ -10,20 +10,20 @@
         <%= record.classroom_id.present? ? record.classroom_description : record.unity_name %>
       </td>
       <td>
-        <%= record.frequency_percentage.round(2) %>%
+        <%= record.frequency_percentage %>%
         <div class="frequency_percentage_total">
           <div id="<%= record.classroom_id.present? ? record.classroom_id : record.unity_id %>_frequency_percentage_done"
                 class="frequency_percentage_done"
-                style="width: <%= record.frequency_percentage.round(2)%>%">
+                style="width: <%= record.frequency_percentage %>%">
           </div>
         </div>
       </td>
       <td>
-        <%= record.content_record_percentage.round(2) %>%
+        <%= record.content_record_percentage %>%
         <div class="content_record_percentage_total">
           <div id="<%= record.classroom_id.present? ? record.classroom_id : record.unity_id %>_content_record_percentage_done"
                 class="content_record_percentage_done"
-                style="width: <%= record.content_record_percentage.round(2)%>%">
+                style="width: <%= record.content_record_percentage %>%">
           </div>
         </div>
       </td>

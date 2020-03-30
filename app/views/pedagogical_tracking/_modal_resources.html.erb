@@ -10,18 +10,18 @@
         <%= record.teacher_name %>
       </td>
       <td>
-        <%= record.frequency_percentage.round(2) %>%
+        <%= record.frequency_percentage %>%
         <div class="frequency_percentage_total">
           <div class="frequency_percentage_done", id='teacher_frequency_percentage_done',
-                style="width: <%= record.frequency_percentage.round(2)%>%">
+                style="width: <%= record.frequency_percentage %>%">
           </div>
         </div>
       </td>
       <td>
-        <%= record.content_record_percentage.round(2) %>%
+        <%= record.content_record_percentage %>%
         <div class="content_record_percentage_total">
           <div class="content_record_percentage_done", id='teacher_content_record_percentage_done',
-                style="width: <%= record.content_record_percentage.round(2)%>%">
+                style="width: <%= record.content_record_percentage %>%">
           </div>
         </div>
       </td>
