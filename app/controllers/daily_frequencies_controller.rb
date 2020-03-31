@@ -81,8 +81,6 @@ class DailyFrequenciesController < ApplicationController
 
     @normal_students = @students.reject { |student| student[:dependence] }
     @dependence_students = @students.select { |student| student[:dependence] }
-
-    flash.now[:warning] = t('.warning_need_to_click_on_save') if flash.blank?
   end
 
   def create_or_update_multiple
