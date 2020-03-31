@@ -35,24 +35,6 @@ $(function () {
     bootbox.confirm(modalOptions);
   });
 
-  $(document).mouseleave(function () {
-    if (!showConfirmation) {
-      return false;
-    }
-
-    showConfirmation = false;
-
-    modalOptions = Object.assign(modalOptions, {
-      callback: function(result) {
-        if (result) {
-          $('input[type=submit]').click();
-        }
-      }
-    });
-
-    bootbox.confirm(modalOptions);
-  });
-
   setTimeout(function() {
     $('.alert-success').hide();
   }, 10000);

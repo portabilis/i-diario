@@ -68,13 +68,19 @@ class DailyFrequenciesController < ApplicationController
       }
     end
 
+    if @students.blank?
+      flash.now[:warning] = t('.warning_no_students')
+
+      render :new
+
+      return
+    end
+
     build_daily_frequency_students
     mark_for_destruction_not_existing_students
 
     @normal_students = @students.reject { |student| student[:dependence] }
     @dependence_students = @students.select { |student| student[:dependence] }
-
-    flash.now[:warning] = t('.warning_need_to_click_on_save') if flash.blank?
   end
 
   def create_or_update_multiple
