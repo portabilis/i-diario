@@ -234,9 +234,9 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def find_or_initialize_daily_frequencies(class_numbers)
-    return find_or_initialize_global_frequencies if class_numbers.blank?
+    return find_or_initialize_discipline_frequencies(class_numbers) if class_numbers?(class_numbers)
 
-    find_or_initialize_discipline_frequencies(class_numbers)
+    find_or_initialize_global_frequencies
   end
 
   def find_or_initialize_global_frequencies
@@ -370,5 +370,12 @@ class DailyFrequenciesController < ApplicationController
     daily_frequencies_params.map { |daily_frequency_students_params|
       daily_frequency_students_params.second[:class_number].presence
     }.compact
+  end
+
+  def class_numbers?(class_numbers)
+    return false if class_numbers.blank?
+
+    class_numbers = (class_numbers - [0, '0', '', nil])
+    class_numbers.present?
   end
 end
