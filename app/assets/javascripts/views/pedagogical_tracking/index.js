@@ -49,24 +49,18 @@ $('#search_end_date').on('change', function(e){
   $('form.filter_tracking_search_form').trigger("submit");
 });
 
-var url_string = window.location.href;
-var url = new URL(url_string);
-var unity_id = url.searchParams.get("search[unity_id]");
-var start_date = url.searchParams.get("search[start_date]");
-var end_date = url.searchParams.get("search[end_date]");
+var unity_id = $('#unity_id').val();
+var start_date = $('#start_date').val();
+var end_date = $('#end_date').val();
 
-if (unity_id && unity_id != 'empty') {
+if (unity_id) {
   $('#search_unity_id').val(unity_id);
 }
-
 if (start_date) {
   $('#search_start_date').val(start_date);
-  $('#start_date').val(start_date);
 }
-
 if (end_date) {
   $('#search_end_date').val(end_date);
-  $('#end_date').val(end_date);
 }
 
 if (_.isEmpty($('#filter_frequency_operator').val())){
