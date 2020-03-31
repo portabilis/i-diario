@@ -69,7 +69,7 @@ class DailyFrequenciesController < ApplicationController
     end
 
     if @students.blank?
-      flash.now[:warning] = 'Não há alunos matriculados para a data selecionada'
+      flash.now[:warning] = t('.warning_no_students')
 
       render :new
 
