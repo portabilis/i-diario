@@ -3,6 +3,7 @@ var content_record_chart_ctx = document.getElementById('content_record_chart').g
 
 var done_frequencies_percentage = $('#done_frequencies_percentage').val();
 var done_content_records_percentage = $('#done_content_records_percentage').val();
+var unknown_teachers = $('#unknown_teachers').val();
 
 function clear_empty(element) {
   if (element.val === "empty") {
@@ -10,21 +11,27 @@ function clear_empty(element) {
   }
 }
 
-function build_pie_chart(ctx, done_percentage){
+function build_pie_chart(ctx, done_percentage, unknown_teachers = null){
+  var labels = ['% Não Lançados', '% Lançados']
+  var data = [100 - done_percentage, done_percentage]
+  var backgroundColor = ['rgba(255, 0, 0, 0.8)', 'rgba(0, 255, 0, 0.8)']
+  var borderColor = ['rgba(255, 0, 0, 1)', 'rgba(0, 255, 0, 1)']
+
+  if (unknown_teachers) {
+    labels.push('% Lançamentos desconhecidos');
+    data = [100 - (parseFloat(done_percentage) + parseFloat(unknown_teachers)).toFixed(2), done_percentage, unknown_teachers]
+    backgroundColor.push('rgba(0, 0, 255, 0.8)');
+    borderColor.push('rgba(0, 0, 255, 1)');
+  }
+
   new Chart(ctx, {
       type: 'pie',
       data: {
-          labels: ['% Não Lançados', '% Lançados'],
+          labels: labels,
           datasets: [{
-              data: [100 - done_percentage, done_percentage],
-              backgroundColor: [
-                  'rgba(255, 0, 0, 0.8)',
-                  'rgba(0, 255, 0, 0.8)'
-              ],
-              borderColor: [
-                'rgba(255, 255, 255, 1)',
-                'rgba(255, 255, 255, 1)'
-              ],
+              data: data,
+              backgroundColor: backgroundColor,
+              borderColor: borderColor,
               borderWidth: 1
           }]
       },
@@ -33,7 +40,7 @@ function build_pie_chart(ctx, done_percentage){
   });
 }
 
-build_pie_chart(frequency_chart_ctx, done_frequencies_percentage);
+build_pie_chart(frequency_chart_ctx, done_frequencies_percentage, unknown_teachers);
 build_pie_chart(content_record_chart_ctx, done_content_records_percentage);
 
 $('#search_unity_id').on('change', function(e){

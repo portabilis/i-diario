@@ -16,6 +16,7 @@ class PedagogicalTrackingController < ApplicationController
                                         }[:school_days]
     @school_frequency_done_percentage = school_frequency_done_percentage
     @school_content_record_done_percentage = school_content_record_done_percentage
+    @unknown_teachers = school_unknown_teacher_frequency_done_percentage
     @partial = :schools
 
     @percents = if unity_id
@@ -100,7 +101,24 @@ class PedagogicalTrackingController < ApplicationController
 
     return 0 if unities_total.zero?
 
-    percentage_sum.to_f / unities_total
+    (percentage_sum.to_f / unities_total).round(2)
+  end
+
+  def school_unknown_teacher_frequency_done_percentage
+    unknown_teacher_percentage_sum = 0
+
+    @school_days_by_unity.each do |unity_id, school_days|
+      unknown_teacher_percentage_sum += unknown_teacher_frequency_done(
+        unity_id,
+        school_days[:start_date],
+        school_days[:end_date],
+        school_days[:school_days]
+      )
+    end
+
+    return 0 if unities_total.zero?
+
+    (unknown_teacher_percentage_sum.to_f / unities_total).round(2)
   end
 
   def school_content_record_done_percentage
@@ -117,7 +135,7 @@ class PedagogicalTrackingController < ApplicationController
 
     return 0 if unities_total.zero?
 
-    percentage_sum.to_f / unities_total
+    (percentage_sum.to_f / unities_total).round(2)
   end
 
   def frequency_done_percentage(
@@ -293,5 +311,16 @@ class PedagogicalTrackingController < ApplicationController
 
   def paginate(array)
     Kaminari.paginate_array(array).page(params[:page]).per(10)
+  end
+
+  def unknown_teacher_frequency_done(unity_id, start_date, end_date, school_days)
+    done_frequencies = DailyFrequency.joins(classroom: :unity)
+                                     .by_unity_id(unity_id)
+                                     .by_frequency_date_between(start_date, end_date)
+                                     .where('EXTRACT(YEAR FROM frequency_date) = ?', current_user_school_year)
+                                     .where(owner_teacher_id: nil)
+                                     .group_by(&:frequency_date).size
+
+    ((done_frequencies * 100).to_f / school_days).round(2)
   end
 end
