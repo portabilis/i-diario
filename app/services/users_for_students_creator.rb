@@ -40,7 +40,7 @@ class UsersForStudentsCreator
       next if User.find_by(login: student_record.aluno_id)
       next unless (student = Student.find_by(api_code: student_record.aluno_id))
 
-      password = student.api_code
+      password = "estudante#{student.api_code}"
 
       user = User.create!(
         login: student.api_code,
