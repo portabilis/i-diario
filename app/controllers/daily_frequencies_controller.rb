@@ -68,6 +68,14 @@ class DailyFrequenciesController < ApplicationController
       }
     end
 
+    if @students.blank?
+      flash.now[:warning] = 'Não há alunos matriculados para a data selecionada'
+
+      render :new
+
+      return
+    end
+
     build_daily_frequency_students
     mark_for_destruction_not_existing_students
 
