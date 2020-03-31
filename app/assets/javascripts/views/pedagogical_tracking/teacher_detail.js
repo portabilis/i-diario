@@ -14,8 +14,8 @@ if (_.isEmpty($('#search_teacher_content_record_operator').val())){
   $('#search_teacher_content_record_percentage').attr('readonly', true).val('');
 }
 
-$('form.teacher_percent_filterable_search_form input, form.teacher_percent_filterable_search_form input.select2').on('change',
-  function (e){
+$('form.teacher_percent_filterable_search_form input,\
+  form.teacher_percent_filterable_search_form input.select2').on('change', function (e){
     clear_empty(e);
 
     if (this.id == 'search_teacher_frequency_operator') {
@@ -36,14 +36,19 @@ $('form.teacher_percent_filterable_search_form input, form.teacher_percent_filte
       }
     }
 
-    if ((this.id == 'search_teacher_frequency_percentage' && _.isEmpty($('#search_teacher_frequency_percentage').val())) ||
-        (this.id == 'search_teacher_content_record_percentage' &&_.isEmpty($('#search_teacher_content_record_percentage').val()))) {
+    if ((this.id == 'search_teacher_frequency_percentage' &&
+         _.isEmpty($('#search_teacher_frequency_percentage').val())) ||
+        (this.id == 'search_teacher_content_record_percentage' &&
+         _.isEmpty($('#search_teacher_content_record_percentage').val()))) {
       return false;
     }
 
-    if ((this.id == 'search_teacher_frequency_operator' && _.isEmpty($('#search_teacher_frequency_percentage').val()) && !($('#search_teacher_frequency_percentage').attr('readonly'))) ||
-        (this.id == 'search_teacher_content_record_operator' && _.isEmpty($('#search_teacher_content_record_percentage').val()) && !($('#search_teacher_frequency_percentage').attr('readonly'))))
-    {
+    if ((this.id == 'search_teacher_frequency_operator' &&
+         _.isEmpty($('#search_teacher_frequency_percentage').val()) &&
+         !($('#search_teacher_frequency_percentage').attr('readonly'))) ||
+        (this.id == 'search_teacher_content_record_operator' &&
+         _.isEmpty($('#search_teacher_content_record_percentage').val()) &&
+         !($('#search_teacher_frequency_percentage').attr('readonly')))) {
       return false;
     }
 

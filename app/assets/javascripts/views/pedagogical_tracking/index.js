@@ -105,14 +105,19 @@ $('form.percent_filterable_search_form input, form.percent_filterable_search_for
       }
     }
 
-    if ((this.id == 'filter_frequency_percentage' && _.isEmpty($('#filter_frequency_percentage').val())) ||
-        (this.id == 'filter_content_record_percentage' &&_.isEmpty($('#filter_content_record_percentage').val()))) {
+    if ((this.id == 'filter_frequency_percentage' &&
+         _.isEmpty($('#filter_frequency_percentage').val())) ||
+        (this.id == 'filter_content_record_percentage' &&
+         _.isEmpty($('#filter_content_record_percentage').val()))) {
       return false;
     }
 
-    if ((this.id == 'filter_frequency_operator' && _.isEmpty($('#filter_frequency_percentage').val()) && !($('#filter_frequency_percentage').attr('readonly'))) ||
-        (this.id == 'filter_content_record_operator' && _.isEmpty($('#filter_content_record_percentage').val()) && !($('#filter_frequency_percentage').attr('readonly'))))
-    {
+    if ((this.id == 'filter_frequency_operator' &&
+         _.isEmpty($('#filter_frequency_percentage').val()) &&
+         !($('#filter_frequency_percentage').attr('readonly'))) ||
+        (this.id == 'filter_content_record_operator' &&
+         _.isEmpty($('#filter_content_record_percentage').val()) &&
+         !($('#filter_frequency_percentage').attr('readonly')))) {
       return false;
     }
 

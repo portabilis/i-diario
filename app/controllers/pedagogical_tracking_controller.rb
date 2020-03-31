@@ -14,11 +14,8 @@ class PedagogicalTrackingController < ApplicationController
                                         .max_by { |school_days_by_unity|
                                           school_days_by_unity[:school_days]
                                         }[:school_days]
-
     @school_frequency_done_percentage = school_frequency_done_percentage
-
     @school_content_record_done_percentage = school_content_record_done_percentage
-
     @partial = :schools
 
     @percents = if unity_id
@@ -123,10 +120,17 @@ class PedagogicalTrackingController < ApplicationController
     percentage_sum.to_f / unities_total
   end
 
-  def frequency_done_percentage(unity_id, start_date, end_date, school_days, classroom_id = nil, teacher_id = nil)
+  def frequency_done_percentage(
+    unity_id,
+    start_date,
+    end_date,
+    school_days,
+    classroom_id = nil,
+    teacher_id = nil
+  )
     @done_frequencies = MvwFrequencyBySchoolClassroomTeacher.by_year(current_user_school_year)
-                                                           .by_unity_id(unity_id)
-                                                           .by_date_between(start_date, end_date)
+                                                            .by_unity_id(unity_id)
+                                                            .by_date_between(start_date, end_date)
     @done_frequencies = @done_frequencies.by_classroom_id(classroom_id) if classroom_id
     @done_frequencies = @done_frequencies.by_teacher_id(teacher_id) if teacher_id
     @done_frequencies = @done_frequencies.group_by(&:frequency_date).size
@@ -134,10 +138,17 @@ class PedagogicalTrackingController < ApplicationController
     ((@done_frequencies * 100).to_f / school_days).round(2)
   end
 
-  def content_record_done_percentage(unity_id, start_date, end_date, school_days, classroom_id = nil, teacher_id = nil)
+  def content_record_done_percentage(
+    unity_id,
+    start_date,
+    end_date,
+    school_days,
+    classroom_id = nil,
+    teacher_id = nil
+  )
     @done_content_records = MvwContentRecordBySchoolClassroomTeacher.by_year(current_user_school_year)
-                                                                   .by_unity_id(unity_id)
-                                                                   .by_date_between(start_date, end_date)
+                                                                    .by_unity_id(unity_id)
+                                                                    .by_date_between(start_date, end_date)
     @done_content_records = @done_content_records.by_classroom_id(classroom_id) if classroom_id
     @done_content_records = @done_content_records.by_teacher_id(teacher_id) if teacher_id
     @done_content_records = @done_content_records.group_by(&:record_date).size
