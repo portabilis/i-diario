@@ -35,11 +35,8 @@ class PedagogicalTrackingController < ApplicationController
     unity_id = params[:unity_id]
     classroom_id = params[:classroom_id]
     teacher_id = params[:teacher_id]
-    start_date = params[:start_date]
-    end_date = params[:end_date]
-
-    start_date = Date.strptime(start_date, '%d/%m/%Y') if start_date.present?
-    end_date = Date.strptime(end_date, '%d/%m/%Y') if end_date.present?
+    start_date = params[:start_date].try(:to_date)
+    end_date = params[:end_date].try(:to_date)
 
     fetch_school_days_by_unity(unity_id, start_date, end_date)
 
