@@ -5,8 +5,12 @@ class PedagogicalTrackingController < ApplicationController
     @updated_at_hour = last_refresh.hour
 
     unity_id = params.dig(:search, :unity_id).presence || params[:unity_id]
-    start_date = (params.dig(:search, :start_date).presence || params[:start_date]).try(:to_date)
-    end_date = (params.dig(:search, :end_date).presence || params[:end_date]).try(:to_date)
+
+    @start_date = params.dig(:search, :start_date).presence
+    start_date = (@start_date || params[:start_date]).try(:to_date)
+
+    @end_date = params.dig(:search, :end_date).presence
+    end_date = (@end_date || params[:end_date]).try(:to_date)
 
     fetch_school_days_by_unity(unity_id, start_date, end_date)
 
