@@ -84,40 +84,44 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def create_or_update_multiple
-    daily_frequency_record = nil
-    daily_frequency_attributes = daily_frequency_params
-    daily_frequencies_attributes = daily_frequencies_params
-    receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
-      params[:daily_frequency][:receive_email_confirmation]
-    )
+    begin
+      daily_frequency_record = nil
+      daily_frequency_attributes = daily_frequency_params
+      daily_frequencies_attributes = daily_frequencies_params
+      receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+        params[:daily_frequency][:receive_email_confirmation]
+      )
 
-    edit_multiple_daily_frequencies_path = edit_multiple_daily_frequencies_path(
-      daily_frequency: daily_frequency_attributes.slice(
-        :classroom_id,
-        :discipline_id,
-        :frequency_date,
-        :period,
-        :unity_id
-      ),
-      class_numbers: class_numbers_from_params
-    )
+      edit_multiple_daily_frequencies_path = edit_multiple_daily_frequencies_path(
+        daily_frequency: daily_frequency_attributes.slice(
+          :classroom_id,
+          :discipline_id,
+          :frequency_date,
+          :period,
+          :unity_id
+        ),
+        class_numbers: class_numbers_from_params
+      )
 
-    ActiveRecord::Base.transaction do
-      daily_frequencies_attributes.each_value do |daily_frequency_students_params|
-        daily_frequency_attribute_normalizer = DailyFrequencyAttributesNormalizer.new(
-          daily_frequency_students_params,
-          daily_frequency_attributes
-        )
-        daily_frequency_attribute_normalizer.normalize_daily_frequency!
+      ActiveRecord::Base.transaction do
+        daily_frequencies_attributes.each_value do |daily_frequency_students_params|
+          daily_frequency_attribute_normalizer = DailyFrequencyAttributesNormalizer.new(
+            daily_frequency_students_params,
+            daily_frequency_attributes
+          )
+          daily_frequency_attribute_normalizer.normalize_daily_frequency!
 
-        daily_frequency_record = find_or_initialize_daily_frequency_by(daily_frequency_attributes)
-        daily_frequency_attribute_normalizer.normalize_daily_frequency_students!(
-          daily_frequency_record,
-          daily_frequency_students_params
-        )
-        daily_frequency_record.assign_attributes(daily_frequency_students_params)
-        daily_frequency_record.save!
+          daily_frequency_record = find_or_initialize_daily_frequency_by(daily_frequency_attributes)
+          daily_frequency_attribute_normalizer.normalize_daily_frequency_students!(
+            daily_frequency_record,
+            daily_frequency_students_params
+          )
+          daily_frequency_record.assign_attributes(daily_frequency_students_params)
+          daily_frequency_record.save!
+        end
       end
+    rescue ActiveRecord::RecordNotUnique
+      retry
     end
 
     flash[:success] = t('.daily_frequency_success')
