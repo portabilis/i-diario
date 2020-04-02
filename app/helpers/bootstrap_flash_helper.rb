@@ -10,22 +10,33 @@ module BootstrapFlashHelper
 
       type = type.to_sym
       type = :success if type == :notice
-      type = :danger  if type == :alert
-      type = :danger  if type == :error
+      type = :danger if type == :alert
+      type = :danger if type == :error
+      type = :info if t('devise.failure.unauthenticated') == message
+
       next unless ALERT_TYPES.include?(type)
 
-      icon = 'fa-check'
-      icon = 'fa-info'  if type == :info
-      icon = 'fa-times' if type == :danger
-      icon = 'fa-warning' if type == :warning
+      icon = if type == :info
+               'fa-info'
+             elsif type == :danger
+               'fa-times'
+             elsif type == :warning
+               'fa-warning'
+             else
+               'fa-check'
+             end
 
       Array(message).each do |msg|
-        text = content_tag(:div,
-                           content_tag(:button, raw("&times;"), :class => "close", "data-dismiss" => "alert") +
-                           raw("<i class='fa-fw fa #{icon}'></i> #{msg}"), :class => "alert fade in alert-#{type} #{options[:class]}")
+        text = content_tag(
+          :div,
+          content_tag(:button, raw('&times;'), class: 'close', 'data-dismiss' => 'alert') +
+          raw("<i class='fa-fw fa #{icon}'></i> #{msg}"), class: "alert fade in alert-#{type} #{options[:class]}"
+        )
+
         flash_messages << text if msg
       end
     end
+
     flash_messages.join("\n").html_safe
   end
 end
