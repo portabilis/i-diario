@@ -31,26 +31,37 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
       next if !school_calendar_record.ano_em_aberto &&
               (finded_school_calendar.blank? || !finded_school_calendar.opened_year)
 
-      (finded_school_calendar || SchoolCalendar.new(
-        unity_id: unity_id,
-        year: school_calendar_record.ano
-      )).tap do |school_calendar|
-        school_calendar.number_of_classes = DEFAULT_NUMBER_OF_CLASSES if school_calendar.new_record?
-        school_calendar.step_type_description = school_calendar_record.descricao
-        school_calendar.opened_year = school_calendar_record.ano_em_aberto
+      begin
+        (finded_school_calendar || SchoolCalendar.new(
+          unity_id: unity_id,
+          year: school_calendar_record.ano
+        )).tap do |school_calendar|
+          school_calendar.number_of_classes = DEFAULT_NUMBER_OF_CLASSES if school_calendar.new_record?
+          school_calendar.step_type_description = school_calendar_record.descricao
+          school_calendar.opened_year = school_calendar_record.ano_em_aberto
 
-        school_calendar.save! if school_calendar.changed?
+          school_calendar.save! if school_calendar.changed?
 
-        @school_calendar_steps_ids = []
-        school_calendar_id = school_calendar.id
+          @school_calendar_steps_ids = []
+          school_calendar_id = school_calendar.id
 
-        update_or_create_steps(school_calendar_record.etapas, school_calendar_id)
+          update_or_create_steps(school_calendar_record.etapas, school_calendar_id)
 
-        destroy_removed_steps(school_calendar_id)
+          destroy_removed_steps(school_calendar_id)
 
-        unless school_calendar.opened_year
-          remove_closed_years_on_selected_profiles(school_calendar.unity_id, school_calendar.year)
+          unless school_calendar.opened_year
+            remove_closed_years_on_selected_profiles(school_calendar.unity_id, school_calendar.year)
+          end
         end
+      rescue ActiveRecord::RecordInvalid => error
+        known_error_messages = [
+          I18n.t('ieducar_api.error.messages.must_be_in_school_calendar_year'),
+          I18n.t('ieducar_api.error.messages.must_be_less_than_end_at')
+        ]
+
+        raise error unless known_error_messages.any? { |known_error| error.message.include?(known_error) }
+
+        mark_with_error(error)
       end
     end
   rescue ActiveRecord::RecordInvalid => error
@@ -107,5 +118,13 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
       unity_id,
       year
     )
+  end
+
+  def mark_with_error(error)
+    unity = error.record&.unity
+    unity = "Escola: #{unity.api_code} - #{unity.name}" if unity.present?
+    error_message = "#{unity}: #{error.message}"
+
+    worker_state.add_error!(error_message)
   end
 end
