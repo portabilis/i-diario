@@ -1,11 +1,14 @@
 class TeacherProfile < ActiveRecord::Base
-
-  belongs_to :user
+  belongs_to :user, touch: true
   belongs_to :teacher
-  belongs_to :role
+  belongs_to :user_role
   belongs_to :classroom
   belongs_to :discipline
   belongs_to :unity
+
+  has_one :role, through: :user_role
+
+  has_many :users, dependent: :nullify
 
   def self.generate(user)
     transaction do
