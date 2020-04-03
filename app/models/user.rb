@@ -29,6 +29,7 @@ class User < ActiveRecord::Base
   belongs_to :discipline, foreign_key: :current_discipline_id
   belongs_to :unity, foreign_key: :current_unity_id
 
+  has_many :teacher_profiles
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
 
@@ -42,6 +43,7 @@ class User < ActiveRecord::Base
   has_and_belongs_to_many :students, dependent: :restrict_with_error
 
   has_many :user_roles, -> { includes(:role) }, dependent: :destroy
+  has_many :roles, through: :user_roles
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
@@ -302,6 +304,10 @@ class User < ActiveRecord::Base
         years = YearsFromUnityFetcher.new(unity.id, only_opened_years).fetch
         years.map { |year| { id: year, name: year } }
       end
+  end
+
+  def can_use_teacher_profile?
+    @can_use_teacher_profile ||= roles.size == 1 && roles.first.name.downcase.include?('professor')
   end
 
   protected

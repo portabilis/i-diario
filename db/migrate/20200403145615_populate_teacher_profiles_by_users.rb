@@ -1,11 +1,12 @@
 class PopulateTeacherProfilesByUsers < ActiveRecord::Migration
-  def change
-    User.where.not(teacher_id: nil).each do |user|
+  def up
+    User.where.not(teacher_id: nil).find_each do |user|
       TeacherProfile.generate(user)
     end
 
-    User.where.not(teacher_id: nil).each do |user|
+    User.where.not(teacher_id: nil).find_each do |user|
       user.teacher_profile_id = TeacherProfile.find_by(
+        user_role_id: user.current_user_role_id,
         user_id: user.id,
         teacher_id: user.teacher_id,
         classroom_id: user.current_classroom_id,
@@ -15,5 +16,10 @@ class PopulateTeacherProfilesByUsers < ActiveRecord::Migration
       ).try(:id)
       user.save! if user.teacher_profile_id
     end
+  end
+
+  def down
+    User.update_all(teacher_profile_id: nil)
+    TeacherProfile.delete_all
   end
 end

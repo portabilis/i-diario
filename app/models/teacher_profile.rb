@@ -15,6 +15,7 @@ class TeacherProfile < ActiveRecord::Base
       teacher = user.teacher
 
       teacher.unities.each do |unity|
+        user_role = user.user_roles.find_by(unity_id: unity.id)
         years = user.available_years(unity)
         years.each do |year_hash|
           year = year_hash[:id]
@@ -24,7 +25,7 @@ class TeacherProfile < ActiveRecord::Base
             disciplines = classroom.disciplines.by_teacher_id(teacher.id).ordered
             disciplines.each do |discipline|
               create!(
-                user_role_id: user.user_roles.first.id,
+                user_role: user_role,
                 classroom_id: classroom.id,
                 discipline_id: discipline.id,
                 year: year,
