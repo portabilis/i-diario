@@ -1,4 +1,6 @@
 class TeachingPlanContentsFetcher
+  YEARLY_SCHOOL_TERM_TYPE = ''.freeze
+
   def fetch
     teaching_plans.map(&:contents).uniq.flatten
   end
@@ -32,9 +34,7 @@ class TeachingPlanContentsFetcher
 
   def school_terms
     @school_terms ||= steps_fetcher.steps_by_date_range(@start_date.to_date, @end_date.to_date).map { |step|
-      school_term = SchoolTermConverter.convert(step)
-      school_term = '' if school_term.to_s == SchoolTermTypes::YEARLY.to_s
-      school_term
+      SchoolTermConverter.convert(step)
     }
   end
 end
