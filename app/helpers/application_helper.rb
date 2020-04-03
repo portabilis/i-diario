@@ -145,4 +145,74 @@ module ApplicationHelper
   def default_steps
     (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
   end
+
+  def teacher_profile_list
+    Rails.cache.fetch(["TeacherProfileList-#{current_entity.id}", current_user]) do
+      list = []
+      space_factor = 0
+
+      profiles = TeacherProfile.where(user_id: current_user.id)
+      years = profiles.group_by(&:year)
+
+      years.each do |year, profiles|
+        profiles_by_unity = profiles.group_by(&:unity_id)
+
+        if years.size > 1
+          list << teacher_profile_option(name_value: year.to_s,
+                                         bold: true,
+                                         space_factor: space_factor)
+          space_factor += 1
+        end
+
+        profiles_by_unity.each do |unity_id, profiles|
+          unity = Unity.find(unity_id)
+
+          list << teacher_profile_option(name_value: unity.name,
+                                         bold: true,
+                                         space_factor: space_factor)
+          space_factor += 1
+
+          profiles_by_classroom = profiles.group_by(&:classroom_id)
+
+          profiles_by_classroom.each do |classroom_id, profiles|
+            classroom = Classroom.find(classroom_id)
+
+            list << teacher_profile_option(name_value: classroom.description,
+                                           bold: true,
+                                           space_factor: space_factor)
+            space_factor += 1
+
+            profiles.each do |profile|
+              list << teacher_profile_option(id: profile.id,
+                                             name_value: profile.discipline.description,
+                                             text: "#{classroom.description} - #{profile.discipline.description}",
+                                             bold: false,
+                                             space_factor: space_factor)
+            end
+
+            space_factor -= 1
+          end
+
+          space_factor -= 1
+        end
+
+        space_factor -= 1
+      end
+
+      list
+    end
+  end
+
+  def teacher_profile_option(options)
+    css = "margin-left:#{options[:space_factor] * 10}px;"
+    css << 'font-weight: bold;' if options[:bold]
+
+    label = content_tag :span, style: css do
+      options[:name_value]
+    end
+
+    OpenStruct.new(id: options[:id],
+                   name: label,
+                   text: options[:text])
+  end
 end

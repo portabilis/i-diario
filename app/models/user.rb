@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
 
-  attr_accessor :credentials, :has_to_validate_receive_news_fields
+  attr_accessor :credentials, :has_to_validate_receive_news_fields, :profile_id
 
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
@@ -292,6 +292,16 @@ class User < ActiveRecord::Base
 
   def cpf_as_integer
     cpf.gsub(/[^\d]/, '')
+  end
+
+  def available_years(unity)
+    @available_years ||= {}
+    @available_years[unity.id] ||=
+      begin
+        only_opened_years = !can_change_school_year?
+        years = YearsFromUnityFetcher.new(unity.id, only_opened_years).fetch
+        years.map { |year| { id: year, name: year } }
+      end
   end
 
   protected

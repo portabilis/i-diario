@@ -9,7 +9,8 @@ class CurrentRoleForm
                 :id,
                 :current_unity_id,
                 :assumed_teacher_id,
-                :current_school_year
+                :current_school_year,
+                :teacher_profile_id
 
   validates :current_user_role_id, presence: true
   validates :current_school_year, presence: true, if: :require_year?, unless: :unity_is_cost_center?
