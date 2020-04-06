@@ -42,11 +42,15 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
         school_calendar.save! if school_calendar.changed?
 
         @school_calendar_steps_ids = []
+        @changed_steps = false
+        @removed_steps = false
         school_calendar_id = school_calendar.id
 
         update_or_create_steps(school_calendar_record.etapas, school_calendar_id)
 
         destroy_removed_steps(school_calendar_id)
+
+        count_school_days(school_calendar) if school_calendar.new_record? || @changed_steps || @removed_steps
 
         unless school_calendar.opened_year
           remove_closed_years_on_selected_profiles(school_calendar.unity_id, school_calendar.year)
@@ -87,7 +91,10 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
           school_calendar_step.end_date_for_posting = end_at
         end
 
-        school_calendar_step.save! if school_calendar_step.changed?
+        if school_calendar_step.changed?
+          school_calendar_step.save!
+          @changed_steps = true
+        end
 
         @school_calendar_steps_ids << school_calendar_step.id
       end
@@ -95,9 +102,13 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
   end
 
   def destroy_removed_steps(school_calendar_id)
-    SchoolCalendarStep.where(school_calendar_id: school_calendar_id)
-                      .where.not(id: @school_calendar_steps_ids)
-                      .destroy_all
+    orphan_steps = SchoolCalendarStep.where(school_calendar_id: school_calendar_id)
+                                     .where.not(id: @school_calendar_steps_ids)
+
+    return if orphan_steps.empty?
+
+    @removed_steps = true
+    orphan_steps.destroy_all
   end
 
   def remove_closed_years_on_selected_profiles(unity_id, year)
@@ -106,6 +117,14 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
       entity_id,
       unity_id,
       year
+    )
+  end
+
+  def count_school_days(school_calendar)
+    SchoolDaysCounterWorker.perform_in(
+      1.second,
+      entity_id,
+      school_calendar.id
     )
   end
 end

@@ -18,9 +18,7 @@ class SchoolDaysCounterService
   private
 
   def all_school_days
-    Rails.cache.fetch('school_days_by_unity', expires_in: 1.year) do
-      fetch_school_days(@unities, nil, nil)
-    end
+    fetch_school_days(@unities, nil, nil)
   end
 
   def fetch_school_days(unities, start_date, end_date)
@@ -45,19 +43,8 @@ class SchoolDaysCounterService
     start_date = start_date.presence || school_calendar.steps.min_by(&:step_number).start_at
     end_date = end_date.presence || school_calendar.steps.max_by(&:step_number).end_at
 
-    Rails.cache.fetch("#{unity.id}_#{start_date}_#{end_date}", expires_in: 1.year) do
-      school_days = SchoolDayChecker.new(
-        school_calendar,
-        start_date,
-        nil,
-        nil,
-        nil
-      ).school_dates_between(
-        start_date,
-        end_date
-      ).size
+    school_days = UnitySchoolDay.by_unity_id(unity.id).by_date_between(start_date, end_date).size
 
-      { school_days: school_days, start_date: start_date, end_date: end_date }
-    end
+    { school_days: school_days, start_date: start_date, end_date: end_date }
   end
 end
