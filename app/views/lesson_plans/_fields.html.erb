@@ -34,10 +34,10 @@
             <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
             <% if content.is_editable %>
               <div style="width: 80px;">
-                <a class="btn btn-success" onclick="editContent('lesson_plan_<%= content.id %>')">
+                <a class="btn new-btn-success" onclick="editContent('lesson_plan_<%= content.id %>')">
                   <i class="fa fa-pencil"></i>
                 </a>
-                <a class="btn btn-danger" onclick="removeContent('lesson_plan_<%= content.id %>')">
+                <a class="btn new-btn-danger" onclick="removeContent('lesson_plan_<%= content.id %>')">
                   <i class="fa fa-trash"></i>
                 </a>
               </div>
