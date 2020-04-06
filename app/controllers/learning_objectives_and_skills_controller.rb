@@ -84,13 +84,20 @@ class LearningObjectivesAndSkillsController < ApplicationController
   private
 
   def learning_objectives_and_skills_params
-    params.require(:learning_objectives_and_skill).permit(
+    parameters = params.require(:learning_objectives_and_skill).permit(
       :code,
       :description,
       :step,
       :field_of_experience,
       :discipline,
-      :thematic_unit
+      :thematic_unit,
+      :grades
     )
+
+    child_educations = params.require(:learning_objectives_and_skill)[:child_educations]
+    elementary_educations = params.require(:learning_objectives_and_skill)[:elementary_educations]
+
+    parameters[:grades] = elementary_educations.split(',') + child_educations.split(',')
+    parameters
   end
 end
