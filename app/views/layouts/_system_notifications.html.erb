@@ -4,6 +4,14 @@
 </span>
 
 <div class="ajax-dropdown" style="display: none;">
+  <div class="user-avatar">
+    <%= gravatar_image_tag current_user.email, 48, alt: current_user.navigation_display %>
+    <div class="user-avatar-name">
+      <strong><%= current_user.name %></strong>
+      <%= current_user.email %>
+    </div>
+  </div>
+
   <div class="ajax-notifications custom-scroll" style="opacity: 1;">
     <ul class="notification-body">
       <% last_system_notifications.each do |notification| %>
@@ -20,5 +28,16 @@
         </li>
       <% end %>
     </ul>
+  </div>
+
+  <div class="user-links">
+    <%= link_to edit_account_path do %>
+      <i class="fa fa-lg fa-fw fa-user"></i>
+      Editar perfil
+    <% end %>
+    <%= link_to destroy_user_session_path do %>
+      <i class="fa fa-lg fa-fw fa-power-off"></i>
+      Sair
+    <% end %>
   </div>
 </div>

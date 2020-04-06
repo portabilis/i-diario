@@ -57,14 +57,6 @@
         <!-- end collapse menu -->
 
         <% if user_signed_in? %>
-          <!-- logout button -->
-          <div id="logout" class="btn-header transparent pull-right">
-            <span>
-              <%= link_to content_tag(:i, '', class: 'fa fa-sign-out'), destroy_user_session_path, id: "sign_out"  %>
-            </span>
-          </div>
-          <!-- logout button -->
-
           <%= render 'layouts/system_notifications' %>
         <% end %>
       </div>
