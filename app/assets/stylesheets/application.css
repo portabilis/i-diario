@@ -356,3 +356,12 @@ span.multiline {
   border: 0;
   padding: 5px 5px 5px 10px;
 }
+
+.shortcut-icon {
+  font-size: 5em;
+  line-height: 1.5em;
+}
+
+.shortcut a span {
+  display: block;
+}

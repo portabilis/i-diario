@@ -35,6 +35,10 @@ module ApplicationHelper
     Navigation.draw_menus(controller_name, current_user)
   end
 
+  def shortcuts
+    Navigation.draw_shortcuts(current_user)
+  end
+
   def title
     Navigation.draw_title(controller_name, false, self)
   end
