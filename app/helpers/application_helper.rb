@@ -187,9 +187,15 @@ module ApplicationHelper
             space_factor += 1
 
             profiles.each do |profile|
+              text = ''
+              text << "#{year} > " if years.size > 1
+              text << "#{unity.name} > "
+              text << "#{classroom.description} > "
+              text << profile.discipline.description
+
               list << teacher_profile_option(id: profile.id,
                                              name_value: profile.discipline.description,
-                                             text: "#{classroom.description} - #{profile.discipline.description}",
+                                             text: text,
                                              bold: false,
                                              space_factor: space_factor)
             end

@@ -365,3 +365,32 @@ span.multiline {
 .shortcut a span {
   display: block;
 }
+
+#header .select2-arrow {
+  background-color: #4c4f53;
+  color: white;
+  border-radius: 0 3px 3px 0;
+  -webkit-border-radius: 0 3px 3px 0;
+  width: 20px;
+}
+
+#header .select2-chosen {
+  background-color: #4c4f53;
+  color: white;
+  border-radius: 3px 0 0 3px;
+  -webkit-border-radius: 3px 0 0 3px;
+}
+
+#header .select2-chosen .select2-user-result {
+  margin-left: 5px;
+}
+
+#header span.label {
+  margin-top: 0px;
+  padding-top: 0px;
+  margin-bottom: 7px;
+}
+
+#header form .select-role {
+  margin-top: 11px;
+}
