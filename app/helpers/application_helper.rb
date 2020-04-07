@@ -32,11 +32,15 @@ module ApplicationHelper
   end
 
   def menus
-    Navigation.draw_menus(controller_name, current_user)
+    Rails.cache.fetch(["Menus-#{current_entity.id}", current_user, controller_name]) do
+      Navigation.draw_menus(controller_name, current_user)
+    end
   end
 
   def shortcuts
-    Navigation.draw_shortcuts(current_user)
+    Rails.cache.fetch(["Home-Shortcuts-#{current_entity.id}", current_user]) do
+      Navigation.draw_shortcuts(current_user)
+    end
   end
 
   def title
@@ -151,16 +155,15 @@ module ApplicationHelper
   end
 
   def teacher_profile_list
-    Rails.cache.fetch(["TeacherProfileList-#{current_entity.id}", current_user]) do
+    Rails.cache.fetch(['TeacherProfileList', current_entity.id, current_user]) do
       list = []
       space_factor = 0
 
-      profiles = TeacherProfile.where(user_id: current_user.id)
+      profiles = current_user.teacher_profiles.includes(:classroom, :discipline, :unity)
+
       years = profiles.group_by(&:year)
 
       years.each do |year, profiles|
-        profiles_by_unity = profiles.group_by(&:unity_id)
-
         if years.size > 1
           list << teacher_profile_option(name_value: year.to_s,
                                          bold: true,
@@ -168,19 +171,13 @@ module ApplicationHelper
           space_factor += 1
         end
 
-        profiles_by_unity.each do |unity_id, profiles|
-          unity = Unity.find(unity_id)
-
+        profiles.group_by(&:unity).each do |unity, profiles|
           list << teacher_profile_option(name_value: unity.name,
                                          bold: true,
                                          space_factor: space_factor)
           space_factor += 1
 
-          profiles_by_classroom = profiles.group_by(&:classroom_id)
-
-          profiles_by_classroom.each do |classroom_id, profiles|
-            classroom = Classroom.find(classroom_id)
-
+          profiles.group_by(&:classroom).each do |classroom, profiles|
             list << teacher_profile_option(name_value: classroom.description,
                                            bold: true,
                                            space_factor: space_factor)
