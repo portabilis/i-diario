@@ -29,72 +29,72 @@
           width: '100px' %>
       </div>
     <% else %>
-    <div id="role-field-container" class="project-context">
-      <span class="label required"><%= t('layouts.application.role') %></span>
-      <%= f.input :current_user_role_id,
-                  as: :select2,
-                  elements: user.user_roles.includes(:unity),
-                  input_html: {"data-placeholder" => t('layouts.application.select')},
-                  label: false,
-                  wrapper: false,
-                  width: '100px' %>
-    </div>
+      <div id="role-field-container" class="project-context">
+        <span class="label required"><%= t('layouts.application.role') %></span>
+        <%= f.input :current_user_role_id,
+                    as: :select2,
+                    elements: user.user_roles.includes(:unity),
+                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    label: false,
+                    wrapper: false,
+                    width: '100px' %>
+      </div>
 
-    <div id="unity-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['administrator']) %>">
-      <span class="label"><%= t('layouts.application.unit') %></span>
-      <%= f.input :current_unity_id,
-                  as: :select2,
-                  elements: current_unities,
-                  input_html: {"data-placeholder" => t('layouts.application.select')},
-                  label: false,
-                  wrapper: false,
-                  class: 'administrator' %>
-    </div>
+      <div id="unity-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['administrator']) %>">
+        <span class="label"><%= t('layouts.application.unit') %></span>
+        <%= f.input :current_unity_id,
+                    as: :select2,
+                    elements: current_unities,
+                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    label: false,
+                    wrapper: false,
+                    class: 'administrator' %>
+      </div>
 
-    <div id="school-year-field-container" class="project-context"  style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(%w(administrator employee teacher)) %>" >
-      <span class="label"><%= t('layouts.application.school_year') %></span>
-      <%= f.input :current_school_year,
-                  as: :select2,
-                  elements: current_user_available_years.to_json,
-                  input_html: {"data-placeholder" => t('layouts.application.select')},
-                  label: false,
-                  wrapper: false %>
-    </div>
+      <div id="school-year-field-container" class="project-context"  style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(%w(administrator employee teacher)) %>" >
+        <span class="label"><%= t('layouts.application.school_year') %></span>
+        <%= f.input :current_school_year,
+                    as: :select2,
+                    elements: current_user_available_years.to_json,
+                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    label: false,
+                    wrapper: false %>
+      </div>
 
-    <div id="classroom-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || user_role.role.access_level.in?(%w(administrator employee)) %>">
-      <span class="label"><%= t('layouts.application.classroom') %></span>
-      <%= f.input :current_classroom_id,
-                  as: :select2,
-                  elements: current_user_available_classrooms,
-                  input_html: {"data-placeholder" => t('layouts.application.select')},
-                  class: 'teacher',
-                  data: { dropdown: '.project-context .project-selector.classroom' },
-                  wrapper: false,
-                  label: false %>
-    </div>
+      <div id="classroom-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || user_role.role.access_level.in?(%w(administrator employee)) %>">
+        <span class="label"><%= t('layouts.application.classroom') %></span>
+        <%= f.input :current_classroom_id,
+                    as: :select2,
+                    elements: current_user_available_classrooms,
+                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    class: 'teacher',
+                    data: { dropdown: '.project-context .project-selector.classroom' },
+                    wrapper: false,
+                    label: false %>
+      </div>
 
-    <div id="assumed-teacher-field-container" class="project-context" style="<%= ' display: none;'.html_safe unless user_role.role.access_level.in?(%w(administrator employee)) && f.object.current_classroom_id.present? %>">
-      <span class="label"><%= t('layouts.application.teacher') %></span>
-      <%= f.input :assumed_teacher_id,
-                  as: :select2,
-                  elements: current_user_available_teachers,
-                  input_html: {"data-placeholder" => t('layouts.application.select')},
-                  label: false,
-                  wrapper: false %>
-    </div>
+      <div id="assumed-teacher-field-container" class="project-context" style="<%= ' display: none;'.html_safe unless user_role.role.access_level.in?(%w(administrator employee)) && f.object.current_classroom_id.present? %>">
+        <span class="label"><%= t('layouts.application.teacher') %></span>
+        <%= f.input :assumed_teacher_id,
+                    as: :select2,
+                    elements: current_user_available_teachers,
+                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    label: false,
+                    wrapper: false %>
+      </div>
 
-    <div id="discipline-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || (user_role.role.access_level.in?(%w(administrator employee)) && f.object.assumed_teacher_id.present?) %>">
-      <span class="label"><%= t('layouts.application.discipline') %></span>
-      <%= f.input :current_discipline_id,
-                  as: :select2,
-                  wrapper: false,
-                  label: false,
-                  elements: current_user_available_disciplines,
-                  input_html: {"data-placeholder" => t('layouts.application.select')},
-                  class: 'teacher',
-                  data: { dropdown: '.project-context .project-selector.discipline' } %>
-    </div>
-  <% end %>
+      <div id="discipline-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || (user_role.role.access_level.in?(%w(administrator employee)) && f.object.assumed_teacher_id.present?) %>">
+        <span class="label"><%= t('layouts.application.discipline') %></span>
+        <%= f.input :current_discipline_id,
+                    as: :select2,
+                    wrapper: false,
+                    label: false,
+                    elements: current_user_available_disciplines,
+                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    class: 'teacher',
+                    data: { dropdown: '.project-context .project-selector.discipline' } %>
+      </div>
+    <% end %>
 
     <div class="select-role">
       <button type="submit" class="btn btn-sm bg-color-blueDark txt-color-white"><%= t('layouts.application.change_profile') %></button>
