@@ -1,3 +1,10 @@
+<a id="user-info-selector" href="#">
+  <%= content_tag :span do %>
+    <%= t('layouts.application.change_profile') %>
+    <i class="fa fa-angle-right" aria-hidden="true"></i>
+  <% end %>
+</a>
+
 <div id="current-role-selector">
   <%= simple_form_for user, remote: current_user.admin?, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
     <%= f.hidden_field :id, value: f.object.id %>
