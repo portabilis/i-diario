@@ -32,13 +32,13 @@ module ApplicationHelper
   end
 
   def menus
-    Rails.cache.fetch(["Menus-#{current_entity.id}", current_user, controller_name]) do
+    Rails.cache.fetch(["Menus-#{current_entity.id}", current_user, controller_name, current_user_cache_key]) do
       Navigation.draw_menus(controller_name, current_user)
     end
   end
 
   def shortcuts
-    Rails.cache.fetch(["Home-Shortcuts-#{current_entity.id}", current_user]) do
+    Rails.cache.fetch(["Home-Shortcuts-#{current_entity.id}", current_user, current_user_cache_key]) do
       Navigation.draw_shortcuts(current_user)
     end
   end
