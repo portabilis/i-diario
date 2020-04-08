@@ -159,4 +159,8 @@ module ApplicationHelper
       TeacherProfilesOptionsGenerator.new(current_user).run!
     end
   end
+
+  def use_teacher_profile?
+    current_user.can_use_teacher_profile? && current_user.teacher_profiles.present?
+  end
 end
