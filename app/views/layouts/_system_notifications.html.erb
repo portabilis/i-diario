@@ -1,7 +1,7 @@
 <div class="user-info btn-header transparent pull-right">
   <a class="pull-right dropdown-toggle" data-toggle="dropdown" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
     <i class="fa fa-angle-down"></i>
-    <%= gravatar_image_tag 'marcelocajueiro@gmail.com', '20', alt: current_user.navigation_display %>
+    <%= gravatar_image_tag current_user.email, '20', alt: current_user.navigation_display %>
   </a>
   <ul class="dropdown-menu " aria-labelledby="dropdownMenu1">
     <li>
