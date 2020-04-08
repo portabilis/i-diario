@@ -307,6 +307,8 @@ class User < ActiveRecord::Base
   end
 
   def can_use_teacher_profile?
+    return false unless Rails.application.secrets.teacher_profile_enabled.present?
+
     @can_use_teacher_profile ||= roles.size == 1 && roles.first.name.downcase.include?('professor')
   end
 
