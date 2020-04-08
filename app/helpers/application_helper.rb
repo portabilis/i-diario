@@ -154,65 +154,9 @@ module ApplicationHelper
     (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
   end
 
-  def indentation_control(grouped_profiles, indentation)
-    grouped_profiles.each do |group, profiles|
-      yield(group, profiles)
-    end
-
-    indentation -= 1
-  end
-
   def teacher_profiles_options
     Rails.cache.fetch(['TeacherProfileList', current_entity.id, current_user]) do
-      list = []
-      indentation = 0
-
-      profiles = current_user.teacher_profiles.includes(:classroom, :discipline, :unity)
-
-      years = profiles.group_by(&:year)
-
-      indentation_control(years, indentation) do |year, profiles|
-        if years.size > 1
-          list << teacher_profile_option(name_value: year.to_s, bold: true, indentation: indentation)
-        end
-
-        indentation_control(profiles.group_by(&:unity), indentation) do |unity, profiles|
-          list << teacher_profile_option(name_value: unity.name, bold: true, indentation: indentation)
-
-          indentation_control(profiles.group_by(&:classroom), indentation) do |classroom, profiles|
-            list << teacher_profile_option(name_value: classroom.description, bold: true, indentation: indentation)
-
-            profiles.each do |profile|
-              text = ''
-              text << "#{year} > " if years.size > 1
-              text << "#{unity.name} > "
-              text << "#{classroom.description} > "
-              text << profile.discipline.description
-
-              list << teacher_profile_option(id: profile.id,
-                                             name_value: profile.discipline.description,
-                                             text: text,
-                                             bold: false,
-                                             indentation: indentation)
-            end
-          end
-        end
-      end
-
-      list
+      TeacherProfilesOptionsGenerator.new(current_user).run!
     end
-  end
-
-  def teacher_profile_option(options)
-    css = "margin-left:#{options[:indentation] * 10}px;"
-    css << 'font-weight: bold;' if options[:bold]
-
-    label = content_tag :span, style: css do
-      options[:name_value]
-    end
-
-    OpenStruct.new(id: options[:id],
-                   name: label,
-                   text: options[:text])
   end
 end
