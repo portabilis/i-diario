@@ -7,7 +7,7 @@
 </a>
 
 <div id="current-role-selector">
-  <%= simple_form_for user, remote: current_user.admin?, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
+  <%= simple_form_for user, remote: use_teacher_profile?, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
     <%= f.hidden_field :id, value: f.object.id %>
     <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
 
@@ -17,7 +17,7 @@
       <%= gravatar_image_tag current_user.email, 48, alt: current_user.navigation_display %>
     </div>
 
-    <% if current_user.can_use_teacher_profile? && current_user.teacher_profiles.present? %>
+    <% if use_teacher_profile? %>
       <div id="teacher-profile-field-container" class="project-context">
         <span class="label required"><%= t('layouts.application.classroom') %></span>
         <%= f.input :teacher_profile_id,
