@@ -5,6 +5,11 @@ navigation:
       path: "root_path"
       visible: true
   - menu:
+      type: "accounts"
+      icon: "fa-user"
+      path: "edit_account_path"
+      visible: false
+  - menu:
       type: "administrative"
       icon: "fa-tasks"
       submenus:
