@@ -154,34 +154,33 @@ module ApplicationHelper
     (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
   end
 
-  def teacher_profile_list
+  def indentation_control(grouped_profiles, indentation)
+    grouped_profiles.each do |group, profiles|
+      yield(group, profiles)
+    end
+
+    indentation -= 1
+  end
+
+  def teacher_profiles_options
     Rails.cache.fetch(['TeacherProfileList', current_entity.id, current_user]) do
       list = []
-      space_factor = 0
+      indentation = 0
 
       profiles = current_user.teacher_profiles.includes(:classroom, :discipline, :unity)
 
       years = profiles.group_by(&:year)
 
-      years.each do |year, profiles|
+      indentation_control(years, indentation) do |year, profiles|
         if years.size > 1
-          list << teacher_profile_option(name_value: year.to_s,
-                                         bold: true,
-                                         space_factor: space_factor)
-          space_factor += 1
+          list << teacher_profile_option(name_value: year.to_s, bold: true, indentation: indentation)
         end
 
-        profiles.group_by(&:unity).each do |unity, profiles|
-          list << teacher_profile_option(name_value: unity.name,
-                                         bold: true,
-                                         space_factor: space_factor)
-          space_factor += 1
+        indentation_control(profiles.group_by(&:unity), indentation) do |unity, profiles|
+          list << teacher_profile_option(name_value: unity.name, bold: true, indentation: indentation)
 
-          profiles.group_by(&:classroom).each do |classroom, profiles|
-            list << teacher_profile_option(name_value: classroom.description,
-                                           bold: true,
-                                           space_factor: space_factor)
-            space_factor += 1
+          indentation_control(profiles.group_by(&:classroom), indentation) do |classroom, profiles|
+            list << teacher_profile_option(name_value: classroom.description, bold: true, indentation: indentation)
 
             profiles.each do |profile|
               text = ''
@@ -194,16 +193,10 @@ module ApplicationHelper
                                              name_value: profile.discipline.description,
                                              text: text,
                                              bold: false,
-                                             space_factor: space_factor)
+                                             indentation: indentation)
             end
-
-            space_factor -= 1
           end
-
-          space_factor -= 1
         end
-
-        space_factor -= 1
       end
 
       list
@@ -211,7 +204,7 @@ module ApplicationHelper
   end
 
   def teacher_profile_option(options)
-    css = "margin-left:#{options[:space_factor] * 10}px;"
+    css = "margin-left:#{options[:indentation] * 10}px;"
     css << 'font-weight: bold;' if options[:bold]
 
     label = content_tag :span, style: css do

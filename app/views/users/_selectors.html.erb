@@ -22,7 +22,7 @@
         <span class="label required"><%= t('layouts.application.classroom') %></span>
         <%= f.input :teacher_profile_id,
           as: :select2,
-          elements: teacher_profile_list,
+          elements: teacher_profiles_options,
           input_html: {"data-placeholder" => t('layouts.application.select')},
           label: false,
           wrapper: false,
