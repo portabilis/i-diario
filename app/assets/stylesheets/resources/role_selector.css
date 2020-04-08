@@ -64,8 +64,19 @@
 .user-info img {
   border-radius: 4px;
   display: block;
-  width: 48px;
-  height: 48px;
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+.user-info .fa {
+  color: white;
+  display: block;
+  float: right;
+  margin-top: 18px;
+  margin-left: 5px;
 }
 
 #user-info-selector {

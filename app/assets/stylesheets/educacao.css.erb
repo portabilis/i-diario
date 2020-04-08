@@ -184,19 +184,20 @@ table#history tbody td.history-changes {
   box-sizing: content-box;
 }
 
-.ajax-dropdown:before,
-.ajax-dropdown:after {
-  left: 88%;
+.notifications.ajax-dropdown:before,
+.notifications.ajax-dropdown:after {
+  left: 82%;
 }
 
-.ajax-dropdown {
+.notifications.ajax-dropdown {
   width: 375px;
-  height: 485px;
+  height: 420px;
   right: 16px;
   left: initial;
+  margin-top: 5px;
 }
 
-.active + .ajax-dropdown {
+.active + .notifications.ajax-dropdown {
   -webkit-animation-name: initial;
   -moz-animation-name: initial;
   -o-animation-name: initial;
@@ -213,7 +214,7 @@ table#history tbody td.history-changes {
 
 .ajax-notifications {
   box-sizing: content-box;
-  height: 350px;
+  height: 385px;
 }
 
 .ajax-notifications .notification-body > li a.msg {
@@ -318,37 +319,4 @@ table#history tbody td.history-changes {
 
 nav ul span.menu-item-parent {
   max-width: 75%;
-}
-
-.user-avatar {
-  text-align: left;
-  padding: 0 0 15px 0 !important;
-}
-
-.user-avatar .user-avatar-name {
-  padding-left: 60px;
-  padding-top: 5px;
-}
-
-.user-avatar img {
-  float: left;
-}
-
-.user-avatar span {
-  margin-top: 5px;
-  display: block;
-}
-
-.user-avatar-name {
-  word-wrap: break-word;
-}
-
-
-.user-links {
-  padding-top: 10px !important;
-  padding-bottom: 10px !important;
-}
-
-.user-links a {
-  display: block;
 }

@@ -1,21 +1,9 @@
-<a id="user-info-selector" href="#">
-  <%= gravatar_image_tag current_user.email, 48, alt: current_user.navigation_display %>
-  <%= content_tag :span do -%>
-    <%= t('layouts.application.change_profile') %>
-    <i class="fa fa-angle-right" aria-hidden="true"></i>
-  <% end -%>
-</a>
-
 <div id="current-role-selector">
   <%= simple_form_for user, remote: current_user.admin?, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
     <%= f.hidden_field :id, value: f.object.id %>
     <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
 
     <div class="errors-container"></div>
-
-    <div class="user-info">
-      <%= gravatar_image_tag current_user.email, 48, alt: current_user.navigation_display %>
-    </div>
 
     <% if current_user.can_use_teacher_profile? && current_user.teacher_profiles.present? %>
       <div id="teacher-profile-field-container" class="project-context">

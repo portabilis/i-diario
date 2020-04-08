@@ -46,16 +46,6 @@
       %>
 
       <div class="pull-right" style="margin-top: 10px;">
-        <!-- collapse menu button -->
-        <div id="hide-menu" class="btn-header pull-right">
-          <span>
-            <a href="javascript:void(0);" data-action="toggleMenu" title="Exibir/Esconder o Menu">
-              <i class="fa fa-reorder"></i>
-            </a>
-          </span>
-        </div>
-        <!-- end collapse menu -->
-
         <% if user_signed_in? %>
           <%= render 'layouts/system_notifications' %>
         <% end %>
