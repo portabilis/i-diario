@@ -10,7 +10,9 @@ class Classroom < ActiveRecord::Base
   belongs_to :unity
   belongs_to :exam_rule
   belongs_to :grade
+  has_many :teacher_profiles, dependent: :destroy
   has_many :teacher_discipline_classrooms, dependent: :destroy
+  has_many :disciplines, through: :teacher_discipline_classrooms
   has_one :calendar, class_name: 'SchoolCalendarClassroom'
   has_many :users, foreign_key: :current_classroom_id, dependent: :nullify
   has_many :student_enrollment_classrooms

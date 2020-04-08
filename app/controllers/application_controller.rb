@@ -243,11 +243,7 @@ class ApplicationController < ActionController::Base
   def current_user_available_years
     return [] if current_user_unity.blank?
 
-    @current_user_available_years ||= begin
-      only_opened_years = !can_change_school_year?
-      years = YearsFromUnityFetcher.new(current_user_unity.id, only_opened_years).fetch
-      years.map { |year| { id: year, name: year } }
-    end
+    @current_user_available_years ||= current_user.available_years(current_user_unity)
   end
   helper_method :current_user_available_years
 

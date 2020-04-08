@@ -19,7 +19,14 @@ class Select2Input < SimpleForm::Inputs::StringInput
 
     options[:elements] ||= []
 
-    elements = options[:elements].compact.map { |g| { id: g.id, name: g.to_s, text: g.to_s } }
+    elements = options[:elements].compact.map { |g|
+      name = (g.try(:name) || g.to_s)
+      if g.id
+        { id: g.id, name: name, text: (g.try(:text) || g.to_s) }
+      else
+        { name: name }
+      end
+    }
     insert_empty_element(elements) if elements.any? && !options[:hide_empty_element]
     elements.to_json
   end

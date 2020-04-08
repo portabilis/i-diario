@@ -1,5 +1,7 @@
 module Navigation
   class Base
+    MENU = YAML.load(File.open("#{Rails.root}/config/navigation.yml"))["navigation"]
+
     def self.build(*args)
       new(*args).build
     end
@@ -7,7 +9,7 @@ module Navigation
     def initialize(item, user, render = Navigation::Render::Base)
       @item = item.to_s
       @navigation_render = render.new(user)
-      @navigation = YAML.load(File.open("#{Rails.root}/config/navigation.yml"))["navigation"]
+      @navigation = MENU
     end
 
     def build

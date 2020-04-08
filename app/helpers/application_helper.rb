@@ -32,7 +32,15 @@ module ApplicationHelper
   end
 
   def menus
-    Navigation.draw_menus(controller_name, current_user)
+    Rails.cache.fetch(["Menus-#{current_entity.id}", current_user, controller_name]) do
+      Navigation.draw_menus(controller_name, current_user)
+    end
+  end
+
+  def shortcuts
+    Rails.cache.fetch(["Home-Shortcuts-#{current_entity.id}", current_user]) do
+      Navigation.draw_shortcuts(current_user)
+    end
   end
 
   def title
@@ -144,5 +152,11 @@ module ApplicationHelper
 
   def default_steps
     (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
+  end
+
+  def teacher_profiles_options
+    Rails.cache.fetch(['TeacherProfileList', current_entity.id, current_user]) do
+      TeacherProfilesOptionsGenerator.new(current_user).run!
+    end
   end
 end
