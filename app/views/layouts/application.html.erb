@@ -32,7 +32,7 @@
 
     <%= hidden_field_tag :valid_current_role, "#{valid_current_role?}" %>
 
-    <header id="header" style="height: 65px; background-color: #27333B;">
+    <header id="header" style="height: 77px; background-color: #27333B;">
       <%=
         render(
           "users/selectors",
@@ -45,7 +45,7 @@
         )
       %>
 
-      <div class="pull-right" style="margin-top: 10px;">
+      <div class="pull-right" style="margin-top: 15px;">
         <% if user_signed_in? %>
           <%= render 'layouts/system_notifications' %>
         <% end %>
