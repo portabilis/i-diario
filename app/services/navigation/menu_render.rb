@@ -70,7 +70,8 @@ module Navigation
       cache_key = [
         'MenuRender#can_show?',
         ActiveRecord::Base.connection.pool.spec.config[:database],
-        current_user
+        current_user,
+        feature
       ]
 
       Rails.cache.fetch cache_key do
