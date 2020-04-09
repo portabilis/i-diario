@@ -316,20 +316,6 @@ class ApplicationController < ActionController::Base
   end
   helper_method :valid_current_role?
 
-  def current_user_cache_key
-    [
-      current_user_id: current_user.id,
-      current_user_role_id: current_user.current_user_role_id,
-      teacher_id: current_user.teacher_id,
-      current_classroom_id: current_user.current_classroom_id,
-      current_discipline_id: current_user.current_discipline_id,
-      current_unity_id: current_user.current_unity_id,
-      assumed_teacher_id: current_user.assumed_teacher_id,
-      current_school_year: current_user.current_school_year
-    ]
-  end
-  helper_method :current_user_cache_key
-
   def teacher_discipline_score_type
     return DisciplineScoreTypes::NUMERIC if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC
     return DisciplineScoreTypes::CONCEPT if current_user_classroom.exam_rule.score_type == ScoreTypes::CONCEPT
