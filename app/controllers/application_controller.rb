@@ -54,11 +54,7 @@ class ApplicationController < ActionController::Base
   end
 
   def policy(record)
-    begin
-      Pundit::PolicyFinder.new(record).policy!.new(current_user, record)
-    rescue
-      ApplicationPolicy.new(current_user, record)
-    end
+    ApplicationPolicy.new(current_user, record)
   end
   helper_method :policy
 
