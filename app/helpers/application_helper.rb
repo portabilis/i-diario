@@ -161,6 +161,8 @@ module ApplicationHelper
   end
 
   def use_teacher_profile?
-    current_user.can_use_teacher_profile? && current_user.teacher_profiles.present?
+    current_user.can_use_teacher_profile? &&
+      current_user.teacher &&
+      current_user.teacher.teacher_profiles.present?
   end
 end

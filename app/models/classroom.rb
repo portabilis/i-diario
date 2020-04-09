@@ -60,6 +60,14 @@ class Classroom < ActiveRecord::Base
   scope :by_id, ->(id) { where(id: id) }
   scope :with_grade, -> { where.not(grade: nil) }
 
+  after_discard do
+    teacher_discipline_classrooms.discard_all
+  end
+
+  after_undiscard do
+    teacher_discipline_classrooms.undiscard_all
+  end
+
   def to_s
     description
   end
