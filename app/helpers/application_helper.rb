@@ -32,13 +32,18 @@ module ApplicationHelper
   end
 
   def menus
-    Rails.cache.fetch(["Menus-#{current_entity.id}", current_user, controller_name, current_user_cache_key]) do
+    key =
+      ["Menus-#{current_entity.id}", controller_name, current_user.admin?, current_user.current_user_role.try(:role)]
+
+    Rails.cache.fetch(key) do
       Navigation.draw_menus(controller_name, current_user)
     end
   end
 
   def shortcuts
-    Rails.cache.fetch(["Home-Shortcuts-#{current_entity.id}", current_user, current_user_cache_key]) do
+    key = ["Home-Shortcuts-#{current_entity.id}", current_user.admin?, current_user.current_user_role.try(:role)]
+
+    Rails.cache.fetch(key) do
       Navigation.draw_shortcuts(current_user)
     end
   end
@@ -155,7 +160,7 @@ module ApplicationHelper
   end
 
   def teacher_profiles_options
-    Rails.cache.fetch(['TeacherProfileList', current_entity.id, current_user]) do
+    Rails.cache.fetch(['TeacherProfileList', current_entity.id, current_user.teacher]) do
       TeacherProfilesOptionsGenerator.new(current_user).run!
     end
   end
