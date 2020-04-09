@@ -7,10 +7,11 @@ class TeacherProfilesOptionsGenerator
   def run!
     @indentation = 0
     @options = []
+    teacher = @user.teacher
 
-    profiles = @user.teacher_profiles.includes(:classroom, :discipline, :unity)
+    profiles = teacher.teacher_profiles.includes(:classroom, :discipline, :unity)
 
-    years = profiles.group_by(&:year)
+    years = profiles.group_by(&:year).select { |year, _| available_years(profiles).include?(year) }
 
     each_profile(years) do |year, profiles_by_year|
       write_main_option(name_value: year.to_s) if years.size > 1
@@ -63,5 +64,17 @@ class TeacherProfilesOptionsGenerator
     end
 
     @indentation -= 1
+  end
+
+  def available_years(profiles)
+    @available_years ||=
+      begin
+        unity_ids = profiles.pluck(:unity_id).uniq
+
+        unity_ids.map { |unity_id|
+          available_years = @user.available_years(nil, unity_id)
+          available_years.map { |year| year[:id] }
+        }.flatten.uniq
+      end
   end
 end
