@@ -4,6 +4,8 @@ class TeacherProfile < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :unity
 
+  has_many :users, dependent: :nullify
+
   def self.generate(teacher)
     transaction do
       teacher.teacher_discipline_classrooms
