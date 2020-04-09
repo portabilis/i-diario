@@ -24,7 +24,7 @@ module Navigation
           'MenuRender#can_show?',
           ActiveRecord::Base.connection.pool.spec.config[:database],
           current_user.admin?,
-          current_user.current_user_role.try(:role),
+          current_user.current_user_role.try(:role) || current_user,
           feature
         ]
 
