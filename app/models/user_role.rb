@@ -2,7 +2,7 @@ class UserRole < ActiveRecord::Base
   acts_as_copy_target
   audited associated_with: :user, only: [:role_id, :unity_id]
 
-  belongs_to :user, touch: true
+  belongs_to :user
   belongs_to :role
   belongs_to :unity
 

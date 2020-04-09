@@ -29,6 +29,7 @@ class User < ActiveRecord::Base
   belongs_to :discipline, foreign_key: :current_discipline_id
   belongs_to :unity, foreign_key: :current_unity_id
 
+  belongs_to :current_teacher_profile, class_name: 'TeacherProfile', foreign_key: :teacher_profile_id
   has_many :teacher_profiles
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
@@ -296,12 +297,13 @@ class User < ActiveRecord::Base
     cpf.gsub(/[^\d]/, '')
   end
 
-  def available_years(unity)
+  def available_years(unity, unity_id = nil)
+    unity_id ||= unity.id
     @available_years ||= {}
-    @available_years[unity.id] ||=
+    @available_years[unity_id] ||=
       begin
         only_opened_years = !can_change_school_year?
-        years = YearsFromUnityFetcher.new(unity.id, only_opened_years).fetch
+        years = YearsFromUnityFetcher.new(unity_id, only_opened_years).fetch
         years.map { |year| { id: year, name: year } }
       end
   end
@@ -309,7 +311,7 @@ class User < ActiveRecord::Base
   def can_use_teacher_profile?
     return false unless Rails.application.secrets.teacher_profile_enabled.present?
 
-    @can_use_teacher_profile ||= roles.size == 1 && roles.first.name.downcase.include?('professor')
+    @can_use_teacher_profile ||= roles.count == 1 && roles.first.name.downcase.include?('professor')
   end
 
   protected
