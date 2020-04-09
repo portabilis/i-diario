@@ -21,7 +21,7 @@ class UnityParamsSynchronizer < BaseSynchronizer
 
       unity_record.tap do |unity|
         unity.uses_differentiated_exam_rule = unity_param.utiliza_regra_diferenciada
-        unity.save! if unity.changed?
+        unity.save(validate: false) if unity.changed?
       end
     end
   end
