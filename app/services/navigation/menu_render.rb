@@ -67,12 +67,7 @@ module Navigation
     end
 
     def can_show?(feature)
-      cache_key = [
-        'MenuRender#can_show?',
-        ActiveRecord::Base.connection.pool.spec.config[:database],
-        current_user,
-        feature
-      ]
+      cache_key = ['MenuRender#can_show?', Entity.current.id, current_user, feature]
 
       Rails.cache.fetch cache_key do
         policy(feature).index?
