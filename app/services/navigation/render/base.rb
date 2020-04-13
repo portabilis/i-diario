@@ -22,7 +22,7 @@ module Navigation
       def can_show?(feature)
         cache_key = [
           'MenuRender#can_show?',
-          ActiveRecord::Base.connection.pool.spec.config[:database],
+          Entity.current.id,
           current_user.admin?,
           current_user.current_user_role.try(:role) || current_user,
           feature
