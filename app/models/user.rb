@@ -30,7 +30,6 @@ class User < ActiveRecord::Base
   belongs_to :unity, foreign_key: :current_unity_id
 
   belongs_to :current_teacher_profile, class_name: 'TeacherProfile', foreign_key: :teacher_profile_id
-  has_many :teacher_profiles
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
 
