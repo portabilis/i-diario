@@ -67,7 +67,11 @@ module Navigation
     end
 
     def can_show?(feature)
-      policy(feature).index?
+      cache_key = ['MenuRender#can_show?', Entity.current.id, current_user, feature]
+
+      Rails.cache.fetch cache_key do
+        policy(feature).index?
+      end
     end
 
     def policy(feature)

@@ -30,6 +30,10 @@
   width: 180px;
 }
 
+#teacher-profile-field-container {
+  width: 500px;
+}
+
 #unity-field-container,
 #classroom-field-container,
 #assumed-teacher-field-container {
@@ -126,6 +130,7 @@
     padding: 0;
   }
 
+  #teacher-profile-field-container,
   #role-field-container,
   #unity-field-container,
   #classroom-field-container,

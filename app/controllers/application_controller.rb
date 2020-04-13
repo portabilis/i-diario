@@ -243,11 +243,7 @@ class ApplicationController < ActionController::Base
   def current_user_available_years
     return [] if current_user_unity.blank?
 
-    @current_user_available_years ||= begin
-      only_opened_years = !can_change_school_year?
-      years = YearsFromUnityFetcher.new(current_user_unity.id, only_opened_years).fetch
-      years.map { |year| { id: year, name: year } }
-    end
+    @current_user_available_years ||= current_user.available_years(current_user_unity)
   end
   helper_method :current_user_available_years
 
@@ -323,6 +319,20 @@ class ApplicationController < ActionController::Base
     ).valid?
   end
   helper_method :valid_current_role?
+
+  def current_user_cache_key
+    [
+      current_user_id: current_user.id,
+      current_user_role_id: current_user.current_user_role_id,
+      teacher_id: current_user.teacher_id,
+      current_classroom_id: current_user.current_classroom_id,
+      current_discipline_id: current_user.current_discipline_id,
+      current_unity_id: current_user.current_unity_id,
+      assumed_teacher_id: current_user.assumed_teacher_id,
+      current_school_year: current_user.current_school_year
+    ]
+  end
+  helper_method :current_user_cache_key
 
   def teacher_discipline_score_type
     return DisciplineScoreTypes::NUMERIC if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC
