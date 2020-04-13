@@ -8,7 +8,7 @@ navigation:
       type: "accounts"
       icon: "fa-user"
       path: "edit_account_path"
-      visible: true
+      visible: false
   - menu:
       type: "administrative"
       icon: "fa-tasks"

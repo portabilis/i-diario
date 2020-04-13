@@ -10,7 +10,7 @@ module Navigation
       content_tag :ul, html_options do
         html = menus.map do |menu|
           render_menu(menu)
-        end.join(" ")
+        end.join(' ')
 
         raw html
       end
@@ -28,7 +28,7 @@ module Navigation
                  end
 
       if can_show
-        content_tag :li, :class => menu[:css_class].join(" ") do
+        content_tag :li, :class => menu[:css_class].join(' ') do
           li = []
           menu_path = path_method menu[:path]
 
@@ -37,54 +37,32 @@ module Navigation
             link_content = Translator.t("navigation.#{menu[:type]}")
 
             if menu[:icon]
-              link << content_tag(:i, "", :class => "fa fa-lg fa-fw #{menu[:icon]}")
+              link << content_tag(:i, '', :class => "fa fa-lg fa-fw #{menu[:icon]}")
             end
 
-            link << content_tag(:span, link_content, :class => "menu-item-parent")
+            link << content_tag(:span, link_content, :class => 'menu-item-parent')
 
-            raw link.join(" ")
+            raw link.join(' ')
           end
 
           if has_submenus
             options = {}
 
-            options[:style] = "display: block;" if menu[:css_class].include?(:open)
+            options[:style] = 'display: block;' if menu[:css_class].include?(:open)
 
             li << render_menus(menu[:subnodes], options)
           end
 
-          raw li.join(" ")
+          raw li.join(' ')
         end
       else
-        ""
+        ''
       end
     end
 
     def has_visible_submenus?(subnodes)
       subnodes.any? do |node|
         can_show?(node[:type])
-      end
-    end
-
-    def can_show?(feature)
-      cache_key = ['MenuRender#can_show?', Entity.current.id, current_user, feature]
-
-      Rails.cache.fetch cache_key do
-        policy(feature).index?
-      end
-    end
-
-    def policy(feature)
-      klass = begin
-        feature.singularize.camelcase.constantize
-      rescue
-        feature
-      end
-
-      begin
-        Pundit::PolicyFinder.new(klass).policy!.new(current_user, klass)
-      rescue
-        ApplicationPolicy.new(current_user, klass)
       end
     end
   end

@@ -32,7 +32,7 @@
 
     <%= hidden_field_tag :valid_current_role, "#{valid_current_role?}" %>
 
-    <header id="header" style="height: 65px; background-color: #27333B;">
+    <header id="header" style="height: 77px; background-color: #27333B;">
       <%=
         render(
           "users/selectors",
@@ -45,26 +45,8 @@
         )
       %>
 
-      <div class="pull-right" style="margin-top: 10px;">
-        <!-- collapse menu button -->
-        <div id="hide-menu" class="btn-header pull-right">
-          <span>
-            <a href="javascript:void(0);" data-action="toggleMenu" title="Exibir/Esconder o Menu">
-              <i class="fa fa-reorder"></i>
-            </a>
-          </span>
-        </div>
-        <!-- end collapse menu -->
-
+      <div class="pull-right" style="margin-top: 15px;">
         <% if user_signed_in? %>
-          <!-- logout button -->
-          <div id="logout" class="btn-header transparent pull-right">
-            <span>
-              <%= link_to content_tag(:i, '', class: 'fa fa-sign-out'), destroy_user_session_path, id: "sign_out"  %>
-            </span>
-          </div>
-          <!-- logout button -->
-
           <%= render 'layouts/system_notifications' %>
         <% end %>
       </div>

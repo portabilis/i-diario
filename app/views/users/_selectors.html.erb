@@ -1,9 +1,8 @@
 <a id="user-info-selector" href="#">
-  <%= gravatar_image_tag current_user.email, 48, alt: current_user.navigation_display %>
-  <%= content_tag :span do -%>
+  <%= content_tag :span do %>
     <%= t('layouts.application.change_profile') %>
     <i class="fa fa-angle-right" aria-hidden="true"></i>
-  <% end -%>
+  <% end %>
 </a>
 
 <div id="current-role-selector">
@@ -12,10 +11,6 @@
     <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
 
     <div class="errors-container"></div>
-
-    <div class="user-info">
-      <%= gravatar_image_tag current_user.email, 48, alt: current_user.navigation_display %>
-    </div>
 
     <% if use_teacher_profile? %>
       <div id="teacher-profile-field-container" class="project-context">
