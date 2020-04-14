@@ -46,7 +46,7 @@ class ApplicationController < ActionController::Base
   protected
 
   with_options to: :current_user, allow_nil: true do
-    delegate :current_unity, :current_teacher, :current_teacher_id, :can_change_school_year, :current_school_year
+    delegate :current_unity, :current_teacher, :current_teacher_id, :can_change_school_year?, :current_school_year
     delegate :classroom, :discipline, prefix: true
   end
   helper_method :current_teacher
