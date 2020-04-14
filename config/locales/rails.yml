@@ -15,6 +15,8 @@ pt-BR:
         post_error: "Ocorreu um erro ao efetuar o envio. Entre em contato com o administrador."
         sync_error: "Erro inesperado. Se persistir, entre em contato com o administrador."
         must_not_have_conflicting_steps: "A data informada não pode ser um dia letivo em outro calendário escolar"
+        must_be_in_school_calendar_year: "não pode ter o ano diferente do calendário escolar"
+        must_be_less_than_end_at: "não pode ser maior ou igual a data final"
 
   boolean:
     "yes": "Sim"

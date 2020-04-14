@@ -31,18 +31,33 @@
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
           <h4 class="modal-title" id="myModalLabel">Erro completo</h4>
         </div>
         <div class="modal-body">
           <%= sync.error_message.html_safe %>
           <% if current_user.admin? %>
+            <% if sync.full_error_message.present? %>
+              <hr>
+              <%= sync.full_error_message.html_safe %>
+            <% end %>
             <hr>
-            <%= sync.full_error_message.html_safe %>
+            <div style="max-height: 500px;overflow-y: auto;overflow-x: hidden;">
+              <% worker_states = sync.worker_batch.worker_states.by_status(ApiSynchronizationStatus::ERROR) %>
+              <% worker_states.each do |worker_state| %>
+                <% worker_state.error_list.each do |error| %>
+                  <p><%= error %></p>
+                <% end %>
+              <% end %>
+            </div>
           <% end %>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-default" data-dismiss="modal"><%= t('ieducar_api_configuration.sync_error_modal.close') %></button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">
+            <%= t('ieducar_api_configuration.sync_error_modal.close') %>
+          </button>
         </div>
       </div>
     </div>

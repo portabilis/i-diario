@@ -48,19 +48,19 @@ class IeducarApiSynchronization < ActiveRecord::Base
     error.unnotified.last
   end
 
-  def mark_as_error!(message, full_error_message='')
+  def mark_as_error!(message, full_error_message = '')
     self.status = ApiSynchronizationStatus::ERROR
     self.error_message = message
     self.full_error_message = full_error_message
 
     save(validate: false)
-    worker_batch.try(:end!)
+    worker_batch.mark_as_error! if worker_batch.present? && !worker_batch.error?
   end
 
   def mark_as_completed!
     update_last_synchronization_date
 
-    update_attribute(:status, ApiSynchronizationStatus::COMPLETED)
+    update(status: ApiSynchronizationStatus::COMPLETED)
     worker_batch.try(:end!)
   end
 
