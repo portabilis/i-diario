@@ -9,7 +9,7 @@ class SchoolCalendarsController < ApplicationController
                                                     .ordered
 
     unless show_all_unities?
-      @school_calendars = @school_calendars.by_unity_id(current_user_unity)
+      @school_calendars = @school_calendars.by_unity_id(current_unity)
     end
 
     authorize @school_calendars
@@ -119,7 +119,7 @@ class SchoolCalendarsController < ApplicationController
 
   def check_user_unity
     return if show_all_unities?
-    return if current_user_unity.try(:id) == resource.unity_id
+    return if current_unity.try(:id) == resource.unity_id
 
     redirect_to(school_calendars_path, alert: I18n.t('school_calendars.invalid_unity'))
   end

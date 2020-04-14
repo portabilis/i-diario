@@ -15,7 +15,7 @@ class ComplementaryExamsController < ApplicationController
         :classroom,
         :discipline
       )
-      .by_unity_id(current_user_unity.id)
+      .by_unity_id(current_unity.id)
       .by_classroom_id(current_user_classroom)
       .by_discipline_id(current_user_discipline)
       .ordered
@@ -29,7 +29,7 @@ class ComplementaryExamsController < ApplicationController
 
   def new
     @complementary_exam = ComplementaryExam.new(
-      unity: current_user_unity,
+      unity: current_unity,
       classroom: current_user_classroom,
       discipline: current_user_discipline
     ).localized

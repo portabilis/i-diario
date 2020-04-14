@@ -4,7 +4,7 @@ class ObservationRecordReportController < ApplicationController
   def form
     @observation_record_report_form = ObservationRecordReportForm.new(
       teacher_id: current_teacher.id,
-      unity_id: current_user_unity.id,
+      unity_id: current_unity.id,
       start_at: Time.zone.today,
       end_at: Time.zone.today
     ).localized

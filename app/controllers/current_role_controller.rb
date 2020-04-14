@@ -26,7 +26,7 @@ class CurrentRoleController < ApplicationController
         current_classroom_id: profile.classroom_id,
         current_discipline_id: profile.discipline_id,
         current_unity_id: profile.unity_id,
-        assumed_teacher_id: profile.teacher_id,
+        current_teacher_id: profile.teacher_id,
         current_school_year: profile.year
       }
     end

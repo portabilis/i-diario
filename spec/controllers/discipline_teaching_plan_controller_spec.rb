@@ -83,8 +83,8 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
     allow(controller).to receive(:current_user_is_employee_or_administrator?).and_return(false)
     allow(controller).to receive(:can_change_school_year?).and_return(true)
     allow(controller).to receive(:current_teacher).and_return(current_teacher)
-    allow(controller).to receive(:current_user_unity).and_return(unity)
-    allow(controller).to receive(:current_user_school_year).and_return(classroom.year)
+    allow(controller).to receive(:current_unity).and_return(unity)
+    allow(controller).to receive(:current_school_year).and_return(classroom.year)
     allow(controller).to receive(:current_user_classroom).and_return(classroom)
     allow(controller).to receive(:current_user_discipline).and_return(discipline)
     request.env['REQUEST_PATH'] = '/discipline_teaching_plans'
