@@ -13,13 +13,13 @@ function clear_empty(element) {
 
 function build_pie_chart(ctx, done_percentage, unknown_teachers = null){
   var labels = ['% Não Lançados', '% Lançados']
-  var data = [100 - done_percentage, done_percentage]
+  var data = [(100 - done_percentage).toFixed(2), done_percentage]
   var backgroundColor = ['rgba(255, 0, 0, 0.8)', 'rgba(0, 255, 0, 0.8)']
   var borderColor = ['rgba(255, 0, 0, 1)', 'rgba(0, 255, 0, 1)']
 
   if (unknown_teachers) {
     labels.push('% Lançamentos desconhecidos');
-    data = [100 - (parseFloat(done_percentage) + parseFloat(unknown_teachers)).toFixed(2), done_percentage, unknown_teachers]
+    data = [(100 - (parseFloat(done_percentage) + parseFloat(unknown_teachers))).toFixed(2), done_percentage, unknown_teachers]
     backgroundColor.push('rgba(0, 0, 255, 0.8)');
     borderColor.push('rgba(0, 0, 255, 1)');
   }
