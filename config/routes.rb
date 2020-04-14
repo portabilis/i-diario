@@ -246,7 +246,6 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do
         get :search
-        get :profile_changed
       end
     end
     resources :daily_note_students, only: [:index] do
