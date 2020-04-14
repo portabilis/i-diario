@@ -32,27 +32,20 @@ module ExamPoster
     def post_conceptual_exams
       params = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
-      classrooms_ids = teacher.classrooms.uniq
-      classrooms_ids.each do |classroom|
+      classrooms.each do |classroom|
         next unless can_post?(classroom)
-
-        discipline_ids = TeacherDisciplineClassroom.where(
-          classroom_id: classroom.id,
-          teacher_id: teacher.id
-        ).pluck(:discipline_id).uniq
 
         conceptual_exams = ConceptualExam.by_classroom(classroom)
                                          .by_unity(get_step(classroom).school_calendar.unity)
                                          .by_step_id(classroom, get_step(classroom).id)
         exempted_discipline_ids =
           ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
-        conceptual_exam_values = ConceptualExamValue
-                                 .active
-                                 .includes(:conceptual_exam, :discipline)
-                                 .merge(conceptual_exams)
-                                 .where.not(discipline_id: exempted_discipline_ids)
-                                 .where(discipline_id: discipline_ids)
-                                 .uniq
+        conceptual_exam_values = ConceptualExamValue.active
+                                                    .includes(:conceptual_exam, :discipline)
+                                                    .merge(conceptual_exams)
+                                                    .where.not(discipline_id: exempted_discipline_ids)
+                                                    .where(discipline_id: discipline_ids)
+                                                    .uniq
 
         conceptual_exam_values.each do |conceptual_exam_value|
           conceptual_exam = conceptual_exam_value.conceptual_exam
