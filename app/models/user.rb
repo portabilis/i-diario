@@ -250,7 +250,6 @@ class User < ActiveRecord::Base
   def can_receive_news_related_daily_teacher?
     (access_levels & [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE, AccessLevel::TEACHER]).any?
   end
-  alias admin_or_employee_or_teacher_access_level? can_receive_news_related_daily_teacher?
 
   def can_receive_news_related_tools_for_parents?
     permissions = [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE, AccessLevel::PARENT, AccessLevel::STUDENT]
@@ -261,14 +260,13 @@ class User < ActiveRecord::Base
   def can_receive_news_related_all_matters?
     (access_levels & [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE]).any?
   end
-  alias admin_or_employee_access_level? can_receive_news_related_all_matters?
 
-  def teacher_access_level?
-    access_levels.include? AccessLevel::TEACHER
+  def current_role_is_admin_or_employee_or_teacher?
+    current_access_level.in? [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE, AccessLevel::TEACHER]
   end
 
-  def access_levels
-    @access_levels ||= roles.map(&:access_level).uniq
+  def current_role_is_admin_or_employee?
+    current_access_level.in? [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE]
   end
 
   def clear_allocation
@@ -326,6 +324,14 @@ class User < ActiveRecord::Base
   end
 
   protected
+
+  def teacher_access_level?
+    access_levels.include? AccessLevel::TEACHER
+  end
+
+  def access_levels
+    @access_levels ||= roles.map(&:access_level).uniq
+  end
 
   def email_required?
     false

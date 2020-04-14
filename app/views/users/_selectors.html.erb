@@ -56,7 +56,7 @@
 
       <div id="school-year-field-container"
            class="project-context"
-           <% unless current_user.admin_or_employee_or_teacher_access_level? %>
+           <% unless current_user.current_role_is_admin_or_employee_or_teacher? %>
              style="display: none;"
            <% end %>
         >
@@ -71,7 +71,7 @@
 
       <div id="classroom-field-container"
            class="project-context"
-           <% unless current_user.admin_or_employee_or_teacher_access_level? %>
+           <% unless current_user.current_role_is_admin_or_employee_or_teacher? %>
              style="display: none;"
            <% end %>
         >
@@ -88,7 +88,7 @@
 
       <div id="assumed-teacher-field-container"
            class="project-context"
-           <% unless current_user.admin_or_employee_access_level? && f.object.current_classroom_id? %>
+           <% unless current_user.current_role_is_admin_or_employee? && f.object.current_classroom_id? %>
              style="display: none;"
            <% end %>
         >
