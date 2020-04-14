@@ -23,6 +23,12 @@ class SchoolDayChecker
     date
   end
 
+  def school_dates_between(start_date, end_date)
+    start_date.upto(end_date).select do |current_date|
+      date_is_school_day?(current_date)
+    end
+  end
+
   def school_dates_since(date, number_of_days)
     selected_school_dates = []
     last_date_to_check = date - limit_of_dates_to_check(number_of_days)
