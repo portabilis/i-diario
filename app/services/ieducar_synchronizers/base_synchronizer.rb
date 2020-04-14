@@ -13,6 +13,8 @@ class BaseSynchronizer
           :unity_api_code,
           :entity_id,
           :last_two_years
+        ).merge(
+          worker_state: worker_state
         )
       ).synchronize!
 
@@ -36,9 +38,16 @@ class BaseSynchronizer
     private
 
     def finish_worker(worker_state, worker_batch, synchronization)
-      worker_state.end!
+      worker_state.end! unless worker_state.completed? || worker_state.error?
+      worker_batch.mark_as_error! if worker_state.error? && !worker_batch.error?
 
-      synchronization.mark_as_completed! if worker_batch.all_workers_finished?
+      return unless worker_batch.all_workers_finished?
+
+      if worker_batch.error?
+        synchronization.mark_as_error!(I18n.t('ieducar_api.error.messages.sync_error'))
+      else
+        synchronization.mark_as_completed!
+      end
     end
 
     def worker_name
@@ -62,6 +71,7 @@ class BaseSynchronizer
   def initialize(params)
     self.synchronization = params[:synchronization]
     self.worker_batch = params[:worker_batch]
+    self.worker_state = params[:worker_state]
     self.entity_id = params[:entity_id]
     self.year = params[:year]
     self.unity_api_code = params[:unity_api_code]
