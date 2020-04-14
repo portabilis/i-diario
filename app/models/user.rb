@@ -264,7 +264,7 @@ class User < ActiveRecord::Base
   alias admin_or_employee_access_level? can_receive_news_related_all_matters?
 
   def teacher_access_level?
-    (access_levels & [AccessLevel::TEACHER]).any?
+    access_levels.include? AccessLevel::TEACHER
   end
 
   def access_levels
