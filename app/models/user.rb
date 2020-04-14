@@ -24,12 +24,18 @@ class User < ActiveRecord::Base
 
   belongs_to :student
   belongs_to :teacher
+
+  belongs_to :assumed_teacher, foreign_key: :assumed_teacher_id, class_name: 'Teacher'
+  belongs_to :current_discipline, foreign_key: :current_discipline_id, class_name: 'Discipline'
   belongs_to :current_user_role, class_name: 'UserRole'
   belongs_to :classroom, foreign_key: :current_classroom_id
   belongs_to :discipline, foreign_key: :current_discipline_id
   belongs_to :unity, foreign_key: :current_unity_id
 
-  belongs_to :current_teacher_profile, class_name: 'TeacherProfile', foreign_key: :teacher_profile_id
+  belongs_to :current_teacher_profile,
+             class_name: 'TeacherProfile',
+             foreign_key: :teacher_profile_id,
+             inverse_of: :users
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
 
@@ -229,17 +235,10 @@ class User < ActiveRecord::Base
     end
   end
 
-  def current_discipline
-    return unless current_discipline_id
-    @current_discipline ||= Discipline.find(current_discipline_id)
-  end
-
   def current_teacher
-    if current_user_role.try(:role_teacher?)
-      teacher
-    elsif assumed_teacher_id
-      Teacher.find_by_id(assumed_teacher_id)
-    end
+    return teacher if teacher?
+
+    assumed_teacher
   end
 
   def has_administrator_access_level?
@@ -249,15 +248,25 @@ class User < ActiveRecord::Base
   end
 
   def can_receive_news_related_daily_teacher?
-    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "teacher"].include? access_level}
+    (access_levels & [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE, AccessLevel::TEACHER]).any?
   end
 
   def can_receive_news_related_tools_for_parents?
-    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee", "parent", "student"].include? access_level}
+    permissions = [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE, AccessLevel::PARENT, AccessLevel::STUDENT]
+
+    (access_levels & permissions).any?
   end
 
   def can_receive_news_related_all_matters?
-    roles.map(&:access_level).uniq.any?{|access_level| ["administrator", "employee"].include? access_level}
+    (access_levels & [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE]).any?
+  end
+
+  def current_role_is_admin_or_employee_or_teacher?
+    current_access_level.in? [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE, AccessLevel::TEACHER]
+  end
+
+  def current_role_is_admin_or_employee?
+    current_access_level.in? [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE]
   end
 
   def clear_allocation
@@ -308,12 +317,21 @@ class User < ActiveRecord::Base
   end
 
   def can_use_teacher_profile?
-    return false unless Rails.application.secrets.teacher_profile_enabled.present?
-
-    @can_use_teacher_profile ||= roles.count == 1 && roles.first.name.downcase.include?('professor')
+    @can_use_teacher_profile ||=
+      Rails.application.secrets.teacher_profile_enabled &&
+      roles.count == 1 &&
+      teacher_access_level?
   end
 
   protected
+
+  def teacher_access_level?
+    access_levels.include? AccessLevel::TEACHER
+  end
+
+  def access_levels
+    @access_levels ||= roles.map(&:access_level).uniq
+  end
 
   def email_required?
     false

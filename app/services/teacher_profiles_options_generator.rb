@@ -1,5 +1,4 @@
 class TeacherProfilesOptionsGenerator
-
   def initialize(user)
     @user = user
   end

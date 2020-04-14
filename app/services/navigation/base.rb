@@ -1,6 +1,8 @@
 module Navigation
   class Base
-    MENU = YAML.load(File.open("#{Rails.root}/config/navigation.yml"))["navigation"]
+    MENU = YAML.safe_load(
+      Rails.root.join('config', 'navigation.yml').open
+    )['navigation']
 
     def self.build(*args)
       new(*args).build

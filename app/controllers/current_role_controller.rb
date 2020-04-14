@@ -17,7 +17,7 @@ class CurrentRoleController < ApplicationController
   private
 
   def resource_params
-    if profile_id = params[:user][:teacher_profile_id]
+    if (profile_id = params[:user][:teacher_profile_id])
       profile = TeacherProfile.find(profile_id)
 
       user_role = current_user.user_roles.find_by(unity_id: profile.unity_id)

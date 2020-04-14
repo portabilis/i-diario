@@ -1,0 +1,3 @@
+detectors:
+  Attribute:
+    enabled: false

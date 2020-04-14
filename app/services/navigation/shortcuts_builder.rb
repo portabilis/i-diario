@@ -28,9 +28,11 @@ module Navigation
 
     def node_values(node)
       if node['submenus']
-        node['submenus'].
-          select { |submenu| submenu['menu']['shortcut'] }.
-          map { |submenu| submenu['menu'].merge(node.slice('icon')) }
+        node['submenus'].map { |submenu|
+          next unless submenu['menu']['shortcut']
+
+          submenu['menu'].merge(node.slice('icon'))
+        }.compact
       else
         node.slice('type', 'icon', 'path')
       end
