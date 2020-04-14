@@ -1,7 +1,9 @@
 <div class="widget-body" style="border: 1px solid;border-color: #CCC;padding: 10px;margin-bottom: 15px;">
   <%= simple_form_for :filter, { url: pedagogical_tracking_path, method: :get, html: { class: 'percent_filterable_search_form' } } do |f| %>
-    <%= hidden_field_tag 'start_date' %>
-    <%= hidden_field_tag 'end_date' %>
+    <%= hidden_field_tag 'start_date', @start_date %>
+    <%= hidden_field_tag 'end_date', @end_date %>
+    <%= hidden_field_tag 'step_start_date', @percents.first.start_date.strftime('%d/%m/%Y') %>
+    <%= hidden_field_tag 'step_end_date', @percents.first.end_date.strftime('%d/%m/%Y') %>
     <div class="table-responsive">
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>

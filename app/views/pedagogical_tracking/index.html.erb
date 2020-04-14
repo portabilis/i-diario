@@ -18,9 +18,10 @@
   </div>
   <% end %>
 </div>
-<div class="row" style=" margin-bottom: 20px;">
-  <%= hidden_field_tag 'done_frequencies_percentage', @school_frequency_done_percentage.round(2) %>
-  <%= hidden_field_tag 'done_content_records_percentage', @school_content_record_done_percentage.round(2) %>
+<div class="row" style=" margin-bottom: 20px;width:90%">
+  <%= hidden_field_tag 'done_frequencies_percentage', @school_frequency_done_percentage %>
+  <%= hidden_field_tag 'done_content_records_percentage', @school_content_record_done_percentage %>
+  <%= hidden_field_tag 'unknown_teachers', @unknown_teachers %>
   <div class="col col-sm-4">
     <fieldset>
       <legend>Frequencias</legend>
@@ -35,6 +36,8 @@
   </div>
   <div class="col col-sm-4">
     <span class="pull-left" style="padding-top: 60px;">Ultima atualização: <%= @updated_at %> às <%= @updated_at_hour %>H </span>
+    <div style="position: absolute; bottom: 1%; width:10%; height:13px; background-color:rgba(0, 0, 255, 0.8);"></div>
+    <span class="pull-left" style="margin-left:12%;">Período não mapeado no gráfico</span>
   </div>
 </div>
 

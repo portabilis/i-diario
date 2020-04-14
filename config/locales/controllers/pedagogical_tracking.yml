@@ -3,6 +3,7 @@ pt-BR:
     index:
       filter_unities: 'Escola'
       filter_classrooms: 'Turma'
+      filter_teacher: 'Professor'
       filter_frequency: 'Frequência'
       filter_content_record: 'Registro de conteúdos'
       from: 'Desde'
