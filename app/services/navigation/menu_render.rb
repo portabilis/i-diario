@@ -8,9 +8,7 @@ module Navigation
 
     def render_menus(menus, html_options = {})
       content_tag :ul, html_options do
-        html = menus.map do |menu|
-          render_menu(menu)
-        end.join(' ')
+        html = menus.map { |menu| render_menu(menu) }.join(' ')
 
         raw html
       end
@@ -22,13 +20,13 @@ module Navigation
       can_show = if menu[:visible]
                    true
                  elsif has_submenus
-                   has_visible_submenus?(menu[:subnodes])
+                   visible_submenus?(menu[:subnodes])
                  else
                    can_show?(menu[:type])
                  end
 
       if can_show
-        content_tag :li, :class => menu[:css_class].join(' ') do
+        content_tag :li, class: menu[:css_class].join(' ') do
           li = []
           menu_path = path_method menu[:path]
 
@@ -36,11 +34,9 @@ module Navigation
             link = []
             link_content = Translator.t("navigation.#{menu[:type]}")
 
-            if menu[:icon]
-              link << content_tag(:i, '', :class => "fa fa-lg fa-fw #{menu[:icon]}")
-            end
+            link << content_tag(:i, '', class: "fa fa-lg fa-fw #{menu[:icon]}") if menu[:icon]
 
-            link << content_tag(:span, link_content, :class => 'menu-item-parent')
+            link << content_tag(:span, link_content, class: 'menu-item-parent')
 
             raw link.join(' ')
           end
@@ -60,7 +56,7 @@ module Navigation
       end
     end
 
-    def has_visible_submenus?(subnodes)
+    def visible_submenus?(subnodes)
       subnodes.any? do |node|
         can_show?(node[:type])
       end

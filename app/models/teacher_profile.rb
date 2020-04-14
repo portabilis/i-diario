@@ -8,7 +8,8 @@ class TeacherProfile < ActiveRecord::Base
 
   def self.generate(teacher)
     transaction do
-      teacher.teacher_discipline_classrooms
+      teacher
+        .teacher_discipline_classrooms
         .includes(:classroom, :discipline, teacher: { users: { user_roles: :role } })
         .find_each(&:create_teacher_profile)
     end
