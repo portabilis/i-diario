@@ -1,3 +1,6 @@
+AllCops:
+  TargetRailsVersion: 4.2
+
 Metrics/AbcSize:
   Enabled: false
 
