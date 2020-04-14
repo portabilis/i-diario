@@ -1,0 +1,44 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/pedagogical_tracking/index' %>
+<% end %>
+
+<div class="row">
+  <%= simple_form_for :search, { url: pedagogical_tracking_path, method: :get, html: { class: 'filter_tracking_search_form' } } do |f| %>
+  <div class="col col-sm-3">
+    <%= f.input :unity_id, as: :select2, elements: all_unities, label: false, placeholder: t('.filter_unities') %>
+  </div>
+  <div class="col col-sm-3">
+    <%= f.input :start_date, as: :date, label: false, placeholder: t('.from') %>
+  </div>
+  <div class="col col-sm-3">
+    <%= f.input :end_date, as: :date, label: false, placeholder: t('.to') %>
+  </div>
+  <div class="col col-sm-3" style="padding-top: 12px;">
+    <span><%= @school_days %> dias letivos</span>
+  </div>
+  <% end %>
+</div>
+<div class="row" style=" margin-bottom: 20px;width:90%">
+  <%= hidden_field_tag 'done_frequencies_percentage', @school_frequency_done_percentage %>
+  <%= hidden_field_tag 'done_content_records_percentage', @school_content_record_done_percentage %>
+  <%= hidden_field_tag 'unknown_teachers', @unknown_teachers %>
+  <div class="col col-sm-4">
+    <fieldset>
+      <legend>Frequencias</legend>
+      <canvas id="frequency_chart" width="200" height="200" style="border: 1px solid;border-color: #CCC;"></canvas>
+    </fieldset>
+  </div>
+  <div class="col col-sm-4">
+    <fieldset>
+      <legend>Registros de conteudo</legend>
+      <canvas id="content_record_chart" width="200" height="200" style="border: 1px solid;border-color: #CCC;"></canvas>
+      </fieldset>
+  </div>
+  <div class="col col-sm-4">
+    <span class="pull-left" style="padding-top: 60px;">Ultima atualização: <%= @updated_at %> às <%= @updated_at_hour %>H </span>
+    <div style="position: absolute; bottom: 1%; width:10%; height:13px; background-color:rgba(0, 0, 255, 0.8);"></div>
+    <span class="pull-left" style="margin-left:12%;">Período não mapeado no gráfico</span>
+  </div>
+</div>
+
+  <%= render @partial.to_s %>
