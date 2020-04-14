@@ -313,7 +313,6 @@ class ApplicationController < ActionController::Base
       current_school_year: current_user.current_school_year
     ).valid?
   end
-  helper_method :valid_current_role?
 
   def teacher_discipline_score_type
     return DisciplineScoreTypes::NUMERIC if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC
