@@ -6,7 +6,10 @@
 </a>
 
 <div id="current-role-selector">
-  <%= simple_form_for user, remote: use_teacher_profile?, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
+  <%= simple_form_for user,
+                      remote: use_teacher_profile?,
+                      url: set_current_role_path,
+                      html: { method: :patch, id: "user-role-form" } do |f| %>
     <%= f.hidden_field :id, value: f.object.id %>
     <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
 
@@ -35,7 +38,12 @@
                     width: '100px' %>
       </div>
 
-      <div id="unity-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['administrator']) %>">
+      <div id="unity-field-container"
+           class="project-context"
+           <% unless current_user.administrator? %>
+             style="display: none;"
+           <% end %>
+        >
         <span class="label"><%= t('layouts.application.unit') %></span>
         <%= f.input :current_unity_id,
                     as: :select2,
@@ -46,7 +54,12 @@
                     class: 'administrator' %>
       </div>
 
-      <div id="school-year-field-container" class="project-context"  style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(%w(administrator employee teacher)) %>" >
+      <div id="school-year-field-container"
+           class="project-context"
+           <% unless current_user.admin_or_employee_or_teacher_access_level? %>
+             style="display: none;"
+           <% end %>
+        >
         <span class="label"><%= t('layouts.application.school_year') %></span>
         <%= f.input :current_school_year,
                     as: :select2,
@@ -56,7 +69,12 @@
                     wrapper: false %>
       </div>
 
-      <div id="classroom-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || user_role.role.access_level.in?(%w(administrator employee)) %>">
+      <div id="classroom-field-container"
+           class="project-context"
+           <% unless current_user.admin_or_employee_or_teacher_access_level? %>
+             style="display: none;"
+           <% end %>
+        >
         <span class="label"><%= t('layouts.application.classroom') %></span>
         <%= f.input :current_classroom_id,
                     as: :select2,
@@ -68,7 +86,12 @@
                     label: false %>
       </div>
 
-      <div id="assumed-teacher-field-container" class="project-context" style="<%= ' display: none;'.html_safe unless user_role.role.access_level.in?(%w(administrator employee)) && f.object.current_classroom_id.present? %>">
+      <div id="assumed-teacher-field-container"
+           class="project-context"
+           <% unless current_user.admin_or_employee_access_level? && f.object.current_classroom_id? %>
+             style="display: none;"
+           <% end %>
+        >
         <span class="label"><%= t('layouts.application.teacher') %></span>
         <%= f.input :assumed_teacher_id,
                     as: :select2,
@@ -78,7 +101,12 @@
                     wrapper: false %>
       </div>
 
-      <div id="discipline-field-container" class="project-context" style="<%= 'display: none;'.html_safe unless user_role.role.access_level.in?(['teacher']) || (user_role.role.access_level.in?(%w(administrator employee)) && f.object.assumed_teacher_id.present?) %>">
+      <div id="discipline-field-container"
+           class="project-context"
+           <% unless current_user.current_teacher %>
+             style="display: none;"
+           <% end %>
+        >
         <span class="label"><%= t('layouts.application.discipline') %></span>
         <%= f.input :current_discipline_id,
                     as: :select2,
@@ -92,7 +120,9 @@
     <% end %>
 
     <div class="select-role">
-      <button type="submit" class="btn btn-sm bg-color-blueDark txt-color-white"><%= t('layouts.application.change_profile') %></button>
+      <button type="submit" class="btn btn-sm bg-color-blueDark txt-color-white">
+        <%= t('layouts.application.change_profile') %>
+      </button>
       <a class="btn btn-sm bg-color-white txt-color-blueDark role-cancel"><%= t('layouts.application.cancel') %></a>
     </div>
   <% end %>
@@ -100,6 +130,6 @@
 
 <script>
   window.profile = {
-      access_level: <%= raw current_user.current_user_role.present? ? "'#{current_user.current_user_role.role.access_level}'" : "null" %>
+      access_level: <%= raw current_user.current_access_level ? "'#{current_user.current_access_level}'" : "null" %>
   };
 </script>
