@@ -14,7 +14,7 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
 
-  attr_accessor :credentials, :has_to_validate_receive_news_fields, :profile_id
+  attr_accessor :credentials, :has_to_validate_receive_news_fields
 
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
@@ -236,9 +236,16 @@ class User < ActiveRecord::Base
   end
 
   def current_teacher
-    return teacher if teacher?
+    @current_teacher ||=
+      begin
+        return teacher if teacher?
 
-    assumed_teacher
+        assumed_teacher
+      end
+  end
+
+  def current_teacher_id
+    current_teacher.try(:id)
   end
 
   def has_administrator_access_level?
@@ -323,14 +330,14 @@ class User < ActiveRecord::Base
       teacher_access_level?
   end
 
+  def access_levels
+    @access_levels ||= roles.map(&:access_level).uniq
+  end
+
   protected
 
   def teacher_access_level?
     access_levels.include? AccessLevel::TEACHER
-  end
-
-  def access_levels
-    @access_levels ||= roles.map(&:access_level).uniq
   end
 
   def email_required?

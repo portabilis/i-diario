@@ -6,13 +6,7 @@
 </a>
 
 <div id="current-role-selector">
-  <%= simple_form_for user,
-                      remote: use_teacher_profile?,
-                      url: set_current_role_path,
-                      html: { method: :patch, id: "user-role-form" } do |f| %>
-    <%= f.hidden_field :id, value: f.object.id %>
-    <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
-
+  <%= simple_form_for user, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
     <div class="errors-container"></div>
 
     <% if use_teacher_profile? %>
@@ -27,7 +21,12 @@
           width: '100px' %>
       </div>
     <% else %>
-      <div id="role-field-container" class="project-context">
+      <div id="role-field-container"
+            class="project-context"
+            <% unless current_user.access_levels.size > 1 %>
+              style="display: none;"
+            <% end %>
+            >
         <span class="label required"><%= t('layouts.application.role') %></span>
         <%= f.input :current_user_role_id,
                     as: :select2,
@@ -93,7 +92,7 @@
            <% end %>
         >
         <span class="label"><%= t('layouts.application.teacher') %></span>
-        <%= f.input :assumed_teacher_id,
+        <%= f.input :current_teacher_id,
                     as: :select2,
                     elements: current_user_available_teachers,
                     input_html: {"data-placeholder" => t('layouts.application.select')},
