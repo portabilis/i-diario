@@ -4,7 +4,7 @@ class PopulateFieldOwnerTeacherId < ActiveRecord::Migration
                   .where(owner_teacher_id: nil)
                   .each do |daily_frequency|
 
-      user_id = daily_frequency.audits.find_by(action: 'create').user_id
+      user_id = daily_frequency.audits.find_by(action: 'create')&.user_id
 
       next if user_id.blank?
 
