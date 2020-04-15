@@ -23,6 +23,8 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   scope :by_grade_id, ->(grade_id) { joins(:classroom).merge(Classroom.by_grade(grade_id)) }
   scope :by_year, ->(year) { where(year: year) }
 
+  after_create :create_teacher_profile
+
   after_discard do
     destroy_teacher_profiles
   end
