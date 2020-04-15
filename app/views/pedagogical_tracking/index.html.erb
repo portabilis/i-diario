@@ -35,7 +35,9 @@
       </fieldset>
   </div>
   <div class="col col-sm-4">
-    <span class="pull-left" style="padding-top: 60px;">Ultima atualização: <%= @updated_at %> às <%= @updated_at_hour %>H </span>
+    <span class="pull-left" style="padding-top: 60px;">
+    <%= @updated_at ? "#{t('.last_update') }: #{ @updated_at } às #{ @updated_at_hour } H" : t('.empty') %>
+    </span>
     <div style="position: absolute; bottom: 1%; width:10%; height:13px; background-color:rgba(0, 0, 255, 0.8);"></div>
     <span class="pull-left" style="margin-left:12%;">Período não mapeado no gráfico</span>
   </div>

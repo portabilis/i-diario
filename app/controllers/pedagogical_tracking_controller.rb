@@ -1,8 +1,11 @@
 class PedagogicalTrackingController < ApplicationController
   def index
-    last_refresh = MvwFrequencyBySchoolClassroomTeacher.first.last_refresh
-    @updated_at = last_refresh.to_date.strftime('%d/%m/%Y')
-    @updated_at_hour = last_refresh.hour
+    if (last_refresh = MvwFrequencyBySchoolClassroomTeacher.first&.last_refresh ||
+                       MvwContentRecordBySchoolClassroomTeacher.first&.last_refresh)
+
+      @updated_at = last_refresh.to_date.strftime('%d/%m/%Y')
+      @updated_at_hour = last_refresh.hour
+    end
 
     unity_id = params.dig(:search, :unity_id).presence || params[:unity_id]
 

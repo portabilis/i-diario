@@ -8,3 +8,5 @@ pt-BR:
       filter_content_record: 'Registro de conteúdos'
       from: 'Desde'
       to: 'Até'
+      empty: 'Não existem lançamentos ainda nas escolas'
+      last_update: 'Ultima atualização'
