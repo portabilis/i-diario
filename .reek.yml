@@ -1,4 +1,5 @@
-Attribute:
-  enabled: false
-NilCheck:
-  enabled: false
+detectors:
+  Attribute:
+    enabled: false
+  NilCheck:
+    enabled: false
