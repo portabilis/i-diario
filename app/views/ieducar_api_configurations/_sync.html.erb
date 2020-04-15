@@ -45,10 +45,13 @@
             <% end %>
             <hr>
             <div style="max-height: 500px;overflow-y: auto;overflow-x: hidden;">
-              <% worker_states = sync.worker_batch.worker_states.by_status(ApiSynchronizationStatus::ERROR) %>
-              <% worker_states.each do |worker_state| %>
-                <% worker_state.error_list.each do |error| %>
-                  <p><%= error %></p>
+              <% worker_batch = sync.worker_batch %>
+              <% if worker_batch.present? %>
+                <% worker_states = worker_batch.worker_states.by_status(ApiSynchronizationStatus::ERROR) %>
+                <% worker_states.each do |worker_state| %>
+                  <% worker_state.error_list.each do |error| %>
+                    <p><%= error %></p>
+                  <% end %>
                 <% end %>
               <% end %>
             </div>
