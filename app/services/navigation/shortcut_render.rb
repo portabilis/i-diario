@@ -1,7 +1,13 @@
 module Navigation
   class ShortcutRender < Navigation::Render::Base
     def render(menus)
-      raw menus.map { |menu| render_menu(menu) }.join(' ')
+      menu_html = ''
+
+      menus.each_slice(6) do |menu_slice|
+        menu_html << menu_slice.map { |menu| render_menu(menu) }.join(' ')
+      end
+
+      raw menu_html
     end
 
     protected
