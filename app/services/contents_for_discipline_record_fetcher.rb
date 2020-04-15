@@ -74,10 +74,17 @@ class ContentsForDisciplineRecordFetcher
     steps_fetcher.school_calendar.try(:year) || @date.to_date.year
   end
 
-  def school_term
+  def raw_school_term
     step = steps_fetcher.step_by_date(@date.to_date)
     school_term = SchoolTermConverter.convert(step)
     school_term = '' if school_term.to_s == SchoolTermTypes::YEARLY.to_s
-    school_term
+    school_term.to_s
+  end
+
+  def school_term
+    school_terms = []
+    school_terms << SchoolTerms::FIRST_BIMESTER_EJA if raw_school_term == SchoolTerms::FIRST_SEMESTER
+    school_terms << SchoolTerms::SECOND_BIMESTER_EJA if raw_school_term == SchoolTerms::SECOND_SEMESTER
+    [raw_school_term] + school_terms
   end
 end
