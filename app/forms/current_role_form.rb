@@ -24,10 +24,6 @@ class CurrentRoleForm
     set_defaults
   end
 
-  def valid?
-    super
-  end
-
   def save
     return false unless valid?
 
