@@ -1,9 +1,9 @@
 class CurrentRoleForm
   include ActiveModel::Model
 
-  attr_accessor :current_user, :current_user_role, :current_user_role_id, :current_classroom, :current_classroom_id,
-                :current_discipline_id, :current_unity, :current_unity_id, :current_teacher_id,
-                :current_school_year, :current_teacher, :teacher_profile_id
+  attr_accessor :current_user, :current_user_role, :current_user_role_id, :current_classroom, :current_teacher,
+                :current_classroom_id, :current_discipline_id, :current_unity, :current_unity_id,
+                :current_teacher_id, :current_school_year, :teacher_profile_id
 
   validates :current_user_role,   presence: true
   validates :current_classroom,   presence: true, if: :teacher?
