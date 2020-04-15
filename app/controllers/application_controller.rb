@@ -49,9 +49,12 @@ class ApplicationController < ActionController::Base
     delegate :current_unity, :current_teacher, :current_teacher_id, :can_change_school_year?, :current_school_year
     delegate :classroom, :discipline, prefix: true
   end
+  alias current_user_unity current_unity
+  alias current_user_school_year current_school_year
   helper_method :current_teacher
   helper_method :current_teacher_id
   helper_method :current_unity
+  helper_method :current_user_unity
   helper_method :current_user_classroom
   helper_method :current_user_discipline
   helper_method :can_change_school_year?
