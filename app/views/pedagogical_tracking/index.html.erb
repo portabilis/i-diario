@@ -43,4 +43,8 @@
   </div>
 </div>
 
-  <%= render @partial.to_s %>
+<% if @school_days.zero? %>
+  <em><%= t('views.index.no_record_found')%></em>
+<% else %>
+  <%= render @partial.to_s  %>
+<% end %>
