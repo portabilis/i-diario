@@ -1,8 +1,10 @@
 class PopulateUnitySchoolDays < ActiveRecord::Migration
   def change
     SchoolCalendar.all.each do |school_calendar|
-      start_date = school_calendar.steps.min_by(&:step_number).start_at
-      end_date = school_calendar.steps.max_by(&:step_number).end_at
+      start_date = school_calendar.steps.min_by(&:step_number)&.start_at
+      end_date = school_calendar.steps.max_by(&:step_number)&.end_at
+
+      next if start_date.nil? || end_date.nil?
 
       school_days = SchoolDayChecker.new(
         school_calendar,
