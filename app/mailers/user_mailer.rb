@@ -1,10 +1,11 @@
 class UserMailer < ActionMailer::Base
-  default from: "Notificação i-Diário <no@reply.com.br>"
+  default from: 'Notificação i-Diário <no@reply.com.br>'
 
-  def notify_activation(user, entity)
-    @user = user
-    @entity = entity
+  def notify_activation(user_email, user_name, user_logged_as, domain)
+    @user_name = user_name
+    @user_logged_as = user_logged_as
+    @domain = domain
 
-    mail to: user.email, subject: "Conta de acesso ativada"
+    mail to: user_email, subject: 'Conta de acesso ativada'
   end
 end

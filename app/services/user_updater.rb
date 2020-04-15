@@ -11,7 +11,8 @@ class UserUpdater
   def update!
     if user.active? && !user.activation_sent?
       user.transaction do
-        UserMailer.notify_activation(user, entity).deliver_now
+        UserMailer.delay.notify_activation(user.email, user.to_s, user.logged_as, entity.domain)
+
         user.activation_sent!
       end
     end
