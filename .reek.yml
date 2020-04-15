@@ -1,3 +1,2 @@
-detectors:
-  Attribute:
-    enabled: false
+Attribute:
+  enabled: false
