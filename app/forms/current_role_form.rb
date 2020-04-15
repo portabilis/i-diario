@@ -5,15 +5,19 @@ class CurrentRoleForm
                 :current_classroom_id, :current_discipline_id, :current_unity, :current_unity_id,
                 :current_teacher_id, :current_school_year, :teacher_profile_id
 
-  validates :current_user_role,   presence: true
-  validates :current_classroom,   presence: true, if: :teacher?
-  validates :current_unity,       presence: true, if: :require_unity?
-  validates :current_school_year, presence: true, if: :require_year?
+  validates :current_user, presence: true
 
-  with_options if: :require_allocation? do
-    validates :current_discipline_id, :current_teacher, presence: true
-    validate :classroom_belongs_to_teacher?
-    validate :discipline_belongs_to_teacher?
+  with_options if: :current_user do
+    validates :current_user_role,   presence: true
+    validates :current_classroom,   presence: true, if: :teacher?
+    validates :current_unity,       presence: true, if: :require_unity?
+    validates :current_school_year, presence: true, if: :require_year?
+
+    with_options if: :require_allocation? do
+      validates :current_discipline_id, :current_teacher, presence: true
+      validate :classroom_belongs_to_teacher?
+      validate :discipline_belongs_to_teacher?
+    end
   end
 
   def initialize(attributes = {})
@@ -56,21 +60,21 @@ class CurrentRoleForm
   end
 
   def teacher?
-    current_user.teacher?
+    current_user&.teacher?
   end
 
   def require_year?
     return false if unity_is_cost_center?
 
-    current_user.current_role_is_admin_or_employee_or_teacher?
+    current_user&.current_role_is_admin_or_employee_or_teacher?
   end
 
   def require_unity?
-    current_user.current_role_is_admin_or_employee_or_teacher?
+    current_user&.current_role_is_admin_or_employee_or_teacher?
   end
 
   def unity_is_cost_center?
-    current_unity && current_unity.unit_type == 'cost_center'
+    current_unity&.unit_type == 'cost_center'
   end
 
   def classroom_belongs_to_teacher?
@@ -87,9 +91,9 @@ class CurrentRoleForm
 
   def teacher_relation_fetcher
     params = {
-      teacher_id: current_teacher.id,
+      teacher_id: current_teacher&.id,
       discipline_id: current_discipline_id,
-      classroom: current_classroom.id
+      classroom: current_classroom&.id
     }
 
     TeacherRelationFetcher.new(params)
@@ -106,6 +110,7 @@ class CurrentRoleForm
   end
 
   def set_default_user_role
+    return unless current_user
     return if current_user_role
     return if current_user.access_levels.size > 1
 
