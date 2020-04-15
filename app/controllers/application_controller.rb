@@ -191,14 +191,6 @@ class ApplicationController < ActionController::Base
     redirect_to root_path
   end
 
-  def require_current_teacher_discipline_classrooms
-    return if current_teacher&.teacher_discipline_classrooms.any?
-
-    flash[:alert] = t('errors.general.require_current_teacher_discipline_classrooms')
-
-    redirect_to root_path
-  end
-
   def require_allow_to_modify_prev_years
     return if can_change_school_year?
     return if (first_step_start_date_for_posting..last_step_end_date_for_posting).to_a.include?(Date.current)
