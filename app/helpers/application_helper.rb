@@ -170,7 +170,6 @@ module ApplicationHelper
       current_user.teacher.teacher_profiles.present?
   end
 
-  # @TODO refatorar index do discipline em service e utilizar em ambos
   def current_user_available_disciplines
     return [] unless current_user_classroom && current_teacher
 
