@@ -74,10 +74,10 @@
           <legend style="margin-bottom: 10px;">
             <%= @knowledge_area_teaching_plan.class.human_attribute_name(:contents) %>
           </legend>
-          <% if f.object.errors[:contents].any? %>
+          <% if f.object.errors[:'teaching_plan.contents'].any? %>
             <div class="alert alert-danger fade in">
               <i class="fa-fw fa fa-times"></i>
-              <%= f.object.errors[:contents].first %>
+              <%= f.object.errors[:'teaching_plan.contents'].first %>
             </div>
           <% end %>
 
