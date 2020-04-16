@@ -106,7 +106,7 @@
           <div class="row">
             <div class="col-sm-12">
               <%= link_to 'Voltar', root_path, class: "btn btn-lg btn-info" %>
-              <button class="btn btn-success btn-lg">Confirmar e acessar o sistema</button>
+              <%= submit_tag 'Confirmar e acessar o sistema', class: 'btn btn-success btn-lg', data: { disable_with: "Enviando..." } %>
             </div>
           </div>
         </div>

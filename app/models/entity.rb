@@ -7,6 +7,7 @@ class Entity < ActiveRecord::Base
   validates :domain, uniqueness: { case_sensitive: false }, allow_blank: true
 
   scope :active, -> { where(disabled: false) }
+  scope :to_sync, -> { active.where(disabled_sync: false) }
 
   def self.current_domain
     raise Exception.new("Entity not found") if self.current.blank?
