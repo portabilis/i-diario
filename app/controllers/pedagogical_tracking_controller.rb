@@ -75,7 +75,7 @@ class PedagogicalTrackingController < ApplicationController
   def minimum_year
     return if current_user_school_year == 2020
 
-    flash[:alert] = t('pedagogical_tracking.minimum_year.erro')
+    flash[:alert] = t('pedagogical_tracking.minimum_year.error')
 
     redirect_to root_path
   end
