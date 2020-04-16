@@ -25,13 +25,13 @@ class InfrequencyTrackingsController < ApplicationController
       unities = Unity.all if current_user.has_administrator_access_level?
       unities ||= Unity.by_user_id(current_user.id)
       unities = unities.by_infrequency_tracking_permission
-      unities.by_year(current_user_school_year)
+      unities.by_year(current_school_year)
     end
   end
   helper_method :unities
 
   def classrooms
-    @classrooms ||= MvwInfrequencyTrackingClassroom.by_year(current_user_school_year)
+    @classrooms ||= MvwInfrequencyTrackingClassroom.by_year(current_school_year)
                                                    .by_unity_id(unities.pluck(:id))
   end
   helper_method :classrooms
@@ -42,7 +42,7 @@ class InfrequencyTrackingsController < ApplicationController
   helper_method :grades
 
   def students
-    @students ||= MvwInfrequencyTrackingStudent.by_year(current_user_school_year)
+    @students ||= MvwInfrequencyTrackingStudent.by_year(current_school_year)
   end
   helper_method :students
 end

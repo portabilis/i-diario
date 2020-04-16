@@ -169,4 +169,60 @@ module ApplicationHelper
       current_user.teacher &&
       current_user.teacher.teacher_profiles.present?
   end
+
+  def current_user_available_disciplines
+    return [] unless current_user_classroom && current_teacher
+
+    @current_user_available_disciplines ||=
+      Discipline.by_teacher_id(current_teacher).by_classroom(current_user_classroom).ordered
+  end
+
+  def current_unities
+    @current_unities ||=
+      if current_user.current_user_role.try(:role_administrator?)
+        Unity.ordered
+      else
+        [current_unity]
+      end
+  end
+
+  def current_user_available_years
+    return [] if current_unity.blank?
+
+    @current_user_available_years ||= current_user.available_years(current_unity)
+  end
+
+  def current_user_available_teachers
+    return [] if current_unity.blank? || current_user_classroom.blank?
+
+    @current_user_available_teachers ||= begin
+      teachers = Teacher.by_unity_id(current_unity)
+                        .by_classroom(current_user_classroom)
+                        .order_by_name
+
+      if current_school_calendar.try(:year)
+        teachers.by_year(current_school_calendar.try(:year))
+      else
+        teachers
+      end
+    end
+  end
+
+  def current_user_available_classrooms
+    return [] if current_unity.blank?
+
+    @current_user_available_classrooms ||= begin
+      classrooms = if current_teacher.present? && current_user.teacher?
+                     Classroom.by_unity_and_teacher(current_unity, current_teacher).ordered
+                   else
+                     Classroom.by_unity(current_unity).ordered
+                   end
+
+      if current_school_calendar.try(:year)
+        classrooms.by_year(current_school_calendar.try(:year))
+      else
+        classrooms
+      end
+    end
+  end
 end

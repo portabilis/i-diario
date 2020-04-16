@@ -1,3 +1,5 @@
 detectors:
   Attribute:
     enabled: false
+  NilCheck:
+    enabled: false
