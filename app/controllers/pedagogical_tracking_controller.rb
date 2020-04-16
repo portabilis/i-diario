@@ -1,4 +1,6 @@
 class PedagogicalTrackingController < ApplicationController
+  before_action :minimum_year
+
   def index
     if (last_refresh = MvwFrequencyBySchoolClassroomTeacher.first&.last_refresh ||
                        MvwContentRecordBySchoolClassroomTeacher.first&.last_refresh)
@@ -69,6 +71,14 @@ class PedagogicalTrackingController < ApplicationController
   end
 
   private
+
+  def minimum_year
+    return if current_user_school_year == 2020
+
+    flash[:alert] = t('pedagogical_tracking.minimum_year.erro')
+
+    redirect_to root_path
+  end
 
   def all_unities
     @all_unities ||= Unity.joins(:school_calendars)
