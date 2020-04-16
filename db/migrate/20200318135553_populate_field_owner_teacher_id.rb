@@ -1,33 +1,51 @@
 class PopulateFieldOwnerTeacherId < ActiveRecord::Migration
   def change
-    DailyFrequency.where('EXTRACT(year FROM frequency_date) = 2020')
-                  .where(owner_teacher_id: nil)
-                  .each do |daily_frequency|
+    execute <<-SQL
+      DO $$
+        DECLARE _daily_frequency RECORD;
+        DECLARE _user_id INTEGER;
+        DECLARE _teacher_id INTEGER;
+      BEGIN
+        FOR _daily_frequency IN (
+          SELECT id,
+                 classroom_id,
+                 discipline_id
+            FROM daily_frequencies
+           WHERE owner_teacher_id IS NULL
+             AND EXTRACT(year FROM frequency_date) = 2020
+        ) LOOP
+            SELECT user_id
+              INTO _user_id
+              FROM audits
+             WHERE auditable_type = 'DailyFrequency'
+               AND action = 'create'
+               AND auditable_id = _daily_frequency.id;
 
-      user_id = daily_frequency.audits.find_by(action: 'create')&.user_id
+            IF _user_id IS NOT NULL THEN
+              IF _user_id = 1 THEN
+                IF _daily_frequency.discipline_id IS NOT NULL THEN
+                  SELECT teacher_id
+                    INTO _teacher_id
+                    FROM teacher_discipline_classrooms
+                   WHERE year = 2020
+                     AND classroom_id = _daily_frequency.classroom_id
+                     AND discipline_id = _daily_frequency.discipline_id;
+                END IF;
+              ELSE
+                SELECT teacher_id
+                  INTO _teacher_id
+                  FROM users
+                 WHERE id = _user_id;
+              END IF;
 
-      next if user_id.blank?
-
-      teacher_id = if user_id == 1
-                     classroom_id = daily_frequency.classroom_id
-                     discipline_id = daily_frequency.discipline_id
-
-                     next if discipline_id.blank?
-
-                     TeacherDisciplineClassroom.with_discarded.find_by(
-                       year: 2020,
-                       classroom_id: classroom_id,
-                       discipline_id: discipline_id
-                     )&.teacher_id
-                   else
-                     user = User.find(user_id)
-
-                     user&.teacher_id
-                   end
-
-      next if teacher_id.blank?
-
-      daily_frequency.update(owner_teacher_id: teacher_id)
-    end
+              IF _teacher_id IS NOT NULL THEN
+                UPDATE daily_frequencies
+                   SET owner_teacher_id = _teacher_id
+                 WHERE id = _daily_frequency.id;
+              END IF;
+            END IF;
+        END LOOP;
+      END$$;
+    SQL
   end
 end

@@ -1,6 +1,6 @@
 class PopulateUnitySchoolDays < ActiveRecord::Migration
   def change
-    SchoolCalendar.all.each do |school_calendar|
+    SchoolCalendar.where(year: 2020).each do |school_calendar|
       next if school_calendar.unity_id.nil?
 
       start_date = school_calendar.steps.min_by(&:step_number)&.start_at
