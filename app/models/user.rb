@@ -249,9 +249,7 @@ class User < ActiveRecord::Base
   end
 
   def has_administrator_access_level?
-    @has_administrator_access_level ||= roles.map(&:access_level).uniq.any? { |access_level|
-      access_level == AccessLevel::ADMINISTRATOR
-    }
+    access_levels.include?(AccessLevel::ADMINISTRATOR)
   end
 
   def can_receive_news_related_daily_teacher?
