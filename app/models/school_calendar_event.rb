@@ -31,6 +31,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validate :uniquenesss_of_end_at_in_classroom
   validate :uniquenesss_of_start_at_in_course
   validate :uniquenesss_of_end_at_in_course
+  validate :uniqueness_of_show_in_frequency_record
 
   scope :ordered, -> { order(arel_table[:start_date]) }
   scope :with_frequency, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]) }
@@ -188,5 +189,19 @@ class SchoolCalendarEvent < ActiveRecord::Base
       errors.add(:start_date, 'não pode ser maior que a Data final')
       errors.add(:end_date, 'deve ser maior ou igual a Data inicial')
     end
+  end
+
+  def uniqueness_of_show_in_frequency_record
+    return if event_type != EventTypes::EXTRA_SCHOOL
+    return unless show_in_frequency_record
+    return unless already_exists_event_to_show_in_report
+
+    errors.add(:show_in_frequency_record, :only_one_allowed)
+  end
+
+  def already_exists_event_to_show_in_report
+    school_calendar.events.any? { |event|
+      event.event_type == EventTypes::EXTRA_SCHOOL && event.show_in_frequency_record && event.persisted?
+    }
   end
 end
