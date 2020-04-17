@@ -4,9 +4,7 @@
       'user_id': <%= current_user.id %>,
       'user_name': '<%= current_user.name || 'Desconhecido' %>',
       'user_email': '<%= current_user.email %>',
-      <% if current_user.try(:current_user_role) %>
-        'user_role': '<%= current_user.current_user_role.role.access_level %>',
-      <% end %>
+      'user_role': '<%= current_user.current_access_level %>',
       'user_created_at': <%= current_user.created_at.to_i %>
     }];
   </script>
