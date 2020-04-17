@@ -401,14 +401,16 @@ class AttendanceRecordReport < BaseReport
 
   def extra_school_event
     @extra_school_event ||= @school_calendar.events.find { |event|
-      event.event_type == EventTypes::EXTRA_SCHOOL && report_include_event_date?(event)
+      event.event_type == EventTypes::EXTRA_SCHOOL &&
+        event.show_in_frequency_record &&
+        report_include_event_date?(event)
     }
   end
 
   def show_school_day_event_description?
     return false unless extra_school_event
 
-    extra_school_event.show_in_frequency_record
+    true
   end
 
   def report_include_event_date?(event)
