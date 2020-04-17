@@ -69,7 +69,7 @@ class AttendanceRecordReport < BaseReport
 
   protected
 
-  attr_accessor :any_student_with_dependence, :legend
+  attr_accessor :any_student_with_dependence, :legend, :extra_school_event_description
 
   private
 
@@ -263,10 +263,18 @@ class AttendanceRecordReport < BaseReport
 
         text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
+        if show_school_day_event_description?
+          text_box(format_legend(extra_school_event), size: 8, at: [0, 20 + bottom_offset], width: 825, height: 20)
+        end
+
         start_new_page if slice_index < sliced_students_cells.count - 1
       end
 
       text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
+
+      if show_school_day_event_description?
+        text_box(format_legend(extra_school_event), size: 8, at: [0, 20 + bottom_offset], width: 825, height: 20)
+      end
 
       self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
 
@@ -389,5 +397,25 @@ class AttendanceRecordReport < BaseReport
 
   def classroom
     @classroom ||= @daily_frequencies.first.classroom
+  end
+
+  def extra_school_event
+    @extra_school_event ||= @school_calendar.events.find { |event|
+      event.event_type == EventTypes::EXTRA_SCHOOL && report_include_event_date?(event)
+    }
+  end
+
+  def show_school_day_event_description?
+    return false unless extra_school_event
+
+    extra_school_event.show_in_frequency_record
+  end
+
+  def report_include_event_date?(event)
+    ((event.start_date..event.end_date).to_a & (@start_at.to_date..@end_at.to_date).to_a).any?
+  end
+
+  def format_legend(event)
+    "#{event.description}: #{event.start_date.strftime('%d/%m/%Y')} à #{event.end_date.strftime('%d/%m/%Y')}"
   end
 end
