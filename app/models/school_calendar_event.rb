@@ -25,12 +25,12 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validates :classroom, presence: true, if: :should_validate_classroom?
   validates :legend, presence: true, exclusion: {in: %w(F f N n .) }, if: :should_validate_legend?
   validate :no_retroactive_dates
-  validate :uniquenesss_of_start_at_in_grade
-  validate :uniquenesss_of_end_at_in_grade
-  validate :uniquenesss_of_start_at_in_classroom
-  validate :uniquenesss_of_end_at_in_classroom
-  validate :uniquenesss_of_start_at_in_course
-  validate :uniquenesss_of_end_at_in_course
+  validate :uniqueness_of_start_at_in_grade
+  validate :uniqueness_of_end_at_in_grade
+  validate :uniqueness_of_start_at_in_classroom
+  validate :uniqueness_of_end_at_in_classroom
+  validate :uniqueness_of_start_at_in_course
+  validate :uniqueness_of_end_at_in_course
   validate :uniqueness_of_show_in_frequency_record
 
   scope :ordered, -> { order(arel_table[:start_date]) }
@@ -116,7 +116,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
     [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY].exclude?(event_type)
   end
 
-  def uniquenesss_of_start_at_in_grade
+  def uniqueness_of_start_at_in_grade
     return unless event_type && start_date && grade && coverage == EventCoverageType::BY_GRADE
     query = school_calendar.events.where(self.class.arel_table[:event_type].not_eq(self.event_type))
     query = query.by_date(start_date)
@@ -127,7 +127,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
     errors.add(:start_date, :already_exists_event_in_this_date) if query.any?
   end
 
-  def uniquenesss_of_end_at_in_grade
+  def uniqueness_of_end_at_in_grade
     return unless event_type && end_date && grade && coverage == EventCoverageType::BY_GRADE
     query = school_calendar.events.where(self.class.arel_table[:event_type].not_eq(self.event_type))
     query = query.by_date(end_date)
@@ -138,7 +138,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
     errors.add(:end_date, :already_exists_event_in_this_date) if query.any?
   end
 
-  def uniquenesss_of_start_at_in_classroom
+  def uniqueness_of_start_at_in_classroom
     return unless event_type && start_date && end_date && classroom && coverage == EventCoverageType::BY_CLASSROOM
     query = school_calendar.events.where(self.class.arel_table[:event_type].not_eq(self.event_type))
     query = query.by_date(start_date)
@@ -148,7 +148,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
     errors.add(:start_date, :already_exists_event_in_this_date) if query.any?
   end
 
-  def uniquenesss_of_end_at_in_classroom
+  def uniqueness_of_end_at_in_classroom
     return unless event_type && start_date && end_date && classroom && coverage == EventCoverageType::BY_CLASSROOM
     query = school_calendar.events.where(self.class.arel_table[:event_type].not_eq(self.event_type))
     query = query.by_date(end_date)
@@ -158,7 +158,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
     errors.add(:end_date, :already_exists_event_in_this_date) if query.any?
   end
 
-  def uniquenesss_of_start_at_in_course
+  def uniqueness_of_start_at_in_course
     return unless event_type && start_date && course && coverage == EventCoverageType::BY_COURSE
     query = school_calendar.events.where(self.class.arel_table[:event_type].not_eq(self.event_type))
     query = query.by_date(start_date)
@@ -170,7 +170,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
     errors.add(:start_date, :already_exists_event_in_this_date) if query.any?
   end
 
-  def uniquenesss_of_end_at_in_course
+  def uniqueness_of_end_at_in_course
     return unless event_type && end_date && course && coverage == EventCoverageType::BY_COURSE
     query = school_calendar.events.where(self.class.arel_table[:event_type].not_eq(self.event_type))
     query = query.by_date(end_date)
