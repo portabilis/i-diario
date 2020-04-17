@@ -103,7 +103,7 @@ class SchoolCalendarEventsController < ApplicationController
   def resource_params
     params.require(:school_calendar_event).permit(
       :coverage, :course_id, :grade_id, :classroom_id, :discipline_id,
-      :description, :start_date, :end_date, :event_type, :periods, :legend
+      :description, :start_date, :end_date, :event_type, :periods, :legend, :show_in_frequency_record
     )
   end
 
