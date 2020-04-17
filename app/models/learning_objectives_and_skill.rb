@@ -11,6 +11,7 @@ class LearningObjectivesAndSkill < ActiveRecord::Base
   scope :by_code, ->(code) { where('unaccent(code) ILIKE unaccent(?)', "%#{code}%") }
   scope :by_description, ->(description) { where('unaccent(description) ILIKE unaccent(?)', "%#{description}%") }
   scope :by_step, ->(step) { where(step: step) }
+  scope :by_grade, ->(grade) { where('?  = ANY(grades)', grade) }
   scope :ordered, -> { order(:code) }
 
   validates :code, presence: true, uniqueness: true
