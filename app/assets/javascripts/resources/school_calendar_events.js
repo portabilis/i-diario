@@ -5,6 +5,7 @@ $(function () {
   window.disciplines = [];
 
   var $legendContainer = $('[data-event-legend-container]'),
+      $checkboxContainer = $('[data-event-checkbox-container]'),
       $eventType = $('#school_calendar_event_event_type'),
       $unity = $('#school_calendar_event_unity_id'),
       $course = $('#school_calendar_event_course_id'),
@@ -166,12 +167,20 @@ $(function () {
     return isEventTypeEqualTo('extra_school');
   }
 
+  var eventTypeIsExtraSchool = function() {
+    return isEventTypeEqualTo('extra_school');
+  }
+
   var eventTypeIsNoSchoolWithFrequency = function() {
     return isEventTypeEqualTo('no_school_with_frequency');
   }
 
   var shouldHideLegend = function() {
     return eventTypeIsBlank() || eventTypeIsExtraSchool() || eventTypeIsNoSchoolWithFrequency();
+  }
+
+  var shouldShowCheckbox = function() {
+    return eventTypeIsExtraSchool();
   }
 
    var togleLegendContainerVisibility = function() {
@@ -182,8 +191,19 @@ $(function () {
     }
   }
 
+  var togleCheckboxContainerVisibility = function() {
+    if (shouldShowCheckbox()) {
+      $checkboxContainer.removeClass('hidden');
+    } else {
+      $checkboxContainer.addClass('hidden');
+    }
+  }
+
   $eventType.on('change', togleLegendContainerVisibility);
   togleLegendContainerVisibility();
+
+  $eventType.on('change', togleCheckboxContainerVisibility);
+  togleCheckboxContainerVisibility();
 
   if(!_.isEmpty($classroom.val())){
     checkExamRule({ classroom_id: $classroom.val() });
