@@ -210,7 +210,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
     return unless show_in_frequency_record
     return unless already_exists_event_to_show_in_report
 
-    errors.add(:show_in_frequency_record, :only_one_allowed)
+    errors.add(:base, :only_one_allowed)
   end
 
   def already_exists_event_to_show_in_report
