@@ -8,7 +8,7 @@ navigation:
       type: "accounts"
       icon: "fa-user"
       path: "edit_account_path"
-      visible: false
+      visible: <%= !Rails.application.secrets.new_update_profile_enabled %>
   - menu:
       type: "administrative"
       icon: "fa-tasks"
