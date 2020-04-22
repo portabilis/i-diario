@@ -7,6 +7,7 @@ class LessonPlan < ActiveRecord::Base
 
   acts_as_copy_target
 
+  attr_accessor :grade_ids
   attr_writer :contents_tags
 
   audited except: [:teacher_id, :old_contents]

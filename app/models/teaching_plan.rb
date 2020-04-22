@@ -41,6 +41,8 @@ class TeachingPlan < ActiveRecord::Base
   scope :by_teacher_id, ->(teacher_id) { where(teacher_id: teacher_id) }
   scope :by_year, ->(year) { where(year: year) }
 
+  attr_accessor :grade_ids
+
   def to_s
     return discipline_teaching_plan.discipline.to_s if discipline_teaching_plan
     return knowledge_area_teaching_plan.knowledge_areas.ordered.first.to_s if knowledge_area_teaching_plan

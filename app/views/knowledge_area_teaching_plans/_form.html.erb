@@ -1,5 +1,3 @@
-<%= render 'teaching_plans/copy_objectives', type: 'experience_fields' %>
-
 <% content_for :js do %>
   <%= javascript_include_tag 'list-contents' %>
   <%= javascript_include_tag 'attachemnt_size_validator' %>
@@ -15,6 +13,8 @@
     <%= teaching_plan_form.hidden_field :id %>
 
     <fieldset>
+      <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: 'experience_fields' %>
+
       <div class="row">
         <div class="col col-sm-4">
           <%= teaching_plan_form.input :year, readonly: true %>

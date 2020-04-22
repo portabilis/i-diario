@@ -19,6 +19,7 @@ pt-BR:
         evaluation: "Avaliação"
         references: "Referências"
         contents_tags: "Conteúdos"
+        grade_ids: "Séries:"
 
     errors:
       models:

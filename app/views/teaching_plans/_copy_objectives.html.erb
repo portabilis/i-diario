@@ -1,5 +1,5 @@
 <div class="modal fade" tabindex="-1" role="dialog" id="copy-objectives-modal" aria-hidden="true">
-  <div class="modal-dialog">
+  <div class="modal-dialog" style="<%= 'width: 800px;' if type != 'disciplines' %>">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">
@@ -13,7 +13,7 @@
       <div class="modal-body smart-form">
         <% (type == 'disciplines' ? BnccDisciplines : BnccExperienceFields).to_a.each do |value| %>
           <div class="row">
-            <div class="col-sm-12">
+            <div class="<%= type == 'disciplines' ? 'col-sm-3' : 'col-sm-6' %>">
               <div class="control-group boolean">
                 <div class="controls input">
                   <label class="checkbox">
@@ -25,6 +25,15 @@
                   </label>
                 </div>
               </div>
+            </div>
+            <div class="col-sm-1 grades" style="margin-top: 13px; display: none;">
+              <%= t('activerecord.attributes.teaching_plan.grade_ids') %>
+            </div>
+            <div class="<%= type == 'disciplines' ? 'col-sm-6' : 'col-sm-4' %> grades"
+              style="margin-top: 5px; margin-left: -27px; display: none;">
+              <%= f.input :grade_ids, as: :select2, label: false, multiple: true,
+                elements: (ChildEducations.to_select + ElementaryEducations.to_select[1..-1]).to_json,
+                input_html: { class: 'grade_ids', data: { without_json_parser: true } } %>
             </div>
           </div>
         <% end %>

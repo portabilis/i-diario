@@ -31,7 +31,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const copyObjectives = () => {
-    const selectedItens = Array.from(checkedExperienceFields()).map(element => element.dataset.id);
+    const selectedItens = [];
+
+    $(checkedExperienceFields()).each(function() {
+      const experience_field = this.dataset.id;
+      const grades = $(this).closest('.row').find('input.grade_ids').select2("val");
+      selectedItens.push({ type: experience_field, grades: grades });
+    });
+
     if (selectedItens.length === 0) {
       return;
     }
@@ -53,5 +60,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  $('#copy-objectives-modal').on('show.bs.modal', clearCheckboxs);
+  const clearGrades = () => {
+    $('.grades').hide();
+    $('input.grade_ids').select2("val", "");
+  };
+
+  $('[name="experience_fields[]"]').change(function() {
+    if ($(this).is(':checked')) {
+      $(this).closest('.row').find('.grades').show();
+    } else {
+      $(this).closest('.row').find('.grades').hide();
+      $(this).closest('.row').find('input.grade_ids').select2("val", "");
+    }
+  });
+
+  $('#copy-objectives-modal').on('show.bs.modal', function() {
+    clearCheckboxs();
+    clearGrades();
+  });
 });
