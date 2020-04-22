@@ -1,1 +1,15 @@
+<% if Rails.application.secrets.shortcuts_enabled && shortcuts.present? %>
+  <div class="row">
+    <div class="col col-sm-12">
+      <legend>Atalhos</legend>
+      <div class="row">
+        <%= shortcuts %>
+      </div>
+    </div>
+  </div>
+
+  <br>
+  <br>
+<% end %>
+
 <%= render 'teacher_dashboard', teacher: current_teacher %>
