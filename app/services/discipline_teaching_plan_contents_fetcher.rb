@@ -10,11 +10,20 @@ class DisciplineTeachingPlanContentsFetcher < TeachingPlanContentsFetcher
   protected
 
   def base_query
-    DisciplineTeachingPlan.includes(teaching_plan: :contents)
-                          .by_unity(@classroom.unity_id)
-                          .by_grade(@classroom.grade_id)
-                          .by_discipline(@discipline.id)
-                          .by_year(school_calendar_year)
-                          .by_school_term(school_terms)
+    discipline_teaching_plans = basic_query.by_school_term(school_terms)
+
+    return discipline_teaching_plans if discipline_teaching_plans.exists?
+
+    basic_query.by_school_term(YEARLY_SCHOOL_TERM_TYPE)
+  end
+
+  private
+
+  def basic_query
+    @basic_query ||= DisciplineTeachingPlan.includes(teaching_plan: :contents)
+                                           .by_unity(@classroom.unity_id)
+                                           .by_grade(@classroom.grade_id)
+                                           .by_discipline(@discipline.id)
+                                           .by_year(school_calendar_year)
   end
 end

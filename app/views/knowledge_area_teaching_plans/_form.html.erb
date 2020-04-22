@@ -15,6 +15,12 @@
     <%= teaching_plan_form.hidden_field :id %>
 
     <fieldset>
+      <div id='copy_plan_info' class='alert alert-info' style='display: none;'>
+        <i class='fa-fw fa fa-info'></i>
+        <strong><%= t('teaching_plans.infos.copy_plan_info_title') %></strong>
+        <span><%= t('teaching_plans.infos.copy_plan_info_description') %></span>
+      </div>
+
       <div class="row">
         <div class="col col-sm-4">
           <%= teaching_plan_form.input :year, readonly: true %>
@@ -68,10 +74,10 @@
           <legend style="margin-bottom: 10px;">
             <%= @knowledge_area_teaching_plan.class.human_attribute_name(:contents) %>
           </legend>
-          <% if f.object.errors[:contents].any? %>
+          <% if f.object.errors[:'teaching_plan.contents'].any? %>
             <div class="alert alert-danger fade in">
               <i class="fa-fw fa fa-times"></i>
-              <%= f.object.errors[:contents].first %>
+              <%= f.object.errors[:'teaching_plan.contents'].first %>
             </div>
           <% end %>
 
