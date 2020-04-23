@@ -23,7 +23,7 @@ class TransferNotesController < ApplicationController
 
   def new
     @transfer_note = TransferNote.new(
-      unity_id: current_user_unity.id
+      unity_id: current_unity.id
     ).localized
 
     authorize @transfer_note
@@ -134,13 +134,13 @@ class TransferNotesController < ApplicationController
   end
 
   def unities
-    @unities = [@transfer_note.classroom.present? ? @transfer_note.classroom.unity : current_user_unity]
+    @unities = [@transfer_note.classroom.present? ? @transfer_note.classroom.unity : current_unity]
   end
   helper_method :unities
 
   def classrooms
     @classrooms ||= Classroom.by_unity_and_teacher(
-      current_user_unity.id,
+      current_unity.id,
       current_teacher.id
     )
     .ordered
