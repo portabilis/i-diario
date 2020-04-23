@@ -1,9 +1,5 @@
 module Navigation
   class Base
-    MENU = YAML.safe_load(
-      ERB.new(Rails.root.join('config', 'navigation.yml').open.read).result
-    )['navigation']
-
     def self.build(*args)
       new(*args).build
     end
@@ -11,7 +7,7 @@ module Navigation
     def initialize(item, user, render = Navigation::Render::Base)
       @item = item.to_s
       @navigation_render = render.new(user)
-      @navigation = MENU
+      @navigation = YAML.load(File.open("#{Rails.root}/config/navigation.yml"))["navigation"]
     end
 
     def build

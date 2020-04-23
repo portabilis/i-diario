@@ -109,10 +109,4 @@ class IeducarApiSynchronization < ActiveRecord::Base
   def update_last_synchronization_date
     IeducarApiConfiguration.current.update_synchronized_at!(started_at)
   end
-
-  def error_by_user(user)
-    sync_error = synchronization.full_error_message if user.admin?
-    sync_error = synchronization.error_message if sync_error.blank?
-    sync_error
-  end
 end

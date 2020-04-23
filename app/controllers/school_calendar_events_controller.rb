@@ -127,7 +127,7 @@ class SchoolCalendarEventsController < ApplicationController
 
   def check_user_unity
     return if show_all_unities?
-    return if current_unity.try(:id) == school_calendar.unity_id
+    return if current_user_unity.try(:id) == school_calendar.unity_id
 
     redirect_to(school_calendars_path, alert: I18n.t('school_calendars.invalid_unity'))
   end

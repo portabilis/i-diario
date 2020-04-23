@@ -5,11 +5,7 @@ $(document).ready(function(){
         return "<div class='select2-user-result'>" + el.name + "</div>";
       },
       formatSelection: function(el) {
-        if(el.text) {
-          return "<div class='select2-user-result'>" + el.text + "</div>";
-        } else {
-          return "<div class='select2-user-result'>" + el.name + "</div>";
-        }
+        return el.name;
       },
       data: $(element).data('elements'),
       multiple: $(element).data('multiple'),

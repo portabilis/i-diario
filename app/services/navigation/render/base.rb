@@ -18,30 +18,6 @@ module Navigation
       attr_reader :current_user, :routes, :helpers
 
       delegate :raw, :content_tag, :link_to, :to => :helpers
-
-      def can_show?(feature)
-        cache_key = [
-          'MenuRender#can_show?',
-          Entity.current.id,
-          current_user.admin?,
-          current_user.current_user_role.try(:role) || current_user,
-          feature
-        ]
-
-        Rails.cache.fetch cache_key do
-          policy(feature).index?
-        end
-      end
-
-      def policy(feature)
-        klass = begin
-                  feature.singularize.camelcase.constantize
-                rescue
-                  feature
-                end
-
-        ApplicationPolicy.new(current_user, klass)
-      end
     end
   end
 end

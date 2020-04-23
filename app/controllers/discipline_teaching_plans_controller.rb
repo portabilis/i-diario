@@ -12,8 +12,8 @@ class DisciplineTeachingPlansController < ApplicationController
 
     @discipline_teaching_plans = apply_scopes(
       DisciplineTeachingPlan.includes(:discipline, teaching_plan: [:unity, :grade])
-                            .by_unity(current_unity)
-                            .by_year(current_school_year)
+                            .by_unity(current_user_unity)
+                            .by_year(current_user_school_year)
     )
 
     unless current_user_is_employee_or_administrator?
@@ -55,7 +55,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan = DisciplineTeachingPlan.new.localized
     @discipline_teaching_plan.build_teaching_plan(
       year: current_school_calendar.year,
-      unity: current_unity
+      unity: current_user_unity
     )
 
     authorize @discipline_teaching_plan
@@ -185,7 +185,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_unity)
+    @grades = Grade.by_unity(current_user_unity)
       .by_year(current_school_calendar.year)
       .ordered
 
@@ -194,7 +194,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
   def fetch_disciplines
     if current_user_is_employee_or_administrator?
-      @disciplines = Discipline.by_unity_id(current_unity)
+      @disciplines = Discipline.by_unity_id(current_user_unity)
     else
       @disciplines = Discipline.where(id: current_user_discipline)
       .ordered

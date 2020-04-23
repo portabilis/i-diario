@@ -1,45 +1,9 @@
-<% if Rails.application.secrets.new_update_profile_enabled %>
-  <div class="user-info transparent pull-right">
-    <a class="pull-right dropdown-toggle"
-      data-toggle="dropdown"
-      id="dropdownMenu1"
-      data-toggle="dropdown"
-      aria-haspopup="true"
-      aria-expanded="true">
+<span id="activity" class="activity-dropdown">
+  <i class="fa fa-user"></i>
+  <b class="badge bounceIn animated"><%= unread_notifications_count %></b>
+</span>
 
-      <i class="fa fa-angle-down"></i>
-      <%= gravatar_image_tag current_user.email, '20', alt: current_user.navigation_display %>
-    </a>
-    <ul class="dropdown-menu " aria-labelledby="dropdownMenu1">
-      <li>
-        <%= link_to edit_account_path do %>
-          Editar perfil
-        <% end %>
-      </li>
-      <li role="separator" class="divider"></li>
-      <li>
-        <%= link_to destroy_user_session_path do %>
-          Sair
-        <% end %>
-      </li>
-    </ul>
-  </div>
-<% else %>
-  <div id="logout" class="btn-header transparent pull-right">
-    <span>
-      <%= link_to content_tag(:i, '', class: 'fa fa-sign-out'), destroy_user_session_path, id: "sign_out"  %>
-    </span>
-  </div>
-<% end %>
-
-<div class="btn-header transparent pull-right">
-  <a id="activity" class="activity-dropdown">
-    <i class="fa fa-bell"></i>
-    <b class="badge bounceIn animated"><%= unread_notifications_count %></b>
-  </a>
-</div>
-
-<div class="ajax-dropdown notifications" style="display: none;">
+<div class="ajax-dropdown" style="display: none;">
   <div class="ajax-notifications custom-scroll" style="opacity: 1;">
     <ul class="notification-body">
       <% last_system_notifications.each do |notification| %>

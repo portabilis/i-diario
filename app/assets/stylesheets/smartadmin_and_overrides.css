@@ -184,11 +184,6 @@ nav ul li b.collapse-sign em:before {
 
 aside#left-panel{
   width: 225px;
-  padding-top: 76px !important;
-}
-
-.fixed-header #main {
-  margin-top: 61px;
 }
 
 .label{

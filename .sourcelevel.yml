@@ -34,5 +34,3 @@ exclude_paths:
 - script
 - spec
 - vendor
-- **/*.js
-- **/*.css

@@ -16,7 +16,7 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
   before do
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
-    allow(controller).to receive(:current_unity).and_return(unity)
+    allow(controller).to receive(:current_user_unity).and_return(unity)
     request.env['REQUEST_PATH'] = ''
   end
 
