@@ -47,13 +47,6 @@
 
       <div class="pull-right" style="margin-top: 15px;">
         <% if user_signed_in? %>
-          <div id="hide-menu" class="btn-header pull-right">
-            <span>
-              <a href="javascript:void(0);" data-action="toggleMenu" title="Exibir/Esconder o Menu">
-                <i class="fa fa-reorder"></i>
-              </a>
-            </span>
-          </div>
           <%= render 'layouts/system_notifications' %>
         <% end %>
       </div>
