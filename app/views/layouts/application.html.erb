@@ -31,7 +31,7 @@
     </div>
 
     <header id="header" style="height: 77px; background-color: #27333B;">
-      <% if current_user.current_user_role.blank? || current_user.current_role_is_admin_or_employee_or_teacher? %>
+      <% if current_user.current_role_is_admin_or_employee_or_teacher? %>
         <%=
           render(
             "users/selectors",

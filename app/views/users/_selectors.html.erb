@@ -23,7 +23,7 @@
     <% else %>
       <div id="role-field-container"
             class="project-context"
-            <% if current_user.current_access_level.present? && current_user.access_levels.size == 1 %>
+            <% unless current_user.access_levels.size > 1 %>
               style="display: none;"
             <% end %>
             >
