@@ -5,7 +5,7 @@ class RolePermission < ActiveRecord::Base
   has_enumeration_for :feature, with: Features
   has_enumeration_for :permission, with: Permissions
 
-  belongs_to :role, touch: true
+  belongs_to :role
 
   def self.can_show?(feature)
     where(arel_table[:feature].eq(feature)).

@@ -20,7 +20,7 @@
                 multiple: true,
                 user: current_user,
                 classroom_id: @absence_justification.classroom_id,
-                admin_or_employee: current_user.current_role_is_admin_or_employee?,
+                admin_or_employee: current_user_role_is_employee_or_administrator?,
                 required: true,
                 input_html: { value: f.object.discipline_ids.join(','),
                 data: { without_json_parser: true } } %>

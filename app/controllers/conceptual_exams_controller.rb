@@ -12,7 +12,7 @@ class ConceptualExamsController < ApplicationController
     status = (params[:filter] || []).delete(:by_status)
 
     @conceptual_exams = apply_scopes(ConceptualExam).includes(:student, :classroom)
-                                                    .by_unity(current_unity)
+                                                    .by_unity(current_user_unity)
                                                     .by_classroom(current_user_classroom)
                                                     .by_teacher(current_teacher_id)
                                                     .ordered_by_date_and_student
@@ -47,7 +47,7 @@ class ConceptualExamsController < ApplicationController
     return if performed?
 
     @conceptual_exam = ConceptualExam.new(
-      unity_id: current_unity.id,
+      unity_id: current_user_unity.id,
       classroom_id: current_user_classroom.id,
       recorded_at: Date.current
     ).localized

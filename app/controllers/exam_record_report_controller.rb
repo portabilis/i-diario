@@ -26,7 +26,7 @@ class ExamRecordReportController < ApplicationController
     ExamRecordReport.build(
       current_entity_configuration,
       current_teacher,
-      current_school_year,
+      current_user_school_year,
       @exam_record_report_form.step,
       current_test_setting,
       @exam_record_report_form.daily_notes,

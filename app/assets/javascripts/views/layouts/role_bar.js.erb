@@ -14,7 +14,7 @@ $(function() {
   const $unityField = $form.find('#user_current_unity_id');
   const $yearField = $form.find('#user_current_school_year');
   const $classroomField = $form.find('#user_current_classroom_id');
-  const $teacherField = $form.find('#user_current_teacher_id');
+  const $teacherField = $form.find('#user_assumed_teacher_id');
   const $disciplineField = $form.find('#current_discipline_id');
 
   // field containers
@@ -552,7 +552,7 @@ $(function() {
       setError("<%= I18n.t('layouts.error_messages.needs_year') %>");
     } else if (invalidFields.current_classroom_id !== undefined) {
       setError("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
-    } else if (invalidFields.current_teacher_id !== undefined) {
+    } else if (invalidFields.assumed_teacher_id !== undefined) {
       setError("<%= I18n.t('layouts.error_messages.needs_teacher') %>");
     } else if (invalidFields.current_discipline_id !== undefined) {
       setError("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
