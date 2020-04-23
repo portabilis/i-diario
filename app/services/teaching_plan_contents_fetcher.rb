@@ -1,4 +1,6 @@
 class TeachingPlanContentsFetcher
+  YEARLY_SCHOOL_TERM_TYPE = ''.freeze
+
   def fetch
     teaching_plans.map(&:contents).uniq.flatten
   end
@@ -30,11 +32,20 @@ class TeachingPlanContentsFetcher
     steps_fetcher.school_calendar.try(:year) || @start_date.to_date.year
   end
 
-  def school_terms
-    @school_terms ||= steps_fetcher.steps_by_date_range(@start_date.to_date, @end_date.to_date).map { |step|
-      school_term = SchoolTermConverter.convert(step)
-      school_term = '' if school_term.to_s == SchoolTermTypes::YEARLY.to_s
-      school_term
+  def raw_school_terms
+    @raw_school_terms ||= steps_fetcher.steps_by_date_range(@start_date.to_date, @end_date.to_date).map { |step|
+      raw_school_term = SchoolTermConverter.convert(step)
+      raw_school_term = '' if raw_school_term.to_s == SchoolTermTypes::YEARLY.to_s
+      raw_school_term.to_s
     }
+  end
+
+  def school_terms
+    @school_terms ||= begin
+      school_terms = []
+      school_terms << SchoolTerms::FIRST_BIMESTER_EJA if raw_school_terms.include?(SchoolTerms::FIRST_SEMESTER)
+      school_terms << SchoolTerms::SECOND_BIMESTER_EJA if raw_school_terms.include?(SchoolTerms::SECOND_SEMESTER)
+      raw_school_terms + school_terms
+    end
   end
 end

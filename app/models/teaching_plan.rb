@@ -64,6 +64,8 @@ class TeachingPlan < ActiveRecord::Base
     case school_term_type
     when SchoolTermTypes::BIMESTER
       I18n.t("enumerations.bimesters.#{school_term}")
+    when SchoolTermTypes::BIMESTER_EJA
+      I18n.t("enumerations.bimesters_eja.#{school_term}")
     when SchoolTermTypes::TRIMESTER
       I18n.t("enumerations.trimesters.#{school_term}")
     when SchoolTermTypes::SEMESTER

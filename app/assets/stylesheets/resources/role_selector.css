@@ -30,6 +30,10 @@
   width: 180px;
 }
 
+#teacher-profile-field-container {
+  width: 500px;
+}
+
 #unity-field-container,
 #classroom-field-container,
 #assumed-teacher-field-container {
@@ -60,8 +64,20 @@
 .user-info img {
   border-radius: 4px;
   display: block;
-  width: 48px;
-  height: 48px;
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  margin-top: 10px;
+  margin-left: 10px;
+  background-color: white;
+}
+
+.user-info .fa {
+  color: white;
+  display: block;
+  float: right;
+  margin-top: 18px;
+  margin-left: 5px;
 }
 
 #user-info-selector {
@@ -91,7 +107,7 @@
 
   #user-info-selector span {
     display: inline-block;
-    margin-top: 14px;
+    margin-top: 23px;
   }
 
   #header > #current-role-selector {
@@ -126,6 +142,7 @@
     padding: 0;
   }
 
+  #teacher-profile-field-container,
   #role-field-container,
   #unity-field-container,
   #classroom-field-container,
@@ -147,10 +164,6 @@
     display: inline-block;
   }
 
-  .user-info {
-    display: none;
-  }
-
   .errors-container {
     background: white;
     border-radius: 4px;
@@ -158,5 +171,10 @@
     font-weight: bold;
     margin-bottom: 20px;
     padding: 10px;
+  }
+
+  .notifications.ajax-dropdown:before,
+  .notifications.ajax-dropdown:after {
+    left: 85%;
   }
 }

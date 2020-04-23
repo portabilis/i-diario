@@ -18,6 +18,7 @@ class Discipline < ActiveRecord::Base
   audited
 
   belongs_to :knowledge_area
+  has_many :teacher_profiles, dependent: :destroy
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_and_belongs_to_many :absence_justifications
 
