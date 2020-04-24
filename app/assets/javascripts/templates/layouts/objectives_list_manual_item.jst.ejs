@@ -1,0 +1,18 @@
+<% id = new Date().getTime() %>
+<% objective_description = description.replace(/"/g, '&quot;')  %>
+
+<li class="list-group-item manual" style="display: flex;" id="<%= submodel_name %>_<%= id %>">
+  <input type="checkbox" name="<%= model_name %>[<%= submodel_name %>_attributes][objective_descriptions][]"
+    id="<%= model_name %>_<%= submodel_name %>_attributes_objective_descriptions_"
+    value="<%= objective_description %>" hidden="hidden"
+    checked="checked" data-objective_description="<%= objective_description %>">
+  <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= objective_description %></span>
+  <div style="width: 80px;">
+    <a class="btn new-btn-success" onclick="editObjective('<%= submodel_name %>_<%= id %>')">
+      <i class="fa fa-pencil"></i>
+    </a>
+    <a class="btn new-btn-danger" onclick="removeObjective('<%= submodel_name %>_<%= id %>')">
+      <i class="fa fa-trash"></i>
+    </a>
+  </div>
+</li>

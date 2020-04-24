@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
         submodel_name: window['content_list_submodel_name']
       });
 
-      $('#contents-list').append(newLine);
+      $('#objectives-list').append(newLine);
       $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
     }
   };

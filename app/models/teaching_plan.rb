@@ -27,12 +27,15 @@ class TeachingPlan < ActiveRecord::Base
 
   has_many :contents_teaching_plans, dependent: :destroy
   deferred_has_many :contents, through: :contents_teaching_plans
+  has_many :objectives_teaching_plans, dependent: :destroy
+  deferred_has_many :objectives, through: :objectives_teaching_plans
   has_many :teaching_plan_attachments, dependent: :destroy
 
   has_one :discipline_teaching_plan, dependent: :restrict_with_error
   has_one :knowledge_area_teaching_plan, dependent: :restrict_with_error
 
   accepts_nested_attributes_for :contents, allow_destroy: true
+  accepts_nested_attributes_for :objectives, allow_destroy: true
   accepts_nested_attributes_for :teaching_plan_attachments, allow_destroy: true
 
   validate :at_least_one_content_assigned
@@ -58,6 +61,10 @@ class TeachingPlan < ActiveRecord::Base
 
   def contents_ordered
     contents.order(' "contents_teaching_plans"."id" ')
+  end
+
+  def objectives_ordered
+    objectives.order('objectives_teaching_plans.id')
   end
 
   def school_term_humanize
