@@ -91,7 +91,7 @@ function load_teachers(load_teachers_select2 = false){
     content_record_percentage: content_record_percentage
   }
 
-  $.getJSON(Routes.pedagogical_tracking_teachers_pt_br_path(params)).always(function (teachers) {
+  $.getJSON(Routes.pedagogical_trackings_teachers_pt_br_path(params)).always(function (teachers) {
     if (load_teachers_select2) {
       load_select2(teachers)
     }
@@ -101,7 +101,7 @@ function load_teachers(load_teachers_select2 = false){
     }
 
     $.each(teachers, function(_index, value ) {
-      var html = JST['templates/pedagogical_tracking/modal_resources']({
+      var html = JST['templates/pedagogical_trackings/modal_resources']({
         teacher_name: value['teacher_name'],
         frequency_percentage: value['frequency_percentage'],
         content_record_percentage: value['content_record_percentage'],

@@ -34,6 +34,7 @@ class Features < EnumerateIt::Base
                    :observation_diary_records,
                    :observation_record_report,
                    :partial_score_record_report,
+                   :pedagogical_trackings,
                    :roles,
                    :school_calendar_events,
                    :school_calendars,

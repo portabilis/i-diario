@@ -1,9 +1,9 @@
 <% content_for :js do %>
-  <%= javascript_include_tag 'views/pedagogical_tracking/index' %>
+  <%= javascript_include_tag 'views/pedagogical_trackings/index' %>
 <% end %>
 
 <div class="row">
-  <%= simple_form_for :search, { url: pedagogical_tracking_path, method: :get, html: { class: 'filter_tracking_search_form' } } do |f| %>
+  <%= simple_form_for :search, { url: pedagogical_trackings_path, method: :get, html: { class: 'filter_tracking_search_form' } } do |f| %>
   <div class="col col-sm-3">
     <%= f.input :unity_id, as: :select2, elements: all_unities, label: false, placeholder: t('.filter_unities') %>
   </div>

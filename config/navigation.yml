@@ -62,9 +62,9 @@ navigation:
             type: "school_calendar_events"
             visible: "only-when-active"
   - menu:
-      type: "pedagogical_tracking"
+      type: "pedagogical_trackings"
       icon: "fa-pie-chart"
-      path: "pedagogical_tracking_path"
+      path: "pedagogical_trackings_path"
   - menu:
       type: "bncc"
       icon: "fa-cubes"

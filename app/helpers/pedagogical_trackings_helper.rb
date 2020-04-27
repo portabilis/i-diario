@@ -1,4 +1,4 @@
-module PedagogicalTrackingHelper
+module PedagogicalTrackingsHelper
   def render_details_link(record)
     if (classroom_id = record.classroom_id.presence)
       link_to(

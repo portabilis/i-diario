@@ -5,7 +5,7 @@
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span></button>
         <h4 class="modal-title">Detalhe do professor</h4>
       </div>
-      <%= simple_form_for :search_teacher, url: pedagogical_tracking_teachers_path, remote: true, html: { class: 'smart-form teacher_percent_filterable_search_form' } do |f| %>
+      <%= simple_form_for :search_teacher, url: pedagogical_trackings_teachers_path, remote: true, html: { class: 'smart-form teacher_percent_filterable_search_form' } do |f| %>
       <%= hidden_field_tag 'modal_classroom_id' %>
       <div class="modal-body">
         <div class="table-responsive">
@@ -13,14 +13,14 @@
             <thead>
               <tr>
                 <td>
-                  <%= f.input :teacher_id, as: :select2, elements: [], label: false, placeholder: t('pedagogical_tracking.index.filter_teacher') %>
+                  <%= f.input :teacher_id, as: :select2, elements: [], label: false, placeholder: t('pedagogical_trackings.index.filter_teacher') %>
                 </td>
                 <td>
-                  <%= f.input :frequency_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_tracking.index.filter_frequency') %>
+                  <%= f.input :frequency_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_trackings.index.filter_frequency') %>
                   <%= f.input :frequency_percentage, label: false, input_html: { type: 'number', style: 'height: 100%' } %>
                 </td>
                 <td>
-                  <%= f.input :content_record_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_tracking.index.filter_content_record') %>
+                  <%= f.input :content_record_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_trackings.index.filter_content_record') %>
                   <%= f.input :content_record_percentage, label: false, input_html: { type: 'number', style: 'height: 100%' } %>
                 </td>
               </tr>
