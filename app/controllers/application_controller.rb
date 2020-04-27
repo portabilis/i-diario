@@ -68,7 +68,13 @@ class ApplicationController < ActionController::Base
   end
 
   def policy(record)
-    ApplicationPolicy.new(current_user, record)
+    begin
+      Pundit::PolicyFinder.new(record).policy!.new(current_user, record)
+      Rails.logger.info 'LOG: ApplicationController#policy - Policy found'
+    rescue
+      ApplicationPolicy.new(current_user, record)
+      Rails.logger.info 'LOG: ApplicationController#policy - Policy fallback'
+    end
   end
   helper_method :policy
 
