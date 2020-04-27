@@ -41,11 +41,13 @@ module Navigation
                 end
 
         begin
-          Pundit::PolicyFinder.new(klass).policy!.new(current_user, klass)
+          result = Pundit::PolicyFinder.new(klass).policy!.new(current_user, klass)
           Rails.logger.info 'LOG: Navigation::Render::Base#policy - Policy found'
+          result
         rescue
-          ApplicationPolicy.new(current_user, klass)
+          result = ApplicationPolicy.new(current_user, klass)
           Rails.logger.info 'LOG: Navigation::Render::Base#policy - Policy fallback'
+          result
         end
       end
     end
