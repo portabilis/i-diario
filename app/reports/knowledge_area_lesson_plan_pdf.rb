@@ -204,8 +204,6 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     end
 
     text_box_truncate('Atividades/metodologia', (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
-    objectives_label = Translator.t('activerecord.attributes.knowledge_area_lesson_plan.objectives')
-    text_box_truncate(objectives_label, (@knowledge_area_lesson_plan.lesson_plan.objectives || '-'))
     text_box_truncate('Recursos', (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
     text_box_truncate('Avaliação', (@knowledge_area_lesson_plan.lesson_plan.evaluation || '-'))
     text_box_truncate('Referências', (@knowledge_area_lesson_plan.lesson_plan.bibliography || '-'))

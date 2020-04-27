@@ -182,8 +182,6 @@ class DisciplineLessonPlanPdf < BaseReport
     end
 
     text_box_truncate('Atividades/metodologia', (lesson_plan.activities || '-'))
-    objectives_label = Translator.t('activerecord.attributes.discipline_lesson_plan.objectives')
-    text_box_truncate(objectives_label, (lesson_plan.objectives || '-'))
     text_box_truncate('Recursos', (lesson_plan.resources || '-'))
     text_box_truncate('Avaliação', (lesson_plan.evaluation || '-'))
     text_box_truncate('Referências', (lesson_plan.bibliography || '-'))
