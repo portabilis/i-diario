@@ -9,6 +9,6 @@ pt-BR:
       from: 'Desde'
       to: 'Até'
       empty: 'Não existem lançamentos ainda nas escolas'
-      last_update: 'Ultima atualização'
+      last_update: 'Última atualização'
     minimum_year:
       error: 'Funcionalidade apenas disponivel para o ano 2020 ou superior'
