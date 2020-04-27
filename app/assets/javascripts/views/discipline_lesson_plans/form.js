@@ -118,6 +118,31 @@ $(function () {
     $(this).select2('val', '');
   });
 
+  $('#discipline_lesson_plan_lesson_plan_attributes_objectives_tags').on('change', function(e){
+    if(e.val.length){
+      var objective_description = e.val.join(", ");
+      if(objective_description.trim().length &&
+          !$('input[type=checkbox][data-objective_description="'+objective_description+'"]').length){
+
+        var html = JST['templates/layouts/objectives_list_manual_item']({
+          description: objective_description,
+          model_name: 'discipline_lesson_plan',
+          submodel_name: 'lesson_plan'
+        });
+
+        $('#objectives-list').append(html);
+        $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
+      }else{
+        var objective_input = $('input[type=checkbox][data-objective_description="'+objective_description+'"]');
+        objective_input.closest('li').show();
+        objective_input.prop('checked', true).trigger('change');
+      }
+
+      $('.discipline_lesson_plan_lesson_plan_objectives_tags .select2-input').val("");
+    }
+    $(this).select2('val', '');
+  });
+
   const addElement = (description) => {
     if(!$('li.list-group-item.active input[type=checkbox][data-content_description="'+description+'"]').length) {
       const newLine = JST['templates/layouts/contents_list_manual_item']({
