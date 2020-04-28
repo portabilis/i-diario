@@ -103,7 +103,7 @@ class Signup
     return if email.blank?
 
 
-    errors.add(:email, :taken) if User.where('LOWER(email) = LOWER(?)', email.upcase).exists?
+    errors.add(:email, :taken) if User.where('LOWER(email) = LOWER(?)', email).exists?
   end
 
   def presence_of_role
