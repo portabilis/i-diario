@@ -39,10 +39,10 @@ class CurrentRoleForm
   def user_attributes
     attributes = @params.slice(:current_discipline_id, :current_school_year, :teacher_profile_id)
     attributes.merge!(
-      current_unity_id: current_unity.id,
-      current_classroom_id: current_classroom.id,
-      current_user_role_id: current_user_role.id,
-      assumed_teacher_id: current_teacher.id
+      current_unity_id: current_unity&.id,
+      current_classroom_id: current_classroom&.id,
+      current_user_role_id: current_user_role&.id,
+      assumed_teacher_id: current_teacher&.id
     )
 
     unless require_allocation?
