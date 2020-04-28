@@ -2,6 +2,7 @@ class DashboardController < ApplicationController
   def index
     if current_user.student?
       redirect_to publications_path
+
       return
     end
 
