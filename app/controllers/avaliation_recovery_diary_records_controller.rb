@@ -6,16 +6,10 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
-    @avaliation_recovery_diary_records = apply_scopes(AvaliationRecoveryDiaryRecord)
-      .includes(
-        :avaliation,
-        recovery_diary_record: [
-          :unity,
-          :classroom,
-          :discipline
-        ]
-      )
-      .by_unity_id(current_user_unity.id)
+    @avaliation_recovery_diary_records =
+      apply_scopes(AvaliationRecoveryDiaryRecord)
+      .includes(:avaliation, recovery_diary_record: [:unity, :classroom, :discipline])
+      .by_unity_id(current_unity.id)
       .by_classroom_id(current_user_classroom)
       .by_discipline_id(current_user_discipline)
       .ordered
@@ -30,7 +24,7 @@ class AvaliationRecoveryDiaryRecordsController < ApplicationController
   def new
     @avaliation_recovery_diary_record = AvaliationRecoveryDiaryRecord.new.localized
     @avaliation_recovery_diary_record.build_recovery_diary_record
-    @avaliation_recovery_diary_record.recovery_diary_record.unity = current_user_unity
+    @avaliation_recovery_diary_record.recovery_diary_record.unity = current_unity
 
     @unities = fetch_unities
     @classrooms = fetch_classrooms

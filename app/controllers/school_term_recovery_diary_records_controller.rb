@@ -34,7 +34,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   def new
     @school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.new.localized
     @school_term_recovery_diary_record.build_recovery_diary_record
-    @school_term_recovery_diary_record.recovery_diary_record.unity = current_user_unity
+    @school_term_recovery_diary_record.recovery_diary_record.unity = current_unity
 
     if current_test_setting.blank?
       flash[:error] = t('errors.avaliations.require_setting')

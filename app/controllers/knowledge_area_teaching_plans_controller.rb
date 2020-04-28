@@ -12,8 +12,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     @knowledge_area_teaching_plans = apply_scopes(
       KnowledgeAreaTeachingPlan.includes(:knowledge_areas, teaching_plan: [:unity, :grade])
-                               .by_unity(current_user_unity)
-                               .by_year(current_user_school_year)
+                               .by_unity(current_unity)
+                               .by_year(current_school_year)
     )
 
     unless current_user_is_employee_or_administrator?
@@ -54,7 +54,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     @knowledge_area_teaching_plan = KnowledgeAreaTeachingPlan.new.localized
     @knowledge_area_teaching_plan.build_teaching_plan(
       year: current_school_calendar.year,
-      unity: current_user_unity
+      unity: current_unity
     )
 
     authorize @knowledge_area_teaching_plan
@@ -182,7 +182,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_user_unity).by_year(current_school_calendar.year).ordered
+    @grades = Grade.by_unity(current_unity).by_year(current_school_calendar.year).ordered
 
     return if current_user_is_employee_or_administrator?
 

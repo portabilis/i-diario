@@ -10,7 +10,9 @@ class Classroom < ActiveRecord::Base
   belongs_to :unity
   belongs_to :exam_rule
   belongs_to :grade
+  has_many :teacher_profiles, dependent: :destroy
   has_many :teacher_discipline_classrooms, dependent: :destroy
+  has_many :disciplines, through: :teacher_discipline_classrooms
   has_one :calendar, class_name: 'SchoolCalendarClassroom'
   has_many :users, foreign_key: :current_classroom_id, dependent: :nullify
   has_many :student_enrollment_classrooms
@@ -57,6 +59,14 @@ class Classroom < ActiveRecord::Base
   scope :by_api_code, ->(api_code) { where(api_code: api_code) }
   scope :by_id, ->(id) { where(id: id) }
   scope :with_grade, -> { where.not(grade: nil) }
+
+  after_discard do
+    teacher_discipline_classrooms.discard_all
+  end
+
+  after_undiscard do
+    teacher_discipline_classrooms.undiscard_all
+  end
 
   def to_s
     description

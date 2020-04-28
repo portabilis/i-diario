@@ -7,7 +7,7 @@ class DailyFrequenciesController < ApplicationController
 
   def new
     @daily_frequency = DailyFrequency.new.localized
-    @daily_frequency.unity = current_user_unity
+    @daily_frequency.unity = current_unity
     @daily_frequency.frequency_date = Date.current
     @class_numbers = []
     @period = current_teacher_period
