@@ -105,6 +105,7 @@ class CurrentRoleForm
     self.current_classroom ||= Classroom.find(current_classroom_id) if current_classroom_id.present?
     self.current_unity     ||= Unity.find(current_unity_id)         if current_unity_id.present?
     self.current_teacher   ||= Teacher.find(current_teacher_id)     if current_teacher_id.present?
+    self.current_unity     ||= current_user_role.unity              if current_user_role
 
     set_default_user_role
   end
