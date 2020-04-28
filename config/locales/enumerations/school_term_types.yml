@@ -2,6 +2,7 @@ pt-BR:
   enumerations:
     school_term_types:
       bimester: "Bimestral"
+      bimester_eja: "Bimestral - EJA"
       trimester: "Trimestral"
       semester: "Semestral"
       yearly: "Anual"

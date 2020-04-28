@@ -39,6 +39,7 @@ class UsersForStudentsCreator
     students.each do |student_record|
       next if User.find_by(login: student_record.aluno_id)
       next unless (student = Student.find_by(api_code: student_record.aluno_id))
+      next if User.find_by(student_id: student.id, kind: 'student')
 
       password = "estudante#{student.api_code}"
 

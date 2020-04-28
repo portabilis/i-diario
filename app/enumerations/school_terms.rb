@@ -3,6 +3,8 @@ class SchoolTerms < EnumerateIt::Base
                    :second_bimester,
                    :third_bimester,
                    :fourth_bimester,
+                   :first_bimester_eja,
+                   :second_bimester_eja,
                    :first_trimester,
                    :second_trimester,
                    :third_trimester,

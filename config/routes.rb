@@ -113,7 +113,6 @@ Rails.application.routes.draw do
     patch '/current_role', to: 'current_role#set', as: :set_current_role
     post '/system_notifications/read_all', to: 'system_notifications#read_all', as: :read_all_notifications
     get '/disabled_entity', to: 'pages#disabled_entity'
-    get '/new_role_modal_feature', to: 'news#role_modal_feature'
 
     resources :users, concerns: :history do
       collection do
@@ -249,7 +248,6 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do
         get :search
-        get :profile_changed
       end
     end
     resources :daily_note_students, only: [:index] do

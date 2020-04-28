@@ -28,7 +28,7 @@ class KnowledgeAreaContentRecordsController < ApplicationController
     @knowledge_area_content_record = KnowledgeAreaContentRecord.new.localized
     @knowledge_area_content_record.build_content_record(
       record_date: Time.zone.now,
-      unity_id: current_user_unity.id
+      unity_id: current_unity.id
     )
 
     authorize @knowledge_area_content_record
@@ -169,12 +169,12 @@ class KnowledgeAreaContentRecordsController < ApplicationController
   end
 
   def unities
-    @unities = [current_user_unity]
+    @unities = [current_unity]
   end
   helper_method :unities
 
   def classrooms
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity.id, current_teacher.id).ordered
+    @classrooms = Classroom.by_unity_and_teacher(current_unity.id, current_teacher.id).ordered
   end
   helper_method :classrooms
 

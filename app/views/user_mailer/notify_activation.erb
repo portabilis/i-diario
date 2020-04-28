@@ -1,9 +1,10 @@
 <p>
-  Olá <%= @user %>,
+  Olá <%= @user_name %>,
 </p>
 
 <p>
-  Sua conta de acesso com o acesso de "<%= @user.logged_as %>" foi ativada com sucesso. Para acessar o sistema, <%= link_to 'clique aqui', root_url(host: @entity.domain) %>.
+  Sua conta de acesso com o acesso de "<%= @logged_as %>" foi ativada com sucesso.
+  Para acessar o sistema, <%= link_to 'clique aqui', root_url(host: @domain) %>.
 </p>
 
 <p>

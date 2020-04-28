@@ -14,7 +14,7 @@ $(function () {
     }
   };
 
-  $('a').on('click', function(e) {
+  $('a, button').on('click', function(e) {
     if (!showConfirmation) {
       return true;
     }

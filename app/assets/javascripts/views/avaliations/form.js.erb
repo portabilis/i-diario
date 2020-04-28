@@ -174,11 +174,17 @@ $(function () {
     });
   }
 
-  if (!!document.getElementById('avaliation_test_setting_id')) {
-    updateFieldsBasedOnTestSetting();
+  async function initFields() {
+    if (!!document.getElementById('avaliation_test_setting_id')) {
+      await updateFieldsBasedOnTestSetting();
+    }
+
+    if (!!document.getElementById('avaliation_weight')) {
+      await updateFieldsBaseOnTestSettingTest();
+    }
   }
 
-  if (!!document.getElementById('avaliation_weight')) {
-    updateFieldsBaseOnTestSettingTest();
-  }
+  $(document).ready(function(){
+    initFields();
+  });
 });
