@@ -165,12 +165,14 @@ $(function() {
       $disciplineContainer
     ], function () {
       $(this).find('span.label').removeClass('required');
+      $(this).find('.current-role-selector-field:input').prop('required', false);
     });
 
     const containers = requiredContainersPerRole[role];
 
     $.each(containers, function () {
       $(this).find('span.label').addClass('required');
+      $(this).find('.current-role-selector-field:input').prop('required', true);
     });
   }
 
@@ -550,7 +552,9 @@ $(function() {
     var errors = 0;
 
     $(this).find('input:visible').map(function(){
-      if( !$(this).parent().parent().find('.current-role-selector-field:input').val() ) {
+      var $currentRoleSelectorField = $(this).parent().parent().find('.current-role-selector-field:input');
+
+      if( $currentRoleSelectorField.attr('required') && !$currentRoleSelectorField.val() ) {
         errors++;
       }
     });
