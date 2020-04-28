@@ -102,9 +102,8 @@ class Signup
   def uniqueness_of_email
     return if email.blank?
 
-    if User.exists?(email: email)
-      errors.add(:email, :taken)
-    end
+
+    errors.add(:email, :taken) if User.where('LOWER(email) = LOWER(?)', email.upcase).exists?
   end
 
   def presence_of_role
