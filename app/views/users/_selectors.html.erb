@@ -16,7 +16,7 @@
         <%= f.input :teacher_profile_id,
           as: :select2,
           elements: teacher_profiles_options,
-          input_html: {"data-placeholder" => t('layouts.application.select')},
+          input_html: { "data-placeholder" => t('layouts.application.select'), class: 'current-role-selector-field'},
           label: false,
           wrapper: false,
           width: '100px' %>
@@ -32,7 +32,7 @@
         <%= f.input :current_user_role_id,
                     as: :select2,
                     elements: user.user_roles.includes(:unity),
-                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    input_html: { "data-placeholder" => t('layouts.application.select'), class: 'current-role-selector-field'},
                     label: false,
                     wrapper: false,
                     width: '100px' %>
@@ -48,10 +48,9 @@
         <%= f.input :current_unity_id,
                     as: :select2,
                     elements: current_unities,
-                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    input_html: { "data-placeholder" => t('layouts.application.select'), class: 'current-role-selector-field'},
                     label: false,
-                    wrapper: false,
-                    class: 'administrator' %>
+                    wrapper: false %>
       </div>
 
       <div id="school-year-field-container"
@@ -64,7 +63,7 @@
         <%= f.input :current_school_year,
                     as: :select2,
                     elements: current_user_available_years.to_json,
-                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    input_html: { "data-placeholder" => t('layouts.application.select'), class: 'current-role-selector-field'},
                     label: false,
                     wrapper: false %>
       </div>
@@ -79,8 +78,7 @@
         <%= f.input :current_classroom_id,
                     as: :select2,
                     elements: current_user_available_classrooms,
-                    input_html: {"data-placeholder" => t('layouts.application.select')},
-                    class: 'teacher',
+                    input_html: { "data-placeholder" => t('layouts.application.select'), class: 'current-role-selector-field'},
                     data: { dropdown: '.project-context .project-selector.classroom' },
                     wrapper: false,
                     label: false %>
@@ -96,7 +94,7 @@
         <%= f.input :current_teacher_id,
                     as: :select2,
                     elements: current_user_available_teachers,
-                    input_html: {"data-placeholder" => t('layouts.application.select')},
+                    input_html: { "data-placeholder" => t('layouts.application.select'), class: 'current-role-selector-field'},
                     label: false,
                     wrapper: false %>
       </div>
@@ -113,8 +111,7 @@
                     wrapper: false,
                     label: false,
                     elements: current_user_available_disciplines,
-                    input_html: {"data-placeholder" => t('layouts.application.select')},
-                    class: 'teacher',
+                    input_html: { "data-placeholder" => t('layouts.application.select'), class: 'current-role-selector-field'},
                     data: { dropdown: '.project-context .project-selector.discipline' } %>
       </div>
     <% end %>

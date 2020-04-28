@@ -533,36 +533,38 @@ $(function() {
     location.href = Routes.root_pt_br_path;
   });
 
+  $(document).ajaxStart(function() {
+    $submitBtn.prop('disabled', true);
+  });
+
+  $(document).ajaxStop(function () {
+    $submitBtn.prop('disabled', false);
+  });
+
   $form.on('ajax:send', function() {
     $loader.removeClass('hidden');
     $submitBtn.prop('disabled', true);
   });
 
-  $form.on('ajax:error', function(event, request) {
-    $loader.addClass('hidden');
-    $submitBtn.prop('disabled', false);
+  $form.submit(function(event) {
+    var errors = 0;
 
-    const invalidFields = request.responseJSON || {};
+    $(this).find('input:visible').map(function(){
+      if( !$(this).parent().parent().find('.current-role-selector-field:input').val() ) {
+        errors++;
+      }
+    });
 
-    if (invalidFields.current_user_role_id !== undefined) {
-      setError("<%= I18n.t('layouts.error_messages.needs_profile') %>");
-    } else if (invalidFields.current_unity_id !== undefined) {
-      setError("<%= I18n.t('layouts.error_messages.needs_unity') %>");
-    } else if (invalidFields.current_school_year !== undefined) {
-      setError("<%= I18n.t('layouts.error_messages.needs_year') %>");
-    } else if (invalidFields.current_classroom_id !== undefined) {
-      setError("<%= I18n.t('layouts.error_messages.needs_classroom') %>");
-    } else if (invalidFields.current_teacher_id !== undefined) {
-      setError("<%= I18n.t('layouts.error_messages.needs_teacher') %>");
-    } else if (invalidFields.current_discipline_id !== undefined) {
-      setError("<%= I18n.t('layouts.error_messages.needs_discipline') %>");
-    } else {
-      setError("<%= I18n.t('layouts.error_messages.unknown_error') %>");
+    if(errors > 0){
+      event.preventDefault();
+      setError("<%= I18n.t('layouts.error_messages.needs_all_fields') %>");
+
+      return false;
     }
   });
 
   if (window.profile.access_level) {
-      markRequiredFields(window.profile.access_level);
+    markRequiredFields(window.profile.access_level);
   }
 
   $loginInfo.click(function (e) {
