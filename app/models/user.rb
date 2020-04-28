@@ -184,10 +184,14 @@ class User < ActiveRecord::Base
     user_roles.includes(:role, :unity).map(&:role)
   end
 
-  def set_current_user_role!(user_role_id)
-    return false unless user_roles.exists?(id: user_role_id)
+  def set_current_user_role!(user_role_id = nil)
+    return false unless user_role_id.blank? || user_roles.exists?(id: user_role_id)
 
-    update_column(:current_user_role_id, user_role_id)
+    default_user_role_id = user_roles.first&.id if user_role_id.blank?
+
+    clear_allocation
+
+    update_attribute(:current_user_role_id, user_role_id || default_user_role_id)
   end
 
   def read_notifications!
@@ -275,11 +279,14 @@ class User < ActiveRecord::Base
   end
 
   def clear_allocation
-    update_attribute(:current_user_role_id, nil)
-    update_attribute(:current_classroom_id, nil)
-    update_attribute(:current_discipline_id, nil)
-    update_attribute(:current_unity_id, nil)
-    update_attribute(:assumed_teacher_id, nil)
+    self.current_school_year = nil
+    self.current_user_role_id = nil
+    self.current_classroom_id = nil
+    self.current_discipline_id = nil
+    self.current_unity_id = nil
+    self.assumed_teacher_id = nil
+
+    save(validate: false)
   end
 
   def has_to_validate_receive_news_fields?
