@@ -102,7 +102,6 @@ class Signup
   def uniqueness_of_email
     return if email.blank?
 
-
     errors.add(:email, :taken) if User.where('LOWER(email) = LOWER(?)', email).exists?
   end
 
