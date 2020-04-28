@@ -111,8 +111,8 @@ class IeducarApiSynchronization < ActiveRecord::Base
   end
 
   def error_by_user(user)
-    sync_error = synchronization.full_error_message if user.admin?
-    sync_error = synchronization.error_message if sync_error.blank?
+    sync_error = full_error_message if user.admin?
+    sync_error = error_message if sync_error.blank?
     sync_error
   end
 end
