@@ -101,10 +101,10 @@ class CurrentRoleForm
 
   def set_defaults
     self.current_user      ||= current_user
-    self.current_user_role ||= UserRole.find(current_user_role_id)  if current_user_role_id
-    self.current_classroom ||= Classroom.find(current_classroom_id) if current_classroom_id
-    self.current_unity     ||= Unity.find(current_unity_id)         if current_unity_id
-    self.current_teacher   ||= Teacher.find(current_teacher_id)     if current_teacher_id
+    self.current_user_role ||= UserRole.find(current_user_role_id)  if current_user_role_id.present?
+    self.current_classroom ||= Classroom.find(current_classroom_id) if current_classroom_id.present?
+    self.current_unity     ||= Unity.find(current_unity_id)         if current_unity_id.present?
+    self.current_teacher   ||= Teacher.find(current_teacher_id)     if current_teacher_id.present?
 
     set_default_user_role
   end
