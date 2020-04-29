@@ -84,8 +84,8 @@ class PedagogicalTrackingsController < ApplicationController
   def employee_unities
     return unless current_user.employee?
 
-    role = Role.find_by(access_level: AccessLevel::EMPLOYEE)
-    unities_ids = UserRole.where(user_id: current_user.id, role_id: role.id).pluck(:unity_id)
+    roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
+    unities_ids = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
     @employee_unities ||= Unity.find(unities_ids)
   end
   helper_method :employee_unities
