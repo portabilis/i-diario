@@ -9,7 +9,8 @@ class PedagogicalTrackingsController < ApplicationController
       @updated_at_hour = last_refresh.hour
     end
 
-    unity_id = params.dig(:search, :unity_id).presence || params[:unity_id]
+    employee_unity = employee_unities.first.id if employee_unities.presence&.one?
+    unity_id = params.dig(:search, :unity_id).presence || params[:unity_id] || employee_unity
 
     @start_date = params.dig(:search, :start_date).presence
     start_date = (@start_date || params[:start_date]).try(:to_date)
@@ -80,6 +81,15 @@ class PedagogicalTrackingsController < ApplicationController
     redirect_to root_path
   end
 
+  def employee_unities
+    return unless current_user.employee?
+
+    role = Role.find_by(access_level: AccessLevel::EMPLOYEE)
+    unities_ids = UserRole.where(user_id: current_user.id, role_id: role.id).pluck(:unity_id)
+    @employee_unities ||= Unity.find(unities_ids)
+  end
+  helper_method :employee_unities
+
   def all_unities
     @all_unities ||= Unity.joins(:school_calendars)
                           .where(school_calendars: { year: current_user_school_year })
@@ -93,7 +103,7 @@ class PedagogicalTrackingsController < ApplicationController
 
   def fetch_school_days_by_unity(unity_id, start_date, end_date)
     unity = Unity.find(unity_id) if unity_id
-    unities = unity || all_unities
+    unities = unity || employee_unities || all_unities
 
     @school_days_by_unity = SchoolDaysCounterService.new(
       unities: unities,
