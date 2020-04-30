@@ -42,6 +42,8 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   end
 
   def teacher_profile_arguments
+    classroom ||= Classroom.with_discarded.find(classroom_id)
+
     {
       classroom_id: classroom_id,
       discipline_id: discipline_id,
