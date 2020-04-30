@@ -11,4 +11,4 @@ pt-BR:
       empty: 'Não existem lançamentos ainda nas escolas'
       last_update: 'Última atualização'
     minimum_year:
-      error: 'Funcionalidade apenas disponivel para o ano 2020 ou superior'
+      error: 'Funcionalidade apenas disponível para o ano 2020 ou superior.'
