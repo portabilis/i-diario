@@ -58,7 +58,8 @@ module Api
           frequency_date: params[:frequency_date],
           class_numbers: @class_numbers,
           school_calendar: current_school_calendar,
-          period: period
+          period: period,
+          owner_teacher_id: params[:teacher_id]
         }
       end
 
