@@ -270,7 +270,7 @@ class ApplicationController < ActionController::Base
     unless current_user.current_user_role_id
       user_roles = current_user.user_roles
 
-      current_user.current_user_role_id = user_roles.first.id if user_roles.size == 1
+      current_user.current_user_role_id = user_roles.first&.id if user_roles.size == 1
     end
 
     current_user.current_unity_id ||= current_user.current_user_role&.unity_id
