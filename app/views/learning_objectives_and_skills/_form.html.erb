@@ -18,7 +18,7 @@
     <div class="row">
       <div class="col col-sm-4 only-child-school" style="display: none;">
         <%= f.input :child_educations, as: :select2, elements: ChildEducations.to_select.to_json, multiple: true,
-          input_html: { id: 'learning_objectives_and_skill_child_educations', required: true,
+          required: true, input_html: { id: 'learning_objectives_and_skill_child_educations',
           value: f.object.grades.join(','), data: { without_json_parser: true } } %>
       </div>
 
