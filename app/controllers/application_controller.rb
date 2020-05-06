@@ -21,6 +21,7 @@ class ApplicationController < ActionController::Base
   #protect_from_forgery with: :exception
   protect_from_forgery with: :null_session
 
+  before_action :set_current_user_defaults, if: :user_signed_in?
   before_action :check_entity_status
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
@@ -68,7 +69,15 @@ class ApplicationController < ActionController::Base
   end
 
   def policy(record)
-    ApplicationPolicy.new(current_user, record)
+    begin
+      result = Pundit::PolicyFinder.new(record).policy!.new(current_user, record)
+      Rails.logger.info 'LOG: ApplicationController#policy - Policy found'
+      result
+    rescue
+      result = ApplicationPolicy.new(current_user, record)
+      Rails.logger.info 'LOG: ApplicationController#policy - Policy fallback'
+      result
+    end
   end
   helper_method :policy
 
@@ -115,7 +124,8 @@ class ApplicationController < ActionController::Base
     if (synchronization = synchronizations.completed_unnotified)
       flash.now[:notice] = t('ieducar_api_synchronization.completed')
     elsif (synchronization = current_user.synchronizations.last_error)
-      flash.now[:alert] = t('ieducar_api_synchronization.error', error: error_by_user(current_user))
+      flash.now[:alert] =
+        t('ieducar_api_synchronization.error', error: synchronization.error_by_user(current_user))
     end
 
     synchronization&.notified!
@@ -255,6 +265,16 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def set_current_user_defaults
+    unless current_user.current_user_role_id
+      user_roles = current_user.user_roles
+
+      current_user.current_user_role_id = user_roles.first&.id if user_roles.size == 1
+    end
+
+    current_user.current_unity_id ||= current_user.current_user_role&.unity_id
+  end
 
   def current_year_steps
     @current_year_steps ||= begin

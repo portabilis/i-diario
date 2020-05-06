@@ -3,6 +3,7 @@ class DailyFrequenciesController < ApplicationController
   before_action :require_current_clasroom
   before_action :set_number_of_classes, only: [:new, :create, :edit_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
+  before_action :require_valid_daily_frequency_classroom
 
   def new
     @daily_frequency = DailyFrequency.new.localized
@@ -276,7 +277,7 @@ class DailyFrequenciesController < ApplicationController
     ).tap do |daily_frequency_record|
       daily_frequency_record.unity_id = params[:unity_id]
       daily_frequency_record.school_calendar_id = current_school_calendar.id
-      daily_frequency_record.teacher_id = current_teacher_id
+      daily_frequency_record.owner_teacher_id = daily_frequency_record.teacher_id = current_teacher_id
       daily_frequency_record.origin = OriginTypes::WEB
     end
 
@@ -381,5 +382,13 @@ class DailyFrequenciesController < ApplicationController
 
     class_numbers = (class_numbers - [0, '0', '', nil])
     class_numbers.present?
+  end
+
+  def require_valid_daily_frequency_classroom
+    return unless params[:daily_frequency]
+    return unless params[:daily_frequency][:classroom_id]
+    return if current_user.current_classroom_id == params[:daily_frequency][:classroom_id].to_i
+
+    redirect_to new_daily_frequency_path
   end
 end

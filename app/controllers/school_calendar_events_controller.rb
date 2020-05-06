@@ -25,6 +25,12 @@ class SchoolCalendarEventsController < ApplicationController
     authorize resource
 
     if resource.save
+      if [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY].include?(resource.event_type)
+        school_days_to_remove = resource.start_date..resource.end_date
+
+        UnitySchoolDay.where(school_day: school_days_to_remove).each(&:destroy)
+      end
+
       respond_with resource, location: school_calendar_school_calendar_events_path
     else
       clear_invalid_dates

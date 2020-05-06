@@ -39,10 +39,10 @@ class CurrentRoleForm
   def user_attributes
     attributes = @params.slice(:current_discipline_id, :current_school_year, :teacher_profile_id)
     attributes.merge!(
-      current_unity_id: current_unity.id,
-      current_classroom_id: current_classroom.id,
-      current_user_role_id: current_user_role.id,
-      assumed_teacher_id: current_teacher.id
+      current_unity_id: current_unity&.id,
+      current_classroom_id: current_classroom&.id,
+      current_user_role_id: current_user_role&.id,
+      assumed_teacher_id: current_teacher&.id
     )
 
     unless require_allocation?
@@ -101,10 +101,11 @@ class CurrentRoleForm
 
   def set_defaults
     self.current_user      ||= current_user
-    self.current_user_role ||= UserRole.find(current_user_role_id)  if current_user_role_id
-    self.current_classroom ||= Classroom.find(current_classroom_id) if current_classroom_id
-    self.current_unity     ||= Unity.find(current_unity_id)         if current_unity_id
-    self.current_teacher   ||= Teacher.find(current_teacher_id)     if current_teacher_id
+    self.current_user_role ||= UserRole.find(current_user_role_id)  if current_user_role_id.present?
+    self.current_classroom ||= Classroom.find(current_classroom_id) if current_classroom_id.present?
+    self.current_unity     ||= Unity.find(current_unity_id)         if current_unity_id.present?
+    self.current_teacher   ||= Teacher.find(current_teacher_id)     if current_teacher_id.present?
+    self.current_unity     ||= current_user_role.unity              if current_user_role
 
     set_default_user_role
   end

@@ -3,7 +3,8 @@ module RoleHelper
     'can_change_user_password',
     'ieducar_api_exam_posting_without_restrictions',
     'change_school_year',
-    'infrequency_trackings'
+    'infrequency_trackings',
+    'pedagogical_trackings'
   ].freeze
 
   def access_level_tags(role_permission)
