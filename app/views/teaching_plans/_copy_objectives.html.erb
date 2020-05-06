@@ -32,7 +32,7 @@
             <div class="<%= type == 'disciplines' ? 'col-sm-6' : 'col-sm-4' %> grades"
               style="margin-top: 5px; margin-left: -27px; display: none;">
               <%= f.input :grade_ids, as: :select2, label: false, multiple: true,
-                elements: (ChildEducations.to_select + ElementaryEducations.to_select[1..-1]).to_json,
+                elements: BnccObjectivesAndSkillsDecorator.education_fields_by_type(type).to_json,
                 input_html: { class: 'grade_ids', data: { without_json_parser: true } } %>
             </div>
           </div>
