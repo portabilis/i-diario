@@ -143,6 +143,18 @@ class DisciplineLessonPlansController < ApplicationController
     respond_with(@teaching_plan_contents)
   end
 
+  def teaching_plan_objectives
+    @teaching_plan_objectives = DisciplineTeachingPlanObjectivesFetcher.new(
+      current_teacher,
+      current_user_classroom,
+      current_user_discipline,
+      params[:start_date],
+      params[:end_date]
+    ).fetch
+
+    respond_with(@teaching_plan_objectives)
+  end
+
   private
 
   def content_ids

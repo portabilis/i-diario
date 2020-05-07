@@ -4,10 +4,14 @@ window['content_list_submodel_name'] = 'lesson_plan';
 $(function () {
   'use strict';
   const copyTeachingPlanLink = document.getElementById('copy-from-teaching-plan-link');
+  const copyObjectivesTeachingPlanLink = document.getElementById('copy-from-objectives-teaching-plan-link');
   const startAtInput = document.getElementById('knowledge_area_lesson_plan_lesson_plan_attributes_start_at');
   const endAtInput = document.getElementById('knowledge_area_lesson_plan_lesson_plan_attributes_end_at');
   const knowledgeAreasInput = document.getElementById('knowledge_area_lesson_plan_knowledge_area_ids');
   const copyFromTeachingPlanAlert = document.getElementById('lesson_plan_copy_from_teaching_plan_alert');
+  const copyFromObjectivesTeachingPlanAlert = document.getElementById(
+    'lesson_plan_copy_from_objectives_teaching_plan_alert'
+  );
   const flashMessages = new FlashMessages();
 
   $('#knowledge_area_lesson_plan_lesson_plan_attributes_contents_tags').on('change', function(e){
@@ -103,6 +107,54 @@ $(function () {
 
     $.getJSON(url, params)
     .done(fillContents);
+
+
+    return false;
+  });
+
+  const addObjectives = (description) => {
+    if(!$('li.list-group-item.active input[type=checkbox][data-objective_description="'+description+'"]').length) {
+      const newLine = JST['templates/layouts/objectives_list_manual_item']({
+        description: description,
+        model_name: window['content_list_model_name'],
+        submodel_name: window['content_list_submodel_name']
+      });
+
+      $('#objectives-list').append(newLine);
+      $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
+    }
+  };
+
+  const fillObjectives = (data) => {
+    if (data.knowledge_area_lesson_plans.length) {
+      data.knowledge_area_lesson_plans.forEach(content => addObjectives(content.description));
+    } else {
+      copyFromObjectivesTeachingPlanAlert.style.display = 'block';
+    }
+  }
+
+  copyObjectivesTeachingPlanLink.addEventListener('click', event => {
+    event.preventDefault();
+    copyFromObjectivesTeachingPlanAlert.style.display = 'none';
+
+    if (!knowledgeAreasInput.value) {
+      flashMessages.error('É necessário preenchimento das áreas de conhecimento para realizar a cópia.');
+      return false;
+    }
+
+    if (!startAtInput.value || !endAtInput.value) {
+      flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
+      return false;
+    }
+    const url = Routes.teaching_plan_objectives_knowledge_area_lesson_plans_pt_br_path();
+    const params = {
+      knowledge_area_ids: knowledgeAreasInput.value,
+      start_date: startAtInput.value,
+      end_date: endAtInput.value
+    }
+
+    $.getJSON(url, params)
+    .done(fillObjectives);
 
 
     return false;

@@ -11,9 +11,13 @@ $(function () {
   var $classes_div = $('.discipline_lesson_plan_classes');
   var $lesson_plan_attachment = $('#lesson_plan_attachment');
   const copyTeachingPlanLink = document.getElementById('copy-from-teaching-plan-link');
+  const copyObjectivesTeachingPlanLink = document.getElementById('copy-from-objectives-teaching-plan-link');
   const startAtInput = document.getElementById('discipline_lesson_plan_lesson_plan_attributes_start_at');
   const endAtInput = document.getElementById('discipline_lesson_plan_lesson_plan_attributes_end_at');
   const copyFromTeachingPlanAlert = document.getElementById('lesson_plan_copy_from_teaching_plan_alert');
+  const copyFromObjectivesTeachingPlanAlert = document.getElementById(
+    'lesson_plan_copy_from_objectives_teaching_plan_alert'
+  );
 
   $(".lesson_plan_attachment").on('change', onChangeFileElement);
 
@@ -181,6 +185,47 @@ $(function () {
     $.getJSON(url, params)
     .done(fillContents);
 
+
+    return false;
+  });
+
+  const addObjectives = (description) => {
+    if(!$('li.list-group-item.active input[type=checkbox][data-objective_description="'+description+'"]').length) {
+      const newLine = JST['templates/layouts/objectives_list_manual_item']({
+        description: description,
+        model_name: window['content_list_model_name'],
+        submodel_name: window['content_list_submodel_name']
+      });
+
+      $('#objectives-list').append(newLine);
+      $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
+    }
+  };
+
+  const fillObjectives = (data) => {
+    if (data.discipline_lesson_plans.length) {
+      data.discipline_lesson_plans.forEach(content => addObjectives(content.description));
+    } else {
+      copyFromObjectivesTeachingPlanAlert.style.display = 'block';
+    }
+  }
+
+  copyObjectivesTeachingPlanLink.addEventListener('click', event => {
+    event.preventDefault();
+    copyFromObjectivesTeachingPlanAlert.style.display = 'none';
+
+    if (!startAtInput.value || !endAtInput.value) {
+      flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
+      return false;
+    }
+    const url = Routes.teaching_plan_objectives_discipline_lesson_plans_en_path();
+    const params = {
+      start_date: startAtInput.value,
+      end_date: endAtInput.value
+    }
+
+    $.getJSON(url, params)
+    .done(fillObjectives);
 
     return false;
   });

@@ -157,6 +157,18 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     respond_with(@teaching_plan_contents)
   end
 
+  def teaching_plan_objectives
+    @teaching_plan_objectives = KnowledgeAreaTeachingPlanObjectivesFetcher.new(
+      current_teacher,
+      current_user_classroom,
+      params[:knowledge_area_ids],
+      params[:start_date],
+      params[:end_date]
+    ).fetch
+
+    respond_with(@teaching_plan_objectives)
+  end
+
   private
 
   def content_ids
