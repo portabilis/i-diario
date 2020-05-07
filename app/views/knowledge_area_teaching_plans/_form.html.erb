@@ -165,9 +165,12 @@
           <%= teaching_plan_form.input :objectives_tags,
               as: :string,
               input_html: {
-                'data-content-type': 'objetivo',
-                class: 'select2-tags',
-                value: ''
+                class: 'select2-content-tags-ajax',
+                value: '',
+                data: {
+                  url: contents_path,
+                  data: []
+                }
               }
           %>
         </div>

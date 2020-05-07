@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const addElement = (description) => {
-    if(!$('li.list-group-item.active input[type=checkbox][data-content_description="'+description+'"]').length) {
-      const newLine = JST['templates/layouts/contents_list_manual_item']({
+    if(!$('li.list-group-item.active input[type=checkbox][data-objective_description="'+description+'"]').length) {
+      const newLine = JST['templates/layouts/objectives_list_manual_item']({
         description: description,
         model_name: window['content_list_model_name'],
         submodel_name: window['content_list_submodel_name']
