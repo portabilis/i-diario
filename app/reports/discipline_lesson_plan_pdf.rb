@@ -143,6 +143,18 @@ class DisciplineLessonPlanPdf < BaseReport
       lesson_plan.contents.present? ? lesson_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
     )
     @conteudo_cell = make_cell(content: conteudo_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
+
+    objectives_cell_content = inline_formated_cell_header(
+      Translator.t('activerecord.attributes.discipline_lesson_plan.objectives')
+    ) + (
+      lesson_plan.objectives.present? ? lesson_plan.objectives_ordered.map(&:to_s).join("\n ") : '-'
+    )
+    @objectives_cell = make_cell(
+      content: objectives_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4], colspan: 4
+    )
   end
 
   def general_information
@@ -170,7 +182,8 @@ class DisciplineLessonPlanPdf < BaseReport
   def class_plan
     class_plan_table_data = [
       [@class_plan_header_cell],
-      [@conteudo_cell]
+      [@conteudo_cell],
+      [@objectives_cell]
     ]
 
     table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
