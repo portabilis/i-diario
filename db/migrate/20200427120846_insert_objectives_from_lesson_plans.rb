@@ -4,6 +4,7 @@ class InsertObjectivesFromLessonPlans < ActiveRecord::Migration
       DO $$
         DECLARE _objective_id INT;
         DECLARE lesson_plan record;
+        DECLARE objectives_list record;
       BEGIN
         FOR lesson_plan IN (
           SELECT lesson_plans.id AS id,
@@ -12,30 +13,37 @@ class InsertObjectivesFromLessonPlans < ActiveRecord::Migration
            WHERE COALESCE(lesson_plans.objectives, '') <> ''
         )
         LOOP
-          INSERT INTO objectives(
-            description,
-            created_at,
-            updated_at
+          FOR objectives_list IN (
+            SELECT objective
+              FROM regexp_split_to_table(lesson_plan.objectives, '\r\n') AS objective
+            WHERE objective <> ''
           )
-          VALUES(
-            lesson_plan.objectives,
-            NOW(),
-            NOW()
-          )
-          RETURNING id INTO _objective_id;
+          LOOP
+            INSERT INTO objectives(
+              description,
+              created_at,
+              updated_at
+            )
+            VALUES(
+              objectives_list.objective,
+              NOW(),
+              NOW()
+            )
+            RETURNING id INTO _objective_id;
 
-          INSERT INTO objectives_lesson_plans(
-            objective_id,
-            lesson_plan_id,
-            created_at,
-            updated_at
-          )
-          VALUES(
-            _objective_id,
-            lesson_plan.id,
-            NOW(),
-            NOW()
-          );
+            INSERT INTO objectives_lesson_plans(
+              objective_id,
+              lesson_plan_id,
+              created_at,
+              updated_at
+            )
+            VALUES(
+              _objective_id,
+              lesson_plan.id,
+              NOW(),
+              NOW()
+            );
+          END LOOP;
         END LOOP;
       END$$;
     SQL
