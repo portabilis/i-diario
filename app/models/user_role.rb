@@ -50,7 +50,7 @@ class UserRole < ActiveRecord::Base
   def set_current_user_role_id_nil
     return if user.current_user_role_id != id
 
-    user.set_current_user_role!
+    user.clear_allocation
   end
 
   def set_current_user_role_id
