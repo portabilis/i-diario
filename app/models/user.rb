@@ -20,6 +20,7 @@ class User < ActiveRecord::Base
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
   before_destroy :ensure_has_no_audits
+  before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
 
   belongs_to :student
