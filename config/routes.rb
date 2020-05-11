@@ -202,12 +202,14 @@ Rails.application.routes.draw do
       collection do
         post :clone
         get :teaching_plan_contents
+        get :teaching_plan_objectives
       end
     end
     resources :knowledge_area_lesson_plans, concerns: :history do
       collection do
         post :clone
         get :teaching_plan_contents
+        get :teaching_plan_objectives
       end
     end
     resources :discipline_content_records, concerns: :history do

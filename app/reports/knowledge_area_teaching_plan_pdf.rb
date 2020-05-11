@@ -169,16 +169,16 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
       column(-1).border_right_width = 0.25
     end
 
-    objectives = teaching_plan.objectives || '-'
     content = teaching_plan.present? ? teaching_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
+    objectives = teaching_plan.objectives.present? ? teaching_plan.objectives_ordered.map(&:to_s).join("\n ") : '-'
     methodology = teaching_plan.methodology || '-'
     evaluation = teaching_plan.evaluation || '-'
     references = teaching_plan.references || '-'
 
-    objectives_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.objectives')
     contents_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.contents')
-    text_box_truncate(objectives_label, objectives)
+    objectives_label = Translator.t('activerecord.attributes.discipline_teaching_plan.objectives')
     text_box_truncate(contents_label, content)
+    text_box_truncate(objectives_label, objectives)
     text_box_truncate('Metodologia', methodology)
     text_box_truncate('Avaliação', evaluation)
     text_box_truncate('Referências', references)

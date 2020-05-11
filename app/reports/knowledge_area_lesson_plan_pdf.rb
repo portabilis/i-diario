@@ -162,6 +162,21 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
       colspan: 4
     )
 
+    objectives = '-'
+    if @knowledge_area_lesson_plan.lesson_plan.objectives.present?
+      objectives = @knowledge_area_lesson_plan.lesson_plan.objectives_ordered.map(&:to_s).join("\n ")
+    end
+    objectives_cell_content = inline_formated_cell_header(
+      Translator.t('activerecord.attributes.knowledge_area_lesson_plan.objectives')
+    ) + objectives
+    @objectives_cell = make_cell(
+      content: objectives_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
+    )
+
     opinion_cell_content = inline_formated_cell_header('Parecer') + @knowledge_area_lesson_plan.lesson_plan.opinion.to_s
     @opinion_cell = make_cell(content: opinion_cell_content, size: 10, borders: [:bottom, :left, :right, :top], padding: [0, 2, 4, 4], colspan: 4)
   end
@@ -189,11 +204,11 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
   end
 
   def class_plan
-    class_plan_table_data = []
-
-    class_plan_table_data << [@class_plan_header_cell]
-
-    class_plan_table_data << [@content_cell]
+    class_plan_table_data = [
+      [@class_plan_header_cell],
+      [@content_cell],
+      [@objectives_cell]
+    ]
 
     table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
       cells.border_width = 0.25
@@ -204,8 +219,6 @@ class KnowledgeAreaLessonPlanPdf < BaseReport
     end
 
     text_box_truncate('Atividades/metodologia', (@knowledge_area_lesson_plan.lesson_plan.activities || '-'))
-    objectives_label = Translator.t('activerecord.attributes.knowledge_area_lesson_plan.objectives')
-    text_box_truncate(objectives_label, (@knowledge_area_lesson_plan.lesson_plan.objectives || '-'))
     text_box_truncate('Recursos', (@knowledge_area_lesson_plan.lesson_plan.resources || '-'))
     text_box_truncate('Avaliação', (@knowledge_area_lesson_plan.lesson_plan.evaluation || '-'))
     text_box_truncate('Referências', (@knowledge_area_lesson_plan.lesson_plan.bibliography || '-'))

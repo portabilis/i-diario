@@ -67,6 +67,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan = DisciplineTeachingPlan.new(resource_params).localized
     @discipline_teaching_plan.teaching_plan.teacher = current_teacher
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
+    @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
 
     authorize @discipline_teaching_plan
@@ -93,6 +94,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
     @discipline_teaching_plan.assign_attributes(resource_params)
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
+    @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
     @discipline_teaching_plan.current_user = current_user
 
@@ -135,6 +137,14 @@ class DisciplineTeachingPlansController < ApplicationController
     param_content_ids + new_contents_ids
   end
 
+  def objective_ids
+    param_objective_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:objective_ids] || []
+    objective_descriptions =
+      params[:discipline_teaching_plan][:teaching_plan_attributes][:objective_descriptions] || []
+    new_objectives_ids = objective_descriptions.map { |value| Objective.find_or_create_by!(description: value).id }
+    param_objective_ids + new_objectives_ids
+  end
+
   def resource_params
     params.require(:discipline_teaching_plan).permit(
       :discipline_id,
@@ -146,7 +156,6 @@ class DisciplineTeachingPlansController < ApplicationController
         :grade_id,
         :school_term_type,
         :school_term,
-        :objectives,
         :content,
         :methodology,
         :evaluation,
@@ -173,6 +182,19 @@ class DisciplineTeachingPlansController < ApplicationController
     @contents.flatten.uniq
   end
   helper_method :contents
+
+  def objectives
+    @objectives = []
+
+    if @discipline_teaching_plan.teaching_plan.objectives
+      objectives = @discipline_teaching_plan.teaching_plan.objectives_ordered
+      objectives.each { |objective| objective.is_editable = true }
+      @objectives << objectives
+    end
+
+    @objectives.flatten.uniq
+  end
+  helper_method :objectives
 
   def fetch_collections
     fetch_unities

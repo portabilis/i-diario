@@ -1,5 +1,3 @@
-<%= render 'teaching_plans/copy_objectives', type: 'disciplines' %>
-
 <% content_for :js do %>
   <%= javascript_include_tag 'list-contents' %>
   <%= javascript_include_tag 'views/discipline_lesson_plans/form' %>
@@ -15,6 +13,8 @@
     <%= render partial: 'lesson_plans/base_errors', locals: { f: lesson_plan } %>
 
     <fieldset>
+      <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'disciplines' %>
+
       <div class="row">
         <%= render partial: 'lesson_plans/unity_field', locals: { f: lesson_plan } %>
 

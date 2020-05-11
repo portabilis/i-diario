@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @learning_objectives_and_skills.empty? %>
     <tr>
-      <td class="no_record_found" colspan="4"> <%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="5"> <%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @learning_objectives_and_skills.each do |learning_objectives_and_skill| %>
@@ -13,6 +13,7 @@
         </td>
         <td><%= learning_objectives_and_skill.description %></td>
         <td><%= learning_objectives_and_skill.step_humanize %></td>
+        <td><%= learning_objectives_and_skill.decorator.grades_labels %></td>
         <td class="actions">
           <% if policy(LearningObjectivesAndSkill).update? %>
             <%= link_to 'Editar',
