@@ -44,9 +44,14 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :without_discipline, -> { where(arel_table[:discipline_id].eq(nil)) }
   scope :without_course, -> { where(arel_table[:course_id].eq(nil)) }
   scope :by_period, ->(period) { where(' ? = ANY (periods)', period) }
-  scope :by_date, ->(date) { where('start_date <= ? and end_date >= ?', date, date) }
+  scope :by_date, lambda { |date|
+    where('school_calendar_events.start_date <= ? and school_calendar_events.end_date >= ?', date, date)
+  }
   scope :by_date_between, lambda { |start_at, end_at|
-    where('start_date >= ? and end_date <= ?', start_at.to_date, end_at.to_date)
+    where(
+      'school_calendar_events.start_date >= ? and school_calendar_events.end_date <= ?',
+      start_at.to_date, end_at.to_date
+    )
   }
   scope :by_description, lambda { |description|
     where('unaccent(school_calendar_events.description) ILIKE unaccent(?)', '%'+description+'%')
