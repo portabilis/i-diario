@@ -6,26 +6,14 @@ module Api
     end
 
     def any_activity?
-      return true if AbsenceJustificationsDiscipline.joins(:absence_justification)
-                                                    .where(absence_justifications: {
-                                                             classroom_id: @classrooms_ids
-                                                           })
-                                                    .where(discipline_id: @discipline_id)
-                                                    .exists?
+      return true if DailyFrequency.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id).exists?
 
       return true if Avaliation.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id).exists?
-
-      return true if ComplementaryExam.where(
-        classroom_id: @classrooms_ids,
-        discipline_id: @discipline_id
-      ).exists?
 
       return true if ConceptualExamValue.joins(:conceptual_exam)
                                         .where(conceptual_exams: { classroom_id: @classrooms_ids })
                                         .where(discipline_id: @discipline_id)
                                         .exists?
-
-      return true if DailyFrequency.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id).exists?
 
       return true if DescriptiveExam.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id).exists?
 
@@ -33,6 +21,7 @@ module Api
                                             .where(content_records: { classroom_id: @classrooms_ids })
                                             .where(discipline_id: @discipline_id)
                                             .exists?
+
       return true if DisciplineLessonPlan.joins(:lesson_plan)
                                          .where(lesson_plans: { classroom_id: @classrooms_ids })
                                          .where(discipline_id: @discipline_id)
@@ -42,17 +31,23 @@ module Api
                                            .where(discipline_id: @discipline_id)
                                            .exists?
 
-      return true if ObservationDiaryRecord.where(
-        classroom_id: @classrooms_ids,
-        discipline_id: @discipline_id
-      ).exists?
+      return true if RecoveryDiaryRecord.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id)
+                                        .exists?
 
-      return true if RecoveryDiaryRecord.where(
-        classroom_id: @classrooms_ids,
-        discipline_id: @discipline_id
-      ).exists?
+      return true if ComplementaryExam.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id)
+                                      .exists?
 
       return true if SchoolCalendarEvent.joins(:school_calendar).where(discipline_id: @discipline_id).exists?
+
+      return true if AbsenceJustificationsDiscipline.joins(:absence_justification)
+                                                    .where(absence_justifications: {
+                                                             classroom_id: @classrooms_ids
+                                                           })
+                                                    .where(discipline_id: @discipline_id)
+                                                    .exists?
+
+      return true if ObservationDiaryRecord.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id)
+                                           .exists?
 
       return true if TransferNote.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id).exists?
 
