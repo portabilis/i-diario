@@ -49,7 +49,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
     where('start_date >= ? and end_date <= ?', start_at.to_date, end_at.to_date)
   }
   scope :by_description, lambda { |description|
-    where('unaccent(description) ILIKE unaccent(?)', '%'+description+'%')
+    where('unaccent(school_calendar_events.description) ILIKE unaccent(?)', '%'+description+'%')
   }
   scope :by_type, ->(type) { where(event_type: type) }
   scope :by_grade, ->(grade) { where(grade_id: grade) }
