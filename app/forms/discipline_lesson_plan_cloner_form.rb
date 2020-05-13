@@ -41,6 +41,7 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
   end
 
   def discipline_lesson_plan
-    @discipline_lesson_plan ||= DisciplineLessonPlan.find(discipline_lesson_plan_id)
+    @discipline_lesson_plan ||= DisciplineLessonPlan.includes(lesson_plan: [:objectives, :contents])
+                                                    .find(discipline_lesson_plan_id)
   end
 end
