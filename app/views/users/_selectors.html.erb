@@ -31,7 +31,7 @@
         <span class="label required"><%= t('layouts.application.role') %></span>
         <%= f.input :current_user_role_id,
                     as: :select2,
-                    elements: user.user_roles.includes(:unity),
+                    elements: user.user_roles,
                     input_html: { "data-placeholder" => t('layouts.application.select'), class: 'current-role-selector-field'},
                     label: false,
                     wrapper: false,
