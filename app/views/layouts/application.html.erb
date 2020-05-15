@@ -66,6 +66,10 @@
         <%= breadcrumbs %>
       </div>
 
+      <div style='margin-left: 12px'>
+        <%= yield :back_link %>
+      </div>
+
       <div id="content">
         <div id="flash-messages">
           <%= bootstrap_flash %>
