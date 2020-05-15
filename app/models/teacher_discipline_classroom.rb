@@ -10,6 +10,8 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   belongs_to :discipline
   belongs_to :classroom
 
+  has_many :student_enrollment_classrooms, through: :classroom
+
   has_enumeration_for :period, with: Periods, skip_validation: true
 
   validates :teacher, :teacher_api_code, :discipline_api_code, :classroom_api_code, :year, presence: true
