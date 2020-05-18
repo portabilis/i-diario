@@ -38,6 +38,13 @@ class RolesController < ApplicationController
 
     authorize @role
 
+    page = params[:page]&.to_i
+    sequence = params[:sequence]&.to_i
+
+    @user_roles = Kaminari.paginate_array(@role.user_roles).page(page).per(10)
+
+    @sequence = [nil, 1].include?(page) ? -1 : (page * 10) - (sequence + 2)
+    @paginated = params[:paginated] || false
     @role.build_permissions!
   end
 

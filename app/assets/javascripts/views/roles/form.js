@@ -2,7 +2,7 @@ $(function() {
   $('form').on('cocoon:after-insert', function(){
     var $lastTr = $('tbody#user-roles tr:last');
     var idSplitted = $lastTr.find('[id*="_id"]').last().attr('id').split('_');
-    var uniqueId = idSplitted[idSplitted.length-2];    
+    var uniqueId = idSplitted[idSplitted.length-2];
 
     $('tbody#user-roles tr:last').find('[name*="cocoonReplaceUniqueId"]').each(function(){
       $(this).attr('name', $(this).attr('name').replace('cocoonReplaceUniqueId', uniqueId));
@@ -14,4 +14,12 @@ $(function() {
 
     createSelect2Remote(true, 'tbody#user-roles tr:last input.select2_remote', '');
   });
+
+  if ($('#paginated').val() == 'true') {
+    $('#li-users').addClass('active');
+    $('#users').addClass('active');
+
+    $('#li-general').removeClass('active');
+    $('#general').removeClass('active');
+  }
 });
