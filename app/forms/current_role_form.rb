@@ -56,20 +56,27 @@ class CurrentRoleForm
   end
 
   def require_allocation?
+    return false if changed_to_parent?
+
     teacher? || current_classroom
   end
 
   def teacher?
+    return false if changed_to_parent?
+
     current_user&.teacher?
   end
 
   def require_year?
+    return false if changed_to_parent?
     return false if unity_is_cost_center?
 
     current_user&.current_role_is_admin_or_employee_or_teacher?
   end
 
   def require_unity?
+    return false if changed_to_parent?
+
     current_user&.current_role_is_admin_or_employee_or_teacher?
   end
 
@@ -97,6 +104,12 @@ class CurrentRoleForm
     }
 
     TeacherRelationFetcher.new(params)
+  end
+
+  def changed_to_parent?
+    return false if current_user_role.nil?
+
+    UserRole.find(current_user_role.id).role.access_level == AccessLevel::PARENT
   end
 
   def set_defaults

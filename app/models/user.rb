@@ -314,6 +314,20 @@ class User < ActiveRecord::Base
     current_user_role.role.access_level == AccessLevel::TEACHER
   end
 
+  def parent?
+    return false unless current_user_role
+
+    current_user_role.role.access_level == AccessLevel::PARENT
+  end
+
+  def parent_can_change_profile?
+    return false unless parent?
+
+    roles.any? do |role|
+      role.access_level.in? [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE, AccessLevel::TEACHER]
+    end
+  end
+
   def cpf_as_integer
     cpf.gsub(/[^\d]/, '')
   end
