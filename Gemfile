@@ -80,7 +80,7 @@ gem 'signet', '0.11.0'
 instance_eval File.read('Gemfile.plugins') if File.exists?('Gemfile.plugins')
 
 group :development do
-  gem 'meta_request', '0.6.0'
+  gem 'meta_request', '0.7.2'
   gem 'pry-byebug', '3.4.2'
   gem 'pry-remote', '0.1.8'
   gem 'quiet_assets', '1.1.0'
