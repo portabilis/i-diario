@@ -38,13 +38,8 @@ class RolesController < ApplicationController
 
     authorize @role
 
-    page = params[:page]&.to_i
-    sequence = params[:sequence]&.to_i
+    paginate_user_roles
 
-    @user_roles = Kaminari.paginate_array(@role.user_roles).page(page).per(10)
-
-    @sequence = [nil, 1].include?(page) ? -1 : (page * 10) - (sequence + 2)
-    @paginated = params[:paginated] || false
     @role.build_permissions!
   end
 
@@ -53,10 +48,15 @@ class RolesController < ApplicationController
 
     authorize @role
 
+    paginate_user_roles
+
     if @role.update(role_params)
       respond_with @role, location: roles_path
     else
-      render :edit
+      flash[:alert] = []
+      flash[:alert] << @role.errors.full_messages.to_sentence
+
+      redirect_to edit_role_path(@role)
     end
   end
 
@@ -97,5 +97,15 @@ class RolesController < ApplicationController
         :id, :user_id, :unity_id, :_destroy
       ]
     )
+  end
+
+  def paginate_user_roles
+    page = params[:page]&.to_i
+    sequence = params[:sequence]&.to_i
+
+    @user_roles = Kaminari.paginate_array(@role.user_roles).page(page).per(10)
+
+    @sequence = [nil, 1].include?(page) ? -1 : (page * 10) - (sequence + 2)
+    @paginated = params[:paginated] || false
   end
 end
