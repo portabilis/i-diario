@@ -396,6 +396,10 @@ span.multiline {
   display: block;
 }
 
+.shortcut {
+  height: 150px;
+}
+
 #header .select2-arrow {
   background-color: #4c4f53;
   color: white;
