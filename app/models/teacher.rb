@@ -1,12 +1,22 @@
 class Teacher < ActiveRecord::Base
+  include Discardable
   acts_as_copy_target
 
   audited
 
-  has_many :teacher_profiles, dependent: :destroy
-  has_many :users
-  has_many :teacher_discipline_classrooms, dependent: :destroy
+  has_many :absence_justifications
+  has_many :assumed_users, foreign_key: :assumed_teacher_id, class_name: 'User'
   has_many :classrooms, through: :teacher_discipline_classrooms
+  has_many :content_records
+  has_many :daily_frequencies, foreign_key: :owner_teacher_id
+  has_many :ieducar_api_exam_postings
+  has_many :lesson_plans
+  has_many :observation_diary_records
+  has_many :teacher_discipline_classrooms, dependent: :destroy
+  has_many :teacher_profiles, dependent: :destroy
+  has_many :teaching_plans
+  has_many :transfer_notes
+  has_many :users
   has_many :unities, -> { distinct }, through: :classrooms
 
   validates :name, :api_code, presence: true
@@ -32,8 +42,8 @@ class Teacher < ActiveRecord::Base
       }
     )
   }
-
   scope :order_by_name, -> { order(name: :asc) }
+  default_scope -> { kept }
 
   def self.active_query
     joins_teacher_discipline_classrooms.where(
