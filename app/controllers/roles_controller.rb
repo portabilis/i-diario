@@ -41,6 +41,8 @@ class RolesController < ApplicationController
     paginate_user_roles
 
     @role.build_permissions!
+
+    paginate_permissions
   end
 
   def update
@@ -49,6 +51,7 @@ class RolesController < ApplicationController
     authorize @role
 
     paginate_user_roles
+    paginate_permissions
 
     if @role.update(role_params)
       respond_with @role, location: roles_path
@@ -100,12 +103,24 @@ class RolesController < ApplicationController
   end
 
   def paginate_user_roles
-    page = params[:page]&.to_i
+    page = params[:users_page]&.to_i
     sequence = params[:sequence]&.to_i
 
     @user_roles = Kaminari.paginate_array(@role.user_roles).page(page).per(10)
 
     @sequence = [nil, 1].include?(page) ? -1 : (page * 10) - (sequence + 2)
-    @paginated = params[:paginated] || false
+    @active_users_tab = params[:active_users_tab] || false
+  end
+
+  def paginate_permissions
+    page = params[:permissions_page]&.to_i
+
+    permissions = @role.permissions.to_a
+    permissions.keep_if do |permission|
+      permission.access_level_has_feature?(@role.access_level)
+    end
+
+    @active_permissions_tab = params[:active_permissions_tab] || false
+    @permissions = Kaminari.paginate_array(permissions).page(page).per(10)
   end
 end

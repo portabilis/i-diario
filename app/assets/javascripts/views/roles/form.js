@@ -15,11 +15,17 @@ $(function() {
     createSelect2Remote(true, 'tbody#user-roles tr:last input.select2_remote', '');
   });
 
-  if ($('#paginated').val() == 'true') {
+  if ($('#active_users_tab').val() == 'true') {
     $('#li-users').addClass('active');
     $('#users').addClass('active');
 
     $('#li-general').removeClass('active');
     $('#general').removeClass('active');
+  } else {
+    $('#li-general').addClass('active');
+    $('#general').addClass('active');
+
+    $('#li-users').removeClass('active');
+    $('#users').removeClass('active');
   }
 });

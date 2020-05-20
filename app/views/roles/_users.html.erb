@@ -9,7 +9,7 @@
     </thead>
 
     <% sequence = @sequence || -1 %>
-    <%= hidden_field_tag :paginated, @paginated %>
+    <%= hidden_field_tag :active_users_tab, @active_users_tab %>
     <tbody id="user-roles">
       <%= f.association :user_roles, collection: @user_roles do |p| %>
         <% sequence += 1 %>
@@ -20,7 +20,9 @@
       <tr>
         <td colspan="3">
           <div class="pull-right">
-            <%= paginate @user_roles, params: { sequence: sequence, paginated: true } %>
+            <%= paginate @user_roles,
+                param_name: :users_page,
+                params: { sequence: sequence, active_users_tab: true, active_permissions_tab: false } %>
           </div>
           <div id="page_entries_info" class="pull-right hidden-xs" style="margin-right: 25px;margin-top: 30px;">
             <%= page_entries_info @user_roles %>
