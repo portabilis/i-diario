@@ -214,26 +214,28 @@ class DisciplineLessonPlansController < ApplicationController
   def contents
     @contents = []
 
-    if @discipline_lesson_plan.contents
-      contents = @discipline_lesson_plan.lesson_plan.contents_ordered
-      contents.each { |content| content.is_editable = true }
-      @contents << contents
+    if params[:action] == 'edit'
+      @contents = @discipline_lesson_plan.lesson_plan.contents_ordered if @discipline_lesson_plan.contents
+    else
+      @contents = Content.find(@discipline_lesson_plan.lesson_plan.content_ids)
     end
 
-    @contents.flatten.uniq
+    @contents = @contents.each { |content| content.is_editable = true }.uniq
   end
   helper_method :contents
 
   def objectives
     @objectives = []
 
-    if @discipline_lesson_plan.lesson_plan.objectives
-      objectives = @discipline_lesson_plan.lesson_plan.objectives_ordered
-      objectives.each { |objective| objective.is_editable = true }
-      @objectives << objectives
+    if params[:action] == 'edit'
+      if @discipline_lesson_plan.lesson_plan.objectives
+        @objectives = @discipline_lesson_plan.lesson_plan.objectives_ordered
+      end
+    else
+      @objectives = Objective.find(@discipline_lesson_plan.lesson_plan.objective_ids)
     end
 
-    @objectives.flatten.uniq
+    @objectives = @objectives.each { |objective| objective.is_editable = true }.uniq
   end
   helper_method :objectives
 

@@ -226,26 +226,28 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   def contents
     @contents = []
 
-    if @knowledge_area_lesson_plan.contents
-      contents = @knowledge_area_lesson_plan.lesson_plan.contents_ordered
-      contents.each { |content| content.is_editable = true }
-      @contents << contents
+    if params[:action] == 'edit'
+      @contents = @knowledge_area_lesson_plan.lesson_plan.contents_ordered if @knowledge_area_lesson_plan.contents
+    else
+      @contents = Content.find(@knowledge_area_lesson_plan.lesson_plan.content_ids)
     end
 
-    @contents.flatten.uniq
-   end
+    @contents = @contents.each { |content| content.is_editable = true }.uniq
+  end
   helper_method :contents
 
   def objectives
     @objectives = []
 
-    if @knowledge_area_lesson_plan.lesson_plan.objectives
-      objectives = @knowledge_area_lesson_plan.lesson_plan.objectives_ordered
-      objectives.each { |objective| objective.is_editable = true }
-      @objectives << objectives
+    if params[:action] == 'edit'
+      if @knowledge_area_lesson_plan.lesson_plan.objectives
+        @objectives = @knowledge_area_lesson_plan.lesson_plan.objectives_ordered
+      end
+    else
+      @objectives = Objective.find(@knowledge_area_lesson_plan.lesson_plan.objective_ids)
     end
 
-    @objectives.flatten.uniq
+    @objectives = @objectives.each { |objective| objective.is_editable = true }.uniq
   end
   helper_method :objectives
 
