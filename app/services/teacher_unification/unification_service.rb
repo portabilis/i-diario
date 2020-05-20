@@ -25,7 +25,9 @@ class TeacherUnification
       record.teacher = @main_teacher if record.class.included_modules.include?(TeacherRelationable)
 
       record.update_attribute(association.foreign_key, @main_teacher.id)
-      record.update_attribute(:teacher_api_code, @main_teacher.api_code)  if association.name == :teacher_discipline_classrooms
+      return if association.name != :teacher_discipline_classrooms
+
+      record.update_attribute(:teacher_api_code, @main_teacher.api_code)
     end
 
     def discard(record)
