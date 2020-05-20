@@ -5,10 +5,10 @@
   <%= f.error_notification %>
 
   <ul class="nav nav-tabs bordered">
-    <li class="active" id='li-general'><a href="#general" data-toggle="tab">Dados gerais</a></li>
+    <li class="active" id='li-general'><a id='a-general' href="#general" data-toggle="tab">Dados gerais</a></li>
 
     <% if @role.teacher? || @role.employee? || @role.administrator? %>
-      <li id='li-users'><a href="#users" data-toggle="tab">Usuários</a></li>
+      <li id='li-users'><a id='a-users' href="#users" data-toggle="tab">Usuários</a></li>
     <% end %>
   </ul>
 

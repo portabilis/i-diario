@@ -20,6 +20,14 @@ class UserRole < ActiveRecord::Base
 
   before_destroy :set_current_user_role_id_nil
 
+  scope :user_name, lambda { |user_name|
+    joins(:user)
+      .where("unaccent(users.first_name || ' ' || users.last_name) ILIKE unaccent(?)", "%#{user_name}%")
+  }
+  scope :unity_name, lambda { |unity_name|
+    joins(:unity).where('unaccent(unities.name) ILIKE unaccent(?)', "%#{unity_name}%")
+  }
+
   def to_s
     if require_unity?
       "#{role_name} (Nível: #{role_access_level_humanize}) - #{unity_name}"

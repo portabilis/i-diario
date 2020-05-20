@@ -106,10 +106,22 @@ class RolesController < ApplicationController
     page = params[:users_page]&.to_i
     sequence = params[:sequence]&.to_i
 
-    @user_roles = Kaminari.paginate_array(@role.user_roles).page(page).per(10)
+    user_roles = @role.user_roles
+    if params[:user_name].present?
+      user_roles = user_roles.user_name(params[:user_name])
+      @user_name = params[:user_name]
+    end
+
+    if params[:unity_name].present?
+      user_roles = user_roles.unity_name(params[:unity_name])
+      @unity_name = params[:unity_name]
+    end
+
+    @user_roles = Kaminari.paginate_array(user_roles).page(page).per(10)
 
     @sequence = [nil, 1].include?(page) ? -1 : (page * 10) - (sequence + 2)
-    @active_users_tab = params[:active_users_tab] || false
+    active_users_tab = ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:active_users_tab])
+    @active_users_tab = active_users_tab || false
   end
 
   def paginate_permissions
@@ -120,7 +132,8 @@ class RolesController < ApplicationController
       permission.access_level_has_feature?(@role.access_level)
     end
 
-    @active_permissions_tab = params[:active_permissions_tab] || false
+    active_permissions_tab = ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:active_permissions_tab])
+    @active_permissions_tab = active_permissions_tab || false
     @permissions = Kaminari.paginate_array(permissions).page(page).per(10)
   end
 end

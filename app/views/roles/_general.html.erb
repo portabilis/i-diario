@@ -64,6 +64,8 @@
         </span>
       </div>
     <% end %>
+    <%= hidden_field_tag :role_id, f.object.id %>
+    <%= hidden_field_tag :permissions_page, @permissions.current_page %>
     <%= hidden_field_tag :active_permissions_tab, @active_permissions_tab %>
     <tbody id="role-permissions-tbody">
       <%= f.association :permissions, collection: @permissions do |p| %>
