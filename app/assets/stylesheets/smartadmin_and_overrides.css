@@ -224,3 +224,11 @@ body {
 }
 
 .jarviswidget { margin-bottom: 10px; }
+
+#main .back-link {
+  margin-left: 16px;
+}
+
+#ribbon {
+  border-bottom: 0;
+}
