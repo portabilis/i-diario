@@ -18,8 +18,10 @@ $(function() {
   $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     if (e.target.id == 'a-users') {
       $('#active_users_tab').val(true);
+      $('#active_permissions_tab').val(false);
     } else {
       $('#active_permissions_tab').val(true);
+      $('#active_users_tab').val(true);
     }
   });
 
