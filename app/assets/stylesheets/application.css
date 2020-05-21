@@ -12,7 +12,6 @@
  *
  *= require bootstrap_and_overrides
  *= require smartadmin_and_overrides
- *= require summernote_and_overrides
  *= require jNotify.jquery.css
  *= require educacao
  *= require morris
