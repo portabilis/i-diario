@@ -279,6 +279,14 @@ class User < ActiveRecord::Base
     current_access_level.in? [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE]
   end
 
+  def current_role_is_parent?
+    current_access_level == AccessLevel::PARENT
+  end
+
+  def has_admin_or_employee_or_teacher_access_level?
+    can_receive_news_related_daily_teacher?
+  end
+
   def clear_allocation
     self.current_school_year = nil
     self.current_user_role_id = nil
@@ -314,18 +322,10 @@ class User < ActiveRecord::Base
     current_user_role.role.access_level == AccessLevel::TEACHER
   end
 
-  def parent?
-    return false unless current_user_role
-
-    current_user_role.role.access_level == AccessLevel::PARENT
-  end
-
   def parent_can_change_profile?
     return false unless parent?
 
-    roles.any? do |role|
-      role.access_level.in? [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE, AccessLevel::TEACHER]
-    end
+    has_admin_or_employee_or_teacher_access_level?
   end
 
   def cpf_as_integer
