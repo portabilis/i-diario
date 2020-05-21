@@ -323,7 +323,7 @@ class User < ActiveRecord::Base
   end
 
   def parent_can_change_profile?
-    return false unless parent?
+    return false unless current_role_is_parent?
 
     has_admin_or_employee_or_teacher_access_level?
   end
