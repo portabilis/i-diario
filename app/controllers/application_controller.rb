@@ -117,6 +117,8 @@ class ApplicationController < ActionController::Base
   end
 
   def check_for_notifications
+    return unless current_user.current_role_is_admin_or_employee?
+
     synchronizations = current_user.synchronizations.unnotified
 
     return unless synchronizations.exists?
