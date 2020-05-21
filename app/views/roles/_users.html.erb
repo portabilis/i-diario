@@ -39,7 +39,6 @@
     </thead>
 
     <% sequence = @sequence || -1 %>
-    <%= hidden_field_tag :active_users_tab, @active_users_tab %>
     <tbody id="user-roles">
       <%= f.association :user_roles, collection: @user_roles do |p| %>
         <% sequence += 1 %>

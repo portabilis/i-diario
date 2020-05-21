@@ -15,30 +15,6 @@ $(function() {
     createSelect2Remote(true, 'tbody#user-roles tr:last input.select2_remote', '');
   });
 
-  $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    if (e.target.id == 'a-users') {
-      $('#active_users_tab').val(true);
-      $('#active_permissions_tab').val(false);
-    } else {
-      $('#active_permissions_tab').val(true);
-      $('#active_users_tab').val(true);
-    }
-  });
-
-  if ($('#active_users_tab').val() == 'true') {
-    $('#li-users').addClass('active');
-    $('#users').addClass('active');
-
-    $('#li-general').removeClass('active');
-    $('#general').removeClass('active');
-  } else {
-    $('#li-general').addClass('active');
-    $('#general').addClass('active');
-
-    $('#li-users').removeClass('active');
-    $('#users').removeClass('active');
-  }
-
   if ($('#user_name').val().length == 0 && $('#unity_name').val().length == 0) {
     $('#filter_user_roles').attr('disabled', 'disabled');
   }
@@ -75,8 +51,8 @@ $(function() {
     params = {
       user_name: $('#user_name').val(),
       unity_name: $('#unity_name').val(),
-      active_permissions_tab: $('#active_permissions_tab').val(),
-      active_users_tab: $('#active_users_tab').val(),
+      active_permissions_tab: $('#li-general').hasClass('active'),
+      active_users_tab: $('#li-users').hasClass('active'),
       permissions_page: $('#permissions_page').val()
     }
 

@@ -117,6 +117,7 @@ class RolesController < ApplicationController
   def paginate_permissions
     page = params[:permissions_page]&.to_i
     @active_permissions_tab = to_boolean(params[:active_permissions_tab]) || false
+    @active_permissions_tab = true if params[:active_permissions_tab].blank? && params[:active_users_tab].blank?
 
     permissions = @role.permissions
 
