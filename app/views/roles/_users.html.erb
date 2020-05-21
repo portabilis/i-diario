@@ -1,8 +1,10 @@
 <fieldset>
-  <table class="table table-bordered table-striped table-condensed table-hover records" id="resources">
+  <table class="table table-bordered table-striped table-condensed table-hover records"
+         id="resources"
+         style="table-layout: fixed; width: 100%;">
     <thead>
       <tr>
-        <td>
+        <td style='width: auto;'>
           <div class='control-group string required search_full_name'>
             <div class="controls input">
               <%= text_field_tag :user_name,
@@ -13,7 +15,7 @@
               </div>
             </div>
           </td>
-        <td>
+        <td style='width: auto;'>
           <div class='control-group string required search_full_name'>
             <div class="controls input">
               <%= text_field_tag :unity_name,
@@ -24,7 +26,7 @@
               </div>
             </div>
           </td>
-        <td>
+        <td style="text-align: center; width: 135px;">
           <button id='filter_user_roles' type="button" class="btn btn-primary">Filtrar</button>
           <button id='clean_filter' type="button" class="btn btn-danger">Limpar</button>
         </td>
