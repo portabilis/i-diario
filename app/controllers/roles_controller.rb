@@ -106,34 +106,28 @@ class RolesController < ApplicationController
     page = params[:users_page]&.to_i
     sequence = params[:sequence]&.to_i
 
-    user_roles = @role.user_roles
-    if params[:user_name].present?
-      user_roles = user_roles.user_name(params[:user_name])
-      @user_name = params[:user_name]
-    end
-
-    if params[:unity_name].present?
-      user_roles = user_roles.unity_name(params[:unity_name])
-      @unity_name = params[:unity_name]
-    end
-
-    @user_roles = Kaminari.paginate_array(user_roles).page(page).per(10)
-
     @sequence = [nil, 1].include?(page) ? -1 : (page * 10) - (sequence + 2)
-    active_users_tab = ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:active_users_tab])
-    @active_users_tab = active_users_tab || false
+    @active_users_tab = to_boolean(params[:active_users_tab]) || false
+
+    @user_roles = @role.user_roles.page(page).per(10)
+    @user_roles = @user_roles.user_name(params[:user_name]) if (@user_name = params[:user_name])
+    @user_roles = @user_roles.unity_name(params[:unity_name]) if (@unity_name = params[:unity_name])
   end
 
   def paginate_permissions
     page = params[:permissions_page]&.to_i
+    @active_permissions_tab = to_boolean(params[:active_permissions_tab]) || false
 
-    permissions = @role.permissions.to_a
-    permissions.keep_if do |permission|
+    permissions = @role.permissions
+
+    access_level_permission_ids = permissions.select { |permission|
       permission.access_level_has_feature?(@role.access_level)
-    end
+    }.map(&:id).compact
 
-    active_permissions_tab = ActiveRecord::Type::Boolean.new.type_cast_from_user(params[:active_permissions_tab])
-    @active_permissions_tab = active_permissions_tab || false
-    @permissions = Kaminari.paginate_array(permissions).page(page).per(10)
+    @permissions = permissions.where(id: access_level_permission_ids).page(page).per(10)
+  end
+
+  def to_boolean(param)
+    ActiveRecord::Type::Boolean.new.type_cast_from_user(param)
   end
 end
