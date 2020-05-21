@@ -24,9 +24,7 @@ class UserRole < ActiveRecord::Base
     joins(:user)
       .where("unaccent(users.first_name || ' ' || users.last_name) ILIKE unaccent(?)", "%#{user_name}%")
   }
-  scope :unity_name, lambda { |unity_name|
-    joins(:unity).where('unaccent(unities.name) ILIKE unaccent(?)', "%#{unity_name}%")
-  }
+  scope :unity_name, ->(unity_name) { joins(:unity).merge(Unity.search_name(unity_name)) }
 
   def to_s
     if require_unity?
