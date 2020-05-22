@@ -38,7 +38,11 @@ class RolesController < ApplicationController
 
     authorize @role
 
+    paginate_user_roles
+
     @role.build_permissions!
+
+    paginate_permissions
   end
 
   def update
@@ -46,10 +50,16 @@ class RolesController < ApplicationController
 
     authorize @role
 
+    paginate_user_roles
+    paginate_permissions
+
     if @role.update(role_params)
       respond_with @role, location: roles_path
     else
-      render :edit
+      flash[:alert] = []
+      flash[:alert] << @role.errors.full_messages.to_sentence
+
+      redirect_to edit_role_path(@role)
     end
   end
 
@@ -90,5 +100,35 @@ class RolesController < ApplicationController
         :id, :user_id, :unity_id, :_destroy
       ]
     )
+  end
+
+  def paginate_user_roles
+    page = params[:users_page]&.to_i
+    sequence = params[:sequence]&.to_i
+
+    @sequence = [nil, 1].include?(page) ? -1 : (page * 10) - (sequence + 2)
+    @active_users_tab = to_boolean(params[:active_users_tab]) || false
+
+    @user_roles = @role.user_roles.page(page).per(10)
+    @user_roles = @user_roles.user_name(params[:user_name]) if (@user_name = params[:user_name])
+    @user_roles = @user_roles.unity_name(params[:unity_name]) if (@unity_name = params[:unity_name])
+  end
+
+  def paginate_permissions
+    page = params[:permissions_page]&.to_i
+    @active_permissions_tab = to_boolean(params[:active_permissions_tab]) || false
+    @active_permissions_tab = true if params[:active_permissions_tab].blank? && params[:active_users_tab].blank?
+
+    permissions = @role.permissions
+
+    access_level_permission_ids = permissions.select { |permission|
+      permission.access_level_has_feature?(@role.access_level)
+    }.map(&:id).compact
+
+    @permissions = permissions.where(id: access_level_permission_ids).page(page).per(10)
+  end
+
+  def to_boolean(param)
+    ActiveRecord::Type::Boolean.new.type_cast_from_user(param)
   end
 end
