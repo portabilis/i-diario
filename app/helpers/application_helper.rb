@@ -228,12 +228,16 @@ module ApplicationHelper
 
   def back_link(name, path)
     content_for :back_link do
-      link_to path, class: 'back-link' do
-        raw <<-HTML
-          <i class="icon-append fa fa-angle-left"></i>
-          #{name}
-        HTML
-      end
+      back_link_tag(name, path)
+    end
+  end
+
+  def back_link_tag(name, path)
+    link_to path, class: 'back-link' do
+      raw <<-HTML
+        <i class="icon-append fa fa-angle-left"></i>
+        #{name}
+      HTML
     end
   end
 end
