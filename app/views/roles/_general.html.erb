@@ -72,19 +72,13 @@
         <%= render 'permission', f: p %>
       <% end %>
     </tbody>
-    <tfoot>
-      <tr>
-        <td colspan="2">
-          <div class="pull-right">
-            <%= paginate @permissions,
-                param_name: :permissions_page,
-                params: { active_permissions_tab: true, active_users_tab: false } %>
-          </div>
-          <div id="page_entries_info" class="pull-right hidden-xs" style="margin-right: 25px;margin-top: 30px;">
-            <%= page_entries_info @permissions %>
-          </div>
-        <td>
-      <tr>
-    </tfoot>
   </table>
+  <div class="pull-right">
+    <%= paginate @permissions,
+        param_name: :permissions_page,
+        params: { active_permissions_tab: true, active_users_tab: false } %>
+  </div>
+  <div id="page_entries_info" class="pull-right hidden-xs" style="margin-right: 25px;margin-top: 30px;">
+      <%= page_entries_info @permissions %>
+  </div>
 </fieldset>

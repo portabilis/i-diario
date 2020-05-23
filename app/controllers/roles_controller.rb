@@ -14,6 +14,8 @@ class RolesController < ApplicationController
 
     authorize @role
 
+    paginate_permissions
+
     @role.build_permissions!
   end
 
@@ -121,11 +123,11 @@ class RolesController < ApplicationController
 
     permissions = @role.permissions
 
-    access_level_permission_ids = permissions.select { |permission|
+    access_level_permissions = permissions.select { |permission|
       permission.access_level_has_feature?(@role.access_level)
-    }.map(&:id).compact
+    }
 
-    @permissions = permissions.where(id: access_level_permission_ids).page(page).per(10)
+    @permissions = Kaminari.paginate_array(access_level_permissions).page(page).per(10)
   end
 
   def to_boolean(param)
