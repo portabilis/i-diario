@@ -14,6 +14,8 @@ class RolesController < ApplicationController
 
     authorize @role
 
+    paginate_permissions
+
     @role.build_permissions!
   end
 
