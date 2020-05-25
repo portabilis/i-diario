@@ -12,7 +12,6 @@
  *
  *= require bootstrap_and_overrides
  *= require smartadmin_and_overrides
- *= require summernote_and_overrides
  *= require jNotify.jquery.css
  *= require educacao
  *= require morris
@@ -22,6 +21,11 @@
  *= require_tree ./resources
  *= require_self
  */
+
+textarea.form-control.text {
+  padding-top: 5px;
+  padding-left: 10px;
+}
 
 textarea.form-control.text {
   padding-top: 5px;
@@ -389,6 +393,10 @@ span.multiline {
 
 .shortcut a span {
   display: block;
+}
+
+.shortcut {
+  height: 150px;
 }
 
 #header .select2-arrow {

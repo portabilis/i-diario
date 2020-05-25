@@ -32,17 +32,22 @@ module ApplicationHelper
   end
 
   def menus
-    key = ['Menus', current_entity.id, controller_name, current_user.current_user_role.try(:role) || current_user]
+    key = ['Menus',
+           current_entity.id,
+           controller_name,
+           current_user.current_user_role&.role&.cache_key || current_user.cache_key]
 
-    Rails.cache.fetch(key) do
+    Rails.cache.fetch(key, expires_in: 1.day) do
       Navigation.draw_menus(controller_name, current_user)
     end
   end
 
   def shortcuts
-    key = ['HomeShortcuts/v2', current_entity.id, current_user.current_user_role.try(:role) || current_user]
+    key = ['HomeShortcuts/v2',
+           current_entity.id,
+           current_user.current_user_role&.role&.cache_key || current_user&.cache_key]
 
-    Rails.cache.fetch(key) do
+    Rails.cache.fetch(key, expires_in: 1.day) do
       Navigation.draw_shortcuts(current_user)
     end
   end
@@ -159,7 +164,9 @@ module ApplicationHelper
   end
 
   def teacher_profiles_options
-    Rails.cache.fetch(['TeacherProfileList', current_entity.id, current_user.teacher]) do
+    cache_key = ['TeacherProfileList', current_entity.id, current_user.teacher&.cache_key]
+
+    Rails.cache.fetch(cache_key, expires_in: 1.day) do
       TeacherProfilesOptionsGenerator.new(current_user).run!
     end
   end
@@ -223,6 +230,21 @@ module ApplicationHelper
       else
         classrooms
       end
+    end
+  end
+
+  def back_link(name, path)
+    content_for :back_link do
+      back_link_tag(name, path)
+    end
+  end
+
+  def back_link_tag(name, path)
+    link_to path, class: 'back-link' do
+      raw <<-HTML
+        <i class="icon-append fa fa-angle-left"></i>
+        #{name}
+      HTML
     end
   end
 end

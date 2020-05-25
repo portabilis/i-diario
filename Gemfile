@@ -11,6 +11,7 @@ gem 'aws-sdk', '2.9.7'
 gem 'backbone-nested-attributes', '0.3.0', git: 'https://github.com/samuelsimoes/backbone-nested-attributes.git'
 gem 'binding_of_caller', '0.8.0'
 gem 'bootbox-rails', '~>0.4'
+gem 'browser', '~> 4.1.0'
 gem 'bulk_insert', '1.1.0'
 gem 'carrierwave', '0.11.2'
 gem 'cocoon', '1.2.6'
@@ -81,7 +82,7 @@ gem 'signet', '0.11.0'
 instance_eval File.read('Gemfile.plugins') if File.exists?('Gemfile.plugins')
 
 group :development do
-  gem 'meta_request', '0.6.0'
+  gem 'meta_request', '0.7.2'
   gem 'pry-byebug', '3.4.2'
   gem 'pry-remote', '0.1.8'
   gem 'quiet_assets', '1.1.0'
