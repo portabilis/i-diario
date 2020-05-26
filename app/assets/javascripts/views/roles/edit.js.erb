@@ -40,15 +40,13 @@ $(function(){
 
   showCurrentRoleInfo()
 
-  $('#feature_filter').select2({
-    data: <%= Features.to_select.to_json %>
-  });
+  const features = <%= Features.to_select.to_json %>;
+
+  $('#feature_filter').select2({ data: features });
 
   if ($('#selected_feature_filter').val() != '') {
     $('#feature_filter').val($('#selected_feature_filter').val());
-    $('#feature_filter').select2({
-      data: <%= Features.to_select.to_json %>
-    });
+    $('#feature_filter').select2({ data: features });
   }
 
   function clear_empty(element) {
