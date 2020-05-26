@@ -47,10 +47,11 @@ $(function() {
     }
   }
 
-  function goToEditPath(params) {
+  function goToEditPath() {
     params = {
       user_name: $('#user_name').val(),
       unity_name: $('#unity_name').val(),
+      feature_filter: $('#feature_filter').val(),
       active_permissions_tab: $('#li-general').hasClass('active'),
       active_users_tab: $('#li-users').hasClass('active'),
       permissions_page: $('#permissions_page').val()

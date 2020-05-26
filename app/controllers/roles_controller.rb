@@ -127,6 +127,14 @@ class RolesController < ApplicationController
       permission.access_level_has_feature?(@role.access_level)
     }
 
+    if params[:feature_filter].present?
+      @feature_filter = params[:feature_filter]
+
+      access_level_permissions = access_level_permissions.select { |permission|
+        permission.feature == params[:feature_filter]
+      }
+    end
+
     @permissions = Kaminari.paginate_array(access_level_permissions).page(page).per(10)
   end
 

@@ -53,24 +53,16 @@
       <td style='width: auto;'>
         <div class='control-group string required search_full_name'>
           <div class="controls input">
-            <%= text_field_tag :feature,
-                                @feature.presence || nil,
+            <%= hidden_field_tag :selected_feature_filter, @feature_filter %>
+            <%= text_field_tag :feature_filter,
+                                nil,
                                 label: false,
                                 placeholder: "Filtrar funcionalidade",
-                                class: "form-control string required" %>
+                                style: 'width: 100%;' %>
             </div>
           </div>
         </td>
         <td style='width: auto;'>
-          <%= text_field_tag :access_level,
-                             nil,
-                             label: false,
-                             placeholder: "Filtrar acesso",
-                             style: 'width: 100%;'%>
-          </td>
-        <td style="text-align: center; width: 135px;">
-          <button id='filter_features' type="button" class="btn btn-primary">Filtrar</button>
-          <button id='clean_filter_features' type="button" class="btn btn-danger">Limpar</button>
         </td>
       </tr>
       <tr>
