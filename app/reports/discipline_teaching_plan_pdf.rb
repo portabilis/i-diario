@@ -128,14 +128,17 @@ class DisciplineTeachingPlanPdf < BaseReport
       column(-1).border_right_width = 0.25
     end
 
+    thematic_unit = @discipline_teaching_plan.thematic_unit.presence
     content = teaching_plan.contents.present? ? teaching_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
     objectives = teaching_plan.objectives.present? ? teaching_plan.objectives_ordered.map(&:to_s).join("\n ") : '-'
     methodology = teaching_plan.methodology || '-'
     evaluation = teaching_plan.evaluation || '-'
     references = teaching_plan.references || '-'
 
+    thematic_unit_label = Translator.t('activerecord.attributes.discipline_teaching_plan.thematic_unit')
     contents_label = Translator.t('activerecord.attributes.discipline_teaching_plan.contents')
     objectives_label = Translator.t('activerecord.attributes.discipline_teaching_plan.objectives')
+    text_box_truncate(thematic_unit_label, thematic_unit) if thematic_unit
     text_box_truncate(contents_label, content)
     text_box_truncate(objectives_label, objectives)
     text_box_truncate('Metodologia', methodology)
