@@ -2,6 +2,8 @@ $(function(){
   "use strict";
 
   var $rolePermissionsTbody = $("#role-permissions-tbody");
+  var features;
+  var flashMessages = new FlashMessages();
 
   $('#role_access_level').on('change', function(){
     showCurrentRoleInfo();
@@ -40,13 +42,30 @@ $(function(){
 
   showCurrentRoleInfo()
 
-  const features = <%= Features.to_select.to_json %>;
+  function fetchFeatures() {
+    $.ajax({
+      url: Routes.fetch_features_role_pt_br_path({ id: $('#role_id').val() }),
+      success: fetchFeaturesSucces,
+      error: fetchFeaturesError
+    });
+  }
 
-  $('#feature_filter').select2({ data: features });
+  function fetchFeaturesSucces(features) {
+    features = features.roles
+
+    $('#feature_filter').select2({ data: features });
+  };
+
+  function fetchFeaturesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as funcionalidades!')
+  };
+
+  fetchFeatures();
 
   if ($('#selected_feature_filter').val() != '') {
     $('#feature_filter').val($('#selected_feature_filter').val());
-    $('#feature_filter').select2({ data: features });
+
+    fetchFeatures();
   }
 
   function clear_empty(element) {

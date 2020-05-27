@@ -83,6 +83,21 @@ class RolesController < ApplicationController
     respond_with @role
   end
 
+  def fetch_features
+    role = Role.find(params[:id])
+    role.build_permissions!
+
+    access_level_permissions = role.permissions.select { |permission|
+      permission.access_level_has_feature?(role.access_level)
+    }.map(&:feature)
+
+    features = Features.to_select.keep_if { |feature|
+      feature[:id] == 'empty' || access_level_permissions.include?(feature[:id])
+    }
+
+    render json: features
+  end
+
   private
 
   def users
