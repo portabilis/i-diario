@@ -87,9 +87,7 @@ class RolesController < ApplicationController
     role = Role.find(params[:id])
     role.build_permissions!
 
-    access_level_permissions = role.permissions.select { |permission|
-      permission.access_level_has_feature?(role.access_level)
-    }.map(&:feature)
+    access_level_permissions = access_level_permissions(role).map(&:feature)
 
     features = Features.to_select.keep_if { |feature|
       feature[:id] == 'empty' || access_level_permissions.include?(feature[:id])
@@ -136,11 +134,7 @@ class RolesController < ApplicationController
     @active_permissions_tab = to_boolean(params[:active_permissions_tab]) || false
     @active_permissions_tab = true if params[:active_permissions_tab].blank? && params[:active_users_tab].blank?
 
-    permissions = @role.permissions
-
-    access_level_permissions = permissions.select { |permission|
-      permission.access_level_has_feature?(@role.access_level)
-    }
+    access_level_permissions = access_level_permissions(@role)
 
     if params[:feature_filter].present?
       @feature_filter = params[:feature_filter]
@@ -151,6 +145,12 @@ class RolesController < ApplicationController
     end
 
     @permissions = Kaminari.paginate_array(access_level_permissions).page(page).per(10)
+  end
+
+  def access_level_permissions(role)
+    role.permissions.select { |permission|
+      permission.access_level_has_feature?(role.access_level)
+    }
   end
 
   def to_boolean(param)
