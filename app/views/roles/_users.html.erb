@@ -39,12 +39,14 @@
     </thead>
 
     <% sequence = @sequence || -1 %>
+    <%= hidden_field_tag :users_page, @user_roles.current_page %>
     <tbody id="user-roles">
       <%= f.association :user_roles, collection: @user_roles do |p| %>
         <% sequence += 1 %>
         <%= render 'user_role_fields', sequence: sequence, f: p %>
       <% end %>
     </tbody>
+    <%= hidden_field_tag :sequence, sequence %>
     <tfoot class="links">
       <tr>
         <td colspan="3">
