@@ -12,9 +12,7 @@ class RemoveEmptyObjectives < ActiveRecord::Migration
   end
 
   def change
-    MigrationObjective.where("description ILIKE ' %'").each do |objective|
-      next if objective.description.present?
-
+    MigrationObjective.where("TRIM(COALESCE(description, '')) = ''").each do |objective|
       MigrationObjectivesTeachingPlan.where(objective_id: objective.id).each(&:destroy)
       MigrationObjectivesLessonPlan.where(objective_id: objective.id).each(&:destroy)
 
