@@ -30,7 +30,7 @@ module Api
 
       return true if DisciplineTeachingPlan.joins(:teaching_plan)
                                            .where(discipline_id: @discipline_id)
-                                           .where(teaching_plans: { year: @year })
+                                           .where(teaching_plans: { year: @years })
                                            .exists?
 
       return true if RecoveryDiaryRecord.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id)
