@@ -25,6 +25,10 @@ class WorkerBatch < ActiveRecord::Base
     end
   end
 
+  def mark_as_error!
+    update(status: ApiSynchronizationStatus::ERROR)
+  end
+
   private
 
   def reset

@@ -16,6 +16,7 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   belongs_to :discipline
 
   delegate :contents, to: :teaching_plan
+  delegate :objectives, to: :teaching_plan
 
   accepts_nested_attributes_for :teaching_plan
 

@@ -1,0 +1,6 @@
+pt-BR:
+  enumerations:
+    child_educations:
+      nursery_1: Creche - 0 a 1 ano e 6 meses
+      nursery_2: Creche - 1 ano e 7 meses a 3 anos e 11 meses
+      preschool: Pré-escola - 4 a 5 anos

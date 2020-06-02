@@ -32,7 +32,8 @@ class DailyFrequenciesCreator
     DailyFrequency.create_with(
       params.slice(
         :unity_id,
-        :school_calendar
+        :school_calendar,
+        :owner_teacher_id
       ).merge(
         origin: @origin
       )

@@ -28,6 +28,8 @@ module Navigation
     end
 
     def node_values(node)
+      return if node['breadcrumb'] == false
+
       {
         :type => node["type"],
         :icon => node["icon"],
@@ -36,7 +38,7 @@ module Navigation
     end
 
     def render
-      navigation_render.render(menus)
+      navigation_render.render(menus.compact)
     end
   end
 end

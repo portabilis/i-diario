@@ -27,12 +27,15 @@ class TeachingPlan < ActiveRecord::Base
 
   has_many :contents_teaching_plans, dependent: :destroy
   deferred_has_many :contents, through: :contents_teaching_plans
+  has_many :objectives_teaching_plans, dependent: :destroy
+  deferred_has_many :objectives, through: :objectives_teaching_plans
   has_many :teaching_plan_attachments, dependent: :destroy
 
   has_one :discipline_teaching_plan, dependent: :restrict_with_error
   has_one :knowledge_area_teaching_plan, dependent: :restrict_with_error
 
   accepts_nested_attributes_for :contents, allow_destroy: true
+  accepts_nested_attributes_for :objectives, allow_destroy: true
   accepts_nested_attributes_for :teaching_plan_attachments, allow_destroy: true
 
   validate :at_least_one_content_assigned
@@ -40,6 +43,8 @@ class TeachingPlan < ActiveRecord::Base
   scope :by_unity_id, ->(unity_id) { where(unity_id: unity_id) }
   scope :by_teacher_id, ->(teacher_id) { where(teacher_id: teacher_id) }
   scope :by_year, ->(year) { where(year: year) }
+
+  attr_accessor :grade_ids
 
   def to_s
     return discipline_teaching_plan.discipline.to_s if discipline_teaching_plan
@@ -58,10 +63,16 @@ class TeachingPlan < ActiveRecord::Base
     contents.order(' "contents_teaching_plans"."id" ')
   end
 
+  def objectives_ordered
+    objectives.order('objectives_teaching_plans.id')
+  end
+
   def school_term_humanize
     case school_term_type
     when SchoolTermTypes::BIMESTER
       I18n.t("enumerations.bimesters.#{school_term}")
+    when SchoolTermTypes::BIMESTER_EJA
+      I18n.t("enumerations.bimesters_eja.#{school_term}")
     when SchoolTermTypes::TRIMESTER
       I18n.t("enumerations.trimesters.#{school_term}")
     when SchoolTermTypes::SEMESTER

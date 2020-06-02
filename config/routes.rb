@@ -45,6 +45,7 @@ Rails.application.routes.draw do
       namespace :v2 do
         resources :exam_rules, only: [:index]
         get 'step_activity', to: 'step_activity#check'
+        get 'discipline_activity', to: 'discipline_activity#check'
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index] do
           collection do
@@ -113,7 +114,6 @@ Rails.application.routes.draw do
     patch '/current_role', to: 'current_role#set', as: :set_current_role
     post '/system_notifications/read_all', to: 'system_notifications#read_all', as: :read_all_notifications
     get '/disabled_entity', to: 'pages#disabled_entity'
-    get '/new_role_modal_feature', to: 'news#role_modal_feature'
 
     resources :users, concerns: :history do
       collection do
@@ -127,6 +127,7 @@ Rails.application.routes.draw do
     resources :roles do
       member do
         get :history
+        get :fetch_features
       end
     end
     resources  :user_roles, only: [:show]
@@ -195,18 +196,22 @@ Rails.application.routes.draw do
       end
     end
 
+    get '/pedagogical_trackings', as: :pedagogical_trackings, to: 'pedagogical_trackings#index'
+    get '/pedagogical_trackings_teachers', as: :pedagogical_trackings_teachers, to: 'pedagogical_trackings#teachers'
     get '/translations', as: :translations, to: 'translations#form'
     post '/translations', as: :save_translations, to: 'translations#save'
     resources :discipline_lesson_plans, concerns: :history do
       collection do
         post :clone
         get :teaching_plan_contents
+        get :teaching_plan_objectives
       end
     end
     resources :knowledge_area_lesson_plans, concerns: :history do
       collection do
         post :clone
         get :teaching_plan_contents
+        get :teaching_plan_objectives
       end
     end
     resources :discipline_content_records, concerns: :history do
@@ -247,7 +252,6 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do
         get :search
-        get :profile_changed
       end
     end
     resources :daily_note_students, only: [:index] do

@@ -1,6 +1,8 @@
 $(function () {
+  var $dropdown = $('.notifications.ajax-dropdown');
   var readAllNotifications = function () {
     $.post(Routes.read_all_notifications_pt_br_path());
+    $('#page-loading').addClass('hidden');
   };
 
   // ACTIVITY
@@ -14,22 +16,18 @@ $(function () {
       // console.log("Ajax call for activity")
     }
 
-    if (!$this.next('.ajax-dropdown').is(':visible')) {
-      $this.next('.ajax-dropdown').fadeIn(150);
+    if (!$dropdown.is(':visible')) {
+      $dropdown.fadeIn(150);
       $this.addClass('active');
 
       readAllNotifications();
     } else {
-      $this.next('.ajax-dropdown').fadeOut(150);
+      $dropdown.fadeOut(150);
       $this.removeClass('active');
     }
 
-    var mytest = $this.next('.ajax-dropdown').find('.btn-group > .active > input').attr('id');
-    //console.log(mytest)
-
     //clear memory reference
     $this = null;
-    mytest = null;
 
     e.preventDefault();
   });
@@ -49,9 +47,9 @@ $(function () {
 
   // close dropdown if mouse is not inside the area of .ajax-dropdown
   $(document).mouseup(function(e) {
-    if (!$('.ajax-dropdown').is(e.target) && $('.ajax-dropdown').has(e.target).length === 0) {
-      $('.ajax-dropdown').fadeOut(150);
-      $('.ajax-dropdown').prev().removeClass("active");
+    if (!$dropdown.is(e.target) && $dropdown.has(e.target).length === 0) {
+      $dropdown.fadeOut(150);
+      $dropdown.prev().removeClass("active");
     }
   });
 

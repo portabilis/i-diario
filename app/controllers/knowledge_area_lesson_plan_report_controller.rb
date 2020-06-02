@@ -2,7 +2,7 @@ class KnowledgeAreaLessonPlanReportController < ApplicationController
   before_action :require_current_teacher
 
   def form
-    @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(unity_id: current_user_unity.id)
+    @knowledge_area_lesson_plan_report_form = KnowledgeAreaLessonPlanReportForm.new(unity_id: current_unity.id)
     fetch_collections
   end
 

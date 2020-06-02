@@ -39,4 +39,7 @@
   <div class="col col-sm-4 hidden" data-event-legend-container>
     <%= f.input :legend, input_html: { maxlength: 1 }, required: true %>
   </div>
+  <div class="col col-sm-4 hidden" data-event-checkbox-container>
+    <%= f.input :show_in_frequency_record, as: :boolean, label: false, inline_label: true %>
+  </div>
 </div>

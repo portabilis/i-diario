@@ -50,7 +50,6 @@ pt-BR:
     contents: 'conteudos'
     user_roles: 'permissoes-do-usuario'
     teacher_report_cards: 'boletim-do-professor'
-    new_role_modal_feature: 'nova-funcionalidade-modal-selecao-de-perfil'
     discipline_lesson_plan: 'planos-de-aula-por-disciplina'
     discipline_lesson_plans: 'planos-de-aulas-por-disciplina'
     discipline_content_record: 'registros-de-conteudos-por-disciplina'
@@ -72,7 +71,8 @@ pt-BR:
     learning_objectives_and_skills: 'objetivos-de-aprendizagem-e-habilidades'
     translations: 'dicionario-de-termos-bncc'
     infrequency_trackings: 'acompanhamento-de-infrequencias'
-
+    pedagogical_trackings: 'acompanhamento-pedagogico'
+    pedagogical_trackings_teachers: 'acompanhamento-pedagogico-professores'
     # actions
     edit: 'editar'
     edit_multiples: 'editar-diversos'

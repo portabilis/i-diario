@@ -16,7 +16,7 @@ class DisciplineLessonPlan < ActiveRecord::Base
 
   before_destroy :valid_for_destruction?
 
-  delegate :contents, :classroom, to: :lesson_plan
+  delegate :contents, :objectives, :classroom, to: :lesson_plan
 
   accepts_nested_attributes_for :lesson_plan
 

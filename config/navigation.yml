@@ -4,11 +4,12 @@ navigation:
       icon: "fa-home"
       path: "root_path"
       visible: true
+      breadcrumb: false
   - menu:
       type: "accounts"
       icon: "fa-user"
       path: "edit_account_path"
-      visible: true
+      visible: <%= !Rails.application.secrets.new_update_profile_enabled %>
   - menu:
       type: "administrative"
       icon: "fa-tasks"
@@ -62,6 +63,25 @@ navigation:
             type: "school_calendar_events"
             visible: "only-when-active"
   - menu:
+      type: "pedagogical_trackings"
+      icon: "fa-pie-chart"
+      path: "pedagogical_trackings_path"
+  - menu:
+      type: "frequencies_menu"
+      icon: "fa-check-square-o"
+      shortcut: true
+      submenus:
+        - menu:
+            type: "daily_frequencies"
+            path: "new_daily_frequency_path"
+            shortcut: true
+        - menu:
+            type: "absence_justifications"
+            path: "absence_justifications_path"
+        - menu:
+            type: "infrequency_trackings"
+            path: "infrequency_trackings_path"
+  - menu:
       type: "bncc"
       icon: "fa-cubes"
       submenus:
@@ -84,39 +104,49 @@ navigation:
   - menu:
       type: "lesson_plans_menu"
       icon: "fa-pencil"
+      shortcut: true
       submenus:
         - menu:
             type: "discipline_lesson_plans"
             path: "discipline_lesson_plans_path"
+            shortcut: true
         - menu:
             type: "knowledge_area_lesson_plans"
             path: "knowledge_area_lesson_plans_path"
+            shortcut: true
   - menu:
       type: "content_records_menu"
       icon: "fa-pencil-square-o"
+      shortcut: true
       submenus:
         - menu:
             type: "discipline_content_records"
             path: "discipline_content_records_path"
+            shortcut: true
         - menu:
             type: "knowledge_area_content_records"
             path: "knowledge_area_content_records_path"
+            shortcut: true
   - menu:
       type: "avaliations_menu"
       icon: "fa-file-text-o"
+      shortcut: true
       submenus:
         - menu:
             type: "conceptual_exams"
             path: "conceptual_exams_path"
+            shortcut: true
         - menu:
             type: "descriptive_exams"
             path: "new_descriptive_exam_path"
+            shortcut: true
         - menu:
             type: "avaliations"
             path: "avaliations_path"
         - menu:
             type: "daily_notes"
             path: "daily_notes_path"
+            shortcut: true
         - menu:
             type: "avaliation_exemptions"
             path: "avaliation_exemptions_path"
@@ -142,19 +172,6 @@ navigation:
         - menu:
             type: "avaliation_recovery_diary_records"
             path: "avaliation_recovery_diary_records_path"
-  - menu:
-      type: "frequencies_menu"
-      icon: "fa-check-square-o"
-      submenus:
-        - menu:
-            type: "daily_frequencies"
-            path: "new_daily_frequency_path"
-        - menu:
-            type: "absence_justifications"
-            path: "absence_justifications_path"
-        - menu:
-            type: "infrequency_trackings"
-            path: "infrequency_trackings_path"
   - menu:
       type: "observation_diary_records"
       icon: "fa-sticky-note-o"

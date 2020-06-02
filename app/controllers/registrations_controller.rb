@@ -7,6 +7,9 @@ class RegistrationsController < ApplicationController
   end
 
   def create
+    Rails.logger.info(
+      "LOG: RegistrationsController#create: #{params[:signup].except(:password, :password_confirmation).to_json}"
+    ) if params[:signup]
     @signup = Signup.new(params[:signup])
 
     if @user = @signup.save

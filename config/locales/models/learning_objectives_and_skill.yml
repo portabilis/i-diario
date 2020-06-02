@@ -13,6 +13,9 @@ pt-BR:
         field_of_experience: "Campo de experiência"
         discipline: "Componente curricular"
         thematic_unit: "Unidade temática"
+        grades: "Séries"
+        child_educations: "Séries"
+        elementary_educations: "Séries"
 
   learning_objectives_and_skills:
     index:

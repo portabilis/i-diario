@@ -84,6 +84,20 @@ function removeContent(id) {
   hideContent(content);
 }
 
+function editObjective(id) {
+  var objective = $('#' + id);
+  var inputAddObjective = $('.objectives-select2-container .select2-input');
+  inputAddObjective.val(objective.find("input[type=checkbox]").data('objective_description'));
+  inputAddObjective.trigger('click');
+  inputAddObjective.focus();
+  hideContent(objective);
+}
+
+function removeObjective(id) {
+  var objective = $('#' + id);
+  hideContent(objective);
+}
+
 $(function () {
   $('.list-group.checked-list-box .list-group-item').each(initializeListEvents);
 

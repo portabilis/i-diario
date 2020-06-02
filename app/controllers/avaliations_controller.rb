@@ -14,7 +14,7 @@ class AvaliationsController < ApplicationController
   ]
 
   def index
-    current_user_unity_id = current_user_unity.id if current_user_unity
+    current_unity_id = current_unity.id if current_unity
 
     if params[:filter].present? && params[:filter][:by_step_id].present?
       step_id = params[:filter].delete(:by_step_id)
@@ -27,7 +27,7 @@ class AvaliationsController < ApplicationController
     end
 
     @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
-                                           .by_unity_id(current_user_unity_id)
+                                           .by_unity_id(current_unity_id)
                                            .by_classroom_id(current_user_classroom)
                                            .by_discipline_id(current_user_discipline)
                                            .ordered
@@ -59,11 +59,11 @@ class AvaliationsController < ApplicationController
   def multiple_classrooms
     return if redirect_to_avaliations
 
-    @avaliation_multiple_creator_form                     = AvaliationMultipleCreatorForm.new.localized
-    @avaliation_multiple_creator_form.school_calendar_id  = current_school_calendar.id
-    @avaliation_multiple_creator_form.test_setting_id     = current_test_setting.id
-    @avaliation_multiple_creator_form.discipline_id       = current_user_discipline.id
-    @avaliation_multiple_creator_form.unity_id       = current_user_unity.id
+    @avaliation_multiple_creator_form                    = AvaliationMultipleCreatorForm.new.localized
+    @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
+    @avaliation_multiple_creator_form.test_setting_id    = current_test_setting.id
+    @avaliation_multiple_creator_form.discipline_id      = current_user_discipline.id
+    @avaliation_multiple_creator_form.unity_id           = current_unity.id
     @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
 
     authorize Avaliation.new
@@ -173,7 +173,7 @@ class AvaliationsController < ApplicationController
   end
 
   def disciplines_for_multiple_classrooms
-    @disciplines_for_multiple_classrooms ||= Discipline.by_unity_id(current_user_unity.id)
+    @disciplines_for_multiple_classrooms ||= Discipline.by_unity_id(current_unity.id)
                                                        .by_teacher_id(current_teacher.id)
                                                        .ordered
   end
@@ -181,7 +181,7 @@ class AvaliationsController < ApplicationController
 
   def classrooms_for_multiple_classrooms
     return [] unless @avaliation_multiple_creator_form.discipline_id.present?
-    @classrooms_for_multiple_classrooms ||= Classroom.by_unity_id(current_user_unity.id)
+    @classrooms_for_multiple_classrooms ||= Classroom.by_unity_id(current_unity.id)
                                                      .by_teacher_id(current_teacher.id)
                                                      .by_teacher_discipline(@avaliation_multiple_creator_form.discipline_id)
                                                      .ordered

@@ -1,0 +1,14 @@
+pt-BR:
+  pedagogical_trackings:
+    index:
+      filter_unities: 'Escola'
+      filter_classrooms: 'Turma'
+      filter_teacher: 'Professor'
+      filter_frequency: 'Frequência'
+      filter_content_record: 'Registro de conteúdos'
+      from: 'Desde'
+      to: 'Até'
+      empty: 'Não existem lançamentos ainda nas escolas'
+      last_update: 'Última atualização'
+    minimum_year:
+      error: 'Funcionalidade apenas disponível para o ano 2020 ou superior.'

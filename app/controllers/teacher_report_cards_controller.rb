@@ -2,7 +2,7 @@ class TeacherReportCardsController < ApplicationController
   before_action :require_current_teacher
 
   def form
-    @teacher_report_card_form = TeacherReportCardForm.new(unity_id: current_user_unity.id)
+    @teacher_report_card_form = TeacherReportCardForm.new(unity_id: current_unity.id)
     @teacher_report_card_form.status = TeacherReportCardStatus::ALL
     authorize(TeacherReportCard, :show?)
   end
@@ -16,7 +16,7 @@ class TeacherReportCardsController < ApplicationController
 
       teacher_report_card = TeacherReportCard.new(current_configuration)
 
-      unity = current_user_unity
+      unity = current_unity
       discipline = Discipline.find(@teacher_report_card_form.discipline_id)
       classroom = Classroom.find(@teacher_report_card_form.classroom_id)
       grade = classroom.grade
@@ -42,12 +42,12 @@ class TeacherReportCardsController < ApplicationController
   protected
 
   def unities
-    @unities = [current_user_unity]
+    @unities = [current_unity]
   end
   helper_method :unities
 
   def classrooms
-    @classrooms = Classroom.by_unity_and_teacher(current_user_unity.try(:id), current_teacher.id)
+    @classrooms = Classroom.by_unity_and_teacher(current_unity.try(:id), current_teacher.id)
                            .ordered
   end
   helper_method :classrooms

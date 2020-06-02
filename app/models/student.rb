@@ -89,6 +89,13 @@ class Student < ActiveRecord::Base
     Classroom.joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).uniq
   end
 
+  def current_classrooms
+    Classroom.joins(:student_enrollment_classrooms).merge(
+      StudentEnrollmentClassroom.by_student(id)
+                                .by_date(Date.current)
+    ).uniq
+  end
+
   private
 
   def update_name_tokens

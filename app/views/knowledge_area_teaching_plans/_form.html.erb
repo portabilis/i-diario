@@ -1,5 +1,3 @@
-<%= render 'teaching_plans/copy_objectives', type: 'experience_fields' %>
-
 <% content_for :js do %>
   <%= javascript_include_tag 'list-contents' %>
   <%= javascript_include_tag 'attachemnt_size_validator' %>
@@ -15,6 +13,14 @@
     <%= teaching_plan_form.hidden_field :id %>
 
     <fieldset>
+      <%= render 'teaching_plans/copy_objectives', f: teaching_plan_form, type: 'experience_fields' %>
+
+      <div id='copy_plan_info' class='alert alert-info' style='display: none;'>
+        <i class='fa-fw fa fa-info'></i>
+        <strong><%= t('teaching_plans.infos.copy_plan_info_title') %></strong>
+        <span><%= t('teaching_plans.infos.copy_plan_info_description') %></span>
+      </div>
+
       <div class="row">
         <div class="col col-sm-4">
           <%= teaching_plan_form.input :year, readonly: true %>
@@ -56,29 +62,14 @@
 
       <div class="row textarea">
         <div class="col col-sm-12">
-          <%= teaching_plan_form.input :objectives,
-                label: @knowledge_area_teaching_plan.class.human_attribute_name(:objectives),
-                input_html: { class: 'col col-sm-12' },
-                readonly: action_name == 'show' %>
-        </div>
-      </div>
-
-      <div class="row textarea">
-        <div class="col col-sm-12">
           <legend style="margin-bottom: 10px;">
             <%= @knowledge_area_teaching_plan.class.human_attribute_name(:contents) %>
           </legend>
-          <% if f.object.errors[:contents].any? %>
+          <% if f.object.errors[:'teaching_plan.contents'].any? %>
             <div class="alert alert-danger fade in">
               <i class="fa-fw fa fa-times"></i>
-              <%= f.object.errors[:contents].first %>
+              <%= f.object.errors[:'teaching_plan.contents'].first %>
             </div>
-          <% end %>
-
-          <% if action_name != 'show' %>
-            <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
-              Copiar objetivos/habilidades por área
-            </a>
           <% end %>
 
             <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
@@ -92,10 +83,10 @@
                     <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
                     <% if content.is_editable && action_name != 'show' %>
                       <div style="width: 80px;">
-                        <a class="btn btn-success" onclick="editContent('teaching_plan_<%= content.id %>')">
+                        <a class="btn new-btn-success" onclick="editContent('teaching_plan_<%= content.id %>')">
                           <i class="fa fa-pencil"></i>
                         </a>
-                        <a class="btn btn-danger" onclick="removeContent('teaching_plan_<%= content.id %>')">
+                        <a class="btn new-btn-danger" onclick="removeContent('teaching_plan_<%= content.id %>')">
                           <i class="fa fa-trash"></i>
                         </a>
                       </div>
@@ -111,6 +102,67 @@
       <div class="row textarea">
         <div class="col col-sm-12 contents-select2-container">
           <%= teaching_plan_form.input :contents_tags,
+              as: :string,
+              input_html: {
+                'data-content-type': 'conteúdo',
+                class: 'select2-tags',
+                value: ''
+              }
+          %>
+        </div>
+      </div>
+      <% end %>
+
+      <div class="row textarea">
+        <div class="col col-sm-12">
+          <legend style="margin-bottom: 10px;">
+            <%= @knowledge_area_teaching_plan.class.human_attribute_name(:objectives) %>
+          </legend>
+          <% if f.object.errors[:'teaching_plan.objectives'].any? %>
+            <div class="alert alert-danger fade in">
+              <i class="fa-fw fa fa-times"></i>
+              <%= f.object.errors[:'teaching_plan.objectives'].first %>
+            </div>
+          <% end %>
+
+          <% if action_name != 'show' %>
+            <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
+              Copiar objetivos/habilidades por área
+            </a>
+          <% end %>
+
+            <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
+              <ul class="list-group checked-list-box" id="objectives-list">
+
+                <% objectives.each do |objective| %>
+                  <li class="list-group-item manual" style="display: flex;" id="teaching_plan_<%= objective.id %>">
+                    <%= check_box_tag("knowledge_area_teaching_plan[teaching_plan_attributes][objective_ids][]",
+                        objective.id, objective.id.in?(@knowledge_area_teaching_plan.objectives.collect(&:id)),
+                        hidden: true, 'data-objective_description': objective.to_s ) %>
+                    <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= objective %></span>
+                    <% if objective.is_editable && action_name != 'show' %>
+                      <div style="width: 80px;">
+                        <a class="btn new-btn-success"
+                          onclick="editObjective('teaching_plan_<%= objective.id %>')">
+                          <i class="fa fa-pencil"></i>
+                        </a>
+                        <a class="btn new-btn-danger"
+                          onclick="removeObjective('teaching_plan_<%= objective.id %>')">
+                          <i class="fa fa-trash"></i>
+                        </a>
+                      </div>
+                    <% end %>
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+
+        </div>
+      </div>
+      <% if action_name != 'show' %>
+      <div class="row textarea">
+        <div class="col col-sm-12 objectives-select2-container">
+          <%= teaching_plan_form.input :objectives_tags,
               as: :string,
               input_html: {
                 class: 'select2-content-tags-ajax',

@@ -1,6 +1,36 @@
 <fieldset>
-  <table class="table table-striped table-bordered table-condensed records">
+  <table class="table table-bordered table-striped table-condensed table-hover records"
+         id="resources"
+         style="table-layout: fixed; width: 100%;">
     <thead>
+      <tr>
+        <td style='width: auto;'>
+          <div class='control-group string required search_full_name'>
+            <div class="controls input">
+              <%= text_field_tag :user_name,
+                                 @user_name.presence || nil,
+                                 label: false,
+                                 placeholder: "Filtrar nome",
+                                 class: "form-control string required" %>
+              </div>
+            </div>
+          </td>
+        <td style='width: auto;'>
+          <div class='control-group string required search_full_name'>
+            <div class="controls input">
+              <%= text_field_tag :unity_name,
+                                 @unity_name.presence || nil,
+                                 label: false,
+                                 placeholder: "Filtrar unidade",
+                                 class: "form-control string required" %>
+              </div>
+            </div>
+          </td>
+        <td style="text-align: center; width: 135px;">
+          <button id='filter_user_roles' type="button" class="btn btn-primary">Filtrar</button>
+          <button id='clean_filter' type="button" class="btn btn-danger">Limpar</button>
+        </td>
+      </tr>
       <tr>
         <th><%= UserRole.human_attribute_name :user %></th>
         <th><%= UserRole.human_attribute_name :unity %></th>
@@ -8,18 +38,30 @@
       </tr>
     </thead>
 
+    <% sequence = @sequence || -1 %>
+    <%= hidden_field_tag :users_page, @user_roles.current_page %>
     <tbody id="user-roles">
-      <% sequence = -1 %>
-      <%= f.association :user_roles do |p| %>
+      <%= f.association :user_roles, collection: @user_roles do |p| %>
         <% sequence += 1 %>
         <%= render 'user_role_fields', sequence: sequence, f: p %>
       <% end %>
     </tbody>
+    <%= hidden_field_tag :sequence, sequence %>
     <tfoot class="links">
       <tr>
         <td colspan="3">
+          <div class="pull-right">
+            <%= paginate @user_roles,
+                param_name: :users_page,
+                params: { sequence: sequence, active_users_tab: true, active_permissions_tab: false } %>
+          </div>
+          <div id="page_entries_info" class="pull-right hidden-xs" style="margin-right: 25px;margin-top: 30px;">
+            <%= page_entries_info @user_roles %>
+          </div>
+
           <%= link_to_add_association 'Adicionar permissão', f, :user_roles,
             class: 'btn btn-success btn-sm',
+            style: 'margin-top: 15px;',
             :"data-association-insertion-method" => "append",
             :"data-association-insertion-node" => "#user-roles" %>
         </td>
