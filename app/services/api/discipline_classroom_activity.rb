@@ -3,7 +3,7 @@ module Api
     def initialize(discipline_id, classrooms_ids)
       @discipline_id = discipline_id
       @classrooms_ids = classrooms_ids
-      @years = Classroom.find(classrooms_ids).pluck(:year)
+      @years = Classroom.where(id: classrooms_ids).pluck(:year)
     end
 
     def any_activity?
