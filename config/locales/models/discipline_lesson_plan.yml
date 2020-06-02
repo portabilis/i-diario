@@ -15,6 +15,9 @@ pt-BR:
         objectives: "Objetivos"
         contents: "Conteúdos"
         thematic_unit: "Unidade temática"
+        lesson_plan:
+          objectives:
+            description: 'Objetivos/habilidades'
     errors:
       models:
         lesson_plan:

@@ -15,6 +15,9 @@ pt-BR:
         objectives: "Objetivos"
         contents: "Conteúdos"
         experience_fields: "Campos de experiência"
+        lesson_plan:
+          objectives:
+            description: 'Objetivos/habilidades'
     errors:
       models:
         knowledge_area_lesson_plan:
