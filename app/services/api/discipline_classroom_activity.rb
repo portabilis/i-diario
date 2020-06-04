@@ -3,7 +3,6 @@ module Api
     def initialize(discipline_id, classrooms_ids)
       @discipline_id = discipline_id
       @classrooms_ids = classrooms_ids
-      @years = Classroom.where(id: classrooms_ids).pluck(:year)
     end
 
     def any_activity?
@@ -28,18 +27,11 @@ module Api
                                          .where(discipline_id: @discipline_id)
                                          .exists?
 
-      return true if DisciplineTeachingPlan.joins(:teaching_plan)
-                                           .where(discipline_id: @discipline_id)
-                                           .where(teaching_plans: { year: @years })
-                                           .exists?
-
       return true if RecoveryDiaryRecord.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id)
                                         .exists?
 
       return true if ComplementaryExam.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id)
                                       .exists?
-
-      return true if SchoolCalendarEvent.joins(:school_calendar).where(discipline_id: @discipline_id).exists?
 
       return true if AbsenceJustificationsDiscipline.joins(:absence_justification)
                                                     .where(absence_justifications: {
