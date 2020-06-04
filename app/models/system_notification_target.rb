@@ -7,6 +7,6 @@ class SystemNotificationTarget < ActiveRecord::Base
   scope :read, -> { where(arel_table[:read].eq(true)) }
 
   def self.read!
-    update_all read: true
+    where(read: false).update_all(read: true)
   end
 end

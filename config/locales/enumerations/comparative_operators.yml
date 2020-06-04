@@ -1,0 +1,8 @@
+pt-BR:
+  enumerations:
+    comparative_operators:
+      equals: 'Igual (=)'
+      greater_than: 'Maior que (>)'
+      less_than: 'Menor que (<)'
+      greater_than_or_equal_to: 'Maior ou igual a (>=)'
+      less_than_or_equal_to: 'Menor ou igual a (<=)'

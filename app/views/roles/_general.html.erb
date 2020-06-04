@@ -49,6 +49,22 @@
 
   <table class="table table-striped table-bordered table-condensed">
     <thead>
+    <tr>
+      <td style='width: auto;'>
+        <div class='control-group string required search_full_name'>
+          <div class="controls input">
+            <%= hidden_field_tag :selected_feature_filter, @feature_filter %>
+            <%= text_field_tag :feature_filter,
+                                nil,
+                                label: false,
+                                placeholder: "Filtrar funcionalidade",
+                                style: 'width: 100%;' %>
+            </div>
+          </div>
+        </td>
+        <td style='width: auto;'>
+        </td>
+      </tr>
       <tr>
         <th>Funcionalidade</th>
         <th>Acesso</th>
@@ -64,11 +80,21 @@
         </span>
       </div>
     <% end %>
+    <%= hidden_field_tag :role_id, f.object.id %>
+    <%= hidden_field_tag :permissions_page, @permissions.current_page %>
 
     <tbody id="role-permissions-tbody">
-      <%= f.association :permissions do |p| %>
+      <%= f.association :permissions, collection: @permissions do |p| %>
         <%= render 'permission', f: p %>
       <% end %>
     </tbody>
   </table>
+  <div class="pull-right">
+    <%= paginate @permissions,
+        param_name: :permissions_page,
+        params: { active_permissions_tab: true, active_users_tab: false } %>
+  </div>
+  <div id="page_entries_info" class="pull-right hidden-xs" style="margin-right: 25px;margin-top: 30px;">
+      <%= page_entries_info @permissions %>
+  </div>
 </fieldset>

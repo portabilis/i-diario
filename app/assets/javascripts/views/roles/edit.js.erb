@@ -1,0 +1,101 @@
+$(function(){
+  "use strict";
+
+  var $rolePermissionsTbody = $("#role-permissions-tbody");
+  var features;
+  var flashMessages = new FlashMessages();
+
+  $('#role_access_level').on('change', function(){
+    showCurrentRoleInfo();
+  });
+
+  var removeFeaturesNotIncluded = function (access_level){
+    $rolePermissionsTbody.find('tr.nested-fields:not([data-level-'+access_level+'])').each(function(){
+      $(this).hide().find('input.select2[id$=_permission]').select2('val', 'denied');
+    });
+  }
+
+  var showIncludedFeatures = function (access_level){
+    $rolePermissionsTbody.find('tr.nested-fields[data-level-'+access_level+']').each(function(){
+      $(this).show();
+    });
+  }
+
+  function showCurrentRoleInfo(){
+    hideAllRoleInfos();
+    var access_level = $('#role_access_level').select2('val');
+
+    if(access_level.length){
+      $("#"+access_level+"-role-info").show();
+      removeFeaturesNotIncluded(access_level);
+      showIncludedFeatures(access_level);
+    }
+  }
+
+  function hideAllRoleInfos(){
+    $('#administrator-role-info').hide();
+    $('#employee-role-info').hide();
+    $('#teacher-role-info').hide();
+    $('#parent-role-info').hide();
+    $('#student-role-info').hide();
+  }
+
+  showCurrentRoleInfo()
+
+  function fetchFeatures() {
+    $.ajax({
+      url: Routes.fetch_features_role_pt_br_path({ id: $('#role_id').val() }),
+      success: fetchFeaturesSucces,
+      error: fetchFeaturesError
+    });
+  }
+
+  function fetchFeaturesSucces(features) {
+    features = features.roles
+
+    $('#feature_filter').select2({ data: features });
+  };
+
+  function fetchFeaturesError() {
+    flashMessages.error('Ocorreu um erro ao buscar as funcionalidades!')
+  };
+
+  fetchFeatures();
+
+  if ($('#selected_feature_filter').val() != '') {
+    $('#feature_filter').val($('#selected_feature_filter').val());
+
+    fetchFeatures();
+  }
+
+  function clear_empty(element) {
+    if (element.val === "empty") {
+      $(element.target).select2("val", "");
+    }
+  }
+
+  $('#feature_filter').on("change", function (e) {
+    clear_empty(e);
+    goToEditPath();
+  });
+
+  function goToEditPath() {
+    var params = {
+      feature_filter: $('#feature_filter').val(),
+      user_name: $('#user_name').val(),
+      unity_name: $('#unity_name').val(),
+      active_permissions_tab: $('#li-general').hasClass('active'),
+      active_users_tab: $('#li-users').hasClass('active'),
+      users_page: $('#users_page').val(),
+      sequence: $('#sequence').val()
+    }
+
+    var edit_path = Routes.edit_role_pt_br_path($('#role_id').val()) + '?';
+
+    $.each(params, function(param, value){
+      edit_path += param + '=' + value + '&';
+    });
+
+    window.location.href = edit_path.slice(0,-1);
+  }
+});

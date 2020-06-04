@@ -58,7 +58,7 @@ $(function () {
     deleteButton: false,
     editButton : false,
     colorButton : false,
-    fullscreenButton : true,
+    fullscreenButton : !window.fullscreen_disabled,
     fullscreenClass : 'fa fa-expand | fa fa-compress',
     fullscreenDiff : 3,
     onFullscreen : function() {

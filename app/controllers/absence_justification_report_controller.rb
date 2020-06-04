@@ -4,14 +4,14 @@ class AbsenceJustificationReportController < ApplicationController
 
   def form
     @absence_justification_report_form = AbsenceJustificationReportForm.new
-    @absence_justification_report_form.unity_id = current_user_unity.id
+    @absence_justification_report_form.unity_id = current_unity.id
     @absence_justification_report_form.school_calendar_year = current_school_calendar
     @absence_justification_report_form.current_teacher_id = current_teacher
   end
 
   def report
     @absence_justification_report_form = AbsenceJustificationReportForm.new(resource_params)
-    @absence_justification_report_form.unity_id = current_user_unity.id
+    @absence_justification_report_form.unity_id = current_unity.id
     @absence_justification_report_form.school_calendar_year = current_school_calendar
     @absence_justification_report_form.current_teacher_id = current_teacher
     @absence_justification_report_form.user_id = user_id
@@ -61,7 +61,7 @@ class AbsenceJustificationReportController < ApplicationController
   def user_id
     @user_id ||= UserDiscriminatorService.new(
       current_user,
-      current_user_role_is_employee_or_administrator?
+      current_user.current_role_is_admin_or_employee?
     ).user_id
   end
 end

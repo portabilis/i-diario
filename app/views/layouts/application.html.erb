@@ -30,41 +30,32 @@
       Carregando ...
     </div>
 
-    <%= hidden_field_tag :valid_current_role, "#{valid_current_role?}" %>
+    <header id="header" style="height: 77px; background-color: #27333B;">
+      <% if current_user.current_user_role.blank? ||
+            current_user.current_role_is_admin_or_employee_or_teacher? ||
+            current_user.parent_can_change_profile? %>
+        <%=
+          render(
+            "users/selectors",
+            user: current_user,
+            user_role: current_user.current_user_role || NullUserRole.new,
+            unity: current_user.current_unity,
+            teacher: current_user.current_teacher,
+            classroom: current_user.current_classroom,
+            discipline: current_user.current_discipline
+          )
+        %>
+      <% end %>
 
-    <header id="header" style="height: 65px; background-color: #27333B;">
-      <%=
-        render(
-          "users/selectors",
-          user: current_user,
-          user_role: current_user.current_user_role || NullUserRole.new,
-          unity: current_user.current_unity,
-          teacher: current_user.teacher || current_user.current_teacher,
-          classroom: current_user.current_classroom,
-          discipline: current_user.current_discipline
-        )
-      %>
-
-      <div class="pull-right" style="margin-top: 10px;">
-        <!-- collapse menu button -->
-        <div id="hide-menu" class="btn-header pull-right">
-          <span>
-            <a href="javascript:void(0);" data-action="toggleMenu" title="Exibir/Esconder o Menu">
-              <i class="fa fa-reorder"></i>
-            </a>
-          </span>
-        </div>
-        <!-- end collapse menu -->
-
+      <div class="pull-right" style="margin-top: 15px;">
         <% if user_signed_in? %>
-          <!-- logout button -->
-          <div id="logout" class="btn-header transparent pull-right">
+          <div id="hide-menu" class="btn-header pull-right">
             <span>
-              <%= link_to content_tag(:i, '', class: 'fa fa-sign-out'), destroy_user_session_path, id: "sign_out"  %>
+              <a href="javascript:void(0);" data-action="toggleMenu" title="Exibir/Esconder o Menu">
+                <i class="fa fa-reorder"></i>
+              </a>
             </span>
           </div>
-          <!-- logout button -->
-
           <%= render 'layouts/system_notifications' %>
         <% end %>
       </div>
@@ -73,9 +64,11 @@
     <%= render 'layouts/navigation' %>
 
     <div id="main" role="main">
-      <div id="ribbon" style="padding-top: 15px;">
+      <div id="ribbon" style="padding-left: 15px; padding-top: 15px;">
         <%= breadcrumbs %>
       </div>
+
+      <%= yield :back_link %>
 
       <div id="content">
         <div id="flash-messages">

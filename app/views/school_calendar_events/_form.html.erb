@@ -1,5 +1,6 @@
 <%= simple_form_for [@school_calendar, @school_calendar_event], html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
+  <%= render 'base_errors', f: f %>
   <%= f.input :school_calendar_id, as: :hidden %>
   <%= f.input :unity_id, as: :hidden %>
   <%= f.input :coverage, as: :hidden %>

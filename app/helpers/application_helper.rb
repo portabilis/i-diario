@@ -32,7 +32,24 @@ module ApplicationHelper
   end
 
   def menus
-    Navigation.draw_menus(controller_name, current_user)
+    key = ['Menus',
+           current_entity.id,
+           controller_name,
+           current_user.current_user_role&.role&.cache_key || current_user.cache_key]
+
+    Rails.cache.fetch(key, expires_in: 1.day) do
+      Navigation.draw_menus(controller_name, current_user)
+    end
+  end
+
+  def shortcuts
+    key = ['HomeShortcuts/v2',
+           current_entity.id,
+           current_user.current_user_role&.role&.cache_key || current_user&.cache_key]
+
+    Rails.cache.fetch(key, expires_in: 1.day) do
+      Navigation.draw_shortcuts(current_user)
+    end
   end
 
   def title
@@ -144,5 +161,90 @@ module ApplicationHelper
 
   def default_steps
     (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
+  end
+
+  def teacher_profiles_options
+    cache_key = ['TeacherProfileList', current_entity.id, current_user.teacher&.cache_key]
+
+    Rails.cache.fetch(cache_key, expires_in: 1.day) do
+      TeacherProfilesOptionsGenerator.new(current_user).run!
+    end
+  end
+
+  def use_teacher_profile?
+    current_user.can_use_teacher_profile? &&
+      current_user.teacher &&
+      current_user.teacher.teacher_profiles.present?
+  end
+
+  def current_user_available_disciplines
+    return [] unless current_user_classroom && current_teacher
+
+    @current_user_available_disciplines ||=
+      Discipline.by_teacher_id(current_teacher).by_classroom(current_user_classroom).ordered
+  end
+
+  def current_unities
+    @current_unities ||=
+      if current_user.current_user_role.try(:role_administrator?)
+        Unity.ordered
+      else
+        [current_unity]
+      end
+  end
+
+  def current_user_available_years
+    return [] if current_unity.blank?
+
+    @current_user_available_years ||= current_user.available_years(current_unity)
+  end
+
+  def current_user_available_teachers
+    return [] if current_unity.blank? || current_user_classroom.blank?
+
+    @current_user_available_teachers ||= begin
+      teachers = Teacher.by_unity_id(current_unity)
+                        .by_classroom(current_user_classroom)
+                        .order_by_name
+
+      if current_school_calendar.try(:year)
+        teachers.by_year(current_school_calendar.try(:year))
+      else
+        teachers
+      end
+    end
+  end
+
+  def current_user_available_classrooms
+    return [] if current_unity.blank?
+
+    @current_user_available_classrooms ||= begin
+      classrooms = if current_teacher.present? && current_user.teacher?
+                     Classroom.by_unity_and_teacher(current_unity, current_teacher).ordered
+                   else
+                     Classroom.by_unity(current_unity).ordered
+                   end
+
+      if current_school_calendar.try(:year)
+        classrooms.by_year(current_school_calendar.try(:year))
+      else
+        classrooms
+      end
+    end
+  end
+
+  def back_link(name, path)
+    content_for :back_link do
+      back_link_tag(name, path)
+    end
+  end
+
+  def back_link_tag(name, path)
+    link_to path, class: 'back-link' do
+      raw <<-HTML
+        <i class="icon-append fa fa-angle-left"></i>
+        #{name}
+      HTML
+    end
   end
 end

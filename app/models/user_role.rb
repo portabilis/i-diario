@@ -9,14 +9,22 @@ class UserRole < ActiveRecord::Base
   validates :user, :role, presence: true
   validates :unity, presence: true, if: :require_unity?
 
-  delegate :name, :access_level_humanize, :administrator?, :teacher?, :employee?, to: :role, prefix: true, allow_nil: true
-
+  delegate :name, :access_level_humanize, :administrator?, :teacher?, :employee?, to: :role,
+                                                                                  prefix: true,
+                                                                                  allow_nil: true
 
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
   after_save :update_current_user_role_id, on: :update
+  after_create :set_current_user_role_id
 
   before_destroy :set_current_user_role_id_nil
+
+  scope :user_name, lambda { |user_name|
+    joins(:user)
+      .where("unaccent(users.first_name || ' ' || users.last_name) ILIKE unaccent(?)", "%#{user_name}%")
+  }
+  scope :unity_name, ->(unity_name) { joins(:unity).merge(Unity.search_name(unity_name)) }
 
   def to_s
     if require_unity?
@@ -39,16 +47,19 @@ class UserRole < ActiveRecord::Base
   end
 
   def update_current_user_role_id
-    return if user.current_unity_id.blank?
     return if unity_id == unity_id_was
-    return if user.current_unity_id != unity_id_was
+    return if user.current_user_role_id != id
 
-    user.update(current_user_role_id: nil)
+    user.set_current_user_role!
   end
 
   def set_current_user_role_id_nil
     return if user.current_user_role_id != id
 
-    user.update(current_user_role_id: nil)
+    user.clear_allocation
+  end
+
+  def set_current_user_role_id
+    user.set_current_user_role! if user.current_user_role_id.blank?
   end
 end

@@ -19,6 +19,7 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
             new_lesson_plan.lesson_plan = discipline_lesson_plan.lesson_plan.dup
             new_lesson_plan.lesson_plan.teacher = teacher
             new_lesson_plan.lesson_plan.contents = discipline_lesson_plan.lesson_plan.contents
+            new_lesson_plan.lesson_plan.objectives = discipline_lesson_plan.lesson_plan.objectives
             new_lesson_plan.lesson_plan.start_at = item.start_at
             new_lesson_plan.lesson_plan.end_at = item.end_at
             new_lesson_plan.lesson_plan.classroom = @classrooms.find_by_id(item.classroom_id)
@@ -40,6 +41,7 @@ class DisciplineLessonPlanClonerForm < ActiveRecord::Base
   end
 
   def discipline_lesson_plan
-    @discipline_lesson_plan ||= DisciplineLessonPlan.find(discipline_lesson_plan_id)
+    @discipline_lesson_plan ||= DisciplineLessonPlan.includes(lesson_plan: [:objectives, :contents])
+                                                    .find(discipline_lesson_plan_id)
   end
 end

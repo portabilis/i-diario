@@ -12,7 +12,6 @@
  *
  *= require bootstrap_and_overrides
  *= require smartadmin_and_overrides
- *= require summernote_and_overrides
  *= require jNotify.jquery.css
  *= require educacao
  *= require morris
@@ -22,6 +21,11 @@
  *= require_tree ./resources
  *= require_self
  */
+
+textarea.form-control.text {
+  padding-top: 5px;
+  padding-left: 10px;
+}
 
 textarea.form-control.text {
   padding-top: 5px;
@@ -341,6 +345,31 @@ span.multiline {
   color: #953b39;
 }
 
+.new-btn-success {
+  background-color: #2bdc41;
+  color: #ffffff;
+}
+
+.new-btn-success:hover {
+  background-color: #25c238;
+  color: #485b8c;
+}
+
+.new-btn-danger {
+  background-color: #e84e54;
+  color: #ffffff;
+}
+
+.new-btn-danger:hover {
+  background-color: #c43d42;
+  color: #485b8c;
+}
+
+.list-group-item.active {
+  background-color: #485b8c;
+  border-color: #485b8c;
+}
+
 .fieldset {
   border: 1px solid #ddd !important;
   position: relative;
@@ -355,4 +384,50 @@ span.multiline {
   width: auto;
   border: 0;
   padding: 5px 5px 5px 10px;
+}
+
+.shortcut-icon {
+  font-size: 5em;
+  line-height: 1.5em;
+}
+
+.shortcut a span {
+  display: block;
+}
+
+.shortcut {
+  height: 150px;
+}
+
+#header .select2-arrow {
+  background-color: #4c4f53;
+  color: white;
+  border-radius: 0 3px 3px 0;
+  -webkit-border-radius: 0 3px 3px 0;
+  width: 20px;
+}
+
+#header .select2-chosen {
+  background-color: #4c4f53;
+  color: white;
+  border-radius: 3px 0 0 3px;
+  -webkit-border-radius: 3px 0 0 3px;
+}
+
+#header .select2-choice {
+  height: 31px;
+}
+
+#header .select2-chosen .select2-user-result {
+  margin-left: 5px;
+}
+
+#header span.label {
+  margin-top: 0px;
+  padding-top: 0px;
+  margin-bottom: 7px;
+}
+
+#header form .select-role {
+  margin-top: 11px;
 }

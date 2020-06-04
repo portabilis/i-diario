@@ -1,7 +1,10 @@
 class AvaliationExemptionsUndiscardWorker < BaseStudentDependenciesDiscarderWorker
   def perform(entity_id, student_id)
     super do
-      undiscardable_avaliation_exemptions(student_id).undiscard_all
+      undiscardable_avaliation_exemptions(student_id).each do |avaliation_exemption|
+        avaliation_exemption.discarded_at = nil
+        avaliation_exemption.save!(validate: false)
+      end
     end
   end
 

@@ -14,7 +14,7 @@ $(function () {
     }
   };
 
-  $('a').on('click', function(e) {
+  $('a, button').on('click', function(e) {
     if (!showConfirmation) {
       return true;
     }
@@ -28,24 +28,6 @@ $(function () {
           $('input[type=submit]').click();
         } else {
           e.target.click();
-        }
-      }
-    });
-
-    bootbox.confirm(modalOptions);
-  });
-
-  $(document).mouseleave(function () {
-    if (!showConfirmation) {
-      return false;
-    }
-
-    showConfirmation = false;
-
-    modalOptions = Object.assign(modalOptions, {
-      callback: function(result) {
-        if (result) {
-          $('input[type=submit]').click();
         }
       }
     });

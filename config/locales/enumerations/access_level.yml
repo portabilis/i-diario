@@ -4,3 +4,9 @@ pt-BR:
       administrator: "Administrador"
       employee: "Servidor"
       teacher: "Professor"
+      student: "Estudante"
+      plural:
+        administrator: "Administradores"
+        employee: "Servidores"
+        teacher: "Professores"
+        student: "Estudantes"

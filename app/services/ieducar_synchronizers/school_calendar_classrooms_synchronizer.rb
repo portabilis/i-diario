@@ -39,20 +39,31 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
 
         next if classroom_id.blank?
 
-        SchoolCalendarClassroom.find_or_initialize_by(
-          classroom_id: classroom_id,
-          school_calendar_id: school_calendar.id
-        ).tap do |school_calendar_classroom|
-          school_calendar_classroom.step_type_description = school_calendar_classroom_record.descricao
+        begin
+          SchoolCalendarClassroom.find_or_initialize_by(
+            classroom_id: classroom_id,
+            school_calendar_id: school_calendar.id
+          ).tap do |school_calendar_classroom|
+            school_calendar_classroom.step_type_description = school_calendar_classroom_record.descricao
 
-          school_calendar_classroom.save! if school_calendar_classroom.changed?
+            school_calendar_classroom.save! if school_calendar_classroom.changed?
 
-          @school_calendar_classroom_steps_ids = []
-          school_calendar_classroom_id = school_calendar_classroom.id
+            @school_calendar_classroom_steps_ids = []
+            school_calendar_classroom_id = school_calendar_classroom.id
 
-          update_or_create_steps(school_calendar_classroom_record.etapas, school_calendar_classroom_id)
+            update_or_create_steps(school_calendar_classroom_record.etapas, school_calendar_classroom_id)
 
-          destroy_removed_steps(school_calendar_classroom_id)
+            destroy_removed_steps(school_calendar_classroom_id)
+          end
+        rescue ActiveRecord::RecordInvalid => error
+          known_error_messages = [
+            I18n.t('ieducar_api.error.messages.must_be_in_school_calendar_year'),
+            I18n.t('ieducar_api.error.messages.must_be_less_than_end_at')
+          ]
+
+          raise error unless known_error_messages.any? { |known_error| error.message.include?(known_error) }
+
+          mark_with_error(error)
         end
       end
     end
@@ -101,5 +112,15 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
     SchoolCalendarClassroomStep.where(school_calendar_classroom_id: school_calendar_classroom_id)
                                .where.not(id: @school_calendar_classroom_steps_ids)
                                .destroy_all
+  end
+
+  def mark_with_error(error)
+    unity ||= error.record&.school_calendar&.unity
+    unity = "Escola: #{unity.api_code} - #{unity.name}" if unity.present?
+    classroom ||= error.record&.classroom
+    classroom = "Turma: #{classroom.api_code} - #{classroom.description}" if classroom.present?
+    error_message = "#{unity}, #{classroom}: #{error.message}"
+
+    worker_state.add_error!(error_message)
   end
 end
