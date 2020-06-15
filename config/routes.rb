@@ -98,7 +98,11 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :teachers, only: :index
+    resources :teachers, only: :index do
+      collection do
+        get :select2
+      end
+    end
 
     resources :system_notifications, only: :index
 
