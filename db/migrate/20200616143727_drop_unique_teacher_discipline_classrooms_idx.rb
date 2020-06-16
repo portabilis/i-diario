@@ -1,6 +1,9 @@
 class DropUniqueTeacherDisciplineClassroomsIdx < ActiveRecord::Migration
+  disable_ddl_transaction!
+
   def up
-    remove_index :teacher_discipline_classrooms, name: 'idx_unique_teacher_discipline_classrooms'
+    remove_index :teacher_discipline_classrooms, name: 'idx_unique_teacher_discipline_classrooms',
+                                                 algorithm: :concurrently
   end
 
   def down
