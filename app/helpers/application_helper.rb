@@ -32,10 +32,12 @@ module ApplicationHelper
   end
 
   def menus
-    key = ['Menus',
-           current_entity.id,
-           controller_name,
-           current_user.current_user_role&.role&.cache_key || current_user.cache_key]
+    key = [
+      'Menus',
+      controller_name,
+      current_user.current_user_role&.role&.cache_key || current_user.cache_key,
+      Translation.cache_key
+    ]
 
     Rails.cache.fetch(key, expires_in: 1.day) do
       Navigation.draw_menus(controller_name, current_user)
@@ -43,9 +45,11 @@ module ApplicationHelper
   end
 
   def shortcuts
-    key = ['HomeShortcuts/v2',
-           current_entity.id,
-           current_user.current_user_role&.role&.cache_key || current_user&.cache_key]
+    key = [
+      'HomeShortcuts',
+      current_user.current_user_role&.role&.cache_key || current_user&.cache_key,
+      Translation.cache_key
+    ]
 
     Rails.cache.fetch(key, expires_in: 1.day) do
       Navigation.draw_shortcuts(current_user)

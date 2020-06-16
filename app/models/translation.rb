@@ -35,6 +35,6 @@ class Translation < ActiveRecord::Base
   end
 
   def self.cache_key
-    "#{Entity.current_domain}-#{CACHE_KEY}"
+    "#{Entity.current_domain}-#{CACHE_KEY}-#{Translation.order(:updated_at).last&.updated_at}"
   end
 end
