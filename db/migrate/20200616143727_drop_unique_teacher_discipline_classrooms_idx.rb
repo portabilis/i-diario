@@ -3,7 +3,7 @@ class DropUniqueTeacherDisciplineClassroomsIdx < ActiveRecord::Migration
 
   def up
     execute %(
-      DROP INDEX CONCURRENTLY IF EXISTS 'idx_unique_teacher_discipline_classrooms'
+      DROP INDEX CONCURRENTLY IF EXISTS idx_unique_teacher_discipline_classrooms
     )
   end
 
