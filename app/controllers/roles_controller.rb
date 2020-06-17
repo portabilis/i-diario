@@ -14,9 +14,9 @@ class RolesController < ApplicationController
 
     authorize @role
 
-    fetch_permissions
-
     @role.build_permissions!
+
+    fetch_permissions
   end
 
   def create
@@ -28,6 +28,8 @@ class RolesController < ApplicationController
     if @role.save
       respond_with @role, location: roles_path
     else
+      @active_permissions_tab = true
+
       render :new
     end
   end
@@ -120,7 +122,7 @@ class RolesController < ApplicationController
     @active_permissions_tab = to_boolean(params[:active_permissions_tab]) || false
     @active_permissions_tab = true if params[:active_permissions_tab].blank? && params[:active_users_tab].blank?
 
-    @permissions = access_level_permissions(@role)
+    @permissions = @role.new_record? ? @role.permissions : access_level_permissions(@role)
   end
 
   def access_level_permissions(role)
