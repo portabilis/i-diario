@@ -131,7 +131,6 @@ Rails.application.routes.draw do
     resources :roles do
       member do
         get :history
-        get :fetch_features
       end
     end
     resources  :user_roles, only: [:show]
