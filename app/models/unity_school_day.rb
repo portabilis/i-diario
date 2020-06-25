@@ -1,4 +1,6 @@
 class UnitySchoolDay < ActiveRecord::Base
+  audited
+
   belongs_to :unity
 
   scope :by_year, ->(year) { where("EXTRACT(year FROM school_day) = #{year}") }

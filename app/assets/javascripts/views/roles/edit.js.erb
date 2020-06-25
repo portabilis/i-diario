@@ -39,4 +39,12 @@ $(function(){
   }
 
   showCurrentRoleInfo()
+
+  var access_level = $('#role_access_level').select2('val');
+
+  if(access_level.length == 0){
+    $rolePermissionsTbody.find('tr.nested-fields').each(function(){
+      $(this).hide()
+    });
+  }
 });

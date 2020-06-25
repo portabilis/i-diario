@@ -4,6 +4,7 @@ navigation:
       icon: "fa-home"
       path: "root_path"
       visible: true
+      breadcrumb: false
   - menu:
       type: "accounts"
       icon: "fa-user"

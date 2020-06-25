@@ -1,5 +1,15 @@
 module Ieducar
   class SendPostWorker
+    RETRY_ERRORS = [
+      %(duplicate key value violates unique constraint "modules_nota_aluno_matricula_id_unique"),
+      %(duplicate key value violates unique constraint "modules_parecer_aluno_matricula_id_unique"),
+      %(duplicate key value violates unique constraint "falta_componente_curricular_pkey"),
+      %(duplicate key value violates unique constraint "modules_falta_aluno_matricula_id_unique"),
+      %(duplicate key value violates unique constraint "falta_geral_pkey"),
+      %(duplicate key value violates unique constraint "nota_componente_curricular_pkey"),
+      %(duplicate key value violates unique constraint "parecer_geral_pkey")
+    ]
+
     extend Ieducar::SendPostPerformer
     include Ieducar::SendPostPerformer
     include Sidekiq::Worker
@@ -33,6 +43,18 @@ module Ieducar
 
           posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
         rescue StandardError => error
+          if RETRY_ERRORS.any? { |retry_error| error.message.include?(retry_error) }
+            Rails.logger.info(
+              key: 'Ieducar::SendPostWorker#perform',
+              info: information,
+              params: params,
+              posting_id: posting_id,
+              entity_id: entity_id
+            )
+
+            retry
+          end
+
           raise StandardError, "#{information} Erro: #{error.message}"
         end
       end

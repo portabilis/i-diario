@@ -11,6 +11,9 @@ class SynchronizationsController < ApplicationController
 
       redirect_to edit_ieducar_api_configurations_path
     end
+
+  rescue ActiveRecord::RecordNotUnique
+    redirect_to edit_ieducar_api_configurations_path
   end
 
   def current_syncronization_data

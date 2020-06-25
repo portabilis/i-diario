@@ -24,11 +24,11 @@ module Navigation
           'MenuRender#can_show?',
           Entity.current.id,
           current_user.admin?,
-          current_user.current_user_role.try(:role) || current_user,
+          current_user.current_user_role&.role&.cache_key || current_user.cache_key,
           feature
         ]
 
-        Rails.cache.fetch cache_key do
+        Rails.cache.fetch cache_key, expires_in: 1.day do
           policy(feature).index?
         end
       end

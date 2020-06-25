@@ -137,6 +137,19 @@ class DisciplineLessonPlanPdf < BaseReport
     @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 4)
     @discipline_cell = make_cell(content: @discipline_lesson_plan.discipline.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
 
+    if @discipline_lesson_plan.thematic_unit.present?
+      thematic_unit_cell_content = inline_formated_cell_header(
+        Translator.t('activerecord.attributes.discipline_lesson_plan.thematic_unit')
+      ) + @discipline_lesson_plan.thematic_unit
+
+      @thematic_unit_cell = make_cell(
+        content: thematic_unit_cell_content,
+        size: 10,
+        borders: [:bottom, :left, :right, :top],
+        padding: [0, 2, 4, 4], colspan: 4
+      )
+    end
+
     conteudo_cell_content = inline_formated_cell_header(
       Translator.t('activerecord.attributes.discipline_lesson_plan.contents')
     ) + (
@@ -185,6 +198,8 @@ class DisciplineLessonPlanPdf < BaseReport
       [@conteudo_cell],
       [@objectives_cell]
     ]
+
+    class_plan_table_data.insert(1, [@thematic_unit_cell]) if @discipline_lesson_plan.thematic_unit.present?
 
     table(class_plan_table_data, width: bounds.width, cell_style: { inline_format: true }) do
       cells.border_width = 0.25
