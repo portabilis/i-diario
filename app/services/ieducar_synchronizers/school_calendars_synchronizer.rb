@@ -26,13 +26,13 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
 
       next if unity_id.blank?
 
-      finded_school_calendar = SchoolCalendar.find_by(unity_id: unity_id, year: school_calendar_record.ano)
+      found_school_calendar = SchoolCalendar.find_by(unity_id: unity_id, year: school_calendar_record.ano)
 
       next if !school_calendar_record.ano_em_aberto &&
-              (finded_school_calendar.blank? || !finded_school_calendar.opened_year)
+              (found_school_calendar.blank? || !found_school_calendar.opened_year)
 
       begin
-        (finded_school_calendar || SchoolCalendar.new(
+        (found_school_calendar || SchoolCalendar.new(
           unity_id: unity_id,
           year: school_calendar_record.ano
         )).tap do |school_calendar|
@@ -138,7 +138,7 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
       school_calendar.id
     )
   end
-  
+
   def mark_with_error(error)
     unity = error.record&.unity
     unity = "Escola: #{unity.api_code} - #{unity.name}" if unity.present?
