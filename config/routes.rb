@@ -7,7 +7,11 @@ Rails.application.routes.draw do
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
 
   localized do
-    devise_for :users
+    devise_for :users, controllers: {
+      sessions: 'users/sessions',
+      passwords: 'users/passwords',
+      unlocks: 'users/unlocks'
+    }
 
     # madis
     namespace :v1 do
