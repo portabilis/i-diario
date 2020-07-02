@@ -43,7 +43,7 @@ $(function() {
             $.ajax(params);
           }
         },
-        delay: 1000,
+        quietMillis: 500,
         data: function (term, page) {
           let query = {
             filter: {

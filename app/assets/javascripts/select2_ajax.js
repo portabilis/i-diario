@@ -7,7 +7,8 @@ function createSelect2Ajax() {
         },
         results: function (data, page) {
           return data; // Format: { id: 1, name: 'Name', text: 'Name' }
-        }
+        },
+        quietMillis: 500
       },
       initSelection: function(element, callback) {
         data = $(element).data('init-value');
