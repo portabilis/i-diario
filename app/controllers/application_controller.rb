@@ -267,8 +267,6 @@ class ApplicationController < ActionController::Base
   end
 
   def verify_recaptcha?
-    Rails.logger.debug 'token'
-    Rails.logger.debug params[:recaptcha_token]
     return if RecaptchaVerifier.verify?(params[:recaptcha_token])
 
     flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."

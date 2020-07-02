@@ -14,14 +14,6 @@ class RecaptchaVerifier
   def verify?
     return true if secret_key.blank?
 
-    Rails.logger.debug "@@@"
-    Rails.logger.debug "@@@"
-    Rails.logger.debug "@@@"
-    Rails.logger.debug "@@@"
-    Rails.logger.debug "@@@"
-    Rails.logger.debug uri
-    Rails.logger.debug response
-    Rails.logger.debug minimum_score
     response['success'] && response['score'] > minimum_score
   end
 
