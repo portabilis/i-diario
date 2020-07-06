@@ -21,19 +21,11 @@ synchronizers:
       ExamRulesSynchronizer
     ]
   -
-    klass: TeacherUnificationsSynchronizer
-    by_year: false
-    by_unity: false
-    dependencies: [
-      TeachersSynchronizer
-    ]
-  -
     klass: TeachersSynchronizer
     by_year: false
     by_unity: false
     dependents: [
-      DisciplinesSynchronizer,
-      TeacherUnificationsSynchronizer
+      DisciplinesSynchronizer
     ]
   -
     klass: KnowledgeAreasSynchronizer
