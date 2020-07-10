@@ -6,6 +6,7 @@
     </tr>
   </thead>
   <% record.audited_changes.each do |key, values| %>
+    <% next if key == 'sequence' || key == 'discarded_at' %>
     <tbody>
       <tr>
         <td>
