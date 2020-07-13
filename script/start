@@ -20,4 +20,6 @@ fi
 
 bundle exec rake rails:update:bin
 rm /app/tmp/pids/server.pid
-bin/rails s -b 0.0.0.0
+
+echo "Starting.."
+bundle exec rails server -b 0.0.0.0
