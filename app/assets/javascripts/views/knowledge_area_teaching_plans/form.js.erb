@@ -104,4 +104,10 @@ $(function() {
     }
     $(this).select2('val', '');
   });
+
+  if ($('#action_name').val() == 'show') {
+    $('.list-group.checked-list-box .list-group-item').each(function(){
+      $(this).off('click');
+    });
+  }
 });

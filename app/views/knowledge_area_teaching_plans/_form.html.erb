@@ -5,6 +5,7 @@
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
 <% end %>
 
+<%= hidden_field_tag :action_name, action_name %>
 <%= simple_form_for @knowledge_area_teaching_plan, html: { class: 'smart-form', id: 'knowledge_area_teaching_plan' } do |f| %>
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
