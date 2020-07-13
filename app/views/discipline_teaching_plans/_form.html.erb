@@ -219,7 +219,9 @@
             <thead>
               <tr>
                 <th><%= t('.attachments') %></th>
+                <% if action_name != 'show' %>
                 <td width="73px"></td>
+                <% end %>
               </tr>
             </thead>
 
@@ -232,6 +234,7 @@
                 <% end %>
               <% end %>
             </tbody>
+            <% if action_name != 'show' %>
             <tfoot class="links">
               <tr>
                 <td colspan="2">
@@ -242,6 +245,7 @@
                 </td>
               </tr>
             </tfoot>
+            <% end %>
           </table>
         </div>
       </div>
