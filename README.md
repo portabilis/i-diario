@@ -32,14 +32,14 @@ comunidade i-Educar e não terá suporte da Portabilis - mantenedora do projeto.
 - Baixar o i-Diário:
 
 ```bash
-$ git clone https://github.com/portabilis/i-diario.git
-$ cd i-diario
+git clone https://github.com/portabilis/i-diario.git
+cd i-diario
 ```
 
 - Copiar o exemplo de configurações de banco de dados e configurar:
 
 ```bash
-$ cp config/database.sample.yml config/database.yml
+cp config/database.sample.yml config/database.yml
 ```
 
 ### Com Docker
@@ -62,19 +62,19 @@ Pule para o [**Configuração da Aplicação**](#Configuração-da-Aplicação).
 - Instalar a biblioteca `libpq-dev`
 
 ```bash
-$ sudo apt install libpq-dev
+sudo apt install libpq-dev
 ```
 
 - Instalar a gem Bundler:
 
 ```bash
-$ gem install bundler -v '1.17.3'
+gem install bundler -v '1.17.3'
 ```
 
 - Instalar as gems:
 
 ```bash
-$ bundle install
+bundle install
 ```
 
 - Criar e configurar o arquivo `config/secrets.yml` conforme o exemplo:
@@ -104,15 +104,15 @@ development:
 - Criar o banco de dados:
 
 ```bash
-$ bundle exec rake db:create
-$ bundle exec rake db:migrate
+bundle exec rake db:create
+bundle exec rake db:migrate
 ```
 
 - Criar páginas de erro simples para desenvolvimento:
 
 ```bash
-$ cp public/404.html.sample public/404.html
-$ cp public/500.html.sample public/500.html
+cp public/404.html.sample public/404.html
+cp public/500.html.sample public/500.html
 ```
 
 ## Configuração da Aplicação
@@ -120,7 +120,7 @@ $ cp public/500.html.sample public/500.html
 - Criar uma entidade:
 
 ```bash
-$ bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
+bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
 ```
 
 - Criar um usuário administrador:
@@ -130,13 +130,13 @@ Abra o `rails console`.
 Sem docker:
 
 ```bash
-$ bundle exec rails console
+bundle exec rails console
 ```
 
 Com docker:
 
 ```bash
-$ docker exec -it idiario bundle exec rails console
+docker exec -it idiario bundle exec rails console
 ```
 
 Crie um usuário administrador.
@@ -157,7 +157,7 @@ Entity.last.using_connection {
 Iniciar o servidor:
 
 ```bash
-$ bundle exec rails server
+bundle exec rails server
 ```
 
 Para acessar o sistema, use a URL http://localhost:3000
@@ -171,7 +171,7 @@ documentação.
 
 - Para executar a sincronização é necessário estar com o sidekiq rodando:
 ```bash
-$ bundle exec sidekiq -d
+bundle exec sidekiq -d
 ```
 - Acessar Configurações > Api de Integraçao e configurar os dados do sincronismo
 - Acessar Configurações > Unidades e clicar em **Sincronizar**
@@ -186,12 +186,12 @@ _Nota: Após esses primeiros passos, recomendamos que a sincronização rode pel
 ## Rodar os testes
 
 ```bash
-$ RAILS_ENV=test bundle exec rake db:create
-$ RAILS_ENV=test bundle exec rake db:migrate
+RAILS_ENV=test bundle exec rake db:create
+RAILS_ENV=test bundle exec rake db:migrate
 ```
 
 ```bash
-$ bin/rspec spec
+bin/rspec spec
 ```
 
 ## Upgrades
@@ -205,17 +205,17 @@ Para o upgrade é necessário:
 * Atualizar o fonte para a versão 1.1.0
 * Parar o sidekiq:
 ```bash
-$ ps -ef | grep sidekiq | grep -v grep | awk '{print $2}' | xargs kill -TERM && sleep 20
+ps -ef | grep sidekiq | grep -v grep | awk '{print $2}' | xargs kill -TERM && sleep 20
 ```
 * Rodar as migrations:
 ```bash
-$ bundle exec rake db:migrate
+bundle exec rake db:migrate
 ```
 * Iniciar o sidekiq:
 ```bash
-$ bundle exec sidekiq -d --logfile log/sidekiq.log
+bundle exec sidekiq -d --logfile log/sidekiq.log
 ```
 * Executar a rake task que vai remover as enturmações e rodar a sincronização completa em todas as entidades:
 ```bash
-$ bundle exec rake upgrade:versions:1_1_0
+bundle exec rake upgrade:versions:1_1_0
 ```
