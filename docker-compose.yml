@@ -9,7 +9,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=idiario
+      - POSTGRES_DB=idiario_development
       - POSTGRES_PASSWORD=postgres
 
   redis:
