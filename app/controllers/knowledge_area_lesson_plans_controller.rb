@@ -47,6 +47,10 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         )
         send_pdf(t('routes.knowledge_area_lesson_plans'), knowledge_area_lesson_plan_pdf.render)
       end
+
+      format.html do
+        @knowledge_areas = fetch_knowledge_area
+      end
     end
   end
 
