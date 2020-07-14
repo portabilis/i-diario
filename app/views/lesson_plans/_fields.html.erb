@@ -44,12 +44,13 @@
         <% end %>
       </ul>
     </div>
-<<<<<<< HEAD
     <% if action_name != 'show' %>
       <div class="row textarea">
         <div class="col col-sm-12 contents-select2-container">
+          <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.contents") %>
           <%= f.input :contents_tags,
               as: :string,
+              label: "Adicionar novo #{translation}",
               input_html: {
                 'data-content-type': 'conteúdo',
                 class: 'select2-tags',
@@ -57,20 +58,6 @@
               }
           %>
         </div>
-=======
-    <div class="row textarea">
-      <div class="col col-sm-12 contents-select2-container">
-        <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.contents") %>
-        <%= f.input :contents_tags,
-            as: :string,
-            label: "Adicionar novo #{translation}",
-            input_html: {
-              'data-content-type': 'conteúdo',
-              class: 'select2-tags',
-              value: ''
-            }
-        %>
->>>>>>> origin/master
       </div>
     <% end %>
 </fieldset>
@@ -139,7 +126,8 @@
                   url: contents_path,
                   data: []
                 }
-          %>
+              }
+            %>
         </div>
       </div>
     <% end %>
