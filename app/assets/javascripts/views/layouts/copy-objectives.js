@@ -52,7 +52,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
-  confirmCopyButton.addEventListener('click', copyObjectives);
+  if (confirmCopyButton) {
+    confirmCopyButton.addEventListener('click', copyObjectives);
+  }
 
   const clearCheckboxs = () => {
     checkedExperienceFields().forEach(checkboxInput => {
