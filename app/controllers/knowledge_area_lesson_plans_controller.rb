@@ -47,10 +47,6 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         )
         send_pdf(t('routes.knowledge_area_lesson_plans'), knowledge_area_lesson_plan_pdf.render)
       end
-
-      format.html do
-        redirect_to knowledge_area_lesson_plans_path
-      end
     end
   end
 
