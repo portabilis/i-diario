@@ -1,9 +1,10 @@
 version: "3.7"
 
 services:
+
   postgres:
     image: postgres:12-alpine
-    container_name: postgres94-idiario
+    container_name: postgres-idiario
     ports:
       - 5432
     volumes:
@@ -26,7 +27,7 @@ services:
       - .:/app
       - box:/box
     ports:
-      - 3000
+      - 3000:3000
     depends_on:
       - postgres
       - redis
