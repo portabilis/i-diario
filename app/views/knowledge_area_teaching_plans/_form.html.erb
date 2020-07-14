@@ -101,10 +101,11 @@
       <% if action_name != 'show' %>
       <div class="row textarea">
         <div class="col col-sm-12 contents-select2-container">
+          <% translation = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.contents') %>
           <%= teaching_plan_form.input :contents_tags,
               as: :string,
+              label: "Adicionar novo #{translation}",
               input_html: {
-                'data-content-type': 'conteúdo',
                 class: 'select2-tags',
                 value: ''
               }
@@ -162,8 +163,10 @@
       <% if action_name != 'show' %>
       <div class="row textarea">
         <div class="col col-sm-12 objectives-select2-container">
+          <% translation = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.objectives') %>
           <%= teaching_plan_form.input :objectives_tags,
               as: :string,
+              label: "Adicionar novo #{translation}",
               input_html: {
                 class: 'select2-content-tags-ajax',
                 value: '',
