@@ -32,8 +32,7 @@ comunidade i-Educar e não terá suporte da Portabilis - mantenedora do projeto.
 - Baixar o i-Diário:
 
 ```bash
-git clone https://github.com/portabilis/i-diario.git
-cd i-diario
+git clone https://github.com/portabilis/i-diario.git && cd i-diario
 ```
 
 - Copiar o exemplo de configurações de banco de dados e configurar:
@@ -43,8 +42,6 @@ cp config/database.sample.yml config/database.yml
 ```
 
 ### Com Docker
-
-No `config/database.yml` mudar o `host` para `host: postgres`.
 
 - Rode `docker-compose up`.
 
@@ -120,6 +117,7 @@ cp public/500.html.sample public/500.html
 - Criar uma entidade:
 
 ```bash
+# (Docker) docker exec idiario bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
 bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
 ```
 
@@ -127,16 +125,9 @@ bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitu
 
 Abra o `rails console`.
 
-Sem docker:
-
 ```bash
+# (Docker) docker exec -it idiario bundle exec rails console
 bundle exec rails console
-```
-
-Com docker:
-
-```bash
-docker exec -it idiario bundle exec rails console
 ```
 
 Crie um usuário administrador.
@@ -154,7 +145,7 @@ Entity.last.using_connection {
 }
 ```
 
-Iniciar o servidor:
+Iniciar o servidor (se não estiver usando Docker):
 
 ```bash
 bundle exec rails server
