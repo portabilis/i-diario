@@ -1,6 +1,6 @@
 class DashboardController < ApplicationController
   def index
-    if current_user.student?
+    if current_user.student? && current_user.can_show?(:publications)
       redirect_to publications_path
 
       return
