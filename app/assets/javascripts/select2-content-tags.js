@@ -25,7 +25,7 @@ $(function() {
         }).length == 0){
           return {
               id: $.trim(term),
-              text: $.trim(term) + ' (Novo conteúdo)'
+              text: $.trim(term) + ' (Novo)'
           };
         }
       },
@@ -86,7 +86,7 @@ $(function() {
 
         return {
             id: $.trim(term),
-            text: $.trim(term) + ' (Novo ' + type + ')'
+            text: $.trim(term) + ' (Novo)'
         };
       },
       minimumInputLength: 3,

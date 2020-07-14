@@ -44,8 +44,10 @@
     </div>
     <div class="row textarea">
       <div class="col col-sm-12 contents-select2-container">
+        <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.contents") %>
         <%= f.input :contents_tags,
             as: :string,
+            label: "Adicionar novo #{translation}",
             input_html: {
               'data-content-type': 'conteúdo',
               class: 'select2-tags',
@@ -106,8 +108,10 @@
     </div>
     <div class="row textarea">
       <div class="col col-sm-12 objectives-select2-container">
+        <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.objectives") %>
         <%= f.input :objectives_tags,
             as: :string,
+            label: "Adicionar novo #{translation}",
             input_html: {
               class: 'select2-content-tags-ajax',
               value: '',
