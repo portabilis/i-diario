@@ -22,7 +22,7 @@ class TeacherUnification
 
     def unify(record, association)
       # see TeacherRelationable callback set_teacher_id
-      record.teacher = @main_teacher if record.class.included_modules.include?(TeacherRelationable)
+      record.teacher = @main_teacher if record.class.included_modules.include?(TeacherRelationable) && defined?(record.teacher)
 
       record.update_attribute(association.foreign_key, @main_teacher.id)
       return if association.name != :teacher_discipline_classrooms
