@@ -224,7 +224,7 @@
               <tr>
                 <th><%= t('.attachments') %></th>
                 <% if action_name != 'show' %>
-                <td width="73px"></td>
+                  <td width="73px"></td>
                 <% end %>
               </tr>
             </thead>
@@ -239,16 +239,16 @@
               <% end %>
             </tbody>
             <% if action_name != 'show' %>
-            <tfoot class="links">
-              <tr>
-                <td colspan="2">
-                  <%= link_to_add_association t('.add_attachment'), teaching_plan_form, :teaching_plan_attachments,
-                    class: 'btn btn-success btn-sm',
-                    :"data-association-insertion-method" => "append",
-                    :"data-association-insertion-node" => "#teaching-plan-attachments" %>
-                </td>
-              </tr>
-            </tfoot>
+              <tfoot class="links">
+                <tr>
+                  <td colspan="2">
+                    <%= link_to_add_association t('.add_attachment'), teaching_plan_form, :teaching_plan_attachments,
+                      class: 'btn btn-success btn-sm',
+                      :"data-association-insertion-method" => "append",
+                      :"data-association-insertion-node" => "#teaching-plan-attachments" %>
+                  </td>
+                </tr>
+              </tfoot>
             <% end %>
           </table>
         </div>

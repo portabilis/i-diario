@@ -4,9 +4,9 @@
   </td>
 
   <% if action_name != 'show' %>
-  <td class="actions">
-    <%= f.hidden_field :id %>
-    <%= link_to_remove_association t('.remove'), f, class: 'btn btn-danger btn-sm' %>
-  </td>
+    <td class="actions">
+      <%= f.hidden_field :id %>
+      <%= link_to_remove_association t('.remove'), f, class: 'btn btn-danger btn-sm' %>
+    </td>
   <% end %>
 </tr>

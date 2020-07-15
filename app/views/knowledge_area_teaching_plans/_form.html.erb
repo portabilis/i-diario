@@ -100,19 +100,19 @@
         </div>
       </div>
       <% if action_name != 'show' %>
-      <div class="row textarea">
-        <div class="col col-sm-12 contents-select2-container">
-          <% translation = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.contents') %>
-          <%= teaching_plan_form.input :contents_tags,
-              as: :string,
-              label: "Adicionar novo #{translation}",
-              input_html: {
-                class: 'select2-tags',
-                value: ''
-              }
-          %>
+        <div class="row textarea">
+          <div class="col col-sm-12 contents-select2-container">
+            <% translation = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.contents') %>
+            <%= teaching_plan_form.input :contents_tags,
+                as: :string,
+                label: "Adicionar novo #{translation}",
+                input_html: {
+                  class: 'select2-tags',
+                  value: ''
+                }
+            %>
+          </div>
         </div>
-      </div>
       <% end %>
 
       <div class="row textarea">
@@ -162,23 +162,23 @@
         </div>
       </div>
       <% if action_name != 'show' %>
-      <div class="row textarea">
-        <div class="col col-sm-12 objectives-select2-container">
-          <% translation = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.objectives') %>
-          <%= teaching_plan_form.input :objectives_tags,
-              as: :string,
-              label: "Adicionar novo #{translation}",
-              input_html: {
-                class: 'select2-content-tags-ajax',
-                value: '',
-                data: {
-                  url: contents_path,
-                  data: []
+        <div class="row textarea">
+          <div class="col col-sm-12 objectives-select2-container">
+            <% translation = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.objectives') %>
+            <%= teaching_plan_form.input :objectives_tags,
+                as: :string,
+                label: "Adicionar novo #{translation}",
+                input_html: {
+                  class: 'select2-content-tags-ajax',
+                  value: '',
+                  data: {
+                    url: contents_path,
+                    data: []
+                  }
                 }
-              }
-          %>
+            %>
+          </div>
         </div>
-      </div>
       <% end %>
 
       <div class="row textarea">
@@ -222,8 +222,8 @@
             <thead>
               <tr>
                 <th>Anexo</th>
-                 <% if action_name != 'show' %>
-                <td width="73px"></td>
+                <% if action_name != 'show' %>
+                  <td width="73px"></td>
                 <% end %>
               </tr>
             </thead>
@@ -237,17 +237,17 @@
                 <% end %>
               <% end %>
             </tbody>
-             <% if action_name != 'show' %>
-            <tfoot class="links">
-              <tr>
-                <td colspan="2">
-                  <%= link_to_add_association t('.add_attachment'), teaching_plan_form, :teaching_plan_attachments,
-                    class: 'btn btn-success btn-sm',
-                    :"data-association-insertion-method" => "append",
-                    :"data-association-insertion-node" => "#teaching-plan-attachments" %>
-                </td>
-              </tr>
-            </tfoot>
+            <% if action_name != 'show' %>
+              <tfoot class="links">
+                <tr>
+                  <td colspan="2">
+                    <%= link_to_add_association t('.add_attachment'), teaching_plan_form, :teaching_plan_attachments,
+                      class: 'btn btn-success btn-sm',
+                      :"data-association-insertion-method" => "append",
+                      :"data-association-insertion-node" => "#teaching-plan-attachments" %>
+                  </td>
+                </tr>
+              </tfoot>
             <% end %>
           </table>
         </div>
