@@ -271,6 +271,8 @@ class ApplicationController < ActionController::Base
 
     flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."
     redirect_to :back
+  rescue ActionController::RedirectBackError
+    redirect_to root_path
   end
 
   private
