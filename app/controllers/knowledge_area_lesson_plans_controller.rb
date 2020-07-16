@@ -49,7 +49,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       end
 
       format.html do
-        redirect_to knowledge_area_lesson_plans_path
+        @knowledge_areas = fetch_knowledge_area
       end
     end
   end

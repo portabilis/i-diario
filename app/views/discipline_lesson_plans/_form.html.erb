@@ -4,6 +4,7 @@
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
 <% end %>
 
+<%= hidden_field_tag :action_name, action_name %>
 <%= simple_form_for @discipline_lesson_plan, html: { class: 'smart-form', id: 'discipline_lesson_plan' } do |f| %>
   <%= f.error_notification %>
 
@@ -13,8 +14,9 @@
     <%= render partial: 'lesson_plans/base_errors', locals: { f: lesson_plan } %>
 
     <fieldset>
+    <% if action_name != 'show' %>
       <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'disciplines' %>
-
+    <% end %>
       <div class="row">
         <%= render partial: 'lesson_plans/unity_field', locals: { f: lesson_plan } %>
 
@@ -30,7 +32,7 @@
         <%= render partial: 'lesson_plans/lesson_plan_date_fields', locals: { f: lesson_plan } %>
 
         <div class="col col-sm-4">
-          <%= f.input :thematic_unit %>
+          <%= f.input :thematic_unit, readonly: action_name == 'show' %>
         </div>
       </div>
     </fieldset>
@@ -50,6 +52,6 @@
             class: 'btn btn-info' %>
     <% end %>
 
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' unless action_name == 'show' %>
   </footer>
 <% end %>

@@ -2,9 +2,10 @@
   <td>
     <%= link_to "#{f.object.attachment_file_name}", f.object.attachment.expiring_url(60), html_options = {download: ''}  %>
   </td>
-
-  <td class="actions">
-    <%= f.hidden_field :id %>
-    <%= link_to_remove_association t('.remove'), f, class: 'btn btn-danger btn-sm' %>
-  </td>
+  <% if action_name != 'show'%>
+    <td class="actions">
+      <%= f.hidden_field :id %>
+      <%= link_to_remove_association t('.remove'), f, class: 'btn btn-danger btn-sm' %>
+    </td>
+  <% end %>
 </tr>

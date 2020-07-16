@@ -5,6 +5,7 @@
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
 <% end %>
 
+<%= hidden_field_tag :action_name, action_name %>
 <%= simple_form_for @discipline_teaching_plan, html: {
     class: 'smart-form',
     id: 'discipline_teaching_plan'
@@ -222,29 +223,39 @@
             <thead>
               <tr>
                 <th><%= t('.attachments') %></th>
-                <td width="73px"></td>
+                <% if action_name != 'show' %>
+                  <td width="73px"></td>
+                <% end %>
               </tr>
             </thead>
 
             <tbody id="teaching-plan-attachments">
-              <%= teaching_plan_form.simple_fields_for :teaching_plan_attachments, teaching_plan_form.object.teaching_plan_attachments do |attachment| %>
-                <% if attachment.object.persisted? %>
-                  <%= render 'teaching_plan_attachment_show', f: attachment %>
-                <% else %>
-                  <%= render 'teaching_plan_attachment_fields', f: attachment %>
+              <% if action_name == 'show' && teaching_plan_form.object.teaching_plan_attachments.blank? %>
+                <tr class="nested-fields">
+                  <td><span>Nenhum documento anexado</span></td>
+                </tr>
+              <% else %>
+                <%= teaching_plan_form.simple_fields_for :teaching_plan_attachments, teaching_plan_form.object.teaching_plan_attachments do |attachment| %>
+                  <% if attachment.object.persisted? %>
+                    <%= render 'teaching_plan_attachment_show', f: attachment %>
+                  <% else %>
+                    <%= render 'teaching_plan_attachment_fields', f: attachment %>
+                  <% end %>
                 <% end %>
               <% end %>
             </tbody>
-            <tfoot class="links">
-              <tr>
-                <td colspan="2">
-                  <%= link_to_add_association t('.add_attachment'), teaching_plan_form, :teaching_plan_attachments,
-                    class: 'btn btn-success btn-sm',
-                    :"data-association-insertion-method" => "append",
-                    :"data-association-insertion-node" => "#teaching-plan-attachments" %>
-                </td>
-              </tr>
-            </tfoot>
+            <% if action_name != 'show' %>
+              <tfoot class="links">
+                <tr>
+                  <td colspan="2">
+                    <%= link_to_add_association t('.add_attachment'), teaching_plan_form, :teaching_plan_attachments,
+                      class: 'btn btn-success btn-sm',
+                      :"data-association-insertion-method" => "append",
+                      :"data-association-insertion-node" => "#teaching-plan-attachments" %>
+                  </td>
+                </tr>
+              </tfoot>
+            <% end %>
           </table>
         </div>
       </div>
