@@ -186,11 +186,17 @@
       </thead>
 
       <tbody id="lesson-plan-attachments">
-        <%= f.simple_fields_for :lesson_plan_attachments, f.object.lesson_plan_attachments do |attachment| %>
-          <% if attachment.object.persisted? %>
-            <%= render 'lesson_plan_attachment_show', f: attachment %>
-          <% else %>
-            <%= render 'lesson_plan_attachment_fields', f: attachment %>
+        <% if action_name == 'show' && f.object.lesson_plan_attachments.blank? %>
+          <tr class="nested-fields">
+            <td><span>Nenhum documento anexado</span></td>
+          </tr>
+        <% else %>
+          <%= f.simple_fields_for :lesson_plan_attachments, f.object.lesson_plan_attachments do |attachment| %>
+            <% if attachment.object.persisted? %>
+              <%= render 'lesson_plan_attachment_show', f: attachment %>
+            <% else %>
+              <%= render 'lesson_plan_attachment_fields', f: attachment %>
+            <% end %>
           <% end %>
         <% end %>
       </tbody>

@@ -230,11 +230,17 @@
             </thead>
 
             <tbody id="teaching-plan-attachments">
-              <%= teaching_plan_form.simple_fields_for :teaching_plan_attachments, teaching_plan_form.object.teaching_plan_attachments do |attachment| %>
-                <% if attachment.object.persisted? %>
-                  <%= render 'teaching_plan_attachment_show', f: attachment %>
-                <% else %>
-                  <%= render 'teaching_plan_attachment_fields', f: attachment %>
+              <% if action_name == 'show' && teaching_plan_form.object.teaching_plan_attachments.blank? %>
+                <tr class="nested-fields">
+                  <td><span>Nenhum documento anexado</span></td>
+                </tr>
+              <% else %>
+                <%= teaching_plan_form.simple_fields_for :teaching_plan_attachments, teaching_plan_form.object.teaching_plan_attachments do |attachment| %>
+                  <% if attachment.object.persisted? %>
+                    <%= render 'teaching_plan_attachment_show', f: attachment %>
+                  <% else %>
+                    <%= render 'teaching_plan_attachment_fields', f: attachment %>
+                  <% end %>
                 <% end %>
               <% end %>
             </tbody>
