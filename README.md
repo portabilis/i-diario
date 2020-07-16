@@ -34,8 +34,6 @@ Há duas formas de fazer a instalação:
 - [Instalação utilizando Docker](#Instalação-utilizando-Docker)
 - [Instalação em Servidor](#Instalação-em-Servidor-(Testado-no-Ubuntu-18.04))
 
-Para instalar o projeto execute todos.
-
 ### Instalação utilizando Docker
 
 > ATENÇÃO: Essa forma de instação tem o objetivo de facilitar demonstrações e desenvolvimento. Não é recomendado para
