@@ -14,7 +14,7 @@ describe Navigation::MenuBuilder, type: :service do
       it "returns all menus, but no mark nothing menu or submenu as current" do
         html = subject.build
 
-        expect(html).to match /<ul><li class="">.+Dashboard.+<\/li>.+<\/ul>/
+        expect(html).to match /<ul><li class="">.+Início.+<\/li>.+<\/ul>/
 
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Configurações gerais.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Manutenção\/Ajustes.+<\/li>.+<\/ul>.+<\/ul>/
@@ -32,7 +32,7 @@ describe Navigation::MenuBuilder, type: :service do
       it "returns all menus, but only feature menu is marked as current" do
         html = subject.build
 
-        expect(html).to match /<ul><li class="current">.+Dashboard.+<\/li>.+<\/ul>/
+        expect(html).to match /<ul><li class="current">.+Início.+<\/li>.+<\/ul>/
 
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Configurações gerais.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Manutenção\/Ajustes.+<\/li>.+<\/ul>.+<\/ul>/
@@ -50,7 +50,7 @@ describe Navigation::MenuBuilder, type: :service do
       it "returns all menus, but only feature submenu is marked as current and your parent menu is marked as open" do
         html = subject.build
 
-        expect(html).to match /<ul><li class="">.+Dashboard.+<\/li>.+<\/ul>/
+        expect(html).to match /<ul><li class="">.+Início.+<\/li>.+<\/ul>/
 
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Configurações gerais.+<\/li>.+<\/ul>.+<\/ul>/
         expect(html).to match /<ul>.+Administrativo.+<li class="">.+Manutenção\/Ajustes.+<\/li>.+<\/ul>.+<\/ul>/
@@ -81,7 +81,7 @@ describe Navigation::MenuBuilder, type: :service do
         expect(html).to_not match /<ul>.+Configurações.+<ul>.+Configurações gerais.+<li class="">.+API de integração.+<\/li><\/ul>.+<\/ul>/
         expect(html).to_not match /<ul>.+Configurações.+<li class="">.+Publicações.+<\/li>.+<\/ul>/
 
-        expect(html).to match /<ul><li class="current">.+Dashboard.+<\/li>.+<\/ul>/
+        expect(html).to match /<ul><li class="current">.+Início.+<\/li>.+<\/ul>/
         expect(html).to match /<ul>.+Configurações.+<ul>.+Unidades.+<li class="">.+Usuários.+<\/li>.+<\/ul>.+<\/ul>/
       end
     end

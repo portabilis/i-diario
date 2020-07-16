@@ -9,7 +9,7 @@ describe Navigation::BreadcrumbsBuilder, type: :service do
       let(:feature) { "dashboard" }
 
       it "returns breadcrumbs with the links begin and menu" do
-        expect(subject.build).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\">Início</a></li> <li><a href=\"/\"><i class=\"fa fa-home fa-fw\"></i> Dashboard</a></li></ol>"
+        expect(subject.build).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\">Início</a></li></ol>"
       end
    end
 
