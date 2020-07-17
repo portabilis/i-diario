@@ -67,7 +67,8 @@ idiario     | * Listening on tcp://0.0.0.0:3000
 idiario     | Use Ctrl-C to stop
 ```
 
-Veja como fazer o seu [primeiro acesso](#Primeiro-acesso).
+Você poderá acessar o i-Diário na URL [http://localhost:3000](http://localhost:3000) com o login `admin` e a senha
+`123456789`.
 
 #### Personalizando a instalação via Docker
 
@@ -151,7 +152,6 @@ bundle exec rails server
 Antes de realizar o primeiro acesso, crie um usuário administrador:
 
 ```bash
-# (Docker) docker-compose exec app bundle exec rails console
 bundle exec rails console
 ```
 
