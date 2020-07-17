@@ -7,11 +7,9 @@ class AdminUserCreator
   end
 
   def create
-    if params? && create_admin_user
-      success
-    else
-      error
-    end
+    return success if params? && create_admin_user
+
+    error
   end
 
   private
