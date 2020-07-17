@@ -16,7 +16,7 @@
     <input type="hidden" name="<%= daily_frequency_path %>[<%= class_number %>][class_number]"
       value="<%= class_number %>">
 
-    <% unique_id = "#{class_number.to_s.ljust(10, '0')}#{student.id.to_s.ljust(10, '0')}" %>
+    <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student.id.to_s.rjust(10, '0')}" %>
     <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
       daily_frequency_student = daily_frequency.build_or_find_by_student(student) do |f| %>
       <td>
