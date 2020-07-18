@@ -77,6 +77,7 @@ module ApplicationHelper
       'https://s3-sa-east-1.amazonaws.com/apps-core-images-test/uploads/avatar/avatar.jpg'
     )
 
+    html_options['id'] = "menu_avatar"
     html_options['height'] = "#{size}px"
     html_options['width'] = "#{size}px"
     html_options['onerror'] = "this.error=null;this.src='/assets/profile-default.jpg'"
