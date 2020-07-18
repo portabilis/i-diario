@@ -71,39 +71,46 @@ $(function() {
           width: 160,
           height: 160,
         });
-        initialAvatarURL = avatar.src;
-        avatar.src = canvas.toDataURL();
-        menu_avatar.src = canvas.toDataURL();
 
-        $alert.removeClass('alert-success alert-warning');
-        canvas.toBlob(function (blob) {
-          var formData = new FormData();
-          var userId = $('#user_id').val();
+        if (canvas) {
+          initialAvatarURL = avatar.src;
+          avatar.src = canvas.toDataURL();
+          menu_avatar.src = canvas.toDataURL();
 
-          formData.append('profile_picture', blob, fileName);
-          formData.append('locale', 'pt-BR');
-          formData.append('id', userId);
+          $alert.removeClass('alert-success alert-warning');
+          canvas.toBlob(function (blob) {
+            var formData = new FormData();
+            var userId = $('#user_id').val();
 
-          $.ajax({
-              url: Routes.profile_picture_users_pt_br_path(),
-              method: 'POST',
-              data: formData,
-              processData: false,
-              contentType: false,
-              dataType: 'json',
-            success: function (data) {
-              $alert.show().addClass('alert-success').text('Foto de perfil atualizada com sucesso');
-              avatar.src = data.url
-              menu_avatar.src = data.url
-            },
-            error: function (data) {
-              avatar.src = initialAvatarURL;
-              menu_avatar.src = initialAvatarURL;
+            formData.append('profile_picture', blob, fileName);
+            formData.append('locale', 'pt-BR');
+            formData.append('id', userId);
 
-              $alert.show().addClass('alert-warning').text(data.responseText);
-            },
-          })
-        });
+            $.ajax({
+                url: Routes.profile_picture_users_pt_br_path(),
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+              success: function (data) {
+                $('#profile-picture-alert-span').text('Foto de perfil atualizada com sucesso');
+                $alert.show().addClass('alert-success');
+                avatar.src = data.url
+                menu_avatar.src = data.url
+              },
+              error: function (data) {
+                avatar.src = initialAvatarURL;
+                menu_avatar.src = initialAvatarURL;
+                $('#profile-picture-alert-span').text(data.responseJSON.users[0]);
+                $alert.show().addClass('alert-warning');
+              },
+            })
+          });
+        } else {
+          $('#profile-picture-alert-span').text('Formato desconhecido');
+          $alert.show().addClass('alert-warning');
+        }
       }
     });
   });
