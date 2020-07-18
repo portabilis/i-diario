@@ -128,6 +128,7 @@ Rails.application.routes.draw do
         get :export_all
         get :export_selected
         get :select2_remote
+        post :profile_picture
       end
     end
 
