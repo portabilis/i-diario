@@ -42,6 +42,9 @@ class DisciplineTeachingPlan < ActiveRecord::Base
       joins(:teaching_plan).merge(TeachingPlan.where.not(teacher_id: current_teacher_id))
     end
   }
+  scope :order_by_school_term, lambda {
+    joins(:teaching_plan).order("teaching_plans.school_term = ''")
+  }
 
   validates :teaching_plan, presence: true
   validates :discipline, presence: true
