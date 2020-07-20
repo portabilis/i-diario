@@ -8,11 +8,12 @@
       aria-expanded="true">
 
       <i class="fa fa-angle-down"></i>
-      <% if current_user.profile_picture && current_user.profile_picture.url %>
-        <%= image_tag current_user.profile_picture_url, style: 'height: 28px; width: 28px;', id: 'menu_avatar' %>
-      <% else %>
-        <%= gravatar_image_tag current_user.email, '20', alt: current_user.navigation_display %>
-      <% end %>
+      <%= profile_picture_tag(
+        current_user,
+        20,
+        { alt: current_user.navigation_display },
+        { style: 'height: 28px; width: 28px;', id: 'menu_avatar' }
+      ) %>
     </a>
     <ul class="dropdown-menu " aria-labelledby="dropdownMenu1">
       <li>

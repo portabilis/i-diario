@@ -88,6 +88,12 @@ module ApplicationHelper
     )
   end
 
+  def profile_picture_tag(user, gravatar_size, gravatar_html_options = {}, profile_picture_html_options = {})
+    return image_tag(user.profile_picture_url, profile_picture_html_options) if user.profile_picture&.url
+
+    gravatar_image_tag(user.email, gravatar_size, gravatar_html_options)
+  end
+
   def custom_date_format(date)
     if date == Time.zone.today
       t('date.today')
