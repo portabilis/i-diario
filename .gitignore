@@ -49,3 +49,6 @@ Gemfile.plugins
 
 # Setup
 .setup
+
+# Docker
+docker-compose.override.yml
