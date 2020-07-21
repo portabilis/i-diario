@@ -33,6 +33,18 @@ class UsersController < ApplicationController
     end
   end
 
+  def profile_picture
+    @user = User.find(params[:id])
+
+    respond_to do |format|
+      if @user.update(profile_picture: params[:profile_picture])
+        format.json { render json: { url: @user.profile_picture_url }, status: :ok }
+      else
+        format.json { render json: @user.errors[:profile_picture], status: :forbidden }
+      end
+    end
+  end
+
   def destroy
     @user = User.find(params[:id])
 

@@ -77,6 +77,7 @@ module ApplicationHelper
       'https://s3-sa-east-1.amazonaws.com/apps-core-images-test/uploads/avatar/avatar.jpg'
     )
 
+    html_options['id'] = "menu_avatar"
     html_options['height'] = "#{size}px"
     html_options['width'] = "#{size}px"
     html_options['onerror'] = "this.error=null;this.src='/assets/profile-default.jpg'"
@@ -85,6 +86,12 @@ module ApplicationHelper
       "https://www.gravatar.com/avatar/#{email}?size=#{size}&d=#{default_avatar}",
       html_options
     )
+  end
+
+  def profile_picture_tag(user, gravatar_size, gravatar_html_options = {}, profile_picture_html_options = {})
+    return image_tag(user.profile_picture_url, profile_picture_html_options) if user.profile_picture&.url
+
+    gravatar_image_tag(user.email, gravatar_size, gravatar_html_options)
   end
 
   def custom_date_format(date)
