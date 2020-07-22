@@ -1,3 +1,7 @@
+<%= content_for :recaptcha_js do %>
+  <%= include_recaptcha_js %>
+<% end %>
+
 <div class="widget-body">
   <h2>Crie sua conta</h2>
 
@@ -107,6 +111,7 @@
             <div class="col-sm-12">
               <%= link_to 'Voltar', root_path, class: "btn btn-lg btn-info" %>
               <%= submit_tag 'Confirmar e acessar o sistema', class: 'btn btn-success btn-lg', data: { disable_with: "Enviando..." } %>
+              <%= recaptcha_execute %>
             </div>
           </div>
         </div>

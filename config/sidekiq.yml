@@ -11,3 +11,4 @@ production:
   - [exam_posting_send, 50]
   - [synchronizer, 1]
   - [synchronizer_enqueue_next_job, 1]
+  - [scheduled_publications, 1]

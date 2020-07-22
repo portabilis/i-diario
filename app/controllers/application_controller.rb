@@ -266,6 +266,28 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def verify_recaptcha?
+    return if RecaptchaVerifier.verify?(params[:recaptcha_token])
+
+    flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."
+    redirect_to :back
+  rescue ActionController::RedirectBackError
+    redirect_to root_path
+  end
+
+  def allowed_api_header?
+    header_name1 = Rails.application.secrets[:AUTH_HEADER_NAME1] || 'TOKEN'
+    validation_method1 = Rails.application.secrets[:AUTH_VALIDATION_METHOD1] || '=='
+    token1 = Rails.application.secrets[:AUTH_TOKEN1]
+
+    header_name2 = Rails.application.secrets[:AUTH_HEADER_NAME2] || 'TOKEN'
+    validation_method2 = Rails.application.secrets[:AUTH_VALIDATION_METHOD2] || '=='
+    token2 = Rails.application.secrets[:AUTH_TOKEN2]
+
+    request.headers[header_name1].send(validation_method1, token1) ||
+      (token2.present? && request.headers[header_name2].send(validation_method2, token2))
+  end
+
   private
 
   def set_current_user_defaults
@@ -327,5 +349,4 @@ class ApplicationController < ActionController::Base
   def report_name(prefix)
     "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
   end
-
 end

@@ -567,7 +567,7 @@ $(function() {
     }
   });
 
-  if (window.profile.access_level) {
+  if (window.profile && window.profile.access_level) {
     markRequiredFields(window.profile.access_level);
   }
 

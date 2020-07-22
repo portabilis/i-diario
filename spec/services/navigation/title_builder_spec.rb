@@ -14,7 +14,7 @@ describe Navigation::TitleBuilder, type: :service do
           let(:feature) { "dashboard" }
 
           it "returns the menu icon and the menu title text" do
-            expect(subject.build).to eq "<i class=\"fa fa-fw fa-home\"></i> Dashboard"
+            expect(subject.build).to eq "<i class=\"fa fa-fw fa-home\"></i> Início"
           end
         end
 
@@ -34,7 +34,7 @@ describe Navigation::TitleBuilder, type: :service do
           let(:feature) { "dashboard" }
 
           it "returns the menu title text" do
-            expect(subject.build).to eq "Dashboard"
+            expect(subject.build).to eq "Início"
           end
         end
 

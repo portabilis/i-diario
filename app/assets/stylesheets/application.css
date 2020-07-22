@@ -18,6 +18,7 @@
  *= require bootstrap-select
  *= require header-select2
  *= require jquery-file-upload/jquery.fileupload
+ *= require bootstrap-datetimepicker
  *= require_tree ./resources
  *= require_self
  */

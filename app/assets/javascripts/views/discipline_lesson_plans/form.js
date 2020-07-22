@@ -168,26 +168,28 @@ $(function () {
     }
   }
 
-  copyTeachingPlanLink.addEventListener('click', event => {
-    event.preventDefault();
-    copyFromTeachingPlanAlert.style.display = 'none';
+  if (copyTeachingPlanLink) {
+    copyTeachingPlanLink.addEventListener('click', event => {
+      event.preventDefault();
+      copyFromTeachingPlanAlert.style.display = 'none';
 
-    if (!startAtInput.value || !endAtInput.value) {
-      flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
+      if (!startAtInput.value || !endAtInput.value) {
+        flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
+        return false;
+      }
+      const url = Routes.teaching_plan_contents_discipline_lesson_plans_pt_br_path();
+      const params = {
+        start_date: startAtInput.value,
+        end_date: endAtInput.value
+      }
+
+      $.getJSON(url, params)
+      .done(fillContents);
+
+
       return false;
-    }
-    const url = Routes.teaching_plan_contents_discipline_lesson_plans_pt_br_path();
-    const params = {
-      start_date: startAtInput.value,
-      end_date: endAtInput.value
-    }
-
-    $.getJSON(url, params)
-    .done(fillContents);
-
-
-    return false;
-  });
+    });
+  }
 
   const addObjectives = (description) => {
     if(!$('li.list-group-item.active input[type=checkbox][data-objective_description="'+description+'"]').length) {
@@ -210,23 +212,31 @@ $(function () {
     }
   }
 
-  copyObjectivesTeachingPlanLink.addEventListener('click', event => {
-    event.preventDefault();
-    copyFromObjectivesTeachingPlanAlert.style.display = 'none';
+  if (copyObjectivesTeachingPlanLink) {
+    copyObjectivesTeachingPlanLink.addEventListener('click', event => {
+      event.preventDefault();
+      copyFromObjectivesTeachingPlanAlert.style.display = 'none';
 
-    if (!startAtInput.value || !endAtInput.value) {
-      flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
+      if (!startAtInput.value || !endAtInput.value) {
+        flashMessages.error('É necessário preenchimento das datas para realizar a cópia.');
+        return false;
+      }
+      const url = Routes.teaching_plan_objectives_discipline_lesson_plans_en_path();
+      const params = {
+        start_date: startAtInput.value,
+        end_date: endAtInput.value
+      }
+
+      $.getJSON(url, params)
+      .done(fillObjectives);
+
       return false;
-    }
-    const url = Routes.teaching_plan_objectives_discipline_lesson_plans_en_path();
-    const params = {
-      start_date: startAtInput.value,
-      end_date: endAtInput.value
-    }
+    });
+  }
 
-    $.getJSON(url, params)
-    .done(fillObjectives);
-
-    return false;
-  });
+  if ($('#action_name').val() == 'show') {
+    $('.list-group.checked-list-box .list-group-item').each(function(){
+      $(this).off('click');
+    });
+  }
 });
