@@ -19,6 +19,7 @@ class Classroom < ActiveRecord::Base
   has_many :student_enrollments, through: :student_enrollment_classrooms
   has_many :conceptual_exams, dependent: :restrict_with_error
   has_many :infrequency_trackings, dependent: :restrict_with_error
+  has_many :students, through: :student_enrollments
 
   delegate :course_id, :course, to: :grade, prefix: false
 
