@@ -7,7 +7,6 @@ class DataExportationsController < ApplicationController
   end
 
   def create
-    # binding.pry
     backup_type = params[:backup_type].keys[0]
     data_exportation = DataExportation.new
     data_exportation.backup_type = backup_type
