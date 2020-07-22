@@ -62,8 +62,9 @@
             Somente arquivos nos formatos jpeg, jpg, png, gif
           </div>
           <label class="profile-picture-label">
-            <% if @user.profile_picture && @user.profile_picture.url %>
-              <%= image_tag @user.profile_picture_url, id: 'profile-picture-prev', class: 'profile-picture' %>
+            <% if user_avatar_url(@user) %>
+              <%= image_tag user_avatar_url(@user), id: 'profile-picture-prev', class: 'profile-picture',
+                onerror: on_error_img %>
             <% else %>
               <img id="profile-picture-prev">
             <% end %>
