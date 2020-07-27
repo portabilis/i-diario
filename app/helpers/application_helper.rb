@@ -1,7 +1,7 @@
 module ApplicationHelper
   include ActiveSupport::Inflector
 
-  PROFILE_DEFAULT_PICTURE_PATH = 'https://apps-ieducar-images.s3.amazonaws.com/i-diario/profile-default.jpg'.freeze
+  PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
     @unread_notifications_count ||= current_user.unread_notifications.count
