@@ -7,7 +7,8 @@ class IeducarAvatarAuth
   end
 
   def generate_new_url
-    Rails.cache.fetch(['IeducarAvatarAuth#generate_new_url', @url], expires_in: 1.day) do
+    Rails.cache.fetch(['IeducarAvatarAuth#generate_new_url', @url],
+                      expires_in: FOG_AUTHENTICATED_URL_EXPIRATION.seconds) do
       return @url unless @url.include? 's3.amazonaws.com'
 
       uri = URI(@url)
@@ -18,7 +19,7 @@ class IeducarAvatarAuth
       bucket = resource.bucket(bucket_name)
 
       obj = bucket.object(path)
-      obj.presigned_url(:get, expires_in: 24 * 60 * 60) # 24h
+      obj.presigned_url(:get, expires_in: FOG_AUTHENTICATED_URL_EXPIRATION)
     end
   rescue StandardError => error
     Honeybadger.notify(error)
