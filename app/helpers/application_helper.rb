@@ -88,7 +88,7 @@ module ApplicationHelper
   end
 
   def on_error_img
-    "this.error=null;this.src=#{PROFILE_DEFAULT_PICTURE_PATH}"
+    "this.error=null;this.src='#{PROFILE_DEFAULT_PICTURE_PATH}'"
   end
 
   def custom_date_format(date)
