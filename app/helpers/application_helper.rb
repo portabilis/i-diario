@@ -74,7 +74,7 @@ module ApplicationHelper
   def profile_picture_tag(user, profile_picture_html_options = {})
     user_avatar_url = user_avatar_url(user)
 
-    return unless if user_avatar_url
+    return unless user_avatar_url
 
     image_tag(user_avatar_url, profile_picture_html_options.merge(onerror: on_error_img, alt: ''))
   end
