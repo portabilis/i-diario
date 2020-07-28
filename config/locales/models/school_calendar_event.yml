@@ -34,8 +34,6 @@ pt-BR:
               already_exists_event_in_this_date: "Já existe um evento cadastrado de outro tipo nesta data"
             end_date:
               already_exists_event_in_this_date: "Já existe um evento cadastrado de outro tipo nesta data"
-            base:
-              only_one_allowed: 'Não é possível criar mais de um evento do tipo Letivo - permite lançamento pra ser apresentado no Registro de frequência.'
 
   school_calendar_events:
     index:
