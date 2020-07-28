@@ -45,7 +45,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :without_course, -> { where(arel_table[:course_id].eq(nil)) }
   scope :by_period, ->(period) { where(' ? = ANY (periods)', period) }
   scope :by_date, lambda { |date|
-    where('school_calendar_events.start_date <= ? and school_calendar_events.end_date >= ?', date, date)
+    where('school_calendar_events.start_date <= ? and school_calendar_events.end_date >= ?', date.to_date, date.to_date)
   }
   scope :by_date_between, lambda { |start_at, end_at|
     where(
