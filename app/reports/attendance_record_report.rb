@@ -288,7 +288,7 @@ class AttendanceRecordReport < BaseReport
 
     return unless show_school_day_event_description?
 
-    text_box(format_legend(extra_school_event), size: 8, at: [0, event_extra_offset + bottom_offset], width: 825, height: 20)
+    text_box(format_legend(extra_school_events), size: 8, at: [0, event_extra_offset + bottom_offset], width: 825, height: 20)
   end
 
   def content
@@ -412,8 +412,8 @@ class AttendanceRecordReport < BaseReport
     @classroom ||= @daily_frequencies.first.classroom
   end
 
-  def extra_school_event
-    @extra_school_event ||= @school_calendar.events.find { |event|
+  def extra_school_events
+    @extra_school_events ||= @school_calendar.events.select { |event|
       event.event_type == EventTypes::EXTRA_SCHOOL &&
         event.show_in_frequency_record &&
         report_include_event_date?(event)
@@ -421,7 +421,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def show_school_day_event_description?
-    return false unless extra_school_event
+    return false if extra_school_events.empty?
 
     true
   end
@@ -430,7 +430,14 @@ class AttendanceRecordReport < BaseReport
     ((event.start_date..event.end_date).to_a & (@start_at.to_date..@end_at.to_date).to_a).any?
   end
 
-  def format_legend(event)
-    "#{event.description}: #{event.start_date.strftime('%d/%m/%Y')} à #{event.end_date.strftime('%d/%m/%Y')}"
+  def format_legend(events)
+    all_events = []
+
+    events.each do |event|
+      all_events <<
+        "#{event.description}: #{event.start_date.strftime('%d/%m/%Y')} à #{event.end_date.strftime('%d/%m/%Y')}"
+    end
+
+    all_events.join(', ')
   end
 end
