@@ -105,8 +105,7 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         create(
           :classroom,
           :with_classroom_semester_steps,
-          :with_teacher_discipline_classroom,
-          :by_discipline,
+          :with_teacher_discipline_classroom_specific,
           teacher: teacher,
           unity: unities.first
         )
@@ -116,30 +115,38 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
         create(
           :daily_frequency,
           :without_discipline,
+          :with_teacher,
           unity: classroom.unity,
           classroom: classroom,
-          school_calendar: school_calendar
+          school_calendar: school_calendar,
+          teacher: teacher,
         )
       }
       let!(:daily_frequency_2) {
         create(
           :daily_frequency,
           :without_discipline,
+          :with_teacher,
           unity: classroom.unity,
           classroom: classroom,
           school_calendar: school_calendar,
+          teacher: teacher,
           frequency_date: daily_frequency_1.frequency_date.prev_day
         )
       }
       let!(:user) { create(:user, teacher: teacher) }
 
-      it 'needs to adjust to be absence by discipline' do
+      it 'needs to adjust to be absence by discipline when teacher is for a specific area' do
         add_user_to_audit(daily_frequency_1)
         add_user_to_audit(daily_frequency_2)
 
-        expect(subject.daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be true
+        expect(subject.all_daily_frequencies_general.exists?).to be true
+        expect(subject.all_daily_frequencies_by_discipline.exists?).to be false
+
         subject.adjust
-        expect(subject.daily_frequencies_by_type(FrequencyTypes::BY_DISCIPLINE).exists?).to be false
+
+        expect(subject.all_daily_frequencies_general.exists?).to be false
+        expect(subject.all_daily_frequencies_by_discipline.exists?).to be true
       end
     end
   end

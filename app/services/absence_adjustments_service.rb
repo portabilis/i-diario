@@ -11,6 +11,7 @@ class AbsenceAdjustmentsService
   def adjust
     adjust_by_discipline_to_general
     adjust_general_to_by_discipline
+    adjust_general_to_by_discipline_specific_area
   end
 
   def daily_frequencies_by_type(frequency_type)
@@ -23,6 +24,20 @@ class AbsenceAdjustmentsService
     daily_frequencies = daily_frequencies.where(discipline_id: nil) if frequency_type == FrequencyTypes::BY_DISCIPLINE
 
     daily_frequencies
+  end
+
+  def all_daily_frequencies_by_discipline
+    DailyFrequency.joins(:classroom)
+      .where.not(discipline_id: nil)
+      .where('extract(year from frequency_date) = ?', @year)
+      .where(unity_id: @unity_ids)
+  end
+
+  def all_daily_frequencies_general
+    DailyFrequency.joins(:classroom)
+      .where(discipline_id: nil)
+      .where('extract(year from frequency_date) = ?', @year)
+      .where(unity_id: @unity_ids)
   end
 
   private
@@ -71,6 +86,30 @@ class AbsenceAdjustmentsService
         discipline_id: discipline_id,
         class_number: DEFAULT_CLASS_NUMBER
       )
+    end
+  end
+
+  def adjust_general_to_by_discipline_specific_area
+    all_daily_frequencies_general.each do |daily_frequency|
+      teacher = daily_frequency.teacher
+
+      next unless teacher
+
+      daily_frequency.classroom.teacher_discipline_classrooms.by_teacher_id(teacher).where(allow_absence_by_discipline: 1).each do |teacher_discipline_classroom|
+        DailyFrequency.create_with(
+          class_number: DEFAULT_CLASS_NUMBER,
+          period: daily_frequency.period,
+          owner_teacher_id: teacher.id,
+        ).find_or_create_by(
+          unity_id: daily_frequency.unity_id,
+          frequency_date: daily_frequency.frequency_date,
+          school_calendar_id: daily_frequency.school_calendar_id,
+          discipline_id: teacher_discipline_classroom.discipline_id,
+          classroom_id: teacher_discipline_classroom.classroom_id,
+        )
+      end
+
+      daily_frequency.destroy
     end
   end
 
