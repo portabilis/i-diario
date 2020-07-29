@@ -8,10 +8,12 @@ class PartialScoreRecordReportForm
                 :school_calendar_classroom_step_id,
                 :school_calendar_year
 
-  validates :unity_id,      presence: true
-  validates :classroom_id,  presence: true
+  validates :unity_id, presence: true
+  validates :classroom_id, presence: true
   validates :school_calendar_step_id, presence: true, if: :should_validate_presence_of_school_calendar_step
-  validates :school_calendar_classroom_step_id, presence: true, if: :should_validate_presence_of_classroom_school_calendar_step
+  validates :school_calendar_classroom_step_id,
+            presence: true,
+            if: :should_validate_presence_of_classroom_school_calendar_step
 
   validate :must_have_daily_note_students
 
@@ -27,11 +29,11 @@ class PartialScoreRecordReportForm
   def step
     return unless school_calendar_step_id || school_calendar_classroom_step_id
 
-    if classroom.calendar
-      @step ||= SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
-    else
-      @step ||= SchoolCalendarStep.find(school_calendar_step_id)
-    end
+    @step ||= if classroom.calendar
+                SchoolCalendarClassroomStep.find(school_calendar_classroom_step_id)
+              else
+                SchoolCalendarStep.find(school_calendar_step_id)
+              end
   end
 
   def school_calendar
@@ -64,21 +66,18 @@ class PartialScoreRecordReportForm
 
   def exempted_disciplines(student_id)
     return [] unless step
-    StudentEnrollmentExemptedDiscipline.
-      by_student_enrollment(
-        StudentEnrollment.by_student(student_id)
-                     .by_date_range(step.start_at, step.end_at)
-                     .joins(:exempted_disciplines)
-                     .pluck(:id)
-      ).
-      by_step_number(step.to_number)
-      .pluck(:discipline_id)
+
+    StudentEnrollmentExemptedDiscipline.by_student_enrollment(student_enrollments(student_id))
+                                       .by_step_number(step.to_number)
+                                       .pluck(:discipline_id)
   end
 
   def must_have_daily_note_students
-    return unless errors.blank?
+    return if errors.present?
 
-    students_ids.delete_if { |student_id| daily_note_students(student_id).count == 0 }
+    students_ids.delete_if do |student_id|
+      daily_note_students(student_id).count.zero?
+    end
 
     errors.add(:base, :must_have_daily_note_students) if students_ids.empty?
   end
@@ -89,5 +88,12 @@ class PartialScoreRecordReportForm
 
   def should_validate_presence_of_classroom_school_calendar_step
     school_calendar_step_id.blank?
+  end
+
+  def student_enrollments(student_id)
+    StudentEnrollment.by_student(student_id)
+                     .by_date_range(step.start_at, step.end_at)
+                     .joins(:exempted_disciplines)
+                     .pluck(:id)
   end
 end
