@@ -79,7 +79,7 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :full_name, lambda { |full_name| where("unaccent(first_name || ' ' || last_name) ILIKE unaccent(?)", "%#{full_name}%")}
+  scope :full_name, lambda { |full_name| where("fullname ILIKE unaccent(?)", "%#{full_name}%")}
   scope :email, lambda { |email| where("unaccent(email) ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("unaccent(login) ILIKE unaccent(?)", "%#{login}%")}
   scope :status, lambda { |status| where status: status }
