@@ -80,8 +80,8 @@ class User < ActiveRecord::Base
 
   #search scopes
   scope :full_name, lambda { |full_name| where("fullname ILIKE unaccent(?)", "%#{full_name}%")}
-  scope :email, lambda { |email| where("unaccent(email) ILIKE unaccent(?)", "%#{email}%")}
-  scope :login, lambda { |login| where("unaccent(login) ILIKE unaccent(?)", "%#{login}%")}
+  scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
+  scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
