@@ -226,8 +226,7 @@ class AttendanceRecordReport < BaseReport
         sequence += 1
       end
 
-      bottom_offset = @second_teacher_signature ? 8 : 0
-      bottom_offset += 16 if show_school_day_event_description?
+      bottom_offset = @second_teacher_signature ? 24 : 0
       sliced_students_cells = students_cells.each_slice(student_slice_size(students)).to_a
 
       sliced_students_cells.each_with_index do |students_cells_slice, slice_index|
@@ -262,16 +261,20 @@ class AttendanceRecordReport < BaseReport
           end
         end
 
-        draw_bottom(bottom_offset)
+        text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
         start_new_page if slice_index < sliced_students_cells.count - 1
       end
 
-      draw_bottom(bottom_offset)
+      text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
       self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
 
-      start_new_page if index < sliced_frequencies_and_events.count - 1
+      if index < sliced_frequencies_and_events.count - 1
+        start_new_page
+      elsif show_school_day_event_description?
+        text_box(format_legend(extra_school_events), size: 8, at: [0, 50 + bottom_offset], width: 825, height: 20)
+      end
     end
   end
 
