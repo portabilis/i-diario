@@ -67,7 +67,7 @@ class PartialScoreRecordReportForm
   def exempted_disciplines(student_id)
     return [] unless step
 
-    StudentEnrollmentExemptedDiscipline.by_student_enrollment(student_enrollments(student_id))
+    StudentEnrollmentExemptedDiscipline.by_student_enrollment(student_enrollment_ids(student_id))
                                        .by_step_number(step.to_number)
                                        .pluck(:discipline_id)
   end
@@ -90,7 +90,7 @@ class PartialScoreRecordReportForm
     school_calendar_step_id.blank?
   end
 
-  def student_enrollments(student_id)
+  def student_enrollment_ids(student_id)
     StudentEnrollment.by_student(student_id)
                      .by_date_range(step.start_at, step.end_at)
                      .joins(:exempted_disciplines)
