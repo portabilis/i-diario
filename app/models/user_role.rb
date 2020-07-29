@@ -22,7 +22,7 @@ class UserRole < ActiveRecord::Base
 
   scope :user_name, lambda { |user_name|
     joins(:user)
-      .where("unaccent(users.first_name || ' ' || users.last_name) ILIKE unaccent(?)", "%#{user_name}%")
+      .where("fullname ILIKE unaccent(?)", "%#{user_name}%")
   }
   scope :unity_name, ->(unity_name) { joins(:unity).merge(Unity.search_name(unity_name)) }
 
