@@ -3,15 +3,15 @@ require 'action_view'
 class PartialScoreRecordReport < BaseReport
   include ActionView::Helpers::NumberHelper
 
-  def self.build(entity_configuration, year, school_calendar_step, student, unity, classroom, test_setting)
-    new.build(entity_configuration, year, school_calendar_step, student, unity, classroom, test_setting)
+  def self.build(entity_configuration, year, school_calendar_step, students, unity, classroom, test_setting)
+    new.build(entity_configuration, year, school_calendar_step, students, unity, classroom, test_setting)
   end
 
-  def build(entity_configuration, year, school_calendar_step, student, unity, classroom, test_setting)
+  def build(entity_configuration, year, school_calendar_step, students, unity, classroom, test_setting)
     @entity_configuration = entity_configuration
     @year = year
     @school_calendar_step = school_calendar_step
-    @student = student
+    @students = students
     @unity = unity
     @classroom = classroom
     @test_setting = test_setting
@@ -58,14 +58,12 @@ class PartialScoreRecordReport < BaseReport
     header_cell = make_cell(content: 'Identificação', size: 12, font_style: :bold, background_color: 'DEDEDE', height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2)
 
     unity_cell_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
-    student_cell_header = make_cell(content: 'Aluno', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
-    classroom_cell_header = make_cell(content: 'Turma', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
+    classroom_cell_header = make_cell(content: 'Turma', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
     year_cell_header = make_cell(content: 'Ano letivo', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
     step_cell_header = make_cell(content: 'Etapa', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
 
     unity_cell = make_cell(content: @unity.name, size: 10, width: 100, borders: [:left, :right], padding: [0, 2, 4, 4], colspan: 2)
-    student_cell = make_cell(content: @student.name, size: 10, borders: [:left, :right], padding: [0, 2, 4, 4])
-    classroom_cell = make_cell(content: @classroom.description, size: 10, borders: [:left, :right], padding: [0, 2, 4, 4])
+    classroom_cell = make_cell(content: @classroom.description, size: 10, borders: [:left, :right], padding: [0, 2, 4, 4], colspan: 2)
     year_cell = make_cell(content: @year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
     step_cell = make_cell(content: @school_calendar_step.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
 
@@ -73,8 +71,8 @@ class PartialScoreRecordReport < BaseReport
       [header_cell],
       [unity_cell_header],
       [unity_cell],
-      [student_cell_header, classroom_cell_header],
-      [student_cell, classroom_cell],
+      [classroom_cell_header],
+      [classroom_cell],
       [year_cell_header, step_cell_header],
       [year_cell, step_cell]
     ]
@@ -90,7 +88,7 @@ class PartialScoreRecordReport < BaseReport
     move_down GAP
   end
 
-  def disciplines_table
+  def disciplines_table(student)
     disciplines = {}
     subheader_cells = []
 
@@ -104,20 +102,20 @@ class PartialScoreRecordReport < BaseReport
       avaliations.each do |avaliation|
         student_note = nil
 
-        if exempted_avaliation?(@student.id, avaliation.id)
+        if exempted_avaliation?(student.id, avaliation.id)
           student_note = "D"
           @show_dispensation = true
         else
           student_notes = [
               DailyNoteStudent.by_avaliation(avaliation.id)
-                              .by_student_id(@student.id)
+                              .by_student_id(student.id)
                               .first
                               .try(:note),
               AvaliationRecoveryDiaryRecord.by_avaliation_id(avaliation.id)
                               .try(:first)
                               .try(:recovery_diary_record)
                               .try(:students)
-                              .try(:by_student_id, @student.id)
+                              .try(:by_student_id, student.id)
                               .try(:first)
                               .try(:score)
           ].compact
@@ -128,7 +126,7 @@ class PartialScoreRecordReport < BaseReport
 
       complementary_exams = fetch_complementary_exams(discipline.id)
       complementary_exams.each do |complementary_exam|
-        student_score = complementary_exam.students.by_student_id(@student.id).first.try(:score)
+        student_score = complementary_exam.students.by_student_id(student.id).first.try(:score)
         discipline_scores << localize_score(student_score) if student_score
       end
       disciplines[discipline.id] = discipline_scores
@@ -136,7 +134,7 @@ class PartialScoreRecordReport < BaseReport
 
     number_of_scores = disciplines.map { |_key, hash| hash.length }.max
     number_of_scores = 1 if number_of_scores.nil? || number_of_scores.zero?
-    header_cell = make_cell(content: 'Informações gerais', size: 12, font_style: :bold, height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2 + number_of_scores)
+    header_cell = make_cell(content: student.name, size: 12, font_style: :bold, height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2 + number_of_scores)
     subheader_cells << make_cell(content: 'Disciplina', align: :left, size: 8, font_style: :bold, width: 156, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4])
     number_of_scores.times do
       subheader_cells << make_cell(content: 'Nota', align: :center, size: 8, font_style: :bold, borders: [:top, :right, :bottom], padding: [2, 2, 4, 4])
@@ -146,7 +144,7 @@ class PartialScoreRecordReport < BaseReport
     data = [ subheader_cells ]
 
     disciplines.each do |discipline_id, scores|
-      exempted_from_discipline = exempted_from_discipline?(discipline_id)
+      exempted_from_discipline = exempted_from_discipline?(student.id, discipline_id)
       @show_dispensation = true if exempted_from_discipline
       row = []
       discipline = Discipline.find(discipline_id)
@@ -161,7 +159,7 @@ class PartialScoreRecordReport < BaseReport
 
         row << make_cell(content: score, align: :left, size: 10, borders: [:right, :bottom], padding: [4, 4, 4, 4])
       end
-      row << make_cell(content: absences_count(discipline.id).to_s, align: :center, size: 10, font_style: :bold, width: 49, borders: [:right, :bottom], padding: [2, 2, 4, 4])
+      row << make_cell(content: absences_count(student.id, discipline.id).to_s, align: :center, size: 10, font_style: :bold, width: 49, borders: [:right, :bottom], padding: [2, 2, 4, 4])
 
       data << row
     end
@@ -186,15 +184,19 @@ class PartialScoreRecordReport < BaseReport
       end
     end
 
-    move_down 50
-    text('____________________________', size: 8, align: :center)
-    text('Secretário(a) escolar', size: 10, align: :center)
+    move_down 20
   end
 
   def body
     page_content do
       identification
-      disciplines_table
+      @students.each do |student|
+        disciplines_table(student)
+      end
+
+      move_down 50
+      text('____________________________', size: 8, align: :center)
+      text('Secretário(a) escolar', size: 10, align: :center)
     end
   end
 
@@ -211,14 +213,14 @@ class PartialScoreRecordReport < BaseReport
     number_with_precision(value, precision: @test_setting.number_of_decimal_places||1)
   end
 
-  def absences_count(discipline_id)
+  def absences_count(student_id, discipline_id)
     if @classroom.exam_rule.frequency_type == "2"
       DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(
-        @classroom.id, discipline_id, @student.id, @school_calendar_step.start_at, @school_calendar_step.end_at
+        @classroom.id, discipline_id, student_id, @school_calendar_step.start_at, @school_calendar_step.end_at
       ).absences.count
     else
       @global_absences_count ||= DailyFrequencyStudent.general_by_classroom_student_date_between(
-        @classroom.id, @student.id, @school_calendar_step.start_at, @school_calendar_step.end_at
+        @classroom.id, student_id, @school_calendar_step.start_at, @school_calendar_step.end_at
       ).absences.count
     end
   end
@@ -229,19 +231,19 @@ class PartialScoreRecordReport < BaseReport
                        .any?
   end
 
-  def student_enrollment
-    @student_enrollment ||= StudentEnrollment.by_student(@student.id)
+  def student_enrollment(student_id)
+    @student_enrollment ||= StudentEnrollment.by_student(student_id)
                                              .by_date_range(@school_calendar_step.start_at, @school_calendar_step.end_at)
                                              .first
   end
 
-  def exempted_from_discipline?(discipline_id)
-    return false unless student_enrollment
+  def exempted_from_discipline?(student_id, discipline_id)
+    return false unless student_enrollment(student_id)
     step_number = @school_calendar_step.to_number
 
-    student_enrollment.exempted_disciplines.by_discipline(discipline_id)
-                                           .by_step_number(step_number)
-                                           .any?
+    student_enrollment(student_id).exempted_disciplines.by_discipline(discipline_id)
+                                                       .by_step_number(step_number)
+                                                       .any?
   end
 
   def fetch_complementary_exams(discipline_id)

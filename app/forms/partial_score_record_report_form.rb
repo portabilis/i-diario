@@ -3,26 +3,25 @@ class PartialScoreRecordReportForm
 
   attr_accessor :unity_id,
                 :classroom_id,
-                :student_id,
+                :students_ids,
                 :school_calendar_step_id,
                 :school_calendar_classroom_step_id,
                 :school_calendar_year
 
   validates :unity_id,      presence: true
   validates :classroom_id,  presence: true
-  validates :student_id, presence: true
   validates :school_calendar_step_id, presence: true, if: :should_validate_presence_of_school_calendar_step
   validates :school_calendar_classroom_step_id, presence: true, if: :should_validate_presence_of_classroom_school_calendar_step
 
   validate :must_have_daily_note_students
 
-  def daily_note_students
-    @daily_note_students ||= DailyNoteStudent.includes(:daily_note)
-                                             .by_classroom_id(classroom_id)
-                                             .by_student_id(student_id)
-                                             .exclude_discipline_ids(exempted_disciplines)
-                                             .by_test_date_between(step.start_at, step.end_at)
-                                             .order_by_discipline_and_date
+  def daily_note_students(student_id)
+    DailyNoteStudent.includes(:daily_note)
+                    .by_classroom_id(classroom_id)
+                    .by_student_id(student_id)
+                    .exclude_discipline_ids(exempted_disciplines(student_id))
+                    .by_test_date_between(step.start_at, step.end_at)
+                    .order_by_discipline_and_date
   end
 
   def step
@@ -43,10 +42,10 @@ class PartialScoreRecordReportForm
     end
   end
 
-  def student
-    return unless student_id
+  def students
+    return unless students_ids
 
-    @student ||= Student.find(student_id)
+    @students ||= Student.where(id: students_ids)
   end
 
   def classroom
@@ -63,7 +62,7 @@ class PartialScoreRecordReportForm
 
   private
 
-  def exempted_disciplines
+  def exempted_disciplines(student_id)
     return [] unless step
     StudentEnrollmentExemptedDiscipline.
       by_student_enrollment(
@@ -79,9 +78,9 @@ class PartialScoreRecordReportForm
   def must_have_daily_note_students
     return unless errors.blank?
 
-    if daily_note_students.count == 0
-      errors.add(:daily_note_students, :must_have_daily_note_students)
-    end
+    students_ids.delete_if { |student_id| daily_note_students(student_id).count == 0 }
+
+    errors.add(:base, :must_have_daily_note_students) if students_ids.empty?
   end
 
   def should_validate_presence_of_school_calendar_step
