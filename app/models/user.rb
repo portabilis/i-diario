@@ -69,8 +69,8 @@ class User < ActiveRecord::Base
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
 
-  scope :ordered, -> { order(arel_table[:first_name].asc) }
-  scope :email_ordered, -> { order(email: :asc)  }
+  scope :ordered, -> { order(arel_table[:fullname].asc) }
+  scope :email_ordered, -> { order(email: :asc) }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
   scope :with_phone, -> { where(arel_table[:phone].not_eq(nil)).where(arel_table[:phone].not_eq("")) }
   scope :admin, -> { where(arel_table[:admin].eq(true)) }
