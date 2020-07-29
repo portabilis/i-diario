@@ -32,8 +32,8 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
   scope :by_step_year, ->(year) { where('EXTRACT(YEAR FROM start_at) = ?', year) }
   scope :by_date_range, lambda { |start_date, end_date|
     where.not(
-      arel_table[:start_at].gt(end_date).or(
-        arel_table[:end_at].lt(start_date)
+      arel_table[:start_at].gt(end_date.to_date).or(
+        arel_table[:end_at].lt(start_date.to_date)
       )
     )
   }
