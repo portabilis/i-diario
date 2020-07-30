@@ -103,6 +103,8 @@ class AbsenceJustification < ActiveRecord::Base
   end
 
   def period_absence
+    return if absence_date.blank? || absence_date_end.blank?
+
     student_ids.each do |student_id|
       absence_justifications = AbsenceJustification.by_classroom(classroom)
                                                    .by_student_id(student_id)
