@@ -137,16 +137,9 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
       let!(:user) { create(:user, teacher: teacher) }
 
       it 'needs to adjust to be absence by discipline when teacher is for a specific area' do
-        add_user_to_audit(daily_frequency_1)
-        add_user_to_audit(daily_frequency_2)
-
-        expect(subject.all_daily_frequencies_general.exists?).to be true
-        expect(subject.all_daily_frequencies_by_discipline.exists?).to be false
-
+        expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be true
         subject.adjust
-
-        expect(subject.all_daily_frequencies_general.exists?).to be false
-        expect(subject.all_daily_frequencies_by_discipline.exists?).to be true
+        expect(subject.daily_frequencies_general_when_teacher_has_specific_area.exists?).to be false
       end
     end
   end

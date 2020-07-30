@@ -26,18 +26,15 @@ class AbsenceAdjustmentsService
     daily_frequencies
   end
 
-  def all_daily_frequencies_by_discipline
-    DailyFrequency.joins(:classroom)
-      .where.not(discipline_id: nil)
-      .where('extract(year from frequency_date) = ?', @year)
-      .where(unity_id: @unity_ids)
-  end
-
-  def all_daily_frequencies_general
-    DailyFrequency.joins(:classroom)
+  def daily_frequencies_general_when_teacher_has_specific_area
+    DailyFrequency
+      .joins(:classroom)
+      .joins('join teacher_discipline_classrooms on daily_frequencies.classroom_id = teacher_discipline_classrooms.classroom_id and daily_frequencies.owner_teacher_id = teacher_discipline_classrooms.teacher_id and teacher_discipline_classrooms.allow_absence_by_discipline = 1')
+      .merge(Classroom.joins(:exam_rule).where(exam_rules: { frequency_type: FrequencyTypes::GENERAL }))
       .where(discipline_id: nil)
       .where('extract(year from frequency_date) = ?', @year)
       .where(unity_id: @unity_ids)
+      .order(:id)
   end
 
   private
@@ -90,16 +87,16 @@ class AbsenceAdjustmentsService
   end
 
   def adjust_general_to_by_discipline_specific_area
-    all_daily_frequencies_general.each do |daily_frequency|
-      teacher = daily_frequency.teacher
-
-      next unless teacher
-
-      daily_frequency.classroom.teacher_discipline_classrooms.by_teacher_id(teacher).where(allow_absence_by_discipline: 1).each do |teacher_discipline_classroom|
+    daily_frequencies_general_when_teacher_has_specific_area.each do |daily_frequency|
+      daily_frequency
+        .classroom.teacher_discipline_classrooms
+        .by_teacher_id(daily_frequency.owner_teacher_id)
+        .where(allow_absence_by_discipline: 1)
+        .each do |teacher_discipline_classroom|
         DailyFrequency.create_with(
           class_number: DEFAULT_CLASS_NUMBER,
           period: daily_frequency.period,
-          owner_teacher_id: teacher.id,
+          owner_teacher_id: daily_frequency.owner_teacher_id,
         ).find_or_create_by(
           unity_id: daily_frequency.unity_id,
           frequency_date: daily_frequency.frequency_date,
@@ -109,7 +106,7 @@ class AbsenceAdjustmentsService
         )
       end
 
-      daily_frequency.destroy
+      daily_frequency.destroy!
     end
   end
 
