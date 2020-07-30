@@ -66,7 +66,7 @@ class AbsenceJustification < ActiveRecord::Base
     joins(:students).where(absence_justifications_students: { student_id: student_id })
   }
   scope :by_date_range, lambda { |absence_date, absence_date_end|
-    where('(NOT (absence_date > ? OR absence_date_end < ?))', absence_date_end.to_date, absence_date.to_date)
+    where('(NOT (absence_date > ? OR absence_date_end < ?))', absence_date_end.try(:to_date), absence_date.try(:to_date))
   }
   scope :by_unity, ->(unity_id) { where(unity_id: [unity_id, nil]) }
   scope :by_school_calendar, lambda { |school_calendar|
