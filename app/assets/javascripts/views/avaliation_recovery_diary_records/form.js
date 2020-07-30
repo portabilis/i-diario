@@ -67,21 +67,11 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar as avaliações da turma selecionada.');
   };
 
-  function checkFormat(date) {
-    var re = /^\d{2}\/\d{2}\/\d{4}$/;
-
-    if(date != '' && !date.match(re)) {
-      return false;
-    }
-
-    return true;
-  }
-
   function fetchStudents() {
     var avaliation_id = $avaliation.select2('val');
     var recorded_at = $recorded_at.val();
 
-    if(!checkFormat(recorded_at)){
+    if(!isValidDate(recorded_at)){
       return;
     }
 
