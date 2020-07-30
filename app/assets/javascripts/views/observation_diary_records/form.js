@@ -101,7 +101,7 @@ $(function () {
     fetchExamRule();
   });
 
-  $date.on('change', function() {
+  $date.on('valid-date', function() {
     fetchStudents();
   });
 
