@@ -57,7 +57,7 @@ module Turnip
     step 'poderei excluir um evento do calendário letivo' do
       within '#resources > tbody > tr:nth-child(1)' do
         wait_for(page).to have_content "Ano Novo"
-        click_link "Excluir"
+        accept_alert { click_link "Excluir" }
       end
 
       wait_for(page).to have_content 'Evento do calendário letivo foi apagado com sucesso'
