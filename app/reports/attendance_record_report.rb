@@ -278,22 +278,6 @@ class AttendanceRecordReport < BaseReport
     end
   end
 
-  def draw_bottom(bottom_offset)
-    legend_extra_offset = 50
-    event_extra_offset = 30
-
-    unless @second_teacher_signature
-      legend_extra_offset -= 20
-      event_extra_offset -= 20
-    end
-
-    text_box(self.legend, size: 8, at: [0, legend_extra_offset + bottom_offset], width: 825, height: 20)
-
-    return unless show_school_day_event_description?
-
-    text_box(format_legend(extra_school_events), size: 8, at: [0, event_extra_offset + bottom_offset], width: 825, height: 20)
-  end
-
   def content
     daily_frequencies_table
   end
