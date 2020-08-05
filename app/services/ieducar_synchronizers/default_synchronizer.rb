@@ -50,7 +50,14 @@ class DefaultSynchronizer
 
   def years_to_synchronize
     @years_to_synchronize ||= begin
-      years = Unity.with_api_code .joins(:school_calendars) .pluck('school_calendars.year') .uniq .compact .sort .reverse
+      years = Unity.with_api_code
+                   .joins(:school_calendars)
+                   .pluck('school_calendars.year')
+                   .uniq
+                   .compact
+                   .sort
+                   .reverse
+
       years = slice_years(years) if current_years
 
       years
