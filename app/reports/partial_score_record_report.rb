@@ -16,6 +16,7 @@ class PartialScoreRecordReport < BaseReport
     @classroom = classroom
     @test_setting = test_setting
     @show_dispensation = false
+    @display_header_on_all_reports_pages = true
 
     header
     body
@@ -54,16 +55,18 @@ class PartialScoreRecordReport < BaseReport
     end
   end
 
-  def identification
+  def identification(student)
     header_cell = make_cell(content: 'Identificação', size: 12, font_style: :bold, background_color: 'DEDEDE', height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2)
 
     unity_cell_header = make_cell(content: 'Unidade', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
-    classroom_cell_header = make_cell(content: 'Turma', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4], colspan: 2)
+    student_cell_header = make_cell(content: 'Aluno', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
+    classroom_cell_header = make_cell(content: 'Turma', size: 8, font_style: :bold, width: 100, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
     year_cell_header = make_cell(content: 'Ano letivo', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
     step_cell_header = make_cell(content: 'Etapa', size: 8, font_style: :bold, borders: [:top, :left, :right], padding: [2, 2, 4, 4])
 
     unity_cell = make_cell(content: @unity.name, size: 10, width: 100, borders: [:left, :right], padding: [0, 2, 4, 4], colspan: 2)
-    classroom_cell = make_cell(content: @classroom.description, size: 10, borders: [:left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    student_cell = make_cell(content: student.name, size: 10, borders: [:left, :right], padding: [0, 2, 4, 4])
+    classroom_cell = make_cell(content: @classroom.description, size: 10, borders: [:left, :right], padding: [0, 2, 4, 4])
     year_cell = make_cell(content: @year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
     step_cell = make_cell(content: @school_calendar_step.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4])
 
@@ -71,8 +74,8 @@ class PartialScoreRecordReport < BaseReport
       [header_cell],
       [unity_cell_header],
       [unity_cell],
-      [classroom_cell_header],
-      [classroom_cell],
+      [student_cell_header, classroom_cell_header],
+      [student_cell, classroom_cell],
       [year_cell_header, step_cell_header],
       [year_cell, step_cell]
     ]
@@ -134,7 +137,7 @@ class PartialScoreRecordReport < BaseReport
 
     number_of_scores = disciplines.map { |_key, hash| hash.length }.max
     number_of_scores = 1 if number_of_scores.nil? || number_of_scores.zero?
-    header_cell = make_cell(content: student.name, size: 12, font_style: :bold, height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2 + number_of_scores)
+    header_cell = make_cell(content: 'Informações gerais', size: 12, font_style: :bold, height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2 + number_of_scores)
     subheader_cells << make_cell(content: 'Disciplina', align: :left, size: 8, font_style: :bold, width: 156, borders: [:top, :left, :right, :bottom], padding: [2, 2, 4, 4])
     number_of_scores.times do
       subheader_cells << make_cell(content: 'Nota', align: :center, size: 8, font_style: :bold, borders: [:top, :right, :bottom], padding: [2, 2, 4, 4])
@@ -164,8 +167,6 @@ class PartialScoreRecordReport < BaseReport
       data << row
     end
 
-    start_new_page if cursor < 46 || (cursor - disciplines.size * 30) < 46
-
     table([[header_cell]], row_colors: ['DEDEDE'], width: bounds.width) do |t|
       t.cells.border_width = 0.25
       t.before_rendering_page do |page|
@@ -186,19 +187,19 @@ class PartialScoreRecordReport < BaseReport
       end
     end
 
-    move_down 20
+    move_down 50
+    text('____________________________', size: 8, align: :center)
+    text('Secretário(a) escolar', size: 10, align: :center)
   end
 
   def body
     page_content do
-      identification
-      @students.each do |student|
+      @students.each_with_index do |student, index|
+        identification(student)
         disciplines_table(student)
-      end
 
-      move_down 50
-      text('____________________________', size: 8, align: :center)
-      text('Secretário(a) escolar', size: 10, align: :center)
+        start_new_page if index != @students.size - 1
+      end
     end
   end
 
