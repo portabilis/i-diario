@@ -273,7 +273,17 @@ class AttendanceRecordReport < BaseReport
       if index < sliced_frequencies_and_events.count - 1
         start_new_page
       elsif show_school_day_event_description?
-        text_box_overflow_to_new_page(format_legend(extra_school_events), 8, [0, 50 + bottom_offset], 825, 20)
+        events = format_legend(extra_school_events)
+        height = 20
+        at = [0, 50 + bottom_offset]
+
+        if events.size > 485
+          height = bounds.height
+          at = [0, height]
+          start_new_page
+        end
+
+        text_box_overflow_to_new_page(events, 8, at, 825, height)
       end
     end
   end
