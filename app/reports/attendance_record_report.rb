@@ -421,8 +421,13 @@ class AttendanceRecordReport < BaseReport
     all_events = []
 
     events.each do |event|
-      all_events <<
-        "#{event.description}: #{event.start_date.strftime('%d/%m/%Y')} à #{event.end_date.strftime('%d/%m/%Y')}"
+      event_date = if event.start_date == event.end_date
+                     event.start_date.strftime('%d/%m/%Y').to_s
+                   else
+                     "#{event.start_date.strftime('%d/%m/%Y')} à #{event.end_date.strftime('%d/%m/%Y')}"
+                   end
+
+      all_events << "#{event.description}: #{event_date}"
     end
 
     all_events.join(', ')
