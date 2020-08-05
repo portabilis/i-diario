@@ -103,6 +103,7 @@ group :test do
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
   gem 'pry', '0.10.3'
   gem 'rspec-rails', '3.4.0'
+  gem 'rspec-retry', '0.6.2 '
   gem 'rspec-sidekiq', '3.0.3'
   gem 'rspec-wait', '0.0.9'
   gem 'selenium-webdriver', '~> 3.0'
