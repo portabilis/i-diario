@@ -12,7 +12,7 @@ class UnitiesSynchronizerWorker < BaseSynchronizerWorker
         worker_state_id,
         synchronization.id,
         @worker_batch.id,
-        params[:last_two_years]
+        params[:current_years]
       )
       UnitiesSynchronizer.synchronize!(params)
     end
@@ -27,7 +27,7 @@ class UnitiesSynchronizerWorker < BaseSynchronizerWorker
     )
   end
 
-  def build_params(entity_id, worker_state_id, synchronization_id, worker_batch_id, last_two_years)
+  def build_params(entity_id, worker_state_id, synchronization_id, worker_batch_id, current_years)
     {
       entity_id: entity_id,
       worker_state_id: worker_state_id,
@@ -37,7 +37,7 @@ class UnitiesSynchronizerWorker < BaseSynchronizerWorker
       filtered_by_unity: false,
       synchronization_id: synchronization_id,
       worker_batch_id: worker_batch_id,
-      last_two_years: last_two_years
+      current_years: current_years
     }
   end
 end
