@@ -164,6 +164,8 @@ class PartialScoreRecordReport < BaseReport
       data << row
     end
 
+    start_new_page if cursor < 46 || (cursor - disciplines.size * 30) < 46
+
     table([[header_cell]], row_colors: ['DEDEDE'], width: bounds.width) do |t|
       t.cells.border_width = 0.25
       t.before_rendering_page do |page|
