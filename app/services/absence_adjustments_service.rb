@@ -95,7 +95,6 @@ class AbsenceAdjustmentsService
         .each do |teacher_discipline_classroom|
         DailyFrequency.create_with(
           class_number: DEFAULT_CLASS_NUMBER,
-          period: daily_frequency.period,
           owner_teacher_id: daily_frequency.owner_teacher_id,
         ).find_or_create_by(
           unity_id: daily_frequency.unity_id,
@@ -103,6 +102,7 @@ class AbsenceAdjustmentsService
           school_calendar_id: daily_frequency.school_calendar_id,
           discipline_id: teacher_discipline_classroom.discipline_id,
           classroom_id: teacher_discipline_classroom.classroom_id,
+          period: daily_frequency.period,
         )
       end
 
