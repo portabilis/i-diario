@@ -85,6 +85,12 @@ dos serviços ou o mapeamento dos volumes extras para a aplicação.
 sudo apt install libpq-dev
 ```
 
+- Instale Redis
+
+```bash
+sudo apt install redis-server
+```
+
 - Instale a gem Bundler:
 
 ```bash
