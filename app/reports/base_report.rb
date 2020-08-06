@@ -110,4 +110,23 @@ class BaseReport
       start_new_page if information.present?
     end while information.present?
   end
+
+  def text_box_overflow_to_new_page(information, size, at, width, height)
+    begin
+      information = text_box(
+        information,
+        size: size,
+        at: at,
+        width: width,
+        height: height,
+        overflow: :truncate
+      )
+
+      if information.present?
+        start_new_page
+        at = nil
+        height = bounds.height
+      end
+    end while information.present?
+  end
 end
