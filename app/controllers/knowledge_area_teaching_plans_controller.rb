@@ -176,26 +176,30 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def contents
     @contents = []
 
-    if @knowledge_area_teaching_plan.teaching_plan.contents
-      contents = @knowledge_area_teaching_plan.teaching_plan.contents_ordered
-      contents.each { |content| content.is_editable = true }
-      @contents << contents
+    if ['edit', 'show'].include?(params[:action])
+      if @knowledge_area_teaching_plan.teaching_plan.contents
+        @contents = @knowledge_area_teaching_plan.teaching_plan.contents_ordered
+      end
+    else
+      @contents = Content.find(@knowledge_area_teaching_plan.teaching_plan.content_ids)
     end
 
-    @contents.flatten.uniq
+    @contents = @contents.each { |content| content.is_editable = true }.uniq
   end
   helper_method :contents
 
   def objectives
     @objectives = []
 
-    if @knowledge_area_teaching_plan.teaching_plan.objectives
-      objectives = @knowledge_area_teaching_plan.teaching_plan.objectives_ordered
-      objectives.each { |objective| objective.is_editable = true }
-      @objectives << objectives
+    if ['edit', 'show'].include?(params[:action])
+      if @knowledge_area_teaching_plan.teaching_plan.objectives
+        @objectives = @knowledge_area_teaching_plan.teaching_plan.objectives_ordered
+      end
+    else
+      @objectives = Objective.find(@knowledge_area_teaching_plan.teaching_plan.objective_ids)
     end
 
-    @objectives.flatten.uniq
+    @objectives = @objectives.each { |objective| objective.is_editable = true }.uniq
   end
   helper_method :objectives
 
