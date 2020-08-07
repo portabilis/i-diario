@@ -58,6 +58,8 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   private
 
   def uniqueness_of_discipline_teaching_plan
+    return if teaching_plan.school_term_type.blank?
+
     discipline_teaching_plans = DisciplineTeachingPlan.by_year(teaching_plan.year)
                                                       .by_unity(teaching_plan.unity)
                                                       .by_teacher_id(teaching_plan.teacher_id)

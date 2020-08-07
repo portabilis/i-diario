@@ -109,6 +109,8 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   end
 
   def uniqueness_of_knowledge_area_teaching_plan
+    return if teaching_plan.school_term_type.blank?
+
     knowledge_area_teaching_plans = KnowledgeAreaTeachingPlan.by_year(teaching_plan.year)
       .by_unity(teaching_plan.unity)
       .by_teacher_id(teaching_plan.teacher_id)
