@@ -26,6 +26,10 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 
+  config.verbose_retry = true
+  config.default_retry_count = 3
+  config.exceptions_to_retry = [Net::ReadTimeout]
+
   # RSpec Rails can automatically mix in different behaviours to your tests
   # based on their file location, for example enabling you to call `get` and
   # `post` in specs under `spec/controllers`.

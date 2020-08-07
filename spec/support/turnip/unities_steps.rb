@@ -73,7 +73,7 @@ module Turnip
 
     step "poderei excluir uma unidade" do
       wait_for(page).to have_content 'Escola Z'
-      click_on 'Excluir Escola Z'
+      accept_alert { click_on 'Excluir Escola Z' }
 
       wait_for(page).to have_content "Unidade foi apagada com sucesso"
 
