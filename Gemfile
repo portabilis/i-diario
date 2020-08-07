@@ -32,7 +32,7 @@ gem 'handlebars_assets', '0.23.2'
 gem 'has_scope', '0.5.1'
 gem 'honeybadger', '4.5.6'
 gem 'i18n_alchemy', '0.2.1', git: 'https://github.com/giustin/i18n_alchemy.git', branch: 'master', tag: 'v0.2.1'
-gem 'jbuilder', '2.2.16'
+gem 'jbuilder', '2.9.1'
 gem 'js-routes', '1.4.9'
 gem 'kaminari', '0.16.3'
 gem 'less-rails', '3.0.0'
@@ -78,6 +78,9 @@ gem 'public_suffix', '3.0.3'
 gem 'dry-inflector', '0.1.2'
 gem 'launchy', '2.4.3'
 gem 'signet', '0.11.0'
+
+# Adiciona gem de dependencia para fixar a versão e remover warning
+gem 'thor', '0.19.1'
 
 instance_eval File.read('Gemfile.plugins') if File.exists?('Gemfile.plugins')
 
