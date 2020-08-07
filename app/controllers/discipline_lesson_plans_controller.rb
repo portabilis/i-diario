@@ -210,7 +210,7 @@ class DisciplineLessonPlansController < ApplicationController
   def contents
     @contents = []
 
-    if params[:action] == 'edit'
+    if ['edit', 'show'].include?(params[:action])
       @contents = @discipline_lesson_plan.lesson_plan.contents_ordered if @discipline_lesson_plan.contents
     else
       @contents = Content.find(@discipline_lesson_plan.lesson_plan.content_ids)
@@ -223,7 +223,7 @@ class DisciplineLessonPlansController < ApplicationController
   def objectives
     @objectives = []
 
-    if params[:action] == 'edit'
+    if ['edit', 'show'].include?(params[:action])
       if @discipline_lesson_plan.lesson_plan.objectives
         @objectives = @discipline_lesson_plan.lesson_plan.objectives_ordered
       end
