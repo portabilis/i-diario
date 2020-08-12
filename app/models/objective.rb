@@ -7,6 +7,9 @@ class Objective < ActiveRecord::Base
   validates :description, presence: true
 
   scope :ordered, -> { order(arel_table[:description].asc) }
+  scope :find_and_order_by_id_sequence, lambda { |ids|
+    joins("join unnest('{#{ids.join(',')}}'::int[]) WITH ORDINALITY t(id, ord) USING (id)").order('t.ord')
+  }
 
   attr_accessor :is_editable
 

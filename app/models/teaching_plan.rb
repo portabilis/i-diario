@@ -44,7 +44,7 @@ class TeachingPlan < ActiveRecord::Base
   scope :by_teacher_id, ->(teacher_id) { where(teacher_id: teacher_id) }
   scope :by_year, ->(year) { where(year: year) }
 
-  attr_accessor :grade_ids, :contents_created_at_position
+  attr_accessor :grade_ids, :contents_created_at_position, :objectives_created_at_position
 
   def to_s
     return discipline_teaching_plan.discipline.to_s if discipline_teaching_plan
@@ -64,7 +64,7 @@ class TeachingPlan < ActiveRecord::Base
   end
 
   def objectives_ordered
-    objectives.order('objectives_teaching_plans.id')
+    objectives.order('objectives_teaching_plans.position')
   end
 
   def school_term_humanize

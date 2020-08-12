@@ -148,15 +148,29 @@ class DisciplineTeachingPlansController < ApplicationController
       content.id
     }
 
-    @ordered_ids = param_content_ids + new_contents_ids
+    @ordered_content_ids = param_content_ids + new_contents_ids
   end
 
   def objective_ids
     param_objective_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:objective_ids] || []
     objective_descriptions =
       params[:discipline_teaching_plan][:teaching_plan_attributes][:objective_descriptions] || []
-    new_objectives_ids = objective_descriptions.map { |value| Objective.find_or_create_by!(description: value).id }
-    param_objective_ids + new_objectives_ids
+
+    @discipline_teaching_plan.teaching_plan.objectives_created_at_position = {}
+
+    param_objective_ids.each_with_index do |objective_id, index|
+      @discipline_teaching_plan.teaching_plan.objectives_created_at_position[objective_id.to_i] = index
+    end
+
+    global_index = param_objective_ids.empty? ? 0 : param_objective_ids.size
+
+    new_objectives_ids = objective_descriptions.each_with_index.map { |description, index|
+      objective = Objective.find_or_create_by!(description: description)
+      @discipline_teaching_plan.teaching_plan.objectives_created_at_position[objective.id] = global_index + index
+      objective.id
+    }
+
+    @ordered_objective_ids = param_objective_ids + new_objectives_ids
   end
 
   def resource_params
@@ -189,8 +203,8 @@ class DisciplineTeachingPlansController < ApplicationController
 
     return @contents if @discipline_teaching_plan.teaching_plan.content_ids.blank?
 
-    @contents = if @ordered_ids.present?
-                  Content.find_and_order_by_id_sequence(@ordered_ids)
+    @contents = if @ordered_content_ids.present?
+                  Content.find_and_order_by_id_sequence(@ordered_content_ids)
                 else
                   @discipline_teaching_plan.teaching_plan.contents_ordered
                 end
@@ -202,13 +216,13 @@ class DisciplineTeachingPlansController < ApplicationController
   def objectives
     @objectives = []
 
-    if ['edit', 'show'].include?(params[:action])
-      if @discipline_teaching_plan.teaching_plan.objectives
-        @objectives = @discipline_teaching_plan.teaching_plan.objectives_ordered
-      end
-    else
-      @objectives = Objective.find(@discipline_teaching_plan.teaching_plan.objective_ids)
-    end
+    return @objectives if @discipline_teaching_plan.teaching_plan.objective_ids.blank?
+
+    @objectives = if @ordered_objective_ids.present?
+                    Objective.find_and_order_by_id_sequence(@ordered_objective_ids)
+                  else
+                    @discipline_teaching_plan.teaching_plan.objectives_ordered
+                  end
 
     @objectives = @objectives.each { |objective| objective.is_editable = true }.uniq
   end
