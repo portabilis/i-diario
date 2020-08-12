@@ -25,7 +25,7 @@ class SynchronizerBuilderEnqueueWorker
       :entity_id,
       :year,
       :unity_api_code,
-      :last_two_years
+      :current_years
     ).merge(
       synchronization: synchronization
     )
