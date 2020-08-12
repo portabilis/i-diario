@@ -38,6 +38,11 @@ FactoryGirl.define do
         classroom = evaluator.classroom || create(:classroom, grade: teaching_plan.grade)
         discipline = evaluator.discipline || create(:discipline)
 
+        teaching_plan.contents_created_at_position = {}
+        evaluator.contents.each_with_index do |content, index|
+          teaching_plan.contents_created_at_position[content.id] = index
+        end
+
         create(
           :teacher_discipline_classroom,
           teacher: teaching_plan.teacher,
