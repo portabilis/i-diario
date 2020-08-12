@@ -132,16 +132,44 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def content_ids
     param_content_ids = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:content_ids] || []
     content_descriptions = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:content_descriptions] || []
-    new_contents_ids = content_descriptions.map{|v| Content.find_or_create_by!(description: v).id }
-    param_content_ids + new_contents_ids
+
+    @knowledge_area_teaching_plan.teaching_plan.contents_created_at_position = {}
+
+    param_content_ids.each_with_index do |content_id, index|
+      @knowledge_area_teaching_plan.teaching_plan.contents_created_at_position[content_id.to_i] = index
+    end
+
+    global_index = param_content_ids.empty? ? 0 : param_content_ids.size
+
+    new_contents_ids = content_descriptions.each_with_index.map { |description, index|
+      content = Content.find_or_create_by!(description: description)
+      @knowledge_area_teaching_plan.teaching_plan.contents_created_at_position[content.id] = global_index + index
+      content.id
+    }
+
+    @ordered_content_ids = param_content_ids + new_contents_ids
   end
 
   def objective_ids
     param_objective_ids = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:objective_ids] || []
     objective_descriptions =
       params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:objective_descriptions] || []
-    new_objectives_ids = objective_descriptions.map { |value| Objective.find_or_create_by!(description: value).id }
-    param_objective_ids + new_objectives_ids
+
+    @knowledge_area_teaching_plan.teaching_plan.objectives_created_at_position = {}
+
+    param_objective_ids.each_with_index do |objective_id, index|
+      @knowledge_area_teaching_plan.teaching_plan.objectives_created_at_position[objective_id.to_i] = index
+    end
+
+    global_index = param_objective_ids.empty? ? 0 : param_objective_ids.size
+
+    new_objectives_ids = objective_descriptions.each_with_index.map { |description, index|
+      objective = Objective.find_or_create_by!(description: description)
+      @knowledge_area_teaching_plan.teaching_plan.objectives_created_at_position[objective.id] = global_index + index
+      objective.id
+    }
+
+    @ordered_objective_ids = param_objective_ids + new_objectives_ids
   end
 
   def resource_params
@@ -176,13 +204,13 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def contents
     @contents = []
 
-    if ['edit', 'show'].include?(params[:action])
-      if @knowledge_area_teaching_plan.teaching_plan.contents
-        @contents = @knowledge_area_teaching_plan.teaching_plan.contents_ordered
-      end
-    else
-      @contents = Content.find(@knowledge_area_teaching_plan.teaching_plan.content_ids)
-    end
+    return @contents if @knowledge_area_teaching_plan.teaching_plan.content_ids.blank?
+
+    @contents = if @ordered_content_ids.present?
+                  Content.find_and_order_by_id_sequence(@ordered_content_ids)
+                else
+                  @knowledge_area_teaching_plan.teaching_plan.contents_ordered
+                end
 
     @contents = @contents.each { |content| content.is_editable = true }.uniq
   end
@@ -191,13 +219,13 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def objectives
     @objectives = []
 
-    if ['edit', 'show'].include?(params[:action])
-      if @knowledge_area_teaching_plan.teaching_plan.objectives
-        @objectives = @knowledge_area_teaching_plan.teaching_plan.objectives_ordered
-      end
-    else
-      @objectives = Objective.find(@knowledge_area_teaching_plan.teaching_plan.objective_ids)
-    end
+    return @objectives if @knowledge_area_teaching_plan.teaching_plan.objective_ids.blank?
+
+    @objectives = if @ordered_objective_ids.present?
+                    Objective.find_and_order_by_id_sequence(@ordered_objective_ids)
+                  else
+                    @knowledge_area_teaching_plan.teaching_plan.objectives_ordered
+                  end
 
     @objectives = @objectives.each { |objective| objective.is_editable = true }.uniq
   end
