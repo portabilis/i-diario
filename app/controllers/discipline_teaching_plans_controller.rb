@@ -133,8 +133,22 @@ class DisciplineTeachingPlansController < ApplicationController
   def content_ids
     param_content_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_ids] || []
     content_descriptions = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_descriptions] || []
-    new_contents_ids = content_descriptions.map{|v| Content.find_or_create_by!(description: v).id }
-    param_content_ids + new_contents_ids
+
+    @discipline_teaching_plan.teaching_plan.contents_created_at_position = {}
+
+    param_content_ids.each_with_index do |content_id, index|
+      @discipline_teaching_plan.teaching_plan.contents_created_at_position[content_id.to_i] = index
+    end
+
+    global_index = param_content_ids.empty? ? 0 : param_content_ids.size
+
+    new_contents_ids = content_descriptions.each_with_index.map { |description, index|
+      content = Content.find_or_create_by!(description: description)
+      @discipline_teaching_plan.teaching_plan.contents_created_at_position[content.id] = global_index + index
+      content.id
+    }
+
+    @ordered_ids = param_content_ids + new_contents_ids
   end
 
   def objective_ids
@@ -173,13 +187,13 @@ class DisciplineTeachingPlansController < ApplicationController
   def contents
     @contents = []
 
-    if ['edit', 'show'].include?(params[:action])
-      if @discipline_teaching_plan.teaching_plan.contents
-        @contents = @discipline_teaching_plan.teaching_plan.contents_ordered
-      end
-    else
-      @contents = Content.find(@discipline_teaching_plan.teaching_plan.content_ids)
-    end
+    return @contents if @discipline_teaching_plan.teaching_plan.content_ids.blank?
+
+    @contents = if @ordered_ids.present?
+                  Content.find_and_order_by_id_sequence(@ordered_ids)
+                else
+                  @discipline_teaching_plan.teaching_plan.contents_ordered
+                end
 
     @contents = @contents.each { |content| content.is_editable = true }.uniq
   end
