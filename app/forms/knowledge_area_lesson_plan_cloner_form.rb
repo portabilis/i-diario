@@ -20,7 +20,18 @@ class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
             new_lesson_plan.lesson_plan.teacher = teacher
             new_lesson_plan.knowledge_areas = knowledge_area_lesson_plan.knowledge_areas
             new_lesson_plan.lesson_plan.original_contents = knowledge_area_lesson_plan.lesson_plan.contents
+            new_lesson_plan.lesson_plan.contents_created_at_position = {}
+
+            new_lesson_plan.lesson_plan.original_contents.each_with_index do |content, position|
+              new_lesson_plan.lesson_plan.contents_created_at_position[content.id] = position
+            end
+
             new_lesson_plan.lesson_plan.original_objectives = knowledge_area_lesson_plan.lesson_plan.objectives
+            new_lesson_plan.lesson_plan.objectives_created_at_position = {}
+            new_lesson_plan.lesson_plan.original_objectives.each_with_index do |objective, position|
+              new_lesson_plan.lesson_plan.objectives_created_at_position[objective.id] = position
+            end
+
             new_lesson_plan.lesson_plan.start_at = item.start_at
             new_lesson_plan.lesson_plan.end_at = item.end_at
             new_lesson_plan.lesson_plan.classroom = @classrooms.find_by_id(item.classroom_id)
