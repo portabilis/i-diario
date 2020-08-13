@@ -163,11 +163,10 @@ class DisciplineLessonPlansController < ApplicationController
       @discipline_lesson_plan.lesson_plan.contents_created_at_position[content_id.to_i] = index
     end
 
-    global_index = param_content_ids.empty? ? 0 : param_content_ids.size
-
     new_contents_ids = content_descriptions.each_with_index.map { |description, index|
       content = Content.find_or_create_by!(description: description)
-      @discipline_lesson_plan.lesson_plan.contents_created_at_position[content.id] = global_index + index
+      @discipline_lesson_plan.lesson_plan.contents_created_at_position[content.id] = param_content_ids.size + index
+
       content.id
     }
 
@@ -185,11 +184,11 @@ class DisciplineLessonPlansController < ApplicationController
       @discipline_lesson_plan.lesson_plan.objectives_created_at_position[objective_id.to_i] = index
     end
 
-    global_index = param_objective_ids.empty? ? 0 : param_objective_ids.size
-
     new_objectives_ids = objective_descriptions.each_with_index.map { |description, index|
       objective = Objective.find_or_create_by!(description: description)
-      @discipline_lesson_plan.lesson_plan.objectives_created_at_position[objective.id] = global_index + index
+      @discipline_lesson_plan.lesson_plan.objectives_created_at_position[objective.id] =
+        param_objective_ids.size + index
+
       objective.id
     }
 
