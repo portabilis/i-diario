@@ -6,4 +6,12 @@ class ContentsLessonPlan < ActiveRecord::Base
 
   belongs_to :lesson_plan
   belongs_to :content
+
+  before_save :set_position
+
+  private
+
+  def set_position
+    self.position = lesson_plan.contents_created_at_position[content.id]
+  end
 end

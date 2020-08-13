@@ -9,6 +9,13 @@ FactoryGirl.define do
     school_term Bimesters::FIRST_BIMESTER
     contents { [create(:content)] }
 
+    before(:create) do |teaching_plan, evaluator|
+      teaching_plan.contents_created_at_position = {}
+      evaluator.contents.each_with_index do |content, index|
+        teaching_plan.contents_created_at_position[content.id] = index
+      end
+    end
+
     transient do
       classroom nil
       discipline nil
@@ -30,6 +37,11 @@ FactoryGirl.define do
         teaching_plan.teacher_id ||= teaching_plan.teacher.id
         classroom = evaluator.classroom || create(:classroom, grade: teaching_plan.grade)
         discipline = evaluator.discipline || create(:discipline)
+
+        teaching_plan.contents_created_at_position = {}
+        evaluator.contents.each_with_index do |content, index|
+          teaching_plan.contents_created_at_position[content.id] = index
+        end
 
         create(
           :teacher_discipline_classroom,

@@ -20,6 +20,9 @@ class Content < ActiveRecord::Base
   }
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_id, -> { order(id: :asc) }
+  scope :find_and_order_by_id_sequence, lambda { |ids|
+    joins("join unnest('{#{ids.join(',')}}'::int[]) WITH ORDINALITY t(id, ord) USING (id)").order('t.ord')
+  }
 
   after_save :update_description_token
 

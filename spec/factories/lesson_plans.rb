@@ -5,6 +5,13 @@ FactoryGirl.define do
 
     contents { [create(:content)] }
 
+    before(:create) do |lesson_plan, evaluator|
+      lesson_plan.contents_created_at_position = {}
+      evaluator.contents.each_with_index do |content, index|
+        lesson_plan.contents_created_at_position[content.id] = index
+      end
+    end
+
     transient do
       step nil
       discipline nil
