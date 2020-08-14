@@ -55,11 +55,15 @@
           Sincronizando
         <% end %>
       <% else %>
-        <%= link_to t('.full_synchronization'), ieducar_api_configurations_synchronizations_path(full: true),
-          method: 'post', class: 'btn bg-color-red txt-color-white pull-right', style: 'margin-top: 20px; margin-left: 10px;' if current_user.admin? %>
+        <% if current_user.admin? %>
+          <%= link_to(t('.full_synchronization'), ieducar_api_configurations_synchronizations_path(full: true),
+            method: 'post', class: 'btn bg-color-red txt-color-white pull-right',
+            style: 'margin-top: 20px; margin-left: 10px;', data: { disable_with: t('.sending') }) %>
+        <% end %>
 
         <%= link_to t('.synchronize'), ieducar_api_configurations_synchronizations_path, method: 'post',
-          class: 'btn bg-color-red txt-color-white pull-right', style: 'margin-top: 20px;' %>
+          class: 'btn bg-color-red txt-color-white pull-right', style: 'margin-top: 20px;',
+          data: { disable_with: t('.sending') } %>
       <% end %>
     <% end %>
 

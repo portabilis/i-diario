@@ -73,8 +73,10 @@
         </div>
         <div class="row textarea contents-select2-container">
           <div class="col col-sm-12">
+            <% translation = Translator.t('activerecord.attributes.discipline_content_record.contents') %>
             <%= content_record.input :contents_tags,
                 as: :string,
+                label: "Adicionar novo #{translation}",
                 input_html: {
                   class: 'select2-content-tags-ajax',
                   value: '',

@@ -7,6 +7,10 @@ module RoleHelper
     'pedagogical_trackings'
   ].freeze
 
+  def features_yes_or_no
+    FEATURES_YES_OR_NO
+  end
+
   def access_level_tags(role_permission)
     tags = ''
     AccessLevel.list.each do |access_level|
@@ -16,6 +20,6 @@ module RoleHelper
   end
 
   def permissions(feature)
-    FEATURES_YES_OR_NO.include?(feature) ? PermissionsYesOrNo.to_select.to_json : Permissions.to_select.to_json
+    features_yes_or_no.include?(feature) ? PermissionsYesOrNo.to_select.to_json : Permissions.to_select.to_json
   end
 end

@@ -4,7 +4,7 @@ pt-BR:
       partial_score_record_report_form:
         unity_id: "Escola"
         classroom_id: "Turma"
-        student_id: "Aluno"
+        students_ids: "Aluno"
         school_calendar_step_id: "Etapa"
         school_calendar_classroom_step_id: "Etapa da turma"
 
@@ -12,5 +12,5 @@ pt-BR:
       models:
         partial_score_record_report_form:
           attributes:
-            daily_note_students:
+            base:
               must_have_daily_note_students: "Nenhum resultado foi encontrado para os dados informados"

@@ -354,3 +354,63 @@ nav ul span.menu-item-parent {
 div#classroom-detail-modal .control-group {
   margin-bottom: 0px;
 }
+
+.a-rotational-caret,
+.a-rotational-caret:hover,
+.a-rotational-caret:focus
+ {
+  color: gray;
+}
+
+.rotational-caret {
+  margin-bottom: 3px;
+  border-top: 6px solid;
+  border-right: 6px solid transparent;
+  border-left: 6px solid transparent;
+}
+.rotational-caret-close {
+  transform: rotate(0deg);
+  transition: transform 0.25s linear;
+}
+
+.rotational-caret-open {
+  transform: rotate(180deg);
+  transition: transform 0.25s linear;
+}
+
+.profile-picture-label {
+  cursor: pointer;
+}
+
+.profile-picture-alert {
+  display: none;
+}
+
+#profile-picture-prev{
+  width: 200px;
+  height: 200px;
+  border: 1px solid #ccc;
+  object-fit: cover;
+  object-position: center;
+}
+
+#menu_avatar {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  object-position: center;
+}
+
+.profile-picture-img-container img {
+  max-width: 100%;
+}
+
+.profile-picture-img-container {
+  min-width: 150px;
+  min-height: 200px;
+}
+
+#profile-picture-modal {
+  overflow-x: hidden;
+  overflow-y: auto;
+}

@@ -7,7 +7,7 @@ class LessonPlan < ActiveRecord::Base
 
   acts_as_copy_target
 
-  attr_accessor :grade_ids
+  attr_accessor :grade_ids, :contents_created_at_position, :objectives_created_at_position
   attr_writer :contents_tags
 
   audited except: [:teacher_id, :old_contents]
@@ -66,11 +66,11 @@ class LessonPlan < ActiveRecord::Base
   end
 
   def contents_ordered
-    contents.order(' "contents_lesson_plans"."id" ')
+    contents.order('contents_lesson_plans.position')
   end
 
   def objectives_ordered
-    objectives.order('objectives_lesson_plans.id')
+    objectives.order('objectives_lesson_plans.position')
   end
 
   private

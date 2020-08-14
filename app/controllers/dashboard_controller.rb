@@ -1,11 +1,5 @@
 class DashboardController < ApplicationController
   def index
-    if current_user.student?
-      redirect_to publications_path
-
-      return
-    end
-
     fill_in_school_calendar_select_options
     fetch_current_school_calendar_step if @school_calendar_steps_options.any?
   end

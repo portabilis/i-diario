@@ -1,4 +1,6 @@
 <% content_for :js do %>
+  <%= stylesheet_link_tag 'cropper' %>
+  <%= javascript_include_tag 'cropper' %>
   <%= javascript_include_tag 'views/accounts/edit' %>
 <% end %>
 <div class="widget-body no-padding">
@@ -49,6 +51,57 @@
 
         <div class="col col-sm-4">
           <%= f.input :current_password, hint: "precisamos de sua senha atual para confirmar as alterações", required: true %>
+        </div>
+      </div>
+
+      <div class='row'>
+        <div class="col col-sm-12">
+          <%= hidden_field_tag :user_id, @user.id %>
+          <div class="alert alert-info fade in">
+            <i class="fa-fw fa fa-info"></i>
+            Somente arquivos nos formatos jpeg, jpg, png, gif
+          </div>
+          <label class="profile-picture-label">
+            <% if user_avatar_url(@user) %>
+              <%= image_tag user_avatar_url(@user), id: 'profile-picture-prev', class: 'profile-picture',
+                onerror: on_error_img, alt: '' %>
+            <% else %>
+              <img id="profile-picture-prev">
+            <% end %>
+            <input type="file" class="sr-only" id="profile-picture-input" accept="image/*">
+          </label>
+          <p class="help-block">clique para trocar sua foto de perfil</p>
+
+          <div class="alert fade in alert-warning profile-picture-alert" style="display: none;">
+            <span id='profile-picture-alert-span'></span>
+          </div>
+
+          <div class="modal fade"
+               id="profile-picture-modal"
+               tabindex="-1"
+               role="dialog"
+               aria-labelledby="modalLabel"
+               aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="modalLabel">Recorte a imagem</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="profile-picture-img-container">
+                    <img id="profile-image">
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                  <button type="button" class="btn btn-primary" id="crop-profile-picture">Recortar e trocar</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </fieldset>

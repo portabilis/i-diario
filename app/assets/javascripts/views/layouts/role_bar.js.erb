@@ -1,7 +1,7 @@
 $(function() {
   'use strict';
 
-  const breakpoint = 1250;
+  const breakpoint = 1365;
   const flashMessages = new FlashMessages();
 
   const $form = $('#user-role-form');
@@ -39,7 +39,7 @@ $(function() {
     student: []
   };
 
-  let documentWidth = $(document).width();
+  let documentWidth = window.innerWidth;
 
   let profileRole = {};
 
@@ -53,7 +53,7 @@ $(function() {
   };
 
   function isModal() {
-    const size = $(window).width();
+    const size = window.innerWidth;
 
     return size < breakpoint;
   }
@@ -567,7 +567,7 @@ $(function() {
     }
   });
 
-  if (window.profile.access_level) {
+  if (window.profile && window.profile.access_level) {
     markRequiredFields(window.profile.access_level);
   }
 
@@ -594,7 +594,7 @@ $(function() {
   });
 
   $(window).resize(function () {
-    let currDocumentWidth = $(document).width();
+    let currDocumentWidth = window.innerWidth;
 
     if (currDocumentWidth === documentWidth) {
       return true;

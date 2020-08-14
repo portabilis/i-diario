@@ -7,7 +7,7 @@ class DefaultSynchronizer
 
   def initialize(params)
     @entity_id = params[:entity_id]
-    @last_two_years = params[:last_two_years]
+    @current_years = params[:current_years]
     @synchronization = params[:synchronization]
     @worker_batch = params[:worker_batch]
   end
@@ -27,7 +27,7 @@ class DefaultSynchronizer
         unities_api_code: unities_api_code,
         filtered_by_year: synchronizer[:by_year],
         filtered_by_unity: synchronizer[:by_unity],
-        last_two_years: @last_two_years
+        current_years: @current_years
       )
     end
 
@@ -42,7 +42,7 @@ class DefaultSynchronizer
 
   private
 
-  attr_accessor :last_two_years
+  attr_accessor :current_years
 
   def unities_api_code
     @unities_api_code ||= Unity.with_api_code.pluck(:api_code).uniq
@@ -58,7 +58,7 @@ class DefaultSynchronizer
                    .sort
                    .reverse
 
-      years = years.take(2) if last_two_years
+      years = slice_years(years) if current_years
 
       years
     end
@@ -120,5 +120,13 @@ class DefaultSynchronizer
 
   def school_calendars_simple_synchronization_count
     unities_api_code.size - 1
+  end
+
+  def slice_years(years)
+    if Date.current.month <= 3 || years.include?(Date.current.year + 1)
+      years.take(2)
+    else
+      years.take(1)
+    end
   end
 end

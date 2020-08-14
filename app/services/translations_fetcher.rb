@@ -1,7 +1,7 @@
 class TranslationsFetcher
   class << self
     def fetch
-      Rails.cache.fetch(Translation.cache_key) { translation_hash }
+      Rails.cache.fetch(Translation.cache_key, expires_in: 1.day) { translation_hash }
     end
 
     private

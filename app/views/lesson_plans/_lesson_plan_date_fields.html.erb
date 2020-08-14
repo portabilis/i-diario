@@ -1,6 +1,6 @@
 <div class="col col-sm-4">
-  <%= f.input :start_at, as: :date %>
+  <%= f.input :start_at, as: :date, readonly: action_name == 'show' %>
 </div>
 <div class="col col-sm-4">
-  <%= f.input :end_at, as: :date %>
+  <%= f.input :end_at, as: :date, readonly: action_name == 'show' %>
 </div>

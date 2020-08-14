@@ -50,7 +50,7 @@ $(function() {
   }
 
   function fetchStudents() {
-    if(!checkFormat($absenceDate.val()) || !checkFormat($absenceDateEnd.val())){
+    if(!isValidDate($absenceDate.val()) || !isValidDate($absenceDateEnd.val())){
       return;
     }
 
@@ -164,16 +164,6 @@ $(function() {
   $('#absence_justification').on('cocoon:after-insert', function(e, item) {
     $(item).find('input.file').on('change', onChangeFileElement);
   });
-
-  function checkFormat(date) {
-    re = /^\d{2}\/\d{2}\/\d{4}$/;
-
-    if(date != '' && !date.match(re)) {
-      return false;
-    }
-
-    return true;
-  }
 
   $absenceDate.on('change', fetchStudents);
   $absenceDateEnd.on('change', fetchStudents);

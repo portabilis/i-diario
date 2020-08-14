@@ -19,7 +19,8 @@ class KnowledgeAreaContentRecordClonerForm < ActiveRecord::Base
             new_content_record.content_record = knowledge_area_content_record.content_record.dup
             new_content_record.content_record.teacher = teacher
             new_content_record.knowledge_areas = knowledge_area_content_record.knowledge_areas
-            new_content_record.content_record.contents = knowledge_area_content_record.content_record.contents
+            new_content_record.content_record.original_contents =
+              knowledge_area_content_record.content_record.contents
             new_content_record.content_record.classroom = @classrooms.find_by_id(item.classroom_id)
             new_content_record.content_record.record_date = item.record_date
             new_content_record.save!

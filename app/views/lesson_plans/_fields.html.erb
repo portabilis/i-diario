@@ -16,9 +16,11 @@
       <%= f.object.errors[:contents].first %>
     </div>
   <% end %>
-    <a href="#" id="copy-from-teaching-plan-link">
-      Copiar de <%= Translator.t('navigation.teaching_plans_menu').downcase %>
-    </a>
+    <% if action_name != 'show' %>
+      <a href="#" id="copy-from-teaching-plan-link">
+        Copiar de <%= Translator.t('navigation.teaching_plans_menu').downcase %>
+      </a>
+    <% end %>
     <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
       <ul class="list-group checked-list-box" id="contents-list">
 
@@ -28,7 +30,7 @@
                 content.id, content.id.in?(model.contents.collect(&:id)),
                 hidden: true, 'data-content_description': content.to_s ) %>
             <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
-            <% if content.is_editable %>
+            <% if content.is_editable && action_name != 'show' %>
               <div style="width: 80px;">
                 <a class="btn new-btn-success" onclick="editContent('lesson_plan_<%= content.id %>')">
                   <i class="fa fa-pencil"></i>
@@ -42,18 +44,22 @@
         <% end %>
       </ul>
     </div>
-    <div class="row textarea">
-      <div class="col col-sm-12 contents-select2-container">
-        <%= f.input :contents_tags,
-            as: :string,
-            input_html: {
-              'data-content-type': 'conteúdo',
-              class: 'select2-tags',
-              value: ''
-            }
-        %>
+    <% if action_name != 'show' %>
+      <div class="row textarea">
+        <div class="col col-sm-12 contents-select2-container">
+          <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.contents") %>
+          <%= f.input :contents_tags,
+              as: :string,
+              label: "Adicionar novo #{translation}",
+              input_html: {
+                'data-content-type': 'conteúdo',
+                class: 'select2-tags',
+                value: ''
+              }
+          %>
+        </div>
       </div>
-    </div>
+    <% end %>
 </fieldset>
 
 <fieldset>
@@ -75,12 +81,14 @@
       <%= f.object.errors[:objectives].first %>
     </div>
   <% end %>
+  <% if action_name != 'show' %>
     <a href="#" id="copy-from-objectives-teaching-plan-link">
       Copiar de <%= Translator.t('navigation.teaching_plans_menu').downcase %>
     </a>|
     <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
       Copiar objetivos/habilidades por área
     </a>
+  <% end %>
     <div class="well" style="max-height: 300px;overflow-y: auto; margin-top: 10px;">
       <ul class="list-group checked-list-box" id="objectives-list">
 
@@ -90,7 +98,7 @@
                 objective.id, objective.id.in?(model.objectives.collect(&:id)),
                 hidden: true, 'data-objective_description': objective.to_s ) %>
             <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= objective %></span>
-            <% if objective.is_editable %>
+            <% if objective.is_editable && action_name != 'show' %>
               <div style="width: 80px;">
                 <a class="btn new-btn-success" onclick="editObjective('lesson_plan_<%= objective.id %>')">
                   <i class="fa fa-pencil"></i>
@@ -104,46 +112,50 @@
         <% end %>
       </ul>
     </div>
-    <div class="row textarea">
-      <div class="col col-sm-12 objectives-select2-container">
-        <%= f.input :objectives_tags,
-            as: :string,
-            input_html: {
-              class: 'select2-content-tags-ajax',
-              value: '',
-              data: {
-                url: contents_path,
-                data: []
+    <% if action_name != 'show' %>
+      <div class="row textarea">
+        <div class="col col-sm-12 objectives-select2-container">
+          <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.objectives") %>
+          <%= f.input :objectives_tags,
+              as: :string,
+              label: "Adicionar novo #{translation}",
+              input_html: {
+                class: 'select2-content-tags-ajax',
+                value: '',
+                data: {
+                  url: contents_path,
+                  data: []
+                }
               }
-            }
-        %>
+            %>
+        </div>
       </div>
-    </div>
+    <% end %>
 </fieldset>
 
 <fieldset>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :activities, input_html: { class: 'col col-sm-12' } %>
+    <%= f.input :activities, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :resources, input_html: { class: 'col col-sm-12' } %>
+    <%= f.input :resources, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :evaluation, input_html: { class: 'col col-sm-12' } %>
+    <%= f.input :evaluation, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
   </div>
 </div>
 
 <div class="row textarea">
   <div class="col col-sm-12">
-    <%= f.input :bibliography, input_html: { class: 'col col-sm-12' } %>
+    <%= f.input :bibliography, input_html: { class: 'col col-sm-12' }, readonly: action_name == 'show' %>
   </div>
 </div>
 
@@ -167,29 +179,39 @@
       <thead>
         <tr>
           <th>Anexo</th>
-          <td width="73px"></td>
+          <% if action_name != 'show' %>
+            <td width="73px"></td>
+          <% end %>
         </tr>
       </thead>
 
       <tbody id="lesson-plan-attachments">
-        <%= f.simple_fields_for :lesson_plan_attachments, f.object.lesson_plan_attachments do |attachment| %>
-          <% if attachment.object.persisted? %>
-            <%= render 'lesson_plan_attachment_show', f: attachment %>
-          <% else %>
-            <%= render 'lesson_plan_attachment_fields', f: attachment %>
+        <% if action_name == 'show' && f.object.lesson_plan_attachments.blank? %>
+          <tr class="nested-fields">
+            <td><span>Nenhum documento anexado</span></td>
+          </tr>
+        <% else %>
+          <%= f.simple_fields_for :lesson_plan_attachments, f.object.lesson_plan_attachments do |attachment| %>
+            <% if attachment.object.persisted? %>
+              <%= render 'lesson_plan_attachment_show', f: attachment %>
+            <% else %>
+              <%= render 'lesson_plan_attachment_fields', f: attachment %>
+            <% end %>
           <% end %>
         <% end %>
       </tbody>
-      <tfoot class="links">
-        <tr>
-          <td colspan="2">
-            <%= link_to_add_association t('.add_attachment'), f, :lesson_plan_attachments,
-              class: 'btn btn-success btn-sm',
-              :"data-association-insertion-method" => "append",
-              :"data-association-insertion-node" => "#lesson-plan-attachments" %>
-          </td>
-        </tr>
-      </tfoot>
+      <% if action_name != 'show'%>
+        <tfoot class="links">
+          <tr>
+            <td colspan="2">
+              <%= link_to_add_association t('.add_attachment'), f, :lesson_plan_attachments,
+                class: 'btn btn-success btn-sm',
+                :"data-association-insertion-method" => "append",
+                :"data-association-insertion-node" => "#lesson-plan-attachments" %>
+            </td>
+          </tr>
+        </tfoot>
+      <% end %>
     </table>
   </div>
 </div>

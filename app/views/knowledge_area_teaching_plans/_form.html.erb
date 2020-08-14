@@ -5,6 +5,7 @@
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
 <% end %>
 
+<%= hidden_field_tag :action_name, action_name %>
 <%= simple_form_for @knowledge_area_teaching_plan, html: { class: 'smart-form', id: 'knowledge_area_teaching_plan' } do |f| %>
   <%= f.error_notification %>
   <%= render 'base_errors', f: f %>
@@ -64,6 +65,7 @@
         <div class="col col-sm-12">
           <legend style="margin-bottom: 10px;">
             <%= @knowledge_area_teaching_plan.class.human_attribute_name(:contents) %>
+            <abbr title="obrigatório">*</abbr>
           </legend>
           <% if f.object.errors[:'teaching_plan.contents'].any? %>
             <div class="alert alert-danger fade in">
@@ -99,18 +101,19 @@
         </div>
       </div>
       <% if action_name != 'show' %>
-      <div class="row textarea">
-        <div class="col col-sm-12 contents-select2-container">
-          <%= teaching_plan_form.input :contents_tags,
-              as: :string,
-              input_html: {
-                'data-content-type': 'conteúdo',
-                class: 'select2-tags',
-                value: ''
-              }
-          %>
+        <div class="row textarea">
+          <div class="col col-sm-12 contents-select2-container">
+            <% translation = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.contents') %>
+            <%= teaching_plan_form.input :contents_tags,
+                as: :string,
+                label: "Adicionar novo #{translation}",
+                input_html: {
+                  class: 'select2-tags',
+                  value: ''
+                }
+            %>
+          </div>
         </div>
-      </div>
       <% end %>
 
       <div class="row textarea">
@@ -160,21 +163,23 @@
         </div>
       </div>
       <% if action_name != 'show' %>
-      <div class="row textarea">
-        <div class="col col-sm-12 objectives-select2-container">
-          <%= teaching_plan_form.input :objectives_tags,
-              as: :string,
-              input_html: {
-                class: 'select2-content-tags-ajax',
-                value: '',
-                data: {
-                  url: contents_path,
-                  data: []
+        <div class="row textarea">
+          <div class="col col-sm-12 objectives-select2-container">
+            <% translation = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.objectives') %>
+            <%= teaching_plan_form.input :objectives_tags,
+                as: :string,
+                label: "Adicionar novo #{translation}",
+                input_html: {
+                  class: 'select2-content-tags-ajax',
+                  value: '',
+                  data: {
+                    url: contents_path,
+                    data: []
+                  }
                 }
-              }
-          %>
+            %>
+          </div>
         </div>
-      </div>
       <% end %>
 
       <div class="row textarea">
@@ -218,29 +223,39 @@
             <thead>
               <tr>
                 <th>Anexo</th>
-                <td width="73px"></td>
+                <% if action_name != 'show' %>
+                  <td width="73px"></td>
+                <% end %>
               </tr>
             </thead>
 
             <tbody id="teaching-plan-attachments">
-              <%= teaching_plan_form.simple_fields_for :teaching_plan_attachments, teaching_plan_form.object.teaching_plan_attachments do |attachment| %>
-                <% if attachment.object.persisted? %>
-                  <%= render 'teaching_plan_attachment_show', f: attachment %>
-                <% else %>
-                  <%= render 'teaching_plan_attachment_fields', f: attachment %>
+              <% if action_name == 'show' && teaching_plan_form.object.teaching_plan_attachments.blank? %>
+                <tr class="nested-fields">
+                  <td><span>Nenhum documento anexado</span></td>
+                </tr>
+              <% else %>
+                <%= teaching_plan_form.simple_fields_for :teaching_plan_attachments, teaching_plan_form.object.teaching_plan_attachments do |attachment| %>
+                  <% if attachment.object.persisted? %>
+                    <%= render 'teaching_plan_attachment_show', f: attachment %>
+                  <% else %>
+                    <%= render 'teaching_plan_attachment_fields', f: attachment %>
+                  <% end %>
                 <% end %>
               <% end %>
             </tbody>
-            <tfoot class="links">
-              <tr>
-                <td colspan="2">
-                  <%= link_to_add_association t('.add_attachment'), teaching_plan_form, :teaching_plan_attachments,
-                    class: 'btn btn-success btn-sm',
-                    :"data-association-insertion-method" => "append",
-                    :"data-association-insertion-node" => "#teaching-plan-attachments" %>
-                </td>
-              </tr>
-            </tfoot>
+            <% if action_name != 'show' %>
+              <tfoot class="links">
+                <tr>
+                  <td colspan="2">
+                    <%= link_to_add_association t('.add_attachment'), teaching_plan_form, :teaching_plan_attachments,
+                      class: 'btn btn-success btn-sm',
+                      :"data-association-insertion-method" => "append",
+                      :"data-association-insertion-node" => "#teaching-plan-attachments" %>
+                  </td>
+                </tr>
+              </tfoot>
+            <% end %>
           </table>
         </div>
       </div>

@@ -89,4 +89,21 @@ $(function () {
 
     checkboxes.prop("checked", $(this).prop('checked'));
   });
+
+  var link = $('.a-rotational-caret');
+  var icon = $('.rotational-caret');
+  var open = false;
+
+  link.on('click', function(){
+    if(open){
+      icon.addClass('rotational-caret-close');
+      icon.removeClass('rotational-caret-open');
+    } else{
+      icon.addClass('rotational-caret-open');
+      icon.removeClass('rotational-caret-close');
+    }
+
+    open = !open;
+  });
+
 });

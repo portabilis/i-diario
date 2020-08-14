@@ -41,6 +41,9 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
       joins(:teaching_plan).merge(TeachingPlan.where.not(teacher_id: current_teacher_id))
     end
   }
+  scope :order_by_school_term, lambda {
+    joins(:teaching_plan).order("teaching_plans.school_term = ''")
+  }
 
   validates :teaching_plan, presence: true
   validates :knowledge_area_ids, presence: true
@@ -106,17 +109,17 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   end
 
   def uniqueness_of_knowledge_area_teaching_plan
+    return if teaching_plan.school_term_type.blank?
+
     knowledge_area_teaching_plans = KnowledgeAreaTeachingPlan.by_year(teaching_plan.year)
-      .by_unity(teaching_plan.unity)
-      .by_teacher_id(teaching_plan.teacher_id)
-      .by_grade(teaching_plan.grade)
-      .by_school_term(teaching_plan.school_term)
-      .by_knowledge_area(knowledge_areas.collect(&:id))
+                                                             .by_unity(teaching_plan.unity)
+                                                             .by_teacher_id(teaching_plan.teacher_id)
+                                                             .by_grade(teaching_plan.grade)
+                                                             .by_school_term(teaching_plan.school_term)
+                                                             .by_knowledge_area(knowledge_areas.collect(&:id))
 
     knowledge_area_teaching_plans = knowledge_area_teaching_plans.where.not(id: id) if persisted?
 
-    if knowledge_area_teaching_plans.any?
-      errors.add(:base, :uniqueness_of_knowledge_area_teaching_plan)
-    end
+    errors.add(:base, :uniqueness_of_knowledge_area_teaching_plan) if knowledge_area_teaching_plans.any?
   end
 end

@@ -54,7 +54,7 @@ class Avaliation < ActiveRecord::Base
   scope :by_classroom_id, lambda { |classroom_id| where(classroom_id: classroom_id) }
   scope :by_discipline_id, lambda { |discipline_id| where(discipline_id: discipline_id) }
   scope :exclude_discipline_ids, lambda { |discipline_ids| where.not(discipline_id: discipline_ids) }
-  scope :by_test_date, lambda { |test_date| where(test_date: test_date) }
+  scope :by_test_date, lambda { |test_date| where(test_date: test_date.try(:to_date)) }
   scope :by_test_date_between, lambda { |start_at, end_at| where(test_date: start_at.to_date..end_at.to_date) }
   scope :by_classes, lambda { |classes| where("classes && ARRAY#{classes}::INTEGER[]") }
   scope :by_description, lambda { |description| joins(arel_table.join(TestSettingTest.arel_table, Arel::Nodes::OuterJoin)
