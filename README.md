@@ -4,7 +4,7 @@
 
 # i-Diário
 
-Portal do professor integrado com o software livre [i-Educar](https://github.com/portabilis/i-educar)
+Portal do professor integrado com o software livre [i-Educar](https://github.com/portabilis/i-educar).
 
 ## Comunicação
 
@@ -29,55 +29,81 @@ comunidade i-Educar e não terá suporte da Portabilis - mantenedora do projeto.
 
 ## Instalação
 
-- Baixar o i-Diário:
+Há duas formas de fazer a instalação:
+
+- [Instalação utilizando Docker](#Instalação-utilizando-Docker)
+- [Instalação em Servidor](#Instalação-em-Servidor-(Testado-no-Ubuntu-18.04))
+
+### Instalação utilizando Docker
+
+> ATENÇÃO: Essa forma de instação tem o objetivo de facilitar demonstrações e desenvolvimento. Não é recomendado para
+> ambientes de produção!
+
+Para instalar o projeto execute todos os passos abaixo.
+
+Clone o repositório:
 
 ```bash
-$ git clone https://github.com/portabilis/i-diario.git
-$ cd i-diario
+git clone https://github.com/portabilis/i-diario.git && cd i-diario
 ```
 
-- Copiar o exemplo de configurações de banco de dados e configurar:
+Faça o build das imagens Docker utilizadas no projeto (pode levar alguns minutos) e inicie os containers da aplicação:
 
 ```bash
-$ cp config/database.sample.yml config/database.yml
+docker-compose up -d --build
 ```
 
-### Com Docker
+Use o comando `docker-compose logs -f app` para acompanhar o log da aplicação.
 
-No `config/database.yml` mudar o `host` para `host: postgres`.
+Aguarde a instalação finalizar até algo similar aparecer na tela:
 
-- Rode `docker-compose up`.
+```log
+idiario     | => Ctrl-C to shutdown server
+idiario     | Puma starting in single mode...
+idiario     | * Version 4.3.1 (ruby 2.3.7-p456), codename: Mysterious Traveller
+idiario     | * Min threads: 0, max threads: 16
+idiario     | * Environment: development
+idiario     | * Listening on tcp://0.0.0.0:3000
+idiario     | Use Ctrl-C to stop
+```
 
-Por baixo dos panos, será feito:
-- setup do `secret_key_base`;
-- setup do banco;
-- setup das páginas de erro.
+Você poderá acessar o i-Diário na URL [http://localhost:3000](http://localhost:3000) com o login `admin` e a senha
+`123456789`.
 
-Pule para o [**Configuração da Aplicação**](#Configuração-da-Aplicação).
+#### Personalizando a instalação via Docker
 
-### Sem Docker (Testado no Ubuntu 18.04)
+Você pode criar um arquivo `docker-compose.override.yml` para personalizar sua instalação do i-Diário, mudando as portas
+dos serviços ou o mapeamento dos volumes extras para a aplicação.
 
-- Instalar o Ruby 2.3.7 (Recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
-- Instalar Postgres e configurar para fazer coincidir com o configurado em `database.yml`
-- Instalar a biblioteca `libpq-dev`
+### Instalação em Servidor (Testado no Ubuntu 18.04)
+
+- Instale o Ruby 2.3.7 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
+- Instale o Postgres e faça a configuração em `database.yml`
+- Instale a biblioteca `libpq-dev`
 
 ```bash
-$ sudo apt install libpq-dev
+sudo apt install libpq-dev
 ```
 
-- Instalar a gem Bundler:
+- Instale Redis
 
 ```bash
-$ gem install bundler -v '1.17.3'
+sudo apt install redis-server
 ```
 
-- Instalar as gems:
+- Instale a gem Bundler:
 
 ```bash
-$ bundle install
+gem install bundler -v '1.17.3'
 ```
 
-- Criar e configurar o arquivo `config/secrets.yml` conforme o exemplo:
+- Instale as gems:
+
+```bash
+bundle install
+```
+
+- Crie e configure o arquivo `config/secrets.yml` conforme o exemplo:
 
 ```yaml
 development:
@@ -87,12 +113,13 @@ development:
   SMTP_DOMAIN: SMTP_DOMAIN
   SMTP_USER_NAME: SMTP_USER_NAME
   SMTP_PASSWORD: SMTP_PASSWORD
+  NO_REPLY_ADDRESS: NO_REPLY_ADDRESS
   BUCKET_NAME: S3_BUCKET_NAME
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
 
-- Criar e configurar o arquivo `config/aws.yml` conforme o exemplo:
+- Crie e configure o arquivo `config/aws.yml` conforme o exemplo:
 
 ```yaml
 development:
@@ -101,45 +128,41 @@ development:
 
 ```
 
-- Criar o banco de dados:
+- Crie o banco de dados:
 
 ```bash
-$ bundle exec rake db:create
-$ bundle exec rake db:migrate
+bundle exec rake db:create
+bundle exec rake db:migrate
 ```
 
-- Criar páginas de erro simples para desenvolvimento:
+- Crie as páginas de erro para desenvolvimento:
 
 ```bash
-$ cp public/404.html.sample public/404.html
-$ cp public/500.html.sample public/500.html
+cp public/404.html.sample public/404.html
+cp public/500.html.sample public/500.html
 ```
 
-## Configuração da Aplicação
-
-- Criar uma entidade:
+- Crie uma entidade:
 
 ```bash
-$ bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
+bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
 ```
 
-- Criar um usuário administrador:
-
-Abra o `rails console`.
-
-Sem docker:
+Inicie o servidor:
 
 ```bash
-$ bundle exec rails console
+bundle exec rails server
 ```
 
-Com docker:
+### Primeiro acesso
+
+Antes de realizar o primeiro acesso, crie um usuário administrador:
 
 ```bash
-$ docker exec -it idiario bundle exec rails console
+bundle exec rails console
 ```
 
-Crie um usuário administrador.
+Crie o usuário administrador, substitua as informações que deseje:
 
 ```ruby
 Entity.last.using_connection {
@@ -154,25 +177,18 @@ Entity.last.using_connection {
 }
 ```
 
-Iniciar o servidor:
-
-```bash
-$ bundle exec rails server
-```
-
-Para acessar o sistema, use a URL http://localhost:3000
-
-### [PgHero](https://github.com/ankane/pghero)
-
-Usamos o PgHero para monitorar o banco de dados. Recomendamos a leitura da
-documentação.
+Agora você poderá acessar o i-Diário na URL [http://localhost:3000](http://localhost:3000) com as credenciais fornecidas
+no passo anterior.
 
 ## Sincronização com i-Educar
 
-- Para executar a sincronização é necessário estar com o sidekiq rodando:
+- Para fazer a sincronização entre i-Educar e i-Diário é necessário estar com o Sidekiq rodando:
+
 ```bash
-$ bundle exec sidekiq -d
+# (Docker) docker-compose exec app bundle exec sidekiq -d
+bundle exec sidekiq -d
 ```
+
 - Acessar Configurações > Api de Integraçao e configurar os dados do sincronismo
 - Acessar Configurações > Unidades e clicar em **Sincronizar**
 - Acessar Calendário letivo, clicar em **Sincronizar** e configurar os calendários
@@ -183,39 +199,54 @@ $ bundle exec sidekiq -d
 
 _Nota: Após esses primeiros passos, recomendamos que a sincronização rode pelo menos diariamente para manter o i-Diário atualizado com o i-Educar_
 
-## Rodar os testes
+## Executar os testes
 
 ```bash
-$ RAILS_ENV=test bundle exec rake db:create
-$ RAILS_ENV=test bundle exec rake db:migrate
+# (Docker) docker-compose exec app RAILS_ENV=test bundle exec rake db:create
+RAILS_ENV=test bundle exec rake db:create
+
+# (Docker) docker-compose exec app RAILS_ENV=test bundle exec rake db:migrate
+RAILS_ENV=test bundle exec rake db:migrate
 ```
 
 ```bash
-$ bin/rspec spec
+# (Docker) docker-compose exec app bin/rspec spec
+bin/rspec spec
 ```
 
 ## Upgrades
 
 ### Upgrade para a versão 1.1.0
 
-Nessa atualização a sincronização entre i-educar e i-diário foi completamente reestruturada e com isso o i-diário passa a ter dependência da versão **2.1.18** do i-educar.
+Nessa atualização a sincronização entre i-Educar e i-Diário foi completamente reestruturada e com isso o i-Diário passa
+a ter dependência da versão **2.1.18** do i-Educar.
 
-Para o upgrade é necessário:
+Para o upgrade é necessário atualizar o i-Diário para a versão [1.1.0](https://github.com/portabilis/i-diario/releases/tag/1.1.0).
 
-* Atualizar o fonte para a versão 1.1.0
-* Parar o sidekiq:
+Parar o sidekiq:
+
 ```bash
-$ ps -ef | grep sidekiq | grep -v grep | awk '{print $2}' | xargs kill -TERM && sleep 20
+ps -ef | grep sidekiq | grep -v grep | awk '{print $2}' | xargs kill -TERM && sleep 20
 ```
-* Rodar as migrations:
+
+* Executar as migrations:
+
 ```bash
-$ bundle exec rake db:migrate
+# (Docker) docker-compose exec app bundle exec rake db:migrate
+bundle exec rake db:migrate
 ```
+
 * Iniciar o sidekiq:
+
 ```bash
-$ bundle exec sidekiq -d --logfile log/sidekiq.log
+# (Docker) docker-compose exec app bundle exec sidekiq -d --logfile log/sidekiq.log
+bundle exec sidekiq -d --logfile log/sidekiq.log
 ```
-* Executar a rake task que vai remover as enturmações e rodar a sincronização completa em todas as entidades:
+
+* Executar a rake task que irá fazer a atualização do banco de dados e executar a sincronização completa em todas as
+entidades:
+
 ```bash
-$ bundle exec rake upgrade:versions:1_1_0
+# (Docker) docker-compose exec app bundle exec rake upgrade:versions:1_1_0
+bundle exec rake upgrade:versions:1_1_0
 ```

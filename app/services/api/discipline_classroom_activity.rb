@@ -27,17 +27,11 @@ module Api
                                          .where(discipline_id: @discipline_id)
                                          .exists?
 
-      return true if DisciplineTeachingPlan.joins(:teaching_plan)
-                                           .where(discipline_id: @discipline_id)
-                                           .exists?
-
       return true if RecoveryDiaryRecord.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id)
                                         .exists?
 
       return true if ComplementaryExam.where(classroom_id: @classrooms_ids, discipline_id: @discipline_id)
                                       .exists?
-
-      return true if SchoolCalendarEvent.joins(:school_calendar).where(discipline_id: @discipline_id).exists?
 
       return true if AbsenceJustificationsDiscipline.joins(:absence_justification)
                                                     .where(absence_justifications: {

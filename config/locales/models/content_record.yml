@@ -14,7 +14,7 @@ pt-BR:
         record_date: "Data"
         daily_activities_record: "Registro diário das atividades"
         contents: "Conteúdos"
-        contents_tags: "Adicionar novo conteúdo"
+        contents_tags: "Adicionar novo"
     errors:
       models:
         content_record:

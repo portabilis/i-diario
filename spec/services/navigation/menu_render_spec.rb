@@ -23,7 +23,7 @@ describe Navigation::MenuRender, type: :service do
           let(:menus) { [ { :type => 'dashboard', :css_class => [], :subnodes => [], :visible => true } ] }
 
           it "returns this menu with link but without icon, path and css style" do
-            expect(subject.render(menus)).to eq "<ul><li class=\"\"><a href=\"#\"><span class=\"menu-item-parent\">Dashboard</span></a></li></ul>"
+            expect(subject.render(menus)).to eq "<ul><li class=\"\"><a href=\"#\"><span class=\"menu-item-parent\">Início</span></a></li></ul>"
           end
         end
 
@@ -31,7 +31,7 @@ describe Navigation::MenuRender, type: :service do
           let(:menus) { [ { :type => 'dashboard', :icon => 'fa-home', :css_class => [], :subnodes => [], :visible => true } ] }
 
           it "returns this menu with link but without path and css style" do
-            expect(subject.render(menus)).to eq "<ul><li class=\"\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span class=\"menu-item-parent\">Dashboard</span></a></li></ul>"
+            expect(subject.render(menus)).to eq "<ul><li class=\"\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span class=\"menu-item-parent\">Início</span></a></li></ul>"
           end
         end
 
@@ -39,7 +39,7 @@ describe Navigation::MenuRender, type: :service do
           let(:menus) { [ { :type => 'dashboard', :path => 'root_path', :css_class => [], :subnodes => [], :visible => true } ] }
 
           it "returns this menu with link but without icon and css style" do
-            expect(subject.render(menus)).to eq "<ul><li class=\"\"><a href=\"/\"><span class=\"menu-item-parent\">Dashboard</span></a></li></ul>"
+            expect(subject.render(menus)).to eq "<ul><li class=\"\"><a href=\"/\"><span class=\"menu-item-parent\">Início</span></a></li></ul>"
           end
 
         end
@@ -48,7 +48,7 @@ describe Navigation::MenuRender, type: :service do
           let(:menus) { [ { :type => 'dashboard', :css_class => ["open"], :subnodes => [], :visible => true } ] }
 
           it "returns this menu with link but without icon and path" do
-            expect(subject.render(menus)).to eq "<ul><li class=\"open\"><a href=\"#\"><span class=\"menu-item-parent\">Dashboard</span></a></li></ul>"
+            expect(subject.render(menus)).to eq "<ul><li class=\"open\"><a href=\"#\"><span class=\"menu-item-parent\">Início</span></a></li></ul>"
           end
         end
       end
@@ -119,7 +119,7 @@ describe Navigation::MenuRender, type: :service do
     end
 
     it "returns the menu with all links" do
-      expect(subject.render(menus)).to eq "<ul><li class=\"\"><a href=\"/\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span class=\"menu-item-parent\">Dashboard</span></a></li> <li class=\"open\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span class=\"menu-item-parent\">Configurações</span></a> <ul><li class=\"current\"><a href=\"/permissoes\"><span class=\"menu-item-parent\">Permissões</span></a></li> <li class=\"\"><a href=\"/unidades\"><span class=\"menu-item-parent\">Unidades</span></a></li></ul></li></ul>"
+      expect(subject.render(menus)).to eq "<ul><li class=\"\"><a href=\"/\"><i class=\"fa fa-lg fa-fw fa-home\"></i> <span class=\"menu-item-parent\">Início</span></a></li> <li class=\"open\"><a href=\"#\"><i class=\"fa fa-lg fa-fw fa-cog\"></i> <span class=\"menu-item-parent\">Configurações</span></a> <ul><li class=\"current\"><a href=\"/permissoes\"><span class=\"menu-item-parent\">Permissões</span></a></li> <li class=\"\"><a href=\"/unidades\"><span class=\"menu-item-parent\">Unidades</span></a></li></ul></li></ul>"
     end
   end
 end

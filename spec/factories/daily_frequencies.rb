@@ -10,8 +10,8 @@ FactoryGirl.define do
     class_number { rand(1..5) }
     period { Periods.to_a.sample[1] }
 
-    transient do
-      teacher nil
+    trait :with_teacher do
+      teacher
     end
 
     trait :without_discipline do

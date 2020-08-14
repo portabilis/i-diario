@@ -23,7 +23,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   scope :by_date, lambda { |date|
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
-  scope :by_date_not_before, ->(date) { where.not('joined_at < ?', date) }
+  scope :by_date_not_before, ->(date) { where.not('joined_at < ?', date.to_date) }
   scope :show_as_inactive, -> { where(show_as_inactive_when_not_in_date: 't') }
   scope :by_grade, ->(grade_id) { joins(:classroom).where(classrooms: { grade_id: grade_id }) }
   scope :by_student, ->(student_id) { joins(student_enrollment: :student).where(students: { id: student_id }) }

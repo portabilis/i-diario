@@ -17,12 +17,12 @@ class IeducarSynchronizerWorker
     Honeybadger.notify(exception)
   end
 
-  def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false, last_two_years = true)
+  def perform(entity_id = nil, synchronization_id = nil, full_synchronization = false, current_years = true)
     if entity_id.present? && synchronization_id.present?
       perform_for_entity(
         Entity.find(entity_id),
         synchronization_id,
-        last_two_years
+        current_years
       )
     else
       all_entities.each do |entity|
@@ -31,7 +31,7 @@ class IeducarSynchronizerWorker
 
           next unless configuration.persisted?
 
-          configuration.start_synchronization(User.first, entity.id, full_synchronization, last_two_years)
+          configuration.start_synchronization(User.first, entity.id, full_synchronization, current_years)
         end
       end
     end
@@ -39,7 +39,7 @@ class IeducarSynchronizerWorker
 
   private
 
-  def perform_for_entity(entity, synchronization_id, last_two_years)
+  def perform_for_entity(entity, synchronization_id, current_years)
     entity.using_connection do
       synchronization = IeducarApiSynchronization.started.find_by(id: synchronization_id)
 
@@ -48,7 +48,7 @@ class IeducarSynchronizerWorker
       UnitiesSynchronizerWorker.perform_async(
         entity_id: entity.id,
         synchronization_id: synchronization.id,
-        last_two_years: last_two_years
+        current_years: current_years
       )
     end
   end

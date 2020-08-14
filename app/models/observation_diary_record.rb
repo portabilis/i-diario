@@ -30,7 +30,7 @@ class ObservationDiaryRecord < ActiveRecord::Base
   scope :by_teacher, -> teacher_ids { where(teacher_id: teacher_ids) }
   scope :by_classroom, -> classroom_ids { where(classroom_id: classroom_ids) }
   scope :by_discipline, -> discipline_ids { where(discipline_id: discipline_ids) }
-  scope :by_date, -> date { where(date: date) }
+  scope :by_date, -> date { where(date: date.to_date) }
   scope :ordered, -> { order(date: :desc) }
 
   validates_date :date

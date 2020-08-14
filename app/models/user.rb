@@ -54,6 +54,8 @@ class User < ActiveRecord::Base
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
+  mount_uploader :profile_picture, UserProfilePictureUploader
+
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true, uniqueness: { case_sensitive: false }
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
@@ -67,8 +69,8 @@ class User < ActiveRecord::Base
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
 
-  scope :ordered, -> { order(arel_table[:first_name].asc) }
-  scope :email_ordered, -> { order(email: :asc)  }
+  scope :ordered, -> { order(arel_table[:fullname].asc) }
+  scope :email_ordered, -> { order(email: :asc) }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
   scope :with_phone, -> { where(arel_table[:phone].not_eq(nil)).where(arel_table[:phone].not_eq("")) }
   scope :admin, -> { where(arel_table[:admin].eq(true)) }
@@ -77,9 +79,9 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :full_name, lambda { |full_name| where("unaccent(first_name || ' ' || last_name) ILIKE unaccent(?)", "%#{full_name}%")}
-  scope :email, lambda { |email| where("unaccent(email) ILIKE unaccent(?)", "%#{email}%")}
-  scope :login, lambda { |login| where("unaccent(login) ILIKE unaccent(?)", "%#{login}%")}
+  scope :full_name, lambda { |full_name| where("fullname ILIKE unaccent(?)", "%#{full_name}%")}
+  scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
+  scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true

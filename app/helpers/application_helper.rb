@@ -1,7 +1,7 @@
-# encoding: utf-8
-
 module ApplicationHelper
   include ActiveSupport::Inflector
+
+  PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
     @unread_notifications_count ||= current_user.unread_notifications.count
@@ -32,10 +32,12 @@ module ApplicationHelper
   end
 
   def menus
-    key = ['Menus',
-           current_entity.id,
-           controller_name,
-           current_user.current_user_role&.role&.cache_key || current_user.cache_key]
+    key = [
+      'Menus',
+      controller_name,
+      current_user.current_user_role&.role&.cache_key || current_user.cache_key,
+      Translation.cache_key
+    ]
 
     Rails.cache.fetch(key, expires_in: 1.day) do
       Navigation.draw_menus(controller_name, current_user)
@@ -43,9 +45,11 @@ module ApplicationHelper
   end
 
   def shortcuts
-    key = ['HomeShortcuts/v2',
-           current_entity.id,
-           current_user.current_user_role&.role&.cache_key || current_user&.cache_key]
+    key = [
+      'HomeShortcuts',
+      current_user.current_user_role&.role&.cache_key || current_user&.cache_key,
+      Translation.cache_key
+    ]
 
     Rails.cache.fetch(key, expires_in: 1.day) do
       Navigation.draw_shortcuts(current_user)
@@ -67,20 +71,24 @@ module ApplicationHelper
     super object, *(args << options), &block
   end
 
-  def gravatar_image_tag(email, size = '48', html_options = {})
-    email = Digest::MD5.hexdigest(email.to_s)
-    default_avatar = CGI.escape(
-      'https://s3-sa-east-1.amazonaws.com/apps-core-images-test/uploads/avatar/avatar.jpg'
-    )
+  def profile_picture_tag(user, profile_picture_html_options = {})
+    user_avatar_url = user_avatar_url(user)
 
-    html_options['height'] = "#{size}px"
-    html_options['width'] = "#{size}px"
-    html_options['onerror'] = "this.error=null;this.src='/assets/profile-default.jpg'"
+    return unless user_avatar_url
 
-    image_tag(
-      "https://www.gravatar.com/avatar/#{email}?size=#{size}&d=#{default_avatar}",
-      html_options
-    )
+    image_tag(user_avatar_url, profile_picture_html_options.merge(onerror: on_error_img, alt: ''))
+  end
+
+  def user_avatar_url(user)
+    Rails.cache.fetch [:user_avatar_url, current_entity.id, user.cache_key] do
+      user.profile_picture&.url ||
+        IeducarAvatarAuth.new(user.student&.avatar_url.to_s).generate_new_url.presence ||
+        PROFILE_DEFAULT_PICTURE_PATH
+    end
+  end
+
+  def on_error_img
+    "this.error=null;this.src='#{PROFILE_DEFAULT_PICTURE_PATH}'"
   end
 
   def custom_date_format(date)
@@ -246,5 +254,36 @@ module ApplicationHelper
         #{name}
       HTML
     end
+  end
+
+  def include_recaptcha_js
+    return '' if recaptcha_site_key.blank?
+
+    raw %Q{
+      <script src="https://www.google.com/recaptcha/api.js?render=#{recaptcha_site_key}"></script>
+    }
+  end
+
+  def recaptcha_execute
+    return '' if recaptcha_site_key.blank?
+
+    id = "recaptcha_token_#{SecureRandom.hex(10)}"
+
+    raw %Q{
+      <input name="recaptcha_token" type="hidden" id="#{id}"/>
+      <script>
+        grecaptcha.ready(function() {
+          grecaptcha.execute('#{recaptcha_site_key}').then(function(token) {
+            document.getElementById("#{id}").value = token;
+          });
+        });
+      </script>
+    }
+  end
+
+  private
+
+  def recaptcha_site_key
+    @recaptcha_site_key ||= Rails.application.secrets.recaptcha_site_key
   end
 end

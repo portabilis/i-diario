@@ -11,7 +11,7 @@ describe Navigation::TitleRender, type: :service do
   describe "#render" do
     context "when icon is marked to be show" do
       it "returns the icon and the title name" do
-        expect(subject.render(params, show_icon)).to eq "<i class=\"fa fa-fw fa-home\"></i> Dashboard"
+        expect(subject.render(params, show_icon)).to eq "<i class=\"fa fa-fw fa-home\"></i> Início"
       end
     end
 
@@ -19,7 +19,7 @@ describe Navigation::TitleRender, type: :service do
       let(:show_icon){ false }
 
       it "this not returns the icon and the title name" do
-        expect(subject.render(params, show_icon)).to eq "Dashboard"
+        expect(subject.render(params, show_icon)).to eq "Início"
       end
     end
   end

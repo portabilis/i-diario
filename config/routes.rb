@@ -2,12 +2,15 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
-  mount PgHero::Engine, at: 'pghero'
 
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
 
   localized do
-    devise_for :users
+    devise_for :users, controllers: {
+      sessions: 'users/sessions',
+      passwords: 'users/passwords',
+      unlocks: 'users/unlocks'
+    }
 
     # madis
     namespace :v1 do
@@ -98,7 +101,11 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :teachers, only: :index
+    resources :teachers, only: :index do
+      collection do
+        get :select2
+      end
+    end
 
     resources :system_notifications, only: :index
 
@@ -120,6 +127,7 @@ Rails.application.routes.draw do
         get :export_all
         get :export_selected
         get :select2_remote
+        post :profile_picture
       end
     end
 
@@ -127,7 +135,6 @@ Rails.application.routes.draw do
     resources :roles do
       member do
         get :history
-        get :fetch_features
       end
     end
     resources  :user_roles, only: [:show]

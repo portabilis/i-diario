@@ -76,7 +76,7 @@ class SynchronizationOrchestrator
     SynchronizerBuilderWorker.perform_async(
       params.slice(
         :entity_id,
-        :last_two_years
+        :current_years
       ).merge(
         klass: synchronizer[:klass],
         synchronization_id: params[:synchronization].id,

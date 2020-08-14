@@ -27,6 +27,7 @@
     <!-- For iPhone with high-resolution Retina display: -->
     <!-- Size should be 114 x 114 pixels -->
     <%= favicon_link_tag 'apple-touch-icon-114x114-precomposed.png', :rel => 'apple-touch-icon-precomposed', :type => 'image/png', :sizes => '114x114' %>
+    <%= yield :recaptcha_js %>
   </head>
 
   <body class="animated fadeInDown" id="registration-page">

@@ -25,7 +25,7 @@ $(function() {
         }).length == 0){
           return {
               id: $.trim(term),
-              text: $.trim(term) + ' (Novo conteúdo)'
+              text: $.trim(term) + ' (Novo)'
           };
         }
       },
@@ -43,7 +43,7 @@ $(function() {
             $.ajax(params);
           }
         },
-        delay: 1000,
+        quietMillis: 500,
         data: function (term, page) {
           let query = {
             filter: {
@@ -86,7 +86,7 @@ $(function() {
 
         return {
             id: $.trim(term),
-            text: $.trim(term) + ' (Novo ' + type + ')'
+            text: $.trim(term) + ' (Novo)'
         };
       },
       minimumInputLength: 3,

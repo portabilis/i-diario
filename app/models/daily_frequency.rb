@@ -24,6 +24,7 @@ class DailyFrequency < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :discipline
   belongs_to :school_calendar
+  belongs_to :teacher, foreign_key: :owner_teacher_id
 
   has_enumeration_for :period, with: Periods, skip_validation: true
 

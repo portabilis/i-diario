@@ -12,6 +12,7 @@ pt-BR:
       close: 'Fechar'
   ieducar_api_configurations:
     edit:
+      sending: 'Enviando...'
       synchronize: 'Sincronizar'
       full_synchronization: 'Sincronização completa'
       history: 'Histórico'

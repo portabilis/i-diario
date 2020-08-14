@@ -4,6 +4,7 @@
   <%= javascript_include_tag 'views/layouts/copy-objectives' %>
 <% end %>
 
+<%= hidden_field_tag :action_name, action_name %>
 <%= simple_form_for @knowledge_area_lesson_plan, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
 
@@ -13,7 +14,9 @@
     <%= render partial: 'lesson_plans/base_errors', locals: { f: lesson_plan } %>
 
     <fieldset>
-      <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'experience_fields' %>
+      <% if action_name != 'show' %>
+        <%= render 'teaching_plans/copy_objectives', f: lesson_plan, type: 'experience_fields' %>
+      <% end %>
 
       <div class="row">
         <%= render partial: 'lesson_plans/unity_field', locals: { f: lesson_plan } %>
@@ -22,14 +25,14 @@
 
         <div class="col col-sm-4">
           <%= f.input :knowledge_area_ids, as: :select2, elements: @knowledge_areas, multiple: true,
-                input_html: { data: { without_json_parser: true } } %>
+                input_html: { data: { without_json_parser: true } }, readonly: action_name == 'show' %>
         </div>
       </div>
 
       <div class="row">
         <%= render partial: 'lesson_plans/lesson_plan_date_fields', locals: { f: lesson_plan } %>
         <div class="col col-sm-4">
-          <%= f.input :experience_fields %>
+          <%= f.input :experience_fields, readonly: action_name == 'show' %>
         </div>
       </div>
     </fieldset>
@@ -50,6 +53,6 @@
             class: 'btn btn-info' %>
     <% end %>
 
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary' unless action_name == 'show' %>
   </footer>
 <% end %>

@@ -11,5 +11,5 @@ if Rails.env.production? || Rails.env.staging?
     password: Rails.application.secrets.SMTP_PASSWORD
   }
 
-  ActionMailer::Base.default from: "Notificação i-diário <no@reply.com.br>"
+  ActionMailer::Base.default from: "Notificação i-Diário <#{Rails.application.secrets.NO_REPLY_ADDRESS}>"
 end

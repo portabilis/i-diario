@@ -49,10 +49,6 @@ class DisciplineLessonPlansController < ApplicationController
         )
         send_pdf(t("routes.discipline_lesson_plan"), discipline_lesson_plan_pdf.render)
       end
-
-      format.html do
-        redirect_to discipline_lesson_plans_path
-      end
     end
   end
 
@@ -160,16 +156,43 @@ class DisciplineLessonPlansController < ApplicationController
   def content_ids
     param_content_ids = params[:discipline_lesson_plan][:lesson_plan_attributes][:content_ids] || []
     content_descriptions = params[:discipline_lesson_plan][:lesson_plan_attributes][:content_descriptions] || []
-    new_contents_ids = content_descriptions.map{|v| Content.find_or_create_by!(description: v).id }
-    param_content_ids + new_contents_ids
+
+    @discipline_lesson_plan.lesson_plan.contents_created_at_position = {}
+
+    param_content_ids.each_with_index do |content_id, index|
+      @discipline_lesson_plan.lesson_plan.contents_created_at_position[content_id.to_i] = index
+    end
+
+    new_contents_ids = content_descriptions.each_with_index.map { |description, index|
+      content = Content.find_or_create_by!(description: description)
+      @discipline_lesson_plan.lesson_plan.contents_created_at_position[content.id] = param_content_ids.size + index
+
+      content.id
+    }
+
+    @ordered_content_ids = param_content_ids + new_contents_ids
   end
 
   def objective_ids
     param_objective_ids = params[:discipline_lesson_plan][:lesson_plan_attributes][:objective_ids] || []
     objective_descriptions =
       params[:discipline_lesson_plan][:lesson_plan_attributes][:objective_descriptions] || []
-    new_objectives_ids = objective_descriptions.map { |value| Objective.find_or_create_by!(description: value).id }
-    param_objective_ids + new_objectives_ids
+
+    @discipline_lesson_plan.lesson_plan.objectives_created_at_position = {}
+
+    param_objective_ids.each_with_index do |objective_id, index|
+      @discipline_lesson_plan.lesson_plan.objectives_created_at_position[objective_id.to_i] = index
+    end
+
+    new_objectives_ids = objective_descriptions.each_with_index.map { |description, index|
+      objective = Objective.find_or_create_by!(description: description)
+      @discipline_lesson_plan.lesson_plan.objectives_created_at_position[objective.id] =
+        param_objective_ids.size + index
+
+      objective.id
+    }
+
+    @ordered_objective_ids = param_objective_ids + new_objectives_ids
   end
 
   def resource_params
@@ -214,11 +237,13 @@ class DisciplineLessonPlansController < ApplicationController
   def contents
     @contents = []
 
-    if params[:action] == 'edit'
-      @contents = @discipline_lesson_plan.lesson_plan.contents_ordered if @discipline_lesson_plan.contents
-    else
-      @contents = Content.find(@discipline_lesson_plan.lesson_plan.content_ids)
-    end
+    return @contents if @discipline_lesson_plan.lesson_plan.content_ids.blank?
+
+    @contents = if @ordered_content_ids.present?
+                  Content.find_and_order_by_id_sequence(@ordered_content_ids)
+                else
+                  @discipline_lesson_plan.lesson_plan.contents_ordered
+                end
 
     @contents = @contents.each { |content| content.is_editable = true }.uniq
   end
@@ -227,13 +252,13 @@ class DisciplineLessonPlansController < ApplicationController
   def objectives
     @objectives = []
 
-    if params[:action] == 'edit'
-      if @discipline_lesson_plan.lesson_plan.objectives
-        @objectives = @discipline_lesson_plan.lesson_plan.objectives_ordered
-      end
-    else
-      @objectives = Objective.find(@discipline_lesson_plan.lesson_plan.objective_ids)
-    end
+    return @objectives if @discipline_lesson_plan.lesson_plan.objective_ids.blank?
+
+    @objectives = if @ordered_objective_ids.present?
+                    Objective.find_and_order_by_id_sequence(@ordered_objective_ids)
+                  else
+                    @discipline_lesson_plan.lesson_plan.objectives_ordered
+                  end
 
     @objectives = @objectives.each { |objective| objective.is_editable = true }.uniq
   end
