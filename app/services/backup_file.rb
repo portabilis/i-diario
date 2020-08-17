@@ -93,6 +93,7 @@ class BackupFile
         avaliacoes_conceituais_lancadas
         avaliacoes_descritivas_lancadas
         frequencias_lancadas
+        planos_de_ensino_criados
       ]
     )
 
@@ -112,7 +113,8 @@ class BackupFile
           item[10],
           item[11],
           item[12],
-          item[13]
+          item[13],
+          item[14]
         ]
       )
     end

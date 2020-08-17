@@ -26,7 +26,8 @@ class SchoolCalendarQuery
              td_daily_notes.count AS avaliacoes_lancadas,
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
-             td_daily_frequencies.count as frequencias_lancadas
+             td_daily_frequencies.count as frequencias_lancadas,
+             td_teaching_plans.count AS planos_de_ensino_criados
         FROM school_calendars
         JOIN school_calendar_steps
           ON school_calendar_steps.school_calendar_id = school_calendars.id
@@ -79,7 +80,19 @@ class SchoolCalendarQuery
                      step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
                WHERE classrooms.unity_id = unities.id
                  AND step.step_number = school_calendar_steps.step_number
-             ) AS td_daily_frequencies
+             ) AS td_daily_frequencies,
+      LATERAL (SELECT COUNT(1) AS count
+                 FROM teaching_plans
+                WHERE teaching_plans.unity_id = unities.id
+                  AND school_calendar_steps.step_number = (
+                      CASE
+                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
+                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
+                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
+                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['fourth_bimester']) THEN 4
+                      END
+                  )
+          ) AS td_teaching_plans
        WHERE school_calendars.year = $1
       UNION ALL
       SELECT unities.name AS unity_name,
@@ -95,7 +108,8 @@ class SchoolCalendarQuery
              td_daily_notes.count AS avaliacoes_lancadas,
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
-             td_daily_frequencies.count as frequencias_lancadas
+             td_daily_frequencies.count as frequencias_lancadas,
+             td_teaching_plans.count AS planos_de_ensino_criados
         FROM school_calendars
         JOIN school_calendar_classrooms
           ON school_calendar_classrooms.school_calendar_id = school_calendars.id
@@ -144,7 +158,19 @@ class SchoolCalendarQuery
                   step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
             WHERE classrooms.unity_id = unities.id
               AND step.step_number = school_calendar_classroom_steps.step_number
-          ) AS td_daily_frequencies
+          ) AS td_daily_frequencies,
+      LATERAL (SELECT COUNT(1) AS count
+                 FROM teaching_plans
+                WHERE teaching_plans.unity_id = unities.id
+                  AND school_calendar_classroom_steps.step_number = (
+                      CASE
+                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
+                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
+                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
+                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['fourth_bimester']) THEN 4
+                      END
+                  )
+          ) AS td_teaching_plans
        WHERE school_calendars.year = $1
     ORDER BY unity_name, kind, classroom, step
     SQL
