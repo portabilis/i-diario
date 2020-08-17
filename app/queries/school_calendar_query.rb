@@ -27,7 +27,8 @@ class SchoolCalendarQuery
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
              td_daily_frequencies.count as frequencias_lancadas,
-             td_teaching_plans.count AS planos_de_ensino_criados
+             td_teaching_plans.count AS planos_de_ensino_criados,
+             td_transfer_notes.count AS notas_de_transferencia_criadas
         FROM school_calendars
         JOIN school_calendar_steps
           ON school_calendar_steps.school_calendar_id = school_calendars.id
@@ -92,7 +93,15 @@ class SchoolCalendarQuery
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['fourth_bimester']) THEN 4
                       END
                   )
-          ) AS td_teaching_plans
+          ) AS td_teaching_plans,
+      LATERAL (SELECT COUNT(1) AS count
+                 FROM classrooms
+                 JOIN transfer_notes
+                   ON transfer_notes.classroom_id = classrooms.id,
+                      step_by_classroom(classrooms.id, transfer_notes.recorded_at) AS step
+                WHERE classrooms.unity_id = unities.id
+                  AND step.step_number = school_calendar_steps.step_number
+              ) AS td_transfer_notes
        WHERE school_calendars.year = $1
       UNION ALL
       SELECT unities.name AS unity_name,
@@ -109,7 +118,8 @@ class SchoolCalendarQuery
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
              td_daily_frequencies.count as frequencias_lancadas,
-             td_teaching_plans.count AS planos_de_ensino_criados
+             td_teaching_plans.count AS planos_de_ensino_criados,
+             td_transfer_notes.count AS notas_de_transferencia_criadas
         FROM school_calendars
         JOIN school_calendar_classrooms
           ON school_calendar_classrooms.school_calendar_id = school_calendars.id
@@ -170,7 +180,15 @@ class SchoolCalendarQuery
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['fourth_bimester']) THEN 4
                       END
                   )
-          ) AS td_teaching_plans
+          ) AS td_teaching_plans,
+      LATERAL (SELECT COUNT(1) AS count
+                 FROM classrooms
+                 JOIN transfer_notes
+                   ON transfer_notes.classroom_id = classrooms.id,
+                      step_by_classroom(classrooms.id, transfer_notes.recorded_at) AS step
+                WHERE classrooms.unity_id = unities.id
+                  AND step.step_number = school_calendar_classroom_steps.step_number
+              ) AS td_transfer_notes
        WHERE school_calendars.year = $1
     ORDER BY unity_name, kind, classroom, step
     SQL
