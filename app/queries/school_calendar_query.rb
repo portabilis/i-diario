@@ -25,7 +25,8 @@ class SchoolCalendarQuery
              td_avaliations.count AS avaliacoes_criadas,
              td_daily_notes.count AS avaliacoes_lancadas,
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
-             td_descriptive_exams.count AS avaliacoes_descritivas_lancadas
+             td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
+             td_daily_frequencies.count as frequencias_lancadas
         FROM school_calendars
         JOIN school_calendar_steps
           ON school_calendar_steps.school_calendar_id = school_calendars.id
@@ -70,7 +71,15 @@ class SchoolCalendarQuery
                           AND descriptive_exam_students.discarded_at IS NULL
                           AND COALESCE(descriptive_exam_students.value, '') <> ''
                      )
-             ) AS td_descriptive_exams
+             ) AS td_descriptive_exams,
+      LATERAL (SELECT COUNT(1) AS count
+                FROM classrooms
+                JOIN daily_frequencies
+                  ON daily_frequencies.classroom_id = classrooms.id,
+                     step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
+               WHERE classrooms.unity_id = unities.id
+                 AND step.step_number = school_calendar_steps.step_number
+             ) AS td_daily_frequencies
        WHERE school_calendars.year = $1
       UNION ALL
       SELECT unities.name AS unity_name,
@@ -85,7 +94,8 @@ class SchoolCalendarQuery
              td_avaliations.count AS avaliacoes_criadas,
              td_daily_notes.count AS avaliacoes_lancadas,
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
-             td_descriptive_exams.count AS avaliacoes_descritivas_lancadas
+             td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
+             td_daily_frequencies.count as frequencias_lancadas
         FROM school_calendars
         JOIN school_calendar_classrooms
           ON school_calendar_classrooms.school_calendar_id = school_calendars.id
@@ -126,7 +136,15 @@ class SchoolCalendarQuery
                           AND descriptive_exam_students.discarded_at IS NULL
                           AND COALESCE(descriptive_exam_students.value, '') <> ''
                      )
-             ) AS td_descriptive_exams
+             ) AS td_descriptive_exams,
+      LATERAL (SELECT COUNT(1) AS count
+             FROM classrooms
+             JOIN daily_frequencies
+               ON daily_frequencies.classroom_id = classrooms.id,
+                  step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
+            WHERE classrooms.unity_id = unities.id
+              AND step.step_number = school_calendar_classroom_steps.step_number
+          ) AS td_daily_frequencies
        WHERE school_calendars.year = $1
     ORDER BY unity_name, kind, classroom, step
     SQL
