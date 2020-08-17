@@ -32,7 +32,7 @@ gem 'handlebars_assets', '0.23.2'
 gem 'has_scope', '0.5.1'
 gem 'honeybadger', '4.5.6'
 gem 'i18n_alchemy', '0.2.1', git: 'https://github.com/giustin/i18n_alchemy.git', branch: 'master', tag: 'v0.2.1'
-gem 'jbuilder', '2.2.16'
+gem 'jbuilder', '2.9.1'
 gem 'js-routes', '1.4.9'
 gem 'kaminari', '0.16.3'
 gem 'less-rails', '3.0.0'
@@ -44,7 +44,6 @@ gem 'non-stupid-digest-assets', '1.0.9'
 gem 'paperclip', '5.2.1'
 gem 'pg', '0.17.1'
 gem 'pg_query', '1.2.0'
-gem 'pghero', '2.2.1'
 gem 'postgres-copy', '1.0.0'
 gem 'prawn', '2.1.1', git: 'https://github.com/portabilis/prawn.git', branch: 'master', tag: 'v2.1.1'
 gem 'prawn-table', '0.2.2'
@@ -63,7 +62,7 @@ gem 'route_translator', git: 'https://github.com/enriclluelles/route_translator.
 gem 'rubyzip', '1.2.2', require: 'zip'
 gem 'sdoc', '0.4.1', group: :doc
 gem 'sidekiq', '5.0.3'
-gem 'sidekiq-unique-jobs', '4.0.18'
+gem 'sidekiq-unique-jobs', '6.0.22'
 gem 'simple_form', '3.1.0'
 gem 'sinatra', '1.4.6', require: nil
 gem 'therubyracer', '0.12.2'
@@ -79,6 +78,9 @@ gem 'public_suffix', '3.0.3'
 gem 'dry-inflector', '0.1.2'
 gem 'launchy', '2.4.3'
 gem 'signet', '0.11.0'
+
+# Adiciona gem de dependencia para fixar a versão e remover warning
+gem 'thor', '0.19.1'
 
 instance_eval File.read('Gemfile.plugins') if File.exists?('Gemfile.plugins')
 
@@ -102,17 +104,19 @@ group :test do
   gem 'factory_girl_rails', '4.5.0'
   gem 'faker', '1.9.1'
   gem 'pdf-inspector', '1.2.1', require: 'pdf/inspector'
-  gem 'poltergeist', '1.8.1'
   gem 'pry', '0.10.3'
   gem 'rspec-rails', '3.4.0'
+  gem 'rspec-retry', '0.6.2 '
   gem 'rspec-sidekiq', '3.0.3'
   gem 'rspec-wait', '0.0.9'
+  gem 'selenium-webdriver', '~> 3.0'
   gem 'shoulda-matchers', '3.0.1'
   gem 'simplecov', '0.12.0'
   gem 'timecop', '0.8.1'
   gem 'gherkin', '2.12.2'
   gem 'turnip', '1.3.1'
   gem 'vcr', '3.0.0'
+  gem 'webdrivers', '3.6.0'
   gem 'webmock', '1.24.6'
 end
 

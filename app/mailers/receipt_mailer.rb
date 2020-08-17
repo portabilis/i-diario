@@ -1,5 +1,5 @@
 class ReceiptMailer < ActionMailer::Base
-  default from: 'Notificação i-Diário <no@reply.com.br>'.freeze
+  default from: "Notificação i-Diário <#{Rails.application.secrets.NO_REPLY_ADDRESS}>".freeze
 
   def notify_daily_frequency_success(user, url, date)
     @name = user.first_name if user.first_name.present?

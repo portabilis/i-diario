@@ -1,7 +1,7 @@
-# encoding: utf-8
-
 module ApplicationHelper
   include ActiveSupport::Inflector
+
+  PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
     @unread_notifications_count ||= current_user.unread_notifications.count
@@ -71,27 +71,24 @@ module ApplicationHelper
     super object, *(args << options), &block
   end
 
-  def gravatar_image_tag(email, size = '48', html_options = {})
-    email = Digest::MD5.hexdigest(email.to_s)
-    default_avatar = CGI.escape(
-      'https://s3-sa-east-1.amazonaws.com/apps-core-images-test/uploads/avatar/avatar.jpg'
-    )
+  def profile_picture_tag(user, profile_picture_html_options = {})
+    user_avatar_url = user_avatar_url(user)
 
-    html_options['id'] = "menu_avatar"
-    html_options['height'] = "#{size}px"
-    html_options['width'] = "#{size}px"
-    html_options['onerror'] = "this.error=null;this.src='/assets/profile-default.jpg'"
+    return unless user_avatar_url
 
-    image_tag(
-      "https://www.gravatar.com/avatar/#{email}?size=#{size}&d=#{default_avatar}",
-      html_options
-    )
+    image_tag(user_avatar_url, profile_picture_html_options.merge(onerror: on_error_img, alt: ''))
   end
 
-  def profile_picture_tag(user, gravatar_size, gravatar_html_options = {}, profile_picture_html_options = {})
-    return image_tag(user.profile_picture_url, profile_picture_html_options) if user.profile_picture&.url
+  def user_avatar_url(user)
+    Rails.cache.fetch [:user_avatar_url, current_entity.id, user.cache_key] do
+      user.profile_picture&.url ||
+        IeducarAvatarAuth.new(user.student&.avatar_url.to_s).generate_new_url.presence ||
+        PROFILE_DEFAULT_PICTURE_PATH
+    end
+  end
 
-    gravatar_image_tag(user.email, gravatar_size, gravatar_html_options)
+  def on_error_img
+    "this.error=null;this.src='#{PROFILE_DEFAULT_PICTURE_PATH}'"
   end
 
   def custom_date_format(date)

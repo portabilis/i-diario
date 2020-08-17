@@ -40,7 +40,7 @@ module Helpers
 
     field = page.find_field(locator)
     page.execute_script %{document.getElementById('#{field[:id]}').value = '#{options[:with]}'}
-    field.trigger('blur')
+    page.execute_script("$('##{field[:id]}').trigger('blur')")
   end
 
   def fill_in_select2(selector, options={})

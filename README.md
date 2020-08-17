@@ -85,6 +85,12 @@ dos serviços ou o mapeamento dos volumes extras para a aplicação.
 sudo apt install libpq-dev
 ```
 
+- Instale Redis
+
+```bash
+sudo apt install redis-server
+```
+
 - Instale a gem Bundler:
 
 ```bash
@@ -107,6 +113,7 @@ development:
   SMTP_DOMAIN: SMTP_DOMAIN
   SMTP_USER_NAME: SMTP_USER_NAME
   SMTP_PASSWORD: SMTP_PASSWORD
+  NO_REPLY_ADDRESS: NO_REPLY_ADDRESS
   BUCKET_NAME: S3_BUCKET_NAME
 ```
 

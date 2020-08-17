@@ -8,12 +8,7 @@
       aria-expanded="true">
 
       <i class="fa fa-angle-down"></i>
-      <%= profile_picture_tag(
-        current_user,
-        20,
-        { alt: current_user.navigation_display },
-        { style: 'height: 28px; width: 28px;', id: 'menu_avatar' }
-      ) %>
+      <%= profile_picture_tag(current_user, id: 'menu_avatar') %>
     </a>
     <ul class="dropdown-menu " aria-labelledby="dropdownMenu1">
       <li>

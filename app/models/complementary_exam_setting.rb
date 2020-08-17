@@ -38,6 +38,7 @@ class ComplementaryExamSetting < ActiveRecord::Base
   scope :by_affected_score, lambda { |affected_score| where(affected_score: affected_score) }
   scope :by_calculation_type, lambda { |calculation_type| where(calculation_type: calculation_type) }
   scope :by_grade_id, lambda { |grade_id| by_grade_id_scope(grade_id) }
+  scope :by_year, lambda { |year| where(year: year) }
   scope :ordered, -> { order(year: :desc, description: :asc) }
 
   has_enumeration_for :affected_score, with: AffectedScoreTypes, create_helpers: true

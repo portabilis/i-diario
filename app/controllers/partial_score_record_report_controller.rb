@@ -7,12 +7,13 @@ class PartialScoreRecordReportController < ApplicationController
 
   def report
     @partial_score_record_report_form = PartialScoreRecordReportForm.new(resource_params)
-
+    students_ids = resource_params[:students_ids].presence || students.pluck(:id)
+    @partial_score_record_report_form.students_ids = [students_ids].flatten
     if @partial_score_record_report_form.valid?
       partial_score_record_report = PartialScoreRecordReport.build(current_entity_configuration,
                                                   current_school_calendar.year,
                                                   @partial_score_record_report_form.step,
-                                                  @partial_score_record_report_form.student,
+                                                  @partial_score_record_report_form.students,
                                                   @partial_score_record_report_form.unity,
                                                   @partial_score_record_report_form.classroom,
                                                   current_test_setting)
@@ -83,7 +84,7 @@ class PartialScoreRecordReportController < ApplicationController
   def resource_params
     params.require(:partial_score_record_report_form).permit(:unity_id,
                                                             :classroom_id,
-                                                            :student_id,
+                                                            :students_ids,
                                                             :school_calendar_step_id,
                                                             :school_calendar_classroom_step_id)
   end

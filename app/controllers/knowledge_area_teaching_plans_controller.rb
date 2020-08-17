@@ -132,16 +132,44 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def content_ids
     param_content_ids = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:content_ids] || []
     content_descriptions = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:content_descriptions] || []
-    new_contents_ids = content_descriptions.map{|v| Content.find_or_create_by!(description: v).id }
-    param_content_ids + new_contents_ids
+
+    @knowledge_area_teaching_plan.teaching_plan.contents_created_at_position = {}
+
+    param_content_ids.each_with_index do |content_id, index|
+      @knowledge_area_teaching_plan.teaching_plan.contents_created_at_position[content_id.to_i] = index
+    end
+
+    new_contents_ids = content_descriptions.each_with_index.map { |description, index|
+      content = Content.find_or_create_by!(description: description)
+      @knowledge_area_teaching_plan.teaching_plan.contents_created_at_position[content.id] =
+        param_content_ids.size + index
+
+      content.id
+    }
+
+    @ordered_content_ids = param_content_ids + new_contents_ids
   end
 
   def objective_ids
     param_objective_ids = params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:objective_ids] || []
     objective_descriptions =
       params[:knowledge_area_teaching_plan][:teaching_plan_attributes][:objective_descriptions] || []
-    new_objectives_ids = objective_descriptions.map { |value| Objective.find_or_create_by!(description: value).id }
-    param_objective_ids + new_objectives_ids
+
+    @knowledge_area_teaching_plan.teaching_plan.objectives_created_at_position = {}
+
+    param_objective_ids.each_with_index do |objective_id, index|
+      @knowledge_area_teaching_plan.teaching_plan.objectives_created_at_position[objective_id.to_i] = index
+    end
+
+    new_objectives_ids = objective_descriptions.each_with_index.map { |description, index|
+      objective = Objective.find_or_create_by!(description: description)
+      @knowledge_area_teaching_plan.teaching_plan.objectives_created_at_position[objective.id] =
+        param_objective_ids.size + index
+
+      objective.id
+    }
+
+    @ordered_objective_ids = param_objective_ids + new_objectives_ids
   end
 
   def resource_params
@@ -176,26 +204,30 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   def contents
     @contents = []
 
-    if @knowledge_area_teaching_plan.teaching_plan.contents
-      contents = @knowledge_area_teaching_plan.teaching_plan.contents_ordered
-      contents.each { |content| content.is_editable = true }
-      @contents << contents
-    end
+    return @contents if @knowledge_area_teaching_plan.teaching_plan.content_ids.blank?
 
-    @contents.flatten.uniq
+    @contents = if @ordered_content_ids.present?
+                  Content.find_and_order_by_id_sequence(@ordered_content_ids)
+                else
+                  @knowledge_area_teaching_plan.teaching_plan.contents_ordered
+                end
+
+    @contents = @contents.each { |content| content.is_editable = true }.uniq
   end
   helper_method :contents
 
   def objectives
     @objectives = []
 
-    if @knowledge_area_teaching_plan.teaching_plan.objectives
-      objectives = @knowledge_area_teaching_plan.teaching_plan.objectives_ordered
-      objectives.each { |objective| objective.is_editable = true }
-      @objectives << objectives
-    end
+    return @objectives if @knowledge_area_teaching_plan.teaching_plan.objective_ids.blank?
 
-    @objectives.flatten.uniq
+    @objectives = if @ordered_objective_ids.present?
+                    Objective.find_and_order_by_id_sequence(@ordered_objective_ids)
+                  else
+                    @knowledge_area_teaching_plan.teaching_plan.objectives_ordered
+                  end
+
+    @objectives = @objectives.each { |objective| objective.is_editable = true }.uniq
   end
   helper_method :objectives
 
