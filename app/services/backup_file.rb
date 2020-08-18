@@ -95,6 +95,7 @@ class BackupFile
         frequencias_lancadas
         planos_de_ensino_criados
         notas_de_transferencia_criadas
+        avaliacoes_complementares_lancadas
       ]
     )
 
@@ -116,7 +117,8 @@ class BackupFile
           item[12],
           item[13],
           item[14],
-          item[15]
+          item[15],
+          item[16]
         ]
       )
     end
