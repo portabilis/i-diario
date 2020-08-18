@@ -29,7 +29,8 @@ class SchoolCalendarQuery
              td_daily_frequencies.count as frequencias_lancadas,
              td_teaching_plans.count AS planos_de_ensino_criados,
              td_transfer_notes.count AS notas_de_transferencia_criadas,
-             td_complementary_exams.count AS avaliacoes_complementares_lancadas
+             td_complementary_exams.count AS avaliacoes_complementares_lancadas,
+             td_avaliations_recovery_diary_records.count AS recuperacoes_de_avaliacoes_lancadas
         FROM school_calendars
         JOIN school_calendar_steps
           ON school_calendar_steps.school_calendar_id = school_calendars.id
@@ -109,7 +110,17 @@ class SchoolCalendarQuery
                    ON complementary_exams.classroom_id = classrooms.id
                 WHERE classrooms.unity_id = unities.id
                   AND complementary_exams.step_number = school_calendar_steps.step_number
-           ) AS td_complementary_exams
+           ) AS td_complementary_exams,
+      LATERAL (SELECT COUNT(1) AS count
+                 FROM classrooms
+                 JOIN avaliations
+                   ON avaliations.classroom_id = classrooms.id
+                 JOIN avaliation_recovery_diary_records
+                   ON avaliation_recovery_diary_records.avaliation_id = avaliations.id,
+                      step_by_classroom(classrooms.id, avaliations.test_date) AS step
+                WHERE classrooms.unity_id = unities.id
+                  AND step.step_number = school_calendar_steps.step_number
+        ) AS td_avaliations_recovery_diary_records
        WHERE school_calendars.year = $1
       UNION ALL
       SELECT unities.name AS unity_name,
@@ -128,7 +139,8 @@ class SchoolCalendarQuery
              td_daily_frequencies.count as frequencias_lancadas,
              td_teaching_plans.count AS planos_de_ensino_criados,
              td_transfer_notes.count AS notas_de_transferencia_criadas,
-             td_complementary_exams.count AS avaliacoes_complementares_lancadas
+             td_complementary_exams.count AS avaliacoes_complementares_lancadas,
+             td_avaliations_recovery_diary_records.count AS recuperacoes_de_avaliacoes_lancadas
         FROM school_calendars
         JOIN school_calendar_classrooms
           ON school_calendar_classrooms.school_calendar_id = school_calendars.id
@@ -204,7 +216,17 @@ class SchoolCalendarQuery
                    ON complementary_exams.classroom_id = classrooms.id
                 WHERE classrooms.unity_id = unities.id
                   AND complementary_exams.step_number = school_calendar_classroom_steps.step_number
-        ) AS td_complementary_exams
+        ) AS td_complementary_exams,
+      LATERAL (SELECT COUNT(1) AS count
+                 FROM classrooms
+                 JOIN avaliations
+                   ON avaliations.classroom_id = classrooms.id
+                 JOIN avaliation_recovery_diary_records
+                   ON avaliation_recovery_diary_records.avaliation_id = avaliations.id,
+                      step_by_classroom(classrooms.id, avaliations.test_date) AS step
+                WHERE classrooms.unity_id = unities.id
+                  AND step.step_number = school_calendar_classroom_steps.step_number
+              ) AS td_avaliations_recovery_diary_records
        WHERE school_calendars.year = $1
     ORDER BY unity_name, kind, classroom, step
     SQL
