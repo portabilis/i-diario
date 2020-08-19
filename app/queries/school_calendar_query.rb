@@ -82,77 +82,74 @@ class SchoolCalendarQuery
                      )
                  AND EXTRACT(YEAR FROM descriptive_exams.recorded_at) = $1
              ) AS td_descriptive_exams,
-      LATERAL (SELECT EXISTS(
-                 SELECT 1
-                   FROM classrooms
-                   JOIN daily_frequencies
-                     ON daily_frequencies.classroom_id = classrooms.id,
-                        step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
-                  WHERE classrooms.unity_id = unities.id
-                    AND step.step_number = school_calendar_steps.step_number
-                    AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1
-                  ) AS frequencies
+     LATERAL (SELECT EXISTS (
+                SELECT 1
+                  FROM classrooms
+                  JOIN daily_frequencies
+                    ON daily_frequencies.classroom_id = classrooms.id,
+                       step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
+                 WHERE classrooms.unity_id = unities.id
+                   AND step.step_number = school_calendar_steps.step_number
+                   AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1) AS frequencies
              ) AS td_daily_frequencies,
-      LATERAL (SELECT EXISTS(
-                 SELECT 1
-                   FROM teaching_plans
-                  WHERE teaching_plans.unity_id = unities.id
-                    AND school_calendar_steps.step_number = (
-                      CASE
-                        WHEN teaching_plans.school_term = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
-                        WHEN teaching_plans.school_term = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
-                        WHEN teaching_plans.school_term = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
-                        WHEN teaching_plans.school_term = ANY(ARRAY['fourth_bimester']) THEN 4
-                      END
-                    )
-                    AND teaching_plans.year = $1
-              ) AS plans
-          ) AS td_teaching_plans,
-      LATERAL (SELECT EXISTS(
-                 SELECT 1
-                   FROM teaching_plans
-                  WHERE teaching_plans.unity_id = unities.id
-                    AND teaching_plans.school_term = ''
-                    AND teaching_plans.year = $1
-                 ) AS plans
-              ) AS td_yearly_teaching_plans,
-      LATERAL (SELECT COUNT(1) AS count
-                 FROM classrooms
-                 JOIN transfer_notes
-                   ON transfer_notes.classroom_id = classrooms.id,
-                      step_by_classroom(classrooms.id, transfer_notes.recorded_at) AS step
-                WHERE classrooms.unity_id = unities.id
-                  AND step.step_number = school_calendar_steps.step_number
-                  AND EXTRACT(YEAR FROM transfer_notes.recorded_at) = $1
-              ) AS td_transfer_notes,
-      LATERAL (SELECT COUNT(1) AS count
-                 FROM classrooms
-                 JOIN complementary_exams
-                   ON complementary_exams.classroom_id = classrooms.id
-                WHERE classrooms.unity_id = unities.id
-                  AND complementary_exams.step_number = school_calendar_steps.step_number
-                  AND EXTRACT(YEAR FROM complementary_exams.recorded_at) = $1
-           ) AS td_complementary_exams,
-      LATERAL (SELECT COUNT(1) AS count
-                 FROM classrooms
-                 JOIN avaliations
-                   ON avaliations.classroom_id = classrooms.id
-                 JOIN avaliation_recovery_diary_records
-                   ON avaliation_recovery_diary_records.avaliation_id = avaliations.id,
-                      step_by_classroom(classrooms.id, avaliations.test_date) AS step
-                WHERE classrooms.unity_id = unities.id
-                  AND step.step_number = school_calendar_steps.step_number
-                  AND EXTRACT(YEAR FROM avaliations.test_date) = $1
-        ) AS td_avaliations_recovery_diary_records,
-      LATERAL (SELECT COUNT(1) AS count
-                 FROM recovery_diary_records
-                 JOIN school_term_recovery_diary_records
-                   ON school_term_recovery_diary_records.recovery_diary_record_id = recovery_diary_records.id
-                WHERE school_term_recovery_diary_records.step_number = school_calendar_steps.step_number
-                AND EXTRACT(YEAR FROM school_term_recovery_diary_records.recorded_at) = $1
-              ) AS td_school_term_recovery_diary_record
+     LATERAL (SELECT EXISTS (
+                SELECT 1
+                  FROM teaching_plans
+                 WHERE teaching_plans.unity_id = unities.id
+                   AND school_calendar_steps.step_number = (
+                     CASE
+                       WHEN teaching_plans.school_term = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
+                       WHEN teaching_plans.school_term = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
+                       WHEN teaching_plans.school_term = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
+                       WHEN teaching_plans.school_term = ANY(ARRAY['fourth_bimester']) THEN 4
+                     END
+                   )
+                   AND teaching_plans.year = $1) AS plans
+             ) AS td_teaching_plans,
+     LATERAL (SELECT EXISTS (
+                SELECT 1
+                  FROM teaching_plans
+                 WHERE teaching_plans.unity_id = unities.id
+                   AND teaching_plans.school_term = ''
+                   AND teaching_plans.year = $1) AS plans
+             ) AS td_yearly_teaching_plans,
+     LATERAL (SELECT COUNT(1) AS count
+                FROM classrooms
+                JOIN transfer_notes
+                  ON transfer_notes.classroom_id = classrooms.id,
+                     step_by_classroom(classrooms.id, transfer_notes.recorded_at) AS step
+               WHERE classrooms.unity_id = unities.id
+                 AND step.step_number = school_calendar_steps.step_number
+                 AND EXTRACT(YEAR FROM transfer_notes.recorded_at) = $1
+             ) AS td_transfer_notes,
+     LATERAL (SELECT COUNT(1) AS count
+                FROM classrooms
+                JOIN complementary_exams
+                  ON complementary_exams.classroom_id = classrooms.id
+               WHERE classrooms.unity_id = unities.id
+                 AND complementary_exams.step_number = school_calendar_steps.step_number
+                 AND EXTRACT(YEAR FROM complementary_exams.recorded_at) = $1
+             ) AS td_complementary_exams,
+     LATERAL (SELECT COUNT(1) AS count
+                FROM classrooms
+                JOIN avaliations
+                  ON avaliations.classroom_id = classrooms.id
+                JOIN avaliation_recovery_diary_records
+                  ON avaliation_recovery_diary_records.avaliation_id = avaliations.id,
+                     step_by_classroom(classrooms.id, avaliations.test_date) AS step
+               WHERE classrooms.unity_id = unities.id
+                 AND step.step_number = school_calendar_steps.step_number
+                 AND EXTRACT(YEAR FROM avaliations.test_date) = $1
+             ) AS td_avaliations_recovery_diary_records,
+     LATERAL (SELECT COUNT(1) AS count
+                FROM recovery_diary_records
+                JOIN school_term_recovery_diary_records
+                  ON school_term_recovery_diary_records.recovery_diary_record_id = recovery_diary_records.id
+               WHERE school_term_recovery_diary_records.step_number = school_calendar_steps.step_number
+                 AND EXTRACT(YEAR FROM school_term_recovery_diary_records.recorded_at) = $1
+             ) AS td_school_term_recovery_diary_record
        WHERE school_calendars.year = $1
-      UNION ALL
+       UNION ALL
       SELECT unities.name AS unity_name,
              'Turma' AS kind,
              school_calendar_classroom_steps.step_number AS step,
@@ -218,41 +215,38 @@ class SchoolCalendarQuery
                      )
                  AND EXTRACT(YEAR FROM descriptive_exams.recorded_at) = $1
              ) AS td_descriptive_exams,
-      LATERAL (SELECT EXISTS(
-                 SELECT 1
-                   FROM classrooms
-                   JOIN daily_frequencies
-                     ON daily_frequencies.classroom_id = classrooms.id,
-                        step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
-                  WHERE classrooms.unity_id = unities.id
-                    AND step.step_number = school_calendar_classroom_steps.step_number
-                    AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1
-              ) AS frequencies
-          ) AS td_daily_frequencies,
-      LATERAL (SELECT EXISTS(
-                 SELECT COUNT(1) AS count
-                   FROM teaching_plans
-                  WHERE teaching_plans.unity_id = unities.id
-                    AND school_calendar_classroom_steps.step_number = (
-                      CASE
-                        WHEN teaching_plans.school_term = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
-                        WHEN teaching_plans.school_term = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
-                        WHEN teaching_plans.school_term = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
-                        WHEN teaching_plans.school_term = ANY(ARRAY['fourth_bimester']) THEN 4
-                      END
-                    )
-                    AND teaching_plans.year = $1
-                 ) AS plans
-          ) AS td_teaching_plans,
-      LATERAL (SELECT EXISTS(
-                 SELECT 1
-                   FROM teaching_plans
-                  WHERE teaching_plans.unity_id = unities.id
-                    AND teaching_plans.school_term = ''
-                    AND teaching_plans.year = $1
-                 ) AS plans
-              ) AS td_yearly_teaching_plans,
-      LATERAL (SELECT COUNT(1) AS count
+     LATERAL (SELECT EXISTS (
+                SELECT 1
+                  FROM classrooms
+                  JOIN daily_frequencies
+                    ON daily_frequencies.classroom_id = classrooms.id,
+                       step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
+                 WHERE classrooms.unity_id = unities.id
+                   AND step.step_number = school_calendar_classroom_steps.step_number
+                   AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1) AS frequencies
+             ) AS td_daily_frequencies,
+     LATERAL (SELECT EXISTS (
+                SELECT COUNT(1) AS count
+                  FROM teaching_plans
+                 WHERE teaching_plans.unity_id = unities.id
+                   AND school_calendar_classroom_steps.step_number = (
+                     CASE
+                       WHEN teaching_plans.school_term = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
+                       WHEN teaching_plans.school_term = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
+                       WHEN teaching_plans.school_term = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
+                       WHEN teaching_plans.school_term = ANY(ARRAY['fourth_bimester']) THEN 4
+                     END
+                   )
+                   AND teaching_plans.year = $1) AS plans
+             ) AS td_teaching_plans,
+     LATERAL (SELECT EXISTS (
+                SELECT 1
+                  FROM teaching_plans
+                 WHERE teaching_plans.unity_id = unities.id
+                   AND teaching_plans.school_term = ''
+                   AND teaching_plans.year = $1) AS plans
+             ) AS td_yearly_teaching_plans,
+     LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
                  JOIN transfer_notes
                    ON transfer_notes.classroom_id = classrooms.id,
@@ -260,16 +254,16 @@ class SchoolCalendarQuery
                 WHERE classrooms.unity_id = unities.id
                   AND step.step_number = school_calendar_classroom_steps.step_number
                   AND EXTRACT(YEAR FROM transfer_notes.recorded_at) = $1
-              ) AS td_transfer_notes,
-      LATERAL (SELECT COUNT(1) AS count
+             ) AS td_transfer_notes,
+     LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
                  JOIN complementary_exams
                    ON complementary_exams.classroom_id = classrooms.id
                 WHERE classrooms.unity_id = unities.id
                   AND complementary_exams.step_number = school_calendar_classroom_steps.step_number
                   AND EXTRACT(YEAR FROM complementary_exams.recorded_at) = $1
-        ) AS td_complementary_exams,
-      LATERAL (SELECT COUNT(1) AS count
+             ) AS td_complementary_exams,
+     LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
                  JOIN avaliations
                    ON avaliations.classroom_id = classrooms.id
@@ -279,14 +273,14 @@ class SchoolCalendarQuery
                 WHERE classrooms.unity_id = unities.id
                   AND step.step_number = school_calendar_classroom_steps.step_number
                   AND EXTRACT(YEAR FROM avaliations.test_date) = $1
-              ) AS td_avaliations_recovery_diary_records,
-      LATERAL (SELECT COUNT(1) AS count
+             ) AS td_avaliations_recovery_diary_records,
+     LATERAL (SELECT COUNT(1) AS count
                  FROM recovery_diary_records
                  JOIN school_term_recovery_diary_records
                    ON school_term_recovery_diary_records.recovery_diary_record_id = recovery_diary_records.id
                 WHERE school_term_recovery_diary_records.step_number = school_calendar_classroom_steps.step_number
                   AND EXTRACT(YEAR FROM school_term_recovery_diary_records.recorded_at) = $1
-           ) AS td_school_term_recovery_diary_record
+             ) AS td_school_term_recovery_diary_record
        WHERE school_calendars.year = $1
     ORDER BY unity_name, kind, classroom, step
     SQL
