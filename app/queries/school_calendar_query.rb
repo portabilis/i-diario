@@ -28,6 +28,7 @@ class SchoolCalendarQuery
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
              CASE WHEN td_daily_frequencies.frequencies THEN 'sim' ELSE 'não' END AS frequencias_lancadas,
              CASE WHEN td_teaching_plans.plans THEN 'sim' ELSE 'não' END AS planos_de_ensino_criados,
+             CASE WHEN td_yearly_teaching_plans.plans THEN 'sim' ELSE 'não' END AS planos_de_ensino_anual,
              td_transfer_notes.count AS notas_de_transferencia_criadas,
              td_complementary_exams.count AS avaliacoes_complementares_lancadas,
              td_avaliations_recovery_diary_records.count AS recuperacoes_de_avaliacoes_lancadas,
@@ -107,6 +108,14 @@ class SchoolCalendarQuery
                     AND teaching_plans.year = $1
               ) AS plans
           ) AS td_teaching_plans,
+      LATERAL (SELECT EXISTS(
+                 SELECT 1
+                   FROM teaching_plans
+                  WHERE teaching_plans.unity_id = unities.id
+                    AND teaching_plans.school_term = ''
+                    AND teaching_plans.year = $1
+                 ) AS plans
+              ) AS td_yearly_teaching_plans,
       LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
                  JOIN transfer_notes
@@ -159,6 +168,7 @@ class SchoolCalendarQuery
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
              CASE WHEN td_daily_frequencies.frequencies THEN 'sim' ELSE 'não' END AS frequencias_lancadas,
              CASE WHEN td_teaching_plans.plans THEN 'sim' ELSE 'não' END AS planos_de_ensino_criados,
+             CASE WHEN td_yearly_teaching_plans.plans THEN 'sim' ELSE 'não' END AS planos_de_ensino_anual,
              td_transfer_notes.count AS notas_de_transferencia_criadas,
              td_complementary_exams.count AS avaliacoes_complementares_lancadas,
              td_avaliations_recovery_diary_records.count AS recuperacoes_de_avaliacoes_lancadas,
@@ -234,6 +244,14 @@ class SchoolCalendarQuery
                     AND teaching_plans.year = $1
                  ) AS plans
           ) AS td_teaching_plans,
+      LATERAL (SELECT EXISTS(
+                 SELECT 1
+                   FROM teaching_plans
+                  WHERE teaching_plans.unity_id = unities.id
+                    AND teaching_plans.school_term = ''
+                    AND teaching_plans.year = $1
+                 ) AS plans
+              ) AS td_yearly_teaching_plans,
       LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
                  JOIN transfer_notes
