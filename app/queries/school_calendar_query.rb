@@ -26,7 +26,7 @@ class SchoolCalendarQuery
              td_daily_notes.count AS avaliacoes_lancadas,
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
-             td_daily_frequencies.count as frequencias_lancadas,
+             CASE WHEN td_daily_frequencies.frequencies THEN 'sim' ELSE 'não' END AS frequencias_lancadas,
              td_teaching_plans.count AS planos_de_ensino_criados,
              td_transfer_notes.count AS notas_de_transferencia_criadas,
              td_complementary_exams.count AS avaliacoes_complementares_lancadas,
@@ -81,14 +81,16 @@ class SchoolCalendarQuery
                      )
                  AND EXTRACT(YEAR FROM descriptive_exams.recorded_at) = $1
              ) AS td_descriptive_exams,
-      LATERAL (SELECT COUNT(1) AS count
-                FROM classrooms
-                JOIN daily_frequencies
-                  ON daily_frequencies.classroom_id = classrooms.id,
-                     step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
-               WHERE classrooms.unity_id = unities.id
-                 AND step.step_number = school_calendar_steps.step_number
-                 AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1
+      LATERAL (SELECT EXISTS(
+                 SELECT 1
+                   FROM classrooms
+                   JOIN daily_frequencies
+                     ON daily_frequencies.classroom_id = classrooms.id,
+                        step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
+                  WHERE classrooms.unity_id = unities.id
+                    AND step.step_number = school_calendar_steps.step_number
+                    AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1
+                  ) AS frequencies
              ) AS td_daily_frequencies,
       LATERAL (SELECT COUNT(1) AS count
                  FROM teaching_plans
@@ -153,7 +155,7 @@ class SchoolCalendarQuery
              td_daily_notes.count AS avaliacoes_lancadas,
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
-             td_daily_frequencies.count as frequencias_lancadas,
+             CASE WHEN td_daily_frequencies.frequencies THEN 'sim' ELSE 'não' END AS frequencias_lancadas,
              td_teaching_plans.count AS planos_de_ensino_criados,
              td_transfer_notes.count AS notas_de_transferencia_criadas,
              td_complementary_exams.count AS avaliacoes_complementares_lancadas,
@@ -204,14 +206,16 @@ class SchoolCalendarQuery
                      )
                  AND EXTRACT(YEAR FROM descriptive_exams.recorded_at) = $1
              ) AS td_descriptive_exams,
-      LATERAL (SELECT COUNT(1) AS count
-             FROM classrooms
-             JOIN daily_frequencies
-               ON daily_frequencies.classroom_id = classrooms.id,
-                  step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
-            WHERE classrooms.unity_id = unities.id
-              AND step.step_number = school_calendar_classroom_steps.step_number
-              AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1
+      LATERAL (SELECT EXISTS(
+                 SELECT 1
+                   FROM classrooms
+                   JOIN daily_frequencies
+                     ON daily_frequencies.classroom_id = classrooms.id,
+                        step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
+                  WHERE classrooms.unity_id = unities.id
+                    AND step.step_number = school_calendar_classroom_steps.step_number
+                    AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1
+              ) AS frequencies
           ) AS td_daily_frequencies,
       LATERAL (SELECT COUNT(1) AS count
                  FROM teaching_plans
