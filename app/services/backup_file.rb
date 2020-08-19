@@ -97,6 +97,7 @@ class BackupFile
         notas_de_transferencia_criadas
         avaliacoes_complementares_lancadas
         recuperacoes_de_avaliacoes_lancadas
+        recuperacoes_de_etapas_lancadas
       ]
     )
 
@@ -120,7 +121,8 @@ class BackupFile
           item[14],
           item[15],
           item[16],
-          item[17]
+          item[17],
+          item[18]
         ]
       )
     end
