@@ -98,10 +98,10 @@ class SchoolCalendarQuery
                   WHERE teaching_plans.unity_id = unities.id
                     AND school_calendar_steps.step_number = (
                       CASE
-                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
-                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
-                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
-                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['fourth_bimester']) THEN 4
+                        WHEN teaching_plans.school_term = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
+                        WHEN teaching_plans.school_term = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
+                        WHEN teaching_plans.school_term = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
+                        WHEN teaching_plans.school_term = ANY(ARRAY['fourth_bimester']) THEN 4
                       END
                     )
                     AND teaching_plans.year = $1
@@ -225,10 +225,10 @@ class SchoolCalendarQuery
                   WHERE teaching_plans.unity_id = unities.id
                     AND school_calendar_classroom_steps.step_number = (
                       CASE
-                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
-                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
-                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
-                        WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['fourth_bimester']) THEN 4
+                        WHEN teaching_plans.school_term = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
+                        WHEN teaching_plans.school_term = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
+                        WHEN teaching_plans.school_term = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
+                        WHEN teaching_plans.school_term = ANY(ARRAY['fourth_bimester']) THEN 4
                       END
                     )
                     AND teaching_plans.year = $1
