@@ -27,7 +27,7 @@ class SchoolCalendarQuery
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
              CASE WHEN td_daily_frequencies.frequencies THEN 'sim' ELSE 'não' END AS frequencias_lancadas,
-             td_teaching_plans.count AS planos_de_ensino_criados,
+             CASE WHEN td_teaching_plans.plans THEN 'sim' ELSE 'não' END AS planos_de_ensino_criados,
              td_transfer_notes.count AS notas_de_transferencia_criadas,
              td_complementary_exams.count AS avaliacoes_complementares_lancadas,
              td_avaliations_recovery_diary_records.count AS recuperacoes_de_avaliacoes_lancadas,
@@ -92,18 +92,20 @@ class SchoolCalendarQuery
                     AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1
                   ) AS frequencies
              ) AS td_daily_frequencies,
-      LATERAL (SELECT COUNT(1) AS count
-                 FROM teaching_plans
-                WHERE teaching_plans.unity_id = unities.id
-                  AND school_calendar_steps.step_number = (
+      LATERAL (SELECT EXISTS(
+                 SELECT 1
+                   FROM teaching_plans
+                  WHERE teaching_plans.unity_id = unities.id
+                    AND school_calendar_steps.step_number = (
                       CASE
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['fourth_bimester']) THEN 4
                       END
-                  )
-                  AND teaching_plans.year = $1
+                    )
+                    AND teaching_plans.year = $1
+              ) AS plans
           ) AS td_teaching_plans,
       LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
@@ -156,7 +158,7 @@ class SchoolCalendarQuery
              td_conceptual_exams.count AS avaliacoes_conceituais_lancadas,
              td_descriptive_exams.count AS avaliacoes_descritivas_lancadas,
              CASE WHEN td_daily_frequencies.frequencies THEN 'sim' ELSE 'não' END AS frequencias_lancadas,
-             td_teaching_plans.count AS planos_de_ensino_criados,
+             CASE WHEN td_teaching_plans.plans THEN 'sim' ELSE 'não' END AS planos_de_ensino_criados,
              td_transfer_notes.count AS notas_de_transferencia_criadas,
              td_complementary_exams.count AS avaliacoes_complementares_lancadas,
              td_avaliations_recovery_diary_records.count AS recuperacoes_de_avaliacoes_lancadas,
@@ -217,18 +219,20 @@ class SchoolCalendarQuery
                     AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = $1
               ) AS frequencies
           ) AS td_daily_frequencies,
-      LATERAL (SELECT COUNT(1) AS count
-                 FROM teaching_plans
-                WHERE teaching_plans.unity_id = unities.id
-                  AND school_calendar_classroom_steps.step_number = (
+      LATERAL (SELECT EXISTS(
+                 SELECT COUNT(1) AS count
+                   FROM teaching_plans
+                  WHERE teaching_plans.unity_id = unities.id
+                    AND school_calendar_classroom_steps.step_number = (
                       CASE
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
                         WHEN COALESCE(teaching_plans.school_term, '') = ANY(ARRAY['fourth_bimester']) THEN 4
                       END
-                  )
-                  AND teaching_plans.year = $1
+                    )
+                    AND teaching_plans.year = $1
+                 ) AS plans
           ) AS td_teaching_plans,
       LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
