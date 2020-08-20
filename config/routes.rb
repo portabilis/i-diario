@@ -12,39 +12,7 @@ Rails.application.routes.draw do
       unlocks: 'users/unlocks'
     }
 
-    # madis
-    namespace :v1 do
-      resources :access do
-        collection do
-          post :request_access
-          post :send_access
-          post :send_access_batch
-        end
-      end
-      resources :command do
-        collection do
-          post :request_command
-        end
-      end
-      resources :biometric do
-        collection do
-          post :send_biometric
-          post :request_biometric
-          post '/request_biometric/:id', to: 'biometric#request_biometric_by_id'
-        end
-      end
-    end
-
     namespace :api do
-      namespace :v1 do
-        resources :exam_rules, only: [:index]
-        resources :teacher_unities, only: [:index]
-        resources :teacher_classrooms, only: [:index]
-        resources :teacher_disciplines, only: [:index]
-        resources :school_calendars, only: [:index]
-        resources :daily_frequencies, only: [:create]
-        resources :daily_frequency_students, only: [:update]
-      end
       namespace :v2 do
         resources :exam_rules, only: [:index]
         get 'step_activity', to: 'step_activity#check'
