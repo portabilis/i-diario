@@ -20,8 +20,9 @@ class IeducarExamPostingWorker
     Honeybadger.notify(exception)
   end
 
-  def perform(entity_id, posting_id, queue = 'exam_posting_send')
+  def perform(entity_id, posting_id)
     entity = Entity.find(entity_id)
+    queue = EXAM_POSTING_QUEUES.sample
 
     entity.using_connection do
       posting = IeducarApiExamPosting.find(posting_id)

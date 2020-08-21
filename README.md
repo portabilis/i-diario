@@ -154,6 +154,8 @@ Inicie o servidor:
 bundle exec rails server
 ```
 
+Inicie os processos do [sidekiq](#sidekiq)
+
 ### Primeiro acesso
 
 Antes de realizar o primeiro acesso, crie um usuário administrador:
@@ -182,13 +184,7 @@ no passo anterior.
 
 ## Sincronização com i-Educar
 
-- Para fazer a sincronização entre i-Educar e i-Diário é necessário estar com o Sidekiq rodando:
-
-```bash
-# (Docker) docker-compose exec app bundle exec sidekiq -d
-bundle exec sidekiq -d
-```
-
+- Para fazer a sincronização entre i-Educar e i-Diário é necessário estar com o Sidekiq rodando;
 - Acessar Configurações > Api de Integraçao e configurar os dados do sincronismo
 - Acessar Configurações > Unidades e clicar em **Sincronizar**
 - Acessar Calendário letivo, clicar em **Sincronizar** e configurar os calendários
@@ -198,6 +194,66 @@ bundle exec sidekiq -d
     - Sincronização completa: Esse botão apenas aparece para o usuário administrador e ao clicar nesse botão, não vai fazer a verificação de data, sincronizando todos os dados de todos os anos.
 
 _Nota: Após esses primeiros passos, recomendamos que a sincronização rode pelo menos diariamente para manter o i-Diário atualizado com o i-Educar_
+
+## Sidekiq
+
+É a ferramenta usada para rodar comandos em background, sem travar o sistema
+enquanto ele é usado.
+
+- Processo 1 (Responsável pela sincronização com o i-educar)
+
+```bash
+bundle exec sidekiq -q synchronizer_enqueue_next_job -c 1 -d --logfile log/sidekiq_synchronizer_enqueue_next_job.log
+```
+
+- Processo 2 (Responsável pelos outros jobs)
+
+```bash
+bundle exec sidekiq -q synchronizer_enqueue_next_job -c 1 -d --logfile log/sidekiq.log
+```
+
+Sempre que for fazer deploy, deve-se parar o sidekiq e depois reiniciá-lo com os
+comandos acima.
+
+```bash
+ps -ef | grep sidekiq | grep -v grep | awk '{print $2}' | xargs kill -TERM && sleep 20
+```
+
+Conhece mais sobre o sidekiq [aqui](https://github.com/mperham/sidekiq).
+
+### Sidekiq com mais concorrência
+
+Se o município configurado tem muitos envios de faltas e notas para o i-educar,
+é possível iniciar vários processos para aumentar a concorrência.
+
+No exemplo abaixo, estamos rodando dois processos do sidekiq.
+
+```bash
+bundle exec sidekiq -q exam_posting_1 -c 1 -d --logfile log/sidekiq_exam_posting_1.log
+```
+
+```bash
+bundle exec sidekiq -q exam_posting_2 -c 1 -d --logfile log/sidekiq_exam_posting_1.log
+```
+
+Para funcionar, é necessário adicionar no arquivo `config/secrets.yml` as filas
+usadas, separadas por virgula e sem espaço:
+
+```yaml
+production:
+  EXAM_POSTING_QUEUES: 'exam_posting_1,exam_posting_2'
+```
+
+Assim ele vai escolher randomicamente qual a fila irá usar, diminuindo o gargalo
+no servidor.
+
+Deve-se tomar cuidado pois quanto mais concorrência, mais irá exigir do
+i-educar.
+
+Foi decidido usar a abordagem de vários workers com apenas um de concorrência
+para diminuir a carga no i-educar. Então se um professor envia faltas e notas
+para o i-educar, ele irá usar uma fila só sequencial. Se outro professor for
+enviar, ele irá rodar em outra fila (se o random jogar para essa fila.)
 
 ## Executar os testes
 
@@ -223,24 +279,11 @@ a ter dependência da versão **2.1.18** do i-Educar.
 
 Para o upgrade é necessário atualizar o i-Diário para a versão [1.1.0](https://github.com/portabilis/i-diario/releases/tag/1.1.0).
 
-Parar o sidekiq:
-
-```bash
-ps -ef | grep sidekiq | grep -v grep | awk '{print $2}' | xargs kill -TERM && sleep 20
-```
-
 * Executar as migrations:
 
 ```bash
 # (Docker) docker-compose exec app bundle exec rake db:migrate
 bundle exec rake db:migrate
-```
-
-* Iniciar o sidekiq:
-
-```bash
-# (Docker) docker-compose exec app bundle exec sidekiq -d --logfile log/sidekiq.log
-bundle exec sidekiq -d --logfile log/sidekiq.log
 ```
 
 * Executar a rake task que irá fazer a atualização do banco de dados e executar a sincronização completa em todas as
