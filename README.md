@@ -203,13 +203,13 @@ enquanto ele é usado.
 - Processo 1 (Responsável pela sincronização com o i-educar)
 
 ```bash
-bundle exec sidekiq -q synchronizer_enqueue_next_job -c 1 -d --logfile log/sidekiq_synchronizer_enqueue_next_job.log
+bundle exec sidekiq -q synchronizer_enqueue_next_job -c 1 -d --logfile log/sidekiq.log
 ```
 
 - Processo 2 (Responsável pelos outros jobs)
 
 ```bash
-bundle exec sidekiq -q synchronizer_enqueue_next_job -c 1 -d --logfile log/sidekiq.log
+bundle exec sidekiq -c 10 -d --logfile log/sidekiq.log
 ```
 
 Sempre que for fazer deploy, deve-se parar o sidekiq e depois reiniciá-lo com os
