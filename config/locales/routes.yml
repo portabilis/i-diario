@@ -97,14 +97,3 @@ pt-BR:
     create_multiple_classrooms: 'criar-multiplas-turmas'
     by_date: 'por-data'
     by_date_range: 'por-periodo'
-
-    #madis
-    access: "acesso"
-    request_access: "solicitaracesso"
-    send_access: "enviarfimacesso"
-    send_access_batch: "enviarregistrobatch"
-    biometric: "biometria"
-    send_biometric: "enviarbiometria"
-    request_biometric: "solicitarbiometria"
-    command: "comando"
-    request_command: "solicitarcomando"
