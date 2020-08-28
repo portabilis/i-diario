@@ -18,7 +18,8 @@ class IeducarApiExamPostingsController < ApplicationController
     ieducar_api_exam_posting.ieducar_api_configuration = IeducarApiConfiguration.current
     ieducar_api_exam_posting.save!
 
-    jid = IeducarExamPostingWorker.perform_in(5.seconds, current_entity.id, ieducar_api_exam_posting.id)
+    jid = IeducarExamPostingWorker.set(queue: EXAM_POSTING_QUEUES.sample)
+                                  .perform_in(5.seconds, current_entity.id, ieducar_api_exam_posting.id)
 
     WorkerBatch.create!(
       main_job_class: 'IeducarExamPostingWorker',
