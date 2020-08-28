@@ -4,13 +4,13 @@ module ExamPoster
 
     attr_accessor :warning_messages, :requests
 
-    def initialize(post_data, entity_id, queue)
+    def initialize(post_data, entity_id, queue = nil)
       @post_data = post_data
       @entity_id = entity_id
       @worker_batch = post_data.worker_batch
       @warning_messages = []
       @requests = []
-      @queue = queue
+      @queue = queue || 'critical'
     end
 
     def self.post!(post_data, entity_id, queue)
