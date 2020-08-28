@@ -22,7 +22,7 @@ class IeducarExamPostingWorker
 
   def perform(entity_id, posting_id)
     entity = Entity.find(entity_id)
-    queue = EXAM_POSTING_QUEUES.sample
+    queue = SmartEnqueuer.new(EXAM_POSTING_QUEUES).less_used_queue
 
     entity.using_connection do
       posting = IeducarApiExamPosting.find(posting_id)
