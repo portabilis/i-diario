@@ -13,7 +13,7 @@ module ExamPoster
       @queue = queue || 'critical'
     end
 
-    def self.post!(post_data, entity_id, queue)
+    def self.post!(post_data, entity_id, queue = nil)
       new(post_data, entity_id, queue).post!
     end
 
