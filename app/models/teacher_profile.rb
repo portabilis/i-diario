@@ -1,4 +1,6 @@
 class TeacherProfile < ActiveRecord::Base
+  audited
+
   belongs_to :teacher, touch: true
   belongs_to :classroom
   belongs_to :discipline

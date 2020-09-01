@@ -99,7 +99,7 @@ class BaseSynchronizer
 
   def teacher(api_code)
     @teachers ||= {}
-    @teachers[api_code] ||= Teacher.find_by(api_code: api_code)
+    @teachers[api_code] ||= Teacher.with_discarded.find_by(api_code: api_code)
   end
 
   def student(api_code)
