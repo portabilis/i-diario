@@ -146,6 +146,7 @@ class SchoolCalendarQuery
                 JOIN school_term_recovery_diary_records
                   ON school_term_recovery_diary_records.recovery_diary_record_id = recovery_diary_records.id
                WHERE school_term_recovery_diary_records.step_number = school_calendar_steps.step_number
+                 AND recovery_diary_records.unity_id = unities.id
                  AND EXTRACT(YEAR FROM school_term_recovery_diary_records.recorded_at) = $1
              ) AS td_school_term_recovery_diary_record
        WHERE school_calendars.year = $1
@@ -279,6 +280,7 @@ class SchoolCalendarQuery
                  JOIN school_term_recovery_diary_records
                    ON school_term_recovery_diary_records.recovery_diary_record_id = recovery_diary_records.id
                 WHERE school_term_recovery_diary_records.step_number = school_calendar_classroom_steps.step_number
+                  AND recovery_diary_records.unity_id = unities.id
                   AND EXTRACT(YEAR FROM school_term_recovery_diary_records.recorded_at) = $1
              ) AS td_school_term_recovery_diary_record
        WHERE school_calendars.year = $1
