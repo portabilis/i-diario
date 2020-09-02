@@ -7,6 +7,8 @@ class DescriptiveExamsController < ApplicationController
   def new
     @descriptive_exam = DescriptiveExam.new
 
+    set_opinion_types
+
     authorize @descriptive_exam
   end
 
@@ -23,6 +25,8 @@ class DescriptiveExamsController < ApplicationController
 
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
+      set_opinion_types
+
       render :new
     end
   end
@@ -180,27 +184,28 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
-  def set_opinion_types(classroom)
-    return unless classroom.is_a?(Classroom)
-
+  def set_opinion_types
     @opinion_types = []
-
-    if classroom.exam_rule.allow_descriptive_exam?
-      @opinion_types << {
-        id: classroom.exam_rule.opinion_type,
-        text: 'Regular'
-      }
+    if current_user_classroom.exam_rule.allow_descriptive_exam?
+      @opinion_types << OpenStruct.new(id: current_user_classroom.exam_rule.opinion_type,
+                                       text: 'Regular',
+                                       name: 'Regular')
+    end
+    if current_user_classroom.exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
+       current_user_classroom.exam_rule.opinion_type != current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type
+      @opinion_types << OpenStruct.new(
+        id: current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type,
+        text: 'Aluno com deficiência',
+        name: 'Aluno com deficiência'
+      )
+    end
+    if @opinion_types.blank?
+      flash[:alert] = t('errors.descriptive_exams.exam_rule_not_allow_descriptive_exam')
+      redirect_to root_path
+      return
     end
 
-    if classroom.exam_rule.differentiated_exam_rule &&
-       classroom.exam_rule.differentiated_exam_rule.allow_descriptive_exam? &&
-       classroom.exam_rule.opinion_type != classroom.exam_rule.differentiated_exam_rule.opinion_type
-
-      @opinion_types << {
-        id: classroom.exam_rule.differentiated_exam_rule.opinion_type,
-        text: 'Aluno com deficiência'
-      }
-    end
+    @opinion_type = params.dig('descriptive_exam', 'opinion_type')
   end
 
   def student_has_dependence?(student_enrollment, discipline)
