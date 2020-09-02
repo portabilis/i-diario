@@ -186,21 +186,26 @@ class DescriptiveExamsController < ApplicationController
 
   def set_opinion_types
     @opinion_types = []
+
     if current_user_classroom.exam_rule.allow_descriptive_exam?
       @opinion_types << OpenStruct.new(id: current_user_classroom.exam_rule.opinion_type,
                                        text: 'Regular',
                                        name: 'Regular')
     end
+
     if current_user_classroom.exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
        current_user_classroom.exam_rule.opinion_type != current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type
+
       @opinion_types << OpenStruct.new(
         id: current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type,
         text: 'Aluno com deficiência',
         name: 'Aluno com deficiência'
       )
     end
+
     if @opinion_types.blank?
       flash[:alert] = t('errors.descriptive_exams.exam_rule_not_allow_descriptive_exam')
+
       redirect_to root_path
       return
     end
