@@ -291,6 +291,8 @@ class ApplicationController < ActionController::Base
   private
 
   def set_current_user_defaults
+    return if current_user.current_user_role_id? && current_user.current_unity_id?
+
     unless current_user.current_user_role_id
       user_roles = current_user.user_roles
 
@@ -298,6 +300,7 @@ class ApplicationController < ActionController::Base
     end
 
     current_user.current_unity_id ||= current_user.current_user_role&.unity_id
+    current_user.save
   end
 
   def current_year_steps
