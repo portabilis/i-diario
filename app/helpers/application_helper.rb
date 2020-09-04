@@ -80,7 +80,7 @@ module ApplicationHelper
   end
 
   def user_avatar_url(user)
-    Rails.cache.fetch [:user_avatar_url, current_entity.id, user.cache_key] do
+    Rails.cache.fetch [:user_avatar_url, cache_key_to_user], expires_in: 1.day do
       user.profile_picture&.url ||
         IeducarAvatarAuth.new(user.student&.avatar_url.to_s).generate_new_url.presence ||
         PROFILE_DEFAULT_PICTURE_PATH
@@ -128,13 +128,13 @@ module ApplicationHelper
   end
 
   def entity_copyright
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_copyright", expires_in: 10.minutes) do
+    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_copyright", expires_in: 1.day) do
       "© #{GeneralConfiguration.current.copyright_name} #{Time.zone.today.year}"
     end
   end
 
   def entity_website
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_website", expires_in: 10.minutes) do
+    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_website", expires_in: 1.day) do
       GeneralConfiguration.current.support_url
     end
   end
@@ -194,10 +194,12 @@ module ApplicationHelper
 
   def current_unities
     @current_unities ||=
-      if current_user.current_user_role.try(:role_administrator?)
-        Unity.ordered
-      else
-        [current_unity]
+      Rails.cache.fetch ['ApplicationHelper#current_unities', cache_key_to_user], expires_in: 10.minutes do
+        if current_user.current_user_role.try(:role_administrator?)
+          Unity.ordered
+        else
+          [current_unity]
+        end
       end
   end
 
@@ -210,35 +212,40 @@ module ApplicationHelper
   def current_user_available_teachers
     return [] if current_unity.blank? || current_user_classroom.blank?
 
-    @current_user_available_teachers ||= begin
-      teachers = Teacher.by_unity_id(current_unity)
-                        .by_classroom(current_user_classroom)
-                        .order_by_name
+    cache_key = ['ApplicationHelper#current_user_available_teachers', cache_key_to_user]
 
-      if current_school_calendar.try(:year)
-        teachers.by_year(current_school_calendar.try(:year))
-      else
-        teachers
+    @current_user_available_teachers ||=
+      Rails.cache.fetch cache_key, expires_in: 10.minutes do
+        teachers = Teacher.by_unity_id(current_unity)
+                          .by_classroom(current_user_classroom)
+                          .order_by_name
+
+        if current_school_calendar.try(:year)
+          teachers.by_year(current_school_calendar.try(:year))
+        else
+          teachers
+        end
       end
-    end
   end
 
   def current_user_available_classrooms
     return [] if current_unity.blank?
+    cache_key = ['ApplicationHelper#current_user_available_classrooms', cache_key_to_user]
 
-    @current_user_available_classrooms ||= begin
-      classrooms = if current_teacher.present? && current_user.teacher?
-                     Classroom.by_unity_and_teacher(current_unity, current_teacher).ordered
-                   else
-                     Classroom.by_unity(current_unity).ordered
-                   end
+    @current_user_available_classrooms ||=
+      Rails.cache.fetch cache_key, expires_in: 10.minutes do
+        classrooms = if current_teacher.present? && current_user.teacher?
+                       Classroom.by_unity_and_teacher(current_unity, current_teacher).ordered
+                     else
+                       Classroom.by_unity(current_unity).ordered
+                     end
 
-      if current_school_calendar.try(:year)
-        classrooms.by_year(current_school_calendar.try(:year))
-      else
-        classrooms
+        if current_school_calendar.try(:year)
+          classrooms.by_year(current_school_calendar.try(:year))
+        else
+          classrooms
+        end
       end
-    end
   end
 
   def back_link(name, path)
@@ -282,6 +289,10 @@ module ApplicationHelper
   end
 
   private
+
+  def cache_key_to_user
+    [current_entity.id, current_user.id]
+  end
 
   def recaptcha_site_key
     @recaptcha_site_key ||= Rails.application.secrets.recaptcha_site_key
