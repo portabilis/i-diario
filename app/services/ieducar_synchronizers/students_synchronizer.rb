@@ -32,7 +32,9 @@ class StudentsSynchronizer < BaseSynchronizer
 
         student.discard_or_undiscard(discarded)
 
-        create_user(student.id) unless discarded
+        if !discarded && GeneralConfiguration.current.create_users_for_students_when_synchronize
+          create_user(student.id)
+        end
       end
     end
   end
