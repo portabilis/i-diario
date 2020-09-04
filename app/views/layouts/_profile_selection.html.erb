@@ -1,0 +1,15 @@
+<% if current_user.current_role_is_admin_or_employee_or_teacher? %>
+  <div id="profile-selection">
+    <b-current-role></b-current-role>
+    <br>
+    <b-current-unity></b-current-unity>
+    <br>
+    <b-current-school-year></b-current-school-year>
+    <br>
+    <b-current-classroom></b-current-classroom>
+    <br>
+    <b-current-teacher></b-current-teacher>
+    <br>
+    <b-current-discipline></b-current-discipline>
+  </div>
+<% end %>

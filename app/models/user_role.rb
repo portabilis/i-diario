@@ -9,9 +9,9 @@ class UserRole < ActiveRecord::Base
   validates :user, :role, presence: true
   validates :unity, presence: true, if: :require_unity?
 
-  delegate :name, :access_level_humanize, :administrator?, :teacher?, :employee?, to: :role,
-                                                                                  prefix: true,
-                                                                                  allow_nil: true
+  delegate :access_level, :name, :access_level_humanize, :administrator?, :teacher?, :employee?, to: :role,
+                                                                                                 prefix: true,
+                                                                                                 allow_nil: true
 
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
@@ -34,11 +34,16 @@ class UserRole < ActiveRecord::Base
     end
   end
 
+  def name
+    to_s
+  end
+
   def can_change_school_year?
     return false unless role
 
     role.can_change?('change_school_year')
   end
+  alias can_change_school_year can_change_school_year?
 
   private
 
