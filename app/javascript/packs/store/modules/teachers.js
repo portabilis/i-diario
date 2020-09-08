@@ -1,17 +1,29 @@
 import axios from 'axios'
 
+import mutations from '../mutations.js'
+import getters from '../getters.js'
+
 const teachers = {
   namespaced: true,
   state: {
     selected: null,
-    options: []
+    options: [],
+    required: false,
+    isValid: true
   },
+  mutations,
+  getters,
   actions: {
-    preLoad({commit}) {
+    preLoad({ dispatch, state, commit, rootState, rootGetters }) {
       commit('set_selected', window.state.current_teacher_id)
       commit('set_options', window.state.available_teachers)
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
+      commit('set_selected', null)
+      commit('set_options', [])
+      commit('disciplines/set_options', [], { root: true })
+      commit('disciplines/set_selected', null, { root: true })
+
       const filters = {
         by_unity_id: rootState.unities.selected,
         by_year: rootState.school_years.selected,
@@ -33,17 +45,10 @@ const teachers = {
 
           if(response.data.length === 1) {
             commit('set_selected', response.data[0].id)
+
             dispatch('disciplines/fetch', null, { root: true })
           }
         })
-    }
-  },
-  mutations: {
-    set_selected(state, id) {
-      state.selected = id
-    },
-    set_options(state, teachers) {
-      state.options = teachers
     }
   }
 }

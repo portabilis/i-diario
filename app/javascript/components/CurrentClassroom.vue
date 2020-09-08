@@ -1,7 +1,11 @@
 <template>
-  <div id="current-classroom-container" class="project-context col col-sm-2" v-if="options.length">
-    <span class="label required">Turma</span>
-    <select v-model="selected" @change="updateSelects">
+  <div id="current-classroom-container"
+       class="project-context col col-sm-2"
+       v-if="this.$store.getters['school_years/isSelected']"
+       >
+    <span v-bind:class="[required ? 'required' : '', 'label']">Turma</span>
+
+    <select v-model="selected" @change="updateSelects" name="user[current_classroom_id]">
       <option v-for="option in options" v-bind:value="option.id" :key="option.id">
         {{ option.description }}
       </option>
@@ -10,22 +14,22 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState  } from 'vuex'
 
 export default {
   name: "b-current-classroom",
   computed: {
+    ...mapState({
+      required: state => state.classrooms.required,
+      isValid: state => state.classrooms.isValid,
+      options: state => state.classrooms.options
+    }),
     selected: {
       get () {
         return this.$store.state.classrooms.selected
       },
       set (value) {
         this.$store.commit('classrooms/set_selected', value)
-      }
-    },
-    options: {
-      get () {
-        return this.$store.state.classrooms.options
       }
     }
   },
@@ -34,12 +38,12 @@ export default {
   },
   methods: {
     updateSelects() {
-      this.$store.commit('teachers/set_selected', null)
-      this.$store.commit('teachers/set_options', [])
-      this.$store.commit('disciplines/set_options', [])
-      this.$store.commit('disciplines/set_selected', null)
-
       this.$store.dispatch('teachers/fetch')
+    }
+  },
+  watch: {
+    selected: function(newValue, oldValue) {
+      this.$store.dispatch('updateValidation', null, { root: true })
     }
   }
 }
