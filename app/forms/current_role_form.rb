@@ -107,9 +107,13 @@ class CurrentRoleForm
   end
 
   def changed_to_parent?
-    return false if current_user_role.nil?
+    return @changed_to_parent unless @changed_to_parent.nil?
 
-    UserRole.find(current_user_role.id).role.access_level == AccessLevel::PARENT
+    @changed_to_parent = begin
+      return false if current_user_role.nil?
+
+      UserRole.find(current_user_role.id).role.access_level == AccessLevel::PARENT
+    end
   end
 
   def set_defaults
