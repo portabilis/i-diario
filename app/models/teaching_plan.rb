@@ -5,7 +5,7 @@ class TeachingPlan < ActiveRecord::Base
 
   teacher_relation_columns only: :grades
 
-  audited except: [:old_contents, :teacher_id]
+  audited except: [:old_contents]
   has_associated_audits
   acts_as_copy_target
 

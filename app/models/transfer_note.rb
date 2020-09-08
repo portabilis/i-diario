@@ -8,7 +8,7 @@ class TransferNote < ActiveRecord::Base
   not_updatable only: [:classroom_id, :discipline_id]
   teacher_relation_columns only: [:classroom, :discipline]
 
-  audited except: [:teacher_id, :recorded_at]
+  audited except: [:recorded_at]
   has_associated_audits
 
   acts_as_copy_target
