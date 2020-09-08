@@ -230,7 +230,13 @@ module ApplicationHelper
 
   def current_user_available_classrooms
     return [] if current_unity.blank?
-    cache_key = ['ApplicationHelper#current_user_available_classrooms', cache_key_to_user]
+
+    cache_key = [
+      'ApplicationHelper#current_user_available_classrooms',
+      cache_key_to_user,
+      current_teacher.try(:id),
+      current_school_calendar.try(:year)
+    ]
 
     @current_user_available_classrooms ||=
       Rails.cache.fetch cache_key, expires_in: 10.minutes do
