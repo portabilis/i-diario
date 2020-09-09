@@ -1,15 +1,25 @@
 <template>
   <div id="current-discipline-container"
-       class="project-context col col-sm-2"
+       class="project-context"
        v-if="this.$store.getters['teachers/isSelected']"
        >
     <span v-bind:class="[required ? 'required' : '', 'label']">Disciplina</span>
 
-    <select v-model="selected" name="user[current_discipline_id]">
-      <option v-for="option in options" v-bind:value="option.id" :key="option.id">
-        {{ option.description }}
-      </option>
-    </select>
+    <input type="hidden" name="user[current_discipline_id]" v-model="selected.id" v-if="selected" />
+
+    <multiselect v-model="selected"
+                 :options="options"
+                 :searchable="true"
+                 :close-on-select="true"
+                 track-by="id"
+                 label="description"
+                 placeholder="Selecione"
+                 deselect-label=""
+                 select-label=""
+                 selected-label="">
+      <span slot="noResult">Não encontrado...</span>
+      <span slot="noOptions">Não há disciplinas...</span>
+    </multiselect>
   </div>
 </template>
 
@@ -21,7 +31,6 @@ export default {
   computed: {
     ...mapState({
       required: state => state.disciplines.required,
-      isValid: state => state.disciplines.isValid,
       options: state => state.disciplines.options
     }),
     selected: {
@@ -29,7 +38,7 @@ export default {
         return this.$store.state.disciplines.selected
       },
       set (value) {
-        this.$store.commit('disciplines/set_selected', value)
+        this.$store.commit('disciplines/setSelected', value)
       }
     }
   },
@@ -43,3 +52,9 @@ export default {
   }
 }
 </script>
+
+<style>
+#current-discipline-container {
+  width: 150px;
+}
+</style>

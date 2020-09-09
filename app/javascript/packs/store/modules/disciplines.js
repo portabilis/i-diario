@@ -8,23 +8,22 @@ const disciplines = {
   state: {
     selected: null,
     options: [],
-    required: false,
-    isValid: true
+    required: false
   },
   mutations,
   getters,
   actions: {
-    preLoad({commit}) {
-      commit('set_selected', window.state.current_discipline_id)
-      commit('set_options', window.state.available_disciplines)
+    preLoad({commit, getters}) {
+      commit('setOptions', window.state.available_disciplines)
+      commit('setSelected', getters.getById(window.state.current_discipline_id))
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
-      commit('set_options', [])
-      commit('set_selected', null)
+      commit('setOptions', [])
+      commit('setSelected', null)
 
       const filters = {
-        by_teacher_id: rootState.teachers.selected,
-        by_classroom: rootState.classrooms.selected,
+        by_teacher_id: rootState.teachers.selected.id,
+        by_classroom: rootState.classrooms.selected.id,
       }
 
       const route = Routes.search_disciplines_pt_br_path({
@@ -34,10 +33,10 @@ const disciplines = {
 
       axios.get(route)
         .then(response => {
-          commit('set_options', response.data.disciplines)
+          commit('setOptions', response.data.disciplines)
 
           if(response.data.disciplines.length === 1) {
-            commit('set_selected', response.data.disciplines[0].id)
+            commit('setSelected', response.data.disciplines[0].id)
           }
         })
     }

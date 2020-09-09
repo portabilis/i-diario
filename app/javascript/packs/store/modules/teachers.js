@@ -8,26 +8,25 @@ const teachers = {
   state: {
     selected: null,
     options: [],
-    required: false,
-    isValid: true
+    required: false
   },
   mutations,
   getters,
   actions: {
-    preLoad({ dispatch, state, commit, rootState, rootGetters }) {
-      commit('set_selected', window.state.current_teacher_id)
-      commit('set_options', window.state.available_teachers)
+    preLoad({ commit, getters }) {
+      commit('setOptions', window.state.available_teachers)
+      commit('setSelected', getters.getById(window.state.current_teacher_id))
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
-      commit('set_selected', null)
-      commit('set_options', [])
-      commit('disciplines/set_options', [], { root: true })
-      commit('disciplines/set_selected', null, { root: true })
+      commit('setSelected', null)
+      commit('setOptions', [])
+      commit('disciplines/setOptions', [], { root: true })
+      commit('disciplines/setSelected', null, { root: true })
 
       const filters = {
-        by_unity_id: rootState.unities.selected,
-        by_year: rootState.school_years.selected,
-        by_classroom: rootState.classrooms.selected,
+        by_unity_id: rootState.unities.selected.id,
+        by_year: rootState.school_years.selected.id,
+        by_classroom: rootState.classrooms.selected.id,
       }
 
       if(rootGetters['roles/isTeacher']) {
@@ -41,10 +40,10 @@ const teachers = {
 
       axios.get(route)
         .then(response => {
-          commit('set_options', response.data)
+          commit('setOptions', response.data)
 
           if(response.data.length === 1) {
-            commit('set_selected', response.data[0].id)
+            commit('setSelected', response.data[0].id)
 
             dispatch('disciplines/fetch', null, { root: true })
           }

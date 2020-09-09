@@ -1,15 +1,26 @@
 <template>
   <div id="current-teacher-container"
-       class="project-context col col-sm-2"
+       class="project-context"
        v-if="this.$store.getters['classrooms/isSelected']"
        v-show="!this.$store.getters['roles/isTeacher']" >
     <span v-bind:class="[required ? 'required' : '', 'label']">Professor</span>
 
-    <select v-model="selected" @change="updateSelects" name="user[current_teacher_id]">
-      <option v-for="option in options" v-bind:value="option.id" :key="option.id">
-        {{ option.name }}
-      </option>
-    </select>
+    <input type="hidden" name="user[current_teacher_id]" v-model="selected.id" v-if="selected" />
+
+    <multiselect v-model="selected"
+                 :options="options"
+                 :searchable="true"
+                 :close-on-select="true"
+                 track-by="id"
+                 label="name"
+                 placeholder="Selecione"
+                 @input="updateSelects"
+                 deselect-label=""
+                 select-label=""
+                 selected-label="">
+      <span slot="noResult">Não encontrado...</span>
+      <span slot="noOptions">Não há professores...</span>
+    </multiselect>
   </div>
 </template>
 
@@ -21,7 +32,6 @@ export default {
   computed: {
     ...mapState({
       required: state => state.teachers.required,
-      isValid: state => state.teachers.isValid,
       options: state => state.teachers.options
     }),
     selected: {
@@ -29,7 +39,7 @@ export default {
         return this.$store.state.teachers.selected
       },
       set (value) {
-        this.$store.commit('teachers/set_selected', value)
+        this.$store.commit('teachers/setSelected', value)
       }
     }
   },
@@ -48,3 +58,9 @@ export default {
   }
 }
 </script>
+
+<style>
+#current-teacher-container {
+  width: 150px;
+}
+</style>

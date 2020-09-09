@@ -1,15 +1,26 @@
 <template>
   <div id="current-classroom-container"
-       class="project-context col col-sm-2"
+       class="project-context"
        v-if="this.$store.getters['school_years/isSelected']"
        >
     <span v-bind:class="[required ? 'required' : '', 'label']">Turma</span>
 
-    <select v-model="selected" @change="updateSelects" name="user[current_classroom_id]">
-      <option v-for="option in options" v-bind:value="option.id" :key="option.id">
-        {{ option.description }}
-      </option>
-    </select>
+    <input type="hidden" name="user[current_classroom_id]" v-model="selected.id" v-if="selected" />
+
+    <multiselect v-model="selected"
+                 :options="options"
+                 :searchable="true"
+                 :close-on-select="true"
+                 track-by="id"
+                 label="description"
+                 placeholder="Selecione"
+                 @input="updateSelects"
+                 deselect-label=""
+                 select-label=""
+                 selected-label="">
+      <span slot="noResult">Não encontrado...</span>
+      <span slot="noOptions">Não há turmas...</span>
+    </multiselect>
   </div>
 </template>
 
@@ -21,7 +32,6 @@ export default {
   computed: {
     ...mapState({
       required: state => state.classrooms.required,
-      isValid: state => state.classrooms.isValid,
       options: state => state.classrooms.options
     }),
     selected: {
@@ -29,7 +39,7 @@ export default {
         return this.$store.state.classrooms.selected
       },
       set (value) {
-        this.$store.commit('classrooms/set_selected', value)
+        this.$store.commit('classrooms/setSelected', value)
       }
     }
   },
@@ -43,8 +53,15 @@ export default {
   },
   watch: {
     selected: function(newValue, oldValue) {
+      this.$store.dispatch('setRequired')
       this.$store.dispatch('updateValidation', null, { root: true })
     }
   }
 }
 </script>
+
+<style>
+#current-classroom-container {
+  width: 150px;
+}
+</style>

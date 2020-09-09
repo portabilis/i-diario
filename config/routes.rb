@@ -86,7 +86,7 @@ Rails.application.routes.draw do
       resources :teacher_work_done_chart, only: [:index]
     end
 
-    patch '/current_role', to: 'current_role#set', as: :set_current_role
+    post '/current_role', to: 'current_role#set', as: :set_current_role
     post '/system_notifications/read_all', to: 'system_notifications#read_all', as: :read_all_notifications
     get '/disabled_entity', to: 'pages#disabled_entity'
 

@@ -1,17 +1,27 @@
 <template>
   <div id="current-unity-container"
-       class="project-context col col-sm-2"
+       class="project-context"
        v-if="this.$store.getters['roles/isSelected']"
        v-show="options.length > 1"
        >
     <span v-bind:class="[required ? 'required' : '', 'label']">Unidade</span>
 
-    <select v-model="selected" @change="updateSelects" name="user[current_unity_id]">
-      <option></option>
-      <option v-for="option in options" v-bind:value="option.id" :key="option.id">
-        {{ option.name }}
-      </option>
-    </select>
+    <input type="hidden" name="user[current_unity_id]" v-model="selected.id" v-if="selected" />
+
+    <multiselect v-model="selected"
+                 :options="options"
+                 :searchable="true"
+                 :close-on-select="true"
+                 track-by="id"
+                 label="name"
+                 placeholder="Selecione"
+                 @input="updateSelects"
+                 deselect-label=""
+                 select-label=""
+                 selected-label="">
+      <span slot="noResult">Não encontrado...</span>
+      <span slot="noOptions">Não há escolas...</span>
+    </multiselect>
   </div>
 </template>
 
@@ -23,7 +33,6 @@ export default {
   computed: {
     ...mapState({
       required: state => state.unities.required,
-      isValid: state => state.unities.isValid,
       options: state => state.unities.options
     }),
     selected: {
@@ -31,7 +40,7 @@ export default {
         return this.$store.state.unities.selected
       },
       set (value) {
-        this.$store.commit('unities/set_selected', value)
+        this.$store.commit('unities/setSelected', value)
       }
     }
   },
@@ -50,3 +59,9 @@ export default {
   }
 }
 </script>
+
+<style>
+#current-unity-container {
+  width: 150px;
+}
+</style>

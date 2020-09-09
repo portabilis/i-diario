@@ -8,32 +8,31 @@ const unities = {
   state: {
     selected: null,
     options: [],
-    required: false,
-    isValid: true
+    required: false
   },
   mutations,
   getters,
   actions: {
-    preLoad({commit}) {
-      commit('set_selected', window.state.current_unity_id)
-      commit('set_options', window.state.available_unities)
+    preLoad({commit, getters}) {
+      commit('setOptions', window.state.available_unities)
+      commit('setSelected', getters.getById(window.state.current_unity_id))
     },
-    fetch({ dispatch, state, commit, rootState, rootGetters }) {
-      commit('set_selected', null, { root: true })
-      commit('set_options', [], { root: true })
-      commit('school_years/set_selected', null, { root: true })
-      commit('school_years/set_options', [], { root: true })
-      commit('classrooms/set_selected', null, { root: true })
-      commit('classrooms/set_options', [], { root: true })
-      commit('teachers/set_selected', null, { root: true })
-      commit('teachers/set_options', [], { root: true })
-      commit('disciplines/set_options', [], { root: true })
-      commit('disciplines/set_selected', null, { root: true })
+    fetch({ dispatch, state, commit, rootState }) {
+      commit('setSelected', null, { root: true })
+      commit('setOptions', [], { root: true })
+      commit('school_years/setSelected', null, { root: true })
+      commit('school_years/setOptions', [], { root: true })
+      commit('classrooms/setSelected', null, { root: true })
+      commit('classrooms/setOptions', [], { root: true })
+      commit('teachers/setSelected', null, { root: true })
+      commit('teachers/setOptions', [], { root: true })
+      commit('disciplines/setOptions', [], { root: true })
+      commit('disciplines/setSelected', null, { root: true })
 
       const filters = { }
 
-      if(rootGetters['roles/unityId']) {
-        filters['by_id'] = rootGetters['roles/unityId']
+      if(rootState.unities.selected.id) {
+        filters['by_id'] = rootState.unities.selected.id
       }
 
       const route = Routes.search_unities_pt_br_path({
@@ -44,10 +43,10 @@ const unities = {
 
       axios.get(route)
         .then(response => {
-          commit('set_options', response.data.unities)
+          commit('setOptions', response.data.unities)
 
           if(response.data.unities.length === 1) {
-            commit('set_selected', response.data.unities[0].id)
+            commit('setSelected', response.data.unities[0].id)
 
             dispatch('school_years/fetch', null, { root: true })
           }

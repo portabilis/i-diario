@@ -22,13 +22,45 @@ export default new Vuex.Store({
   },
   actions: {
     updateValidation({ dispatch, commit, getters, rootGetters }) {
-      let value = this.state.classrooms.isValid &&
-        this.state.disciplines.isValid &&
-        this.state.roles.isValid &&
-        this.state.school_years.isValid &&
-        this.state.teachers.isValid &&
-        this.state.unities.isValid
+      let value = getters['classrooms/isValid'] &&
+        getters['disciplines/isValid'] &&
+        getters['roles/isValid'] &&
+        getters['school_years/isValid'] &&
+        getters['teachers/isValid'] &&
+        getters['unities/isValid']
       commit('setIsValid', value, { root: true })
+    },
+    setRequired({ commit, getters }) {
+      commit('roles/setRequired', true, { root: true })
+      commit('school_years/setRequired', false, { root: true })
+      commit('classrooms/setRequired', false, { root: true })
+      commit('teachers/setRequired', true, { root: true })
+      commit('disciplines/setRequired', false, { root: true })
+      commit('unities/setRequired', false, { root: true })
+
+      if(!getters['roles/isTeacher'] && !getters['roles/isAdmin'] && !getters['roles/isEmployee']) {
+        return
+      }
+
+      commit('school_years/setRequired', true, { root: true })
+
+      if(getters['roles/isTeacher']) {
+        commit('classrooms/setRequired', true, { root: true })
+      } else {
+        commit('classrooms/setRequired', false, { root: true })
+      }
+
+      if(!getters['classrooms/isSelected']) {
+        commit('teachers/setRequired', false, { root: true })
+        commit('disciplines/setRequired', false, { root: true })
+      } else {
+        commit('teachers/setRequired', true, { root: true })
+        commit('disciplines/setRequired', true, { root: true })
+      }
+
+      if(getters['roles/isAdmin']) {
+        commit('unities/setRequired', true, { root: true })
+      }
     }
   },
   modules: {

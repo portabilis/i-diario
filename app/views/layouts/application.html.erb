@@ -4,6 +4,33 @@
     <%= render 'layouts/datalayer' %>
     <%= render 'layouts/google_tag_manager_head' %>
     <%= render 'layouts/default_headers', title: title %>
+    <link rel="stylesheet" href="https://unpkg.com/vue-multiselect@2.1.0/dist/vue-multiselect.min.css">
+
+    <script type="text/javascript">
+      <% if current_user %>
+        window.state = {
+          current_role_id: <%= current_user.current_user_role_id %>,
+          available_roles: <%= raw current_user.user_roles.as_json(only: [:id],
+                                                                   methods: [
+                                                                     :name,
+                                                                     :can_change_school_year,
+                                                                     :role_access_level,
+                                                                     :unity_id
+                                                                   ]).to_json %>,
+          current_unity_id: '<%= current_user.current_unity_id %>',
+          available_unities: <%= raw current_unities.as_json(only: [:id, :name]).to_json %>,
+          current_school_year: <%= current_user.current_school_year %>,
+          available_school_years: <%= raw current_user_available_years.to_json %>,
+          current_classroom_id: '<%= current_user.current_classroom_id %>',
+          available_classrooms: <%= raw current_user_available_classrooms.as_json(only: [:id, :description]).to_json %>,
+          current_teacher_id: '<%= current_user.current_teacher_id %>',
+          available_teachers: <%= raw current_user_available_teachers.as_json(only: [:id, :name]).to_json %>,
+          current_discipline_id: '<%= current_user.current_discipline_id %>',
+          available_disciplines: <%= raw current_user_available_disciplines.as_json(only: [:id, :description]).to_json %>,
+          teacher_id: <%= current_user.teacher_id %>
+        };
+      <% end %>
+  </script>
   </head>
 
   <body class="smart-style-2 fixed-header <%= controller_name %>">
@@ -15,21 +42,25 @@
     </div>
 
     <header id="header" style="height: 77px; background-color: #27333B;">
-      <% if current_user.current_user_role.blank? ||
-            current_user.current_role_is_admin_or_employee_or_teacher? ||
-            current_user.parent_can_change_profile? %>
-        <%=
-          render(
-            "users/selectors",
-            user: current_user,
-            user_role: current_user.current_user_role || NullUserRole.new,
-            unity: current_user.current_unity,
-            teacher: current_user.current_teacher,
-            classroom: current_user.current_classroom,
-            discipline: current_user.current_discipline
-          )
-        %>
+      <% if false %>
+        <% if current_user.current_user_role.blank? ||
+              current_user.current_role_is_admin_or_employee_or_teacher? ||
+              current_user.parent_can_change_profile? %>
+          <%=
+            render(
+              "users/selectors",
+              user: current_user,
+              user_role: current_user.current_user_role || NullUserRole.new,
+              unity: current_user.current_unity,
+              teacher: current_user.current_teacher,
+              classroom: current_user.current_classroom,
+              discipline: current_user.current_discipline
+            )
+          %>
       <% end %>
+    <% else %>
+      <%= render "layouts/profile_selection" %>
+    <% end %>
 
       <div class="pull-right" style="margin-top: 15px;">
         <% if user_signed_in? %>
@@ -86,6 +117,7 @@
     </div>
 
     <%= javascript_include_tag "application" %>
+    <%= javascript_pack_tag 'app' %>
 
     <%= yield :js %>
   </body>

@@ -1,15 +1,26 @@
 <template>
   <div id="current-school-year-container"
-       class="project-context col col-sm-2"
+       class="project-context"
        v-if="this.$store.getters['unities/isSelected']"
        >
     <span v-bind:class="[required ? 'required' : '', 'label']">Ano Letivo</span>
 
-    <select v-model="selected" @change="updateSelects" name="user[current_school_year]">
-      <option v-for="option in options" v-bind:value="option.id" :key="option.id">
-        {{ option.name }}
-      </option>
-    </select>
+    <input type="hidden" name="user[current_school_year]" v-model="selected.id" v-if="selected" />
+
+    <multiselect v-model="selected"
+                 :options="options"
+                 :searchable="true"
+                 :close-on-select="true"
+                 track-by="id"
+                 label="name"
+                 placeholder="Selecione"
+                 @input="updateSelects"
+                 deselect-label=""
+                 select-label=""
+                 selected-label="">
+      <span slot="noResult">Não encontrado...</span>
+      <span slot="noOptions">Não há anos letivos...</span>
+    </multiselect>
   </div>
 </template>
 
@@ -21,7 +32,6 @@ export default {
   computed: {
     ...mapState({
       required: state => state.school_years.required,
-      isValid: state => state.school_years.isValid,
       options: state => state.school_years.options
     }),
     selected: {
@@ -29,7 +39,7 @@ export default {
         return this.$store.state.school_years.selected
       },
       set (value) {
-        this.$store.commit('school_years/set_selected', value)
+        this.$store.commit('school_years/setSelected', value)
       }
     }
   },
@@ -48,3 +58,9 @@ export default {
   }
 }
 </script>
+
+<style>
+#current-school-year-container {
+  width: 100px;
+}
+</style>

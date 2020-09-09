@@ -5,6 +5,7 @@
     "es6-promise": "^4.2.8",
     "vue": "^2.6.12",
     "vue-loader": "^15.9.3",
+    "vue-multiselect": "^2.1.6",
     "vue-template-compiler": "^2.6.12",
     "vuex": "^3.5.1"
   },

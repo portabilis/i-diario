@@ -8,27 +8,26 @@ const classrooms = {
   state: {
     selected: null,
     options: [],
-    required: false,
-    isValid: true
+    required: false
   },
   mutations,
   getters,
   actions: {
-    preLoad({commit}) {
-      commit('set_selected', window.state.current_classroom_id)
-      commit('set_options', window.state.available_classrooms)
+    preLoad({commit, getters}) {
+      commit('setOptions', window.state.available_classrooms.concat({}))
+      commit('setSelected', getters.getById(window.state.current_classroom_id))
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
-      commit('set_selected', null)
-      commit('set_options', [])
-      commit('teachers/set_selected', null, { root: true })
-      commit('teachers/set_options', [], { root: true })
-      commit('disciplines/set_options', [], { root: true })
-      commit('disciplines/set_selected', null, { root: true })
+      commit('setSelected', null)
+      commit('setOptions', [])
+      commit('teachers/setSelected', null, { root: true })
+      commit('teachers/setOptions', [], { root: true })
+      commit('disciplines/setOptions', [], { root: true })
+      commit('disciplines/setSelected', null, { root: true })
 
       const filters = {
-        by_unity: rootState.unities.selected,
-        by_year: rootState.school_years.selected
+        by_unity: rootState.unities.selected.id,
+        by_year: rootState.school_years.selected.id
       }
 
       if(rootGetters['roles/isTeacher']) {
@@ -42,10 +41,10 @@ const classrooms = {
 
       axios.get(route)
         .then(response => {
-          commit('set_options', response.data)
+          commit('setOptions', response.data)
 
           if(response.data.length === 1) {
-            commit('set_selected', response.data[0].id)
+            commit('setSelected', response.data[0].id)
 
             dispatch('teachers/fetch', null, { root: true })
           }

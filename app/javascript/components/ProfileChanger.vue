@@ -1,8 +1,7 @@
 <template>
-  <div id="profile-changer-container">
+  <div id="current-role-selector">
     <form
       id="profile-changer"
-      @submit="checkForm"
       action="/current_role"
       method="post"
       >
@@ -11,20 +10,18 @@
       <input type="hidden" name="user[teacher_id]" v-model="teacher_id" />
 
       <b-current-role></b-current-role>
-      <br>
       <b-current-unity></b-current-unity>
-      <br>
       <b-current-school-year></b-current-school-year>
-      <br>
       <b-current-classroom></b-current-classroom>
-      <br>
       <b-current-teacher></b-current-teacher>
-      <br>
       <b-current-discipline></b-current-discipline>
-      <br>
-      <button :disabled="!validForm">
-        Alterar perfil
-      </button>
+
+      <div class="role-selector">
+        <button :disabled="!validForm" class="btn btn-sm bg-color-blueDark txt-color-white">
+          Alterar perfil
+        </button>
+        <a class="btn btn-sm bg-color-white txt-color-blueDark role-cancel">Cancelar</a>
+      </div>
     </form>
   </div>
 </template>
@@ -67,10 +64,47 @@ export default {
     'b-current-teacher': CurrentTeacher,
     'b-current-discipline': CurrentDiscipline
   },
-  methods: {
-    checkForm () {
-
-    }
+  mounted() {
+    this.$store.dispatch('setRequired')
   }
 }
 </script>
+
+<style>
+.multiselect, .multiselect__tags {
+  font-size: 12px;
+}
+
+.multiselect__tags {
+  height: 30px;
+  min-height: 30px;
+  padding: 4px 30px 0 4px;
+  overflow: hidden;
+}
+
+.multiselect__single {
+  font-size: 12px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis '';
+}
+.multiselect__option {
+  white-space: normal
+}
+
+.role-selector {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: 27px;
+}
+
+.multiselect__select {
+  height: 30px;
+  width: 30px;
+}
+
+.required:after {
+  content:" *";
+  color: #953b39;
+}
+</style>

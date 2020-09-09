@@ -1,17 +1,25 @@
 <template>
   <div id="current-role-container"
-       class="project-context col col-sm-2"
-       v-show="options.length > 1"
+       class="project-context"
        >
     <span v-bind:class="[required ? 'required' : '', 'label']">Perfil</span>
 
-    <select v-model="selected" @change="updateSelects" name="user[current_user_role_id]">
-      <option v-for="option in options"
-              v-bind:value="option.id"
-              :key="option.id">
-        {{ option.name }}
-      </option>
-    </select>
+    <input type="hidden" name="user[current_user_role_id]" v-model="selected.id" v-if="selected" />
+
+    <multiselect v-model="selected"
+                 :options="options"
+                 :searchable="true"
+                 :close-on-select="true"
+                 track-by="id"
+                 label="name"
+                 placeholder="Selecione"
+                 @input="updateSelects"
+                 deselect-label=""
+                 select-label=""
+                 selected-label="">
+      <span slot="noResult">Não encontrado...</span>
+      <span slot="noOptions">Não há perfis...</span>
+    </multiselect>
   </div>
 </template>
 
@@ -23,7 +31,6 @@ export default {
   computed: {
     ...mapState({
       required: state => state.roles.required,
-      isValid: state => state.roles.isValid,
       options: state => state.roles.options
     }),
     selected: {
@@ -31,7 +38,7 @@ export default {
         return this.$store.state.roles.selected
       },
       set (value) {
-        this.$store.commit('roles/set_selected', value)
+        this.$store.commit('roles/setSelected', value)
       }
     }
   },
@@ -50,3 +57,9 @@ export default {
   }
 }
 </script>
+
+<style>
+#current-role-container {
+  width: 150px;
+}
+</style>
