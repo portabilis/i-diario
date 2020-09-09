@@ -9,7 +9,7 @@
 
     <multiselect v-model="selected"
                  :options="options"
-                 :searchable="true"
+                 :searchable="false"
                  :close-on-select="true"
                  track-by="id"
                  label="name"
