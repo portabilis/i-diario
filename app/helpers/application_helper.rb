@@ -193,8 +193,14 @@ module ApplicationHelper
   end
 
   def current_unities
+    cache_key = [
+      'ApplicationHelper#current_unities',
+      cache_key_to_user,
+      current_user.current_user_role.id
+    ]
+
     @current_unities ||=
-      Rails.cache.fetch ['ApplicationHelper#current_unities', cache_key_to_user], expires_in: 10.minutes do
+      Rails.cache.fetch cache_key, expires_in: 10.minutes do
         if current_user.current_user_role.try(:role_administrator?)
           Unity.ordered
         else
@@ -239,7 +245,8 @@ module ApplicationHelper
       'ApplicationHelper#current_user_available_classrooms',
       cache_key_to_user,
       current_teacher.try(:id),
-      current_school_calendar.try(:year)
+      current_school_calendar.try(:year),
+      current_user.current_user_role.id
     ]
 
     @current_user_available_classrooms ||=
