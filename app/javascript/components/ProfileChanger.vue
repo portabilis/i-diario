@@ -107,4 +107,10 @@ export default {
   content:" *";
   color: #953b39;
 }
+
+.multiselect__option:hover,
+.multiselect__option--highlight,
+.multiselect__option--selected.multiselect__option--highlight {
+  background-color: #3276b1
+}
 </style>
