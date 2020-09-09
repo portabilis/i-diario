@@ -1,7 +1,7 @@
 <template>
-  <div id="current-role-selector">
+  <div id="profiler-changer">
     <form
-      id="profile-changer"
+      id="user-role-form"
       action="/current_role"
       method="post"
       >

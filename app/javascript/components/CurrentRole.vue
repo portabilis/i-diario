@@ -63,4 +63,9 @@ export default {
 #current-role-container {
   width: 150px;
 }
+@media (max-width: 1365px) {
+  #current-role-container {
+    width: 100%;
+  }
+}
 </style>

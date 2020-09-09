@@ -65,4 +65,9 @@ export default {
 #current-unity-container {
   width: 150px;
 }
+@media (max-width: 1365px) {
+  #current-unity-container {
+    width: 100%;
+  }
+}
 </style>

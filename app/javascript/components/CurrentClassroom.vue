@@ -65,4 +65,9 @@ export default {
 #current-classroom-container {
   width: 150px;
 }
+@media (max-width: 1365px) {
+  #current-classroom-container {
+    width: 100%;
+  }
+}
 </style>

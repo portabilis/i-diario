@@ -58,4 +58,9 @@ export default {
 #current-discipline-container {
   width: 150px;
 }
+@media (max-width: 1365px) {
+  #current-discipline-container {
+    width: 100%;
+  }
+}
 </style>

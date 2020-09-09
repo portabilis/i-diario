@@ -64,4 +64,9 @@ export default {
 #current-teacher-container {
   width: 150px;
 }
+@media (max-width: 1365px) {
+  #current-teacher-container {
+    width: 100%;
+  }
+}
 </style>

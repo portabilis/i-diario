@@ -3,6 +3,7 @@
        class="project-context"
        v-if="this.$store.getters['unities/isSelected']"
        >
+
     <span v-bind:class="[required ? 'required' : '', 'label']">Ano Letivo</span>
 
     <input type="hidden" name="user[current_school_year]" v-model="selected.id" v-if="selected" />
@@ -63,5 +64,10 @@ export default {
 <style>
 #current-school-year-container {
   width: 100px;
+}
+@media (max-width: 1365px) {
+  #current-school-year-container {
+    width: 100%;
+  }
 }
 </style>
