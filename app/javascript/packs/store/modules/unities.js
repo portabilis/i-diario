@@ -8,7 +8,8 @@ const unities = {
   state: {
     selected: null,
     options: [],
-    required: false
+    required: false,
+    isLoading: true
   },
   mutations,
   getters,
@@ -16,8 +17,10 @@ const unities = {
     preLoad({commit, getters}) {
       commit('setOptions', window.state.available_unities)
       commit('setSelected', getters.getById(window.state.current_unity_id))
+      commit('setIsLoading', false)
     },
     fetch({ dispatch, state, commit, rootState }) {
+      commit('setIsLoading', true)
       commit('setSelected', null)
       commit('setOptions', [])
       commit('school_years/setSelected', null, { root: true })
@@ -51,6 +54,7 @@ const unities = {
             dispatch('school_years/fetch', null, { root: true })
           }
 
+          commit('setIsLoading', false)
         })
     }
   }

@@ -6,13 +6,15 @@ const roles = {
   state: {
     selected: null,
     options: [],
-    required: false
+    required: false,
+    isLoading: true
   },
   mutations,
   actions: {
     preLoad({ commit, getters }) {
       commit('setOptions', window.state.available_roles)
       commit('setSelected', getters.getById(window.state.current_role_id))
+      commit('setIsLoading', false)
     }
   },
   getters: {

@@ -8,7 +8,8 @@ const classrooms = {
   state: {
     selected: null,
     options: [],
-    required: false
+    required: false,
+    isLoading: true
   },
   mutations,
   getters,
@@ -16,8 +17,10 @@ const classrooms = {
     preLoad({commit, getters}) {
       commit('setOptions', window.state.available_classrooms.concat({}))
       commit('setSelected', getters.getById(window.state.current_classroom_id))
+      commit('setIsLoading', false)
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
+      commit('setIsLoading', true)
       commit('setSelected', null)
       commit('setOptions', [])
       commit('teachers/setSelected', null, { root: true })
@@ -48,6 +51,8 @@ const classrooms = {
 
             dispatch('teachers/fetch', null, { root: true })
           }
+
+          commit('setIsLoading', false)
         })
     }
   }

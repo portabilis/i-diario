@@ -14,9 +14,11 @@
                  :close-on-select="true"
                  track-by="id"
                  label="name"
-                 placeholder="Selecione"
+                 :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
                  @input="updateSelects"
                  :allow-empty="false"
+                 :loading="isLoading"
+                 :disabled="isLoading"
                  deselect-label=""
                  select-label=""
                  selected-label="">
@@ -34,7 +36,8 @@ export default {
   computed: {
     ...mapState({
       required: state => state.unities.required,
-      options: state => state.unities.options
+      options: state => state.unities.options,
+      isLoading: state => state.unities.isLoading
     }),
     selected: {
       get () {

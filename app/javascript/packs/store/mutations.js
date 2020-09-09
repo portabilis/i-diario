@@ -7,5 +7,8 @@ export default {
   },
   setOptions(state, unities) {
     state.options = unities
+  },
+  setIsLoading(state, value) {
+    state.isLoading = value
   }
 }

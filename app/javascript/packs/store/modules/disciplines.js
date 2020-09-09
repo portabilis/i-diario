@@ -8,7 +8,8 @@ const disciplines = {
   state: {
     selected: null,
     options: [],
-    required: false
+    required: false,
+    isLoading: true
   },
   mutations,
   getters,
@@ -16,8 +17,10 @@ const disciplines = {
     preLoad({commit, getters}) {
       commit('setOptions', window.state.available_disciplines)
       commit('setSelected', getters.getById(window.state.current_discipline_id))
+      commit('setIsLoading', false)
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
+      commit('setIsLoading', true)
       commit('setOptions', [])
       commit('setSelected', null)
 
@@ -38,6 +41,8 @@ const disciplines = {
           if(response.data.disciplines.length === 1) {
             commit('setSelected', response.data.disciplines[0])
           }
+
+          commit('setIsLoading', false)
         })
     }
   }

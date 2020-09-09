@@ -113,4 +113,20 @@ export default {
 .multiselect__option--selected.multiselect__option--highlight {
   background-color: #3276b1
 }
+
+.multiselect__spinner {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  width: 25px;
+  height: 25px;
+}
+
+.multiselect--disabled {
+  background: none;
+  opacity: 1;
+}
+.multiselect--disabled .multiselect__select {
+  background: none;
+}
 </style>

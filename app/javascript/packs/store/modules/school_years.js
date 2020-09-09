@@ -8,7 +8,8 @@ const school_years = {
   state: {
     selected: null,
     options: [],
-    required: false
+    required: false,
+    isLoading: true
   },
   mutations,
   getters,
@@ -16,8 +17,10 @@ const school_years = {
     preLoad({commit, getters}) {
       commit('setOptions', window.state.available_school_years)
       commit('setSelected', getters.getById(window.state.current_school_year))
+      commit('setIsLoading', false)
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
+      commit('setIsLoading', true)
       commit('setSelected', null)
       commit('setOptions', [])
       commit('teachers/setSelected', null, { root: true })
@@ -43,6 +46,7 @@ const school_years = {
             dispatch('classrooms/fetch', null, { root: true })
           }
 
+          commit('setIsLoading', false)
         })
     }
   }

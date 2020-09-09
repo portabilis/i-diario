@@ -8,7 +8,8 @@ const teachers = {
   state: {
     selected: null,
     options: [],
-    required: false
+    required: false,
+    isLoading: true
   },
   mutations,
   getters,
@@ -16,8 +17,10 @@ const teachers = {
     preLoad({ commit, getters }) {
       commit('setOptions', window.state.available_teachers)
       commit('setSelected', getters.getById(window.state.current_teacher_id))
+      commit('setIsLoading', false)
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
+      commit('setIsLoading', true)
       commit('setSelected', null)
       commit('setOptions', [])
       commit('disciplines/setOptions', [], { root: true })
@@ -47,6 +50,8 @@ const teachers = {
 
             dispatch('disciplines/fetch', null, { root: true })
           }
+
+          commit('setIsLoading', false)
         })
     }
   }
