@@ -1,6 +1,7 @@
 <template>
   <div id="current-role-container"
        class="project-context"
+       v-show="options.length > 1"
        >
     <span v-bind:class="[required ? 'required' : '', 'label']">Perfil</span>
 
