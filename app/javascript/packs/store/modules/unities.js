@@ -18,8 +18,8 @@ const unities = {
       commit('setSelected', getters.getById(window.state.current_unity_id))
     },
     fetch({ dispatch, state, commit, rootState }) {
-      commit('setSelected', null, { root: true })
-      commit('setOptions', [], { root: true })
+      commit('setSelected', null)
+      commit('setOptions', [])
       commit('school_years/setSelected', null, { root: true })
       commit('school_years/setOptions', [], { root: true })
       commit('classrooms/setSelected', null, { root: true })
@@ -31,8 +31,8 @@ const unities = {
 
       const filters = { }
 
-      if(rootState.unities.selected.id) {
-        filters['by_id'] = rootState.unities.selected.id
+      if(rootState.roles.selected && rootState.roles.selected.unity_id) {
+        filters['by_id'] = rootState.roles.selected.unity_id
       }
 
       const route = Routes.search_unities_pt_br_path({
@@ -46,7 +46,7 @@ const unities = {
           commit('setOptions', response.data.unities)
 
           if(response.data.unities.length === 1) {
-            commit('setSelected', response.data.unities[0].id)
+            commit('setSelected', response.data.unities[0])
 
             dispatch('school_years/fetch', null, { root: true })
           }

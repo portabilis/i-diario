@@ -43,7 +43,7 @@ const teachers = {
           commit('setOptions', response.data)
 
           if(response.data.length === 1) {
-            commit('setSelected', response.data[0].id)
+            commit('setSelected', response.data[0])
 
             dispatch('disciplines/fetch', null, { root: true })
           }

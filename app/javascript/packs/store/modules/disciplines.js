@@ -36,7 +36,7 @@ const disciplines = {
           commit('setOptions', response.data.disciplines)
 
           if(response.data.disciplines.length === 1) {
-            commit('setSelected', response.data.disciplines[0].id)
+            commit('setSelected', response.data.disciplines[0])
           }
         })
     }

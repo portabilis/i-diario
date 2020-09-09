@@ -14,6 +14,7 @@
                  track-by="id"
                  label="description"
                  placeholder="Selecione"
+                 :allow-empty="false"
                  deselect-label=""
                  select-label=""
                  selected-label="">

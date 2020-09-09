@@ -38,7 +38,7 @@ const school_years = {
           commit('setOptions', response.data.school_calendars)
 
           if(response.data.school_calendars.length === 1) {
-            commit('setSelected', response.data.school_calendars[0].id)
+            commit('setSelected', response.data.school_calendars[0])
 
             dispatch('classrooms/fetch', null, { root: true })
           }

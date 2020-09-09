@@ -15,6 +15,7 @@
                  label="name"
                  placeholder="Selecione"
                  @input="updateSelects"
+                 :allow-empty="false"
                  deselect-label=""
                  select-label=""
                  selected-label="">
