@@ -1,28 +1,37 @@
 <template>
-  <div id="profiler-changer">
-    <form
-      id="user-role-form"
-      action="/current_role"
-      method="post"
-      >
+  <div>
+    <a id="user-info-selector" href="#" v-if="showButton">
+      <span>
+        Alterar perfil
+        <i class="fa fa-angle-right" aria-hidden="true"></i>
+      </span>
+    </a>
 
-      <input type="hidden" name="authenticity_token" v-model="x_csrf_token" />
-      <input type="hidden" name="user[teacher_id]" v-model="teacher_id" />
+    <div id="current-role-selector">
+      <form
+        id="user-role-form"
+        action="/current_role"
+        method="post"
+        >
 
-      <b-current-role></b-current-role>
-      <b-current-unity></b-current-unity>
-      <b-current-school-year></b-current-school-year>
-      <b-current-classroom></b-current-classroom>
-      <b-current-teacher></b-current-teacher>
-      <b-current-discipline></b-current-discipline>
+        <input type="hidden" name="authenticity_token" v-model="x_csrf_token" />
+        <input type="hidden" name="user[teacher_id]" v-model="teacher_id" />
 
-      <div class="role-selector">
-        <button :disabled="!validForm" class="btn btn-sm bg-color-blueDark txt-color-white">
-          Alterar perfil
-        </button>
-        <a class="btn btn-sm bg-color-white txt-color-blueDark role-cancel">Cancelar</a>
-      </div>
-    </form>
+        <b-current-role></b-current-role>
+        <b-current-unity></b-current-unity>
+        <b-current-school-year></b-current-school-year>
+        <b-current-classroom></b-current-classroom>
+        <b-current-teacher></b-current-teacher>
+        <b-current-discipline></b-current-discipline>
+
+        <div class="role-selector" v-if="showButton">
+          <button :disabled="!validForm" class="btn btn-sm bg-color-blueDark txt-color-white">
+            Alterar perfil
+          </button>
+          <a class="btn btn-sm bg-color-white txt-color-blueDark role-cancel">Cancelar</a>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -33,15 +42,6 @@ import CurrentSchoolYear from './CurrentSchoolYear.vue'
 import CurrentClassroom from './CurrentClassroom.vue'
 import CurrentTeacher from './CurrentTeacher.vue'
 import CurrentDiscipline from './CurrentDiscipline.vue'
-
-const containers = [
-  '#current-unity-container',
-  '#current-classroom-container',
-  '#current-discipline-container',
-  '#current-role-container',
-  '#current-school-year-container',
-  '#current-teacher-container'
-]
 
 export default {
   name: "b-profile-changer",
@@ -54,6 +54,13 @@ export default {
   computed: {
     validForm () {
       return this.$store.state.isValid
+    },
+    showButton() {
+      if(this.$store.getters['roles/isParentOrStudent']()) {
+        return this.$store.state.roles.options.length > 1
+      } else {
+        return this.$store.state.roles.options.length > 0
+      }
     }
   },
   components: {
@@ -103,7 +110,7 @@ export default {
   width: 30px;
 }
 
-.required:after {
+#profiler-changer .required:after {
   content:" *";
   color: #953b39;
 }

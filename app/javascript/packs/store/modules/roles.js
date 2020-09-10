@@ -20,25 +20,13 @@ const roles = {
   getters: {
     ...getters,
     canChangeSchoolYear: function(state, getters) {
-      return getters.getById(state.selected.id).can_change_school_year
+      return state.selected.can_change_school_year
     },
-    isTeacher: function(state, getters) {
-      return getters.getById(state.selected.id).role_access_level == 'teacher'
+    is: (state, getters) => (accessLevel) => {
+      return state.selected && state.selected.role_access_level == accessLevel
     },
-    isAdmin: function(state, getters) {
-      return getters.getById(state.selected.id).role_access_level == 'administrator'
-    },
-    isParent: function(state, getters) {
-      return getters.getById(state.selected.id).role_access_level == 'parent'
-    },
-    isStudent: function(state, getters) {
-      return getters.getById(state.selected.id).role_access_level == 'student'
-    },
-    isEmployee: function(state, getters) {
-      return getters.getById(state.selected.id).role_access_level == 'employee'
-    },
-    unityId: function(state, getters) {
-      return getters.getById(state.selected.id).unity_id
+    isParentOrStudent: (state, getters) => (accessLevel) => {
+      return getters.is('parent') || getters.is('student')
     }
   }
 }

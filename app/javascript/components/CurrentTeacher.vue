@@ -2,7 +2,7 @@
   <div id="current-teacher-container"
        class="project-context"
        v-if="this.$store.getters['classrooms/isSelected']"
-       v-show="!this.$store.getters['roles/isTeacher']" >
+       v-show="!this.$store.getters['roles/is']('teacher')" >
     <span v-bind:class="[required ? 'required' : '', 'label']">Professor</span>
 
     <input type="hidden" name="user[current_teacher_id]" v-model="selected.id" v-if="selected" />

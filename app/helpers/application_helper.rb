@@ -205,7 +205,7 @@ module ApplicationHelper
           Unity.ordered
         else
           [current_unity]
-        end
+        end.compact
       end
   end
 

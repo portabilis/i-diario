@@ -19,7 +19,7 @@ const unities = {
       commit('setSelected', getters.getById(window.state.current_unity_id))
       commit('setIsLoading', false)
     },
-    fetch({ dispatch, state, commit, rootState }) {
+    fetch({ dispatch, state, commit, rootGetters, rootState }) {
       commit('setIsLoading', true)
       commit('setSelected', null)
       commit('setOptions', [])
@@ -31,6 +31,10 @@ const unities = {
       commit('teachers/setOptions', [], { root: true })
       commit('disciplines/setOptions', [], { root: true })
       commit('disciplines/setSelected', null, { root: true })
+
+      if(rootGetters['roles/isParentOrStudent']()) {
+        return
+      }
 
       const filters = { }
 

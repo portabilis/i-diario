@@ -32,7 +32,7 @@ const teachers = {
         by_classroom: rootState.classrooms.selected.id,
       }
 
-      if(rootGetters['roles/isTeacher']) {
+      if(rootGetters['roles/is']('teacher')) {
         filters['by_id'] = window.state.teacher_id
       }
 

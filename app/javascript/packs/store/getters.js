@@ -6,6 +6,9 @@ export default {
     return !!(state.selected && state.selected.id)
   },
   getById: (state) => (id) => {
-    return state.options.find(option => option.id == id)
+    if(!state.options) {
+      return null
+    }
+    return state.options.find(option => option && option.id == id)
   }
 }

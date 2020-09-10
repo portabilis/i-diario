@@ -1,6 +1,5 @@
 import Vue from 'vue/dist/vue.js'
 import Vuex from 'vuex'
-import _ from 'lodash'
 
 import classrooms from './modules/classrooms'
 import disciplines from './modules/disciplines'
@@ -30,21 +29,21 @@ export default new Vuex.Store({
         getters['unities/isValid']
       commit('setIsValid', value, { root: true })
     },
-    setRequired({ commit, getters }) {
+    setRequired({ dispatch, commit, getters, rootGetters, rootState }) {
       commit('roles/setRequired', true, { root: true })
       commit('school_years/setRequired', false, { root: true })
       commit('classrooms/setRequired', false, { root: true })
-      commit('teachers/setRequired', true, { root: true })
+      commit('teachers/setRequired', false, { root: true })
       commit('disciplines/setRequired', false, { root: true })
       commit('unities/setRequired', false, { root: true })
 
-      if(!getters['roles/isTeacher'] && !getters['roles/isAdmin'] && !getters['roles/isEmployee']) {
+      if(getters['roles/isParentOrStudent']()) {
         return
       }
 
       commit('school_years/setRequired', true, { root: true })
 
-      if(getters['roles/isTeacher']) {
+      if(getters['roles/is']('teacher')) {
         commit('classrooms/setRequired', true, { root: true })
       } else {
         commit('classrooms/setRequired', false, { root: true })
@@ -58,7 +57,7 @@ export default new Vuex.Store({
         commit('disciplines/setRequired', true, { root: true })
       }
 
-      if(getters['roles/isAdmin']) {
+      if(getters['roles/is']('admin')) {
         commit('unities/setRequired', true, { root: true })
       }
     }

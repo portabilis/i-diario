@@ -57,6 +57,7 @@ export default {
   },
   watch: {
     selected: function(newValue, oldValue) {
+      this.$store.dispatch('setRequired')
       this.$store.dispatch('updateValidation', null, { root: true })
     }
   }
