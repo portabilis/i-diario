@@ -1,41 +1,71 @@
-<div class="widget-body no-padding">
-  <%= simple_form_for @data_exportation,
-  url: data_exportations_path, method: :patch, html: { class: "smart-form" } do |f| %>
-    <%= f.error_notification %>
+<div class="widget-body">
+  <div class="row">
+    <div class="col col-sm-12">
+      <%= simple_form_for @last_full_system_backup, url: data_exportations_path, method: :post,
+        html: { class: 'smart-form' } do |f| %>
 
-    <fieldset>
-      <div class="row">
-        <div class="col col-sm-6">
-          <%= f.input :backup_file do %>
-            <% if f.object.completed? %>
-              <%= link_to 'Fazer download', f.object.backup_file_url %>
-            <% elsif f.object.started? %>
-              <span class="label label-info">
-                Backup está sendo gerado.
-              </span>
-            <% elsif f.object.error? %>
-              <span class="label label-danger" title="<%= f.object.error_message %>">
-                Erro ao processar o backup.
-              </span>
-            <% end %>
-          <% end %>
-        </div>
-      </div>
-    </fieldset>
+        <%= f.error_notification %>
 
-    <footer>
-      <% if @data_exportation.persisted? %>
-        <% if @data_exportation.started? %>
-          <%= link_to "#",
-            class: 'btn bg-color-red txt-color-white' do %>
-            <i class="fa fa-cog fa-spin"></i>
-            Exportando dados
-          <% end %>
-        <% else %>
-          <%= link_to "Exportar dados", data_exportations_path, method: 'post',
-            class: 'btn bg-color-red txt-color-white' %>
-        <% end %>
+        <table class="table table-striped table-bordered table-condensed">
+          <thead>
+            <tr>
+              <th>Tipo</th>
+              <th>Informações</th>
+              <th>Último Backup</th>
+              <th style="width: 1%;"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Backup</td>
+              <td>Exporta os dados de todas as telas/tabelas do sistema</td>
+              <td>
+                <% if @last_full_system_backup.completed? %>
+                  <%= link_to @last_full_system_backup.created_at, @last_full_system_backup.backup_file_url %>
+                <% elsif @last_full_system_backup.error? %>
+                  Erro: <%= @last_full_system_backup.error_message %>
+                <% end %>
+              </td>
+              <td>
+                <% if @last_full_system_backup.started? %>
+                  <%= link_to '#', class: 'btn bg-color-red txt-color-white' do %>
+                    <i class="fa fa-cog fa-spin"></i>
+                    Exportando...
+                  <% end %>
+                <% else %>
+                  <%= f.submit 'Exportar', name: 'backup_type[full_system_backup]',
+                    class: 'btn bg-color-red txt-color-white' %>
+                <% end %>
+              </td>
+            </tr>
+            <tr>
+              <td>Calendários letivos</td>
+              <td>
+                Exporta todos os calendários letivos do ano no filtro (etapas, datas, quantidade de lançamentos)
+              </td>
+              <td>
+                <% if @last_school_calendar_backup.completed? %>
+                  <%= link_to @last_school_calendar_backup.created_at,
+                    @last_school_calendar_backup.backup_file_url %>
+                <% elsif @last_school_calendar_backup.error? %>
+                  Erro: <%= @last_school_calendar_backup.error_message %>
+                <% end %>
+              </td>
+              <td>
+                <% if @last_school_calendar_backup.started? %>
+                  <%= link_to '#', class: 'btn bg-color-red txt-color-white' do %>
+                    <i class="fa fa-cog fa-spin"></i>
+                    Exportando...
+                  <% end %>
+                <% else %>
+                  <%= f.submit 'Exportar', name: "backup_type[school_calendar_backup]",
+                    class: 'btn bg-color-red txt-color-white' %>
+                <% end %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       <% end %>
-    </footer>
-  <% end %>
+    </div>
+  </div>
 </div>

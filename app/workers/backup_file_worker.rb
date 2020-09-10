@@ -1,23 +1,23 @@
 class BackupFileWorker
   include Sidekiq::Worker
 
-  def perform(entity_id)
+  def perform(entity_id, data_exportation_id)
     entity = Entity.find(entity_id)
 
     entity.using_connection do
-      configuration = GeneralConfiguration.current
-
       begin
-        backup = BackupFile.process!
+        data_exportation = DataExportation.find(data_exportation_id)
 
-        configuration.backup_file = backup
-        configuration.backup_status = ApiSynchronizationStatus::COMPLETED
-        configuration.save!
+        backup = BackupFile.process_by_type!(data_exportation.backup_type)
+
+        data_exportation.backup_file = backup
+        data_exportation.backup_status = BackupStatus::COMPLETED
+        data_exportation.save!
 
         backup.close
         backup.unlink
-      rescue Exception => e
-        configuration.mark_with_error!(e.message)
+      rescue StandardError => error
+        data_exportation.mark_with_error!(error.message)
       end
     end
   end
