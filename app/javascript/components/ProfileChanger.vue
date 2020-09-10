@@ -110,7 +110,7 @@ export default {
   width: 30px;
 }
 
-#profiler-changer .required:after {
+#current-role-selector .required:after {
   content:" *";
   color: #953b39;
 }
