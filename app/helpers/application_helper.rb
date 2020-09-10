@@ -305,6 +305,24 @@ module ApplicationHelper
     }
   end
 
+  def window_state
+    {
+      current_role_id: current_user.current_user_role_id,
+      available_roles: current_user.user_roles.as_json(only: [:id], methods: [:name, :can_change_school_year, :role_access_level, :unity_id]),
+      current_unity_id: current_user.current_unity_id,
+      available_unities: current_unities.as_json(only: [:id, :name]),
+      current_school_year: current_user.current_school_year,
+      available_school_years: current_user_available_years,
+      current_classroom_id: current_user.current_classroom_id,
+      available_classrooms: current_user_available_classrooms.as_json(only: [:id, :description]),
+      current_teacher_id: current_user.current_teacher_id,
+      available_teachers: current_user_available_teachers.as_json(only: [:id, :name]),
+      current_discipline_id: current_user.current_discipline_id,
+      available_disciplines: current_user_available_disciplines.as_json(only: [:id, :description]),
+      teacher_id: current_user.teacher_id
+    }
+  end
+
   private
 
   def cache_key_to_user
