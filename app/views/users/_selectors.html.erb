@@ -6,7 +6,7 @@
 </a>
 
 <div id="current-role-selector">
-  <%= simple_form_for user, url: set_current_role_path, html: { method: :patch, id: "user-role-form" } do |f| %>
+  <%= simple_form_for user, url: set_current_role_path, html: { method: :post, id: "user-role-form" } do |f| %>
     <%= f.hidden_field :teacher_id, value: f.object.teacher_id, class: 'teacher' %>
     <div class="errors-container"></div>
 
