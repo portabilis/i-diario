@@ -14,8 +14,15 @@ const classrooms = {
   mutations,
   getters,
   actions: {
-    preLoad({commit, getters}) {
-      commit('setOptions', window.state.available_classrooms.concat({}))
+    preLoad({commit, getters, rootGetters}) {
+      let options = []
+
+      if(!rootGetters['roles/is']('teacher')) {
+        options = options.concat({})
+      }
+      options = options.concat(window.state.available_classrooms)
+
+      commit('setOptions', options)
       commit('setSelected', getters.getById(window.state.current_classroom_id))
       commit('setIsLoading', false)
     },
