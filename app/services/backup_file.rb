@@ -153,6 +153,6 @@ class BackupFile
 
   def school_calendar_items
     connection = ActiveRecord::Base.connection
-    connection.select_rows(SchoolCalendarQuery.school_calendars_with_data_count, nil, [[nil, Date.current.year]])
+    connection.select_rows(SchoolCalendarQuery.school_calendars_with_data_count)
   end
 end
