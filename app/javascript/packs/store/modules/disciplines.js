@@ -3,7 +3,7 @@ import axios from 'axios'
 import mutations from '../mutations.js'
 import getters from '../getters.js'
 
-const knowledge_area_disciplines = {
+const disciplines = {
   namespaced: true,
   state: {
     selected: null,
@@ -32,7 +32,7 @@ const knowledge_area_disciplines = {
   },
   actions: {
     preLoad({commit, getters}) {
-      commit('setOptions', window.state.available_knowledge_area_disciplines)
+      commit('setOptions', window.state.available_disciplines)
 
       if (window.state.current_knowledge_area_id) {
         commit('setSelected', getters.getByKnowledgeAreaId(window.state.current_knowledge_area_id))
@@ -52,17 +52,19 @@ const knowledge_area_disciplines = {
         classroom_id: rootState.classrooms.selected.id,
       }
 
-      const route = Routes.search_with_disciplines_knowledge_areas_pt_br_path({
+      const route = Routes.search_grouped_by_knowledge_area_disciplines_pt_br_path({
         filter: filters,
         format: 'json'
       })
 
+      console.log(route)
+
       axios.get(route)
         .then(response => {
-          commit('setOptions', response.data.knowledge_areas)
+          commit('setOptions', response.data.disciplines)
 
-          if(response.data.knowledge_areas.length === 1) {
-            commit('setSelected', response.data.knowledge_areas[0])
+          if(response.data.disciplines.length === 1) {
+            commit('setSelected', response.data.disciplines[0])
           }
 
           commit('setIsLoading', false)
@@ -71,4 +73,4 @@ const knowledge_area_disciplines = {
   }
 }
 
-export default knowledge_area_disciplines
+export default disciplines

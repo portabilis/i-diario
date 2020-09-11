@@ -23,13 +23,4 @@ class KnowledgeAreasController < ApplicationController
 
     @knowledge_areas
   end
-
-  def search_with_disciplines
-    knowledge_areas =
-      KnowledgeArea.with_discipline(current_entity,
-                                    params[:filter][:classroom_id],
-                                    params[:filter][:teacher_id])
-
-    render json: knowledge_areas.as_json
-  end
 end

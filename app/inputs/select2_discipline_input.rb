@@ -30,7 +30,7 @@ class Select2DisciplineInput < Select2Input
       disciplines = Discipline.by_unity_id(user.current_unity.id).by_grade(options[:grade_id])
     end
 
-    options[:elements] = disciplines.knowledge_areas_or_disciplines
+    options[:elements] = disciplines.grouped_by_knowledge_area
 
     super
   end

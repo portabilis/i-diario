@@ -1,13 +1,18 @@
 <template>
-  <div id="current-knowledge-area-discipline-container"
+  <div id="current-discipline-container"
        class="project-context"
        v-if="this.$store.getters['teachers/isSelected']"
        >
     <span v-bind:class="[required ? 'required' : '', 'label']">Disciplina</span>
 
     <input type="hidden"
-           v-bind:name="selected.knowledge_area_id ? 'user[current_knowledge_area_id]' : 'user[current_discipline_id]' "
-           v-bind:value="selected.knowledge_area_id || selected.discipline_id"
+           name="user[current_knowledge_area_id]"
+           v-bind:value="selected.knowledge_area_id"
+           v-if="selected" />
+
+    <input type="hidden"
+           name="user[current_discipline_id]"
+           v-bind:value="selected.discipline_id"
            v-if="selected" />
 
     <multiselect v-model="selected"
@@ -36,21 +41,21 @@ export default {
   name: "b-current-knowledge-are-discipline",
   computed: {
     ...mapState({
-      required: state => state.knowledge_area_disciplines.required,
-      options: state => state.knowledge_area_disciplines.options,
-      isLoading: state => state.knowledge_area_disciplines.isLoading
+      required: state => state.disciplines.required,
+      options: state => state.disciplines.options,
+      isLoading: state => state.disciplines.isLoading
     }),
     selected: {
       get () {
-        return this.$store.state.knowledge_area_disciplines.selected
+        return this.$store.state.disciplines.selected
       },
       set (value) {
-        this.$store.commit('knowledge_area_disciplines/setSelected', value)
+        this.$store.commit('disciplines/setSelected', value)
       }
     }
   },
   created() {
-    this.$store.dispatch('knowledge_area_disciplines/preLoad')
+    this.$store.dispatch('disciplines/preLoad')
   },
   watch: {
     selected: function(newValue, oldValue) {
@@ -61,11 +66,11 @@ export default {
 </script>
 
 <style>
-#current-knowledge-area-discipline-container {
-  width: 150px;
+#current-discipline-container {
+  width: 200px;
 }
 @media (max-width: 1365px) {
-  #current-knowledge-area-discipline-container {
+  #current-discipline-container {
     width: 100%;
   }
 }

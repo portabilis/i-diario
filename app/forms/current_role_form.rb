@@ -61,21 +61,6 @@ class CurrentRoleForm
       attributes[:current_knowledge_area_id] = nil
     end
 
-    if attributes[:current_discipline_id].present?
-      attributes[:current_knowledge_area_id] = nil
-    end
-
-    if attributes[:current_knowledge_area_id].present?
-      discipline =
-        Discipline
-        .by_teacher_id(current_teacher_id)
-        .by_classroom(current_classroom_id)
-        .where(knowledge_area_id: current_knowledge_area_id)
-        .first
-
-      attributes[:current_discipline_id] = discipline.id
-    end
-
     attributes[:current_unity_id] = nil unless require_unity?
     attributes
   end

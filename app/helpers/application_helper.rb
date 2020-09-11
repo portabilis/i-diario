@@ -204,7 +204,10 @@ module ApplicationHelper
   def current_user_available_knowledge_areas
     return [] unless current_user_classroom && current_teacher
 
-    KnowledgeArea.with_discipline(current_entity, current_user_classroom.id, current_teacher.id).as_json
+    Discipline
+      .by_teacher_and_classroom(current_teacher.id, current_user_classroom.id)
+      .grouped_by_knowledge_area
+      .as_json
   end
 
   def current_unities
@@ -333,9 +336,8 @@ module ApplicationHelper
       current_teacher_id: current_user.current_teacher_id,
       available_teachers: current_user_available_teachers.as_json(only: [:id, :name]),
       current_discipline_id: current_user.current_discipline_id,
-      available_disciplines: current_user_available_disciplines.as_json(only: [:id, :description]),
       current_knowledge_area_id: current_user.current_knowledge_area_id,
-      available_knowledge_area_disciplines: current_user_available_knowledge_areas.as_json,
+      available_disciplines: current_user_available_knowledge_areas.as_json,
       teacher_id: current_user.teacher_id
     }
   end

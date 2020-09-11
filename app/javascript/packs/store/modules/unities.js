@@ -29,8 +29,8 @@ const unities = {
       commit('classrooms/setOptions', [], { root: true })
       commit('teachers/setSelected', null, { root: true })
       commit('teachers/setOptions', [], { root: true })
-      commit('knowledge_area_disciplines/setOptions', [], { root: true })
-      commit('knowledge_area_disciplines/setSelected', null, { root: true })
+      commit('disciplines/setOptions', [], { root: true })
+      commit('disciplines/setSelected', null, { root: true })
 
       if(rootGetters['roles/isParentOrStudent']()) {
         return

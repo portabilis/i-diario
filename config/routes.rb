@@ -206,13 +206,10 @@ Rails.application.routes.draw do
     resources :disciplines, only: [:index] do
       collection do
         get :search
+        get :search_grouped_by_knowledge_area
       end
     end
-    resources :knowledge_areas, only: [:index] do
-      collection do
-        get :search_with_disciplines
-      end
-    end
+    resources :knowledge_areas, only: [:index]
     resources :exam_rules, only: [:index]
     resources :avaliations, concerns: :history do
       collection do

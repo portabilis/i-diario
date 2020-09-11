@@ -82,11 +82,12 @@ class Discipline < ActiveRecord::Base
     end
   end
 
-  def self.knowledge_areas_or_disciplines
+  def self.grouped_by_knowledge_area
     joins(:knowledge_area)
       .select(
         <<-SQL
           disciplines.id,
+          disciplines.id discipline_id,
           knowledge_areas.group_descriptors,
           knowledge_area_id,
           CASE
