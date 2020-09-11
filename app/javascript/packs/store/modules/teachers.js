@@ -23,8 +23,8 @@ const teachers = {
       commit('setIsLoading', true)
       commit('setSelected', null)
       commit('setOptions', [])
-      commit('disciplines/setOptions', [], { root: true })
-      commit('disciplines/setSelected', null, { root: true })
+      commit('knowledge_area_disciplines/setOptions', [], { root: true })
+      commit('knowledge_area_disciplines/setSelected', null, { root: true })
 
       const filters = {
         by_unity_id: rootState.unities.selected.id,
@@ -48,7 +48,7 @@ const teachers = {
           if(response.data.length === 1) {
             commit('setSelected', response.data[0])
 
-            dispatch('disciplines/fetch', null, { root: true })
+            dispatch('knowledge_area_disciplines/fetch', null, { root: true })
           }
 
           commit('setIsLoading', false)

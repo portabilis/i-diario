@@ -52,7 +52,7 @@ export default {
   },
   methods: {
     updateSelects() {
-      this.$store.dispatch('disciplines/fetch')
+      this.$store.dispatch('knowledge_area_disciplines/fetch')
     }
   },
   watch: {

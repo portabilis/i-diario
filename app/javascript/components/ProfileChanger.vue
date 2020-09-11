@@ -22,7 +22,7 @@
         <b-current-school-year></b-current-school-year>
         <b-current-classroom></b-current-classroom>
         <b-current-teacher></b-current-teacher>
-        <b-current-discipline></b-current-discipline>
+        <b-current-knowledge-area-discipline></b-current-knowledge-area-discipline>
 
         <div class="role-selector" v-if="showButton">
           <button :disabled="!validForm" class="btn btn-sm bg-color-blueDark txt-color-white">
@@ -41,7 +41,7 @@ import CurrentUnity from './CurrentUnity.vue'
 import CurrentSchoolYear from './CurrentSchoolYear.vue'
 import CurrentClassroom from './CurrentClassroom.vue'
 import CurrentTeacher from './CurrentTeacher.vue'
-import CurrentDiscipline from './CurrentDiscipline.vue'
+import CurrentKnowledgeAreaDiscipline from './CurrentKnowledgeAreaDiscipline.vue'
 
 export default {
   name: "b-profile-changer",
@@ -69,7 +69,7 @@ export default {
     'b-current-school-year': CurrentSchoolYear,
     'b-current-classroom': CurrentClassroom,
     'b-current-teacher': CurrentTeacher,
-    'b-current-discipline': CurrentDiscipline
+    'b-current-knowledge-area-discipline': CurrentKnowledgeAreaDiscipline,
   },
   mounted() {
     this.$store.dispatch('setRequired')

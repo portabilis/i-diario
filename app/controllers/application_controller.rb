@@ -221,6 +221,7 @@ class ApplicationController < ActionController::Base
       current_user_role: current_user.current_user_role,
       current_classroom: current_user.current_classroom,
       current_discipline_id: current_user.current_discipline_id,
+      current_knowledge_area_id: current_user.current_knowledge_area_id,
       current_unity: current_user.current_unity,
       current_teacher: current_user.current_teacher,
       current_school_year: current_user.current_school_year

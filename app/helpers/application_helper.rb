@@ -188,8 +188,23 @@ module ApplicationHelper
   def current_user_available_disciplines
     return [] unless current_user_classroom && current_teacher
 
+    cache_key = [
+      'ApplicationHelper#current_user_available_disciplines',
+      cache_key_to_user,
+      current_user_classroom.try(:id),
+      current_teacher.try(:id)
+    ]
+
     @current_user_available_disciplines ||=
-      Discipline.by_teacher_id(current_teacher).by_classroom(current_user_classroom).ordered
+      Rails.cache.fetch cache_key, expires_in: 10.minutes do
+        Discipline.by_teacher_id(current_teacher).by_classroom(current_user_classroom).ordered
+      end
+  end
+
+  def current_user_available_knowledge_areas
+    return [] unless current_user_classroom && current_teacher
+
+    KnowledgeArea.with_discipline(current_entity, current_user_classroom.id, current_teacher.id).as_json
   end
 
   def current_unities
@@ -319,6 +334,8 @@ module ApplicationHelper
       available_teachers: current_user_available_teachers.as_json(only: [:id, :name]),
       current_discipline_id: current_user.current_discipline_id,
       available_disciplines: current_user_available_disciplines.as_json(only: [:id, :description]),
+      current_knowledge_area_id: current_user.current_knowledge_area_id,
+      available_knowledge_area_disciplines: current_user_available_knowledge_areas.as_json,
       teacher_id: current_user.teacher_id
     }
   end

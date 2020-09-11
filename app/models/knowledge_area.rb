@@ -41,4 +41,29 @@ class KnowledgeArea < ActiveRecord::Base
   def to_s
     description
   end
+
+  def self.with_discipline(entity, classroom_id, teacher_id)
+    cache_key = ['KnowledgeArea.with_discipline', entity.id, classroom_id, teacher_id, 'v2']
+
+    Rails.cache.fetch cache_key, expires_in: 10.minutes do
+      Discipline
+        .joins(:knowledge_area)
+        .by_teacher_id(teacher_id)
+        .by_classroom(classroom_id)
+        .select(
+          <<-SQL
+                CASE
+                    WHEN knowledge_areas.group_descriptors THEN knowledge_areas.description
+                    ELSE disciplines.description
+                END AS description,
+                CASE
+                    WHEN knowledge_areas.group_descriptors THEN knowledge_area_id
+                END AS knowledge_area_id,
+                CASE
+                    WHEN NOT knowledge_areas.group_descriptors THEN disciplines.id
+                END AS discipline_id
+          SQL
+        )
+    end
+  end
 end

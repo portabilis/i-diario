@@ -27,8 +27,8 @@ const school_years = {
       commit('teachers/setOptions', [], { root: true })
       commit('classrooms/setSelected', null, { root: true })
       commit('classrooms/setOptions', [], { root: true })
-      commit('disciplines/setOptions', [], { root: true })
-      commit('disciplines/setSelected', null, { root: true })
+      commit('knowledge_area_disciplines/setOptions', [], { root: true })
+      commit('knowledge_area_disciplines/setSelected', null, { root: true })
 
       const route = Routes.years_from_unity_school_calendars_pt_br_path({
         unity_id: rootState.unities.selected.id,

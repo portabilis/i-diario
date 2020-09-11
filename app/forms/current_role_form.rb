@@ -3,7 +3,7 @@ class CurrentRoleForm
 
   attr_accessor :current_user, :current_user_role, :current_user_role_id, :current_classroom, :current_teacher,
                 :current_classroom_id, :current_discipline_id, :current_unity, :current_unity_id,
-                :current_teacher_id, :current_school_year, :teacher_profile_id
+                :current_teacher_id, :current_school_year, :teacher_profile_id, :current_knowledge_area_id
 
   validates :current_user, presence: true
 
@@ -14,9 +14,12 @@ class CurrentRoleForm
     validates :current_school_year, presence: true, if: :require_year?
 
     with_options if: :require_allocation? do
-      validates :current_discipline_id, :current_teacher, presence: true
+      validates :current_teacher, presence: true
+      validates :current_discipline_id, presence: true, unless: :current_knowledge_area_id
+      validates :current_knowledge_area_id, presence: true, unless: :current_discipline_id
       validate :classroom_belongs_to_teacher?
-      validate :discipline_belongs_to_teacher?
+      validate :discipline_belongs_to_teacher?, if: :current_discipline_id
+      validate :knowledge_area_belongs_to_teacher?, if: :current_knowledge_area_id
     end
   end
 
@@ -37,7 +40,12 @@ class CurrentRoleForm
   private
 
   def user_attributes
-    attributes = @params.slice(:current_discipline_id, :current_school_year, :teacher_profile_id)
+    attributes = @params.slice(
+      :current_discipline_id,
+      :current_school_year,
+      :teacher_profile_id,
+      :current_knowledge_area_id
+    )
     attributes.merge!(
       current_unity_id: current_unity&.id,
       current_classroom_id: current_classroom&.id,
@@ -48,6 +56,11 @@ class CurrentRoleForm
     unless require_allocation?
       attributes[:assumed_teacher_id] = nil
       attributes[:current_classroom_id] = nil
+      attributes[:current_discipline_id] = nil
+      attributes[:current_knowledge_area_id] = nil
+    end
+
+    if attributes[:current_knowledge_area_id].present?
       attributes[:current_discipline_id] = nil
     end
 
@@ -96,11 +109,18 @@ class CurrentRoleForm
     errors.add(:current_discipline_id, :not_belongs_to_teacher)
   end
 
+  def knowledge_area_belongs_to_teacher?
+    return if teacher_relation_fetcher.exists_knowledge_area_in_relation?
+
+    errors.add(:current_knowledge_area_id, :not_belongs_to_teacher)
+  end
+
   def teacher_relation_fetcher
     params = {
       teacher_id: current_teacher&.id,
       discipline_id: current_discipline_id,
-      classroom: current_classroom&.id
+      classroom: current_classroom&.id,
+      knowledge_areas: [current_knowledge_area_id]
     }
 
     TeacherRelationFetcher.new(params)

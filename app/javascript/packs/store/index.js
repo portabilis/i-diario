@@ -2,11 +2,11 @@ import Vue from 'vue/dist/vue.js'
 import Vuex from 'vuex'
 
 import classrooms from './modules/classrooms'
-import disciplines from './modules/disciplines'
 import roles from './modules/roles'
 import school_years from './modules/school_years'
 import teachers from './modules/teachers'
 import unities from './modules/unities'
+import knowledge_area_disciplines from './modules/knowledge_area_disciplines'
 
 Vue.use(Vuex)
 
@@ -22,7 +22,7 @@ export default new Vuex.Store({
   actions: {
     updateValidation({ dispatch, commit, getters, rootGetters }) {
       let value = getters['classrooms/isValid'] &&
-        getters['disciplines/isValid'] &&
+        getters['knowledge_area_disciplines/isValid'] &&
         getters['roles/isValid'] &&
         getters['school_years/isValid'] &&
         getters['teachers/isValid'] &&
@@ -34,7 +34,7 @@ export default new Vuex.Store({
       commit('school_years/setRequired', false, { root: true })
       commit('classrooms/setRequired', false, { root: true })
       commit('teachers/setRequired', false, { root: true })
-      commit('disciplines/setRequired', false, { root: true })
+      commit('knowledge_area_disciplines/setRequired', false, { root: true })
       commit('unities/setRequired', false, { root: true })
 
       if(getters['roles/isParentOrStudent']()) {
@@ -51,10 +51,10 @@ export default new Vuex.Store({
 
       if(!getters['classrooms/isSelected']) {
         commit('teachers/setRequired', false, { root: true })
-        commit('disciplines/setRequired', false, { root: true })
+        commit('knowledge_area_disciplines/setRequired', false, { root: true })
       } else {
         commit('teachers/setRequired', true, { root: true })
-        commit('disciplines/setRequired', true, { root: true })
+        commit('knowledge_area_disciplines/setRequired', true, { root: true })
       }
 
       if(getters['roles/is']('admin')) {
@@ -64,10 +64,10 @@ export default new Vuex.Store({
   },
   modules: {
     classrooms,
-    disciplines,
     roles,
     school_years,
     teachers,
-    unities
+    unities,
+    knowledge_area_disciplines
   }
 })

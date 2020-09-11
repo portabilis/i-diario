@@ -33,7 +33,7 @@ class CurrentRoleController < ApplicationController
 
     params.require(:user).permit(
       :current_user_role_id, :current_unity_id, :current_classroom_id, :current_discipline_id, :current_teacher_id,
-      :current_school_year, :teacher_profile_id
+      :current_school_year, :teacher_profile_id, :current_knowledge_area_id
     ).merge(current_user: current_user)
   end
 end

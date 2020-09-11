@@ -1,17 +1,20 @@
 <template>
-  <div id="current-discipline-container"
+  <div id="current-knowledge-area-discipline-container"
        class="project-context"
        v-if="this.$store.getters['teachers/isSelected']"
        >
     <span v-bind:class="[required ? 'required' : '', 'label']">Disciplina</span>
 
-    <input type="hidden" name="user[current_discipline_id]" v-model="selected.id" v-if="selected" />
+    <input type="hidden"
+           v-bind:name="selected.discipline_id ? 'user[current_discipline_id]' : 'user[current_knowledge_area_id]' "
+           v-bind:value="selected.discipline_id || selected.knowledge_area_id"
+           v-if="selected" />
 
     <multiselect v-model="selected"
                  :options="options"
                  :searchable="true"
                  :close-on-select="true"
-                 track-by="id"
+                 track-by="description"
                  label="description"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
                  :allow-empty="false"
@@ -30,24 +33,28 @@
 import { mapState  } from 'vuex'
 
 export default {
-  name: "b-current-discipline",
+  name: "b-current-knowledge-are-discipline",
   computed: {
     ...mapState({
-      required: state => state.disciplines.required,
-      options: state => state.disciplines.options,
-      isLoading: state => state.disciplines.isLoading
+      required: state => state.knowledge_area_disciplines.required,
+      options: state => state.knowledge_area_disciplines.options,
+      isLoading: state => state.knowledge_area_disciplines.isLoading
     }),
+    id() {
+      this.$store.state.knowledge_area_disciplines.knowledge_area_id ||
+        this.$store.state.knowledge_area_disciplines.discipline_id
+    },
     selected: {
       get () {
-        return this.$store.state.disciplines.selected
+        return this.$store.state.knowledge_area_disciplines.selected
       },
       set (value) {
-        this.$store.commit('disciplines/setSelected', value)
+        this.$store.commit('knowledge_area_disciplines/setSelected', value)
       }
     }
   },
   created() {
-    this.$store.dispatch('disciplines/preLoad')
+    this.$store.dispatch('knowledge_area_disciplines/preLoad')
   },
   watch: {
     selected: function(newValue, oldValue) {
@@ -58,11 +65,11 @@ export default {
 </script>
 
 <style>
-#current-discipline-container {
+#current-knowledge-area-discipline-container {
   width: 150px;
 }
 @media (max-width: 1365px) {
-  #current-discipline-container {
+  #current-knowledge-area-discipline-container {
     width: 100%;
   }
 }

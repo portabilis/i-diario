@@ -25,8 +25,8 @@ const classrooms = {
       commit('setOptions', [])
       commit('teachers/setSelected', null, { root: true })
       commit('teachers/setOptions', [], { root: true })
-      commit('disciplines/setOptions', [], { root: true })
-      commit('disciplines/setSelected', null, { root: true })
+      commit('knowledge_area_disciplines/setOptions', [], { root: true })
+      commit('knowledge_area_disciplines/setSelected', null, { root: true })
 
       const filters = {
         by_unity: rootState.unities.selected.id,

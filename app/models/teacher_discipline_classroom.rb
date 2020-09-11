@@ -24,6 +24,9 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
   scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
   scope :by_grade_id, ->(grade_id) { joins(:classroom).merge(Classroom.by_grade(grade_id)) }
   scope :by_year, ->(year) { where(year: year) }
+  scope :by_knowledge_area_id, ->(knowledge_area_id) {
+    joins(:discipline).where(disciplines: { knowledge_area_id: knowledge_area_id })
+  }
 
   after_create :create_teacher_profile
 

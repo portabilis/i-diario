@@ -208,7 +208,11 @@ Rails.application.routes.draw do
         get :search
       end
     end
-    resources :knowledge_areas, only: [:index]
+    resources :knowledge_areas, only: [:index] do
+      collection do
+        get :search_with_disciplines
+      end
+    end
     resources :exam_rules, only: [:index]
     resources :avaliations, concerns: :history do
       collection do
