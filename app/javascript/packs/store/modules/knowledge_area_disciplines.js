@@ -34,10 +34,10 @@ const knowledge_area_disciplines = {
     preLoad({commit, getters}) {
       commit('setOptions', window.state.available_knowledge_area_disciplines)
 
-      if (window.state.current_discipline_id) {
-        commit('setSelected', getters.getByDisciplineId(window.state.current_discipline_id))
-      } else if (window.state.current_knowledge_area_id) {
+      if (window.state.current_knowledge_area_id) {
         commit('setSelected', getters.getByKnowledgeAreaId(window.state.current_knowledge_area_id))
+      } else if (window.state.current_discipline_id) {
+        commit('setSelected', getters.getByDisciplineId(window.state.current_discipline_id))
       }
 
       commit('setIsLoading', false)

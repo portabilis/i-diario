@@ -6,8 +6,8 @@
     <span v-bind:class="[required ? 'required' : '', 'label']">Disciplina</span>
 
     <input type="hidden"
-           v-bind:name="selected.discipline_id ? 'user[current_discipline_id]' : 'user[current_knowledge_area_id]' "
-           v-bind:value="selected.discipline_id || selected.knowledge_area_id"
+           v-bind:name="selected.knowledge_area_id ? 'user[current_knowledge_area_id]' : 'user[current_discipline_id]' "
+           v-bind:value="selected.knowledge_area_id || selected.discipline_id"
            v-if="selected" />
 
     <multiselect v-model="selected"
@@ -40,10 +40,6 @@ export default {
       options: state => state.knowledge_area_disciplines.options,
       isLoading: state => state.knowledge_area_disciplines.isLoading
     }),
-    id() {
-      this.$store.state.knowledge_area_disciplines.knowledge_area_id ||
-        this.$store.state.knowledge_area_disciplines.discipline_id
-    },
     selected: {
       get () {
         return this.$store.state.knowledge_area_disciplines.selected
