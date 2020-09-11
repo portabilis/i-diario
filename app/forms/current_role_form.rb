@@ -3,7 +3,8 @@ class CurrentRoleForm
 
   attr_accessor :current_user, :current_user_role, :current_user_role_id, :current_classroom, :current_teacher,
                 :current_classroom_id, :current_discipline_id, :current_unity, :current_unity_id,
-                :current_teacher_id, :current_school_year, :teacher_profile_id, :current_knowledge_area_id
+                :current_teacher_id, :current_school_year, :teacher_profile_id, :current_knowledge_area_id,
+                :current_knowledge_area
 
   validates :current_user, presence: true
 
@@ -60,8 +61,19 @@ class CurrentRoleForm
       attributes[:current_knowledge_area_id] = nil
     end
 
+    if attributes[:current_discipline_id].present?
+      attributes[:current_knowledge_area_id] = nil
+    end
+
     if attributes[:current_knowledge_area_id].present?
-      attributes[:current_discipline_id] = nil
+      discipline =
+        Discipline
+        .by_teacher_id(current_teacher_id)
+        .by_classroom(current_classroom_id)
+        .where(knowledge_area_id: current_knowledge_area_id)
+        .first
+
+      attributes[:current_discipline_id] = discipline.id
     end
 
     attributes[:current_unity_id] = nil unless require_unity?
@@ -143,6 +155,7 @@ class CurrentRoleForm
     self.current_unity     ||= Unity.find(current_unity_id)         if current_unity_id.present?
     self.current_teacher   ||= Teacher.find(current_teacher_id)     if current_teacher_id.present?
     self.current_unity     ||= current_user_role.unity              if current_user_role
+    self.current_knowledge_area ||= KnowledgeArea.find(current_knowledge_area_id) if current_knowledge_area_id.present?
 
     set_default_user_role
   end

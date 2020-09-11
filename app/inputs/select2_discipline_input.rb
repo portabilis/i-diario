@@ -20,8 +20,8 @@ class Select2DisciplineInput < Select2Input
       disciplines = [options[:record].discipline]
     elsif options[:admin_or_employee].presence
       disciplines = Discipline.by_classroom(user.current_classroom_id)
-    elsif user.current_discipline.present?
-      disciplines = [ user.current_discipline ]
+    elsif user.current_discipline_id?
+      disciplines = Discipline.where(id: user.current_discipline_id)
     elsif user.current_teacher.present? && options[:grade_id]
       disciplines = Discipline.by_grade(options[:grade_id]).by_teacher_id(user.current_teacher.id)
     elsif user.current_teacher.present? && options[:classroom_id]
@@ -30,7 +30,7 @@ class Select2DisciplineInput < Select2Input
       disciplines = Discipline.by_unity_id(user.current_unity.id).by_grade(options[:grade_id])
     end
 
-    options[:elements] = disciplines
+    options[:elements] = disciplines.knowledge_areas_or_disciplines
 
     super
   end

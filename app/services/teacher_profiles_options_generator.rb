@@ -48,11 +48,11 @@ class TeacherProfilesOptionsGenerator
     text << "#{year} > " if year
     text << "#{unity.name} > "
     text << "#{classroom.description} > "
-    text << profile.discipline.description
+    text << profile.discipline.to_s
 
     css = "margin-left:#{@indentation * 10}px;"
 
-    label = "<span style='#{css}'>#{profile.discipline.description}</span>"
+    label = "<span style='#{css}'>#{profile.discipline.to_s}</span>"
 
     @options << OpenStruct.new(id: profile.id, name: label, text: text)
   end

@@ -77,7 +77,7 @@ module Ieducar
 
     def discipline(api_code)
       @disciplines ||= {}
-      @disciplines[api_code] ||= Discipline.find_by(api_code: api_code).try(:description)
+      @disciplines[api_code] ||= Discipline.find_by(api_code: api_code).try(:to_s)
     end
 
     def classroom(api_code)
