@@ -95,7 +95,9 @@ class Discipline < ActiveRecord::Base
               ELSE disciplines.description
           END AS description
         SQL
-      ).to_a.group_by { |d| [d.group_descriptors, d.knowledge_area_id] }.map do |group, disciplines|
+      )
+      .order('description asc')
+      .to_a.group_by { |d| [d.group_descriptors, d.knowledge_area_id] }.map do |group, disciplines|
         if group[0]
           disciplines.first
         else
