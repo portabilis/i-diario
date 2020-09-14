@@ -11,7 +11,7 @@ const unities = {
     options: [],
     required: false,
     isLoading: true,
-    fetchAssociation: 'teachers/fetch'
+    fetchAssociation: 'school_years/fetch'
   },
   mutations,
   getters,

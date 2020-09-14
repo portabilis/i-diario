@@ -1,10 +1,9 @@
 <template>
   <div id="current-school-year-container"
        class="project-context"
-       v-if="this.$store.getters['unities/isSelected']"
-       >
+       v-if="this.$store.getters['unities/isSelected']" >
 
-    <span v-bind:class="[required ? 'required' : '', 'label']">Ano Letivo</span>
+    <span :class="{ required, label: true  }">Ano Letivo</span>
 
     <input type="hidden" name="user[current_school_year]" v-model="selected.id" v-if="selected" />
 

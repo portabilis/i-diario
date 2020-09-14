@@ -2,9 +2,9 @@
   <div id="current-unity-container"
        class="project-context"
        v-if="this.$store.getters['roles/isSelected']"
-       v-show="options.length > 1"
-       >
-    <span v-bind:class="[required ? 'required' : '', 'label']">Unidade</span>
+       v-show="options.length > 1" >
+
+    <span :class="{ required, label: true  }">Unidade</span>
 
     <input type="hidden" name="user[current_unity_id]" v-model="selected.id" v-if="selected" />
 

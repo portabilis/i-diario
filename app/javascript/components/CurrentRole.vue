@@ -1,9 +1,9 @@
 <template>
   <div id="current-role-container"
        class="project-context"
-       v-show="options.length > 1"
-       >
-    <span v-bind:class="[required ? 'required' : '', 'label']">Perfil</span>
+       v-show="options.length > 1" >
+
+    <span :class="{ required, label: true  }">Perfil</span>
 
     <input type="hidden" name="user[current_user_role_id]" v-model="selected.id" v-if="selected" />
 

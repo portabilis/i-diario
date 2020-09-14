@@ -1,9 +1,9 @@
 <template>
   <div id="current-discipline-container"
        class="project-context"
-       v-if="this.$store.getters['teachers/isSelected']"
-       >
-    <span v-bind:class="[required ? 'required' : '', 'label']">Disciplina</span>
+       v-if="this.$store.getters['teachers/isSelected']" >
+
+    <span :class="{ required, label: true  }">Disciplina</span>
 
     <input type="hidden" name="user[current_discipline_id]" v-model="selected.id" v-if="selected" />
 
