@@ -50,7 +50,7 @@ export default {
     this.$store.dispatch('disciplines/preLoad')
   },
   watch: {
-    selected: function(newValue, oldValue) {
+    selected(newValue, oldValue) {
       this.$store.dispatch('updateValidation', null, { root: true })
     }
   }
