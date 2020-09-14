@@ -23,11 +23,8 @@ const teachers = {
       commit('setIsLoading', false)
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
-      commit('setIsLoading', true)
-      commit('setSelected', null)
-      commit('setOptions', [])
-      commit('disciplines/setOptions', [], { root: true })
-      commit('disciplines/setSelected', null, { root: true })
+      commit('resetState', null)
+      commit('disciplines/resetState', null, { root: true })
 
       const filters = {
         by_unity_id: rootState.unities.selected.id,

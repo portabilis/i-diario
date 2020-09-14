@@ -1,8 +1,6 @@
-const state = () => ({
+const state = {
   selected: null,
-  options: [],
-  required: false,
-  isValid: true
-})
+  options: []
+}
 
 export default state

@@ -45,14 +45,9 @@ export default new Vuex.Store({
 
       if(getters['roles/is']('teacher')) {
         commit('classrooms/setRequired', true, { root: true })
-      } else {
-        commit('classrooms/setRequired', false, { root: true })
       }
 
-      if(!getters['classrooms/isSelected']) {
-        commit('teachers/setRequired', false, { root: true })
-        commit('disciplines/setRequired', false, { root: true })
-      } else {
+      if(getters['classrooms/isSelected']) {
         commit('teachers/setRequired', true, { root: true })
         commit('disciplines/setRequired', true, { root: true })
       }

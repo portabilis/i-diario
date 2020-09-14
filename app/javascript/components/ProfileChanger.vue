@@ -72,8 +72,9 @@ export default {
     'b-current-discipline': CurrentDiscipline
   },
   mounted() {
-    this.$store.dispatch('setRequired')
-    this.$store.dispatch('updateValidation')
+    this.$store.dispatch('setRequired').then(() => {
+      this.$store.dispatch('updateValidation')
+    })
   }
 }
 </script>

@@ -3,12 +3,12 @@ import axios from 'axios'
 import mutations from '../mutations.js'
 import getters from '../getters.js'
 import actions from '../actions.js'
+import defaultState from '../state.js'
 
 const unities = {
   namespaced: true,
   state: {
-    selected: null,
-    options: [],
+    ...defaultState,
     required: false,
     isLoading: true,
     fetchAssociation: 'school_years/fetch'
@@ -23,17 +23,11 @@ const unities = {
       commit('setIsLoading', false)
     },
     fetch({ dispatch, state, commit, rootGetters, rootState }) {
-      commit('setIsLoading', true)
-      commit('setSelected', null)
-      commit('setOptions', [])
-      commit('school_years/setSelected', null, { root: true })
-      commit('school_years/setOptions', [], { root: true })
-      commit('classrooms/setSelected', null, { root: true })
-      commit('classrooms/setOptions', [], { root: true })
-      commit('teachers/setSelected', null, { root: true })
-      commit('teachers/setOptions', [], { root: true })
-      commit('disciplines/setOptions', [], { root: true })
-      commit('disciplines/setSelected', null, { root: true })
+      commit('resetState')
+      commit('school_years/resetState', null, { root: true })
+      commit('classrooms/resetState', null, { root: true })
+      commit('teachers/resetState', null, { root: true })
+      commit('disciplines/resetState', null, { root: true })
 
       if(rootGetters['roles/isParentOrStudent']()) {
         return

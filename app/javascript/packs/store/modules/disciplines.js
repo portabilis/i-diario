@@ -3,12 +3,12 @@ import axios from 'axios'
 import mutations from '../mutations.js'
 import getters from '../getters.js'
 import actions from '../actions.js'
+import defaultState from '../state.js'
 
 const disciplines = {
   namespaced: true,
   state: {
-    selected: null,
-    options: [],
+    ...defaultState,
     required: false,
     isLoading: true,
     fetchAssociation: null
@@ -23,9 +23,7 @@ const disciplines = {
       commit('setIsLoading', false)
     },
     fetch({ dispatch, state, commit, rootState, rootGetters }) {
-      commit('setIsLoading', true)
-      commit('setOptions', [])
-      commit('setSelected', null)
+      commit('resetState', null)
 
       const filters = {
         by_teacher_id: rootState.teachers.selected.id,

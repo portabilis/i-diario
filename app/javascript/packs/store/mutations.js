@@ -1,3 +1,5 @@
+import defaultState from './state.js'
+
 export default {
   setRequired(state, required) {
     state.required = required
@@ -10,5 +12,8 @@ export default {
   },
   setIsLoading(state, value) {
     state.isLoading = value
+  },
+  resetState(state) {
+    Object.assign(state, defaultState)
   }
 }
