@@ -1,5 +1,6 @@
 import mutations from '../mutations.js'
 import getters from '../getters.js'
+import actions from '../actions.js'
 
 const roles = {
   namespaced: true,
@@ -7,11 +8,13 @@ const roles = {
     selected: null,
     options: [],
     required: false,
-    isLoading: true
+    isLoading: true,
+    fetchAssociation: 'unities/fetch'
   },
   mutations,
   actions: {
-    preLoad({ commit, getters }) {
+    ...actions,
+    preLoad({ dispatch, commit, getters }) {
       commit('setOptions', window.state.available_roles)
       commit('setSelected', getters.getById(window.state.current_role_id))
       commit('setIsLoading', false)

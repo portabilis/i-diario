@@ -14,7 +14,6 @@
                  track-by="id"
                  label="name"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
-                 @input="updateSelects"
                  :allow-empty="false"
                  :loading="isLoading"
                  :disabled="isLoading"
@@ -43,22 +42,12 @@ export default {
         return this.$store.state.teachers.selected
       },
       set (value) {
-        this.$store.commit('teachers/setSelected', value)
+        this.$store.dispatch('teachers/setSelected', value)
       }
     }
   },
   created() {
     this.$store.dispatch('teachers/preLoad')
-  },
-  methods: {
-    updateSelects() {
-      this.$store.dispatch('disciplines/fetch')
-    }
-  },
-  watch: {
-    selected: function(newValue, oldValue) {
-      this.$store.dispatch('updateValidation', null, { root: true })
-    }
   }
 }
 </script>

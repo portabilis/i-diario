@@ -14,7 +14,6 @@
                  track-by="id"
                  label="name"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
-                 @input="updateSelects"
                  :allow-empty="false"
                  :loading="isLoading"
                  :disabled="isLoading"
@@ -43,23 +42,12 @@ export default {
         return this.$store.state.roles.selected
       },
       set (value) {
-        this.$store.commit('roles/setSelected', value)
+        this.$store.dispatch('roles/setSelected', value)
       }
     }
   },
   created() {
     this.$store.dispatch('roles/preLoad')
-  },
-  methods: {
-    updateSelects() {
-      this.$store.dispatch('unities/fetch')
-    }
-  },
-  watch: {
-    selected: function(newValue, oldValue) {
-      this.$store.dispatch('setRequired')
-      this.$store.dispatch('updateValidation', null, { root: true })
-    }
   }
 }
 </script>

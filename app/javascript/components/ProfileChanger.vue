@@ -73,6 +73,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch('setRequired')
+    this.$store.dispatch('updateValidation')
   }
 }
 </script>

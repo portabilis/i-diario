@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import mutations from '../mutations.js'
 import getters from '../getters.js'
+import actions from '../actions.js'
 
 const teachers = {
   namespaced: true,
@@ -9,12 +10,14 @@ const teachers = {
     selected: null,
     options: [],
     required: false,
-    isLoading: true
+    isLoading: true,
+    fetchAssociation: 'disciplines/fetch'
   },
   mutations,
   getters,
   actions: {
-    preLoad({ commit, getters }) {
+    ...actions,
+    preLoad({ dispatch, commit, getters }) {
       commit('setOptions', window.state.available_teachers)
       commit('setSelected', getters.getById(window.state.current_teacher_id))
       commit('setIsLoading', false)
@@ -46,13 +49,10 @@ const teachers = {
           commit('setOptions', response.data)
 
           if(response.data.length === 1) {
-            commit('setSelected', response.data[0])
-
-            dispatch('disciplines/fetch', null, { root: true })
+            dispatch('setSelected', response.data[0])
           }
-
-          commit('setIsLoading', false)
         })
+        .finally(() => commit('setIsLoading', false))
     }
   }
 }

@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import mutations from '../mutations.js'
 import getters from '../getters.js'
+import actions from '../actions.js'
 
 const school_years = {
   namespaced: true,
@@ -9,12 +10,14 @@ const school_years = {
     selected: null,
     options: [],
     required: false,
-    isLoading: true
+    isLoading: true,
+    fetchAssociation: 'classrooms/fetch'
   },
   mutations,
   getters,
   actions: {
-    preLoad({commit, getters}) {
+    ...actions,
+    preLoad({ dispatch, commit, getters }) {
       commit('setOptions', window.state.available_school_years)
       commit('setSelected', getters.getById(window.state.current_school_year))
       commit('setIsLoading', false)
@@ -41,13 +44,10 @@ const school_years = {
           commit('setOptions', response.data.school_calendars)
 
           if(response.data.school_calendars.length === 1) {
-            commit('setSelected', response.data.school_calendars[0])
-
-            dispatch('classrooms/fetch', null, { root: true })
+            dispatch('setSelected', response.data.school_calendars[0])
           }
-
-          commit('setIsLoading', false)
         })
+        .finally(() => commit('setIsLoading', false))
     }
   }
 }

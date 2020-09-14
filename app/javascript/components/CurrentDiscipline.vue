@@ -42,17 +42,12 @@ export default {
         return this.$store.state.disciplines.selected
       },
       set (value) {
-        this.$store.commit('disciplines/setSelected', value)
+        this.$store.dispatch('disciplines/setSelected', value)
       }
     }
   },
   created() {
     this.$store.dispatch('disciplines/preLoad')
-  },
-  watch: {
-    selected(newValue, oldValue) {
-      this.$store.dispatch('updateValidation', null, { root: true })
-    }
   }
 }
 </script>

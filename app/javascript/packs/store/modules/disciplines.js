@@ -2,6 +2,7 @@ import axios from 'axios'
 
 import mutations from '../mutations.js'
 import getters from '../getters.js'
+import actions from '../actions.js'
 
 const disciplines = {
   namespaced: true,
@@ -9,12 +10,14 @@ const disciplines = {
     selected: null,
     options: [],
     required: false,
-    isLoading: true
+    isLoading: true,
+    fetchAssociation: null
   },
   mutations,
   getters,
   actions: {
-    preLoad({commit, getters}) {
+    ...actions,
+    preLoad({ dispatch, commit, getters }) {
       commit('setOptions', window.state.available_disciplines)
       commit('setSelected', getters.getById(window.state.current_discipline_id))
       commit('setIsLoading', false)
@@ -34,16 +37,16 @@ const disciplines = {
         format: 'json'
       })
 
-      axios.get(route)
+      axios
+        .get(route)
         .then(response => {
           commit('setOptions', response.data.disciplines)
 
           if(response.data.disciplines.length === 1) {
-            commit('setSelected', response.data.disciplines[0])
+            dispatch('setSelected', response.data.disciplines[0])
           }
-
-          commit('setIsLoading', false)
         })
+        .finally(() => commit('setIsLoading', false))
     }
   }
 }
