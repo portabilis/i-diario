@@ -349,7 +349,7 @@ module ApplicationHelper
       current_teacher: current_user.current_teacher.as_json(only: [:id, :name]),
       available_teachers: current_user_available_teachers.as_json(only: [:id, :name]),
       current_discipline: current_user_available_knowledge_areas.find { |discipline|
-        discipline.id = current_user.current_discipline_id
+        discipline['id'] == current_user.current_discipline_id
       }.as_json,
       available_disciplines: current_user_available_knowledge_areas.as_json,
       teacher_id: current_user.teacher_id
