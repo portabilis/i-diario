@@ -1,5 +1,5 @@
 <template>
-  <div id="current-role-container" class="project-context">
+  <div id="current-role-container" class="project-context" v-show="selected && options.length > 1">
     <span :class="{ required, label: true  }">
       Perfil
     </span>
@@ -10,7 +10,7 @@
                  :searchable="true"
                  :close-on-select="true"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
-                 :allow-empty="true"
+                 :allow-empty="false"
                  :loading="isLoading"
                  :disabled="anyComponentLoading"
                  track-by="id"
