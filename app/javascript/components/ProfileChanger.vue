@@ -94,7 +94,7 @@ export default {
     'b-current-school-year': CurrentSchoolYear,
     'b-current-classroom': CurrentClassroom,
     'b-current-teacher': CurrentTeacher,
-    'b-current-discipline': CurrentDiscipline,
+    'b-current-discipline': CurrentDiscipline
   },
   created () {
     EventBus.$on("set-role", (roleData) => {

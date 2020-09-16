@@ -1,7 +1,7 @@
 <template>
   <div id="current-discipline-container" class="project-context" v-if="isLoading || options.length">
     <span :class="{ required, label: true  }">
-      Disciplina
+      Disciplina / Área de Conhecimento
     </span>
 
     <input type="hidden"
@@ -108,7 +108,7 @@ export default {
 
 <style>
 #current-discipline-container {
-  width: 200px;
+  width: 225px;
 }
 @media (max-width: 1365px) {
   #current-discipline-container {
