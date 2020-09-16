@@ -1,23 +1,21 @@
 <template>
-  <div id="current-teacher-container"
-       class="project-context"
-       v-if="this.$store.getters['classrooms/isSelected']"
-       v-show="!this.$store.getters['roles/is']('teacher')" >
-
-    <span :class="{ required, label: true  }">Professor</span>
+  <div id="current-teacher-container" class="project-context" v-if="isLoading || options.length">
+    <span :class="{ required, label: true  }">
+      Professor
+    </span>
 
     <input type="hidden" name="user[current_teacher_id]" v-model="selected.id" v-if="selected" />
-
     <multiselect v-model="selected"
                  :options="options"
                  :searchable="true"
                  :close-on-select="true"
-                 track-by="id"
-                 label="name"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
                  :allow-empty="false"
                  :loading="isLoading"
-                 :disabled="isLoading"
+                 :disabled="anyComponentLoading"
+                 @input="teacherHasBeenSelected(selected, true)"
+                 track-by="id"
+                 label="name"
                  deselect-label=""
                  select-label=""
                  selected-label="">
@@ -28,27 +26,96 @@
 </template>
 
 <script>
-import { mapState  } from 'vuex'
+import axios from 'axios'
+import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-teacher",
+  props: [ 'anyComponentLoading' ],
+  data() {
+    return {
+      options: window.state.available_teachers,
+      selected: window.state.current_teacher,
+      isLoading: false,
+      role: null,
+      unity: null,
+      school_year: null,
+      classroom: null
+    }
+  },
   computed: {
-    ...mapState({
-      required: state => state.teachers.required,
-      options: state => state.teachers.options,
-      isLoading: state => state.teachers.isLoading
-    }),
-    selected: {
-      get () {
-        return this.$store.state.teachers.selected
-      },
-      set (value) {
-        this.$store.dispatch('teachers/setSelected', value)
+    required() {
+      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    }
+  },
+  methods: {
+    route(classroom) {
+      const filters = {
+        by_unity_id: this.unity.id,
+        by_year: this.school_year.id,
+        by_classroom: classroom.id,
+      }
+
+      if (this.role.role_access_level === 'teacher') {
+        filters['by_id'] = window.state.teacher_id
+      }
+
+      return Routes.teachers_pt_br_path({
+        filter: filters,
+        format: 'json'
+      })
+    },
+    teacherHasBeenSelected(teacher, toFetch = true) {
+      EventBus.$emit("set-teacher", this.$data);
+
+      if(toFetch) {
+        EventBus.$emit("fetch-disciplines", teacher);
       }
     }
   },
-  created() {
-    this.$store.dispatch('teachers/preLoad')
+  mounted () {
+    this.teacherHasBeenSelected(this.selected, false)
+  },
+  created: function () {
+    EventBus.$on("set-role", (roleData) => {
+      this.role = roleData.selected
+    })
+
+    EventBus.$on("set-school-year", (schoolYearData) => {
+      this.school_year = schoolYearData.selected
+    })
+
+    EventBus.$on("set-unity", (unityData) => {
+      this.unity = unityData.selected
+    })
+
+    EventBus.$on("set-classroom", (classroomData) => {
+      this.classroom = classroomData.selected
+    })
+
+    EventBus.$on("fetch-teachers", async (classroom) => {
+      this.isLoading = true
+      this.selected = null
+      this.options = []
+
+      this.teacherHasBeenSelected(this.selected)
+
+      if (classroom) {
+        let route = this.route(classroom)
+
+        await axios.get(route)
+          .then(response => {
+            this.options = response.data
+
+            if(response.data.length === 1) {
+              this.selected = response.data[0]
+            }
+          })
+      }
+
+      this.isLoading = false
+      this.teacherHasBeenSelected(this.selected)
+    })
   }
 }
 </script>

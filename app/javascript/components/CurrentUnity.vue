@@ -1,23 +1,21 @@
 <template>
-  <div id="current-unity-container"
-       class="project-context"
-       v-if="this.$store.getters['roles/isSelected']"
-       v-show="options.length > 1" >
-
-    <span :class="{ required, label: true  }">Unidade</span>
+  <div id="current-unity-container" class="project-context" v-show="isLoading || options.length > 1" >
+    <span :class="{ required, label: true  }">
+      Unidade
+    </span>
 
     <input type="hidden" name="user[current_unity_id]" v-model="selected.id" v-if="selected" />
-
     <multiselect v-model="selected"
                  :options="options"
                  :searchable="true"
                  :close-on-select="true"
+                 :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
+                 :allow-empty="true"
+                 :loading="isLoading"
+                 :disabled="anyComponentLoading"
+                 @input="unityHasBeenSelected(selected, true)"
                  track-by="id"
                  label="name"
-                 :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
-                 :allow-empty="false"
-                 :loading="isLoading"
-                 :disabled="isLoading"
                  deselect-label=""
                  select-label=""
                  selected-label="">
@@ -28,27 +26,82 @@
 </template>
 
 <script>
-import { mapState  } from 'vuex'
+import axios from 'axios'
+import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-unity",
+  props: [ 'anyComponentLoading' ],
+  data () {
+    return {
+      selected: window.state.current_unity,
+      options: window.state.available_unities,
+      isLoading: false,
+      role: null
+    }
+  },
   computed: {
-    ...mapState({
-      required: state => state.unities.required,
-      options: state => state.unities.options,
-      isLoading: state => state.unities.isLoading
-    }),
-    selected: {
-      get () {
-        return this.$store.state.unities.selected
-      },
-      set (value) {
-        this.$store.dispatch('unities/setSelected', value)
+    required() {
+      return this.role && this.role.role_access_level === "administrator"
+    }
+  },
+  methods: {
+    route(role) {
+      const filters = {}
+
+      if (role.unity_id) {
+        filters['by_id'] = role.unity_id
+      }
+
+      return Routes.search_unities_pt_br_path({
+        format: 'json',
+        per: 9999999,
+        filter: filters
+      })
+    },
+    unityHasBeenSelected(selectedUnity, toFetch = true) {
+      EventBus.$emit("set-unity", this.$data);
+
+      if(toFetch) {
+        EventBus.$emit("fetch-school-years", selectedUnity);
       }
     }
   },
-  created() {
-    this.$store.dispatch('unities/preLoad')
+  mounted () {
+    this.unityHasBeenSelected(this.selected, false)
+  },
+  created () {
+    EventBus.$on("set-role", (roleData) => {
+      this.role = roleData.selected
+    })
+
+    EventBus.$on("fetch-unities", async (selectedRole) => {
+      this.isLoading = true
+      this.selected = null
+      this.options = []
+
+      this.unityHasBeenSelected(this.selected)
+
+      if (
+        selectedRole &&
+        selectedRole.role_access_level !== "student" &&
+        selectedRole.role_access_level !== "parent"
+      ) {
+        let route = this.route(selectedRole)
+
+        await axios.get(route)
+          .then(response => {
+            this.options = response.data.unities
+
+            if (response.data.unities.length === 1) {
+              this.selected = response.data.unities[0]
+            }
+          })
+      }
+
+      this.isLoading = false
+      this.unityHasBeenSelected(this.selected)
+    })
   }
 }
 </script>

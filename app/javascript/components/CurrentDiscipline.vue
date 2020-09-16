@@ -1,22 +1,21 @@
 <template>
-  <div id="current-discipline-container"
-       class="project-context"
-       v-if="this.$store.getters['teachers/isSelected']" >
-
-    <span :class="{ required, label: true  }">Disciplina</span>
+  <div id="current-discipline-container" class="project-context" v-if="isLoading || options.length">
+    <span :class="{ required, label: true  }">
+      Disciplina
+    </span>
 
     <input type="hidden" name="user[current_discipline_id]" v-model="selected.id" v-if="selected" />
-
     <multiselect v-model="selected"
                  :options="options"
                  :searchable="true"
                  :close-on-select="true"
-                 track-by="id"
-                 label="description"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
                  :allow-empty="false"
                  :loading="isLoading"
-                 :disabled="isLoading"
+                 :disabled="anyComponentLoading"
+                 @input="disciplineHasBeenSelected"
+                 track-by="id"
+                 label="description"
                  deselect-label=""
                  select-label=""
                  selected-label="">
@@ -27,27 +26,73 @@
 </template>
 
 <script>
-import { mapState  } from 'vuex'
+import axios from 'axios'
+import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-discipline",
-  computed: {
-    ...mapState({
-      required: state => state.disciplines.required,
-      options: state => state.disciplines.options,
-      isLoading: state => state.disciplines.isLoading
-    }),
-    selected: {
-      get () {
-        return this.$store.state.disciplines.selected
-      },
-      set (value) {
-        this.$store.dispatch('disciplines/setSelected', value)
-      }
+  props: [ 'anyComponentLoading' ],
+  data () {
+    return {
+      options: window.state.available_disciplines,
+      selected: window.state.current_discipline,
+      isLoading: false,
+      classroom: null,
+      role: null
     }
   },
-  created() {
-    this.$store.dispatch('disciplines/preLoad')
+  computed: {
+    required() {
+      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    }
+  },
+  methods: {
+    disciplineHasBeenSelected() {
+      EventBus.$emit("set-discipline", this.$data)
+    },
+    route (teacher) {
+      let filters = {
+        by_teacher_id: teacher.id,
+        by_classroom: this.classroom.id,
+      }
+
+      return Routes.search_disciplines_pt_br_path({ filter: filters, format: 'json' })
+    }
+  },
+  created: function () {
+    EventBus.$on("set-classroom", (classroomData) => {
+      this.classroom = classroomData.selected
+    })
+
+    EventBus.$on("set-role", (roleData) => {
+      this.role = roleData.selected
+    })
+
+    EventBus.$on("fetch-disciplines", async (teacher) => {
+      this.isLoading = true
+      this.selected = null
+      this.options = []
+
+      this.disciplineHasBeenSelected()
+
+      if (teacher) {
+        await axios
+          .get(this.route(teacher))
+          .then(response => {
+            this.options = response.data.disciplines
+
+            if (response.data.disciplines.length === 1) {
+              this.selected = response.data.disciplines[0]
+            }
+          })
+      }
+
+      this.isLoading = false
+      this.disciplineHasBeenSelected()
+    })
+  },
+  mounted () {
+    this.disciplineHasBeenSelected()
   }
 }
 </script>

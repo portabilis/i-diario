@@ -1,22 +1,21 @@
 <template>
-  <div id="current-role-container"
-       class="project-context"
-       v-show="options.length > 1" >
-
-    <span :class="{ required, label: true  }">Perfil</span>
+  <div id="current-role-container" class="project-context">
+    <span :class="{ required, label: true  }">
+      Perfil
+    </span>
 
     <input type="hidden" name="user[current_user_role_id]" v-model="selected.id" v-if="selected" />
-
     <multiselect v-model="selected"
                  :options="options"
                  :searchable="true"
                  :close-on-select="true"
+                 :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
+                 :allow-empty="true"
+                 :loading="isLoading"
+                 :disabled="anyComponentLoading"
                  track-by="id"
                  label="name"
-                 :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
-                 :allow-empty="false"
-                 :loading="isLoading"
-                 :disabled="isLoading"
+                 @input="roleHasBeenSelected(selected, true)"
                  deselect-label=""
                  select-label=""
                  selected-label="">
@@ -27,27 +26,30 @@
 </template>
 
 <script>
-import { mapState  } from 'vuex'
+import { EventBus  } from "../packs/event-bus.js";
 
 export default {
   name: "b-current-role",
-  computed: {
-    ...mapState({
-      required: state => state.roles.required,
-      options: state => state.roles.options,
-      isLoading: state => state.roles.isLoading
-    }),
-    selected: {
-      get () {
-        return this.$store.state.roles.selected
-      },
-      set (value) {
-        this.$store.dispatch('roles/setSelected', value)
+  props: [ 'anyComponentLoading' ],
+  data () {
+    return {
+      options: window.state.available_roles,
+      selected: window.state.current_role,
+      required: true,
+      isLoading: false
+    }
+  },
+  methods: {
+    roleHasBeenSelected(selectedRole, toFetch = true) {
+      EventBus.$emit("set-role", this.$data)
+
+      if(toFetch) {
+        EventBus.$emit("fetch-unities", selectedRole)
       }
     }
   },
-  created() {
-    this.$store.dispatch('roles/preLoad')
+  mounted () {
+    this.roleHasBeenSelected(this.selected, false)
   }
 }
 </script>
