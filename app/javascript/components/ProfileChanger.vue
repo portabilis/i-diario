@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a id="user-info-selector" href="#" v-if="showButton">
+    <a id="user-info-selector" href="#">
       <span>
         Alterar perfil
         <i class="fa fa-angle-right" aria-hidden="true"></i>
@@ -17,14 +17,14 @@
         <input type="hidden" name="authenticity_token" v-model="x_csrf_token" />
         <input type="hidden" name="user[teacher_id]" v-model="teacher_id" />
 
-        <b-current-role></b-current-role>
-        <b-current-unity></b-current-unity>
-        <b-current-school-year></b-current-school-year>
-        <b-current-classroom></b-current-classroom>
-        <b-current-teacher></b-current-teacher>
-        <b-current-discipline></b-current-discipline>
+        <b-current-role :any-component-loading="anyComponentLoading"></b-current-role>
+        <b-current-unity :any-component-loading="anyComponentLoading"></b-current-unity>
+        <b-current-school-year :any-component-loading="anyComponentLoading"></b-current-school-year>
+        <b-current-classroom :any-component-loading="anyComponentLoading"></b-current-classroom>
+        <b-current-teacher :any-component-loading="anyComponentLoading"></b-current-teacher>
+        <b-current-discipline :any-component-loading="anyComponentLoading"></b-current-discipline>
 
-        <div class="role-selector" v-if="showButton">
+        <div class="role-selector">
           <button :disabled="!validForm" class="btn btn-sm bg-color-blueDark txt-color-white">
             Alterar perfil
           </button>
@@ -36,6 +36,9 @@
 </template>
 
 <script>
+import { EventBus  } from "../packs/event-bus.js"
+import _ from "lodash"
+
 import CurrentRole from './CurrentRole.vue'
 import CurrentUnity from './CurrentUnity.vue'
 import CurrentSchoolYear from './CurrentSchoolYear.vue'
@@ -45,22 +48,44 @@ import CurrentDiscipline from './CurrentDiscipline.vue'
 
 export default {
   name: "b-profile-changer",
-  data: function () {
+  data () {
     return {
       teacher_id: window.state.teacher_id,
-      "x_csrf_token": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      "x_csrf_token": document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+      isClassroomValid: false,
+      isRoleValid: false,
+      isSchoolYearValid: false,
+      isTeacherValid: false,
+      isDisciplineValid: false,
+      isUnityValid: false,
+      loading: {
+        role: false,
+        schoolYear: false,
+        unity: false,
+        classroom: false,
+        taecher: false,
+        discipline: false
+      }
     }
   },
   computed: {
     validForm () {
-      return this.$store.state.isValid
+      return this.isClassroomValid &&
+        this.isRoleValid &&
+        this.isSchoolYearValid &&
+        this.isTeacherValid &&
+        this.isDisciplineValid &&
+        this.isUnityValid
     },
-    showButton() {
-      if(this.$store.getters['roles/isParentOrStudent']()) {
-        return this.$store.state.roles.options.length > 1
-      } else {
-        return this.$store.state.roles.options.length > 0
-      }
+    anyComponentLoading () {
+      return _.some(this.loading, (value) => {
+        return value === true
+      })
+    }
+  },
+  methods: {
+    isValid(data) {
+      return data.selected != null || data.required
     }
   },
   components: {
@@ -71,8 +96,31 @@ export default {
     'b-current-teacher': CurrentTeacher,
     'b-current-discipline': CurrentDiscipline,
   },
-  mounted() {
-    this.$store.dispatch('setRequired')
+  created () {
+    EventBus.$on("set-role", (roleData) => {
+      this.isRoleValid = this.isValid(roleData)
+      this.loading.role = roleData.isLoading
+    })
+    EventBus.$on("set-unity", (unityData) => {
+      this.isUnityValid = this.isValid(unityData)
+      this.loading.unity = unityData.isLoading
+    })
+    EventBus.$on("set-school-year", (schoolYearData) => {
+      this.isSchoolYearValid = this.isValid(schoolYearData)
+      this.loading.schoolYear = schoolYearData.isLoading
+    })
+    EventBus.$on("set-classroom", (classroomData) => {
+      this.isClassroomValid = this.isValid(classroomData)
+      this.loading.classroom = classroomData.isLoading
+    })
+    EventBus.$on("set-teacher", (teacherData) => {
+      this.isTeacherValid = this.isValid(teacherData)
+      this.loading.teacher = teacherData.isLoading
+    })
+    EventBus.$on("set-discipline", (disciplineData) => {
+      this.isDisciplineValid = this.isValid(disciplineData)
+      this.loading.discipline = disciplineData.isLoading
+    })
   }
 }
 </script>

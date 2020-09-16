@@ -1,13 +1,10 @@
 <template>
-  <div id="current-school-year-container"
-       class="project-context"
-       v-if="this.$store.getters['unities/isSelected']"
-       >
-
-    <span v-bind:class="[required ? 'required' : '', 'label']">Ano Letivo</span>
+  <div id="current-school-year-container" class="project-context" v-if="isLoading || options.length">
+    <span :class="{ required, label: true  }">
+      Ano Letivo
+    </span>
 
     <input type="hidden" name="user[current_school_year]" v-model="selected.id" v-if="selected" />
-
     <multiselect v-model="selected"
                  :options="options"
                  :searchable="false"
@@ -15,10 +12,10 @@
                  track-by="id"
                  label="name"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
-                 @input="updateSelects"
                  :allow-empty="false"
                  :loading="isLoading"
-                 :disabled="isLoading"
+                 :disabled="anyComponentLoading"
+                 @input="schoolYearHasBeenSelected(selected, true)"
                  deselect-label=""
                  select-label=""
                  selected-label="">
@@ -29,37 +26,72 @@
 </template>
 
 <script>
-import { mapState  } from 'vuex'
+import axios from 'axios'
+import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-school-year",
+  props: [ 'anyComponentLoading' ],
+  data() {
+    return {
+      options: window.state.available_school_years,
+      selected: window.state.current_school_year,
+      isLoading: false,
+      role: null
+    }
+  },
   computed: {
-    ...mapState({
-      required: state => state.school_years.required,
-      options: state => state.school_years.options,
-      isLoading: state => state.school_years.isLoading
-    }),
-    selected: {
-      get () {
-        return this.$store.state.school_years.selected
-      },
-      set (value) {
-        this.$store.commit('school_years/setSelected', value)
+    required() {
+      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    },
+  },
+  methods: {
+    route(unity) {
+      return Routes.years_from_unity_school_calendars_pt_br_path({
+        unity_id: unity.id,
+        only_opened_years: !this.role.can_change_school_year,
+        format: 'json'
+      })
+    },
+    schoolYearHasBeenSelected(schoolYear, toFetch = true) {
+      EventBus.$emit("set-school-year", this.$data);
+
+      if (toFetch) {
+        EventBus.$emit("fetch-classrooms", schoolYear);
       }
     }
   },
-  created() {
-    this.$store.dispatch('school_years/preLoad')
+  mounted () {
+    this.schoolYearHasBeenSelected(this.selected, false)
   },
-  methods: {
-    updateSelects() {
-      this.$store.dispatch('classrooms/fetch')
-    }
-  },
-  watch: {
-    selected: function(newValue, oldValue) {
-      this.$store.dispatch('updateValidation', null, { root: true })
-    }
+  created () {
+    EventBus.$on("set-role", (roleData) => {
+      this.role = roleData.selected
+    })
+
+    EventBus.$on("fetch-school-years", async(unity) => {
+      this.isLoading = true
+      this.selected = null
+      this.options = []
+
+      this.schoolYearHasBeenSelected(this.selected)
+
+      if (unity) {
+        let route = this.route(unity)
+
+        await axios.get(route)
+          .then(response => {
+            this.options = response.data.school_calendars
+
+            if(response.data.school_calendars.length === 1) {
+              this.selected = response.data.school_calendars[0]
+            }
+          })
+      }
+
+      this.isLoading = false
+      this.schoolYearHasBeenSelected(this.selected)
+    })
   }
 }
 </script>

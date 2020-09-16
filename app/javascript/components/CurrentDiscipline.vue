@@ -1,30 +1,30 @@
 <template>
-  <div id="current-discipline-container"
-       class="project-context"
-       v-if="this.$store.getters['teachers/isSelected']"
-       >
-    <span v-bind:class="[required ? 'required' : '', 'label']">Disciplina</span>
+  <div id="current-discipline-container" class="project-context" v-if="isLoading || options.length">
+    <span :class="{ required, label: true  }">
+      Disciplina
+    </span>
 
     <input type="hidden"
            name="user[current_knowledge_area_id]"
-           v-bind:value="selected.knowledge_area_id"
+           v-model="selected.knowledge_area_id"
            v-if="selected" />
 
     <input type="hidden"
            name="user[current_discipline_id]"
-           v-bind:value="selected.discipline_id"
+           v-model="selected.discipline_id"
            v-if="selected" />
 
     <multiselect v-model="selected"
                  :options="options"
                  :searchable="true"
                  :close-on-select="true"
-                 track-by="description"
-                 label="description"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
                  :allow-empty="false"
                  :loading="isLoading"
-                 :disabled="isLoading"
+                 :disabled="anyComponentLoading"
+                 @input="disciplineHasBeenSelected"
+                 track-by="id"
+                 label="description"
                  deselect-label=""
                  select-label=""
                  selected-label="">
@@ -35,32 +35,73 @@
 </template>
 
 <script>
-import { mapState  } from 'vuex'
+import axios from 'axios'
+import { EventBus  } from "../packs/event-bus.js"
 
 export default {
-  name: "b-current-knowledge-are-discipline",
+  name: "b-current-discipline",
+  props: [ 'anyComponentLoading' ],
+  data () {
+    return {
+      options: window.state.available_disciplines,
+      selected: window.state.current_discipline,
+      isLoading: false,
+      classroom: null,
+      role: null
+    }
+  },
   computed: {
-    ...mapState({
-      required: state => state.disciplines.required,
-      options: state => state.disciplines.options,
-      isLoading: state => state.disciplines.isLoading
-    }),
-    selected: {
-      get () {
-        return this.$store.state.disciplines.selected
-      },
-      set (value) {
-        this.$store.commit('disciplines/setSelected', value)
+    required() {
+      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    }
+  },
+  methods: {
+    disciplineHasBeenSelected() {
+      EventBus.$emit("set-discipline", this.$data)
+    },
+    route (teacher) {
+      let filters = {
+        teacher_id: teacher.id,
+        classroom_id: this.classroom.id,
       }
+
+      return Routes.search_grouped_by_knowledge_area_disciplines_pt_br_path({ filter: filters, format: 'json' })
     }
   },
-  created() {
-    this.$store.dispatch('disciplines/preLoad')
+  created: function () {
+    EventBus.$on("set-classroom", (classroomData) => {
+      this.classroom = classroomData.selected
+    })
+
+    EventBus.$on("set-role", (roleData) => {
+      this.role = roleData.selected
+    })
+
+    EventBus.$on("fetch-disciplines", async (teacher) => {
+      this.isLoading = true
+      this.selected = null
+      this.options = []
+
+      this.disciplineHasBeenSelected()
+
+      if (teacher) {
+        await axios
+          .get(this.route(teacher))
+          .then(response => {
+            this.options = response.data.disciplines
+
+            if (response.data.disciplines.length === 1) {
+              this.selected = response.data.disciplines[0]
+            }
+          })
+      }
+
+      this.isLoading = false
+      this.disciplineHasBeenSelected()
+    })
   },
-  watch: {
-    selected: function(newValue, oldValue) {
-      this.$store.dispatch('updateValidation', null, { root: true })
-    }
+  mounted () {
+    this.disciplineHasBeenSelected()
   }
 }
 </script>
