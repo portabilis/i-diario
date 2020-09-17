@@ -32,6 +32,7 @@ class Unity < ActiveRecord::Base
   validates :email, email: true, allow_blank: true
   validate :uniqueness_of_equipments
 
+  scope :by_id, ->(id) { where(id: id) }
   scope :ordered, -> { order(arel_table[:name].asc) }
   scope :by_api_codes, -> (codes) { where(arel_table[:api_code].in(codes)) }
   scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }

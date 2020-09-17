@@ -70,6 +70,7 @@ gem 'twitter-bootstrap-rails', '3.2.0'
 gem 'uglifier', '4.1.20'
 gem 'uri_validator', '0.2.0'
 gem 'validates_timeliness', '3.0.14'
+gem 'webpacker', '~> 4.x'
 
 # Adiciona gem de dependencia para fixar a versão com suporte ao ruby 2.2.6
 gem 'public_suffix', '3.0.3'

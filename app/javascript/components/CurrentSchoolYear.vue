@@ -1,0 +1,108 @@
+<template>
+  <div id="current-school-year-container" class="project-context" v-if="isLoading || options.length">
+    <span :class="{ required, label: true  }">
+      Ano Letivo
+    </span>
+
+    <input type="hidden" name="user[current_school_year]" v-model="selected.id" v-if="selected" />
+    <multiselect v-model="selected"
+                 :options="options"
+                 :searchable="false"
+                 :close-on-select="true"
+                 track-by="id"
+                 label="name"
+                 :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
+                 :allow-empty="false"
+                 :loading="isLoading"
+                 :disabled="anyComponentLoading"
+                 @input="schoolYearHasBeenSelected(selected, true)"
+                 deselect-label=""
+                 select-label=""
+                 selected-label="">
+      <span slot="noResult">Não encontrado...</span>
+      <span slot="noOptions">Não há anos letivos...</span>
+    </multiselect>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+import { EventBus  } from "../packs/event-bus.js"
+
+export default {
+  name: "b-current-school-year",
+  props: [ 'anyComponentLoading' ],
+  data() {
+    return {
+      options: window.state.available_school_years,
+      selected: window.state.current_school_year,
+      isLoading: false,
+      role: null
+    }
+  },
+  computed: {
+    required() {
+      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    },
+  },
+  methods: {
+    route(unity) {
+      return Routes.years_from_unity_school_calendars_pt_br_path({
+        unity_id: unity.id,
+        only_opened_years: !this.role.can_change_school_year,
+        format: 'json'
+      })
+    },
+    schoolYearHasBeenSelected(schoolYear, toFetch = true) {
+      EventBus.$emit("set-school-year", this.$data);
+
+      if (toFetch) {
+        EventBus.$emit("fetch-classrooms", schoolYear);
+      }
+    }
+  },
+  mounted () {
+    this.schoolYearHasBeenSelected(this.selected, false)
+  },
+  created () {
+    EventBus.$on("set-role", (roleData) => {
+      this.role = roleData.selected
+    })
+
+    EventBus.$on("fetch-school-years", async(unity) => {
+      this.isLoading = true
+      this.selected = null
+      this.options = []
+
+      this.schoolYearHasBeenSelected(this.selected)
+
+      if (unity) {
+        let route = this.route(unity)
+
+        await axios.get(route)
+          .then(response => {
+            this.options = response.data.school_calendars
+
+            if(response.data.school_calendars.length === 1) {
+              this.selected = response.data.school_calendars[0]
+            }
+          })
+      }
+
+      this.isLoading = false
+      this.schoolYearHasBeenSelected(this.selected)
+    })
+  }
+}
+</script>
+
+<style>
+#current-school-year-container {
+  width: 100px;
+}
+@media (max-width: 1365px) {
+  #current-school-year-container {
+    width: 100%;
+  }
+}
+</style>
