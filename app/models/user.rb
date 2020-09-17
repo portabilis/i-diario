@@ -2,10 +2,9 @@ class User < ActiveRecord::Base
   acts_as_copy_target
 
   audited allow_mass_assignment: true,
-    only: [:email, :first_name, :last_name, :phone, :cpf, :login,
-           :authorize_email_and_sms, :student_id, :status, :encrypted_password,
-           :teacher_id, :assumed_teacher_id, :current_unity_id, :current_classroom_id,
-           :current_discipline_id, :current_school_year, :current_user_role_id]
+    only: [:email, :first_name, :last_name, :phone, :cpf, :login, :authorize_email_and_sms, :student_id, :status,
+           :encrypted_password, :teacher_id, :assumed_teacher_id, :current_unity_id, :current_classroom_id,
+           :current_discipline_id, :current_school_year, :current_user_role_id, :current_knowledge_area_id]
   has_associated_audits
 
   include Audit
@@ -28,15 +27,12 @@ class User < ActiveRecord::Base
 
   belongs_to :assumed_teacher, foreign_key: :assumed_teacher_id, class_name: 'Teacher'
   belongs_to :current_discipline, foreign_key: :current_discipline_id, class_name: 'Discipline'
+  belongs_to :current_knowledge_area, foreign_key: :current_knowledge_area_id, class_name: 'KnowledgeArea'
   belongs_to :current_user_role, class_name: 'UserRole'
   belongs_to :classroom, foreign_key: :current_classroom_id
   belongs_to :discipline, foreign_key: :current_discipline_id
   belongs_to :unity, foreign_key: :current_unity_id
 
-  belongs_to :current_teacher_profile,
-             class_name: 'TeacherProfile',
-             foreign_key: :teacher_profile_id,
-             inverse_of: :users
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
 
@@ -343,13 +339,6 @@ class User < ActiveRecord::Base
         years = YearsFromUnityFetcher.new(unity_id, only_opened_years).fetch
         years.map { |year| { id: year, name: year } }
       end
-  end
-
-  def can_use_teacher_profile?
-    @can_use_teacher_profile ||=
-      Rails.application.secrets.teacher_profile_enabled &&
-      roles.count == 1 &&
-      teacher_access_level?
   end
 
   def access_levels

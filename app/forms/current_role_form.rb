@@ -3,7 +3,7 @@ class CurrentRoleForm
 
   attr_accessor :current_user, :current_user_role, :current_user_role_id, :current_classroom, :current_teacher,
                 :current_classroom_id, :current_discipline_id, :current_unity, :current_unity_id,
-                :current_teacher_id, :current_school_year, :teacher_profile_id, :current_knowledge_area_id,
+                :current_teacher_id, :current_school_year, :current_knowledge_area_id,
                 :current_knowledge_area
 
   validates :current_user, presence: true
@@ -16,8 +16,8 @@ class CurrentRoleForm
 
     with_options if: :require_allocation? do
       validates :current_teacher, presence: true
-      validates :current_discipline_id, presence: true, unless: :current_knowledge_area_id
-      validates :current_knowledge_area_id, presence: true, unless: :current_discipline_id
+      validates :current_discipline_id, presence: true
+      validates :current_knowledge_area_id, presence: true
       validate :classroom_belongs_to_teacher?
       validate :discipline_belongs_to_teacher?, if: :current_discipline_id
       validate :knowledge_area_belongs_to_teacher?, if: :current_knowledge_area_id
@@ -44,7 +44,6 @@ class CurrentRoleForm
     attributes = @params.slice(
       :current_discipline_id,
       :current_school_year,
-      :teacher_profile_id,
       :current_knowledge_area_id
     )
     attributes.merge!(

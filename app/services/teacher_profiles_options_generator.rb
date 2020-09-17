@@ -1,79 +1,66 @@
 class TeacherProfilesOptionsGenerator
-  def initialize(user)
-    @user = user
+  def initialize(user, year, unity_id)
+    @year = year
+    @teacher_id = user.teacher_id
+    @unity_id = unity_id
   end
 
   def run!
-    @indentation = 0
-    @options = []
-    teacher = @user.teacher
+    return [] unless @teacher_id
 
-    profiles = teacher.teacher_profiles.includes(:classroom, :discipline, :unity)
+    profiles = Discipline.find_by_sql(<<-SQL, [[nil, @year], [nil, @teacher_id], [nil, @unity_id]])
+      select * from (
+        select
+          classroom_id::text || '-' || min(discipline_id)::text as uuid,
+          group_descriptors,
+          knowledge_area_id,
+          classroom_id,
+          classrooms.description classroom_description,
+          knowledge_areas.description,
+          min(discipline_id) discipline_id
+        from disciplines
+        inner join knowledge_areas on knowledge_areas.id = disciplines.knowledge_area_id
+        inner join teacher_discipline_classrooms on teacher_discipline_classrooms.discipline_id = disciplines.id
+        inner join classrooms on teacher_discipline_classrooms.classroom_id = classrooms.id
+        WHERE true
+        AND teacher_discipline_classrooms.year = $1
+        AND teacher_id = $2
+        AND unity_id = $3
+        AND group_descriptors IS TRUE
+        group by group_descriptors,
+                 knowledge_area_id,
+                 classroom_id,
+                 classroom_description,
+                 knowledge_areas.description
+                 having min(discipline_id) > 1
 
-    years = profiles.group_by(&:year).select { |year, _| available_years(profiles).include?(year) }
+        UNION
 
-    each_profile(years) do |year, profiles_by_year|
-      write_main_option(name_value: year.to_s) if years.size > 1
+        select
+          classroom_id::text || '-' || discipline_id::text as uuid,
+          group_descriptors,
+          knowledge_area_id,
+          classroom_id,
+          classrooms.description classroom_description,
+          disciplines.description,
+          discipline_id
+        from disciplines
+        inner join knowledge_areas on knowledge_areas.id = disciplines.knowledge_area_id
+        inner join teacher_discipline_classrooms on teacher_discipline_classrooms.discipline_id = disciplines.id
+        inner join classrooms on teacher_discipline_classrooms.classroom_id = classrooms.id
+        WHERE true
+        AND teacher_discipline_classrooms.year = $1
+        AND teacher_id = $2
+        AND unity_id = $3
+        AND group_descriptors IS FALSE) disciplines_and_knowledge_area
+      order by
+      classroom_description, description;
+    SQL
 
-      each_profile(profiles_by_year.group_by(&:unity)) do |unity, profiles_by_unity|
-        write_main_option(name_value: unity.name)
-
-        each_profile(profiles_by_unity.group_by(&:classroom)) do |classroom, profiles_by_classroom|
-          write_main_option(name_value: classroom.description)
-
-          each_profile(profiles_by_classroom) do |profile|
-            write_option(profile, unity, classroom, (year if years.size > 1))
-          end
-        end
-      end
-    end
-
-    @options
-  end
-
-  private
-
-  def write_main_option(options)
-    css = "margin-left:#{@indentation * 10}px; font-weight: bold;"
-
-    label = "<span style='#{css}'>#{options[:name_value]}</span>"
-
-    @options << OpenStruct.new(id: options[:id], name: label)
-
-    @indentation += 1
-  end
-
-  def write_option(profile, unity, classroom, year)
-    text = ''
-    text << "#{year} > " if year
-    text << "#{unity.name} > "
-    text << "#{classroom.description} > "
-    text << profile.discipline.to_s
-
-    css = "margin-left:#{@indentation * 10}px;"
-
-    label = "<span style='#{css}'>#{profile.discipline.to_s}</span>"
-
-    @options << OpenStruct.new(id: profile.id, name: label, text: text)
-  end
-
-  def each_profile(grouped_profiles)
-    grouped_profiles.each do |group, profiles|
-      yield(group, profiles)
-    end
-
-    @indentation -= 1
-  end
-
-  def available_years(profiles)
-    @available_years ||=
-      begin
-        unity_ids = profiles.pluck(:unity_id).uniq
-
-        unity_ids.map { |unity_id|
-          available_years = @user.available_years(nil, unity_id)
-          available_years.map { |year| year[:id] }
-        }.flatten.uniq
+    profiles
+      .group_by { |profile| profile['classroom_description'] }
+      .map do |classroom_description, profiles|
+        { classroom_description: classroom_description, profiles: profiles }
       end
   end
 end

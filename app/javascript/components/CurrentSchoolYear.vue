@@ -31,7 +31,7 @@ import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-school-year",
-  props: [ 'anyComponentLoading' ],
+  props: [ 'anyComponentLoading', 'byTeacherProfile' ],
   data() {
     return {
       options: window.state.available_school_years,
@@ -57,7 +57,11 @@ export default {
       EventBus.$emit("set-school-year", this.$data);
 
       if (toFetch) {
-        EventBus.$emit("fetch-classrooms", schoolYear);
+        if (this.byTeacherProfile) {
+          EventBus.$emit("fetch-teacher-profiles", schoolYear);
+        } else {
+          EventBus.$emit("fetch-classrooms", schoolYear);
+        }
       }
     }
   },

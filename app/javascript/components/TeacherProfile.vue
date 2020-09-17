@@ -1,0 +1,127 @@
+<template>
+  <div id="teacher-profile-container" class="project-context" v-if="isLoading || options.length">
+    <span :class="{ required, label: true  }">
+      Disciplina / Área de Conhecimento
+    </span>
+
+    <input type="hidden"
+           name="user[current_classroom_id]"
+           v-model="selected.classroom_id"
+           v-if="selected" />
+
+    <input type="hidden"
+           name="user[current_knowledge_area_id]"
+           v-model="selected.knowledge_area_id"
+           v-if="selected" />
+
+    <input type="hidden"
+           name="user[current_discipline_id]"
+           v-model="selected.discipline_id"
+           v-if="selected" />
+
+    <multiselect v-model="selected"
+                 :options="options"
+                 :searchable="true"
+                 :close-on-select="true"
+                 :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
+                 :allow-empty="false"
+                 :loading="isLoading"
+                 :disabled="anyComponentLoading"
+                 group-values="profiles"
+                 group-label="classroom_description"
+                 :group-select="false"
+                 @input="teacherProfileHasBeenSelected"
+                 track-by="uuid"
+                 label="description"
+                 deselect-label=""
+                 select-label=""
+                 selected-label="">
+      <span slot="noResult">Não encontrado...</span>
+      <span slot="noOptions">Não há disciplinas...</span>
+    </multiselect>
+  </div>
+</template>
+
+<script>
+import axios from 'axios'
+import { EventBus  } from "../packs/event-bus.js"
+
+export default {
+  name: "b-teacher-profile",
+  props: [ 'anyComponentLoading' ],
+  data () {
+    return {
+      options: window.state.profiles,
+      selected: window.state.current_profile,
+      isLoading: false,
+      required: true,
+      role: null,
+      unity: null
+    }
+  },
+  methods: {
+    teacherProfileHasBeenSelected() {
+      EventBus.$emit("set-teacher-profile", this.$data)
+    },
+    route (schoolYear) {
+      let filters = {
+        unity_id: this.unity.id,
+        year: schoolYear.name
+      }
+
+      return Routes.teacher_profiles_pt_br_path({ filter: filters, format: 'json' })
+    }
+  },
+  created: function () {
+    EventBus.$on("set-role", (roleData) => {
+      this.role = roleData.selected
+    })
+
+    EventBus.$on("set-unity", (unityData) => {
+      this.unity = unityData.selected
+    })
+
+    EventBus.$on("fetch-teacher-profiles", async (schoolYear) => {
+      this.isLoading = true
+      this.selected = null
+      this.options = []
+
+      this.teacherProfileHasBeenSelected()
+
+      if (schoolYear) {
+        await axios
+          .get(this.route(schoolYear))
+          .then(response => {
+            this.options = response.data.teacher_profiles
+
+            if (response.data.teacher_profiles.length === 1) {
+              this.selected = response.data.teacher_profiles[0]
+            }
+          })
+      }
+
+      this.isLoading = false
+      this.teacherProfileHasBeenSelected()
+    })
+  },
+  mounted () {
+    this.teacherProfileHasBeenSelected()
+  }
+}
+</script>
+
+<style>
+#teacher-profile-container {
+  width: 225px;
+}
+.multiselect__option--group {
+  background-color: #27333B;
+  color: white;
+  font-weight: bold;
+}
+@media (max-width: 1365px) {
+  #teacher-profile-container {
+    width: 100%;
+  }
+}
+</style>

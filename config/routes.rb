@@ -75,6 +75,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :teacher_profiles, only: :index
+
     resources :system_notifications, only: :index
 
     root 'dashboard#index'

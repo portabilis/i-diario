@@ -17,12 +17,29 @@
         <input type="hidden" name="authenticity_token" v-model="x_csrf_token" />
         <input type="hidden" name="user[teacher_id]" v-model="teacher_id" />
 
-        <b-current-role :any-component-loading="anyComponentLoading"></b-current-role>
-        <b-current-unity :any-component-loading="anyComponentLoading"></b-current-unity>
-        <b-current-school-year :any-component-loading="anyComponentLoading"></b-current-school-year>
-        <b-current-classroom :any-component-loading="anyComponentLoading"></b-current-classroom>
-        <b-current-teacher :any-component-loading="anyComponentLoading"></b-current-teacher>
-        <b-current-discipline :any-component-loading="anyComponentLoading"></b-current-discipline>
+        <b-current-role :by-teacher-profile="byTeacherProfile"
+                        :any-component-loading="anyComponentLoading"></b-current-role>
+        
+        <b-current-unity :by-teacher-profile="byTeacherProfile"
+                         :any-component-loading="anyComponentLoading"></b-current-unity>
+
+        <b-current-school-year :by-teacher-profile="byTeacherProfile"
+                               :any-component-loading="anyComponentLoading"></b-current-school-year>
+
+        <b-current-classroom v-if="!byTeacherProfile"
+                             :by-teacher-profile="byTeacherProfile"
+                             :any-component-loading="anyComponentLoading"></b-current-classroom>
+
+        <b-current-teacher :by-teacher-profile="byTeacherProfile"
+                           :any-component-loading="anyComponentLoading"></b-current-teacher>
+
+        <b-current-discipline v-if="!byTeacherProfile"
+                              :by-teacher-profile="byTeacherProfile"
+                              :any-component-loading="anyComponentLoading"></b-current-discipline>
+
+        <b-teacher-profile v-if="byTeacherProfile"
+                           :by-teacher-profile="byTeacherProfile"
+                           :any-component-loading="anyComponentLoading"></b-teacher-profile>
 
         <div class="role-selector">
           <button :disabled="!validForm" class="btn btn-sm bg-color-blueDark txt-color-white">
@@ -45,6 +62,7 @@ import CurrentSchoolYear from './CurrentSchoolYear.vue'
 import CurrentClassroom from './CurrentClassroom.vue'
 import CurrentTeacher from './CurrentTeacher.vue'
 import CurrentDiscipline from './CurrentDiscipline.vue'
+import TeacherProfile from './TeacherProfile.vue'
 
 export default {
   name: "b-profile-changer",
@@ -58,29 +76,46 @@ export default {
       isTeacherValid: false,
       isDisciplineValid: false,
       isUnityValid: false,
+      isTeacherProfileValid: false,
+      profiles: window.state.profiles,
       loading: {
         role: false,
         schoolYear: false,
         unity: false,
         classroom: false,
         taecher: false,
-        discipline: false
+        discipline: false,
+        profile: false
       }
     }
   },
   computed: {
     validForm () {
-      return this.isClassroomValid &&
-        this.isRoleValid &&
-        this.isSchoolYearValid &&
-        this.isTeacherValid &&
-        this.isDisciplineValid &&
-        this.isUnityValid
+      if (this.byTeacherProfile) {
+        return this.isRoleValid &&
+          this.isSchoolYearValid &&
+          this.isUnityValid &&
+          this.isTeacherProfileValid
+      } else {
+        return this.isClassroomValid &&
+          this.isRoleValid &&
+          this.isSchoolYearValid &&
+          this.isTeacherValid &&
+          this.isDisciplineValid &&
+          this.isUnityValid
+      }
     },
     anyComponentLoading () {
       return _.some(this.loading, (value) => {
         return value === true
       })
+    },
+    byTeacherProfile () {
+      let total = 0
+      _.forEach(this.profiles, function(value) {
+        total += value.profiles.length
+      })
+      return total > 0 && total <= 15
     }
   },
   methods: {
@@ -94,7 +129,8 @@ export default {
     'b-current-school-year': CurrentSchoolYear,
     'b-current-classroom': CurrentClassroom,
     'b-current-teacher': CurrentTeacher,
-    'b-current-discipline': CurrentDiscipline
+    'b-current-discipline': CurrentDiscipline,
+    'b-teacher-profile': TeacherProfile
   },
   created () {
     EventBus.$on("set-role", (roleData) => {
@@ -120,6 +156,10 @@ export default {
     EventBus.$on("set-discipline", (disciplineData) => {
       this.isDisciplineValid = this.isValid(disciplineData)
       this.loading.discipline = disciplineData.isLoading
+    })
+    EventBus.$on("set-teacher-profile", (profileData) => {
+      this.isTeacherProfileValid = this.isValid(profileData)
+      this.loading.profile = profileData.isLoading
     })
   }
 }

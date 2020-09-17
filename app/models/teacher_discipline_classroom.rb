@@ -28,33 +28,4 @@ class TeacherDisciplineClassroom < ActiveRecord::Base
     joins(:discipline).where(disciplines: { knowledge_area_id: knowledge_area_id })
   }
 
-  after_create :create_teacher_profile
-
-  after_discard do
-    destroy_teacher_profiles
-  end
-
-  after_undiscard do
-    create_teacher_profile
-  end
-
-  def destroy_teacher_profiles
-    TeacherProfile.where(teacher_profile_arguments).destroy_all
-  end
-
-  def create_teacher_profile
-    TeacherProfile.find_or_create_by!(teacher_profile_arguments)
-  end
-
-  def teacher_profile_arguments
-    classroom ||= Classroom.with_discarded.find(classroom_id)
-
-    {
-      classroom_id: classroom_id,
-      discipline_id: discipline_id,
-      year: year,
-      unity_id: classroom.unity_id,
-      teacher_id: teacher_id
-    }
-  end
 end

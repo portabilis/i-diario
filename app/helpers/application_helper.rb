@@ -171,20 +171,6 @@ module ApplicationHelper
     (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
   end
 
-  def teacher_profiles_options
-    cache_key = ['TeacherProfileList', current_entity.id, current_user.teacher&.cache_key]
-
-    Rails.cache.fetch(cache_key, expires_in: 1.day) do
-      TeacherProfilesOptionsGenerator.new(current_user).run!
-    end
-  end
-
-  def use_teacher_profile?
-    current_user.can_use_teacher_profile? &&
-      current_user.teacher &&
-      current_user.teacher.teacher_profiles.present?
-  end
-
   def current_user_available_disciplines
     return [] unless current_user_classroom && current_teacher
 
@@ -239,14 +225,20 @@ module ApplicationHelper
     cache_key = [
       'ApplicationHelper#current_user_available_teachers',
       cache_key_to_user,
-      current_user_classroom.try(:id)
+      current_user_classroom.try(:id),
+      current_user.current_user_role_id
     ]
 
     @current_user_available_teachers ||=
       Rails.cache.fetch cache_key, expires_in: 10.minutes do
         teachers = Teacher.by_unity_id(current_unity)
-                          .by_classroom(current_user_classroom)
-                          .order_by_name
+                       .by_classroom(current_user_classroom)
+                       .order_by_name
+
+        if current_user.current_user_role.role.teacher?
+          return Teacher.where(id: current_user.teacher_id)
+        end
+
 
         if current_school_calendar.try(:year)
           teachers.by_year(current_school_calendar.try(:year))
@@ -352,7 +344,30 @@ module ApplicationHelper
         discipline['id'] == current_user.current_discipline_id
       }.as_json,
       available_disciplines: current_user_available_knowledge_areas.as_json,
-      teacher_id: current_user.teacher_id
+      teacher_id: current_user.teacher_id,
+      profiles: current_profiles,
+      current_profile: current_profile
+
+    }
+  end
+
+  def current_profiles
+    return unless GeneralConfiguration.current.grouped_teacher_profile?
+
+    TeacherProfilesOptionsGenerator.new(current_user,
+                                        current_user.current_school_year,
+                                        current_user.current_unity).run!.as_json
+  end
+
+  def current_profile
+    {
+      uuid: "#{current_user.current_classroom_id}-#{current_user.current_discipline_id}",
+      classroom_description: current_user.current_classroom.try(:to_s),
+      classroom_id: current_user.current_classroom_id,
+      description: current_user.current_discipline.try(:to_s),
+      discipline_id: current_user.current_discipline_id,
+      group_descriptors: current_user.current_knowledge_area.try(:group_descriptors),
+      knowledge_area_id: current_user.current_knowledge_area_id
     }
   end
 
