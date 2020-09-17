@@ -1,5 +1,5 @@
 <template>
-  <div id="current-school-year-container" class="project-context" v-if="isLoading || options.length">
+  <div id="current-school-year-container" class="project-context" v-show="isLoading || options.length > 1">
     <span :class="{ required, label: true  }">
       Ano Letivo
     </span>
