@@ -19,7 +19,7 @@
 
         <b-current-role :by-teacher-profile="byTeacherProfile"
                         :any-component-loading="anyComponentLoading"></b-current-role>
-        
+
         <b-current-unity :by-teacher-profile="byTeacherProfile"
                          :any-component-loading="anyComponentLoading"></b-current-unity>
 
@@ -111,7 +111,7 @@ export default {
       })
     },
     byTeacherProfile () {
-      return this.profiles.length > 0 && this.profiles.length <= 15
+      return this.profiles && this.profiles.length > 0 && this.profiles.length <= 15
     }
   },
   methods: {
