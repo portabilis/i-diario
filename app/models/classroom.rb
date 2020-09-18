@@ -1,6 +1,10 @@
 class Classroom < ActiveRecord::Base
   include Discardable
 
+  LABEL_COLORS = YAML.safe_load(
+    File.open(Rails.root.join('config', 'label_colors.yml'))
+  ).with_indifferent_access[:label_colors].freeze
+
   acts_as_copy_target
 
   audited
@@ -19,6 +23,10 @@ class Classroom < ActiveRecord::Base
   has_many :conceptual_exams, dependent: :restrict_with_error
   has_many :infrequency_trackings, dependent: :restrict_with_error
   has_many :students, through: :student_enrollments
+  has_many :classroom_labels, dependent: :destroy
+  has_many :labels, through: :classroom_labels
+
+  before_create :set_label_color
 
   delegate :course_id, :course, to: :grade, prefix: false
 
@@ -80,5 +88,11 @@ class Classroom < ActiveRecord::Base
     student_enrollment_classrooms.joins(student_enrollment: :student )
                                  .where(students: { uses_differentiated_exam_rule: true } )
                                  .exists?
+  end
+
+  private
+
+  def set_label_color
+    self.label_color = LABEL_COLORS.sample
   end
 end

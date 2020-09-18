@@ -27,15 +27,19 @@
                  :allow-empty="false"
                  :loading="isLoading"
                  :disabled="anyComponentLoading"
-                 group-values="profiles"
-                 group-label="classroom_description"
-                 :group-select="false"
+                 :custom-label="labelFormater"
                  @input="teacherProfileHasBeenSelected"
                  track-by="uuid"
                  label="description"
                  deselect-label=""
                  select-label=""
                  selected-label="">
+
+      <template slot="option" slot-scope="props">
+        <div>
+          <span class="label" v-bind:style="'background: ' + props.option.label_color">{{ props.option.classroom_description }}</span> {{ props.option.description }}
+        </div>
+      </template>
       <span slot="noResult">Não encontrado...</span>
       <span slot="noOptions">Não há disciplinas...</span>
     </multiselect>
@@ -56,10 +60,14 @@ export default {
       isLoading: false,
       required: true,
       role: null,
-      unity: null
+      unity: null,
+      classroom_colors: {}
     }
   },
   methods: {
+    labelFormater({ description, classroom_description }) {
+      return `${classroom_description} - ${description}`
+    },
     teacherProfileHasBeenSelected() {
       EventBus.$emit("set-teacher-profile", this.$data)
     },
@@ -112,7 +120,7 @@ export default {
 
 <style>
 #teacher-profile-container {
-  width: 225px;
+  width: 300px;
 }
 .multiselect__option--group {
   background-color: #27333B;

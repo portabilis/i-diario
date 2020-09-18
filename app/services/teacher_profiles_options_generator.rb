@@ -8,7 +8,7 @@ class TeacherProfilesOptionsGenerator
   def run!
     return [] unless @teacher_id
 
-    profiles = Discipline.find_by_sql(<<-SQL, [[nil, @year], [nil, @teacher_id], [nil, @unity_id]])
+    Discipline.find_by_sql(<<-SQL, [[nil, @year], [nil, @teacher_id], [nil, @unity_id]])
       select * from (
         select
           classroom_id::text || '-' || min(discipline_id)::text as uuid,
@@ -17,7 +17,8 @@ class TeacherProfilesOptionsGenerator
           classroom_id,
           classrooms.description classroom_description,
           knowledge_areas.description,
-          min(discipline_id) discipline_id
+          min(discipline_id) discipline_id,
+          classrooms.label_color
         from disciplines
         inner join knowledge_areas on knowledge_areas.id = disciplines.knowledge_area_id
         inner join teacher_discipline_classrooms on teacher_discipline_classrooms.discipline_id = disciplines.id
@@ -31,7 +32,8 @@ class TeacherProfilesOptionsGenerator
                  knowledge_area_id,
                  classroom_id,
                  classroom_description,
-                 knowledge_areas.description
+                 knowledge_areas.description,
+                 classrooms.label_color
                  having min(discipline_id) > 1
 
         UNION
@@ -43,7 +45,8 @@ class TeacherProfilesOptionsGenerator
           classroom_id,
           classrooms.description classroom_description,
           disciplines.description,
-          discipline_id
+          discipline_id,
+          classrooms.label_color
         from disciplines
         inner join knowledge_areas on knowledge_areas.id = disciplines.knowledge_area_id
         inner join teacher_discipline_classrooms on teacher_discipline_classrooms.discipline_id = disciplines.id
@@ -56,11 +59,5 @@ class TeacherProfilesOptionsGenerator
       order by
       classroom_description, description;
     SQL
-
-    profiles
-      .group_by { |profile| profile['classroom_description'] }
-      .map do |classroom_description, profiles|
-        { classroom_description: classroom_description, profiles: profiles }
-      end
   end
 end

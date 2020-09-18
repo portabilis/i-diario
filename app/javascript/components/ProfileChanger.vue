@@ -111,11 +111,7 @@ export default {
       })
     },
     byTeacherProfile () {
-      let total = 0
-      _.forEach(this.profiles, function(value) {
-        total += value.profiles.length
-      })
-      return total > 0 && total <= 15
+      return this.profiles.length > 0 && this.profiles.length <= 15
     }
   },
   methods: {
