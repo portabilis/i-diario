@@ -35,7 +35,7 @@ export default {
     return {
       options: window.state.available_roles,
       selected: window.state.current_role,
-      required: true,
+      required: false,
       isLoading: false
     }
   },

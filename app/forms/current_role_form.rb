@@ -77,16 +77,19 @@ class CurrentRoleForm
   end
 
   def require_year?
-    return false if changed_to_parent_or_student?
-    return false if unity_is_cost_center?
-
-    current_user&.current_role_is_admin_or_employee_or_teacher?
+    !unity_is_cost_center? && !changed_to_parent_or_student? && is_admin_or_employee_or_teacher?
   end
 
   def require_unity?
-    return false if changed_to_parent_or_student?
+    !changed_to_parent_or_student? && is_admin_or_employee_or_teacher?
+  end
 
-    current_user&.current_role_is_admin_or_employee_or_teacher?
+  def is_admin_or_employee_or_teacher?
+    current_user_role&.role.access_level.in?([
+      AccessLevel::ADMINISTRATOR,
+      AccessLevel::EMPLOYEE,
+      AccessLevel::TEACHER
+    ])
   end
 
   def unity_is_cost_center?
@@ -128,7 +131,7 @@ class CurrentRoleForm
     @changed_to_parent_or_student = begin
       return false if current_user_role.nil?
 
-      UserRole.find(current_user_role.id).role.access_level.in? [AccessLevel::PARENT, AccessLevel::STUDENT]
+      current_user_role.role.access_level.in? [AccessLevel::PARENT, AccessLevel::STUDENT]
     end
   end
 

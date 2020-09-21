@@ -26,19 +26,16 @@
         <b-current-school-year :by-teacher-profile="byTeacherProfile"
                                :any-component-loading="anyComponentLoading"></b-current-school-year>
 
-        <b-current-classroom v-if="!byTeacherProfile"
-                             :by-teacher-profile="byTeacherProfile"
+        <b-current-classroom :by-teacher-profile="byTeacherProfile"
                              :any-component-loading="anyComponentLoading"></b-current-classroom>
 
         <b-current-teacher :by-teacher-profile="byTeacherProfile"
                            :any-component-loading="anyComponentLoading"></b-current-teacher>
 
-        <b-current-discipline v-if="!byTeacherProfile"
-                              :by-teacher-profile="byTeacherProfile"
+        <b-current-discipline :by-teacher-profile="byTeacherProfile"
                               :any-component-loading="anyComponentLoading"></b-current-discipline>
 
-        <b-teacher-profile v-if="byTeacherProfile"
-                           :by-teacher-profile="byTeacherProfile"
+        <b-teacher-profile :by-teacher-profile="byTeacherProfile"
                            :any-component-loading="anyComponentLoading"></b-teacher-profile>
 
         <div class="role-selector">
@@ -86,12 +83,15 @@ export default {
         taecher: false,
         discipline: false,
         profile: false
-      }
+      },
+      role: null
     }
   },
   computed: {
     validForm () {
-      if (this.byTeacherProfile) {
+      if (this.role && (this.role.role_access_level === "student" || this.role.role_access_level === "parent")) {
+        return true
+      } else if (this.byTeacherProfile) {
         return this.isRoleValid &&
           this.isSchoolYearValid &&
           this.isUnityValid &&
@@ -132,6 +132,7 @@ export default {
     EventBus.$on("set-role", (roleData) => {
       this.isRoleValid = this.isValid(roleData)
       this.loading.role = roleData.isLoading
+      this.role = roleData.selected
     })
     EventBus.$on("set-unity", (unityData) => {
       this.isUnityValid = this.isValid(unityData)

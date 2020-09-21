@@ -38,7 +38,7 @@ export default {
       options: window.state.available_unities,
       isLoading: false,
       role: null,
-      required: true
+      required: false
     }
   },
   methods: {

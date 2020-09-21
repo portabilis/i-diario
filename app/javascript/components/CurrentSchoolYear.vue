@@ -39,7 +39,7 @@ export default {
       isLoading: false,
       role: null,
       unity: null,
-      required: true
+      required: false
     }
   },
   methods: {
@@ -54,10 +54,10 @@ export default {
       EventBus.$emit("set-school-year", this.$data);
 
       if (toFetch) {
-        if (this.byTeacherProfile) {
-          EventBus.$emit("fetch-teacher-profiles", schoolYear);
+        if (this.role.role_access_level === "teacher") {
+          EventBus.$emit("fetch-teacher-profiles", schoolYear)
         } else {
-          EventBus.$emit("fetch-classrooms", schoolYear);
+          EventBus.$emit("fetch-classrooms", schoolYear)
         }
       }
     }

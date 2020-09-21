@@ -1,7 +1,7 @@
 <template>
   <div id="current-classroom-container"
        class="project-context"
-       v-if="!byTeacherProfile && (isLoading || options.length) && this.schoolYear">
+       v-if="(isLoading || rawOptions.length) && this.schoolYear && !byTeacherProfile">
     <span :class="{ required, label: true }">
       Turma
     </span>
@@ -33,18 +33,18 @@ import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-classroom",
-  props: [ 'anyComponentLoading' ],
+  props: [ 'anyComponentLoading', 'byTeacherProfile' ],
   data() {
     return {
       defaultOptions: window.state.available_classrooms,
       options: [],
+      rawOptions: [],
       selected: window.state.current_classroom,
-      byTeacherProfile: window.state.profiles.length > 0,
       isLoading: false,
       role: null,
       unity: null,
       schoolYear: null,
-      required: true
+      required: false
     }
   },
   computed: {
@@ -63,6 +63,8 @@ export default {
   },
   methods: {
     setOptions(classrooms) {
+      this.rawOptions = classrooms
+
       if (this.role && this.role.role_access_level !== 'teacher') {
         this.options = [{}].concat(classrooms)
       } else {

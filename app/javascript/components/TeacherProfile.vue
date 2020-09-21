@@ -1,5 +1,5 @@
 <template>
-  <div id="teacher-profile-container" class="project-context" v-if="isLoading || options.length">
+  <div id="teacher-profile-container" class="project-context" v-if="isTeacher() && (isLoading || options.length)">
     <span :class="{ required, label: true  }">
       Disciplina / Área de Conhecimento
     </span>
@@ -17,6 +17,11 @@
     <input type="hidden"
            name="user[current_discipline_id]"
            v-model="selected.discipline_id"
+           v-if="selected" />
+
+    <input type="hidden"
+           name="user[current_teacher_id]"
+           v-model="teacher_id"
            v-if="selected" />
 
     <multiselect v-model="selected"
@@ -57,6 +62,7 @@ export default {
     return {
       options: window.state.profiles,
       selected: window.state.current_profile,
+      teacher_id: window.state.teacher_id,
       isLoading: false,
       required: true,
       role: null,
@@ -78,6 +84,9 @@ export default {
       }
 
       return Routes.teacher_profiles_pt_br_path({ filter: filters, format: 'json' })
+    },
+    isTeacher() {
+      return this.role && this.role.role_access_level == "teacher"
     }
   },
   created: function () {
@@ -104,6 +113,10 @@ export default {
 
             if (response.data.teacher_profiles.length === 1) {
               this.selected = response.data.teacher_profiles[0]
+            }
+
+            if (this.options.length === 0) {
+              return EventBus.$emit("fetch-classrooms", schoolYear)
             }
           })
       }

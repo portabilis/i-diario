@@ -1,5 +1,7 @@
 <template>
-  <div id="current-discipline-container" class="project-context" v-if="isLoading || options.length">
+  <div id="current-discipline-container"
+       class="project-context"
+       v-if="(isLoading || options.length) && this.classroom && !byTeacherProfile">
     <span :class="{ required, label: true  }">
       Disciplina / Área de Conhecimento
     </span>
@@ -40,7 +42,7 @@ import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-discipline",
-  props: [ 'anyComponentLoading' ],
+  props: [ 'anyComponentLoading', 'byTeacherProfile' ],
   data () {
     return {
       options: window.state.available_disciplines,
@@ -48,7 +50,7 @@ export default {
       isLoading: false,
       classroom: null,
       role: null,
-      required: true
+      required: false
     }
   },
   methods: {

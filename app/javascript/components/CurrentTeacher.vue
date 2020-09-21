@@ -44,7 +44,7 @@ export default {
       unity: null,
       school_year: null,
       classroom: null,
-      required: true
+      required: false
     }
   },
   computed: {
