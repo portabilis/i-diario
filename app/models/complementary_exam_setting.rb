@@ -47,6 +47,8 @@ class ComplementaryExamSetting < ActiveRecord::Base
   has_many :complementary_exams, dependent: :restrict_with_exception
   deferred_has_and_belongs_to_many :grades
 
+  attr_readonly :year
+
   def to_s
     description
   end
