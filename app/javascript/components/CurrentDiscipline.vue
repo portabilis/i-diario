@@ -47,15 +47,19 @@ export default {
       selected: window.state.current_discipline,
       isLoading: false,
       classroom: null,
-      role: null
-    }
-  },
-  computed: {
-    required() {
-      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+      role: null,
+      required: true
     }
   },
   methods: {
+    setRequired() {
+      if (this.classroom && _.isEmpty(this.classroom)) {
+        this.required = false
+        return
+      }
+
+      this.required = this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    },
     disciplineHasBeenSelected() {
       EventBus.$emit("set-discipline", this.$data)
     },
@@ -71,10 +75,12 @@ export default {
   created: function () {
     EventBus.$on("set-classroom", (classroomData) => {
       this.classroom = classroomData.selected
+      this.setRequired()
     })
 
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+      this.setRequired()
     })
 
     EventBus.$on("fetch-disciplines", async (teacher) => {

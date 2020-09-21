@@ -37,12 +37,8 @@ export default {
       selected: window.state.current_unity,
       options: window.state.available_unities,
       isLoading: false,
-      role: null
-    }
-  },
-  computed: {
-    required() {
-      return this.role && this.role.role_access_level === "administrator"
+      role: null,
+      required: true
     }
   },
   methods: {
@@ -73,6 +69,7 @@ export default {
   created () {
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+      this.required = this.role && this.role.role_access_level === "administrator"
     })
 
     EventBus.$on("fetch-unities", async (selectedRole) => {

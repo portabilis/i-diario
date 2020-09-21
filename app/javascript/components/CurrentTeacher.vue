@@ -1,7 +1,7 @@
 <template>
   <div id="current-teacher-container"
        class="project-context"
-       v-show="classroom && isAdminOrEmployee">
+       v-show="classroom && classroom.id && isAdminOrEmployee">
     <span :class="{ required, label: true  }">
       Professor
     </span>
@@ -29,6 +29,7 @@
 
 <script>
 import axios from 'axios'
+import _ from 'lodash'
 import { EventBus  } from "../packs/event-bus.js"
 
 export default {
@@ -42,18 +43,26 @@ export default {
       role: null,
       unity: null,
       school_year: null,
-      classroom: null
+      classroom: null,
+      required: true
     }
   },
   computed: {
-    required() {
-      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
-    },
     isAdminOrEmployee() {
       return this.role && (this.role.role_access_level === 'employee' || this.role.role_access_level === 'administrator')
     }
   },
   methods: {
+    setRequired() {
+      if (this.classroom && _.isEmpty(this.classroom)) {
+        this.required = false
+        return
+      }
+
+      this.required = this.role &&
+        this.role.role_access_level !== 'parent' &&
+        this.role.role_access_level !== 'student'
+    },
     route(classroom) {
       const filters = {
         by_unity_id: this.unity.id,
@@ -84,6 +93,7 @@ export default {
   created: function () {
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+      this.setRequired()
     })
 
     EventBus.$on("set-school-year", (schoolYearData) => {
@@ -96,6 +106,7 @@ export default {
 
     EventBus.$on("set-classroom", (classroomData) => {
       this.classroom = classroomData.selected
+      this.setRequired()
     })
 
     EventBus.$on("fetch-teachers", async (classroom) => {

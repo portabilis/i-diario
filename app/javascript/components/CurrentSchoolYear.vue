@@ -38,13 +38,9 @@ export default {
       selected: window.state.current_school_year,
       isLoading: false,
       role: null,
-      unity: null
+      unity: null,
+      required: true
     }
-  },
-  computed: {
-    required() {
-      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
-    },
   },
   methods: {
     route(unity) {
@@ -72,6 +68,7 @@ export default {
   created () {
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+      this.required = this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
     })
 
     EventBus.$on("set-unity", (unityData) => {

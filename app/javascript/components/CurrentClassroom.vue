@@ -1,8 +1,8 @@
 <template>
   <div id="current-classroom-container"
        class="project-context"
-       v-if="!byTeacherProfile && (isLoading || options.length)">
-    <span :class="{ required, label: true  }">
+       v-if="!byTeacherProfile && (isLoading || options.length) && this.schoolYear">
+    <span :class="{ required, label: true }">
       Turma
     </span>
 
@@ -36,23 +36,22 @@ export default {
   props: [ 'anyComponentLoading' ],
   data() {
     return {
-      options: window.state.available_classrooms,
+      defaultOptions: window.state.available_classrooms,
+      options: [],
       selected: window.state.current_classroom,
       byTeacherProfile: window.state.profiles.length > 0,
       isLoading: false,
       role: null,
       unity: null,
-      school_year: null
+      schoolYear: null,
+      required: true
     }
   },
   computed: {
-    required() {
-      return this.role && this.role.role_access_level === 'teacher'
-    },
     route() {
       let filters = {
         by_unity: this.unity.id,
-        by_year: this.school_year.id
+        by_year: this.schoolYear.id
       }
 
       if (this.role.role_access_level === 'teacher') {
@@ -63,6 +62,13 @@ export default {
     }
   },
   methods: {
+    setOptions(classrooms) {
+      if (this.role && this.role.role_access_level !== 'teacher') {
+        this.options = [{}].concat(classrooms)
+      } else {
+        this.options = classrooms
+      }
+    },
     classroomHasBeenSelected(classroom, toFetch = true) {
       EventBus.$emit("set-classroom", this.$data);
 
@@ -72,11 +78,13 @@ export default {
     }
   },
   mounted () {
+    this.setOptions(window.state.available_classrooms)
     this.classroomHasBeenSelected(this.selected, false)
   },
   created () {
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+      this.required = this.role && this.role.role_access_level === 'teacher'
     })
 
     EventBus.$on("set-unity", (unityData) => {
@@ -84,13 +92,13 @@ export default {
     })
 
     EventBus.$on("set-school-year", (schoolYearData) => {
-      this.school_year = schoolYearData.selected
+      this.schoolYear = schoolYearData.selected
     })
 
     EventBus.$on("fetch-classrooms", async (schoolYear) => {
       this.isLoading = true
       this.selected = null
-      this.options = []
+      this.setOptions([])
 
       this.classroomHasBeenSelected(this.selected)
 
@@ -98,7 +106,7 @@ export default {
         await axios
           .get(this.route)
           .then(response => {
-            this.options = response.data
+            this.setOptions(response.data)
 
             if(response.data.length === 1) {
               this.selected = response.data[0]
