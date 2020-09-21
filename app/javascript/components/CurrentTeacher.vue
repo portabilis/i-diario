@@ -1,5 +1,7 @@
 <template>
-  <div id="current-teacher-container" class="project-context" v-show="isLoading || options.length > 1">
+  <div id="current-teacher-container"
+       class="project-context"
+       v-show="classroom && isAdminOrEmployee">
     <span :class="{ required, label: true  }">
       Professor
     </span>
@@ -46,6 +48,9 @@ export default {
   computed: {
     required() {
       return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    },
+    isAdminOrEmployee() {
+      return this.role && (this.role.role_access_level === 'employee' || this.role.role_access_level === 'administrator')
     }
   },
   methods: {

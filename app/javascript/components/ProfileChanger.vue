@@ -116,7 +116,7 @@ export default {
   },
   methods: {
     isValid(data) {
-      return data.selected != null || data.required
+      return data && (data.selected != null || data.required)
     }
   },
   components: {

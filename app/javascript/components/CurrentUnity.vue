@@ -1,5 +1,5 @@
 <template>
-  <div id="current-unity-container" class="project-context" v-show="isLoading || options.length > 1" >
+  <div id="current-unity-container" class="project-context" v-show="isLoading || required" >
     <span :class="{ required, label: true  }">
       Unidade
     </span>
@@ -10,7 +10,7 @@
                  :searchable="true"
                  :close-on-select="true"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
-                 :allow-empty="true"
+                 :allow-empty="false"
                  :loading="isLoading"
                  :disabled="anyComponentLoading"
                  @input="unityHasBeenSelected(selected, true)"

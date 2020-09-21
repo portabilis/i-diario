@@ -1,5 +1,7 @@
 <template>
-  <div id="current-classroom-container" class="project-context" v-if="isLoading || options.length">
+  <div id="current-classroom-container"
+       class="project-context"
+       v-if="!byTeacherProfile && (isLoading || options.length)">
     <span :class="{ required, label: true  }">
       Turma
     </span>
@@ -36,6 +38,7 @@ export default {
     return {
       options: window.state.available_classrooms,
       selected: window.state.current_classroom,
+      byTeacherProfile: window.state.profiles.length > 0,
       isLoading: false,
       role: null,
       unity: null,

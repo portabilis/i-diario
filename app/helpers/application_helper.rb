@@ -345,18 +345,21 @@ module ApplicationHelper
       }.as_json,
       available_disciplines: current_user_available_knowledge_areas.as_json,
       teacher_id: current_user.teacher_id,
-      profiles: current_profiles,
+      profiles: current_profiles.size >= 20 ? [] : current_profiles,
       current_profile: current_profile
 
     }
   end
 
   def current_profiles
-    return unless GeneralConfiguration.current.grouped_teacher_profile?
+    @current_profiles ||= begin
+      return unless GeneralConfiguration.current.grouped_teacher_profile?
 
-    TeacherProfilesOptionsGenerator.new(current_user,
-                                        current_user.current_school_year,
-                                        current_user.current_unity).run!.as_json
+
+      TeacherProfilesOptionsGenerator.new(current_user,
+                                          current_user.current_school_year,
+                                          current_user.current_unity).run!.as_json
+    end
   end
 
   def current_profile

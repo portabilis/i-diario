@@ -1,5 +1,5 @@
 <template>
-  <div id="current-school-year-container" class="project-context" v-show="isLoading || options.length > 1">
+  <div id="current-school-year-container" class="project-context" v-show="isLoading || this.unity">
     <span :class="{ required, label: true  }">
       Ano Letivo
     </span>
@@ -37,7 +37,8 @@ export default {
       options: window.state.available_school_years,
       selected: window.state.current_school_year,
       isLoading: false,
-      role: null
+      role: null,
+      unity: null
     }
   },
   computed: {
@@ -71,6 +72,10 @@ export default {
   created () {
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+    })
+
+    EventBus.$on("set-unity", (unityData) => {
+      this.unity = unityData.selected
     })
 
     EventBus.$on("fetch-school-years", async(unity) => {
