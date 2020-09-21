@@ -154,7 +154,7 @@ class SchoolCalendarQuery
       SELECT unities.name AS unity_name,
              'Turma' AS kind,
              school_calendar_classroom_steps.step_number AS step,
-             school_calendars.step_type_description AS step_name,
+             school_calendar_classrooms.step_type_description AS step_name,
              classrooms.description AS classroom,
              school_calendar_classroom_steps.start_at AS start_at,
              school_calendar_classroom_steps.end_at AS end_at,
