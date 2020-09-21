@@ -266,6 +266,6 @@
   <footer>
     <%= link_to t('views.form.back'), discipline_teaching_plans_path, class: 'btn btn-default' %>
     <%= link_to t('views.form.history'), history_discipline_teaching_plan_path(@discipline_teaching_plan), class: 'btn btn-info' if @discipline_teaching_plan.persisted? %>
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary' unless action_name == 'show' %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...' } unless action_name == 'show' %>
   </footer>
 <% end %>
