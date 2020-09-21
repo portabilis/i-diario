@@ -62,7 +62,7 @@ class StepsFetcher
   end
 
   def school_calendar_steps
-    return if school_calendar.blank?
+    return SchoolCalendarStep.none if school_calendar.blank?
 
     @school_calendar_steps ||= begin
       school_calendar_classroom.present? ? school_calendar_classroom.classroom_steps : school_calendar.steps
