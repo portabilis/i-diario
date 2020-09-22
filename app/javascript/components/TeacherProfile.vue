@@ -79,11 +79,11 @@ export default {
     },
     route (schoolYear) {
       let filters = {
-        unity_id: this.unity.id,
-        year: schoolYear.name
+        by_unity_id: this.unity.id,
+        by_school_year: schoolYear.name
       }
 
-      return Routes.teacher_profiles_pt_br_path({ filter: filters, format: 'json' })
+      return Routes.available_teacher_profiles_pt_br_path({ filter: filters, format: 'json' })
     },
     isTeacher() {
       return this.role && this.role.role_access_level == "teacher"
@@ -108,14 +108,12 @@ export default {
       if (schoolYear) {
         await axios
           .get(this.route(schoolYear))
-          .then(response => {
-            this.options = response.data.teacher_profiles
+          .then(({ data }) => {
+            this.options = data.teacher_profiles
 
-            if (response.data.teacher_profiles.length === 1) {
-              this.selected = response.data.teacher_profiles[0]
-            }
-
-            if (this.options.length === 0) {
+            if (this.options.length === 1) {
+              this.selected = this.options[0]
+            } else if (this.options.length === 0) {
               return EventBus.$emit("fetch-classrooms", schoolYear)
             }
           })

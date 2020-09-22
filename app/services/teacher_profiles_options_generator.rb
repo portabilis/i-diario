@@ -27,6 +27,8 @@ class TeacherProfilesOptionsGenerator
         AND teacher_discipline_classrooms.year = $1
         AND teacher_id = $2
         AND unity_id = $3
+        AND classrooms.discarded_at IS NULL
+        AND teacher_discipline_classrooms.discarded_at IS NULL
         AND group_descriptors IS TRUE
         group by group_descriptors,
                  knowledge_area_id,
@@ -55,6 +57,8 @@ class TeacherProfilesOptionsGenerator
         AND teacher_discipline_classrooms.year = $1
         AND teacher_id = $2
         AND unity_id = $3
+        AND classrooms.discarded_at IS NULL
+        AND teacher_discipline_classrooms.discarded_at IS NULL
         AND group_descriptors IS FALSE) disciplines_and_knowledge_area
       order by
       classroom_description, description;

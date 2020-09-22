@@ -66,15 +66,11 @@ export default {
     route(classroom) {
       const filters = {
         by_unity_id: this.unity.id,
-        by_year: this.school_year.id,
-        by_classroom: classroom.id,
+        by_school_year: this.school_year.id,
+        by_classroom_id: classroom.id,
       }
 
-      if (this.role.role_access_level === 'teacher') {
-        filters['by_id'] = window.state.teacher_id
-      }
-
-      return Routes.teachers_pt_br_path({
+      return Routes.available_teachers_pt_br_path({
         filter: filters,
         format: 'json'
       })
@@ -117,14 +113,12 @@ export default {
       this.teacherHasBeenSelected(this.selected)
 
       if (classroom) {
-        let route = this.route(classroom)
+        await axios.get(this.route(classroom))
+          .then(({ data }) => {
+            this.options = data.teachers
 
-        await axios.get(route)
-          .then(response => {
-            this.options = response.data
-
-            if(response.data.length === 1) {
-              this.selected = response.data[0]
+            if(this.options.length === 1) {
+              this.selected = this.options[0]
             }
           })
       }
