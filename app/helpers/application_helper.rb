@@ -353,7 +353,7 @@ module ApplicationHelper
 
   def current_profiles
     @current_profiles ||= begin
-      return unless GeneralConfiguration.current.grouped_teacher_profile?
+      return [] unless GeneralConfiguration.current.grouped_teacher_profile?
 
 
       TeacherProfilesOptionsGenerator.new(current_user,
