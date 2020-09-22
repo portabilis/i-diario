@@ -189,8 +189,8 @@ class DescriptiveExamsController < ApplicationController
 
     if current_user_classroom.exam_rule.allow_descriptive_exam?
       @opinion_types << OpenStruct.new(id: current_user_classroom.exam_rule.opinion_type,
-                                       text: 'Regular',
-                                       name: 'Regular')
+                                       text: 'Avaliação padrão (regular)',
+                                       name: 'Avaliação padrão (regular)')
     end
 
     if current_user_classroom.exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
@@ -198,13 +198,13 @@ class DescriptiveExamsController < ApplicationController
 
       @opinion_types << OpenStruct.new(
         id: current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type,
-        text: 'Aluno com deficiência',
-        name: 'Aluno com deficiência'
+        text: 'Avaliação inclusiva (alunos com deficiência)',
+        name: 'Avaliação inclusiva (alunos com deficiência)'
       )
     end
 
     if @opinion_types.blank?
-      flash[:alert] = t('errors.descriptive_exams.exam_rule_not_allow_descriptive_exam')
+      flash[:alert] = t('descriptive_exams.new.exam_rule_not_allow_descriptive_exam')
 
       redirect_to root_path
       return
