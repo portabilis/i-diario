@@ -185,6 +185,12 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def set_opinion_types
+    if current_user_classroom.exam_rule.blank?
+      redirect_with_message(t('descriptive_exams.new.exam_rule_not_found'))
+
+      return
+    end
+
     @opinion_types = []
 
     if current_user_classroom.exam_rule.allow_descriptive_exam?
@@ -204,9 +210,8 @@ class DescriptiveExamsController < ApplicationController
     end
 
     if @opinion_types.blank?
-      flash[:alert] = t('descriptive_exams.new.exam_rule_not_allow_descriptive_exam')
+      redirect_with_message(t('descriptive_exams.new.exam_rule_not_allow_descriptive_exam'))
 
-      redirect_to root_path
       return
     end
 
@@ -246,5 +251,11 @@ class DescriptiveExamsController < ApplicationController
   def adjusted_period
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+  end
+
+  def redirect_with_message(message)
+    flash[:alert] = message
+
+    redirect_to root_path
   end
 end
