@@ -60,7 +60,7 @@
         </div>
 
         <div class="col col-sm-3">
-          <%= f.input :year, as: :integer, readonly: action_name == 'edit' %>
+          <%= f.input :year, as: :integer, readonly: action_name != 'new' %>
         </div>
       </div>
     </fieldset>
