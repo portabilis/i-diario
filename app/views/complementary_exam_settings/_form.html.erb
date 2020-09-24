@@ -55,7 +55,7 @@
         </div>
 
         <div class="col col-sm-3">
-          <%= f.input :grade_ids, as: :select2, elements: grades, multiple: true,
+          <%= f.input :grade_ids, as: :select2, elements: grades_to_select2(grades), multiple: true,
           input_html: { value: f.object.grade_ids.join(','), data: { without_json_parser: true } } %>
         </div>
 
