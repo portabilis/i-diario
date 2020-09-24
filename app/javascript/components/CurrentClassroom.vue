@@ -1,7 +1,7 @@
 <template>
   <div id="current-classroom-container"
        class="project-context"
-       v-if="(isLoading || rawOptions.length) && this.schoolYear && !byTeacherProfile">
+       v-if="displayable">
     <span :class="{ required, label: true }">
       Turma
     </span>
@@ -48,6 +48,9 @@ export default {
     }
   },
   computed: {
+    displayable () {
+      return (this.isLoading || this.rawOptions.length) && this.schoolYear && !this.byTeacherProfile
+    },
     route() {
       let filters = {
         by_unity_id: this.unity.id,

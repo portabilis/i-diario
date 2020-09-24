@@ -1,5 +1,5 @@
 <template>
-  <div id="teacher-profile-container" class="project-context" v-if="isTeacher() && (isLoading || options.length)">
+  <div id="teacher-profile-container" class="project-context" v-if="displayable">
     <span :class="{ required, label: true  }">
       Disciplina / Área de Conhecimento
     </span>
@@ -68,6 +68,11 @@ export default {
       role: null,
       unity: null,
       classroom_colors: {}
+    }
+  },
+  computed: {
+    displayable () {
+      return this.isTeacher() && (this.isLoading || this.options.length)
     }
   },
   methods: {

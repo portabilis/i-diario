@@ -1,7 +1,7 @@
 <template>
   <div id="current-discipline-container"
        class="project-context"
-       v-if="(isLoading || options.length) && this.classroom && !byTeacherProfile">
+       v-if="displayable">
     <span :class="{ required, label: true  }">
       Disciplina / Área de Conhecimento
     </span>
@@ -51,6 +51,11 @@ export default {
       classroom: null,
       role: null,
       required: false
+    }
+  },
+  computed: {
+    displayable () {
+      return (this.isLoading || this.options.length) && this.classroom && !this.byTeacherProfile
     }
   },
   methods: {
