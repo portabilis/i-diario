@@ -112,7 +112,6 @@ export default {
           .get(this.route)
           .then(({ data }) => {
             const classrooms = data.classrooms
-            console.log(classrooms)
 
             this.setOptions(classrooms)
 
