@@ -171,110 +171,6 @@ module ApplicationHelper
     (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
   end
 
-  def current_user_available_disciplines
-    return [] unless current_user_classroom && current_teacher
-
-    cache_key = [
-      'ApplicationHelper#current_user_available_disciplines',
-      cache_key_to_user,
-      current_user_classroom.try(:id),
-      current_teacher.try(:id)
-    ]
-
-    @current_user_available_disciplines ||=
-      Rails.cache.fetch cache_key, expires_in: 10.minutes do
-        Discipline.by_teacher_id(current_teacher).by_classroom(current_user_classroom).ordered
-      end
-  end
-
-  def current_user_available_knowledge_areas
-    return [] unless current_user_classroom && current_teacher
-
-    Discipline
-      .by_teacher_and_classroom(current_teacher.id, current_user_classroom.id)
-      .grouped_by_knowledge_area
-      .as_json
-  end
-
-  def current_unities
-    cache_key = [
-      'ApplicationHelper#current_unities',
-      cache_key_to_user,
-      current_user.current_user_role.id
-    ]
-
-    @current_unities ||=
-      Rails.cache.fetch cache_key, expires_in: 10.minutes do
-        if current_user.current_user_role.try(:role_administrator?)
-          Unity.ordered
-        else
-          [current_unity]
-        end.compact
-      end
-  end
-
-  def current_user_available_years
-    return [] if current_unity.blank?
-
-    @current_user_available_years ||= current_user.available_years(current_unity)
-  end
-
-  def current_user_available_teachers
-    return [] if current_unity.blank? || current_user_classroom.blank?
-
-    cache_key = [
-      'ApplicationHelper#current_user_available_teachers',
-      cache_key_to_user,
-      current_user_classroom.try(:id),
-      current_user.current_user_role_id
-    ]
-
-    @current_user_available_teachers ||=
-      Rails.cache.fetch cache_key, expires_in: 10.minutes do
-        teachers = Teacher.by_unity_id(current_unity)
-                       .by_classroom(current_user_classroom)
-                       .order_by_name
-
-        if current_user.current_user_role.role.teacher?
-          return Teacher.where(id: current_user.teacher_id)
-        end
-
-
-        if current_school_calendar.try(:year)
-          teachers.by_year(current_school_calendar.try(:year))
-        else
-          teachers
-        end
-      end
-  end
-
-  def current_user_available_classrooms
-    return [] if current_unity.blank?
-
-    cache_key = [
-      'ApplicationHelper#current_user_available_classrooms',
-      cache_key_to_user,
-      current_teacher.try(:id),
-      current_school_calendar.try(:year),
-      current_user.current_user_role.id
-    ]
-
-    @current_user_available_classrooms ||=
-      Rails.cache.fetch cache_key, expires_in: 10.minutes do
-        classrooms = if current_teacher.present? && current_user.teacher?
-                       Classroom.by_unity_and_teacher(current_unity, current_teacher).ordered
-                     else
-                       Classroom.by_unity(current_unity).ordered
-                     end
-
-        if current_school_calendar.try(:year)
-          classrooms.by_year(current_school_calendar.try(:year))
-        else
-          classrooms
-        end
-      end
-  end
-
   def back_link(name, path)
     content_for :back_link do
       back_link_tag(name, path)
@@ -316,61 +212,25 @@ module ApplicationHelper
   end
 
   def window_state
+    current_profile = CurrentProfile.new(current_user)
+
     {
-      current_role: current_user.current_user_role.as_json(
-        only: [:id],
-        methods: [:name, :can_change_school_year, :role_access_level, :unity_id]
-      ),
-      available_roles: current_user.user_roles.as_json(
-        only: [:id],
-        methods: [:name, :can_change_school_year, :role_access_level, :unity_id]
-      ),
-      current_unity: current_user.current_unity.as_json(only: [:id, :name]),
-      available_unities: current_unities.as_json(only: [:id, :name]),
-      current_school_year: (
-        if current_user.current_school_year
-          {
-            id: current_user.current_school_year,
-            name: current_user.current_school_year
-          }
-        end
-      ),
-      available_school_years: current_user_available_years,
-      current_classroom: current_user.current_classroom.as_json(only: [:id, :description]),
-      available_classrooms: current_user_available_classrooms.as_json(only: [:id, :description]),
-      current_teacher: current_user.current_teacher.as_json(only: [:id, :name]),
-      available_teachers: current_user_available_teachers.as_json(only: [:id, :name]),
-      current_discipline: current_user_available_knowledge_areas.find { |discipline|
-        discipline['id'] == current_user.current_discipline_id
-      }.as_json,
-      available_disciplines: current_user_available_knowledge_areas.as_json,
+      current_role: current_profile.user_role_as_json,
+      available_roles: current_profile.user_roles_as_json,
+      current_unity: current_profile.unity_as_json,
+      available_unities: current_profile.unities_as_json,
+      current_school_year: current_profile.school_year_as_json,
+      available_school_years: current_profile.school_years_as_json,
+      current_classroom: current_profile.classroom_as_json,
+      available_classrooms: current_profile.classrooms_as_json,
+      current_teacher: current_profile.teacher_as_json,
+      available_teachers: current_profile.teachers_as_json,
+      current_discipline: current_profile.discipline_as_json,
+      available_disciplines: current_profile.disciplines_as_json,
       teacher_id: current_user.teacher_id,
-      profiles: current_profiles.size >= 20 ? [] : current_profiles,
-      current_profile: current_profile
+      current_profile: current_profile.teacher_profile_as_json,
+      profiles: current_profile.teacher_profiles_as_json
 
-    }
-  end
-
-  def current_profiles
-    @current_profiles ||= begin
-      return [] unless GeneralConfiguration.current.grouped_teacher_profile?
-
-
-      TeacherProfilesOptionsGenerator.new(current_user,
-                                          current_user.current_school_year,
-                                          current_user.current_unity).run!.as_json
-    end
-  end
-
-  def current_profile
-    {
-      uuid: "#{current_user.current_classroom_id}-#{current_user.current_discipline_id}",
-      classroom_description: current_user.current_classroom.try(:to_s),
-      classroom_id: current_user.current_classroom_id,
-      description: current_user.current_discipline.try(:to_s),
-      discipline_id: current_user.current_discipline_id,
-      group_descriptors: current_user.current_knowledge_area.try(:group_descriptors),
-      knowledge_area_id: current_user.current_knowledge_area_id
     }
   end
 

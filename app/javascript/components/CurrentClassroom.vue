@@ -1,7 +1,7 @@
 <template>
   <div id="current-classroom-container"
        class="project-context"
-       v-if="(isLoading || rawOptions.length) && this.schoolYear && !byTeacherProfile">
+       v-if="displayable">
     <span :class="{ required, label: true }">
       Turma
     </span>
@@ -48,17 +48,20 @@ export default {
     }
   },
   computed: {
+    displayable () {
+      return (this.isLoading || this.rawOptions.length) && this.schoolYear && !this.byTeacherProfile
+    },
     route() {
       let filters = {
-        by_unity: this.unity.id,
-        by_year: this.schoolYear.id
+        by_unity_id: this.unity.id,
+        by_school_year: this.schoolYear.id
       }
 
       if (this.role.role_access_level === 'teacher') {
         filters['by_teacher_id'] = window.state.teacher_id
       }
 
-      return Routes.classrooms_pt_br_path({ filter: filters, format: 'json' })
+      return Routes.available_classrooms_pt_br_path({ filter: filters, format: 'json' })
     }
   },
   methods: {
@@ -107,11 +110,13 @@ export default {
       if (schoolYear) {
         await axios
           .get(this.route)
-          .then(response => {
-            this.setOptions(response.data)
+          .then(({ data }) => {
+            const classrooms = data.classrooms
 
-            if(response.data.length === 1) {
-              this.selected = response.data[0]
+            this.setOptions(classrooms)
+
+            if(classrooms.length === 1) {
+              this.selected = classrooms[0]
             }
           })
       }

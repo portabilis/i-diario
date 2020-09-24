@@ -330,17 +330,6 @@ class User < ActiveRecord::Base
     cpf.gsub(/[^\d]/, '')
   end
 
-  def available_years(unity, unity_id = nil)
-    unity_id ||= unity.id
-    @available_years ||= {}
-    @available_years[unity_id] ||=
-      begin
-        only_opened_years = !can_change_school_year?
-        years = YearsFromUnityFetcher.new(unity_id, only_opened_years).fetch
-        years.map { |year| { id: year, name: year } }
-      end
-  end
-
   def access_levels
     @access_levels ||= roles.map(&:access_level).uniq
   end

@@ -1,5 +1,5 @@
 <template>
-  <div id="current-school-year-container" class="project-context" v-show="isLoading || this.unity">
+  <div id="current-school-year-container" class="project-context" v-show="isLoading || unity">
     <span :class="{ required, label: true  }">
       Ano Letivo
     </span>
@@ -44,9 +44,11 @@ export default {
   },
   methods: {
     route(unity) {
-      return Routes.years_from_unity_school_calendars_pt_br_path({
-        unity_id: unity.id,
-        only_opened_years: !this.role.can_change_school_year,
+      return Routes.available_school_years_pt_br_path({
+        filter: {
+          by_unity_id: unity.id,
+          by_user_role_id: this.role.id,
+        },
         format: 'json'
       })
     },
@@ -86,11 +88,11 @@ export default {
         let route = this.route(unity)
 
         await axios.get(route)
-          .then(response => {
-            this.options = response.data.school_calendars
+          .then(({ data }) => {
+            this.options = data.school_years
 
-            if(response.data.school_calendars.length === 1) {
-              this.selected = response.data.school_calendars[0]
+            if(this.options.length === 1) {
+              this.selected = this.options[0]
             }
           })
       }

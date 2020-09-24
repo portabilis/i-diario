@@ -1,7 +1,7 @@
 <template>
   <div id="current-discipline-container"
        class="project-context"
-       v-if="(isLoading || options.length) && this.classroom && !byTeacherProfile">
+       v-if="displayable">
     <span :class="{ required, label: true  }">
       Disciplina / Área de Conhecimento
     </span>
@@ -53,6 +53,11 @@ export default {
       required: false
     }
   },
+  computed: {
+    displayable () {
+      return (this.isLoading || this.options.length) && this.classroom && !this.byTeacherProfile
+    }
+  },
   methods: {
     setRequired() {
       if (this.classroom && _.isEmpty(this.classroom)) {
@@ -67,11 +72,11 @@ export default {
     },
     route (teacher) {
       let filters = {
-        teacher_id: teacher.id,
-        classroom_id: this.classroom.id,
+        by_teacher_id: teacher.id,
+        by_classroom_id: this.classroom.id,
       }
 
-      return Routes.search_grouped_by_knowledge_area_disciplines_pt_br_path({ filter: filters, format: 'json' })
+      return Routes.available_disciplines_pt_br_path({ filter: filters, format: 'json' })
     }
   },
   created: function () {
@@ -95,11 +100,11 @@ export default {
       if (teacher) {
         await axios
           .get(this.route(teacher))
-          .then(response => {
-            this.options = response.data.disciplines
+          .then(({ data }) => {
+            this.options = data.disciplines
 
-            if (response.data.disciplines.length === 1) {
-              this.selected = response.data.disciplines[0]
+            if (this.options.length === 1) {
+              this.selected = this.options[0]
             }
           })
       }

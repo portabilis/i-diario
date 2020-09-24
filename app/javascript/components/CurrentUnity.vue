@@ -46,14 +46,10 @@ export default {
       const filters = {}
 
       if (role.unity_id) {
-        filters['by_id'] = role.unity_id
+        filters['by_unity_id'] = role.unity_id
       }
 
-      return Routes.search_unities_pt_br_path({
-        format: 'json',
-        per: 9999999,
-        filter: filters
-      })
+      return Routes.available_unities_pt_br_path({ format: 'json', filter: filters })
     },
     unityHasBeenSelected(selectedUnity, toFetch = true) {
       EventBus.$emit("set-unity", this.$data);
@@ -87,11 +83,11 @@ export default {
         let route = this.route(selectedRole)
 
         await axios.get(route)
-          .then(response => {
-            this.options = response.data.unities
+          .then(({ data }) => {
+            this.options = data.unities
 
-            if (response.data.unities.length === 1) {
-              this.selected = response.data.unities[0]
+            if (this.options.length === 1) {
+              this.selected = this.options[0]
             }
           })
       }
