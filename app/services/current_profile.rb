@@ -130,8 +130,9 @@ class CurrentProfile
   def teacher_profiles
     cache ['teacher_profiles', GeneralConfiguration.current.grouped_teacher_profile?, unity&.id, school_year] do
       return [] unless GeneralConfiguration.current.grouped_teacher_profile?
+      return [] if user.teacher_id.blank?
 
-      teacher_profiles = TeacherProfilesOptionsGenerator.new(user, school_year, unity).run!
+      teacher_profiles = GroupedDiscipline.by_teacher_unity_and_year(user.teacher_id, unity.id, school_year)
       teacher_profiles = [] if teacher_profiles.size >= 20
       teacher_profiles
     end
