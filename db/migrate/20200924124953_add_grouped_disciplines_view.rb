@@ -30,7 +30,7 @@ class AddGroupedDisciplinesView < ActiveRecord::Migration
                   classrooms.label_color,
                   classrooms.year,
                   classrooms.unity_id,
-                  teacher_discipline_classrooms.teacher_id HAVING min(discipline_id) > 1
+                  teacher_discipline_classrooms.teacher_id
         UNION SELECT classroom_id::text || '-' || discipline_id::text AS uuid,
                       group_descriptors,
                       knowledge_area_id,
