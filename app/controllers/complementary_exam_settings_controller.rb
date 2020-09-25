@@ -24,15 +24,12 @@ class ComplementaryExamSettingsController < ApplicationController
 
   def create
     assign_attributes(resource)
-    resource.teacher_id = current_teacher_id
 
     authorize resource
 
     if resource.save
       respond_with resource, location: complementary_exam_settings_path
     else
-      resource.grade_ids = [] if resource.errors.messages.include?(:grade_ids)
-
       render :new
     end
   end
@@ -45,7 +42,7 @@ class ComplementaryExamSettingsController < ApplicationController
 
   def update
     @complementary_exam_setting = resource
-    resource.teacher_id = current_teacher_id
+
     assign_attributes(@complementary_exam_setting.localized)
 
     authorize @complementary_exam_setting
@@ -79,7 +76,8 @@ class ComplementaryExamSettingsController < ApplicationController
   private
 
   def grades
-    @grades ||= Grade.joins(classrooms: :exam_rule)
+    @grades ||= Grade.includes(:course)
+                     .joins(classrooms: :exam_rule)
                      .merge(ExamRule.where(score_type: ScoreTypes::NUMERIC))
                      .ordered
                      .uniq

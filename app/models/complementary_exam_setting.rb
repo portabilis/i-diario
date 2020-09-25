@@ -1,8 +1,4 @@
 class ComplementaryExamSetting < ActiveRecord::Base
-  include TeacherRelationable
-
-  teacher_relation_columns only: :grades
-
   acts_as_copy_target
 
   audited
@@ -47,12 +43,10 @@ class ComplementaryExamSetting < ActiveRecord::Base
   has_many :complementary_exams, dependent: :restrict_with_exception
   deferred_has_and_belongs_to_many :grades
 
+  attr_readonly :year
+
   def to_s
     description
-  end
-
-  def optional_teacher
-    true
   end
 
   private
