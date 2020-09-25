@@ -28,8 +28,18 @@ class StudentsSynchronizer < BaseSynchronizer
         student.uses_differentiated_exam_rule = false if student.uses_differentiated_exam_rule.nil?
         student.save! if student.changed?
 
-        student.discard_or_undiscard(student_record.deleted_at.present?)
+        discarded = student_record.deleted_at.present?
+
+        student.discard_or_undiscard(discarded)
+
+        if GeneralConfiguration.current.create_users_for_students_when_synchronize && !discarded
+          create_user(student.id)
+        end
       end
     end
+  end
+
+  def create_user(student_id)
+    UserForStudentCreatorWorker.perform_in(1.second, entity_id, student_id)
   end
 end
