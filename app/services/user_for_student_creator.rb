@@ -17,7 +17,7 @@ class UserForStudentCreator
     Student.joins('LEFT JOIN users ON users.student_id = students.id')
            .where(users: { student_id: nil })
            .find_each do |student|
-      next if User.find_by(login: student.api_code)
+      next if User.find_by(login: student.api_code, kind: RoleKind::STUDENT)
       next if User.find_by(student_id: student.id, kind: 'student')
 
       password = "estudante#{student.api_code}"
