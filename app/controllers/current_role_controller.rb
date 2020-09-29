@@ -1,8 +1,10 @@
 # encoding: utf-8
 class CurrentRoleController < ApplicationController
-  ALL_ROUTES = Rails.application.routes.routes.named_routes.values.map { |route|
-    ["#{route.defaults[:controller]}##{route.defaults[:action]}##{route.defaults[:locale]}", route.name]
-  }.to_h.freeze
+  ALL_ROUTES = Rails.cache.fetch('Rails.application.routes') {
+    Rails.application.routes.routes.named_routes.values.map { |route|
+      ["#{route.defaults[:controller]}##{route.defaults[:action]}##{route.defaults[:locale]}", route.name]
+    }.to_h.freeze
+  }
 
   def set
     current_role_form = CurrentRoleForm.new(resource_params)
