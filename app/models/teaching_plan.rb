@@ -86,6 +86,10 @@ class TeachingPlan < ActiveRecord::Base
     true
   end
 
+  def attachments?
+    teaching_plan_attachments.any?
+  end
+
   private
 
   def at_least_one_content_assigned

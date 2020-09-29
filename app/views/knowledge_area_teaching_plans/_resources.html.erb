@@ -6,7 +6,11 @@
   <% else %>
     <% @knowledge_area_teaching_plans.each do |knowledge_area_teaching_plan| %>
       <tr>
-        <td><%= knowledge_area_teaching_plan.teaching_plan.unity %></td>
+        <td><%= knowledge_area_teaching_plan.teaching_plan.unity %>
+          <% if knowledge_area_teaching_plan.teaching_plan.attachments? %>
+            <i class="fa fa-paperclip"></i>
+          <% end %>
+        </td>
         <td><%= knowledge_area_teaching_plan.teaching_plan.grade %></td>
         <td>
           <% knowledge_area_teaching_plan.knowledge_areas.each do |knowledge_area| %>

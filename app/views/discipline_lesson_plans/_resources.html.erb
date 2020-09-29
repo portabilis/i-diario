@@ -6,7 +6,11 @@
   <% else %>
     <% @discipline_lesson_plans.each do |discipline_lesson_plan| %>
       <tr>
-        <td><%= discipline_lesson_plan.lesson_plan.unity %></td>
+        <td><%= discipline_lesson_plan.lesson_plan.unity %>
+          <% if discipline_lesson_plan.lesson_plan.attachments? %>
+            <i class="fa fa-paperclip"></i>
+          <% end %>
+        </td>
         <td class="classroom"><%= discipline_lesson_plan.lesson_plan.classroom %></td>
         <td class="discipline"><%= discipline_lesson_plan.discipline %></td>
         <td class="start_at"><%= l(discipline_lesson_plan.lesson_plan.start_at) %></td>
