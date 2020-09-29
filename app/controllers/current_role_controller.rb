@@ -10,7 +10,10 @@ class CurrentRoleController < ApplicationController
       else
         format.json { render json: current_role_form.errors, status: :unprocessable_entity }
       end
-      format.html { redirect_to(root_path) }
+
+      path = redirect_to_path(request.referer)
+
+      format.html { redirect_to(path) }
     end
   end
 
@@ -35,5 +38,21 @@ class CurrentRoleController < ApplicationController
       :current_user_role_id, :current_unity_id, :current_classroom_id, :current_discipline_id, :current_teacher_id,
       :current_school_year, :teacher_profile_id
     ).merge(current_user: current_user)
+  end
+
+  def redirect_to_path(referer)
+    ref_route = route_from_path(referer)
+
+    path_eval = Rails.application.routes.url_helpers.send("#{ref_route[:controller]}_path")
+
+    route_from_path(path_eval)
+  rescue NoMethodError
+    root_path
+  end
+
+  def route_from_path(path)
+    Rails.application.routes.recognize_path(path)
+  rescue ActionController::RoutingError
+    root_path
   end
 end
