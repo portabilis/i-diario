@@ -10,7 +10,7 @@ class UserForStudentCreator
   private
 
   def create_user
-    role_id = Role.find_by(access_level: 'student')&.id
+    role_id = Role.find_by(access_level: AccessLevel::STUDENT)&.id
 
     raise 'Permissão de aluno não encontrada.' if role_id.blank?
 
@@ -18,7 +18,7 @@ class UserForStudentCreator
            .where(users: { student_id: nil })
            .find_each do |student|
       next if User.find_by(login: student.api_code, kind: RoleKind::STUDENT)
-      next if User.find_by(student_id: student.id, kind: 'student')
+      next if User.find_by(student_id: student.id, kind: RoleKind::STUDENT)
 
       password = "estudante#{student.api_code}"
 
@@ -28,8 +28,8 @@ class UserForStudentCreator
         email: "#{student.api_code}@ambiente.portabilis.com.br",
         password: password,
         password_confirmation: password,
-        status: 'active',
-        kind: 'student',
+        status: UserStatus::ACTIVE,
+        kind: RoleKind::STUDENT,
         student_id: student.id
       )
 
