@@ -12,7 +12,7 @@ class DisciplineLessonPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @discipline_lesson_plans = apply_scopes(
-      DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments])
+      DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
                           .by_unity_id(current_unity.id)
                           .by_classroom_id(current_user_classroom)
                           .by_discipline_id(current_user_discipline)

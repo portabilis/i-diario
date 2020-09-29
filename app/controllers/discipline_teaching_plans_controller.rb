@@ -11,7 +11,8 @@ class DisciplineTeachingPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @discipline_teaching_plans = apply_scopes(
-      DisciplineTeachingPlan.includes(:discipline, teaching_plan: [:unity, :grade, :teaching_plan_attachments])
+      DisciplineTeachingPlan.includes(:discipline,
+                                      teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
                             .by_unity(current_unity)
                             .by_year(current_school_year)
     )
