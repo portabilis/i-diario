@@ -8,7 +8,7 @@
       <tr>
         <td><%= knowledge_area_teaching_plan.teaching_plan.unity %>
           <% if knowledge_area_teaching_plan.teaching_plan.attachments? %>
-            <i class="fa fa-paperclip"></i>
+            <i class="fa fa-paperclip apply_tooltip" data-original-title="Possui anexos"></i>
           <% end %>
         </td>
         <td><%= knowledge_area_teaching_plan.teaching_plan.grade %></td>

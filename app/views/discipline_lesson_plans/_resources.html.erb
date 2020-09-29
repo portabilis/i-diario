@@ -8,7 +8,7 @@
       <tr>
         <td><%= discipline_lesson_plan.lesson_plan.unity %>
           <% if discipline_lesson_plan.lesson_plan.attachments? %>
-            <i class="fa fa-paperclip"></i>
+            <i class="fa fa-paperclip apply_tooltip" data-original-title="Possui anexos"></i>
           <% end %>
         </td>
         <td class="classroom"><%= discipline_lesson_plan.lesson_plan.classroom %></td>
