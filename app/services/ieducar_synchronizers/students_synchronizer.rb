@@ -31,15 +31,13 @@ class StudentsSynchronizer < BaseSynchronizer
         discarded = student_record.deleted_at.present?
 
         student.discard_or_undiscard(discarded)
-
-        if GeneralConfiguration.current.create_users_for_students_when_synchronize && !discarded
-          create_user(student.id)
-        end
       end
     end
+
+    create_users if GeneralConfiguration.current.create_users_for_students_when_synchronize
   end
 
-  def create_user(student_id)
-    UserForStudentCreatorWorker.perform_in(1.second, entity_id, student_id)
+  def create_users
+    UserForStudentCreatorWorker.perform_in(1.second, entity_id)
   end
 end
