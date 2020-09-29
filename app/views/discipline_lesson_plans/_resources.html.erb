@@ -21,7 +21,11 @@
                         discipline_lesson_plan_id: discipline_lesson_plan.id,
                         discipline_id: discipline_lesson_plan.discipline_id,
                         classroom_id: discipline_lesson_plan.classroom.id,
-                        grade_id: discipline_lesson_plan.classroom.grade_id
+                        grade_id: (
+                          unless GeneralConfiguration.current.allows_copy_lesson_plans_to_other_grades
+                            discipline_lesson_plan.classroom.grade_id
+                          end
+                        )
                       }) %>
           <%= link_to(
                 t('helpers.links.show_html'),
