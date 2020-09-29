@@ -12,7 +12,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_lesson_plans = apply_scopes(
-      KnowledgeAreaLessonPlan.includes(:knowledge_areas, lesson_plan: [:classroom])
+      KnowledgeAreaLessonPlan.includes(:knowledge_areas, lesson_plan: [:classroom, :lesson_plan_attachments])
                              .by_classroom_id(current_user_classroom)
                              .uniq
                              .ordered
