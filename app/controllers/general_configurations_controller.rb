@@ -46,7 +46,8 @@ class GeneralConfigurationsController < ApplicationController
       :max_consecutive_absence_days,
       :max_alternate_absence_days,
       :days_to_consider_alternate_absences,
-      :create_users_for_students_when_synchronize
+      :create_users_for_students_when_synchronize,
+      :allows_copy_lesson_plans_to_other_grades
     )
   end
 
