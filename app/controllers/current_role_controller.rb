@@ -1,5 +1,9 @@
 # encoding: utf-8
 class CurrentRoleController < ApplicationController
+  ALL_ROUTES = Rails.application.routes.routes.named_routes.values.map { |route|
+    ["#{route.defaults[:controller]}##{route.defaults[:action]}##{route.defaults[:locale]}", route.name]
+  }.to_h.freeze
+
   def set
     current_role_form = CurrentRoleForm.new(resource_params)
 
@@ -42,48 +46,19 @@ class CurrentRoleController < ApplicationController
 
   def redirect_to_path(referer)
     ref_route = route_from_path(referer)
-    @retry = true
-    @controller = ref_route[:controller]
+    controller = ref_route[:controller]
 
-    path_eval = Rails.application.routes.url_helpers.send("#{@controller}_path")
+    path = ALL_ROUTES["#{controller}#index#pt-BR"] || ALL_ROUTES["#{controller}#new#pt-BR"]
+    path = path ? "#{path}_path" : root_path
+
+    path_eval = Rails.application.routes.url_helpers.send(path)
 
     route_from_path(path_eval)
-  rescue NoMethodError
-    root_path
   end
 
   def route_from_path(path)
     Rails.application.routes.recognize_path(path)
   rescue ActionController::RoutingError
-    if @retry
-      if (path = fallback_to_new&.values&.first)
-
-        begin
-          path = Rails.application.routes.url_helpers.send("#{path}_path")
-
-          retry
-        rescue NoMethodError
-          root_path
-        end
-      end
-    end
-
     root_path
-  end
-
-  def fallback_to_new
-    @retry = false
-
-    all_routes.find do |route|
-      route["#{@controller}#new#pt-BR".to_sym]
-    end
-  end
-
-  def all_routes
-    Rails.cache.fetch('Rails.application.routes') do
-      Rails.application.routes.routes.named_routes.values.map do |route|
-        { "#{route.defaults[:controller]}##{route.defaults[:action]}##{route.defaults[:locale]}": route.name }
-      end
-    end
   end
 end
