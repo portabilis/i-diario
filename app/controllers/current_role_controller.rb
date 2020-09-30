@@ -3,6 +3,7 @@ class CurrentRoleController < ApplicationController
   ALL_ROUTES = Rails.application.routes.routes.named_routes.values.map { |route|
     ["#{route.defaults[:controller]}##{route.defaults[:action]}##{route.defaults[:locale]}", route.name]
   }.to_h.freeze
+  ROOT = 'root'.freeze
 
   def set
     current_role_form = CurrentRoleForm.new(resource_params)
@@ -48,8 +49,8 @@ class CurrentRoleController < ApplicationController
     ref_route = route_from_path(referer)
     controller = ref_route[:controller]
 
-    path = ALL_ROUTES["#{controller}#index#pt-BR"] || ALL_ROUTES["#{controller}#new#pt-BR"]
-    path = path ? "#{path}_path" : root_path
+    path = ALL_ROUTES["#{controller}#index#pt-BR"] || ALL_ROUTES["#{controller}#new#pt-BR"] || ROOT
+    path = "#{path}_path"
 
     path_eval = Rails.application.routes.url_helpers.send(path)
 
