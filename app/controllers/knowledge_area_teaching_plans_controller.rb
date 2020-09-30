@@ -11,7 +11,8 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_teaching_plans = apply_scopes(
-      KnowledgeAreaTeachingPlan.includes(:knowledge_areas, teaching_plan: [:unity, :grade])
+      KnowledgeAreaTeachingPlan.includes(:knowledge_areas,
+                                         teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
                                .by_unity(current_unity)
                                .by_year(current_school_year)
     )
