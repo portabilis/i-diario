@@ -1,9 +1,10 @@
 # encoding: utf-8
 class CurrentRoleController < ApplicationController
-  ALL_ROUTES = Rails.application.routes.routes.named_routes.values.map { |route|
-    ["#{route.defaults[:controller]}##{route.defaults[:action]}##{route.defaults[:locale]}", route.name]
-  }.to_h.freeze
-  ROOT = 'root'.freeze
+  ALL_ROUTES = Rails.application.routes.routes.map { |route|
+    if route.verb == /^GET$/ && route.defaults[:locale] == 'pt-BR'
+      [route.defaults.values.join('#'), route.defaults]
+    end
+  }.compact.to_h.freeze
 
   def set
     current_role_form = CurrentRoleForm.new(resource_params)
@@ -16,9 +17,9 @@ class CurrentRoleController < ApplicationController
         format.json { render json: current_role_form.errors, status: :unprocessable_entity }
       end
 
-      path = redirect_to_path(request.referer)
-
-      format.html { redirect_to(path) }
+      format.html do
+        redirect_to_path(request.referer)
+      end
     end
   end
 
@@ -46,20 +47,13 @@ class CurrentRoleController < ApplicationController
   end
 
   def redirect_to_path(referer)
-    ref_route = route_from_path(referer)
+    ref_route = Rails.application.routes.recognize_path(referer)
     controller = ref_route[:controller]
 
-    path = ALL_ROUTES["#{controller}#index#pt-BR"] || ALL_ROUTES["#{controller}#new#pt-BR"] || ROOT
-    path = "#{path}_path"
+    action = ALL_ROUTES["#{controller}#index#pt-BR"] || ALL_ROUTES["#{controller}#new#pt-BR"]
 
-    path_eval = Rails.application.routes.url_helpers.send(path)
-
-    route_from_path(path_eval)
-  end
-
-  def route_from_path(path)
-    Rails.application.routes.recognize_path(path)
+    redirect_to action || root_path
   rescue ActionController::RoutingError
-    root_path
+    redirect_to root_path
   end
 end
