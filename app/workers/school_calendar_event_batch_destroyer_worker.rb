@@ -1,4 +1,6 @@
 class SchoolCalendarEventBatchDestroyerWorker
+  class EventsNotDestroyedError < StandardError; end
+
   include Sidekiq::Worker
 
   sidekiq_options unique: :until_and_while_executing, queue: :low
@@ -7,14 +9,18 @@ class SchoolCalendarEventBatchDestroyerWorker
     Entity.find(entity_id).using_connection do
       begin
         school_calendar_event_batch = SchoolCalendarEventBatch.find(school_calendar_event_batch_id)
+        destroyed = false
 
         SchoolCalendarEvent.where(batch_id: school_calendar_event_batch.id).each do |event|
           begin
             event.destroy!
+            destroyed = true
           rescue ActiveRecord::RecordNotDestroyed => error
             next
           end
         end
+
+        raise EventsNotDestroyedError unless destroyed
 
         school_calendar_event_batch.destroy!
       rescue StandardError => error
