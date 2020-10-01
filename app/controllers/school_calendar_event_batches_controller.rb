@@ -21,11 +21,7 @@ class SchoolCalendarEventBatchesController < ApplicationController
     authorize @school_calendar_event_batch
 
     if @school_calendar_event_batch.save
-      SchoolCalendarEventBatchCreatorWorker.perform_in(
-        1.second,
-        current_entity.id,
-        @school_calendar_event_batch.id
-      )
+      create_or_update_batch(@school_calendar_event_batch.id)
 
       respond_with @school_calendar_event_batch, location: school_calendar_event_batches_path
     else
@@ -45,11 +41,7 @@ class SchoolCalendarEventBatchesController < ApplicationController
     @school_calendar_event_batch.batch_status = BatchStatus::STARTED
 
     if @school_calendar_event_batch.save
-      SchoolCalendarEventBatchCreatorWorker.perform_in(
-        1.second,
-        current_entity.id,
-        @school_calendar_event_batch.id
-      )
+      create_or_update_batch(@school_calendar_event_batch.id)
 
       respond_with @school_calendar_event_batch, location: school_calendar_event_batches_path
     else
@@ -64,11 +56,7 @@ class SchoolCalendarEventBatchesController < ApplicationController
 
     school_calendar_event_batch.update(batch_status: BatchStatus::STARTED)
 
-    SchoolCalendarEventBatchDestroyerWorker.perform_in(
-      1.second,
-      current_entity.id,
-      school_calendar_event_batch.id
-    )
+    destroy_batch(school_calendar_event_batch.id)
 
     respond_with school_calendar_event_batch, location: school_calendar_event_batches_path
   end
@@ -99,5 +87,21 @@ class SchoolCalendarEventBatchesController < ApplicationController
 
     parameters[:periods] = parameters[:periods].split(',')
     parameters
+  end
+
+  def create_or_update_batch(school_calendar_event_batch_id)
+    SchoolCalendarEventBatchCreatorWorker.perform_in(
+      1.second,
+      current_entity.id,
+      school_calendar_event_batch_id
+    )
+  end
+
+  def destroy_batch(school_calendar_event_batch_id)
+    SchoolCalendarEventBatchDestroyerWorker.perform_in(
+      1.second,
+      current_entity.id,
+      school_calendar_event_batch_id
+    )
   end
 end
