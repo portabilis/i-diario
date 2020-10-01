@@ -10,16 +10,18 @@ class SchoolCalendarEventBatchCreatorWorker
 
         SchoolCalendar.by_year(school_calendar_event_batch.year).each do |school_calendar|
           begin
-            SchoolCalendarEvent.find_or_create_by!(
+            SchoolCalendarEvent.find_or_initialize_by(
               school_calendar_id: school_calendar.id,
-              description: school_calendar_event_batch.description,
-              start_date: school_calendar_event_batch.start_date,
-              end_date: school_calendar_event_batch.end_date,
-              event_type: school_calendar_event_batch.event_type,
-              legend: school_calendar_event_batch.legend,
-              show_in_frequency_record: school_calendar_event_batch.show_in_frequency_record,
               batch_id: school_calendar_event_batch.id
-            )
+            ).tap do |event|
+              event.description = school_calendar_event_batch.description
+              event.start_date = school_calendar_event_batch.start_date
+              event.end_date = school_calendar_event_batch.end_date
+              event.event_type = school_calendar_event_batch.event_type
+              event.legend = school_calendar_event_batch.legend
+              event.show_in_frequency_record = school_calendar_event_batch.show_in_frequency_record
+              event.save! if event.changed?
+            end
           rescue ActiveRecord::RecordInvalid => error
             next
           end

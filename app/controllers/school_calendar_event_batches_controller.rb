@@ -33,6 +33,30 @@ class SchoolCalendarEventBatchesController < ApplicationController
     end
   end
 
+  def edit
+    @school_calendar_event_batch = SchoolCalendarEventBatch.find(params[:id])
+
+    authorize @school_calendar_event_batch
+  end
+
+  def update
+    @school_calendar_event_batch = SchoolCalendarEventBatch.find(params[:id])
+    @school_calendar_event_batch.assign_attributes(resource_params)
+    @school_calendar_event_batch.batch_status = BatchStatus::STARTED
+
+    if @school_calendar_event_batch.save
+      SchoolCalendarEventBatchCreatorWorker.perform_in(
+        1.second,
+        current_entity.id,
+        @school_calendar_event_batch.id
+      )
+
+      respond_with @school_calendar_event_batch, location: school_calendar_event_batches_path
+    else
+      render :edit
+    end
+  end
+
   def destroy
     school_calendar_event_batch = SchoolCalendarEventBatch.find(params[:id])
 
