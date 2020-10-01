@@ -1,8 +1,6 @@
 class SchoolCalendarEventBatch < ActiveRecord::Base
   audited
 
-  include Filterable
-
   has_many :school_calendar_events, dependent: :destroy
 
   has_enumeration_for :event_type, with: EventTypes
@@ -22,6 +20,18 @@ class SchoolCalendarEventBatch < ActiveRecord::Base
   }
 
   scope :ordered, -> { order(:start_date) }
+  scope :by_year, ->(year) { where(year: year) }
+  scope :by_type, ->(type) { where(event_type: type) }
+  scope :by_status, ->(status) { where(batch_status: status) }
+  scope :by_date, lambda { |date|
+    where(
+      '? BETWEEN school_calendar_event_batches.start_date AND school_calendar_event_batches.end_date',
+      date.to_date
+    )
+  }
+  scope :by_description, lambda { |description|
+    where('unaccent(school_calendar_event_batches.description) ILIKE unaccent(?)', "%#{description}%")
+  }
 
   def mark_with_error!(message)
     update(
