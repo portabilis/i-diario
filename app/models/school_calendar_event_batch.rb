@@ -1,7 +1,7 @@
 class SchoolCalendarEventBatch < ActiveRecord::Base
   audited
 
-  has_many :school_calendar_events, dependent: :destroy
+  has_many :school_calendar_events, dependent: :destroy, foreign_key: 'batch_id'
 
   has_enumeration_for :event_type, with: EventTypes
   has_enumeration_for :batch_status, with: BatchStatus, create_helpers: true

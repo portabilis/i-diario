@@ -33,6 +33,22 @@ class SchoolCalendarEventBatchesController < ApplicationController
     end
   end
 
+  def destroy
+    school_calendar_event_batch = SchoolCalendarEventBatch.find(params[:id])
+
+    authorize school_calendar_event_batch
+
+    school_calendar_event_batch.update(batch_status: BatchStatus::STARTED)
+
+    SchoolCalendarEventBatchDestroyerWorker.perform_in(
+      1.second,
+      current_entity.id,
+      school_calendar_event_batch.id
+    )
+
+    respond_with school_calendar_event_batch, location: school_calendar_event_batches_path
+  end
+
   def school_calendar_years
     years = []
 
