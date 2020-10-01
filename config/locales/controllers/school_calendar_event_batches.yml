@@ -4,3 +4,5 @@ pt-BR:
       by_date: "Filtrar data"
       by_description: "Filtrar descrição"
       by_type: "Filtrar tipo"
+      by_year: "Filtrar ano"
+      by_status: "Filtrar status"

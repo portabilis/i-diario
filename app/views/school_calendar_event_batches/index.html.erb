@@ -1,0 +1,43 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for :filter, { url: school_calendar_event_batches_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+  <div class="table-responsive">
+    <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+      <thead>
+        <tr>
+          <td style="width: 180px"><%= f.input :by_year, label: false, as: :select2, elements: school_calendar_years, placeholder: t('.by_year') %></td>
+          <td style="width: 180px"><%= f.input :by_date, as: :date, label: false, placeholder: t('.by_date') %></td>
+          <td><%= f.input :by_description, label: false, placeholder: t('.by_description') %></td>
+          <td><%= f.input :by_type, label: false, as: :select2, elements: EventTypes.to_select.to_json, placeholder: t('.by_type') %></td>
+          <td><%= f.input :by_status, label: false, as: :select2, elements: BatchStatus.to_select.to_json, placeholder: t('.by_status') %></td>
+          <td style="width: 160px">
+            <%= link_to new_school_calendar_event_batch_path, class: "btn btn-primary pul" do %>
+              <%= t('.new_html') %>
+            <% end %>
+          </td>
+        </tr>
+        <tr>
+          <th><%= SchoolCalendarEventBatch.human_attribute_name :year %></th>
+          <th><%= SchoolCalendarEventBatch.human_attribute_name :duration %></th>
+          <th><%= SchoolCalendarEventBatch.human_attribute_name :description %></th>
+          <th><%= SchoolCalendarEventBatch.human_attribute_name :event_type %></th>
+          <th><%= SchoolCalendarEventBatch.human_attribute_name :batch_status %></th>
+          <th></th>
+        </tr>
+      </thead>
+
+      <%= render 'resources' %>
+
+      <tfoot id="paginator" class="remote">
+        <td colspan="6">
+          <div id="page_entries_info" class="pull-left hidden-xs">
+            <%= page_entries_info @school_calendar_event_batches %>
+          </div>
+          <div class="pull-right">
+            <%= paginate @school_calendar_event_batches %>
+          </div>
+        </td>
+      </tfoot>
+    </table>
+  </div>
+  <% end %>
+</div>

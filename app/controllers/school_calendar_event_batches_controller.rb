@@ -3,8 +3,61 @@ class SchoolCalendarEventBatchesController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @event_batches = apply_scopes(SchoolCalendarEventBatch).ordered
+    @school_calendar_event_batches = apply_scopes(SchoolCalendarEventBatch).ordered
 
-    authorize @event_batches
+    authorize @school_calendar_event_batches
+  end
+
+  def new
+    @school_calendar_event_batch = SchoolCalendarEventBatch.new
+
+    authorize @school_calendar_event_batch
+  end
+
+  def create
+    @school_calendar_event_batch = SchoolCalendarEventBatch.new(resource_params)
+    @school_calendar_event_batch.batch_status = BatchStatus::STARTED
+
+    authorize @school_calendar_event_batch
+
+    if @school_calendar_event_batch.save
+      SchoolCalendarEventBatchCreatorWorker.perform_in(
+        1.second,
+        current_entity.id,
+        @school_calendar_event_batch.id
+      )
+
+      respond_with @school_calendar_event_batch, location: school_calendar_event_batches_path
+    else
+      render :new
+    end
+  end
+
+  def school_calendar_years
+    years = []
+
+    Unity.with_api_code
+         .joins(:school_calendars)
+         .pluck('school_calendars.year')
+         .uniq
+         .compact
+         .sort
+         .reverse_each do |year|
+      years << OpenStruct.new(id: year, text: year, name: year)
+    end
+
+    years
+  end
+  helper_method :school_calendar_years
+
+  private
+
+  def resource_params
+    parameters = params.require(:school_calendar_event_batch).permit(
+      :year, :periods, :description, :start_date, :end_date, :event_type, :legend, :show_in_frequency_record
+    )
+
+    parameters[:periods] = parameters[:periods].split(',')
+    parameters
   end
 end
