@@ -9,9 +9,13 @@ class SchoolCalendarEventBatchDestroyerWorker
     Entity.find(entity_id).using_connection do
       begin
         school_calendar_event_batch = SchoolCalendarEventBatch.find(school_calendar_event_batch_id)
+        events = SchoolCalendarEvent.where(batch_id: school_calendar_event_batch.id)
+
+        return if events.blank? && school_calendar_event_batch.destroy!
+
         destroyed = false
 
-        SchoolCalendarEvent.where(batch_id: school_calendar_event_batch.id).each do |event|
+        events.each do |event|
           begin
             event.destroy!
             destroyed = true

@@ -1,4 +1,6 @@
 class SchoolCalendarEventBatchCreatorWorker
+  class EventsNotCreatedError < StandardError; end
+
   include Sidekiq::Worker
 
   sidekiq_options unique: :until_and_while_executing, queue: :low
@@ -7,6 +9,7 @@ class SchoolCalendarEventBatchCreatorWorker
     Entity.find(entity_id).using_connection do
       begin
         school_calendar_event_batch = SchoolCalendarEventBatch.find(school_calendar_event_batch_id)
+        created = false
 
         SchoolCalendar.by_year(school_calendar_event_batch.year).each do |school_calendar|
           begin
@@ -21,11 +24,15 @@ class SchoolCalendarEventBatchCreatorWorker
               event.legend = school_calendar_event_batch.legend
               event.show_in_frequency_record = school_calendar_event_batch.show_in_frequency_record
               event.save! if event.changed?
+
+              created = true
             end
           rescue ActiveRecord::RecordInvalid => error
             next
           end
         end
+
+        raise EventsNotCreatedError unless created
 
         school_calendar_event_batch.update(batch_status: BatchStatus::COMPLETED)
       rescue StandardError => error
