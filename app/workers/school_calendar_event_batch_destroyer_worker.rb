@@ -7,6 +7,15 @@ class SchoolCalendarEventBatchDestroyerWorker
     Entity.find(entity_id).using_connection do
       begin
         school_calendar_event_batch = SchoolCalendarEventBatch.find(school_calendar_event_batch_id)
+
+        SchoolCalendarEvent.where(batch_id: school_calendar_event_batch.id).each do |event|
+          begin
+            event.destroy!
+          rescue ActiveRecord::RecordNotDestroyed => error
+            next
+          end
+        end
+
         school_calendar_event_batch.destroy!
       rescue StandardError => error
         school_calendar_event_batch.mark_with_error!(error.message)
