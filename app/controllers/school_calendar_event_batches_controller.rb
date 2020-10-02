@@ -90,7 +90,7 @@ class SchoolCalendarEventBatchesController < ApplicationController
   end
 
   def create_or_update_batch(school_calendar_event_batch_id)
-    SchoolCalendarEventBatchCreatorWorker.perform_in(
+    SchoolCalendarEventBatchManager::EventCreatorWorker.perform_in(
       1.second,
       current_entity.id,
       school_calendar_event_batch_id,
@@ -99,7 +99,7 @@ class SchoolCalendarEventBatchesController < ApplicationController
   end
 
   def destroy_batch(school_calendar_event_batch_id)
-    SchoolCalendarEventBatchDestroyerWorker.perform_in(
+    SchoolCalendarEventBatchManager::EventDestroyerWorker.perform_in(
       1.second,
       current_entity.id,
       school_calendar_event_batch_id,
