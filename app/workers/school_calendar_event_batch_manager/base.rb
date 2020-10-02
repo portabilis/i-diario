@@ -6,15 +6,13 @@ module SchoolCalendarEventBatchManager
 
     protected
 
-    def notify(message, user_id)
-      notification = SystemNotification.create!(
-        generic: true,
-        source_type: 'SchoolCalendarEventBatch',
+    def notify(source, message, user_id)
+      SystemNotificationCreator.create!(
+        source: source,
         title: I18n.t('navigation.school_calendar_event_batches'),
-        description: message
+        description: message,
+        users: [User.find(user_id)]
       )
-
-      notification.targets.create!(user: User.find(user_id))
     end
   end
 end

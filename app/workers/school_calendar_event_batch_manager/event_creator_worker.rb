@@ -2,8 +2,6 @@ module SchoolCalendarEventBatchManager
   class EventCreatorWorker < Base
     class EventsNotCreatedError < StandardError; end
 
-    EVENT_NOT_CREATED = 'Não foi possível criar o evento'.freeze
-
     def perform(entity_id, school_calendar_event_batch_id, user_id)
       Entity.find(entity_id).using_connection do
         begin
@@ -28,7 +26,12 @@ module SchoolCalendarEventBatchManager
               end
             rescue ActiveRecord::RecordInvalid
               unity_name = Unity.find_by(id: school_calendar.unity_id)&.name
-              notify("#{EVENT_NOT_CREATED}: #{school_calendar_event_batch.description} em #{unity_name}", user_id)
+              notify(
+                school_calendar_event_batch,
+                "A criação do evento #{school_calendar_event_batch.description} não foi efetuada para a escola\
+                #{unity_name} pois a mesma já possui um evento na data #{school_calendar_event_batch.start_date}.",
+                user_id
+              )
 
               next
             end
@@ -37,6 +40,11 @@ module SchoolCalendarEventBatchManager
           raise EventsNotCreatedError unless created
 
           school_calendar_event_batch.update(batch_status: BatchStatus::COMPLETED)
+          notify(
+            school_calendar_event_batch,
+            "A criação do evento em lote #{school_calendar_event_batch.description} foi finalizada.",
+            user_id
+          )
         rescue StandardError => error
           school_calendar_event_batch.mark_with_error!(error.message)
         end

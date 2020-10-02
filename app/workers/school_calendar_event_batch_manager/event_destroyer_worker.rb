@@ -21,7 +21,11 @@ module SchoolCalendarEventBatchManager
               destroyed = true
             rescue ActiveRecord::RecordNotDestroyed
               unity_name = Unity.find_by(id: school_calendar.unity_id)&.name
-              notify("#{EVENT_NOT_DESTROYED}: #{school_calendar_event_batch.description} em #{unity_name}", user_id)
+              notify(
+                school_calendar_event_batch,
+                "#{EVENT_NOT_DESTROYED}: #{school_calendar_event_batch.description} em #{unity_name}",
+                user_id
+              )
 
               next
             end
