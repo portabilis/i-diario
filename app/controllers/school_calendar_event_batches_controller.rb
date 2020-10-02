@@ -93,7 +93,8 @@ class SchoolCalendarEventBatchesController < ApplicationController
     SchoolCalendarEventBatchCreatorWorker.perform_in(
       1.second,
       current_entity.id,
-      school_calendar_event_batch_id
+      school_calendar_event_batch_id,
+      current_user.id
     )
   end
 
@@ -101,7 +102,8 @@ class SchoolCalendarEventBatchesController < ApplicationController
     SchoolCalendarEventBatchDestroyerWorker.perform_in(
       1.second,
       current_entity.id,
-      school_calendar_event_batch_id
+      school_calendar_event_batch_id,
+      current_user.id
     )
   end
 end
