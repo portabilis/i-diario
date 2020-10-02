@@ -61,6 +61,7 @@ class User < ActiveRecord::Base
   validates :email, email: true, allow_blank: true
   validates :password, length: { minimum: 8 }, allow_blank: true
   validates :login, uniqueness: true, allow_blank: true
+  validates :teacher_id, uniqueness: true, allow_blank: true
   validates :student, presence: true, if: :only_student?
 
   validates_associated :user_roles
