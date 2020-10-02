@@ -12,7 +12,7 @@
               </td>
               <td></td>
               <td class="actions" style="width: <%= @school_calendars.any? ? 230 : 130 %>px">
-                <% if current_user.admin? %>
+                <% if current_user.roles.any? { |role| role.administrator? } %>
                   <%= link_to 'Eventos em lote',
                               school_calendar_event_batches_path,
                               class: "btn btn-info pull-right" %>
