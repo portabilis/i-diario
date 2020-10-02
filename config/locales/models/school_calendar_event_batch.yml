@@ -1,5 +1,10 @@
 pt-BR:
   activerecord:
+    models:
+      school_calendar_event_batch:
+        one: 'Evento em lote'
+        other: 'Eventos em lote'
+
     attributes:
       school_calendar_event_batch:
         year: "Ano letivo"

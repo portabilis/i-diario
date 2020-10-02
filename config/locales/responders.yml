@@ -73,6 +73,12 @@ pt-BR:
     school_calendar_events:
       <<: *male
 
+    school_calendar_event_batches:
+      create:
+        notice: 'Os eventos estão sendo criados.'
+      destroy:
+        notice: 'Os eventos estão sendo apagados.'
+
     discipline_lesson_plans:
       <<: *male
       destroy:
