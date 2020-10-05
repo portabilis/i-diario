@@ -53,7 +53,7 @@ class CurrentRoleController < ApplicationController
     action = ALL_ROUTES["#{controller}#index#pt-BR"] || ALL_ROUTES["#{controller}#new#pt-BR"]
 
     redirect_to action || root_path
-  rescue ActionController::RoutingError
+  rescue ActionController::RoutingError, ActionController::UrlGenerationError
     redirect_to root_path
   end
 end
