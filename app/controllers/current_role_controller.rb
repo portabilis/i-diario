@@ -2,10 +2,7 @@
 class CurrentRoleController < ApplicationController
   ALL_ROUTES = Rails.application.routes.routes.map { |route|
     if route.verb == /^GET$/ && route.defaults[:locale] == 'pt-BR'
-      [
-        route.defaults.values.join('#'),
-        route.defaults.merge(Hash[(route.parts - [:format]).map { |part| [part, ''] }])
-      ]
+      [route.defaults.values.join('#'), route.defaults]
     end
   }.compact.to_h.freeze
 
@@ -52,13 +49,8 @@ class CurrentRoleController < ApplicationController
   def redirect_to_path(referer)
     ref_route = Rails.application.routes.recognize_path(referer)
     controller = ref_route[:controller]
-    ref_route_params = ref_route.except(:controller, :locale, :action)
 
     action = ALL_ROUTES["#{controller}#index#pt-BR"] || ALL_ROUTES["#{controller}#new#pt-BR"]
-
-    ref_route_params.each do |param, value|
-      action[param] = value if action.key?(param)
-    end
 
     redirect_to action || root_path
   rescue ActionController::RoutingError
