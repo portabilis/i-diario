@@ -18,4 +18,8 @@ class DocUploader < CarrierWave::Uploader::Base
     var = :"@#{mounted_as}_secure_token"
     model.instance_variable_get(var) || model.instance_variable_set(var, SecureRandom.uuid)
   end
+
+  def fog_directory
+    Rails.application.secrets[:BUCKET_NAME]
+  end
 end
