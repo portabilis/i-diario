@@ -1,6 +1,5 @@
 require 'capybara/rspec'
 require 'webdrivers/chromedriver'
-require 'capybara-screenshot/rspec'
 
 module Capybara
   class Session
