@@ -53,6 +53,7 @@ Gemfile.plugins
 # Docker
 docker-compose.override.yml
 
-# Fog
+# Fog & Carrierwave
 config/doc_uploader_fog_*.yml
 config/fog_*.yml
+config/custom_carrierwave.rb

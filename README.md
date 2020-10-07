@@ -144,18 +144,20 @@ O i-Diário tem alguns uploads de arquivos, como anexos e foto de perfil.
 Foi utilizado as gems [Carrierwave](https://github.com/carrierwaveuploader/carrierwave)
 com [Fog](https://github.com/fog/fog).
 
-_**Atenção**: Hoje o app está preparado para usar S3 da AWS, se você quer usar outro serviço, crie o arquivo
- `Gemfile.plugins` e coloque `gem 'fog', '~>1.42.0'`, assim irá usar a gem `fog` completa, dando possibilidade de
- usar outros servidores, como vocês podem ver abaixo._
-
-Para configurar, localmente você deve criar o arquivo `config/fog_{{nome_do_ambiente}}.yml`.
-Caso contrário, irá usar a configuração padrão `config/fog.yml`.
-
 Hoje os uploads só funcionam se conectados a um servidor que irá receber os arquivos.
-Se nenhuma configuração for feita, irá dar erros ao fazer upload de arquivos.
+Se nenhuma configuração for feita para o fog, irá dar erros ao fazer upload de arquivos.
 
 O Fog trabalha com essas [opções](https://fog.io/about/provider_documentation.html).
-Basta pesquisar e configurar de forma adequada.
+
+Para adicionar o `fog`, crie o arquivo `Gemfile.plugins`, que irá ter gems customizadas.
+
+Dentro do `Gemfile.plugins` você tem alguns opções.
+
+1 - Trabalho com AWS s3: `gem 'fog-aws', '~>3.6.7'`
+2- Trabalho com outra opção: `gem 'fog', '~>1.42.0'`
+
+Para configurar, localmente você deve criar também o arquivo `config/fog_{{nome_do_ambiente}}.yml`.
+Caso contrário, irá usar a configuração padrão `config/fog.yml`.
 
 Um exemplo de configuração quando usado o S3 da AWS `fog_development.yml`:
 
@@ -174,6 +176,9 @@ pode usar a secret `DOC_UPLOADER_FOG_DIRECTORY` e os arquivos:
 - `doc_uploader_fog_development.yml`
 - `doc_uploader_fog_staging.yml`
 - `doc_uploader_fog_production.yml`
+
+Se você não quer usar o fog, pode configurar o Carrierwave do jeito que achar melhor, bastando criar um arquivo
+de configuração em `config/custom_carrierwave.rb` e fazer os ajustes.
 
 * Inicie o servidor:
 
