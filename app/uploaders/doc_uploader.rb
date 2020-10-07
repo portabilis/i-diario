@@ -1,20 +1,4 @@
 class DocUploader < CarrierWave::Uploader::Base
-  FOG_CONFIG =
-    begin
-      config_file =
-        if File.exist? Rails.root.join('config', "doc_uploader_fog_#{Rails.env}.yml")
-          Rails.root.join('config', "doc_uploader_fog_#{Rails.env}.yml")
-        elsif File.exist? Rails.root.join('config', "fog_#{Rails.env}.yml")
-          Rails.root.join('config', "fog_#{Rails.env}.yml")
-        else
-          Rails.root.join('config', 'fog.yml')
-        end
-
-      YAML.safe_load(
-        File.open(config_file)
-      ).with_indifferent_access
-    end
-
   def store_dir
     "#{Rails.env}/#{model.class.to_s.underscore}/#{model.id}"
   end
@@ -28,12 +12,17 @@ class DocUploader < CarrierWave::Uploader::Base
     "#{original} - #{secure_token}.#{file.extension}" if original_filename.present?
   end
 
-  def fog_directory
-    Rails.application.secrets[:DOC_UPLOADER_FOG_DIRECTORY] || Rails.application.secrets[:FOG_DIRECTORY]
+  def aws_bucket
+    Rails.application.secrets[:DOC_UPLOADER_AWS_BUCKET] || Rails.application.secrets[:AWS_BUCKET]
   end
 
-  def fog_credentials
-    FOG_CONFIG
+  def aws_credentials
+    {
+      access_key_id:     Rails.application.secrets['DOC_UPLOADER_AWS_ACCESS_KEY_ID'],
+      secret_access_key: Rails.application.secrets['DOC_UPLOADER_AWS_SECRET_ACCESS_KEY'],
+      region:            Rails.application.secrets['DOC_UPLOADER_AWS_REGION'],
+      stub_responses:    Rails.env.test?
+    }
   end
 
   protected

@@ -142,43 +142,39 @@ bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitu
 
 O i-Diário tem alguns uploads de arquivos, como anexos e foto de perfil.
 Foi utilizado as gems [Carrierwave](https://github.com/carrierwaveuploader/carrierwave)
-com [Fog](https://github.com/fog/fog).
+com [carrierwave-aws](https://github.com/sorentwo/carrierwave-aws).
 
-Hoje os uploads só funcionam se conectados a um servidor que irá receber os arquivos.
-Se nenhuma configuração for feita para o fog, irá dar erros ao fazer upload de arquivos.
+Hoje, se não há configuração para usar a AWS S3, irá salvar os arquivos localmente.
+
+Para usar AWS S3, basta colocar no secrets as seguintes chaves, alterando para valores reais:
+
+```yaml
+AWS_ACCESS_KEY_ID: 'xxx'
+AWS_SECRET_ACCESS_KEY: 'xxx'
+AWS_REGION: 'us-east-1'
+AWS_BUCKET: 'bucket_name'
+```
+
+Se quiser customizar para onde vai o upload de documentos, caso queira mandar para um lugar diferente das imagens
+pode usar as secrets abaixo:
+
+```yaml
+DOC_UPLOADER_AWS_ACCESS_KEY_ID: 'xxx'
+DOC_UPLOADER_AWS_SECRET_ACCESS_KEY: 'xxx'
+DOC_UPLOADER_AWS_REGION: 'us-east-1'
+DOC_UPLOADER_AWS_BUCKET: 'bucket_name'
+```
+
+Caso você queira usar outro meio de fazer upload de arquivos, recomendamos dar uma olhada no
+ [Fog](https://github.com/fog/fog).
 
 O Fog trabalha com essas [opções](https://fog.io/about/provider_documentation.html).
 
-Para adicionar o `fog`, crie o arquivo `Gemfile.plugins`, que irá ter gems customizadas.
+Para adicionar o `fog`, crie o arquivo `Gemfile.plugins`, que irá ter gems customizadas, e coloque a gem
+`gem 'fog', '~>1.42.0'`.
 
-Dentro do `Gemfile.plugins` você tem alguns opções.
-
-1 - Trabalho com AWS s3: `gem 'fog-aws', '~>3.6.7'`
-2- Trabalho com outra opção: `gem 'fog', '~>1.42.0'`
-
-Para configurar, localmente você deve criar também o arquivo `config/fog_{{nome_do_ambiente}}.yml`.
-Caso contrário, irá usar a configuração padrão `config/fog.yml`.
-
-Um exemplo de configuração quando usado o S3 da AWS `fog_development.yml`:
-
-```yaml
-provider: 'AWS'
-aws_access_key_id: 'xxx'
-aws_secret_access_key: 'xxx'
-```
-
-Com a secret `FOG_DIRECTORY=uploads`, que no caso do `S3`, é o Bucket.
-
-Em produção ou staging, deve-se ter os arquivos `fog_production.yml` ou `fog_staging.yml`.
-
-Se quiser customizar para onde vai o upload de documentos, caso queira mandar para um lugar diferente das imagens
-pode usar a secret `DOC_UPLOADER_FOG_DIRECTORY` e os arquivos:
-- `doc_uploader_fog_development.yml`
-- `doc_uploader_fog_staging.yml`
-- `doc_uploader_fog_production.yml`
-
-Se você não quer usar o fog, pode configurar o Carrierwave do jeito que achar melhor, bastando criar um arquivo
-de configuração em `config/custom_carrierwave.rb` e fazer os ajustes.
+Uma vez adicionada a gem `fog`, basta criar um arquivo de configuração em `config/custom_carrierwave.rb`
+ e fazer os ajustes para funcionar. Leia atentamente a documentação do `carrierwave` antes de fazer isso.
 
 * Inicie o servidor:
 
