@@ -1,6 +1,6 @@
 class DocUploader < CarrierWave::Uploader::Base
   def store_dir
-    "#{Rails.env}/#{model.class.to_s.underscore}/#{model.id}"
+    "#{Rails.env}/#{model.class.to_s.underscore.pluralize}/#{model.id}"
   end
 
   def extension_white_list
