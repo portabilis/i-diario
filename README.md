@@ -144,6 +144,10 @@ O i-Diário tem alguns uploads de arquivos, como anexos e foto de perfil.
 Foi utilizado as gems [Carrierwave](https://github.com/carrierwaveuploader/carrierwave)
 com [Fog](https://github.com/fog/fog).
 
+_**Atenção**: Hoje o app está preparado para usar S3 da AWS, se você quer usar outro serviço, crie o arquivo
+ `Gemfile.plugins` e coloque `gem 'fog', '~>1.42.0'`, assim irá usar a gem `fog` completa, dando possibilidade de
+ usar outros servidores, como vocês podem ver abaixo._
+
 Para configurar, localmente você deve criar o arquivo `config/fog_{{nome_do_ambiente}}.yml`.
 Caso contrário, irá usar a configuração padrão `config/fog.yml`.
 
