@@ -29,7 +29,7 @@ class DocUploader < CarrierWave::Uploader::Base
   end
 
   def fog_directory
-    Rails.application.secrets[:DOC_UPLOADER_FOG_DIRECTORY]
+    Rails.application.secrets[:DOC_UPLOADER_FOG_DIRECTORY] || Rails.application.secrets[:FOG_DIRECTORY]
   end
 
   def fog_credentials
