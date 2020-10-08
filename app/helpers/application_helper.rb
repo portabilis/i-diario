@@ -80,9 +80,12 @@ module ApplicationHelper
   end
 
   def user_avatar_url(user)
-    Rails.cache.fetch [:user_avatar_url, current_entity.id, user.cache_key] do
-      user.profile_picture&.url ||
-        IeducarAvatarAuth.new(user.student&.avatar_url.to_s).generate_new_url.presence ||
+    user_avatar = user.profile_picture&.url
+    student_avatar = user.student&.avatar_url.to_s
+    cache_key = [:user_avatar_url, current_entity.id, user.id, user_avatar, student_avatar]
+    Rails.cache.fetch cache_key, expires_in: 1.day do
+      user_avatar ||
+        IeducarAvatarAuth.new(student_avatar).generate_new_url.presence ||
         PROFILE_DEFAULT_PICTURE_PATH
     end
   end
