@@ -113,7 +113,6 @@ development:
   SMTP_USER_NAME: SMTP_USER_NAME
   SMTP_PASSWORD: SMTP_PASSWORD
   NO_REPLY_ADDRESS: NO_REPLY_ADDRESS
-  FOG_DIRECTORY: 'uploads'
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
