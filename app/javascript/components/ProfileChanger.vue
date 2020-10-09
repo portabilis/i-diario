@@ -39,7 +39,7 @@
                            :any-component-loading="anyComponentLoading"></b-teacher-profile>
 
         <div class="role-selector">
-          <button :disabled="!validForm" class="btn btn-sm bg-color-blueDark txt-color-white">
+          <button v-show="this.submitAble()" :disabled="!validForm" class="btn btn-sm bg-color-blueDark txt-color-white">
             Alterar perfil
           </button>
           <a class="btn btn-sm bg-color-white txt-color-blueDark role-cancel">Cancelar</a>
@@ -84,12 +84,13 @@ export default {
         discipline: false,
         profile: false
       },
-      role: null
+      role: null,
+      roles: null
     }
   },
   computed: {
     validForm () {
-      if (this.role && (this.role.role_access_level === "student" || this.role.role_access_level === "parent")) {
+      if (this.isStudentOrParent) {
         return true
       } else if (this.byTeacherProfile) {
         return this.isRoleValid &&
@@ -112,11 +113,21 @@ export default {
     },
     byTeacherProfile () {
       return this.profiles && this.profiles.length > 0 && this.profiles.length <= 15
+    },
+    isStudentOrParent () {
+      return this.role && (this.role.role_access_level === "student" || this.role.role_access_level === "parent")
     }
   },
   methods: {
-    isValid(data) {
+    isValid (data) {
       return !!data && (!data.required || !!data.selected)
+    },
+    submitAble () {
+      if (this.isStudentOrParent) {
+        return this.roles.length > 1
+      }
+
+      return true
     }
   },
   components: {
@@ -133,6 +144,7 @@ export default {
       this.isRoleValid = this.isValid(roleData)
       this.loading.role = roleData.isLoading
       this.role = roleData.selected
+      this.roles = roleData.options
     })
     EventBus.$on("set-unity", (unityData) => {
       this.isUnityValid = this.isValid(unityData)
