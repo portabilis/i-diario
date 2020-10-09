@@ -52,3 +52,6 @@ Gemfile.plugins
 
 # Docker
 docker-compose.override.yml
+
+# Carrierwave
+config/initializers/custom_carrierwave.rb

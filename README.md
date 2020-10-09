@@ -1,6 +1,5 @@
 [![Latest Release](https://img.shields.io/github/release/portabilis/i-diario.svg?label=latest%20release)](https://github.com/portabilis/i-diario/releases)
 [![Maintainability](https://api.codeclimate.com/v1/badges/92cee0c65548b4b4653b/maintainability)](https://codeclimate.com/github/portabilis/i-diario/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/92cee0c65548b4b4653b/test_coverage)](https://codeclimate.com/github/portabilis/i-diario/test_coverage)
 
 # i-Diário
 
@@ -8,15 +7,13 @@ Portal do professor integrado com o software livre [i-Educar](https://github.com
 
 ## Comunicação
 
-Acreditamos que o sucesso do projeto depende diretamente da interação clara e
-objetiva entre os membros da Comunidade. Por isso, estamos definindo algumas
-políticas para que estas interações nos ajudem a crescer juntos! Você pode
-consultar algumas destas boas práticas em nosso [código de
-conduta](https://github.com/portabilis/i-diario/blob/master/CODE_OF_CONDUCT.md).
+Acreditamos que o sucesso do projeto depende diretamente da interação clara e objetiva entre os membros da
+Comunidade. Por isso, estamos definindo algumas políticas para que estas interações nos ajudem a crescer juntos!
+Você pode consultar algumas destas boas práticas em nosso
+[código de conduta](https://github.com/portabilis/i-diario/blob/master/CODE_OF_CONDUCT.md).
 
-Além disso, gostamos de meios de comunicação assíncrona, onde não há necessidade de
-respostas em tempo real. Isso facilita a produtividade individual dos
-colaboradores do projeto.
+Além disso, gostamos de meios de comunicação assíncrona, onde não há necessidade de respostas em tempo real. Isso
+facilita a produtividade individual dos colaboradores do projeto.
 
 | Canal de comunicação | Objetivos |
 |----------------------|-----------|
@@ -24,8 +21,8 @@ colaboradores do projeto.
 | [Issues do Github](https://github.com/portabilis/i-diario/issues/new/choose) | - Sugestão de novas funcionalidades<br> - Reportar bugs<br> - Discussões técnicas |
 | [Telegram](https://t.me/ieducar ) | - Comunicar novidades sobre o projeto<br> - Movimentar a comunidade<br>  - Falar tópicos que **não** demandem discussões profundas |
 
-Qualquer outro grupo de discussão não é reconhecido oficialmente pela
-comunidade i-Educar e não terá suporte da Portabilis - mantenedora do projeto.
+Qualquer outro grupo de discussão não é reconhecido oficialmente pela comunidade i-Educar e não terá suporte da
+Portabilis - mantenedora do projeto.
 
 ## Instalação
 
@@ -36,26 +33,27 @@ Há duas formas de fazer a instalação:
 
 ### Instalação utilizando Docker
 
-> ATENÇÃO: Essa forma de instação tem o objetivo de facilitar demonstrações e desenvolvimento. Não é recomendado para
-> ambientes de produção!
+> ATENÇÃO: Essa forma de instação tem o objetivo de facilitar demonstrações e desenvolvimento. Não é recomendado
+> para ambientes de produção!
 
 Para instalar o projeto execute todos os passos abaixo.
 
-Clone o repositório:
+* Clone o repositório:
 
 ```bash
 git clone https://github.com/portabilis/i-diario.git && cd i-diario
 ```
 
-Faça o build das imagens Docker utilizadas no projeto (pode levar alguns minutos) e inicie os containers da aplicação:
+* Faça o build das imagens Docker utilizadas no projeto (pode levar alguns minutos) e inicie os containers da
+aplicação:
 
 ```bash
 docker-compose up -d --build
 ```
 
-Use o comando `docker-compose logs -f app` para acompanhar o log da aplicação.
+* Use o comando `docker-compose logs -f app` para acompanhar o log da aplicação.
 
-Aguarde a instalação finalizar até algo similar aparecer na tela:
+* Aguarde a instalação finalizar até algo similar aparecer na tela:
 
 ```log
 idiario     | => Ctrl-C to shutdown server
@@ -77,7 +75,8 @@ dos serviços ou o mapeamento dos volumes extras para a aplicação.
 
 ### Instalação em Servidor (Testado no Ubuntu 18.04)
 
-- Instale o Ruby 2.3.7 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv) ou [Rvm](https://rvm.io/))
+- Instale o Ruby 2.3.7 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv)
+ ou [Rvm](https://rvm.io/))
 - Instale o Postgres e faça a configuração em `database.yml`
 - Instale a biblioteca `libpq-dev`
 
@@ -114,19 +113,9 @@ development:
   SMTP_USER_NAME: SMTP_USER_NAME
   SMTP_PASSWORD: SMTP_PASSWORD
   NO_REPLY_ADDRESS: NO_REPLY_ADDRESS
-  BUCKET_NAME: S3_BUCKET_NAME
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
-
-- Crie e configure o arquivo `config/aws.yml` conforme o exemplo:
-
-```yaml
-development:
-  access_key_id: AWS_ACCESS_KEY_ID
-  secret_access_key: AWS_SECRET_ACCESS_KEY
-
-```
 
 - Crie o banco de dados:
 
@@ -135,7 +124,7 @@ bundle exec rake db:create
 bundle exec rake db:migrate
 ```
 
-- Crie as páginas de erro para desenvolvimento:
+- Crie as páginas de erro se baseando nas padrões:
 
 ```bash
 cp public/404.html.sample public/404.html
@@ -148,23 +137,61 @@ cp public/500.html.sample public/500.html
 bundle exec rake entity:setup NAME=prefeitura DOMAIN=localhost DATABASE=prefeitura_diario
 ```
 
-Inicie o servidor:
+- Configure os uploads de arquivos
+
+O i-Diário tem alguns uploads de arquivos, como anexos e foto de perfil.
+Foi utilizado as gems [Carrierwave](https://github.com/carrierwaveuploader/carrierwave)
+com [carrierwave-aws](https://github.com/sorentwo/carrierwave-aws).
+
+Hoje, se não há configuração para usar a AWS S3, irá salvar os arquivos localmente.
+
+Para usar AWS S3, basta colocar no secrets as seguintes chaves, alterando para valores reais:
+
+```yaml
+AWS_ACCESS_KEY_ID: 'xxx'
+AWS_SECRET_ACCESS_KEY: 'xxx'
+AWS_REGION: 'us-east-1'
+AWS_BUCKET: 'bucket_name'
+```
+
+Se quiser customizar para onde vai o upload de documentos, caso queira mandar para um lugar diferente das imagens
+pode usar as secrets abaixo:
+
+```yaml
+DOC_UPLOADER_AWS_ACCESS_KEY_ID: 'xxx'
+DOC_UPLOADER_AWS_SECRET_ACCESS_KEY: 'xxx'
+DOC_UPLOADER_AWS_REGION: 'us-east-1'
+DOC_UPLOADER_AWS_BUCKET: 'bucket_name'
+```
+
+Caso você queira usar outro meio de fazer upload de arquivos, recomendamos dar uma olhada no
+ [Fog](https://github.com/fog/fog).
+
+O Fog trabalha com essas [opções](https://fog.io/about/provider_documentation.html).
+
+Para adicionar o `fog`, crie o arquivo `Gemfile.plugins`, que irá ter gems customizadas, e coloque a gem
+`gem 'fog', '~>1.42.0'`.
+
+Uma vez adicionada a gem `fog`, basta criar um arquivo de configuração em `config/custom_carrierwave.rb`
+ e fazer os ajustes para funcionar. Leia atentamente a documentação do `carrierwave` antes de fazer isso.
+
+* Inicie o servidor:
 
 ```bash
 bundle exec rails server
 ```
 
-Inicie os processos do [sidekiq](#sidekiq)
+* Inicie os processos do [sidekiq](#sidekiq)
 
 ### Primeiro acesso
 
-Antes de realizar o primeiro acesso, crie um usuário administrador:
+* Antes de realizar o primeiro acesso, crie um usuário administrador:
 
 ```bash
 bundle exec rails console
 ```
 
-Crie o usuário administrador, substitua as informações que deseje:
+* Crie o usuário administrador, substitua as informações que deseje:
 
 ```ruby
 Entity.last.using_connection {
@@ -179,10 +206,10 @@ Entity.last.using_connection {
 }
 ```
 
-Agora você poderá acessar o i-Diário na URL [http://localhost:3000](http://localhost:3000) com as credenciais fornecidas
-no passo anterior.
+Agora você poderá acessar o i-Diário na URL [http://localhost:3000](http://localhost:3000) com as credenciais
+fornecidas no passo anterior.
 
-## Sincronização com i-Educar
+### Sincronização com i-Educar
 
 - Para fazer a sincronização entre i-Educar e i-Diário é necessário estar com o Sidekiq rodando;
 - Acessar Configurações > Api de Integraçao e configurar os dados do sincronismo
@@ -190,12 +217,15 @@ no passo anterior.
 - Acessar Calendário letivo, clicar em **Sincronizar** e configurar os calendários
 - Acessar Configurações > Api de Integração
   - Existem dois botões nessa tela:
-    - Sincronizar: Ao clicar nesse botão, será verificado a ultima data de sincronização e somente vai sincronizar os dados inseridos/atualizados/deletados após essa data.
-    - Sincronização completa: Esse botão apenas aparece para o usuário administrador e ao clicar nesse botão, não vai fazer a verificação de data, sincronizando todos os dados de todos os anos.
+    - Sincronizar: Ao clicar nesse botão, será verificado a ultima data de sincronização e somente vai sincronizar
+     os dados inseridos/atualizados/deletados após essa data.
+    - Sincronização completa: Esse botão apenas aparece para o usuário administrador e ao clicar nesse botão,
+     não vai fazer a verificação de data, sincronizando todos os dados de todos os anos.
 
-_Nota: Após esses primeiros passos, recomendamos que a sincronização rode pelo menos diariamente para manter o i-Diário atualizado com o i-Educar_
+_Nota: Após esses primeiros passos, recomendamos que a sincronização rode pelo menos diariamente para manter o
+ i-Diário atualizado com o i-Educar_
 
-## Sidekiq
+### Sidekiq
 
 É a ferramenta usada para rodar comandos em background, sem travar o sistema
 enquanto ele é usado.
@@ -221,7 +251,7 @@ ps -ef | grep sidekiq | grep -v grep | awk '{print $2}' | xargs kill -TERM && sl
 
 Conhece mais sobre o sidekiq [aqui](https://github.com/mperham/sidekiq).
 
-### Sidekiq com mais concorrência
+#### Sidekiq com mais concorrência
 
 Se o município configurado tem muitos envios de faltas e notas para o i-educar,
 é possível iniciar vários processos para aumentar a concorrência.
@@ -255,7 +285,7 @@ para diminuir a carga no i-educar. Então se um professor envia faltas e notas
 para o i-educar, ele irá usar uma fila só sequencial. Se outro professor for
 enviar, ele irá rodar em outra fila (se o random jogar para essa fila.)
 
-## Executar os testes
+### Executar os testes
 
 ```bash
 # (Docker) docker-compose exec app RAILS_ENV=test bundle exec rake db:create
@@ -270,14 +300,15 @@ RAILS_ENV=test bundle exec rake db:migrate
 bin/rspec spec
 ```
 
-## Upgrades
+### Upgrades
 
 ### Upgrade para a versão 1.1.0
 
-Nessa atualização a sincronização entre i-Educar e i-Diário foi completamente reestruturada e com isso o i-Diário passa
-a ter dependência da versão **2.1.18** do i-Educar.
+Nessa atualização a sincronização entre i-Educar e i-Diário foi completamente reestruturada e com isso o i-Diário
+ passa a ter dependência da versão **2.1.18** do i-Educar.
 
-Para o upgrade é necessário atualizar o i-Diário para a versão [1.1.0](https://github.com/portabilis/i-diario/releases/tag/1.1.0).
+Para o upgrade é necessário atualizar o i-Diário para a versão
+ [1.1.0](https://github.com/portabilis/i-diario/releases/tag/1.1.0).
 
 * Executar as migrations:
 
@@ -286,8 +317,8 @@ Para o upgrade é necessário atualizar o i-Diário para a versão [1.1.0](https
 bundle exec rake db:migrate
 ```
 
-* Executar a rake task que irá fazer a atualização do banco de dados e executar a sincronização completa em todas as
-entidades:
+* Executar a rake task que irá fazer a atualização do banco de dados e executar a sincronização completa em todas
+ as entidades:
 
 ```bash
 # (Docker) docker-compose exec app bundle exec rake upgrade:versions:1_1_0
