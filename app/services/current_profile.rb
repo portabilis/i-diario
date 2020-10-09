@@ -132,7 +132,7 @@ class CurrentProfile
       return [] unless GeneralConfiguration.current.grouped_teacher_profile?
       return [] if user.teacher_id.blank?
 
-      teacher_profiles = GroupedDiscipline.by_teacher_unity_and_year(user.teacher_id, unity.id, school_year)
+      teacher_profiles = GroupedDiscipline.by_teacher_unity_and_year(user.teacher_id, unity&.id, school_year)
       teacher_profiles = [] if teacher_profiles.size >= 20
       teacher_profiles
     end
