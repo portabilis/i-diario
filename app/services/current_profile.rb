@@ -27,7 +27,7 @@ class CurrentProfile
 
   def user_roles
     cache 'user_roles' do
-      user.user_roles
+      user.user_roles.to_a
     end
   end
 
@@ -81,7 +81,7 @@ class CurrentProfile
       classrooms = Classroom.by_unity(unity).ordered
       classrooms = classrooms.by_teacher_id(teacher).ordered if teacher.present? && user.teacher?
       classrooms = classrooms.by_year(school_year) if school_year
-      classrooms
+      classrooms.to_a
     end
   end
 
@@ -100,7 +100,7 @@ class CurrentProfile
 
       teachers = Teacher.by_unity_id(unity).by_classroom(classroom).order_by_name
       teachers = teachers.by_year(school_year) if school_year
-      teachers
+      teachers.to_a
     end
   end
 
@@ -119,7 +119,7 @@ class CurrentProfile
       return Discipline.none unless classroom && teacher
 
       Discipline.by_teacher_and_classroom(teacher.id, classroom.id)
-                .grouped_by_knowledge_area
+                .grouped_by_knowledge_area.to_a
     end
   end
 
@@ -132,7 +132,7 @@ class CurrentProfile
       return [] unless GeneralConfiguration.current.grouped_teacher_profile?
       return [] if user.teacher_id.blank?
 
-      teacher_profiles = GroupedDiscipline.by_teacher_unity_and_year(user.teacher_id, unity&.id, school_year)
+      teacher_profiles = GroupedDiscipline.by_teacher_unity_and_year(user.teacher_id, unity&.id, school_year).to_a
       teacher_profiles = [] if teacher_profiles.size >= 20
       teacher_profiles
     end
