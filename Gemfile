@@ -60,11 +60,12 @@ gem 'sidekiq', '5.0.3'
 gem 'sidekiq-unique-jobs', '6.0.22'
 gem 'simple_form', '3.1.0'
 gem 'sinatra', '1.4.6', require: nil
-gem 'therubyracer', '0.12.2'
+gem 'therubyracer', '0.12.3'
 gem 'twitter-bootstrap-rails', '3.2.0'
 gem 'uglifier', '4.1.20'
 gem 'uri_validator', '0.2.0'
 gem 'validates_timeliness', '3.0.14'
+gem 'webpacker', '~> 4.x'
 
 instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
@@ -105,3 +106,4 @@ end
 group :test, :development do
   gem 'bullet', '4.14.10'
 end
+
