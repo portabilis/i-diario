@@ -44,7 +44,7 @@ class CurrentProfile
   end
 
   def unities
-    cache ['unities', user_role&.role_administrator?] do
+    cache ['unities', user_role&.role_administrator?, user_role&.id, unity&.id] do
       return Unity.ordered if user_role&.role_administrator?
 
       [unity].compact
