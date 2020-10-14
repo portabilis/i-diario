@@ -21,12 +21,13 @@ class ApplicationController < ActionController::Base
   #protect_from_forgery with: :exception
   protect_from_forgery with: :null_session
 
-  before_action :set_current_user_defaults, if: :user_signed_in?
   before_action :check_entity_status
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :check_for_notifications, if: :user_signed_in?
   before_action :check_for_current_user_role, if: :user_signed_in?
+  before_action :set_current_unity_id, if: :user_signed_in?
+  before_action :set_current_user_role_id, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -220,6 +221,7 @@ class ApplicationController < ActionController::Base
       current_user_role: current_user.current_user_role,
       current_classroom: current_user.current_classroom,
       current_discipline_id: current_user.current_discipline_id,
+      current_knowledge_area_id: current_user.current_knowledge_area_id,
       current_unity: current_user.current_unity,
       current_teacher: current_user.current_teacher,
       current_school_year: current_user.current_school_year
@@ -290,14 +292,22 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def set_current_user_defaults
-    unless current_user.current_user_role_id
-      user_roles = current_user.user_roles
+  def set_current_user_role_id
+    return if request.xhr?
+    return if current_user.current_user_role_id?
 
-      current_user.current_user_role_id = user_roles.first&.id if user_roles.size == 1
-    end
+    current_user.current_user_role_id = current_user.user_roles.first&.id || return
+    current_user.save
+  end
+
+  def set_current_unity_id
+    return if request.xhr?
+    return unless current_user.current_role_is_admin_or_employee_or_teacher?
+    return if current_user.current_unity_id?
+    return unless current_user.current_user_role_id?
 
     current_user.current_unity_id ||= current_user.current_user_role&.unity_id
+    current_user.save
   end
 
   def current_year_steps

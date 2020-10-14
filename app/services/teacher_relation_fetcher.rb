@@ -15,6 +15,10 @@ class TeacherRelationFetcher
     teacher_discipline_classrooms.by_discipline_id(@discipline_id).exists?
   end
 
+  def exists_knowledge_area_in_relation?
+    teacher_discipline_classrooms.by_knowledge_area_id(@knowledge_areas).exists?
+  end
+
   def exists_classroom_and_discipline_in_relation?
     teacher_discipline_classrooms.by_classroom(@classroom)
                                  .by_discipline_id(@discipline_id)
