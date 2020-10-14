@@ -9,6 +9,7 @@ class User < ActiveRecord::Base
 
   include Audit
   include Filterable
+  include Searchable
 
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
@@ -431,10 +432,8 @@ class User < ActiveRecord::Base
   end
 
   def update_fullname_tokens
-    User.where(id: id).update_all("fullname_tokens = to_tsvector('portuguese', fullname)")
-  end
+    return unless first_name_changed? || last_name_changed?
 
-  def self.split_search(input)
-    input.split.map { |w| "\"#{w}\"" }.join(':* & ') << ':*'
+    User.where(id: id).update_all("fullname_tokens = to_tsvector('portuguese', fullname)")
   end
 end
