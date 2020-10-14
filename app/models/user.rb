@@ -99,13 +99,35 @@ class User < ActiveRecord::Base
   end
 
   def self.to_csv
-    attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Celular"]
+    attributes = [
+      'Nome',
+      'Sobrenome',
+      'E-mail',
+      'Nome de usuário',
+      'Celular',
+      'CPF',
+      'Status',
+      'Aluno vinculado',
+      'Professor Vinculado',
+      'Permissões'
+    ]
 
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.each do |user|
-        csv << [user.first_name, user.last_name, user.email, user.login, user.phone]
+      all.includes(:teacher, :student, user_roles: [:role, :unity]).find_each do |user|
+        csv << [
+          user.first_name,
+          user.last_name,
+          user.email,
+          user.login,
+          user.phone,
+          user.cpf,
+          I18n.t("enumerations.user_status.#{user.status}"),
+          user.student,
+          user.teacher,
+          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact }
+        ]
       end
     end
   end
