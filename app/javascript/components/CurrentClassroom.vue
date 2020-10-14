@@ -1,6 +1,8 @@
 <template>
-  <div id="current-classroom-container" class="project-context" v-if="isLoading || options.length">
-    <span :class="{ required, label: true  }">
+  <div id="current-classroom-container"
+       class="project-context"
+       v-if="displayable">
+    <span :class="{ required, label: true }">
       Turma
     </span>
 
@@ -31,35 +33,47 @@ import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-classroom",
-  props: [ 'anyComponentLoading' ],
+  props: [ 'anyComponentLoading', 'byTeacherProfile' ],
   data() {
     return {
-      options: window.state.available_classrooms,
+      defaultOptions: window.state.available_classrooms,
+      options: [],
+      rawOptions: [],
       selected: window.state.current_classroom,
       isLoading: false,
       role: null,
       unity: null,
-      school_year: null
+      schoolYear: null,
+      required: false
     }
   },
   computed: {
-    required() {
-      return this.role && this.role.role_access_level === 'teacher'
+    displayable () {
+      return (this.isLoading || this.rawOptions.length) && this.schoolYear && !this.byTeacherProfile
     },
     route() {
       let filters = {
-        by_unity: this.unity.id,
-        by_year: this.school_year.id
+        by_unity_id: this.unity.id,
+        by_school_year: this.schoolYear.id
       }
 
       if (this.role.role_access_level === 'teacher') {
         filters['by_teacher_id'] = window.state.teacher_id
       }
 
-      return Routes.classrooms_pt_br_path({ filter: filters, format: 'json' })
+      return Routes.available_classrooms_pt_br_path({ filter: filters, format: 'json' })
     }
   },
   methods: {
+    setOptions(classrooms) {
+      this.rawOptions = classrooms
+
+      if (this.role && this.role.role_access_level !== 'teacher') {
+        this.options = [{}].concat(classrooms)
+      } else {
+        this.options = classrooms
+      }
+    },
     classroomHasBeenSelected(classroom, toFetch = true) {
       EventBus.$emit("set-classroom", this.$data);
 
@@ -69,11 +83,13 @@ export default {
     }
   },
   mounted () {
+    this.setOptions(window.state.available_classrooms)
     this.classroomHasBeenSelected(this.selected, false)
   },
   created () {
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+      this.required = this.role && this.role.role_access_level === 'teacher'
     })
 
     EventBus.$on("set-unity", (unityData) => {
@@ -81,24 +97,26 @@ export default {
     })
 
     EventBus.$on("set-school-year", (schoolYearData) => {
-      this.school_year = schoolYearData.selected
+      this.schoolYear = schoolYearData.selected
     })
 
     EventBus.$on("fetch-classrooms", async (schoolYear) => {
       this.isLoading = true
       this.selected = null
-      this.options = []
+      this.setOptions([])
 
       this.classroomHasBeenSelected(this.selected)
 
       if (schoolYear) {
         await axios
           .get(this.route)
-          .then(response => {
-            this.options = response.data
+          .then(({ data }) => {
+            const classrooms = data.classrooms
 
-            if(response.data.length === 1) {
-              this.selected = response.data[0]
+            this.setOptions(classrooms)
+
+            if(classrooms.length === 1) {
+              this.selected = classrooms[0]
             }
           })
       }

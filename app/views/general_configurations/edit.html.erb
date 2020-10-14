@@ -81,6 +81,15 @@
           <%= f.association :employees_default_role, as: :select2, elements: Role.ordered %>
         </div>
       </div>
+
+      <fieldset class="fieldset">
+        <legend><%= t('.profile_configurations') %></legend>
+        <div class="row">
+          <div class="col col-sm-6">
+            <%= f.input :grouped_teacher_profile, label: false, inline_label: true %>
+          </div>
+        </div>
+      </fieldset>
     </fieldset>
 
     <footer>

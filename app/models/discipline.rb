@@ -18,7 +18,6 @@ class Discipline < ActiveRecord::Base
   audited
 
   belongs_to :knowledge_area
-  has_many :teacher_profiles, dependent: :destroy
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_and_belongs_to_many :absence_justifications
 
@@ -64,9 +63,46 @@ class Discipline < ActiveRecord::Base
   scope :by_teacher_and_classroom, lambda { |teacher_id, classroom_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id }).uniq }
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :order_by_sequence, -> { order(arel_table[:sequence].asc) }
+  scope :by_description, lambda { |description|
+    joins(:knowledge_area)
+      .where(<<-SQL, description: "%#{description}%")
+        CASE
+            WHEN knowledge_areas.group_descriptors THEN unaccent(knowledge_areas.description) ILIKE unaccent(:description)
+            ELSE unaccent(disciplines.description) ILIKE unaccent(:description)
+        END
+      SQL
+  }
 
   def to_s
-    description
+    if knowledge_area.group_descriptors
+      knowledge_area.description
+    else
+      description
+    end
+  end
+
+  def self.grouped_by_knowledge_area
+    joins(:knowledge_area)
+      .select(
+        <<-SQL
+          disciplines.id,
+          disciplines.id discipline_id,
+          knowledge_areas.group_descriptors,
+          knowledge_area_id,
+          CASE
+              WHEN knowledge_areas.group_descriptors THEN knowledge_areas.description
+              ELSE disciplines.description
+          END AS description
+        SQL
+      )
+      .order('description asc')
+      .to_a.group_by { |d| [d.group_descriptors, d.knowledge_area_id] }.map do |group, disciplines|
+        if group[0]
+          disciplines.first
+        else
+          disciplines
+        end
+      end.flatten
   end
 
   private

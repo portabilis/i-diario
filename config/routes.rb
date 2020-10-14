@@ -75,6 +75,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :teacher_profiles, only: :index
+
     resources :system_notifications, only: :index
 
     root 'dashboard#index'
@@ -87,6 +89,13 @@ Rails.application.routes.draw do
     end
 
     post '/current_role', to: 'current_role#set', as: :set_current_role
+    get '/current_role/available_classrooms', to: 'current_role#available_classrooms', as: :available_classrooms
+    get '/current_role/available_disciplines', to: 'current_role#available_disciplines', as: :available_disciplines
+    get '/current_role/available_school_years', to: 'current_role#available_school_years', as: :available_school_years
+    get '/current_role/available_teachers', to: 'current_role#available_teachers', as: :available_teachers
+    get '/current_role/available_unities', to: 'current_role#available_unities', as: :available_unities
+    get '/current_role/available_teacher_profiles', to: 'current_role#available_teacher_profiles', as: :available_teacher_profiles
+
     post '/system_notifications/read_all', to: 'system_notifications#read_all', as: :read_all_notifications
     get '/disabled_entity', to: 'pages#disabled_entity'
 
@@ -206,6 +215,7 @@ Rails.application.routes.draw do
     resources :disciplines, only: [:index] do
       collection do
         get :search
+        get :search_grouped_by_knowledge_area
       end
     end
     resources :knowledge_areas, only: [:index]

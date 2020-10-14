@@ -1,10 +1,21 @@
 <template>
-  <div id="current-discipline-container" class="project-context" v-if="isLoading || options.length">
+  <div id="current-discipline-container"
+       class="project-context"
+       v-if="displayable">
     <span :class="{ required, label: true  }">
-      Disciplina
+      Disciplina / Área de Conhecimento
     </span>
 
-    <input type="hidden" name="user[current_discipline_id]" v-model="selected.id" v-if="selected" />
+    <input type="hidden"
+           name="user[current_knowledge_area_id]"
+           v-model="selected.knowledge_area_id"
+           v-if="selected" />
+
+    <input type="hidden"
+           name="user[current_discipline_id]"
+           v-model="selected.discipline_id"
+           v-if="selected" />
+
     <multiselect v-model="selected"
                  :options="options"
                  :searchable="true"
@@ -31,41 +42,52 @@ import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-discipline",
-  props: [ 'anyComponentLoading' ],
+  props: [ 'anyComponentLoading', 'byTeacherProfile' ],
   data () {
     return {
       options: window.state.available_disciplines,
       selected: window.state.current_discipline,
       isLoading: false,
       classroom: null,
-      role: null
+      role: null,
+      required: false
     }
   },
   computed: {
-    required() {
-      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    displayable () {
+      return (this.isLoading || this.options.length) && this.classroom && !this.byTeacherProfile
     }
   },
   methods: {
+    setRequired() {
+      if (this.classroom && _.isEmpty(this.classroom)) {
+        this.required = false
+        return
+      }
+
+      this.required = this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    },
     disciplineHasBeenSelected() {
       EventBus.$emit("set-discipline", this.$data)
     },
     route (teacher) {
       let filters = {
         by_teacher_id: teacher.id,
-        by_classroom: this.classroom.id,
+        by_classroom_id: this.classroom.id,
       }
 
-      return Routes.search_disciplines_pt_br_path({ filter: filters, format: 'json' })
+      return Routes.available_disciplines_pt_br_path({ filter: filters, format: 'json' })
     }
   },
   created: function () {
     EventBus.$on("set-classroom", (classroomData) => {
       this.classroom = classroomData.selected
+      this.setRequired()
     })
 
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+      this.setRequired()
     })
 
     EventBus.$on("fetch-disciplines", async (teacher) => {
@@ -78,11 +100,11 @@ export default {
       if (teacher) {
         await axios
           .get(this.route(teacher))
-          .then(response => {
-            this.options = response.data.disciplines
+          .then(({ data }) => {
+            this.options = data.disciplines
 
-            if (response.data.disciplines.length === 1) {
-              this.selected = response.data.disciplines[0]
+            if (this.options.length === 1) {
+              this.selected = this.options[0]
             }
           })
       }
@@ -99,7 +121,7 @@ export default {
 
 <style>
 #current-discipline-container {
-  width: 150px;
+  width: 225px;
 }
 @media (max-width: 1365px) {
   #current-discipline-container {

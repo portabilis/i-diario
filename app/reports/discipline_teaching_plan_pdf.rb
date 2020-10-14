@@ -207,7 +207,7 @@ class DisciplineTeachingPlanPdf < BaseReport
       colspan: 3
     )
     @discipline_cell = make_cell(
-      content: @discipline_teaching_plan.discipline.description,
+      content: @discipline_teaching_plan.discipline.to_s,
       size: 10,
       borders: [:bottom, :left, :right],
       padding: [0, 2, 4, 4],

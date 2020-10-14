@@ -1,5 +1,5 @@
 <template>
-  <div id="current-school-year-container" class="project-context" v-if="isLoading || options.length">
+  <div id="current-school-year-container" class="project-context" v-show="isLoading || unity">
     <span :class="{ required, label: true  }">
       Ano Letivo
     </span>
@@ -31,25 +31,24 @@ import { EventBus  } from "../packs/event-bus.js"
 
 export default {
   name: "b-current-school-year",
-  props: [ 'anyComponentLoading' ],
+  props: [ 'anyComponentLoading', 'byTeacherProfile' ],
   data() {
     return {
       options: window.state.available_school_years,
       selected: window.state.current_school_year,
       isLoading: false,
-      role: null
+      role: null,
+      unity: null,
+      required: false
     }
-  },
-  computed: {
-    required() {
-      return this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
-    },
   },
   methods: {
     route(unity) {
-      return Routes.years_from_unity_school_calendars_pt_br_path({
-        unity_id: unity.id,
-        only_opened_years: !this.role.can_change_school_year,
+      return Routes.available_school_years_pt_br_path({
+        filter: {
+          by_unity_id: unity.id,
+          by_user_role_id: this.role.id,
+        },
         format: 'json'
       })
     },
@@ -57,7 +56,11 @@ export default {
       EventBus.$emit("set-school-year", this.$data);
 
       if (toFetch) {
-        EventBus.$emit("fetch-classrooms", schoolYear);
+        if (this.role.role_access_level === "teacher") {
+          EventBus.$emit("fetch-teacher-profiles", schoolYear)
+        } else {
+          EventBus.$emit("fetch-classrooms", schoolYear)
+        }
       }
     }
   },
@@ -67,6 +70,11 @@ export default {
   created () {
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+      this.required = this.role && this.role.role_access_level !== 'parent' && this.role.role_access_level !== 'student'
+    })
+
+    EventBus.$on("set-unity", (unityData) => {
+      this.unity = unityData.selected
     })
 
     EventBus.$on("fetch-school-years", async(unity) => {
@@ -80,11 +88,11 @@ export default {
         let route = this.route(unity)
 
         await axios.get(route)
-          .then(response => {
-            this.options = response.data.school_calendars
+          .then(({ data }) => {
+            this.options = data.school_years
 
-            if(response.data.school_calendars.length === 1) {
-              this.selected = response.data.school_calendars[0]
+            if(this.options.length === 1) {
+              this.selected = this.options[0]
             }
           })
       }

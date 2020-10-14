@@ -1,5 +1,5 @@
 <template>
-  <div id="current-unity-container" class="project-context" v-show="isLoading || options.length > 1" >
+  <div id="current-unity-container" class="project-context" v-show="isLoading || required" >
     <span :class="{ required, label: true  }">
       Unidade
     </span>
@@ -10,7 +10,7 @@
                  :searchable="true"
                  :close-on-select="true"
                  :placeholder="isLoading ? 'Carregando...' : 'Selecione'"
-                 :allow-empty="true"
+                 :allow-empty="false"
                  :loading="isLoading"
                  :disabled="anyComponentLoading"
                  @input="unityHasBeenSelected(selected, true)"
@@ -37,12 +37,8 @@ export default {
       selected: window.state.current_unity,
       options: window.state.available_unities,
       isLoading: false,
-      role: null
-    }
-  },
-  computed: {
-    required() {
-      return this.role && this.role.role_access_level === "administrator"
+      role: null,
+      required: false
     }
   },
   methods: {
@@ -50,14 +46,10 @@ export default {
       const filters = {}
 
       if (role.unity_id) {
-        filters['by_id'] = role.unity_id
+        filters['by_unity_id'] = role.unity_id
       }
 
-      return Routes.search_unities_pt_br_path({
-        format: 'json',
-        per: 9999999,
-        filter: filters
-      })
+      return Routes.available_unities_pt_br_path({ format: 'json', filter: filters })
     },
     unityHasBeenSelected(selectedUnity, toFetch = true) {
       EventBus.$emit("set-unity", this.$data);
@@ -73,6 +65,7 @@ export default {
   created () {
     EventBus.$on("set-role", (roleData) => {
       this.role = roleData.selected
+      this.required = this.role && this.role.role_access_level === "administrator"
     })
 
     EventBus.$on("fetch-unities", async (selectedRole) => {
@@ -90,11 +83,11 @@ export default {
         let route = this.route(selectedRole)
 
         await axios.get(route)
-          .then(response => {
-            this.options = response.data.unities
+          .then(({ data }) => {
+            this.options = data.unities
 
-            if (response.data.unities.length === 1) {
-              this.selected = response.data.unities[0]
+            if (this.options.length === 1) {
+              this.selected = this.options[0]
             }
           })
       }
