@@ -1,6 +1,7 @@
 pt-BR:
   complementary_exam_settings:
     index:
+      by_year: "Filtrar ano"
       by_description: "Filtrar descrição"
       by_initials: "Filtrar sigla"
       by_affected_score: "Filtrar nota afetada"

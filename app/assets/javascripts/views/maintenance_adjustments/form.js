@@ -9,11 +9,6 @@ $(function() {
         infoTitle = 'Ajuste de faltas:';
         infoDescription = 'Ajusta as faltas que foram lançadas com regra de avaliação incorreta.';
         break;
-      case 'creating_users_for_students':
-        infoTitle = 'Criação de usuários para alunos:';
-        infoDescription = 'Cria usuários para os alunos com situação cursando, onde o código do aluno no ' +
-                          'i-educar é o login e a senha é estudante + código do aluno no i-educar.';
-        break;
     }
 
     $('#info_title').text(infoTitle);

@@ -59,3 +59,6 @@ docker-compose.override.yml
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+
+# Carrierwave
+config/initializers/custom_carrierwave.rb

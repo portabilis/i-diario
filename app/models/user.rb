@@ -57,6 +57,8 @@ class User < ActiveRecord::Base
   validates :email, email: true, allow_blank: true
   validates :password, length: { minimum: 8 }, allow_blank: true
   validates :login, uniqueness: true, allow_blank: true
+  validates :teacher_id, uniqueness: true, allow_blank: true
+  validates :student, presence: true, if: :only_student?
 
   validates_associated :user_roles
 
@@ -394,5 +396,9 @@ class User < ActiveRecord::Base
     return unless login =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
 
     errors.add(:login, :can_not_be_an_email)
+  end
+
+  def only_student?
+    student? && roles.count == 1
   end
 end

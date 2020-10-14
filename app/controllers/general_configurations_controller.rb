@@ -46,7 +46,8 @@ class GeneralConfigurationsController < ApplicationController
       :notify_consecutive_or_alternate_absences,
       :max_consecutive_absence_days,
       :max_alternate_absence_days,
-      :days_to_consider_alternate_absences
+      :days_to_consider_alternate_absences,
+      :create_users_for_students_when_synchronize
     )
   end
 
