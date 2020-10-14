@@ -18,6 +18,8 @@ class User < ActiveRecord::Base
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
+  after_save :update_fullname_tokens
+
   before_destroy :ensure_has_no_audits
   before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
@@ -77,7 +79,10 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :full_name, lambda { |full_name| where("fullname ILIKE unaccent(?)", "%#{full_name}%")}
+  scope :full_name, lambda { |fullname|
+    where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(fullname))
+      .order("ts_rank_cd(users.fullname_tokens, to_tsquery('portuguese', '#{split_search(fullname)}')) desc")
+  }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
   scope :status, lambda { |status| where status: status }
@@ -400,5 +405,13 @@ class User < ActiveRecord::Base
 
   def only_student?
     student? && roles.count == 1
+  end
+
+  def update_fullname_tokens
+    User.where(id: id).update_all("fullname_tokens = to_tsvector('portuguese', fullname)")
+  end
+
+  def self.split_search(input)
+    input.split.map { |w| "\"#{w}\"" }.join(':* & ') << ':*'
   end
 end
