@@ -106,7 +106,7 @@ class UsersController < ApplicationController
 
   def filtering_params(params)
     if params
-      params.slice(:full_name, :email, :login, :status)
+      params.slice(:full_name, :by_cpf, :email, :login, :status)
     else
       {}
     end

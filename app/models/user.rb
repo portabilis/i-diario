@@ -9,6 +9,7 @@ class User < ActiveRecord::Base
 
   include Audit
   include Filterable
+  include Searchable
 
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
@@ -17,6 +18,8 @@ class User < ActiveRecord::Base
 
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
+
+  after_save :update_fullname_tokens
 
   before_destroy :ensure_has_no_audits
   before_destroy :clear_allocation
@@ -77,9 +80,13 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :full_name, lambda { |full_name| where("fullname ILIKE unaccent(?)", "%#{full_name}%")}
+  scope :full_name, lambda { |fullname|
+    where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(fullname))
+      .order("ts_rank_cd(users.fullname_tokens, to_tsquery('portuguese', '#{split_search(fullname)}')) desc")
+  }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
+  scope :by_cpf, ->(cpf) { where('cpf ILIKE unaccent(?)', "%#{cpf}%") }
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
@@ -93,13 +100,35 @@ class User < ActiveRecord::Base
   end
 
   def self.to_csv
-    attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Celular"]
+    attributes = [
+      'Nome',
+      'Sobrenome',
+      'E-mail',
+      'Nome de usuário',
+      'Celular',
+      'CPF',
+      'Status',
+      'Aluno vinculado',
+      'Professor Vinculado',
+      'Permissões'
+    ]
 
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.each do |user|
-        csv << [user.first_name, user.last_name, user.email, user.login, user.phone]
+      all.includes(:teacher, :student, user_roles: [:role, :unity]).find_each do |user|
+        csv << [
+          user.first_name,
+          user.last_name,
+          user.email,
+          user.login,
+          user.phone,
+          user.cpf,
+          I18n.t("enumerations.user_status.#{user.status}"),
+          user.student,
+          user.teacher,
+          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact }
+        ]
       end
     end
   end
@@ -400,5 +429,11 @@ class User < ActiveRecord::Base
 
   def only_student?
     student? && roles.count == 1
+  end
+
+  def update_fullname_tokens
+    return unless first_name_changed? || last_name_changed?
+
+    User.where(id: id).update_all("fullname_tokens = to_tsvector('portuguese', fullname)")
   end
 end
