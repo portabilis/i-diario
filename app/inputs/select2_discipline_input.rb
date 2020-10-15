@@ -15,7 +15,7 @@ class Select2DisciplineInput < Select2Input
     user = options[:user]
 
     disciplines =
-      if options[:record]&.persisted?
+      if options[:record]&.persisted? && options[:record]&.discipline
         Discipline.where(id: options[:record].discipline.id)
       elsif options[:admin_or_employee].presence
         Discipline.by_classroom(user.current_classroom_id)
