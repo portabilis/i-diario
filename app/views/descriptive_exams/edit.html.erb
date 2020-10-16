@@ -78,7 +78,7 @@
     <footer>
       <%= link_to t('views.form.history'),
         history_descriptive_exam_path(@descriptive_exam), class: 'btn btn-info' %>
-      <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+      <%= f.submit 'Salvar', class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
     </footer>
   <% end %>
 </div>
