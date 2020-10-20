@@ -3,7 +3,7 @@ class StudentUnification
     def run!
       @secondary_students.each do |secondary_student|
         Student.reflect_on_all_associations(:has_many).each do |association|
-          next if KEEP_ASSOCIATIONS.include?(association.name)
+          next if keep_associations.include?(association.name)
 
           discardable = discardable?(association.klass)
 

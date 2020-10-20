@@ -13,5 +13,9 @@ class StudentUnification
       @main_student = main_student
       @secondary_students = secondary_students
     end
+
+    def keep_associations
+      KEEP_ASSOCIATIONS
+    end
   end
 end
