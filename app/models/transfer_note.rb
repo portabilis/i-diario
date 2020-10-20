@@ -37,7 +37,7 @@ class TransferNote < ActiveRecord::Base
     joins(:classroom).where('unaccent(classrooms.description) ILIKE unaccent(?)', "%#{description}%")
   }
   scope :by_discipline_description, lambda { |description|
-    joins(:discipline).where('unaccent(disciplines.description) ILIKE unaccent(?)', "%#{description}%")
+    joins(:discipline).merge(Discipline.by_description(description))
   }
   scope :by_student_name, lambda { |student_name|
     joins(:student).where(

@@ -1,4 +1,6 @@
 class UserRole < ActiveRecord::Base
+  include Searchable
+
   acts_as_copy_target
   audited associated_with: :user, only: [:role_id, :unity_id]
 
@@ -9,9 +11,9 @@ class UserRole < ActiveRecord::Base
   validates :user, :role, presence: true
   validates :unity, presence: true, if: :require_unity?
 
-  delegate :name, :access_level_humanize, :administrator?, :teacher?, :employee?, to: :role,
-                                                                                  prefix: true,
-                                                                                  allow_nil: true
+  delegate :access_level, :name, :access_level_humanize, :administrator?, :teacher?, :employee?, to: :role,
+                                                                                                 prefix: true,
+                                                                                                 allow_nil: true
 
   delegate :name, to: :unity, prefix: true, allow_nil: true
 
@@ -22,7 +24,8 @@ class UserRole < ActiveRecord::Base
 
   scope :user_name, lambda { |user_name|
     joins(:user)
-      .where("fullname ILIKE unaccent(?)", "%#{user_name}%")
+      .where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(user_name))
+      .order("ts_rank_cd(users.fullname_tokens, to_tsquery('portuguese', '#{split_search(user_name)}')) desc")
   }
   scope :unity_name, ->(unity_name) { joins(:unity).merge(Unity.search_name(unity_name)) }
 
@@ -34,11 +37,16 @@ class UserRole < ActiveRecord::Base
     end
   end
 
+  def name
+    to_s
+  end
+
   def can_change_school_year?
     return false unless role
 
     role.can_change?('change_school_year')
   end
+  alias can_change_school_year can_change_school_year?
 
   private
 

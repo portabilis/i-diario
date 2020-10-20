@@ -26,6 +26,7 @@
             </div>
           </td>
           <td><%= f.input :full_name, label: false, placeholder: "Filtrar nome" %></td>
+          <td><%= f.input :by_cpf, label: false, placeholder: "Filtrar CPF" %></td>
           <td><%= f.input :email, label: false, placeholder: "Filtrar e-mail" %></td>
           <td><%= f.input :login, label: false, placeholder: "Filtrar nome de usuário" %></td>
           <td><%= f.input :status, as: :select, label: false,
@@ -37,6 +38,7 @@
             <input type="checkbox" id="select-all">
           </th>
           <th><%= User.human_attribute_name :name %></th>
+          <th><%= User.human_attribute_name :cpf %></th>
           <th><%= User.human_attribute_name :email %></th>
           <th><%= User.human_attribute_name :login %></th>
           <th><%= User.human_attribute_name :status %></th>
@@ -46,7 +48,7 @@
 
       <%= render 'resources' %>
       <tfoot id="paginator" class="remote">
-        <td colspan="6">
+        <td colspan="7">
           <div id="page_entries_info" class="pull-left hidden-xs">
             <%= page_entries_info @users %>
           </div>
