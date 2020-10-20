@@ -68,6 +68,7 @@ export default {
         by_unity_id: this.unity.id,
         by_school_year: this.school_year.id,
         by_classroom_id: classroom.id,
+        by_user_role_id: this.role.id
       }
 
       return Routes.available_teachers_pt_br_path({
