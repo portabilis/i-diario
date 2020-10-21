@@ -83,7 +83,9 @@ class CurrentRoleController < ApplicationController
     ref_route = Rails.application.routes.recognize_path(referer)
     controller = ref_route[:controller]
 
-    action = ALL_ROUTES["#{controller}#index#pt-BR"] || ALL_ROUTES["#{controller}#new#pt-BR"]
+    action = ALL_ROUTES["#{controller}#index#pt-BR"] ||
+             ALL_ROUTES["#{controller}#new#pt-BR"] ||
+             ALL_ROUTES["#{controller}#form#pt-BR"]
 
     redirect_to action || root_path
   rescue ActionController::RoutingError, ActionController::UrlGenerationError
