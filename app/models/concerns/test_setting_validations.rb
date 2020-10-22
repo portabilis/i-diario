@@ -8,11 +8,13 @@ module TestSettingValidations
     validates :year, presence: true
     validates :average_calculation_type, presence: true
     validates :school_term, presence: { if: :by_school_term?  }
+    validates :unities, presence: true, if: :general_by_school?
     validates :maximum_score, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 1000 }
     validates :number_of_decimal_places, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3 }
 
     validate :uniqueness_of_general_test_setting,        if: :general?
     validate :uniqueness_of_by_school_term_test_setting, if: :by_school_term?
+    validate :uniqueness_of_by_general_by_school_test_setting, if: :general_by_school?
     validate :at_least_one_assigned_test, if: :sum?
     validate :tests_weight_less_or_equal_maximum_score, if: :should_validate_tests_weight?
     validate :ensure_can_destroy_test_settings
@@ -21,7 +23,7 @@ module TestSettingValidations
   private
 
   def uniqueness_of_general_test_setting
-    test_settings = TestSetting.where(year: year)
+    test_settings = TestSetting.where(year: year).where.not(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
     test_settings = test_settings.where.not(id: id) if persisted?
 
     errors.add(:year, :taken) if test_settings.any?
@@ -36,6 +38,18 @@ module TestSettingValidations
 
     errors.add(:year, :taken) if general_test_settings.any?
     errors.add(:school_term, :taken) if by_school_term_test_settings.any?
+  end
+
+  def uniqueness_of_by_general_by_school_test_setting
+    test_settings = TestSetting.where(year: year, exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
+    test_settings = test_settings.where.not(id: id) if persisted?
+    test_settings = test_settings.by_unities(unities)
+    test_settings = test_settings.where("grades @> ARRAY[?]::integer[] OR grades = '{}'", grades) if grades.present?
+
+    return unless test_settings.any?
+
+    errors.add(:unities, :taken)
+    errors.add(:grades, :taken)
   end
 
   def at_least_one_assigned_test

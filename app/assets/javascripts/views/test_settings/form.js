@@ -41,10 +41,29 @@ $(function() {
   var updateTestSettingSchoolTermInput = function() {
     var $test_setting_school_term_div = $('#test_setting_school_term_div');
     var $test_setting_school_term_input = $('#test_setting_school_term');
+    var $test_setting_unities_div = $('#test_setting_unities_div');
+    var $test_setting_unities_input = $('#test_setting_unities');
+    var $test_setting_grades_div = $('#test_setting_grades_div');
+    var $test_setting_grades_input = $('#test_setting_grades');
 
     if ($('#test_setting_exam_setting_type').select2('val') == 'by_school_term') {
+      $test_setting_unities_div.hide();
+      $test_setting_unities_input.select2('val', '');
+      $test_setting_grades_div.hide();
+      $test_setting_grades_input.select2('val', '');
+
       $test_setting_school_term_div.show();
+    } else if ($('#test_setting_exam_setting_type').select2('val') == 'general_by_school') {
+      $test_setting_school_term_div.hide();
+      $test_setting_school_term_input.select2('val', '');
+
+      $test_setting_unities_div.show();
+      $test_setting_grades_div.show();
     } else {
+      $test_setting_unities_div.hide();
+      $test_setting_unities_input.select2('val', '');
+      $test_setting_grades_div.hide();
+      $test_setting_grades_input.select2('val', '');
       $test_setting_school_term_div.hide();
       $test_setting_school_term_input.select2('val', '');
     }
@@ -64,5 +83,35 @@ $(function() {
     $(".calculation-info").each(function(){
       $(this).addClass('hidden');
     });
+  }
+
+  $('#test_setting_unities').on('change', function(e) {
+    var $test_setting_unities = $('#test_setting_unities').val();
+
+    if (!_.isEmpty($test_setting_unities)) {
+      $.ajax({
+        url: Routes.grades_by_unities_test_settings_pt_br_path({
+            unities: $test_setting_unities,
+            format: 'json'
+        }),
+        success: handleFetchGradesSuccess,
+        error: handleFetchGradesError
+      });
+    } else {
+      $('#test_setting_grades').select2('val', '');
+      $('#test_setting_grades').select2({ data: [], multiple: true });
+    }
+  });
+
+  function handleFetchGradesSuccess(grades) {
+    var grades = _.map(grades.test_settings, function(grade) {
+      return grade['table'];
+    });
+
+    $('#test_setting_grades').select2({ data: grades, multiple: true });
+  }
+
+  function handleFetchGradesError(grades) {
+    console.log(grades)
   }
 });
