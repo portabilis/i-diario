@@ -53,7 +53,7 @@ class AvaliationsController < ApplicationController
 
     authorize resource
 
-    @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+    steps_settings(current_test_setting.exam_setting_type)
   end
 
   def multiple_classrooms
@@ -68,7 +68,7 @@ class AvaliationsController < ApplicationController
 
     authorize Avaliation.new
 
-    @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+    steps_settings(current_test_setting.exam_setting_type)
   end
 
   def create_multiple_classrooms
@@ -81,7 +81,7 @@ class AvaliationsController < ApplicationController
     if @avaliation_multiple_creator_form.save
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
-      @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+      steps_settings(current_test_setting.exam_setting_type)
       render :multiple_classrooms
     end
   end
@@ -96,7 +96,7 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
-      @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+      steps_settings(current_test_setting.exam_setting_type)
 
       render :new
     end
@@ -107,7 +107,7 @@ class AvaliationsController < ApplicationController
 
     authorize @avaliation
 
-    @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+    steps_settings(current_test_setting.exam_setting_type)
   end
 
   def update
@@ -121,7 +121,7 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
-      @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+      steps_settings(current_test_setting.exam_setting_type)
 
       render :edit
     end
@@ -243,5 +243,16 @@ class AvaliationsController < ApplicationController
     flash[:error] = t('errors.avaliations.require_setting')
 
     false
+  end
+
+  def steps_settings(exam_setting_type)
+    @test_settings = if exam_setting_type == ExamSettingTypes::BY_SCHOOL_TERM
+                       TestSetting.where(
+                         year: current_school_calendar.year,
+                         exam_setting_type: exam_setting_type
+                       ).ordered
+                     else
+                       []
+                     end
   end
 end

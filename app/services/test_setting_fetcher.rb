@@ -21,6 +21,11 @@ class TestSettingFetcher
 
   def by_step(step)
     year = step.try(:school_calendar).try(:year) || Date.current.year
+
+    general_by_school_test_setting = general_by_school_test_setting(year) if @classroom
+
+    return general_by_school_test_setting if general_by_school_test_setting.present?
+
     general_test_setting = general_test_setting(year)
 
     return general_test_setting if general_test_setting.present?
@@ -61,5 +66,12 @@ class TestSettingFetcher
 
   def step_school_term(step)
     SchoolTermConverter.convert(step)
+  end
+
+  def general_by_school_test_setting(year)
+    TestSetting.where(year: year, exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
+               .by_unities(@classroom.unity)
+               .where("grades @> ARRAY[?]::integer[] OR grades = '{}'", @classroom.grade)
+               .first
   end
 end

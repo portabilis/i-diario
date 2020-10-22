@@ -164,7 +164,10 @@ class Avaliation < ActiveRecord::Base
   end
 
   def is_school_term_day?
-    return if test_setting.nil? || test_setting.exam_setting_type == ExamSettingTypes::GENERAL
+    return if test_setting.nil? ||
+              [ExamSettingTypes::GENERAL,
+               ExamSettingTypes::GENERAL_BY_SCHOOL
+              ].include?(test_setting.exam_setting_type)
 
     return if school_calendar.school_term_day?(test_setting.school_term, test_date, classroom)
 

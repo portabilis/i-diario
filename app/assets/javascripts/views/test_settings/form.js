@@ -22,7 +22,7 @@ $(function() {
   function toggleAverageSumWeightSelection(averageCalculationType) {
     var $divisionWeightCheckContainer = $('#division-weight-check-container');
 
-    if (averageCalculationType === "sum") {
+    if (averageCalculationType === "sum" && $('#test_setting_exam_setting_type').select2('val') == 'general_by_school') {
       $divisionWeightCheckContainer.show();
     } else {
       $divisionWeightCheckContainer.hide();
@@ -58,12 +58,14 @@ $(function() {
     var $test_setting_unities_input = $('#test_setting_unities');
     var $test_setting_grades_div = $('#test_setting_grades_div');
     var $test_setting_grades_input = $('#test_setting_grades');
+    var $divisionWeightCheckContainer = $('#division-weight-check-container');
 
     if ($('#test_setting_exam_setting_type').select2('val') == 'by_school_term') {
       $test_setting_unities_div.hide();
       $test_setting_unities_input.select2('val', '');
       $test_setting_grades_div.hide();
       $test_setting_grades_input.select2('val', '');
+      $divisionWeightCheckContainer.hide();
 
       $test_setting_school_term_div.show();
     } else if ($('#test_setting_exam_setting_type').select2('val') == 'general_by_school') {
@@ -72,6 +74,10 @@ $(function() {
 
       $test_setting_unities_div.show();
       $test_setting_grades_div.show();
+
+      if ($averageCalculationType.select2('val') === "sum") {
+        $divisionWeightCheckContainer.show();
+      }
     } else {
       $test_setting_unities_div.hide();
       $test_setting_unities_input.select2('val', '');
@@ -79,6 +85,7 @@ $(function() {
       $test_setting_grades_input.select2('val', '');
       $test_setting_school_term_div.hide();
       $test_setting_school_term_input.select2('val', '');
+      $divisionWeightCheckContainer.hide();
     }
   }
 
