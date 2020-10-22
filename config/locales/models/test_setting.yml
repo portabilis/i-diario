@@ -17,6 +17,7 @@ pt-BR:
         responsible_id: "Responsável"
         unities: 'Escolas'
         grades: 'Séries'
+        default_division_weight: Peso (divisão)
 
     errors:
       models:

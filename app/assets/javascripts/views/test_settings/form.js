@@ -8,6 +8,7 @@ $(function() {
   $averageCalculationType.on('change', function() {
     toggleItemSettingsTests($averageCalculationType.select2("val"));
     toggleAverageCalculationInfo($averageCalculationType.select2("val"));
+    toggleAverageSumWeightSelection($averageCalculationType.select2("val"));
   });
 
   function toggleItemSettingsTests(averageCalculationType) {
@@ -17,6 +18,18 @@ $(function() {
       $itemSettingTests.hide();
     }
   }
+
+  function toggleAverageSumWeightSelection(averageCalculationType) {
+    var $divisionWeightCheckContainer = $('#division-weight-check-container');
+
+    if (averageCalculationType === "sum") {
+      $divisionWeightCheckContainer.show();
+    } else {
+      $divisionWeightCheckContainer.hide();
+    }
+  }
+
+  toggleAverageSumWeightSelection($averageCalculationType.select2("val"));
 
   updatePriceFormat();
 
@@ -114,4 +127,23 @@ $(function() {
   function handleFetchGradesError(grades) {
     console.log(grades)
   }
+
+  $('#division-weight-check').on('click', function (e) {
+    if(this.checked) {
+     $('#division-weight-input').removeClass('hidden');
+    } else {
+      $('#division-weight-input').addClass('hidden');
+    }
+  });
+
+  if ($('#test_setting_default_division_weight').val() > 1) {
+    $('#division-weight-input').removeClass('hidden');
+  }
+
+  $('#test-settings-form-submit').on('click', function (e) {
+    if ($("#test_setting_average_calculation_type").select2('val') == 'sum' &&
+        !$('#division-weight-check').is(':checked')) {
+      $('#test_setting_default_division_weight').val(1);
+    }
+  });
 });

@@ -56,6 +56,9 @@ class TestSettingsController < ApplicationController
       respond_with resource, location: test_settings_path
     else
       resource.reload
+
+      unities
+
       render :edit
     end
   end
@@ -105,6 +108,7 @@ class TestSettingsController < ApplicationController
                                :average_calculation_type,
                                :unities,
                                :grades,
+                               :default_division_weight,
                                tests_attributes: [:id,
                                                   :description,
                                                   :weight,

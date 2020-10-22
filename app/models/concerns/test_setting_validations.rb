@@ -9,6 +9,13 @@ module TestSettingValidations
     validates :average_calculation_type, presence: true
     validates :school_term, presence: { if: :by_school_term?  }
     validates :unities, presence: true, if: :general_by_school?
+    validates :default_division_weight,
+              presence: true,
+              numericality: {
+                only_integer: true,
+                greater_than_or_equal_to: 1,
+                less_than_or_equal_to: 1000
+              }, if: :general_by_school?
     validates :maximum_score, numericality: { only_integer: true, greater_than_or_equal_to: 1, less_than_or_equal_to: 1000 }
     validates :number_of_decimal_places, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 3 }
 

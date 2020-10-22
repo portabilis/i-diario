@@ -64,7 +64,27 @@
         <div class="col col-sm-3">
           <%= f.input :average_calculation_type, as: :select2, elements: AverageCalculationTypes.to_select.to_json %>
         </div>
+
+        <% weight_error = f.object.errors.messages[:default_division_weight]&.any? %>
+
+        <div class="controls input col col-sm-3" id="division-weight-check-container">
+          <label class="checkbox">
+            <input class="boolean optional"
+                  type="checkbox"
+                  value=<%= '1' if f.object.default_division_weight > 1 || weight_error %>
+                  checked=<%= 'checked' if f.object.default_division_weight > 1 || weight_error %>
+                  id="division-weight-check"> Gerar média das avaliações?<i></i>
+          </label>
+        </div>
       </div>
+
+      <div class="row">
+        <div class="col col-sm-3 <%= 'hidden' unless weight_error %>"
+             id="division-weight-input">
+          <%= f.input :default_division_weight, input_html: { min: 1 } %>
+        </div>
+      </div>
+
     </fieldset>
 
     <fieldset id="item_setting_tests">
@@ -125,7 +145,7 @@
         <%= link_to t('views.form.history'), history_test_setting_path(@test_setting), class: 'btn btn-info' %>
       <% end %>
 
-      <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
+      <%= f.submit t('views.form.save'), class: 'btn btn-primary', id: 'test-settings-form-submit', data: { disable_with: 'Salvando...'} %>
     </footer>
   <% end %>
 </div>
