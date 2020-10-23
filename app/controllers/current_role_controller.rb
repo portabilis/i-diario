@@ -1,4 +1,10 @@
 class CurrentRoleController < ApplicationController
+  ALL_ROUTES = Rails.application.routes.routes.map { |route|
+    if route.verb == /^GET$/ && route.defaults[:locale] == 'pt-BR'
+      [route.defaults.values.join('#'), route.defaults]
+    end
+  }.compact.to_h.freeze
+
   def set
     current_role_form = CurrentRoleForm.new(resource_params)
 
@@ -9,7 +15,10 @@ class CurrentRoleController < ApplicationController
       else
         format.json { render json: current_role_form.errors, status: :unprocessable_entity }
       end
-      format.html { redirect_to(root_path) }
+
+      format.html do
+        redirect_to_path(request.referer)
+      end
     end
   end
 
@@ -68,5 +77,18 @@ class CurrentRoleController < ApplicationController
       :current_user_role_id, :current_unity_id, :current_classroom_id, :current_discipline_id, :current_teacher_id,
       :current_school_year, :current_knowledge_area_id
     ).merge(current_user: current_user)
+  end
+
+  def redirect_to_path(referer)
+    ref_route = Rails.application.routes.recognize_path(referer)
+    controller = ref_route[:controller]
+
+    action = ALL_ROUTES["#{controller}#index#pt-BR"] ||
+             ALL_ROUTES["#{controller}#new#pt-BR"] ||
+             ALL_ROUTES["#{controller}#form#pt-BR"]
+
+    redirect_to action || root_path
+  rescue ActionController::RoutingError, ActionController::UrlGenerationError
+    redirect_to root_path
   end
 end
