@@ -9,7 +9,7 @@ class StudentAverageCalculator
     student_notes_query = StudentNotesQuery.new(student, discipline, classroom, step.start_at, step.end_at)
     @daily_note_students = student_notes_query.daily_note_students + student_notes_query.transfer_notes +
                            student_notes_query.previous_enrollments_daily_note_students
-    test_setting = test_setting(classroom)
+    test_setting = test_setting(classroom, step)
 
     @recovery_diary_records = student_notes_query.recovery_diary_records
 
@@ -98,11 +98,7 @@ class StudentAverageCalculator
     StudentAvaliationExemptionQuery.new(student).is_exempted(avaliation)
   end
 
-  def test_setting(classroom)
-    @test_setting ||= Hash.new do |h, key|
-      h[key] = TestSettingFetcher.current(key)
-    end
-
-    @test_setting[classroom]
+  def test_setting(classroom, step)
+    TestSettingFetcher.current(classroom, step)
   end
 end

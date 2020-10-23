@@ -180,11 +180,7 @@ class ApplicationController < ActionController::Base
   helper_method :current_school_calendar
 
   def current_test_setting
-    TestSettingFetcher.current(current_user.try(:current_classroom)) || default_test_setting
-  end
-
-  def default_test_setting
-    TestSettingFetcher.by_step(steps_fetcher.steps.first)
+    TestSettingFetcher.current(current_user.try(:current_classroom))
   end
 
   def steps_fetcher
