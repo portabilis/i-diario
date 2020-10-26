@@ -43,7 +43,9 @@ export default {
   },
   methods: {
     route(role) {
-      const filters = {}
+      const filters = {
+        by_user_role_id: role.id
+      }
 
       if (role.unity_id) {
         filters['by_unity_id'] = role.unity_id
