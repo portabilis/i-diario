@@ -11,6 +11,8 @@ class ClassroomsController < ApplicationController
     end
     score_type = params[:score_type]
 
+    (params[:filter] || []).delete(:by_grade) if params.dig(:filter, :by_grade).blank?
+
     @classrooms = apply_scopes(Classroom).ordered
     if params[:include_unity]
       @classrooms = @classrooms.includes(:unity)
