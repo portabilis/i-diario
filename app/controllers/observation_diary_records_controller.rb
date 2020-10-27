@@ -119,7 +119,11 @@ class ObservationDiaryRecordsController < ApplicationController
   end
 
   def fetch_current_discipline
-    frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
+    frequency_type_definer = FrequencyTypeDefiner.new(
+      current_user_classroom,
+      current_teacher,
+      year: current_user_classroom.year
+    )
     frequency_type_definer.define!
 
     if frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
