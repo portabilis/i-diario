@@ -55,8 +55,6 @@ class TestSettingsController < ApplicationController
     if resource.save
       respond_with resource, location: test_settings_path
     else
-      resource.reload
-
       unities
 
       render :edit

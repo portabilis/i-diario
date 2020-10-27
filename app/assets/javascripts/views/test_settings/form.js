@@ -143,7 +143,7 @@ $(function() {
     }
   });
 
-  if ($('#test_setting_default_division_weight').val() > 1) {
+  if ($('#test_setting_default_division_weight').val() > 1 || $('#division-weight-check').is(':checked')) {
     $('#division-weight-input').removeClass('hidden');
   }
 
@@ -153,4 +153,5 @@ $(function() {
       $('#test_setting_default_division_weight').val(1);
     }
   });
+
 });
