@@ -148,7 +148,9 @@ $(function() {
     }
   });
 
-  if ($('#test_setting_default_division_weight').val() > 1 || $('#division-weight-check').is(':checked')) {
+  if ($('#test_setting_default_division_weight').val() > 1 ||
+      ($("#test_setting_average_calculation_type").select2('val') == 'sum' &&
+       $('#division-weight-check').is(':checked'))) {
     $('#division-weight-input').removeClass('hidden');
   }
 

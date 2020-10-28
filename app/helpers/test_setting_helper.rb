@@ -1,7 +1,7 @@
 module TestSettingHelper
   def show_checked(test_setting)
     @show_checked ||= Hash.new do |h, record|
-      h[record] = (record.default_division_weight && record.default_division_weight >= 1) || weight_error(record)
+      h[record] = (record.default_division_weight && record.default_division_weight > 1) || weight_error(record)
     end
 
     @show_checked[test_setting]
