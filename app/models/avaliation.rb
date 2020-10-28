@@ -11,7 +11,7 @@ class Avaliation < ActiveRecord::Base
   audited
   has_associated_audits
 
-  attr_accessor :test_date_copy, :grades_allow_destroy, :recovery_allow_destroy
+  attr_accessor :test_date_copy, :daily_notes_allow_destroy, :grades_allow_destroy, :recovery_allow_destroy
 
   before_destroy :valid_for_destruction?
   before_destroy :try_destroy, if: :valid_for_destruction?
@@ -243,7 +243,7 @@ class Avaliation < ActiveRecord::Base
   end
 
   def try_destroy
-    @grades_allow_destroy = !daily_notes.any? { |daily_note| daily_note.students.any? { |daily_note_student| daily_note_student.note } }
+    @grades_allow_destroy = daily_notes.none?
     @recovery_allow_destroy = avaliation_recovery_diary_record.nil?
 
     daily_notes.each(&:destroy) if @grades_allow_destroy && @recovery_allow_destroy
