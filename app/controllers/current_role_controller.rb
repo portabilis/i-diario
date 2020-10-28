@@ -23,7 +23,7 @@ class CurrentRoleController < ApplicationController
   end
 
   def available_classrooms
-    filters = params.dig(:filter).slice(:by_unity_id, :by_school_year, :by_teacher_id)
+    filters = params.dig(:filter).slice(:by_unity_id, :by_school_year, :by_teacher_id, :by_user_role_id)
 
     profile = CurrentProfile.new(current_user, filters)
 

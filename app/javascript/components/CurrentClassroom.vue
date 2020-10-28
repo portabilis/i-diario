@@ -54,7 +54,8 @@ export default {
     route() {
       let filters = {
         by_unity_id: this.unity.id,
-        by_school_year: this.schoolYear.id
+        by_school_year: this.schoolYear.id,
+        by_user_role_id: this.role.id
       }
 
       if (this.role.role_access_level === 'teacher') {
