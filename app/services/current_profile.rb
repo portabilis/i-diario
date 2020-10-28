@@ -75,11 +75,13 @@ class CurrentProfile
   end
 
   def classrooms
-    cache ['classrooms', unity&.id, teacher&.id, school_year] do
+    cache ['classrooms', unity&.id, teacher&.id, school_year, user_role&.role&.teacher?] do
       return Classroom.none if unity.blank?
 
       classrooms = Classroom.by_unity(unity).ordered
-      classrooms = classrooms.by_teacher_id(teacher).ordered if teacher.present? && user.teacher?
+      if user_role&.role&.teacher? && teacher.present? && user.teacher?
+        classrooms = classrooms.by_teacher_id(teacher).ordered
+      end
       classrooms = classrooms.by_year(school_year) if school_year
       classrooms.to_a
     end
