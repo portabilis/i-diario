@@ -105,7 +105,7 @@ $(function() {
     });
   }
 
-  $('#test_setting_unities').on('change', function(e) {
+  $('#test_setting_unities').on('change.select2', function(e) {
     var $test_setting_unities = $('#test_setting_unities').val();
 
     if (!_.isEmpty($test_setting_unities)) {
@@ -128,6 +128,11 @@ $(function() {
       return grade['table'];
     });
 
+    grades_ids = _.map(grades, function(grade) {
+      return grade.id;
+    });
+
+    $('#grades_list').val(grades_ids);
     $('#test_setting_grades').select2({ data: grades, multiple: true });
   }
 
@@ -154,4 +159,51 @@ $(function() {
     }
   });
 
+  var $selectAllUnities = $('#select-all-unities'),
+      $deselectAllUnities = $('#deselect-all-unities'),
+      $selectAllGrades = $('#select-all-grades'),
+      $deselectAllGrades = $('#deselect-all-grades');
+
+  $selectAllUnities.on('click', function(){
+    allUnities = _.map($.parseJSON($("#test_setting_unities").attr('data-elements')), function(unitiy) {
+      return unitiy.id;
+    });
+
+    allUnities.shift();
+    $('#test_setting_unities').val(allUnities);
+    $('#test_setting_unities').trigger("change.select2");
+
+    $selectAllUnities.hide();
+    $deselectAllUnities.show();
+    $selectAllGrades.show();
+  });
+
+  $deselectAllUnities.on('click', function(){
+
+    $('#test_setting_unities').val("");
+    $('#test_setting_unities').trigger("change.select2");
+    $('#test_setting_unities').val("");
+    $('#test_setting_unities').trigger("change.select2");
+
+    $selectAllUnities.show();
+    $deselectAllUnities.hide();
+    $selectAllGrades.hide();
+    $deselectAllGrades.hide();
+  });
+
+  $selectAllGrades.on('click', function(){
+    $('#test_setting_grades').val($('#grades_list').val());
+    $('#test_setting_grades').trigger("change.select2");
+
+    $selectAllGrades.hide();
+    $deselectAllGrades.show();
+  });
+
+  $deselectAllGrades.on('click', function(){
+    $('#test_setting_grades').val("");
+    $('#test_setting_grades').trigger("change.select2");
+
+    $selectAllGrades.show();
+    $deselectAllGrades.hide();
+  });
 });
