@@ -185,8 +185,8 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     IeducarApiConfiguration.current
   end
 
-  def test_setting
-    TestSettingFetcher.current(@classroom, @step)
+  def test_setting(classroom, step)
+    TestSettingFetcher.current(classroom, step)
   end
 
   def number_of_decimal_places
