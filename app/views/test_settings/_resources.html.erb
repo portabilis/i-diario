@@ -1,13 +1,14 @@
 <tbody id="resources-tbody">
   <% if @test_settings.empty? %>
     <tr>
-      <td class="no_record_found" colspan="7"> <%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="8"> <%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @test_settings.each do |test_setting| %>
       <tr>
         <td><%= test_setting.exam_setting_type_humanize %></td>
         <td><%= test_setting.year %></td>
+        <td><%= test_setting.decorator.unities_labels %></td>
         <td><%= test_setting.school_term_humanize %></td>
         <td><%= test_setting.maximum_score %></td>
         <td><%= test_setting.number_of_decimal_places %></td>

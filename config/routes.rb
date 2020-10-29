@@ -152,6 +152,7 @@ Rails.application.routes.draw do
 
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
+      get :grades_by_unities, on: :collection
     end
     resources :test_setting_tests, only: [:index, :show]
 

@@ -16,6 +16,8 @@ class TestSetting < ActiveRecord::Base
   accepts_nested_attributes_for :tests, reject_if: :all_blank, allow_destroy: true
 
   scope :ordered, -> { order(year: :desc) }
+  scope :by_unities, ->(unities) { where('unities @> ARRAY[?]::integer[]', unities) }
+  scope :by_grades, ->(grades) { where('grades @> ARRAY[?]::integer[]', grades) }
 
   validate :can_update_test_setting?, on: :update
 
