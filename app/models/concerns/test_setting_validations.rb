@@ -68,6 +68,8 @@ module TestSettingValidations
   end
 
   def tests_weight_less_or_equal_maximum_score
+    return if default_division_weight.blank?
+
     tests_weight = tests.to_a.select { |test| !test.marked_for_destruction? && test.weight }.sum(&:weight)
 
     errors.add(:tests, :tests_weight_less_or_equal_maximum_score) unless (tests_weight / default_division_weight) <= maximum_score
