@@ -61,7 +61,7 @@ class StudentAverageCalculator
     daily_note_students.each do |daily_note_student|
       next if avaliation_exempted?(daily_note_student.daily_note.avaliation)
 
-      sum += daily_note_student.recovered_note || 0
+      sum += daily_note_student.recovered_note
     end
 
     recovery_diary_records.each do |recovery_diary_record|
