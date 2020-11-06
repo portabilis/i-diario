@@ -246,11 +246,8 @@ class ApplicationController < ActionController::Base
   def teacher_discipline_score_type_by_exam_rule(exam_rule)
     score_type = exam_rule.score_type
 
-    case score_type
-    when ScoreTypes::DONT_USE then return
-    when ScoreTypes::NUMERIC then return DisciplineScoreTypes::NUMERIC
-    when ScoreTypes::CONCEPT then return DisciplineScoreTypes::CONCEPT
-    end
+    return if score_type == ScoreTypes::DONT_USE
+    return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
 
     TeacherDisciplineClassroom.find_by(
       classroom: current_user_classroom,

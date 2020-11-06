@@ -17,7 +17,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       :teacher_discipline_classroom,
       classroom: classroom,
       discipline: discipline,
-      score_type: DisciplineScoreTypes::NUMERIC
+      score_type: ScoreTypes::NUMERIC
     )
   }
   let!(:exam_posting) {

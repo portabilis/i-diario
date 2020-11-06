@@ -36,7 +36,7 @@ module ExamPoster
       classroom_ids.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
                                                .by_classroom(classroom)
-                                               .by_score_type([DisciplineScoreTypes::NUMERIC, nil])
+                                               .by_score_type([ScoreTypes::NUMERIC, nil])
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom

@@ -20,7 +20,7 @@ class DisciplinesController < ApplicationController
     @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id).order_by_sequence
 
     if params[:conceptual]
-      @disciplines = @disciplines.by_score_type(:concept, params[:student_id])
+      @disciplines = @disciplines.by_score_type(ScoreTypes::CONCEPT, params[:student_id])
     end
 
     @disciplines = @disciplines.where.not(id: exempted_discipline_ids) if exempted_discipline_ids.present?
