@@ -101,6 +101,11 @@ class ObservationDiaryRecordsController < ApplicationController
       :classroom_id,
       :discipline_id,
       :date,
+      observation_diary_record_attachments_attributes: [
+        :id,
+        :attachment,
+        :_destroy
+      ],
       notes_attributes: [
         :id,
         :description,
