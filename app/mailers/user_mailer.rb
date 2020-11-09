@@ -4,6 +4,10 @@ class UserMailer < ActionMailer::Base
   def notify_activation(user_email, user_name, user_logged_as, domain)
     return unless user_email
 
+    skip_domains = Rails.application.secrets.EMAIL_SKIP_DOMAINS.split(',')
+
+    return if skip_domains.any? { |skip_domain| user_email.ends_with?(skip_domain) }
+
     @user_name = user_name
     @user_logged_as = user_logged_as
     @domain = domain
