@@ -117,6 +117,7 @@ development:
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
+
 _Nota: Use `EMAIL_SKIP_DOMAINS` para informar domínios (separadas por virgula e sem espaço) para os quais não quer
 que o sistema faça envio de emails_
 
