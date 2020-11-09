@@ -22,6 +22,9 @@ class ObservationDiaryRecord < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :discipline
   has_many :notes, class_name: 'ObservationDiaryRecordNote', dependent: :destroy
+  has_many :observation_diary_record_attachments, dependent: :destroy
+
+  accepts_nested_attributes_for :observation_diary_record_attachments, allow_destroy: true
   accepts_nested_attributes_for :notes, allow_destroy: true
 
   default_scope -> { kept }
