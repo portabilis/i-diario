@@ -9,8 +9,6 @@ $(function () {
   var $observationDiaryRecordNotesContainer = $('#observation-diary-record-notes');
   var students = [];
 
-  $(".observation_diary_attachment").on('change', onChangeFileElement);
-
   function onChangeFileElement(){
     if (this.files[0].size > 3145728) {
       $(this).closest(".control-group").find('span').remove();
@@ -22,6 +20,8 @@ $(function () {
       $(this).closest(".control-group").find('span').remove();
     }
   }
+
+  $(".observation_diary_attachment").on('change', onChangeFileElement);
 
   $('#observation_diary_records_form').on('cocoon:after-insert', function(e, item) {
     $(item).find('input.file').on('change', onChangeFileElement);
