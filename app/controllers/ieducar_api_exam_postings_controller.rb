@@ -1,6 +1,6 @@
 class IeducarApiExamPostingsController < ApplicationController
-  before_action :require_current_teacher
   before_action :require_current_clasroom
+  before_action :require_current_teacher
   before_action :require_current_teacher_discipline_classrooms
   before_action :require_current_posting_step
 
