@@ -4,8 +4,10 @@ module Api
       respond_to :json
 
       def index
-        frequency_type_resolver = FrequencyTypeResolver.new(classroom, teacher)
-        general_frequency = frequency_type_resolver.general?
+        frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
+        frequency_type_definer.define!
+
+        general_frequency = frequency_type_definer.frequency_type == FrequencyTypes::GENERAL
 
         @daily_frequencies = DailyFrequency.by_classroom_id(params[:classroom_id]).by_period(period)
         @daily_frequencies = @daily_frequencies.general_frequency if general_frequency

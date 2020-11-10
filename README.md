@@ -113,9 +113,13 @@ development:
   SMTP_USER_NAME: SMTP_USER_NAME
   SMTP_PASSWORD: SMTP_PASSWORD
   NO_REPLY_ADDRESS: NO_REPLY_ADDRESS
+  EMAIL_SKIP_DOMAINS: EMAIL_SKIP_DOMAINS
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
+
+_Nota: Use `EMAIL_SKIP_DOMAINS` para informar domínios (separadas por virgula e sem espaço) para os quais não quer
+que o sistema faça envio de emails_
 
 - Crie o banco de dados:
 

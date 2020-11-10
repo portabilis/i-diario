@@ -9,6 +9,7 @@ pt-BR:
     form:
       add_note: 'Adicionar observação'
       no_item_found: 'Nenhuma observação'
+      add_attachment: 'Adicionar anexo'
 
     note_fields:
       remove: 'Remover'
