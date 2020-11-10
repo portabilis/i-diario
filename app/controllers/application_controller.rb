@@ -244,8 +244,7 @@ class ApplicationController < ActionController::Base
   end
 
   def teacher_discipline_score_type_by_exam_rule(exam_rule)
-    score_type = exam_rule.score_type
-
+    return unless (score_type = exam_rule.score_type)
     return if score_type == ScoreTypes::DONT_USE
     return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
 
