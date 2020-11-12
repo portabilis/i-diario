@@ -67,7 +67,7 @@ class ConceptualExamValue < ActiveRecord::Base
       ExamRule.arel_table[:score_type].eq(ScoreTypes::CONCEPT).
         or(
           ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT).
-          and(TeacherDisciplineClassroom.arel_table[:score_type].eq(ScoreTypes::NUMERIC))
+          and(TeacherDisciplineClassroom.arel_table[:score_type].eq(ScoreTypes::CONCEPT))
         ).or(
           differentiated_exam_rules[:score_type].eq(ScoreTypes::CONCEPT).
           and(differentiated_exam_rule_students[:id].not_eq(nil))
