@@ -22,30 +22,27 @@ class UserForStudentCreator
       password = "estudante#{student.api_code}"
       login = User.find_by(login: student.api_code) ? '' : student.api_code
 
-      User.find_or_initialize_by(
+      user = User.find_or_initialize_by(
         login: login,
         email: "#{student.api_code}@ambiente.portabilis.com.br",
         kind: RoleKind::STUDENT,
         student_id: student.id
-      ).tap do |user|
-        user.first_name = student.name
-        user.password = password
-        user.password_confirmation = password
-        user.status = UserStatus::ACTIVE
+      )
 
-        new_record = user.new_record?
+      next unless user.new_record?
 
-        user.save! if user.changed?
+      user.first_name = student.name
+      user.password = password
+      user.password_confirmation = password
+      user.status = UserStatus::ACTIVE
+      user.save!
 
-        next unless new_record
+      user_role = UserRole.create!(
+        user_id: user.id,
+        role_id: role_id
+      )
 
-        user_role = UserRole.create!(
-          user_id: user.id,
-          role_id: role_id
-        )
-
-        user.update(current_user_role_id: user_role.id)
-      end
+      user.update(current_user_role_id: user_role.id)
     end
   end
 end
