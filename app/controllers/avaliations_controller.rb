@@ -44,7 +44,11 @@ class AvaliationsController < ApplicationController
   def new
     return if redirect_to_avaliations
 
-    redirect_to avaliations_path, alert: "A disciplina selecionada não possui nota numérica" unless [teacher_differentiated_discipline_score_type, teacher_discipline_score_type].any? {|discipline_score_type| discipline_score_type != DisciplineScoreTypes::CONCEPT }
+    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+
+    if available_score_types.none? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
+      redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
+    end
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar

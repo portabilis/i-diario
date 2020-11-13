@@ -1,18 +1,4 @@
 class Discipline < ActiveRecord::Base
-
-  SCORE_TYPE_FILTERS = {
-    concept: {
-      score_type_numeric_and_concept: '3',
-      score_type_target: '2',
-      discipline_score_type_target: '1'
-    },
-    numeric: {
-      score_type_numeric_and_concept: '3',
-      score_type_target: '1',
-      discipline_score_type_target: '2'
-    }
-  }
-
   acts_as_copy_target
 
   audited
@@ -40,19 +26,19 @@ class Discipline < ActiveRecord::Base
           arel_table.join(differentiated_exam_rules, Arel::Nodes::OuterJoin).
             on(differentiated_exam_rules[:id].eq(exam_rules[:differentiated_exam_rule_id])).join_sources
         ).where(
-          exam_rules[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_target]).or(
-            exam_rules[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_numeric_and_concept]).
-            and(TeacherDisciplineClassroom.arel_table[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:discipline_score_type_target]))
+          exam_rules[:score_type].eq(score_type).or(
+            exam_rules[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT).
+            and(TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type))
           ).or(
-            differentiated_exam_rules[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_target])
+            differentiated_exam_rules[:score_type].eq(score_type)
           )
         ).uniq
     else
       scoped.where(
-        ExamRule.arel_table[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_target]).
+        ExamRule.arel_table[:score_type].eq(score_type).
         or(
-          ExamRule.arel_table[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:score_type_numeric_and_concept]).
-          and(TeacherDisciplineClassroom.arel_table[:score_type].eq(SCORE_TYPE_FILTERS[score_type.to_sym][:discipline_score_type_target]))
+          ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT).
+          and(TeacherDisciplineClassroom.arel_table[:score_type].eq(score_type))
         )
       ).uniq
     end
