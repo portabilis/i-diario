@@ -171,7 +171,7 @@ module ApplicationHelper
   end
 
   def default_steps
-    (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
+    SchoolTermTypeStep.to_select2
   end
 
   def back_link(name, path)

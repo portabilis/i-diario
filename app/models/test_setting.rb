@@ -12,6 +12,7 @@ class TestSetting < ActiveRecord::Base
 
   has_many :avaliations, dependent: :restrict_with_error
   has_many :tests, class_name: 'TestSettingTest', dependent: :destroy
+  belongs_to :school_term_type_step
 
   accepts_nested_attributes_for :tests, reject_if: :all_blank, allow_destroy: true
 
@@ -22,28 +23,13 @@ class TestSetting < ActiveRecord::Base
   validate :can_update_test_setting?, on: :update
 
   def to_s
-    if school_term.nil?
-      "#{year}"
-    else
-      "#{school_term_humanize}"
-    end
+    school_term_type_step ? school_term_humanize : year.to_s
   end
 
   def school_term_humanize
-    case
-    when school_term.nil?
-      '-'
-    when school_term.end_with?(SchoolTermTypes::BIMESTER)
-      I18n.t("enumerations.bimesters.#{school_term}")
-    when school_term.end_with?(SchoolTermTypes::BIMESTER_EJA)
-      I18n.t("enumerations.bimesters_eja.#{school_term}")
-    when school_term.end_with?(SchoolTermTypes::TRIMESTER)
-      I18n.t("enumerations.trimesters.#{school_term}")
-    when school_term.end_with?(SchoolTermTypes::SEMESTER)
-      I18n.t("enumerations.semesters.#{school_term}")
-    when school_term.end_with?(SchoolTermTypes::YEARLY)
-      I18n.t("enumerations.year.#{school_term}")
-    end
+    return '-' unless school_term_type_step
+
+    school_term_type_step
   end
 
   def can_update_test_setting?

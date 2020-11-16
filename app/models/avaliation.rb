@@ -169,7 +169,7 @@ class Avaliation < ActiveRecord::Base
                ExamSettingTypes::GENERAL_BY_SCHOOL
               ].include?(test_setting.exam_setting_type)
 
-    return if school_calendar.school_term_day?(test_setting.school_term, test_date, classroom)
+    return if school_calendar.school_term_day?(test_setting.school_term_type_step, test_date, classroom)
 
     errors.add(:test_date, :must_be_school_term_day)
   end
