@@ -45,7 +45,7 @@ class SchoolCalendarQuery
                      step_by_classroom(classrooms.id, avaliations.test_date) AS step
                WHERE classrooms.unity_id = unities.id
                  AND step.step_number = school_calendar_steps.step_number
-                 AND EXTRACT(YEAR FROM avaliations.test_date) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM avaliations.test_date) = date_part('year', CURRENT_DATE)
              ) AS td_avaliations,
      LATERAL (SELECT COUNT(1) AS count
                 FROM classrooms
@@ -56,7 +56,7 @@ class SchoolCalendarQuery
                      step_by_classroom(classrooms.id, avaliations.test_date) AS step
                WHERE classrooms.unity_id = unities.id
                  AND step.step_number = school_calendar_steps.step_number
-                 AND EXTRACT(YEAR FROM avaliations.test_date) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM avaliations.test_date) = date_part('year', CURRENT_DATE)
              ) AS td_daily_notes,
      LATERAL (SELECT COUNT(1) AS count
                 FROM classrooms
@@ -65,7 +65,7 @@ class SchoolCalendarQuery
                  AND conceptual_exams.discarded_at IS NULL
                WHERE classrooms.unity_id = unities.id
                  AND conceptual_exams.step_number = school_calendar_steps.step_number
-                 AND EXTRACT(YEAR FROM conceptual_exams.recorded_at) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM conceptual_exams.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_conceptual_exams,
      LATERAL (SELECT COUNT(1) AS count
                 FROM classrooms
@@ -80,7 +80,7 @@ class SchoolCalendarQuery
                           AND descriptive_exam_students.discarded_at IS NULL
                           AND COALESCE(descriptive_exam_students.value, '') <> ''
                      )
-                 AND EXTRACT(YEAR FROM descriptive_exams.recorded_at) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM descriptive_exams.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_descriptive_exams,
      LATERAL (SELECT EXISTS (
                 SELECT 1
@@ -90,28 +90,23 @@ class SchoolCalendarQuery
                        step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
                  WHERE classrooms.unity_id = unities.id
                    AND step.step_number = school_calendar_steps.step_number
-                   AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = #{Date.current.year}) AS frequencies
+                   AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = date_part('year', CURRENT_DATE)) AS frequencies
              ) AS td_daily_frequencies,
      LATERAL (SELECT EXISTS (
                 SELECT 1
                   FROM teaching_plans
+                  JOIN school_term_types ON teaching_plans.school_term_type_id = school_term_types.id
+                  JOIN school_term_type_steps ON school_term_types.id = school_term_type_steps.school_term_type_id
                  WHERE teaching_plans.unity_id = unities.id
-                   AND school_calendar_steps.step_number = (
-                     CASE
-                       WHEN teaching_plans.school_term = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
-                       WHEN teaching_plans.school_term = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
-                       WHEN teaching_plans.school_term = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
-                       WHEN teaching_plans.school_term = ANY(ARRAY['fourth_bimester']) THEN 4
-                     END
-                   )
-                   AND teaching_plans.year = #{Date.current.year}) AS plans
+                   AND school_calendar_steps.step_number = school_term_type_steps.step_number
+                   AND teaching_plans.year = date_part('year', CURRENT_DATE)) AS plans
              ) AS td_teaching_plans,
      LATERAL (SELECT EXISTS (
                 SELECT 1
                   FROM teaching_plans
                  WHERE teaching_plans.unity_id = unities.id
-                   AND teaching_plans.school_term = ''
-                   AND teaching_plans.year = #{Date.current.year}) AS plans
+                   AND teaching_plans.school_term_type_id IS NULL
+                   AND teaching_plans.year = date_part('year', CURRENT_DATE)) AS plans
              ) AS td_yearly_teaching_plans,
      LATERAL (SELECT COUNT(1) AS count
                 FROM classrooms
@@ -120,7 +115,7 @@ class SchoolCalendarQuery
                      step_by_classroom(classrooms.id, transfer_notes.recorded_at) AS step
                WHERE classrooms.unity_id = unities.id
                  AND step.step_number = school_calendar_steps.step_number
-                 AND EXTRACT(YEAR FROM transfer_notes.recorded_at) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM transfer_notes.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_transfer_notes,
      LATERAL (SELECT COUNT(1) AS count
                 FROM classrooms
@@ -128,7 +123,7 @@ class SchoolCalendarQuery
                   ON complementary_exams.classroom_id = classrooms.id
                WHERE classrooms.unity_id = unities.id
                  AND complementary_exams.step_number = school_calendar_steps.step_number
-                 AND EXTRACT(YEAR FROM complementary_exams.recorded_at) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM complementary_exams.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_complementary_exams,
      LATERAL (SELECT COUNT(1) AS count
                 FROM classrooms
@@ -139,7 +134,7 @@ class SchoolCalendarQuery
                      step_by_classroom(classrooms.id, avaliations.test_date) AS step
                WHERE classrooms.unity_id = unities.id
                  AND step.step_number = school_calendar_steps.step_number
-                 AND EXTRACT(YEAR FROM avaliations.test_date) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM avaliations.test_date) = date_part('year', CURRENT_DATE)
              ) AS td_avaliations_recovery_diary_records,
      LATERAL (SELECT COUNT(1) AS count
                 FROM recovery_diary_records
@@ -147,9 +142,9 @@ class SchoolCalendarQuery
                   ON school_term_recovery_diary_records.recovery_diary_record_id = recovery_diary_records.id
                WHERE school_term_recovery_diary_records.step_number = school_calendar_steps.step_number
                  AND recovery_diary_records.unity_id = unities.id
-                 AND EXTRACT(YEAR FROM school_term_recovery_diary_records.recorded_at) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM school_term_recovery_diary_records.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_school_term_recovery_diary_record
-       WHERE school_calendars.year = #{Date.current.year}
+       WHERE school_calendars.year = date_part('year', CURRENT_DATE)
        UNION ALL
       SELECT unities.name AS unity_name,
              'Turma' AS kind,
@@ -185,7 +180,7 @@ class SchoolCalendarQuery
                      step_by_classroom(classrooms.id, avaliations.test_date) AS step
                WHERE avaliations.classroom_id = classrooms.id
                  AND step.step_number = school_calendar_classroom_steps.step_number
-                 AND EXTRACT(YEAR FROM avaliations.test_date) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM avaliations.test_date) = date_part('year', CURRENT_DATE)
              ) AS td_avaliations,
      LATERAL (SELECT COUNT(1) AS count
                 FROM avaliations
@@ -194,14 +189,14 @@ class SchoolCalendarQuery
                      step_by_classroom(classrooms.id, avaliations.test_date) AS step
                WHERE avaliations.classroom_id = classrooms.id
                  AND step.step_number = school_calendar_classroom_steps.step_number
-                 AND EXTRACT(YEAR FROM avaliations.test_date) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM avaliations.test_date) = date_part('year', CURRENT_DATE)
              ) AS td_daily_notes,
      LATERAL (SELECT COUNT(1) AS count
                 FROM conceptual_exams
                WHERE conceptual_exams.classroom_id = classrooms.id
                  AND conceptual_exams.discarded_at IS NULL
                  AND conceptual_exams.step_number = school_calendar_classroom_steps.step_number
-                 AND EXTRACT(YEAR FROM conceptual_exams.recorded_at) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM conceptual_exams.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_conceptual_exams,
      LATERAL (SELECT COUNT(1) AS count
                 FROM descriptive_exams
@@ -214,7 +209,7 @@ class SchoolCalendarQuery
                           AND descriptive_exam_students.discarded_at IS NULL
                           AND COALESCE(descriptive_exam_students.value, '') <> ''
                      )
-                 AND EXTRACT(YEAR FROM descriptive_exams.recorded_at) = #{Date.current.year}
+                 AND EXTRACT(YEAR FROM descriptive_exams.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_descriptive_exams,
      LATERAL (SELECT EXISTS (
                 SELECT 1
@@ -224,28 +219,29 @@ class SchoolCalendarQuery
                        step_by_classroom(classrooms.id, daily_frequencies.frequency_date) AS step
                  WHERE classrooms.unity_id = unities.id
                    AND step.step_number = school_calendar_classroom_steps.step_number
-                   AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = #{Date.current.year}) AS frequencies
+                   AND EXTRACT(YEAR FROM daily_frequencies.frequency_date) = date_part('year', CURRENT_DATE)) AS frequencies
              ) AS td_daily_frequencies,
      LATERAL (SELECT EXISTS (
-                SELECT COUNT(1) AS count
+                SELECT 1
                   FROM teaching_plans
+                  JOIN school_term_types ON teaching_plans.school_term_type_id = school_term_types.id
+                  JOIN school_term_type_steps ON school_term_types.id = school_term_type_steps.school_term_type_id
                  WHERE teaching_plans.unity_id = unities.id
-                   AND school_calendar_classroom_steps.step_number = (
-                     CASE
-                       WHEN teaching_plans.school_term = ANY(ARRAY['first_bimester', 'first_bimester_eja', 'first_trimester', 'first_semester']) THEN 1
-                       WHEN teaching_plans.school_term = ANY(ARRAY['second_bimester', 'second_bimester_eja', 'second_trimester', 'second_semester']) THEN 2
-                       WHEN teaching_plans.school_term = ANY(ARRAY['third_bimester', 'third_trimester']) THEN 3
-                       WHEN teaching_plans.school_term = ANY(ARRAY['fourth_bimester']) THEN 4
-                     END
+                   AND teaching_plans.grade_id = (
+                     SELECT grade_id
+                       FROM classrooms
+                      WHERE id = school_calendar_classrooms.classroom_id
+                      LIMIT 1
                    )
-                   AND teaching_plans.year = #{Date.current.year}) AS plans
+                   AND school_calendar_classroom_steps.step_number = school_term_type_steps.step_number
+                   AND teaching_plans.year = date_part('year', CURRENT_DATE)) AS plans
              ) AS td_teaching_plans,
      LATERAL (SELECT EXISTS (
                 SELECT 1
                   FROM teaching_plans
                  WHERE teaching_plans.unity_id = unities.id
-                   AND teaching_plans.school_term = ''
-                   AND teaching_plans.year = #{Date.current.year}) AS plans
+                   AND teaching_plans.school_term_type_id IS NULL
+                   AND teaching_plans.year = date_part('year', CURRENT_DATE)) AS plans
              ) AS td_yearly_teaching_plans,
      LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
@@ -254,7 +250,7 @@ class SchoolCalendarQuery
                       step_by_classroom(classrooms.id, transfer_notes.recorded_at) AS step
                 WHERE classrooms.unity_id = unities.id
                   AND step.step_number = school_calendar_classroom_steps.step_number
-                  AND EXTRACT(YEAR FROM transfer_notes.recorded_at) = #{Date.current.year}
+                  AND EXTRACT(YEAR FROM transfer_notes.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_transfer_notes,
      LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
@@ -262,7 +258,7 @@ class SchoolCalendarQuery
                    ON complementary_exams.classroom_id = classrooms.id
                 WHERE classrooms.unity_id = unities.id
                   AND complementary_exams.step_number = school_calendar_classroom_steps.step_number
-                  AND EXTRACT(YEAR FROM complementary_exams.recorded_at) = #{Date.current.year}
+                  AND EXTRACT(YEAR FROM complementary_exams.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_complementary_exams,
      LATERAL (SELECT COUNT(1) AS count
                  FROM classrooms
@@ -273,7 +269,7 @@ class SchoolCalendarQuery
                       step_by_classroom(classrooms.id, avaliations.test_date) AS step
                 WHERE classrooms.unity_id = unities.id
                   AND step.step_number = school_calendar_classroom_steps.step_number
-                  AND EXTRACT(YEAR FROM avaliations.test_date) = #{Date.current.year}
+                  AND EXTRACT(YEAR FROM avaliations.test_date) = date_part('year', CURRENT_DATE)
              ) AS td_avaliations_recovery_diary_records,
      LATERAL (SELECT COUNT(1) AS count
                  FROM recovery_diary_records
@@ -281,9 +277,9 @@ class SchoolCalendarQuery
                    ON school_term_recovery_diary_records.recovery_diary_record_id = recovery_diary_records.id
                 WHERE school_term_recovery_diary_records.step_number = school_calendar_classroom_steps.step_number
                   AND recovery_diary_records.unity_id = unities.id
-                  AND EXTRACT(YEAR FROM school_term_recovery_diary_records.recorded_at) = #{Date.current.year}
+                  AND EXTRACT(YEAR FROM school_term_recovery_diary_records.recorded_at) = date_part('year', CURRENT_DATE)
              ) AS td_school_term_recovery_diary_record
-       WHERE school_calendars.year = #{Date.current.year}
+       WHERE school_calendars.year = date_part('year', CURRENT_DATE)
     ORDER BY unity_name, kind, classroom, step
     SQL
   end
