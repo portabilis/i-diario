@@ -95,7 +95,7 @@ Rails.application.routes.draw do
     get '/current_role/available_teachers', to: 'current_role#available_teachers', as: :available_teachers
     get '/current_role/available_unities', to: 'current_role#available_unities', as: :available_unities
     get '/current_role/available_teacher_profiles', to: 'current_role#available_teacher_profiles', as: :available_teacher_profiles
-
+    get '/steps_by_school_term_type_id', to: 'school_term_type_steps#steps', as: :steps_by_school_term_type_id
     post '/system_notifications/read_all', to: 'system_notifications#read_all', as: :read_all_notifications
     get '/disabled_entity', to: 'pages#disabled_entity'
 

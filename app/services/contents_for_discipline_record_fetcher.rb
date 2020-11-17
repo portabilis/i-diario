@@ -45,7 +45,7 @@ class ContentsForDisciplineRecordFetcher
                                              .by_grade(@classroom.grade_id)
                                              .by_discipline(@discipline.id)
                                              .by_year(school_calendar_year)
-                                             .by_school_term(school_term)
+                                             .by_school_term_type_step_id(school_term_type_steps_ids)
 
       teacher_teaching_plans = teaching_plans.by_teacher_id(@teacher.id)
       filtered_teaching_plans = teacher_teaching_plans if teacher_teaching_plans.exists?
@@ -74,17 +74,15 @@ class ContentsForDisciplineRecordFetcher
     steps_fetcher.school_calendar.try(:year) || @date.to_date.year
   end
 
-  def raw_school_term
+  def school_term_type_steps_ids
     step = steps_fetcher.step_by_date(@date.to_date)
-    school_term = SchoolTermConverter.convert(step)
-    school_term = '' if school_term.to_s == SchoolTermTypes::YEARLY.to_s
-    school_term.to_s
-  end
+    steps_number = step.school_calendar_parent.steps.size
 
-  def school_term
-    school_terms = []
-    school_terms << SchoolTerms::FIRST_BIMESTER_EJA if raw_school_term == SchoolTerms::FIRST_SEMESTER
-    school_terms << SchoolTerms::SECOND_BIMESTER_EJA if raw_school_term == SchoolTerms::SECOND_SEMESTER
-    [raw_school_term] + school_terms
+    return if steps_number == 1
+
+    SchoolTermTypeStep.joins(:school_term_type)
+                      .where(step_number: step.step_number)
+                      .where(school_term_type: { steps_number: steps_number })
+                      .pluck(:id)
   end
 end

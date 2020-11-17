@@ -9,6 +9,12 @@ class DisciplineTeachingPlansController < ApplicationController
     params[:filter] ||= {}
     author_type = PlansAuthors::MY_PLANS if params[:filter].empty?
     author_type ||= (params[:filter] || []).delete(:by_author)
+    yearly = false
+
+    if params.dig(:filter, :by_school_term_type_id) == 'yearly'
+      yearly = true
+      params[:filter].delete(:by_school_term_type_id)
+    end
 
     @discipline_teaching_plans = apply_scopes(
       DisciplineTeachingPlan.includes(:discipline,
@@ -16,6 +22,8 @@ class DisciplineTeachingPlansController < ApplicationController
                             .by_unity(current_unity)
                             .by_year(current_school_year)
     )
+
+    @discipline_teaching_plans = @discipline_teaching_plans.yearly_school_term_type if yearly
 
     unless current_user_is_employee_or_administrator?
       @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.try(:grade))
@@ -183,8 +191,8 @@ class DisciplineTeachingPlansController < ApplicationController
         :year,
         :unity_id,
         :grade_id,
-        :school_term_type,
-        :school_term,
+        :school_term_type_id,
+        :school_term_type_step_id,
         :content,
         :methodology,
         :evaluation,
