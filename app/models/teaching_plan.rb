@@ -82,6 +82,10 @@ class TeachingPlan < ActiveRecord::Base
     teaching_plan_attachments.any?
   end
 
+  def yearly?
+    school_term_type.nil?
+  end
+
   private
 
   def at_least_one_content_assigned
@@ -92,9 +96,5 @@ class TeachingPlan < ActiveRecord::Base
 
   def contents_empty?
     contents.empty? || (contents.size == contents.select(&:marked_for_destruction?).size)
-  end
-
-  def yearly?
-    school_term_type.nil?
   end
 end
