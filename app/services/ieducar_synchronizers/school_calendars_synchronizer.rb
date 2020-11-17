@@ -51,7 +51,10 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
 
           destroy_removed_steps(school_calendar_id)
 
-          count_school_days(school_calendar) if school_calendar.new_record? || @changed_steps || @removed_steps
+          if school_calendar.new_record? || @changed_steps || @removed_steps
+            count_school_days(school_calendar)
+            update_or_create_school_term_types(school_calendar)
+          end
 
           unless school_calendar.opened_year
             remove_closed_years_on_selected_profiles(school_calendar.unity_id, school_calendar.year)
@@ -145,5 +148,14 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
     error_message = "#{unity}: #{error.message}"
 
     worker_state.add_error!(error_message)
+  end
+
+  def update_or_create_school_term_types(school_calendar)
+    SchoolTermTypeUpdaterWorker.perform_in(
+      1.second,
+      entity_id,
+      school_calendar.id,
+      nil
+    )
   end
 end
