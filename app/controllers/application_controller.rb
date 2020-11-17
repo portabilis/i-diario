@@ -225,9 +225,7 @@ class ApplicationController < ActionController::Base
   end
 
   def teacher_discipline_score_type
-    return DisciplineScoreTypes::NUMERIC if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC
-    return DisciplineScoreTypes::CONCEPT if current_user_classroom.exam_rule.score_type == ScoreTypes::CONCEPT
-    TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+    teacher_discipline_score_type_by_exam_rule(current_user_classroom.exam_rule)
   end
 
   def current_user_is_employee_or_administrator?
@@ -237,11 +235,24 @@ class ApplicationController < ActionController::Base
   def teacher_differentiated_discipline_score_type
     exam_rule = current_user_classroom.exam_rule
     differentiated_exam_rule = exam_rule.differentiated_exam_rule
-    return teacher_discipline_score_type unless differentiated_exam_rule.present?
-    return teacher_discipline_score_type unless current_user_classroom.has_differentiated_students?
-    return DisciplineScoreTypes::NUMERIC if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC
-    return DisciplineScoreTypes::CONCEPT if differentiated_exam_rule.score_type == ScoreTypes::CONCEPT
-    TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+
+    if differentiated_exam_rule.blank? || !current_user_classroom.has_differentiated_students?
+      return teacher_discipline_score_type_by_exam_rule(exam_rule)
+    end
+
+    teacher_discipline_score_type_by_exam_rule(differentiated_exam_rule)
+  end
+
+  def teacher_discipline_score_type_by_exam_rule(exam_rule)
+    return unless (score_type = exam_rule.score_type)
+    return if score_type == ScoreTypes::DONT_USE
+    return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
+
+    TeacherDisciplineClassroom.find_by(
+      classroom: current_user_classroom,
+      teacher: current_teacher,
+      discipline: current_user_discipline
+    ).score_type
   end
 
   def set_user_current

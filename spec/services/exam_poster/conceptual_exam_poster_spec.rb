@@ -97,12 +97,12 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
           :teacher_discipline_classroom,
           classroom: classroom,
           discipline: discipline,
-          score_type: DisciplineScoreTypes::CONCEPT
+          score_type: ScoreTypes::CONCEPT
         )
       }
 
       it 'does not enqueue the requests' do
-        teacher_discipline_classroom.update(score_type: DisciplineScoreTypes::NUMERIC)
+        teacher_discipline_classroom.update(score_type: ScoreTypes::NUMERIC)
 
         subject.post!
 
@@ -142,7 +142,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
           :teacher_discipline_classroom,
           classroom: classroom,
           discipline: discipline,
-          score_type: DisciplineScoreTypes::CONCEPT
+          score_type: ScoreTypes::CONCEPT
         )
       }
 
@@ -185,7 +185,7 @@ RSpec.describe ExamPoster::ConceptualExamPoster do
           :teacher_discipline_classroom,
           classroom: classroom,
           discipline: discipline,
-          score_type: DisciplineScoreTypes::NUMERIC
+          score_type: ScoreTypes::NUMERIC
         )
       }
 
