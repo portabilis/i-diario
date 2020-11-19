@@ -37,10 +37,9 @@ class PopulateSchoolTermTypeToTeachingPlans < ActiveRecord::Migration
 
       next if school_term_type_step_id.blank?
 
-      teaching_plan.update(
-        school_term_type_id: school_term_type.id,
-        school_term_type_step_id: school_term_type_step_id
-      )
+      teaching_plan.school_term_type_id = school_term_type.id
+      teaching_plan.school_term_type_step_id = school_term_type_step_id
+      teaching_plan.save!(validate: false)
     end
   end
 end
