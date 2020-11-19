@@ -1,6 +1,5 @@
 class TeachingPlanContentsFetcher
-  YEARLY_SCHOOL_TERM_TYPE = ''.freeze
-
+  YEARLY_SCHOOL_TERM_TYPE = nil
   def fetch
     teaching_plans.map(&:contents).uniq.flatten
   end
@@ -40,6 +39,6 @@ class TeachingPlanContentsFetcher
                                                    .where(step_number: step.step_number)
                                                    .where(school_term_type: { steps_number: steps_numbers })
                                                    .pluck(:id)
-    school_term_type_steps_ids << nil
+    school_term_type_steps_ids << YEARLY_SCHOOL_TERM_TYPE
   end
 end
