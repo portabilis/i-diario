@@ -21,24 +21,28 @@ class SchoolTermTypeUpdaterWorker
 
           school_term_type.save! if school_term_type.changed?
 
-          if new_record
-            1.upto(steps_number) do |step_number|
-              if (discarded_step = SchoolTermTypeStep.discarded.find_by(school_term_type_id: school_term_type.id,
-                                                                        step_number: step_number))
-                discarded_step.undiscard
-              else
-                SchoolTermTypeStep.create(school_term_type_id: school_term_type.id, step_number: step_number)
-              end
-            end
-          else
-            SchoolTermTypeStep.where(school_term_type_id: school_term_type.id)
-                              .where('step_number > :steps_number', steps_number: steps_number)
-                              .discard_all
-          end
+          create_or_discard_step(new_record, school_term_type, steps_number)
         end
       rescue ActiveRecord::RecordNotUnique
         retry
       end
+    end
+  end
+
+  def create_or_discard_step(new_record, school_term_type, steps_number)
+    if new_record
+      1.upto(steps_number) do |step_number|
+        if (discarded_step = SchoolTermTypeStep.discarded.find_by(school_term_type_id: school_term_type.id,
+                                                                  step_number: step_number))
+          discarded_step.undiscard
+        else
+          SchoolTermTypeStep.create(school_term_type_id: school_term_type.id, step_number: step_number)
+        end
+      end
+    else
+      SchoolTermTypeStep.where(school_term_type_id: school_term_type.id)
+                        .where('step_number > :steps_number', steps_number: steps_number)
+                        .discard_all
     end
   end
 end
