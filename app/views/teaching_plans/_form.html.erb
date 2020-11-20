@@ -24,7 +24,13 @@
 
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.association :school_term_type, as: :select2, elements: SchoolTermType.to_select2(add_yearly: true, add_yearly_value: true).to_json %>
+        <%= f.association :school_term_type, as: :select2,
+                          elements: SchoolTermType.to_select2(
+                            current_user.current_school_year,
+                            current_user.current_unity_id,
+                            add_yearly: true,
+                            add_yearly_value: true
+                          ).to_json %>
       </div>
 
       <div id="school_term_type" class="col col-sm-4">

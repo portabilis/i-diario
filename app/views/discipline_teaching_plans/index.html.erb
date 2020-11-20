@@ -15,12 +15,20 @@
             </td>
             <td>
               <%= f.input :by_school_term_type_id, as: :select2,
-                    elements: SchoolTermType.to_select2(add_yearly: true, add_yearly_value: true).to_json,
+                    elements: SchoolTermType.to_select2(
+                      current_user.current_school_year,
+                      current_user.current_unity_id,
+                      add_yearly: true,
+                      add_yearly_value: true
+                    ).to_json,
                     label: false, placeholder: t('.by_school_term_type') %>
             </td>
             <td>
               <%= f.input :by_school_term_type_step_id, as: :select2,
-                    elements: SchoolTermTypeStep.to_select2.to_json,
+                    elements: SchoolTermTypeStep.to_select2(
+                      current_user.current_school_year,
+                      current_user.current_unity_id
+                    ).to_json,
                     label: false, placeholder: t('.by_school_term_type_step') %>
             </td>
             <td>

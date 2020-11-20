@@ -51,7 +51,12 @@
       <div class="row">
         <div class="col col-sm-4">
           <%= teaching_plan_form.association :school_term_type, as: :select2, required: true,
-                elements: SchoolTermType.to_select2(add_yearly: true, add_empty_element: false).to_json,
+                elements: SchoolTermType.to_select2(
+                  current_user.current_school_year,
+                  current_user.current_unity_id,
+                  add_yearly: true,
+                  add_empty_element: false
+                ).to_json,
                 input_html: { value: teaching_plan_form.object.school_term_type_id,
                               data: { without_json_parser: true } },
                 readonly: action_name == 'show' %>

@@ -170,10 +170,6 @@ module ApplicationHelper
     yield(presenter) if block_given?
   end
 
-  def default_steps
-    SchoolTermTypeStep.to_select2
-  end
-
   def back_link(name, path)
     content_for :back_link do
       back_link_tag(name, path)
