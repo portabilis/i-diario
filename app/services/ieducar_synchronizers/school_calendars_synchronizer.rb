@@ -1,5 +1,6 @@
 class SchoolCalendarsSynchronizer < BaseSynchronizer
   DEFAULT_NUMBER_OF_CLASSES = 4
+  YEARLY_SCHOOL_TERM_TYPE_DESCRIPTION = 'Anual'.freeze
 
   def synchronize!
     update_school_calendars(
@@ -21,6 +22,8 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
   end
 
   def update_school_calendars(school_calendars)
+    create_yearly_school_term_type
+
     school_calendars.each do |school_calendar_record|
       unity_id = unity(school_calendar_record.escola_id).try(&:id)
 
@@ -157,5 +160,11 @@ class SchoolCalendarsSynchronizer < BaseSynchronizer
       school_calendar.id,
       nil
     )
+  end
+
+  def create_yearly_school_term_type
+    return if SchoolTermType.where(description: YEARLY_SCHOOL_TERM_TYPE_DESCRIPTION).exists?
+
+    SchoolTermType.create!(description: YEARLY_SCHOOL_TERM_TYPE_DESCRIPTION, steps_number: 1)
   end
 end
