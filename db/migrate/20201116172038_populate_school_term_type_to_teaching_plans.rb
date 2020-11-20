@@ -1,6 +1,6 @@
 class PopulateSchoolTermTypeToTeachingPlans < ActiveRecord::Migration
   def change
-    TeachingPlan.where.not(school_term: '').each do |teaching_plan|
+    TeachingPlan.find_each do |teaching_plan|
       school_term = teaching_plan.school_term
 
       if school_term.ends_with?('bimester')
@@ -19,7 +19,7 @@ class PopulateSchoolTermTypeToTeachingPlans < ActiveRecord::Migration
                       when 'second_bimester_eja' then 2
                       else 2
                       end
-      else
+      elsif school_term.ends_with?('trimester')
         steps_number = 3
         step_number = case school_term
                       when 'first_trimester' then 1
@@ -28,17 +28,22 @@ class PopulateSchoolTermTypeToTeachingPlans < ActiveRecord::Migration
                       end
       end
 
-      next unless (school_term_type = SchoolTermType.find_by(steps_number: steps_number))
+      if steps_number
+        next unless (school_term_type = SchoolTermType.find_by(steps_number: steps_number))
 
-      school_term_type_step_id = SchoolTermTypeStep.find_by(
-        school_term_type_id: school_term_type.id,
-        step_number: step_number
-      )&.id
+        school_term_type_step_id = SchoolTermTypeStep.find_by(
+          school_term_type_id: school_term_type.id,
+          step_number: step_number
+        )&.id
 
-      next if school_term_type_step_id.blank?
+        next if school_term_type_step_id.blank?
 
-      teaching_plan.school_term_type_id = school_term_type.id
-      teaching_plan.school_term_type_step_id = school_term_type_step_id
+        teaching_plan.school_term_type_id = school_term_type.id
+        teaching_plan.school_term_type_step_id = school_term_type_step_id
+      else
+        teaching_plan.school_term_type_id = 1
+      end
+
       teaching_plan.save!(validate: false)
     end
   end

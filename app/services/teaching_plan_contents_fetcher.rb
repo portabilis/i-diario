@@ -1,5 +1,6 @@
 class TeachingPlanContentsFetcher
-  YEARLY_SCHOOL_TERM_TYPE = nil
+  YEARLY_SCHOOL_TERM_TYPE_STEP_ID = nil
+
   def fetch
     teaching_plans.map(&:contents).uniq.flatten
   end
@@ -32,13 +33,12 @@ class TeachingPlanContentsFetcher
   end
 
   def school_term_type_steps_ids
-    steps_numbers = steps_fetcher.steps_by_date_range(@start_date.to_date, @end_date.to_date)
-                                 .map(&:step.step_number)
+    steps_numbers = steps_fetcher.steps_by_date_range(@start_date.to_date, @end_date.to_date).map(&:step_number)
 
     school_term_type_steps_ids = SchoolTermTypeStep.joins(:school_term_type)
                                                    .where(step_number: step.step_number)
                                                    .where(school_term_type: { steps_number: steps_numbers })
                                                    .pluck(:id)
-    school_term_type_steps_ids << YEARLY_SCHOOL_TERM_TYPE
+    school_term_type_steps_ids << YEARLY_SCHOOL_TERM_TYPE_STEP_ID
   end
 end

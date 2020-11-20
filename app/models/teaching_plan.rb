@@ -62,12 +62,6 @@ class TeachingPlan < ActiveRecord::Base
     objectives.order('objectives_teaching_plans.position')
   end
 
-  def school_term_type_humanize
-    return 'Anual' if yearly?
-
-    school_term_type
-  end
-
   def school_term_type_step_humanize
     return '' if yearly?
 
@@ -83,7 +77,7 @@ class TeachingPlan < ActiveRecord::Base
   end
 
   def yearly?
-    school_term_type.nil?
+    school_term_type.id == 1
   end
 
   private

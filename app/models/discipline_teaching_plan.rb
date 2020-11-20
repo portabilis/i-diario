@@ -29,9 +29,6 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   scope :by_school_term_type_step_id, lambda { |school_term_type_step_id|
     joins(:teaching_plan).where(teaching_plans: { school_term_type_step_id: school_term_type_step_id })
   }
-  scope :yearly_school_term_type, lambda {
-    joins(:teaching_plan).where(teaching_plans: { school_term_type_id: nil })
-  }
   scope :by_discipline, ->(discipline) { where(discipline: discipline) }
   scope :by_teacher_id, ->(teacher_id) { joins(:teaching_plan).where(teaching_plans: { teacher_id: teacher_id }) }
   scope :by_other_teacher_id, lambda { |teacher_id|

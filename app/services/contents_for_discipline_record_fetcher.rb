@@ -77,12 +77,11 @@ class ContentsForDisciplineRecordFetcher
   def school_term_type_steps_ids
     step = steps_fetcher.step_by_date(@date.to_date)
     steps_number = step.school_calendar_parent.steps.size
-
-    return if steps_number == 1
+    description = step.school_calendar_parent.step_type_description
 
     SchoolTermTypeStep.joins(:school_term_type)
                       .where(step_number: step.step_number)
-                      .where(school_term_type: { steps_number: steps_number })
+                      .where(school_term_types: { steps_number: steps_number, description: description })
                       .pluck(:id)
   end
 end

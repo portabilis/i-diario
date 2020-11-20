@@ -7,17 +7,10 @@ class SchoolTermType < ActiveRecord::Base
     description
   end
 
-  def self.to_select2(year, unity_id, add_yearly: false, add_yearly_value: false, add_empty_element: true)
-    term_types = current_year_school_term_types(year, unity_id)
+  def self.to_select2(year, unity_id, add_yearly: true, add_empty_element: true)
+    term_types = current_year_school_term_types(year, unity_id, add_yearly)
     elements = term_types.map { |step_type| { id: step_type.id, name: step_type.to_s, text: step_type.to_s } }
     elements.insert(0, id: 'empty', name: '<option></option>', text: '') if add_empty_element
-
-    if add_yearly
-      yearly_entry = { id: '', name: 'Anual', text: 'Anual' }
-      yearly_entry[:id] = 'yearly' if add_yearly_value
-
-      elements << yearly_entry
-    end
 
     elements
   end
