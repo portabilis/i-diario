@@ -12,49 +12,12 @@ $(function() {
   var $schoolTerm = $('#knowledge_area_teaching_plan_teaching_plan_attributes_school_term_type_step_id');
   var flashMessages = new FlashMessages();
 
-  function handleFetchSchoolTermTypeStepsSuccess(data){
-    var steps = _.map(data.school_term_type_steps, function(school_term_type_steps) {
-      return { id: school_term_type_steps.id, text: school_term_type_steps.description };
-    });
-
-    $schoolTerm.select2({ data: steps });
-    $schoolTermContainer.show();
-  }
-
-  function handleFetchSchoolTermTypeStepsError() {
-    flashMessages.error('Ocorreu um erro ao buscar as etapas');
-    $schoolTerm.val('');
-    $schoolTermContainer.hide();
-  };
-
-  function updateSchoolTermInput() {
-    var school_term_type_id = $schoolTermType.select2('val');
-
-    if (!_.isEmpty(school_term_type_id)) {
-      $.ajax({
-        url: Routes.steps_by_school_term_type_id_pt_br_path({
-          school_term_type_id: school_term_type_id,
-          format: 'json'
-        }),
-        success: handleFetchSchoolTermTypeStepsSuccess,
-        error: handleFetchSchoolTermTypeStepsError
-      });
-    } else {
-      $schoolTerm.val('');
-      $schoolTermContainer.hide();
-    }
-  }
-
-  // On change
-
   $schoolTermType.on('change', function() {
-    updateSchoolTermInput();
+    updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);
     $('#copy_plan_info').show();
   });
 
-  // On load
-
-  updateSchoolTermInput();
+  updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);
 
   validate_attachment_size($('#knowledge_area_teaching_plan'));
 
