@@ -23,12 +23,17 @@ class SchoolTermTypeUpdaterWorker
 
           if new_record
             1.upto(steps_number) do |step_number|
-              SchoolTermTypeStep.create(school_term_type_id: school_term_type.id, step_number: step_number)
+              if (discarded_step = SchoolTermTypeStep.discarded.find_by(school_term_type_id: school_term_type.id,
+                                                                        step_number: step_number))
+                discarded_step.undiscard
+              else
+                SchoolTermTypeStep.create(school_term_type_id: school_term_type.id, step_number: step_number)
+              end
             end
           else
             SchoolTermTypeStep.where(school_term_type_id: school_term_type.id)
                               .where('step_number > :steps_number', steps_number: steps_number)
-                              .destroy_all
+                              .discard_all
           end
         end
       rescue ActiveRecord::RecordNotUnique

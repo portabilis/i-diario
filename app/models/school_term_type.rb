@@ -1,7 +1,7 @@
 class SchoolTermType < ActiveRecord::Base
   include SchoolCalendarFilterable
 
-  has_many :school_term_type_steps, dependent: :destroy
+  has_many :school_term_type_steps, -> { kept }, dependent: :destroy
 
   def to_s
     description
