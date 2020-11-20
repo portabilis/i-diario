@@ -98,6 +98,7 @@ class SchoolCalendarQuery
                   JOIN school_term_types ON teaching_plans.school_term_type_id = school_term_types.id
                   JOIN school_term_type_steps ON school_term_types.id = school_term_type_steps.school_term_type_id
                  WHERE teaching_plans.unity_id = unities.id
+                   AND teaching_plans.school_term_type_id <> 1
                    AND school_calendar_steps.step_number = school_term_type_steps.step_number
                    AND teaching_plans.year = date_part('year', CURRENT_DATE)) AS plans
              ) AS td_teaching_plans,
@@ -105,7 +106,7 @@ class SchoolCalendarQuery
                 SELECT 1
                   FROM teaching_plans
                  WHERE teaching_plans.unity_id = unities.id
-                   AND teaching_plans.school_term_type_id IS NULL
+                   AND teaching_plans.school_term_type_id = 1
                    AND teaching_plans.year = date_part('year', CURRENT_DATE)) AS plans
              ) AS td_yearly_teaching_plans,
      LATERAL (SELECT COUNT(1) AS count
@@ -227,6 +228,7 @@ class SchoolCalendarQuery
                   JOIN school_term_types ON teaching_plans.school_term_type_id = school_term_types.id
                   JOIN school_term_type_steps ON school_term_types.id = school_term_type_steps.school_term_type_id
                  WHERE teaching_plans.unity_id = unities.id
+                   AND teaching_plans.school_term_type_id <> 1
                    AND teaching_plans.grade_id = (
                      SELECT grade_id
                        FROM classrooms
@@ -240,7 +242,7 @@ class SchoolCalendarQuery
                 SELECT 1
                   FROM teaching_plans
                  WHERE teaching_plans.unity_id = unities.id
-                   AND teaching_plans.school_term_type_id IS NULL
+                   AND teaching_plans.school_term_type_id = 1
                    AND teaching_plans.year = date_part('year', CURRENT_DATE)) AS plans
              ) AS td_yearly_teaching_plans,
      LATERAL (SELECT COUNT(1) AS count
