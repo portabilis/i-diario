@@ -11,7 +11,7 @@ class TestSettingFetcher
   def current
     raise ArgumentError if @classroom.blank?
 
-    year = @step.try(:school_calendar).try(:year) || Date.current.year
+    year = @step.try(:school_calendar).try(:year) || @classroom.year
 
     general_by_school_test_setting = general_by_school_test_setting(year)
 
