@@ -168,6 +168,15 @@ class DisciplineLessonPlanPdf < BaseReport
       borders: [:bottom, :left, :right, :top],
       padding: [0, 2, 4, 4], colspan: 4
     )
+
+    opinion_cell_content = inline_formated_cell_header('Parecer') + lesson_plan.opinion.to_s
+    @opinion_cell = make_cell(
+      content: opinion_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
+    )
   end
 
   def general_information

@@ -17,14 +17,17 @@ class UserForStudentCreator
     Student.joins('LEFT JOIN users ON users.student_id = students.id')
            .where(users: { student_id: nil })
            .find_each do |student|
+      email = "#{student.api_code}@ambiente.portabilis.com.br"
+
       next if User.find_by(student_id: student.id, kind: RoleKind::STUDENT)
+      next if User.find_by(email: email, kind: RoleKind::STUDENT)
 
       password = "estudante#{student.api_code}"
       login = User.find_by(login: student.api_code) ? '' : student.api_code
 
       user = User.find_or_initialize_by(
         login: login,
-        email: "#{student.api_code}@ambiente.portabilis.com.br",
+        email: email,
         kind: RoleKind::STUDENT,
         student_id: student.id
       )
