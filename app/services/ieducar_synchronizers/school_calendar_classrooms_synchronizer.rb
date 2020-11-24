@@ -59,7 +59,6 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
           end
         rescue ActiveRecord::RecordInvalid => error
           known_error_messages = [
-            I18n.t('ieducar_api.error.messages.must_be_in_school_calendar_year'),
             I18n.t('ieducar_api.error.messages.must_be_less_than_end_at')
           ]
 
