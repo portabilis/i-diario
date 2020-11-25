@@ -19,6 +19,6 @@ class PostingDateChecker
   end
 
   def thread_origin_type_is_api?
-    [OriginTypes::API_V1, OriginTypes::API_V2].include?(Thread.current[:origin_type])
+    OriginTypes::API_V2 == Thread.current[:origin_type]
   end
 end

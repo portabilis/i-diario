@@ -5,7 +5,8 @@
       'user_name': '<%= current_user.name || 'Desconhecido' %>',
       'user_email': '<%= current_user.email %>',
       'user_role': '<%= current_user.current_access_level %>',
-      'user_created_at': <%= current_user.created_at.to_i %>
+      'user_created_at': <%= current_user.created_at.to_i %>,
+      'student_api_code': <%= current_user&.student&.api_code.to_i %>
     }];
   </script>
 <% end %>

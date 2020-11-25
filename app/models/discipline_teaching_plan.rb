@@ -16,6 +16,7 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   belongs_to :discipline
 
   delegate :contents, to: :teaching_plan
+  delegate :objectives, to: :teaching_plan
 
   accepts_nested_attributes_for :teaching_plan
 
@@ -41,6 +42,9 @@ class DisciplineTeachingPlan < ActiveRecord::Base
       joins(:teaching_plan).merge(TeachingPlan.where.not(teacher_id: current_teacher_id))
     end
   }
+  scope :order_by_school_term, lambda {
+    joins(:teaching_plan).order("teaching_plans.school_term = ''")
+  }
 
   validates :teaching_plan, presence: true
   validates :discipline, presence: true
@@ -54,6 +58,8 @@ class DisciplineTeachingPlan < ActiveRecord::Base
   private
 
   def uniqueness_of_discipline_teaching_plan
+    return if teaching_plan.school_term_type.blank?
+
     discipline_teaching_plans = DisciplineTeachingPlan.by_year(teaching_plan.year)
                                                       .by_unity(teaching_plan.unity)
                                                       .by_teacher_id(teaching_plan.teacher_id)

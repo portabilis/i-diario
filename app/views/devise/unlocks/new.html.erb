@@ -1,3 +1,7 @@
+<%= content_for :recaptcha_js do %>
+  <%= include_recaptcha_js %>
+<% end %>
+
 <div class="well no-padding">
 	<%= simple_form_for(resource, as: resource_name, url: unlock_path(resource_name), html: { method: :post, class: "smart-form client-form"  }) do |f| %>
 
@@ -20,6 +24,7 @@
 			<%= button_tag( :class => "btn btn-portabilis") do %>
 			 	<i class='fa fa-refresh'></i> Reenviar instruções de desbloqueio
 			<% end %>
+      <%= recaptcha_execute %>
 		</footer>
 	<% end %>
 </div>

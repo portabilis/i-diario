@@ -45,6 +45,7 @@ class TeachingPlanContentsFetcher
       school_terms = []
       school_terms << SchoolTerms::FIRST_BIMESTER_EJA if raw_school_terms.include?(SchoolTerms::FIRST_SEMESTER)
       school_terms << SchoolTerms::SECOND_BIMESTER_EJA if raw_school_terms.include?(SchoolTerms::SECOND_SEMESTER)
+      school_terms << YEARLY_SCHOOL_TERM_TYPE
       raw_school_terms + school_terms
     end
   end

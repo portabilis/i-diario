@@ -12,16 +12,21 @@
  *
  *= require bootstrap_and_overrides
  *= require smartadmin_and_overrides
- *= require summernote_and_overrides
  *= require jNotify.jquery.css
  *= require educacao
  *= require morris
  *= require bootstrap-select
  *= require header-select2
  *= require jquery-file-upload/jquery.fileupload
+ *= require bootstrap-datetimepicker
  *= require_tree ./resources
  *= require_self
  */
+
+textarea.form-control.text {
+  padding-top: 5px;
+  padding-left: 10px;
+}
 
 textarea.form-control.text {
   padding-top: 5px;
@@ -383,12 +388,16 @@ span.multiline {
 }
 
 .shortcut-icon {
-  font-size: 5em;
-  line-height: 1.5em;
+  font-size: 5em !important;
+  line-height: 1.5em !important;
 }
 
 .shortcut a span {
   display: block;
+}
+
+.shortcut {
+  height: 150px;
 }
 
 #header .select2-arrow {

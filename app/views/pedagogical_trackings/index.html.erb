@@ -1,0 +1,44 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/pedagogical_trackings/index' %>
+<% end %>
+
+<div class="row">
+  <%= simple_form_for :search, { url: pedagogical_trackings_path, method: :get, html: { class: 'filter_tracking_search_form' } } do |f| %>
+  <div class="col col-sm-3">
+    <%= f.input :unity_id, as: :select2, elements: employee_unities || all_unities, label: false, placeholder: t('.filter_unities') %>
+  </div>
+  <div class="col col-sm-3">
+    <%= f.input :start_date, as: :date, label: false, placeholder: t('.from') %>
+  </div>
+  <div class="col col-sm-3">
+    <%= f.input :end_date, as: :date, label: false, placeholder: t('.to') %>
+  </div>
+  <div class="col col-sm-3" style="padding-top: 12px;">
+    <input type='hidden' id='school_days' value= "<%= @school_days %>"/>
+    <span><%= @updated_at ? "#{t('.last_update') }: #{ @updated_at } às #{ @updated_at_hour }h" : t('.empty') %></span>
+  </div>
+  <% end %>
+</div>
+<div class="row" style=" margin-bottom: 20px;width:80%">
+  <%= hidden_field_tag 'done_frequencies_percentage', @school_frequency_done_percentage %>
+  <%= hidden_field_tag 'done_content_records_percentage', @school_content_record_done_percentage %>
+  <%= hidden_field_tag 'unknown_teachers', @unknown_teachers %>
+  <div class="col col-sm-6">
+    <fieldset>
+      <legend>Frequências</legend>
+      <canvas id="frequency_chart" width="200" height="200" style="border: 1px solid;border-color: #CCC;"></canvas>
+    </fieldset>
+  </div>
+  <div class="col col-sm-6">
+    <fieldset>
+      <legend>Registros de conteúdos</legend>
+      <canvas id="content_record_chart" width="200" height="200" style="border: 1px solid;border-color: #CCC;"></canvas>
+      </fieldset>
+  </div>
+</div>
+
+<% if @school_days.zero? %>
+  <em><%= t('views.index.no_record_found')%></em>
+<% else %>
+  <%= render @partial.to_s  %>
+<% end %>

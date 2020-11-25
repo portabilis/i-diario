@@ -18,7 +18,7 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
   has_many :knowledge_area_lesson_plan_knowledge_areas, dependent: :destroy
   has_many :knowledge_areas, through: :knowledge_area_lesson_plan_knowledge_areas
 
-  delegate :contents, :classroom, to: :lesson_plan
+  delegate :contents, :objectives, :classroom, to: :lesson_plan
 
   accepts_nested_attributes_for :lesson_plan
 
@@ -36,7 +36,7 @@ class KnowledgeAreaLessonPlan < ActiveRecord::Base
   }
   scope :by_date, ->(date) { by_date_query(date) }
   scope :by_date_range, lambda { |start_at, end_at|
-    joins(:lesson_plan).where('start_at <= ? AND end_at >= ?', end_at, start_at)
+    joins(:lesson_plan).where('start_at <= ? AND end_at >= ?', end_at.to_date, start_at.to_date)
   }
   scope :ordered, -> { joins(:lesson_plan).order(LessonPlan.arel_table[:start_at].desc) }
   scope :order_by_lesson_plan_date, -> { joins(:lesson_plan).order(LessonPlan.arel_table[:start_at]) }

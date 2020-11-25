@@ -1,0 +1,21 @@
+<tr>
+  <td id='teacher_name'>
+    <%= teacher_name %>
+  </td>
+  <td class="apply_tooltip" data-original-title="<%= frequency_days %>">
+    <%= frequency_percentage %>%
+    <div class="frequency_percentage_total">
+      <div class="frequency_percentage_done", id='teacher_frequency_percentage_done',
+            style="width: <%= frequency_percentage %>%">
+      </div>
+    </div>
+  </td>
+  <td class="apply_tooltip" data-original-title="<%= content_record_days %>">
+    <%= content_record_percentage %>%
+    <div class="content_record_percentage_total">
+      <div class="content_record_percentage_done", id='teacher_content_record_percentage_done',
+            style="width: <%= content_record_percentage %>%">
+      </div>
+    </div>
+  </td>
+</tr>

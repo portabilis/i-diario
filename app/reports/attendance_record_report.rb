@@ -263,22 +263,28 @@ class AttendanceRecordReport < BaseReport
 
         text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
-        if show_school_day_event_description?
-          text_box(format_legend(extra_school_event), size: 8, at: [0, 20 + bottom_offset], width: 825, height: 20)
-        end
-
         start_new_page if slice_index < sliced_students_cells.count - 1
       end
 
       text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
-      if show_school_day_event_description?
-        text_box(format_legend(extra_school_event), size: 8, at: [0, 20 + bottom_offset], width: 825, height: 20)
-      end
-
       self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
 
-      start_new_page if index < sliced_frequencies_and_events.count - 1
+      if index < sliced_frequencies_and_events.count - 1
+        start_new_page
+      elsif show_school_day_event_description?
+        events = format_legend(extra_school_events)
+        height = 20
+        at = [0, 50 + bottom_offset]
+
+        if events.size > 485
+          height = bounds.height
+          at = [0, height]
+          start_new_page
+        end
+
+        text_box_overflow_to_new_page(events, 8, at, 825, height)
+      end
     end
   end
 
@@ -342,7 +348,11 @@ class AttendanceRecordReport < BaseReport
     second_signature_offset = @second_teacher_signature ? 3 : 0
     social_name_factor = (student_with_social_name_count / SOCIAL_NAME_REDUCTION_FACTOR)
 
-    STUDENT_BY_PAGE_COUNT - second_signature_offset - social_name_factor
+    slice_size = STUDENT_BY_PAGE_COUNT - second_signature_offset - social_name_factor
+
+    return slice_size unless show_school_day_event_description?
+
+    slice_size - 3
   end
 
   def step_number(daily_frequency)
@@ -399,8 +409,8 @@ class AttendanceRecordReport < BaseReport
     @classroom ||= @daily_frequencies.first.classroom
   end
 
-  def extra_school_event
-    @extra_school_event ||= @school_calendar.events.find { |event|
+  def extra_school_events
+    @extra_school_events ||= @school_calendar.events.select { |event|
       event.event_type == EventTypes::EXTRA_SCHOOL &&
         event.show_in_frequency_record &&
         report_include_event_date?(event)
@@ -408,7 +418,7 @@ class AttendanceRecordReport < BaseReport
   end
 
   def show_school_day_event_description?
-    return false unless extra_school_event
+    return false if extra_school_events.empty?
 
     true
   end
@@ -417,7 +427,19 @@ class AttendanceRecordReport < BaseReport
     ((event.start_date..event.end_date).to_a & (@start_at.to_date..@end_at.to_date).to_a).any?
   end
 
-  def format_legend(event)
-    "#{event.description}: #{event.start_date.strftime('%d/%m/%Y')} à #{event.end_date.strftime('%d/%m/%Y')}"
+  def format_legend(events)
+    all_events = []
+
+    events.each do |event|
+      event_date = if event.start_date == event.end_date
+                     event.start_date.strftime('%d/%m/%Y').to_s
+                   else
+                     "#{event.start_date.strftime('%d/%m/%Y')} à #{event.end_date.strftime('%d/%m/%Y')}"
+                   end
+
+      all_events << "#{event.description}: #{event_date}"
+    end
+
+    all_events.join(', ')
   end
 end

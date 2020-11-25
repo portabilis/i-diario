@@ -4,6 +4,7 @@
       <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
         <thead>
           <tr>
+            <td style="max-width:85px"><%= f.input :by_year, label: false, placeholder: t('.by_year') %></td>
             <td><%= f.input :by_description, label: false, placeholder: t('.by_description') %></td>
             <td><%= f.input :by_initials, label: false, placeholder: t('.by_initials') %></td>
             <td><%= f.input :by_calculation_type, as: :select2, elements: CalculationTypes.to_select.to_json, label: false, placeholder: t('.by_calculation_type') %></td>
@@ -14,6 +15,7 @@
             </td>
           </tr>
           <tr>
+            <th><%= ComplementaryExamSetting.human_attribute_name :year %></th>
             <th><%= ComplementaryExamSetting.human_attribute_name :description %></th>
             <th><%= ComplementaryExamSetting.human_attribute_name :initials %></th>
             <th><%= ComplementaryExamSetting.human_attribute_name :calculation_type %></th>
@@ -26,7 +28,7 @@
         <%= render 'resources' %>
 
         <tfoot id="paginator" class="remote">
-          <td colspan="6">
+          <td colspan="7">
             <div id="page_entries_info" class="pull-left hidden-xs">
               <%= page_entries_info @complementary_exam_settings %>
             </div>

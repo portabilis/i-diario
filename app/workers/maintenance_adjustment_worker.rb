@@ -10,8 +10,6 @@ class MaintenanceAdjustmentWorker
 
         if maintenance_adjustment.absence_adjustments?
           AbsenceAdjustmentsService.adjust(unities, maintenance_adjustment.year)
-        elsif maintenance_adjustment.creating_users_for_students?
-          UsersForStudentsCreator.create!(maintenance_adjustment.year)
         end
 
         maintenance_adjustment.update(

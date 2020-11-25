@@ -19,7 +19,7 @@
             </td>
             <td>
               <%= link_to t('.new_html'), new_discipline_lesson_plan_path,
-                  class: 'btn btn-primary pull-right', style: 'width: 161px;' %>
+                  class: 'btn btn-primary pull-right', style: 'width: 210px;' %>
             </td>
           </tr>
 
@@ -27,10 +27,10 @@
             <th><%= LessonPlan.human_attribute_name :unity %></th>
             <th width="20%"><%= LessonPlan.human_attribute_name :classroom %></th>
             <th width="20%"><%= DisciplineLessonPlan.human_attribute_name :discipline %>
-            <th width="10%"><%= LessonPlan.human_attribute_name :start_at %></th>
-            <th width="10%"><%= LessonPlan.human_attribute_name :end_at %></th>
-            <th width="10%"><%= DisciplineLessonPlan.human_attribute_name :author %></th>
-            <td width="190px"></td>
+            <th width="7%"><%= LessonPlan.human_attribute_name :start_at %></th>
+            <th width="7%"><%= LessonPlan.human_attribute_name :end_at %></th>
+            <th width="7%"><%= DisciplineLessonPlan.human_attribute_name :author %></th>
+            <td width="230px"></td>
           </tr>
         </thead>
 

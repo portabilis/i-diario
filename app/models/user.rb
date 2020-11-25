@@ -2,14 +2,14 @@ class User < ActiveRecord::Base
   acts_as_copy_target
 
   audited allow_mass_assignment: true,
-    only: [:email, :first_name, :last_name, :phone, :cpf, :login,
-           :authorize_email_and_sms, :student_id, :status, :encrypted_password,
-           :teacher_id, :assumed_teacher_id, :current_unity_id, :current_classroom_id,
-           :current_discipline_id, :current_school_year, :current_user_role_id]
+    only: [:email, :first_name, :last_name, :phone, :cpf, :login, :authorize_email_and_sms, :student_id, :status,
+           :encrypted_password, :teacher_id, :assumed_teacher_id, :current_unity_id, :current_classroom_id,
+           :current_discipline_id, :current_school_year, :current_user_role_id, :current_knowledge_area_id]
   has_associated_audits
 
   include Audit
   include Filterable
+  include Searchable
 
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
@@ -19,7 +19,10 @@ class User < ActiveRecord::Base
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
+  after_save :update_fullname_tokens
+
   before_destroy :ensure_has_no_audits
+  before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
 
   belongs_to :student
@@ -27,15 +30,12 @@ class User < ActiveRecord::Base
 
   belongs_to :assumed_teacher, foreign_key: :assumed_teacher_id, class_name: 'Teacher'
   belongs_to :current_discipline, foreign_key: :current_discipline_id, class_name: 'Discipline'
+  belongs_to :current_knowledge_area, foreign_key: :current_knowledge_area_id, class_name: 'KnowledgeArea'
   belongs_to :current_user_role, class_name: 'UserRole'
   belongs_to :classroom, foreign_key: :current_classroom_id
   belongs_to :discipline, foreign_key: :current_discipline_id
   belongs_to :unity, foreign_key: :current_unity_id
 
-  belongs_to :current_teacher_profile,
-             class_name: 'TeacherProfile',
-             foreign_key: :teacher_profile_id,
-             inverse_of: :users
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
 
@@ -53,11 +53,15 @@ class User < ActiveRecord::Base
 
   accepts_nested_attributes_for :user_roles, reject_if: :all_blank, allow_destroy: true
 
+  mount_uploader :profile_picture, UserProfilePictureUploader
+
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true, uniqueness: { case_sensitive: false }
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
   validates :password, length: { minimum: 8 }, allow_blank: true
   validates :login, uniqueness: true, allow_blank: true
+  validates :teacher_id, uniqueness: true, allow_blank: true
+  validates :student, presence: true, if: :only_student?
 
   validates_associated :user_roles
 
@@ -66,8 +70,8 @@ class User < ActiveRecord::Base
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
 
-  scope :ordered, -> { order(arel_table[:first_name].asc) }
-  scope :email_ordered, -> { order(email: :asc)  }
+  scope :ordered, -> { order(arel_table[:fullname].asc) }
+  scope :email_ordered, -> { order(email: :asc) }
   scope :authorized_email_and_sms, -> { where(arel_table[:authorize_email_and_sms].eq(true)) }
   scope :with_phone, -> { where(arel_table[:phone].not_eq(nil)).where(arel_table[:phone].not_eq("")) }
   scope :admin, -> { where(arel_table[:admin].eq(true)) }
@@ -76,9 +80,13 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :full_name, lambda { |full_name| where("unaccent(first_name || ' ' || last_name) ILIKE unaccent(?)", "%#{full_name}%")}
-  scope :email, lambda { |email| where("unaccent(email) ILIKE unaccent(?)", "%#{email}%")}
-  scope :login, lambda { |login| where("unaccent(login) ILIKE unaccent(?)", "%#{login}%")}
+  scope :full_name, lambda { |fullname|
+    where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(fullname))
+      .order("ts_rank_cd(users.fullname_tokens, to_tsquery('portuguese', '#{split_search(fullname)}')) desc")
+  }
+  scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
+  scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
+  scope :by_cpf, ->(cpf) { where('cpf ILIKE unaccent(?)', "%#{cpf}%") }
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
@@ -92,13 +100,35 @@ class User < ActiveRecord::Base
   end
 
   def self.to_csv
-    attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Celular"]
+    attributes = [
+      'Nome',
+      'Sobrenome',
+      'E-mail',
+      'Nome de usuário',
+      'Celular',
+      'CPF',
+      'Status',
+      'Aluno vinculado',
+      'Professor Vinculado',
+      'Permissões'
+    ]
 
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.each do |user|
-        csv << [user.first_name, user.last_name, user.email, user.login, user.phone]
+      all.includes(:teacher, :student, user_roles: [:role, :unity]).find_each do |user|
+        csv << [
+          user.first_name,
+          user.last_name,
+          user.email,
+          user.login,
+          user.phone,
+          user.cpf,
+          I18n.t("enumerations.user_status.#{user.status}"),
+          user.student,
+          user.teacher,
+          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact }
+        ]
       end
     end
   end
@@ -184,10 +214,14 @@ class User < ActiveRecord::Base
     user_roles.includes(:role, :unity).map(&:role)
   end
 
-  def set_current_user_role!(user_role_id)
-    return false unless user_roles.exists?(id: user_role_id)
+  def set_current_user_role!(user_role_id = nil)
+    return false unless user_role_id.blank? || user_roles.exists?(id: user_role_id)
 
-    update_column(:current_user_role_id, user_role_id)
+    default_user_role_id = user_roles.first&.id if user_role_id.blank?
+
+    clear_allocation
+
+    update_attribute(:current_user_role_id, user_role_id || default_user_role_id)
   end
 
   def read_notifications!
@@ -274,12 +308,23 @@ class User < ActiveRecord::Base
     current_access_level.in? [AccessLevel::ADMINISTRATOR, AccessLevel::EMPLOYEE]
   end
 
+  def current_role_is_parent?
+    current_access_level == AccessLevel::PARENT
+  end
+
+  def has_admin_or_employee_or_teacher_access_level?
+    can_receive_news_related_daily_teacher?
+  end
+
   def clear_allocation
-    update_attribute(:current_user_role_id, nil)
-    update_attribute(:current_classroom_id, nil)
-    update_attribute(:current_discipline_id, nil)
-    update_attribute(:current_unity_id, nil)
-    update_attribute(:assumed_teacher_id, nil)
+    self.current_school_year = nil
+    self.current_user_role_id = nil
+    self.current_classroom_id = nil
+    self.current_discipline_id = nil
+    self.current_unity_id = nil
+    self.assumed_teacher_id = nil
+
+    save(validate: false)
   end
 
   def has_to_validate_receive_news_fields?
@@ -306,26 +351,14 @@ class User < ActiveRecord::Base
     current_user_role.role.access_level == AccessLevel::TEACHER
   end
 
+  def parent_can_change_profile?
+    return false unless current_role_is_parent?
+
+    has_admin_or_employee_or_teacher_access_level?
+  end
+
   def cpf_as_integer
     cpf.gsub(/[^\d]/, '')
-  end
-
-  def available_years(unity, unity_id = nil)
-    unity_id ||= unity.id
-    @available_years ||= {}
-    @available_years[unity_id] ||=
-      begin
-        only_opened_years = !can_change_school_year?
-        years = YearsFromUnityFetcher.new(unity_id, only_opened_years).fetch
-        years.map { |year| { id: year, name: year } }
-      end
-  end
-
-  def can_use_teacher_profile?
-    @can_use_teacher_profile ||=
-      Rails.application.secrets.teacher_profile_enabled &&
-      roles.count == 1 &&
-      teacher_access_level?
   end
 
   def access_levels
@@ -392,5 +425,15 @@ class User < ActiveRecord::Base
     return unless login =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
 
     errors.add(:login, :can_not_be_an_email)
+  end
+
+  def only_student?
+    student? && roles.count == 1
+  end
+
+  def update_fullname_tokens
+    return unless first_name_changed? || last_name_changed?
+
+    User.where(id: id).update_all("fullname_tokens = to_tsvector('portuguese', fullname)")
   end
 end

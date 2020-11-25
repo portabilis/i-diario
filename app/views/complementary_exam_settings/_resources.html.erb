@@ -1,11 +1,12 @@
 <tbody id="resources-tbody">
   <% if @complementary_exam_settings.empty? %>
     <tr>
-      <td class="no_record_found" colspan="6"> <%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="7"> <%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @complementary_exam_settings.each do |complementary_exam_setting| %>
       <tr>
+        <td><%= complementary_exam_setting.year %></td>
         <td><%= complementary_exam_setting.description %></td>
         <td><%= complementary_exam_setting.initials %></td>
         <td><%= complementary_exam_setting.calculation_type_humanize %></td>

@@ -12,7 +12,6 @@ class Unity < ActiveRecord::Base
   has_one :address, as: :source, inverse_of: :source
   has_one :absence_justification, dependent: :restrict_with_error
 
-  has_many :teacher_profiles, dependent: :destroy
   has_many :unity_equipments
   has_many :classrooms, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, through: :classrooms, dependent: :restrict_with_error
@@ -32,6 +31,7 @@ class Unity < ActiveRecord::Base
   validates :email, email: true, allow_blank: true
   validate :uniqueness_of_equipments
 
+  scope :by_id, ->(id) { where(id: id) }
   scope :ordered, -> { order(arel_table[:name].asc) }
   scope :by_api_codes, -> (codes) { where(arel_table[:api_code].in(codes)) }
   scope :with_api_code, -> { where(arel_table[:api_code].not_eq("")) }
@@ -43,12 +43,12 @@ class Unity < ActiveRecord::Base
   }
   scope :by_date, lambda { |date|
     joins(school_calendars: :steps).where(
-      '? BETWEEN start_at AND end_at', date
+      '? BETWEEN start_at AND end_at', date.to_date
     )
   }
   scope :by_posting_date, lambda { |date|
     joins(school_calendars: :steps).where(
-      '? BETWEEN start_date_for_posting AND end_date_for_posting', date
+      '? BETWEEN start_date_for_posting AND end_date_for_posting', date.to_date
     )
   }
   scope :by_unity, -> unity { where(id: unity) }

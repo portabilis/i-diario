@@ -1,6 +1,5 @@
 require 'capybara/rspec'
-require 'capybara/poltergeist'
-require 'capybara-screenshot/rspec'
+require 'webdrivers/chromedriver'
 
 module Capybara
   class Session
@@ -20,26 +19,16 @@ module Capybara
 end
 
 Capybara.configure do |config|
-  config.default_driver = :poltergeist
-  config.javascript_driver = :poltergeist
+  config.default_driver = :selenium
+  config.javascript_driver = :selenium
   config.ignore_hidden_elements = true
   config.match = :prefer_exact
   config.default_max_wait_time = 10
 end
 
-Capybara.register_driver :poltergeist do |app|
-  options = {
-    window_size: [
-      1920,
-      6000
-    ],
-    timeout: 1.minute,
-    js_errors: false,
-    phantomjs_options: [
-      '--proxy-type=none',
-      '--load-images=no',
-      '--ignore-ssl-errors=true'
-    ]
-  }
-  Capybara::Poltergeist::Driver.new(app, options)
+Capybara.register_driver :selenium do |app|
+  options = Selenium::WebDriver::Chrome::Options.new(
+    args: %w[headless no-sandbox disable-gpu --window-size=1024,1024]
+  )
+  Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end

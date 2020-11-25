@@ -3,7 +3,7 @@
 <% end %>
 
 
-<%= simple_form_for @observation_diary_record, html: { class: 'smart-form' } do |f| %>
+<%= simple_form_for @observation_diary_record, html: { class: 'smart-form', id: 'observation_diary_records_form' } do |f| %>
   <%= f.error_notification %>
 
   <%= f.hidden_field :school_calendar_id %>
@@ -84,6 +84,64 @@
     </table>
   </fieldset>
 
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-12">
+        <legend>Anexos</legend>
+        <div class="alert alert-info fade in">
+          <i class="fa-fw fa fa-info"></i>
+          Somente arquivos nos formatos jpeg, jpg, png, gif, pdf, odt, doc, docx, ods, xls, xlsx, odp, ppt, pptx, odg, xml, csv. Tamanho máximo por arquivo: 3MB
+        </div>
+        <br>
+        <% if f.object.errors[:observation_diary_record_attachments].present? %>
+          <div class="alert alert-danger alert-block ">
+            <i class="fa-fw fa fa-times"></i>
+            <span class="help-inline">
+              <%= f.object.errors[:observation_diary_record_attachments].join "<br />" %>
+            </span>
+          </div>
+        <% end %>
+        <table class="table table-striped table-bordered table-condensed records">
+          <thead>
+            <tr>
+              <th>Anexo</th>
+              <% if action_name != 'show' %>
+                <td width="73px"></td>
+              <% end %>
+            </tr>
+          </thead>
+
+          <tbody id="observation-diary-record-attachments">
+            <% if action_name == 'show' && f.object.observation_diary_record_attachments.blank? %>
+              <tr class="nested-fields">
+                <td><span>Nenhum documento anexado</span></td>
+              </tr>
+            <% else %>
+              <%= f.simple_fields_for :observation_diary_record_attachments, f.object.observation_diary_record_attachments do |attachment| %>
+                <% if attachment.object.persisted? %>
+                  <%= render 'observation_diary_record_attachment_show', f: attachment %>
+                <% else %>
+                  <%= render 'observation_diary_record_attachment_fields', f: attachment %>
+                <% end %>
+              <% end %>
+            <% end %>
+          </tbody>
+          <% if action_name != 'show'%>
+            <tfoot class="links">
+              <tr>
+                <td colspan="2">
+                  <%= link_to_add_association t('.add_attachment'), f, :observation_diary_record_attachments,
+                    class: 'btn btn-success btn-sm',
+                    :"data-association-insertion-method" => "append",
+                    :"data-association-insertion-node" => "#observation-diary-record-attachments" %>
+                </td>
+              </tr>
+            </tfoot>
+          <% end %>
+        </table>
+      </div>
+    </div>
+  </fieldset>
   <footer>
     <%= link_to t('views.form.back'), observation_diary_records_path, class: 'btn btn-default' %>
 
@@ -95,6 +153,6 @@
           ) %>
     <% end %>
 
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
   </footer>
 <% end %>

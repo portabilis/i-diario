@@ -40,7 +40,7 @@ class AvaliationsTestSettingUpdater
   def get_test_setting(avaliation)
     avaliation_step = StepsFetcher.new(avaliation.classroom).step_by_date(avaliation.test_date)
 
-    TestSettingFetcher.by_step(avaliation_step)
+    TestSettingFetcher.current(avaliation.classroom, avaliation_step)
   end
 
   def success

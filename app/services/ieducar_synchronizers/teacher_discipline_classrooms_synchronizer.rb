@@ -61,26 +61,42 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
 
     return if discipline_id.blank?
 
-    TeacherDisciplineClassroom.unscoped.find_or_initialize_by(
+    teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
       api_code: teacher_discipline_classroom_record.id,
       year: year,
       teacher_id: teacher_id,
       teacher_api_code: teacher_discipline_classroom_record.servidor_id,
       discipline_id: discipline_id,
       discipline_api_code: discipline_api_code
-    ).tap do |teacher_discipline_classroom|
-      teacher_discipline_classroom.classroom_id = classroom_id
-      teacher_discipline_classroom.classroom_api_code = teacher_discipline_classroom_record.turma_id
-      teacher_discipline_classroom.allow_absence_by_discipline =
-        teacher_discipline_classroom_record.permite_lancar_faltas_componente
-      teacher_discipline_classroom.changed_at = teacher_discipline_classroom_record.updated_at
-      teacher_discipline_classroom.period = teacher_discipline_classroom_record.turno_id
-      teacher_discipline_classroom.score_type = score_type
-      teacher_discipline_classroom.active = true if teacher_discipline_classroom.active.nil?
-      teacher_discipline_classroom.save! if teacher_discipline_classroom.changed?
+    )
 
-      teacher_discipline_classroom.discard_or_undiscard(false)
-    end
+    teacher_discipline_classroom =
+      if teacher_discipline_classrooms.size == 1
+        teacher_discipline_classrooms.first
+      elsif teacher_discipline_classrooms.size > 1
+        teacher_discipline_classrooms.find_by(discarded_at: nil)
+      end
+
+    teacher_discipline_classroom ||= TeacherDisciplineClassroom.new(
+      api_code: teacher_discipline_classroom_record.id,
+      year: year,
+      teacher_id: teacher_id,
+      teacher_api_code: teacher_discipline_classroom_record.servidor_id,
+      discipline_id: discipline_id,
+      discipline_api_code: discipline_api_code
+    )
+
+    teacher_discipline_classroom.classroom_id = classroom_id
+    teacher_discipline_classroom.classroom_api_code = teacher_discipline_classroom_record.turma_id
+    teacher_discipline_classroom.allow_absence_by_discipline =
+      teacher_discipline_classroom_record.permite_lancar_faltas_componente
+    teacher_discipline_classroom.changed_at = teacher_discipline_classroom_record.updated_at
+    teacher_discipline_classroom.period = teacher_discipline_classroom_record.turno_id
+    teacher_discipline_classroom.score_type = score_type
+    teacher_discipline_classroom.active = true if teacher_discipline_classroom.active.nil?
+    teacher_discipline_classroom.save! if teacher_discipline_classroom.changed?
+
+    teacher_discipline_classroom.discard_or_undiscard(false)
   end
 
   def discard_inexisting_teacher_discipline_classrooms(teacher_discipline_classrooms_to_discard)

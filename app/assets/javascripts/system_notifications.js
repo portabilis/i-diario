@@ -2,6 +2,7 @@ $(function () {
   var $dropdown = $('.notifications.ajax-dropdown');
   var readAllNotifications = function () {
     $.post(Routes.read_all_notifications_pt_br_path());
+    $('#page-loading').addClass('hidden');
   };
 
   // ACTIVITY

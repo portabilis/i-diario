@@ -19,7 +19,7 @@ class UnitiesSynchronizer
     self.worker_batch_id = params[:worker_batch_id]
     self.worker_state_id = params[:worker_state_id]
     self.entity_id = params[:entity_id]
-    self.last_two_years = params[:last_two_years]
+    self.current_years = params[:current_years]
   end
 
   def update_schools(schools)
@@ -41,7 +41,7 @@ class UnitiesSynchronizer
       unities_api_code: unities_api_code,
       filtered_by_year: false,
       filtered_by_unity: true,
-      last_two_years: last_two_years
+      current_years: current_years
     )
   rescue StandardError => error
     worker_state.mark_with_error!(error.message) if error.message != '502 Bad Gateway'
@@ -51,7 +51,7 @@ class UnitiesSynchronizer
 
   private
 
-  attr_accessor :synchronization_id, :worker_batch_id, :worker_state_id, :entity_id, :last_two_years
+  attr_accessor :synchronization_id, :worker_batch_id, :worker_state_id, :entity_id, :current_years
 
   def create_or_update_schools(schools)
     schools.each do |school_record|

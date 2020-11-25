@@ -25,4 +25,15 @@ namespace :entity do
 
     puts entity_status_manager.status
   end
+
+  namespace :admin do
+    desc "Create Admin User"
+    task create: :environment do
+      admin_user_creator = AdminUserCreator.new(ENV)
+
+      admin_user_creator.create
+
+      puts admin_user_creator.status
+    end
+  end
 end

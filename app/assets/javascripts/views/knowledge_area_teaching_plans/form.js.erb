@@ -79,4 +79,35 @@ $(function() {
     }
     $(this).select2('val', '');
   });
+
+  $('#knowledge_area_teaching_plan_teaching_plan_attributes_objectives_tags').on('change', function(e){
+    if(e.val.length){
+      var objective_description = e.val.join(", ");
+      if(objective_description.trim().length &&
+          !$('input[type=checkbox][data-objective_description="'+objective_description+'"]').length){
+
+        var html = JST['templates/layouts/objectives_list_manual_item']({
+          description: objective_description,
+          model_name: 'knowledge_area_teaching_plan',
+          submodel_name: 'teaching_plan'
+        });
+
+        $('#objectives-list').append(html);
+        $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
+      }else{
+        var objective_input = $('input[type=checkbox][data-objective_description="'+objective_description+'"]');
+        objective_input.closest('li').show();
+        objective_input.prop('checked', true).trigger('change');
+      }
+
+      $('.knowledge_area_teaching_plan_teaching_plan_objectives_tags .select2-input').val("");
+    }
+    $(this).select2('val', '');
+  });
+
+  if ($('#action_name').val() == 'show') {
+    $('.list-group.checked-list-box .list-group-item').each(function(){
+      $(this).off('click');
+    });
+  }
 });

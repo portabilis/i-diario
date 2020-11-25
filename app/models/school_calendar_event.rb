@@ -31,7 +31,6 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validate :uniqueness_of_end_at_in_classroom
   validate :uniqueness_of_start_at_in_course
   validate :uniqueness_of_end_at_in_course
-  validate :uniqueness_of_show_in_frequency_record
 
   scope :ordered, -> { order(arel_table[:start_date]) }
   scope :with_frequency, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]) }
@@ -44,12 +43,17 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :without_discipline, -> { where(arel_table[:discipline_id].eq(nil)) }
   scope :without_course, -> { where(arel_table[:course_id].eq(nil)) }
   scope :by_period, ->(period) { where(' ? = ANY (periods)', period) }
-  scope :by_date, ->(date) { where('start_date <= ? and end_date >= ?', date, date) }
+  scope :by_date, lambda { |date|
+    where('school_calendar_events.start_date <= ? and school_calendar_events.end_date >= ?', date.to_date, date.to_date)
+  }
   scope :by_date_between, lambda { |start_at, end_at|
-    where('start_date >= ? and end_date <= ?', start_at.to_date, end_at.to_date)
+    where(
+      'school_calendar_events.start_date >= ? and school_calendar_events.end_date <= ?',
+      start_at.to_date, end_at.to_date
+    )
   }
   scope :by_description, lambda { |description|
-    where('unaccent(description) ILIKE unaccent(?)', '%'+description+'%')
+    where('unaccent(school_calendar_events.description) ILIKE unaccent(?)', '%'+description+'%')
   }
   scope :by_type, ->(type) { where(event_type: type) }
   scope :by_grade, ->(grade) { where(grade_id: grade) }
@@ -203,19 +207,5 @@ class SchoolCalendarEvent < ActiveRecord::Base
       errors.add(:start_date, 'não pode ser maior que a Data final')
       errors.add(:end_date, 'deve ser maior ou igual a Data inicial')
     end
-  end
-
-  def uniqueness_of_show_in_frequency_record
-    return if event_type != EventTypes::EXTRA_SCHOOL
-    return unless show_in_frequency_record
-    return unless already_exists_event_to_show_in_report
-
-    errors.add(:base, :only_one_allowed)
-  end
-
-  def already_exists_event_to_show_in_report
-    school_calendar.events.any? { |event|
-      event.event_type == EventTypes::EXTRA_SCHOOL && event.show_in_frequency_record && event.persisted?
-    }
   end
 end

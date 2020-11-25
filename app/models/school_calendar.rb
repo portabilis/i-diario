@@ -15,6 +15,12 @@ class SchoolCalendar < ActiveRecord::Base
   has_many :steps, -> { includes(:school_calendar).ordered }, class_name: 'SchoolCalendarStep', dependent: :destroy
   has_many :classrooms, class_name: 'SchoolCalendarClassroom', dependent: :destroy
   has_many :events, class_name: 'SchoolCalendarEvent', dependent: :destroy
+  has_many :absence_justifications, dependent: :restrict_with_exception
+  has_many :avaliations, dependent: :restrict_with_exception
+  has_many :daily_frequencies, dependent: :restrict_with_exception
+  has_many :final_recovery_diary_records, dependent: :restrict_with_exception
+  has_many :lesson_plans, dependent: :restrict_with_exception
+  has_many :observation_diary_records, dependent: :restrict_with_exception
 
   accepts_nested_attributes_for :steps, reject_if: :all_blank, allow_destroy: true
   accepts_nested_attributes_for :classrooms, reject_if: :all_blank, allow_destroy: true

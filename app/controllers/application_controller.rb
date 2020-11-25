@@ -26,6 +26,8 @@ class ApplicationController < ActionController::Base
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :check_for_notifications, if: :user_signed_in?
   before_action :check_for_current_user_role, if: :user_signed_in?
+  before_action :set_current_unity_id, if: :user_signed_in?
+  before_action :set_current_user_role_id, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -116,6 +118,8 @@ class ApplicationController < ActionController::Base
   end
 
   def check_for_notifications
+    return unless current_user.current_role_is_admin_or_employee?
+
     synchronizations = current_user.synchronizations.unnotified
 
     return unless synchronizations.exists?
@@ -123,7 +127,8 @@ class ApplicationController < ActionController::Base
     if (synchronization = synchronizations.completed_unnotified)
       flash.now[:notice] = t('ieducar_api_synchronization.completed')
     elsif (synchronization = current_user.synchronizations.last_error)
-      flash.now[:alert] = t('ieducar_api_synchronization.error', error: error_by_user(current_user))
+      flash.now[:alert] =
+        t('ieducar_api_synchronization.error', error: synchronization.error_by_user(current_user))
     end
 
     synchronization&.notified!
@@ -175,11 +180,7 @@ class ApplicationController < ActionController::Base
   helper_method :current_school_calendar
 
   def current_test_setting
-    TestSettingFetcher.current(current_user.try(:current_classroom)) || default_test_setting
-  end
-
-  def default_test_setting
-    TestSettingFetcher.by_step(steps_fetcher.steps.first)
+    TestSettingFetcher.current(current_user.try(:current_classroom))
   end
 
   def steps_fetcher
@@ -216,6 +217,7 @@ class ApplicationController < ActionController::Base
       current_user_role: current_user.current_user_role,
       current_classroom: current_user.current_classroom,
       current_discipline_id: current_user.current_discipline_id,
+      current_knowledge_area_id: current_user.current_knowledge_area_id,
       current_unity: current_user.current_unity,
       current_teacher: current_user.current_teacher,
       current_school_year: current_user.current_school_year
@@ -223,9 +225,7 @@ class ApplicationController < ActionController::Base
   end
 
   def teacher_discipline_score_type
-    return DisciplineScoreTypes::NUMERIC if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC
-    return DisciplineScoreTypes::CONCEPT if current_user_classroom.exam_rule.score_type == ScoreTypes::CONCEPT
-    TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+    teacher_discipline_score_type_by_exam_rule(current_user_classroom.exam_rule)
   end
 
   def current_user_is_employee_or_administrator?
@@ -235,11 +235,24 @@ class ApplicationController < ActionController::Base
   def teacher_differentiated_discipline_score_type
     exam_rule = current_user_classroom.exam_rule
     differentiated_exam_rule = exam_rule.differentiated_exam_rule
-    return teacher_discipline_score_type unless differentiated_exam_rule.present?
-    return teacher_discipline_score_type unless current_user_classroom.has_differentiated_students?
-    return DisciplineScoreTypes::NUMERIC if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC
-    return DisciplineScoreTypes::CONCEPT if differentiated_exam_rule.score_type == ScoreTypes::CONCEPT
-    TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+
+    if differentiated_exam_rule.blank? || !current_user_classroom.has_differentiated_students?
+      return teacher_discipline_score_type_by_exam_rule(exam_rule)
+    end
+
+    teacher_discipline_score_type_by_exam_rule(differentiated_exam_rule)
+  end
+
+  def teacher_discipline_score_type_by_exam_rule(exam_rule)
+    return unless (score_type = exam_rule.score_type)
+    return if score_type == ScoreTypes::DONT_USE
+    return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
+
+    TeacherDisciplineClassroom.find_by(
+      classroom: current_user_classroom,
+      teacher: current_teacher,
+      discipline: current_user_discipline
+    ).score_type
   end
 
   def set_user_current
@@ -262,7 +275,47 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def verify_recaptcha?
+    return if RecaptchaVerifier.verify?(params[:recaptcha_token])
+
+    flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."
+    redirect_to :back
+  rescue ActionController::RedirectBackError
+    redirect_to root_path
+  end
+
+  def allowed_api_header?
+    header_name1 = Rails.application.secrets[:AUTH_HEADER_NAME1] || 'TOKEN'
+    validation_method1 = Rails.application.secrets[:AUTH_VALIDATION_METHOD1] || '=='
+    token1 = Rails.application.secrets[:AUTH_TOKEN1]
+
+    header_name2 = Rails.application.secrets[:AUTH_HEADER_NAME2] || 'TOKEN'
+    validation_method2 = Rails.application.secrets[:AUTH_VALIDATION_METHOD2] || '=='
+    token2 = Rails.application.secrets[:AUTH_TOKEN2]
+
+    request.headers[header_name1].send(validation_method1, token1) ||
+      (token2.present? && request.headers[header_name2].send(validation_method2, token2))
+  end
+
   private
+
+  def set_current_user_role_id
+    return if request.xhr?
+    return if current_user.current_user_role_id?
+
+    current_user.current_user_role_id = current_user.user_roles.first&.id || return
+    current_user.save
+  end
+
+  def set_current_unity_id
+    return if request.xhr?
+    return unless current_user.current_role_is_admin_or_employee_or_teacher?
+    return if current_user.current_unity_id?
+    return unless current_user.current_user_role_id?
+
+    current_user.current_unity_id ||= current_user.current_user_role&.unity_id
+    current_user.save
+  end
 
   def current_year_steps
     @current_year_steps ||= begin
@@ -313,5 +366,4 @@ class ApplicationController < ActionController::Base
   def report_name(prefix)
     "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
   end
-
 end

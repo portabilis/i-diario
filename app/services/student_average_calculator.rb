@@ -9,15 +9,16 @@ class StudentAverageCalculator
     student_notes_query = StudentNotesQuery.new(student, discipline, classroom, step.start_at, step.end_at)
     @daily_note_students = student_notes_query.daily_note_students + student_notes_query.transfer_notes +
                            student_notes_query.previous_enrollments_daily_note_students
+    test_setting = test_setting(classroom, step)
 
     @recovery_diary_records = student_notes_query.recovery_diary_records
 
     if daily_note_students.any? || recovery_diary_records.any?
       result = case
-      when step.test_setting.sum_calculation_type?
-        score_sum
-      when step.test_setting.arithmetic_and_sum_calculation_type?
-        calculate_average(score_sum, calculate_average(weight_sum, step.test_setting.maximum_score))
+      when test_setting.sum_calculation_type?
+        score_sum / test_setting.default_division_weight
+      when test_setting.arithmetic_and_sum_calculation_type?
+        calculate_average(score_sum, calculate_average(weight_sum, test_setting.maximum_score))
       else
         calculate_average(score_sum, avaliation_count)
       end
@@ -95,5 +96,9 @@ class StudentAverageCalculator
 
   def avaliation_exempted?(avaliation)
     StudentAvaliationExemptionQuery.new(student).is_exempted(avaliation)
+  end
+
+  def test_setting(classroom, step)
+    TestSettingFetcher.current(classroom, step)
   end
 end

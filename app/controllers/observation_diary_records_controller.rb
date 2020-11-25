@@ -2,6 +2,7 @@ class ObservationDiaryRecordsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :require_current_clasroom
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
@@ -101,6 +102,11 @@ class ObservationDiaryRecordsController < ApplicationController
       :classroom_id,
       :discipline_id,
       :date,
+      observation_diary_record_attachments_attributes: [
+        :id,
+        :attachment,
+        :_destroy
+      ],
       notes_attributes: [
         :id,
         :description,
@@ -119,7 +125,11 @@ class ObservationDiaryRecordsController < ApplicationController
   end
 
   def fetch_current_discipline
-    frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
+    frequency_type_definer = FrequencyTypeDefiner.new(
+      current_user_classroom,
+      current_teacher,
+      year: current_user_classroom.year
+    )
     frequency_type_definer.define!
 
     if frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE

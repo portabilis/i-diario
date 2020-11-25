@@ -13,6 +13,6 @@ class DailyFrequencySerializer < ActiveModel::Serializer
   end
 
   def discipline_name
-    object.discipline.try(:description)
+    object.discipline.try(:to_s)
   end
 end

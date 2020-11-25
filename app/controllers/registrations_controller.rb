@@ -1,4 +1,5 @@
 class RegistrationsController < ApplicationController
+  prepend_before_action :verify_recaptcha?, only: :create
   skip_before_action :authenticate_user!
   layout "registration"
 
@@ -9,7 +10,7 @@ class RegistrationsController < ApplicationController
   def create
     Rails.logger.info(
       "LOG: RegistrationsController#create: #{params[:signup].except(:password, :password_confirmation).to_json}"
-    )
+    ) if params[:signup]
     @signup = Signup.new(params[:signup])
 
     if @user = @signup.save

@@ -88,7 +88,7 @@
   display: none;
 }
 
-@media (max-width: 1250px) {
+@media (max-width: 1365px) {
   #user-info-selector {
     color: #bfbfbf;
     display: block;
@@ -110,7 +110,7 @@
     margin-top: 23px;
   }
 
-  #header > #current-role-selector {
+  #current-role-selector {
     background-color: rgba(255, 255, 255, .75);
     display: none;
     float: none;

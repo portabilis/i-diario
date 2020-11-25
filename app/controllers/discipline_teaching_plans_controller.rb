@@ -11,7 +11,8 @@ class DisciplineTeachingPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @discipline_teaching_plans = apply_scopes(
-      DisciplineTeachingPlan.includes(:discipline, teaching_plan: [:unity, :grade])
+      DisciplineTeachingPlan.includes(:discipline,
+                                      teaching_plan: [:unity, :grade, :teaching_plan_attachments, :teacher])
                             .by_unity(current_unity)
                             .by_year(current_school_year)
     )
@@ -67,6 +68,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan = DisciplineTeachingPlan.new(resource_params).localized
     @discipline_teaching_plan.teaching_plan.teacher = current_teacher
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
+    @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
 
     authorize @discipline_teaching_plan
@@ -93,6 +95,7 @@ class DisciplineTeachingPlansController < ApplicationController
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id]).localized
     @discipline_teaching_plan.assign_attributes(resource_params)
     @discipline_teaching_plan.teaching_plan.content_ids = content_ids
+    @discipline_teaching_plan.teaching_plan.objective_ids = objective_ids
     @discipline_teaching_plan.teacher_id = current_teacher_id
     @discipline_teaching_plan.current_user = current_user
 
@@ -131,8 +134,44 @@ class DisciplineTeachingPlansController < ApplicationController
   def content_ids
     param_content_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_ids] || []
     content_descriptions = params[:discipline_teaching_plan][:teaching_plan_attributes][:content_descriptions] || []
-    new_contents_ids = content_descriptions.map{|v| Content.find_or_create_by!(description: v).id }
-    param_content_ids + new_contents_ids
+
+    @discipline_teaching_plan.teaching_plan.contents_created_at_position = {}
+
+    param_content_ids.each_with_index do |content_id, index|
+      @discipline_teaching_plan.teaching_plan.contents_created_at_position[content_id.to_i] = index
+    end
+
+    new_contents_ids = content_descriptions.each_with_index.map { |description, index|
+      content = Content.find_or_create_by!(description: description)
+      @discipline_teaching_plan.teaching_plan.contents_created_at_position[content.id] =
+        param_content_ids.size + index
+
+      content.id
+    }
+
+    @ordered_content_ids = param_content_ids + new_contents_ids
+  end
+
+  def objective_ids
+    param_objective_ids = params[:discipline_teaching_plan][:teaching_plan_attributes][:objective_ids] || []
+    objective_descriptions =
+      params[:discipline_teaching_plan][:teaching_plan_attributes][:objective_descriptions] || []
+
+    @discipline_teaching_plan.teaching_plan.objectives_created_at_position = {}
+
+    param_objective_ids.each_with_index do |objective_id, index|
+      @discipline_teaching_plan.teaching_plan.objectives_created_at_position[objective_id.to_i] = index
+    end
+
+    new_objectives_ids = objective_descriptions.each_with_index.map { |description, index|
+      objective = Objective.find_or_create_by!(description: description)
+      @discipline_teaching_plan.teaching_plan.objectives_created_at_position[objective.id] =
+        param_objective_ids.size + index
+
+      objective.id
+    }
+
+    @ordered_objective_ids = param_objective_ids + new_objectives_ids
   end
 
   def resource_params
@@ -146,7 +185,6 @@ class DisciplineTeachingPlansController < ApplicationController
         :grade_id,
         :school_term_type,
         :school_term,
-        :objectives,
         :content,
         :methodology,
         :evaluation,
@@ -164,15 +202,32 @@ class DisciplineTeachingPlansController < ApplicationController
   def contents
     @contents = []
 
-    if @discipline_teaching_plan.teaching_plan.contents
-      contents = @discipline_teaching_plan.teaching_plan.contents_ordered
-      contents.each { |content| content.is_editable = true }
-      @contents << contents
-    end
+    return @contents if @discipline_teaching_plan.teaching_plan.content_ids.blank?
 
-    @contents.flatten.uniq
+    @contents = if @ordered_content_ids.present?
+                  Content.find_and_order_by_id_sequence(@ordered_content_ids)
+                else
+                  @discipline_teaching_plan.teaching_plan.contents_ordered
+                end
+
+    @contents = @contents.each { |content| content.is_editable = true }.uniq
   end
   helper_method :contents
+
+  def objectives
+    @objectives = []
+
+    return @objectives if @discipline_teaching_plan.teaching_plan.objective_ids.blank?
+
+    @objectives = if @ordered_objective_ids.present?
+                    Objective.find_and_order_by_id_sequence(@ordered_objective_ids)
+                  else
+                    @discipline_teaching_plan.teaching_plan.objectives_ordered
+                  end
+
+    @objectives = @objectives.each { |objective| objective.is_editable = true }.uniq
+  end
+  helper_method :objectives
 
   def fetch_collections
     fetch_unities

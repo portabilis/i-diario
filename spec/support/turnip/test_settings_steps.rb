@@ -46,7 +46,7 @@ module Turnip
     step 'poderei excluir uma configuração de avaliação' do
       within '#resources > tbody > tr:nth-child(2)' do
         wait_for(page).to have_content 'Geral 2014 - 10 2 Aritmética'
-        click_link "Excluir"
+        accept_alert { click_link "Excluir" }
       end
 
       wait_for(page).to have_content 'Configuração de avaliação foi apagada com sucesso'
@@ -68,7 +68,7 @@ module Turnip
         fill_in 'Peso', with: '10,00'
 
         # Clica no checbox 'Permitir desmembrar'
-        find(:css, '[id*=_allow_break_up]').trigger('click')
+        page.execute_script("$('[id$=_allow_break_up]').trigger('click')")
       end
 
       click_on 'Salvar'
