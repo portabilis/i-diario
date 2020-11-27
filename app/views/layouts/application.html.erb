@@ -16,6 +16,15 @@
     </div>
 
     <header id="header" style="height: 77px; background-color: #27333B;">
+      <div id="logo-group" style="margin-top: 10px; margin-left: 10px;">
+        <%= link_to image_tag(
+            logo_url,
+            height: '57px',
+            alt: current_entity_configuration.try(:entity_name),
+            style: 'background-color: white; border-radius: 3px;'
+          ), root_path %>
+      </div>
+
       <%= render "layouts/profile_selection" %>
 
       <div class="pull-right" style="margin-top: 15px;">

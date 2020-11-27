@@ -1,8 +1,8 @@
 <header id="header">
-  <div id="logo-group">
+  <div id="logo-group" style="margin-top: 5px;">
     <%= link_to(
       image_tag(
-        (current_entity_configuration.try(:logo_url) || 'portabilis_logo.png'),
+        logo_url,
         height: '60px',
         alt: current_entity_configuration.try(:entity_name)
       ),
