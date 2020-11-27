@@ -129,6 +129,42 @@ class DailyNotesController < ApplicationController
     render json: @daily_notes
   end
 
+  def exempt_students
+    @students_ids = params[:exemption_students_ids].split(',')
+
+    @students_ids.each do |student_id|
+      begin
+        avaliation_exemption = AvaliationExemption.new(
+          student_id: student_id,
+          avaliation_id: params[:exemption_avaliation_id],
+          reason: params[:reason]
+        )
+        avaliation_exemption.teacher_id = current_teacher_id
+
+        delete_note(params[:id], student_id)
+
+        avaliation_exemption.save!
+      rescue Exception
+        @students_ids.delete(student_id)
+      end
+    end
+
+    @students_ids = @students_ids.to_json.html_safe
+  end
+
+  def undo_exemption
+    @student_id = params[:student_id]
+    avaliation_id = params[:avaliation_id]
+    exemption = AvaliationExemption.find_by(student_id: @student_id, avaliation_id: avaliation_id)
+
+    @student_id = nil if exemption.blank?
+    begin
+      exemption&.destroy!
+    rescue ActiveRecord::RecordNotDestroyed
+      @student_id = nil
+    end
+  end
+
   protected
 
   def fetch_student_enrollments
@@ -272,5 +308,11 @@ class DailyNotesController < ApplicationController
 
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
+  end
+
+  def delete_note(daily_note_id, student_id)
+    return unless (student_note = DailyNoteStudent.find_by(daily_note_id: daily_note_id, student_id: student_id))
+
+    student_note.update!(note: nil)
   end
 end

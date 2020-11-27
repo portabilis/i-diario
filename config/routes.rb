@@ -239,6 +239,10 @@ Rails.application.routes.draw do
       collection do
         get :search
       end
+      member do
+        post :exempt_students
+        post :undo_exemption
+      end
     end
     resources :daily_note_students, only: [:index] do
       collection do
