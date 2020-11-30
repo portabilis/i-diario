@@ -24,7 +24,10 @@ class PopulateSchoolTermTypes < ActiveRecord::Migration
                                           .count(:school_calendar_classroom_id)
                                           &.first
 
-      SchoolTermType.create!(description: step_type_description, steps_number: step.second)
+      steps_number = step.second
+      description = "#{step_type_description} (#{steps_number} #{'etapa'.pluralize(steps_number)})"
+
+      SchoolTermType.create!(description: description, steps_number: steps_number)
     end
   end
 end

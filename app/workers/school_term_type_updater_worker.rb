@@ -11,7 +11,7 @@ class SchoolTermTypeUpdaterWorker
       return if calendar.blank?
 
       steps_number = calendar.steps.size
-      description = calendar.step_type_description
+      description = "#{calendar.step_type_description} (#{steps_number} #{'etapa'.pluralize(steps_number)})"
 
       begin
         SchoolTermType.find_or_initialize_by(description: description).tap do |school_term_type|
