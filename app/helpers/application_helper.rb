@@ -1,6 +1,7 @@
 module ApplicationHelper
   include ActiveSupport::Inflector
 
+  PORTABILIS_LOGO = 'portabilis_logo.png'.freeze
   PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
@@ -241,5 +242,20 @@ module ApplicationHelper
 
   def recaptcha_site_key
     @recaptcha_site_key ||= Rails.application.secrets.recaptcha_site_key
+  end
+
+  def logo_url
+    Rails.cache.fetch(current_entity.id, current_entity_configuration) do
+      entity_logo_url = current_entity_configuration.try(:logo_url)
+
+      return PORTABILIS_LOGO if entity_logo_url.blank?
+      return entity_logo_url if HTTParty.get(entity_logo_url).code == 200
+
+      PORTABILIS_LOGO
+    end
+  rescue => error
+    Honeybadger.notify(error)
+
+    PORTABILIS_LOGO
   end
 end
