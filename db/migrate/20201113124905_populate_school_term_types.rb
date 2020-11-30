@@ -1,7 +1,5 @@
 class PopulateSchoolTermTypes < ActiveRecord::Migration
   def change
-    SchoolTermType.create!(description: 'Anual', steps_number: 1)
-
     (
       SchoolCalendar.uniq.pluck(:step_type_description) +
       SchoolCalendarClassroom.uniq.pluck(:step_type_description)
