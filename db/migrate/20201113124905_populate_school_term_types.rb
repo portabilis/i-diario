@@ -23,6 +23,7 @@ class PopulateSchoolTermTypes < ActiveRecord::Migration
                                           ).group(:school_calendar_classroom_id)
                                           .count(:school_calendar_classroom_id)
                                           &.first
+      next if step.blank?
 
       steps_number = step.second
       description = "#{step_type_description} (#{steps_number} #{'etapa'.pluralize(steps_number)})"
