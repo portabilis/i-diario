@@ -106,7 +106,7 @@ class SchoolCalendarQuery
                 SELECT 1
                   FROM teaching_plans
                  WHERE teaching_plans.unity_id = unities.id
-                   AND teaching_plans.school_term_type_id = #{SchoolTermType::YEARLY_TERM_TYPE_ID}
+                   AND teaching_plans.school_term_type_id = #{yearly_term_type_id}
                    AND teaching_plans.year = date_part('year', CURRENT_DATE)) AS plans
              ) AS td_yearly_teaching_plans,
      LATERAL (SELECT COUNT(1) AS count
@@ -242,7 +242,7 @@ class SchoolCalendarQuery
                 SELECT 1
                   FROM teaching_plans
                  WHERE teaching_plans.unity_id = unities.id
-                   AND teaching_plans.school_term_type_id = #{SchoolTermType::YEARLY_TERM_TYPE_ID}
+                   AND teaching_plans.school_term_type_id = #{yearly_term_type_id}
                    AND teaching_plans.year = date_part('year', CURRENT_DATE)) AS plans
              ) AS td_yearly_teaching_plans,
      LATERAL (SELECT COUNT(1) AS count
@@ -289,4 +289,8 @@ class SchoolCalendarQuery
   private
 
   attr_accessor :unity, :year
+
+  def yearly_term_type_id
+    @yearly_term_type_id ||= SchoolTermType.find_by(description: 'Anual').id
+  end
 end

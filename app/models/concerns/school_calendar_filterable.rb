@@ -30,7 +30,7 @@ module SchoolCalendarFilterable
         }.uniq
 
         school_term_types = SchoolTermType.where(description: school_calendar + school_calendar_classroom)
-        school_term_types << SchoolTermType.find(SchoolTermType::YEARLY_TERM_TYPE_ID) if add_yearly_param
+        school_term_types << SchoolTermType.find_by(description: 'Anual') if add_yearly_param
 
         h[params] = school_term_types
       end

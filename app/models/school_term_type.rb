@@ -1,8 +1,6 @@
 class SchoolTermType < ActiveRecord::Base
   include SchoolCalendarFilterable
 
-  YEARLY_TERM_TYPE_ID = SchoolTermType.find_by(description: 'Anual').id
-
   has_many :school_term_type_steps, -> { kept }, dependent: :destroy
 
   def to_s

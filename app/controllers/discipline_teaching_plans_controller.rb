@@ -4,6 +4,7 @@ class DisciplineTeachingPlansController < ApplicationController
 
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :yearly_term_type_id, only: [:show, :edit, :new]
 
   def index
     params[:filter] ||= {}
@@ -263,5 +264,9 @@ class DisciplineTeachingPlansController < ApplicationController
     end
 
     @disciplines
+  end
+
+  def yearly_term_type_id
+    @yearly_term_type_id ||= SchoolTermType.find_by(description: 'Anual').id
   end
 end

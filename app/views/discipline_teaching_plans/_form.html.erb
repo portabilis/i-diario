@@ -7,7 +7,7 @@
 <% end %>
 
 <%= hidden_field_tag :action_name, action_name %>
-<%= hidden_field_tag :yearly_school_term_type_id, SchoolTermType::YEARLY_TERM_TYPE_ID %>
+<%= hidden_field_tag :yearly_school_term_type_id, @yearly_term_type_id %>
 
 <%= simple_form_for @discipline_teaching_plan, html: {
     class: 'smart-form',

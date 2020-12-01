@@ -77,7 +77,7 @@ class TeachingPlan < ActiveRecord::Base
   end
 
   def yearly?
-    school_term_type.id == SchoolTermType::YEARLY_TERM_TYPE_ID
+    school_term_type.id == SchoolTermType.find_by(description: 'Anual').id
   end
 
   private
