@@ -92,6 +92,7 @@ module ExamPoster
 
     def can_post?(classroom)
       return false if classroom.blank?
+      return false unless classroom.can_post
 
       classroom.post_info &&
         same_unity?(classroom) &&
