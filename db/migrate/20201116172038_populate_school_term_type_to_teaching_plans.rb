@@ -41,7 +41,7 @@ class PopulateSchoolTermTypeToTeachingPlans < ActiveRecord::Migration
         teaching_plan.school_term_type_id = school_term_type.id
         teaching_plan.school_term_type_step_id = school_term_type_step_id
       else
-        teaching_plan.school_term_type_id = 1
+        teaching_plan.school_term_type_id = SchoolTermType.find_by(description: 'Anual').id
       end
 
       teaching_plan.save!(validate: false)

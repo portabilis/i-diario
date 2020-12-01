@@ -1,7 +1,5 @@
 class CreateYearlySchoolTermType < ActiveRecord::Migration
-  disable_ddl_transaction!
-
   def change
-    SchoolTermType.create!(description: 'Anual', steps_number: 1)
+    execute "INSERT INTO school_term_types (description ,steps_number) VALUES ('Anual', 1)"
   end
 end

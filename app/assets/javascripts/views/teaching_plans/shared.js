@@ -22,7 +22,7 @@ function updateSchoolTermInput(schoolTermType, schoolTerm, schoolTermContainer, 
   $schoolTermContainer = schoolTermContainer;
   $flashMessages = flashMessagesParam;
 
-  if (!_.isEmpty(school_term_type_id) && school_term_type_id != 1 ) {
+  if (!_.isEmpty(school_term_type_id) && school_term_type_id != $('#yearly_school_term_type_id').val() ) {
     $.ajax({
       url: Routes.steps_by_school_term_type_id_pt_br_path({
         school_term_type_id: school_term_type_id,
