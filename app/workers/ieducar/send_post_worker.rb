@@ -7,7 +7,8 @@ module Ieducar
       %(duplicate key value violates unique constraint "modules_falta_aluno_matricula_id_unique"),
       %(duplicate key value violates unique constraint "falta_geral_pkey"),
       %(duplicate key value violates unique constraint "nota_componente_curricular_pkey"),
-      %(duplicate key value violates unique constraint "parecer_geral_pkey")
+      %(duplicate key value violates unique constraint "parecer_geral_pkey"),
+      %(502 Bad Gateway)
     ]
 
     extend Ieducar::SendPostPerformer
