@@ -1,5 +1,7 @@
 module Ieducar
   class SendPostWorker
+    class IeducarSqlException < StandardError; end
+
     RETRY_ERRORS = [
       %(duplicate key value violates unique constraint "modules_nota_aluno_matricula_id_unique"),
       %(duplicate key value violates unique constraint "modules_parecer_aluno_matricula_id_unique"),
@@ -9,7 +11,9 @@ module Ieducar
       %(duplicate key value violates unique constraint "nota_componente_curricular_pkey"),
       %(duplicate key value violates unique constraint "parecer_geral_pkey"),
       %(502 Bad Gateway)
-    ]
+    ].freeze
+
+    IEDUCAR_SQL_ERRORS = ['Exception: SQLSTATE'].freeze
 
     extend Ieducar::SendPostPerformer
     include Ieducar::SendPostPerformer
@@ -54,6 +58,10 @@ module Ieducar
             )
 
             retry
+          end
+
+          if IEDUCAR_SQL_ERRORS.any? { |ieducar_sql_error| error.message.include?(ieducar_sql_error) }
+            raise IeducarSqlException, "#{information} Erro: #{error.message}"
           end
 
           raise StandardError, "#{information} Erro: #{error.message}"
