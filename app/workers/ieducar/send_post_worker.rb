@@ -12,8 +12,8 @@ module Ieducar
       %(duplicate key value violates unique constraint "parecer_geral_pkey"),
       %(502 Bad Gateway)
     ].freeze
-
     IEDUCAR_SQL_ERRORS = ['Exception: SQLSTATE'].freeze
+    RETRY_SOCKET_ERRORS = ['Temporary failure in name resolution'].freeze
 
     extend Ieducar::SendPostPerformer
     include Ieducar::SendPostPerformer
@@ -47,6 +47,8 @@ module Ieducar
           response = IeducarResponseDecorator.new(api(posting).send_post(params))
 
           posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
+        rescue SocketError => error
+          retry if RETRY_SOCKET_ERRORS.any? { |socket_error| error.message.include?(socket_error) }
         rescue StandardError => error
           if RETRY_ERRORS.any? { |retry_error| error.message.include?(retry_error) }
             Rails.logger.info(
