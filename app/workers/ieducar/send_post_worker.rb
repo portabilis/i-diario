@@ -19,7 +19,7 @@ module Ieducar
     include Ieducar::SendPostPerformer
     include Sidekiq::Worker
 
-    sidekiq_options retry: 2, dead: false
+    sidekiq_options retry: 3, dead: false
 
     sidekiq_retries_exhausted do |msg, ex|
       performer(*msg['args']) do |posting, _, _|
