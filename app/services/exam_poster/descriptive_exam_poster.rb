@@ -126,7 +126,7 @@ module ExamPoster
       classrooms.each do |classroom|
         next unless can_post?(classroom)
 
-        exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, discipline_ids)
+        exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, nil)
                                       .ordered
 
         exams.each do |exam|
