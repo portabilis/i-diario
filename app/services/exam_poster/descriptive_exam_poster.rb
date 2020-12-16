@@ -101,9 +101,9 @@ module ExamPoster
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
                                       .joins(:student)
                                       .includes(:student, :descriptive_exam)
+                                      .by_classroom_and_discipline(classroom, nil)
                                       .merge(
-                                        DescriptiveExam.by_classroom_id(classroom.id)
-                                                       .by_step_id(classroom, get_step(classroom).id)
+                                        DescriptiveExam.by_step_id(classroom, get_step(classroom).id)
                                       )
                                       .ordered
 
