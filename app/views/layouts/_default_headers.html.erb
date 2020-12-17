@@ -13,7 +13,7 @@
 <![endif]-->
 
 <%= stylesheet_link_tag "application", media: "all" %>
-<%= favicon_link_tag  %>
+<%= favicon_link_tag unless Rails.application.secrets.anonym_domain.split(',').include?(current_entity.domain) %>
 <script src="https://use.fontawesome.com/f04e65d045.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:400italic,700italic,300,400,700">
 
