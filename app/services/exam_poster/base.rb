@@ -31,7 +31,9 @@ module ExamPoster
             entity_id,
             @post_data.id,
             request[:request],
-            request[:info]
+            request[:info],
+            @queue,
+            0
           )
         end
       else
