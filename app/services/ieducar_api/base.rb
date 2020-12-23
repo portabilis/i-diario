@@ -1,6 +1,9 @@
 module IeducarApi
   class Base
     class ApiError < RuntimeError; end
+    class NetworkException < StandardError; end
+
+    RETRY_NETWORK_ERRORS = ['Temporary failure in name resolution', '502 Bad Gateway'].freeze
 
     attr_accessor :url, :access_key, :secret_key, :unity_id, :full_synchronization
 
@@ -90,7 +93,11 @@ module IeducarApi
                    yield(endpoint, request_params, payload)
                  end
         result = JSON.parse(result)
-      rescue SocketError, RestClient::ResourceNotFound
+      rescue SocketError, RestClient::ResourceNotFound => error
+        if RETRY_NETWORK_ERRORS.any? { |network_error| error.message.include?(network_error) }
+          raise NetworkException, error.message
+        end
+
         raise ApiError, 'URL do i-Educar informada não é válida.'
       rescue StandardError => error
         raise ApiError, error.message
