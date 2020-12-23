@@ -11,7 +11,7 @@ module Ieducar
       %(duplicate key value violates unique constraint "nota_componente_curricular_pkey"),
       %(duplicate key value violates unique constraint "parecer_geral_pkey")
     ].freeze
-    IEDUCAR_ERRORS = ['Exception: SQLSTATE', 'Erro: 500 Internal Server Error'].freeze
+    IEDUCAR_ERRORS = ['Exception: SQLSTATE', '500 Internal Server Error'].freeze
     MAX_RETRY_COUNT = 10
 
     extend Ieducar::SendPostPerformer

@@ -93,7 +93,7 @@ module IeducarApi
                    yield(endpoint, request_params, payload)
                  end
         result = JSON.parse(result)
-      rescue SocketError, RestClient::ResourceNotFound => error
+      rescue SocketError, RestClient::ResourceNotFound, RestClient::BadGateway => error
         if RETRY_NETWORK_ERRORS.any? { |network_error| error.message.include?(network_error) }
           raise NetworkException, error.message
         end
