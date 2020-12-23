@@ -249,7 +249,7 @@ module ApplicationHelper
   end
 
   def logo_url
-    Rails.cache.fetch(current_entity.id, current_entity_configuration) do
+    Rails.cache.fetch([current_entity.id, current_entity_configuration]) do
       entity_logo_url = current_entity_configuration.try(:logo_url)
 
       return PORTABILIS_LOGO if entity_logo_url.blank?
@@ -257,6 +257,8 @@ module ApplicationHelper
 
       PORTABILIS_LOGO
     end
+  rescue Errno::ECONNREFUSED, HTTParty::Error, SocketError
+    PORTABILIS_LOGO
   rescue => error
     Honeybadger.notify(error)
 
