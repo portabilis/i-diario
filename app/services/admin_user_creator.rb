@@ -25,13 +25,14 @@ class AdminUserCreator
 
     entity.using_connection do
       create_admin
+      create_admin_role
     end
   end
 
   def create_admin
-    admin_user = User.find_by(login: 'admin')
+    @admin_user = User.find_by(login: 'admin')
 
-    return true if admin_user.present?
+    return true if @admin_user.present?
 
     User.create!(
         login: 'admin',
@@ -43,6 +44,23 @@ class AdminUserCreator
         admin:  true,
         receive_news: false
     )
+  end
+
+  def create_admin_role
+    @role = Role.order_by(:id).find_by(access_level: 'administrator')
+
+    if @role.blank?
+      Role.create(
+        name: 'Administrador',
+        access_level: 'administrator',
+        author_id: @admin_user.id
+      )
+    end
+
+    UserRole.find_or_initialize_by(
+      role: @role,
+      user: @admin_useruser
+    ).save(validate: false)
   end
 
   def success
