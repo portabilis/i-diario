@@ -5,7 +5,7 @@ bundle check || BUNDLE_JOBS=4 bundle install
 if ! test -f ".setup"; then
   echo -e "
   development:
-    secret_key_base: $(bundle exec rake secret)
+    secret_key_base: `bundle exec rake secret`
     redis_url: redis://redis-idiario
     " > config/secrets.yml
 
