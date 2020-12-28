@@ -34,7 +34,7 @@ class AdminUserCreator
 
     return true if @admin_user.present?
 
-    User.create!(
+    @admin_user = User.create!(
         login: 'admin',
         email: 'admin@domain.com.br',
         password: password,
@@ -47,19 +47,19 @@ class AdminUserCreator
   end
 
   def create_admin_role
-    @role = Role.order_by(:id).find_by(access_level: 'administrator')
+    @role = Role.order(:id).find_by(access_level: 'administrator')
 
     if @role.blank?
-      Role.create(
+      @role = Role.create(
         name: 'Administrador',
         access_level: 'administrator',
-        author_id: @admin_user.id
+        author_id: @admin_user.try(:id)
       )
     end
 
     UserRole.find_or_initialize_by(
       role: @role,
-      user: @admin_useruser
+      user: @admin_user
     ).save(validate: false)
   end
 
