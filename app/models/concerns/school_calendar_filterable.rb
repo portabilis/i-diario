@@ -3,39 +3,31 @@ module SchoolCalendarFilterable
 
   included do
     def self.current_year_school_term_types(year, unity_id, add_yearly)
-      @school_term_types ||= Hash.new do |h, params|
-        year_param = params[0]
-        unity_id_param = params[1]
-        add_yearly_param = params[2]
+      school_calendar = SchoolCalendar.includes(:steps).where(year: year)
+      school_calendar = school_calendar.where(unity_id: unity_id) if unity_id
+      school_calendar = school_calendar.map { |calendar| step_type_description_formatter(calendar) }.uniq
 
-        school_calendar = SchoolCalendar.includes(:steps).where(year: year_param)
-        school_calendar = school_calendar.where(unity_id: unity_id_param) if unity_id_param
-        school_calendar = school_calendar.map { |calendar| step_type_description_formatter(calendar) }.uniq
-
-        school_calendar_classroom = SchoolCalendarClassroom.joins(:school_calendar)
-                                                           .includes(:classroom_steps)
-                                                           .where(
-                                                             school_calendars: {
-                                                               year: year_param
-                                                             }
-                                                           )
-        if unity_id_param
-          school_calendar_classroom = school_calendar_classroom.where(school_calendars: {
-                                                                        unity_id: unity_id_param
-                                                                      })
-        end
-
-        school_calendar_classroom = school_calendar_classroom.map { |calendar|
-          step_type_description_formatter(calendar)
-        }.uniq
-
-        school_term_types = SchoolTermType.where(description: school_calendar + school_calendar_classroom)
-        school_term_types << SchoolTermType.find_by(description: 'Anual') if add_yearly_param
-
-        h[params] = school_term_types
+      school_calendar_classroom = SchoolCalendarClassroom.joins(:school_calendar)
+                                                         .includes(:classroom_steps)
+                                                         .where(
+                                                           school_calendars: {
+                                                             year: year
+                                                           }
+                                                         )
+      if unity_id
+        school_calendar_classroom = school_calendar_classroom.where(school_calendars: {
+                                                                      unity_id: unity_id
+                                                                    })
       end
 
-      @school_term_types[[year, unity_id, add_yearly]]
+      school_calendar_classroom = school_calendar_classroom.map { |calendar|
+        step_type_description_formatter(calendar)
+      }.uniq
+
+      school_term_types = SchoolTermType.where(description: school_calendar + school_calendar_classroom)
+      school_term_types << SchoolTermType.find_by(description: 'Anual') if add_yearly
+
+      school_term_types
     end
 
     def self.step_type_description_formatter(calendar)
