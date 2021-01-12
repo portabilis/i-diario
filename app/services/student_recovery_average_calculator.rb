@@ -52,7 +52,9 @@ class StudentRecoveryAverageCalculator
     recovery_average_sum = 0
 
     school_calendar_steps_to_sum.each do |step|
-      recovery_average_sum += student.average(classroom, discipline, step)
+      next unless (average = student.average(classroom, discipline, step))
+
+      recovery_average_sum += average
     end
 
     recovery_average_sum / school_calendar_steps_to_sum.count
