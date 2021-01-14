@@ -23,7 +23,7 @@ class TestSettingFetcher
 
     TestSetting.find_by(
       year: year,
-      school_term: school_term
+      school_term_type_step: school_term_type_step
     )
   end
 
@@ -40,20 +40,25 @@ class TestSettingFetcher
     StepsFetcher.new(@classroom).step_by_date(Date.current)
   end
 
-  def school_term
-    avaliation_school_term.presence || step_school_term
+  def school_term_type_step
+    avaliation_school_term_type_step.presence || step_school_term_type_step
   end
 
-  def avaliation_school_term
+  def avaliation_school_term_type_step
     Avaliation.by_classroom_id(@classroom.id)
               .by_test_date_between(@step.start_at, @step.end_at)
               .first
               .try(:test_setting)
-              .try(:school_term)
+              .try(:school_term_type_step)
   end
 
-  def step_school_term
-    SchoolTermConverter.convert(@step)
+  def step_school_term_type_step
+    description = @step.school_calendar_parent.step_type_description
+    step_number = @step.step_number
+
+    SchoolTermTypeStep.joins(:school_term_type)
+                      .where(school_term_types: { description: description })
+                      .find_by(step_number: step_number)
   end
 
   def general_by_school_test_setting(year)

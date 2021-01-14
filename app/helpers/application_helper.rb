@@ -171,10 +171,6 @@ module ApplicationHelper
     yield(presenter) if block_given?
   end
 
-  def default_steps
-    (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
-  end
-
   def back_link(name, path)
     content_for :back_link do
       back_link_tag(name, path)

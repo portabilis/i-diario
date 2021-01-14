@@ -100,7 +100,7 @@ class TestSettingsController < ApplicationController
     parameters = params.require(:test_setting)
                        .permit(:exam_setting_type,
                                :year,
-                               :school_term,
+                               :school_term_type_step_id,
                                :maximum_score,
                                :number_of_decimal_places,
                                :average_calculation_type,
