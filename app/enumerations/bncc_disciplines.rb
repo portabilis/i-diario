@@ -3,6 +3,7 @@ class BnccDisciplines < EnumerateIt::Base
                    :art,
                    :physical_education,
                    :english_language,
+                   :spanish_language,
                    :mathematics,
                    :sciences,
                    :geography,
