@@ -131,7 +131,7 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     @year_cell = make_cell(content: teaching_plan.year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     @period_header = make_cell(content: 'Período escolar', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @period_cell = make_cell(content: (teaching_plan.school_term_type == SchoolTermTypes::YEARLY ? teaching_plan.school_term_type_humanize : teaching_plan.school_term_humanize), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @period_cell = make_cell(content: (teaching_plan.yearly? ? teaching_plan.school_term_type : teaching_plan.school_term_type_step_humanize), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
   end
 
   def general_information
@@ -169,16 +169,19 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
       column(-1).border_right_width = 0.25
     end
 
-    objectives = teaching_plan.objectives || '-'
+    experience_fields = @knowledge_area_teaching_plan.experience_fields.presence
     content = teaching_plan.present? ? teaching_plan.contents_ordered.map(&:to_s).join("\n ") : '-'
+    objectives = teaching_plan.objectives.present? ? teaching_plan.objectives_ordered.map(&:to_s).join("\n ") : '-'
     methodology = teaching_plan.methodology || '-'
     evaluation = teaching_plan.evaluation || '-'
     references = teaching_plan.references || '-'
 
-    objectives_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.objectives')
+    experience_fields_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.experience_fields')
     contents_label = Translator.t('activerecord.attributes.knowledge_area_teaching_plan.contents')
-    text_box_truncate(objectives_label, objectives)
+    objectives_label = Translator.t('activerecord.attributes.discipline_teaching_plan.objectives')
+    text_box_truncate(experience_fields_label, experience_fields) if experience_fields
     text_box_truncate(contents_label, content)
+    text_box_truncate(objectives_label, objectives)
     text_box_truncate('Metodologia', methodology)
     text_box_truncate('Avaliação', evaluation)
     text_box_truncate('Referências', references)

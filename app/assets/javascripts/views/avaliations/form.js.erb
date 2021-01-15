@@ -93,7 +93,7 @@ $(function () {
 
   var updateFieldsBasedOnTestSetting = function() {
     $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_test_setting_id').select2('val')).always(function(data) {
-      if (data.test_setting.exam_setting_type == 'general'){
+      if ($.inArray(data.test_setting.exam_setting_type, ['general', 'general_by_school' ]) != -1){
         $('.avaliation_test_setting').hide();
       }
 
@@ -174,11 +174,17 @@ $(function () {
     });
   }
 
-  if (!!document.getElementById('avaliation_test_setting_id')) {
-    updateFieldsBasedOnTestSetting();
+  async function initFields() {
+    if (!!document.getElementById('avaliation_test_setting_id')) {
+      await updateFieldsBasedOnTestSetting();
+    }
+
+    if (!!document.getElementById('avaliation_weight')) {
+      await updateFieldsBaseOnTestSettingTest();
+    }
   }
 
-  if (!!document.getElementById('avaliation_weight')) {
-    updateFieldsBaseOnTestSettingTest();
-  }
+  $(document).ready(function(){
+    initFields();
+  });
 });

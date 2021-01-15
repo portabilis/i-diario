@@ -2,8 +2,8 @@ class DailyNotesController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_teacher
   before_action :require_current_clasroom
+  before_action :require_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
   def index
@@ -18,7 +18,7 @@ class DailyNotesController < ApplicationController
     end
 
     @daily_notes = apply_scopes(DailyNote).includes(:avaliation)
-                                          .by_unity_id(current_user_unity)
+                                          .by_unity_id(current_unity)
                                           .by_classroom_id(current_user_classroom)
                                           .by_discipline_id(current_user_discipline)
                                           .order_by_avaliation_test_date_desc
@@ -127,10 +127,6 @@ class DailyNotesController < ApplicationController
     end
 
     render json: @daily_notes
-  end
-
-  def profile_changed
-    render json: profile_changed?(params[:filter])
   end
 
   protected

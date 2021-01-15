@@ -1,7 +1,8 @@
-# encoding: utf-8
-
 module ApplicationHelper
   include ActiveSupport::Inflector
+
+  PORTABILIS_LOGO = 'portabilis_logo.png'.freeze
+  PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
     @unread_notifications_count ||= current_user.unread_notifications.count
@@ -32,7 +33,28 @@ module ApplicationHelper
   end
 
   def menus
-    Navigation.draw_menus(controller_name, current_user)
+    key = [
+      'Menus',
+      controller_name,
+      current_user.current_user_role&.role&.cache_key || current_user.cache_key,
+      Translation.cache_key
+    ]
+
+    Rails.cache.fetch(key, expires_in: 1.day) do
+      Navigation.draw_menus(controller_name, current_user)
+    end
+  end
+
+  def shortcuts
+    key = [
+      'HomeShortcuts',
+      current_user.current_user_role&.role&.cache_key || current_user&.cache_key,
+      Translation.cache_key
+    ]
+
+    Rails.cache.fetch(key, expires_in: 1.day) do
+      Navigation.draw_shortcuts(current_user)
+    end
   end
 
   def title
@@ -50,20 +72,27 @@ module ApplicationHelper
     super object, *(args << options), &block
   end
 
-  def gravatar_image_tag(email, size = '48', html_options = {})
-    email = Digest::MD5.hexdigest(email.to_s)
-    default_avatar = CGI.escape(
-      'https://s3-sa-east-1.amazonaws.com/apps-core-images-test/uploads/avatar/avatar.jpg'
-    )
+  def profile_picture_tag(user, profile_picture_html_options = {})
+    user_avatar_url = user_avatar_url(user)
 
-    html_options['height'] = "#{size}px"
-    html_options['width'] = "#{size}px"
-    html_options['onerror'] = "this.error=null;this.src='/assets/profile-default.jpg'"
+    return unless user_avatar_url
 
-    image_tag(
-      "https://www.gravatar.com/avatar/#{email}?size=#{size}&d=#{default_avatar}",
-      html_options
-    )
+    image_tag(user_avatar_url, profile_picture_html_options.merge(onerror: on_error_img, alt: ''))
+  end
+
+  def user_avatar_url(user)
+    user_avatar = user.profile_picture&.url
+    student_avatar = user.student&.avatar_url.to_s
+    cache_key = [:user_avatar_url, current_entity.id, user.id, user_avatar, student_avatar]
+    Rails.cache.fetch cache_key, expires_in: 1.day do
+      user_avatar ||
+        IeducarAvatarAuth.new(student_avatar).generate_new_url.presence ||
+        PROFILE_DEFAULT_PICTURE_PATH
+    end
+  end
+
+  def on_error_img
+    "this.error=null;this.src='#{PROFILE_DEFAULT_PICTURE_PATH}'"
   end
 
   def custom_date_format(date)
@@ -103,13 +132,13 @@ module ApplicationHelper
   end
 
   def entity_copyright
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_copyright", expires_in: 10.minutes) do
+    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_copyright", expires_in: 1.day) do
       "© #{GeneralConfiguration.current.copyright_name} #{Time.zone.today.year}"
     end
   end
 
   def entity_website
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_website", expires_in: 10.minutes) do
+    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_website", expires_in: 1.day) do
       GeneralConfiguration.current.support_url
     end
   end
@@ -142,7 +171,93 @@ module ApplicationHelper
     yield(presenter) if block_given?
   end
 
-  def default_steps
-    (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
+  def back_link(name, path)
+    content_for :back_link do
+      back_link_tag(name, path)
+    end
+  end
+
+  def back_link_tag(name, path)
+    link_to path, class: 'back-link' do
+      raw <<-HTML
+        <i class="icon-append fa fa-angle-left"></i>
+        #{name}
+      HTML
+    end
+  end
+
+  def include_recaptcha_js
+    return '' if recaptcha_site_key.blank?
+
+    raw %Q{
+      <script src="https://www.google.com/recaptcha/api.js?render=#{recaptcha_site_key}"></script>
+    }
+  end
+
+  def recaptcha_execute
+    return '' if recaptcha_site_key.blank?
+
+    id = "recaptcha_token_#{SecureRandom.hex(10)}"
+
+    raw %Q{
+      <input name="recaptcha_token" type="hidden" id="#{id}"/>
+      <script>
+        grecaptcha.ready(function() {
+          grecaptcha.execute('#{recaptcha_site_key}').then(function(token) {
+            document.getElementById("#{id}").value = token;
+          });
+        });
+      </script>
+    }
+  end
+
+  def window_state
+    current_profile = CurrentProfile.new(current_user)
+
+    {
+      current_role: current_profile.user_role_as_json,
+      available_roles: current_profile.user_roles_as_json,
+      current_unity: current_profile.unity_as_json,
+      available_unities: current_profile.unities_as_json,
+      current_school_year: current_profile.school_year_as_json,
+      available_school_years: current_profile.school_years_as_json,
+      current_classroom: current_profile.classroom_as_json,
+      available_classrooms: current_profile.classrooms_as_json,
+      current_teacher: current_profile.teacher_as_json,
+      available_teachers: current_profile.teachers_as_json,
+      current_discipline: current_profile.discipline_as_json,
+      available_disciplines: current_profile.disciplines_as_json,
+      teacher_id: current_user.teacher_id,
+      current_profile: current_profile.teacher_profile_as_json,
+      profiles: current_profile.teacher_profiles_as_json
+
+    }
+  end
+
+  private
+
+  def cache_key_to_user
+    [current_entity.id, current_user.id]
+  end
+
+  def recaptcha_site_key
+    @recaptcha_site_key ||= Rails.application.secrets.recaptcha_site_key
+  end
+
+  def logo_url
+    Rails.cache.fetch([current_entity.id, current_entity_configuration]) do
+      entity_logo_url = current_entity_configuration.try(:logo_url)
+
+      return PORTABILIS_LOGO if entity_logo_url.blank?
+      return entity_logo_url if HTTParty.get(entity_logo_url).code == 200
+
+      PORTABILIS_LOGO
+    end
+  rescue Errno::ECONNREFUSED, HTTParty::Error, SocketError
+    PORTABILIS_LOGO
+  rescue => error
+    Honeybadger.notify(error)
+
+    PORTABILIS_LOGO
   end
 end

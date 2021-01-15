@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe TestSettingFetcher, type: :service do
   let!(:classroom) { create(:classroom, :with_classroom_trimester_steps) }
   let!(:step) { classroom.calendar.classroom_steps.first }
+  let(:school_term_type_step) { create(:school_term_type_step) }
 
   context 'when does not receive classroom' do
     it 'raises ArgumentError to classroom' do
@@ -55,7 +56,7 @@ RSpec.describe TestSettingFetcher, type: :service do
       create(
         :test_setting,
         exam_setting_type: ExamSettingTypes::BY_SCHOOL_TERM,
-        school_term: SchoolTerms::FIRST_TRIMESTER,
+        school_term_type_step: school_term_type_step,
         year: classroom.year
       )
     }
@@ -73,7 +74,7 @@ RSpec.describe TestSettingFetcher, type: :service do
     context 'test setting doesnt exist for step year and school_term' do
       before do
         step_test_setting.update(
-          school_term: SchoolTerms::THIRD_TRIMESTER
+          school_term: school_term_type_step
         )
       end
 

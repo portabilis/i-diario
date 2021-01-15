@@ -1,6 +1,6 @@
 class IeducarApiExamPostingsController < ApplicationController
-  before_action :require_current_teacher
   before_action :require_current_clasroom
+  before_action :require_current_teacher
   before_action :require_current_teacher_discipline_classrooms
   before_action :require_current_posting_step
 
@@ -75,5 +75,13 @@ class IeducarApiExamPostingsController < ApplicationController
 
       redirect_to root_path
     end
+  end
+
+  def require_current_teacher_discipline_classrooms
+    return if current_teacher&.teacher_discipline_classrooms&.any?
+
+    flash[:alert] = t('errors.general.require_current_teacher_discipline_classrooms')
+
+    redirect_to root_path
   end
 end

@@ -13,7 +13,9 @@
           </thead>
           <tbody>
             <% resource.all_audits.each do |audit| %>
-              <%= render 'daily_frequencies/history/history', record: AuditDecorator.new(audit) %>
+              <% decoratorated_audit = AuditDecorator.new(audit) %>
+              <% next unless decoratorated_audit.auditable.try(:student) %>
+              <%= render 'daily_frequencies/history/history', record: decoratorated_audit %>
             <% end %>
           </tbody>
         </table>

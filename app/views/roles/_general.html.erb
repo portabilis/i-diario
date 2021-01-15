@@ -64,9 +64,9 @@
         </span>
       </div>
     <% end %>
-
+    <%= hidden_field_tag :role_id, f.object.id %>
     <tbody id="role-permissions-tbody">
-      <%= f.association :permissions do |p| %>
+      <%= f.association :permissions, collection: @permissions do |p| %>
         <%= render 'permission', f: p %>
       <% end %>
     </tbody>

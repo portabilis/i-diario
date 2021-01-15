@@ -1,6 +1,6 @@
 class ExamRecordReportController < ApplicationController
-  before_action :require_current_teacher
   before_action :require_current_clasroom
+  before_action :require_current_teacher
 
   def form
     @exam_record_report_form = ExamRecordReportForm.new
@@ -26,7 +26,7 @@ class ExamRecordReportController < ApplicationController
     ExamRecordReport.build(
       current_entity_configuration,
       current_teacher,
-      current_user_school_year,
+      current_school_year,
       @exam_record_report_form.step,
       current_test_setting,
       @exam_record_report_form.daily_notes,

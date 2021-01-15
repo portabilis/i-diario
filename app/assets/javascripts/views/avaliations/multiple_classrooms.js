@@ -99,8 +99,10 @@ $(function () {
     });
   }
 
-  updateFieldsBasedOnTestSetting();
-  updateFieldsBaseOnTestSettingTest();
+  $(document).ready(function(){
+    updateFieldsBasedOnTestSetting();
+    updateFieldsBaseOnTestSettingTest();
+  });
 
   var classes_data = function(){
     data = [];

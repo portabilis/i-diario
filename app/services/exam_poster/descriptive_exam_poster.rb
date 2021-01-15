@@ -101,9 +101,9 @@ module ExamPoster
         exams = DescriptiveExamStudent.joins(:descriptive_exam)
                                       .joins(:student)
                                       .includes(:student, :descriptive_exam)
+                                      .by_classroom_and_discipline(classroom, nil)
                                       .merge(
-                                        DescriptiveExam.by_classroom_id(classroom.id)
-                                                       .by_step_id(classroom, get_step(classroom).id)
+                                        DescriptiveExam.by_step_id(classroom, get_step(classroom).id)
                                       )
                                       .ordered
 
@@ -123,10 +123,11 @@ module ExamPoster
     def post_by_year
       descriptive_exams = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
 
-      teacher.classrooms.uniq.each do |classroom|
+      classrooms.each do |classroom|
         next unless can_post?(classroom)
 
-        exams = DescriptiveExamStudent.by_classroom(classroom).ordered
+        exams = DescriptiveExamStudent.by_classroom_and_discipline(classroom, nil)
+                                      .ordered
 
         exams.each do |exam|
           next unless valid_opinion_type?(

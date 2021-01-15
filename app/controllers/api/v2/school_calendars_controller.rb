@@ -8,7 +8,10 @@ module Api
 
         return unless unity
 
-        @school_calendar = CurrentSchoolCalendarFetcher.new(unity, nil).fetch
+        @school_calendar = SchoolCalendar.only_opened_years
+                                         .by_unity_id(params[:unity_id])
+                                         .order(:year)
+                                         .first
       end
     end
   end

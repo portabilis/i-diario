@@ -2,49 +2,21 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
-  mount PgHero::Engine, at: 'pghero'
 
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
 
   localized do
-    devise_for :users
-
-    # madis
-    namespace :v1 do
-      resources :access do
-        collection do
-          post :request_access
-          post :send_access
-          post :send_access_batch
-        end
-      end
-      resources :command do
-        collection do
-          post :request_command
-        end
-      end
-      resources :biometric do
-        collection do
-          post :send_biometric
-          post :request_biometric
-          post '/request_biometric/:id', to: 'biometric#request_biometric_by_id'
-        end
-      end
-    end
+    devise_for :users, controllers: {
+      sessions: 'users/sessions',
+      passwords: 'users/passwords',
+      unlocks: 'users/unlocks'
+    }
 
     namespace :api do
-      namespace :v1 do
-        resources :exam_rules, only: [:index]
-        resources :teacher_unities, only: [:index]
-        resources :teacher_classrooms, only: [:index]
-        resources :teacher_disciplines, only: [:index]
-        resources :school_calendars, only: [:index]
-        resources :daily_frequencies, only: [:create]
-        resources :daily_frequency_students, only: [:update]
-      end
       namespace :v2 do
         resources :exam_rules, only: [:index]
         get 'step_activity', to: 'step_activity#check'
+        get 'discipline_activity', to: 'discipline_activity#check'
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index] do
           collection do
@@ -97,7 +69,13 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :teachers, only: :index
+    resources :teachers, only: :index do
+      collection do
+        get :select2
+      end
+    end
+
+    resources :teacher_profiles, only: :index
 
     resources :system_notifications, only: :index
 
@@ -110,16 +88,23 @@ Rails.application.routes.draw do
       resources :teacher_work_done_chart, only: [:index]
     end
 
-    patch '/current_role', to: 'current_role#set', as: :set_current_role
+    post '/current_role', to: 'current_role#set', as: :set_current_role
+    get '/current_role/available_classrooms', to: 'current_role#available_classrooms', as: :available_classrooms
+    get '/current_role/available_disciplines', to: 'current_role#available_disciplines', as: :available_disciplines
+    get '/current_role/available_school_years', to: 'current_role#available_school_years', as: :available_school_years
+    get '/current_role/available_teachers', to: 'current_role#available_teachers', as: :available_teachers
+    get '/current_role/available_unities', to: 'current_role#available_unities', as: :available_unities
+    get '/current_role/available_teacher_profiles', to: 'current_role#available_teacher_profiles', as: :available_teacher_profiles
+    get '/steps_by_school_term_type_id', to: 'school_term_type_steps#steps', as: :steps_by_school_term_type_id
     post '/system_notifications/read_all', to: 'system_notifications#read_all', as: :read_all_notifications
     get '/disabled_entity', to: 'pages#disabled_entity'
-    get '/new_role_modal_feature', to: 'news#role_modal_feature'
 
     resources :users, concerns: :history do
       collection do
         get :export_all
         get :export_selected
         get :select2_remote
+        post :profile_picture
       end
     end
 
@@ -167,6 +152,7 @@ Rails.application.routes.draw do
 
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
+      get :grades_by_unities, on: :collection
     end
     resources :test_setting_tests, only: [:index, :show]
 
@@ -195,18 +181,22 @@ Rails.application.routes.draw do
       end
     end
 
+    get '/pedagogical_trackings', as: :pedagogical_trackings, to: 'pedagogical_trackings#index'
+    get '/pedagogical_trackings_teachers', as: :pedagogical_trackings_teachers, to: 'pedagogical_trackings#teachers'
     get '/translations', as: :translations, to: 'translations#form'
     post '/translations', as: :save_translations, to: 'translations#save'
     resources :discipline_lesson_plans, concerns: :history do
       collection do
         post :clone
         get :teaching_plan_contents
+        get :teaching_plan_objectives
       end
     end
     resources :knowledge_area_lesson_plans, concerns: :history do
       collection do
         post :clone
         get :teaching_plan_contents
+        get :teaching_plan_objectives
       end
     end
     resources :discipline_content_records, concerns: :history do
@@ -226,6 +216,7 @@ Rails.application.routes.draw do
     resources :disciplines, only: [:index] do
       collection do
         get :search
+        get :search_grouped_by_knowledge_area
       end
     end
     resources :knowledge_areas, only: [:index]
@@ -247,7 +238,6 @@ Rails.application.routes.draw do
     resources :daily_notes, only: [:index, :new, :create, :edit, :update, :destroy], concerns: :history do
       collection do
         get :search
-        get :profile_changed
       end
     end
     resources :daily_note_students, only: [:index] do
@@ -286,7 +276,7 @@ Rails.application.routes.draw do
     get 'daily_frequency/history_multiple', to: 'daily_frequencies#history_multiple', as: 'history_multiple_daily_frequency'
 
     resources :absence_justifications, concerns: :history
-    resources :observation_diary_records, expect: :show, concerns: :history
+    resources :observation_diary_records, except: :show, concerns: :history
     resources :ieducar_api_exam_postings do
       member do
         get :done_percentage

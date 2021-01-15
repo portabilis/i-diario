@@ -48,6 +48,21 @@ FactoryGirl.define do
       end
     end
 
+    trait :with_teacher_discipline_classroom_specific do
+      after(:create) do |classroom, evaluator|
+        discipline = evaluator.discipline || create(:discipline)
+        teacher = evaluator.teacher || create(:teacher)
+
+        create(
+          :teacher_discipline_classroom,
+          classroom: classroom,
+          discipline: discipline,
+          teacher: teacher,
+          allow_absence_by_discipline: 1,
+        )
+      end
+    end
+
     trait :with_student_enrollment_classroom do
       after(:create) do |classroom, evaluator|
         student_enrollment = evaluator.student_enrollment

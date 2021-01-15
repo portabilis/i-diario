@@ -45,4 +45,10 @@ $(function() {
       window.alert("Por favor, selecione um ou mais registros primeiro.");
     }
   };
+
+  $('input.string').bind('keypress', function(e) {
+    if (e.keyCode == 13) {
+      e.preventDefault();
+    }
+  });
 });

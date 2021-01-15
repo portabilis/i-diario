@@ -10,7 +10,7 @@ namespace :db do
       ENV["SCOPE"].blank? || (ENV["SCOPE"] == migration.scope)
     end
 
-    Entity.active.find_each(batch_size: 100) do |entity|
+    Entity.find_each(batch_size: 100) do |entity|
       entity.using_connection do
         puts "Migrating db: #{entity.domain}"
 
@@ -29,7 +29,7 @@ namespace :db do
 
       ActiveRecord::Migrator.run(:down, ActiveRecord::Migrator.migrations_paths, version)
 
-      Entity.active.find_each(batch_size: 100) do |entity|
+      Entity.find_each(batch_size: 100) do |entity|
         entity.using_connection do
           puts "Migrating db: #{entity.domain}"
 

@@ -9,3 +9,6 @@ pt-BR:
       by_school_term_type: "Filtrar tipo de período escolar"
     fields:
       add_attachment: "Adicionar anexo"
+    infos:
+      copy_plan_info_title: "Tipo de período escolar:"
+      copy_plan_info_description: "A cópia do Plano de ensino ao registrar um Plano de aula será possível somente se este for registrado com o mesmo período utilizado na unidade escolar ou anual."

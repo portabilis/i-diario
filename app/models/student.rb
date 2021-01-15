@@ -9,7 +9,6 @@ class Student < ActiveRecord::Base
 
   has_and_belongs_to_many :users
 
-  has_many :student_biometrics
   has_many :student_enrollments
   has_many :absence_justifications_students
   has_many :absence_justifications, through: :absence_justifications_students
@@ -87,6 +86,13 @@ class Student < ActiveRecord::Base
 
   def classrooms
     Classroom.joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).uniq
+  end
+
+  def current_classrooms
+    Classroom.joins(:student_enrollment_classrooms).merge(
+      StudentEnrollmentClassroom.by_student(id)
+                                .by_date(Date.current)
+    ).uniq
   end
 
   private

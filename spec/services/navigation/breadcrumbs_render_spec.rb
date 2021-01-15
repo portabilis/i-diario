@@ -18,7 +18,7 @@ describe Navigation::BreadcrumbsRender, type: :service do
         let(:menus) { [{ :type => 'dashboard' }] }
 
         it "returns a breadcrumbs link without icon and path" do
-          expect(subject.render(menus)).to eq "<ol class=\"breadcrumb\"><li><a href=\"#\">Dashboard</a></li></ol>"
+          expect(subject.render(menus)).to eq "<ol class=\"breadcrumb\"><li><a href=\"#\">Início</a></li></ol>"
         end
       end
 
@@ -26,7 +26,7 @@ describe Navigation::BreadcrumbsRender, type: :service do
         let(:menus) { [{ :type => 'dashboard', :icon => 'fa-home' }] }
 
         it "returns a breadcrumbs link with icon" do
-          expect(subject.render(menus)).to eq "<ol class=\"breadcrumb\"><li><a href=\"#\"><i class=\"fa fa-home fa-fw\"></i> Dashboard</a></li></ol>"
+          expect(subject.render(menus)).to eq "<ol class=\"breadcrumb\"><li><a href=\"#\"><i class=\"fa fa-home fa-fw\"></i> Início</a></li></ol>"
         end
       end
 
@@ -34,7 +34,7 @@ describe Navigation::BreadcrumbsRender, type: :service do
         let(:menus) { [{ :type => 'dashboard', :path => 'root_path' }] }
 
         it "returns a breadcrumbs link with path" do
-          expect(subject.render(menus)).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\">Dashboard</a></li></ol>"
+          expect(subject.render(menus)).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\">Início</a></li></ol>"
         end
       end
 
@@ -42,7 +42,7 @@ describe Navigation::BreadcrumbsRender, type: :service do
         let(:menus) { [{ :type => 'dashboard', :path => 'root_path', :icon => 'fa-home'}] }
 
         it "returns a breadcrumbs link with icon and path" do
-          expect(subject.render(menus)).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\"><i class=\"fa fa-home fa-fw\"></i> Dashboard</a></li></ol>"
+          expect(subject.render(menus)).to eq "<ol class=\"breadcrumb\"><li><a href=\"/\"><i class=\"fa fa-home fa-fw\"></i> Início</a></li></ol>"
         end
       end
     end

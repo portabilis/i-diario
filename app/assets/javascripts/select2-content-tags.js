@@ -25,7 +25,7 @@ $(function() {
         }).length == 0){
           return {
               id: $.trim(term),
-              text: $.trim(term) + ' (Novo conteúdo)'
+              text: $.trim(term) + ' (Novo)'
           };
         }
       },
@@ -43,7 +43,7 @@ $(function() {
             $.ajax(params);
           }
         },
-        delay: 1000,
+        quietMillis: 500,
         data: function (term, page) {
           let query = {
             filter: {
@@ -75,5 +75,25 @@ $(function() {
         }
       }
     }).select2('data', $(element).data('data'));
+  });
+
+  _.each($('.select2-tags'), function(element) {
+    $(element).select2({
+      tags: true,
+      tokenSeparators: [],
+      createSearchChoice: function (term, _data) {
+        const type = $(element).data('content-type');
+
+        return {
+            id: $.trim(term),
+            text: $.trim(term) + ' (Novo)'
+        };
+      },
+      minimumInputLength: 3,
+      formatInputTooShort: function () {
+        return "Digite no mínimo 3 caracteres";
+      },
+      data: []
+    });
   });
 });

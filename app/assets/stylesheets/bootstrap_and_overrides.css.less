@@ -5,16 +5,6 @@
 @iconSpritePath: image-url("twitter/bootstrap/glyphicons-halflings.png");
 @iconWhiteSpritePath: image-url("twitter/bootstrap/glyphicons-halflings-white.png");
 
-// Set the Font Awesome (Font Awesome is default. You can disable by commenting below lines)
-@fontAwesomeEotPath: asset-url("fontawesome-webfont.eot");
-@fontAwesomeEotPath_iefix: asset-url("fontawesome-webfont.eot?#iefix");
-@fontAwesomeWoffPath: asset-url("fontawesome-webfont.woff");
-@fontAwesomeTtfPath: asset-url("fontawesome-webfont.ttf");
-@fontAwesomeSvgPath: asset-url("fontawesome-webfont.svg#fontawesomeregular");
-
-// Font Awesome
-@import "fontawesome/font-awesome";
-
 // Glyphicons
 //@import "twitter/bootstrap/sprites.less";
 
@@ -77,4 +67,48 @@ fieldset[disabled] .btn-portabilis.active {
 
 table.table.table-bordered thead tr:last-child{
   border-bottom: 2px solid #ccc;
+}
+
+input.form-control {
+  opacity: 1; /* required on iOS */
+  color: #555555;
+}
+
+.margin-bottom-16 { margin-bottom: 16px; }
+.margin-top-16 { margin-top: 16px; }
+.margin-left-16 { margin-left: 16px; }
+.margin-right-16 { margin-right: 16px; }
+.padding-bottom-16 { padding-bottom: 16px; }
+.padding-top-16 { padding-top: 16px; }
+.padding-left-16 { padding-left: 16px; }
+.padding-right-16 { padding-right: 16px; }
+
+.margin-bottom-16 { margin-bottom: 16px; }
+.margin-top-16 { margin-top: 16px; }
+.margin-left-16 { margin-left: 16px; }
+.margin-right-16 { margin-right: 16px; }
+
+@media screen and (max-width: 768px)  {
+  .margin-sm-bottom-16 { margin-bottom: 16px; }
+  .margin-sm-top-16 { margin-top: 16px; }
+  .margin-sm-left-16 { margin-left: 16px; }
+  .margin-sm-right-16 { margin-right: 16px; }
+  .margin-sm-bottom-0 { margin-bottom: 0; }
+  .margin-sm-top-0 { margin-top: 0; }
+  .margin-sm-left-0 { margin-left: 0; }
+  .margin-sm-right-0 { margin-right: 0; }
+}
+
+@media screen and (max-width: 992px)  {
+  .margin-md-bottom-16 { margin-bottom: 16px; }
+  .margin-md-top-16 { margin-top: 16px; }
+  .margin-md-left-16 { margin-left: 16px; }
+  .margin-md-right-16 { margin-right: 16px; }
+}
+
+@media screen and (max-width: 1200px)  {
+  .margin-lg-bottom-16 { margin-bottom: 16px; }
+  .margin-lg-top-16 { margin-top: 16px; }
+  .margin-lg-left-16 { margin-left: 16px; }
+  .margin-lg-right-16 { margin-right: 16px; }
 }

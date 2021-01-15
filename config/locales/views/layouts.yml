@@ -13,13 +13,7 @@ pt-BR:
       edit_profile: "Editar meus dados"
       select: "Selecione"
     error_messages:
-      needs_profile: 'É necessário selecionar um perfil para continuar a navegação.'
-      needs_unity: 'É necessário selecionar uma unidade para continuar a navegação.'
-      needs_classroom: 'É necessário selecionar uma turma e disciplina para continuar a navegação.'
-      needs_teacher: 'É necessário selecionar um(a) professor(a) para continuar a navegação.'
-      needs_year: 'É necessário selecionar o ano para continuar a navegação.'
-      needs_discipline: 'É necessário selecionar uma disciplina para continuar a navegação.'
-      unknown_error: 'Erro desconhecido.'
+      needs_all_fields: "É necessário selecionar todos os campos para continuar a navegação."
       fetch_teachers_error: 'Ocorreu um erro ao buscar os professores da unidade selecionada.'
       fetch_years_error: 'Ocorreu um erro ao buscar os anos letivos da unidade selecionada.'
       fetch_classrooms_error: 'Ocorreu um erro ao buscar as turmas do professor selecionado.'

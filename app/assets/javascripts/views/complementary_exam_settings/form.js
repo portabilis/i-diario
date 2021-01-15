@@ -16,5 +16,7 @@ $(function() {
 
   $calculationType.on('change', function() {
     toggleCalculationTypeInfo($calculationType.select2("val"));
-  }).trigger('change');
+  });
+
+  toggleCalculationTypeInfo($calculationType.select2("val"));
 });

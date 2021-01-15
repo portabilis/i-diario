@@ -11,6 +11,7 @@ class AbsenceAdjustmentsService
   def adjust
     adjust_by_discipline_to_general
     adjust_general_to_by_discipline
+    adjust_general_to_by_discipline_specific_area
   end
 
   def daily_frequencies_by_type(frequency_type)
@@ -23,6 +24,17 @@ class AbsenceAdjustmentsService
     daily_frequencies = daily_frequencies.where(discipline_id: nil) if frequency_type == FrequencyTypes::BY_DISCIPLINE
 
     daily_frequencies
+  end
+
+  def daily_frequencies_general_when_teacher_has_specific_area
+    DailyFrequency
+      .joins(:classroom)
+      .joins('join teacher_discipline_classrooms on daily_frequencies.classroom_id = teacher_discipline_classrooms.classroom_id and daily_frequencies.owner_teacher_id = teacher_discipline_classrooms.teacher_id and teacher_discipline_classrooms.allow_absence_by_discipline = 1')
+      .merge(Classroom.joins(:exam_rule).where(exam_rules: { frequency_type: FrequencyTypes::GENERAL }))
+      .where(discipline_id: nil)
+      .where('extract(year from frequency_date) = ?', @year)
+      .where(unity_id: @unity_ids)
+      .order(:id)
   end
 
   private
@@ -71,6 +83,30 @@ class AbsenceAdjustmentsService
         discipline_id: discipline_id,
         class_number: DEFAULT_CLASS_NUMBER
       )
+    end
+  end
+
+  def adjust_general_to_by_discipline_specific_area
+    daily_frequencies_general_when_teacher_has_specific_area.each do |daily_frequency|
+      daily_frequency
+        .classroom.teacher_discipline_classrooms
+        .by_teacher_id(daily_frequency.owner_teacher_id)
+        .where(allow_absence_by_discipline: 1)
+        .each do |teacher_discipline_classroom|
+        DailyFrequency.create_with(
+          class_number: DEFAULT_CLASS_NUMBER,
+          owner_teacher_id: daily_frequency.owner_teacher_id,
+        ).find_or_create_by(
+          unity_id: daily_frequency.unity_id,
+          frequency_date: daily_frequency.frequency_date,
+          school_calendar_id: daily_frequency.school_calendar_id,
+          discipline_id: teacher_discipline_classroom.discipline_id,
+          classroom_id: teacher_discipline_classroom.classroom_id,
+          period: daily_frequency.period,
+        )
+      end
+
+      daily_frequency.destroy!
     end
   end
 

@@ -1,8 +1,4 @@
 <div class="widget-body no-padding">
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/daily_notes/form' %>
-<% end %>
-
   <%= simple_form_for @daily_note, html: { class: "smart-form" } do |f| %>
     <%= f.error_notification %>
 
@@ -30,7 +26,7 @@
     </fieldset>
 
     <footer>
-      <%= f.submit 'Carregar', class: 'btn btn-primary' %>
+      <%= f.submit 'Carregar', class: 'btn btn-primary', data: { disable_with: 'Carregando...'}  %>
     </footer>
   <% end %>
 </div>

@@ -49,6 +49,8 @@ class ContentRecord < ActiveRecord::Base
   end
 
   def school_calendar
+    return if classroom.blank?
+
     CurrentSchoolCalendarFetcher.new(unity, classroom, classroom.year).fetch
   end
 

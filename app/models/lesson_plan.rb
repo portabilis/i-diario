@@ -7,6 +7,7 @@ class LessonPlan < ActiveRecord::Base
 
   acts_as_copy_target
 
+  attr_accessor :grade_ids, :contents_created_at_position, :objectives_created_at_position
   attr_writer :contents_tags
 
   audited except: [:teacher_id, :old_contents]
@@ -21,6 +22,8 @@ class LessonPlan < ActiveRecord::Base
 
   has_many :contents_lesson_plans, dependent: :destroy
   deferred_has_many :contents, through: :contents_lesson_plans
+  has_many :objectives_lesson_plans, dependent: :destroy
+  deferred_has_many :objectives, through: :objectives_lesson_plans
   has_many :lesson_plan_attachments, dependent: :destroy
 
   accepts_nested_attributes_for :contents, allow_destroy: true
@@ -63,7 +66,15 @@ class LessonPlan < ActiveRecord::Base
   end
 
   def contents_ordered
-    contents.order(' "contents_lesson_plans"."id" ')
+    contents.order('contents_lesson_plans.position')
+  end
+
+  def objectives_ordered
+    objectives.order('objectives_lesson_plans.position')
+  end
+
+  def attachments?
+    lesson_plan_attachments.any?
   end
 
   private

@@ -4,8 +4,8 @@ class AvaliationsController < ApplicationController
 
   respond_to :html, :js, :json
 
-  before_action :require_current_teacher, except: [:search]
   before_action :require_current_clasroom
+  before_action :require_current_teacher, except: [:search]
   before_action :set_number_of_classes, only: [
     :new, :create, :edit, :update, :multiple_classrooms, :create_multiple_classrooms
   ]
@@ -14,7 +14,7 @@ class AvaliationsController < ApplicationController
   ]
 
   def index
-    current_user_unity_id = current_user_unity.id if current_user_unity
+    current_unity_id = current_unity.id if current_unity
 
     if params[:filter].present? && params[:filter][:by_step_id].present?
       step_id = params[:filter].delete(:by_step_id)
@@ -27,7 +27,7 @@ class AvaliationsController < ApplicationController
     end
 
     @avaliations = apply_scopes(Avaliation).includes(:classroom, :discipline, :test_setting_test)
-                                           .by_unity_id(current_user_unity_id)
+                                           .by_unity_id(current_unity_id)
                                            .by_classroom_id(current_user_classroom)
                                            .by_discipline_id(current_user_discipline)
                                            .ordered
@@ -44,7 +44,11 @@ class AvaliationsController < ApplicationController
   def new
     return if redirect_to_avaliations
 
-    redirect_to avaliations_path, alert: "A disciplina selecionada não possui nota numérica" unless [teacher_differentiated_discipline_score_type, teacher_discipline_score_type].any? {|discipline_score_type| discipline_score_type != DisciplineScoreTypes::CONCEPT }
+    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+
+    if available_score_types.none? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
+      redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
+    end
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
@@ -53,22 +57,22 @@ class AvaliationsController < ApplicationController
 
     authorize resource
 
-    @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+    steps_settings(current_test_setting.exam_setting_type)
   end
 
   def multiple_classrooms
     return if redirect_to_avaliations
 
-    @avaliation_multiple_creator_form                     = AvaliationMultipleCreatorForm.new.localized
-    @avaliation_multiple_creator_form.school_calendar_id  = current_school_calendar.id
-    @avaliation_multiple_creator_form.test_setting_id     = current_test_setting.id
-    @avaliation_multiple_creator_form.discipline_id       = current_user_discipline.id
-    @avaliation_multiple_creator_form.unity_id       = current_user_unity.id
+    @avaliation_multiple_creator_form                    = AvaliationMultipleCreatorForm.new.localized
+    @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
+    @avaliation_multiple_creator_form.test_setting_id    = current_test_setting.id
+    @avaliation_multiple_creator_form.discipline_id      = current_user_discipline.id
+    @avaliation_multiple_creator_form.unity_id           = current_unity.id
     @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
 
     authorize Avaliation.new
 
-    @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+    steps_settings(current_test_setting.exam_setting_type)
   end
 
   def create_multiple_classrooms
@@ -81,7 +85,7 @@ class AvaliationsController < ApplicationController
     if @avaliation_multiple_creator_form.save
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
-      @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+      steps_settings(current_test_setting.exam_setting_type)
       render :multiple_classrooms
     end
   end
@@ -96,7 +100,7 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
-      @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+      steps_settings(current_test_setting.exam_setting_type)
 
       render :new
     end
@@ -107,7 +111,7 @@ class AvaliationsController < ApplicationController
 
     authorize @avaliation
 
-    @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+    steps_settings(current_test_setting.exam_setting_type)
   end
 
   def update
@@ -121,7 +125,7 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
-      @test_settings = TestSetting.where(year: current_school_calendar.year).ordered
+      steps_settings(current_test_setting.exam_setting_type)
 
       render :edit
     end
@@ -173,7 +177,7 @@ class AvaliationsController < ApplicationController
   end
 
   def disciplines_for_multiple_classrooms
-    @disciplines_for_multiple_classrooms ||= Discipline.by_unity_id(current_user_unity.id)
+    @disciplines_for_multiple_classrooms ||= Discipline.by_unity_id(current_unity.id)
                                                        .by_teacher_id(current_teacher.id)
                                                        .ordered
   end
@@ -181,7 +185,7 @@ class AvaliationsController < ApplicationController
 
   def classrooms_for_multiple_classrooms
     return [] unless @avaliation_multiple_creator_form.discipline_id.present?
-    @classrooms_for_multiple_classrooms ||= Classroom.by_unity_id(current_user_unity.id)
+    @classrooms_for_multiple_classrooms ||= Classroom.by_unity_id(current_unity.id)
                                                      .by_teacher_id(current_teacher.id)
                                                      .by_teacher_discipline(@avaliation_multiple_creator_form.discipline_id)
                                                      .ordered
@@ -243,5 +247,16 @@ class AvaliationsController < ApplicationController
     flash[:error] = t('errors.avaliations.require_setting')
 
     false
+  end
+
+  def steps_settings(exam_setting_type)
+    @test_settings = if exam_setting_type == ExamSettingTypes::BY_SCHOOL_TERM
+                       TestSetting.where(
+                         year: current_school_calendar.year,
+                         exam_setting_type: exam_setting_type
+                       ).ordered
+                     else
+                       []
+                     end
   end
 end

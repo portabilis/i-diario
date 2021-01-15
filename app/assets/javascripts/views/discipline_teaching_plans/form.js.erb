@@ -7,9 +7,9 @@ $(function() {
   var $unity = $('#discipline_teaching_plan_teaching_plan_attributes_unity_id');
   var $grade = $('#discipline_teaching_plan_teaching_plan_attributes_grade_id');
   var $discipline = $('#discipline_teaching_plan_discipline_id');
-  var $schoolTermType = $('#discipline_teaching_plan_teaching_plan_attributes_school_term_type');
+  var $schoolTermType = $('#discipline_teaching_plan_teaching_plan_attributes_school_term_type_id');
   var $schoolTermContainer = $('#school-term-container');
-  var $schoolTerm = $('#discipline_teaching_plan_teaching_plan_attributes_school_term');
+  var $schoolTerm = $('#discipline_teaching_plan_teaching_plan_attributes_school_term_type_step_id');
   var flashMessages = new FlashMessages();
 
   function fetchDisciplines() {
@@ -44,44 +44,16 @@ $(function() {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas da série selecionada.');
   };
 
-  function updateSchoolTermInput() {
-    switch ($schoolTermType.select2('val')) {
-      case 'bimester':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= Bimesters.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      case 'trimester':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= Trimesters.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      case 'semester':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= Semesters.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      default:
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: [] });
-        $schoolTermContainer.hide();
-        break;
-    }
-  }
-
-  // On change
-
   $grade.on('change', function() {
     fetchDisciplines();
   });
 
   $schoolTermType.on('change', function() {
-    updateSchoolTermInput();
+    updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);
+    $('#copy_plan_info').show();
   });
 
-  // On load
-
-  updateSchoolTermInput();
+  updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);
 
   validate_attachment_size($('#discipline_teaching_plan'));
 
@@ -109,4 +81,35 @@ $(function() {
     }
     $(this).select2('val', '');
   });
+
+  $('#discipline_teaching_plan_teaching_plan_attributes_objectives_tags').on('change', function(e){
+    if(e.val.length){
+      var objective_description = e.val.join(", ");
+      if(objective_description.trim().length &&
+          !$('input[type=checkbox][data-objective_description="'+objective_description+'"]').length){
+
+        var html = JST['templates/layouts/objectives_list_manual_item']({
+          description: objective_description,
+          model_name: 'discipline_teaching_plan',
+          submodel_name: 'teaching_plan'
+        });
+
+        $('#objectives-list').append(html);
+        $('.list-group.checked-list-box .list-group-item:not(.initialized)').each(initializeListEvents);
+      }else{
+        var objective_input = $('input[type=checkbox][data-objective_description="'+objective_description+'"]');
+        objective_input.closest('li').show();
+        objective_input.prop('checked', true).trigger('change');
+      }
+
+      $('.discipline_teaching_plan_teaching_plan_objectives_tags .select2-input').val("");
+    }
+    $(this).select2('val', '');
+  });
+
+  if ($('#action_name').val() == 'show') {
+    $('.list-group.checked-list-box .list-group-item').each(function(){
+      $(this).off('click');
+    });
+  }
 });

@@ -1,0 +1,43 @@
+<div class="widget-body" style="border: 1px solid;border-color: #CCC;padding: 10px;margin-bottom: 15px;">
+  <%= simple_form_for :filter, { url: pedagogical_trackings_path, method: :get, html: { class: 'percent_filterable_search_form' } } do |f| %>
+    <%= hidden_field_tag 'start_date', @start_date %>
+    <%= hidden_field_tag 'end_date', @end_date %>
+    <%= hidden_field_tag 'step_start_date', @percents.first.start_date.strftime('%d/%m/%Y') %>
+    <%= hidden_field_tag 'step_end_date', @percents.first.end_date.strftime('%d/%m/%Y') %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+        <thead>
+          <tr>
+            <td>
+              <%= f.input :unity_id, as: :select2, elements: all_unities, label: false, placeholder: t('pedagogical_trackings.index.filter_unities') %>
+            </td>
+            <td>
+              <%= f.input :frequency_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_trackings.index.filter_frequency') %>
+              <%= f.input :frequency_percentage, label: false, input_html: { type: 'number' } %>
+            </td>
+            <td>
+              <%= f.input :content_record_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_trackings.index.filter_content_record') %>
+              <%= f.input :content_record_percentage, label: false, input_html: { type: 'number' } %>
+            </td>
+            <td style="text-align: center;">
+              <span>Ação</span>
+            </td>
+          </tr>
+        </thead>
+
+        <%= render 'resources'%>
+
+        <tfoot id="paginator" class="remote">
+          <td colspan="4">
+            <div id="page_entries_info" class="pull-left hidden-xs">
+              <%= page_entries_info @percents %>
+            </div>
+            <div class="pull-right">
+              <%= paginate @percents %>
+            </div>
+          </td>
+        </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

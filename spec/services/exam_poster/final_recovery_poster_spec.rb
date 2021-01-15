@@ -44,7 +44,7 @@ RSpec.describe ExamPoster::FinalRecoveryPoster do
     )
   }
 
-  subject { described_class.new(exam_posting, Entity.first.id, 'exam_posting_send') }
+  subject { described_class.new(exam_posting, Entity.first.id) }
 
   it 'expects to call score_rounder with correct params' do
     score_rounder = double(:score_rounder)

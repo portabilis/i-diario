@@ -1,4 +1,6 @@
 class IeducarApiExamPosting < ActiveRecord::Base
+  audited only: [:teacher_id]
+
   acts_as_copy_target
 
   has_enumeration_for :post_type, with: ApiPostingTypes,  create_scopes: true

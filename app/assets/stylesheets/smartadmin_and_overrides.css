@@ -1,6 +1,5 @@
 /*
  *= require smart_admin/bootstrap
- *= require smart_admin/font-awesome
  *= require smart_admin/smartadmin-production
  *= require smart_admin/smartadmin-skins
  *= require_self
@@ -184,6 +183,11 @@ nav ul li b.collapse-sign em:before {
 
 aside#left-panel{
   width: 225px;
+  padding-top: 76px !important;
+}
+
+.fixed-header #main {
+  margin-top: 61px;
 }
 
 .label{
@@ -205,4 +209,29 @@ aside#left-panel{
   cursor: not-allowed;
   background-color: #eeeeee;
   opacity: 1;
+}
+
+#main {
+  min-height: 100%;
+  height:auto !important;
+  height: 100%;
+}
+
+body {
+  min-height: calc(100vh - 61px);
+  padding: 0;
+}
+
+.jarviswidget { margin-bottom: 10px; }
+
+#main .back-link {
+  margin-left: 16px;
+}
+
+#ribbon {
+  border-bottom: 0;
+}
+
+.fixed-header #header {
+  z-index: 1001;
 }

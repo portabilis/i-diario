@@ -58,7 +58,7 @@ $(function () {
     deleteButton: false,
     editButton : false,
     colorButton : false,
-    fullscreenButton : true,
+    fullscreenButton : !window.fullscreen_disabled,
     fullscreenClass : 'fa fa-expand | fa fa-compress',
     fullscreenDiff : 3,
     onFullscreen : function() {
@@ -106,5 +106,21 @@ $(function () {
     $offline.fadeOut(function () {
         $online.fadeIn();
     });
+  });
+
+  var link = $('.a-rotational-caret');
+  var icon = $('.rotational-caret');
+  var open = false;
+
+  link.on('click', function(){
+    if(open){
+      icon.addClass('rotational-caret-close');
+      icon.removeClass('rotational-caret-open');
+    } else{
+      icon.addClass('rotational-caret-open');
+      icon.removeClass('rotational-caret-close');
+    }
+
+    open = !open;
   });
 });

@@ -17,7 +17,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
       :teacher_discipline_classroom,
       classroom: classroom,
       discipline: discipline,
-      score_type: DisciplineScoreTypes::NUMERIC
+      score_type: ScoreTypes::NUMERIC
     )
   }
   let!(:exam_posting) {
@@ -86,7 +86,7 @@ RSpec.describe ExamPoster::NumericalExamPoster do
     }
   }
 
-  subject { described_class.new(exam_posting, Entity.first.id, 'exam_posting_send') }
+  subject { described_class.new(exam_posting, Entity.first.id) }
 
   context 'hasnt recovery' do
     context 'hasnt complementary exams' do

@@ -14,7 +14,7 @@
         <td>
         <%= absence_justification.decorator.author(
           current_user,
-          current_user_role_is_employee_or_administrator?
+          current_user.current_role_is_admin_or_employee?
           ) %>
         </td>
         <td class="actions">

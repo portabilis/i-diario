@@ -24,6 +24,7 @@ pt-BR:
         legend: "Legenda"
         discipline_id: "Disciplina"
         discipline: "Disciplina"
+        show_in_frequency_record: 'Apresentar no Registro de frequência'
 
     errors:
       models:

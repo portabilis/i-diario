@@ -1,0 +1,39 @@
+<div class="modal fade" tabindex="-1" role="dialog" id="classroom-detail-modal" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span></button>
+        <h4 class="modal-title">Detalhe do professor</h4>
+      </div>
+      <%= simple_form_for :search_teacher, url: pedagogical_trackings_teachers_path, remote: true, html: { class: 'smart-form teacher_percent_filterable_search_form' } do |f| %>
+      <%= hidden_field_tag 'modal_classroom_id' %>
+      <div class="modal-body">
+        <div class="table-responsive">
+          <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+            <thead>
+              <tr>
+                <td>
+                  <%= f.input :teacher_id, as: :select2, elements: [], label: false, placeholder: t('pedagogical_trackings.index.filter_teacher') %>
+                </td>
+                <td>
+                  <%= f.input :frequency_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_trackings.index.filter_frequency') %>
+                  <%= f.input :frequency_percentage, label: false, input_html: { type: 'number', style: 'height: 100%' } %>
+                </td>
+                <td>
+                  <%= f.input :content_record_operator, as: :select2, elements: ComparativeOperators.to_select.to_json, label: false, placeholder: t('pedagogical_trackings.index.filter_content_record') %>
+                  <%= f.input :content_record_percentage, label: false, input_html: { type: 'number', style: 'height: 100%' } %>
+                </td>
+              </tr>
+            </thead>
+            <tbody id='teacher-modal-resocurces'>
+            </tbody>
+          </table>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>

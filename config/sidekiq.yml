@@ -8,6 +8,4 @@ production:
   - [default, 1]
   - [low, 1]
   - [exam_posting, 2]
-  - [exam_posting_send, 50]
   - [synchronizer, 1]
-  - [synchronizer_enqueue_next_job, 1]

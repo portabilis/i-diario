@@ -1,14 +1,13 @@
 class DailyFrequenciesController < ApplicationController
-  PRESENCE_DEFAULT = '0'.freeze
-
-  before_action :require_teacher
   before_action :require_current_clasroom
+  before_action :require_teacher
   before_action :set_number_of_classes, only: [:new, :create, :edit_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
+  before_action :require_valid_daily_frequency_classroom
 
   def new
     @daily_frequency = DailyFrequency.new.localized
-    @daily_frequency.unity = current_user_unity
+    @daily_frequency.unity = current_unity
     @daily_frequency.frequency_date = Date.current
     @class_numbers = []
     @period = current_teacher_period
@@ -70,85 +69,84 @@ class DailyFrequenciesController < ApplicationController
       }
     end
 
+    if @students.blank?
+      flash.now[:warning] = t('.warning_no_students')
+
+      render :new
+
+      return
+    end
+
     build_daily_frequency_students
     mark_for_destruction_not_existing_students
 
     @normal_students = @students.reject { |student| student[:dependence] }
     @dependence_students = @students.select { |student| student[:dependence] }
-
-    flash.now[:warning] = t('.warning_need_to_click_on_save') if flash.blank?
   end
 
   def create_or_update_multiple
-    class_numbers = []
-    daily_frequency_attributes = daily_frequency_params
-    daily_frequency_attributes[:discipline_id] = daily_frequency_attributes[:discipline_id].presence
-
     begin
+      daily_frequency_record = nil
+      daily_frequency_attributes = daily_frequency_params
+      daily_frequencies_attributes = daily_frequencies_params
+      receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
+        params[:daily_frequency][:receive_email_confirmation]
+      )
+
+      edit_multiple_daily_frequencies_path = edit_multiple_daily_frequencies_path(
+        daily_frequency: daily_frequency_attributes.slice(
+          :classroom_id,
+          :discipline_id,
+          :frequency_date,
+          :period,
+          :unity_id
+        ),
+        class_numbers: class_numbers_from_params
+      )
+
       ActiveRecord::Base.transaction do
-        classroom_id = nil
-        frequency_date = nil
+        daily_frequencies_attributes.each_value do |daily_frequency_students_params|
+          daily_frequency_attribute_normalizer = DailyFrequencyAttributesNormalizer.new(
+            daily_frequency_students_params,
+            daily_frequency_attributes
+          )
+          daily_frequency_attribute_normalizer.normalize_daily_frequency!
 
-        daily_frequencies_params.each do |daily_frequency|
-          class_number = daily_frequency.second[:class_number]
-          class_number = class_number.to_i.zero? ? nil : class_number
-          class_numbers << class_number if class_number.present?
-          daily_frequency_attributes = daily_frequency_attributes.merge(class_number: class_number)
-          daily_frequency.second[:class_number] = class_number
-
-          daily_frequency.second[:students_attributes].each do |_key, daily_frequency_student|
-            daily_frequency_student[:present] = PRESENCE_DEFAULT if daily_frequency_student[:present].blank?
-          end
-
-          daily_frequency_students_params = daily_frequency.second
           daily_frequency_record = find_or_initialize_daily_frequency_by(daily_frequency_attributes)
+          daily_frequency_attribute_normalizer.normalize_daily_frequency_students!(
+            daily_frequency_record,
+            daily_frequency_students_params
+          )
           daily_frequency_record.assign_attributes(daily_frequency_students_params)
-
-          daily_frequency_record.save
-
-          classroom_id ||= daily_frequency_record.classroom_id
-          frequency_date ||= daily_frequency_record.frequency_date
+          daily_frequency_record.save!
         end
-
-        flash[:success] = t('.daily_frequency_success')
-
-        UniqueDailyFrequencyStudentsCreator.call_worker(
-          current_entity.id,
-          classroom_id,
-          frequency_date,
-          current_teacher_id
-        )
       end
-    rescue StandardError => error
-      Honeybadger.notify(error)
-
-      flash[:alert] = t('.daily_frequency_error')
+    rescue ActiveRecord::RecordNotUnique
+      retry
     end
 
-    edit_multiple_daily_frequencies_path = edit_multiple_daily_frequencies_path(
-      daily_frequency: daily_frequency_attributes.slice(
-        :classroom_id,
-        :discipline_id,
-        :frequency_date,
-        :period,
-        :unity_id
-      ),
-      class_numbers: class_numbers
+    flash[:success] = t('.daily_frequency_success')
+
+    UniqueDailyFrequencyStudentsCreator.call_worker(
+      current_entity.id,
+      daily_frequency_record.classroom_id,
+      daily_frequency_record.frequency_date,
+      current_teacher_id
     )
 
+    if receive_email_confirmation
+      ReceiptMailer.delay.notify_daily_frequency_success(
+        current_user,
+        "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
+        daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y')
+      )
+    end
+  rescue StandardError => error
+    Honeybadger.notify(error)
+
+    flash[:alert] = t('.daily_frequency_error')
+  ensure
     redirect_to edit_multiple_daily_frequencies_path
-
-    receive_email_confirmation = ActiveRecord::Type::Boolean.new.type_cast_from_user(
-      params[:daily_frequency][:receive_email_confirmation]
-    )
-
-    return unless flash[:success].present? && receive_email_confirmation
-
-    ReceiptMailer.delay.notify_daily_frequency_success(
-      current_user,
-      "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
-      daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y')
-    )
   end
 
   def destroy_multiple
@@ -241,9 +239,9 @@ class DailyFrequenciesController < ApplicationController
   end
 
   def find_or_initialize_daily_frequencies(class_numbers)
-    return find_or_initialize_global_frequencies if class_numbers.blank?
+    return find_or_initialize_discipline_frequencies(class_numbers) if class_numbers?(class_numbers)
 
-    find_or_initialize_discipline_frequencies(class_numbers)
+    find_or_initialize_global_frequencies
   end
 
   def find_or_initialize_global_frequencies
@@ -279,7 +277,7 @@ class DailyFrequenciesController < ApplicationController
     ).tap do |daily_frequency_record|
       daily_frequency_record.unity_id = params[:unity_id]
       daily_frequency_record.school_calendar_id = current_school_calendar.id
-      daily_frequency_record.teacher_id = current_teacher_id
+      daily_frequency_record.owner_teacher_id = daily_frequency_record.teacher_id = current_teacher_id
       daily_frequency_record.origin = OriginTypes::WEB
     end
 
@@ -371,5 +369,26 @@ class DailyFrequenciesController < ApplicationController
                       .by_discipline(discipline_id)
                       .by_step_number(step_number)
                       .any?
+  end
+
+  def class_numbers_from_params
+    daily_frequencies_params.map { |daily_frequency_students_params|
+      daily_frequency_students_params.second[:class_number].presence
+    }.compact
+  end
+
+  def class_numbers?(class_numbers)
+    return false if class_numbers.blank?
+
+    class_numbers = (class_numbers - [0, '0', '', nil])
+    class_numbers.present?
+  end
+
+  def require_valid_daily_frequency_classroom
+    return unless params[:daily_frequency]
+    return unless params[:daily_frequency][:classroom_id]
+    return if current_user.current_classroom_id == params[:daily_frequency][:classroom_id].to_i
+
+    redirect_to new_daily_frequency_path
   end
 end

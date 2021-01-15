@@ -1,5 +1,19 @@
 module Ieducar
   class SendPostWorker
+    class IeducarException < StandardError; end
+
+    RETRY_ERRORS = [
+      %(duplicate key value violates unique constraint "modules_nota_aluno_matricula_id_unique"),
+      %(duplicate key value violates unique constraint "modules_parecer_aluno_matricula_id_unique"),
+      %(duplicate key value violates unique constraint "falta_componente_curricular_pkey"),
+      %(duplicate key value violates unique constraint "modules_falta_aluno_matricula_id_unique"),
+      %(duplicate key value violates unique constraint "falta_geral_pkey"),
+      %(duplicate key value violates unique constraint "nota_componente_curricular_pkey"),
+      %(duplicate key value violates unique constraint "parecer_geral_pkey")
+    ].freeze
+    IEDUCAR_ERRORS = ['Exception: SQLSTATE', '500 Internal Server Error'].freeze
+    MAX_RETRY_COUNT = 10
+
     extend Ieducar::SendPostPerformer
     include Ieducar::SendPostPerformer
     include Sidekiq::Worker
@@ -7,7 +21,9 @@ module Ieducar
     sidekiq_options retry: 2, dead: false
 
     sidekiq_retries_exhausted do |msg, ex|
-      performer(*msg['args']) do |posting, _, _|
+      args = msg['args'][0..-3]
+
+      performer(*args) do |posting, _, _|
         Honeybadger.notify(ex)
 
         if !posting.error_message?
@@ -21,7 +37,7 @@ module Ieducar
       end
     end
 
-    def perform(entity_id, posting_id, params, info)
+    def perform(entity_id, posting_id, params, info, queue, retry_count)
       Honeybadger.context(posting_id: posting_id)
 
       performer(entity_id, posting_id, params, info) do |posting, params|
@@ -33,9 +49,41 @@ module Ieducar
 
           posting.add_warning!(response.full_error_message(information)) if response.any_error_message?
         rescue StandardError => error
+          if RETRY_ERRORS.any? { |retry_error| error.message.include?(retry_error) }
+            Rails.logger.info(
+              key: 'Ieducar::SendPostWorker#perform',
+              info: information,
+              params: params,
+              posting_id: posting_id,
+              entity_id: entity_id
+            )
+
+            retry
+          end
+
+          if IEDUCAR_ERRORS.any? { |ieducar_error| error.message.include?(ieducar_error) }
+            raise IeducarException, "#{information} Erro: #{error.message}"
+          end
+
+          return if delayed_retry(error, entity_id, posting_id, params, info, queue, retry_count)
+
           raise StandardError, "#{information} Erro: #{error.message}"
         end
       end
+    end
+
+    def delayed_retry(error, entity_id, posting_id, params, info, queue, retry_count)
+      return false if retry_count == MAX_RETRY_COUNT
+      return false unless error.is_a?(IeducarApi::Base::NetworkException)
+
+      self.class.set(queue: queue).perform_in(
+        ((retry_count + 1) * 2).seconds,
+        entity_id,
+        posting_id,
+        params, info,
+        queue,
+        retry_count + 1
+      )
     end
 
     def info_message(info)

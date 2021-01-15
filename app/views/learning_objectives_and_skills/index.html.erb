@@ -8,8 +8,14 @@
         <tr>
           <td><%= f.input :by_code, label: false, placeholder: "Código" %></td>
           <td><%= f.input :by_description, label: false, placeholder: "Filtrar objetivo/habilidade" %></td>
-          <td><%= f.input :by_step, as: :select2, label: false,
-                                   prompt: "Filtrar etapa", elements: BnccSteps.to_select.to_json %></td>
+          <td>
+            <%= f.input :by_step, as: :select2, label: false, placeholder: "Filtrar etapa",
+              elements: BnccSteps.to_select.to_json %>
+          </td>
+          <td>
+            <%= f.input :by_grade, as: :select2, label: false, placeholder: "Filtrar série",
+              elements: (ChildEducations.to_select + ElementaryEducations.to_select[1..-1]).to_json %>
+          </td>
           <td class="actions">
           </td>
         </tr>
@@ -17,6 +23,7 @@
           <th><%= LearningObjectivesAndSkill.human_attribute_name :code %></th>
           <th><%= LearningObjectivesAndSkill.human_attribute_name :description %></th>
           <th><%= LearningObjectivesAndSkill.human_attribute_name :step %></th>
+          <th><%= LearningObjectivesAndSkill.human_attribute_name :grades %></th>
           <td class="actions" style="width: 160px;">
             <% if policy(LearningObjectivesAndSkill).new? %>
                 <%= link_to t('.new_html'), new_learning_objectives_and_skill_path, class: "btn btn-primary" %>
@@ -27,7 +34,7 @@
 
       <%= render 'resources' %>
       <tfoot id="paginator" class="remote">
-        <td colspan="4">
+        <td colspan="5">
           <div id="page_entries_info" class="pull-left hidden-xs">
             <%= page_entries_info @learning_objectives_and_skills %>
           </div>

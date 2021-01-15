@@ -70,8 +70,9 @@ class LearningObjectivesAndSkillsController < ApplicationController
     @contents = []
 
     query = LearningObjectivesAndSkill.ordered
-    query = query.where(field_of_experience: params[:experience_fields]) if params[:experience_fields]
-    query = query.where(discipline: params[:disciplines]) if params[:disciplines]
+    query = search_query('experience_fields', query) if params[:experience_fields].present?
+    query = search_query('disciplines', query) if params[:disciplines].present?
+
     query.each do |skill|
       @contents << {
         description: "(#{skill.code}) #{skill.description}"
@@ -84,13 +85,53 @@ class LearningObjectivesAndSkillsController < ApplicationController
   private
 
   def learning_objectives_and_skills_params
-    params.require(:learning_objectives_and_skill).permit(
+    parameters = params.require(:learning_objectives_and_skill).permit(
       :code,
       :description,
       :step,
       :field_of_experience,
       :discipline,
-      :thematic_unit
+      :thematic_unit,
+      :grades
     )
+
+    child_educations = params.require(:learning_objectives_and_skill)[:child_educations]
+    elementary_educations = params.require(:learning_objectives_and_skill)[:elementary_educations]
+
+    parameters[:grades] = elementary_educations.split(',') + child_educations.split(',')
+    parameters
+  end
+
+  def grades_query
+    <<-SQL
+      AND grades @> ARRAY[?]::varchar[])
+    SQL
+  end
+
+  def disciplines_query
+    <<-SQL
+      (discipline = ?
+    SQL
+  end
+
+  def field_of_experience_query
+    <<-SQL
+      (field_of_experience = ?
+    SQL
+  end
+
+  def search_query(type, query)
+    query_builder = ''
+    params_builder = []
+
+    (params[type] || []).each do |index, value|
+      query_builder += ' OR ' if index.to_i > 0
+      query_builder += type == 'disciplines' ? disciplines_query : field_of_experience_query
+      query_builder += value[:grades].present? ? grades_query : ')'
+      params_builder << value[:type]
+      params_builder << value[:grades] if value[:grades].present?
+    end
+
+    query.where(query_builder, *params_builder)
   end
 end

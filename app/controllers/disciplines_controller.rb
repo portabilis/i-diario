@@ -20,7 +20,7 @@ class DisciplinesController < ApplicationController
     @disciplines = apply_scopes(Discipline).by_teacher_id(current_teacher.id).order_by_sequence
 
     if params[:conceptual]
-      @disciplines = @disciplines.by_score_type(:concept, params[:student_id])
+      @disciplines = @disciplines.by_score_type(ScoreTypes::CONCEPT, params[:student_id])
     end
 
     @disciplines = @disciplines.where.not(id: exempted_discipline_ids) if exempted_discipline_ids.present?
@@ -33,5 +33,12 @@ class DisciplinesController < ApplicationController
     @disciplines = apply_scopes(Discipline).ordered
 
     render json: @disciplines
+  end
+
+  def search_grouped_by_knowledge_area
+    disciplines = Discipline.by_teacher_and_classroom(params[:filter][:teacher_id], params[:filter][:classroom_id])
+                            .grouped_by_knowledge_area
+
+    render json: disciplines.as_json
   end
 end

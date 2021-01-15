@@ -5,20 +5,24 @@
   <%= f.error_notification %>
 
   <ul class="nav nav-tabs bordered">
-    <li class="active"><a href="#general" data-toggle="tab">Dados gerais</a></li>
+    <li id='li-general' class="<%= 'active' if @active_permissions_tab %>">
+      <a id='a-general' href="#general" data-toggle="tab">Dados gerais</a>
+    </li>
 
     <% if @role.teacher? || @role.employee? || @role.administrator? %>
-      <li><a href="#users" data-toggle="tab">Usuários</a></li>
+      <li id='li-users' class="<%= 'active' if @active_users_tab %>">
+        <a id='a-users' href="#users" data-toggle="tab">Usuários</a>
+      </li>
     <% end %>
   </ul>
 
   <div class="tab-content">
-    <div class="tab-pane active" id="general">
+    <div class="tab-pane <%= 'active' if @active_permissions_tab %>" id="general">
       <%= render 'general', f: f %>
     </div>
 
     <% if @role.teacher? || @role.employee? || @role.administrator? %>
-      <div class="tab-pane" id="users">
+      <div class="tab-pane <%= 'active' if @active_users_tab %>" id="users">
         <%= render 'users', f: f %>
       </div>
     <% end %>

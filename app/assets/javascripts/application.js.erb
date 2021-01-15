@@ -26,6 +26,7 @@
 //= require educacao
 //= require select2
 //= require select2_remote
+//= require select2_ajax
 //= require cocoon
 //= require cocoon-nested-inputs
 //= require jquery-file-upload/vendor/jquery.ui.widget
@@ -36,8 +37,6 @@
 //= require jquery-file-upload/jquery.fileupload-process
 //= require jquery-file-upload/jquery.fileupload-image
 //= require jquery-file-upload/jquery.fileupload-validate
-//= require summernote
-//= require summernote/pt-BR
 //= require system_notifications
 //= require add_tags
 //= require strip_value
@@ -57,6 +56,10 @@
 //= require bootstrap_config
 //= require bootbox
 //= require offline.min
+//= require moment
+//= require moment/pt-br
+//= require bootstrap-datetimepicker
+//= require date
 <% if File.exists?('vendor/assets/javascripts/plugins.js') %>
   <%= require_asset 'plugins' %>
 <% end %>

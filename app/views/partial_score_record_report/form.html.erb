@@ -3,11 +3,11 @@
 <% end %>
 <div class="widget-body no-padding">
   <%= simple_form_for @partial_score_record_report_form, url: partial_score_record_report_path, method: :post, html: { class: 'smart-form', target: '_blank' } do |f| %>
-    <%= f.error_notification unless @partial_score_record_report_form.errors[:daily_note_students].any? %>
+    <%= f.error_notification unless @partial_score_record_report_form.errors[:base].any? %>
 
-    <div class="alert alert-danger <%= 'hidden' unless @partial_score_record_report_form.errors[:daily_note_students].any? %>">
+    <div class="alert alert-danger <%= 'hidden' unless @partial_score_record_report_form.errors[:base].any? %>">
       <i class="fa fa-exclamation-circle fa-fw"></i>
-      <%= @partial_score_record_report_form.errors[:daily_note_students].first %>
+      <%= @partial_score_record_report_form.errors[:base].first %>
     </div>
 
     <fieldset>
@@ -22,7 +22,7 @@
                 input_html: { value: @partial_score_record_report_form.classroom_id } %>
         </div>
         <div class="col col-sm-4">
-          <%= f.input :student_id, as: :select2, elements: students, input_html: { value: @partial_score_record_report_form.student_id } %>
+          <%= f.input :students_ids, as: :select2, elements: students, input_html: { value: @partial_score_record_report_form.students_ids } %>
         </div>
       </div>
 

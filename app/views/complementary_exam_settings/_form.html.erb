@@ -55,12 +55,12 @@
         </div>
 
         <div class="col col-sm-3">
-          <%= f.input :grade_ids, as: :select2, elements: grades, multiple: true,
+          <%= f.input :grade_ids, as: :select2, elements: grades_to_select2(grades), multiple: true,
           input_html: { value: f.object.grade_ids.join(','), data: { without_json_parser: true } } %>
         </div>
 
         <div class="col col-sm-3">
-          <%= f.input :year, as: :integer %>
+          <%= f.input :year, as: :integer, readonly: action_name != 'new' %>
         </div>
       </div>
     </fieldset>
@@ -72,7 +72,7 @@
         <%= link_to t('views.form.history'), history_complementary_exam_setting_path(@complementary_exam_setting), class: 'btn btn-info' %>
       <% end %>
 
-      <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+      <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
     </footer>
   <% end %>
 </div>

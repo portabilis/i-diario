@@ -2,10 +2,11 @@ require 'rails_helper'
 
 RSpec.describe TestSetting, type: :model do
   subject { FactoryGirl.build(:test_setting) }
+  let(:school_term_type_step) { create(:school_term_type_step) }
 
   describe 'attributes' do
     it { expect(subject).to respond_to(:exam_setting_type) }
-    it { expect(subject).to respond_to(:school_term) }
+    it { expect(subject).to respond_to(:school_term_type_step) }
     it { expect(subject).to respond_to(:year) }
     it { expect(subject).to respond_to(:maximum_score) }
     it { expect(subject).to respond_to(:number_of_decimal_places) }
@@ -33,18 +34,18 @@ RSpec.describe TestSetting, type: :model do
     context 'when #exam_setting_type equals to general' do
       before do
         subject.exam_setting_type = ExamSettingTypes::GENERAL
-        subject.school_term = nil
+        subject.school_term_type_step = nil
       end
 
       it 'should not validate presence of school term' do
         expect(subject.valid?).to be(true)
-        expect(subject.errors[:school_term]).to be_empty
+        expect(subject.errors[:school_term_type_step]).to be_empty
       end
 
       it 'should validate uniqueness of year' do
         another_test_setting = FactoryGirl.create(:test_setting, exam_setting_type: subject.exam_setting_type,
                                                                  year: subject.year,
-                                                                 school_term: subject.school_term)
+                                                                 school_term_type_step: subject.school_term_type_step)
 
         expect(subject).to_not be_valid
         expect(subject.errors[:year]).to include('já está em uso')
@@ -55,15 +56,13 @@ RSpec.describe TestSetting, type: :model do
       before { subject.exam_setting_type = ExamSettingTypes::BY_SCHOOL_TERM }
 
       it 'should validate presence of school term' do
-        subject.school_term = nil
+        subject.school_term_type_step = nil
 
         expect(subject.valid?).to be(false)
-        expect(subject.errors[:school_term]).to include('não pode ficar em branco')
+        expect(subject.errors[:school_term_type_step]).to include('não pode ficar em branco')
       end
 
       it 'should validate uniqueness of year' do
-        subject.school_term = Bimesters::FIRST_BIMESTER
-
         another_test_setting = FactoryGirl.create(:test_setting, exam_setting_type: ExamSettingTypes::GENERAL,
                                                                  year: subject.year)
 
@@ -71,15 +70,15 @@ RSpec.describe TestSetting, type: :model do
         expect(subject.errors[:year]).to include('já está em uso')
       end
 
-      it 'should validate uniqueness of year/school_term' do
-        subject.school_term = Bimesters::FIRST_BIMESTER
+      it 'should validate uniqueness of year/school_term_type_step' do
+        subject.school_term_type_step = school_term_type_step
 
         another_test_setting = FactoryGirl.create(:test_setting, exam_setting_type: subject.exam_setting_type,
                                                                  year: subject.year,
-                                                                 school_term: subject.school_term)
+                                                                 school_term_type_step: subject.school_term_type_step)
 
         expect(subject).to_not be_valid
-        expect(subject.errors[:school_term]).to include('já está em uso')
+        expect(subject.errors[:school_term_type_step]).to include('já está em uso')
       end
     end
 

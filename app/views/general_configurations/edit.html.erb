@@ -42,7 +42,9 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
-          <%= f.input :display_knowledge_area_as_discipline, label: false, inline_label: true %>
+          <%= f.input :show_daily_activities_in_knowledge_area_content_record_report,
+                        label: false,
+                        inline_label: true %>
         </div>
         <div class="col col-sm-6">
           <%= f.input :display_daily_activies_log, label: false, inline_label: true %>
@@ -50,16 +52,17 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
-          <%= f.input :show_daily_activities_in_knowledge_area_content_record_report,
-                        label: false,
-                        inline_label: true %>
-        </div>
-        <div class="col col-sm-6">
+          <%= f.input :max_descriptive_exam_character_count, as: :integer %>
         </div>
       </div>
       <div class="row">
         <div class="col col-sm-6">
-          <%= f.input :max_descriptive_exam_character_count, as: :integer %>
+          <%= f.input :allows_copy_lesson_plans_to_other_grades, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :create_users_for_students_when_synchronize, label: false, inline_label: true %>
         </div>
       </div>
       <div class="row">
@@ -88,6 +91,15 @@
           <%= f.association :employees_default_role, as: :select2, elements: Role.ordered %>
         </div>
       </div>
+
+      <fieldset class="fieldset">
+        <legend><%= t('.profile_configurations') %></legend>
+        <div class="row">
+          <div class="col col-sm-6">
+            <%= f.input :grouped_teacher_profile, label: false, inline_label: true %>
+          </div>
+        </div>
+      </fieldset>
     </fieldset>
 
     <footer>
