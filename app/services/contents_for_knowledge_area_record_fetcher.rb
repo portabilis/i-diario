@@ -45,7 +45,7 @@ class ContentsForKnowledgeAreaRecordFetcher
                                                 .by_grade(@classroom.grade_id)
                                                 .by_knowledge_area(@knowledge_areas.map(&:id))
                                                 .by_year(school_calendar_year)
-                                                .by_school_term_type_steps_id(school_term_type_steps_ids)
+                                                .by_school_term_type_step_id(school_term_type_steps_ids)
 
       teacher_teaching_plans = teaching_plans.by_teacher_id(@teacher.id)
       filtered_teaching_plans = teacher_teaching_plans if teacher_teaching_plans.exists?
