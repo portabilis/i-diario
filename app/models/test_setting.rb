@@ -29,7 +29,7 @@ class TestSetting < ActiveRecord::Base
   def school_term_humanize
     return '-' unless school_term_type_step
 
-    school_term_type_step
+    school_term_type_step.to_s
   end
 
   def can_update_test_setting?
