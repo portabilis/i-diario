@@ -75,7 +75,8 @@ class ContentsForDisciplineRecordFetcher
   end
 
   def school_term_type_steps_ids
-    step = steps_fetcher.step_by_date(@date.to_date)
+    return [] unless (step = steps_fetcher.step_by_date(@date.to_date))
+
     steps_number = step.school_calendar_parent.steps.size
     description = step.school_calendar_parent.step_type_description
 
