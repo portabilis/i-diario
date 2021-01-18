@@ -69,8 +69,7 @@ class SchoolCalendar < ActiveRecord::Base
     step = classroom.present? ? StepsFetcher.new(classroom).step_by_date(date) : step(date)
 
     return if step.blank?
-    return if step.school_calendar_parent.step_type_description !=
-              school_term_type_step.school_term_type.description
+    return if step.school_calendar_parent.steps.count != school_term_type_step.school_term_type.steps_number
 
     step.step_number == school_term_type_step.step_number
   end
