@@ -2,6 +2,8 @@ class AdjustSchoolTermTypeToTeachingPlans < ActiveRecord::Migration
   def change
     TeachingPlan.where(school_term_type: nil).each do |teaching_plan|
       audited = teaching_plan.audits.where(action: ['create', 'update']).where("audited_changes ILIKE '%school_term_type%' AND audited_changes ILIKE '%school_term%'").order(:version).last
+      next if audited.blank?
+
       school_term = audited.action == 'create' ? audited.audited_changes['school_term'] : audited.audited_changes['school_term'].last
 
       if school_term.ends_with?('bimester')
