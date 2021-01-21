@@ -76,7 +76,12 @@ class ContentsForDisciplineRecordFetcher
 
     SchoolTermTypeStep.joins(:school_term_type)
                       .where(step_number: step.step_number)
-                      .where(school_term_types: { steps_number: steps_number, description: description })
+                      .where(
+                        school_term_types: {
+                          steps_number: steps_number,
+                          description: "#{description} (#{steps_number} #{'etapa'.pluralize(steps_number)})"
+                        }
+                      )
                       .pluck(:id)
   end
 
