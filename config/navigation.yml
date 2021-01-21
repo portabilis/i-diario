@@ -62,6 +62,9 @@ navigation:
         - menu:
             type: "school_calendar_events"
             visible: "only-when-active"
+        - menu:
+            type: "school_calendar_event_batches"
+            visible: "only-when-active"
   - menu:
       type: "pedagogical_trackings"
       icon: "fa-pie-chart"
