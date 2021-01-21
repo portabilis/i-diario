@@ -65,7 +65,7 @@ class TeachingPlan < ActiveRecord::Base
   def school_term_type_step_humanize
     return '' if yearly?
 
-    school_term_type_step
+    school_term_type_step.to_s
   end
 
   def optional_teacher
