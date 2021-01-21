@@ -42,7 +42,7 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
     end
   }
   scope :order_by_school_term_type_step, lambda {
-    joins(:teaching_plan).order('teaching_plans.school_term_type_step IS NULL')
+    joins(:teaching_plan).order('teaching_plans.school_term_type_step_id IS NULL')
   }
 
   validates :teaching_plan, presence: true
