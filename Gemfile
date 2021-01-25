@@ -106,4 +106,3 @@ end
 group :test, :development do
   gem 'bullet', '4.14.10'
 end
-
