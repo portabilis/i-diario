@@ -11,7 +11,8 @@ class ContentsForDisciplineRecordFetcher
             same_teacher_teaching_plans.presence ||
             same_teacher_yearly_teaching_plans.presence ||
             other_teacher_lesson_plans.presence ||
-            other_teacher_teaching_plans.presence
+            other_teacher_teaching_plans.presence ||
+            []
 
     plans.map(&:contents).uniq.flatten
   end
