@@ -7,63 +7,58 @@ class ContentsForDisciplineRecordFetcher
   end
 
   def fetch
-    @contents = []
+    plans = same_teacher_lesson_plans.presence ||
+            same_teacher_teaching_plans.presence ||
+            same_teacher_yearly_teaching_plans.presence ||
+            other_teacher_lesson_plans.presence ||
+            other_teacher_teaching_plans.presence ||
+            []
 
-    @contents = map_contents(lesson_plans) if lesson_plans.present?
-    @contents = map_contents(teaching_plans) if @contents.blank? && teaching_plans.present?
-
-    @contents
+    plans.map(&:contents).uniq.flatten
   end
 
   private
 
-  def map_contents(plans)
-    @contents = plans.map(&:contents).uniq.flatten
+  def same_teacher_lesson_plans
+    lesson_plans.by_teacher_id(@teacher.id)
+  end
+
+  def same_teacher_teaching_plans
+    teaching_plans.by_teacher_id(@teacher.id)
+                  .by_school_term_type_step_id(school_term_type_steps_ids)
+  end
+
+  def same_teacher_yearly_teaching_plans
+    teaching_plans.by_teacher_id(@teacher.id)
+                  .by_school_term_type_id(yearly_school_term_type_id)
+  end
+
+  def other_teacher_lesson_plans
+    lesson_plans.by_other_teacher_id(@teacher.id)
+  end
+
+  def other_teacher_teaching_plans
+    step_teaching_plans = teaching_plans.by_school_term_type_step_id(school_term_type_steps_ids)
+
+    other_theachers_plans = step_teaching_plans.by_other_teacher_id(@teacher.id)
+    return other_theachers_plans if other_theachers_plans.present?
+
+    step_teaching_plans.by_secretary
   end
 
   def lesson_plans
-    @lesson_plans ||= begin
-      lesson_plans = DisciplineLessonPlan.includes(lesson_plan: :contents)
-                                         .by_classroom_id(@classroom.id)
-                                         .by_discipline_id(@discipline.id)
-                                         .by_date(@date)
-
-      teacher_lesson_plans = lesson_plans.by_teacher_id(@teacher.id)
-      filtered_lesson_plans = teacher_lesson_plans if teacher_lesson_plans.exists?
-
-      other_lesson_plans = lesson_plans.by_other_teacher_id(@teacher.id)
-      filtered_lesson_plans = other_lesson_plans if filtered_lesson_plans.blank? && other_lesson_plans.exists?
-
-      filtered_lesson_plans
-    end
+    @lesson_plans ||= DisciplineLessonPlan.includes(lesson_plan: :contents)
+                                          .by_classroom_id(@classroom.id)
+                                          .by_discipline_id(@discipline.id)
+                                          .by_date(@date)
   end
 
   def teaching_plans
-    @teaching_plans ||= begin
-      teaching_plans = DisciplineTeachingPlan.includes(teaching_plan: :contents)
-                                             .by_unity(@classroom.unity_id)
-                                             .by_grade(@classroom.grade_id)
-                                             .by_discipline(@discipline.id)
-                                             .by_year(school_calendar_year)
-                                             .by_school_term_type_step_id(school_term_type_steps_ids)
-
-      teacher_teaching_plans = teaching_plans.by_teacher_id(@teacher.id)
-      filtered_teaching_plans = teacher_teaching_plans if teacher_teaching_plans.exists?
-
-      other_teaching_plans = teaching_plans.by_other_teacher_id(@teacher.id)
-
-      if filtered_teaching_plans.blank? && other_teaching_plans.exists?
-        filtered_teaching_plans = other_teaching_plans
-      end
-
-      general_teaching_plans = teaching_plans.by_secretary
-
-      if filtered_teaching_plans.blank? && general_teaching_plans.exists?
-        filtered_teaching_plans = general_teaching_plans
-      end
-
-      filtered_teaching_plans
-    end
+    @teaching_plans ||= DisciplineTeachingPlan.includes(teaching_plan: :contents)
+                                              .by_unity(@classroom.unity_id)
+                                              .by_grade(@classroom.grade_id)
+                                              .by_discipline(@discipline.id)
+                                              .by_year(school_calendar_year)
   end
 
   def steps_fetcher
@@ -82,7 +77,16 @@ class ContentsForDisciplineRecordFetcher
 
     SchoolTermTypeStep.joins(:school_term_type)
                       .where(step_number: step.step_number)
-                      .where(school_term_types: { steps_number: steps_number, description: description })
+                      .where(
+                        school_term_types: {
+                          steps_number: steps_number,
+                          description: "#{description} (#{steps_number} #{'etapa'.pluralize(steps_number)})"
+                        }
+                      )
                       .pluck(:id)
+  end
+
+  def yearly_school_term_type_id
+    SchoolTermType.find_by(description: 'Anual').id
   end
 end
