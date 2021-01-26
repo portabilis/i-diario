@@ -22,7 +22,7 @@
  *= require offline-language-portuguese-brazil-indicator
  *= require offline-language-portuguese-brazil
  *= require bootstrap-datetimepicker
- *= require summernote.min
+ *= require summernote
  *= require_tree ./resources
  *= require_self
  */
