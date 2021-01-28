@@ -9,5 +9,3 @@ RUN mkdir $app
 WORKDIR $app
 
 ENV BUNDLE_PATH /box
-
-ADD . $app
