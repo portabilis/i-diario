@@ -37,6 +37,7 @@ class Features < EnumerateIt::Base
                    :pedagogical_trackings,
                    :roles,
                    :school_calendar_events,
+                   :school_calendar_event_batches,
                    :school_calendars,
                    :school_term_recovery_diary_records,
                    :teacher_report_cards,
