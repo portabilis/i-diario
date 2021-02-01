@@ -77,6 +77,7 @@ class DisciplineTeachingPlansController < ApplicationController
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
     else
+      yearly_term_type_id
       fetch_collections
 
       render :new
@@ -105,6 +106,7 @@ class DisciplineTeachingPlansController < ApplicationController
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
     else
+      yearly_term_type_id
       fetch_collections
 
       render :edit

@@ -77,6 +77,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
     else
+      yearly_term_type_id
       fetch_collections
 
       render :new
@@ -105,6 +106,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
     if @knowledge_area_teaching_plan.save
       respond_with @knowledge_area_teaching_plan, location: knowledge_area_teaching_plans_path
     else
+      yearly_term_type_id
       fetch_collections
 
       render :edit
