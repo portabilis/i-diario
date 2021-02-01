@@ -18,7 +18,8 @@ class TeachingPlan < ActiveRecord::Base
   validates :year, presence: true
   validates :unity, presence: true
   validates :grade, presence: true
-  validates :school_term_type, :school_term_type_step, presence: { unless: :yearly? }
+  validates :school_term_type, presence: true
+  validates :school_term_type_step, presence: { unless: :yearly? }
 
   has_many :contents_teaching_plans, dependent: :destroy
   deferred_has_many :contents, through: :contents_teaching_plans
@@ -77,6 +78,8 @@ class TeachingPlan < ActiveRecord::Base
   end
 
   def yearly?
+    return unless school_term_type
+
     school_term_type.id == SchoolTermType.find_by(description: 'Anual').id
   end
 
