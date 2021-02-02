@@ -192,6 +192,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
         :evaluation,
         :references,
         :teacher_id,
+        :opinion,
         teaching_plan_attachments_attributes: [
           :id,
           :attachment,

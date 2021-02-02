@@ -21,6 +21,7 @@ pt-BR:
         references: "Referências"
         contents_tags: "Conteúdos"
         grade_ids: "Séries:"
+        opinion: "Parecer"
 
     errors:
       models:
