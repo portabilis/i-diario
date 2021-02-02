@@ -282,6 +282,10 @@
           </div>
         </div>
       </fieldset>
+
+      <div style="position: absolute; margin-top: 11px; <%= action_name == 'show' ? 'right: 235px;' : 'right: 340px;' %>">
+        <%= teaching_plan_form.input :validated, as: :boolean, label: false, inline_label: true, disabled: action_name == 'show' %>
+      </div>
     <% end %>
   <% end %>
 

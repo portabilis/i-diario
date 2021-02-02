@@ -215,6 +215,7 @@ class DisciplineLessonPlansController < ApplicationController
         :bibliography,
         :opinion,
         :teacher_id,
+        :validated,
         lesson_plan_attachments_attributes: [
           :id,
           :attachment,

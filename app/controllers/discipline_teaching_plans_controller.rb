@@ -194,6 +194,7 @@ class DisciplineTeachingPlansController < ApplicationController
         :references,
         :teacher_id,
         :opinion,
+        :validated,
         teaching_plan_attachments_attributes: [
           :id,
           :attachment,

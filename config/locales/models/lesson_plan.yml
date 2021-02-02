@@ -24,6 +24,7 @@ pt-BR:
         bibliography: "Referências"
         opinion: "Parecer"
         contents_tags: "Conteúdos"
+        validated: "Plano de aula validado"
 
     errors:
       models:

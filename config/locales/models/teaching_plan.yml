@@ -22,6 +22,7 @@ pt-BR:
         contents_tags: "Conteúdos"
         grade_ids: "Séries:"
         opinion: "Parecer"
+        validated: "Plano de ensino validado"
 
     errors:
       models:
