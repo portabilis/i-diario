@@ -8,7 +8,9 @@
       <tr>
         <td>
           <% if knowledge_area_lesson_plan.lesson_plan.validated %>
-            <i class="fa fa-check-circle-o apply_tooltip_right" data-original-title="Plano validado e aprovado"></i>
+            <i class="fa fa-check-circle-o apply_tooltip_right"
+               data-original-title="Plano validado e aprovado"
+               style="color: #5A9F58"></i>
           <% end %>
           <%= knowledge_area_lesson_plan.lesson_plan.unity %>
           <% if knowledge_area_lesson_plan.lesson_plan.attachments? %>

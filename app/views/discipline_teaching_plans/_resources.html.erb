@@ -8,7 +8,9 @@
       <tr>
         <td>
           <% if discipline_teaching_plan.teaching_plan.validated %>
-            <i class="fa fa-check-circle-o apply_tooltip_right" data-original-title="Plano validado e aprovado"></i>
+            <i class="fa fa-check-circle-o apply_tooltip_right"
+               data-original-title="Plano validado e aprovado"
+               style="color: #5A9F58"></i>
           <% end %>
           <%= discipline_teaching_plan.teaching_plan.unity %>
           <% if discipline_teaching_plan.teaching_plan.attachments? %>
