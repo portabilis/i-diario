@@ -82,7 +82,6 @@ class User < ActiveRecord::Base
   #search scopes
   scope :full_name, lambda { |fullname|
     where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(fullname))
-      .order("ts_rank_cd(users.fullname_tokens, to_tsquery('portuguese', '#{split_search(fullname)}')) desc")
   }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
