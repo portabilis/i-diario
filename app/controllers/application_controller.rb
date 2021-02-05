@@ -234,6 +234,9 @@ class ApplicationController < ActionController::Base
 
   def teacher_differentiated_discipline_score_type
     exam_rule = current_user_classroom.exam_rule
+
+    return if exam_rule.blank?
+
     differentiated_exam_rule = exam_rule.differentiated_exam_rule
 
     if differentiated_exam_rule.blank? || !current_user_classroom.has_differentiated_students?
@@ -244,6 +247,7 @@ class ApplicationController < ActionController::Base
   end
 
   def teacher_discipline_score_type_by_exam_rule(exam_rule)
+    return if exam_rule.blank?
     return unless (score_type = exam_rule.score_type)
     return if score_type == ScoreTypes::DONT_USE
     return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
