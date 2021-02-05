@@ -5,7 +5,6 @@ ruby '2.4.10'
 gem 'active_model_serializers', '0.9.3'
 gem 'activerecord-connections', git: 'https://github.com/ricardohsd/activerecord-connections.git'
 gem 'activerecord-tableless', '2.0.0'
-gem 'angular_rails_csrf', '1.0.4'
 gem 'audited-activerecord', '4.0.0.rc1', git: 'https://github.com/portabilis/audited.git'
 gem 'aws-sdk-s3', '~>1.83.0'
 gem 'backbone-nested-attributes', '0.3.0', git: 'https://github.com/samuelsimoes/backbone-nested-attributes.git'
@@ -106,4 +105,3 @@ end
 group :test, :development do
   gem 'bullet', '4.14.10'
 end
-
