@@ -85,7 +85,7 @@ class CurrentRoleForm
   end
 
   def is_admin_or_employee_or_teacher?
-    current_user_role&.role.access_level.in?([
+    current_user_role&.role&.access_level&.in?([
       AccessLevel::ADMINISTRATOR,
       AccessLevel::EMPLOYEE,
       AccessLevel::TEACHER
