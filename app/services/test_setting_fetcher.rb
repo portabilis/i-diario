@@ -32,6 +32,8 @@ class TestSettingFetcher
   end
 
   def school_term_type_step
+    return if @step.blank?
+
     avaliation_school_term_type_step.presence || step_school_term_type_step
   end
 
