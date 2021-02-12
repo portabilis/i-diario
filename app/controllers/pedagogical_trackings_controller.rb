@@ -74,7 +74,7 @@ class PedagogicalTrackingsController < ApplicationController
   private
 
   def minimum_year
-    return if current_user_school_year == 2020
+    return if current_user_school_year >= 2020
 
     flash[:alert] = t('pedagogical_trackings.minimum_year.error')
 
