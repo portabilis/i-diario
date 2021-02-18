@@ -9,6 +9,6 @@ class ReceiptMailer < BaseMailer
 
     skip_domains([email])
 
-    mail(to: @recipient, subject: "Frenquência do dia #{date} lançada com sucesso.") if @recipient.present?
+    mail(to: @recipient, subject: "Frequência do dia #{date} lançada com sucesso") if @recipient.present?
   end
 end
