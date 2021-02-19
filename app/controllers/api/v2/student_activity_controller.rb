@@ -4,10 +4,12 @@ module Api
       respond_to :json
 
       def check
+        student_id = Student.find_by(api_code: params[:cod_aluno])&.id
         departure_date = params[:data_saida]
-        student = Student.find_by(id: params[:cod_aluno])
+        
+        raise ArgumentError if student_id.blank? || departure_date.blank?
 
-        render json: activity?(student.api_code, departure_date)
+        render json: activity?(student_id, departure_date)
       end
 
       private
