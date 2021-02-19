@@ -5,17 +5,17 @@ module Api
 
       def check
         student_id = Student.find_by(api_code: params[:cod_aluno])&.id
-        departure_date = params[:data_saida]
+        exit_date = params[:data_saida]
         
-        raise ArgumentError if student_id.blank? || departure_date.blank?
+        raise ArgumentError if student_id.blank? || exit_date.blank?
 
-        render json: activity?(student_id, departure_date)
+        render json: activity(student_id, exit_date)
       end
 
       private
 
-      def activity?(student_id, departure_date)
-        activity_checker = ActivityAfterDepartureDate.new(student_id, departure_date)
+      def activity(student_id, exit_date)
+        activity_checker = StudentActivityAfterDate.new(student_id, exit_date)
         activity_checker.has_activities
       end
     end
