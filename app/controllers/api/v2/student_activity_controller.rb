@@ -16,7 +16,7 @@ module Api
 
       def activity(student_id, exit_date)
         activity_checker = StudentActivityAfterDate.new(student_id, exit_date)
-        activity_checker.has_activities
+        activity_checker.student_activities
       end
     end
   end
