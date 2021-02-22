@@ -4,8 +4,8 @@ module Api
       respond_to :json
 
       def check
-        student_id = Student.find_by(api_code: params[:cod_aluno])&.id
-        exit_date = params[:data_saida]
+        student_id = Student.find_by(api_code: params[:student_id])&.id
+        exit_date = params[:exit_date]
         
         raise ArgumentError if student_id.blank? || exit_date.blank?
 
