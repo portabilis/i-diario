@@ -75,7 +75,7 @@ dos serviços ou o mapeamento dos volumes extras para a aplicação.
 
 ### Instalação em Servidor (Testado no Ubuntu 18.04)
 
-- Instale o Ruby 2.3.7 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv)
+- Instale o Ruby 2.4.10 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv)
  ou [Rvm](https://rvm.io/))
 - Instale o Postgres e faça a configuração em `database.yml`
 - Instale a biblioteca `libpq-dev`
