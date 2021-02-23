@@ -249,11 +249,11 @@ module ApplicationHelper
       entity_logo_url = current_entity_configuration.try(:logo_url)
 
       return PORTABILIS_LOGO if entity_logo_url.blank?
-      return entity_logo_url if HTTParty.get(entity_logo_url).code == 200
+      return entity_logo_url if RestClient.get(entity_logo_url).code == 200
 
       PORTABILIS_LOGO
     end
-  rescue Errno::ECONNREFUSED, HTTParty::Error, SocketError
+  rescue Errno::ECONNREFUSED, SocketError
     PORTABILIS_LOGO
   rescue => error
     Honeybadger.notify(error)
