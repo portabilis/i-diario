@@ -438,8 +438,9 @@ class User < ActiveRecord::Base
   end
 
   def email_reserved_for_student
-    student_api_code = email.split('@').first
-    student_domain = email.split('@').last
+    return unless email
+
+    student_api_code, student_domain = email.split('@')
 
     return if student_domain != 'ambiente.portabilis.com.br'
 
