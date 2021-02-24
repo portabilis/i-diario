@@ -65,6 +65,7 @@ class User < ActiveRecord::Base
 
   validates_associated :user_roles
 
+  validate :email_reserved_for_student
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
   validate :can_not_be_a_cpf
@@ -434,5 +435,19 @@ class User < ActiveRecord::Base
     return unless first_name_changed? || last_name_changed?
 
     User.where(id: id).update_all("fullname_tokens = to_tsvector('portuguese', fullname)")
+  end
+
+  def email_reserved_for_student
+    student_api_code = email.split('@').first
+    student_domain = email.split('@').last
+
+    return if student_domain != 'ambiente.portabilis.com.br'
+
+    if persisted? && Student.joins('LEFT JOIN users ON users.student_id = students.id')
+                           .where(users: { student_id: nil })
+                           .where(api_code: student_api_code)
+                           .any?
+      errors.add(:email, :invalid_email)
+    end
   end
 end
