@@ -5,44 +5,37 @@ module Api
 
       retorno = []
 
-      retorno << build_hash(I18n.t('activerecord.models.daily_note.one'), @daily_note.presence)
-
-      if @conceptual_exam.present?
-        retorno << build_hash(I18n.t('activerecord.models.conceptual_exam.one'), @conceptual_exam)
-      end
-      if @descriptive_exam.present?
-        retorno << build_hash(I18n.t('activerecord.models.descriptive_exam.one'), @descriptive_exam)
-      end
-      if @avaliation_exemption.present?
-        retorno << build_hash(I18n.t('activerecord.models.avaliation_exemption.one'), @avaliation_exemption)
-      end
-      if @transfer_note.present?
-        retorno << build_hash(I18n.t('activerecord.models.transfer_note.one'), @transfer_note)
-      end
-      if @complementary_exam.present?
-        retorno << build_hash(I18n.t('activerecord.models.complementary_exam.one'), @complementary_exam)
-      end
+      retorno << build_hash(DAILY_NOTE, @daily_note) if @daily_note.present?
+      retorno << build_hash(CONCEPTUAL_EXAM, @conceptual_exam) if @conceptual_exam.present?
+      retorno << build_hash(DESCRIPTIVE_EXAM, @descriptive_exam) if @descriptive_exam.present?
+      retorno << build_hash(AVALIATION_EXEMPTION, @avaliation_exemption) if @avaliation_exemption.present?
+      retorno << build_hash(TRANSFER_NOTE, @transfer_note) if @transfer_note.present?
+      retorno << build_hash(COMPLEMENTARY_EXAM, @complementary_exam) if @complementary_exam.present?
+      retorno << build_hash(GENERAL_DESCRIPTIVE_EXAM, @general_descriptive_exam) if @general_descriptive_exam
       if @avaliation_recovery_diary_record.present?
-        retorno << build_hash(I18n.t('activerecord.models.recovery_diary_record_student.one'),
-                              @avaliation_recovery_diary_record)
+        retorno << build_hash(AVALIATION_RECOVERY_DIARY_RECORD, @avaliation_recovery_diary_record)
       end
       if @school_term_recovery_diary_record.present?
-        retorno << build_hash(I18n.t('activerecord.models.school_term_recovery_diary_record.one'),
-                              @school_term_recovery_diary_record)
+        retorno << build_hash(SCHOOL_TERM_RECOVERY_DIARY_RECORD, @school_term_recovery_diary_record)
       end
       if @observation_diary_record.present?
-        retorno << build_hash(I18n.t('activerecord.models.observation_diary_record.one'),
-                              @observation_diary_record)
+        retorno << build_hash(OBSERVATION_DIARY_RECORD, @observation_diary_record)
       end
-
-      if @general_descriptive_exam
-        retorno << build_hash(I18n.t('activerecord.models.descriptive_exam.one'), @general_descriptive_exam)
-      end
-
       retorno
     end
 
     private
+
+    DAILY_NOTE = I18n.t('activerecord.models.daily_note.one')
+    CONCEPTUAL_EXAM = I18n.t('activerecord.models.conceptual_exam.one')
+    DESCRIPTIVE_EXAM = I18n.t('activerecord.models.descriptive_exam.one')
+    AVALIATION_EXEMPTION = I18n.t('activerecord.models.avaliation_exemption.one')
+    TRANSFER_NOTE = I18n.t('activerecord.models.transfer_note.one')
+    COMPLEMENTARY_EXAM = I18n.t('activerecord.models.complementary_exam.one')
+    GENERAL_DESCRIPTIVE_EXAM = I18n.t('activerecord.models.descriptive_exam.one')
+    AVALIATION_RECOVERY_DIARY_RECORD = I18n.t('activerecord.models.recovery_diary_record_student.one')
+    SCHOOL_TERM_RECOVERY_DIARY_RECORD = I18n.t('activerecord.models.school_term_recovery_diary_record.one')
+    OBSERVATION_DIARY_RECORD = I18n.t('activerecord.models.observation_diary_record.one')
 
     def activities_query(student_id, date)
       @daily_note = DailyNoteStudent.joins(daily_note: [avaliation: :discipline])
