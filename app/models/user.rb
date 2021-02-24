@@ -444,9 +444,9 @@ class User < ActiveRecord::Base
     return if student_domain != 'ambiente.portabilis.com.br'
 
     if persisted? && Student.joins('LEFT JOIN users ON users.student_id = students.id')
-                           .where(users: { student_id: nil })
-                           .where(api_code: student_api_code)
-                           .any?
+                            .where(users: { student_id: nil })
+                            .where(api_code: student_api_code)
+                            .any?
       errors.add(:email, :invalid_email)
     end
   end
