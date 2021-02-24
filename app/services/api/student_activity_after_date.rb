@@ -35,6 +35,10 @@ module Api
                               @observation_diary_record)
       end
 
+      if @general_descriptive_exam
+        retorno << build_hash(I18n.t('activerecord.models.descriptive_exam.one'), @general_descriptive_exam)
+      end
+
       retorno
     end
 
@@ -58,7 +62,13 @@ module Api
                                                         ON descriptive_exams.discipline_id = disciplines.id')
                                                 .pluck('disciplines.api_code')
                                                 .uniq
-      @descriptive_exam[@descriptive_exam.index(nil)] = 'Geral'
+
+      @general_descriptive_exam = false
+
+      if @descriptive_exam.any?(&:nil?)
+        @general_descriptive_exam = true
+        @descriptive_exam = @descriptive_exam.compact
+      end
 
       @avaliation_exemption = AvaliationExemption.joins(avaliation: :discipline)
                                                  .by_student(student_id)
@@ -108,13 +118,14 @@ module Api
                                                                    .uniq
     end
 
-    def build_hash(type, disciplines)
-      return if disciplines.blank?
+    def build_hash(type, activity)
+      return if activity.blank?
 
       {
         'type': type,
-        'disciplines': disciplines
-      }
+        'disciplines': (activity if activity.is_a?(Array)),
+        'general': (activity unless activity.is_a?(Array))
+      }.delete_if { |_k, value| value.nil? }
     end
   end
 end
