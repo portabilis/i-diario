@@ -45,11 +45,11 @@ module Api
                                        .pluck('disciplines.api_code')
                                        .uniq
 
-      @descriptive_exam = DescriptiveExamStudent.joins(:descriptive_exam)
-                                                .joins('LEFT JOIN disciplines
-                                                        ON descriptive_exams.discipline_id = disciplines.id')
-                                                .pluck('disciplines.api_code')
-                                                .uniq
+      @descriptive_exam =
+        DescriptiveExamStudent.joins(:descriptive_exam)
+                              .joins('LEFT JOIN disciplines ON descriptive_exams.discipline_id = disciplines.id')
+                              .pluck('disciplines.api_code')
+                              .uniq
 
       @general_descriptive_exam = false
 
@@ -76,34 +76,28 @@ module Api
                                                     .pluck('disciplines.api_code')
                                                     .uniq
 
-      @avaliation_recovery_diary_record = RecoveryDiaryRecordStudent.joins(recovery_diary_record:
-                                                                    [:discipline,
-                                                                     :avaliation_recovery_diary_record])
-                                                                    .by_student_id(student_id)
-                                                                    .where("recovery_diary_records.recorded_at <
-                                                                            '#{date}'
-                                                                    ")
-                                                                    .pluck('disciplines.api_code')
-                                                                    .uniq
+      @avaliation_recovery_diary_record =
+        RecoveryDiaryRecordStudent.joins(recovery_diary_record: [:discipline, :avaliation_recovery_diary_record])
+                                  .by_student_id(student_id)
+                                  .where("recovery_diary_records.recorded_at < '#{date}'")
+                                  .pluck('disciplines.api_code')
+                                  .uniq
 
-      @school_term_recovery_diary_record = RecoveryDiaryRecordStudent.joins(recovery_diary_record:
-                                                                     [:discipline,
-                                                                      :school_term_recovery_diary_record])
-                                                                     .by_student_id(student_id)
-                                                                     .where("
-                                                                     school_term_recovery_diary_records.recorded_at
-                                                                     < '#{date}'
-                                                                     ")
-                                                                     .pluck('disciplines.api_code')
-                                                                     .uniq
+      @school_term_recovery_diary_record =
+        RecoveryDiaryRecordStudent.joins(recovery_diary_record: [:discipline, :school_term_recovery_diary_record])
+                                  .by_student_id(student_id)
+                                  .where("school_term_recovery_diary_records.recorded_at < '#{date}'")
+                                  .pluck('disciplines.api_code')
+                                  .uniq
 
-      @observation_diary_record = ObservationDiaryRecordNoteStudent.joins(observation_diary_record_note:
-                                                                   [observation_diary_record: :discipline])
-                                                                   .by_student_id(student_id)
-                                                                   .where("observation_diary_records.date
-                                                                          < '#{date}'")
-                                                                   .pluck('disciplines.api_code')
-                                                                   .uniq
+      @observation_diary_record =
+        ObservationDiaryRecordNoteStudent.joins(observation_diary_record_note: [
+                                                  observation_diary_record: :discipline
+                                                ])
+                                         .by_student_id(student_id)
+                                         .where("observation_diary_records.date < '#{date}'")
+                                         .pluck('disciplines.api_code')
+                                         .uniq
     end
 
     def build_hash(type, activity)
