@@ -1,5 +1,7 @@
 pt-BR:
   activerecord:
+    model:
+      one: 'Recuperação de avaliação'
     attributes:
       avaliation_recovery_diary_record:
         avaliation: 'Avaliação'
