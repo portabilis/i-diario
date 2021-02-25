@@ -64,7 +64,7 @@ module Api
                                                  .pluck('disciplines.api_code')
                                                  .uniq
 
-      @transfer_note = TransferNote.joins(:student, :discipline)
+      @transfer_note = TransferNote.joins(:discipline)
                                    .where(student_id: student_id)
                                    .where("transfer_notes.recorded_at < '#{date}'")
                                    .pluck('disciplines.api_code')
