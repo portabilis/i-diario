@@ -52,12 +52,9 @@ class AvaliationsController < ApplicationController
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
-    @avaliation.test_setting    = current_test_setting
     @avaliation.test_date       = Time.zone.today
 
     authorize resource
-
-    steps_settings(current_test_setting.exam_setting_type)
   end
 
   def multiple_classrooms
@@ -65,14 +62,13 @@ class AvaliationsController < ApplicationController
 
     @avaliation_multiple_creator_form                    = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
-    @avaliation_multiple_creator_form.test_setting_id    = current_test_setting.id
     @avaliation_multiple_creator_form.discipline_id      = current_user_discipline.id
     @avaliation_multiple_creator_form.unity_id           = current_unity.id
     @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
 
     authorize Avaliation.new
 
-    steps_settings(current_test_setting.exam_setting_type)
+    test_settings
   end
 
   def create_multiple_classrooms
@@ -85,7 +81,8 @@ class AvaliationsController < ApplicationController
     if @avaliation_multiple_creator_form.save
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
-      steps_settings(current_test_setting.exam_setting_type)
+      test_settings
+
       render :multiple_classrooms
     end
   end
@@ -100,7 +97,7 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
-      steps_settings(current_test_setting.exam_setting_type)
+      test_settings
 
       render :new
     end
@@ -111,7 +108,7 @@ class AvaliationsController < ApplicationController
 
     authorize @avaliation
 
-    steps_settings(current_test_setting.exam_setting_type)
+    test_settings
   end
 
   def update
@@ -125,7 +122,7 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
-      steps_settings(current_test_setting.exam_setting_type)
+      test_settings
 
       render :edit
     end
@@ -242,21 +239,24 @@ class AvaliationsController < ApplicationController
   end
 
   def test_setting?
-    return true if current_test_setting.present?
+    return true if test_settings
 
     flash[:error] = t('errors.avaliations.require_setting')
 
     false
   end
 
-  def steps_settings(exam_setting_type)
-    @test_settings = if exam_setting_type == ExamSettingTypes::BY_SCHOOL_TERM
-                       TestSetting.where(
-                         year: current_school_calendar.year,
-                         exam_setting_type: exam_setting_type
-                       ).ordered
-                     else
-                       []
-                     end
+  def test_settings
+    return unless (year_test_setting = TestSetting.where(year: current_user_classroom.year))
+
+    @test_settings ||= year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
+                                        .by_unities(current_user_classroom.unity)
+                                        .where("grades @> ARRAY[?]::integer[] OR grades = '{}'",
+                                               current_user_classroom.grade)
+                                        .presence ||
+                       year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL).presence ||
+                       year_test_setting.where(exam_setting_type: ExamSettingTypes::BY_SCHOOL_TERM)
+                                        .order(:school_term_type_step_id)
+                                        .presence
   end
 end
