@@ -52,7 +52,7 @@ class AvaliationsController < ApplicationController
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
-    @avaliation.test_date       = Time.zone.today
+    @avaliation.test_date = Time.zone.today
 
     authorize resource
   end
@@ -60,10 +60,10 @@ class AvaliationsController < ApplicationController
   def multiple_classrooms
     return if redirect_to_avaliations
 
-    @avaliation_multiple_creator_form                    = AvaliationMultipleCreatorForm.new.localized
+    @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
-    @avaliation_multiple_creator_form.discipline_id      = current_user_discipline.id
-    @avaliation_multiple_creator_form.unity_id           = current_unity.id
+    @avaliation_multiple_creator_form.discipline_id = current_user_discipline.id
+    @avaliation_multiple_creator_form.unity_id = current_unity.id
     @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
 
     authorize Avaliation.new
@@ -181,11 +181,13 @@ class AvaliationsController < ApplicationController
   helper_method :disciplines_for_multiple_classrooms
 
   def classrooms_for_multiple_classrooms
-    return [] unless @avaliation_multiple_creator_form.discipline_id.present?
+    return [] if @avaliation_multiple_creator_form.discipline_id.blank?
+
     @classrooms_for_multiple_classrooms ||= Classroom.by_unity_id(current_unity.id)
                                                      .by_teacher_id(current_teacher.id)
-                                                     .by_teacher_discipline(@avaliation_multiple_creator_form.discipline_id)
-                                                     .ordered
+                                                     .by_teacher_discipline(
+                                                       @avaliation_multiple_creator_form.discipline_id
+                                                     ).ordered
   end
   helper_method :classrooms_for_multiple_classrooms
 
@@ -194,12 +196,12 @@ class AvaliationsController < ApplicationController
   end
 
   def resource
-    @avaliation ||= case params[:action]
-    when 'new', 'create'
-      Avaliation.new
-    when 'edit', 'update', 'destroy', 'show'
-      Avaliation.find(params[:id])
-    end
+    @resource ||= case params[:action]
+                  when 'new', 'create'
+                    Avaliation.new
+                  when 'edit', 'update', 'destroy', 'show'
+                    Avaliation.find(params[:id])
+                  end
   end
 
   def resource_params
@@ -223,15 +225,10 @@ class AvaliationsController < ApplicationController
       reasons << t('errors.messages.not_allowed_to_post_in_date')
     end
 
-    if !resource.grades_allow_destroy
-      reasons << t('avaliation.grades_avoid_destroy')
-    end
+    reasons << t('avaliation.grades_avoid_destroy') unless resource.grades_allow_destroy
+    reasons << t('avaliation.recovery_avoid_destroy') unless resource.recovery_allow_destroy
 
-    if !resource.recovery_allow_destroy
-      reasons << t('avaliation.recovery_avoid_destroy')
-    end
-
-    { reason: reasons.join(" e ") }
+    { reason: reasons.join(' e ') }
   end
 
   def redirect_to_avaliations
