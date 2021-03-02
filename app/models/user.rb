@@ -21,7 +21,6 @@ class User < ActiveRecord::Base
 
   after_save :update_fullname_tokens
 
-  before_destroy :ensure_has_no_audits
   before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
 
@@ -380,16 +379,6 @@ class User < ActiveRecord::Base
 
     if email.blank? && cpf.blank?
       errors.add(:base, :must_inform_email_or_cpf)
-    end
-  end
-
-  def ensure_has_no_audits
-    user_id = self.id
-    query = "SELECT COUNT(*) FROM audits WHERE audits.user_id = '#{user_id}'"
-    audits_count = ActiveRecord::Base.connection.execute(query).first.fetch("count").to_i
-    if audits_count > 0
-      errors.add(:base, "")
-      false
     end
   end
 
