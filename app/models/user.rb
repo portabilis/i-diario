@@ -54,6 +54,7 @@ class User < ActiveRecord::Base
 
   mount_uploader :profile_picture, UserProfilePictureUploader
 
+  validates :first_name, presence: true
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true, uniqueness: { case_sensitive: false }
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
