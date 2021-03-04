@@ -187,6 +187,14 @@ class ApplicationController < ActionController::Base
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 
+  def require_current_year
+    return if current_user_school_year
+
+    flash[:alert] = t('errors.general.require_current_year')
+
+    redirect_to root_path
+  end
+
   def require_current_teacher
     return if current_teacher
 
