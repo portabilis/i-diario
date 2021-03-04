@@ -1,4 +1,5 @@
 class PedagogicalTrackingsController < ApplicationController
+  before_action :require_current_year
   before_action :minimum_year
 
   def index
