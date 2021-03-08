@@ -33,10 +33,12 @@ class TeachingPlanObjectivesFetcher
   end
 
   def school_term_type_steps_ids
+    steps_number = steps_fetcher.current_step.school_calendar_parent.steps.size
     steps_numbers = steps_fetcher.steps_by_date_range(@start_date.to_date, @end_date.to_date).map(&:step_number)
 
     school_term_type_steps_ids = SchoolTermTypeStep.joins(:school_term_type)
-                                                   .where(school_term_types: { steps_number: steps_numbers })
+                                                   .where(school_term_types: { steps_number: steps_number })
+                                                   .where(step_number: steps_numbers)
                                                    .pluck(:id)
     school_term_type_steps_ids << YEARLY_SCHOOL_TERM_TYPE_STEP_ID
   end
