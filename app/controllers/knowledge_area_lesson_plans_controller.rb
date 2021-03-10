@@ -145,7 +145,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
       clone_params.merge(teacher: current_teacher, entity_id: current_entity.id)
     )
 
-    flash[:success] = t('messages.copy_succeed') if @form.clone!
+    flash[:success] = t('.messages.copy_succeed') if @form.clone!
   end
 
   def teaching_plan_contents
