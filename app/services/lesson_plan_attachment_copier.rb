@@ -16,39 +16,21 @@ class LessonPlanAttachmentCopier
     @new_lesson_plan.lesson_plan.lesson_plan_attachments.each do |attachment|
       filename = attachment.filename
       original_id = @original_attachments[filename]
+      new_id = attachment.id
 
       if UploadsStorage.s3?
-        configure_aws
-
         begin
-          @s3_client.copy_object(
-            bucket: @bucket_name,
-            copy_source: "/#{@bucket_name}/#{prefix}/#{original_id}/#{filename}",
-            key: "#{prefix}/#{attachment.id}/#{filename}"
-          )
+          s3_handler = AwsS3HandlerService.new
+          s3_handler.copy_object("#{prefix}/#{original_id}/#{filename}", "#{prefix}/#{new_id}/#{filename}")
         rescue StandardError
           next
         end
       else
         uploads = "#{Rails.root}/public/#{prefix}"
 
-        FileUtils.mkdir_p("#{uploads}/#{attachment.id}")
-        FileUtils.cp("#{uploads}/#{original_id}/#{filename}", "#{uploads}/#{attachment.id}/#{filename}")
+        FileUtils.mkdir_p("#{uploads}/#{new_id}")
+        FileUtils.cp("#{uploads}/#{original_id}/#{filename}", "#{uploads}/#{new_id}/#{filename}")
       end
     end
-  end
-
-  private
-
-  def configure_aws
-    aws_access_key_id = Rails.application.secrets[:DOC_UPLOADER_AWS_ACCESS_KEY_ID] ||
-                        Rails.application.secrets[:AWS_ACCESS_KEY_ID]
-    aws_secret_access_key = Rails.application.secrets[:DOC_UPLOADER_AWS_SECRET_ACCESS_KEY] ||
-                            Rails.application.secrets[:AWS_SECRET_ACCESS_KEY]
-    aws_region = Rails.application.secrets[:DOC_UPLOADER_AWS_REGION] || Rails.application.secrets[:AWS_REGION]
-    @bucket_name = Rails.application.secrets[:DOC_UPLOADER_AWS_BUCKET] || Rails.application.secrets[:AWS_BUCKET]
-
-    aws_credentials = Aws::Credentials.new(aws_access_key_id, aws_secret_access_key)
-    @s3_client = Aws::S3::Client.new(region: aws_region, credentials: aws_credentials)
   end
 end

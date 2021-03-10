@@ -1,0 +1,18 @@
+class AwsS3HandlerService
+  def initialize
+    aws_access_key_id = Rails.application.secrets[:DOC_UPLOADER_AWS_ACCESS_KEY_ID] ||
+                        Rails.application.secrets[:AWS_ACCESS_KEY_ID]
+    aws_secret_access_key = Rails.application.secrets[:DOC_UPLOADER_AWS_SECRET_ACCESS_KEY] ||
+                            Rails.application.secrets[:AWS_SECRET_ACCESS_KEY]
+    aws_region = Rails.application.secrets[:DOC_UPLOADER_AWS_REGION] || Rails.application.secrets[:AWS_REGION]
+
+    aws_credentials = Aws::Credentials.new(aws_access_key_id, aws_secret_access_key)
+
+    @bucket_name = Rails.application.secrets[:DOC_UPLOADER_AWS_BUCKET] || Rails.application.secrets[:AWS_BUCKET]
+    @s3_client = Aws::S3::Client.new(region: aws_region, credentials: aws_credentials)
+  end
+
+  def copy_object(source, target)
+    @s3_client.copy_object(bucket: @bucket_name, copy_source: "/#{@bucket_name}/#{source}", key: target)
+  end
+end
