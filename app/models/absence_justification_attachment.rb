@@ -5,7 +5,5 @@ class AbsenceJustificationAttachment < ActiveRecord::Base
 
   validates :attachment, presence: true
 
-  def filename
-    attachment&.path&.split('/')&.last
-  end
+  delegate :filename, to: :attachment
 end
