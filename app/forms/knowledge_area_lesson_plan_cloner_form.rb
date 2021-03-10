@@ -1,7 +1,7 @@
 class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
   has_no_table
 
-  attr_accessor :knowledge_area_lesson_plan_id, :teacher
+  attr_accessor :knowledge_area_lesson_plan_id, :teacher, :entity_id
 
   validates :knowledge_area_lesson_plan_id,  presence: true
   has_many :knowledge_area_lesson_plan_item_cloner_form
@@ -35,12 +35,15 @@ class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
             new_lesson_plan.lesson_plan.start_at = item.start_at
             new_lesson_plan.lesson_plan.end_at = item.end_at
             new_lesson_plan.lesson_plan.classroom = @classrooms.find_by_id(item.classroom_id)
+
+            original_attachments = {}
             knowledge_area_lesson_plan.lesson_plan.lesson_plan_attachments.each do |lesson_plan_attachment|
-              new_lesson_plan.lesson_plan.lesson_plan_attachments << LessonPlanAttachment.new(
-                attachment: lesson_plan_attachment.attachment
-              )
+              original_attachments[lesson_plan_attachment.attachment.filename] = lesson_plan_attachment.id
+              new_lesson_plan.lesson_plan.lesson_plan_attachments << lesson_plan_attachment.dup
             end
             new_lesson_plan.save!
+
+            copy_attachments(new_lesson_plan.id, original_attachments)
           end
           return true
         end
@@ -58,5 +61,16 @@ class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
   def knowledge_area_lesson_plan
     @knowledge_area_lesson_plan ||= KnowledgeAreaLessonPlan.includes(lesson_plan: [:objectives, :contents])
                                                            .find(knowledge_area_lesson_plan_id)
+  end
+
+  def copy_attachments(new_lesson_plan_id, original_attachments)
+    return if new_lesson_plan_id.blank? || original_attachments.blank?
+
+    LessonPlanAttachmentCopierWorker.perform_async(
+      entity_id,
+      new_lesson_plan_id,
+      KnowledgeAreaLessonPlan,
+      original_attachments
+    )
   end
 end
