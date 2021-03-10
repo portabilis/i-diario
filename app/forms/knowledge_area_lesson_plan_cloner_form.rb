@@ -66,7 +66,6 @@ class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
   end
 
   def copy_attachments(new_lesson_plan_id, original_attachments)
-    return if UploadsStorage.local?
     return if new_lesson_plan_id.blank? || original_attachments.blank?
 
     LessonPlanAttachmentCopierWorker.perform_async(
