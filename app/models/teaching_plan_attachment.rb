@@ -3,7 +3,5 @@ class TeachingPlanAttachment < ActiveRecord::Base
 
   mount_uploader :attachment, DocUploader
 
-  validates :attachment, presence: true
-
   delegate :filename, to: :attachment
 end
