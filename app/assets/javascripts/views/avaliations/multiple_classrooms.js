@@ -157,13 +157,13 @@ $(function () {
     $(this).closest("table").find("tbody input[type=checkbox]").prop("checked", $(this).prop("checked")).trigger("change");
   });
 
-  async function initFields() {
+  function initFields() {
     if (!!document.getElementById('avaliation_multiple_creator_form_test_setting_id')) {
-      await updateFieldsBasedOnTestSetting();
+      updateFieldsBasedOnTestSetting();
     }
 
     if (!!document.getElementById('avaliation_multiple_creator_form_weight')) {
-      await updateFieldsBaseOnTestSettingTest();
+      updateFieldsBaseOnTestSettingTest();
     }
   }
 
