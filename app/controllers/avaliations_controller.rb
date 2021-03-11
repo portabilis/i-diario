@@ -246,14 +246,25 @@ class AvaliationsController < ApplicationController
   def test_settings
     return unless (year_test_setting = TestSetting.where(year: current_user_classroom.year))
 
-    @test_settings ||= year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
-                                        .by_unities(current_user_classroom.unity)
-                                        .where("grades @> ARRAY[?]::integer[] OR grades = '{}'",
-                                               current_user_classroom.grade)
-                                        .presence ||
-                       year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL).presence ||
-                       year_test_setting.where(exam_setting_type: ExamSettingTypes::BY_SCHOOL_TERM)
-                                        .order(:school_term_type_step_id)
-                                        .presence
+    @test_settings ||= general_by_school_test_setting(year_test_setting) ||
+                       general_test_setting(year_test_setting) ||
+                       by_school_term_test_setting(year_test_setting)
+  end
+
+  def general_by_school_test_setting(year_test_setting)
+    year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
+                     .by_unities(current_user_classroom.unity)
+                     .where("grades @> ARRAY[?]::integer[] OR grades = '{}'", current_user_classroom.grade)
+                     .presence
+  end
+
+  def general_test_setting(year_test_setting)
+    year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL).presence
+  end
+
+  def by_school_term_test_setting(year_test_setting)
+    year_test_setting.where(exam_setting_type: ExamSettingTypes::BY_SCHOOL_TERM)
+                     .order(:school_term_type_step_id)
+                     .presence
   end
 end
