@@ -97,6 +97,7 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
+      @avaliation = resource
       test_settings
 
       render :new
