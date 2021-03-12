@@ -58,6 +58,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   def new
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
     @knowledge_area_lesson_plan.build_lesson_plan
+    @knowledge_area_lesson_plan.lesson_plan.classroom = current_user_classroom
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @knowledge_area_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @knowledge_area_lesson_plan.lesson_plan.start_at = Time.zone.today
