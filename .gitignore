@@ -52,3 +52,16 @@ Gemfile.plugins
 
 # Docker
 docker-compose.override.yml
+
+# Packages
+/packages/*
+
+/public/packs
+/public/packs-test
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+
+# Carrierwave
+config/initializers/custom_carrierwave.rb

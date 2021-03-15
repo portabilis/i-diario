@@ -60,10 +60,6 @@ class SchoolCalendarStep < ActiveRecord::Base
     dates
   end
 
-  def test_setting
-    TestSettingFetcher.by_step(self)
-  end
-
   def school_calendar_parent
     school_calendar
   end

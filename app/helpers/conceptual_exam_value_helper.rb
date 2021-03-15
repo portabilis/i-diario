@@ -11,7 +11,7 @@ module ConceptualExamValueHelper
     if conceptual_exam_value.exempted_discipline.to_s == 'true'
       "****#{conceptual_exam_value.discipline.description}"
     else
-      "#{conceptual_exam_value.discipline.description}"
+      conceptual_exam_value.discipline.description
     end
   end
 end

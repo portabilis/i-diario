@@ -9,6 +9,24 @@ $(function () {
   var $observationDiaryRecordNotesContainer = $('#observation-diary-record-notes');
   var students = [];
 
+  function onChangeFileElement(){
+    if (this.files[0].size > 3145728) {
+      $(this).closest(".control-group").find('span').remove();
+      $(this).closest(".control-group").addClass("error");
+      $(this).after('<span class="help-inline">tamanho máximo por arquivo: 3 MB</span>');
+      $(this).val("");
+    }else {
+      $(this).closest(".control-group").removeClass("error");
+      $(this).closest(".control-group").find('span').remove();
+    }
+  }
+
+  $(".observation_diary_attachment").on('change', onChangeFileElement);
+
+  $('#observation_diary_records_form').on('cocoon:after-insert', function(e, item) {
+    $(item).find('input.file').on('change', onChangeFileElement);
+  });
+
   function loadStudentsSelect2() {
     var $studentsInputs = $('input[id$=student_ids]')
     $studentsInputs.select2({ data: students, multiple: true });

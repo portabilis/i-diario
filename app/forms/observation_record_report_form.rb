@@ -70,7 +70,10 @@ class ObservationRecordReportForm
   def require_discipline?
     return unless classroom_id.present? && teacher_id.present?
 
-    FrequencyTypeResolver.new(classroom, teacher).by_discipline?
+    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
+    frequency_type_definer.define!
+
+    frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
   end
 
   def require_observation_diary_records?

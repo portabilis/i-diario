@@ -2,10 +2,12 @@
 
 bundle check || BUNDLE_JOBS=4 bundle install
 
+yarn install
+
 if ! test -f ".setup"; then
   echo -e "
   development:
-    secret_key_base: $(bundle exec rake secret)
+    secret_key_base: `bundle exec rake secret`
     redis_url: redis://redis-idiario
     " > config/secrets.yml
 
@@ -22,8 +24,7 @@ if ! test -f ".setup"; then
   touch .setup
 fi
 
-bundle exec rake rails:update:bin
-rm /app/tmp/pids/server.pid
+rm -f /app/tmp/pids/server.pid
 
 echo "Starting.."
 bundle exec rails server -b 0.0.0.0

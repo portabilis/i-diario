@@ -20,7 +20,7 @@ class IeducarExamPostingWorker
     Honeybadger.notify(exception)
   end
 
-  def perform(entity_id, posting_id, queue = 'exam_posting_send')
+  def perform(entity_id, posting_id)
     entity = Entity.find(entity_id)
 
     entity.using_connection do
@@ -28,15 +28,17 @@ class IeducarExamPostingWorker
 
       case posting.post_type
       when ApiPostingTypes::NUMERICAL_EXAM, ApiPostingTypes::SCHOOL_TERM_RECOVERY
-        ExamPoster::NumericalExamPoster.post!(posting, entity_id, queue)
+        ExamPoster::NumericalExamPoster.post!(posting, entity_id)
       when ApiPostingTypes::CONCEPTUAL_EXAM
+        queue = SmartEnqueuer.new(EXAM_POSTING_QUEUES).less_used_queue
+
         ExamPoster::ConceptualExamPoster.post!(posting, entity_id, queue)
       when ApiPostingTypes::DESCRIPTIVE_EXAM
-        ExamPoster::DescriptiveExamPoster.post!(posting, entity_id, queue)
+        ExamPoster::DescriptiveExamPoster.post!(posting, entity_id)
       when ApiPostingTypes::ABSENCE
-        ExamPoster::AbsencePoster.post!(posting, entity_id, queue)
+        ExamPoster::AbsencePoster.post!(posting, entity_id)
       when ApiPostingTypes::FINAL_RECOVERY
-        ExamPoster::FinalRecoveryPoster.post!(posting, entity_id, queue)
+        ExamPoster::FinalRecoveryPoster.post!(posting, entity_id)
       end
     end
   end

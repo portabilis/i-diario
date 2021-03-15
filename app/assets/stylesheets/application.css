@@ -18,7 +18,11 @@
  *= require bootstrap-select
  *= require header-select2
  *= require jquery-file-upload/jquery.fileupload
+ *= require offline-theme-default
+ *= require offline-language-portuguese-brazil-indicator
+ *= require offline-language-portuguese-brazil
  *= require bootstrap-datetimepicker
+ *= require summernote
  *= require_tree ./resources
  *= require_self
  */
@@ -388,8 +392,8 @@ span.multiline {
 }
 
 .shortcut-icon {
-  font-size: 5em;
-  line-height: 1.5em;
+  font-size: 5em !important;
+  line-height: 1.5em !important;
 }
 
 .shortcut a span {

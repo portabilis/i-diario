@@ -57,6 +57,16 @@
       </div>
       <div class="row">
         <div class="col col-sm-6">
+          <%= f.input :allows_copy_lesson_plans_to_other_grades, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :create_users_for_students_when_synchronize, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col col-sm-6">
           <%= f.input :notify_consecutive_or_alternate_absences, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
@@ -81,6 +91,15 @@
           <%= f.association :employees_default_role, as: :select2, elements: Role.ordered %>
         </div>
       </div>
+
+      <fieldset class="fieldset">
+        <legend><%= t('.profile_configurations') %></legend>
+        <div class="row">
+          <div class="col col-sm-6">
+            <%= f.input :grouped_teacher_profile, label: false, inline_label: true %>
+          </div>
+        </div>
+      </fieldset>
     </fieldset>
 
     <footer>

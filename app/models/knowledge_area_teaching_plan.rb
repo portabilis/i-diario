@@ -22,11 +22,11 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
   scope :by_year, ->(year) { joins(:teaching_plan).where(teaching_plans: { year: year }) }
   scope :by_unity, ->(unity) { joins(:teaching_plan).where(teaching_plans: { unity_id: unity }) }
   scope :by_grade, ->(grade) { joins(:teaching_plan).where(teaching_plans: { grade_id: grade }) }
-  scope :by_school_term_type, lambda { |school_term_type|
-    joins(:teaching_plan).where(teaching_plans: { school_term_type: school_term_type })
+  scope :by_school_term_type_id, lambda { |school_term_type_id|
+    joins(:teaching_plan).where(teaching_plans: { school_term_type_id: school_term_type_id })
   }
-  scope :by_school_term, lambda { |school_term|
-    joins(:teaching_plan).where(teaching_plans: { school_term: school_term })
+  scope :by_school_term_type_step_id, lambda { |school_term_type_step_id|
+    joins(:teaching_plan).where(teaching_plans: { school_term_type_step_id: school_term_type_step_id })
   }
   scope :by_knowledge_area, ->(knowledge_area) { by_knowledge_area(knowledge_area) }
   scope :by_teacher_id, ->(teacher_id) { joins(:teaching_plan).where(teaching_plans: { teacher_id: teacher_id }) }
@@ -41,8 +41,8 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
       joins(:teaching_plan).merge(TeachingPlan.where.not(teacher_id: current_teacher_id))
     end
   }
-  scope :order_by_school_term, lambda {
-    joins(:teaching_plan).order("teaching_plans.school_term = ''")
+  scope :order_by_school_term_type_step, lambda {
+    joins(:teaching_plan).order('teaching_plans.school_term_type_step_id IS NULL')
   }
 
   validates :teaching_plan, presence: true
@@ -115,7 +115,7 @@ class KnowledgeAreaTeachingPlan < ActiveRecord::Base
                                                              .by_unity(teaching_plan.unity)
                                                              .by_teacher_id(teaching_plan.teacher_id)
                                                              .by_grade(teaching_plan.grade)
-                                                             .by_school_term(teaching_plan.school_term)
+                                                             .by_school_term_type_step_id(teaching_plan.school_term_type_step_id)
                                                              .by_knowledge_area(knowledge_areas.collect(&:id))
 
     knowledge_area_teaching_plans = knowledge_area_teaching_plans.where.not(id: id) if persisted?

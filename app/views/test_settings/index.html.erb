@@ -5,7 +5,8 @@
         <tr>
           <th><%= TestSetting.human_attribute_name :exam_setting_type %></th>
           <th><%= TestSetting.human_attribute_name :year %></th>
-          <th><%= TestSetting.human_attribute_name :school_term %></th>
+          <th><%= TestSetting.human_attribute_name :unities %></th>
+          <th><%= TestSetting.human_attribute_name :school_term_type_step %></th>
           <th><%= TestSetting.human_attribute_name :maximum_score %></th>
           <th><%= TestSetting.human_attribute_name :number_of_decimal_places %></th>
           <th><%= TestSetting.human_attribute_name :average_calculation_type %></th>
@@ -15,7 +16,7 @@
 
       <%= render 'resources' %>
       <tfoot id="paginator" class="remote">
-        <td colspan="7">
+        <td colspan="8">
           <div id="page_entries_info" class="pull-left hidden-xs">
             <%= page_entries_info @test_settings %>
           </div>

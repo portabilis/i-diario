@@ -6,6 +6,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
 
   include Audit
 
+  belongs_to :school_calendar_event_batch, foreign_key: 'batch_id'
   belongs_to :school_calendar
   belongs_to :grade
   belongs_to :classroom

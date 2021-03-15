@@ -12,43 +12,12 @@ Rails.application.routes.draw do
       unlocks: 'users/unlocks'
     }
 
-    # madis
-    namespace :v1 do
-      resources :access do
-        collection do
-          post :request_access
-          post :send_access
-          post :send_access_batch
-        end
-      end
-      resources :command do
-        collection do
-          post :request_command
-        end
-      end
-      resources :biometric do
-        collection do
-          post :send_biometric
-          post :request_biometric
-          post '/request_biometric/:id', to: 'biometric#request_biometric_by_id'
-        end
-      end
-    end
-
     namespace :api do
-      namespace :v1 do
-        resources :exam_rules, only: [:index]
-        resources :teacher_unities, only: [:index]
-        resources :teacher_classrooms, only: [:index]
-        resources :teacher_disciplines, only: [:index]
-        resources :school_calendars, only: [:index]
-        resources :daily_frequencies, only: [:create]
-        resources :daily_frequency_students, only: [:update]
-      end
       namespace :v2 do
         resources :exam_rules, only: [:index]
         get 'step_activity', to: 'step_activity#check'
         get 'discipline_activity', to: 'discipline_activity#check'
+        get 'student_activity', to: 'student_activity#check'
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index] do
           collection do
@@ -107,6 +76,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :teacher_profiles, only: :index
+
     resources :system_notifications, only: :index
 
     root 'dashboard#index'
@@ -118,7 +89,14 @@ Rails.application.routes.draw do
       resources :teacher_work_done_chart, only: [:index]
     end
 
-    patch '/current_role', to: 'current_role#set', as: :set_current_role
+    post '/current_role', to: 'current_role#set', as: :set_current_role
+    get '/current_role/available_classrooms', to: 'current_role#available_classrooms', as: :available_classrooms
+    get '/current_role/available_disciplines', to: 'current_role#available_disciplines', as: :available_disciplines
+    get '/current_role/available_school_years', to: 'current_role#available_school_years', as: :available_school_years
+    get '/current_role/available_teachers', to: 'current_role#available_teachers', as: :available_teachers
+    get '/current_role/available_unities', to: 'current_role#available_unities', as: :available_unities
+    get '/current_role/available_teacher_profiles', to: 'current_role#available_teacher_profiles', as: :available_teacher_profiles
+    get '/steps_by_school_term_type_id', to: 'school_term_type_steps#steps', as: :steps_by_school_term_type_id
     post '/system_notifications/read_all', to: 'system_notifications#read_all', as: :read_all_notifications
     get '/disabled_entity', to: 'pages#disabled_entity'
 
@@ -175,9 +153,11 @@ Rails.application.routes.draw do
 
     resources :test_settings, concerns: :history do
       resources :test_setting_tests, only: [:index]
+      get :grades_by_unities, on: :collection
     end
     resources :test_setting_tests, only: [:index, :show]
 
+    resources :school_calendar_event_batches
     resources :school_calendars, concerns: :history do
       collection do
         get :step
@@ -238,6 +218,7 @@ Rails.application.routes.draw do
     resources :disciplines, only: [:index] do
       collection do
         get :search
+        get :search_grouped_by_knowledge_area
       end
     end
     resources :knowledge_areas, only: [:index]
@@ -297,7 +278,7 @@ Rails.application.routes.draw do
     get 'daily_frequency/history_multiple', to: 'daily_frequencies#history_multiple', as: 'history_multiple_daily_frequency'
 
     resources :absence_justifications, concerns: :history
-    resources :observation_diary_records, expect: :show, concerns: :history
+    resources :observation_diary_records, except: :show, concerns: :history
     resources :ieducar_api_exam_postings do
       member do
         get :done_percentage

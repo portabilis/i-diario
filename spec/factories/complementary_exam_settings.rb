@@ -9,7 +9,6 @@ FactoryGirl.define do
     year { Date.current.year }
 
     transient do
-      teacher nil
       classroom nil
       discipline nil
     end
@@ -20,8 +19,7 @@ FactoryGirl.define do
 
     trait :with_teacher_discipline_classroom do
       before(:create) do |complementary_exam_setting, evaluator|
-        teacher = evaluator.teacher || create(:teacher)
-        complementary_exam_setting.teacher_id ||= teacher.id
+        teacher = create(:teacher)
         discipline = evaluator.discipline || create(:discipline)
         (evaluator.grades || complementary_exam_setting.grades).each do |grade|
           classroom = create(:classroom, grade: grade)

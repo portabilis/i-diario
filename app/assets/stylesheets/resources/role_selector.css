@@ -110,7 +110,7 @@
     margin-top: 23px;
   }
 
-  #header > #current-role-selector {
+  #current-role-selector {
     background-color: rgba(255, 255, 255, .75);
     display: none;
     float: none;

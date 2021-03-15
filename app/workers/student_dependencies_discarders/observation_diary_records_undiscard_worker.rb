@@ -21,7 +21,7 @@ class ObservationDiaryRecordsUndiscardWorker < BaseStudentDependenciesDiscarderW
       student_id: student_id
     )
 
-    observation_diary_record_notes = note_students_to_undiscard.map(&:observation_diary_record_note)
+    observation_diary_record_notes = note_students_to_undiscard.map(&:observation_diary_record_note).compact
 
     undiscard_observation_diary_record_notes(observation_diary_record_notes)
 
@@ -29,7 +29,7 @@ class ObservationDiaryRecordsUndiscardWorker < BaseStudentDependenciesDiscarderW
   end
 
   def undiscard_observation_diary_record_notes(observation_diary_record_notes)
-    observation_diary_records = observation_diary_record_notes.uniq.map(&:observation_diary_record)
+    observation_diary_records = observation_diary_record_notes.uniq.map(&:observation_diary_record).compact
 
     undiscard_observation_diary_records(observation_diary_records)
 

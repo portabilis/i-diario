@@ -1,7 +1,7 @@
 <tbody id="resources-tbody">
   <% if @users.empty? %>
     <tr>
-      <td class="no_record_found" colspan="7"> <%= t('views.index.no_record_found')%></td>
+      <td class="no_record_found" colspan="8"> <%= t('views.index.no_record_found')%></td>
     </tr>
   <% else %>
     <% @users.each do |user| %>
@@ -12,6 +12,7 @@
         <td>
           <%= link_to user, edit_user_path(user) %>
         </td>
+        <td><%= user.cpf %></td>
         <td><%= user.email %></td>
         <td><%= user.login %></td>
         <td>
@@ -21,7 +22,9 @@
         </td>
         <td class="actions">
           <%= link_to 'Editar', edit_user_path(user), class: "btn btn-success" %>
-          <%= link_to 'Excluir', user_path(user), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+          <% if current_user.admin? || (current_user.current_role_is_admin_or_employee? && !user.administrator?) %>
+            <%= link_to 'Excluir', user_path(user), class: "btn btn-danger destroy-button", method: "delete", data: { confirm: "Tem certeza?" } %>
+          <% end %>
         </td>
       </tr>
     <% end %>

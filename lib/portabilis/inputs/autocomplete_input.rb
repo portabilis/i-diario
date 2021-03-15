@@ -25,7 +25,7 @@ module Portabilis
 
       def input_html_options
         super.tap do |options|
-          options[:size]                  ||= SimpleForm.default_input_size
+          options[:size]                  ||= nil
           options[:autocomplete]          ||= 'off'
           options[:name]                  = ' '
           options['data-typeahead-url']   ||= autocomplete_url

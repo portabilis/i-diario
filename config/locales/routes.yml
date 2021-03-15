@@ -13,6 +13,7 @@ pt-BR:
     test_settings: 'configuracoes-de-avaliacoes-numericas'
     school_calendars: 'calendarios-letivo'
     school_calendar_events: 'eventos'
+    school_calendar_event_batches: 'eventos-em-lote'
     discipline_teaching_plans: 'planos-de-ensino-por-disciplina'
     knowledge_area_teaching_plans: 'planos-de-ensino-por-areas-de-conhecimento'
     avaliations: 'avaliacoes'
@@ -97,14 +98,3 @@ pt-BR:
     create_multiple_classrooms: 'criar-multiplas-turmas'
     by_date: 'por-data'
     by_date_range: 'por-periodo'
-
-    #madis
-    access: "acesso"
-    request_access: "solicitaracesso"
-    send_access: "enviarfimacesso"
-    send_access_batch: "enviarregistrobatch"
-    biometric: "biometria"
-    send_biometric: "enviarbiometria"
-    request_biometric: "solicitarbiometria"
-    command: "comando"
-    request_command: "solicitarcomando"

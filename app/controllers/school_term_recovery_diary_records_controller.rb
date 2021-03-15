@@ -2,6 +2,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :require_current_clasroom
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
@@ -148,8 +149,12 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 
+  def test_setting
+    @test_setting ||= TestSettingFetcher.current(current_user_classroom, @school_term_recovery_diary_record.step)
+  end
+
   def decimal_places
-    @school_term_recovery_diary_record.step.test_setting.number_of_decimal_places
+    test_setting.number_of_decimal_places
   end
   helper_method :decimal_places
 

@@ -6,7 +6,20 @@
   <% else %>
     <% @knowledge_area_lesson_plans.each do |knowledge_area_lesson_plan| %>
       <tr>
-        <td><%= knowledge_area_lesson_plan.lesson_plan.unity %></td>
+        <td>
+          <% if knowledge_area_lesson_plan.lesson_plan.validated %>
+            <i class="fa fa-check-circle-o apply_tooltip_right"
+               data-original-title="Plano validado e aprovado"
+               style="color: #5A9F58"></i>
+          <% end %>
+          <%= knowledge_area_lesson_plan.lesson_plan.unity %>
+          <% if knowledge_area_lesson_plan.lesson_plan.attachments? %>
+            <i class="fa fa-paperclip apply_tooltip" data-original-title="Possui anexos"></i>
+          <% end %>
+          <% if knowledge_area_lesson_plan.lesson_plan.opinion.present? %>
+            <i class="fa fa-comment apply_tooltip" data-original-title="Possui parecer"></i>
+          <% end %>
+        </td>
         <td class="classroom"><%= knowledge_area_lesson_plan.lesson_plan.classroom %></td>
         <td class="knowledge_area">
           <% knowledge_area_lesson_plan.knowledge_areas.each do |knowledge_area| %>

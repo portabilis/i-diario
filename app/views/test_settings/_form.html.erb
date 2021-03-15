@@ -40,7 +40,27 @@
         </div>
 
         <div id="test_setting_school_term_div" class="col col-sm-3">
-          <%= f.input :school_term, as: :select2, elements: default_steps.to_json, required: true %>
+          <%= f.association :school_term_type_step, as: :select2,
+                            elements: SchoolTermTypeStep.to_select2(
+                              current_user.current_school_year
+                            ).to_json, required: true %>
+        </div>
+
+        <div class="col col-sm-3" id="test_setting_unities_div">
+          <div style="float:right;">
+            <a href="#" style="text-decoration:none;" id="select-all-unities">Selecionar todos</a>
+            <a href="#" style="display: none;text-decoration:none;" id="deselect-all-unities">Remover todos</a>
+          </div>
+          <%= f.input :unities, as: :select2, multiple: true, elements: @unities, required: true, input_html: { value: f.object.unities.join(','), data: { without_json_parser: true } } %>
+        </div>
+
+        <div class="col col-sm-3" id="test_setting_grades_div">
+          <div style="float:right;">
+            <a href="#" style="text-decoration:none;" id="select-all-grades">Selecionar todos</a>
+            <a href="#" style="display: none;text-decoration:none;" id="deselect-all-grades">Remover todos</a>
+          </div>
+          <%= hidden_field_tag :grades_list %>
+          <%= f.input :grades, as: :select2, multiple: true, elements: grades, input_html: { value: f.object.grades.join(','), data: { without_json_parser: true } } %>
         </div>
       </div>
 
@@ -56,7 +76,25 @@
         <div class="col col-sm-3">
           <%= f.input :average_calculation_type, as: :select2, elements: AverageCalculationTypes.to_select.to_json %>
         </div>
+
+        <div class="controls input col col-sm-3" id="division-weight-check-container">
+          <label class="checkbox">
+            <input class="boolean optional"
+                  type="checkbox"
+                  value=<%= '1' if show_checked(f.object) %>
+                  checked=<%= 'checked' if show_checked(f.object) %>
+                  id="division-weight-check"> Gerar média das avaliações?<i></i>
+          </label>
+        </div>
       </div>
+
+      <div class="row">
+        <div class="col col-sm-3 <%= 'hidden' unless weight_error(f.object) %>"
+             id="division-weight-input">
+          <%= f.input :default_division_weight, input_html: { min: 1 }, required: true %>
+        </div>
+      </div>
+
     </fieldset>
 
     <fieldset id="item_setting_tests">
@@ -117,7 +155,7 @@
         <%= link_to t('views.form.history'), history_test_setting_path(@test_setting), class: 'btn btn-info' %>
       <% end %>
 
-      <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+      <%= f.submit t('views.form.save'), class: 'btn btn-primary', id: 'test-settings-form-submit', data: { disable_with: 'Salvando...'} %>
     </footer>
   <% end %>
 </div>

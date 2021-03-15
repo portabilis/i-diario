@@ -8,7 +8,7 @@ class TransferNote < ActiveRecord::Base
   not_updatable only: [:classroom_id, :discipline_id]
   teacher_relation_columns only: [:classroom, :discipline]
 
-  audited except: [:teacher_id, :recorded_at]
+  audited except: [:recorded_at]
   has_associated_audits
 
   acts_as_copy_target
@@ -37,7 +37,7 @@ class TransferNote < ActiveRecord::Base
     joins(:classroom).where('unaccent(classrooms.description) ILIKE unaccent(?)', "%#{description}%")
   }
   scope :by_discipline_description, lambda { |description|
-    joins(:discipline).where('unaccent(disciplines.description) ILIKE unaccent(?)', "%#{description}%")
+    joins(:discipline).merge(Discipline.by_description(description))
   }
   scope :by_student_name, lambda { |student_name|
     joins(:student).where(

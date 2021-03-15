@@ -56,9 +56,9 @@ class StudentUnificationsSynchronizer < BaseSynchronizer
 
   def unify_or_revert(unify, main_student, secondary_students)
     if unify
-      StudentUnificationService.new(main_student, secondary_students).run!
+      StudentUnification::UnificationService.new(main_student, secondary_students).run!
     else
-      StudentUnificationReverterService.new(main_student, secondary_students).run!
+      StudentUnification::ReverterService.new(main_student, secondary_students).run!
     end
   end
 end

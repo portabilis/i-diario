@@ -9,12 +9,15 @@ pt-BR:
       test_setting:
         id: "Código"
         exam_setting_type: "Tipo"
-        school_term: "Período escolar"
+        school_term_type_step: "Período escolar"
         year: "Ano"
         maximum_score: "Nota máxima"
         number_of_decimal_places: "Número de casas decimais"
         average_calculation_type: "Cálculo da média"
         responsible_id: "Responsável"
+        unities: 'Escolas'
+        grades: 'Séries'
+        default_division_weight: Peso (divisão)
 
     errors:
       models:
@@ -23,6 +26,10 @@ pt-BR:
             tests:
               at_least_one_assigned_test: "É necessário pelo menos uma avaliação"
               tests_weight_less_or_equal_maximum_score: "A soma dos pesos das avaliações deve resultar em um valor menor ou igual da nota máxima"
+            unities:
+              taken: 'já existe uma configuração para esses dados'
+            grades:
+              taken: 'já existe uma configuração para esses dados'
             base:
               has_avaliation_associated: "Não é possível modificar as configurações de Avaliações numéricas pois existem avaliações vinculadas"
 

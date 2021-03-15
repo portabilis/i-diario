@@ -21,6 +21,9 @@ pt-BR:
         max_consecutive_absence_days: "Quantidade de dias corridos"
         max_alternate_absence_days: "Quantidade de dias alternados"
         days_to_consider_alternate_absences: "Período de dias para considerar faltas alternadas"
+        grouped_teacher_profile: "Permite agrupar turmas e disciplinas para professores?"
+        create_users_for_students_when_synchronize: "Criar usuários para alunos na sincronização"
+        allows_copy_lesson_plans_to_other_grades: "Permite copiar Planos de aula para turmas de outras séries"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."

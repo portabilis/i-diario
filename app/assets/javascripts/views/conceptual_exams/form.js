@@ -4,7 +4,6 @@ $(function() {
   var $classroom = $('#conceptual_exam_classroom_id');
   var $step = $('#conceptual_exam_step_id');
   var $student = $('#conceptual_exam_student_id');
-  var $discipline = $('#user_current_discipline_id');
   var old_values = {};
   var flashMessages = new FlashMessages();
 
@@ -60,7 +59,7 @@ $(function() {
 
   function fetchStudents() {
     var classroom_id = $classroom.select2('val');
-    var discipline_id = $discipline.select2('val');
+    var discipline_id = window.state.current_discipline.id;
     var step_id = $step.select2('val');
     var start_at = '';
     var end_at = '';

@@ -1,0 +1,12 @@
+<%= simple_form_for @school_calendar_event_batch, html: { class: "smart-form" } do |f| %>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <%= render 'fields', f: f %>
+  </fieldset>
+
+  <footer>
+    <%= link_to "Voltar", school_calendar_event_batches_path, class: "btn btn-default" %>
+    <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+  </footer>
+<% end %>

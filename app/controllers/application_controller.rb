@@ -21,12 +21,13 @@ class ApplicationController < ActionController::Base
   #protect_from_forgery with: :exception
   protect_from_forgery with: :null_session
 
-  before_action :set_current_user_defaults, if: :user_signed_in?
   before_action :check_entity_status
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :check_for_notifications, if: :user_signed_in?
   before_action :check_for_current_user_role, if: :user_signed_in?
+  before_action :set_current_unity_id, if: :user_signed_in?
+  before_action :set_current_user_role_id, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -94,15 +95,15 @@ class ApplicationController < ActionController::Base
   end
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.for(:sign_in) do |u|
+    devise_parameter_sanitizer.permit(:sign_in) do |u|
       u.permit(:credentials, :password, :remember_me)
     end
 
-    devise_parameter_sanitizer.for(:account_update) do |u|
+    devise_parameter_sanitizer.permit(:account_update) do |u|
       u.permit(:email, :first_name, :last_name, :login, :phone, :cpf, :current_password, :authorize_email_and_sms)
     end
 
-    devise_parameter_sanitizer.for(:sign_up) do |u|
+    devise_parameter_sanitizer.permit(:sign_up) do |u|
       u.permit(:email, :password, :password_confirmation)
     end
   end
@@ -179,15 +180,19 @@ class ApplicationController < ActionController::Base
   helper_method :current_school_calendar
 
   def current_test_setting
-    TestSettingFetcher.current(current_user.try(:current_classroom)) || default_test_setting
-  end
-
-  def default_test_setting
-    TestSettingFetcher.by_step(steps_fetcher.steps.first)
+    TestSettingFetcher.current(current_user.try(:current_classroom))
   end
 
   def steps_fetcher
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
+  end
+
+  def require_current_year
+    return if current_user_school_year
+
+    flash[:alert] = t('errors.general.require_current_year')
+
+    redirect_to root_path
   end
 
   def require_current_teacher
@@ -220,6 +225,7 @@ class ApplicationController < ActionController::Base
       current_user_role: current_user.current_user_role,
       current_classroom: current_user.current_classroom,
       current_discipline_id: current_user.current_discipline_id,
+      current_knowledge_area_id: current_user.current_knowledge_area_id,
       current_unity: current_user.current_unity,
       current_teacher: current_user.current_teacher,
       current_school_year: current_user.current_school_year
@@ -227,9 +233,7 @@ class ApplicationController < ActionController::Base
   end
 
   def teacher_discipline_score_type
-    return DisciplineScoreTypes::NUMERIC if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC
-    return DisciplineScoreTypes::CONCEPT if current_user_classroom.exam_rule.score_type == ScoreTypes::CONCEPT
-    TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if current_user_classroom.exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+    teacher_discipline_score_type_by_exam_rule(current_user_classroom.exam_rule)
   end
 
   def current_user_is_employee_or_administrator?
@@ -238,12 +242,29 @@ class ApplicationController < ActionController::Base
 
   def teacher_differentiated_discipline_score_type
     exam_rule = current_user_classroom.exam_rule
+
+    return if exam_rule.blank?
+
     differentiated_exam_rule = exam_rule.differentiated_exam_rule
-    return teacher_discipline_score_type unless differentiated_exam_rule.present?
-    return teacher_discipline_score_type unless current_user_classroom.has_differentiated_students?
-    return DisciplineScoreTypes::NUMERIC if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC
-    return DisciplineScoreTypes::CONCEPT if differentiated_exam_rule.score_type == ScoreTypes::CONCEPT
-    TeacherDisciplineClassroom.find_by(teacher: current_teacher, discipline: current_user_discipline).score_type if differentiated_exam_rule.score_type == ScoreTypes::NUMERIC_AND_CONCEPT
+
+    if differentiated_exam_rule.blank? || !current_user_classroom.has_differentiated_students?
+      return teacher_discipline_score_type_by_exam_rule(exam_rule)
+    end
+
+    teacher_discipline_score_type_by_exam_rule(differentiated_exam_rule)
+  end
+
+  def teacher_discipline_score_type_by_exam_rule(exam_rule)
+    return if exam_rule.blank?
+    return unless (score_type = exam_rule.score_type)
+    return if score_type == ScoreTypes::DONT_USE
+    return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
+
+    TeacherDisciplineClassroom.find_by(
+      classroom: current_user_classroom,
+      teacher: current_teacher,
+      discipline: current_user_discipline
+    ).score_type
   end
 
   def set_user_current
@@ -290,14 +311,22 @@ class ApplicationController < ActionController::Base
 
   private
 
-  def set_current_user_defaults
-    unless current_user.current_user_role_id
-      user_roles = current_user.user_roles
+  def set_current_user_role_id
+    return if request.xhr?
+    return if current_user.current_user_role_id?
 
-      current_user.current_user_role_id = user_roles.first&.id if user_roles.size == 1
-    end
+    current_user.current_user_role_id = current_user.user_roles.first&.id || return
+    current_user.save
+  end
+
+  def set_current_unity_id
+    return if request.xhr?
+    return unless current_user.current_role_is_admin_or_employee_or_teacher?
+    return if current_user.current_unity_id?
+    return unless current_user.current_user_role_id?
 
     current_user.current_unity_id ||= current_user.current_user_role&.unity_id
+    current_user.save
   end
 
   def current_year_steps
