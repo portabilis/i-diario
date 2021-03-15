@@ -1,6 +1,7 @@
 module ApplicationHelper
   include ActiveSupport::Inflector
 
+  PORTABILIS_LOGO = 'portabilis_logo.png'.freeze
   PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
@@ -80,9 +81,12 @@ module ApplicationHelper
   end
 
   def user_avatar_url(user)
-    Rails.cache.fetch [:user_avatar_url, current_entity.id, user.cache_key] do
-      user.profile_picture&.url ||
-        IeducarAvatarAuth.new(user.student&.avatar_url.to_s).generate_new_url.presence ||
+    user_avatar = user.profile_picture&.url
+    student_avatar = user.student&.avatar_url.to_s
+    cache_key = [:user_avatar_url, current_entity.id, user.id, user_avatar, student_avatar]
+    Rails.cache.fetch cache_key, expires_in: 1.day do
+      user_avatar ||
+        IeducarAvatarAuth.new(student_avatar).generate_new_url.presence ||
         PROFILE_DEFAULT_PICTURE_PATH
     end
   end
@@ -128,13 +132,13 @@ module ApplicationHelper
   end
 
   def entity_copyright
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_copyright", expires_in: 10.minutes) do
+    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_copyright", expires_in: 1.day) do
       "© #{GeneralConfiguration.current.copyright_name} #{Time.zone.today.year}"
     end
   end
 
   def entity_website
-    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_website", expires_in: 10.minutes) do
+    Rails.cache.fetch("#{Entity.current.try(:id)}_entity_website", expires_in: 1.day) do
       GeneralConfiguration.current.support_url
     end
   end
@@ -165,80 +169,6 @@ module ApplicationHelper
     presenter = klass.new(model, self)
 
     yield(presenter) if block_given?
-  end
-
-  def default_steps
-    (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
-  end
-
-  def teacher_profiles_options
-    cache_key = ['TeacherProfileList', current_entity.id, current_user.teacher&.cache_key]
-
-    Rails.cache.fetch(cache_key, expires_in: 1.day) do
-      TeacherProfilesOptionsGenerator.new(current_user).run!
-    end
-  end
-
-  def use_teacher_profile?
-    current_user.can_use_teacher_profile? &&
-      current_user.teacher &&
-      current_user.teacher.teacher_profiles.present?
-  end
-
-  def current_user_available_disciplines
-    return [] unless current_user_classroom && current_teacher
-
-    @current_user_available_disciplines ||=
-      Discipline.by_teacher_id(current_teacher).by_classroom(current_user_classroom).ordered
-  end
-
-  def current_unities
-    @current_unities ||=
-      if current_user.current_user_role.try(:role_administrator?)
-        Unity.ordered
-      else
-        [current_unity]
-      end
-  end
-
-  def current_user_available_years
-    return [] if current_unity.blank?
-
-    @current_user_available_years ||= current_user.available_years(current_unity)
-  end
-
-  def current_user_available_teachers
-    return [] if current_unity.blank? || current_user_classroom.blank?
-
-    @current_user_available_teachers ||= begin
-      teachers = Teacher.by_unity_id(current_unity)
-                        .by_classroom(current_user_classroom)
-                        .order_by_name
-
-      if current_school_calendar.try(:year)
-        teachers.by_year(current_school_calendar.try(:year))
-      else
-        teachers
-      end
-    end
-  end
-
-  def current_user_available_classrooms
-    return [] if current_unity.blank?
-
-    @current_user_available_classrooms ||= begin
-      classrooms = if current_teacher.present? && current_user.teacher?
-                     Classroom.by_unity_and_teacher(current_unity, current_teacher).ordered
-                   else
-                     Classroom.by_unity(current_unity).ordered
-                   end
-
-      if current_school_calendar.try(:year)
-        classrooms.by_year(current_school_calendar.try(:year))
-      else
-        classrooms
-      end
-    end
   end
 
   def back_link(name, path)
@@ -281,9 +211,53 @@ module ApplicationHelper
     }
   end
 
+  def window_state
+    current_profile = CurrentProfile.new(current_user)
+
+    {
+      current_role: current_profile.user_role_as_json,
+      available_roles: current_profile.user_roles_as_json,
+      current_unity: current_profile.unity_as_json,
+      available_unities: current_profile.unities_as_json,
+      current_school_year: current_profile.school_year_as_json,
+      available_school_years: current_profile.school_years_as_json,
+      current_classroom: current_profile.classroom_as_json,
+      available_classrooms: current_profile.classrooms_as_json,
+      current_teacher: current_profile.teacher_as_json,
+      available_teachers: current_profile.teachers_as_json,
+      current_discipline: current_profile.discipline_as_json,
+      available_disciplines: current_profile.disciplines_as_json,
+      teacher_id: current_user.teacher_id,
+      current_profile: current_profile.teacher_profile_as_json,
+      profiles: current_profile.teacher_profiles_as_json
+
+    }
+  end
+
   private
+
+  def cache_key_to_user
+    [current_entity.id, current_user.id]
+  end
 
   def recaptcha_site_key
     @recaptcha_site_key ||= Rails.application.secrets.recaptcha_site_key
+  end
+
+  def logo_url
+    Rails.cache.fetch([current_entity.id, current_entity_configuration]) do
+      entity_logo_url = current_entity_configuration.try(:logo_url)
+
+      return PORTABILIS_LOGO if entity_logo_url.blank?
+      return entity_logo_url if RestClient.get(entity_logo_url).code == 200
+
+      PORTABILIS_LOGO
+    end
+  rescue Errno::ECONNREFUSED, RestClient::NotFound, SocketError
+    PORTABILIS_LOGO
+  rescue => error
+    Honeybadger.notify(error)
+
+    PORTABILIS_LOGO
   end
 end

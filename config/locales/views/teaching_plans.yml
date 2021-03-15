@@ -7,6 +7,8 @@ pt-BR:
       by_classroom_id: "Filtrar turma"
       by_discipline_id: "Filtrar disciplina"
       by_school_term_type: "Filtrar tipo de período escolar"
+    form:
+      additional_information: "Informações adicionais"
     fields:
       add_attachment: "Adicionar anexo"
     infos:

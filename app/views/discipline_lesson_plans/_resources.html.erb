@@ -6,7 +6,20 @@
   <% else %>
     <% @discipline_lesson_plans.each do |discipline_lesson_plan| %>
       <tr>
-        <td><%= discipline_lesson_plan.lesson_plan.unity %></td>
+        <td>
+          <% if discipline_lesson_plan.lesson_plan.validated %>
+            <i class="fa fa-check-circle-o apply_tooltip_right"
+               data-original-title="Plano validado e aprovado"
+               style="color: #5A9F58"></i>
+          <% end %>
+          <%= discipline_lesson_plan.lesson_plan.unity %>
+          <% if discipline_lesson_plan.lesson_plan.attachments? %>
+            <i class="fa fa-paperclip apply_tooltip" data-original-title="Possui anexos"></i>
+          <% end %>
+          <% if discipline_lesson_plan.lesson_plan.opinion.present? %>
+            <i class="fa fa-comment apply_tooltip" data-original-title="Possui parecer"></i>
+          <% end %>
+        </td>
         <td class="classroom"><%= discipline_lesson_plan.lesson_plan.classroom %></td>
         <td class="discipline"><%= discipline_lesson_plan.discipline %></td>
         <td class="start_at"><%= l(discipline_lesson_plan.lesson_plan.start_at) %></td>
@@ -21,7 +34,11 @@
                         discipline_lesson_plan_id: discipline_lesson_plan.id,
                         discipline_id: discipline_lesson_plan.discipline_id,
                         classroom_id: discipline_lesson_plan.classroom.id,
-                        grade_id: discipline_lesson_plan.classroom.grade_id
+                        grade_id: (
+                          unless GeneralConfiguration.current.allows_copy_lesson_plans_to_other_grades
+                            discipline_lesson_plan.classroom.grade_id
+                          end
+                        )
                       }) %>
           <%= link_to(
                 t('helpers.links.show_html'),

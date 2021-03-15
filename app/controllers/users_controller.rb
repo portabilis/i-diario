@@ -5,6 +5,12 @@ class UsersController < ApplicationController
   def index
     @users = apply_scopes(User.filter(filtering_params params[:search]).ordered)
 
+    @search_full_name = params.dig(:search, :full_name)
+    @search_by_cpf = params.dig(:search, :by_cpf)
+    @search_email = params.dig(:search, :email)
+    @search_login = params.dig(:search, :login)
+    @search_status = params.dig(:search, :status)
+
     authorize @users
   end
 
@@ -52,7 +58,15 @@ class UsersController < ApplicationController
 
     @user.destroy
 
-    respond_with @user, location: users_path
+    search_params = {
+      'search[full_name]': params.dig(:search, :full_name),
+      'search[by_cpf]': params.dig(:search, :by_cpf),
+      'search[email]': params.dig(:search, :email),
+      'search[login]': params.dig(:search, :login),
+      'search[status]': params.dig(:search, :status)
+    }
+
+    respond_with @user, location: users_path(search_params)
   end
 
   def history
@@ -106,7 +120,7 @@ class UsersController < ApplicationController
 
   def filtering_params(params)
     if params
-      params.slice(:full_name, :email, :login, :status)
+      params.slice(:full_name, :by_cpf, :email, :login, :status)
     else
       {}
     end

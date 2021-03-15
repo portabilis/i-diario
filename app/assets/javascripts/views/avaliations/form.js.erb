@@ -93,7 +93,7 @@ $(function () {
 
   var updateFieldsBasedOnTestSetting = function() {
     $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_test_setting_id').select2('val')).always(function(data) {
-      if (data.test_setting.exam_setting_type == 'general'){
+      if ($.inArray(data.test_setting.exam_setting_type, ['general', 'general_by_school' ]) != -1){
         $('.avaliation_test_setting').hide();
       }
 

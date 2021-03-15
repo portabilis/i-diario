@@ -131,7 +131,7 @@ class KnowledgeAreaTeachingPlanPdf < BaseReport
     @year_cell = make_cell(content: teaching_plan.year.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     @period_header = make_cell(content: 'Período escolar', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 2)
-    @period_cell = make_cell(content: (teaching_plan.school_term_type == SchoolTermTypes::YEARLY ? teaching_plan.school_term_type_humanize : teaching_plan.school_term_humanize), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
+    @period_cell = make_cell(content: (teaching_plan.yearly? ? teaching_plan.school_term_type.to_s : teaching_plan.school_term_type_step_humanize), size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
   end
 
   def general_information

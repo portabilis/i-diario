@@ -1,6 +1,6 @@
 class AbsenceJustificationReportController < ApplicationController
-  before_action :require_current_teacher
   before_action :require_current_clasroom
+  before_action :require_current_teacher
 
   def form
     @absence_justification_report_form = AbsenceJustificationReportForm.new

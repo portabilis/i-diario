@@ -123,7 +123,7 @@ class DefaultSynchronizer
   end
 
   def slice_years(years)
-    if Date.current.month <= 3 || years.include?(Date.current.year + 1)
+    if Date.current.month <= 3 || years.include?(Date.current.year + 1) || @synchronization.full_synchronization
       years.take(2)
     else
       years.take(1)

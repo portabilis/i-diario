@@ -2,8 +2,8 @@ class DisciplineLessonPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_teacher
   before_action :require_current_clasroom, only: [:new, :edit, :create, :update]
+  before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
@@ -12,7 +12,7 @@ class DisciplineLessonPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @discipline_lesson_plans = apply_scopes(
-      DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom])
+      DisciplineLessonPlan.includes(:discipline, lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
                           .by_unity_id(current_unity.id)
                           .by_classroom_id(current_user_classroom)
                           .by_discipline_id(current_user_discipline)
@@ -55,6 +55,7 @@ class DisciplineLessonPlansController < ApplicationController
   def new
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
+    @discipline_lesson_plan.lesson_plan.classroom = current_user_classroom
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @discipline_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
@@ -215,6 +216,7 @@ class DisciplineLessonPlansController < ApplicationController
         :bibliography,
         :opinion,
         :teacher_id,
+        :validated,
         lesson_plan_attachments_attributes: [
           :id,
           :attachment,

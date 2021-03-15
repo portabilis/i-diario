@@ -48,14 +48,5 @@ module Educacao
     config.to_prepare do
       DeviseController.respond_to :html, :json
     end
-
-    if Rails.env.production? || Rails.env.staging?
-      config.paperclip_defaults = {
-        storage: :s3,
-        s3_region: 'us-east-1',
-        bucket: Rails.application.secrets[:BUCKET_NAME],
-        s3_credentials: "#{Rails.root}/config/aws.yml"
-      }
-    end
   end
 end

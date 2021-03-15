@@ -2,8 +2,8 @@ class ConceptualExamsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_teacher
   before_action :require_current_clasroom
+  before_action :require_current_teacher
   before_action :adjusted_period
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
@@ -34,7 +34,7 @@ class ConceptualExamsController < ApplicationController
     discipline_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
 
     not_concept_score = discipline_score_types.none? { |discipline_score_type|
-      discipline_score_type == DisciplineScoreTypes::CONCEPT
+      discipline_score_type == ScoreTypes::CONCEPT
     }
 
     if not_concept_score
@@ -309,7 +309,7 @@ class ConceptualExamsController < ApplicationController
     fetcher.fetch!
 
     @disciplines = fetcher.disciplines
-    @disciplines = @disciplines.by_score_type(:concept, @conceptual_exam.try(:student_id)) if @disciplines.present?
+    @disciplines = @disciplines.by_score_type(ScoreTypes::CONCEPT, @conceptual_exam.try(:student_id)) if @disciplines.present?
 
     exempted_discipline_ids = ExemptedDisciplinesInStep.discipline_ids(
       @conceptual_exam.classroom_id,

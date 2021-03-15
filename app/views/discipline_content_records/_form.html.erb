@@ -76,7 +76,7 @@
             <% translation = Translator.t('activerecord.attributes.discipline_content_record.contents') %>
             <%= content_record.input :contents_tags,
                 as: :string,
-                label: "Adicionar novo #{translation}",
+                label: "Adicionar #{translation}",
                 input_html: {
                   class: 'select2-content-tags-ajax',
                   value: '',
@@ -102,6 +102,6 @@
             class: 'btn btn-info' %>
     <% end %>
 
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary' %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
   </footer>
 <% end %>

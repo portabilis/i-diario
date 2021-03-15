@@ -1,7 +1,5 @@
 pt-BR:
   school_calendars:
-    index:
-      synchronize_html: 'A sincronização dos calendários esta sendo feita em Configurações/API de integração > Sincronizar'
     edit:
       steps: "Etapas"
       info: "Use os campos data inicial e final para lançamentos para controlar o período que o professor poderá encerrar o período avaliativo."

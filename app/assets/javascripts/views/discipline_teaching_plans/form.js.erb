@@ -7,9 +7,9 @@ $(function() {
   var $unity = $('#discipline_teaching_plan_teaching_plan_attributes_unity_id');
   var $grade = $('#discipline_teaching_plan_teaching_plan_attributes_grade_id');
   var $discipline = $('#discipline_teaching_plan_discipline_id');
-  var $schoolTermType = $('#discipline_teaching_plan_teaching_plan_attributes_school_term_type');
+  var $schoolTermType = $('#discipline_teaching_plan_teaching_plan_attributes_school_term_type_id');
   var $schoolTermContainer = $('#school-term-container');
-  var $schoolTerm = $('#discipline_teaching_plan_teaching_plan_attributes_school_term');
+  var $schoolTerm = $('#discipline_teaching_plan_teaching_plan_attributes_school_term_type_step_id');
   var flashMessages = new FlashMessages();
 
   function fetchDisciplines() {
@@ -44,50 +44,16 @@ $(function() {
     flashMessages.error('Ocorreu um erro ao buscar as disciplinas da série selecionada.');
   };
 
-  function updateSchoolTermInput() {
-    switch ($schoolTermType.select2('val')) {
-      case 'bimester':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= Bimesters.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      case 'bimester_eja':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= BimestersEja.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      case 'trimester':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= Trimesters.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      case 'semester':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= Semesters.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      default:
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: [] });
-        $schoolTermContainer.hide();
-        break;
-    }
-  }
-
-  // On change
-
   $grade.on('change', function() {
     fetchDisciplines();
   });
 
   $schoolTermType.on('change', function() {
-    updateSchoolTermInput();
+    updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);
     $('#copy_plan_info').show();
   });
 
-  // On load
-
-  updateSchoolTermInput();
+  updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);
 
   validate_attachment_size($('#discipline_teaching_plan'));
 

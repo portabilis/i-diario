@@ -5,7 +5,7 @@ class ScoreRounder
   end
 
   def round(score)
-    return 0.0 if score.nil?
+    return if score.nil?
 
     score_decimal_part = decimal_part(score)
     rounding_table_value = custom_rounding_table_value(score_decimal_part)

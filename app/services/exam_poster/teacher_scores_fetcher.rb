@@ -82,7 +82,7 @@ module ExamPoster
     end
 
     def current_test_setting
-      TestSettingFetcher.by_step(@step)
+      TestSettingFetcher.current(@classroom, @step)
     end
   end
 end

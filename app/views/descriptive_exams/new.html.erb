@@ -4,14 +4,6 @@
 
 <div class="widget-body no-padding">
   <%= simple_form_for @descriptive_exam, html: { class: "smart-form" } do |f| %>
-    <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
-      <i class="fa fa-exclamation-circle fa-fw"></i>
-      <%= t('.exam_rule_not_found') %>
-    </div>
-    <div class="alert alert-danger hidden" id="exam-rule-not-allow-descriptive-exam">
-      <i class="fa fa-exclamation-circle fa-fw"></i>
-      <%= t('.exam_rule_not_allow_descriptive_exam') %>
-    </div>
     <%= f.error_notification %>
 
     <fieldset>
@@ -24,9 +16,14 @@
           <%= f.input :classroom_id, as: :select2_classroom, user: current_user %>
         </div>
 
-        <div class="col col-sm-4 hidden" data-opinion-type-container>
-          <%= f.input :opinion_type, as: :select2, elements: [] %>
-        </div>
+        <% if @opinion_types.present? %>
+          <div class="col col-sm-4" data-opinion-type-container>
+            <%= f.input :opinion_type,
+              as: :select2,
+              elements: @opinion_types,
+              input_html: { value: (@opinion_types.size == 1 ? @opinion_types.first.id : @opinion_type) } %>
+          </div>
+        <% end %>
       </div>
       <div class="row">
         <div class="col col-sm-4 hidden" data-descriptive-exam-discipline-container>
@@ -42,7 +39,7 @@
     </fieldset>
 
     <footer>
-      <%= f.submit 'Carregar', class: 'btn btn-primary' %>
+      <%= f.submit 'Carregar', class: 'btn btn-primary', data: { disable_with: 'Carregando...'} %>
     </footer>
   <% end %>
 </div>

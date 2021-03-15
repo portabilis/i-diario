@@ -24,7 +24,7 @@ class AvaliationMultipleCreatorClassroomForm
   def is_school_term_day?
     return if test_setting.nil? || test_setting.exam_setting_type == ExamSettingTypes::GENERAL
 
-    errors.add(:test_date, :must_be_school_term_day) if !school_calendar.school_term_day?(test_setting.school_term, test_date)
+    errors.add(:test_date, :must_be_school_term_day) if !school_calendar.school_term_day?(test_setting.school_term_type_step, test_date)
   end
 
   def test_setting

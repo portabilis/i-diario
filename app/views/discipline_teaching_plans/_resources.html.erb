@@ -6,11 +6,24 @@
   <% else %>
     <% @discipline_teaching_plans.each do |discipline_teaching_plan| %>
       <tr>
-        <td><%= discipline_teaching_plan.teaching_plan.unity %></td>
+        <td>
+          <% if discipline_teaching_plan.teaching_plan.validated %>
+            <i class="fa fa-check-circle-o apply_tooltip_right"
+               data-original-title="Plano validado e aprovado"
+               style="color: #5A9F58"></i>
+          <% end %>
+          <%= discipline_teaching_plan.teaching_plan.unity %>
+          <% if discipline_teaching_plan.teaching_plan.attachments? %>
+            <i class="fa fa-paperclip apply_tooltip" data-original-title="Possui anexos"></i>
+          <% end %>
+          <% if discipline_teaching_plan.teaching_plan.opinion.present? %>
+            <i class="fa fa-comment apply_tooltip" data-original-title="Possui parecer"></i>
+          <% end %>
+        </td>
         <td><%= discipline_teaching_plan.teaching_plan.grade %></td>
         <td><%= discipline_teaching_plan.discipline %></td>
-        <td><%= discipline_teaching_plan.teaching_plan.school_term_type_humanize %></td>
-        <td><%= discipline_teaching_plan.teaching_plan.school_term_humanize %></td>
+        <td><%= discipline_teaching_plan.teaching_plan.school_term_type %></td>
+        <td><%= discipline_teaching_plan.teaching_plan.school_term_type_step_humanize %></td>
         <td><%= discipline_teaching_plan.teaching_plan.decorator.author(current_teacher) %></td>
         <td class="actions">
           <%= link_to(

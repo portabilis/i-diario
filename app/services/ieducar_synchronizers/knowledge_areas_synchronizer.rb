@@ -20,6 +20,7 @@ class KnowledgeAreasSynchronizer < BaseSynchronizer
       ).tap do |knowledge_area|
         knowledge_area.description = knowledge_area_record.nome
         knowledge_area.sequence = knowledge_area_record.ordenamento_ac
+        knowledge_area.group_descriptors = knowledge_area_record.agrupar_descritores
         knowledge_area.save! if knowledge_area.changed?
 
         knowledge_area.discard_or_undiscard(knowledge_area_record.deleted_at.present?)

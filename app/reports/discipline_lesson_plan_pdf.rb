@@ -135,7 +135,7 @@ class DisciplineLessonPlanPdf < BaseReport
     @classroom_cell = make_cell(content: lesson_plan.classroom.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 2)
 
     @discipline_header = make_cell(content: 'Disciplina', size: 8, font_style: :bold, borders: [:left, :right, :top], padding: [2, 2, 4, 4], colspan: 4)
-    @discipline_cell = make_cell(content: @discipline_lesson_plan.discipline.description, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
+    @discipline_cell = make_cell(content: @discipline_lesson_plan.discipline.to_s, size: 10, borders: [:bottom, :left, :right], padding: [0, 2, 4, 4], colspan: 4)
 
     if @discipline_lesson_plan.thematic_unit.present?
       thematic_unit_cell_content = inline_formated_cell_header(
@@ -167,6 +167,15 @@ class DisciplineLessonPlanPdf < BaseReport
       size: 10,
       borders: [:bottom, :left, :right, :top],
       padding: [0, 2, 4, 4], colspan: 4
+    )
+
+    opinion_cell_content = inline_formated_cell_header('Parecer') + lesson_plan.opinion.to_s
+    @opinion_cell = make_cell(
+      content: opinion_cell_content,
+      size: 10,
+      borders: [:bottom, :left, :right, :top],
+      padding: [0, 2, 4, 4],
+      colspan: 4
     )
   end
 

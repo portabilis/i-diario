@@ -6,6 +6,7 @@ class SchoolTermAverageCalculator
   def calculate(average, recovery_score)
     return calculate_sum(average, recovery_score) if calculate_sum?
     return average if recovery_score.nil? || recovery_score <= 0
+    return recovery_score if average.nil?
     return calculate_average(average, recovery_score) if calculate_average?
 
     recovery_score > average ? recovery_score : average

@@ -3,3 +3,4 @@ pt-BR:
     exam_setting_types:
       general: "Geral"
       by_school_term: "Por período escolar"
+      general_by_school: 'Geral por escola'

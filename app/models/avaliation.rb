@@ -11,7 +11,7 @@ class Avaliation < ActiveRecord::Base
   audited
   has_associated_audits
 
-  attr_accessor :test_date_copy, :grades_allow_destroy, :recovery_allow_destroy
+  attr_accessor :test_date_copy, :daily_notes_allow_destroy, :grades_allow_destroy, :recovery_allow_destroy
 
   before_destroy :valid_for_destruction?
   before_destroy :try_destroy, if: :valid_for_destruction?
@@ -164,9 +164,12 @@ class Avaliation < ActiveRecord::Base
   end
 
   def is_school_term_day?
-    return if test_setting.nil? || test_setting.exam_setting_type == ExamSettingTypes::GENERAL
+    return if test_setting.nil? ||
+              [ExamSettingTypes::GENERAL,
+               ExamSettingTypes::GENERAL_BY_SCHOOL
+              ].include?(test_setting.exam_setting_type)
 
-    return if school_calendar.school_term_day?(test_setting.school_term, test_date, classroom)
+    return if school_calendar.school_term_day?(test_setting.school_term_type_step, test_date, classroom)
 
     errors.add(:test_date, :must_be_school_term_day)
   end
@@ -240,7 +243,7 @@ class Avaliation < ActiveRecord::Base
   end
 
   def try_destroy
-    @grades_allow_destroy = !daily_notes.any? { |daily_note| daily_note.students.any? { |daily_note_student| daily_note_student.note } }
+    @grades_allow_destroy = daily_notes.none?
     @recovery_allow_destroy = avaliation_recovery_diary_record.nil?
 
     daily_notes.each(&:destroy) if @grades_allow_destroy && @recovery_allow_destroy

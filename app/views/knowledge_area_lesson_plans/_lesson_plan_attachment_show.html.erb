@@ -1,6 +1,6 @@
 <tr class="nested-fields">
   <td>
-    <%= link_to "#{f.object.attachment_file_name}", f.object.attachment.expiring_url(60), html_options = {download: ''}  %>
+    <%= link_to "#{f.object.filename}", f.object.attachment.url, target: '_blank'  %>
   </td>
 
   <% if action_name != 'show'%>

@@ -93,15 +93,21 @@ $(function () {
   });
 
   $('#daily_note_discipline_id').on('change', function (e) {
+    var daily_note_discipline_select = this;
+
+    fetchAvaliationsRequest(daily_note_discipline_select);
+  });
+
+  function fetchAvaliationsRequest(daily_note_discipline_select) {
     var params = {
-      discipline_id: $(this).val(),
+      discipline_id: $(daily_note_discipline_select).val(),
       classroom_id: $('#daily_note_classroom_id').val()
     };
 
     window.avaliations = [];
     $avaliation.val('').select2({ data: [] });
 
-    if (!_.isEmpty($(this).val())) {
+    if (!_.isEmpty($(daily_note_discipline_select).val())) {
       fetchAvaliations(params, function (avaliations) {
         var selectedAvaliations = _.map(avaliations, function (avaliation) {
           return { id: avaliation['id'], text: avaliation['description'] };
@@ -112,9 +118,9 @@ $(function () {
         });
       });
     }
-  });
+  }
 
-  $('#daily_note_discipline_id').trigger("change");
+  fetchAvaliationsRequest($('#daily_note_discipline_id'));
 
   $('input.string[id^=daily_note_students_attributes][id*=_note]').bind("keypress", function(e) {
     if (e.keyCode == 13) {

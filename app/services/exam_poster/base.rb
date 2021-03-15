@@ -4,16 +4,16 @@ module ExamPoster
 
     attr_accessor :warning_messages, :requests
 
-    def initialize(post_data, entity_id, queue)
+    def initialize(post_data, entity_id, queue = nil)
       @post_data = post_data
       @entity_id = entity_id
       @worker_batch = post_data.worker_batch
       @warning_messages = []
       @requests = []
-      @queue = queue
+      @queue = queue || 'critical'
     end
 
-    def self.post!(post_data, entity_id, queue)
+    def self.post!(post_data, entity_id, queue = nil)
       new(post_data, entity_id, queue).post!
     end
 
@@ -31,7 +31,9 @@ module ExamPoster
             entity_id,
             @post_data.id,
             request[:request],
-            request[:info]
+            request[:info],
+            @queue,
+            0
           )
         end
       else
@@ -92,6 +94,7 @@ module ExamPoster
 
     def can_post?(classroom)
       return false if classroom.blank?
+      return false unless classroom.can_post
 
       classroom.post_info &&
         same_unity?(classroom) &&

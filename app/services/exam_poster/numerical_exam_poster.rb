@@ -36,7 +36,7 @@ module ExamPoster
       classroom_ids.each do |classroom|
         teacher_discipline_classrooms = teacher.teacher_discipline_classrooms
                                                .by_classroom(classroom)
-                                               .by_score_type([DisciplineScoreTypes::NUMERIC, nil])
+                                               .by_score_type([ScoreTypes::NUMERIC, nil])
 
         teacher_discipline_classrooms.each do |teacher_discipline_classroom|
           classroom = teacher_discipline_classroom.classroom
@@ -65,14 +65,16 @@ module ExamPoster
             next if exempted_discipline_ids.include?(discipline.id)
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
-            value = StudentAverageCalculator.new(student_score)
-                                            .calculate(classroom, discipline, get_step(classroom))
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
+            if (value = StudentAverageCalculator.new(student_score)
+                                                .calculate(classroom, discipline, get_step(classroom)))
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
+            end
 
             next unless school_term_recovery
 
-            recovery_value = score_rounder.round(school_term_recovery)
-            scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
+            if (recovery_value = score_rounder.round(school_term_recovery))
+              scores[classroom.api_code][student_score.api_code][discipline.api_code]['recuperacao'] = recovery_value
+            end
           end
           @warning_messages += teacher_score_fetcher.warning_messages if teacher_score_fetcher.warnings?
         end

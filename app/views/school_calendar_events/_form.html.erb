@@ -4,7 +4,7 @@
   <%= f.input :school_calendar_id, as: :hidden %>
   <%= f.input :unity_id, as: :hidden %>
   <%= f.input :coverage, as: :hidden %>
-  <input id="year" type="hidden" name="year" value="<%= Date.current.year %>" >
+  <input id="year" type="hidden" name="year" value="<%= @school_calendar.year %>" >
 
   <fieldset>
     <%case

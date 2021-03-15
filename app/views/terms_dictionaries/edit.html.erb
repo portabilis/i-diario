@@ -19,7 +19,7 @@
   </fieldset>
   <footer>
     <%= link_to 'Histórico', history_terms_dictionaries_path, class: 'btn btn-info' %>
-    <%= f.submit "Salvar", class: "btn btn-primary" %>
+    <%= f.submit "Salvar", class: "btn btn-primary", data: { disable_with: 'Salvando...'} %>
   </footer>
   <% end %>
 </div>

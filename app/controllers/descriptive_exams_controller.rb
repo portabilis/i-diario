@@ -1,11 +1,13 @@
 class DescriptiveExamsController < ApplicationController
-  before_action :require_teacher
   before_action :require_current_clasroom
+  before_action :require_teacher
   before_action :adjusted_period, only: [:edit, :update]
   before_action :require_allow_to_modify_prev_years, only: :update
 
   def new
     @descriptive_exam = DescriptiveExam.new
+
+    set_opinion_types
 
     authorize @descriptive_exam
   end
@@ -23,6 +25,8 @@ class DescriptiveExamsController < ApplicationController
 
       redirect_to edit_descriptive_exam_path(@descriptive_exam)
     else
+      set_opinion_types
+
       render :new
     end
   end
@@ -180,27 +184,38 @@ class DescriptiveExamsController < ApplicationController
     end
   end
 
-  def set_opinion_types(classroom)
-    return unless classroom.is_a?(Classroom)
+  def set_opinion_types
+    if current_user_classroom.exam_rule.blank?
+      redirect_with_message(t('descriptive_exams.new.exam_rule_not_found'))
+
+      return
+    end
 
     @opinion_types = []
 
-    if classroom.exam_rule.allow_descriptive_exam?
-      @opinion_types << {
-        id: classroom.exam_rule.opinion_type,
-        text: 'Regular'
-      }
+    if current_user_classroom.exam_rule.allow_descriptive_exam?
+      @opinion_types << OpenStruct.new(id: current_user_classroom.exam_rule.opinion_type,
+                                       text: 'Avaliação padrão (regular)',
+                                       name: 'Avaliação padrão (regular)')
     end
 
-    if classroom.exam_rule.differentiated_exam_rule &&
-       classroom.exam_rule.differentiated_exam_rule.allow_descriptive_exam? &&
-       classroom.exam_rule.opinion_type != classroom.exam_rule.differentiated_exam_rule.opinion_type
+    if current_user_classroom.exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
+       current_user_classroom.exam_rule.opinion_type != current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type
 
-      @opinion_types << {
-        id: classroom.exam_rule.differentiated_exam_rule.opinion_type,
-        text: 'Aluno com deficiência'
-      }
+      @opinion_types << OpenStruct.new(
+        id: current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type,
+        text: 'Avaliação inclusiva (alunos com deficiência)',
+        name: 'Avaliação inclusiva (alunos com deficiência)'
+      )
     end
+
+    if @opinion_types.blank?
+      redirect_with_message(t('descriptive_exams.new.exam_rule_not_allow_descriptive_exam'))
+
+      return
+    end
+
+    @opinion_type = params.dig('descriptive_exam', 'opinion_type')
   end
 
   def student_has_dependence?(student_enrollment, discipline)
@@ -236,5 +251,11 @@ class DescriptiveExamsController < ApplicationController
   def adjusted_period
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+  end
+
+  def redirect_with_message(message)
+    flash[:alert] = message
+
+    redirect_to root_path
   end
 end

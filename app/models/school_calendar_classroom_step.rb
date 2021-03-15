@@ -53,10 +53,6 @@ class SchoolCalendarClassroomStep < ActiveRecord::Base
     school_calendar.school_day_checker(start_at, classroom.grade_id, classroom_id).next_school_day
   end
 
-  def test_setting
-    TestSettingFetcher.by_step(self)
-  end
-
   def school_calendar
     school_calendar_classroom.school_calendar if school_calendar_classroom.present?
   end
