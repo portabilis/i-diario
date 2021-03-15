@@ -1,0 +1,5 @@
+pt-BR:
+  knowledge_area_lesson_plans:
+    clone:
+      messages:
+        copy_succeed: 'Plano de aula por áreas de conhecimento copiado com sucesso!'
