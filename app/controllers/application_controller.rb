@@ -28,6 +28,7 @@ class ApplicationController < ActionController::Base
   before_action :check_for_current_user_role, if: :user_signed_in?
   before_action :set_current_unity_id, if: :user_signed_in?
   before_action :set_current_user_role_id, if: :user_signed_in?
+  before_action :check_user_has_name, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -377,5 +378,20 @@ class ApplicationController < ActionController::Base
 
   def report_name(prefix)
     "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
+  end
+
+  def check_user_has_name
+    return if current_user.first_name.present?
+    return if target_path?
+
+    flash[:alert] = t('errors.general.check_user_has_name')
+
+    redirect_to edit_user_path(current_user)
+  end
+
+  def target_path?
+    request_path = Rails.application.routes.recognize_path(request.path, method: request.env['REQUEST_METHOD'])
+
+    request_path[:controller] == 'users' && (request_path[:action] == 'edit' || request_path[:action] == 'update')
   end
 end
