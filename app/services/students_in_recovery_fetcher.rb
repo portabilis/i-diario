@@ -73,8 +73,9 @@ class StudentsInRecoveryFetcher
 
     if classroom.exam_rule.parallel_recovery_average
       students = students.select { |student|
-        average = student.average(classroom, discipline, step)
-        average < classroom.exam_rule.parallel_recovery_average
+        if (average = student.average(classroom, discipline, step))
+          average < classroom.exam_rule.parallel_recovery_average
+        end
       }
     end
 
@@ -95,7 +96,9 @@ class StudentsInRecoveryFetcher
         sum_averages = 0
 
         recovery_steps.each do |step|
-          sum_averages += student.average(classroom, discipline, step)
+          next unless (average = student.average(classroom, discipline, step))
+
+          sum_averages += average
         end
 
         average = sum_averages / recovery_steps.count

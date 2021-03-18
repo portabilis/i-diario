@@ -13,7 +13,6 @@ class Teacher < ActiveRecord::Base
   has_many :lesson_plans
   has_many :observation_diary_records
   has_many :teacher_discipline_classrooms, dependent: :destroy
-  has_many :teacher_profiles, dependent: :destroy
   has_many :teaching_plans
   has_many :transfer_notes
   has_many :users

@@ -73,6 +73,10 @@ class LessonPlan < ActiveRecord::Base
     objectives.order('objectives_lesson_plans.position')
   end
 
+  def attachments?
+    lesson_plan_attachments.any?
+  end
+
   private
 
   def no_retroactive_dates

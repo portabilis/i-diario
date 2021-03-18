@@ -2,6 +2,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :require_current_clasroom
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
@@ -27,8 +28,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     @final_recovery_diary_record.build_recovery_diary_record
     @final_recovery_diary_record.recovery_diary_record.unity = current_unity
 
-
-    @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.to_a.last.test_setting.number_of_decimal_places
+    number_of_decimal_places
   end
 
   def create
@@ -41,7 +41,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     if @final_recovery_diary_record.save
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
     else
-      @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
+      number_of_decimal_places
 
       students_in_final_recovery = fetch_students_in_final_recovery
       decorate_students(students_in_final_recovery)
@@ -61,7 +61,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
       record_student.student = fetch_student_in_final_recovery(record_student.student.id)
     end
 
-    @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
+    number_of_decimal_places
   end
 
   def update
@@ -77,7 +77,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
     if @final_recovery_diary_record.save
       respond_with @final_recovery_diary_record, location: final_recovery_diary_records_path
     else
-      @number_of_decimal_places = @final_recovery_diary_record.school_calendar.steps.last.test_setting.number_of_decimal_places
+      number_of_decimal_places
 
       render :edit
     end
@@ -184,5 +184,16 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
 
   def api_configuration
     IeducarApiConfiguration.current
+  end
+
+  def test_setting(classroom, step)
+    TestSettingFetcher.current(classroom, step)
+  end
+
+  def number_of_decimal_places
+    @number_of_decimal_places = test_setting(
+      current_user_classroom,
+      @final_recovery_diary_record.school_calendar.steps.to_a.last
+    ).number_of_decimal_places
   end
 end

@@ -1,6 +1,7 @@
 pt-BR:
   errors:
     general:
+      require_current_year: 'É necessário vincular um ano ao perfil atual para acessar esse cadastro'
       require_current_classroom: "É necessário vincular uma turma ao perfil atual para acessar esse cadastro"
       require_current_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
       require_current_teacher_discipline_classrooms: "É necessário ter turmas vinculadas ao professor atual para acessar esta funcionalidade"
@@ -17,7 +18,6 @@ pt-BR:
         post_error: "Ocorreu um erro ao efetuar o envio. Entre em contato com o administrador."
         sync_error: "Erro inesperado. Se persistir, entre em contato com o administrador."
         must_not_have_conflicting_steps: "A data informada não pode ser um dia letivo em outro calendário escolar"
-        must_be_in_school_calendar_year: "não pode ter o ano diferente do calendário escolar"
         must_be_less_than_end_at: "não pode ser maior ou igual a data final"
 
   boolean:

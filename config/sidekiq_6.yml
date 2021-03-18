@@ -1,6 +1,0 @@
----
-:logfile: ./log/sidekiq_synchronizer_enqueue_next_job.log
-:concurrency: 1
-:tag: synchronizer_enqueue_next_job
-:queues:
-  - [synchronizer_enqueue_next_job, 1]

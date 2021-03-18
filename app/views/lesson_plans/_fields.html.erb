@@ -50,7 +50,7 @@
           <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.contents") %>
           <%= f.input :contents_tags,
               as: :string,
-              label: "Adicionar novo #{translation}",
+              label: "Adicionar #{translation}",
               input_html: {
                 'data-content-type': 'conteúdo',
                 class: 'select2-tags',
@@ -118,7 +118,7 @@
           <% translation = Translator.t("activerecord.attributes.#{model.class.to_s.underscore}.objectives") %>
           <%= f.input :objectives_tags,
               as: :string,
-              label: "Adicionar novo #{translation}",
+              label: "Adicionar #{translation}",
               input_html: {
                 class: 'select2-content-tags-ajax',
                 value: '',

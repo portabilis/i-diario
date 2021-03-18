@@ -41,6 +41,12 @@
     <%= render partial: 'lesson_plans/opinion_field', locals: { f: lesson_plan } %>
 
     <%= render partial: 'lesson_plans/hidden_fields', locals: { f: lesson_plan } %>
+
+    <% if lesson_plan.object.persisted? %>
+      <div style="position: absolute; margin-top: 11px; <%= action_name == 'show' ? 'right: 235px;' : 'right: 340px;' %>">
+        <%= lesson_plan.input :validated, as: :boolean, label: false, inline_label: true, disabled: action_name == 'show' %>
+      </div>
+    <% end %>
   <% end %>
 
   <footer>
@@ -52,6 +58,6 @@
             class: 'btn btn-info' %>
     <% end %>
 
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary' unless action_name == 'show' %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...' } unless action_name == 'show' %>
   </footer>
 <% end %>

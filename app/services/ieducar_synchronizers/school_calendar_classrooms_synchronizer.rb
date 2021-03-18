@@ -54,10 +54,11 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
             update_or_create_steps(school_calendar_classroom_record.etapas, school_calendar_classroom_id)
 
             destroy_removed_steps(school_calendar_classroom_id)
+
+            update_or_create_school_term_types(school_calendar_classroom)
           end
         rescue ActiveRecord::RecordInvalid => error
           known_error_messages = [
-            I18n.t('ieducar_api.error.messages.must_be_in_school_calendar_year'),
             I18n.t('ieducar_api.error.messages.must_be_less_than_end_at')
           ]
 
@@ -122,5 +123,14 @@ class SchoolCalendarClassroomsSynchronizer < BaseSynchronizer
     error_message = "#{unity}, #{classroom}: #{error.message}"
 
     worker_state.add_error!(error_message)
+  end
+
+  def update_or_create_school_term_types(school_calendar_classroom)
+    SchoolTermTypeUpdaterWorker.perform_in(
+      1.second,
+      entity_id,
+      nil,
+      school_calendar_classroom.id
+    )
   end
 end

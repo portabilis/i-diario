@@ -35,10 +35,13 @@ class RolesController < ApplicationController
   end
 
   def edit
-    @role = Role.where(id: params[:id]).includes(
-      :permissions,
-      user_roles: [:user, :unity]
-    ).first
+    @role = Role.where(id: params[:id]).includes(:permissions)
+
+    if [AccessLevel::PARENT, AccessLevel::STUDENT].exclude?(@role.first.access_level)
+      @role = @role.includes(user_roles: [:user, :unity])
+    end
+
+    @role = @role.first
 
     authorize @role
 

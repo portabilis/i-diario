@@ -64,12 +64,12 @@ class ConceptualExamValue < ActiveRecord::Base
       arel_table.join(differentiated_exam_rules, Arel::Nodes::OuterJoin).
         on(differentiated_exam_rules[:id].eq(ExamRule.arel_table[:differentiated_exam_rule_id])).join_sources
     ).where(
-      ExamRule.arel_table[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:score_type_target]).
+      ExamRule.arel_table[:score_type].eq(ScoreTypes::CONCEPT).
         or(
-          ExamRule.arel_table[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:score_type_numeric_and_concept]).
-          and(TeacherDisciplineClassroom.arel_table[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:discipline_score_type_target]))
+          ExamRule.arel_table[:score_type].eq(ScoreTypes::NUMERIC_AND_CONCEPT).
+          and(TeacherDisciplineClassroom.arel_table[:score_type].eq(ScoreTypes::CONCEPT))
         ).or(
-          differentiated_exam_rules[:score_type].eq(Discipline::SCORE_TYPE_FILTERS[:concept][:score_type_target]).
+          differentiated_exam_rules[:score_type].eq(ScoreTypes::CONCEPT).
           and(differentiated_exam_rule_students[:id].not_eq(nil))
         )
       ).uniq

@@ -3,6 +3,8 @@ require 'rails_helper'
 RSpec.describe ContentsForDisciplineRecordFetcher do
   let(:teacher) { create(:teacher) }
   let(:discipline) { create(:discipline) }
+  let(:school_term_type) { create(:school_term_type) }
+  let(:school_term_type_step) { create(:school_term_type_step) }
   let(:classroom) {
     create(
       :classroom,
@@ -52,8 +54,8 @@ RSpec.describe ContentsForDisciplineRecordFetcher do
 
     teaching_plan = create(
       :teaching_plan,
-      school_term_type: SchoolTermTypes::SEMESTER,
-      school_term: Semesters::FIRST_SEMESTER,
+      school_term_type: school_term_type,
+      school_term_type_step: school_term_type_step,
       grade: classroom.grade,
       teacher: teacher,
       teacher_id: teacher.id,

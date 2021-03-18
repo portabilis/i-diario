@@ -22,6 +22,9 @@ class ObservationDiaryRecord < ActiveRecord::Base
   belongs_to :classroom
   belongs_to :discipline
   has_many :notes, class_name: 'ObservationDiaryRecordNote', dependent: :destroy
+  has_many :observation_diary_record_attachments, dependent: :destroy
+
+  accepts_nested_attributes_for :observation_diary_record_attachments, allow_destroy: true
   accepts_nested_attributes_for :notes, allow_destroy: true
 
   default_scope -> { kept }
@@ -68,7 +71,10 @@ class ObservationDiaryRecord < ActiveRecord::Base
   def require_discipline?
     return unless classroom && teacher
 
-    FrequencyTypeResolver.new(classroom, teacher).by_discipline?
+    frequency_type_definer = FrequencyTypeDefiner.new(classroom, teacher, year: classroom.year)
+    frequency_type_definer.define!
+
+    frequency_type_definer.frequency_type == FrequencyTypes::BY_DISCIPLINE
   end
 
   def valid_for_destruction?

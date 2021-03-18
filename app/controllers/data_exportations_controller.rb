@@ -1,17 +1,19 @@
 class DataExportationsController < ApplicationController
   def index
-    @data_exportation = DataExportation.new.current
+    @last_full_system_backup = DataExportation.last_by_type(BackupTypes::FULL_SYSTEM_BACKUP)
+    @last_school_calendar_backup = DataExportation.last_by_type(BackupTypes::SCHOOL_CALENDAR_BACKUP)
 
     authorize DataExportation
   end
 
   def create
-    configuration = DataExportation.new.current
-    configuration.backup_file = nil
-    configuration.backup_status = ApiSynchronizationStatus::STARTED
-    configuration.save!
+    backup_type = params[:backup_type].keys[0]
+    data_exportation = DataExportation.new
+    data_exportation.backup_type = backup_type
+    data_exportation.backup_status = BackupStatus::STARTED
+    data_exportation.save!
 
-    @backup_file = BackupFileWorker.perform_async(current_entity.id)
+    BackupFileWorker.perform_async(current_entity.id, data_exportation.id)
 
     redirect_to data_exportations_path, notice: t('flash.backup_files.create.notice')
   end

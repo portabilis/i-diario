@@ -21,7 +21,7 @@ class StudentNotesQuery
                           :school_calendar
                         ]
                       ]
-                    )
+                    ).where.not(note: nil)
   end
 
   def daily_note_students

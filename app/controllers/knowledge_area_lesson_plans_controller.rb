@@ -2,8 +2,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_teacher
   before_action :require_current_clasroom, only: [:new, :edit, :create, :update]
+  before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy, :clone]
 
   def index
@@ -12,7 +12,8 @@ class KnowledgeAreaLessonPlansController < ApplicationController
     author_type ||= (params[:filter] || []).delete(:by_author)
 
     @knowledge_area_lesson_plans = apply_scopes(
-      KnowledgeAreaLessonPlan.includes(:knowledge_areas, lesson_plan: [:classroom])
+      KnowledgeAreaLessonPlan.includes(:knowledge_areas,
+                                       lesson_plan: [:classroom, :lesson_plan_attachments, :teacher])
                              .by_classroom_id(current_user_classroom)
                              .uniq
                              .ordered
@@ -57,6 +58,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   def new
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
     @knowledge_area_lesson_plan.build_lesson_plan
+    @knowledge_area_lesson_plan.lesson_plan.classroom = current_user_classroom
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @knowledge_area_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @knowledge_area_lesson_plan.lesson_plan.start_at = Time.zone.today
@@ -232,6 +234,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         :bibliography,
         :opinion,
         :teacher_id,
+        :validated,
         lesson_plan_attachments_attributes: [
           :id,
           :attachment,

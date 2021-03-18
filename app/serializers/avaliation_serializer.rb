@@ -5,4 +5,8 @@ class AvaliationSerializer < ActiveModel::Serializer
    def to_s
      object.to_s
    end
+
+  def description
+    to_s
+  end
 end

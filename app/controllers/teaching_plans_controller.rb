@@ -103,16 +103,16 @@ class TeachingPlansController < ApplicationController
                  :by_unity_id,
                  :by_classroom_id,
                  :by_discipline_id,
-                 :by_school_term_type,
-                 :by_school_term)
+                 :by_school_term_type_id,
+                 :by_school_term_type_step_id)
   end
 
   def resource_params
     params.require(:teaching_plan).permit(:year,
                                           :classroom_id,
                                           :discipline_id,
-                                          :school_term_type,
-                                          :school_term,
+                                          :school_term_type_step_id,
+                                          :school_term_type_id,
                                           :objectives,
                                           :content,
                                           :methodology,

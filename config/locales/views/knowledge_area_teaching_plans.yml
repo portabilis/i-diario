@@ -5,7 +5,7 @@ pt-BR:
       by_year: "Filtrar ano"
       by_grade: "Filtrar série"
       by_knowledge_area: "Filtrar área de conhecimento"
-      by_school_term: "Filtrar período"
+      by_school_term_type_step: "Filtrar período"
       by_school_term_type: "Filtrar tipo de período"
     form:
       attachments: "Anexos"

@@ -27,7 +27,11 @@ class ComplementaryExamCalculator
   end
 
   def test_setting
-    @test_setting ||= TestSettingFetcher.by_step(@step)
+    classroom = Classroom.find_by(id: classroom_id)
+
+    return if classroom.blank?
+
+    @test_setting = TestSettingFetcher.current(classroom, @step)
   end
 
   def make_calculations(score)

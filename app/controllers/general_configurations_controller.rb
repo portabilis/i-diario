@@ -36,6 +36,7 @@ class GeneralConfigurationsController < ApplicationController
       :employees_default_role_id,
       :allows_after_sales_relationship,
       :display_header_on_all_reports_pages,
+      :grouped_teacher_profile,
       :max_descriptive_exam_character_count,
       :support_url,
       :copyright_name,
@@ -45,7 +46,9 @@ class GeneralConfigurationsController < ApplicationController
       :notify_consecutive_or_alternate_absences,
       :max_consecutive_absence_days,
       :max_alternate_absence_days,
-      :days_to_consider_alternate_absences
+      :days_to_consider_alternate_absences,
+      :create_users_for_students_when_synchronize,
+      :allows_copy_lesson_plans_to_other_grades
     )
   end
 

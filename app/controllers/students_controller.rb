@@ -73,7 +73,7 @@ class StudentsController < ApplicationController
       discipline: discipline,
       classroom: classroom,
       step: step,
-      number_of_decimal_places: step.test_setting.number_of_decimal_places
+      number_of_decimal_places: test_setting(classroom, step).number_of_decimal_places
     )
   end
 
@@ -98,6 +98,10 @@ class StudentsController < ApplicationController
 
   def step
     @step ||= steps_fetcher.step_by_id(params[:step_id])
+  end
+
+  def test_setting(classroom, step)
+    @test_setting ||= TestSettingFetcher.current(classroom, step)
   end
 
   def configuration

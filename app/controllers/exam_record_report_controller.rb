@@ -1,6 +1,6 @@
 class ExamRecordReportController < ApplicationController
-  before_action :require_current_teacher
   before_action :require_current_clasroom
+  before_action :require_current_teacher
 
   def form
     @exam_record_report_form = ExamRecordReportForm.new

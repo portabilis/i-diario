@@ -1,0 +1,15 @@
+{
+  "dependencies": {
+    "@rails/webpacker": "4.3.0",
+    "axios": "^0.21.1",
+    "es6-promise": "^4.2.8",
+    "lodash": "^4.17.20",
+    "vue": "^2.6.12",
+    "vue-loader": "^15.9.3",
+    "vue-multiselect": "^2.1.6",
+    "vue-template-compiler": "^2.6.12"
+  },
+  "devDependencies": {
+    "webpack-dev-server": "^3.11.0"
+  }
+}

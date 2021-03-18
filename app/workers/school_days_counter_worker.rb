@@ -10,6 +10,7 @@ class SchoolDaysCounterWorker
       end_date = school_calendar.steps.max_by(&:step_number).end_at
 
       current_school_days = UnitySchoolDay.by_unity_id(school_calendar.unity_id)
+                                          .where('EXTRACT(YEAR FROM school_day) = ?', school_calendar.year)
                                           .pluck(:school_day)
 
       school_days = SchoolDayChecker.new(

@@ -13,7 +13,7 @@ pt-BR:
         grade: "Série"
         grade_id: "Série"
         school_term_type: "Tipo de período escolar"
-        school_term: "Período escolar"
+        school_term_type_step: "Período escolar"
         objectives: "Objetivos"
         objectives_tags: "Objetivos"
         methodology: "Metodologia"
@@ -21,6 +21,8 @@ pt-BR:
         references: "Referências"
         contents_tags: "Conteúdos"
         grade_ids: "Séries:"
+        opinion: "Parecer"
+        validated: "Plano de ensino validado"
 
     errors:
       models:

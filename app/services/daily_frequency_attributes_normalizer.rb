@@ -11,7 +11,12 @@ class DailyFrequencyAttributesNormalizer
   def normalize_daily_frequency!
     daily_frequency_attributes[:discipline_id] = daily_frequency_attributes[:discipline_id].presence
 
-    daily_frequency_students_params[:class_number] = class_number(daily_frequency_students_params[:class_number])
+    if daily_frequency_attributes[:discipline_id]
+      daily_frequency_students_params[:class_number] = class_number(daily_frequency_students_params[:class_number])
+    else
+      daily_frequency_students_params[:class_number] = nil
+    end
+
     daily_frequency_attributes[:class_number] = daily_frequency_students_params[:class_number]
   end
 

@@ -5,25 +5,21 @@ class TeachingPlan < ActiveRecord::Base
 
   teacher_relation_columns only: :grades
 
-  audited except: [:old_contents, :teacher_id]
+  audited except: [:old_contents]
   has_associated_audits
   acts_as_copy_target
-
-  has_enumeration_for :school_term_type,
-                      with: SchoolTermTypes,
-                      create_helpers: true
-  has_enumeration_for :school_term,
-                      with: SchoolTerms
 
   belongs_to :unity
   belongs_to :grade
   belongs_to :teacher
+  belongs_to :school_term_type
+  belongs_to :school_term_type_step
 
   validates :year, presence: true
   validates :unity, presence: true
   validates :grade, presence: true
   validates :school_term_type, presence: true
-  validates :school_term, presence: { unless: :yearly? }
+  validates :school_term_type_step, presence: { unless: :yearly? }
 
   has_many :contents_teaching_plans, dependent: :destroy
   deferred_has_many :contents, through: :contents_teaching_plans
@@ -67,23 +63,24 @@ class TeachingPlan < ActiveRecord::Base
     objectives.order('objectives_teaching_plans.position')
   end
 
-  def school_term_humanize
-    case school_term_type
-    when SchoolTermTypes::BIMESTER
-      I18n.t("enumerations.bimesters.#{school_term}")
-    when SchoolTermTypes::BIMESTER_EJA
-      I18n.t("enumerations.bimesters_eja.#{school_term}")
-    when SchoolTermTypes::TRIMESTER
-      I18n.t("enumerations.trimesters.#{school_term}")
-    when SchoolTermTypes::SEMESTER
-      I18n.t("enumerations.semesters.#{school_term}")
-    when SchoolTermTypes::YEARLY
-      I18n.t('enumerations.year.yearly')
-    end
+  def school_term_type_step_humanize
+    return '' if yearly?
+
+    school_term_type_step.to_s
   end
 
   def optional_teacher
     true
+  end
+
+  def attachments?
+    teaching_plan_attachments.any?
+  end
+
+  def yearly?
+    return unless school_term_type
+
+    school_term_type.id == SchoolTermType.find_by(description: 'Anual').id
   end
 
   private

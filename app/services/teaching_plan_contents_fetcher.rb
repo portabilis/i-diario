@@ -1,5 +1,5 @@
 class TeachingPlanContentsFetcher
-  YEARLY_SCHOOL_TERM_TYPE = ''.freeze
+  YEARLY_SCHOOL_TERM_TYPE_STEP_ID = nil
 
   def fetch
     teaching_plans.map(&:contents).uniq.flatten
@@ -32,21 +32,14 @@ class TeachingPlanContentsFetcher
     steps_fetcher.school_calendar.try(:year) || @start_date.to_date.year
   end
 
-  def raw_school_terms
-    @raw_school_terms ||= steps_fetcher.steps_by_date_range(@start_date.to_date, @end_date.to_date).map { |step|
-      raw_school_term = SchoolTermConverter.convert(step)
-      raw_school_term = '' if raw_school_term.to_s == SchoolTermTypes::YEARLY.to_s
-      raw_school_term.to_s
-    }
-  end
+  def school_term_type_steps_ids
+    steps_number = steps_fetcher.current_step.school_calendar_parent.steps.size
+    steps_numbers = steps_fetcher.steps_by_date_range(@start_date.to_date, @end_date.to_date).map(&:step_number)
 
-  def school_terms
-    @school_terms ||= begin
-      school_terms = []
-      school_terms << SchoolTerms::FIRST_BIMESTER_EJA if raw_school_terms.include?(SchoolTerms::FIRST_SEMESTER)
-      school_terms << SchoolTerms::SECOND_BIMESTER_EJA if raw_school_terms.include?(SchoolTerms::SECOND_SEMESTER)
-      school_terms << YEARLY_SCHOOL_TERM_TYPE
-      raw_school_terms + school_terms
-    end
+    school_term_type_steps_ids = SchoolTermTypeStep.joins(:school_term_type)
+                                                   .where(school_term_types: { steps_number: steps_number })
+                                                   .where(step_number: steps_numbers)
+                                                   .pluck(:id)
+    school_term_type_steps_ids << YEARLY_SCHOOL_TERM_TYPE_STEP_ID
   end
 end

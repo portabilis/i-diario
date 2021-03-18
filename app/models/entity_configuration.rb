@@ -1,9 +1,11 @@
 class EntityConfiguration < ActiveRecord::Base
   acts_as_copy_target
 
-  audited
+  audited except: [:logo]
 
   include Audit
+
+  attr_accessor :update_request_remote_ip, :update_user_id
 
   has_one :address, as: :source, inverse_of: :source
 
@@ -14,7 +16,20 @@ class EntityConfiguration < ActiveRecord::Base
 
   mount_uploader :logo, EntityLogoUploader
 
+  after_update :create_logo_audit
+
   def self.current
     self.first.presence || new
+  end
+
+  def create_logo_audit
+    return unless logo_changed?
+
+    audits.create!(
+      action: 'update',
+      audited_changes: { 'logo': [File.basename(logo_was.file.path), logo.filename] },
+      remote_address: update_request_remote_ip,
+      user_id: update_user_id
+    )
   end
 end

@@ -2,14 +2,14 @@ class User < ActiveRecord::Base
   acts_as_copy_target
 
   audited allow_mass_assignment: true,
-    only: [:email, :first_name, :last_name, :phone, :cpf, :login,
-           :authorize_email_and_sms, :student_id, :status, :encrypted_password,
-           :teacher_id, :assumed_teacher_id, :current_unity_id, :current_classroom_id,
-           :current_discipline_id, :current_school_year, :current_user_role_id]
+    only: [:email, :first_name, :last_name, :phone, :cpf, :login, :authorize_email_and_sms, :student_id, :status,
+           :encrypted_password, :teacher_id, :assumed_teacher_id, :current_unity_id, :current_classroom_id,
+           :current_discipline_id, :current_school_year, :current_user_role_id, :current_knowledge_area_id]
   has_associated_audits
 
   include Audit
   include Filterable
+  include Searchable
 
   devise :database_authenticatable, :recoverable, :rememberable,
     :trackable, :validatable, :lockable
@@ -19,7 +19,8 @@ class User < ActiveRecord::Base
   has_enumeration_for :kind, with: RoleKind, create_helpers: true
   has_enumeration_for :status, with: UserStatus, create_helpers: true
 
-  before_destroy :ensure_has_no_audits
+  after_save :update_fullname_tokens
+
   before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
 
@@ -28,15 +29,12 @@ class User < ActiveRecord::Base
 
   belongs_to :assumed_teacher, foreign_key: :assumed_teacher_id, class_name: 'Teacher'
   belongs_to :current_discipline, foreign_key: :current_discipline_id, class_name: 'Discipline'
+  belongs_to :current_knowledge_area, foreign_key: :current_knowledge_area_id, class_name: 'KnowledgeArea'
   belongs_to :current_user_role, class_name: 'UserRole'
   belongs_to :classroom, foreign_key: :current_classroom_id
   belongs_to :discipline, foreign_key: :current_discipline_id
   belongs_to :unity, foreign_key: :current_unity_id
 
-  belongs_to :current_teacher_profile,
-             class_name: 'TeacherProfile',
-             foreign_key: :teacher_profile_id,
-             inverse_of: :users
   has_many :logins, class_name: "UserLogin", dependent: :destroy
   has_many :synchronizations, class_name: "IeducarApiSynchronization", foreign_key: :author_id, dependent: :restrict_with_error
 
@@ -61,9 +59,12 @@ class User < ActiveRecord::Base
   validates :email, email: true, allow_blank: true
   validates :password, length: { minimum: 8 }, allow_blank: true
   validates :login, uniqueness: true, allow_blank: true
+  validates :teacher_id, uniqueness: true, allow_blank: true
+  validates :student, presence: true, if: :only_student?
 
   validates_associated :user_roles
 
+  validate :email_reserved_for_student
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
   validate :can_not_be_a_cpf
@@ -79,9 +80,12 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :full_name, lambda { |full_name| where("fullname ILIKE unaccent(?)", "%#{full_name}%")}
+  scope :full_name, lambda { |fullname|
+    where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(fullname))
+  }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
+  scope :by_cpf, ->(cpf) { where('cpf ILIKE unaccent(?)', "%#{cpf}%") }
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
@@ -95,13 +99,35 @@ class User < ActiveRecord::Base
   end
 
   def self.to_csv
-    attributes = ["Nome", "Sobrenome", "E-mail", "Nome de usuário", "Celular"]
+    attributes = [
+      'Nome',
+      'Sobrenome',
+      'E-mail',
+      'Nome de usuário',
+      'Celular',
+      'CPF',
+      'Status',
+      'Aluno vinculado',
+      'Professor Vinculado',
+      'Permissões'
+    ]
 
     CSV.generate(headers: true) do |csv|
       csv << attributes
 
-      all.each do |user|
-        csv << [user.first_name, user.last_name, user.email, user.login, user.phone]
+      all.includes(:teacher, :student, user_roles: [:role, :unity]).find_each do |user|
+        csv << [
+          user.first_name,
+          user.last_name,
+          user.email,
+          user.login,
+          user.phone,
+          user.cpf,
+          I18n.t("enumerations.user_status.#{user.status}"),
+          user.student,
+          user.teacher,
+          user.user_roles.map { |user_role| [user_role&.role&.name, user_role&.unity&.name].compact }
+        ]
       end
     end
   end
@@ -334,24 +360,6 @@ class User < ActiveRecord::Base
     cpf.gsub(/[^\d]/, '')
   end
 
-  def available_years(unity, unity_id = nil)
-    unity_id ||= unity.id
-    @available_years ||= {}
-    @available_years[unity_id] ||=
-      begin
-        only_opened_years = !can_change_school_year?
-        years = YearsFromUnityFetcher.new(unity_id, only_opened_years).fetch
-        years.map { |year| { id: year, name: year } }
-      end
-  end
-
-  def can_use_teacher_profile?
-    @can_use_teacher_profile ||=
-      Rails.application.secrets.teacher_profile_enabled &&
-      roles.count == 1 &&
-      teacher_access_level?
-  end
-
   def access_levels
     @access_levels ||= roles.map(&:access_level).uniq
   end
@@ -371,16 +379,6 @@ class User < ActiveRecord::Base
 
     if email.blank? && cpf.blank?
       errors.add(:base, :must_inform_email_or_cpf)
-    end
-  end
-
-  def ensure_has_no_audits
-    user_id = self.id
-    query = "SELECT COUNT(*) FROM audits WHERE audits.user_id = '#{user_id}'"
-    audits_count = ActiveRecord::Base.connection.execute(query).first.fetch("count").to_i
-    if audits_count > 0
-      errors.add(:base, "")
-      false
     end
   end
 
@@ -416,5 +414,30 @@ class User < ActiveRecord::Base
     return unless login =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
 
     errors.add(:login, :can_not_be_an_email)
+  end
+
+  def only_student?
+    student? && roles.count == 1
+  end
+
+  def update_fullname_tokens
+    return unless first_name_changed? || last_name_changed?
+
+    User.where(id: id).update_all("fullname_tokens = to_tsvector('portuguese', fullname)")
+  end
+
+  def email_reserved_for_student
+    return unless email
+
+    student_api_code, student_domain = email.split('@')
+
+    return if student_domain != 'ambiente.portabilis.com.br'
+
+    if persisted? && Student.joins('LEFT JOIN users ON users.student_id = students.id')
+                            .where(users: { student_id: nil })
+                            .where(api_code: student_api_code)
+                            .any?
+      errors.add(:email, :invalid_email)
+    end
   end
 end

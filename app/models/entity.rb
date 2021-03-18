@@ -16,9 +16,23 @@ class Entity < ActiveRecord::Base
   end
 
   def using_connection(&block)
+    Entity.current = self
     Honeybadger.context(entity: { name: name, id: id })
 
     ActiveRecord::Base.using_connection(id, connection_spec, &block)
+  end
+
+  def self.establish_connection(entity)
+    Entity.current = entity
+    ActiveRecord::Base.establish_connection entity.send(:connection_spec)
+  end
+
+  def self.connect(tenant)
+    entity = find_by(name: tenant)
+
+    raise Exception, 'Entity not found' if entity.blank?
+
+    establish_connection(entity)
   end
 
   protected
