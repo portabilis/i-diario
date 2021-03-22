@@ -1,8 +1,6 @@
 class ReceiptMailer < BaseMailer
   def notify_daily_frequency_success(user, url, date)
-    @name = user.first_name if user.first_name.present?
-    @name = "#{@name} #{user.last_name}" if user.last_name.present?
-    @name ||= user
+    @name = user.first_name
     @url = url
 
     return unless (email = user.email)

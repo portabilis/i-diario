@@ -8,6 +8,7 @@ pt-BR:
       school_calendar_steps_more_than_limit: "Verificamos que o calendário letivo da escola: %{unity}, possui uma quantidade de etapas acima do permitido."
       calendar_step_not_found: "Não foi localizada uma etapa para a data %{date}."
       not_allowed_to_modify_prev_years: "Não é permitido lançar ou modificar os dados de anos letivos em que o período das etapas já se encerraram. Para efetuar lançamentos o responsável deve atualizar a data final em Calendário letivo."
+      check_user_has_name: 'Atualize os dados do seu perfil para continuar a utilizar o sistema.'
     messages:
       extension_white_list_error: Tipo de arquivo não suportado
   ieducar_api:
