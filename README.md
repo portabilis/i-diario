@@ -205,7 +205,8 @@ Entity.last.using_connection {
     password_confirmation: '123456789',
     status: 'active',
     kind: 'employee',
-    admin:  true
+    admin: true,
+    first_name: 'Admin'
   )
 }
 ```
