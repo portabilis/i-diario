@@ -6,5 +6,4 @@ NonStupidDigestAssets.whitelist += %w(
   422.html
   404.html
   bg.svg
-  finger.png
 )
