@@ -9,7 +9,7 @@ class AdjustStudentsUsers < ActiveRecord::Migration
         .each do |user|
       next if user.roles.count > 1
 
-      audited_creation = Audited::Adapters::ActiveRecord::Audit.find(user.audited_creation_id)
+      audited_creation = Audited::Audit.find(user.audited_creation_id)
 
       next unless (student_id = audited_creation.audited_changes['student_id'])
 

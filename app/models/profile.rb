@@ -15,6 +15,6 @@ class Profile < ActiveRecord::Base
   end
 
   def self.all_audits
-    Audited::Adapters::ActiveRecord::Audit.where(auditable_type: 'Profile').reorder("id DESC")
+    Audited::Audit.where(auditable_type: 'Profile').reorder("id DESC")
   end
 end
