@@ -16,7 +16,9 @@ class AdjustStudentsUsersWithoutStudentId < ActiveRecord::Migration
           next unless (api_code = email.split('@')[0])
           next unless (student = Student.find_by(api_code: api_code))
 
-          user.update(student_id: student.id)
+          user.without_auditing do
+            user.update(student_id: student.id)
+          end
         end
   end
 end

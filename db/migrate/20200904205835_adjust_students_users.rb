@@ -13,7 +13,9 @@ class AdjustStudentsUsers < ActiveRecord::Migration
 
       next unless (student_id = audited_creation.audited_changes['student_id'])
 
-      user.update(student_id: student_id)
+      user.without_auditing do
+        user.update(student_id: student_id)
+      end
     end
   end
 end

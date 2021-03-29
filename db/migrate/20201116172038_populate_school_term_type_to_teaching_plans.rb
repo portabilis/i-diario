@@ -44,7 +44,9 @@ class PopulateSchoolTermTypeToTeachingPlans < ActiveRecord::Migration
         teaching_plan.school_term_type_id = SchoolTermType.find_by(description: 'Anual').id
       end
 
-      teaching_plan.save!(validate: false)
+      teaching_plan.without_auditing do
+        teaching_plan.save!(validate: false)
+      end
     end
   end
 end
