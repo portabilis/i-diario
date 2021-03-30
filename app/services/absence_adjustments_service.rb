@@ -122,7 +122,7 @@ class AbsenceAdjustmentsService
   end
 
   def user(daily_frequency)
-    Audited::Adapters::ActiveRecord::Audit.find_by(
+    Audited::Audit.find_by(
         auditable_type: 'DailyFrequency',
         auditable_id: daily_frequency.id
       ).user

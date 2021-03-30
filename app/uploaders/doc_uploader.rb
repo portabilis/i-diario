@@ -8,8 +8,7 @@ class DocUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    original = original_filename.split(".")[0..-2].join(".")
-    "#{original} - #{secure_token}.#{file.extension}" if original_filename.present?
+    path&.split('/')&.last
   end
 
   def aws_bucket

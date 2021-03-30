@@ -122,10 +122,11 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def clone
-    @form = DisciplineLessonPlanClonerForm.new(clone_params.merge(teacher: current_teacher))
-    if @form.clone!
-      flash[:success] = "Plano de aula por disciplina copiado com sucesso!"
-    end
+    @form = DisciplineLessonPlanClonerForm.new(
+      clone_params.merge(teacher: current_teacher, entity_id: current_entity.id)
+    )
+
+    flash[:success] = t('.messages.copy_succeed') if @form.clone!
   end
 
   def teaching_plan_contents
