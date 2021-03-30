@@ -17,7 +17,7 @@ class UserForStudentCreator
     Student.joins('LEFT JOIN users ON users.student_id = students.id')
            .where(users: { student_id: nil })
            .find_each(batch_size: 100) do |student|
-      email = "#{student.api_code}@ambiente.portabilis.com.br"
+      email = "#{student.api_code}@#{Rails.application.secrets[:STUDENT_DOMAIN]}"
 
       next if User.find_by(student_id: student.id, kind: RoleKind::STUDENT)
       next if User.find_by(email: email, kind: RoleKind::STUDENT)

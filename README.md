@@ -114,12 +114,15 @@ development:
   SMTP_PASSWORD: SMTP_PASSWORD
   NO_REPLY_ADDRESS: NO_REPLY_ADDRESS
   EMAIL_SKIP_DOMAINS: EMAIL_SKIP_DOMAINS
+  STUDENT_DOMAIN: STUDENT_DOMAIN
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
 
 _Nota: Use `EMAIL_SKIP_DOMAINS` para informar domínios (separadas por virgula e sem espaço) para os quais não quer
 que o sistema faça envio de emails_
+
+_Nota: Use `STUDENT_DOMAIN` para informar o domínio que vai ser usado para criar as contas de usuarios dos alunos na sincronização. Se não for informado, o checkbox que permite essa funcionalidade na tela de configurações não vai ser apresentado_
 
 - Crie o banco de dados:
 
@@ -205,7 +208,8 @@ Entity.last.using_connection {
     password_confirmation: '123456789',
     status: 'active',
     kind: 'employee',
-    admin:  true
+    admin: true,
+    first_name: 'Admin'
   )
 }
 ```
