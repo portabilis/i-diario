@@ -5,6 +5,8 @@ class BaseMailer < ActionMailer::Base
   SKIP_DOMAINS = (Rails.application.secrets.EMAIL_SKIP_DOMAINS || []).split(',').flatten.freeze
 
   def skip_domains(emails)
+    headers['isTransicional'] = 'true'
+
     @recipient = emails.delete_if { |email|
       SKIP_DOMAINS.any? { |skip_domain| email.ends_with?(skip_domain) }
     }
