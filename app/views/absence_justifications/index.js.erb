@@ -3,7 +3,7 @@ $('#paginator .pagination').html('<%= escape_javascript(paginate(@absence_justif
 $('#page_entries_info').html('<%= escape_javascript(page_entries_info(@absence_justifications).to_s) %>');
 
 $("[id^='show_more']").click(function () {
-    var students_left = $(this).data('more');
+  var students_left = $(this).data('more');
 
   if ($(this).hasClass('collapsed')) {
     $(this).text('Mostrar menos')
