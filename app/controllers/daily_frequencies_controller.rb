@@ -37,7 +37,8 @@ class DailyFrequenciesController < ApplicationController
         'Turma do usuario atual': current_user&.current_classroom_id,
         'Disciplina do usuario atual': current_user&.current_discipline_id,
         'Professor do usuario atual': current_user&.teacher_id,
-        'params': daily_frequency_params
+        'Tipo de frequencia': @daily_frequency&.classroom&.exam_rule&.frequency_type,
+        'params': params
       )
 
       redirect_to edit_multiple_daily_frequencies_path(
@@ -93,6 +94,18 @@ class DailyFrequenciesController < ApplicationController
 
     @normal_students = @students.reject { |student| student[:dependence] }
     @dependence_students = @students.select { |student| student[:dependence] }
+
+    Honeybadger.edit_multiple(
+      'Method': 'edit_multiple',
+      'Turma da frequencia': @daily_frequency&.classroom_id,
+      'Disciplina da frequencia': @daily_frequency&.discipline_id,
+      'Numero de classes da frequencia': @class_numbers,
+      'Turma do usuario atual': current_user&.current_classroom_id,
+      'Disciplina do usuario atual': current_user&.current_discipline_id,
+      'Professor do usuario atual': current_user&.teacher_id,
+      'Tipo de frequencia': @daily_frequency&.classroom&.exam_rule&.frequency_type,
+      'params': params
+    )
   end
 
   def create_or_update_multiple
@@ -152,7 +165,7 @@ class DailyFrequenciesController < ApplicationController
         daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y')
       )
     end
-  rescue StandardError => error
+
     Honeybadger.context(
       'Method': 'create_or_update_multiple',
       'Turma da frequencia': daily_frequency_record&.classroom_id,
@@ -161,8 +174,10 @@ class DailyFrequenciesController < ApplicationController
       'Turma do usuario atual': current_user&.current_classroom_id,
       'Disciplina do usuario atual': current_user&.current_discipline_id,
       'Professor do usuario atual': current_user&.teacher_id,
-      'params': daily_frequency_params
+      'Tipo de frequencia': daily_frequency_record&.classroom&.exam_rule&.frequency_type,
+      'params': params
     )
+  rescue StandardError => error
     Honeybadger.notify(error)
 
     flash[:alert] = t('.daily_frequency_error')
