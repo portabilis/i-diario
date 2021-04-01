@@ -84,4 +84,5 @@ $(function() {
 
     $(this).attr("href", _href + params.replace('&', '?'));
   });
+  $('#search_by_cpf').inputmask("999.999.999-99");
 });

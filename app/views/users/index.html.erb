@@ -1,11 +1,6 @@
 <% content_for :js do %>
   <%= javascript_include_tag 'views/users/index' %>
 <% end %>
-<script>
-  window.onload = function() {
-    $('#search_by_cpf').inputmask("999.999.999-99");
-  };
-</script>
 
 <div class="widget-body no-padding">
   <div class="table-responsive">
