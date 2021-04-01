@@ -29,6 +29,17 @@ class DailyFrequenciesController < ApplicationController
 
       return if frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
 
+      Honeybadger.context(
+        'Method': 'create',
+        'Turma da frequencia': @daily_frequency&.classroom_id,
+        'Disciplina da frequencia': @daily_frequency&.discipline_id,
+        'Numero de classes da frequencia': @class_numbers,
+        'Turma do usuario atual': current_user&.current_classroom_id,
+        'Disciplina do usuario atual': current_user&.current_discipline_id,
+        'Professor do usuario atual': current_user&.teacher_id,
+        'params': daily_frequency_params
+      )
+
       redirect_to edit_multiple_daily_frequencies_path(
         daily_frequency: daily_frequency_params,
         class_numbers: @class_numbers
@@ -142,6 +153,16 @@ class DailyFrequenciesController < ApplicationController
       )
     end
   rescue StandardError => error
+    Honeybadger.context(
+      'Method': 'create_or_update_multiple',
+      'Turma da frequencia': daily_frequency_record&.classroom_id,
+      'Disciplina da frequencia': daily_frequency_record&.discipline_id,
+      'Numero de classes da frequencia': daily_frequency_record&.class_number,
+      'Turma do usuario atual': current_user&.current_classroom_id,
+      'Disciplina do usuario atual': current_user&.current_discipline_id,
+      'Professor do usuario atual': current_user&.teacher_id,
+      'params': daily_frequency_params
+    )
     Honeybadger.notify(error)
 
     flash[:alert] = t('.daily_frequency_error')
