@@ -99,7 +99,6 @@ class DailyFrequenciesController < ApplicationController
       'Method': 'edit_multiple',
       'Turma da frequencia': @daily_frequency&.classroom_id,
       'Disciplina da frequencia': @daily_frequency&.discipline_id,
-      'Numero de classes da frequencia': @class_numbers,
       'Turma do usuario atual': current_user&.current_classroom_id,
       'Disciplina do usuario atual': current_user&.current_discipline_id,
       'Professor do usuario atual': current_user&.teacher_id,
