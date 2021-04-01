@@ -174,13 +174,13 @@ $(function () {
     });
   }
 
-  async function initFields() {
+  function initFields() {
     if (!!document.getElementById('avaliation_test_setting_id')) {
-      await updateFieldsBasedOnTestSetting();
+      updateFieldsBasedOnTestSetting();
     }
 
     if (!!document.getElementById('avaliation_weight')) {
-      await updateFieldsBaseOnTestSettingTest();
+      updateFieldsBaseOnTestSettingTest();
     }
   }
 
