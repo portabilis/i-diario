@@ -95,7 +95,7 @@ class DailyFrequenciesController < ApplicationController
     @normal_students = @students.reject { |student| student[:dependence] }
     @dependence_students = @students.select { |student| student[:dependence] }
 
-    Honeybadger.edit_multiple(
+    Honeybadger.context(
       'Method': 'edit_multiple',
       'Turma da frequencia': @daily_frequency&.classroom_id,
       'Disciplina da frequencia': @daily_frequency&.discipline_id,
