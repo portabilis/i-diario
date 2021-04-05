@@ -43,12 +43,7 @@ class AvaliationsController < ApplicationController
 
   def new
     return if redirect_to_avaliations
-
-    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
-
-    if available_score_types.none? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
-      redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
-    end
+    return if score_types_redirect
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
@@ -59,12 +54,7 @@ class AvaliationsController < ApplicationController
 
   def multiple_classrooms
     return if redirect_to_avaliations
-
-    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
-
-    if available_score_types.none? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
-      redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
-    end
+    return if score_types_redirect
 
     @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
@@ -273,5 +263,13 @@ class AvaliationsController < ApplicationController
     year_test_setting.where(exam_setting_type: ExamSettingTypes::BY_SCHOOL_TERM)
                      .order(:school_term_type_step_id)
                      .presence
+  end
+
+  def score_types_redirect
+    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+
+    return if available_score_types.any? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
+
+    redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
   end
 end
