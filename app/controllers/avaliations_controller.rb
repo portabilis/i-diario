@@ -42,7 +42,7 @@ class AvaliationsController < ApplicationController
   end
 
   def new
-    return if redirect_to_avaliations
+    return if test_settings_redirect
     return if score_types_redirect
 
     @avaliation = resource
@@ -53,7 +53,7 @@ class AvaliationsController < ApplicationController
   end
 
   def multiple_classrooms
-    return if redirect_to_avaliations
+    return if test_settings_redirect
     return if score_types_redirect
 
     @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
@@ -228,7 +228,7 @@ class AvaliationsController < ApplicationController
     { reason: reasons.join(' e ') }
   end
 
-  def redirect_to_avaliations
+  def test_settings_redirect
     !test_setting? && redirect_to(avaliations_path)
   end
 
