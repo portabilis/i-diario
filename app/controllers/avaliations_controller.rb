@@ -60,6 +60,12 @@ class AvaliationsController < ApplicationController
   def multiple_classrooms
     return if redirect_to_avaliations
 
+    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+
+    if available_score_types.none? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
+      redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
+    end
+
     @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
     @avaliation_multiple_creator_form.discipline_id = current_user_discipline.id
