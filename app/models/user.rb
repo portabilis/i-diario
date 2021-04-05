@@ -86,7 +86,9 @@ class User < ActiveRecord::Base
   }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
-  scope :by_cpf, ->(cpf) { where("REPLACE(REPLACE(cpf,'.', ''),'-', '') ILIKE REPLACE(REPLACE(?,'.', ''),'-', '')", "%#{cpf}%") }
+  scope :by_cpf, lambda { |cpf|
+    where("REGEXP_REPLACE(cpf, '[^0-9]+', '', 'g') ILIKE REGEXP_REPLACE(?, '[^0-9|%]+', '', 'g')", "%#{cpf}%")
+  }
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
