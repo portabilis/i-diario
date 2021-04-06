@@ -290,7 +290,9 @@ class SchoolCalendarQuery
 
   attr_accessor :unity, :year
 
-  def yearly_term_type_id
+  def self.yearly_term_type_id
     @yearly_term_type_id ||= SchoolTermType.find_by(description: 'Anual').id
   end
+
+  private_class_method :yearly_term_type_id
 end
