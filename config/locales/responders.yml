@@ -116,6 +116,10 @@ pt-BR:
 
     avaliations:
       <<: *female
+      create:
+        notice: '%{resource_name} foi criado com sucesso para a(s) turma(s) %{classrooms}.'
+      create_multiple_classrooms:
+        notice: '%{resource_name} foi criado com sucesso para a(s) turma(s) %{classrooms}.'
       destroy:
         alert: '%{resource_name} não pode ser apagada pois %{reason}.'
 
