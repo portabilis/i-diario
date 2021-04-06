@@ -243,7 +243,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_unity).by_year(current_school_calendar.year).ordered
+    @grades = Grade.by_unity(current_unity).by_year(current_school_year).ordered
 
     return if current_user_is_employee_or_administrator?
 
