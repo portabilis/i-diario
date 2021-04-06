@@ -246,9 +246,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_unity)
-      .by_year(current_school_year)
-      .ordered
+    @grades = Grade.by_unity(current_unity).by_year(current_school_year).ordered
 
     @grades = @grades.by_teacher(current_teacher) unless current_user_is_employee_or_administrator?
   end
