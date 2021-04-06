@@ -233,7 +233,9 @@ class AvaliationsController < ApplicationController
       classrooms = if resource
                      [resource.classroom.description]
                    else
-                     @avaliation_multiple_creator_form.avaliations.map(&:classroom).map(&:description)
+                     classroom_records = params[:avaliation_multiple_creator_form][:avaliations_attributes].values
+                     included = classroom_records.select { |classroom_record| classroom_record['include'] == '1' }
+                     included.map { |included_record| Classroom.find(included_record['classroom_id']).description }
                    end
 
       { classrooms: classrooms.join(', ') }
