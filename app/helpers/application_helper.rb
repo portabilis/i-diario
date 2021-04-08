@@ -253,7 +253,7 @@ module ApplicationHelper
 
       PORTABILIS_LOGO
     end
-  rescue Errno::ECONNREFUSED, RestClient::NotFound, SocketError
+  rescue Errno::ECONNREFUSED, RestClient::Exception, SocketError
     PORTABILIS_LOGO
   rescue => error
     Honeybadger.notify(error)
