@@ -10,16 +10,16 @@ $(function () {
     callbacks : {
       onPaste : function (event) {
         event.preventDefault();
+
         let text = null;
+
         if (window.clipboardData){
           text = window.clipboardData.getData("Text");
-
         } else if (event.originalEvent && event.originalEvent.clipboardData){
           text = event.originalEvent.clipboardData.getData("Text");
         }
 
         $(this).summernote('insertText', text);
-
         $(this).val(text);
       }
     }
