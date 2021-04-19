@@ -19,7 +19,12 @@ class RecaptchaVerifier
     if !response['success'] || response['score'] <= minimum_score
       Rails.logger.info("LOG: RecaptchaVerifier#verify? - remote_ip: #{@remote_ip}")
       Rails.logger.info("LOG: RecaptchaVerifier#verify? - username: #{@username}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['success']: #{response['success']}")
       Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['score']: #{response['score']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['action']: #{response['action']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['challenge_ts']: #{response['challenge_ts']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['hostname']: #{response['hostname']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['error-codes']: #{response['error-codes']}")
       Rails.logger.info("LOG: RecaptchaVerifier#verify? - minimum_score: #{minimum_score}")
     end
 
