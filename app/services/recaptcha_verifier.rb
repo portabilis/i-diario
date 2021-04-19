@@ -14,6 +14,10 @@ class RecaptchaVerifier
   def verify?
     return true if secret_key.blank?
 
+    Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['success']: #{response['success']}")
+    Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['score']: #{response['score']}")
+    Rails.logger.info("LOG: RecaptchaVerifier#verify? - minimum_score: #{minimum_score}")
+
     response['success'] && response['score'] > minimum_score
   end
 
