@@ -117,7 +117,9 @@ class PartialScoreRecordReport < BaseReport
                                                             &.score
 
           student_note = [daily_note, recovery_diary_record_note].compact.max ||
-                         check_enrolled_in_the_test(student, avaliation, recovery_diary_record)
+                         empty_note_mark(student, avaliation, recovery_diary_record)
+
+          @show_subtitles = true if student_note == 'N'
 
           student_note = localize_score(student_note)
         end
@@ -274,12 +276,11 @@ class PartialScoreRecordReport < BaseReport
                                  &.recovery_diary_record
   end
 
-  def check_enrolled_in_the_test(student, avaliation, recovery_diary_record)
+  def empty_note_mark(student, avaliation, recovery_diary_record)
     if enrolled_in_date?(avaliation.test_date, student.id) ||
        enrolled_in_date?(recovery_diary_record&.test_date, student.id)
       '-'
     else
-      @show_subtitles = true
       'N'
     end
   end
