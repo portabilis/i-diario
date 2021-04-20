@@ -106,23 +106,11 @@ class PartialScoreRecordReport < BaseReport
         student_note = nil
 
         if exempted_avaliation?(student.id, avaliation.id)
-          student_note = "D"
+          student_note = 'D'
           @show_dispensation = true
         else
-          student_notes = [
-              DailyNoteStudent.by_avaliation(avaliation.id)
-                              .by_student_id(student.id)
-                              .first
-                              .try(:note),
-              AvaliationRecoveryDiaryRecord.by_avaliation_id(avaliation.id)
-                              .try(:first)
-                              .try(:recovery_diary_record)
-                              .try(:students)
-                              .try(:by_student_id, student.id)
-                              .try(:first)
-                              .try(:score)
-          ].compact
-          student_note = localize_score(student_notes.max)
+          student_note = get_score(avaliation, student.id)
+          student_note = localize_score(student_note)
         end
         discipline_scores << student_note if student_note
       end
@@ -130,11 +118,16 @@ class PartialScoreRecordReport < BaseReport
       complementary_exams = fetch_complementary_exams(discipline.id)
       complementary_exams.each do |complementary_exam|
         student_score = complementary_exam.students.by_student_id(student.id).first.try(:score)
-        discipline_scores << localize_score(student_score) if student_score
+
+        student_score = if student_score.nil?
+                          (enrolled_in_date?(complementary_exam.recorded_at, student.id) ? '-' : 'N')
+                        end
+
+        discipline_scores << localize_score(student_score)
       end
+
       disciplines[discipline.id] = discipline_scores
     end
-
     number_of_scores = disciplines.map { |_key, hash| hash.length }.max
     number_of_scores = 1 if number_of_scores.nil? || number_of_scores.zero?
     header_cell = make_cell(content: 'Informações gerais', size: 12, font_style: :bold, height: 20, padding: [2, 2, 4, 4], align: :center, colspan: 2 + number_of_scores)
@@ -144,7 +137,7 @@ class PartialScoreRecordReport < BaseReport
     end
     subheader_cells << make_cell(content: 'Faltas', align: :center, size: 8, font_style: :bold, width: 49, borders: [:top, :right, :bottom], padding: [2, 2, 4, 4])
 
-    data = [ subheader_cells ]
+    data = [subheader_cells]
 
     disciplines.each do |discipline_id, scores|
       exempted_from_discipline = exempted_from_discipline?(student.id, discipline_id)
@@ -154,11 +147,11 @@ class PartialScoreRecordReport < BaseReport
       row << make_cell(content: discipline.to_s, align: :left, size: 10, width: 156, borders: [:left, :right, :bottom], padding: [4, 4, 4, 4])
 
       number_of_scores.times do |i|
-        if exempted_from_discipline
-          score = "D"
-        else
-          score = scores[i] || "-"
-        end
+        score = if exempted_from_discipline
+                  'D'
+                else
+                  scores[i] || '-'
+                end
 
         row << make_cell(content: score, align: :left, size: 10, borders: [:right, :bottom], padding: [4, 4, 4, 4])
       end
@@ -206,7 +199,7 @@ class PartialScoreRecordReport < BaseReport
   def footer
     page_footer(draw_datetime: true) do
       repeat(:all) do
-        draw_text('Legendas: D - Dispensado da avaliação ou disciplina', size: 8, at: [0, 15]) if @show_dispensation
+        draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação ou disciplina', size: 8, at: [0, 15]) if @show_dispensation
       end
     end
   end
@@ -255,5 +248,36 @@ class PartialScoreRecordReport < BaseReport
                               .by_discipline_id(discipline_id)
                               .by_date_range(@school_calendar_step.start_at, @school_calendar_step.end_at)
                               .ordered
+  end
+
+  def enrolled_in_date?(test_date, student_id)
+    StudentEnrollmentClassroom.by_classroom(@classroom.id)
+                              .by_student(student_id)
+                              .where('? <= left_at', test_date)
+                              .exists?
+  end
+
+  def get_score(avalation, student_id)
+    daily_note = DailyNoteStudent.by_avaliation(avalation.id)
+                                 .by_student_id(student_id)
+                                 .first
+                                 .try(:note)
+
+    recovery_diary_record = AvaliationRecoveryDiaryRecord.by_avaliation_id(avalation.id)
+                             &.first
+                             &.recovery_diary_record
+
+    recovery_diary_record_note = recovery_diary_record&.students&.by_student_id(student_id)&.first&.score
+
+    if daily_note.nil? && recovery_diary_record_note.nil?
+      if enrolled_in_date?(avaliation.test_date, student_id) ||
+         enrolled_in_date?(recovery_diary_record&.test_date, student_id)
+        '-'
+      else
+        'N'
+      end
+    else
+      [daily_note, recovery_diary_record_note].compact.max
+    end
   end
 end
