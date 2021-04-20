@@ -257,13 +257,13 @@ class PartialScoreRecordReport < BaseReport
                               .exists?
   end
 
-  def get_score(avalation, student_id)
-    daily_note = DailyNoteStudent.by_avaliation(avalation.id)
+  def get_score(avaliation, student_id)
+    daily_note = DailyNoteStudent.by_avaliation(avaliation.id)
                                  .by_student_id(student_id)
                                  .first
                                  .try(:note)
 
-    recovery_diary_record = AvaliationRecoveryDiaryRecord.by_avaliation_id(avalation.id)
+    recovery_diary_record = AvaliationRecoveryDiaryRecord.by_avaliation_id(avaliation.id)
                              &.first
                              &.recovery_diary_record
 
