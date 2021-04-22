@@ -10,4 +10,14 @@ class UserMailer < BaseMailer
 
     mail(to: @recipient, subject: 'Conta de acesso ativada') if @recipient.present?
   end
+
+  def by_csv(user, password, entity)
+    @login = user.login
+    @password = password
+    @recipient = user.email
+    @name = user.name
+    @entity = entity
+
+    mail(to: @recipient, subject: 'Bem vindo ao i-Diário!') if @recipient.present?
+  end
 end
