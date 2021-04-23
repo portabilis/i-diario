@@ -38,9 +38,9 @@ class UserByCsv
       ActiveRecord::Base.transaction do
         CSV.foreach(file, col_sep: ',', headers: true, skip_blanks: true) do |user|
           @user = User.find_by(login: user[0])
-          return true if @user.present?
+          next if @user.present?
 
-          password = SecureRandom.base64(15).tr('+/=lIO0', 'pqrsxyz')
+          password = SecureRandom.hex(15)
           @user = User.create!(
             login: user[0],
             email: user[1],
@@ -53,8 +53,11 @@ class UserByCsv
             first_name: user[2],
             last_name: user[3]
           )
-          UserMailer.delay.by_csv(@user, password, entity_name.capitalize) if set_admin_role
+          if set_admin_role
+            UserMailer.delay.by_csv(@user.login, @user.first_name, @user.email, password, entity_name.capitalize)
+          end
         end
+        true
       end
     rescue ActiveRecord::RecordNotUnique
       retry
