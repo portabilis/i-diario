@@ -20,4 +20,13 @@ class UserMailer < BaseMailer
 
     mail(to: @recipient, subject: 'Bem vindo ao i-Diário!') if @recipient.present?
   end
+
+  def reset_password(login, first_name, email, password)
+    @login = login
+    @password = password
+    @recipient = email
+    @name = first_name
+
+    mail(to: @recipient, subject: 'Redefinição de senha i-Diário!') if @recipient.present?
+  end
 end
