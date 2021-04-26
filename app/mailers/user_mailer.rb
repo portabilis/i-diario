@@ -13,9 +13,9 @@ class UserMailer < BaseMailer
 
   def by_csv(login, first_name, email, password, entity)
     @login = login
-    @password = password
-    @recipient = email
     @name = first_name
+    @recipient = email
+    @password = password
     @entity = entity
 
     mail(to: @recipient, subject: 'Bem vindo ao i-Diário!') if @recipient.present?
@@ -23,9 +23,9 @@ class UserMailer < BaseMailer
 
   def reset_password(login, first_name, email, password)
     @login = login
-    @password = password
-    @recipient = email
     @name = first_name
+    @recipient = email
+    @password = password
 
     mail(to: @recipient, subject: 'Redefinição de senha i-Diário!') if @recipient.present?
   end
