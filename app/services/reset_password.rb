@@ -29,7 +29,7 @@ class ResetPassword
           @user.save!
         end
       end
-      UserMailer.delay.reset_password(@user.login, @user.first_name, @user.email, password) if @user.exists?
+      UserMailer.delay.reset_password(@user.login, @user.first_name, @user.email, new_password) if @user.exists?
     end
   rescue ActiveRecord::RecordInvalid
     false
