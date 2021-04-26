@@ -35,10 +35,6 @@ class ResetPassword
     false
   end
 
-  def user_not_exists
-    @status = 'Usuário não encontrado.'
-  end
-
   def success
     @status = 'Usuário atualizado com sucesso.'
   end
