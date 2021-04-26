@@ -36,21 +36,21 @@ class UserByCsv
   def create_users
     ActiveRecord::Base.transaction do
       CSV.foreach(file, col_sep: ',', headers: true, skip_blanks: true) do |user|
-        @user = User.find_by(login: user[0])
+        @user = User.find_by(login: user[3])
         next if @user.present?
 
         password = SecureRandom.hex(15)
         @user = User.create!(
-          login: user[0],
-          email: user[1],
+          login: user[3],
+          email: user[2],
           password: password,
           password_confirmation: password,
           status: 'active',
           kind: 'employee',
           admin: true,
           receive_news: false,
-          first_name: user[2],
-          last_name: user[3]
+          first_name: user[0],
+          last_name: user[1]
         )
         if set_admin_role
           UserMailer.delay.by_csv(@user.login, @user.first_name, @user.email, password, entity_name.capitalize)
