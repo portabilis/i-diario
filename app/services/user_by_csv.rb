@@ -35,11 +35,11 @@ class UserByCsv
 
   def create_users
     ActiveRecord::Base.transaction do
-      CSV.foreach(file, col_sep: ',', headers: true, skip_blanks: true) do |user|
+      CSV.foreach(file, col_sep: ',', skip_blanks: true) do |user|
         @user = User.find_by(login: user[3])
         next if @user.present?
 
-        password = SecureRandom.hex(15)
+        password = SecureRandom.hex(8)
         @user = User.create!(
           login: user[3],
           email: user[2],
