@@ -20,12 +20,20 @@ class UserByCsv
   end
 
   def create_user
-    entity = Entity.find_by(name: entity_name)
+    if entity_name.casecmp?('ALL')
+      Entity.all.each do |e|
+        e.using_connection do
+          create_users
+        end
+      end
+    else
+      entity = Entity.find_by(name: entity_name)
 
-    return false if entity.blank?
+      return false if entity.blank?
 
-    entity.using_connection do
-      create_users
+      entity.using_connection do
+        create_users
+      end
     end
   end
 
