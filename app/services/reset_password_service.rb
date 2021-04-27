@@ -1,4 +1,4 @@
-class ResetPassword
+class ResetPasswordService
   attr_reader :user, :status
 
   def initialize(options)

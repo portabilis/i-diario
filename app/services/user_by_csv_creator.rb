@@ -1,4 +1,4 @@
-class UserByCsv
+class UserByCsvCreator
   attr_reader :file, :entity_name, :status
 
   def initialize(options)

@@ -1,18 +1,18 @@
 namespace :user do
-  namespace :by_csv do
+  namespace :create do
     desc 'Create users by csv'
-    task create: :environment do
-      user_creator = UserByCsv.new(ENV)
+    task by_csv: :environment do
+      user_creator = UserByCsvCreator.new(ENV)
 
       user_creator.create
 
       puts user_creator.status
     end
   end
-  namespace :reset_password do
+  namespace :reset do
     desc 'Reset password'
-    task reset: :environment do
-      user_updater = ResetPassword.new(ENV)
+    task reset_password: :environment do
+      user_updater = ResetPasswordService.new(ENV)
 
       user_updater.update
 
