@@ -31,15 +31,16 @@ class ResetPassword
       end
       UserMailer.delay.reset_password(@user.login, @user.first_name, @user.email, new_password) if @user.exists?
     end
+    true
   rescue ActiveRecord::RecordInvalid
     false
   end
 
   def success
-    @status = 'Usuário atualizado com sucesso.'
+    @status = 'Senha atualizada com sucesso.'
   end
 
   def error
-    @status = 'Não foi possível atualizar o usuário.'
+    @status = 'Não foi possível atualizar a senha.'
   end
 end
