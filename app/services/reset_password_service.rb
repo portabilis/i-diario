@@ -26,6 +26,7 @@ class ResetPasswordService
           next if @user.blank?
 
           @user.password = new_password
+          @user.password_confirmation = new_password
           @user.save!
         end
       end
