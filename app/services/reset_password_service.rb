@@ -20,8 +20,8 @@ class ResetPasswordService
   def update_user
     new_password = SecureRandom.hex(8)
     ActiveRecord::Base.transaction do
-      Entity.all.each do |e|
-        e.using_connection do
+      Entity.all.each do |entity|
+        entity.using_connection do
           @user = User.find_by(login: user)
           next if @user.blank?
 
