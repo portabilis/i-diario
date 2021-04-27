@@ -1,9 +1,10 @@
 class UserByCsvCreator
-  attr_reader :file, :entity_name, :status
+  attr_reader :file, :entity_name, :send_mail, :status
 
   def initialize(options)
     @file = options['FILE']
     @entity_name = options['ENTITY']
+    @send_mail = options['EMAIL'].casecmp?('false') ? false : true
   end
 
   def create
@@ -53,7 +54,7 @@ class UserByCsvCreator
           first_name: user[0],
           last_name: user[1]
         )
-        if set_admin_role
+        if set_admin_role && send_mail
           UserMailer.delay.by_csv(@user.login, @user.first_name, @user.email, password, entity.name.capitalize)
         end
       end
