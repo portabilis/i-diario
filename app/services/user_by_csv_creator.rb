@@ -20,19 +20,12 @@ class UserByCsvCreator
   end
 
   def create_user
-    if entity_name.casecmp?('ALL')
-      Entity.all.each do |e|
-        e.using_connection do
-          create_users
-        end
-      end
-    else
-      entity = Entity.find_by(name: entity_name)
+    entities = entity_name.casecmp?('ALL') ? Entity.all : Entity.where(name: entity_name)
+    return false if entities.blank?
 
-      return false if entity.blank?
-
+    entities.each do |entity|
       entity.using_connection do
-        create_users
+        create_users(entity)
       end
     end
   end
@@ -41,7 +34,7 @@ class UserByCsvCreator
     @status = 'arquivo não encontrado'
   end
 
-  def create_users
+  def create_users(entity)
     ActiveRecord::Base.transaction do
       CSV.foreach(file, col_sep: ',', skip_blanks: true) do |user|
         @user = User.find_by(login: user[3])
@@ -61,7 +54,7 @@ class UserByCsvCreator
           last_name: user[1]
         )
         if set_admin_role
-          UserMailer.delay.by_csv(@user.login, @user.first_name, @user.email, password, entity_name.capitalize)
+          UserMailer.delay.by_csv(@user.login, @user.first_name, @user.email, password, entity.name.capitalize)
         end
       end
       true
