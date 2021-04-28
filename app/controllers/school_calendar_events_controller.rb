@@ -184,9 +184,9 @@ class SchoolCalendarEventsController < ApplicationController
     school_days.each do |school_day|
       next if SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil).school_day?
 
-      UnitySchoolDay.where(unity_id: resource.school_calendar.unity_id, school_day: school_day).destroy!
+      UnitySchoolDay.where(unity_id: resource.school_calendar.unity_id, school_day: school_day).destroy_all
 
-      DailyFrequency.where(unity_id: resource.school_calendar.unity_id, frequency_date: school_day).each(&:destroy!)
+      DailyFrequency.where(unity_id: resource.school_calendar.unity_id, frequency_date: school_day).destroy_all
     end
   end
 end
