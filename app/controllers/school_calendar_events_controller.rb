@@ -181,14 +181,10 @@ class SchoolCalendarEventsController < ApplicationController
   end
 
   def destroy_school_days(school_days)
-    UnitySchoolDay.where(unity_id: resource.school_calendar.unity_id, school_day: school_days).each(&:destroy)
-
-    destroy_daily_frequencies(school_days)
-  end
-
-  def destroy_daily_frequencies(school_days)
     school_days.each do |school_day|
       next if SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil).school_day?
+
+      UnitySchoolDay.where(unity_id: resource.school_calendar.unity_id, school_day: school_day).destroy!
 
       DailyFrequency.where(unity_id: resource.school_calendar.unity_id, frequency_date: school_day).each(&:destroy!)
     end
