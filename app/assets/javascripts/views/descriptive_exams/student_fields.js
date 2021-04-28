@@ -14,9 +14,7 @@ $(function () {
           var original = someNote.summernote('code');
           var cleaned = CleanPastedHTML(original);
 
-          someNote.summernote('reset');
-          someNote.summernote('pasteHTML', cleaned);
-
+         someNote.summernote('code', cleaned);
         };
 
         setTimeout(function () {
