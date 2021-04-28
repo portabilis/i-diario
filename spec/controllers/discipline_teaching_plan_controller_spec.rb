@@ -24,6 +24,8 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   let(:other_teacher) { create(:teacher) }
   let(:classroom) { create(:classroom) }
   let(:discipline) { create(:discipline) }
+  let(:school_term_type) { create(:school_term_type) }
+  let(:school_term_type_step) { create(:school_term_type_step) }
   let(:current_teacher_teaching_plan) {
     create(
       :teaching_plan,
@@ -76,8 +78,8 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
           year: classroom.year,
           unity_id: unity.id,
           grade_id: classroom.grade.id,
-          school_term_type: SchoolTermTypes::BIMESTER,
-          school_term: Bimesters::FIRST_BIMESTER,
+          school_term_type_id: school_term_type.id,
+          school_term_type_step_id: school_term_type_step.id,
           teacher_id: current_teacher.id,
           content_descriptions: [
             Faker::Lorem.sentence

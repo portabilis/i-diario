@@ -171,10 +171,6 @@ module ApplicationHelper
     yield(presenter) if block_given?
   end
 
-  def default_steps
-    (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
-  end
-
   def back_link(name, path)
     content_for :back_link do
       back_link_tag(name, path)
@@ -253,11 +249,11 @@ module ApplicationHelper
       entity_logo_url = current_entity_configuration.try(:logo_url)
 
       return PORTABILIS_LOGO if entity_logo_url.blank?
-      return entity_logo_url if HTTParty.get(entity_logo_url).code == 200
+      return entity_logo_url if RestClient.get(entity_logo_url).code == 200
 
       PORTABILIS_LOGO
     end
-  rescue Errno::ECONNREFUSED, HTTParty::Error, SocketError
+  rescue Errno::ECONNREFUSED, RestClient::Exception, SocketError
     PORTABILIS_LOGO
   rescue => error
     Honeybadger.notify(error)

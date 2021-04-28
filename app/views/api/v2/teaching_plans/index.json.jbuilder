@@ -18,7 +18,7 @@ json.unities @unities do |unity|
       json.description teaching_plan.to_s
       json.grade_name teaching_plan.grade.to_s
       json.grade_id teaching_plan.grade_id
-      json.period teaching_plan.school_term_humanize
+      json.period teaching_plan.school_term_type_step_humanize
       json.contents teaching_plan.contents
       json.objectives teaching_plan.objectives
       json.evaluation teaching_plan.evaluation

@@ -3,16 +3,30 @@ require 'net/https'
 class RecaptchaVerifier
   RECAPTCHA_MINIMUM_SCORE = 0.5
 
-  def initialize(token)
+  def initialize(token, remote_ip, username)
     @token = token
+    @remote_ip = remote_ip
+    @username = username
   end
 
-  def self.verify?(token)
-    new(token).verify?
+  def self.verify?(token, remote_ip, username)
+    new(token, remote_ip, username).verify?
   end
 
   def verify?
     return true if secret_key.blank?
+
+    if !response['success'] || response['score'] <= minimum_score
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - remote_ip: #{@remote_ip}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - username: #{@username}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['success']: #{response['success']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['score']: #{response['score']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['action']: #{response['action']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['challenge_ts']: #{response['challenge_ts']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['hostname']: #{response['hostname']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - response['error-codes']: #{response['error-codes']}")
+      Rails.logger.info("LOG: RecaptchaVerifier#verify? - minimum_score: #{minimum_score}")
+    end
 
     response['success'] && response['score'] > minimum_score
   end

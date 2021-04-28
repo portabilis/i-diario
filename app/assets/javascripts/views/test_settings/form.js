@@ -53,7 +53,7 @@ $(function() {
 
   var updateTestSettingSchoolTermInput = function() {
     var $test_setting_school_term_div = $('#test_setting_school_term_div');
-    var $test_setting_school_term_input = $('#test_setting_school_term');
+    var $test_setting_school_term_input = $('#test_setting_school_term_type_step_id');
     var $test_setting_unities_div = $('#test_setting_unities_div');
     var $test_setting_unities_input = $('#test_setting_unities');
     var $test_setting_grades_div = $('#test_setting_grades_div');

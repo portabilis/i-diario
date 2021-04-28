@@ -16,8 +16,8 @@ class UserForStudentCreator
 
     Student.joins('LEFT JOIN users ON users.student_id = students.id')
            .where(users: { student_id: nil })
-           .find_each do |student|
-      email = "#{student.api_code}@ambiente.portabilis.com.br"
+           .find_each(batch_size: 100) do |student|
+      email = "#{student.api_code}@#{Rails.application.secrets[:STUDENT_DOMAIN]}"
 
       next if User.find_by(student_id: student.id, kind: RoleKind::STUDENT)
       next if User.find_by(email: email, kind: RoleKind::STUDENT)
@@ -45,7 +45,8 @@ class UserForStudentCreator
         role_id: role_id
       )
 
-      user.update(current_user_role_id: user_role.id)
+      user.current_user_role_id = user_role.id
+      user.save!(validate: false)
     end
   end
 end

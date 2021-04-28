@@ -6,9 +6,18 @@
   <% else %>
     <% @knowledge_area_lesson_plans.each do |knowledge_area_lesson_plan| %>
       <tr>
-        <td><%= knowledge_area_lesson_plan.lesson_plan.unity %>
+        <td>
+          <% if knowledge_area_lesson_plan.lesson_plan.validated %>
+            <i class="fa fa-check-circle-o apply_tooltip_right"
+               data-original-title="Plano validado e aprovado"
+               style="color: #5A9F58"></i>
+          <% end %>
+          <%= knowledge_area_lesson_plan.lesson_plan.unity %>
           <% if knowledge_area_lesson_plan.lesson_plan.attachments? %>
             <i class="fa fa-paperclip apply_tooltip" data-original-title="Possui anexos"></i>
+          <% end %>
+          <% if knowledge_area_lesson_plan.lesson_plan.opinion.present? %>
+            <i class="fa fa-comment apply_tooltip" data-original-title="Possui parecer"></i>
           <% end %>
         </td>
         <td class="classroom"><%= knowledge_area_lesson_plan.lesson_plan.classroom %></td>
@@ -30,7 +39,11 @@
                 data: { original_title: t('views.index.tooltips.copy'),
                         knowledge_area_lesson_plan_id: knowledge_area_lesson_plan.id,
                         classroom_id: knowledge_area_lesson_plan.classroom.id,
-                        grade_id: knowledge_area_lesson_plan.classroom.grade_id
+                        grade_id: (
+                          unless GeneralConfiguration.current.allows_copy_lesson_plans_to_other_grades
+                            knowledge_area_lesson_plan.classroom.grade_id
+                          end
+                        )
                       }) %>
             <%= link_to(
                 t('helpers.links.show_html'),

@@ -290,9 +290,9 @@ class DisciplineTeachingPlanPdf < BaseReport
   end
 
   def period_attribute_text
-    return teaching_plan.school_term_type_humanize if teaching_plan.school_term_type == SchoolTermTypes::YEARLY
+    return teaching_plan.school_term_type.to_s if teaching_plan.yearly?
 
-    teaching_plan.school_term_humanize
+    teaching_plan.school_term_type_step_humanize
   end
 
   def teaching_plan

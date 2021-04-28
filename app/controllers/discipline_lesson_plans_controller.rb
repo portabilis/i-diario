@@ -55,6 +55,7 @@ class DisciplineLessonPlansController < ApplicationController
   def new
     @discipline_lesson_plan = DisciplineLessonPlan.new.localized
     @discipline_lesson_plan.build_lesson_plan
+    @discipline_lesson_plan.lesson_plan.classroom = current_user_classroom
     @discipline_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @discipline_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @discipline_lesson_plan.lesson_plan.start_at = Time.zone.today
@@ -121,10 +122,11 @@ class DisciplineLessonPlansController < ApplicationController
   end
 
   def clone
-    @form = DisciplineLessonPlanClonerForm.new(clone_params.merge(teacher: current_teacher))
-    if @form.clone!
-      flash[:success] = "Plano de aula por disciplina copiado com sucesso!"
-    end
+    @form = DisciplineLessonPlanClonerForm.new(
+      clone_params.merge(teacher: current_teacher, entity_id: current_entity.id)
+    )
+
+    flash[:success] = t('.messages.copy_succeed') if @form.clone!
   end
 
   def teaching_plan_contents
@@ -215,6 +217,7 @@ class DisciplineLessonPlansController < ApplicationController
         :bibliography,
         :opinion,
         :teacher_id,
+        :validated,
         lesson_plan_attachments_attributes: [
           :id,
           :attachment,

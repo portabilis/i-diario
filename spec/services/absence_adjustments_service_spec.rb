@@ -145,7 +145,7 @@ RSpec.describe AbsenceAdjustmentsService, type: :service do
   end
 
   def add_user_to_audit(daily_frequency)
-    audit = Audited::Adapters::ActiveRecord::Audit.where(
+    audit = Audited::Audit.where(
       auditable_type: 'DailyFrequency',
       auditable_id: daily_frequency.id
     ).first

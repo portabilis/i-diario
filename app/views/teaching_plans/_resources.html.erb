@@ -10,8 +10,8 @@
         <td><%= teaching_plan.classroom.unity %></td>
         <td><%= teaching_plan.classroom %></td>
         <td><%= teaching_plan.discipline %></td>
-        <td><%= teaching_plan.school_term_type_humanize %></td>
-        <td><%= teaching_plan.school_term_humanize %></td>
+        <td><%= teaching_plan.school_term_type %></td>
+        <td><%= teaching_plan.school_term_type_step_humanize %></td>
         <td class="actions">
           <%= link_to t('views.index.edit'), edit_teaching_plan_path(teaching_plan), class: "btn btn-success" %>
           <%= link_to t('views.index.delete'), teaching_plan_path(teaching_plan), class: "btn btn-danger", method: "delete", data: { confirm: t('views.index.confirm') } %>

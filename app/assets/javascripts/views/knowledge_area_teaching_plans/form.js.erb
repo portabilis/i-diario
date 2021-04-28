@@ -7,51 +7,17 @@ $(function() {
   var $unity = $('#knowledge_area_teaching_plan_teaching_plan_attributes_unity_id');
   var $grade = $('#knowledge_area_teaching_plan_teaching_plan_attributes_grade_id');
   var $knowledgeAreas = $('#knowledge_area_teaching_plan_knowledge_area_ids');
-  var $schoolTermType = $('#knowledge_area_teaching_plan_teaching_plan_attributes_school_term_type');
+  var $schoolTermType = $('#knowledge_area_teaching_plan_teaching_plan_attributes_school_term_type_id');
   var $schoolTermContainer = $('#school-term-container');
-  var $schoolTerm = $('#knowledge_area_teaching_plan_teaching_plan_attributes_school_term');
+  var $schoolTerm = $('#knowledge_area_teaching_plan_teaching_plan_attributes_school_term_type_step_id');
   var flashMessages = new FlashMessages();
 
-  function updateSchoolTermInput() {
-    switch ($schoolTermType.select2('val')) {
-      case 'bimester':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= Bimesters.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      case 'bimester_eja':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= BimestersEja.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      case 'trimester':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= Trimesters.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      case 'semester':
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: <%= Semesters.to_select.to_json %> });
-        $schoolTermContainer.show();
-        break;
-      default:
-        $schoolTerm.select2('val', '');
-        $schoolTerm.select2({ data: [] });
-        $schoolTermContainer.hide();
-        break;
-    }
-  }
-
-  // On change
-
   $schoolTermType.on('change', function() {
-    updateSchoolTermInput();
+    updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);
     $('#copy_plan_info').show();
   });
 
-  // On load
-
-  updateSchoolTermInput();
+  updateSchoolTermInput($schoolTermType, $schoolTerm, $schoolTermContainer, flashMessages);
 
   validate_attachment_size($('#knowledge_area_teaching_plan'));
 

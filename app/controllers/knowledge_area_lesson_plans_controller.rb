@@ -58,6 +58,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   def new
     @knowledge_area_lesson_plan = KnowledgeAreaLessonPlan.new.localized
     @knowledge_area_lesson_plan.build_lesson_plan
+    @knowledge_area_lesson_plan.lesson_plan.classroom = current_user_classroom
     @knowledge_area_lesson_plan.lesson_plan.school_calendar = current_school_calendar
     @knowledge_area_lesson_plan.lesson_plan.teacher_id = current_teacher.id
     @knowledge_area_lesson_plan.lesson_plan.start_at = Time.zone.today
@@ -141,9 +142,11 @@ class KnowledgeAreaLessonPlansController < ApplicationController
   end
 
   def clone
-    @form = KnowledgeAreaLessonPlanClonerForm.new(clone_params.merge(teacher: current_teacher))
+    @form = KnowledgeAreaLessonPlanClonerForm.new(
+      clone_params.merge(teacher: current_teacher, entity_id: current_entity.id)
+    )
 
-    flash[:success] = t('messages.copy_succeed') if @form.clone!
+    flash[:success] = t('.messages.copy_succeed') if @form.clone!
   end
 
   def teaching_plan_contents
@@ -233,6 +236,7 @@ class KnowledgeAreaLessonPlansController < ApplicationController
         :bibliography,
         :opinion,
         :teacher_id,
+        :validated,
         lesson_plan_attachments_attributes: [
           :id,
           :attachment,

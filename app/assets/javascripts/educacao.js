@@ -90,6 +90,24 @@ $(function () {
     checkboxes.prop("checked", $(this).prop('checked'));
   });
 
+  var
+      $online = $('.online'),
+      $offline = $('.offline');
+
+  Offline.on('confirmed-down', function () {
+    $('#page-loading').removeClass('hidden');
+    $online.fadeOut(function () {
+        $offline.fadeIn();
+    });
+  });
+
+  Offline.on('confirmed-up', function () {
+    $('#page-loading').addClass('hidden');
+    $offline.fadeOut(function () {
+        $online.fadeIn();
+    });
+  });
+
   var link = $('.a-rotational-caret');
   var icon = $('.rotational-caret');
   var open = false;
@@ -105,5 +123,4 @@ $(function () {
 
     open = !open;
   });
-
 });

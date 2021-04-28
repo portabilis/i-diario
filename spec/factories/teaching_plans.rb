@@ -5,8 +5,8 @@ FactoryGirl.define do
     teacher
 
     year { Date.current.year }
-    school_term_type SchoolTermTypes::BIMESTER
-    school_term Bimesters::FIRST_BIMESTER
+    school_term_type
+    school_term_type_step
     contents { [create(:content)] }
 
     before(:create) do |teaching_plan, evaluator|
@@ -22,13 +22,13 @@ FactoryGirl.define do
     end
 
     trait :yearly do
-      school_term_type SchoolTermTypes::YEARLY
-      school_term ''
+      school_term_type nil
+      school_term_type_step nil
     end
 
     trait :without_contents do
-      school_term_type SchoolTermTypes::SEMESTER
-      school_term Semesters::FIRST_SEMESTER
+      school_term_type
+      school_term_type_step
       contents []
     end
 

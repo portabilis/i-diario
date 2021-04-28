@@ -28,6 +28,7 @@ class ApplicationController < ActionController::Base
   before_action :check_for_current_user_role, if: :user_signed_in?
   before_action :set_current_unity_id, if: :user_signed_in?
   before_action :set_current_user_role_id, if: :user_signed_in?
+  before_action :check_user_has_name, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -95,15 +96,15 @@ class ApplicationController < ActionController::Base
   end
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.for(:sign_in) do |u|
+    devise_parameter_sanitizer.permit(:sign_in) do |u|
       u.permit(:credentials, :password, :remember_me)
     end
 
-    devise_parameter_sanitizer.for(:account_update) do |u|
+    devise_parameter_sanitizer.permit(:account_update) do |u|
       u.permit(:email, :first_name, :last_name, :login, :phone, :cpf, :current_password, :authorize_email_and_sms)
     end
 
-    devise_parameter_sanitizer.for(:sign_up) do |u|
+    devise_parameter_sanitizer.permit(:sign_up) do |u|
       u.permit(:email, :password, :password_confirmation)
     end
   end
@@ -187,6 +188,14 @@ class ApplicationController < ActionController::Base
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end
 
+  def require_current_year
+    return if current_user_school_year
+
+    flash[:alert] = t('errors.general.require_current_year')
+
+    redirect_to root_path
+  end
+
   def require_current_teacher
     return if current_teacher
 
@@ -234,6 +243,9 @@ class ApplicationController < ActionController::Base
 
   def teacher_differentiated_discipline_score_type
     exam_rule = current_user_classroom.exam_rule
+
+    return if exam_rule.blank?
+
     differentiated_exam_rule = exam_rule.differentiated_exam_rule
 
     if differentiated_exam_rule.blank? || !current_user_classroom.has_differentiated_students?
@@ -244,6 +256,7 @@ class ApplicationController < ActionController::Base
   end
 
   def teacher_discipline_score_type_by_exam_rule(exam_rule)
+    return if exam_rule.blank?
     return unless (score_type = exam_rule.score_type)
     return if score_type == ScoreTypes::DONT_USE
     return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
@@ -276,7 +289,11 @@ class ApplicationController < ActionController::Base
   end
 
   def verify_recaptcha?
-    return if RecaptchaVerifier.verify?(params[:recaptcha_token])
+    return if RecaptchaVerifier.verify?(
+      params[:recaptcha_token],
+      request&.remote_ip,
+      request&.params&.dig(:user, :credentials)
+    )
 
     flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."
     redirect_to :back
@@ -365,5 +382,20 @@ class ApplicationController < ActionController::Base
 
   def report_name(prefix)
     "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
+  end
+
+  def check_user_has_name
+    return if current_user.first_name.present?
+    return if target_path?
+
+    flash[:alert] = t('errors.general.check_user_has_name')
+
+    redirect_to edit_user_path(current_user)
+  end
+
+  def target_path?
+    request_path = Rails.application.routes.recognize_path(request.path, method: request.env['REQUEST_METHOD'])
+
+    request_path[:controller] == 'users' && (request_path[:action] == 'edit' || request_path[:action] == 'update')
   end
 end

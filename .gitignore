@@ -53,6 +53,9 @@ Gemfile.plugins
 # Docker
 docker-compose.override.yml
 
+# Packages
+/packages/*
+
 /public/packs
 /public/packs-test
 /node_modules
