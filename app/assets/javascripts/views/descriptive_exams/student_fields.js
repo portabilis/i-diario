@@ -14,7 +14,7 @@ $(function () {
           var original = someNote.summernote('code');
           var cleaned = CleanPastedHTML(original);
 
-         someNote.summernote('code', cleaned);
+          someNote.summernote('code', cleaned);
         };
 
         setTimeout(function () {
@@ -48,6 +48,7 @@ $(function () {
       var attributeStripper = new RegExp(' ' + badAttributes[i] + '="(.*?)"','gi');
       output = output.replace(attributeStripper, '');
     }
+
     return output;
   }
 
