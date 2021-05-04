@@ -377,6 +377,14 @@ class ApplicationController < ActionController::Base
     File.open("#{Rails.root}/public#{name}", 'wb') do |f|
       f.write(pdf_to_s)
     end
+
+    if (username = Rails.application.secrets[:REPORTS_SERVER_IP] &&
+      server = Rails.application.secrets[:REPORTS_SERVER_USERNAME] &&
+      dir = Rails.application.secrets[:REPORTS_SERVER_DIR])
+
+      system("rsync -a --remove-source-files --quiet #{Rails.root}/public#{name} #{username}@#{server}:#{dir}")
+    end
+
     redirect_to name
   end
 
