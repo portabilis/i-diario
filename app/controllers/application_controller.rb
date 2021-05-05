@@ -378,10 +378,11 @@ class ApplicationController < ActionController::Base
       f.write(pdf_to_s)
     end
 
-    if (username = Rails.application.secrets[:REPORTS_SERVER_USERNAME] &&
-      server = Rails.application.secrets[:REPORTS_SERVER_IP] &&
-      dir = Rails.application.secrets[:REPORTS_SERVER_DIR])
+    username = Rails.application.secrets[:REPORTS_SERVER_USERNAME]
+    server = Rails.application.secrets[:REPORTS_SERVER_IP]
+    dir = Rails.application.secrets[:REPORTS_SERVER_DIR]
 
+    if username && server && dir
       system("rsync -a --remove-source-files --quiet #{Rails.root}/public#{name} #{username}@#{server}:#{dir}")
     end
 
