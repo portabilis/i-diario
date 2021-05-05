@@ -289,11 +289,7 @@ class ApplicationController < ActionController::Base
   end
 
   def verify_recaptcha?
-    return if RecaptchaVerifier.verify?(
-      params[:recaptcha_token],
-      request&.remote_ip,
-      request&.params&.dig(:user, :credentials)
-    )
+    return if RecaptchaVerifier.verify?(params[:recaptcha_token])
 
     flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."
     redirect_to :back
