@@ -3,6 +3,7 @@ class UpdateMaterializedViewMvwContentRecord < ActiveRecord::Migration
     execute <<-SQL
     DROP MATERIALIZED VIEW mvw_content_record_by_school_classroom_teachers;
 
+    CREATE MATERIALIZED VIEW mvw_content_record_by_school_classroom_teachers AS
     SELECT content_records.id,
            content_records.record_date AS record_date,
            unities.id AS unity_id,
