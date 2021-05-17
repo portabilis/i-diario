@@ -4,7 +4,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   audited
   has_associated_audits
 
-  belongs_to :classroom
+  belongs_to :classroom_grade
   belongs_to :student_enrollment
 
   has_enumeration_for :period, with: Periods, skip_validation: true
