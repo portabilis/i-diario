@@ -12,19 +12,17 @@ class Classroom < ActiveRecord::Base
   has_enumeration_for :period, with: Periods
 
   belongs_to :unity
-  belongs_to :exam_rule
-  belongs_to :grade
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_many :disciplines, through: :teacher_discipline_classrooms
   has_one :calendar, class_name: 'SchoolCalendarClassroom'
   has_many :users, foreign_key: :current_classroom_id, dependent: :nullify
-  has_many :student_enrollment_classrooms
-  has_many :student_enrollments, through: :student_enrollment_classrooms
   has_many :conceptual_exams, dependent: :restrict_with_error
   has_many :infrequency_trackings, dependent: :restrict_with_error
   has_many :students, through: :student_enrollments
   has_many :classroom_labels, dependent: :destroy
   has_many :labels, through: :classroom_labels
+  has_many :classroom_grades
+  has_many :grades, through: :classroom_grades
 
   before_create :set_label_color
 
