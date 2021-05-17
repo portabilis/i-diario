@@ -16,7 +16,7 @@ class Avaliation < ActiveRecord::Base
   before_destroy :valid_for_destruction?
   before_destroy :try_destroy, if: :valid_for_destruction?
 
-  belongs_to :classroom
+  belongs_to :classroom_grade
   belongs_to :discipline
   belongs_to :school_calendar
   belongs_to :test_setting
