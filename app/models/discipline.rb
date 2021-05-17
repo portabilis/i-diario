@@ -6,6 +6,8 @@ class Discipline < ActiveRecord::Base
   belongs_to :knowledge_area
   has_many :teacher_discipline_classrooms, dependent: :destroy
   has_and_belongs_to_many :absence_justifications
+  has_many :unity_discipline_grades
+  has_many :grades, through: :unity_discipline_grades
 
   validates :description, :api_code, :knowledge_area_id, presence: true
   validates :api_code, uniqueness: true
