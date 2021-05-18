@@ -23,8 +23,6 @@ class Classroom < ActiveRecord::Base
   has_many :conceptual_exams, dependent: :restrict_with_error
   has_many :infrequency_trackings, dependent: :restrict_with_error
   has_many :students, through: :student_enrollments
-  has_many :classroom_labels, dependent: :destroy
-  has_many :labels, through: :classroom_labels
 
   before_create :set_label_color
 
