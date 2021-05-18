@@ -1,6 +1,4 @@
-<%= content_for :recaptcha_js do %>
-  <%= include_recaptcha_js %>
-<% end %>
+
 
 <div class="well no-padding">
   <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "smart-form client-form" }) do |f| %>
@@ -32,7 +30,6 @@
 
     <footer>
       <%= f.button :submit, "Acessar", class: "btn btn-primary" %>
-      <%= recaptcha_execute %>
     </footer>
   <% end %>
 </div>
