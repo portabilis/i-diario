@@ -182,6 +182,15 @@ Para adicionar o `fog`, crie o arquivo `Gemfile.plugins`, que irá ter gems cust
 Uma vez adicionada a gem `fog`, basta criar um arquivo de configuração em `config/custom_carrierwave.rb`
  e fazer os ajustes para funcionar. Leia atentamente a documentação do `carrierwave` antes de fazer isso.
 
+- Redirecionar os relatórios para outro servidor (opcional)
+```yaml
+  REPORTS_SERVER_IP: xx.xx.xx.xx
+  REPORTS_SERVER_USERNAME: username
+  REPORTS_SERVER_DIR: /var/www/relatorios_idiario
+```
+
+_Nota: REPORTS_SERVER_DIR deve estar dentro da pasta publica do seu servidor_
+
 * Inicie o servidor:
 
 ```bash
