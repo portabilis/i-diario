@@ -186,31 +186,6 @@ module ApplicationHelper
     end
   end
 
-  def include_recaptcha_js
-    return '' if recaptcha_site_key.blank?
-
-    raw %Q{
-      <script src="https://www.google.com/recaptcha/api.js?render=#{recaptcha_site_key}"></script>
-    }
-  end
-
-  def recaptcha_execute
-    return '' if recaptcha_site_key.blank?
-
-    id = "recaptcha_token_#{SecureRandom.hex(10)}"
-
-    raw %Q{
-      <input name="recaptcha_token" type="hidden" id="#{id}"/>
-      <script>
-        grecaptcha.ready(function() {
-          grecaptcha.execute('#{recaptcha_site_key}').then(function(token) {
-            document.getElementById("#{id}").value = token;
-          });
-        });
-      </script>
-    }
-  end
-
   def window_state
     current_profile = CurrentProfile.new(current_user)
 
@@ -238,10 +213,6 @@ module ApplicationHelper
 
   def cache_key_to_user
     [current_entity.id, current_user.id]
-  end
-
-  def recaptcha_site_key
-    @recaptcha_site_key ||= Rails.application.secrets.recaptcha_site_key
   end
 
   def logo_url

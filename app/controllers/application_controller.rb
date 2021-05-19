@@ -288,15 +288,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def verify_recaptcha?
-    return if RecaptchaVerifier.verify?(params[:recaptcha_token])
-
-    flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."
-    redirect_to :back
-  rescue ActionController::RedirectBackError
-    redirect_to root_path
-  end
-
   def allowed_api_header?
     header_name1 = Rails.application.secrets[:AUTH_HEADER_NAME1] || 'TOKEN'
     validation_method1 = Rails.application.secrets[:AUTH_VALIDATION_METHOD1] || '=='
