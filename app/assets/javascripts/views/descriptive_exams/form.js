@@ -11,7 +11,7 @@ $(function () {
       discipline_id = $discipline.val();
 
   if ($opinionType.length === 1) {
-    $opinionType.attr('disabled', true)
+   $opinionType.attr('readonly', true)
   }
 
   function setFields() {
