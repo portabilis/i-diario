@@ -11,7 +11,7 @@ class PopulateClassroomsGrades < ActiveRecord::Migration
             FROM classrooms
         )
         LOOP
-          INSERT INTO classroom_grades (
+          INSERT INTO classrooms_grades (
             classroom_id,
             grade_id,
             exam_rule_id,
