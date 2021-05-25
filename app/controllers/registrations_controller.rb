@@ -1,5 +1,4 @@
 class RegistrationsController < ApplicationController
-  prepend_before_action :verify_recaptcha?, only: :create
   skip_before_action :authenticate_user!
   layout "registration"
 
