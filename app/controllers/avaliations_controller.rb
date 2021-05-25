@@ -251,7 +251,10 @@ class AvaliationsController < ApplicationController
   def general_by_school_test_setting(year_test_setting)
     year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
                      .by_unities(current_user_classroom.unity)
-                     .where("grades @> ARRAY[?]::integer[] OR grades = '{}'", current_user_classroom.grade)
+                     .where(
+                       "grades && ARRAY[?]::integer[] OR grades = '{}'",
+                       current_user_classroom.grades.pluck(:id)
+                      )
                      .presence
   end
 
@@ -266,7 +269,7 @@ class AvaliationsController < ApplicationController
   end
 
   def score_types_redirect
-    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+    available_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
     return if available_score_types.any? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
 

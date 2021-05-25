@@ -31,7 +31,7 @@ class ConceptualExamsController < ApplicationController
   end
 
   def new
-    discipline_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+    discipline_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
     not_concept_score = discipline_score_types.none? { |discipline_score_type|
       discipline_score_type == ScoreTypes::CONCEPT
