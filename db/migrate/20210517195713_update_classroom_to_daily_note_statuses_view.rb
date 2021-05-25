@@ -30,11 +30,14 @@ class UpdateClassroomToDailyNoteStatusesView < ActiveRecord::Migration
                      EXISTS (
                        SELECT 1
                          FROM student_enrollment_classrooms
+                         JOIN classrooms_grades ON (
+                          student_enrollment_classrooms.classrooms_grade_id = classrooms_grades.id
+                         )
+                         AND classrooms_grades.classroom_id = avaliations.classroom_id
                          JOIN student_enrollments ON (
                            student_enrollment_classrooms.student_enrollment_id = student_enrollments.id
                          )
                           AND student_enrollments.student_id = daily_note_students.student_id
-                          AND student_enrollment_classrooms.classroom_grade_id = avaliations.classroom_grade_id
                           AND student_enrollment_classrooms.left_at = ''
                           AND student_enrollments.active = 1
                      )
