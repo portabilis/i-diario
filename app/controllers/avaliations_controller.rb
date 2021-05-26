@@ -238,7 +238,7 @@ class AvaliationsController < ApplicationController
                      included.map { |included_record| Classroom.find(included_record['classroom_id']).description }
                    end
 
-      { classrooms: classrooms.join(', ') }
+      { resource_name: I18n.t('activerecord.models.avaliation.one'), classrooms: classrooms.join(', ') }
     end
   end
 
