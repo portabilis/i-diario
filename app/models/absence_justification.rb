@@ -118,14 +118,13 @@ class AbsenceJustification < ActiveRecord::Base
 
       next if absence_justifications.blank?
 
-      errors.add(:base, :discipline_period_absence) if frequence_type_by_discipline?
+      by_teacher = absence_justifications.by_teacher(teacher_id)
 
-      unless frequence_type_by_discipline?
-        errors.add(:base, :general_period_absence, teacher: absence_justifications.first.teacher.name)
+      if by_teacher.present?
+        errors.add(:base, :general_period_absence, teacher: by_teacher.first.teacher.name)
+        errors.add(:absence_date, :taken)
+        errors.add(:absence_date_end, :taken)
       end
-
-      errors.add(:absence_date, :taken)
-      errors.add(:absence_date_end, :taken)
 
       break
     end
