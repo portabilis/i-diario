@@ -202,15 +202,22 @@ class AvaliationsController < ApplicationController
   end
 
   def resource_params
-    params.require(:avaliation).permit(:test_setting_id,
-                                       :classroom_id,
-                                       :discipline_id,
-                                       :test_date,
-                                       :classes,
-                                       :description,
-                                       :test_setting_test_id,
-                                       :weight,
-                                       :observations)
+    parameters = params.require(:avaliation).permit(
+      :test_setting_id,
+      :classroom_id,
+      :discipline_id,
+      :test_date,
+      :classes,
+      :description,
+      :test_setting_test_id,
+      :weight,
+      :observations,
+      :grade_ids
+    )
+
+    parameters[:grade_ids] = parameters[:grade_ids].split(',')
+
+    parameters
   end
 
   def interpolation_options
