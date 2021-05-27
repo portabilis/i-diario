@@ -116,6 +116,7 @@ class AbsenceJustification < ActiveRecord::Base
       end
 
       absence_justifications = absence_justifications.where.not(id: id) if persisted?
+
       next if absence_justifications.blank?
 
       errors.add(:base, :discipline_period_absence) if frequence_type_by_discipline?
