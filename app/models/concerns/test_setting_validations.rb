@@ -51,7 +51,7 @@ module TestSettingValidations
     test_settings = TestSetting.where(year: year, exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
     test_settings = test_settings.where.not(id: id) if persisted?
     test_settings = test_settings.by_unities(unities)
-    test_settings = test_settings.where("grades @> ARRAY[?]::integer[] OR grades = '{}'", grades) if grades.present?
+    test_settings = test_settings.where("grades && ARRAY[?]::integer[] OR grades = '{}'", grades) if grades.present?
 
     return unless test_settings.any?
 

@@ -63,9 +63,9 @@ class SchoolCalendarEventsController < ApplicationController
   def destroy
     authorize resource
 
-    update_school_days
-
     resource.destroy
+
+    update_school_days
 
     respond_with resource, location: school_calendar_school_calendar_events_path
   end
@@ -153,31 +153,40 @@ class SchoolCalendarEventsController < ApplicationController
   end
 
   def update_school_days(old_start_date = nil, old_end_date = nil)
-    return if [EventTypes::NO_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY].exclude?(resource.event_type)
-
+    frequency_day = [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY].include?(resource.event_type)
     school_days = (resource.start_date..resource.end_date).to_a
-    unity_id = resource.school_calendar.unity_id
 
     case action_name
     when 'create'
-      destroy_school_days(unity_id, school_days)
+      frequency_day ? create_school_days(school_days) : destroy_school_days(school_days)
     when 'destroy'
-      create_school_days(unity_id, school_days)
+      frequency_day ? destroy_school_days(school_days) : create_school_days(school_days)
     when 'update'
       old_days = (old_start_date..old_end_date).to_a
 
-      create_school_days(unity_id, old_days - school_days)
-      destroy_school_days(unity_id, school_days - old_days)
+      if frequency_day
+        create_school_days(school_days - old_days)
+        destroy_school_days(old_days - school_days)
+      else
+        create_school_days(old_days - school_days)
+        destroy_school_days(school_days - old_days)
+      end
     end
   end
 
-  def create_school_days(unity_id, school_days)
+  def create_school_days(school_days)
     school_days.each do |school_day|
-      UnitySchoolDay.find_or_create_by!(unity_id: unity_id, school_day: school_day)
+      UnitySchoolDay.find_or_create_by!(unity_id: resource.school_calendar.unity_id, school_day: school_day)
     end
   end
 
-  def destroy_school_days(unity_id, school_days)
-    UnitySchoolDay.where(unity_id: unity_id, school_day: school_days).each(&:destroy)
+  def destroy_school_days(school_days)
+    school_days.each do |school_day|
+      next if SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil).school_day?
+
+      UnitySchoolDay.where(unity_id: resource.school_calendar.unity_id, school_day: school_day).destroy_all
+
+      DailyFrequency.where(unity_id: resource.school_calendar.unity_id, frequency_date: school_day).destroy_all
+    end
   end
 end

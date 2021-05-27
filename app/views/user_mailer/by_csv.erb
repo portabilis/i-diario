@@ -1,0 +1,18 @@
+<p>
+  Olá, <b><%= @name %></b>.
+</p>
+
+<p>
+  Agora você tem acesso ao <%= link_to 'i-Diário', root_url(host: @entity_url) %>. O portal do professor integrado com o software i-Educar.
+</p>
+
+<p>
+  Para fazer login no sistema utilize as informações abaixo: <br><br>
+  <b>Usuário:</b> <%= @login %> <br>
+  <b>Senha:</b> <%= @password %> <br>
+  <%= link_to 'Nesse link', root_url(host: @entity_url) %>
+</p>
+
+<p>
+  Este e-mail foi enviado automaticamente, favor não responder.
+</p>

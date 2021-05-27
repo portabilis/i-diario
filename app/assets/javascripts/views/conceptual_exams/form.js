@@ -61,8 +61,7 @@ $(function() {
     var classroom_id = $classroom.select2('val');
     var discipline_id = window.state.current_discipline.id;
     var step_id = $step.select2('val');
-    var start_at = '';
-    var end_at = '';
+    var recorded_at = $('#conceptual_exam_recorded_at').val()
 
     window.studentPreviouslySelected = $student.select2('val');
     $student.select2('val', '');
@@ -76,31 +75,27 @@ $(function() {
             step_id: step_id,
             format: 'json'
           })
-        ).done(function(data){
-          start_at = data.start_at;
-          end_at = data.end_at;
+        ).done(function(){
+          var filter = {
+            classroom: classroom_id,
+            discipline: discipline_id,
+            score_type: 'concept',
+            show_inactive: false,
+            date: recorded_at
+          };
+  
+          if (!_.isEmpty(classroom_id) && !_.isEmpty(recorded_at)) {
+            $.ajax({
+              url: Routes.by_date_student_enrollments_lists_pt_br_path({
+                filter: filter,
+                format: 'json'
+              }),
+              success: handleFetchStudentsSuccess,
+              error: handleFetchStudentsError
+            });
+          }
         })
-      ).then(function() {
-        var filter = {
-          classroom: classroom_id,
-          start_at: start_at,
-          end_at: end_at,
-          discipline: discipline_id,
-          score_type: 'concept',
-          show_inactive: false
-        };
-
-        if (!_.isEmpty(classroom_id) && !_.isEmpty(start_at) && !_.isEmpty(end_at)) {
-          $.ajax({
-            url: Routes.by_date_range_student_enrollments_lists_pt_br_path({
-              filter: filter,
-              format: 'json'
-            }),
-            success: handleFetchStudentsSuccess,
-            error: handleFetchStudentsError
-          });
-        }
-      });
+      )
     }
   };
 
@@ -349,4 +344,8 @@ $(function() {
   });
 
   fetchExamRule();
+
+  $('#conceptual_exam_recorded_at').on('change', function(){
+    fetchStudents();
+  })
 });
