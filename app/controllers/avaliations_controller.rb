@@ -53,6 +53,7 @@ class AvaliationsController < ApplicationController
   end
 
   def multiple_classrooms
+    return if current_user_classroom.multi_grade?
     return if test_settings_redirect
     return if score_types_redirect
 
@@ -271,7 +272,7 @@ class AvaliationsController < ApplicationController
                      .where(
                        "grades && ARRAY[?]::integer[] OR grades = '{}'",
                        current_user_classroom.grades.pluck(:id)
-                      )
+                     )
                      .presence
   end
 

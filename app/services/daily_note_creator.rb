@@ -34,6 +34,7 @@ class DailyNoteCreator
 
     @student_enrollments ||= StudentEnrollmentsList.new(
       classroom: @daily_note.classroom,
+      grade: @daily_note.avaliation.grade_ids,
       discipline: @daily_note.discipline,
       date: @daily_note.avaliation.test_date,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,

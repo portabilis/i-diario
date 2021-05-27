@@ -88,6 +88,10 @@ class Classroom < ActiveRecord::Base
                                  .exists?
   end
 
+  def multi_grade?
+    grades.count > 1
+  end
+
   private
 
   def set_label_color

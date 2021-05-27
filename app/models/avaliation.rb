@@ -48,6 +48,7 @@ class Avaliation < ActiveRecord::Base
   validate :classroom_score_type_must_be_numeric, if: :should_validate_classroom_score_type?
   validate :is_school_term_day?
   validate :weight_not_greater_than_test_setting_maximum_score, if: :arithmetic_and_sum_calculation_type?
+  validate :grades_belongs_to_test_setting
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
@@ -271,5 +272,12 @@ class Avaliation < ActiveRecord::Base
     if weight > test_setting.maximum_score
       errors.add(:weight, :cant_be_greater_than, value: test_setting.maximum_score)
     end
+  end
+
+  def grades_belongs_to_test_setting
+    return unless test_setting.general_by_school?
+    return if (grade_ids - test_setting.grades).empty?
+
+    errors.add(:grades, :should_be_in_test_seting)
   end
 end

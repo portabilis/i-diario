@@ -18,6 +18,9 @@ class StudentEnrollment < ActiveRecord::Base
   default_scope -> { kept }
 
   scope :by_classroom, lambda { |classroom_id| joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_classroom(classroom_id)) }
+  scope :by_grade, lambda { |grade_id|
+    joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_grade(grade_id))
+  }
   scope :by_discipline, lambda {|discipline_id| by_discipline_query(discipline_id)}
   scope :by_score_type, lambda {|score_type, classroom_id| by_score_type_query(score_type, classroom_id)}
   scope :by_opinion_type, lambda {|opinion_type, classroom_id| by_opinion_type_query(opinion_type, classroom_id)}

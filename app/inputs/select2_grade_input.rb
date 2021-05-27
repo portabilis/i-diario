@@ -4,11 +4,10 @@ class Select2GradeInput < Select2Input
     raise "User must be passed" unless options[:user].is_a? User
 
     if options[:user].current_classroom.present?
-      grades = options[:user].current_classroom.grades
-      multi_grades = grades.count > 1
+      classroom = options[:user].current_classroom
 
-      input_html_options[:readonly] = 'readonly' unless multi_grades
-      input_html_options[:value] = grades.first.id unless multi_grades
+      input_html_options[:readonly] = 'readonly' unless classroom.multi_grade?
+      input_html_options[:value] = classroom.grades.first.id unless classroom.multi_grade?
     end
 
     super(wrapper_options)

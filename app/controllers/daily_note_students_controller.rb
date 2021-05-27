@@ -42,7 +42,12 @@ class DailyNoteStudentsController < ApplicationController
       daily_note = @daily_note_students.first.daily_note
       date_for_search = params[:search][:recorded_at].to_date
 
-      student_enrollments = fetch_student_enrollments(daily_note.classroom, daily_note.discipline, date_for_search)
+      student_enrollments = fetch_student_enrollments(
+        daily_note.classroom,
+        daily_note.avaliation,
+        daily_note.discipline,
+        date_for_search
+      )
 
       student_enrollments.each do |student_enrollment|
         student = Student.find_by(id: student_enrollment.student_id)
@@ -110,9 +115,10 @@ class DailyNoteStudentsController < ApplicationController
                      .any?
   end
 
-  def fetch_student_enrollments(classroom, discipline, date)
+  def fetch_student_enrollments(classroom, avaliation, discipline, date)
     StudentEnrollmentsList.new(
       classroom: classroom,
+      grade: avaliation.grade_ids,
       discipline: discipline,
       date: date,
       score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,
