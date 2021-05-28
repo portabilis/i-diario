@@ -293,4 +293,9 @@ class AvaliationsController < ApplicationController
 
     redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
   end
+
+  def grades
+    @grades ||= current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+  end
+  helper_method :grades
 end
