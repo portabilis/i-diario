@@ -1,20 +1,42 @@
 class Users::SessionsController < Devise::SessionsController
-  before_action :check_failed_attempts, only: :create
 
-  def check_failed_attempts
-    flash.clear
+  def new
+  @time = 0
 
-    username = params["user"]["credentials"]
+  if (credentials = params.dig(:user, :credentials))
+  credentials_hash = credentials_discriminator(credentials)
 
-    return unless username
-
-    user = User.find_by(login: username)
-
-    return unless user
-
+    if (user = User.find_by(credentials_hash))
     failed_attempts = user.failed_attempts
     attempts_left = User.maximum_attempts - failed_attempts
 
-    set_flash_message!(:error, :attempts_login, attempts_left: attempts_left) if attempts_left > 1
+      if attempts_left > 1 && attempts_left != User.maximum_attempts
+        set_flash_message!(:error, :attempts_login, attempts_left: attempts_left)
+        @time = 2000 * failed_attempts
+
+        elsif attempts_left == 1
+          flash.clear
+          flash[:alert] = I18n.t('devise.failure.last_attempt')
+          @time = 2000 * failed_attempts
+      end
+    end
   end
-end
+
+  super
+  end
+
+  private
+
+    def credentials_discriminator(credentials)
+      if credentials =~ /^\d{3}\.\d{3}\.\d{3}\-\d{2}$/
+        return { cpf: credentials }
+
+      elsif credentials =~ /\A[^@\s]+@[^@\s]+\z/
+        return { email: credentials }
+
+      else
+        return { login: credentials }
+
+      end
+    end
+  end

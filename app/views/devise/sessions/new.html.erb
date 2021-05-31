@@ -29,8 +29,20 @@
     </fieldset>
 
     <footer>
-      <%= f.button :submit, "Acessar", class: "btn btn-primary" %>
-     
+      <%= f.button :submit, "Acessar", class: "btn btn-primary", id: 'btn-login' %>
     </footer>
   <% end %>
+
+  <script>
+    var error = <%= @time %>;
+
+    if (error !== 0) {
+      document.getElementById('btn-login').style.pointerEvents = "none";
+
+      setTimeout(function(){
+        document.getElementById('btn-login').style.pointerEvents = "auto";
+      }, <%= @time %>);
+    }
+    console.log(error);
+  </script>
 </div>
