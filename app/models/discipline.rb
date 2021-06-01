@@ -19,7 +19,8 @@ class Discipline < ActiveRecord::Base
   # teacher_discipline_classrooms. Using scopes like by_teacher_id or
   # by_classroom for example.
   scope :by_score_type, lambda { |score_type, student_id = nil|
-    scoped = joins(teacher_discipline_classrooms: { classroom: :exam_rule })
+    scoped = joins(teacher_discipline_classrooms: [classroom: [classrooms_grades: :exam_rule]])
+
     if student_id && Student.find(student_id).try(:uses_differentiated_exam_rule)
       exam_rules = ExamRule.arel_table.alias('exam_rules_classrooms')
 
