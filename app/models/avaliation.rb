@@ -49,6 +49,7 @@ class Avaliation < ActiveRecord::Base
   validate :is_school_term_day?
   validate :weight_not_greater_than_test_setting_maximum_score, if: :arithmetic_and_sum_calculation_type?
   validate :grades_belongs_to_test_setting
+  validate :discipline_in_grade?
 
   scope :teacher_avaliations, lambda { |teacher_id, classroom_id, discipline_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id, classroom_id: classroom_id, discipline_id: discipline_id}) }
   scope :by_teacher, lambda { |teacher_id| joins(:teacher_discipline_classrooms).where(teacher_discipline_classrooms: { teacher_id: teacher_id }).uniq }
@@ -279,5 +280,15 @@ class Avaliation < ActiveRecord::Base
     return if (grade_ids - test_setting.grades).empty?
 
     errors.add(:grades, :should_be_in_test_seting)
+  end
+
+  def discipline_in_grade?
+    return if SchoolCalendarDisciplineGrade.exists?(
+      school_calendar_id: school_calendar_id,
+      discipline_id: discipline_id,
+      grade_id: grade_ids
+    )
+
+    errors.add(:grades, :discipline_not_in_grades)
   end
 end

@@ -109,17 +109,9 @@ class Discipline < ActiveRecord::Base
       .uniq
   end
 
-  def self.by_grade(grade)
-    joins(:teacher_discipline_classrooms).joins(
-        arel_table.join(Classroom.arel_table)
-          .on(
-            Classroom.arel_table[:id]
-              .eq(TeacherDisciplineClassroom.arel_table[:classroom_id])
-          )
-          .join_sources
-      )
-      .where(classrooms: { grade_id: grade })
-      .uniq
+  def self.by_grade(grade_id)
+    joins(teacher_discipline_classrooms: [classroom: :classrooms_grades])
+      .where(classrooms_grades: { grade_id: grade_id }).uniq
   end
 
   def self.by_classroom(classroom)
