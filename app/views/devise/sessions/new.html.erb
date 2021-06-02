@@ -35,10 +35,11 @@
     var error = <%= @time %>;
 
     if (error !== 0) {
-      document.getElementById('btn-login').style.pointerEvents = "none";
+
+      document.getElementById('btn-login').disabled = true;
 
       setTimeout(function(){
-        document.getElementById('btn-login').style.pointerEvents = "auto";
+        document.getElementById('btn-login').disabled = false;
       }, <%= @time %>);
     }
   </script>
