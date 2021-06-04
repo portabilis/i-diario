@@ -2,7 +2,7 @@ class Users::SessionsController < Devise::SessionsController
   def new
     @time = 0
     if failed_login?
-      (credentials = params.dig(:user, :credentials))
+      credentials = params.dig(:user, :credentials)
       credentials_hash = credentials_discriminator(credentials)
 
       if (user = User.find_by(credentials_hash))
