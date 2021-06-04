@@ -1,4 +1,6 @@
 class Users::SessionsController < Devise::SessionsController
+  after_filter :failed_login?, :only => :new
+
   def new
     @time = 0
     if (credentials = params.dig(:user, :credentials))
@@ -21,6 +23,10 @@ class Users::SessionsController < Devise::SessionsController
     end
 
     super
+  end
+
+  def failed_login?
+    (options = env["warden.options"]) && options[:action] == "unauthenticated"
   end
 
   private
