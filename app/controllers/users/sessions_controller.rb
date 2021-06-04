@@ -9,7 +9,7 @@ class Users::SessionsController < Devise::SessionsController
         attempts_left = User.maximum_attempts - failed_attempts
 
         if attempts_left > 1 && attempts_left != User.maximum_attempts
-          set_flash_message!(:error, :attempts_login, attempts_left: attempts_left)
+          flash[:error] = I18n.t('devise.sessions.user.attempts_login', attempts_left: attempts_left)
           @time = 2000 * failed_attempts
 
           elsif attempts_left == 1
@@ -26,12 +26,12 @@ class Users::SessionsController < Devise::SessionsController
   private
 
   def credentials_discriminator(credentials)
-    if credentials =~ /^\d{3}\.?\d{3}\.?\d{3}\-?\d{2}$/
-      return { cpf: credentials }
-    elsif credentials =~ /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i
-      return { email: credentials }
-    else
-      return { login: credentials }
-    end
+    key = case credentials
+          when /^\d{3}\.?\d{3}\.?\d{3}\-?\d{2}$/ then :cpf
+          when /\A([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})\z/i then :email
+          else :login
+          end
+
+    Hash[key, credentials]
   end
 end
