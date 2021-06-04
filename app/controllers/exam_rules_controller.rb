@@ -3,9 +3,11 @@ class ExamRulesController < ApplicationController
     classroom = Classroom.find_by(id: params[:classroom_id])
     student = Student.find_by(id: params[:student_id])
 
-    return if classroom.blank? || student.blank?
+    return if classroom.blank?
 
-    classroom_grade = ClassroomsGrade.by_student_id(student.id).by_classroom_id(classroom.id)&.first
+    classroom_grades = ClassroomsGrade.by_classroom_id(classroom.id)
+    classroom_grades = classroom_grades.by_student_id(student.id) if student.present?
+    classroom_grade = classroom_grades&.first
 
     return if classroom_grade.blank?
 
