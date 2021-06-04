@@ -3,7 +3,6 @@ class RegistrationsController < ApplicationController
   layout "registration"
 
   def new
-    flash.clear
     @signup = Signup.new(params[:signup])
   end
 

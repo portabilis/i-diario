@@ -1,9 +1,8 @@
 class Users::SessionsController < Devise::SessionsController
-  after_filter :failed_login?, :only => :new
-
   def new
     @time = 0
-    if (credentials = params.dig(:user, :credentials))
+    if failed_login?
+      (credentials = params.dig(:user, :credentials))
       credentials_hash = credentials_discriminator(credentials)
 
       if (user = User.find_by(credentials_hash))
@@ -11,12 +10,12 @@ class Users::SessionsController < Devise::SessionsController
         attempts_left = User.maximum_attempts - failed_attempts
 
         if attempts_left > 1 && attempts_left != User.maximum_attempts
-          flash[:error] = I18n.t('devise.sessions.user.attempts_login', attempts_left: attempts_left)
+          flash.now[:error] = I18n.t('devise.sessions.user.attempts_login', attempts_left: attempts_left)
           @time = 2000 * failed_attempts
 
           elsif attempts_left == 1
             flash.clear
-            flash[:alert] = I18n.t('devise.failure.last_attempt')
+            flash.now[:alert] = I18n.t('devise.failure.last_attempt')
             @time = 2000 * failed_attempts
         end
       end
@@ -25,11 +24,11 @@ class Users::SessionsController < Devise::SessionsController
     super
   end
 
+  private
+
   def failed_login?
     (options = env["warden.options"]) && options[:action] == "unauthenticated"
   end
-
-  private
 
   def credentials_discriminator(credentials)
     key = case credentials
