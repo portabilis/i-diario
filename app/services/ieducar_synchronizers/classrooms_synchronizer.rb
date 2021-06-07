@@ -22,18 +22,22 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
       next if unity.blank?
 
-      grade = grade(classroom_record.serie_id)
-
-      next if grade.blank?
-
       Classroom.with_discarded.find_or_initialize_by(api_code: classroom_record.id).tap do |classroom|
         classroom.description = classroom_record.nome
         classroom.unity = unity
         classroom.unity_code = classroom_record.escola_id
         classroom.period = classroom_record.turno_id
-        classroom.grade = grade
         classroom.year = classroom_record.ano
         classroom.exam_rule_id = exam_rule(classroom_record.regra_avaliacao_id).try(:id)
+
+        classroom_record.series_regras.each do |grade_exam_rule|
+          grade = grade(grade_exam_rule.serie_id)
+          exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_id)
+
+          next if grade.blank? || exam_rule.blank?
+
+          classroom.classrooms_grades.build(grade_id: grade.id, exam_rule_id: exam_rule.id)
+        end
 
         if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
           update_period_dependents(classroom.id, classroom.period_was, classroom.period)
