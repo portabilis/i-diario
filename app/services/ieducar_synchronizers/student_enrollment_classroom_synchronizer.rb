@@ -23,6 +23,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
 
     student_enrollment_classrooms.each do |student_enrollment_classroom_record|
       classroom_id = classroom(student_enrollment_classroom_record.turma_id).try(:id)
+      grade_id = grade(student_enrollment_classroom_record.serie_id).try(:id)
       student_enrollment = student_enrollment(student_enrollment_classroom_record.matricula_id)
 
       next if student_enrollment.blank?
@@ -31,7 +32,8 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         api_code: student_enrollment_classroom_record.id
       ).tap do |student_enrollment_classroom|
         student_enrollment_classroom.student_enrollment = student_enrollment
-        student_enrollment_classroom.classroom_id = classroom_id
+        student_enrollment_classroom.classrooms_grade_id = ClassroomGrade.find_by(classroom_id: classroom_id,
+                                                                                  grade_id: grade_id)
         student_enrollment_classroom.classroom_code = student_enrollment_classroom_record.turma_id
         student_enrollment_classroom.joined_at = student_enrollment_classroom_record.data_entrada
         student_enrollment_classroom.left_at = student_enrollment_classroom_record.data_saida
