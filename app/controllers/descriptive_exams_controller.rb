@@ -185,7 +185,9 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def set_opinion_types
-    if current_user_classroom.exam_rule.blank?
+    exam_rules = current_user_classroom.classrooms_grades.map(&:exam_rule)
+
+    if exam_rules.blank?
       redirect_with_message(t('descriptive_exams.new.exam_rule_not_found'))
 
       return
@@ -193,17 +195,22 @@ class DescriptiveExamsController < ApplicationController
 
     @opinion_types = []
 
-    if current_user_classroom.exam_rule.allow_descriptive_exam?
-      @opinion_types << OpenStruct.new(id: current_user_classroom.exam_rule.opinion_type,
+    descriptive_exam_opinion_type = exam_rules.find(&:allow_descriptive_exam?)&.opinion_type
+
+    if descriptive_exam_opinion_type.present?
+      @opinion_types << OpenStruct.new(id: descriptive_exam_opinion_type,
                                        text: 'Avaliação padrão (regular)',
                                        name: 'Avaliação padrão (regular)')
     end
 
-    if current_user_classroom.exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
-       current_user_classroom.exam_rule.opinion_type != current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type
+    differentiated_opinion_type = exam_rules.find { |exam_rule|
+      exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
+        exam_rule.differentiated_exam_rule.opinion_type != descriptive_exam_opinion_type
+    }&.opinion_type
 
+    if differentiated_opinion_type.present?
       @opinion_types << OpenStruct.new(
-        id: current_user_classroom.exam_rule.differentiated_exam_rule.opinion_type,
+        id: differentiated_opinion_type,
         text: 'Avaliação inclusiva (alunos com deficiência)',
         name: 'Avaliação inclusiva (alunos com deficiência)'
       )
