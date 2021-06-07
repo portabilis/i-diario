@@ -28,8 +28,6 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.unity_code = classroom_record.escola_id
         classroom.period = classroom_record.turno_id
         classroom.year = classroom_record.ano
-        classroom.exam_rule_id = exam_rule(classroom_record.regra_avaliacao_id).try(:id)
-
         classroom_record.series_regras.each do |grade_exam_rule|
           grade = grade(grade_exam_rule.serie_id)
           exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_id)
