@@ -20,6 +20,8 @@ class GeneralConfiguration < ActiveRecord::Base
     validates :days_to_consider_alternate_absences, numericality: { greater_than_or_equal_to: 5 }
   end
 
+  validate :correct_types_of_teaching if :type_of_teaching.present?
+
   belongs_to :employees_default_role, class_name: 'Role', foreign_key: 'employees_default_role_id'
 
   def self.current
@@ -35,5 +37,15 @@ class GeneralConfiguration < ActiveRecord::Base
       backup_status: ApiSynchronizationStatus::ERROR,
       error_message: message
     )
+  end
+
+  private
+
+  def correct_types_of_teaching
+    if types_of_teaching.blank? && type_of_teaching == true
+      errors.add(:types_of_teaching, I18n.t('enumerations.types_of_teaching.blank'))
+    elsif types_of_teaching.detect { |s| !(TypesOfTeaching.list.include? s) }
+      errors.add(:types_of_teaching, I18n.t('enumerations.types_of_teaching.invalid'))
+    end
   end
 end
