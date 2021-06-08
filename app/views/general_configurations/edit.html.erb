@@ -70,6 +70,19 @@
           <%= f.input :notify_consecutive_or_alternate_absences, as: :boolean, label: false, inline_label: true %>
         </div>
       </div>
+      <div class="row">
+        <div class="col col-sm-6">
+          <%= f.input :type_of_teaching, as: :boolean, label: false, inline_label: true %>
+        </div>
+      </div>
+      <div class="row margin-top-10" id="types_of_teaching_container">
+        <div class='col col-xs-12 col-sm-12 col-md-6'>
+          <div style="float:right;">
+        </div>
+        <%= f.input :types_of_teaching, as: :select2, elements: TypesOfTeaching.to_select(false).to_json, multiple: true, required: false,
+            input_html: { value: f.object.types_of_teaching.join(','), data: { without_json_parser: true } }  %>  
+        </div>
+      </div>
       <fieldset id="notify_consecutive_or_alternate_absences_fields" class="fieldset">
         <legend><%= t('.infrequency_tracking_configurations') %></legend>
           <div class="row">
