@@ -1,4 +1,32 @@
+$(document).ready(validateTypeOfTeaching)
+  var $type_of_teaching = $('*[data-id="type_of_teaching"]');
+
+  function validateTypeOfTeaching() {
+    for (var i = 0, l = $type_of_teaching.length; i < l; i++) {
+      if ($type_of_teaching[i].value != 1) {
+        var id = $type_of_teaching[i].id;
+        id = id.replace("_type_of_teaching", "_present");
+        var checkbox = $("#" + id);
+        checkbox.prop('disabled', true)
+      }
+    }
+  }
+
 $(function () {
+  var $type_of_teaching = $('*[data-id="type_of_teaching"]');
+
+  $($type_of_teaching).change(function() {
+    var id = this.id;
+    id = id.replace("_type_of_teaching", "_present");
+    var checkbox = $("#" + id);
+    if (this.value != 1) {
+      checkbox.prop('disabled', true)
+      checkbox.prop('checked', true)
+    } else {
+      checkbox.prop('disabled', false)
+    }
+  });
+
   var showConfirmation = $('#new_record').val() == 'true';
 
   // fix to checkboxes work correctly
