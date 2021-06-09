@@ -40,9 +40,9 @@ class Classroom < ActiveRecord::Base
   }
 
   scope :by_unity, ->(unity) { where(unity: unity) }
-  scope :by_unity_and_grade, ->(unity_id, grade_id) { where(unity_id: unity_id, grade_id: grade_id).uniq }
+  scope :by_unity_and_grade, ->(unity_id, grade_id) { where(unity_id: unity_id).by_grade(grade_id).uniq }
   scope :different_than, ->(classroom_id) { where(arel_table[:id].not_eq(classroom_id)) }
-  scope :by_grade, ->(grade_id) { where(grade_id: grade_id) }
+  scope :by_grade, ->(grade_id) { joins(:classrooms_grades).merge(ClassroomsGrade.by_grade_id(grade_id)) }
   scope :by_year, ->(year) { where(year: year) }
   scope :by_period, ->(period) { where(period: period) }
 
@@ -66,7 +66,7 @@ class Classroom < ActiveRecord::Base
 
   scope :by_api_code, ->(api_code) { where(api_code: api_code) }
   scope :by_id, ->(id) { where(id: id) }
-  scope :with_grade, -> { where.not(grade: nil) }
+  scope :with_grade, -> { joins(:classrooms_grades).where.not(classrooms_grades: { grade: nil }) }
 
   after_discard do
     teacher_discipline_classrooms.discard_all
