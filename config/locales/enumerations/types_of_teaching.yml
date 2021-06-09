@@ -6,3 +6,4 @@ pt-BR:
       remote: "Remoto"
       blank: "Tipo de ensino deve ser preenchido"
       invalid: "Tipo de ensino inválido"
+      used: "Não é possível remover essa modalidade de ensino pois já existem frequências lançadas para ela"

@@ -21,6 +21,7 @@ class GeneralConfiguration < ActiveRecord::Base
   end
 
   validate :correct_types_of_teaching if :type_of_teaching.present?
+  validate :exists_daily_frequency_student_with_type_of_teaching
 
   belongs_to :employees_default_role, class_name: 'Role', foreign_key: 'employees_default_role_id'
 
@@ -40,6 +41,17 @@ class GeneralConfiguration < ActiveRecord::Base
   end
 
   private
+
+  def exists_daily_frequency_student_with_type_of_teaching
+    return if type_of_teaching == false
+    return if types_of_teaching.sort == GeneralConfiguration.first.types_of_teaching.sort
+
+    removed_types = GeneralConfiguration.first.types_of_teaching - types_of_teaching
+
+    if DailyFrequencyStudent.where(type_of_teaching: [removed_types]).exists?
+      errors.add(:types_of_teaching, I18n.t('enumerations.types_of_teaching.used'))
+    end
+  end
 
   def correct_types_of_teaching
     if types_of_teaching.blank? && type_of_teaching == true
