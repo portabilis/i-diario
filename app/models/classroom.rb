@@ -92,6 +92,10 @@ class Classroom < ActiveRecord::Base
     grades.count > 1
   end
 
+  def first_exam_rule
+    classrooms_grades.first.exam_rule
+  end
+
   private
 
   def set_label_color

@@ -110,7 +110,7 @@ module ExamPoster
         exams.each do |exam|
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
-            OpinionTypes::BY_STEP, classroom.exam_rule
+            OpinionTypes::BY_STEP, classroom.first_exam_rule
           )
 
           descriptive_exams[classroom.api_code][exam.student.api_code]['valor'] = exam.value
@@ -132,7 +132,7 @@ module ExamPoster
         exams.each do |exam|
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
-            OpinionTypes::BY_YEAR, classroom.exam_rule
+            OpinionTypes::BY_YEAR, classroom.first_exam_rule
           )
 
           descriptive_exams[classroom.api_code][exam.student.api_code]['valor'] = exam.value
@@ -161,7 +161,7 @@ module ExamPoster
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
             OpinionTypes::BY_YEAR_AND_DISCIPLINE,
-            classroom.exam_rule
+            classroom.first_exam_rule
           )
 
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]['valor'] = exam.value
@@ -198,7 +198,7 @@ module ExamPoster
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
             OpinionTypes::BY_STEP_AND_DISCIPLINE,
-            classroom.exam_rule
+            classroom.first_exam_rule
           )
 
           descriptive_exams[classroom.api_code][exam.student.api_code][discipline.api_code]['valor'] = exam.value

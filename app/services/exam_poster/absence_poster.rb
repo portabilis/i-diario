@@ -182,7 +182,7 @@ module ExamPoster
     end
 
     def classroom_frequency_by_discipline?(classroom)
-      classroom.exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
+      classroom.first_exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
     end
   end
 end
