@@ -24,14 +24,18 @@ class GradeExamRulesSynchronizer < BaseSynchronizer
 
       exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_id)
       differentiated_exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_diferenciada_id)
+      classroom_ids = grade.classrooms_grades.pluck(:classroom_id)
+      classrooms_grades = Classroom.with_discarded.by_year(year).where(id: classroom_ids).map(&:classrooms_grades)
 
-      grade.classrooms.with_discarded.by_year(year).each do |classroom_record|
-        classroom_record.tap do |classroom|
-          unity = unity(classroom.unity_code)
+      classrooms_grades.each do |classroom_grade_record|
+        classroom_grade_record.tap do |classroom_grade|
+          unity = unity(classroom_grade.classroom.unity_code)
+
           current_exam_rule = differentiated_exam_rule if unity.uses_differentiated_exam_rule?
           current_exam_rule ||= exam_rule
-          classroom.exam_rule = current_exam_rule
-          classroom.save! if classroom.changed?
+          classroom_grade.exam_rule = current_exam_rule
+
+          classroom_grade.save! if classroom_grade.changed?
         end
       end
     end
