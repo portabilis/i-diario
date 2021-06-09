@@ -56,7 +56,6 @@ class DailyFrequenciesController < ApplicationController
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
     @general_configuration = GeneralConfiguration.current
-    @types_of_teaching = @general_configuration.types_of_teaching
 
     authorize @daily_frequency
 
