@@ -9,6 +9,8 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   before_save :nullify_presence_for_inactive_students
 
+  after_save :update_student_enrollment_classroom_type_of_teaching
+
   belongs_to :daily_frequency, inverse_of: :students
   belongs_to :student
 
@@ -56,6 +58,15 @@ class DailyFrequencyStudent < ActiveRecord::Base
     update_column(:sequence, student_enrollment_sequence)
 
     super
+  end
+
+  def update_student_enrollment_classroom_type_of_teaching
+    student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
+                                                             .by_date(frequency_date)
+                                                             .by_student(student_id)
+                                                             .first
+    student_enrollment_classroom.type_of_teaching = type_of_teaching
+    student_enrollment_classroom.save!
   end
 
   def student_enrollment_sequence
