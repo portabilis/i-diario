@@ -52,7 +52,9 @@ class Classroom < ActiveRecord::Base
       .uniq
   }
 
-  scope :by_score_type, ->(score_type) { where('exam_rules.score_type' => score_type).includes(:exam_rule) }
+  scope :by_score_type, lambda { |score_type|
+    joins(:classrooms_grades).merge(ClassroomsGrade.by_score_type(score_type))
+  }
   scope :ordered, -> { order(arel_table[:description].asc) }
   scope :by_api_code, ->(api_code) { where(api_code: api_code) }
 
@@ -83,9 +85,9 @@ class Classroom < ActiveRecord::Base
   end
 
   def has_differentiated_students?
-    student_enrollment_classrooms.joins(student_enrollment: :student )
-                                 .where(students: { uses_differentiated_exam_rule: true } )
-                                 .exists?
+    classrooms_grades.joins(student_enrollment_classrooms: [student_enrollment: :student])
+                     .where(students: { uses_differentiated_exam_rule: true })
+                     .exists?
   end
 
   def multi_grade?
