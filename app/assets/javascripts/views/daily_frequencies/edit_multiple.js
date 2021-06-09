@@ -8,6 +8,7 @@ $(document).ready(validateTypeOfTeaching)
         id = id.replace("_type_of_teaching", "_present");
         var checkbox = $("#" + id);
         checkbox.prop('disabled', true)
+        checkbox.prop('checked', true)
       }
     }
   }
