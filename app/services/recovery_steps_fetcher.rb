@@ -25,11 +25,11 @@ class RecoveryStepsFetcher
   end
 
   def recovery_type
-    @classroom.exam_rule.recovery_type
+    @classroom.first_exam_rule.recovery_type
   end
 
   def recovery_exam_rule
-    @classroom.exam_rule.recovery_exam_rules.find do |recovery_diary_record|
+    @classroom.first_exam_rule.recovery_exam_rules.find do |recovery_diary_record|
       recovery_diary_record.steps.last.eql?(@step.to_number)
     end
   end
