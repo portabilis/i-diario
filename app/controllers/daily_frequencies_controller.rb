@@ -55,6 +55,8 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = @daily_frequencies.first
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+    @general_configuration = GeneralConfiguration.current
+    @types_of_teaching = @general_configuration.types_of_teaching
 
     authorize @daily_frequency
 
@@ -240,7 +242,7 @@ class DailyFrequenciesController < ApplicationController
       daily_frequencies: [
         :class_number,
         students_attributes: [
-          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active]
+          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active, :type_of_teaching]
         ]
       ]
     ).require(:daily_frequencies)
