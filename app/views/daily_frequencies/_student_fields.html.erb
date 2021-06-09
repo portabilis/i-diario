@@ -19,6 +19,13 @@
     <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student.id.to_s.rjust(10, '0')}" %>
     <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
       daily_frequency_student = daily_frequency.build_or_find_by_student(student) do |f| %>
+      <% if @general_configuration.type_of_teaching == true %>
+          <td>
+            <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_value(false, @types_of_teaching).to_json, 
+                label: false, required: false,
+                input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: :type_of_teaching } }  %> 
+          </td>
+      <% end %> 
       <td>
         <%= f.hidden_field :id, value: daily_frequency_student.id %>
         <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
