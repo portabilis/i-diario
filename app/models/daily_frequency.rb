@@ -89,7 +89,16 @@ class DailyFrequency < ActiveRecord::Base
   end
 
   def build_or_find_by_student student
-    students.where(student_id: student.id).first || students.build(student_id: student.id, present: 1)
+    students.find_by(student_id: student.id) || students.build(student_id: student.id, present: 1,
+                                                               type_of_teaching: default_type_of_teaching(student))
+  end
+
+  def default_type_of_teaching(student)
+    student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
+                                                             .by_date(frequency_date)
+                                                             .by_student(student.id)
+                                                             .first
+    student_enrollment_classroom.type_of_teaching
   end
 
   def origin=(value)
