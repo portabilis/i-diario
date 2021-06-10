@@ -9,7 +9,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   before_save :nullify_presence_for_inactive_students
 
-  before_save :set_presence_based_on_type_of_teaching
+  before_save :default_type_of_teaching
 
   after_save :update_student_enrollment_classroom_type_of_teaching
 
@@ -62,7 +62,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
     super
   end
 
-  def set_presence_based_on_type_of_teaching
+  def default_type_of_teaching
     self.present = true if type_of_teaching != 1
   end
 
