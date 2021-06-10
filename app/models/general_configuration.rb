@@ -21,7 +21,7 @@ class GeneralConfiguration < ActiveRecord::Base
   end
 
   validate :valid_type_of_teaching if type_of_teaching.present?
-  validate :exists_daily_frequency_student_with_type_of_teaching
+  validate :daily_frequency_with_type_of_teaching
 
   belongs_to :employees_default_role, class_name: 'Role', foreign_key: 'employees_default_role_id'
 
@@ -42,7 +42,7 @@ class GeneralConfiguration < ActiveRecord::Base
 
   private
 
-  def exists_daily_frequency_student_with_type_of_teaching
+  def daily_frequency_with_type_of_teaching
     return if type_of_teaching == false
     return if types_of_teaching.sort == GeneralConfiguration.first.types_of_teaching.sort
 
