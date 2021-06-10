@@ -162,6 +162,13 @@ class AttendanceRecordReport < BaseReport
               students[student_id][:absences] = students[student_id][:absences] + 1
             end
 
+            if frequency_hybrid_or_remote(student_enrollment, daily_frequency)
+              student_frequency = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
+              self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina, S - Modalidade Semipresencial, R - Modalidade Remota"
+            else
+              student_frequency
+            end
+
             (students[student_id][:attendances] ||= []) <<
               make_cell(content: student_frequency.to_s, align: :center)
           end
@@ -441,5 +448,16 @@ class AttendanceRecordReport < BaseReport
     end
 
     all_events.join(', ')
+  end
+
+  def frequency_hybrid_or_remote(student_enrollment, daily_frequency)
+    student_frequency = daily_frequency.students.by_student_id(student_enrollment.student_id).first
+    return if student_frequency.type_of_teaching == 1
+
+    if student_frequency.type_of_teaching == 2
+      'S'
+    else
+      'R'
+    end
   end
 end
