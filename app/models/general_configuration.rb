@@ -20,7 +20,7 @@ class GeneralConfiguration < ActiveRecord::Base
     validates :days_to_consider_alternate_absences, numericality: { greater_than_or_equal_to: 5 }
   end
 
-  validate :valid_type_of_teaching if type_of_teaching.present?
+  validate :valid_type_of_teaching
   validate :daily_frequency_with_type_of_teaching
 
   belongs_to :employees_default_role, class_name: 'Role', foreign_key: 'employees_default_role_id'
@@ -54,7 +54,9 @@ class GeneralConfiguration < ActiveRecord::Base
   end
 
   def valid_type_of_teaching
-    if types_of_teaching.blank? && type_of_teaching.present?
+    return if type_of_teaching.present?
+
+    if types_of_teaching.blank?
       errors.add(:types_of_teaching, I18n.t('enumerations.types_of_teaching.blank'))
     elsif types_of_teaching.detect { |s| !(TypesOfTeaching.list.include? s) }
       errors.add(:types_of_teaching, I18n.t('enumerations.types_of_teaching.invalid'))
