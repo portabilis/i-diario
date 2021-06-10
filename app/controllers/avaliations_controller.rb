@@ -271,7 +271,7 @@ class AvaliationsController < ApplicationController
                      .by_unities(current_user_classroom.unity)
                      .where(
                        "grades && ARRAY[?]::integer[] OR grades = '{}'",
-                       current_user_classroom.grades.pluck(:id)
+                       current_user_classroom.grade_ids
                      )
                      .presence
   end

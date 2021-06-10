@@ -98,6 +98,10 @@ class Classroom < ActiveRecord::Base
     classrooms_grades.first.exam_rule
   end
 
+  def courses
+    grades.map(&:course)
+  end
+
   private
 
   def set_label_color
