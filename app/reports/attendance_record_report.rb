@@ -58,7 +58,11 @@ class AttendanceRecordReport < BaseReport
     @display_knowledge_area_as_discipline = ActiveRecord::Type::Boolean.new.type_cast_from_user(
       display_knowledge_area_as_discipline
     )
-    self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
+    @show_legend_hybrid = false
+    @show_legend_remote = false
+    @exists_legend_hybrid = false
+    @exists_legend_remote = false
+    self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
 
     header
     content
@@ -70,7 +74,6 @@ class AttendanceRecordReport < BaseReport
   protected
 
   attr_accessor :any_student_with_dependence, :legend, :extra_school_event_description
-
   private
 
   def header
@@ -164,9 +167,16 @@ class AttendanceRecordReport < BaseReport
 
             if frequency_hybrid_or_remote(student_enrollment, daily_frequency)
               student_frequency = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
-              self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina, S - Modalidade Semipresencial, R - Modalidade Remota"
             else
               student_frequency
+            end
+
+            if @show_legend_hybrid && !@exists_legend_hybrid
+              @exists_legend_hybrid = true
+              self.legend += ', S - Modalidade semipresencial'
+            elsif @show_legend_remote && !@exists_legend_remote
+              @exists_legend_remote = true
+              self.legend += ', R - Modalidade remota'
             end
 
             (students[student_id][:attendances] ||= []) <<
@@ -275,7 +285,7 @@ class AttendanceRecordReport < BaseReport
 
       text_box(self.legend, size: 8, at: [0, 30 + bottom_offset], width: 825, height: 20)
 
-      self.legend = "Legenda: N - Não enturmado, D - Dispensado da disciplina"
+      self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
 
       if index < sliced_frequencies_and_events.count - 1
         start_new_page
@@ -455,8 +465,10 @@ class AttendanceRecordReport < BaseReport
     return if student_frequency.type_of_teaching == 1
 
     if student_frequency.type_of_teaching == 2
+      @show_legend_hybrid = true
       'S'
     else
+      @show_legend_remote = true
       'R'
     end
   end
