@@ -461,7 +461,8 @@ class AttendanceRecordReport < BaseReport
   end
 
   def frequency_hybrid_or_remote(student_enrollment, daily_frequency)
-    student_frequency = daily_frequency.students.by_student_id(student_enrollment.student_id).first
+    student_frequency = daily_frequency.students.by_student_id(student_enrollment.student_id).try(:first)
+    return if student_frequency.blank?
     return if student_frequency.type_of_teaching == 1
 
     if student_frequency.type_of_teaching == 2
