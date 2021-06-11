@@ -8,7 +8,7 @@
     <span class="<%= name_class %>"><%= student_name %></span>
   </td>
 
-  <% @daily_frequencies.each do |daily_frequency| %>
+  <% @daily_frequencies.each_with_index do |daily_frequency, index| %>
     <% class_number = daily_frequency.class_number || 0 %>
     <% daily_frequency_path = "daily_frequency[daily_frequencies]" %>
     <% daily_frequency_student_path = "#{daily_frequency_path}[#{class_number}][students_attributes]" %>
@@ -19,7 +19,7 @@
     <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student.id.to_s.rjust(10, '0')}" %>
     <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
       daily_frequency_student = daily_frequency.build_or_find_by_student(student) do |f| %>
-      <% if @general_configuration.type_of_teaching == true %>
+      <% if @general_configuration.type_of_teaching == true && index == 0%>
           <td>
             <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
                 label: false, required: false,
