@@ -22,7 +22,7 @@ class Discipline < ActiveRecord::Base
     scoped = joins(teacher_discipline_classrooms: [classroom: [classrooms_grades: :exam_rule]])
 
     if student_id && Student.find(student_id).try(:uses_differentiated_exam_rule)
-      exam_rules = ExamRule.arel_table.alias('exam_rules_classrooms')
+      exam_rules = ExamRule.arel_table.alias('exam_rules_classrooms_grades')
 
       differentiated_exam_rules = ExamRule.arel_table.alias('differentiated_exam_rules')
         scoped.joins(
