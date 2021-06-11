@@ -5,22 +5,15 @@ $(document).ready(validateTypeOfTeaching)
     for (var i = 0, l = $type_of_teaching.length; i < l; i++) {
       if ($type_of_teaching[i].value != 1) {
         var id = $type_of_teaching[i].id;
-        disableCheckbox(id, '_type_of_teaching', '_present')
+        modifyCheckbox(id, '_type_of_teaching', '_present', true)
       }
     }
   }
 
-  function disableCheckbox(id, to, from) {
+  function modifyCheckbox(id, to, from, disabled) {
     id = id.replace(to, from);
     var checkbox = $("#" + id);
-    checkbox.prop('disabled', true)
-    checkbox.prop('checked', true)
-  }
-
-  function enableCheckbox(id, to, from) {
-    id = id.replace(to, from);
-    var checkbox = $("#" + id);
-    checkbox.prop('disabled', false)
+    checkbox.prop('disabled', disabled)
     checkbox.prop('checked', true)
   }
 
@@ -31,9 +24,9 @@ $(function () {
     var id = this.id;
 
     if (this.value != 1) {
-      disableCheckbox(id, '_type_of_teaching', '_present')
+      modifyCheckbox(id, '_type_of_teaching', '_present', true)
     } else {
-      enableCheckbox(id, '_type_of_teaching', '_present')
+      modifyCheckbox(id, '_type_of_teaching', '_present', false)
     }
   });
 
