@@ -34,7 +34,7 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
           next if grade.blank? || exam_rule.blank?
 
-          classroom.classrooms_grades.build(grade_id: grade.id, exam_rule_id: exam_rule.id)
+          classroom.classrooms_grades.create(grade_id: grade.id, exam_rule_id: exam_rule.id)
         end
 
         if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
