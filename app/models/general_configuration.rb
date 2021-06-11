@@ -44,11 +44,9 @@ class GeneralConfiguration < ActiveRecord::Base
 
   def daily_frequency_with_type_of_teaching
     return unless type_of_teaching
-    return if types_of_teaching_was == types_of_teaching
+    return if types_of_teaching_was.sort == types_of_teaching.sort
 
     removed_types = types_of_teaching_was - types_of_teaching
-
-    return if removed_types.blank?
     return unless DailyFrequencyStudent.find_by(type_of_teaching: removed_types)
 
     errors.add(:types_of_teaching, I18n.t('enumerations.types_of_teaching.used'))
@@ -59,7 +57,7 @@ class GeneralConfiguration < ActiveRecord::Base
 
     if types_of_teaching.blank?
       errors.add(:types_of_teaching, I18n.t('enumerations.types_of_teaching.blank'))
-    elsif types_of_teaching.detect { |s| !(TypesOfTeaching.list.include? s) }
+    elsif types_of_teaching.none? { |type| TypesOfTeaching.list.include?(type) }
       errors.add(:types_of_teaching, I18n.t('enumerations.types_of_teaching.invalid'))
     end
   end
