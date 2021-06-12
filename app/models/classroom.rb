@@ -28,7 +28,7 @@ class Classroom < ActiveRecord::Base
 
   delegate :course_id, :course, to: :grade, prefix: false
 
-  validates :description, :api_code, :unity_code, :year, :grade, presence: true
+  validates :description, :api_code, :unity_code, :year, presence: true
   validates :api_code, uniqueness: true
 
   default_scope -> { kept }

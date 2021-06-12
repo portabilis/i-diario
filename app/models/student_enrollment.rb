@@ -50,7 +50,7 @@ class StudentEnrollment < ActiveRecord::Base
   end
 
   def self.with_recovery_note_in_step_query(step, discipline_id)
-    joins(:student_enrollment_classrooms).where('
+    joins(student_enrollment_classrooms: :classrooms_grade).where('
       ( EXISTS(
         SELECT 1
         FROM recovery_diary_records
@@ -58,7 +58,7 @@ class StudentEnrollment < ActiveRecord::Base
         ON recovery_diary_records.id = school_term_recovery_diary_records.recovery_diary_record_id
         JOIN recovery_diary_record_students
         ON recovery_diary_record_students.recovery_diary_record_id = recovery_diary_records.id
-        WHERE recovery_diary_records.classroom_id = student_enrollment_classrooms.classroom_id
+        WHERE recovery_diary_records.classroom_id = classrooms_grades.classroom_id
         AND recovery_diary_records.discipline_id = ?
         AND recovery_diary_records.recorded_at BETWEEN ? AND ?
         AND recovery_diary_record_students.student_id = student_enrollments.student_id

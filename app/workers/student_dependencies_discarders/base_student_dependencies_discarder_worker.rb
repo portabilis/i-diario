@@ -29,10 +29,12 @@ class BaseStudentDependenciesDiscarderWorker
           JOIN student_enrollment_classrooms
             ON student_enrollment_classrooms.student_enrollment_id = student_enrollments.id
            AND student_enrollment_classrooms.discarded_at IS NULL
+          JOIN classrooms_grades
+            ON classrooms_grades.id = student_enrollment_classrooms.classrooms_grade_id
          WHERE student_enrollments.student_id = :student_id
            AND student_enrollments.discarded_at IS NULL
            AND student_enrollments.active = 1
-           AND student_enrollment_classrooms.classroom_id = #{classroom_id_column}
+           AND classrooms_grades.classroom_id = #{classroom_id_column}
            AND #{start_date_column} >= CAST(student_enrollment_classrooms.joined_at AS DATE) AND
                (
                  COALESCE(student_enrollment_classrooms.left_at, '') = '' OR
