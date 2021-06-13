@@ -3,8 +3,8 @@
     <%= sequence %>
   </td>
   <td>
-    <% name_class = frequency_student_name_class(dependence, active, exempted_from_discipline) %>
-    <% student_name = frequency_student_name(student, dependence, active, exempted_from_discipline) %>
+    <% name_class = frequency_student_name_class(dependence, active, exempted_from_discipline, in_active_search) %>
+    <% student_name = frequency_student_name(student, dependence, active, exempted_from_discipline, in_active_search) %>
     <span class="<%= name_class %>"><%= student_name %></span>
   </td>
 
@@ -26,8 +26,8 @@
         <%= f.hidden_field :dependence, value: dependence %>
         <%= f.hidden_field :active, value: active %>
 
-        <label class="checkbox <%= active && !exempted_from_discipline ? "" : "state-disabled" %>">
-          <%= f.check_box :present, disabled: !active || exempted_from_discipline %>
+        <label class="checkbox <%= active && !exempted_from_discipline && !in_active_search ? "" : "state-disabled" %>">
+          <%= f.check_box :present, disabled: !active || exempted_from_discipline || in_active_search %>
           <i></i>
         </label>
       </td>
