@@ -66,6 +66,7 @@ class DailyNotesController < ApplicationController
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
         note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_note)
+        note_student.in_active_search = in_active_search?(student_enrollment, @daily_note)
 
         @students << note_student
       end
@@ -76,6 +77,7 @@ class DailyNotesController < ApplicationController
     @any_exempted_student = any_exempted_student?
     @any_inactive_student = any_inactive_student?
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
+    @any_in_active_search = any_in_active_search?
 
     @students.each do |student|
       @normal_students << student if !student.dependence
@@ -270,7 +272,23 @@ class DailyNotesController < ApplicationController
                                            .any?
   end
 
+  def in_active_search?(student_enrollment, daily_note)
+    student_active_search = ActiveSearch.where(student_enrollment_id: student_enrollment.id)
+    not_in_progress = student_active_search.where.not(status: ActiveSearchStatus::IN_PROGRESS)
+                                           .where('? between start_date and end_date', daily_note.avaliation.test_date)
+                                           .exists?
+    return not_in_progress if not_in_progress
+
+    student_active_search.where(status: ActiveSearchStatus::IN_PROGRESS)
+                         .where('start_date <= ?', daily_note.avaliation.test_date)
+                         .exists?
+  end
+
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
+  end
+
+  def any_in_active_search?
+    (@students || []).any?(&:in_active_search)
   end
 end
