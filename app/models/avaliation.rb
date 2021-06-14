@@ -279,7 +279,7 @@ class Avaliation < ActiveRecord::Base
     return unless test_setting.general_by_school?
     return if (grade_ids - test_setting.grades).empty?
 
-    errors.add(:grades, :should_be_in_test_seting)
+    errors.add(:grades, :should_be_in_test_setting)
   end
 
   def discipline_in_grade?
