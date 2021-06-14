@@ -1,4 +1,27 @@
+$(document).ready( function() {
+  $('[data-id="type_of_teaching"]').each( function (index, type_of_teaching) {
+    $(type_of_teaching).on('change', function () {
+      var inputs = $(this).closest('tr').find('[data-id="type_of_teaching_input"]')
+      var value = $(this).val()
+      inputs.each(function(index, input) {  
+        $(input).val(value)
+      })
+      var checkbox = $(this).closest('tr').find('[data-id="checkbox-id"]')
+      var disabled = value != 1
+      if (disabled == true) {
+        checkbox.closest('label').addClass('state-disabled');
+        checkbox.prop('disabled', disabled)
+        checkbox.prop('checked', true)
+      } else {
+        checkbox.closest('label').removeClass('state-disabled');
+        checkbox.prop('disabled', disabled)
+      }
+    }).trigger('change');
+  })
+})
+
 $(function () {
+
   var showConfirmation = $('#new_record').val() == 'true';
 
   // fix to checkboxes work correctly
