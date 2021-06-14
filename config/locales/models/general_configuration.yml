@@ -24,7 +24,7 @@ pt-BR:
         grouped_teacher_profile: "Permite agrupar turmas e disciplinas para professores?"
         create_users_for_students_when_synchronize: "Criar usuários para alunos na sincronização"
         allows_copy_lesson_plans_to_other_grades: "Permite copiar Planos de aula para turmas de outras séries"
-        type_of_teaching: "Permite informar modalidade de ensino no Diário de frequência?"
+        type_of_teaching: "Permitir informar modalidade de ensino no Diário de frequência?"
         types_of_teaching: "Modalidades de ensino"
 
   backup:
