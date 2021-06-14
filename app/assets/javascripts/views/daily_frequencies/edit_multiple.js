@@ -1,34 +1,26 @@
-$(document).ready(validateTypeOfTeaching)
-  var $type_of_teaching = $('*[data-id="type_of_teaching"]');
-
-  function validateTypeOfTeaching() {
-    for (var i = 0, l = $type_of_teaching.length; i < l; i++) {
-      if ($type_of_teaching[i].value != 1) {
-        var id = $type_of_teaching[i].id;
-        modifyCheckbox(id, '_type_of_teaching', '_present', true)
+$(document).ready( function() {
+  $('[data-id="type_of_teaching"]').each( function (index, type_of_teaching) {
+    $(type_of_teaching).on('change', function () {
+      var inputs = $(this).closest('tr').find('[data-id="type_of_teaching_input"]')
+      var value = $(this).val()
+      inputs.each(function(index, input) {  
+        $(input).val(value)
+      })
+      var checkbox = $(this).closest('tr').find('[data-id="checkbox-id"]')
+      var disabled = value != 1
+      if (disabled == true) {
+        checkbox.closest('label').addClass('state-disabled');
+        checkbox.prop('disabled', disabled)
+        checkbox.prop('checked', true)
+      } else {
+        checkbox.closest('label').removeClass('state-disabled');
+        checkbox.prop('disabled', disabled)
       }
-    }
-  }
-
-  function modifyCheckbox(id, to, from, disabled) {
-    id = id.replace(to, from);
-    var checkbox = $("#" + id);
-    checkbox.prop('disabled', disabled)
-    checkbox.prop('checked', true)
-  }
+    }).trigger('change');
+  })
+})
 
 $(function () {
-  var $type_of_teaching = $('*[data-id="type_of_teaching"]');
-
-  $($type_of_teaching).change(function() {
-    var id = this.id;
-
-    if (this.value != 1) {
-      modifyCheckbox(id, '_type_of_teaching', '_present', true)
-    } else {
-      modifyCheckbox(id, '_type_of_teaching', '_present', false)
-    }
-  });
 
   var showConfirmation = $('#new_record').val() == 'true';
 
