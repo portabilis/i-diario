@@ -63,7 +63,7 @@ class DailyFrequencyStudent < ActiveRecord::Base
   end
 
   def default_type_of_teaching
-    present = true if type_of_teaching != TypesOfTeaching::PRESENTIAL
+    self.present = true if type_of_teaching != TypesOfTeaching::PRESENTIAL
   end
 
   def student_enrollment_classroom
