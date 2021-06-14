@@ -165,8 +165,10 @@ class AttendanceRecordReport < BaseReport
               students[student_id][:absences] = students[student_id][:absences] + 1
             end
 
-            if frequency_hybrid_or_remote(student_enrollment, daily_frequency)
-              student_frequency = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
+            hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
+
+            if hybrid_or_remote
+              student_frequency = hybrid_or_remote
             else
               student_frequency
             end
