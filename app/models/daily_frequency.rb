@@ -98,6 +98,8 @@ class DailyFrequency < ActiveRecord::Base
                                                              .by_date(frequency_date)
                                                              .by_student(student.id)
                                                              .first
+    return TypesOfTeaching::PRESENTIAL if student_enrollment_classroom.nil?
+
     student_enrollment_classroom.type_of_teaching
   end
 
