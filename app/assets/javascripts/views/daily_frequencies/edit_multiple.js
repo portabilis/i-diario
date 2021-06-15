@@ -27,6 +27,7 @@ $(document).ready( function() {
       $(this).closest('label').addClass('state-disabled');
       $(this).prop('disabled', true)
       checkbox.closest('label').addClass('state-disabled');
+      checkbox.prop('checked', true)
       checkbox.prop('disabled', true)
     }
   })
