@@ -58,6 +58,11 @@ class AttendanceRecordReport < BaseReport
     @display_knowledge_area_as_discipline = ActiveRecord::Type::Boolean.new.type_cast_from_user(
       display_knowledge_area_as_discipline
     )
+    @show_legend_hybrid = false
+    @show_legend_remote = false
+    @exists_legend_hybrid = false
+    @exists_legend_remote = false
+
     self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
 
     header
@@ -70,7 +75,6 @@ class AttendanceRecordReport < BaseReport
   protected
 
   attr_accessor :any_student_with_dependence, :legend, :extra_school_event_description
-
   private
 
   def header
@@ -168,6 +172,22 @@ class AttendanceRecordReport < BaseReport
 
             if !student_frequency.present
               students[student_id][:absences] = students[student_id][:absences] + 1
+            end
+
+            hybrid_or_remote = frequency_hybrid_or_remote(student_enrollment, daily_frequency)
+
+            if hybrid_or_remote
+              student_frequency = hybrid_or_remote
+            else
+              student_frequency
+            end
+
+            if @show_legend_hybrid && !@exists_legend_hybrid
+              @exists_legend_hybrid = true
+              self.legend += ', S - Modalidade semipresencial'
+            elsif @show_legend_remote && !@exists_legend_remote
+              @exists_legend_remote = true
+              self.legend += ', R - Modalidade remota'
             end
 
             (students[student_id][:attendances] ||= []) <<
@@ -449,5 +469,19 @@ class AttendanceRecordReport < BaseReport
     end
 
     all_events.join(', ')
+  end
+
+  def frequency_hybrid_or_remote(student_enrollment, daily_frequency)
+    student_frequency = daily_frequency.students.by_student_id(student_enrollment.student_id).try(:first)
+    return if student_frequency.blank?
+    return if student_frequency.type_of_teaching == TypesOfTeaching::PRESENTIAL
+
+    if student_frequency.type_of_teaching == TypesOfTeaching::HYBRID
+      @show_legend_hybrid = true
+      'S'
+    else
+      @show_legend_remote = true
+      'R'
+    end
   end
 end

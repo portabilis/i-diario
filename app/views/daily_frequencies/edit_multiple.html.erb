@@ -24,6 +24,9 @@
       <thead>
         <th style="width: 65px;">Sequencial</th>
         <th style="min-width: 200px;"><%= DailyFrequencyStudent.human_attribute_name :student %></th>
+        <% if @general_configuration.type_of_teaching == true %>
+          <th>Modalidade de ensino</th>
+        <%end%>
         <% @daily_frequencies.each do |daily_frequency| %>
             <th>
               <% if daily_frequency.class_number? %>
