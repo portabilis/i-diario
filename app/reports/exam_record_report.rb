@@ -176,7 +176,7 @@ class ExamRecordReport < BaseReport
         @students_enrollments.each do |student_enrollment|
           student_id = student_enrollment.student_id
           exempted_from_discipline = exempted_from_discipline?(student_enrollment, exam)
-          in_active_search = in_active_search?(student_enrollment, exam)
+          in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, exam.test_date)
           daily_note_student = nil
 
           if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student_enrollment.student_id, avaliation_id))
@@ -363,18 +363,6 @@ class ExamRecordReport < BaseReport
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)
                                            .any?
-  end
-
-  def in_active_search?(student_enrollment, exam)
-    student_active_search = ActiveSearch.where(student_enrollment_id: student_enrollment.id)
-    not_in_progress = student_active_search.where.not(status: ActiveSearchStatus::IN_PROGRESS)
-                                           .where('? between start_date and end_date', exam.test_date)
-                                           .exists?
-    return not_in_progress if not_in_progress
-
-    student_active_search.where(status: ActiveSearchStatus::IN_PROGRESS)
-                         .where('start_date <= ?', exam.test_date)
-                         .exists?
   end
 
   def recovery_record(record)

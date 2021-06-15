@@ -54,7 +54,6 @@ class DailyNoteStudentsController < ApplicationController
         note_student.dependence = student_has_dependence?(student_enrollment, daily_note.discipline)
         note_student.active = student_active_on_date?(student_enrollment, daily_note.classroom, date_for_search)
         note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, daily_note)
-        in_active_search(student_enrollment, daily_note)
 
         @normal_students << note_student unless note_student.dependence
         @dependence_students << note_student if note_student.dependence
@@ -73,7 +72,7 @@ class DailyNoteStudentsController < ApplicationController
           dependence: note_student.dependence,
           exempted_from_discipline: note_student.exempted_from_discipline,
           active: note_student.active,
-          in_active_search: in_active_search(student_enrollment, daily_note)
+          in_active_search: ActiveSearch.new.in_active_search(student_enrollment.id, daily_note.avaliation.test_date)
         }
       end
 
@@ -90,7 +89,7 @@ class DailyNoteStudentsController < ApplicationController
           dependence: note_student.dependence,
           exempted_from_discipline: note_student.exempted_from_discipline,
           active: note_student.active,
-          in_active_search: note_student.in_active_search
+          in_active_search: ActiveSearch.new.in_active_search(student_enrollment.id, daily_note.avaliation.test_date)
         }
       end
     end
@@ -131,17 +130,5 @@ class DailyNoteStudentsController < ApplicationController
     student_enrollment.exempted_disciplines.by_discipline(discipline_id)
                                            .by_step_number(step_number)
                                            .any?
-  end
-
-  def in_active_search?(student_enrollment, daily_note)
-    student_active_search = ActiveSearch.where(student_enrollment_id: student_enrollment.id)
-    not_in_progress = student_active_search.where.not(status: ActiveSearchStatus::IN_PROGRESS)
-                                           .where('? between start_date and end_date', daily_note.avaliation.test_date)
-                                           .exists?
-    return not_in_progress if not_in_progress
-
-    student_active_search.where(status: ActiveSearchStatus::IN_PROGRESS)
-                         .where('start_date <= ?', daily_note.avaliation.test_date)
-                         .exists?
   end
 end

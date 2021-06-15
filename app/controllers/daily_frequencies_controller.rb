@@ -70,7 +70,7 @@ class DailyFrequenciesController < ApplicationController
 
       dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
       exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
-      in_active_search = in_active_search?(student_enrollment, @daily_frequency)
+      in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
       @any_exempted_from_discipline ||= exempted_from_discipline
       active = student_active_on_date?(student_enrollment)
       @any_in_active_search ||= in_active_search
@@ -410,18 +410,6 @@ class DailyFrequenciesController < ApplicationController
                       .by_discipline(discipline_id)
                       .by_step_number(step_number)
                       .any?
-  end
-
-  def in_active_search?(student_enrollment, daily_frequency)
-    student_active_search = ActiveSearch.where(student_enrollment_id: student_enrollment.id)
-    not_in_progress = student_active_search.where.not(status: ActiveSearchStatus::IN_PROGRESS)
-                                           .where('? between start_date and end_date', daily_frequency.frequency_date)
-                                           .exists?
-    return not_in_progress if not_in_progress
-
-    student_active_search.where(status: ActiveSearchStatus::IN_PROGRESS)
-                         .where('start_date <= ?', daily_frequency.frequency_date)
-                         .exists?
   end
 
   def class_numbers_from_params
