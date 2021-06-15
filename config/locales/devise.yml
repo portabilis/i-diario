@@ -44,6 +44,8 @@ pt-BR:
     sessions:
       signed_in: "Login realizado com sucesso."
       signed_out: "Logout realizado com sucesso."
+      user:
+        attempts_login: "%{attempts_left} tentativas restante até o bloqueio do acesso"
     unlocks:
       send_instructions: "Você receberá um e-mail em poucos minutos com instruções sobre como desbloquear sua conta."
       send_paranoid_instructions: "Caso sua e-mail exista em nossa base, você receberá um e-mail em poucos minutos com instruções sobre como desbloqueá-la."
