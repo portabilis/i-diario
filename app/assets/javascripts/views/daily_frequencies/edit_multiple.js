@@ -3,7 +3,7 @@ $(document).ready( function() {
     $(type_of_teaching).on('change', function () {
       var inputs = $(this).closest('tr').find('[data-id="type_of_teaching_input"]')
       var value = $(this).val()
-      inputs.each(function(index, input) {  
+      inputs.each(function(index, input) {
         $(input).val(value)
       })
       var checkbox = $(this).closest('tr').find('[data-id="checkbox-id"]')
@@ -17,6 +17,18 @@ $(document).ready( function() {
         checkbox.prop('disabled', disabled)
       }
     }).trigger('change');
+
+    var in_active_search = $(this).closest('tr').find('.in-active-search').size()
+    var exempted_from_discipline = $(this).closest('tr').find('.exempted-student-from-discipline').size()
+    var checkbox = $(this).closest('tr').find('[data-id="checkbox-id"]')
+
+    if (in_active_search || exempted_from_discipline) {
+      $(this).val(1)
+      $(this).closest('label').addClass('state-disabled');
+      $(this).prop('disabled', true)
+      checkbox.closest('label').addClass('state-disabled');
+      checkbox.prop('disabled', true)
+    }
   })
 })
 
