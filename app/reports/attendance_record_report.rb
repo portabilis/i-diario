@@ -62,6 +62,7 @@ class AttendanceRecordReport < BaseReport
     @show_legend_remote = false
     @exists_legend_hybrid = false
     @exists_legend_remote = false
+
     self.legend = 'Legenda: N - Não enturmado, D - Dispensado da disciplina'
 
     header
@@ -149,9 +150,17 @@ class AttendanceRecordReport < BaseReport
 
             if exempted_from_discipline?(student_enrollment, daily_frequency)
               student_frequency = ExemptedDailyFrequencyStudent.new
+            elsif ActiveSearch.new.in_active_search?(student_enrollment.id, daily_frequency.frequency_date)
+              @show_legend_active_search = true
+              student_frequency = ActiveSearchFrequencyStudent.new
             else
               student_frequency = daily_frequency.students.select{ |student| student.student_id == student_id && student.active == true }.first
               student_frequency ||= NullDailyFrequencyStudent.new
+            end
+
+            if @show_legend_active_search && !@exists_active_search
+              @exists_active_search = true
+              self.legend += ', B - Busca ativa'
             end
 
             student = student_enrollment.student

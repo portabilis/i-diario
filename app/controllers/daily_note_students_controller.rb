@@ -71,7 +71,8 @@ class DailyNoteStudentsController < ApplicationController
           note: note_student.note,
           dependence: note_student.dependence,
           exempted_from_discipline: note_student.exempted_from_discipline,
-          active: note_student.active
+          active: note_student.active,
+          in_active_search: ActiveSearch.new.in_active_search(student_enrollment.id, daily_note.avaliation.test_date)
         }
       end
 
@@ -87,7 +88,8 @@ class DailyNoteStudentsController < ApplicationController
           note: note_student.note,
           dependence: note_student.dependence,
           exempted_from_discipline: note_student.exempted_from_discipline,
-          active: note_student.active
+          active: note_student.active,
+          in_active_search: ActiveSearch.new.in_active_search(student_enrollment.id, daily_note.avaliation.test_date)
         }
       end
     end

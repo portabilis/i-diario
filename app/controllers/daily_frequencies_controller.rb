@@ -62,6 +62,7 @@ class DailyFrequenciesController < ApplicationController
     @students = []
     @any_exempted_from_discipline = false
     @any_inactive_student = false
+    @any_in_active_search = false
 
     fetch_student_enrollments.each do |student_enrollment|
       student = Student.find_by(id: student_enrollment.student_id)
@@ -70,15 +71,18 @@ class DailyFrequenciesController < ApplicationController
 
       dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
       exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
+      in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
       @any_exempted_from_discipline ||= exempted_from_discipline
       active = student_active_on_date?(student_enrollment)
+      @any_in_active_search ||= in_active_search
       @any_inactive_student ||= !active
 
       @students << {
         student: student,
         dependence: dependence,
         active: active,
-        exempted_from_discipline: exempted_from_discipline
+        exempted_from_discipline: exempted_from_discipline,
+        in_active_search: in_active_search
       }
     end
 
