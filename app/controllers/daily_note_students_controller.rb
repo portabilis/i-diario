@@ -59,13 +59,13 @@ class DailyNoteStudentsController < ApplicationController
       note_student.active = student_active_on_date?(student_enrollment, daily_note.classroom, date_for_search)
       note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, daily_note)
 
-      unless note_student.dependence
-        @normal_students << note_student
+      if note_student.dependence
+        @dependence_students << note_student
 
-        normal_sequence += 1
+        dependence_sequence += 1
 
         @students << {
-          sequence: normal_sequence,
+          sequence: dependence_sequence,
           id: note_student.student_id,
           name: note_student.student.to_s,
           note: note_student.note,
@@ -74,15 +74,13 @@ class DailyNoteStudentsController < ApplicationController
           active: note_student.active,
           in_active_search: ActiveSearch.new.in_active_search(student_enrollment.id, daily_note.avaliation.test_date)
         }
-      end
+      else
+        @normal_students << note_student
 
-      if note_student.dependence
-        @dependence_students << note_student
-
-        dependence_sequence += 1
+        normal_sequence += 1
 
         @students << {
-          sequence: dependence_sequence,
+          sequence: normal_sequence,
           id: note_student.student_id,
           name: note_student.student.to_s,
           note: note_student.note,
