@@ -26,7 +26,9 @@ pt-BR:
         allows_copy_lesson_plans_to_other_grades: "Permite copiar Planos de aula para turmas de outras séries"
         type_of_teaching: "Permitir informar modalidade de ensino no Diário de frequência?"
         types_of_teaching: "Modalidades de ensino"
-
+        days_to_expire_password: "Quantidade de dias para expirar automaticamente as senhas dos usuários ativos"
+        days_to_expire_password_label_hint: "A contagem será efetuada em dias corridos. Se o valor preenchido for zero (0) ou nenhum, não ocorrerá automatização"
+        days_to_disable_access: "Quantidade de dias permitidos sem acessar o sistema para inativação automática de usuário"
   backup:
     completed: "Exportação de dados realizada com sucesso! Clique %{link} para fazer download!"
     error: "Exportação de dados não pode ser realizada. Favor tentar novamente."
