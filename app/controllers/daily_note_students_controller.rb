@@ -72,7 +72,7 @@ class DailyNoteStudentsController < ApplicationController
           dependence: note_student.dependence,
           exempted_from_discipline: note_student.exempted_from_discipline,
           active: note_student.active,
-          in_active_search: ActiveSearch.new.in_active_search(student_enrollment.id, daily_note.avaliation.test_date)
+          in_active_search: ActiveSearch.new.in_active_search?(student_enrollment.id, daily_note.avaliation.test_date)
         }
       else
         @normal_students << note_student
@@ -87,7 +87,7 @@ class DailyNoteStudentsController < ApplicationController
           dependence: note_student.dependence,
           exempted_from_discipline: note_student.exempted_from_discipline,
           active: note_student.active,
-          in_active_search: ActiveSearch.new.in_active_search(student_enrollment.id, daily_note.avaliation.test_date)
+          in_active_search: ActiveSearch.new.in_active_search?(student_enrollment.id, daily_note.avaliation.test_date)
         }
       end
     end
