@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   include Searchable
 
   devise :database_authenticatable, :recoverable, :rememberable,
-    :trackable, :validatable, :lockable
+         :trackable, :validatable, :lockable
 
   attr_accessor :credentials, :has_to_validate_receive_news_fields
 
