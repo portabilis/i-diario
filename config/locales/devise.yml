@@ -8,7 +8,7 @@ pt-BR:
       send_paranoid_instructions: "Caso seu e-mail exista em nossa base, você receberá um e-mail em poucos minutos com instruções sobre como confirmar sua conta."
     failure:
       already_authenticated: "Você já está logado."
-      inactive: "A sua conta não está ativa."
+      inactive: "A sua conta de usuário expirou. Favor contatar a Secretaria de sua escola ou o responsável pelo sistema (Secretaria de Educação) para reativação."
       inactivated: "A sua conta foi desativada. Por favor entre em contado com o Administrador do sistema."
       invalid: "Email ou senha inválidos."
       locked: "Sua conta está bloqueada."

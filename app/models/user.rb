@@ -153,7 +153,7 @@ class User < ActiveRecord::Base
     return false if expiration_date.blank? && days_to_expire.zero?
 
     unless days_to_expire.zero?
-      days_without_access = (Date.current - last_activity_at.to_date).to_i
+      days_without_access = (Date.current - last_sign_in_at.to_date).to_i
       return true if days_without_access >= days_to_expire
     end
 
