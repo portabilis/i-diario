@@ -154,12 +154,19 @@ class User < ActiveRecord::Base
 
     unless days_to_expire.zero?
       days_without_access = (Date.current - last_sign_in_at.to_date).to_i
-      return true if days_without_access >= days_to_expire
+      if days_without_access >= days_to_expire
+        alter_status(UserStatus::PENDING)
+        return true
+      end
     end
 
     return false if expiration_date.blank?
 
     Date.current >= expiration_date
+  end
+
+  def alter_status(status)
+    update_column :status, status
   end
 
   def can_show?(feature)
