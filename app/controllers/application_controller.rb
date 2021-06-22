@@ -24,6 +24,7 @@ class ApplicationController < ActionController::Base
   before_action :check_entity_status
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
+  before_action :last_activity_at, if: :user_signed_in?
   before_action :check_for_notifications, if: :user_signed_in?
   before_action :check_for_current_user_role, if: :user_signed_in?
   before_action :set_current_unity_id, if: :user_signed_in?
@@ -393,5 +394,10 @@ class ApplicationController < ActionController::Base
     request_path = Rails.application.routes.recognize_path(request.path, method: request.env['REQUEST_METHOD'])
 
     request_path[:controller] == 'users' && (request_path[:action] == 'edit' || request_path[:action] == 'update')
+  end
+
+  def last_activity_at
+    current_user.last_activity_at = Date.current
+    current_user.save
   end
 end
