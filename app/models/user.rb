@@ -149,6 +149,8 @@ class User < ActiveRecord::Base
   end
 
   def expired?
+    return false if admin?
+
     days_to_expire = GeneralConfiguration.current.days_to_disable_access
     return false if expiration_date.blank? && days_to_expire.zero?
 
