@@ -65,6 +65,8 @@ class User < ActiveRecord::Base
 
   validates_associated :user_roles
 
+  validate :password_changed
+  validate :status_changed
   validate :email_reserved_for_student
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
@@ -155,9 +157,9 @@ class User < ActiveRecord::Base
     return false if expiration_date.blank? && days_to_expire.zero?
 
     unless days_to_expire.zero?
-      days_without_access = (Date.current - last_sign_in_at.to_date).to_i
+      days_without_access = (Date.current - last_activity_at.to_date).to_i
       if days_without_access >= days_to_expire
-        alter_status(UserStatus::PENDING)
+        update_status(UserStatus::PENDING)
         return true
       end
     end
@@ -167,8 +169,28 @@ class User < ActiveRecord::Base
     Date.current >= expiration_date
   end
 
-  def alter_status(status)
+  def update_status(status)
     update_column :status, status
+  end
+
+  def status_changed
+    return if status_was == status
+
+    update_last_activity_at if status == UserStatus::ACTIVE
+  end
+
+  def password_changed
+    return if encrypted_password_was == encrypted_password
+
+    update_last_password_change
+  end
+
+  def update_last_password_change
+    update_column :last_password_change, DateTime.current
+  end
+
+  def update_last_activity_at
+    update_column :last_activity_at, DateTime.current
   end
 
   def can_show?(feature)
