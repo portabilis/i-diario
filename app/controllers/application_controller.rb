@@ -419,7 +419,8 @@ class ApplicationController < ActionController::Base
   def weak_password?(password)
     return false if password.blank?
 
-    if (password =~ /[A-Z]/).nil? || (password =~ /[a-z]/).nil? || (password =~ /[0-9]/).nil? || (password =~ /[!@#\$%^&*?_~-]/).nil?
+    if (password =~ /[A-Z]/).nil? || (password =~ /[a-z]/).nil? || (password =~ /[0-9]/).nil? ||
+       (password =~ /[!@#\$%^&*?_~-]/).nil?
       true
     else
       false
