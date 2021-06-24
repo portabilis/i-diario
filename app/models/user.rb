@@ -65,7 +65,7 @@ class User < ActiveRecord::Base
 
   validates_associated :user_roles
 
-  validate :password_changed
+  validate :valid_password
   validate :status_changed
   validate :email_reserved_for_student
   validate :presence_of_email_or_cpf
@@ -179,18 +179,19 @@ class User < ActiveRecord::Base
     update_last_activity_at if status == UserStatus::ACTIVE
   end
 
-  def password_changed
+  def valid_password
+    return if encrypted_password.blank?
     return if encrypted_password_was == encrypted_password
 
     update_last_password_change
   end
 
   def update_last_password_change
-    update_column :last_password_change, DateTime.current
+    update_column :last_password_change, Date.current
   end
 
   def update_last_activity_at
-    update_column :last_activity_at, DateTime.current
+    update_column :last_activity_at, Date.current
   end
 
   def can_show?(feature)

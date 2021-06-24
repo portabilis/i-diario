@@ -415,4 +415,14 @@ class ApplicationController < ActionController::Base
 
     request_path[:controller] == 'users' && (request_path[:action] == 'edit' || request_path[:action] == 'update')
   end
+
+  def weak_password?(password)
+    return false if password.blank?
+
+    if (password =~ /[A-Z]/).nil? || (password =~ /[a-z]/).nil? || (password =~ /[0-9]/).nil? || (password =~ /[!@#\$%^&*?_~-]/).nil?
+      true
+    else
+      false
+    end
+  end
 end

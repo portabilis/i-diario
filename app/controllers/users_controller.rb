@@ -27,9 +27,15 @@ class UsersController < ApplicationController
 
     authorize @user
 
-    params[:user].delete :password if params[:user][:password].blank?
+    password = params[:user][:password]
 
-    if @user.update(user_params)
+    params[:user].delete :password if password.blank?
+
+    if weak_password?(password)
+      flash.now[:error] = t('errors.general.weak_password')
+      render :edit
+    elsif @user.update(user_params)
+      flash.clear
       UserUpdater.update!(@user, current_entity)
 
       respond_with @user, location: users_path

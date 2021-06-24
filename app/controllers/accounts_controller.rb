@@ -7,8 +7,16 @@ class AccountsController < ApplicationController
     @user = current_user
     @user.has_to_validate_receive_news_fields = true
 
-    @user.update_with_password(user_params)
-    respond_with @user, location: edit_account_path
+    password = user_params[:password]
+
+    if weak_password?(password)
+      flash.now[:error] = t('errors.general.weak_password')
+      render :edit
+    else
+      flash.clear
+      @user.update_with_password(user_params)
+      respond_with @user, location: edit_account_path
+    end
   end
 
   protected

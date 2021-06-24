@@ -12,14 +12,22 @@ class RegistrationsController < ApplicationController
     ) if params[:signup]
     @signup = Signup.new(params[:signup])
 
-    if @user = @signup.save
+    password = params[:signup][:password]
+
+    if weak_password?(password)
+      flash.now[:error] = t('errors.general.weak_password')
+      render :new
+    elsif @user = @signup.save
+      flash.clear
       if @user.active?
         flash[:notice] = I18n.t('devise.registrations.signed_up')
         sign_in_and_redirect @user
       else
+        flash.clear
         respond_with @signup, location: new_user_session_path, notice: I18n.t('registrations.students')
       end
     else
+      flash.clear
       render :new
     end
   end
