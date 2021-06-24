@@ -166,7 +166,7 @@ class AvaliationsController < ApplicationController
         render 'daily_notes/new'
       end
     else
-      respond_with resource, location: avaliations_path
+      redirect_to avaliations_path
     end
   end
 
