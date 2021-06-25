@@ -166,7 +166,7 @@ class AvaliationsController < ApplicationController
         render 'daily_notes/new'
       end
     else
-      respond_with resource, location: avaliations_path
+      redirect_to avaliations_path
     end
   end
 
@@ -214,18 +214,28 @@ class AvaliationsController < ApplicationController
   end
 
   def interpolation_options
-    return {} if resource.class != Avaliation
+    if action_name == 'destroy'
+      reasons = []
 
-    reasons = []
+      if resource.errors[:test_date].include?(t('errors.messages.not_allowed_to_post_in_date'))
+        reasons << t('errors.messages.not_allowed_to_post_in_date')
+      end
 
-    if resource.errors[:test_date].include?(t('errors.messages.not_allowed_to_post_in_date'))
-      reasons << t('errors.messages.not_allowed_to_post_in_date')
+      reasons << t('avaliation.grades_avoid_destroy') unless resource.grades_allow_destroy
+      reasons << t('avaliation.recovery_avoid_destroy') unless resource.recovery_allow_destroy
+
+      { reason: reasons.join(' e ') }
+    elsif ['create', 'create_multiple_classrooms'].include?(action_name)
+      classrooms = if resource
+                     [resource.classroom.description]
+                   else
+                     classroom_records = params[:avaliation_multiple_creator_form][:avaliations_attributes].values
+                     included = classroom_records.select { |classroom_record| classroom_record['include'] == '1' }
+                     included.map { |included_record| Classroom.find(included_record['classroom_id']).description }
+                   end
+
+      { resource_name: I18n.t('activerecord.models.avaliation.one'), classrooms: classrooms.join(', ') }
     end
-
-    reasons << t('avaliation.grades_avoid_destroy') unless resource.grades_allow_destroy
-    reasons << t('avaliation.recovery_avoid_destroy') unless resource.recovery_allow_destroy
-
-    { reason: reasons.join(' e ') }
   end
 
   def test_settings_redirect

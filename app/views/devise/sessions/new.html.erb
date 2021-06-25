@@ -1,7 +1,3 @@
-<%= content_for :recaptcha_js do %>
-  <%= include_recaptcha_js %>
-<% end %>
-
 <div class="well no-padding">
   <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "smart-form client-form" }) do |f| %>
     <header>Acessar</header>
@@ -31,8 +27,19 @@
     </fieldset>
 
     <footer>
-      <%= f.button :submit, "Acessar", class: "btn btn-primary" %>
-      <%= recaptcha_execute %>
+      <%= f.button :submit, "Acessar", class: "btn btn-primary", id: 'btn-login' %>
     </footer>
   <% end %>
+
+  <script>
+    var error = <%= @time %>;
+
+    if (error !== 0) {
+      document.getElementById('btn-login').disabled = true;
+
+      setTimeout(function(){
+        document.getElementById('btn-login').disabled = false;
+      }, <%= @time %>);
+    }
+  </script>
 </div>

@@ -288,19 +288,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def verify_recaptcha?
-    return if RecaptchaVerifier.verify?(
-      params[:recaptcha_token],
-      request&.remote_ip,
-      request&.params&.dig(:user, :credentials)
-    )
-
-    flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."
-    redirect_to :back
-  rescue ActionController::RedirectBackError
-    redirect_to root_path
-  end
-
   def allowed_api_header?
     header_name1 = Rails.application.secrets[:AUTH_HEADER_NAME1] || 'TOKEN'
     validation_method1 = Rails.application.secrets[:AUTH_VALIDATION_METHOD1] || '=='
@@ -377,6 +364,15 @@ class ApplicationController < ActionController::Base
     File.open("#{Rails.root}/public#{name}", 'wb') do |f|
       f.write(pdf_to_s)
     end
+
+    username = Rails.application.secrets[:REPORTS_SERVER_USERNAME]
+    server = Rails.application.secrets[:REPORTS_SERVER_IP]
+    dir = Rails.application.secrets[:REPORTS_SERVER_DIR]
+
+    if username && server && dir
+      system("rsync -a --remove-source-files --quiet #{Rails.root}/public#{name} #{username}@#{server}:#{dir}")
+    end
+
     redirect_to name
   end
 
