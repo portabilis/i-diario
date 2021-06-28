@@ -23,7 +23,6 @@ class RegistrationsController < ApplicationController
         flash[:notice] = I18n.t('devise.registrations.signed_up')
         sign_in_and_redirect @user
       else
-        flash.clear
         respond_with @signup, location: new_user_session_path, notice: I18n.t('registrations.students')
       end
     else
