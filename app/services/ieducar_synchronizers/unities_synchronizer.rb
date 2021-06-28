@@ -65,6 +65,7 @@ class UnitiesSynchronizer
         unity.unit_type = UnitTypes::SCHOOL_UNIT
         unity.api = true
         unity.author_id = author.id
+        unity.active = school_record.ativo
 
         unity.address ||= unity.build_address
         unity.address.street = school_record.logradouro
