@@ -13,7 +13,6 @@ class AccountsController < ApplicationController
       flash.now[:error] = t('errors.general.weak_password')
       render :edit
     else
-      flash.clear
       @user.update_with_password(user_params)
       respond_with @user, location: edit_account_path
     end

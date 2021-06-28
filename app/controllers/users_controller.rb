@@ -35,7 +35,6 @@ class UsersController < ApplicationController
       flash.now[:error] = t('errors.general.weak_password')
       render :edit
     elsif @user.update(user_params)
-      flash.clear
       UserUpdater.update!(@user, current_entity)
 
       respond_with @user, location: users_path

@@ -6,7 +6,6 @@ class Users::PasswordsController < Devise::PasswordsController
       flash[:error] = I18n.t('errors.general.weak_password')
       redirect_to edit_user_password_path(reset_password_token: token)
     else
-      flash.clear
       super
     end
   end
