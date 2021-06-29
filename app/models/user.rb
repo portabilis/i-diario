@@ -70,6 +70,7 @@ class User < ActiveRecord::Base
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
+  validate :status_changed
 
   scope :ordered, -> { order(arel_table[:fullname].asc) }
   scope :email_ordered, -> { order(email: :asc) }
@@ -152,6 +153,20 @@ class User < ActiveRecord::Base
     return false if expiration_date.blank?
 
     Date.current >= expiration_date
+  end
+
+  def update_status(status)
+    update_column :status, status
+  end
+
+  def status_changed
+    return if status_was == status
+
+    update_failed_attempts if status == UserStatus::ACTIVE
+  end
+
+  def update_failed_attempts
+    update_column :failed_attempts, 0
   end
 
   def can_show?(feature)
