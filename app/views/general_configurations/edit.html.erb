@@ -98,7 +98,12 @@
       <div class="row">
         <div class="col-sm-6">
           <%= f.input :days_to_disable_access do %>
-            <%= f.input_field :days_to_disable_access, maxlength: "3" %>
+            <%= f.input_field :days_to_disable_access,
+              rel: 'popover-hover',
+              :'data-placement' => 'bottom',
+              :'data-content' => t('activerecord.attributes.general_configuration.days_to_expire_password_label_hint'),
+              :'data-toggle'=> 'popover',
+              maxlength: "3" %>
           <% end %>
         </div>
       </div>
