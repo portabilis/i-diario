@@ -394,7 +394,7 @@ class ApplicationController < ActionController::Base
   def check_password_expired
     days_to_expire_password = GeneralConfiguration.current.days_to_expire_password
     return if current_user.admin?
-    return if days_to_expire_password.zero?
+    return if days_to_expire_password.zero? || days_to_expire_password.nil?
     return if target_path?
 
     days_after_last_password_change = (Date.current - current_user.last_password_change.to_date).to_i
