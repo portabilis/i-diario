@@ -153,8 +153,7 @@ class User < ActiveRecord::Base
   def expired?
     return false if admin?
 
-    days_to_expire = GeneralConfiguration.current.days_to_disable_access
-    days_to_expire = 0 if days_to_expire.nil?
+    days_to_expire = GeneralConfiguration.current.days_to_disable_access || 0
     return false if expiration_date.blank? && days_to_expire.zero?
 
     unless days_to_expire.zero?
