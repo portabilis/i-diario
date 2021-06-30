@@ -72,6 +72,7 @@ class User < ActiveRecord::Base
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
+  validate :status_changed
 
   scope :ordered, -> { order(arel_table[:fullname].asc) }
   scope :email_ordered, -> { order(email: :asc) }
@@ -175,8 +176,10 @@ class User < ActiveRecord::Base
 
   def status_changed
     return if status_was == status
-
-    update_last_activity_at if status == UserStatus::ACTIVE
+    if status == UserStatus::ACTIVE
+      update_last_activity_at
+      update_failed_attempts
+    end
   end
 
   def valid_password
@@ -192,6 +195,10 @@ class User < ActiveRecord::Base
 
   def update_last_activity_at
     update_column :last_activity_at, Date.current
+  end
+
+  def update_failed_attempts
+    update_column :failed_attempts, 0
   end
 
   def can_show?(feature)
