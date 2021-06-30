@@ -388,7 +388,7 @@ class ApplicationController < ActionController::Base
 
     flash[:alert] = t('errors.general.check_user_has_name')
 
-    redirect_to edit_user_path(current_user)
+    redirect_to edit_account_path
   end
 
   def check_password_expired
@@ -402,7 +402,7 @@ class ApplicationController < ActionController::Base
 
     flash[:alert] = t('errors.general.expired_password')
 
-    redirect_to edit_user_path(current_user)
+    redirect_to edit_account_path
   end
 
   def last_activity_at
@@ -413,7 +413,8 @@ class ApplicationController < ActionController::Base
   def target_path?
     request_path = Rails.application.routes.recognize_path(request.path, method: request.env['REQUEST_METHOD'])
 
-    request_path[:controller] == 'users' && (request_path[:action] == 'edit' || request_path[:action] == 'update')
+    request_path[:controller] == 'accounts' && (request_path[:action] == 'edit' ||
+                                                request_path[:action] == 'update')
   end
 
   def weak_password?(password)
