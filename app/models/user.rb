@@ -162,11 +162,11 @@ class User < ActiveRecord::Base
   def status_changed
     return if status_was == status
 
-    update_failed_attempts if status == UserStatus::ACTIVE
+    unlock_user if status == UserStatus::ACTIVE
   end
 
-  def update_failed_attempts
-    update_column :failed_attempts, 0
+  def unlock_user
+    unlock_access!
   end
 
   def can_show?(feature)
