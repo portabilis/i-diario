@@ -176,9 +176,10 @@ class User < ActiveRecord::Base
 
   def status_changed
     return if status_was == status
+
     if status == UserStatus::ACTIVE
       update_last_activity_at
-      update_failed_attempts
+      unlock_access!
     end
   end
 
@@ -195,10 +196,6 @@ class User < ActiveRecord::Base
 
   def update_last_activity_at
     update_column :last_activity_at, Date.current
-  end
-
-  def update_failed_attempts
-    update_column :failed_attempts, 0
   end
 
   def can_show?(feature)
