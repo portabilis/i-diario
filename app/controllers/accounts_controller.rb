@@ -1,7 +1,7 @@
 class AccountsController < ApplicationController
   def edit
     @user = current_user
-    @expired_password = expired_password?
+    expired_password?
   end
 
   def update
@@ -23,13 +23,12 @@ class AccountsController < ApplicationController
 
   def expired_password?
     days_to_expire_password = GeneralConfiguration.current.days_to_expire_password || 0
-    return false if current_user.admin?
-    return false if days_to_expire_password.zero? || days_to_expire_password.nil?
+    return false if current_user.admin? || days_to_expire_password.zero?
 
     days_after_last_password_change = (Date.current - current_user.last_password_change.to_date).to_i
     return false if days_after_last_password_change <= days_to_expire_password
 
-    true
+    @expired_password = true
   end
 
   def user_params
