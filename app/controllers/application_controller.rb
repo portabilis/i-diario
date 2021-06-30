@@ -29,6 +29,8 @@ class ApplicationController < ActionController::Base
   before_action :set_current_unity_id, if: :user_signed_in?
   before_action :set_current_user_role_id, if: :user_signed_in?
   before_action :check_user_has_name, if: :user_signed_in?
+  before_action :check_password_expired, if: :user_signed_in?
+  before_action :last_activity_at, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -386,12 +388,41 @@ class ApplicationController < ActionController::Base
 
     flash[:alert] = t('errors.general.check_user_has_name')
 
-    redirect_to edit_user_path(current_user)
+    redirect_to edit_account_path
+  end
+
+  def check_password_expired
+    days_to_expire_password = GeneralConfiguration.current.days_to_expire_password || 0
+    return if current_user.admin? || days_to_expire_password.zero? || target_path?
+
+    days_after_last_password_change = (Date.current - current_user.last_password_change.to_date).to_i
+    return if days_after_last_password_change <= days_to_expire_password
+
+    flash[:alert] = t('errors.general.expired_password')
+
+    redirect_to edit_account_path
+  end
+
+  def last_activity_at
+    current_user.last_activity_at = Date.current
+    current_user.save
   end
 
   def target_path?
     request_path = Rails.application.routes.recognize_path(request.path, method: request.env['REQUEST_METHOD'])
 
-    request_path[:controller] == 'users' && (request_path[:action] == 'edit' || request_path[:action] == 'update')
+    request_path[:controller] == 'accounts' && (request_path[:action] == 'edit' ||
+                                                request_path[:action] == 'update')
+  end
+
+  def weak_password?(password)
+    return false if password.blank?
+
+    if (password =~ /[A-Z]/).nil? || (password =~ /[a-z]/).nil? || (password =~ /[0-9]/).nil? ||
+       (password =~ /[!@#\$%^&*?_~-]/).nil?
+      true
+    else
+      false
+    end
   end
 end

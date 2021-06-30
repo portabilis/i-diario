@@ -50,7 +50,9 @@ class GeneralConfigurationsController < ApplicationController
       :create_users_for_students_when_synchronize,
       :allows_copy_lesson_plans_to_other_grades,
       :type_of_teaching,
-      :types_of_teaching
+      :types_of_teaching,
+      :days_to_expire_password,
+      :days_to_disable_access
     )
 
     parameters[:types_of_teaching] = parameters[:types_of_teaching].split(',')
