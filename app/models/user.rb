@@ -162,11 +162,7 @@ class User < ActiveRecord::Base
   def status_changed
     return if status_was == status
 
-    unlock_user if status == UserStatus::ACTIVE
-  end
-
-  def unlock_user
-    unlock_access!
+    unlock_access! if status == UserStatus::ACTIVE
   end
 
   def can_show?(feature)
