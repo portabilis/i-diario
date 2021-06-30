@@ -75,6 +75,8 @@ class DailyFrequencyStudent < ActiveRecord::Base
 
   def update_student_enrollment_classroom
     student = student_enrollment_classroom
+    return if student.nil?
+
     student.type_of_teaching = type_of_teaching
     student.save!
   end
