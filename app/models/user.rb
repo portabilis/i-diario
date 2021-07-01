@@ -184,6 +184,7 @@ class User < ActiveRecord::Base
   end
 
   def valid_password
+    return if new_record?
     return if encrypted_password.blank?
     return if encrypted_password_was == encrypted_password
 
