@@ -1,7 +1,7 @@
 class ActiveSearchSynchronizer
   include Sidekiq::Worker
 
-  def perform(student_enrollment_id)
+  def perform(student_enrollment_id, active_search_record)
     ActiveSearch.find_or_initialize_by(student_enrollment_id: student_enrollment_id).tap do |active_search|
       active_search.start_date = active_search_record.data_inicio
       active_search.end_date = active_search_record.data_fim

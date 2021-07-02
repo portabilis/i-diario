@@ -21,7 +21,7 @@ class ActiveSearchesSynchronizer < BaseSynchronizer
       student_enrollment = StudentEnrollment.find_by(api_code: active_search_record.ref_cod_matricula)
       next if student_enrollment.nil?
 
-      ActiveSearchSynchronizer.new.perform(student_enrollment.id)
+      ActiveSearchSynchronizer.new.perform(student_enrollment.id, active_search_record)
     end
   end
 end
