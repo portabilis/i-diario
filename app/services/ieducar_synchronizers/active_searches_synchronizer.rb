@@ -18,7 +18,10 @@ class ActiveSearchesSynchronizer < BaseSynchronizer
 
   def update_records(active_searches)
     active_searches.each do |active_search_record|
-      ActiveSearcheSynchronizer.student_enrollment_by_active_search(active_search_record)
+      student_enrollment = StudentEnrollment.find_by(api_code: active_search_record.ref_cod_matricula)
+      next if student_enrollment.nil?
+
+      ActiveSearcheSynchronizer.create_or_update_active_search(student_enrollment)
     end
   end
 end
