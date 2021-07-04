@@ -155,8 +155,7 @@ synchronizers:
     dependents: [
       StudentEnrollmentClassroomSynchronizer,
       StudentEnrollmentDependenceSynchronizer,
-      StudentEnrollmentExemptedDisciplinesSynchronizer,
-      ActiveSearchesSynchronizer
+      StudentEnrollmentExemptedDisciplinesSynchronizer
     ]
     dependencies: [
       StudentsSynchronizer
@@ -204,11 +203,4 @@ synchronizers:
     by_unity: true
     dependencies: [
       ClassroomsSynchronizer
-    ]
-  -
-    klass: ActiveSearchesSynchronizer
-    by_year: true
-    by_unity: true
-    dependencies: [
-      StudentEnrollmentSynchronizer
     ]
