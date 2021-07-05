@@ -4,6 +4,7 @@ class Users::SessionsController < Devise::SessionsController
     if failed_login?
       credentials = params.dig(:user, :credentials)
       credentials_hash = credentials_discriminator(credentials)
+      return if credentials == nil
 
       if (user = User.find_by(credentials_hash))
         failed_attempts = user.failed_attempts
