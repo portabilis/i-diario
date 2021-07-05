@@ -73,6 +73,7 @@ namespace :send_exam_another_classroom do
 
         current_classroom = current_student_enrollment_classroom.classroom
 
+        next if current_classroom.blank?
         next if classroom.id == current_classroom.id
 
         # puts "Turma anterior: #{current_student_enrollment_classroom.classroom}"
