@@ -28,7 +28,12 @@ namespace :send_exam_another_classroom do
       classroom = teacher_discipline_classroom.classroom
       teacher = teacher_discipline_classroom.teacher
       discipline = teacher_discipline_classroom.discipline
-      step = StepsFetcher.new(classroom).step(1)
+
+      begin
+        step = StepsFetcher.new(classroom).step(1)
+      rescue
+        next
+      end
 
       # score_rounder = ScoreRounder.new(classroom, RoundedAvaliations::SCHOOL_TERM_RECOVERY)
 
