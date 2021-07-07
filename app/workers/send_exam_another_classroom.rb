@@ -15,7 +15,9 @@ class SendExamAnotherClassroom
         notas: {
           classroom_id => {
             student_id => {
-              discipline_id => discipline_score
+              discipline_id => {
+                'nota' => discipline_score
+              }
             }
           }
         }
