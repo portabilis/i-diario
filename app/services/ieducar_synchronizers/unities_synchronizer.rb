@@ -69,6 +69,7 @@ class UnitiesSynchronizer
         unity.api = true
         unity.author_id = author.id
         unity.active = school_record.ativo
+        unity.discarded_at = nil if unity.active
 
         unity.address ||= unity.build_address
         unity.address.street = school_record.logradouro
@@ -79,7 +80,7 @@ class UnitiesSynchronizer
         unity.address.city = school_record.municipio
         unity.address.state = school_record.uf.try(&:downcase)
         unity.address.country = DEFAULT_COUNTRY
-
+        
         unity.save(validate: false) if unity.changed?
       end
     end
