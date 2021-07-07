@@ -80,7 +80,7 @@ class UnitiesSynchronizer
         unity.address.city = school_record.municipio
         unity.address.state = school_record.uf.try(&:downcase)
         unity.address.country = DEFAULT_COUNTRY
-        
+
         unity.save(validate: false) if unity.changed?
       end
     end
