@@ -27,10 +27,9 @@ class ClassroomsSynchronizer < BaseSynchronizer
       next if grade.blank?
 
       Classroom.with_discarded.find_or_initialize_by(api_code: classroom_record.id).tap do |classroom|
-        classroom.description = classroom_record.nome
-        if classroom.description.strip != classroom_record.nome.strip
-          update_label(classroom.id, classroom_record.nome)
-        end
+        old_name = classroom.description.strip
+        new_name = classroom_record.nome.strip
+        classroom.description = new_name
         classroom.unity = unity
         classroom.unity_code = classroom_record.escola_id
         classroom.period = classroom_record.turno_id
@@ -43,6 +42,8 @@ class ClassroomsSynchronizer < BaseSynchronizer
         end
 
         classroom.save! if classroom.changed?
+
+        update_label(classroom.id, new_name) if old_name != new_name
 
         classroom.discard_or_undiscard(classroom_record.deleted_at.present?)
 
