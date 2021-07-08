@@ -11,8 +11,8 @@ class Users::SessionsController < Devise::SessionsController
   end
 
   def password_blank?
-    senha = params[:user][:password] if params[:user].present?
-    senha.blank?
+    password = params[:user][:password] if params[:user].present?
+    password.blank?
   end
 
   def user_login_blank?
