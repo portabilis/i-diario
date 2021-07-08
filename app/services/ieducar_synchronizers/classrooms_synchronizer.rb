@@ -28,6 +28,9 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
       Classroom.with_discarded.find_or_initialize_by(api_code: classroom_record.id).tap do |classroom|
         classroom.description = classroom_record.nome
+        if classroom.description.strip != classroom_record.nome.strip
+          update_label(classroom.id, classroom_record.nome)
+        end
         classroom.unity = unity
         classroom.unity_code = classroom_record.escola_id
         classroom.period = classroom_record.turno_id
@@ -56,5 +59,11 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
   def update_period_dependents(classroom_id, old_period, new_period)
     PeriodUpdaterWorker.perform_in(1.second, entity_id, classroom_id, old_period, new_period)
+  end
+
+  def update_label(classroom_id, new_name)
+    label = Label.find_by(labelable_id: classroom_id)
+    label.name = new_name
+    label.save!
   end
 end
