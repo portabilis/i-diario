@@ -13,6 +13,7 @@ pt-BR:
       invalid: "Email ou senha inválidos."
       locked: "Sua conta está bloqueada."
       last_attempt: "Você tem somente mais uma tentativa antes de sua conta será bloqueada."
+      password_blank: "Senha não pode ser vazia"
       not_found_in_database: "Email ou senha inválidos."
       timeout: "A sua sessão expirou, por favor faça login novamente para continuar."
       unauthenticated: "Caso você não possua login de acesso cadastre-se em '<b>Criar conta</b>'."
