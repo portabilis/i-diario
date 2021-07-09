@@ -1,9 +1,9 @@
 class Users::SessionsController < Devise::SessionsController
   def new
     @time = 0
-    if password_blank? && !user_login_blank?
+    if password_blank? && user_login_not_blank?
       flash.now[:alert] = I18n.t('devise.failure.password_blank')
-    elsif failed_login? && !user_login_blank?
+    elsif failed_login? && user_login_not_blank?
       valid_failed_attempts
     end
 
@@ -15,9 +15,9 @@ class Users::SessionsController < Devise::SessionsController
     password.blank?
   end
 
-  def user_login_blank?
+  def user_login_not_blank?
     user = params[:user][:credentials] if params[:user].present?
-    user.blank?
+    user.present?
   end
 
   def valid_failed_attempts
