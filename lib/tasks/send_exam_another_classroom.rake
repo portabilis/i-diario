@@ -29,7 +29,7 @@ namespace :send_exam_another_classroom do
       teacher = teacher_discipline_classroom.teacher
       discipline = teacher_discipline_classroom.discipline
 
-      next if classroom.unity_id == 38
+      next if classroom && classroom.unity_id == 38
 
       begin
         step = StepsFetcher.new(classroom).step(1)
