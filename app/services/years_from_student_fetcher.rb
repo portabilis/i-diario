@@ -1,25 +1,18 @@
 class YearsFromStudentFetcher
-  def initialize(student_id)
-    @student_id = student_id
-  end
-
-  def fetch
-    student_enrollment_classrooms = StudentEnrollmentClassroom.by_student(@student_id)
+  def fetch(student_id)
+    student_enrollment_classrooms = StudentEnrollmentClassroom.by_student(student_id).includes(:classroom)
     return if student_enrollment_classrooms.nil?
 
-    years = []
-    student_enrollment_classrooms.each do |student_enrollment_classroom|
-      years << student_enrollment_classroom.classroom.year
-    end
+    years = student_enrollment_classrooms.map { |student_enrollment_classroom|
+      student_enrollment_classroom.classroom.year
+    }
     years.sort
   end
 
-  def fetch_to_json
-    years = fetch
-    years_to_json = []
-    years.each do |year|
-      years_to_json << { id: year, name: year, text: year }
-    end
-    years_to_json.to_json
+  def fetch_to_json(student_id)
+    years = fetch(student_id).map { |year|
+      { id: year, name: year, text: year }
+    }
+    years.to_json
   end
 end
