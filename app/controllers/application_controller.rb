@@ -142,7 +142,8 @@ class ApplicationController < ActionController::Base
   end
 
   def current_entity_configuration
-    @current_entity_configuration ||= EntityConfiguration.first
+    cache_key = "EntityConfiguration##{current_entity.id}"
+    @current_entity_configuration ||= Rails.cache.fetch(cache_key, expires_in: 1.day) { EntityConfiguration.first }
   end
   helper_method :current_entity_configuration
 
