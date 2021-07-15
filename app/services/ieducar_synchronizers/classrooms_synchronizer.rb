@@ -27,8 +27,8 @@ class ClassroomsSynchronizer < BaseSynchronizer
       next if grade.blank?
 
       Classroom.with_discarded.find_or_initialize_by(api_code: classroom_record.id).tap do |classroom|
-        old_name = classroom.description.strip
-        new_name = classroom_record.nome.strip
+        old_name = classroom.description.try(:strip)
+        new_name = classroom_record.nome.try(:strip)
         classroom.description = new_name
         classroom.unity = unity
         classroom.unity_code = classroom_record.escola_id
