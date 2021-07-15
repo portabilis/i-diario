@@ -1,7 +1,7 @@
 module ApplicationHelper
   include ActiveSupport::Inflector
 
-  DEFAULT_LOGO = '/images/brasil.png'.freeze
+  DEFAULT_LOGO = 'brasil.png'.freeze
   PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
