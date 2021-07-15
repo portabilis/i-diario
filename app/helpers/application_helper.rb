@@ -216,10 +216,6 @@ module ApplicationHelper
   end
 
   def logo_url
-    entity_logo_url = current_entity_configuration.try(:logo_url)
-
-    return entity_logo_url if entity_logo_url.present?
-
-    DEFAULT_LOGO
+    current_entity_configuration.try(:logo_url) || DEFAULT_LOGO
   end
 end
