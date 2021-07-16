@@ -57,9 +57,8 @@ class UnitiesSynchronizer
     schools.each do |school_record|
       duplicate_unity = Unity.with_discarded.find_by('TRIM(name) = ?', school_record.nome.try(:strip))
       next if duplicate_unity && duplicate_unity.api_code != school_record.cod_escola
-      next unless school_record.ativo
 
-      Unity.find_or_initialize_by(
+      Unity.with_discarded.find_or_initialize_by(
         api_code: school_record.cod_escola
       ).tap do |unity|
         unity.name = school_record.nome.try(:strip)
@@ -70,7 +69,7 @@ class UnitiesSynchronizer
         unity.api = true
         unity.author_id = author.id
         unity.active = school_record.ativo
-        unity.discarded_at = nil
+        unity.discarded_at = nil if school_record.ativo
 
         unity.address ||= unity.build_address
         unity.address.street = school_record.logradouro
