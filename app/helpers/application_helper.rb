@@ -1,7 +1,7 @@
 module ApplicationHelper
   include ActiveSupport::Inflector
 
-  PORTABILIS_LOGO = 'portabilis_logo.png'.freeze
+  DEFAULT_LOGO = 'brasil.png'.freeze
   PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
@@ -216,19 +216,6 @@ module ApplicationHelper
   end
 
   def logo_url
-    Rails.cache.fetch([current_entity.id, current_entity_configuration]) do
-      entity_logo_url = current_entity_configuration.try(:logo_url)
-
-      return PORTABILIS_LOGO if entity_logo_url.blank?
-      return entity_logo_url if RestClient.get(entity_logo_url).code == 200
-
-      PORTABILIS_LOGO
-    end
-  rescue Errno::ECONNREFUSED, RestClient::Exception, SocketError
-    PORTABILIS_LOGO
-  rescue => error
-    Honeybadger.notify(error)
-
-    PORTABILIS_LOGO
+    current_entity_configuration.try(:logo_url) || DEFAULT_LOGO
   end
 end

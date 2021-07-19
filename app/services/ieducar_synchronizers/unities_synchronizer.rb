@@ -55,6 +55,8 @@ class UnitiesSynchronizer
 
   def create_or_update_schools(schools)
     schools.each do |school_record|
+      next if school_record.nome.nil?
+
       duplicate_unity = Unity.with_discarded.find_by('TRIM(name) = ?', school_record.nome.try(:strip))
       next if duplicate_unity && duplicate_unity.api_code != school_record.cod_escola
 

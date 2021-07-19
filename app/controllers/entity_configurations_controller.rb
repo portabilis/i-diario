@@ -16,6 +16,8 @@ class EntityConfigurationsController < ApplicationController
     authorize @entity_configuration
 
     if @entity_configuration.save
+      cache_key = "EntityConfiguration##{current_entity.id}"
+      Rails.cache.delete(cache_key)
       respond_with @entity_configuration, location: edit_entity_configurations_path
     else
       render :edit
