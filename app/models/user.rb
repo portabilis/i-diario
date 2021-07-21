@@ -175,6 +175,7 @@ class User < ActiveRecord::Base
   end
 
   def status_changed
+    return if new_record?
     return if status_was == status
 
     if status == UserStatus::ACTIVE
