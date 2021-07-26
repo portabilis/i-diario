@@ -40,20 +40,26 @@ class UserByCsvCreator
       CSV.foreach(file, col_sep: ',', skip_blanks: true) do |new_user|
         User.find_or_initialize_by(login: new_user[3]).tap do |user|
           if new_user[5] == '0'
-            user.destroy unless user.id.nil?
+            user.destroy
             next
           end
           password = new_user[4] || SecureRandom.hex(8)
           user.login = new_user[3]
           user.email = new_user[2]
-          user.password = password
-          user.password_confirmation = password
+          if new_user[4]
+            user.encrypted_password = password
+          else
+            user.password = password
+            user.password_confirmation = password
+          end
           user.status = 'active'
           user.kind = 'employee'
           user.admin = true
           user.receive_news = false
           user.first_name = new_user[0]
           user.last_name = new_user[1]
+
+          user.save!
 
           if set_admin_role(user) && send_mail && new_user[4].nil?
             UserMailer.delay.by_csv(user.login, user.first_name, user.email, password, entity.domain)
