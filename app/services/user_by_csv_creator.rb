@@ -27,7 +27,7 @@ class UserByCsvCreator
     entities.each do |entity|
       entity.using_connection do
         create_users(entity)
-        puts "Usuário criados com sucesso no ambiente #{entity.name}"
+        puts "Usuários criados com sucesso no ambiente #{entity.name}"
       end
     end
   end
