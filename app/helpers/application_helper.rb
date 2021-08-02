@@ -216,6 +216,10 @@ module ApplicationHelper
   end
 
   def logo_url
-    current_entity_configuration.try(:logo_url) || DEFAULT_LOGO
+    if Rails.env.production?
+      current_entity_configuration.try(:logo_url) || DEFAULT_LOGO
+    else
+      DEFAULT_LOGO
+    end
   end
 end
