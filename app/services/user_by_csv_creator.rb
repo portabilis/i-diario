@@ -27,6 +27,7 @@ class UserByCsvCreator
     entities.each do |entity|
       entity.using_connection do
         create_users(entity)
+        puts "Usuário criados com sucesso no ambiente #{entity.name}"
       end
     end
   end
@@ -90,7 +91,7 @@ class UserByCsvCreator
   end
 
   def success
-    @status = 'Usuários criados com sucesso.'
+    @status = 'Criação de usuários completa'
   end
 
   def error
