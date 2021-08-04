@@ -4,6 +4,8 @@ class YearsFromStudentFetcher
     return if student_enrollment_classrooms.nil?
 
     years = student_enrollment_classrooms.map { |student_enrollment_classroom|
+      return if student_enrollment_classroom.classroom.nil?
+
       student_enrollment_classroom.classroom.year
     }
     years.uniq.sort.reverse
