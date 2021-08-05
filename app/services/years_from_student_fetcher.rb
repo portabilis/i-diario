@@ -8,7 +8,7 @@ class YearsFromStudentFetcher
 
       student_enrollment_classroom.classroom.year
     }
-    years.uniq.sort.reverse
+    years.compact.uniq.sort.reverse
   end
 
   def fetch_to_json(student_id)
