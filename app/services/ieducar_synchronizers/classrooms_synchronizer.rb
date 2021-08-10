@@ -66,6 +66,8 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
   def update_label(classroom_id, new_name)
     label = Label.find_by(labelable_id: classroom_id)
+    return if label.nil?
+
     label.name = new_name
     label.save!
   end
