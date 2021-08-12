@@ -13,6 +13,10 @@ class AwsS3HandlerService
   end
 
   def copy_object(source, target)
-    @s3_client.copy_object(bucket: @bucket_name, copy_source: "/#{@bucket_name}/#{source}", key: target)
+    @s3_client.copy_object(bucket: @bucket_name, copy_source: "/#{@bucket_name}/#{uri_escape(source)}", key: target)
+  end
+
+  def uri_escape(string)
+    CGI.escape(string.encode('UTF-8')).gsub('+', '%20').gsub('%7E', '~')
   end
 end

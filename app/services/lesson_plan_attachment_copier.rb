@@ -22,7 +22,8 @@ class LessonPlanAttachmentCopier
         begin
           s3_handler = AwsS3HandlerService.new
           s3_handler.copy_object("#{prefix}/#{original_id}/#{filename}", "#{prefix}/#{new_id}/#{filename}")
-        rescue StandardError
+        rescue StandardError => error
+          Honeybadger.notify(error)
           next
         end
       else
