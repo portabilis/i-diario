@@ -28,6 +28,8 @@ pt-BR:
       not_school_term_day: "deve ser um dia letivo da etapa informada"
       not_belongs_to_teacher: "não pertence ao professor"
       not_selected_in_profile: "não está selecionado no perfil"
+      uniqueness_of_start_at_and_end_at: "não é possível cadastrar evento para mesma data inicial"
+      uniqueness_of_end_at_and_start_at: "não é possível cadastrar evento para mesma data final"
       odd: "deve ser ímpar"
       record_invalid: ! "A validação falhou: %{errors}"
       restrict_dependent_destroy:
