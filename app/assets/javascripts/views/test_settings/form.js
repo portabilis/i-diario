@@ -59,6 +59,7 @@ $(function() {
     var $test_setting_grades_div = $('#test_setting_grades_div');
     var $test_setting_grades_input = $('#test_setting_grades');
     var $divisionWeightCheckContainer = $('#division-weight-check-container');
+    var $defaultDivisionWeight = $('#test_setting_default_division_weight');
     var $divisionWeightInput = $('#division-weight-input');
 
 
@@ -71,9 +72,6 @@ $(function() {
       $test_setting_school_term_div.show();
       if ($averageCalculationType.select2('val') === "sum") {
         $divisionWeightCheckContainer.show();
-      }
-      if ($('#division-weight-check').is(':checked')){
-        $divisionWeightInput.show();
       }
     } else if ($('#test_setting_exam_setting_type').select2('val') == 'general_by_school') {
       $test_setting_school_term_div.hide();
@@ -93,6 +91,8 @@ $(function() {
       $test_setting_school_term_div.hide();
       $test_setting_school_term_input.select2('val', '');
       $divisionWeightCheckContainer.hide();
+      $defaultDivisionWeight.val("");
+      $('#division-weight-check').prop('checked', false);
       $divisionWeightInput.hide();
     }
   }
