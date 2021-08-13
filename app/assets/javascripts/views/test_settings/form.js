@@ -73,7 +73,7 @@ $(function() {
         $divisionWeightCheckContainer.show();
       }
       if ($('#division-weight-check').is(':checked')){
-        $('#division-weight-input').show();
+        $divisionWeightInput.show();
       }
     } else if ($('#test_setting_exam_setting_type').select2('val') == 'general_by_school') {
       $test_setting_school_term_div.hide();
@@ -149,10 +149,15 @@ $(function() {
   }
 
   $('#division-weight-check').on('click', function (e) {
+    var $defaultDivisionWeight = $('#test_setting_default_division_weight');
+    var $divisionWeightInput = $('#division-weight-input');
     if(this.checked) {
       $('#division-weight-input').removeClass('hidden');
+      $defaultDivisionWeight.val("")
+      $divisionWeightInput.show()
     } else {
       $('#division-weight-input').addClass('hidden');
+      $divisionWeightInput.hide()
     }
   });
 
