@@ -59,6 +59,8 @@ $(function() {
     var $test_setting_grades_div = $('#test_setting_grades_div');
     var $test_setting_grades_input = $('#test_setting_grades');
     var $divisionWeightCheckContainer = $('#division-weight-check-container');
+    var $divisionWeightInput = $('#division-weight-input');
+
 
     if ($('#test_setting_exam_setting_type').select2('val') == 'by_school_term') {
       $test_setting_unities_div.hide();
@@ -91,6 +93,7 @@ $(function() {
       $test_setting_school_term_div.hide();
       $test_setting_school_term_input.select2('val', '');
       $divisionWeightCheckContainer.hide();
+      $divisionWeightInput.hide();
     }
   }
 
