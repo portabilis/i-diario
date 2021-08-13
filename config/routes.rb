@@ -9,7 +9,8 @@ Rails.application.routes.draw do
   localized do
     devise_for :users, controllers: {
       sessions: 'users/sessions',
-      passwords: 'users/passwords'
+      passwords: 'users/passwords',
+      unlocks: 'users/unlocks'
     }
 
     namespace :api do
