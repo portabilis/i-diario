@@ -164,7 +164,7 @@ $(function () {
   });
 
   $('#reason').keyup(function(){
-    if($(this).val().length !=0) {
+    if($(this).val().trim().length !=0) {
       $('#exemption-modal button:submit').attr('disabled', false);
     } else {
       $('#exemption-modal button:submit').attr('disabled',true);
