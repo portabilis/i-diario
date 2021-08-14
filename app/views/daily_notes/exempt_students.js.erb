@@ -9,8 +9,12 @@ $.each(students_ids, function(i, student_id){
   $('#exempt_student_check_' + student_id).attr('disabled', 'disabled');
 
   var studentName = $('#student_name_' + student_id);
-  studentName.text('**'+studentName.text());
-  studentName.addClass('exempted-student');
+  var studentNameLabel = studentName.text();
+
+  if(!studentNameLabel.startsWith('**')) {
+    studentName.text('**'+studentNameLabel);
+    studentName.addClass('exempted-student');
+  }
 
   var noteInput = $("#tr_student_" + student_id + " input[id ^='daily_note_students_attributes'][id $='note']")[0];
   $(noteInput).attr('readonly', 'readonly');

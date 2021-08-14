@@ -136,12 +136,13 @@ class DailyNotesController < ApplicationController
 
     @students_ids.each do |student_id|
       begin
-        avaliation_exemption = AvaliationExemption.new(
+        avaliation_exemption = AvaliationExemption.find_or_initialize_by(
           student_id: student_id,
-          avaliation_id: params[:exemption_avaliation_id],
-          reason: params[:reason]
+          avaliation_id: params[:exemption_avaliation_id]
         )
+        avaliation_exemption.reason = params[:reason]
         avaliation_exemption.teacher_id = current_teacher_id
+        avaliation_exemption.current_user = current_user
 
         delete_note(params[:id], student_id)
 

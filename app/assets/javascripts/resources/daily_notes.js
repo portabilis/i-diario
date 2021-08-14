@@ -227,7 +227,7 @@ $(function () {
   });
 
   $('.exempt_student_check_all:input').change(function() {
-    var enabledCheckoxes = $('.exempt_student_check:enabled');
+    var enabledCheckoxes = $('.exempt_student_check');
 
     if (enabledCheckoxes.length > 0) {
       var check_all = this.checked;
