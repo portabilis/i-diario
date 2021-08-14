@@ -4,6 +4,6 @@ module Audit
 
     ids = ids.concat(associated_audits.pluck(:id)) if respond_to?(:associated_audits)
 
-    Audited::Adapters::ActiveRecord::Audit.where(:id => ids).reorder("id DESC")
+    Audited::Audit.where(:id => ids).reorder("id DESC")
   end
 end

@@ -65,14 +65,13 @@ class SchoolCalendar < ActiveRecord::Base
     steps.all.posting_date_after_and_before(date).first
   end
 
-  def school_term_day?(school_term, date, classroom = nil)
+  def school_term_day?(school_term_type_step, date, classroom = nil)
     step = classroom.present? ? StepsFetcher.new(classroom).step_by_date(date) : step(date)
 
     return if step.blank?
+    return if step.school_calendar_parent.steps.count != school_term_type_step.school_term_type.steps_number
 
-    real_school_term = SchoolTermConverter.convert(step)
-
-    real_school_term.to_sym == SchoolTermConverter.correct_term(school_term).to_sym
+    step.step_number == school_term_type_step.step_number
   end
 
   def first_day

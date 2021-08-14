@@ -75,7 +75,7 @@ dos serviços ou o mapeamento dos volumes extras para a aplicação.
 
 ### Instalação em Servidor (Testado no Ubuntu 18.04)
 
-- Instale o Ruby 2.3.7 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv)
+- Instale o Ruby 2.4.10 (recomendamos uso de um gerenciador de versões como [Rbenv](https://github.com/rbenv/rbenv)
  ou [Rvm](https://rvm.io/))
 - Instale o Postgres e faça a configuração em `database.yml`
 - Instale a biblioteca `libpq-dev`
@@ -114,12 +114,15 @@ development:
   SMTP_PASSWORD: SMTP_PASSWORD
   NO_REPLY_ADDRESS: NO_REPLY_ADDRESS
   EMAIL_SKIP_DOMAINS: EMAIL_SKIP_DOMAINS
+  STUDENT_DOMAIN: STUDENT_DOMAIN
 ```
 
 _Nota: Você pode gerar uma chave secreta usando o comando `bundle exec rake secret`_
 
 _Nota: Use `EMAIL_SKIP_DOMAINS` para informar domínios (separadas por virgula e sem espaço) para os quais não quer
 que o sistema faça envio de emails_
+
+_Nota: Use `STUDENT_DOMAIN` para informar o domínio que vai ser usado para criar as contas de usuarios dos alunos na sincronização. Se não for informado, o checkbox que permite essa funcionalidade na tela de configurações não vai ser apresentado_
 
 - Crie o banco de dados:
 
@@ -179,6 +182,15 @@ Para adicionar o `fog`, crie o arquivo `Gemfile.plugins`, que irá ter gems cust
 Uma vez adicionada a gem `fog`, basta criar um arquivo de configuração em `config/custom_carrierwave.rb`
  e fazer os ajustes para funcionar. Leia atentamente a documentação do `carrierwave` antes de fazer isso.
 
+- Redirecionar os relatórios para outro servidor (opcional)
+```yaml
+  REPORTS_SERVER_IP: xx.xx.xx.xx
+  REPORTS_SERVER_USERNAME: username
+  REPORTS_SERVER_DIR: /var/www/relatorios_idiario
+```
+
+_Nota: REPORTS_SERVER_DIR deve estar dentro da pasta publica do seu servidor_
+
 * Inicie o servidor:
 
 ```bash
@@ -205,7 +217,8 @@ Entity.last.using_connection {
     password_confirmation: '123456789',
     status: 'active',
     kind: 'employee',
-    admin:  true
+    admin: true,
+    first_name: 'Admin'
   )
 }
 ```

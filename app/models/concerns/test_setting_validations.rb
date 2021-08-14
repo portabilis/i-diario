@@ -7,7 +7,7 @@ module TestSettingValidations
     validates :exam_setting_type, presence: true
     validates :year, presence: true
     validates :average_calculation_type, presence: true
-    validates :school_term, presence: { if: :by_school_term?  }
+    validates :school_term_type_step, presence: { if: :by_school_term?  }
     validates :unities, presence: true, if: :general_by_school?
     validates :default_division_weight,
               presence: true,
@@ -40,18 +40,18 @@ module TestSettingValidations
     general_test_settings = TestSetting.where(year: year, exam_setting_type: ExamSettingTypes::GENERAL)
     general_test_settings = general_test_settings.where.not(id: id) if persisted?
 
-    by_school_term_test_settings = TestSetting.where(year: year, school_term: school_term)
+    by_school_term_test_settings = TestSetting.where(year: year, school_term_type_step: school_term_type_step)
     by_school_term_test_settings = by_school_term_test_settings.where.not(id: id) if persisted?
 
     errors.add(:year, :taken) if general_test_settings.any?
-    errors.add(:school_term, :taken) if by_school_term_test_settings.any?
+    errors.add(:school_term_type_step, :taken) if by_school_term_test_settings.any?
   end
 
   def uniqueness_of_by_general_by_school_test_setting
     test_settings = TestSetting.where(year: year, exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
     test_settings = test_settings.where.not(id: id) if persisted?
     test_settings = test_settings.by_unities(unities)
-    test_settings = test_settings.where("grades @> ARRAY[?]::integer[] OR grades = '{}'", grades) if grades.present?
+    test_settings = test_settings.where("grades && ARRAY[?]::integer[] OR grades = '{}'", grades) if grades.present?
 
     return unless test_settings.any?
 

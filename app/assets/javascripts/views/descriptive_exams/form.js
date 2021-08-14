@@ -10,6 +10,10 @@ $(function () {
       should_clear_step = true,
       discipline_id = $discipline.val();
 
+  if ($opinionType.data('elements').length === 2) {
+   $opinionType.attr('readonly', true)
+  }
+
   function setFields() {
     var opinionType = $opinionType.val();
     should_clear_discipline = true;

@@ -16,7 +16,8 @@ class LearningObjectivesAndSkill < ActiveRecord::Base
   scope :by_grade, ->(grade) { where('?  = ANY(grades)', grade) }
   scope :ordered, -> { order(:code) }
 
-  validates :code, presence: true, uniqueness: true
+  validates :code, presence: true, uniqueness: true, length: { maximum: 50 }
+
   validates :description, presence: true
   validates :step, presence: true
   validates :child_educations, presence: true, if: :child_school?

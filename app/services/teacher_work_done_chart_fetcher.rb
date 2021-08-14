@@ -7,6 +7,8 @@ class TeacherWorkDoneChartFetcher
   end
 
   def fetch!
+    return { pending_notes_count: 0, completed_notes_count: 0 } if classroom.blank? || discipline.blank?
+
     teacher_avaliations = Avaliation.by_classroom_id(classroom)
                                     .by_discipline_id(discipline)
 

@@ -25,12 +25,11 @@
               </ul>
             </div>
           </td>
-          <td><%= f.input :full_name, label: false, placeholder: "Filtrar nome" %></td>
-          <td><%= f.input :by_cpf, label: false, placeholder: "Filtrar CPF" %></td>
-          <td><%= f.input :email, label: false, placeholder: "Filtrar e-mail" %></td>
-          <td><%= f.input :login, label: false, placeholder: "Filtrar nome de usuário" %></td>
-          <td><%= f.input :status, as: :select, label: false,
-                                   prompt: "Filtrar status", collection: UserStatus %></td>
+          <td><%= f.input :full_name, label: false, placeholder: "Filtrar nome", input_html: { value: @search_full_name } %></td>
+          <td><%= f.input :by_cpf, label: false, placeholder: "Filtrar CPF", input_html: { value: @search_by_cpf } %></td>
+          <td><%= f.input :email, label: false, placeholder: "Filtrar e-mail", input_html: { value: @search_email } %></td>
+          <td><%= f.input :login, label: false, placeholder: "Filtrar nome de usuário", input_html: { value: @search_login } %></td>
+          <td><%= f.input :status, as: :select, label: false, prompt: "Filtrar status", collection: UserStatus, input_html: { value: @search_status }, selected: @search_status %></td>
           <td></td>
         </tr>
         <tr>

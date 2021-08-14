@@ -24,11 +24,15 @@
 
     <div class="row">
       <div class="col col-sm-4">
-        <%= f.input :school_term_type, as: :select2, elements: SchoolTermTypes.to_select.to_json %>
+        <%= f.association :school_term_type, as: :select2,
+                          elements: SchoolTermType.to_select2(
+                            current_user.current_school_year,
+                            current_user.current_unity_id
+                          ).to_json %>
       </div>
 
-      <div id="school_term" class="col col-sm-4">
-        <%= f.input :school_term, as: :select2, elements: [], required: true %>
+      <div id="school_term_type" class="col col-sm-4">
+        <%= f.association :school_term_type_step, as: :select2, elements: [], required: true %>
       </div>
     </div>
 

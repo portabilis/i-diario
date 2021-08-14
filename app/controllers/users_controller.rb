@@ -5,6 +5,12 @@ class UsersController < ApplicationController
   def index
     @users = apply_scopes(User.filter(filtering_params params[:search]).ordered)
 
+    @search_full_name = params.dig(:search, :full_name)
+    @search_by_cpf = params.dig(:search, :by_cpf)
+    @search_email = params.dig(:search, :email)
+    @search_login = params.dig(:search, :login)
+    @search_status = params.dig(:search, :status)
+
     authorize @users
   end
 
@@ -21,9 +27,14 @@ class UsersController < ApplicationController
 
     authorize @user
 
-    params[:user].delete :password if params[:user][:password].blank?
+    password = params[:user][:password]
 
-    if @user.update(user_params)
+    params[:user].delete :password if password.blank?
+
+    if weak_password?(password)
+      flash.now[:error] = t('errors.general.weak_password')
+      render :edit
+    elsif @user.update(user_params)
       UserUpdater.update!(@user, current_entity)
 
       respond_with @user, location: users_path
@@ -52,7 +63,15 @@ class UsersController < ApplicationController
 
     @user.destroy
 
-    respond_with @user, location: users_path
+    search_params = {
+      'search[full_name]': params.dig(:search, :full_name),
+      'search[by_cpf]': params.dig(:search, :by_cpf),
+      'search[email]': params.dig(:search, :email),
+      'search[login]': params.dig(:search, :login),
+      'search[status]': params.dig(:search, :status)
+    }
+
+    respond_with @user, location: users_path(search_params)
   end
 
   def history

@@ -66,6 +66,7 @@ class DailyNotesController < ApplicationController
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
         note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_note)
+        note_student.in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_note.avaliation.test_date)
 
         @students << note_student
       end
@@ -76,6 +77,7 @@ class DailyNotesController < ApplicationController
     @any_exempted_student = any_exempted_student?
     @any_inactive_student = any_inactive_student?
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
+    @any_in_active_search = any_in_active_search?
 
     @students.each do |student|
       @normal_students << student if !student.dependence
@@ -314,5 +316,9 @@ class DailyNotesController < ApplicationController
     return unless (student_note = DailyNoteStudent.find_by(daily_note_id: daily_note_id, student_id: student_id))
 
     student_note.update!(note: nil)
+  end
+
+  def any_in_active_search?
+    (@students || []).any?(&:in_active_search)
   end
 end

@@ -8,8 +8,7 @@ Rails.application.routes.draw do
   localized do
     devise_for :users, controllers: {
       sessions: 'users/sessions',
-      passwords: 'users/passwords',
-      unlocks: 'users/unlocks'
+      passwords: 'users/passwords'
     }
 
     namespace :api do
@@ -17,6 +16,7 @@ Rails.application.routes.draw do
         resources :exam_rules, only: [:index]
         get 'step_activity', to: 'step_activity#check'
         get 'discipline_activity', to: 'discipline_activity#check'
+        get 'student_activity', to: 'student_activity#check'
         resources :teacher_unities, only: [:index]
         resources :teacher_classrooms, only: [:index] do
           collection do
@@ -95,7 +95,7 @@ Rails.application.routes.draw do
     get '/current_role/available_teachers', to: 'current_role#available_teachers', as: :available_teachers
     get '/current_role/available_unities', to: 'current_role#available_unities', as: :available_unities
     get '/current_role/available_teacher_profiles', to: 'current_role#available_teacher_profiles', as: :available_teacher_profiles
-
+    get '/steps_by_school_term_type_id', to: 'school_term_type_steps#steps', as: :steps_by_school_term_type_id
     post '/system_notifications/read_all', to: 'system_notifications#read_all', as: :read_all_notifications
     get '/disabled_entity', to: 'pages#disabled_entity'
 
@@ -156,6 +156,7 @@ Rails.application.routes.draw do
     end
     resources :test_setting_tests, only: [:index, :show]
 
+    resources :school_calendar_event_batches
     resources :school_calendars, concerns: :history do
       collection do
         get :step

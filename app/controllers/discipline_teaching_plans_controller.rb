@@ -2,8 +2,10 @@ class DisciplineTeachingPlansController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
+  before_action :require_current_year, if: :current_user_is_employee_or_administrator?
   before_action :require_current_teacher, unless: :current_user_is_employee_or_administrator?
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :yearly_term_type_id, only: [:show, :edit, :new]
 
   def index
     params[:filter] ||= {}
@@ -76,6 +78,7 @@ class DisciplineTeachingPlansController < ApplicationController
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
     else
+      yearly_term_type_id
       fetch_collections
 
       render :new
@@ -104,6 +107,7 @@ class DisciplineTeachingPlansController < ApplicationController
     if @discipline_teaching_plan.save
       respond_with @discipline_teaching_plan, location: discipline_teaching_plans_path
     else
+      yearly_term_type_id
       fetch_collections
 
       render :edit
@@ -183,13 +187,15 @@ class DisciplineTeachingPlansController < ApplicationController
         :year,
         :unity_id,
         :grade_id,
-        :school_term_type,
-        :school_term,
+        :school_term_type_id,
+        :school_term_type_step_id,
         :content,
         :methodology,
         :evaluation,
         :references,
         :teacher_id,
+        :opinion,
+        :validated,
         teaching_plan_attachments_attributes: [
           :id,
           :attachment,
@@ -240,9 +246,7 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def fetch_grades
-    @grades = Grade.by_unity(current_unity)
-      .by_year(current_school_calendar.year)
-      .ordered
+    @grades = Grade.by_unity(current_unity).by_year(current_school_year).ordered
 
     @grades = @grades.by_teacher(current_teacher) unless current_user_is_employee_or_administrator?
   end
@@ -263,5 +267,9 @@ class DisciplineTeachingPlansController < ApplicationController
     end
 
     @disciplines
+  end
+
+  def yearly_term_type_id
+    @yearly_term_type_id ||= SchoolTermType.find_by(description: 'Anual').id
   end
 end

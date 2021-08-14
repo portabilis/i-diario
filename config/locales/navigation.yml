@@ -13,6 +13,7 @@ pt-BR:
     entity_configurations: "Entidade"
     test_settings: "Avaliações numéricas"
     school_calendars: "Calendário letivo"
+    school_calendar_event_batches: "Eventos em lote"
     school_calendar_events: "Eventos"
     teaching_plans_menu: "Planos de ensino"
     discipline_teaching_plans: "Planos de ensino por disciplina"

@@ -23,6 +23,7 @@ class ExamRecordReport < BaseReport
     @students_enrollments = students_enrollments
     @complementary_exams = complementary_exams
     @school_term_recoveries = school_term_recoveries
+    @active_search = false
 
     header
     content
@@ -175,11 +176,17 @@ class ExamRecordReport < BaseReport
         @students_enrollments.each do |student_enrollment|
           student_id = student_enrollment.student_id
           exempted_from_discipline = exempted_from_discipline?(student_enrollment, exam)
+          in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, exam.test_date)
           daily_note_student = nil
 
           if exempted_from_discipline || (avaliation_id.present? && exempted_avaliation?(student_enrollment.student_id, avaliation_id))
             student_note = ExemptedDailyNoteStudent.new
             averages[student_enrollment.student_id] = "D" if exempted_from_discipline
+          elsif in_active_search
+            @active_search = true
+
+            student_note = ActiveSearchDailyNoteStudent.new
+            averages[student_enrollment.student_id] = "B"
           elsif avaliation_id.present?
             daily_note_student = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note_id, active: true)
             student_note = daily_note_student || NullDailyNoteStudent.new
@@ -328,8 +335,11 @@ class ExamRecordReport < BaseReport
 
         draw_text('Data:', size: 8, style: :bold, at: [559, 0])
         draw_text('________________', size: 8, at: [581, 0])
-
-        draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação ou da disciplina', size: 8, at: [0, 17])
+        if @active_search
+          draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação ou da disciplina, B - Busca ativa', size: 8, style: :bold, at: [0, 17])
+        else
+          draw_text('Legendas: N - Não enturmado, D - Dispensado da avaliação ou da disciplina', size: 8, style: :bold, at: [0, 17])
+        end
         draw_text('* Alunos cursando dependência', size: 8, at: [0, 32]) if self.any_student_with_dependence
       end
     end

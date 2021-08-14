@@ -51,4 +51,38 @@ $(function() {
       e.preventDefault();
     }
   });
+
+  $('.destroy-button').each(function() {
+    var search_full_name = $('#search_full_name').val();
+    var search_by_cpf = $('#search_by_cpf').val();
+    var search_email = $('#search_email').val();
+    var search_login = $('#search_login').val();
+    var search_status = $('#search_status').val();
+    var params = '';
+
+    if (search_full_name) {
+      params += '&search[full_name]=' + search_full_name;
+    }
+
+    if (search_by_cpf) {
+      params += '&search[by_cpf]=' + search_by_cpf;
+    }
+
+    if (search_email) {
+      params += '&search[email]=' + search_email;
+    }
+
+    if (search_login) {
+      params += '&search[login]=' + search_login;
+    }
+
+    if (search_status) {
+      params += '&search[status]=' + search_status;
+    }
+
+    var _href = $(this).attr("href");
+
+    $(this).attr("href", _href + params.replace('&', '?'));
+  });
+  $('#search_by_cpf').inputmask("999.999.999-99");
 });

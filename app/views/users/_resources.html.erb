@@ -22,7 +22,9 @@
         </td>
         <td class="actions">
           <%= link_to 'Editar', edit_user_path(user), class: "btn btn-success" %>
-          <%= link_to 'Excluir', user_path(user), class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+          <% if current_user.admin? || (current_user.current_role_is_admin_or_employee? && !user.administrator?) %>
+            <%= link_to 'Excluir', user_path(user), class: "btn btn-danger destroy-button", method: "delete", data: { confirm: "Tem certeza?" } %>
+          <% end %>
         </td>
       </tr>
     <% end %>

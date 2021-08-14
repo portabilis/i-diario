@@ -39,7 +39,7 @@ module DailyFrequencyHelper
     StepsFetcher.new(daily_frequency.classroom).step_by_date(daily_frequency.frequency_date).end_at
   end
 
-  def frequency_student_name_class(dependence, active, exempted_from_discipline)
+  def frequency_student_name_class(dependence, active, exempted_from_discipline, in_active_search)
     name_class = 'multiline'
 
     if !active
@@ -48,18 +48,22 @@ module DailyFrequencyHelper
       name_class += ' dependence-student'
     elsif exempted_from_discipline
       name_class += ' exempted-student-from-discipline'
+    elsif in_active_search
+      name_class += ' in-active-search'
     end
 
     name_class
   end
 
-  def frequency_student_name(student, dependence, active, exempted_from_discipline)
+  def frequency_student_name(student, dependence, active, exempted_from_discipline, in_active_search)
     if !active
       "**#{student}"
     elsif dependence
       "*#{student}"
     elsif exempted_from_discipline
       "****#{student}"
+    elsif in_active_search
+      "*****#{student}"
     else
       student.to_s
     end

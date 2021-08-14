@@ -1,7 +1,7 @@
 module ApplicationHelper
   include ActiveSupport::Inflector
 
-  PORTABILIS_LOGO = 'portabilis_logo.png'.freeze
+  DEFAULT_LOGO = 'brasil.png'.freeze
   PROFILE_DEFAULT_PICTURE_PATH = '/assets/profile-default.jpg'.freeze
 
   def unread_notifications_count
@@ -171,10 +171,6 @@ module ApplicationHelper
     yield(presenter) if block_given?
   end
 
-  def default_steps
-    (Bimesters.to_select + Trimesters.to_select + Semesters.to_select + BimestersEja.to_select).uniq
-  end
-
   def back_link(name, path)
     content_for :back_link do
       back_link_tag(name, path)
@@ -188,31 +184,6 @@ module ApplicationHelper
         #{name}
       HTML
     end
-  end
-
-  def include_recaptcha_js
-    return '' if recaptcha_site_key.blank?
-
-    raw %Q{
-      <script src="https://www.google.com/recaptcha/api.js?render=#{recaptcha_site_key}"></script>
-    }
-  end
-
-  def recaptcha_execute
-    return '' if recaptcha_site_key.blank?
-
-    id = "recaptcha_token_#{SecureRandom.hex(10)}"
-
-    raw %Q{
-      <input name="recaptcha_token" type="hidden" id="#{id}"/>
-      <script>
-        grecaptcha.ready(function() {
-          grecaptcha.execute('#{recaptcha_site_key}').then(function(token) {
-            document.getElementById("#{id}").value = token;
-          });
-        });
-      </script>
-    }
   end
 
   def window_state
@@ -244,22 +215,11 @@ module ApplicationHelper
     [current_entity.id, current_user.id]
   end
 
-  def recaptcha_site_key
-    @recaptcha_site_key ||= Rails.application.secrets.recaptcha_site_key
-  end
-
   def logo_url
-    Rails.cache.fetch(current_entity.id, current_entity_configuration) do
-      entity_logo_url = current_entity_configuration.try(:logo_url)
-
-      return PORTABILIS_LOGO if entity_logo_url.blank?
-      return entity_logo_url if HTTParty.get(entity_logo_url).code == 200
-
-      PORTABILIS_LOGO
+    if Rails.env.production?
+      current_entity_configuration.try(:logo_url) || DEFAULT_LOGO
+    else
+      DEFAULT_LOGO
     end
-  rescue => error
-    Honeybadger.notify(error)
-
-    PORTABILIS_LOGO
   end
 end

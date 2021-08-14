@@ -28,6 +28,9 @@ class ApplicationController < ActionController::Base
   before_action :check_for_current_user_role, if: :user_signed_in?
   before_action :set_current_unity_id, if: :user_signed_in?
   before_action :set_current_user_role_id, if: :user_signed_in?
+  before_action :check_user_has_name, if: :user_signed_in?
+  before_action :check_password_expired, if: :user_signed_in?
+  before_action :last_activity_at, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -95,15 +98,15 @@ class ApplicationController < ActionController::Base
   end
 
   def configure_permitted_parameters
-    devise_parameter_sanitizer.for(:sign_in) do |u|
+    devise_parameter_sanitizer.permit(:sign_in) do |u|
       u.permit(:credentials, :password, :remember_me)
     end
 
-    devise_parameter_sanitizer.for(:account_update) do |u|
+    devise_parameter_sanitizer.permit(:account_update) do |u|
       u.permit(:email, :first_name, :last_name, :login, :phone, :cpf, :current_password, :authorize_email_and_sms)
     end
 
-    devise_parameter_sanitizer.for(:sign_up) do |u|
+    devise_parameter_sanitizer.permit(:sign_up) do |u|
       u.permit(:email, :password, :password_confirmation)
     end
   end
@@ -139,7 +142,8 @@ class ApplicationController < ActionController::Base
   end
 
   def current_entity_configuration
-    @current_entity_configuration ||= EntityConfiguration.first
+    cache_key = "EntityConfiguration##{current_entity.id}"
+    @current_entity_configuration ||= Rails.cache.fetch(cache_key, expires_in: 1.day) { EntityConfiguration.first }
   end
   helper_method :current_entity_configuration
 
@@ -185,6 +189,14 @@ class ApplicationController < ActionController::Base
 
   def steps_fetcher
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
+  end
+
+  def require_current_year
+    return if current_user_school_year
+
+    flash[:alert] = t('errors.general.require_current_year')
+
+    redirect_to root_path
   end
 
   def require_current_teacher
@@ -234,6 +246,9 @@ class ApplicationController < ActionController::Base
 
   def teacher_differentiated_discipline_score_type
     exam_rule = current_user_classroom.exam_rule
+
+    return if exam_rule.blank?
+
     differentiated_exam_rule = exam_rule.differentiated_exam_rule
 
     if differentiated_exam_rule.blank? || !current_user_classroom.has_differentiated_students?
@@ -244,6 +259,7 @@ class ApplicationController < ActionController::Base
   end
 
   def teacher_discipline_score_type_by_exam_rule(exam_rule)
+    return if exam_rule.blank?
     return unless (score_type = exam_rule.score_type)
     return if score_type == ScoreTypes::DONT_USE
     return score_type if [ScoreTypes::NUMERIC, ScoreTypes::CONCEPT].include?(score_type)
@@ -273,15 +289,6 @@ class ApplicationController < ActionController::Base
     ensure
       Thread.current[:origin_type] = nil
     end
-  end
-
-  def verify_recaptcha?
-    return if RecaptchaVerifier.verify?(params[:recaptcha_token])
-
-    flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."
-    redirect_to :back
-  rescue ActionController::RedirectBackError
-    redirect_to root_path
   end
 
   def allowed_api_header?
@@ -360,10 +367,63 @@ class ApplicationController < ActionController::Base
     File.open("#{Rails.root}/public#{name}", 'wb') do |f|
       f.write(pdf_to_s)
     end
+
+    username = Rails.application.secrets[:REPORTS_SERVER_USERNAME]
+    server = Rails.application.secrets[:REPORTS_SERVER_IP]
+    dir = Rails.application.secrets[:REPORTS_SERVER_DIR]
+
+    if username && server && dir
+      system("rsync -a --remove-source-files --quiet #{Rails.root}/public#{name} #{username}@#{server}:#{dir}")
+    end
+
     redirect_to name
   end
 
   def report_name(prefix)
     "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
+  end
+
+  def check_user_has_name
+    return if current_user.first_name.present?
+    return if target_path?
+
+    flash[:alert] = t('errors.general.check_user_has_name')
+
+    redirect_to edit_account_path
+  end
+
+  def check_password_expired
+    days_to_expire_password = GeneralConfiguration.current.days_to_expire_password || 0
+    return if current_user.admin? || days_to_expire_password.zero? || target_path?
+
+    days_after_last_password_change = (Date.current - current_user.last_password_change.to_date).to_i
+    return if days_after_last_password_change <= days_to_expire_password
+
+    flash[:alert] = t('errors.general.expired_password')
+
+    redirect_to edit_account_path
+  end
+
+  def last_activity_at
+    current_user.last_activity_at = Date.current
+    current_user.save
+  end
+
+  def target_path?
+    request_path = Rails.application.routes.recognize_path(request.path, method: request.env['REQUEST_METHOD'])
+
+    request_path[:controller] == 'accounts' && (request_path[:action] == 'edit' ||
+                                                request_path[:action] == 'update')
+  end
+
+  def weak_password?(password)
+    return false if password.blank?
+
+    if (password =~ /[A-Z]/).nil? || (password =~ /[a-z]/).nil? || (password =~ /[0-9]/).nil? ||
+       (password =~ /[!@#\$%^&*?_~-]/).nil?
+      true
+    else
+      false
+    end
   end
 end

@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   include Searchable
 
   devise :database_authenticatable, :recoverable, :rememberable,
-    :trackable, :validatable, :lockable
+         :trackable, :validatable, :lockable
 
   attr_accessor :credentials, :has_to_validate_receive_news_fields
 
@@ -21,7 +21,6 @@ class User < ActiveRecord::Base
 
   after_save :update_fullname_tokens
 
-  before_destroy :ensure_has_no_audits
   before_destroy :clear_allocation
   before_validation :verify_receive_news_fields
 
@@ -55,6 +54,7 @@ class User < ActiveRecord::Base
 
   mount_uploader :profile_picture, UserProfilePictureUploader
 
+  validates :first_name, presence: true
   validates :cpf, mask: { with: "999.999.999-99", message: :incorrect_format }, allow_blank: true, uniqueness: { case_sensitive: false }
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
@@ -65,10 +65,14 @@ class User < ActiveRecord::Base
 
   validates_associated :user_roles
 
+  validate :valid_password
+  validate :status_changed
+  validate :email_reserved_for_student
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
+  validate :status_changed
 
   scope :ordered, -> { order(arel_table[:fullname].asc) }
   scope :email_ordered, -> { order(email: :asc) }
@@ -82,11 +86,12 @@ class User < ActiveRecord::Base
   #search scopes
   scope :full_name, lambda { |fullname|
     where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(fullname))
-      .order("ts_rank_cd(users.fullname_tokens, to_tsquery('portuguese', '#{split_search(fullname)}')) desc")
   }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
-  scope :by_cpf, ->(cpf) { where('cpf ILIKE unaccent(?)', "%#{cpf}%") }
+  scope :by_cpf, lambda { |cpf|
+    where("REGEXP_REPLACE(cpf, '[^0-9]+', '', 'g') ILIKE REGEXP_REPLACE(?, '[^0-9|%]+', '', 'g')", "%#{cpf}%")
+  }
   scope :status, lambda { |status| where status: status }
 
   delegate :can_change_school_year?, to: :current_user_role, allow_nil: true
@@ -147,9 +152,52 @@ class User < ActiveRecord::Base
   end
 
   def expired?
+    return false if admin?
+
+    days_to_expire = GeneralConfiguration.current.days_to_disable_access || 0
+    return false if expiration_date.blank? && days_to_expire.zero?
+
+    unless days_to_expire.zero?
+      days_without_access = (Date.current - last_activity_at.to_date).to_i
+      if days_without_access >= days_to_expire
+        update_status(UserStatus::PENDING)
+        return true
+      end
+    end
+
     return false if expiration_date.blank?
 
     Date.current >= expiration_date
+  end
+
+  def update_status(status)
+    update_column :status, status
+  end
+
+  def status_changed
+    return if new_record?
+    return if status_was == status
+
+    if status == UserStatus::ACTIVE
+      update_last_activity_at
+      unlock_access!
+    end
+  end
+
+  def valid_password
+    return if new_record?
+    return if encrypted_password.blank?
+    return if encrypted_password_was == encrypted_password
+
+    update_last_password_change
+  end
+
+  def update_last_password_change
+    update_column :last_password_change, Date.current
+  end
+
+  def update_last_activity_at
+    update_column :last_activity_at, Date.current
   end
 
   def can_show?(feature)
@@ -383,16 +431,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def ensure_has_no_audits
-    user_id = self.id
-    query = "SELECT COUNT(*) FROM audits WHERE audits.user_id = '#{user_id}'"
-    audits_count = ActiveRecord::Base.connection.execute(query).first.fetch("count").to_i
-    if audits_count > 0
-      errors.add(:base, "")
-      false
-    end
-  end
-
   def verify_receive_news_fields
     return true unless persisted?
     self.receive_news_related_daily_teacher = false unless can_receive_news_related_daily_teacher?
@@ -435,5 +473,20 @@ class User < ActiveRecord::Base
     return unless first_name_changed? || last_name_changed?
 
     User.where(id: id).update_all("fullname_tokens = to_tsvector('portuguese', fullname)")
+  end
+
+  def email_reserved_for_student
+    return unless email
+
+    student_api_code, student_domain = email.split('@')
+
+    return if student_domain != 'ambiente.portabilis.com.br'
+
+    if persisted? && Student.joins('LEFT JOIN users ON users.student_id = students.id')
+                            .where(users: { student_id: nil })
+                            .where(api_code: student_api_code)
+                            .any?
+      errors.add(:email, :invalid_email)
+    end
   end
 end

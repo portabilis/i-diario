@@ -1,0 +1,32 @@
+pt-BR:
+  activerecord:
+    models:
+      school_calendar_event_batch:
+        one: 'Evento em lote'
+        other: 'Eventos em lote'
+
+    attributes:
+      school_calendar_event_batch:
+        year: "Ano letivo"
+        duration: "Duração"
+        start_date: "Data inicial"
+        end_date: "Data final"
+        periods: "Turnos"
+        description: "Descrição"
+        event_type: "Tipo"
+        legend: "Legenda"
+        show_in_frequency_record: 'Apresentar no Registro de frequência'
+        batch_status: 'Situação'
+
+    errors:
+      models:
+        school_calendar_event_batch:
+          attributes:
+            start_date:
+              already_exists_event_in_this_date: "Já existe um evento cadastrado de outro tipo nesta data"
+            end_date:
+              already_exists_event_in_this_date: "Já existe um evento cadastrado de outro tipo nesta data"
+
+  school_calendar_event_batches:
+    index:
+      new_html: "<i class='fa fa-plus'></i> Novo evento"

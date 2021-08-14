@@ -25,24 +25,43 @@ class AdminUserCreator
 
     entity.using_connection do
       create_admin
+      create_admin_role
     end
   end
 
   def create_admin
-    admin_user = User.find_by(login: 'admin')
+    @admin_user = User.find_by(login: 'admin')
 
-    return true if admin_user.present?
+    return true if @admin_user.present?
 
-    User.create!(
-        login: 'admin',
-        email: 'admin@domain.com.br',
-        password: password,
-        password_confirmation: password,
-        status: 'active',
-        kind: 'employee',
-        admin:  true,
-        receive_news: false
+    @admin_user = User.create!(
+      login: 'admin',
+      email: 'admin@domain.com.br',
+      password: password,
+      password_confirmation: password,
+      status: 'active',
+      kind: 'employee',
+      admin: true,
+      receive_news: false,
+      first_name: 'Admin'
     )
+  end
+
+  def create_admin_role
+    @role = Role.order(:id).find_by(access_level: 'administrator')
+
+    if @role.blank?
+      @role = Role.create(
+        name: 'Administrador',
+        access_level: 'administrator',
+        author_id: @admin_user.try(:id)
+      )
+    end
+
+    UserRole.find_or_initialize_by(
+      role: @role,
+      user: @admin_user
+    ).save(validate: false)
   end
 
   def success

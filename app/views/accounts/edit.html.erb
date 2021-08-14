@@ -18,7 +18,7 @@
         </div>
 
         <div class="col col-sm-6">
-          <%= f.input :email, required: true, autofocus: true %>
+          <%= f.input :email, required: true, autofocus: (@expired_password ? false : true) %>
         </div>
       </div>
 
@@ -42,7 +42,8 @@
 
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.input :password, autocomplete: "off", hint: "deixe em branco se você não quiser mudá-lo", required: false %>
+          <%= f.input :password, autocomplete: "off", hint: (@expired_password ? '' : 'deixe em branco se você não quiser mudá-lo'),
+          required: false, autofocus: (@expired_password ? true : false) %>
         </div>
 
         <div class="col col-sm-4">
@@ -82,16 +83,17 @@
                role="dialog"
                aria-labelledby="modalLabel"
                aria-hidden="true">
-            <div class="modal-dialog" role="document">
+            <div class="modal-dialog responsive topDistance" role="document">
               <div class="modal-content">
                 <div class="modal-header">
-                  <h5 class="modal-title" id="modalLabel">Recorte a imagem</h5>
-                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
+                  <h5 class="modal-title" id="modalLabel">Recorte a imagem
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </h5>
                 </div>
                 <div class="modal-body">
-                  <div class="profile-picture-img-container">
+                  <div class="profile-picture-img-container responsive">
                     <img id="profile-image">
                   </div>
                 </div>

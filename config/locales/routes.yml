@@ -13,6 +13,7 @@ pt-BR:
     test_settings: 'configuracoes-de-avaliacoes-numericas'
     school_calendars: 'calendarios-letivo'
     school_calendar_events: 'eventos'
+    school_calendar_event_batches: 'eventos-em-lote'
     discipline_teaching_plans: 'planos-de-ensino-por-disciplina'
     knowledge_area_teaching_plans: 'planos-de-ensino-por-areas-de-conhecimento'
     avaliations: 'avaliacoes'

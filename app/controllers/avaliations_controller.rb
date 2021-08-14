@@ -42,37 +42,29 @@ class AvaliationsController < ApplicationController
   end
 
   def new
-    return if redirect_to_avaliations
-
-    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
-
-    if available_score_types.none? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
-      redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
-    end
+    return if test_settings_redirect
+    return if score_types_redirect
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
-    @avaliation.test_setting    = current_test_setting
-    @avaliation.test_date       = Time.zone.today
+    @avaliation.test_date = Time.zone.today
 
     authorize resource
-
-    steps_settings(current_test_setting.exam_setting_type)
   end
 
   def multiple_classrooms
-    return if redirect_to_avaliations
+    return if test_settings_redirect
+    return if score_types_redirect
 
-    @avaliation_multiple_creator_form                    = AvaliationMultipleCreatorForm.new.localized
+    @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
-    @avaliation_multiple_creator_form.test_setting_id    = current_test_setting.id
-    @avaliation_multiple_creator_form.discipline_id      = current_user_discipline.id
-    @avaliation_multiple_creator_form.unity_id           = current_unity.id
+    @avaliation_multiple_creator_form.discipline_id = current_user_discipline.id
+    @avaliation_multiple_creator_form.unity_id = current_unity.id
     @avaliation_multiple_creator_form.load_avaliations!(current_teacher.id, current_school_calendar.year)
 
     authorize Avaliation.new
 
-    steps_settings(current_test_setting.exam_setting_type)
+    test_settings
   end
 
   def create_multiple_classrooms
@@ -85,7 +77,8 @@ class AvaliationsController < ApplicationController
     if @avaliation_multiple_creator_form.save
       respond_with @avaliation_multiple_creator_form, location: avaliations_path
     else
-      steps_settings(current_test_setting.exam_setting_type)
+      test_settings
+
       render :multiple_classrooms
     end
   end
@@ -100,7 +93,8 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
-      steps_settings(current_test_setting.exam_setting_type)
+      @avaliation = resource
+      test_settings
 
       render :new
     end
@@ -111,7 +105,7 @@ class AvaliationsController < ApplicationController
 
     authorize @avaliation
 
-    steps_settings(current_test_setting.exam_setting_type)
+    test_settings
   end
 
   def update
@@ -125,7 +119,7 @@ class AvaliationsController < ApplicationController
     if resource.save
       respond_to_save
     else
-      steps_settings(current_test_setting.exam_setting_type)
+      test_settings
 
       render :edit
     end
@@ -172,7 +166,7 @@ class AvaliationsController < ApplicationController
         render 'daily_notes/new'
       end
     else
-      respond_with resource, location: avaliations_path
+      redirect_to avaliations_path
     end
   end
 
@@ -184,11 +178,13 @@ class AvaliationsController < ApplicationController
   helper_method :disciplines_for_multiple_classrooms
 
   def classrooms_for_multiple_classrooms
-    return [] unless @avaliation_multiple_creator_form.discipline_id.present?
+    return [] if @avaliation_multiple_creator_form.discipline_id.blank?
+
     @classrooms_for_multiple_classrooms ||= Classroom.by_unity_id(current_unity.id)
                                                      .by_teacher_id(current_teacher.id)
-                                                     .by_teacher_discipline(@avaliation_multiple_creator_form.discipline_id)
-                                                     .ordered
+                                                     .by_teacher_discipline(
+                                                       @avaliation_multiple_creator_form.discipline_id
+                                                     ).ordered
   end
   helper_method :classrooms_for_multiple_classrooms
 
@@ -197,12 +193,12 @@ class AvaliationsController < ApplicationController
   end
 
   def resource
-    @avaliation ||= case params[:action]
-    when 'new', 'create'
-      Avaliation.new
-    when 'edit', 'update', 'destroy', 'show'
-      Avaliation.find(params[:id])
-    end
+    @resource ||= case params[:action]
+                  when 'new', 'create'
+                    Avaliation.new
+                  when 'edit', 'update', 'destroy', 'show'
+                    Avaliation.find(params[:id])
+                  end
   end
 
   def resource_params
@@ -218,45 +214,72 @@ class AvaliationsController < ApplicationController
   end
 
   def interpolation_options
-    return {} if resource.class != Avaliation
+    if action_name == 'destroy'
+      reasons = []
 
-    reasons = []
+      if resource.errors[:test_date].include?(t('errors.messages.not_allowed_to_post_in_date'))
+        reasons << t('errors.messages.not_allowed_to_post_in_date')
+      end
 
-    if resource.errors[:test_date].include?(t('errors.messages.not_allowed_to_post_in_date'))
-      reasons << t('errors.messages.not_allowed_to_post_in_date')
+      reasons << t('avaliation.grades_avoid_destroy') unless resource.grades_allow_destroy
+      reasons << t('avaliation.recovery_avoid_destroy') unless resource.recovery_allow_destroy
+
+      { reason: reasons.join(' e ') }
+    elsif ['create', 'create_multiple_classrooms'].include?(action_name)
+      classrooms = if resource
+                     [resource.classroom.description]
+                   else
+                     classroom_records = params[:avaliation_multiple_creator_form][:avaliations_attributes].values
+                     included = classroom_records.select { |classroom_record| classroom_record['include'] == '1' }
+                     included.map { |included_record| Classroom.find(included_record['classroom_id']).description }
+                   end
+
+      { resource_name: I18n.t('activerecord.models.avaliation.one'), classrooms: classrooms.join(', ') }
     end
-
-    if !resource.grades_allow_destroy
-      reasons << t('avaliation.grades_avoid_destroy')
-    end
-
-    if !resource.recovery_allow_destroy
-      reasons << t('avaliation.recovery_avoid_destroy')
-    end
-
-    { reason: reasons.join(" e ") }
   end
 
-  def redirect_to_avaliations
+  def test_settings_redirect
     !test_setting? && redirect_to(avaliations_path)
   end
 
   def test_setting?
-    return true if current_test_setting.present?
+    return true if test_settings
 
     flash[:error] = t('errors.avaliations.require_setting')
 
     false
   end
 
-  def steps_settings(exam_setting_type)
-    @test_settings = if exam_setting_type == ExamSettingTypes::BY_SCHOOL_TERM
-                       TestSetting.where(
-                         year: current_school_calendar.year,
-                         exam_setting_type: exam_setting_type
-                       ).ordered
-                     else
-                       []
-                     end
+  def test_settings
+    return unless (year_test_setting = TestSetting.where(year: current_user_classroom.year))
+
+    @test_settings ||= general_by_school_test_setting(year_test_setting) ||
+                       general_test_setting(year_test_setting) ||
+                       by_school_term_test_setting(year_test_setting)
+  end
+
+  def general_by_school_test_setting(year_test_setting)
+    year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
+                     .by_unities(current_user_classroom.unity)
+                     .where("grades @> ARRAY[?]::integer[] OR grades = '{}'", current_user_classroom.grade)
+                     .presence
+  end
+
+  def general_test_setting(year_test_setting)
+    year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL).presence
+  end
+
+  def by_school_term_test_setting(year_test_setting)
+    year_test_setting.where(exam_setting_type: ExamSettingTypes::BY_SCHOOL_TERM)
+                     .order(:school_term_type_step_id)
+                     .presence
+  end
+
+  def score_types_redirect
+    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+
+    return if available_score_types.any? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
+
+    redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
   end
 end

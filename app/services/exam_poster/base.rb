@@ -31,7 +31,9 @@ module ExamPoster
             entity_id,
             @post_data.id,
             request[:request],
-            request[:info]
+            request[:info],
+            @queue,
+            0
           )
         end
       else
@@ -92,6 +94,7 @@ module ExamPoster
 
     def can_post?(classroom)
       return false if classroom.blank?
+      return false unless classroom.can_post
 
       classroom.post_info &&
         same_unity?(classroom) &&

@@ -10,10 +10,14 @@ class EntityConfigurationsController < ApplicationController
     @entity_configuration = EntityConfiguration.current
     @entity_configuration.build_address unless @entity_configuration.address
     @entity_configuration.attributes = permitted_attributes
+    @entity_configuration.update_request_remote_ip = request.remote_ip
+    @entity_configuration.update_user_id = current_user.id
 
     authorize @entity_configuration
 
     if @entity_configuration.save
+      cache_key = "EntityConfiguration##{current_entity.id}"
+      Rails.cache.delete(cache_key)
       respond_with @entity_configuration, location: edit_entity_configurations_path
     else
       render :edit
