@@ -35,7 +35,8 @@
             inputmask: "'digits': #{student.number_of_decimal_places}"
           }
         },
-        readonly: student.exempted || !student.active || student.exempted_from_discipline || student.in_active_search
+        readonly: student.exempted || !student.active || student.exempted_from_discipline || student.in_active_search,
+        placeholder: ('Dispensado' if student.exempted)
       ) %>
       </div>
     </td>
