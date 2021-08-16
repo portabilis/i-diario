@@ -140,15 +140,13 @@ class User < ActiveRecord::Base
 
   def self.find_for_authentication(conditions)
     credential = conditions.fetch(:credentials)
-
-    where(%Q(
-      users.login = :credential OR
-      users.email = :credential OR
-      (
-        users.cpf != '' AND
-        REGEXP_REPLACE(users.cpf, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
-      )
-    ), credential: credential).first
+    if CPF.valid?(credential)
+      where(%Q((
+        users.cpf != '' AND REGEXP_REPLACE(users.cpf, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
+      )), credential: credential).first
+    else
+      where(%Q(users.login = :credential OR users.email = :credential), credential: credential).first
+    end
   end
 
   def expired?

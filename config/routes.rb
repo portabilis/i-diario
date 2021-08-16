@@ -2,13 +2,15 @@ require 'sidekiq/web'
 
 Rails.application.routes.draw do
   mount Sidekiq::Web => '/sidekiq'
+  mount LetterOpenerWeb::Engine, at: "/letter_opener" if Rails.env.development?
 
   get 'worker-processses-status', to: 'sidekiq_monitor#processes_status'
 
   localized do
     devise_for :users, controllers: {
       sessions: 'users/sessions',
-      passwords: 'users/passwords'
+      passwords: 'users/passwords',
+      unlocks: 'users/unlocks'
     }
 
     namespace :api do
