@@ -379,7 +379,7 @@ class ExamRecordReport < BaseReport
 
   def localize_score(value)
     return value unless value.is_a? Numeric
-    number_with_precision(value, precision: @test_setting.number_of_decimal_places||1)
+    number_with_precision(value, precision: @test_setting.try(:number_of_decimal_places).to_i||1)
   end
 
   def student_has_dependence?(student_enrollment, discipline)
