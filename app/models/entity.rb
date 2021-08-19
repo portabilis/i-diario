@@ -35,10 +35,6 @@ class Entity < ActiveRecord::Base
     establish_connection(entity)
   end
 
-  def self.connect_default
-    connect("prefeitura")
-  end
-
   protected
 
   def connection_spec
