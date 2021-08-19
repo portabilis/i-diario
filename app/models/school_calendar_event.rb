@@ -206,8 +206,8 @@ class SchoolCalendarEvent < ActiveRecord::Base
     return unless start_date && end_date
 
     if start_date > end_date
-      errors.add(:start_date, 'não pode ser maior que a Data final')
-      errors.add(:end_date, 'deve ser maior ou igual a Data inicial')
+      errors.add(:start_date, 'deve ser menor que a data final')
+      errors.add(:end_date, 'deve ser maior ou igual a data inicial')
     end
   end
 
