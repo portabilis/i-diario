@@ -149,7 +149,6 @@ class ConceptualExam < ActiveRecord::Base
 
     permited_score_types = [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT]
     exam_rule = classroom.exam_rule
-    exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if student.uses_differentiated_exam_rule
 
     return if exam_rule.blank? || permited_score_types.include?(exam_rule.score_type)
 
