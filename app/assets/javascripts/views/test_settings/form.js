@@ -21,11 +21,17 @@ $(function() {
 
   function toggleAverageSumWeightSelection(averageCalculationType) {
     var $divisionWeightCheckContainer = $('#division-weight-check-container');
+    var $divisionWeightInput = $('#division-weight-input');
+    var $divisionWeightCheck = $('#division-weight-check');
 
     if (averageCalculationType === "sum" && (['general_by_school', 'by_school_term'].includes($('#test_setting_exam_setting_type').select2('val')))) {
       $divisionWeightCheckContainer.show();
+      $divisionWeightInput.show();
     } else {
       $divisionWeightCheckContainer.hide();
+      $divisionWeightInput.hide();
+      $divisionWeightCheck.prop('checked', false);
+      $("#test_setting_default_division_weight").val("1");
     }
   }
 
@@ -168,7 +174,7 @@ $(function() {
   $('#test-settings-form-submit').on('click', function (e) {
     if ($("#test_setting_average_calculation_type").select2('val') == 'sum' &&
       !$('#division-weight-check').is(':checked')) {
-      $('#division-weight-input').val(1);
+      $('#test_setting_default_division_weight').val(1);
     }
   });
 
