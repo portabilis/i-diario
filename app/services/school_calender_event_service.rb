@@ -1,4 +1,4 @@
-class SchoolCalenderEventFetcher
+class SchoolCalenderEventService
   def initialize(resource, options = {})
     @resource = resource
   end
@@ -22,8 +22,12 @@ class SchoolCalenderEventFetcher
 
   def search_event
     attributes = {
-      school_calendar_id: @resource.school_calendar_id, coverage: @resource.coverage,
-      grade_id: @resource.grade_id, course_id: @resource.course_id, discipline_id: @resource.discipline_id, classroom_id: @resource.classroom_id
+      school_calendar_id: @resource.school_calendar_id,
+      coverage: @resource.coverage,
+      grade_id: @resource.grade_id,
+      course_id: @resource.course_id,
+      discipline_id: @resource.discipline_id,
+      classroom_id: @resource.classroom_id
     }
     events = SchoolCalendarEvent.where(attributes)
     events = events.where("(? <= end_date and ? >= start_date)", @resource.start_date, @resource.end_date)

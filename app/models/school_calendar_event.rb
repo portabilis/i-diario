@@ -213,7 +213,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
 
   def uniqueness_of_start_at_and_end_at
     #TODO: Mover todas as Validations acima para o Fetcher
-    start_at_and_end_at = SchoolCalenderEventFetcher.new(self).uniqueness_start_at_and_end_at
+    start_at_and_end_at = SchoolCalenderEventService.new(self).uniqueness_start_at_and_end_at
 
     if start_at_and_end_at[:start_date_at]
       errors.add(:start_date, I18n.t('errors.messages.uniqueness_of_start_at_and_end_at'))
