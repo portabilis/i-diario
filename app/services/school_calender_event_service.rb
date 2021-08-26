@@ -13,7 +13,7 @@ class SchoolCalenderEventService
     result = { start_date_at: false, end_date_at: false }
     result.merge!({ start_date_at: @resource.start_date.to_date.between?(event.start_date, event.end_date) }) if event
     result.merge!({ end_date_at: @resource.end_date.to_date.between?(event.start_date, event.end_date) }) if event
-    if result[:start_date_at].eql?(false) || result[:end_date_at].eql?(false)
+    if result[:start_date_at].eql?(false) && result[:end_date_at].eql?(false)
       result.merge!({ start_date_at: event.start_date.to_date.between?(@resource.start_date, @resource.end_date) }) if event
       result.merge!({ end_date_at: event.end_date.to_date.between?(@resource.start_date, @resource.end_date) }) if event
     end
