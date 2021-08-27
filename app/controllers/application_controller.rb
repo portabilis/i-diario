@@ -28,6 +28,9 @@ class ApplicationController < ActionController::Base
   before_action :check_for_current_user_role, if: :user_signed_in?
   before_action :set_current_unity_id, if: :user_signed_in?
   before_action :set_current_user_role_id, if: :user_signed_in?
+  before_action :check_user_has_name, if: :user_signed_in?
+  before_action :check_password_expired, if: :user_signed_in?
+  before_action :last_activity_at, if: :user_signed_in?
 
   has_scope :q do |controller, scope, value|
     scope.search(value).limit(10)
@@ -139,7 +142,8 @@ class ApplicationController < ActionController::Base
   end
 
   def current_entity_configuration
-    @current_entity_configuration ||= EntityConfiguration.first
+    cache_key = "EntityConfiguration##{current_entity.id}"
+    @current_entity_configuration ||= Rails.cache.fetch(cache_key, expires_in: 1.day) { EntityConfiguration.first }
   end
   helper_method :current_entity_configuration
 
@@ -181,6 +185,10 @@ class ApplicationController < ActionController::Base
 
   def current_test_setting
     TestSettingFetcher.current(current_user.try(:current_classroom))
+  end
+
+  def current_test_setting_step(step)
+    TestSettingFetcher.current(current_user.try(:current_classroom), step)
   end
 
   def steps_fetcher
@@ -287,15 +295,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def verify_recaptcha?
-    return if RecaptchaVerifier.verify?(params[:recaptcha_token])
-
-    flash[:error] = "Erro ao validar o reCAPTCHA. Tente novamente."
-    redirect_to :back
-  rescue ActionController::RedirectBackError
-    redirect_to root_path
-  end
-
   def allowed_api_header?
     header_name1 = Rails.application.secrets[:AUTH_HEADER_NAME1] || 'TOKEN'
     validation_method1 = Rails.application.secrets[:AUTH_VALIDATION_METHOD1] || '=='
@@ -372,10 +371,63 @@ class ApplicationController < ActionController::Base
     File.open("#{Rails.root}/public#{name}", 'wb') do |f|
       f.write(pdf_to_s)
     end
+
+    username = Rails.application.secrets[:REPORTS_SERVER_USERNAME]
+    server = Rails.application.secrets[:REPORTS_SERVER_IP]
+    dir = Rails.application.secrets[:REPORTS_SERVER_DIR]
+
+    if username && server && dir
+      system("rsync -a --remove-source-files --quiet #{Rails.root}/public#{name} #{username}@#{server}:#{dir}")
+    end
+
     redirect_to name
   end
 
   def report_name(prefix)
     "/relatorios/#{prefix}-#{SecureRandom.hex}.pdf"
+  end
+
+  def check_user_has_name
+    return if current_user.first_name.present?
+    return if target_path?
+
+    flash[:alert] = t('errors.general.check_user_has_name')
+
+    redirect_to edit_account_path
+  end
+
+  def check_password_expired
+    days_to_expire_password = GeneralConfiguration.current.days_to_expire_password || 0
+    return if current_user.admin? || days_to_expire_password.zero? || target_path?
+
+    days_after_last_password_change = (Date.current - current_user.last_password_change.to_date).to_i
+    return if days_after_last_password_change <= days_to_expire_password
+
+    flash[:alert] = t('errors.general.expired_password')
+
+    redirect_to edit_account_path
+  end
+
+  def last_activity_at
+    current_user.last_activity_at = Date.current
+    current_user.save
+  end
+
+  def target_path?
+    request_path = Rails.application.routes.recognize_path(request.path, method: request.env['REQUEST_METHOD'])
+
+    request_path[:controller] == 'accounts' && (request_path[:action] == 'edit' ||
+                                                request_path[:action] == 'update')
+  end
+
+  def weak_password?(password)
+    return false if password.blank?
+
+    if (password =~ /[A-Z]/).nil? || (password =~ /[a-z]/).nil? || (password =~ /[0-9]/).nil? ||
+       (password =~ /[!@#\$%^&*?_~-]/).nil?
+      true
+    else
+      false
+    end
   end
 end

@@ -80,6 +80,16 @@
             </td>
           </tr>
         <% end %>
+
+        <% if @any_in_active_search %>
+          <tr>
+            <td colspan="3">
+              <span class="daily-note-student-legend">
+                <%= t('.in_active_search') %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
       </tbody>
     </table>
 

@@ -55,16 +55,23 @@ class UnitiesSynchronizer
 
   def create_or_update_schools(schools)
     schools.each do |school_record|
-      Unity.find_or_initialize_by(
+      next if school_record.nome.nil?
+
+      duplicate_unity = Unity.with_discarded.find_by('TRIM(name) = ?', school_record.nome.try(:strip))
+      next if duplicate_unity && duplicate_unity.api_code != school_record.cod_escola
+
+      Unity.with_discarded.find_or_initialize_by(
         api_code: school_record.cod_escola
       ).tap do |unity|
-        unity.name = school_record.nome
+        unity.name = school_record.nome.try(:strip)
         unity.email = school_record.email.try(:strip)
         unity.phone = format_phone(school_record)
         unity.responsible = school_record.nome_responsavel
         unity.unit_type = UnitTypes::SCHOOL_UNIT
         unity.api = true
         unity.author_id = author.id
+        unity.active = school_record.ativo
+        unity.discarded_at = nil if school_record.ativo
 
         unity.address ||= unity.build_address
         unity.address.street = school_record.logradouro

@@ -29,16 +29,24 @@ class UnifyDuplicatedConceptualExams < ActiveRecord::Migration
           )
 
           if current_conceptual_exam_value.blank?
-            conceptual_exam_value.update(conceptual_exam_id: correct_id)
+            conceptual_exam_value.without_auditing do
+              conceptual_exam_value.update(conceptual_exam_id: correct_id)
+            end
           else
             value = [current_conceptual_exam_value.value, conceptual_exam_value.value].compact.max
             current_conceptual_exam_value.value = value
-            current_conceptual_exam_value.save! if current_conceptual_exam_value.changed?
+            if current_conceptual_exam_value.changed?
+              current_conceptual_exam_value.without_auditing do
+                current_conceptual_exam_value.save!
+              end
+            end
           end
         end
 
         conceptual_exam.discarded_at = Time.current
-        conceptual_exam.save!(validate: false)
+        conceptual_exam.without_auditing do
+          conceptual_exam.save!(validate: false)
+        end
       end
     end
   end

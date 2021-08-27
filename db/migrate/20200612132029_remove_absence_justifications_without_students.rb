@@ -16,10 +16,17 @@ class RemoveAbsenceJustificationsWithoutStudents < ActiveRecord::Migration
       'id NOT IN (SELECT DISTINCT(absence_justification_id) FROM absence_justifications_students)'
     ).each do |absence_justification|
       MigrationAbsenceJustificationDiscipline.where(absence_justification_id: absence_justification.id)
-                                             .each(&:destroy)
+                                             .each do |absence_justifications_discipline|
+        absence_justifications_discipline.without_auditing do
+          absence_justifications_discipline.destroy
+        end
+      end
+
       MigrationAbsenceJustificationAttachment.where(absence_justification_id: absence_justification.id)
                                              .each(&:destroy)
-      absence_justification.destroy
+      absence_justification.without_auditing do
+        absence_justification.destroy
+      end
     end
   end
 end

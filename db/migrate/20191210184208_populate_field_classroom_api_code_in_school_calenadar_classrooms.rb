@@ -7,8 +7,10 @@ class PopulateFieldClassroomApiCodeInSchoolCalenadarClassrooms < ActiveRecord::M
                                                         )
 
     school_calendar_classrooms.each do |school_calendar_classroom|
-      SchoolCalendarClassroom.find(school_calendar_classroom.id)
-                             .update!(classroom_api_code: school_calendar_classroom.classroom_api_code)
+      calendar_classroom = SchoolCalendarClassroom.find(school_calendar_classroom.id)
+      calendar_classroom.without_auditing do
+        calendar_classroom.update!(classroom_api_code: school_calendar_classroom.classroom_api_code)
+      end
     end
   end
 end

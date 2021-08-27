@@ -22,7 +22,7 @@
           <%= link_to 'Editar', edit_unity_path(unity), class: "btn btn-success" %>
           <%= link_to 'Excluir', unity_path(unity), class: "btn btn-danger",
             title: "Excluir #{unity.to_s}",
-            method: "delete", data: { confirm: "Tem certeza?" } %>
+            method: "delete", data: { confirm: "A unidade #{unity.name} será excluída e vínculos podem ser perdidos. Deseja prosseguir com a ação?" } %>
         </td>
       </tr>
     <% end %>

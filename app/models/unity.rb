@@ -5,6 +5,7 @@ class Unity < ActiveRecord::Base
 
   include Audit
   include Filterable
+  include Discardable
 
   has_enumeration_for :unit_type, with: UnitTypes, create_helpers: true
 
@@ -16,7 +17,7 @@ class Unity < ActiveRecord::Base
   has_many :classrooms, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, through: :classrooms, dependent: :restrict_with_error
   has_many :user_roles
-  has_many :school_calendars
+  has_many :school_calendars, dependent: :restrict_with_error
 
   has_and_belongs_to_many :maintenance_adjustments
   has_and_belongs_to_many :custom_rounding_tables
@@ -30,6 +31,8 @@ class Unity < ActiveRecord::Base
   validates :phone, format: { with: /\A\([0-9]{2}\)\ [0-9]{8,9}\z/i }, allow_blank: true
   validates :email, email: true, allow_blank: true
   validate :uniqueness_of_equipments
+
+  default_scope -> { kept }
 
   scope :by_id, ->(id) { where(id: id) }
   scope :ordered, -> { order(arel_table[:name].asc) }

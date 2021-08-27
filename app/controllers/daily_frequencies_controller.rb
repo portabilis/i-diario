@@ -29,6 +29,18 @@ class DailyFrequenciesController < ApplicationController
 
       return if frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
 
+      Honeybadger.context(
+        'Method': 'create',
+        'Turma da frequencia': @daily_frequency&.classroom_id,
+        'Disciplina da frequencia': @daily_frequency&.discipline_id,
+        'Numero de classes da frequencia': @class_numbers,
+        'Turma do usuario atual': current_user&.current_classroom_id,
+        'Disciplina do usuario atual': current_user&.current_discipline_id,
+        'Professor do usuario atual': current_user&.teacher_id,
+        'Tipo de frequencia': @daily_frequency&.classroom&.exam_rule&.frequency_type,
+        'params': params
+      )
+
       redirect_to edit_multiple_daily_frequencies_path(
         daily_frequency: daily_frequency_params,
         class_numbers: @class_numbers
@@ -43,12 +55,14 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = @daily_frequencies.first
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+    @general_configuration = GeneralConfiguration.current
 
     authorize @daily_frequency
 
     @students = []
     @any_exempted_from_discipline = false
     @any_inactive_student = false
+    @any_in_active_search = false
 
     fetch_student_enrollments.each do |student_enrollment|
       student = Student.find_by(id: student_enrollment.student_id)
@@ -57,15 +71,18 @@ class DailyFrequenciesController < ApplicationController
 
       dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
       exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
+      in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
       @any_exempted_from_discipline ||= exempted_from_discipline
       active = student_active_on_date?(student_enrollment)
+      @any_in_active_search ||= in_active_search
       @any_inactive_student ||= !active
 
       @students << {
         student: student,
         dependence: dependence,
         active: active,
-        exempted_from_discipline: exempted_from_discipline
+        exempted_from_discipline: exempted_from_discipline,
+        in_active_search: in_active_search
       }
     end
 
@@ -82,6 +99,17 @@ class DailyFrequenciesController < ApplicationController
 
     @normal_students = @students.reject { |student| student[:dependence] }
     @dependence_students = @students.select { |student| student[:dependence] }
+
+    Honeybadger.context(
+      'Method': 'edit_multiple',
+      'Turma da frequencia': @daily_frequency&.classroom_id,
+      'Disciplina da frequencia': @daily_frequency&.discipline_id,
+      'Turma do usuario atual': current_user&.current_classroom_id,
+      'Disciplina do usuario atual': current_user&.current_discipline_id,
+      'Professor do usuario atual': current_user&.teacher_id,
+      'Tipo de frequencia': @daily_frequency&.classroom&.exam_rule&.frequency_type,
+      'params': params
+    )
   end
 
   def create_or_update_multiple
@@ -138,9 +166,23 @@ class DailyFrequenciesController < ApplicationController
       ReceiptMailer.delay.notify_daily_frequency_success(
         current_user,
         "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
-        daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y')
+        daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y'),
+        daily_frequency_record.classroom.description,
+        daily_frequency_record.unity.name
       )
     end
+
+    Honeybadger.context(
+      'Method': 'create_or_update_multiple',
+      'Turma da frequencia': daily_frequency_record&.classroom_id,
+      'Disciplina da frequencia': daily_frequency_record&.discipline_id,
+      'Numero de classes da frequencia': daily_frequency_record&.class_number,
+      'Turma do usuario atual': current_user&.current_classroom_id,
+      'Disciplina do usuario atual': current_user&.current_discipline_id,
+      'Professor do usuario atual': current_user&.teacher_id,
+      'Tipo de frequencia': daily_frequency_record&.classroom&.exam_rule&.frequency_type,
+      'params': params
+    )
   rescue StandardError => error
     Honeybadger.notify(error)
 
@@ -203,7 +245,7 @@ class DailyFrequenciesController < ApplicationController
       daily_frequencies: [
         :class_number,
         students_attributes: [
-          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active]
+          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active, :type_of_teaching]
         ]
       ]
     ).require(:daily_frequencies)

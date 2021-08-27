@@ -1,0 +1,5 @@
+pt-BR:
+  discipline_lesson_plans:
+    clone:
+      messages:
+        copy_succeed: 'Plano de aula por disciplina copiado com sucesso!'

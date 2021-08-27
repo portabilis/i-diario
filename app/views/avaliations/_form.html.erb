@@ -7,7 +7,7 @@
   <fieldset>
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.association :test_setting, as: :select2, elements: @test_settings, hide_empty_element: true, input_html: { data: { hide_empty_element: true } } %>
+          <%= f.association :test_setting, as: :select2, elements: @test_settings, hide_empty_element: true, input_html: { data: { hide_empty_element: true }, value: @test_settings.first.id } %>
         </div>
       </div>
 
@@ -36,7 +36,7 @@
       </div>
 
       <div class="col col-sm-4">
-        <%= f.association :test_setting_test, as: :select2, elements: @avaliation.test_setting.tests %>
+        <%= f.association :test_setting_test, as: :select2, elements: [] %>
       </div>
     </div>
 
@@ -46,7 +46,7 @@
       </div>
 
       <div class="col col-sm-4">
-          <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': #{@avaliation.test_setting.number_of_decimal_places}" } } %>
+        <%= f.input :weight, required: true, input_html: { data: { inputmask: "'digits': #{@avaliation.test_setting&.number_of_decimal_places || 0}" } } %>
       </div>
     </div>
 

@@ -10,6 +10,8 @@ class DailyNoteStudentPresenter < BasePresenter
       name_class += 'exempted-student'
     elsif dependence
       name_class += 'dependence-student'
+    elsif in_active_search
+      name_class += 'in-active-search'
     end
 
     name_class
@@ -24,6 +26,8 @@ class DailyNoteStudentPresenter < BasePresenter
       "**#{student}"
     elsif dependence
       "*#{student}"
+    elsif in_active_search
+      "*****#{student}"
     else
       student.to_s
     end

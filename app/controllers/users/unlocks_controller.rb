@@ -1,3 +1,7 @@
 class Users::UnlocksController < Devise::UnlocksController
-  prepend_before_action :verify_recaptcha?, only: :create
+
+  def show
+    super
+    self.resource.update_columns(status: "active") if self.resource.persisted?
+  end
 end

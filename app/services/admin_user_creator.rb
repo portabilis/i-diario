@@ -35,14 +35,15 @@ class AdminUserCreator
     return true if @admin_user.present?
 
     @admin_user = User.create!(
-        login: 'admin',
-        email: 'admin@domain.com.br',
-        password: password,
-        password_confirmation: password,
-        status: 'active',
-        kind: 'employee',
-        admin:  true,
-        receive_news: false
+      login: 'admin',
+      email: 'admin@domain.com.br',
+      password: password,
+      password_confirmation: password,
+      status: 'active',
+      kind: 'employee',
+      admin: true,
+      receive_news: false,
+      first_name: 'Admin'
     )
   end
 

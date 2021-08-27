@@ -17,8 +17,7 @@ $(function () {
 
   var updateFieldsBasedOnTestSetting = function() {
     $.getJSON('/configuracoes-de-avaliacoes-numericas/' + $('#avaliation_multiple_creator_form_test_setting_id').select2('val')).always(function(data) {
-      if (data.test_setting.exam_setting_type == 'general')
-      {
+      if ($.inArray(data.test_setting.exam_setting_type, ['general', 'general_by_school' ]) != -1){
         $('.avaliation_multiple_creator_form_test_setting_id').hide();
       }
 
@@ -99,11 +98,6 @@ $(function () {
     });
   }
 
-  $(document).ready(function(){
-    updateFieldsBasedOnTestSetting();
-    updateFieldsBaseOnTestSettingTest();
-  });
-
   var classes_data = function(){
     data = [];
     for (var i = 1; i <= window.number_of_classes; i++) {
@@ -161,5 +155,19 @@ $(function () {
 
   $("#select-all").on('change', function(){
     $(this).closest("table").find("tbody input[type=checkbox]").prop("checked", $(this).prop("checked")).trigger("change");
+  });
+
+  function initFields() {
+    if (!!document.getElementById('avaliation_multiple_creator_form_test_setting_id')) {
+      updateFieldsBasedOnTestSetting();
+    }
+
+    if (!!document.getElementById('avaliation_multiple_creator_form_weight')) {
+      updateFieldsBaseOnTestSettingTest();
+    }
+  }
+
+  $(document).ready(function(){
+    initFields();
   });
 });

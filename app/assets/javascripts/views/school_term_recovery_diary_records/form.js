@@ -216,4 +216,5 @@ $(function () {
 
   fetchExamRule();
   loadDecimalMasks();
+  checkPersistedDailyNote();
 });

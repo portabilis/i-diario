@@ -8,11 +8,12 @@ pt-BR:
       send_paranoid_instructions: "Caso seu e-mail exista em nossa base, você receberá um e-mail em poucos minutos com instruções sobre como confirmar sua conta."
     failure:
       already_authenticated: "Você já está logado."
-      inactive: "A sua conta não está ativa."
+      inactive: "A sua conta de usuário expirou. Favor contatar a Secretaria de sua escola ou o responsável pelo sistema (Secretaria de Educação) para reativação."
       inactivated: "A sua conta foi desativada. Por favor entre em contado com o Administrador do sistema."
       invalid: "Email ou senha inválidos."
       locked: "Sua conta está bloqueada."
       last_attempt: "Você tem somente mais uma tentativa antes de sua conta será bloqueada."
+      password_blank: "Senha não pode ser vazia"
       not_found_in_database: "Email ou senha inválidos."
       timeout: "A sua sessão expirou, por favor faça login novamente para continuar."
       unauthenticated: "Caso você não possua login de acesso cadastre-se em '<b>Criar conta</b>'."
@@ -44,6 +45,8 @@ pt-BR:
     sessions:
       signed_in: "Login realizado com sucesso."
       signed_out: "Logout realizado com sucesso."
+      user:
+        attempts_login: "%{attempts_left} tentativas restante até o bloqueio do acesso"
     unlocks:
       send_instructions: "Você receberá um e-mail em poucos minutos com instruções sobre como desbloquear sua conta."
       send_paranoid_instructions: "Caso sua e-mail exista em nossa base, você receberá um e-mail em poucos minutos com instruções sobre como desbloqueá-la."
