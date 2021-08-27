@@ -9,16 +9,16 @@ class PostingDateChecker
     return true unless User.current
     return true if User.current.can_change?(Features::IEDUCAR_API_EXAM_POSTING_WITHOUT_RESTRICTIONS)
     return false unless step
-    return current_betweet_step? && record_date_betweet_step?
+    return current_between_step? && record_date_between_step?
   end
 
   private
 
-  def record_date_betweet_step?
+  def record_date_between_step?
     (step.start_date_for_posting..step.end_date_for_posting) === @record_date
   end
 
-  def current_betweet_step?
+  def current_between_step?
     (step.start_date_for_posting..step.end_date_for_posting) === Date.current
   end
 
