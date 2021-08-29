@@ -45,14 +45,17 @@ class SchoolDayChecker
   private
 
   def get_school_calendar(school_calendar, classroom_id)
-    return if classroom_id.nil?
+    return school_calendar if classroom_id.nil?
 
     classroom = Classroom.find(classroom_id)
     if classroom.unity.eql?(school_calendar.unity)
       return school_calendar
     else
-      return classroom.unity.school_calendars.where(year: Date.current.year.to_s).last
+      new_school_calendar = classroom.unity.school_calendars.where(year: Date.current.year.to_s).last
+      return new_school_calendar if new_school_calendar
     end
+
+    return school_calendar
   end
 
   def date_is_school_day?(date)
