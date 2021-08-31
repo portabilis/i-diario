@@ -31,6 +31,8 @@ class StudentNotesQuery
       classroom,
       start_at(student_enrollment_classroom),
       end_at(student_enrollment_classroom)
+    ).where(
+      transfer_note: nil
     )
   end
 
