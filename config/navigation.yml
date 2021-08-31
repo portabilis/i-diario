@@ -70,6 +70,10 @@ navigation:
       icon: "fa-pie-chart"
       path: "pedagogical_trackings_path"
   - menu:
+      type: "lessons_boards"
+      icon: "fa fa-table"
+      path: "lessons_boards_path"
+  - menu:
       type: "frequencies_menu"
       icon: "fa-check-square-o"
       shortcut: true
