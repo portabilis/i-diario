@@ -11,7 +11,6 @@ class LessonsBoardsController < ApplicationController
   end
 
   def create
-    binding.pry
     resource.assign_attributes resource_params
 
     authorize resource
