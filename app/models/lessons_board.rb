@@ -3,12 +3,14 @@ class LessonsBoard < ActiveRecord::Base
 
   audited
 
+  validates :classroom_id, :period, presence: true
+
   belongs_to :classroom
-  has_many :lessons_board_lessons, dependent: :restrict_with_error
+  has_many :lessons_board_lessons, dependent: :destroy
 
-  attr_accessor :unity, :grade, :period, :teacher, :classroom_id
+  attr_accessor :unity, :grade
 
-  accepts_nested_attributes_for :lessons_board_lessons, allow_destroy: false
+  accepts_nested_attributes_for :lessons_board_lessons, allow_destroy: true
 
 
   default_scope -> { kept }
