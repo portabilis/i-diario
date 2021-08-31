@@ -301,6 +301,16 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :lessons_boards do
+      collection do
+        get :period
+        get :number_of_classes
+        get :classrooms_filter
+        get :grades_by_unity
+        get :teachers_classroom
+      end
+    end
+
     get '/reports/attendance_record', to: 'attendance_record_report#form', as: 'attendance_record_report'
     post '/reports/attendance_record', to: 'attendance_record_report#report', as: 'attendance_record_report'
 
