@@ -1,0 +1,28 @@
+<tbody id="resources-tbody">
+<% if @lessons_boards.empty? %>
+  <tr>
+    <td class="no_record_found" colspan="5"> <%= t('views.index.no_record_found')%></td>
+  </tr>
+<% else %>
+  <% @lessons_boards.each do |lesson_board| %>
+    <tr>
+      <td><%= lesson_board.classroom.year %></td>
+      <td><%= lesson_board.classroom.unity.name %></td>
+      <td><%= lesson_board.classroom.grade.description %></td>
+      <td><%= lesson_board.classroom.description %></td>
+      <td class="actions" style="width: 50px">
+        <%= link_to t('helpers.links.edit_html'), edit_lessons_board_path(lesson_board),
+                    class: "btn btn-success apply_tooltip",
+                    data: { original_title: t('views.index.tooltips.edit') } %>
+
+        <%= link_to t('helpers.links.destroy_html'), lessons_board_path(lesson_board),
+                    class: "btn btn-danger apply_tooltip", method: "delete",
+                    data: {
+                      confirm: "Tem certeza?",
+                      original_title: t('views.index.tooltips.delete')
+                    } %>
+      </td>
+    </tr>
+  <% end %>
+<% end %>
+</tbody>
