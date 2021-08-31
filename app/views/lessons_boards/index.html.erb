@@ -15,9 +15,20 @@
             <th><%= t('.unity') %></th>
             <th><%= t('.grade') %></th>
             <th><%= t('.classroom') %></th>
-            <td width="90px"></td>
+            <td style="width: 50px"></td>
           </tr>
         </thead>
+        <%= render 'resources' %>
+          <tfoot id="paginator" class="remote">
+            <td colspan="5">
+              <div id="page_entries_info" class="pull-left hidden-xs">
+                <%= page_entries_info @lessons_boards %>
+              </div>
+              <div class="pull-right">
+                <%= paginate @lessons_boards %>
+              </div>
+            </td>
+          </tfoot>
       </table>
     </div>
   <% end %>
