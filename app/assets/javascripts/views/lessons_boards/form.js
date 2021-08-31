@@ -3,6 +3,11 @@ $(function () {
   const flashMessages = new FlashMessages();
   const period_div = $('#period');
 
+  $(document).ready( function() {
+    clearFields();
+    clearClassroomsAndGrades();
+  });
+
   $('#lessons_board_unity').on('change', function () {
     clearFields();
     clearClassroomsAndGrades();
