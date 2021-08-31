@@ -1,8 +1,15 @@
 class LessonsBoardsController < ApplicationController
+  has_scope :page, default: 1
+  has_scope :per, default: 10
   before_action :require_current_clasroom, if: :require_classroom?
   before_action :require_profile
 
-  def index; end
+  def index
+    @lessons_boards =  apply_scopes(LessonsBoard).includes(:classroom)
+                                                 .all
+                                                 .ordered
+    authorize @lessons_boards
+  end
 
   def show; end
 
@@ -49,8 +56,16 @@ class LessonsBoardsController < ApplicationController
     respond_with resource, location: lessons_boards_path
   end
 
+  def filtering_params(params)
+    params = {} unless params
+    params.slice(:by_year,
+                 :by_unity,
+                 :by_grade,
+                 :by_classroom)
+  end
+
   def lessons_boards
-    @lessons_boards ||= lessons_boards.ordered
+    @lessons_boards ||= LessonsBoard.ordered
   end
 
   def unities
