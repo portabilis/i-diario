@@ -1,0 +1,24 @@
+<div class="widget-body no-padding">
+  <%= simple_form_for :search, { url: lessons_boards_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+        <thead>
+          <tr>
+            <td><%= f.input :by_year, label: false, placeholder: t('.by_year') %></td>
+            <td><%= f.input :by_unity, as: :select2, elements: unities, label: false, placeholder: t('.by_unity') %></td>
+            <td><%= f.input :by_grade, as: :select2, elements: grades, label: false, placeholder: t('.by_grade') %></td>
+            <td><%= f.input :by_classroom, as: :select2, elements: classrooms, label: false, placeholder: t('.by_classroom') %></td>
+            <td><%= link_to t('.new_html'), new_lessons_board_path, class: "btn btn-primary pull-right" %></td>
+          </tr>
+          <tr>
+            <th><%= t('.year') %></th>
+            <th><%= t('.unity') %></th>
+            <th><%= t('.grade') %></th>
+            <th><%= t('.classroom') %></th>
+            <td width="90px"></td>
+          </tr>
+        </thead>
+      </table>
+    </div>
+  <% end %>
+</div>

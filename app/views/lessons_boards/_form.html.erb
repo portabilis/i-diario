@@ -1,0 +1,73 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/lessons_boards/form' %>
+<% end %>
+
+<%= simple_form_for @lesson_board, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+  <fieldset>
+    <div class="row">
+
+      <div class="col col-sm-3">
+        <%= f.input :unity, as: :select2, elements: employee_unities || unities, label: t('.by_unity'), placeholder: t('.by_unity')  %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :grade, as: :select2, elements: grades, label: t('.by_grade'), placeholder: t('.by_grade') %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :classroom_id, as: :select2, elements: classrooms, label: t('.by_classroom'), placeholder: t('.by_classroom') %>
+      </div>
+
+      <div class="col col-sm-3" style="display: none" id="period">
+        <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2]).to_json, label: t('.period'), placeholder: t('.period') %>
+      </div>
+
+    </div>
+  </fieldset>
+
+  <fieldset>
+
+    <% if f.object.errors.added? :base %>
+      <div class="alert alert-danger fade in">
+        <i class="fa-fw fa fa-times"></i>
+        <%= f.object.errors[:lessons_boards].first %>
+      </div>
+    <% end %>
+
+    <table class="table table-striped table-bordered table-condensed records">
+      <thead>
+        <tr>
+          <th style="width: 50px;"><%= 'Período de aula' %></th>
+          <% Workdays.translations.each do |translation| %>
+            <th><%= translation %></th>
+          <% end %>
+        </tr>
+      </thead>
+
+      <tbody id="lessons-board-lessons">
+        <tr>
+          <%= f.simple_fields_for :lessons_board_lessons, f.object.lessons_board_lessons do |lessons_board_lesson| %>
+            <%= render 'lessons_board_lesson_fields', f: lessons_board_lesson %>
+          <% end %>
+        </tr>
+      </tbody>
+
+      <tfoot class="links">
+        <tr>
+          <td colspan="7">
+            <%= link_to_add_association t('.add_period'), f, :lessons_board_lessons, 'data-association-insertion-method': 'append',
+                                        'data-association-insertion-node':   '#lessons-board-lessons',
+                                        class: 'btn btn-success btn-sm', style: 'visibility: hidden', id: 'add_row' %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), lessons_boards_path, class: "btn btn-default" %>
+
+    <button type="submit" class="btn btn-primary"><%= t('views.form.save') %></button>
+  </footer>
+<% end %>
