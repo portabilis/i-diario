@@ -1,5 +1,6 @@
 class LessonsBoard < ActiveRecord::Base
   include Discardable
+  include Filterable
 
   audited
 
@@ -15,10 +16,10 @@ class LessonsBoard < ActiveRecord::Base
 
   default_scope -> { kept }
 
-  scope :by_unity_id, ->(unity_id) { joins(:classroom).where(classroom: { unity_id: unity_id }) }
-  scope :by_grade_id, ->(grade_id) { joins(:classroom).where(classroom: { grade_id: grade_id }) }
-  scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
-  scope :by_year, ->(year) { joins(:classroom).where(classroom: { year: year }) }
+  scope :by_year, ->(year) { joins(:classroom).where(classrooms: { year: year }) }
+  scope :by_unity, ->(unity) { joins(:classroom).where(classrooms: { unity_id: unity }) }
+  scope :by_grade, ->(grade) { joins(:classroom).where(classrooms: { grade_id: grade }) }
+  scope :by_classroom, ->(classroom) { where(classroom_id: classroom) }
   scope :ordered, -> { order(created_at: :desc) }
 
 end
