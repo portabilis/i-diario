@@ -8,8 +8,8 @@
                       collection: [f.object.lessons_board_lesson_weekdays.select{|it| it.weekday == weekday}.first || f.object.lessons_board_lesson_weekdays.build(weekday: weekday)] do |item| %>
       <%= item.hidden_field :id %>
       <%= item.hidden_field :weekday %>
-      <%= item.association :teacher_discipline_classroom, as: :select2, elements: [], label: false,
-                           data: { without_json_parser: true } %>
+      <%= item.association :teacher_discipline_classroom, as: :select2, elements: @teachers || [], label: false,
+                           data: { without_json_parser: true }, readonly: action_name == "show" %>
     <% end %>
   </td>
   <% end %>
