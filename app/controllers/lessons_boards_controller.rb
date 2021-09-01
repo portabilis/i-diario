@@ -6,12 +6,18 @@ class LessonsBoardsController < ApplicationController
 
   def index
     @lessons_boards =  apply_scopes(LessonsBoard).includes(:classroom)
-                                                 .all
+                                                 .filter(filtering_params(params[:search]))
                                                  .ordered
     authorize @lessons_boards
   end
 
-  def show; end
+  def show
+    @lessons_board = resource
+    @teachers = teachers_to_select2(resource.classroom_id)
+    @classrooms = classrooms_by_grade_or_unity_to_select2(resource.classroom&.grade&.id, resource.classroom&.unity&.id)
+
+    authorize @lessons_boards
+  end
 
   def new
     authorize resource
@@ -31,9 +37,11 @@ class LessonsBoardsController < ApplicationController
   end
 
   def edit
-    @lesson_board = resource
+    @lessons_board = resource
+    @teachers = teachers_to_select2(resource.classroom_id)
+    @classrooms = Classroom.where(unity_id: resource.classroom&.unity&.id)
 
-    authorize @lesson_board
+    authorize @lessons_board
   end
 
   def update
@@ -65,7 +73,7 @@ class LessonsBoardsController < ApplicationController
   end
 
   def lessons_boards
-    @lessons_boards ||= LessonsBoard.ordered
+    @lessons_board ||= LessonsBoard.ordered
   end
 
   def unities
@@ -85,24 +93,24 @@ class LessonsBoardsController < ApplicationController
   helper_method :employee_unities
 
   def classrooms
-    @all_classrooms = Classroom.where(year: current_user_school_year).ordered
+    @classrooms = Classroom.where(year: current_user_school_year).includes(:grade).ordered
   end
   helper_method :classrooms
 
   def grades
     grades_id = []
     grades_id << classrooms.map { |classroom| classroom.grade.id }
-    @all_grades = Grade.where(id: grades_id)
+    @grades = Grade.where(id: grades_id)
   end
   helper_method :grades
 
   def resource
-    @lesson_board ||= case params[:action]
-                      when 'new', 'create'
-                        LessonsBoard.new
-                      when 'edit', 'update', 'destroy'
-                        LessonsBoard.find(params[:id])
-                      end.localized
+    @lessons_board ||= case params[:action]
+                       when 'new', 'create'
+                         LessonsBoard.new
+                       when 'edit', 'update', 'show', 'destroy'
+                         LessonsBoard.find(params[:id])
+                       end.localized
   end
 
   def resource_params
@@ -110,7 +118,7 @@ class LessonsBoardsController < ApplicationController
                                           lessons_board_lessons_attributes: [
                                             :id, :lesson_number, :_destroy,
                                             lessons_board_lesson_weekdays_attributes: [
-                                              :id, :_destroy, :weekday, :teacher_discipline_classroom_id
+                                              :id, :weekday, :teacher_discipline_classroom_id, :_destroy
                                             ]
                                           ])
   end
@@ -121,10 +129,10 @@ class LessonsBoardsController < ApplicationController
     render json: Classroom.find(params[:classroom_id]).period
   end
 
-  def number_of_classes
+  def number_of_lessons
     return if params[:classroom_id].blank?
 
-    render json: number_of_classes_to_select_2(params[:classroom_id])
+    render json: number_of_lessons_to_select_2(params[:classroom_id])
   end
 
   def teachers_classroom
@@ -147,7 +155,7 @@ class LessonsBoardsController < ApplicationController
 
   private
 
-  def number_of_classes_to_select_2(classroom_id)
+  def number_of_lessons_to_select_2(classroom_id)
     Classroom.find(classroom_id).number_of_classes
   end
 
@@ -172,7 +180,7 @@ class LessonsBoardsController < ApplicationController
     classrooms_to_select2 = []
 
     if grade_id.blank?
-      Classroom.by_unity(unity_id).each do |classroom|
+      Classroom.by_unity(unity_id).by_year(current_user_school_year).each do |classroom|
         classrooms_to_select2 << OpenStruct.new(
           id: classroom.id,
           name: classroom.description.to_s,
@@ -180,7 +188,7 @@ class LessonsBoardsController < ApplicationController
         )
       end
     else
-      Classroom.by_grade(grade_id).each do |classroom|
+      Classroom.by_grade(grade_id).by_year(current_user_school_year).each do |classroom|
         classrooms_to_select2 << OpenStruct.new(
           id: classroom.id,
           name: classroom.description.to_s,
