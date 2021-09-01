@@ -1,9 +1,8 @@
 class CreateLessonsBoardLessonWeekdays < ActiveRecord::Migration
   def change
-    drop_table :lessons_board_lesson_weekdays
     create_table :lessons_board_lesson_weekdays do |t|
       t.integer :lessons_board_lesson_id
-      t.integer :weekday
+      t.string :weekday, null: false
       t.integer :teacher_discipline_classroom_id
       t.timestamps
       t.datetime :discarded_at
