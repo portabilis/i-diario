@@ -304,7 +304,7 @@ Rails.application.routes.draw do
     resources :lessons_boards do
       collection do
         get :period
-        get :number_of_classes
+        get :number_of_lessons
         get :classrooms_filter
         get :grades_by_unity
         get :teachers_classroom

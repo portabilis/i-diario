@@ -12,6 +12,7 @@ $(function () {
     clearFields();
     clearClassroomsAndGrades();
     updateGrades();
+    updateClassrooms();
   })
 
   $('#lessons_board_grade').on('change', function () {
@@ -53,11 +54,13 @@ $(function () {
   }
 
   function updateClassrooms() {
+    let unity_id = $('#lessons_board_unity').select2('val');
     let grade_id = $('#lessons_board_grade').select2('val');
-    if (!_.isEmpty(grade_id)) {
+    if (!_.isEmpty(grade_id) || !_.isEmpty(unity_id)) {
       $.ajax({
         url: Routes.classrooms_filter_lessons_boards_pt_br_path({
-          unity_id: grade_id,
+          unity_id: unity_id,
+          grade_id: grade_id,
           format: 'json'
         }),
         success: handleFetchClassroomsSuccess,
@@ -138,7 +141,7 @@ $(function () {
   function getNumberOfClasses() {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
     $.ajax({
-      url: Routes.number_of_classes_lessons_boards_pt_br_path({
+      url: Routes.number_of_lessons_lessons_boards_pt_br_path({
         classroom_id: classroom_id,
         format: 'json'
       }),
