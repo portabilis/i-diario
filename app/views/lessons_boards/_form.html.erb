@@ -1,26 +1,30 @@
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/lessons_boards/form' %>
-<% end %>
-
-<%= simple_form_for @lesson_board, html: { class: 'smart-form' } do |f| %>
+<%= simple_form_for @lessons_board, html: { class: 'smart-form' } do |f| %>
   <%= f.error_notification %>
   <fieldset>
     <div class="row">
 
       <div class="col col-sm-3">
-        <%= f.input :unity, as: :select2, elements: employee_unities || unities, label: t('.by_unity'), placeholder: t('.by_unity')  %>
+        <% if action_name == "new" %>
+          <%= f.input :unity, as: :select2, elements: employee_unities || unities, label: t('lessons_boards.index.unity'), placeholder: t('lessons_boards.index.unity'), readonly: action_name == "edit"  %>
+        <% else %>
+          <%= f.input :unity, label: t('lessons_boards.index.unity'), placeholder: t('lessons_boards.index.unity'), readonly: action_name == "edit", input_html: { value: f.object.classroom.unity.name }  %>
+        <% end %>
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :grade, as: :select2, elements: grades, label: t('.by_grade'), placeholder: t('.by_grade') %>
+        <% if action_name == "new" %>
+          <%= f.input :grade, as: :select2, elements: [], label: t('lessons_boards.index.grade'), placeholder: t('lessons_boards.index.grade'), readonly: action_name == "edit" %>
+        <% else %>
+          <%= f.input :grade, label: t('lessons_boards.index.grade'), placeholder: t('lessons_boards.index.grade'), readonly: action_name == "edit", input_html: { value: f.object.classroom.grade.description }  %>
+        <% end %>
       </div>
 
       <div class="col col-sm-3">
-        <%= f.input :classroom_id, as: :select2, elements: classrooms, label: t('.by_classroom'), placeholder: t('.by_classroom') %>
+        <%= f.input :classroom_id, as: :select2, elements: (action_name == "new" ? [] : @classrooms), label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: action_name != "new" %>
       </div>
 
-      <div class="col col-sm-3" style="display: none" id="period">
-        <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2]).to_json, label: t('.period'), placeholder: t('.period') %>
+      <div class="col col-sm-3" style="display: <%= action_name == "edit" ? 'inline' : 'none' %>" id="period">
+        <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2]).to_json, label: t('.period'), placeholder: t('.period'), readonly: action_name != "new" %>
       </div>
 
     </div>
@@ -47,10 +51,11 @@
 
       <tbody id="lessons-board-lessons">
         <tr>
-          <%= f.simple_fields_for :lessons_board_lessons, f.object.lessons_board_lessons do |lessons_board_lesson| %>
-            <%= render 'lessons_board_lesson_fields', f: lessons_board_lesson %>
-          <% end %>
+          <td class="no_item_found" colspan="7" style="<%= f.object.lessons_board_lessons.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
         </tr>
+        <%= f.simple_fields_for :lessons_board_lessons, f.object.lessons_board_lessons do |lessons_board_lesson| %>
+          <%= render 'lessons_board_lesson_fields', f: lessons_board_lesson %>
+        <% end %>
       </tbody>
 
       <tfoot class="links">
