@@ -10,7 +10,10 @@
       <td><%= lesson_board.classroom.unity.name %></td>
       <td><%= lesson_board.classroom.grade.description %></td>
       <td><%= lesson_board.classroom.description %></td>
-      <td class="actions" style="width: 50px">
+      <td class="actions" style="width: 120px">
+        <%= link_to t('helpers.links.show_html'), lessons_board_path(lesson_board),
+                    class: "btn btn-primary apply_tooltip apply_tooltip",
+                    data: { original_title: t('views.index.tooltips.show') } %>
         <%= link_to t('helpers.links.edit_html'), edit_lessons_board_path(lesson_board),
                     class: "btn btn-success apply_tooltip",
                     data: { original_title: t('views.index.tooltips.edit') } %>
