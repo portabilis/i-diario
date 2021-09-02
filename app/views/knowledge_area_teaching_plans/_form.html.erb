@@ -291,6 +291,6 @@
   <footer>
     <%= link_to t('views.form.back'), knowledge_area_teaching_plans_path, class: 'btn btn-default' %>
     <%= link_to t('views.form.history'), history_knowledge_area_teaching_plan_path(@knowledge_area_teaching_plan), class: 'btn btn-info' if @knowledge_area_teaching_plan.persisted? %>
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...' } %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...' } unless action_name == 'show' && current_user.teacher? %>
   </footer>
 <% end %>
