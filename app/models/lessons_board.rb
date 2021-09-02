@@ -4,7 +4,9 @@ class LessonsBoard < ActiveRecord::Base
 
   audited
 
-  validates :classroom_id, :period, presence: true
+  validates :period, presence: true
+  validates :classroom_id, presence: true, uniqueness: { scope: :period }
+
 
   belongs_to :classroom
   has_many :lessons_board_lessons, dependent: :destroy
