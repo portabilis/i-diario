@@ -14,7 +14,7 @@
       <% else %>
         <%= f.input :teacher_discipline_classroom, readonly: true, input_html: { style: 'width: 450px',
             value: item.object.teacher_discipline_classroom_id.nil? ? '' :
-                 teacher_name_by_teacher_discipline_classroom(item.object.teacher_discipline_classroom_id) },
+                   teacher_name_and_discipline(item.object.teacher_discipline_classroom_id) },
           label: false%>
       <% end %>
     <% end %>
