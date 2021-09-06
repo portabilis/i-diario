@@ -17,7 +17,7 @@
       </div>
 
       <div class="col col-sm-3" style="display: inline" id="period">
-        <%= f.input :period, label: t('lessons_boards.form.period'), readonly: true, input_html: { value: f.object.classroom.description }  %>
+        <%= f.input :period, label: t('lessons_boards.form.period'), readonly: true, input_html: { value: Periods.translate(Periods.key_for(f.object.period.to_s)) }  %>
       </div>
 
     </div>
