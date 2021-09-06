@@ -11,7 +11,7 @@ class LessonsBoard < ActiveRecord::Base
   belongs_to :classroom
   has_many :lessons_board_lessons, dependent: :destroy
 
-  attr_accessor :unity, :grade
+  attr_accessor :unity, :grade, :lessons_number
 
   accepts_nested_attributes_for :lessons_board_lessons, allow_destroy: true
 
