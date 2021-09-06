@@ -1,8 +1,6 @@
 class LessonsBoardsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
-  before_action :require_current_clasroom, if: :require_classroom?
-  before_action :require_profile
 
   def index
     @lessons_boards =  apply_scopes(LessonsBoard).includes(:classroom)
@@ -13,8 +11,8 @@ class LessonsBoardsController < ApplicationController
 
   def show
     @lessons_board = resource
-    @teachers = teachers_to_select2(resource.classroom_id)
-    @classrooms = classrooms_by_grade_or_unity_to_select2(resource.classroom&.grade&.id, resource.classroom&.unity&.id)
+    @teachers = teachers_to_select2(resource.classroom_id, nil)
+    @classrooms = classrooms_to_select2(resource.classroom&.grade&.id, resource.classroom&.unity&.id)
 
     authorize @lessons_boards
   end
@@ -38,7 +36,7 @@ class LessonsBoardsController < ApplicationController
 
   def edit
     @lessons_board = resource
-    @teachers = teachers_to_select2(resource.classroom_id)
+    @teachers = teachers_to_select2(resource.classroom_id, resource.period)
     @classrooms = Classroom.where(unity_id: resource.classroom&.unity&.id)
 
     authorize @lessons_board
@@ -77,9 +75,9 @@ class LessonsBoardsController < ApplicationController
   end
 
   def unities
-    @unities ||= Unity.joins(:school_calendars)
-                      .where(school_calendars: { year: current_user_school_year })
-                      .ordered
+    return @unities ||= Unity.ordered if current_user.current_user_role.try(:role_administrator?)
+
+    [current_user_unity]
   end
   helper_method :unities
 
@@ -91,18 +89,6 @@ class LessonsBoardsController < ApplicationController
     @employee_unities ||= Unity.find(unities_ids)
   end
   helper_method :employee_unities
-
-  def classrooms
-    @classrooms = Classroom.where(year: current_user_school_year).includes(:grade).ordered
-  end
-  helper_method :classrooms
-
-  def grades
-    grades_id = []
-    grades_id << classrooms.map { |classroom| classroom.grade.id }
-    @grades = Grade.where(id: grades_id)
-  end
-  helper_method :grades
 
   def resource
     @lessons_board ||= case params[:action]
@@ -132,19 +118,25 @@ class LessonsBoardsController < ApplicationController
   def number_of_lessons
     return if params[:classroom_id].blank?
 
-    render json: number_of_lessons_to_select_2(params[:classroom_id])
+    render json: Classroom.find(params[:classroom_id]).number_of_classes
   end
 
   def teachers_classroom
     return if params[:classroom_id].blank?
 
-    render json: teachers_to_select2(params[:classroom_id])
+    render json: teachers_to_select2(params[:classroom_id], nil)
+  end
+
+  def teachers_classroom_period
+    return if params[:classroom_id].blank? || params[:period].blank?
+
+    render json: teachers_to_select2(params[:classroom_id], params[:period])
   end
 
   def classrooms_filter
     return if params[:grade_id].blank? && params[:unity_id].blank?
 
-    render json: classrooms_by_grade_or_unity_to_select2(params[:grade_id], params[:unity_id])
+    render json: classrooms_to_select2(params[:grade_id], params[:unity_id])
   end
 
   def grades_by_unity
@@ -153,48 +145,60 @@ class LessonsBoardsController < ApplicationController
     render json: grades_by_unity_to_select2(params[:unity_id])
   end
 
-  private
+  def not_exists_by_classroom
+    return if params[:classroom_id].blank?
 
-  def number_of_lessons_to_select_2(classroom_id)
-    Classroom.find(classroom_id).number_of_classes
+    render json: LessonsBoard.find_by(classroom_id: params[:classroom_id]).nil?
   end
 
-  def teachers_to_select2(classroom_id)
-    teachers_to_select2 = []
+  def not_exists_by_classroom_and_period
+    return if params[:classroom_id].blank?
 
-    TeacherDisciplineClassroom.where(classroom_id: classroom_id)
-                              .includes(:teacher, :discipline).each do |teacher_discipline_classroom|
-      teachers_to_select2 << OpenStruct.new(
-        id: teacher_discipline_classroom.id,
-        name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
-          teacher_discipline_classroom.discipline.description.try(:strip),
-        text: teacher_discipline_classroom.teacher.name.try(:strip).to_s + ' - ' +
-          teacher_discipline_classroom.discipline.description.try(:strip)
-      )
+    render json: LessonsBoard.find_by(classroom_id: params[:classroom_id], period: params[:period]).nil?
+  end
+
+  private
+
+  def teachers_to_select2(classroom_id, period)
+    teachers_to_select2 = []
+    classroom_period = Classroom.find(classroom_id).period
+
+    if classroom_period == Periods::FULL && period
+      TeacherDisciplineClassroom.where(classroom_id: classroom_id, period: period)
+                                .includes(:teacher, :discipline).each do |teacher_discipline_classroom|
+        teachers_to_select2 << OpenStruct.new(
+          id: teacher_discipline_classroom.id,
+          name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
+            teacher_discipline_classroom.discipline.description.try(:strip),
+          text: teacher_discipline_classroom.teacher.name.try(:strip).to_s + ' - ' +
+            teacher_discipline_classroom.discipline.description.try(:strip)
+        )
+      end
+    else
+      TeacherDisciplineClassroom.where(classroom_id: classroom_id)
+                                .includes(:teacher, :discipline).each do |teacher_discipline_classroom|
+        teachers_to_select2 << OpenStruct.new(
+          id: teacher_discipline_classroom.id,
+          name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
+            teacher_discipline_classroom.discipline.description.try(:strip),
+          text: teacher_discipline_classroom.teacher.name.try(:strip).to_s + ' - ' +
+            teacher_discipline_classroom.discipline.description.try(:strip)
+        )
+      end
     end
 
     teachers_to_select2
   end
 
-  def classrooms_by_grade_or_unity_to_select2(grade_id, unity_id)
+  def classrooms_to_select2(grade_id, unity_id)
     classrooms_to_select2 = []
 
-    if grade_id.blank?
-      Classroom.by_unity(unity_id).by_year(current_user_school_year).each do |classroom|
-        classrooms_to_select2 << OpenStruct.new(
-          id: classroom.id,
-          name: classroom.description.to_s,
-          text: classroom.description.to_s
-        )
-      end
-    else
-      Classroom.by_grade(grade_id).by_year(current_user_school_year).each do |classroom|
-        classrooms_to_select2 << OpenStruct.new(
-          id: classroom.id,
-          name: classroom.description.to_s,
-          text: classroom.description.to_s
-        )
-      end
+    Classroom.by_unity(unity_id).by_grade(grade_id).by_year(current_user_school_year).each do |classroom|
+      classrooms_to_select2 << OpenStruct.new(
+        id: classroom.id,
+        name: classroom.description.to_s,
+        text: classroom.description.to_s
+      )
     end
 
     classrooms_to_select2
@@ -212,18 +216,5 @@ class LessonsBoardsController < ApplicationController
     end
 
     grades_to_select2
-  end
-
-  def require_profile
-    return if current_user.student? || current_user.parent?
-    return if current_teacher && current_user.current_user_role
-
-    flash[:alert] = t('errors.publication.require_profile')
-
-    redirect_to root_path
-  end
-
-  def require_classroom?
-    current_teacher || current_user_is_employee_or_administrator?
   end
 end
