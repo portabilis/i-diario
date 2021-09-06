@@ -27,7 +27,7 @@ $(function () {
     let period = $('#lessons_number_classroom_id').val();
 
     if (period != 4) {
-      await checkNotExistsLessonsBoard();
+      checkNotExistsLessonsBoard();
     }
 
     period_div.show();
@@ -98,7 +98,7 @@ $(function () {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
 
     if (!_.isEmpty(classroom_id)) {
-      await $.ajax({
+      return $.ajax({
         url: Routes.period_lessons_boards_pt_br_path({
           classroom_id: classroom_id,
           format: 'json'
@@ -109,13 +109,13 @@ $(function () {
     }
   }
 
-  async function handleFetchPeriodByClassroomSuccess(data) {
+  function handleFetchPeriodByClassroomSuccess(data) {
     $('#lessons_number_classroom_id').val(data);
     let period = $('#lessons_board_period');
 
     if (data != 4) {
       getNumberOfClasses();
-      await getTeachersFromClassroom();
+      getTeachersFromClassroom();
       period.val(data).trigger("change")
       period.attr('readonly', true)
     } else {
@@ -127,7 +127,7 @@ $(function () {
     flashMessages.error('Ocorreu um erro ao buscar o período da turma');
   };
 
-  async function checkNotExistsLessonsBoard() {
+  function checkNotExistsLessonsBoard() {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
 
     if (!_.isEmpty(classroom_id)) {
@@ -142,7 +142,7 @@ $(function () {
     }
   }
 
-  async function handleNotExistsLessonsBoardSuccess(data) {
+  function handleNotExistsLessonsBoardSuccess(data) {
     let period = $('#lessons_number_classroom_id').val();
 
     if (period == 4 && data) {
@@ -162,6 +162,7 @@ $(function () {
   function checkNotExistsLessonsBoardOnPeriod() {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
     let period = $('#lessons_board_period').select2('val');
+
     if (!_.isEmpty(classroom_id)) {
       $.ajax({
         url: Routes.not_exists_by_classroom_and_period_lessons_boards_pt_br_path({
@@ -175,12 +176,12 @@ $(function () {
     }
   }
 
-  async function handleNotExistsLessonsBoardOnPeriodSuccess(data) {
+  function handleNotExistsLessonsBoardOnPeriodSuccess(data) {
     if (data) {
       flashMessages.pop('');
       $('#btn-submit').attr("disabled", false);
       getNumberOfClasses();
-      await getTeachersFromClassroomAndPeriod();
+      getTeachersFromClassroomAndPeriod();
     } else {
       clearFields();
       $('#btn-submit').attr("disabled", true);
@@ -207,20 +208,20 @@ $(function () {
     }
   }
 
-  async function getTeachersFromClassroomAndPeriod() {
+  function getTeachersFromClassroomAndPeriod() {
     let classroom_id = $('#lessons_board_classroom_id').select2('val');
     let period = $('#lessons_board_period').select2('val');
 
     if (!_.isEmpty(classroom_id)) {
-      return $.ajax({
-               url: Routes.teachers_classroom_period_lessons_boards_pt_br_path({
-                 classroom_id: classroom_id,
-                 period: period,
-                 format: 'json'
-               }),
-               success: handleFetchTeachersFromTheClassroomSuccess,
-               error: handleFetchTeachersFromTheClassroomError
-             });
+      $.ajax({
+        url: Routes.teachers_classroom_period_lessons_boards_pt_br_path({
+          classroom_id: classroom_id,
+          period: period,
+          format: 'json'
+        }),
+        success: handleFetchTeachersFromTheClassroomSuccess,
+        error: handleFetchTeachersFromTheClassroomError
+      });
     }
   }
 
