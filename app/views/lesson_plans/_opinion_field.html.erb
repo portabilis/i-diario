@@ -4,7 +4,7 @@
 
     <div class="row">
       <div class="col col-sm-12">
-        <%= f.input :opinion, input_html: { class: 'col col-sm-12' } %>
+        <%= f.input :opinion, input_html: { class: 'col col-sm-12' }, readonly: current_user.teacher? %>
       </div>
     </div>
   </fieldset>
