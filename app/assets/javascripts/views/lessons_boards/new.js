@@ -109,13 +109,13 @@ $(function () {
     }
   }
 
-  function handleFetchPeriodByClassroomSuccess(data) {
+  async function handleFetchPeriodByClassroomSuccess(data) {
     $('#lessons_number_classroom_id').val(data);
     let period = $('#lessons_board_period');
 
     if (data != 4) {
       getNumberOfClasses();
-      getTeachersFromClassroom();
+      await getTeachersFromClassroom();
       period.val(data).trigger("change")
       period.attr('readonly', true)
     } else {
