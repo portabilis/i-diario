@@ -21,6 +21,7 @@
 
       <div class="col col-sm-3">
         <%= f.input :classroom_id, as: :select2, elements: (action_name == "new" ? [] : @classrooms), label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: action_name != "new" %>
+        <%= f.hidden_field :lessons_number, id: 'lessons_number_classroom_id' %>
       </div>
 
       <div class="col col-sm-3" style="display: <%= action_name == "edit" ? 'inline' : 'none' %>" id="period">
@@ -73,6 +74,6 @@
   <footer>
     <%= link_to t('views.form.back'), lessons_boards_path, class: "btn btn-default" %>
 
-    <button type="submit" class="btn btn-primary"><%= t('views.form.save') %></button>
+    <button type="submit" class="btn btn-primary" id="btn-submit"><%= t('views.form.save') %></button>
   </footer>
 <% end %>
