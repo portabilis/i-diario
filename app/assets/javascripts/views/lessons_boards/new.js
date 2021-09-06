@@ -10,8 +10,8 @@ $(function () {
 
   $('#lessons_board_unity').on('change', async function () {
     clearFields();
-    period_div.hide();
     clearClassroomsAndGrades();
+    period_div.hide();
     await updateGrades();
   })
 
