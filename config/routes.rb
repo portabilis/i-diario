@@ -308,6 +308,9 @@ Rails.application.routes.draw do
         get :classrooms_filter
         get :grades_by_unity
         get :teachers_classroom
+        get :teachers_classroom_period
+        get :not_exists_by_classroom
+        get :not_exists_by_classroom_and_period
       end
     end
 
