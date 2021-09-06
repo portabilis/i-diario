@@ -75,9 +75,9 @@ class LessonsBoardsController < ApplicationController
   end
 
   def unities
-    return @unities ||= Unity.ordered if current_user.current_user_role.try(:role_administrator?)
-
-    [current_user_unity]
+    @unities ||= Unity.joins(:school_calendars)
+                      .where(school_calendars: { year: current_user_school_year })
+                      .ordered
   end
   helper_method :unities
 
@@ -89,6 +89,16 @@ class LessonsBoardsController < ApplicationController
     @employee_unities ||= Unity.find(unities_ids)
   end
   helper_method :employee_unities
+
+  def grades
+    @grades = Grade.by_unity(current_unity).by_year(current_school_year).ordered
+  end
+  helper_method :grades
+
+  def classrooms
+    @classrooms = Classroom.by_unity(current_unity).by_year(current_user_school_year).ordered
+  end
+  helper_method :classrooms
 
   def resource
     @lessons_board ||= case params[:action]
