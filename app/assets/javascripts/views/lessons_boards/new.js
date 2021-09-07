@@ -17,6 +17,7 @@ $(function () {
 
   $('#lessons_board_grade').on('change', async function () {
     clearFields();
+    $('#lessons_board_classroom_id').select2('val', '');
     period_div.hide();
     await updateClassrooms();
   })
@@ -143,9 +144,7 @@ $(function () {
   }
 
   function handleNotExistsLessonsBoardSuccess(data) {
-    let period = $('#lessons_number_classroom_id').val();
-
-    if (period == 4 && data) {
+    if (data) {
       flashMessages.pop('');
       $('#btn-submit').attr("disabled", false);
     } else {
