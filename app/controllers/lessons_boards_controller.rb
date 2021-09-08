@@ -76,20 +76,15 @@ class LessonsBoardsController < ApplicationController
   end
 
   def unities
-    @unities ||= Unity.joins(:school_calendars)
-                      .where(school_calendars: { year: current_user_school_year })
-                      .ordered
+    if current_user.current_user_role.try(:role_administrator?)
+      @unities ||= Unity.joins(:school_calendars)
+                        .where(school_calendars: { year: current_user_school_year })
+                        .ordered
+    else
+      [current_user_unity]
+    end
   end
   helper_method :unities
-
-  def employee_unities
-    return unless current_user.employee?
-
-    roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
-    unities_ids = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
-    @employee_unities ||= Unity.find(unities_ids)
-  end
-  helper_method :employee_unities
 
   def grades
     @grades = Grade.by_unity(current_unity).by_year(current_school_year).ordered
