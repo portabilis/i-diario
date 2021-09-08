@@ -12,7 +12,7 @@
         <%= item.association :teacher_discipline_classroom, as: :select2, elements: @teachers || [], label: false,
                              data: { without_json_parser: true }%>
       <% else %>
-        <%= f.input :teacher_discipline_classroom, readonly: true, input_html: { style: 'width: 450px',
+        <%= f.input :teacher_discipline_classroom, readonly: true, input_html: { style: 'width: 250px',
             value: item.object.teacher_discipline_classroom_id.nil? ? '' :
                    teacher_name_and_discipline(item.object.teacher_discipline_classroom_id) },
           label: false%>
