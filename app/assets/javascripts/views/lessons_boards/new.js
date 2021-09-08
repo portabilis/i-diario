@@ -9,6 +9,7 @@ $(function () {
   });
 
   $('#lessons_board_unity').on('change', async function () {
+    flashMessages.pop('');
     clearFields();
     clearClassroomsAndGrades();
     period_div.hide();
@@ -16,6 +17,7 @@ $(function () {
   })
 
   $('#lessons_board_grade').on('change', async function () {
+    flashMessages.pop('');
     clearFields();
     $('#lessons_board_classroom_id').select2('val', '');
     period_div.hide();
@@ -23,6 +25,8 @@ $(function () {
   })
 
   $('#lessons_board_classroom_id').on('change', async function () {
+    flashMessages.pop('');
+    $('#btn-submit').attr("disabled", false);
     $('#lessons_board_period').select2('val', '');
     await getPeriod();
     let period = $('#lessons_number_classroom_id').val();
