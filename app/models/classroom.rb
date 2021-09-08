@@ -89,8 +89,7 @@ class Classroom < ActiveRecord::Base
   end
 
   def number_of_classes
-    try(:calendar).try(:school_calendar).try(:number_of_classes) ||
-      unity.school_calendars.by_year(year).first.number_of_classes
+    unity.school_calendars.by_year(year).first.number_of_classes
   end
 
   private
