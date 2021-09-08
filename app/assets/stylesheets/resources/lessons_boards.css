@@ -27,6 +27,7 @@
   white-space: normal !important;
   text-overflow: clip !important;
   overflow-y: hidden;
+  padding-right: 15px;
 }
 
 
