@@ -11,10 +11,11 @@ class LessonsBoardsController < ApplicationController
 
   def show
     @lessons_board = resource
-    @teachers = teachers_to_select2(resource.classroom_id, nil)
+    ActiveRecord::Associations::Preloader.new.preload(@lessons_board, [lessons_board_lessons: [:lessons_board_lesson_weekdays]])
+    @teachers = teachers_to_select2(resource.classroom_id, resource.period)
     @classrooms = classrooms_to_select2(resource.classroom&.grade&.id, resource.classroom&.unity&.id)
 
-    authorize @lessons_boards
+    authorize @lessons_board
   end
 
   def new
