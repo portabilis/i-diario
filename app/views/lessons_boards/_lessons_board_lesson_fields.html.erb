@@ -3,16 +3,16 @@
     <%= f.input :lesson_number, input_html: { readonly: 'true', style: 'width 40px'}, label: false %>
   </td>
   <% Workdays.list.each do |weekday| %>
-  <td>
+  <td class="table_lessons_td">
     <%= f.association :lessons_board_lesson_weekdays,
                       collection: [f.object.lessons_board_lesson_weekdays.select{|it| it.weekday == weekday}.first || f.object.lessons_board_lesson_weekdays.build(weekday: weekday)] do |item| %>
       <%= item.hidden_field :id %>
       <%= item.hidden_field :weekday %>
       <% if action_name != "show" %>
         <%= item.association :teacher_discipline_classroom, as: :select2, elements: @teachers || [], label: false,
-                             data: { without_json_parser: true }%>
+                             data: { without_json_parser: true }, input_html: { class: 'table_lessons_td_select' }%>
       <% else %>
-        <%= f.input :teacher_discipline_classroom, readonly: true, input_html: { style: 'width: 250px',
+        <%= f.input :teacher_discipline_classroom, readonly: true, input_html: { class: 'table_lessons_td_select',
             value: item.object.teacher_discipline_classroom_id.nil? ? '' :
                    teacher_name_and_discipline(item.object.teacher_discipline_classroom_id) },
           label: false%>
