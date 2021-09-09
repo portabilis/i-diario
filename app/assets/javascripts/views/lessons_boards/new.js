@@ -70,7 +70,7 @@ $(function () {
   }
 
   function handleFetchGradesError() {
-    flashMessages.error('Ocorreu um erro ao buscar as séries');
+    flashMessages.error('Ocorreu um erro ao buscar as séries.');
   }
 
   async function updateClassrooms() {
@@ -97,7 +97,7 @@ $(function () {
   }
 
   function handleFetchClassroomsError() {
-    flashMessages.error('Ocorreu um erro ao buscar as turmas');
+    flashMessages.error('Ocorreu um erro ao buscar as turmas.');
   }
 
   async function getPeriod() {
@@ -130,7 +130,7 @@ $(function () {
   };
 
   function handleFetchPeriodByClassroomError() {
-    flashMessages.error('Ocorreu um erro ao buscar o período da turma');
+    flashMessages.error('Ocorreu um erro ao buscar o período da turma.');
   };
 
   function checkNotExistsLessonsBoard() {
@@ -155,12 +155,12 @@ $(function () {
     } else {
       clearFields();
       $('#btn-submit').attr("disabled", true);
-      flashMessages.error('já existe um quadro de aulas para a turma informada');
+      flashMessages.error('Já existe um quadro de aula cadastrado para a turma selecionada.');
     }
   }
 
   function handleNotExistsLessonsBoardError() {
-    flashMessages.error('Ocorreu um erro ao validar a existencia de uma calendário para essa turma');
+    flashMessages.error('Ocorreu um erro ao validar a existencia de uma calendário para essa turma.');
   }
 
   function checkNotExistsLessonsBoardOnPeriod() {
@@ -189,12 +189,12 @@ $(function () {
     } else {
       clearFields();
       $('#btn-submit').attr("disabled", true);
-      flashMessages.error('Não é possível criar um novo quadro de aulas pois a turma especificada já possui um quadro de aulas criado com esse período');
+      flashMessages.error('Já existe um quadro de aula cadastrado para a turma e período selecionado.');
     }
   }
 
   function handleNotExistsLessonsBoardOnPeriodError() {
-    flashMessages.error('Ocorreu um erro ao validar a existencia de uma calendário para essa turma e período');
+    flashMessages.error('Ocorreu um erro ao validar a existencia de uma calendário para essa turma e período.');
   }
 
   async function getTeachersFromClassroom() {
@@ -240,7 +240,7 @@ $(function () {
   }
 
   function handleFetchTeachersFromTheClassroomError() {
-    flashMessages.error('Ocorreu um erro ao buscar os professores da turma');
+    flashMessages.error('Ocorreu um erro ao buscar os professores da turma.');
   }
 
   function getNumberOfClasses() {
