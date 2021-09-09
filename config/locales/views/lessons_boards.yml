@@ -18,7 +18,7 @@ pt-BR:
 
   lessons_boards:
     index:
-      new_html: "<i class='fa fa-plus'></i> &nbsp Novo quadro"
+      new_html: "<i class='fa fa-plus'></i>&nbsp Novo quadro de aula"
       by_year: "Filtrar ano"
       by_unity: "Filtrar escola"
       by_grade: "Filtrar série"
