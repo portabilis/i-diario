@@ -6,7 +6,7 @@ class StudentAverageCalculator
   def calculate(classroom, discipline, step)
     student_notes_query = StudentNotesQuery.new(student, discipline, classroom, step.start_at, step.end_at)
     @daily_note_students = student_notes_query.daily_note_students + student_notes_query.transfer_notes +
-                           student_notes_query.previous_enrollments_daily_note_students
+      student_notes_query.previous_enrollments_daily_note_students
     test_setting = test_setting(classroom, step)
 
     @recovery_diary_records = student_notes_query.recovery_diary_records
@@ -33,19 +33,21 @@ class StudentAverageCalculator
   attr_accessor :student, :daily_note_students, :recovery_diary_records
 
   def weight_sum
-    weights = []
+    avaliations = []
 
     daily_note_students.each do |daily_note_student|
       next if avaliation_exempted?(daily_note_student.daily_note.avaliation)
 
-      weights << daily_note_student.daily_note.avaliation.weight
+      avaliations << { value: daily_note_student.daily_note.avaliation.weight, avaliation_id: daily_note_student.daily_note.avaliation.id }
     end
 
     recovery_diary_records.each do |recovery_diary_record|
       next if avaliation_exempted?(recovery_diary_record.avaliation_recovery_diary_record.avaliation)
 
-      weights << recovery_diary_record.avaliation_recovery_diary_record.avaliation.weight
+      avaliations << { value: recovery_diary_record.avaliation_recovery_diary_record.avaliation.weight, avaliation_id: recovery_diary_record.avaliation_recovery_diary_record.avaliation.id }
     end
+
+    weights = extract_note_avaliation(avaliations)
 
     weights.reduce(:+)
   end
@@ -57,31 +59,33 @@ class StudentAverageCalculator
     daily_note_students.each do |daily_note_student|
       next if avaliation_exempted?(daily_note_student.daily_note.avaliation)
 
-      avaliations << { note: daily_note_student.recovered_note, avaliation_id: daily_note_student.daily_note.avaliation.id }
+      avaliations << { value: daily_note_student.recovered_note, avaliation_id: daily_note_student.daily_note.avaliation.id }
     end
 
     recovery_diary_records.each do |recovery_diary_record|
       next if avaliation_exempted?(recovery_diary_record.avaliation_recovery_diary_record.avaliation)
       next unless (score = recovery_diary_record.students.find_by(student_id: student.id)&.score)
 
-      avaliations << { note: score, avaliation_id: recovery_diary_record.avaliation_recovery_diary_record.avaliation.id }
+      avaliations << { value: score, avaliation_id: recovery_diary_record.avaliation_recovery_diary_record.avaliation.id }
     end
 
-    extract_note_avaliation(avaliations)
+    @scores = extract_note_avaliation(avaliations)
 
     @scores.reduce(:+)
   end
 
   def extract_note_avaliation(avaliations)
+    values = []
     avaliations.uniq.group_by { |k, v| k[:avaliation_id] }.each do |avaliation|
-      note = 0
+      value = 0
       if avaliation.last.count > 1
-        avaliation.last.each { |array| note = array[:note] if note < array[:note] }
+        avaliation.last.each { |array| value = array[:value] if value < array[:value] }
       else
-        note = avaliation.last.last[:note]
+        value = avaliation.last.last[:value]
       end
-      @scores << note
+      values << value
     end
+    values
   end
 
   def calculate_average(sum, count)
