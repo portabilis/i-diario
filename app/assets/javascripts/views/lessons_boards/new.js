@@ -6,6 +6,7 @@ $(function () {
   $(document).ready( function() {
     clearFields();
     clearClassroomsAndGrades();
+    $('#btn-submit').attr("disabled", true);
   });
 
   $('#lessons_board_unity').on('change', async function () {
