@@ -87,12 +87,12 @@ class LessonsBoardsController < ApplicationController
   helper_method :unities
 
   def grades
-    @grades = Grade.by_unity(current_unity).by_year(current_school_year).ordered
+    @grades = Grade.ordered
   end
   helper_method :grades
 
   def classrooms
-    @classrooms = Classroom.by_unity(current_unity).by_year(current_user_school_year).ordered
+    @classrooms = Classroom.ordered
   end
   helper_method :classrooms
 
