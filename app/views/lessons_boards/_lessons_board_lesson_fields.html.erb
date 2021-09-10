@@ -9,11 +9,11 @@
       <%= item.hidden_field :id %>
       <%= item.hidden_field :weekday %>
       <% if action_name != "show" %>
-        <%= item.association :teacher_discipline_classroom, as: :select2, elements: @teachers || [], label: false,
+        <%= item.association :teacher_discipline_classroom, as: :select2, elements: @teachers || [], label: false, hide_empty_element: true,
                              data: { without_json_parser: true }, input_html: { class: 'table_lessons_td_select' }%>
       <% else %>
         <%= item.association :teacher_discipline_classroom, as: :select2, elements: @teachers, readonly: true, label: false,
-                             data: { without_json_parser: true }, input_html: { class: 'table_lessons_td_select'}%>
+                             data: { without_json_parser: true }, input_html: { class: 'table_lessons_td_select' }%>
       <% end %>
     <% end %>
   </td>

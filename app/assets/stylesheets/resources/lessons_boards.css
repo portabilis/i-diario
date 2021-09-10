@@ -30,6 +30,10 @@
   padding-right: 15px;
 }
 
+.select2-result-label {
+  min-height: 24px !important;
+}
+
 
 @media screen and (max-width: 768px) {
 .table_lessons {

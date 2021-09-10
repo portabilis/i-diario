@@ -28,7 +28,6 @@ $(function () {
 
   $('#lessons_board_classroom_id').on('change', async function () {
     flashMessages.pop('');
-    $('#btn-submit').attr("disabled", false);
     $('#lessons_board_period').select2('val', '');
     await getPeriod();
     let period = $('#lessons_number_classroom_id').val();
@@ -47,6 +46,19 @@ $(function () {
       checkNotExistsLessonsBoardOnPeriod();
     }
   })
+
+  $('#btn-submit').on('click', function () {
+    clearEmptyTeachers();
+  })
+
+  function clearEmptyTeachers() {
+    $("input[id*='_teacher_discipline_classroom_id']").each(function (index, teacher_discipline_classroom_id) {
+      if ($(teacher_discipline_classroom_id).val() == 'empty') {
+        $(teacher_discipline_classroom_id).val('')
+      }
+    })
+  }
+
 
   async function updateGrades() {
     let unity_id = $('#lessons_board_unity').select2('val');
