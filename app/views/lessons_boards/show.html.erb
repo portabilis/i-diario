@@ -32,12 +32,12 @@
       </div>
     <% end %>
 
-    <table class="table table-striped table-bordered table-condensed records">
+    <table class="table table-striped table-bordered table-condensed records table_lessons">
       <thead>
       <tr>
-        <th style="width: 50px;"><%= 'Aula' %></th>
+        <th style="width: 40px;"><%= ' Aula ' %></th>
         <% Workdays.translations.each do |translation| %>
-          <th><%= translation %></th>
+          <th class="table_lessons_td"><%= translation %></th>
         <% end %>
       </tr>
       </thead>
