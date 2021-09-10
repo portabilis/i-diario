@@ -2,6 +2,7 @@ $(function () {
   'use strict';
   const flashMessages = new FlashMessages();
   const period_div = $('#period');
+  const PERIOD_FULL = 4;
 
   $(document).ready( function() {
     clearFields();
@@ -32,7 +33,7 @@ $(function () {
     await getPeriod();
     let period = $('#lessons_number_classroom_id').val();
 
-    if (period != 4) {
+    if (period != PERIOD_FULL) {
       checkNotExistsLessonsBoard();
     }
 
@@ -42,7 +43,7 @@ $(function () {
   $('#lessons_board_period').on('change', function() {
     let period = $('#lessons_number_classroom_id').val();
 
-    if (period == 4) {
+    if (period == PERIOD_FULL) {
       checkNotExistsLessonsBoardOnPeriod();
     }
   })
@@ -119,7 +120,7 @@ $(function () {
     $('#lessons_number_classroom_id').val(data);
     let period = $('#lessons_board_period');
 
-    if (data != 4) {
+    if (data != PERIOD_FULL) {
       getNumberOfClasses();
       getTeachersFromClassroom();
       period.val(data).trigger("change")
