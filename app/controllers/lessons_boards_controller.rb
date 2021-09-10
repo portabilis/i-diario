@@ -199,7 +199,7 @@ class LessonsBoardsController < ApplicationController
   def classrooms_to_select2(grade_id, unity_id)
     classrooms_to_select2 = []
 
-    Classroom.by_unity(unity_id).by_grade(grade_id).by_year(current_user_school_year).each do |classroom|
+    Classroom.by_unity(unity_id).by_grade(grade_id).by_year(current_user_school_year).ordered.each do |classroom|
       classrooms_to_select2 << OpenStruct.new(
         id: classroom.id,
         name: classroom.description.to_s,
@@ -213,7 +213,7 @@ class LessonsBoardsController < ApplicationController
   def grades_by_unity_to_select2(unity_id)
     grades_to_select2 = []
 
-    Grade.includes(:course).by_unity(unity_id).each do |grade|
+    Grade.includes(:course).by_unity(unity_id).ordered.each do |grade|
       grades_to_select2 << OpenStruct.new(
         id: grade.id,
         name: grade.description.to_s,
