@@ -45,7 +45,8 @@ class Features < EnumerateIt::Base
                    :transfer_notes,
                    :unities,
                    :users,
-                   :translations
+                   :translations,
+                   :lessons_boards
 
 
   sort_by :translation

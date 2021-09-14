@@ -1,0 +1,33 @@
+pt-BR:
+  activerecord:
+    models:
+      lessons_board:
+        one: "Quadro de aula"
+        other: "Quadro de aulas"
+
+    attributes:
+      lessons_board:
+        classroom_id: "Turma"
+        period: "Período"
+
+    errors:
+      models:
+        lessons_board:
+          attributes:
+            lessons_boards_types:
+
+  lessons_boards:
+    index:
+      new_html: "<i class='fa fa-plus'></i>&nbsp Novo quadro de aula"
+      by_year: "Filtrar ano"
+      by_unity: "Filtrar escola"
+      by_grade: "Filtrar série"
+      by_classroom: "Filtrar turma"
+      year: "Ano"
+      unity: "Escola"
+      grade: "Série"
+      classroom: "Turma"
+    form:
+      period: "Período"
+      no_item_found: "Nenhum período informado"
+      add_period: "Adicionar período de aula"

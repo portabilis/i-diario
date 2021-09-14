@@ -1,0 +1,60 @@
+<div class="widget-body no-padding">
+<%= simple_form_for @lessons_board, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+  <fieldset>
+    <div class="row">
+
+      <div class="col col-sm-3">
+        <%= f.input :unity, label: t('lessons_boards.index.unity'), placeholder: t('lessons_boards.index.unity'), readonly: true, input_html: { value: f.object.classroom.unity.name }  %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :grade, label: t('lessons_boards.index.grade'), placeholder: t('lessons_boards.index.grade'), readonly: true, input_html: { value: f.object.classroom.grade.description }  %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :classroom_id, label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: true, input_html: { value: f.object.classroom.description }  %>
+      </div>
+
+      <div class="col col-sm-3" style="display: inline" id="period">
+        <%= f.input :period, label: t('lessons_boards.form.period'), readonly: true, input_html: { value: Periods.translate(Periods.key_for(f.object.period.to_s)) }  %>
+      </div>
+
+    </div>
+  </fieldset>
+
+  <fieldset>
+
+    <% if f.object.errors.added? :base %>
+      <div class="alert alert-danger fade in">
+        <i class="fa-fw fa fa-times"></i>
+        <%= f.object.errors[:lessons_boards].first %>
+      </div>
+    <% end %>
+
+    <table class="table table-striped table-bordered table-condensed records table_lessons">
+      <thead>
+      <tr>
+        <th style="width: 40px;"><%= ' Aula ' %></th>
+        <% Workdays.translations.each do |translation| %>
+          <th class="table_lessons_td"><%= translation %></th>
+        <% end %>
+      </tr>
+      </thead>
+
+      <tbody id="lessons-board-lessons">
+      <tr>
+        <td class="no_item_found" colspan="7" style="<%= f.object.lessons_board_lessons.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+      </tr>
+      <%= f.simple_fields_for :lessons_board_lessons, f.object.lessons_board_lessons do |lessons_board_lesson| %>
+        <%= render 'lessons_board_lesson_fields', f: lessons_board_lesson %>
+      <% end %>
+      </tbody>
+    </table>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), lessons_boards_path, class: "btn btn-default" %>
+  </footer>
+<% end %>
+</div>
