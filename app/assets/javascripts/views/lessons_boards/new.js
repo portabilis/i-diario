@@ -9,6 +9,9 @@ $(function () {
   $(document).ready( function() {
     clearFields();
     clearClassroomsAndGrades();
+    if ($('#lessons_board_unity').val()) {
+      updateGrades();
+    }
     $('#btn-submit').attr("disabled", true);
   });
 
