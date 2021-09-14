@@ -311,6 +311,7 @@ Rails.application.routes.draw do
         get :teachers_classroom_period
         get :not_exists_by_classroom
         get :not_exists_by_classroom_and_period
+        get :teacher_in_other_classroom
       end
     end
 

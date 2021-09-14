@@ -1,13 +1,13 @@
 <tr class="nested-fields">
   <td style="width: 10px">
-    <%= f.input :lesson_number, input_html: { readonly: 'true', style: "width: 95%;"}, label: false %>
+    <%= f.input :lesson_number, input_html: { readonly: 'true', style: "width: 95%;", 'data-id': 'lesson_number'}, label: false %>
   </td>
   <% Workdays.list.each do |weekday| %>
   <td class="table_lessons_td">
     <%= f.association :lessons_board_lesson_weekdays,
                       collection: [f.object.lessons_board_lesson_weekdays.select{|it| it.weekday == weekday}.first || f.object.lessons_board_lesson_weekdays.build(weekday: weekday)] do |item| %>
       <%= item.hidden_field :id %>
-      <%= item.hidden_field :weekday %>
+      <%= item.hidden_field :weekday, 'data-id': 'weekday' %>
       <% if action_name != "show" %>
         <%= item.association :teacher_discipline_classroom, as: :select2, elements: @teachers || [], label: false, hide_empty_element: true,
                              data: { without_json_parser: true }, input_html: { class: 'table_lessons_td_select' }%>

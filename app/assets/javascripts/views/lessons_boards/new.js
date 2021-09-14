@@ -3,6 +3,8 @@ $(function () {
   const flashMessages = new FlashMessages();
   const period_div = $('#period');
   const PERIOD_FULL = 4;
+  let errors = {};
+
 
   $(document).ready( function() {
     clearFields();
@@ -47,9 +49,43 @@ $(function () {
     }
   })
 
-  $('#btn-submit').on('click', function () {
+  $('#btn-submit').on('click', function (e) {
+    e.preventDefault();
     clearEmptyTeachers();
+    for (let prop in errors) {
+      if (errors[prop]) {
+        flashMessages.error(errors[prop]);
+        return
+      }
+    }
+    $('#form-submit').submit();
   })
+
+  function checkExistsTeacherOnLessonNumberAndWeekday(teacher_discipline_classroom_id, lesson_number, weekday) {
+    if (_.isEmpty(teacher_discipline_classroom_id) || teacher_discipline_classroom_id === 'empty' || _.isEmpty(lesson_number) || _.isEmpty(weekday)) {
+      return;
+    }
+    $.ajax({
+      url: Routes.teacher_in_other_classroom_lessons_boards_pt_br_path({
+        teacher_discipline_classroom_id: teacher_discipline_classroom_id,
+        lesson_number: lesson_number,
+        weekday: weekday,
+        format: 'json'
+      }),
+      success: function(data) {
+        if (data != false) {
+          errors[weekday + '-' + lesson_number] = data.table.message
+          flashMessages.error(data.table.message);
+        } else {
+          errors[weekday + '-' + lesson_number] = null
+          flashMessages.pop('');
+        }
+      },
+      error: function() {
+        flashMessages.error('Ocorreu um erro ao buscar os vínculos do professor.');
+      }
+    });
+  }
 
   function clearEmptyTeachers() {
     $("input[id*='_teacher_discipline_classroom_id']").each(function (index, teacher_discipline_classroom_id) {
@@ -283,6 +319,14 @@ $(function () {
 
     $("input[id*='_lesson_number']").each(function (index, lesson_number) {
       $(lesson_number).val(index + 1)
+    })
+
+    $('input.table_lessons_td_select').on('change', function () {
+      let teacher_discipline_classroom_id = $(this).val();
+      let lesson_number = $(this).closest('tr').find('[data-id="lesson_number"]').val();
+      let weekday = $(this).closest('td').find('[data-id="weekday"]').val();
+
+      checkExistsTeacherOnLessonNumberAndWeekday(teacher_discipline_classroom_id, lesson_number, weekday);
     })
   }
 

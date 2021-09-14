@@ -163,7 +163,42 @@ class LessonsBoardsController < ApplicationController
     render json: LessonsBoard.find_by(classroom_id: params[:classroom_id], period: params[:period]).nil?
   end
 
+  def teacher_in_other_classroom
+    return if params[:teacher_discipline_classroom_id].blank? ||
+              params[:lesson_number].blank? ||
+              params[:weekday].blank?
+
+    render json: linked_teacher(params[:teacher_discipline_classroom_id], params[:lesson_number], params[:weekday])
+  end
+
   private
+
+  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday)
+    teacher_id = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id).teacher.id
+    year = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id).classroom.year
+
+    teacher_lessons_board_weekdays = LessonsBoardLessonWeekday
+                                       .where(weekday: weekday)
+                                       .joins(:lessons_board_lesson, teacher_discipline_classroom: [:classroom, :teacher])
+                                       .where(teachers: { id: teacher_id })
+                                       .where(classrooms: { year: year })
+                                       .where(lessons_board_lessons: {lesson_number: lesson_number}).first
+
+    return false if teacher_lessons_board_weekdays.nil?
+
+    linked_teacher_message_error(teacher_lessons_board_weekdays.teacher_discipline_classroom.teacher.name,
+                                 teacher_lessons_board_weekdays.teacher_discipline_classroom.classroom.description,
+                                 teacher_lessons_board_weekdays.teacher_discipline_classroom.classroom.unity.name,
+                                 teacher_lessons_board_weekdays.teacher_discipline_classroom.classroom.year,
+                                 Workdays.translate(Workdays.key_for(weekday.to_s)),
+                                 lesson_number)
+  end
+
+  def linked_teacher_message_error(name, classroom, unity, year, weekday, lesson_number)
+    OpenStruct.new(message: "O(a) professor(a) #{name} já está alocado(a) para a turma #{classroom} na escola #{unity}
+    no ano #{year} na #{weekday} e na aula número #{lesson_number}. Para conseguir vincular o mesmo, favor validar com a
+    outra unidade a troca de horário.")
+  end
 
   def teachers_to_select2(classroom_id, period)
     teachers_to_select2 = []
@@ -192,6 +227,8 @@ class LessonsBoardsController < ApplicationController
         )
       end
     end
+
+    teachers_to_select2.insert(0, OpenStruct.new(id: 'empty', name: '<option></option>', text: ''))
 
     teachers_to_select2
   end
