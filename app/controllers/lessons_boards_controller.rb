@@ -176,16 +176,20 @@ class LessonsBoardsController < ApplicationController
   def teacher_in_other_classroom
     return if params[:teacher_discipline_classroom_id].blank? ||
               params[:lesson_number].blank? ||
-              params[:weekday].blank?
+              params[:weekday].blank? ||
+              params[:classroom_id].blank?
 
-    render json: linked_teacher(params[:teacher_discipline_classroom_id], params[:lesson_number], params[:weekday])
+    render json: linked_teacher(params[:teacher_discipline_classroom_id], params[:lesson_number], params[:weekday], params[:classroom_id])
   end
 
   private
 
-  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday)
-    teacher_id = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id).teacher.id
-    year = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id).classroom.year
+  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
+    teacher_discipline_classroom = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id)
+    return false if teacher_discipline_classroom.classroom.id == classroom.to_i
+
+    teacher_id = teacher_discipline_classroom.teacher.id
+    year = teacher_discipline_classroom.classroom.year
 
     teacher_lessons_board_weekdays = LessonsBoardLessonWeekday
                                        .where(weekday: weekday)
