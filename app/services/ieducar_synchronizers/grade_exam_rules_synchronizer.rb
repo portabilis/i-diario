@@ -28,7 +28,7 @@ class GradeExamRulesSynchronizer < BaseSynchronizer
       classrooms_grades = Classroom.with_discarded.by_year(year).where(id: classroom_ids).map(&:classrooms_grades)
 
       classrooms_grades.each do |classroom_grade_record|
-        classroom_grade_record.tap do |classroom_grade|
+        classroom_grade_record.each do |classroom_grade|
           unity = unity(classroom_grade.classroom.unity_code)
 
           current_exam_rule = differentiated_exam_rule if unity.uses_differentiated_exam_rule?

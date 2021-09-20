@@ -32,7 +32,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         api_code: student_enrollment_classroom_record.id
       ).tap do |student_enrollment_classroom|
         student_enrollment_classroom.student_enrollment = student_enrollment
-        student_enrollment_classroom.classrooms_grade_id = ClassroomGrade.find_by(classroom_id: classroom_id,
+        student_enrollment_classroom.classrooms_grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id,
                                                                                   grade_id: grade_id)
         student_enrollment_classroom.classroom_code = student_enrollment_classroom_record.turma_id
         student_enrollment_classroom.joined_at = student_enrollment_classroom_record.data_entrada
@@ -58,7 +58,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
     delete_invalid_presence_records(changed_student_enrollment_classrooms)
   end
 
-  def delete_invalid_presence_records(changed_student_enrollment_classrooms)
+  def   delete_invalid_presence_records(changed_student_enrollment_classrooms)
     changed_student_enrollment_classrooms.uniq.each do |student_id, classroom_id|
       next if student_id.blank? || classroom_id.blank?
 
