@@ -70,8 +70,8 @@ $(function () {
     $('#form-submit').submit();
   })
 
-  function checkExistsTeacherOnLessonNumberAndWeekday(teacher_discipline_classroom_id, lesson_number, weekday) {
-    if (_.isEmpty(teacher_discipline_classroom_id) || teacher_discipline_classroom_id === 'empty' || _.isEmpty(lesson_number) || _.isEmpty(weekday)) {
+  function checkExistsTeacherOnLessonNumberAndWeekday(teacher_discipline_classroom_id, lesson_number, weekday, classroom_id) {
+    if (_.isEmpty(teacher_discipline_classroom_id) || teacher_discipline_classroom_id === 'empty' || _.isEmpty(lesson_number) || _.isEmpty(weekday) || _.isEmpty(classroom_id)) {
       return;
     }
     $.ajax({
@@ -79,6 +79,7 @@ $(function () {
         teacher_discipline_classroom_id: teacher_discipline_classroom_id,
         lesson_number: lesson_number,
         weekday: weekday,
+        classroom_id: classroom_id,
         format: 'json'
       }),
       success: function(data) {
@@ -334,8 +335,9 @@ $(function () {
       let teacher_discipline_classroom_id = $(this).val();
       let lesson_number = $(this).closest('tr').find('[data-id="lesson_number"]').val();
       let weekday = $(this).closest('td').find('[data-id="weekday"]').val();
+      let classroom_id = $('#lessons_board_classroom_id').select2('val');
 
-      checkExistsTeacherOnLessonNumberAndWeekday(teacher_discipline_classroom_id, lesson_number, weekday);
+      checkExistsTeacherOnLessonNumberAndWeekday(teacher_discipline_classroom_id, lesson_number, weekday, classroom_id);
     })
   }
 
