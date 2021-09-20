@@ -86,13 +86,23 @@ class LessonsBoardsController < ApplicationController
   end
   helper_method :unities
 
+  def unities_id
+    unities_id = []
+    unities.each { |unity| unities_id << unity.id }
+    unities_id
+  end
+
   def grades
-    @grades = Grade.ordered
+    lessons_grades = []
+    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_grades << lesson_board.classroom.grade_id }
+    @grades = Grade.find(lessons_grades)
   end
   helper_method :grades
 
   def classrooms
-    @classrooms = Classroom.ordered
+    lessons_classrooms = []
+    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_classrooms << lesson_board.classroom.id }
+    @classrooms = Classroom.find(lessons_classrooms)
   end
   helper_method :classrooms
 
@@ -205,8 +215,13 @@ class LessonsBoardsController < ApplicationController
     classroom_period = Classroom.find(classroom_id).period
 
     if classroom_period == Periods::FULL && period
+      if period != 3
+        period = Array([period.to_i, nil])
+      end
       TeacherDisciplineClassroom.where(classroom_id: classroom_id, period: period)
-                                .includes(:teacher, :discipline).each do |teacher_discipline_classroom|
+                                .joins(:teacher, :discipline)
+                                .order('teachers.name')
+                                .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
           name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
@@ -217,7 +232,9 @@ class LessonsBoardsController < ApplicationController
       end
     else
       TeacherDisciplineClassroom.where(classroom_id: classroom_id)
-                                .includes(:teacher, :discipline).each do |teacher_discipline_classroom|
+                                .includes(:teacher, :discipline)
+                                .order('teachers.name')
+                                .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
           name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
