@@ -3,9 +3,8 @@ class LessonsBoardsController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @lessons_boards =  apply_scopes(LessonsBoard).includes(:classroom)
-                                                 .filter(filtering_params(params[:search]))
-                                                 .ordered
+    @lessons_boards = LessonBoardsFetcher.new(current_user).lesson_boards
+    @lessons_boards =  apply_scopes(@lessons_boards).filter(filtering_params(params[:search]))
     authorize @lessons_boards
   end
 
