@@ -16,27 +16,22 @@ $(function () {
   });
 
   $('#lessons_board_unity').on('change', async function () {
-    errors = {};
     flashMessages.pop('');
     clearFields();
     clearClassroomsAndGrades();
     period_div.hide();
-    $('#btn-submit').attr("disabled", true);
     await updateGrades();
   })
 
   $('#lessons_board_grade').on('change', async function () {
-    errors = {};
     flashMessages.pop('');
     clearFields();
     $('#lessons_board_classroom_id').select2('val', '');
     period_div.hide();
-    $('#btn-submit').attr("disabled", true);
     await updateClassrooms();
   })
 
   $('#lessons_board_classroom_id').on('change', async function () {
-    errors = {};
     flashMessages.pop('');
     $('#lessons_board_period').select2('val', '');
     await getPeriod();
@@ -50,7 +45,6 @@ $(function () {
   })
 
   $('#lessons_board_period').on('change', function() {
-    errors = {};
     let period = $('#lessons_number_classroom_id').val();
 
     if (period == PERIOD_FULL) {
