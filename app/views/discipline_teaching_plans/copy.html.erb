@@ -1,0 +1,91 @@
+<div class="widget-body no-padding">
+
+  <%= simple_form_for @copy_discipline_teaching_plan, url: :copy_discipline_teaching_plans, html: {
+    class: 'smart-form',
+    id: 'copy_discipline_teaching_plan'
+  } do |f| %>
+
+    <%= f.error_notification %>
+    <%= render 'base_errors', f: f %>
+
+    <%= f.simple_fields_for :teaching_plan, @discipline_teaching_plan.teaching_plan do |teaching_plan_form| %>
+      <fieldset>
+
+        <div class="row">
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.input :year, readonly: true, required: false %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.association :unity, as: :select2_unity, user: current_user, required: false %>
+          </div>
+
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user, required: false %>
+          </div>
+
+          <div class="col col-sm-4">
+            <%= f.simple_fields_for :discipline_teaching_plan, @discipline_teaching_plan do |form| %>
+              <%= form.association :discipline, as: :select2_discipline, user: current_user, record: @discipline_teaching_plan, required: false %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.association :school_term_type, as: :select2, required: false, elements: SchoolTermType.to_select2(
+              current_user.current_school_year,
+              current_user.current_unity_id,
+              add_empty_element: false
+            ).to_json, input_html: { value: teaching_plan_form.object.school_term_type_id, data: { without_json_parser: true } }, readonly: true %>
+          </div>
+
+          <div class="col col-sm-4">
+            <%= teaching_plan_form.association :school_term_type, as: :select2, required: false, elements: SchoolTermTypeStep.to_select2(
+              current_user.current_school_year,
+              current_user.current_unity_id
+            ).to_json, input_html: { value: teaching_plan_form.object.school_term_type_step_id, data: { without_json_parser: true } }, readonly: true %>
+          </div>
+
+          <div class="col col-sm-4">
+            <%= f.simple_fields_for :teaching_plan, @discipline_teaching_plan do |form| %>
+              <%= form.input :thematic_unit, readonly: true %>
+            <% end %>
+          </div>
+        </div>
+
+      </fieldset>
+
+    <% end %>
+
+    <%= f.hidden_field :id, value: @discipline_teaching_plan.id %>
+
+    <fieldset>
+      <legend>Copiar para:</legend>
+
+      <div class="row">
+        <div class="col col-sm-4">
+          <%= f.input :year, required: false %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :unities_ids, as: :select2, required: true, multiple: true, elements: Unity.to_select %>
+        </div>
+
+        <div class="col col-sm-4">
+          <%= f.input :grades_ids, as: :select2, required: true, multiple: true, elements: Grade.to_select %>
+        </div>
+
+      </div>
+
+    </fieldset>
+
+    <footer>
+      <%= link_to t('views.form.back'), discipline_teaching_plans_path, class: 'btn btn-default' %>
+      <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...' } %>
+    </footer>
+  <% end %>
+
+</div>
