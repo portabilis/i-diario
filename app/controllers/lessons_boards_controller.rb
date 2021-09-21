@@ -75,11 +75,12 @@ class LessonsBoardsController < ApplicationController
 
     if current_user.current_user_role.try(:role_administrator?)
       LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
-      Unity.find(lessons_unities).ordered
+      Unity.where(id: lessons_unities).ordered
     elsif current_user.employee?
       roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
-      unities_ids = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
-      Unity.find(unities_ids).ordered
+      unities_user = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
+      LessonsBoard.by_unity(unities_user).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
+      Unity.where(id: lessons_unities).ordered
     end
   end
   helper_method :lesson_unities
