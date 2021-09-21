@@ -74,6 +74,18 @@ class LessonsBoardsController < ApplicationController
     @lessons_board ||= LessonsBoard.ordered
   end
 
+  def lesson_unities
+    lessons_unities = []
+
+    if current_user.current_user_role.try(:role_administrator?)
+      LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
+      Unity.find(lessons_unities)
+    else
+      [current_user_unity]
+    end
+  end
+  helper_method :lesson_unities
+
   def unities
     if current_user.current_user_role.try(:role_administrator?)
       @unities ||= Unity.joins(:school_calendars)
@@ -91,19 +103,19 @@ class LessonsBoardsController < ApplicationController
     unities_id
   end
 
-  def grades
+  def lesson_grades
     lessons_grades = []
     LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_grades << lesson_board.classroom.grade_id }
-    @grades = Grade.find(lessons_grades)
+    Grade.find(lessons_grades)
   end
-  helper_method :grades
+  helper_method :lesson_grades
 
-  def classrooms
+  def lesson_classrooms
     lessons_classrooms = []
     LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_classrooms << lesson_board.classroom.id }
-    @classrooms = Classroom.find(lessons_classrooms)
+    Classroom.find(lessons_classrooms)
   end
-  helper_method :classrooms
+  helper_method :lesson_classrooms
 
   def resource
     @lessons_board ||= case params[:action]
