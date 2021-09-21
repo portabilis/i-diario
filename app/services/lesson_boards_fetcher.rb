@@ -10,11 +10,15 @@ class LessonBoardsFetcher
 
   def unities
     if @user.current_user_role.try(:role_administrator?)
-      @unities ||= Unity.joins(:school_calendars)
-                        .where(school_calendars: { year: @user.current_school_year })
-                        .ordered
+      Unity.joins(:school_calendars)
+           .where(school_calendars: { year: @user.current_school_year })
+           .ordered
     else
-      [@user.current_unity]
+      lessons_unities = []
+      roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
+      unities_user = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
+      LessonsBoard.by_unity(unities_user).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
+      Unity.where(id: lessons_unities).ordered
     end
   end
 end
