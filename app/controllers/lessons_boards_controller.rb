@@ -70,10 +70,6 @@ class LessonsBoardsController < ApplicationController
                  :by_classroom)
   end
 
-  def lessons_boards
-    @lessons_board ||= LessonsBoard.ordered
-  end
-
   def lesson_unities
     lessons_unities = []
 
