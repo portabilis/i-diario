@@ -19,11 +19,11 @@
 
         <div class="row">
           <div class="col col-sm-4">
-            <%= teaching_plan_form.association :unity, as: :select2_unity, user: current_user, required: false %>
+            <%= teaching_plan_form.association :unity, as: :select2, elements: Unity.to_select, required: false, readonly: true %>
           </div>
 
           <div class="col col-sm-4">
-            <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user, required: false %>
+            <%= teaching_plan_form.association :grade, as: :select2, elements: Grade.to_select, required: false, readonly: true %>
           </div>
 
           <div class="col col-sm-4">
