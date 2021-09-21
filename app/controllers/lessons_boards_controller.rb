@@ -185,7 +185,6 @@ class LessonsBoardsController < ApplicationController
 
   def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
     teacher_discipline_classroom = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id)
-    return false if teacher_discipline_classroom.classroom.id == classroom.to_i
 
     teacher_id = teacher_discipline_classroom.teacher.id
     year = teacher_discipline_classroom.classroom.year
@@ -195,9 +194,12 @@ class LessonsBoardsController < ApplicationController
                                        .joins(:lessons_board_lesson, teacher_discipline_classroom: [:classroom, :teacher])
                                        .where(teachers: { id: teacher_id })
                                        .where(classrooms: { year: year })
-                                       .where(lessons_board_lessons: {lesson_number: lesson_number}).first
+                                       .where(lessons_board_lessons: {lesson_number: lesson_number})
+                                       .first
 
-    return false if teacher_lessons_board_weekdays.nil?
+    return false if teacher_lessons_board_weekdays.nil? || teacher_lessons_board_weekdays.lessons_board_lesson
+                                                                                         .lessons_board
+                                                                                         .classroom.id == classroom.to_i
 
     linked_teacher_message_error(teacher_lessons_board_weekdays.teacher_discipline_classroom.teacher.name,
                                  teacher_lessons_board_weekdays.teacher_discipline_classroom.classroom.description,

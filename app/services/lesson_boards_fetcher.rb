@@ -14,7 +14,7 @@ class LessonBoardsFetcher
                         .where(school_calendars: { year: @user.current_school_year })
                         .ordered
     else
-      [current_user_unity]
+      [@user.current_unity]
     end
   end
 end
