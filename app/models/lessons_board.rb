@@ -22,6 +22,10 @@ class LessonsBoard < ActiveRecord::Base
   scope :by_unity, ->(unity) { joins(:classroom).where(classrooms: { unity_id: unity }) }
   scope :by_grade, ->(grade) { joins(:classroom).where(classrooms: { grade_id: grade }) }
   scope :by_classroom, ->(classroom) { where(classroom_id: classroom) }
+  scope :by_teacher, ->(teacher_id) { joins(lessons_board_lessons: [lessons_board_lesson_weekdays: [:teacher_discipline_classroom]])
+                                      .where(teacher_discipline_classrooms:  { teacher_id: teacher_id }) }
+  scope :by_discipline, ->(discipline_id) { joins(lessons_board_lessons: [lessons_board_lesson_weekdays: [:teacher_discipline_classroom]])
+                                            .where(teacher_discipline_classrooms:  { discipline_id: discipline_id }) }
   scope :ordered, -> { order(created_at: :desc) }
 
 end
