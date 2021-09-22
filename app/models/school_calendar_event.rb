@@ -32,6 +32,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validate :uniqueness_of_end_at_in_classroom
   validate :uniqueness_of_start_at_in_course
   validate :uniqueness_of_end_at_in_course
+  validate :uniqueness_of_start_at_and_end_at
 
   scope :ordered, -> { order(arel_table[:start_date]) }
   scope :with_frequency, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]) }
@@ -205,8 +206,21 @@ class SchoolCalendarEvent < ActiveRecord::Base
     return unless start_date && end_date
 
     if start_date > end_date
-      errors.add(:start_date, 'não pode ser maior que a Data final')
-      errors.add(:end_date, 'deve ser maior ou igual a Data inicial')
+      errors.add(:start_date, 'deve ser menor que a data final')
+      errors.add(:end_date, 'deve ser maior ou igual a data inicial')
+    end
+  end
+
+  def uniqueness_of_start_at_and_end_at
+    #TODO: Mover todas as Validations acima para o Fetcher
+    start_at_and_end_at = SchoolCalenderEventService.new(self).uniqueness_start_at_and_end_at
+
+    if start_at_and_end_at[:start_date_at]
+      errors.add(:start_date, I18n.t('errors.messages.uniqueness_of_start_at_and_end_at'))
+    end
+
+    if start_at_and_end_at[:end_date_at]
+      errors.add(:end_date, I18n.t('errors.messages.uniqueness_of_end_at_and_start_at'))
     end
   end
 end

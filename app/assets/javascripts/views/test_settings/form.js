@@ -1,7 +1,7 @@
 $(function() {
   var $itemSettingTests = $("#item_setting_tests"),
-      $averageCalculationType = $("#test_setting_average_calculation_type"),
-      $numberOfDecimalPlaces = $('#test_setting_number_of_decimal_places');
+    $averageCalculationType = $("#test_setting_average_calculation_type"),
+    $numberOfDecimalPlaces = $('#test_setting_number_of_decimal_places');
 
   toggleItemSettingsTests($averageCalculationType.select2("val"));
 
@@ -21,11 +21,17 @@ $(function() {
 
   function toggleAverageSumWeightSelection(averageCalculationType) {
     var $divisionWeightCheckContainer = $('#division-weight-check-container');
+    var $divisionWeightInput = $('#division-weight-input');
+    var $divisionWeightCheck = $('#division-weight-check');
 
-    if (averageCalculationType === "sum" && $('#test_setting_exam_setting_type').select2('val') == 'general_by_school') {
+    if (averageCalculationType === "sum" && (['general_by_school', 'by_school_term'].includes($('#test_setting_exam_setting_type').select2('val')))) {
       $divisionWeightCheckContainer.show();
+      $divisionWeightInput.show();
     } else {
       $divisionWeightCheckContainer.hide();
+      $divisionWeightInput.hide();
+      $divisionWeightCheck.prop('checked', false);
+      $("#test_setting_default_division_weight").val("1");
     }
   }
 
@@ -52,40 +58,46 @@ $(function() {
   });
 
   var updateTestSettingSchoolTermInput = function() {
-    var $test_setting_school_term_div = $('#test_setting_school_term_div');
-    var $test_setting_school_term_input = $('#test_setting_school_term_type_step_id');
-    var $test_setting_unities_div = $('#test_setting_unities_div');
-    var $test_setting_unities_input = $('#test_setting_unities');
-    var $test_setting_grades_div = $('#test_setting_grades_div');
-    var $test_setting_grades_input = $('#test_setting_grades');
+    var $examSettingType = $('#test_setting_exam_setting_type')
+    var $schoolTermDiv = $('#test_setting_school_term_div');
+    var $schoolTermInput = $('#test_setting_school_term_type_step_id');
+    var $unitiesDiv = $('#test_setting_unities_div');
+    var $unitiesInput = $('#test_setting_unities');
+    var $gradesDiv = $('#test_setting_grades_div');
+    var $gradesInput = $('#test_setting_grades');
     var $divisionWeightCheckContainer = $('#division-weight-check-container');
+    var $defaultDivisionWeight = $('#test_setting_default_division_weight');
+    var $divisionWeightInput = $('#division-weight-input');
+    var $divisionWeightCheck = $('#division-weight-check');
 
-    if ($('#test_setting_exam_setting_type').select2('val') == 'by_school_term') {
-      $test_setting_unities_div.hide();
-      $test_setting_unities_input.select2('val', '');
-      $test_setting_grades_div.hide();
-      $test_setting_grades_input.select2('val', '');
-      $divisionWeightCheckContainer.hide();
-
-      $test_setting_school_term_div.show();
-    } else if ($('#test_setting_exam_setting_type').select2('val') == 'general_by_school') {
-      $test_setting_school_term_div.hide();
-      $test_setting_school_term_input.select2('val', '');
-
-      $test_setting_unities_div.show();
-      $test_setting_grades_div.show();
-
+    if ($examSettingType.select2('val') == 'by_school_term') {
+      $unitiesDiv.hide();
+      $unitiesInput.select2('val', '');
+      $gradesDiv.hide();
+      $gradesInput.select2('val', '');
+      $schoolTermDiv.show();
+      if ($averageCalculationType.select2('val') === "sum") {
+        $divisionWeightCheckContainer.show();
+      }
+    } else if ($examSettingType.select2('val') == 'general_by_school') {
+      $schoolTermDiv.hide();
+      $schoolTermInput.select2('val', '');
+      $unitiesDiv.show();
+      $gradesDiv.show();
       if ($averageCalculationType.select2('val') === "sum") {
         $divisionWeightCheckContainer.show();
       }
     } else {
-      $test_setting_unities_div.hide();
-      $test_setting_unities_input.select2('val', '');
-      $test_setting_grades_div.hide();
-      $test_setting_grades_input.select2('val', '');
-      $test_setting_school_term_div.hide();
-      $test_setting_school_term_input.select2('val', '');
+      $unitiesDiv.hide();
+      $unitiesInput.select2('val', '');
+      $gradesDiv.hide();
+      $gradesInput.select2('val', '');
+      $schoolTermDiv.hide();
+      $schoolTermInput.select2('val', '');
       $divisionWeightCheckContainer.hide();
+      $defaultDivisionWeight.val("");
+      $divisionWeightCheck.prop('checked', false);
+      $divisionWeightInput.hide();
     }
   }
 
@@ -111,8 +123,8 @@ $(function() {
     if (!_.isEmpty($test_setting_unities)) {
       $.ajax({
         url: Routes.grades_by_unities_test_settings_pt_br_path({
-            unities: $test_setting_unities,
-            format: 'json'
+          unities: $test_setting_unities,
+          format: 'json'
         }),
         success: handleFetchGradesSuccess,
         error: handleFetchGradesError
@@ -141,30 +153,35 @@ $(function() {
   }
 
   $('#division-weight-check').on('click', function (e) {
+    var $defaultDivisionWeight = $('#test_setting_default_division_weight');
+    var $divisionWeightInput = $('#division-weight-input');
     if(this.checked) {
-     $('#division-weight-input').removeClass('hidden');
+      $divisionWeightInput.removeClass('hidden');
+      $defaultDivisionWeight.val("")
+      $divisionWeightInput.show()
     } else {
-      $('#division-weight-input').addClass('hidden');
+      $divisionWeightInput.addClass('hidden');
+      $divisionWeightInput.hide()
     }
   });
 
   if ($('#test_setting_default_division_weight').val() > 1 ||
-      ($("#test_setting_average_calculation_type").select2('val') == 'sum' &&
-       $('#division-weight-check').is(':checked'))) {
+    ($("#test_setting_average_calculation_type").select2('val') == 'sum' &&
+      $('#division-weight-check').is(':checked'))) {
     $('#division-weight-input').removeClass('hidden');
   }
 
   $('#test-settings-form-submit').on('click', function (e) {
     if ($("#test_setting_average_calculation_type").select2('val') == 'sum' &&
-        !$('#division-weight-check').is(':checked')) {
+      !$('#division-weight-check').is(':checked')) {
       $('#test_setting_default_division_weight').val(1);
     }
   });
 
   var $selectAllUnities = $('#select-all-unities'),
-      $deselectAllUnities = $('#deselect-all-unities'),
-      $selectAllGrades = $('#select-all-grades'),
-      $deselectAllGrades = $('#deselect-all-grades');
+    $deselectAllUnities = $('#deselect-all-unities'),
+    $selectAllGrades = $('#select-all-grades'),
+    $deselectAllGrades = $('#deselect-all-grades');
 
   $selectAllUnities.on('click', function(){
     allUnities = _.map($.parseJSON($("#test_setting_unities").attr('data-elements')), function(unitiy) {

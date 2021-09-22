@@ -187,6 +187,10 @@ class ApplicationController < ActionController::Base
     TestSettingFetcher.current(current_user.try(:current_classroom))
   end
 
+  def current_test_setting_step(step)
+    TestSettingFetcher.current(current_user.try(:current_classroom), step)
+  end
+
   def steps_fetcher
     @steps_fetcher ||= StepsFetcher.new(current_user_classroom)
   end

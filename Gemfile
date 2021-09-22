@@ -66,6 +66,7 @@ gem 'webpacker', '~> 4.x'
 instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
 group :development do
+  gem 'rack-mini-profiler'
   gem 'meta_request', '0.7.2'
   gem 'pry-byebug', '3.4.2'
   gem 'pry-remote', '0.1.8'
@@ -73,6 +74,7 @@ group :development do
   gem 'rubocop', '0.59.2', require: false
   gem 'spring', '2.0.2'
   gem 'spring-commands-rspec', '1.0.4'
+  gem 'letter_opener_web', '~> 1.0'
 end
 
 group :test do

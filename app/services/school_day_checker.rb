@@ -2,7 +2,7 @@ class SchoolDayChecker
   def initialize(school_calendar, date, grade_id, classroom_id, discipline_id)
     raise ArgumentError unless school_calendar.present? && date.present?
 
-    @school_calendar = school_calendar
+    @school_calendar = get_school_calendar(school_calendar, classroom_id)
     @date = date
     @grade_id = grade_id
     @classroom_id = classroom_id
@@ -43,6 +43,20 @@ class SchoolDayChecker
   end
 
   private
+
+  def get_school_calendar(school_calendar, classroom_id)
+    return school_calendar if classroom_id.nil?
+
+    classroom = Classroom.find(classroom_id)
+    if classroom.unity.eql?(school_calendar.unity)
+      return school_calendar
+    else
+      new_school_calendar = classroom.unity.school_calendars.where(year: Date.current.year.to_s).last
+      return new_school_calendar if new_school_calendar
+    end
+
+    return school_calendar
+  end
 
   def date_is_school_day?(date)
     events_by_date = @school_calendar.events.by_date(date)

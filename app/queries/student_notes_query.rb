@@ -31,6 +31,8 @@ class StudentNotesQuery
       classroom,
       start_at(student_enrollment_classroom),
       end_at(student_enrollment_classroom)
+    ).where(
+      transfer_note: nil
     )
   end
 
@@ -55,24 +57,15 @@ class StudentNotesQuery
   end
 
   def recovery_diary_records
-    avaliation_ids = daily_note_students.map { |daily_note_student| daily_note_student.avaliation.id }
-
     RecoveryDiaryRecord.by_student_id(student)
                        .by_discipline_id(discipline)
                        .by_classroom_id(classroom)
-                       .joins(:avaliation_recovery_diary_record, :students)
+                       .joins(:students, avaliation_recovery_diary_record: [:avaliation])
                        .merge(
                          AvaliationRecoveryDiaryRecord.by_test_date_between(
-                           start_at(student_enrollment_classroom),
-                           end_at(student_enrollment_classroom)
-                         ).where.not(
-                           avaliation_id: avaliation_ids
+                           @step_start_at, @step_end_at
                          )
-                       ).where.not(
-                         recovery_diary_record_students: {
-                           score: nil
-                         }
-                       )
+                       ).where.not(recovery_diary_record_students: { score: nil })
   end
 
   def transfer_notes
@@ -86,8 +79,8 @@ class StudentNotesQuery
                         end_at(student_enrollment_classroom)
                       )
                     ).where.not(
-                      transfer_note: nil
-                    )
+      transfer_note: nil
+    )
   end
 
   private
