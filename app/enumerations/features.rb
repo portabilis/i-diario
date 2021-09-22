@@ -46,7 +46,8 @@ class Features < EnumerateIt::Base
                    :unities,
                    :users,
                    :translations,
-                   :lessons_boards
+                   :lessons_boards,
+                   :daily_frequencies_in_batchs
 
 
   sort_by :translation
