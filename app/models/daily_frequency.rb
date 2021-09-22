@@ -82,7 +82,7 @@ class DailyFrequency < ActiveRecord::Base
   scope :order_by_unity, -> { order(:unity_id) }
   scope :order_by_classroom, -> { order(:classroom_id) }
 
-  attr_accessor :receive_email_confirmation
+  attr_accessor :receive_email_confirmation, :start_date, :end_date
 
   def find_by_student(student_id)
     students.find_by_student_id(student_id)
