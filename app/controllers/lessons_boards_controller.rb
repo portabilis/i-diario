@@ -3,9 +3,8 @@ class LessonsBoardsController < ApplicationController
   has_scope :per, default: 10
 
   def index
-    @lessons_boards =  apply_scopes(LessonsBoard).includes(:classroom)
-                                                 .filter(filtering_params(params[:search]))
-                                                 .ordered
+    @lessons_boards = LessonBoardsFetcher.new(current_user).lesson_boards
+    @lessons_boards =  apply_scopes(@lessons_boards).filter(filtering_params(params[:search]))
     authorize @lessons_boards
   end
 
@@ -71,9 +70,20 @@ class LessonsBoardsController < ApplicationController
                  :by_classroom)
   end
 
-  def lessons_boards
-    @lessons_board ||= LessonsBoard.ordered
+  def lesson_unities
+    lessons_unities = []
+
+    if current_user.current_user_role.try(:role_administrator?)
+      LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
+      Unity.where(id: lessons_unities).ordered
+    elsif current_user.employee?
+      roles_ids = Role.where(access_level: AccessLevel::EMPLOYEE).pluck(:id)
+      unities_user = UserRole.where(user_id: current_user.id, role_id: roles_ids).pluck(:unity_id)
+      LessonsBoard.by_unity(unities_user).each { |lesson_board| lessons_unities << lesson_board.classroom.unity.id }
+      Unity.where(id: lessons_unities).ordered
+    end
   end
+  helper_method :lesson_unities
 
   def unities
     if current_user.current_user_role.try(:role_administrator?)
@@ -86,15 +96,25 @@ class LessonsBoardsController < ApplicationController
   end
   helper_method :unities
 
-  def grades
-    @grades = Grade.ordered
+  def unities_id
+    unities_id = []
+    unities.each { |unity| unities_id << unity.id }
+    unities_id
   end
-  helper_method :grades
 
-  def classrooms
-    @classrooms = Classroom.ordered
+  def lesson_grades
+    lessons_grades = []
+    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_grades << lesson_board.classroom.grade_id }
+    Grade.find(lessons_grades)
   end
-  helper_method :classrooms
+  helper_method :lesson_grades
+
+  def lesson_classrooms
+    lessons_classrooms = []
+    LessonsBoard.by_unity(unities_id).each { |lesson_board| lessons_classrooms << lesson_board.classroom.id }
+    Classroom.find(lessons_classrooms)
+  end
+  helper_method :lesson_classrooms
 
   def resource
     @lessons_board ||= case params[:action]
@@ -166,25 +186,31 @@ class LessonsBoardsController < ApplicationController
   def teacher_in_other_classroom
     return if params[:teacher_discipline_classroom_id].blank? ||
               params[:lesson_number].blank? ||
-              params[:weekday].blank?
+              params[:weekday].blank? ||
+              params[:classroom_id].blank?
 
-    render json: linked_teacher(params[:teacher_discipline_classroom_id], params[:lesson_number], params[:weekday])
+    render json: linked_teacher(params[:teacher_discipline_classroom_id], params[:lesson_number], params[:weekday], params[:classroom_id])
   end
 
   private
 
-  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday)
-    teacher_id = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id).teacher.id
-    year = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id).classroom.year
+  def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
+    teacher_discipline_classroom = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id)
+
+    teacher_id = teacher_discipline_classroom.teacher.id
+    year = teacher_discipline_classroom.classroom.year
 
     teacher_lessons_board_weekdays = LessonsBoardLessonWeekday
                                        .where(weekday: weekday)
                                        .joins(:lessons_board_lesson, teacher_discipline_classroom: [:classroom, :teacher])
                                        .where(teachers: { id: teacher_id })
                                        .where(classrooms: { year: year })
-                                       .where(lessons_board_lessons: {lesson_number: lesson_number}).first
+                                       .where(lessons_board_lessons: {lesson_number: lesson_number})
+                                       .first
 
-    return false if teacher_lessons_board_weekdays.nil?
+    return false if teacher_lessons_board_weekdays.nil? || teacher_lessons_board_weekdays.lessons_board_lesson
+                                                                                         .lessons_board
+                                                                                         .classroom.id == classroom.to_i
 
     linked_teacher_message_error(teacher_lessons_board_weekdays.teacher_discipline_classroom.teacher.name,
                                  teacher_lessons_board_weekdays.teacher_discipline_classroom.classroom.description,
@@ -205,8 +231,13 @@ class LessonsBoardsController < ApplicationController
     classroom_period = Classroom.find(classroom_id).period
 
     if classroom_period == Periods::FULL && period
+      if period != 3
+        period = Array([period.to_i, nil])
+      end
       TeacherDisciplineClassroom.where(classroom_id: classroom_id, period: period)
-                                .includes(:teacher, :discipline).each do |teacher_discipline_classroom|
+                                .joins(:teacher, :discipline)
+                                .order('teachers.name')
+                                .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
           name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
@@ -217,7 +248,9 @@ class LessonsBoardsController < ApplicationController
       end
     else
       TeacherDisciplineClassroom.where(classroom_id: classroom_id)
-                                .includes(:teacher, :discipline).each do |teacher_discipline_classroom|
+                                .includes(:teacher, :discipline)
+                                .order('teachers.name')
+                                .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
           name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +

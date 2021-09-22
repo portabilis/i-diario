@@ -26,7 +26,7 @@
       </div>
 
       <div class="col col-sm-3" style="display: <%= action_name == "edit" ? 'inline' : 'none' %>" id="period">
-        <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2]).to_json, label: t('.period'), placeholder: t('.period'), readonly: action_name != "new" %>
+        <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2 3]).to_json, label: t('.period'), placeholder: t('.period'), readonly: action_name != "new" %>
       </div>
 
     </div>
