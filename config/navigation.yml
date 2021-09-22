@@ -83,6 +83,10 @@ navigation:
             path: "new_daily_frequency_path"
             shortcut: true
         - menu:
+            type: "daily_frequencies_in_batchs"
+            path: "new_daily_frequencies_in_batchs_path"
+            icon: "fa-cubes"
+        - menu:
             type: "absence_justifications"
             path: "absence_justifications_path"
         - menu:

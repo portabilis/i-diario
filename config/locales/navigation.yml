@@ -63,6 +63,7 @@ pt-BR:
     translations: "Dicionário de termos BNCC"
     infrequency_trackings: "Acompanhamento de infrequências"
     lessons_boards: "Quadro de aulas"
+    daily_frequencies_in_batchs: "Frequência em lote"
 
   enumerations:
     features:
