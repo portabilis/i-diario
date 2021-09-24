@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/discipline_teaching_plans/copy' %>
+<% end %>
+
 <div class="widget-body no-padding">
 
   <%= simple_form_for @copy_discipline_teaching_plan, url: :copy_discipline_teaching_plans, html: {
@@ -71,10 +75,12 @@
         </div>
 
         <div class="col col-sm-4">
+          <a id="all-unities" href="javascript:void(0)" style="float: right">Selecionar tudo</a>
           <%= f.input :unities_ids, as: :select2, required: true, multiple: true, elements: Unity.to_select %>
         </div>
 
         <div class="col col-sm-4">
+          <a id="all-grades" href="javascript:void(0)" style="float: right">Selecionar tudo</a>
           <%= f.input :grades_ids, as: :select2, required: true, multiple: true, elements: Grade.to_select %>
         </div>
 
