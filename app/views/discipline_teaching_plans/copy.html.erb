@@ -12,6 +12,12 @@
     <%= f.error_notification %>
     <%= render 'base_errors', f: f %>
 
+    <div class="alert alert-info">
+      <i class='fa-fw fa fa-info'></i>
+      <strong>Replicar planos de ensino</strong>
+      <span>Replica pLano</span>
+    </div>
+
     <%= f.simple_fields_for :teaching_plan, @discipline_teaching_plan.teaching_plan do |teaching_plan_form| %>
       <fieldset>
 
@@ -62,8 +68,6 @@
 
       </fieldset>
 
-    <% end %>
-
     <%= f.hidden_field :id, value: @discipline_teaching_plan.id %>
 
     <fieldset>
@@ -71,7 +75,7 @@
 
       <div class="row">
         <div class="col col-sm-4">
-          <%= f.input :year, required: true %>
+          <%= f.input :year, required: true, input_html: { value: teaching_plan_form.object.year } %>
         </div>
 
         <div class="col col-sm-4">
@@ -87,6 +91,8 @@
       </div>
 
     </fieldset>
+
+    <% end %>
 
     <footer>
       <%= link_to t('views.form.back'), discipline_teaching_plans_path, class: 'btn btn-default' %>
