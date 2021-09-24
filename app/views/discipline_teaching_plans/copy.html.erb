@@ -14,8 +14,11 @@
 
     <div class="alert alert-info">
       <i class='fa-fw fa fa-info'></i>
-      <strong>Replicar planos de ensino</strong>
-      <span>Replica pLano</span>
+      <strong>Importante</strong>
+      <span>
+        o plano de ensino por disciplina só será replicado para escolas de destino que possuírem turmas com vínculo a
+        disciplina de origem e vínculo a uma das séries de destino.
+      </span>
     </div>
 
     <%= f.simple_fields_for :teaching_plan, @discipline_teaching_plan.teaching_plan do |teaching_plan_form| %>

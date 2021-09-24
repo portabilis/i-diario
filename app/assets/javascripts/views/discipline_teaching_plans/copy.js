@@ -19,7 +19,7 @@ $(document).ready(function () {
 
     grades = $("#copy_discipline_teaching_plan_form_grades_ids").attr('data-elements');
     grades = JSON.parse(grades);
-    grades = grades.map(function (unity) {
+    grades = grades.map(function (grade) {
       return grade.id;
     });
     grades = grades.filter(function (id) {
