@@ -1,0 +1,49 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/daily_frequencies/new' %>
+<% end %>
+
+<div class="widget-body no-padding">
+<%= simple_form_for FrequencyInBatchForm.new,
+    url: daily_frequencies_in_batchs_path,
+    method: :post,
+    html: { class: "smart-form" } do |f| %>
+  <%= f.hidden_field :period, value: @period %>
+  <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
+    <i class="fa fa-exclamation-circle fa-fw"></i>
+    <%= t('.exam_rule_not_found') %>
+  </div>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :unity_id, as: :select2_unity, user: current_user, label: t('activemodel.attributes.frequency_in_batch_form.unity') %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :classroom_id, as: :select2_classroom, user: current_user, label: t('activemodel.attributes.frequency_in_batch_form.classroom') %>
+      </div>
+
+      <div class="col col-sm-4 <%= @error_on_discipline ? 'error' : '' %>">
+        <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+                    classroom_id: @daily_frequency.classroom_id,
+                    required: true, label: t('activemodel.attributes.frequency_in_batch_form.discipline')%>
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :start_date, as: :date, required: true, label: t('activemodel.attributes.frequency_in_batch_form.start_date') %>
+      </div>
+      <div class="col col-sm-4">
+        <%= f.input :end_date, as: :date, required: true, label: t('activemodel.attributes.frequency_in_batch_form.end_date') %>
+      </div>
+    </div>
+
+  </fieldset>
+
+  <footer>
+    <%= f.submit 'Carregar', class: 'btn btn-primary' %>
+  </footer>
+<% end %>
+</div>

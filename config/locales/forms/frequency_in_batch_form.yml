@@ -1,0 +1,9 @@
+pt-BR:
+  activemodel:
+    attributes:
+      frequency_in_batch_form:
+        unity: "Escola"
+        classroom: "Turma"
+        discipline: "Disciplina"
+        start_date: "Data inicial"
+        end_date: "Data final"
