@@ -154,6 +154,19 @@ class DisciplineTeachingPlansController < ApplicationController
 
     form = params[:copy_discipline_teaching_plan_form]
 
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(form[:id])
+    @copy_discipline_teaching_plan = CopyDisciplineTeachingPlanForm.new(
+      discipline_teaching_plan: @discipline_teaching_plan,
+      teaching_plan: @discipline_teaching_plan.teaching_plan,
+      unities_ids: form[:unities_ids],
+      grades_ids: form[:grades_ids],
+      year: form[:year]
+    )
+
+    unless @copy_discipline_teaching_plan.valid?
+      return render :copy
+    end
+
     CopyDisciplineTeachingPlanWorker.perform_in(
       1.second,
       current_entity.id,
