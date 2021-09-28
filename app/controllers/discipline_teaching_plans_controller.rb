@@ -134,6 +134,11 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def copy
+    unless current_user.can_change?(:copy_discipline_teaching_plan)
+      flash[:error] = t('discipline_teaching_plans.do.permission')
+      return redirect_to :discipline_teaching_plans
+    end
+
     @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id])
     @copy_discipline_teaching_plan = CopyDisciplineTeachingPlanForm.new(
       discipline_teaching_plan: @discipline_teaching_plan,
@@ -142,6 +147,11 @@ class DisciplineTeachingPlansController < ApplicationController
   end
 
   def do_copy
+    unless current_user.can_change?(:copy_discipline_teaching_plan)
+      flash[:error] = t('discipline_teaching_plans.do.permission')
+      return redirect_to :discipline_teaching_plans
+    end
+
     form = params[:copy_discipline_teaching_plan_form]
 
     CopyDisciplineTeachingPlanWorker.perform_in(
