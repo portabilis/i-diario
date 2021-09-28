@@ -157,6 +157,7 @@ class DisciplineTeachingPlansController < ApplicationController
     CopyDisciplineTeachingPlanWorker.perform_in(
       1.second,
       current_entity.id,
+      current_user.id,
       form[:id],
       form[:year],
       form[:unities_ids].split(','),

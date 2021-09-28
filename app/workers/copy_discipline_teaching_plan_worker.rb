@@ -3,6 +3,7 @@ class CopyDisciplineTeachingPlanWorker
 
   def perform(
     entity_id,
+    user_id,
     discipline_teaching_plan_id,
     year,
     unities_ids,
