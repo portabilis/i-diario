@@ -62,6 +62,13 @@ class CopyDisciplineTeachingPlanWorker
           end
         end
       end
+
+      SystemNotificationCreator.create!(
+        source: model_discipline_teaching_plan,
+        title: I18n.t('copy_discipline_teaching_plan_worker.title'),
+        description: I18n.t('copy_discipline_teaching_plan_worker.description'),
+        users: [User.find(user_id)]
+      )
     end
   end
 end
