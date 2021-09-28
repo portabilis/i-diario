@@ -13,7 +13,19 @@ $(document).ready(function () {
 
     $("#copy_discipline_teaching_plan_form_unities_ids").val(unities.join(','));
     $("#copy_discipline_teaching_plan_form_unities_ids").trigger('change');
+
+    $('#clear-unities').show();
+    $('#all-unities').hide();
   });
+
+  $('#clear-unities').click(function () {
+    $("#copy_discipline_teaching_plan_form_unities_ids").val('');
+    $("#copy_discipline_teaching_plan_form_unities_ids").trigger('change');
+
+    $('#clear-unities').hide();
+    $('#all-unities').show();
+  });
+
   $('#all-grades').click(function () {
     let grades;
 
@@ -28,5 +40,16 @@ $(document).ready(function () {
 
     $("#copy_discipline_teaching_plan_form_grades_ids").val(grades.join(','));
     $("#copy_discipline_teaching_plan_form_grades_ids").trigger('change');
+
+    $('#clear-grades').show();
+    $('#all-grades').hide();
+  });
+
+  $('#clear-grades').click(function () {
+    $("#copy_discipline_teaching_plan_form_unities_ids").val('');
+    $("#copy_discipline_teaching_plan_form_unities_ids").trigger('change');
+
+    $('#clear-grades').hide();
+    $('#all-grades').show();
   });
 });
