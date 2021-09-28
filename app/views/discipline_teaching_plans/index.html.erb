@@ -34,7 +34,7 @@
             </td>
             <td>
               <%= link_to t('.new_html'), new_discipline_teaching_plan_path,
-                    class: 'btn btn-primary pull-right', style: 'width: 161px;' %>
+                    class: 'btn btn-primary pull-right', style: 'width: 100%;' %>
             </td>
           </tr>
 
@@ -45,7 +45,7 @@
             <th><%= TeachingPlan.human_attribute_name :school_term_type %></th>
             <th><%= TeachingPlan.human_attribute_name :school_term_type_step %></th>
             <th><%= DisciplineTeachingPlan.human_attribute_name :author %></th>
-            <th width="230px"></th>
+            <th style="width: 230px"></th>
           </tr>
         </thead>
 
