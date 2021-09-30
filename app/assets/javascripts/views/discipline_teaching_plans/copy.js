@@ -46,8 +46,8 @@ $(document).ready(function () {
   });
 
   $('#clear-grades').click(function () {
-    $("#copy_discipline_teaching_plan_form_unities_ids").val('');
-    $("#copy_discipline_teaching_plan_form_unities_ids").trigger('change');
+    $("#copy_discipline_teaching_plan_form_grades_ids").val('');
+    $("#copy_discipline_teaching_plan_form_grades_ids").trigger('change');
 
     $('#clear-grades').hide();
     $('#all-grades').show();
