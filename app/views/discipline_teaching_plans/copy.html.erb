@@ -84,13 +84,13 @@
         <div class="col col-sm-4">
           <a id="clear-unities" href="javascript:void(0)" style="float: right; display: none">Limpar</a>
           <a id="all-unities" href="javascript:void(0)" style="float: right">Selecionar tudo</a>
-          <%= f.input :unities_ids, as: :select2, required: true, multiple: true, elements: Unity.to_select %>
+          <%= f.input :unities_ids, as: :select2, required: true, multiple: true, hide_empty_element: true, elements: Unity.to_select, input_html: { data: { without_json_parser: true } } %>
         </div>
 
         <div class="col col-sm-4">
           <a id="clear-grades" href="javascript:void(0)" style="float: right; display: none">Limpar</a>
           <a id="all-grades" href="javascript:void(0)" style="float: right">Selecionar tudo</a>
-          <%= f.input :grades_ids, as: :select2, required: true, multiple: true, elements: Grade.to_select %>
+          <%= f.input :grades_ids, as: :select2, required: true, multiple: true, hide_empty_element: true, elements: Grade.to_select, input_html: { data: { without_json_parser: true } } %>
         </div>
 
       </div>
