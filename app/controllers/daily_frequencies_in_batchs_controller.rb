@@ -16,7 +16,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def create
-    dates = [*params[:frequency_in_batch_form][:start_date].to_date..params[:frequency_in_batch_form][:end_date].to_date]
+    @dates = [*params[:frequency_in_batch_form][:start_date].to_date..params[:frequency_in_batch_form][:end_date].to_date]
 
     invalid_dates = invalid_dates?(params[:frequency_in_batch_form][:start_date].to_date, params[:frequency_in_batch_form][:end_date].to_date)
 
@@ -25,15 +25,14 @@ class DailyFrequenciesInBatchsController < ApplicationController
       return redirect_to new_daily_frequencies_in_batch_path
     end
 
-
     @classroom = Classroom.includes(:unity).find(current_user_classroom)
     @discipline = current_user_discipline
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
 
-    @students = []
+    params['dates'] = allocation_dates(@dates)
 
-    params['dates'] = allocation_dates(dates)
+    @students = []
 
     fetch_student_enrollments.each do |student_enrollment|
       student = student_enrollment.student
@@ -57,104 +56,50 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def create_or_update_multiple
-    begin
-      daily_frequency_record = nil
-      daily_frequency_attributes = daily_frequency_in_batchs_params
-      daily_frequencies_attributes = daily_frequencies_in_batch_params
+    daily_frequency_attributes = daily_frequency_in_batchs_params
+    daily_frequencies_attributes = daily_frequencies_in_batch_params
+    ActiveRecord::Base.transaction do
       daily_frequencies_attributes[:daily_frequencies].each_value do |daily_frequency_students_params|
-        # aqui estou dentro de uma data, preciso criar a freq e todas freq de todos alunos, sendo que tenho os alunos no array
-        daily_frequency = DailyFrequency.new(daily_frequency_in_batchs_params)
-        daily_frequency.frequency_date = daily_frequency_students_params[:date]
-        daily_frequency.school_calendar = current_school_calendar
-        daily_frequency.teacher_id = current_teacher_id
-        daily_frequency.class_number = daily_frequency_students_params[:class_number]
+        daily_frequency_data = daily_frequency_attributes
+        daily_frequency_data[:frequency_date] = daily_frequency_students_params[:date]
+        daily_frequency_data[:class_number] = daily_frequency_students_params[:class_number]
 
+        daily_frequency = find_or_initialize_daily_frequency_by(daily_frequency_data[:frequency_date],
+                                                                daily_frequency_data[:class_number],
+                                                                daily_frequency_data[:unity_id],
+                                                                daily_frequency_data[:classroom_id],
+                                                                daily_frequency_data[:discipline_id],
+                                                                daily_frequency_data[:period])
 
-      end
+        daily_frequency_students_params[:students_attributes].each_value do |student_attributes|
+          away = 0
+          daily_frequency_student = daily_frequency.build_or_find_by_student(student_attributes[:student_id])
+          daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
+          daily_frequency_student.active = true
 
-      ActiveRecord::Base.transaction do
-        daily_frequencies_attributes.each_value do |daily_frequency_students_params|
-          daily_frequency_attribute_normalizer = DailyFrequencyAttributesNormalizer.new(
-            daily_frequency_students_params,
-            daily_frequency_attributes
-          )
-          daily_frequency_attribute_normalizer.normalize_daily_frequency!
-
-          daily_frequency_record = find_or_initialize_daily_frequency_by(daily_frequency_attributes)
-          daily_frequency_attribute_normalizer.normalize_daily_frequency_students!(
-            daily_frequency_record,
-            daily_frequency_students_params
-          )
-          daily_frequency_record.assign_attributes(daily_frequency_students_params)
-          daily_frequency_record.save!
+          daily_frequency_student.save!
         end
-      end
-    rescue ActiveRecord::RecordNotUnique
-      retry
+        daily_frequency.save!
+        end
     end
-
     flash[:success] = t('.daily_frequency_success')
 
-    UniqueDailyFrequencyStudentsCreator.call_worker(
-      current_entity.id,
-      daily_frequency_record.classroom_id,
-      daily_frequency_record.frequency_date,
-      current_teacher_id
-    )
-
-    if receive_email_confirmation
-      ReceiptMailer.delay.notify_daily_frequency_success(
-        current_user,
-        "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
-        daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y'),
-        daily_frequency_record.classroom.description,
-        daily_frequency_record.unity.name
-      )
-    end
-
-    Honeybadger.context(
-      'Method': 'create_or_update_multiple',
-      'Turma da frequencia': daily_frequency_record&.classroom_id,
-      'Disciplina da frequencia': daily_frequency_record&.discipline_id,
-      'Numero de classes da frequencia': daily_frequency_record&.class_number,
-      'Turma do usuario atual': current_user&.current_classroom_id,
-      'Disciplina do usuario atual': current_user&.current_discipline_id,
-      'Professor do usuario atual': current_user&.teacher_id,
-      'Tipo de frequencia': daily_frequency_record&.classroom&.exam_rule&.frequency_type,
-      'params': params
-    )
-  rescue StandardError => error
-    Honeybadger.notify(error)
-
-    flash[:alert] = t('.daily_frequency_error')
-  ensure
-    redirect_to edit_multiple_daily_frequencies_in_batchs_path
+    redirect_to new_daily_frequencies_in_batch_path
   end
 
   def destroy_multiple
     @daily_frequencies = DailyFrequency.where(id: params[:daily_frequencies_ids])
 
     if @daily_frequencies.any?
-      daily_frequency = @daily_frequencies.first
-      classroom_id = daily_frequency.classroom_id
-      frequency_date = daily_frequency.frequency_date
-
-      authorize daily_frequency
-
       @daily_frequencies.each(&:destroy)
 
-      UniqueDailyFrequencyStudentsCreator.call_worker(
-        current_entity.id,
-        classroom_id,
-        frequency_date,
-        current_teacher_id
-      )
+      flash[:success] = t('daily_frequencies_in_batchs.destroy_multiple.success')
 
-      respond_with @daily_frequencies.first, location: new_daily_frequency_path
+      redirect_to new_daily_frequencies_in_batch_path
     else
-      flash[:alert] = t('.alert')
+      flash[:alert] = t('daily_frequencies_in_batchs.destroy_multiple.alert')
 
-      redirect_to new_daily_frequency_path
+      redirect_to new_daily_frequencies_in_batch_path
     end
   end
 
@@ -194,13 +139,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
     allocation_dates
   end
 
-  def find_or_initialize_daily_frequency_by(date, lesson_number)
-    daily_frequency = DailyFrequency.find_or_initialize_by(unity_id: @classroom.unity.id,
-                                                           classroom_id: @classroom.id,
+  def find_or_initialize_daily_frequency_by(date, lesson_number, unity_id, classroom_id, discipline_id, period)
+    daily_frequency = DailyFrequency.find_or_initialize_by(unity_id: unity_id,
+                                                           classroom_id: classroom_id,
                                                            frequency_date: date,
-                                                           discipline_id: @discipline.id,
+                                                           discipline_id: discipline_id,
                                                            class_number: lesson_number,
-                                                           period: @period,
+                                                           period: period
     ).tap do |daily_frequency_record|
       daily_frequency_record.school_calendar_id = current_school_calendar.id
       daily_frequency_record.owner_teacher_id = daily_frequency_record.teacher_id = current_teacher_id
@@ -216,7 +161,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     daily_frequencies = []
 
     lesson_numbers.each do |lesson_number|
-      daily_frequencies << find_or_initialize_daily_frequency_by(date, lesson_number)
+      daily_frequencies << find_or_initialize_daily_frequency_by(date, lesson_number,
+                                                                 @classroom.unity.id, @classroom.id,
+                                                                 @discipline.id, @period)
     end
 
     {
@@ -277,50 +224,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
       current_user.current_classroom_id,
       current_user.current_discipline_id
     ).teacher_period
-  end
-
-  def build_daily_frequency_students(daily_frequencies)
-    daily_frequencies.flatten.each do |daily_frequency|
-      current_student_ids = daily_frequency.students.map(&:student_id)
-
-      @students.each do |student|
-        next if student[:exempted_from_discipline]
-        next if current_student_ids.any? { |student_id| student_id == student[:student].id }
-
-        daily_frequency.students.build(
-          student_id: student[:student].id,
-          dependence: student[:dependence],
-          present: true,
-          active: student[:active]
-        )
-      end
-    end
-  end
-
-  def build_daily_frequencies_in_batch(dates)
-    @daily_frequencies = []
-
-    dates.each do |allocation_date|
-      allocation_date[:lesson_numbers].each do |lesson_number|
-        @daily_frequency = DailyFrequency.new(daily_frequency_in_batchs_params)
-        @daily_frequency.school_calendar = current_school_calendar
-        @daily_frequency.frequency_date = allocation_date[:date]
-        @daily_frequency.teacher_id = current_teacher_id
-        @daily_frequency.class_number = lesson_number
-        @discipline = params[:frequency_in_batch_form][:discipline_id]
-        @period = params[:frequency_in_batch_form][:period]
-
-        if @daily_frequency.valid?
-          frequency_type = current_frequency_type(@daily_frequency)
-
-          return if frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_discipline)
-        else
-          #todo pensar no que fazer quando algumas das frequencias forem inválidas
-        end
-        @daily_frequencies << @daily_frequency
-      end
-    end
-    @daily_frequencies
   end
 
   def mark_for_destruction_not_existing_students
@@ -406,3 +309,4 @@ class DailyFrequenciesInBatchsController < ApplicationController
     true if start_date > Time.zone.today || end_date > Time.zone.today
   end
 end
+
