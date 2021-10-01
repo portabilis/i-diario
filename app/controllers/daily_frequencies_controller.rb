@@ -19,7 +19,7 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = DailyFrequency.new(daily_frequency_params)
     @daily_frequency.school_calendar = current_school_calendar
     @daily_frequency.teacher_id = current_teacher_id
-    @class_numbers = params[:class_numbers].split(',')
+    @class_numbers = params[:class_numbers].split(',').sort
     @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]
     @period = params[:daily_frequency][:period]

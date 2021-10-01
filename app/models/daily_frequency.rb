@@ -88,15 +88,15 @@ class DailyFrequency < ActiveRecord::Base
     students.find_by_student_id(student_id)
   end
 
-  def build_or_find_by_student student
-    students.find_by(student_id: student.id) || students.build(student_id: student.id, present: 1,
-                                                               type_of_teaching: default_type_of_teaching(student))
+  def build_or_find_by_student student_id
+    students.find_by(student_id: student_id) || students.build(student_id: student_id, present: 1,
+                                                               type_of_teaching: default_type_of_teaching(student_id))
   end
 
-  def default_type_of_teaching(student)
+  def default_type_of_teaching(student_id)
     student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
                                                              .by_date(frequency_date)
-                                                             .by_student(student.id)
+                                                             .by_student(student_id)
                                                              .first
     return TypesOfTeaching::PRESENTIAL if student_enrollment_classroom.nil?
 

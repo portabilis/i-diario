@@ -11,147 +11,45 @@
       <th><%= DailyFrequency.human_attribute_name :frequency_date %></th>
     </thead>
     <tbody style="border-bottom: 1px solid #ccc;">
-      <td><%= @daily_frequencies.first.classroom.unity %></td>
-      <td><%= @daily_frequencies.first.classroom %></td>
-      <td><%= @daily_frequencies.first.discipline || 'Todas' %></td>
+      <td><%= @classroom.description %></td>
+      <td><%= @classroom.unity.name %></td>
+      <td><%= @discipline.description || 'Todas' %></td>
       <td><%= params[:frequency_in_batch_form][:start_date] + ' até ' + params[:frequency_in_batch_form][:end_date] %></td>
     </tbody>
   </table>
 
-  <%= simple_form_for @daily_frequency, url: create_or_update_multiple_daily_frequencies_in_batchs_path, method: :put,
-    html: { class: 'smart-form daily_frequency' } do |f| %>
+  <%= simple_form_for :frequency_in_batch_form, url: create_or_update_multiple_daily_frequencies_in_batchs_path, method: :put,
+                      html: { class: 'smart-form daily_frequency' } do |f| %>
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
-        <th style="width: 65px;">Sequencial</th>
-        <th style="min-width: 200px;"><%= DailyFrequencyStudent.human_attribute_name :student %></th>
-        <% if @general_configuration.type_of_teaching == true %>
-          <th>Modalidade de ensino</th>
-        <%end%>
-        <% params[:dates].each do |date| %>
-          <% @first = true %>
-          <% @daily_frequencies.each do |daily_frequency| %>
-            <% if daily_frequency.frequency_date.to_s == date[:date] && @first %>
-              <th>
-                <% @first = false %>
-                <%= 'Dia ' + daily_frequency.frequency_date.strftime("%d") %>
-                <% end %>
-              </th>
-            <% end %>
-        <% end %>
+      <th style="width: 65px;">Sequencial</th>
+      <th style="min-width: 200px;"><%= DailyFrequencyStudent.human_attribute_name :student %></th>
+      <% params[:dates].each do |date| %>
+        <th>
+          <%= 'Dia ' + date[:date].to_date.strftime("%d") %>
+        </th>
+      <% end %>
       </thead>
       <tbody>
-        <input type="hidden" value="<%= @new_record %>" id="new_record">
-        <%= f.hidden_field :unity_id %>
-        <%= f.hidden_field :classroom_id %>
-        <%= f.hidden_field :frequency_date %>
-        <%= f.hidden_field :discipline_id %>
-        <%= f.hidden_field :period %>
-        <% sequence = 0 %>
-        <% @normal_students.each do |normal_student| %>
-          <% sequence += 1 %>
-          <%= render 'student_fields', exempted_from_discipline: normal_student[:exempted_from_discipline],
-            student: normal_student[:student], sequence: sequence, dependence: false,
-            active: normal_student[:active],
-            in_active_search: normal_student[:in_active_search]
-          %>
-        <% end %>
+      <input type="hidden" name="unity_id" value="<%= @classroom.unity.id %>">
 
-        <% sequence = 0 %>
-        <% if @dependence_students.any? %>
-          <% @dependence_students.each do |dependence_student| %>
-            <% sequence += 1 %>
-            <%= render 'student_fields', exempted_from_discipline: dependence_student[:exempted_from_discipline],
-              student: dependence_student[:student], sequence: sequence, dependence: true,
-              active: dependence_student[:active],
-              in_active_search: dependence_student[:in_active_search]
-            %>
-          <% end %>
-        <% end %>
+      <input type="hidden" name="classroom_id" value="<%= @classroom.id %>">
 
-        <% if @dependence_students.any? %>
-          <tr>
-            <td colspan="<%= 2 + @daily_frequencies.count %>">
-              <span class="daily-note-student-legend">
-                <%= t('.dependence_students_legend') %>
-              </span>
-            </td>
-          </tr>
-        <% end %>
+      <input type="hidden" name="discipline_id" value="<%= @discipline.id %>">
 
-        <% if @any_inactive_student %>
-          <tr>
-            <td colspan="<%= 2 + @daily_frequencies.count %>">
-              <span class="daily-note-student-legend">
-                <%= t('.inactive_students_legend') %>
-              </span>
-            </td>
-          </tr>
-        <% end %>
+      <input type="hidden" name="period" value="<%= @period %>">
 
-        <% if @any_exempted_from_discipline %>
-          <tr>
-            <td colspan="<%= 2 + @daily_frequencies.count %>">
-              <span class="daily-note-student-legend">
-                <%= t('.exempted_students_from_discipline_legend') %>
-              </span>
-            </td>
-          </tr>
-        <% end %>
-
-        <% if @any_in_active_search %>
-          <tr>
-            <td colspan="<%= 2 + @daily_frequencies.count %>">
-              <span class="daily-note-student-legend">
-                <%= t('.in_active_search') %>
-              </span>
-            </td>
-          </tr>
-        <% end %>
+      <% @students.each_with_index do |student, index| %>
+        <%=  render 'student_fields', student: student, index: index %>
+      <% end %>
       </tbody>
     </table>
-
     <footer>
-      <div id="flash-messages-bottom">
-        <%= bootstrap_flash %>
-      </div>
-
       <div class="pull-left">
-        <%= link_to t('.back'), new_daily_frequency_path, class: 'btn btn-default pull-left' %>
-        <% daily_frequency_ids = @daily_frequencies.map(&:id).compact %>
-        <% if daily_frequency_ids.present? %>
-          <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_path(
-            daily_frequencies_ids: daily_frequency_ids), method: :delete,
-            data: { confirm: t('.confirm') }, class: 'btn new-delete-style pull-left'
-          %>
-          <%= link_to t('views.form.history'), history_multiple_daily_frequency_path(
-            daily_frequencies_ids: daily_frequency_ids), class: 'btn btn-primary pull-left'
-          %>
-          <div class="btn-group pull-left dropup" style="margin-left: 5px;">
-            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-              <%= t('.print') %> <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu">
-              <li>
-                <%= link_to(t('.by_month'), attendance_record_report_path(
-                  attendance_record_report_form: params_for_print_month(@daily_frequencies)), method: :post,
-                  target: '_blank')
-                %>
-              </li>
-              <li>
-                <%= link_to(t('.by_step'), attendance_record_report_path(
-                  attendance_record_report_form: params_for_print_step(@daily_frequencies)), method: :post,
-                  target: '_blank')
-                %>
-              </li>
-            </ul>
-          </div>
-        <% end %>
+        <%= link_to 'Voltar', new_daily_frequencies_in_batch_path, class: 'btn btn-default pull-left' %>
       </div>
       <div class="pull-right">
-        <%= f.submit t('.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
-      </div>
-      <div class="pull-right" style="margin-right: 10px;">
-        <%= f.input :receive_email_confirmation, as: :boolean, label: false, inline_label: true %>
+        <%= f.submit 'Salvar', class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
       </div>
     </footer>
   <% end %>
