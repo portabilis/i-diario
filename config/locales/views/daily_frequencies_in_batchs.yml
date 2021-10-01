@@ -1,8 +1,8 @@
 pt-BR:
-  daily_frequencies:
+  daily_frequencies_in_batchs:
     edit_multiple:
       destroy: "Excluir"
-      confirm: "Essa operação irá excluir este registro do diário de frequência. Você tem certeza?"
+      confirm: "Essa operação irá excluir este registro de frequência em lote. Você tem certeza?"
       dependence_students_legend: "* Alunos cursando dependência"
       inactive_students_legend: "*** Alunos não enturmados"
       exempted_students_from_discipline_legend: "**** Alunos dispensados da disciplina"
@@ -14,5 +14,5 @@ pt-BR:
       back: "Voltar"
       save: "Salvar"
     create_or_update_multiple:
-      daily_frequency_error: "Ocorreu um erro com o lançamento de frequência, tente novamente mais tarde."
-      daily_frequency_success: "Seu lançamento de frequência foi salvo com sucesso!"
+      daily_frequency_error: "Ocorreu um erro com o lançamento de frequência em lote, tente novamente mais tarde."
+      daily_frequency_success: "Seu lançamento de frequência em lote foi salvo com sucesso!"
