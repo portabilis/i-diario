@@ -24,9 +24,8 @@
         <%= f.input :classroom_id, as: :select2_classroom, user: current_user, label: t('activemodel.attributes.frequency_in_batch_form.classroom') %>
       </div>
 
-      <div class="col col-sm-4 <%= @error_on_discipline ? 'error' : '' %>">
+      <div class="col col-sm-4">
         <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
-                    classroom_id: @daily_frequency.classroom_id,
                     required: true, label: t('activemodel.attributes.frequency_in_batch_form.discipline')%>
       </div>
 

@@ -24,7 +24,11 @@
       <thead>
       <th style="width: 65px;">Sequencial</th>
       <th style="min-width: 200px;"><%= DailyFrequencyStudent.human_attribute_name :student %></th>
+      <% @daily_frequencies = [] %>
       <% params[:dates].each do |date| %>
+        <% date[:daily_frequencies].each do |daily_frequency| %>
+          <% @daily_frequencies <<  daily_frequency %>
+        <% end %>
         <th>
           <%= 'Dia ' + date[:date].to_date.strftime("%d") %>
         </th>
@@ -47,9 +51,38 @@
     <footer>
       <div class="pull-left">
         <%= link_to 'Voltar', new_daily_frequencies_in_batch_path, class: 'btn btn-default pull-left' %>
+        <% daily_frequency_ids = @daily_frequencies.map(&:id).compact %>
+        <% if daily_frequency_ids.present? %>
+          <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_in_batchs_path(
+            daily_frequencies_ids: daily_frequency_ids), method: :delete,
+                      data: { confirm: t('.confirm') }, class: 'btn new-delete-style pull-left'
+          %>
+          <%= link_to t('views.form.history'), history_multiple_daily_frequencies_in_batchs_url(
+            daily_frequencies_ids: daily_frequency_ids), class: 'btn btn-primary pull-left'
+          %>
+          <div class="btn-group pull-left dropup" style="margin-left: 5px;">
+            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
+              <%= t('.print') %> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <%= link_to(t('.by_month'), attendance_record_report_path(
+                  attendance_record_report_form: params_for_print_month(@daily_frequencies)), method: :post,
+                            target: '_blank')
+                %>
+              </li>
+              <li>
+                <%= link_to(t('.by_step'), attendance_record_report_path(
+                  attendance_record_report_form: params_for_print_step(@daily_frequencies)), method: :post,
+                            target: '_blank')
+                %>
+              </li>
+            </ul>
+          </div>
+        <% end %>
       </div>
       <div class="pull-right">
-        <%= f.submit 'Salvar', class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
+        <%= f.submit t('daily_frequencies_in_batchs.edit_multiple.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
       </div>
     </footer>
   <% end %>
