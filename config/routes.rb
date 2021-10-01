@@ -283,6 +283,7 @@ Rails.application.routes.draw do
 
     resources :daily_frequencies_in_batchs, only: [:new, :create], concerns: :history do
       collection do
+        get :history_multiple
         get :edit_multiple
         put :create_or_update_multiple
         delete :destroy_multiple
