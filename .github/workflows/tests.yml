@@ -41,8 +41,8 @@ jobs:
           bundler: '1.17.3'
           bundler-cache: true
 
-      - name: Install dependencies
-        run: bundle install
+      - name: Copy config files
+        run: cp config/database.sample.yml config/database.yml
         
       - name: Migrate
         run: RAILS_ENV=test bundle exec rake db:migrate
