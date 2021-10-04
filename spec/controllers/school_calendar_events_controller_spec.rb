@@ -14,6 +14,8 @@ RSpec.describe SchoolCalendarEventsController, type: :controller do
   end
 
   before do
+    skip
+
     sign_in(user)
     allow(controller).to receive(:authorize).and_return(true)
     allow(controller).to receive(:current_unity).and_return(unity)
