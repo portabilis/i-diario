@@ -7,13 +7,13 @@
   <% absences_on_the_period = 0 %>
   <% params[:dates].each do |date| %>
     <td style="max-width: 180px;">
-      <div style="display: flex; max-width: 180px;">
+      <div style="display: flex; max-width: 180px; max-height: 50px">
         <div style="width: 30px;">
           <span>
             &nbsp
             <br>
           </span>
-          <label class="checkbox" style="left: 4px; bottom: 7px;">
+          <label class="checkbox" style="left: 4px; bottom: 15px;">
             <input type="checkbox" class="general-checkbox">
             <i></i>
           </label>
@@ -47,7 +47,7 @@
                 <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
                 <%= f.hidden_field :student_id, value: student[:student][:id] %>
 
-                <label class="checkbox" style="bottom: 7px;">
+                <label class="checkbox" style="bottom: 15px;">
                   <%= f.check_box :present, class: 'class-number-checkbox',value: daily_frequency_student.persisted? ? daily_frequency_student.present : true %>
                   <i></i>
                 </label>
