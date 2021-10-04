@@ -31,6 +31,9 @@
       <th style="width: 65px;">Sequencial</th>
       <th style="min-width: 200px;"><%= DailyFrequencyStudent.human_attribute_name :student %></th>
       <% @daily_frequencies = [] %>
+      <% if @general_configuration.type_of_teaching == true %>
+        <th>Modalidade de ensino</th>
+      <%end%>
       <% params[:dates].each do |date| %>
         <% date[:daily_frequencies].each do |daily_frequency| %>
           <% @daily_frequencies <<  daily_frequency %>
@@ -39,6 +42,7 @@
           <%= 'Dia ' + date[:date].to_date.strftime("%d") %>
         </th>
       <% end %>
+      <th><%= 'Qtd. de faltas no período' %></th>
       </thead>
       <tbody>
       <input type="hidden" name="unity_id" value="<%= @classroom.unity.id %>">

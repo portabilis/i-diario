@@ -31,6 +31,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @discipline = current_user_discipline
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+    @general_configuration = GeneralConfiguration.current
 
     params['dates'] = allocation_dates(@dates)
 
@@ -92,6 +93,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     @discipline = current_user_discipline
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+    @general_configuration = GeneralConfiguration.current
 
     params['dates'] = allocation_dates(@dates)
 

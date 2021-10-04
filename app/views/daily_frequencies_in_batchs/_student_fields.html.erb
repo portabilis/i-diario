@@ -1,8 +1,9 @@
 <tr>
-  <td> <%= index + 1  %> </td>
+  <td style="width: 50px;"> <%= index + 1  %> </td>
   <td> <%= student[:student][:name] %> </td>
-  <% params[:dates].each_with_index do |date, index| %>
-    <td>
+  <td style="width: 250px;"></td>
+  <% params[:dates].each do |date| %>
+    <td style="width: 150px;">
       <% date[:daily_frequencies].each do |daily_frequency| %>
         <% date = daily_frequency.frequency_date %>
         <% class_number = daily_frequency.class_number || 0 %>
@@ -21,14 +22,19 @@
         <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student[:student][:id].to_s.rjust(10, '0')}" %>
         <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
                               daily_frequency_student = daily_frequency.build_or_find_by_student(student[:student][:id]) do |f| %>
-          <%= f.hidden_field :id, value: daily_frequency_student.id %>
-          <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
-          <%= f.hidden_field :student_id, value: student[:student][:id] %>
+          <div style="width: 50px; float:left;">
+            <%= class_number %>
+            <br>
+            <%= f.hidden_field :id, value: daily_frequency_student.id %>
+            <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
+            <%= f.hidden_field :student_id, value: student[:student][:id] %>
 
-          <%= f.check_box :present, data: { id: 'checkbox-id' }, value: daily_frequency_student.persisted? ? daily_frequency_student.present : true %>
-          <%= class_number %>
+            <%= f.check_box :present, data: { id: 'checkbox-id' }, value: daily_frequency_student.persisted? ? daily_frequency_student.present : true %>
+          </div>
         <% end %>
       <% end %>
     </td>
   <% end %>
+  <td style="width: 150px;">
+  </td>
 </tr>
