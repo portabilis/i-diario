@@ -133,6 +133,55 @@ class DisciplineTeachingPlansController < ApplicationController
     respond_with @discipline_teaching_plan
   end
 
+  def copy
+    unless current_user.can_change?(:copy_discipline_teaching_plan)
+      flash[:error] = t('discipline_teaching_plans.do.permission')
+      return redirect_to :discipline_teaching_plans
+    end
+
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(params[:id])
+    @copy_discipline_teaching_plan = CopyDisciplineTeachingPlanForm.new(
+      discipline_teaching_plan: @discipline_teaching_plan,
+      teaching_plan: @discipline_teaching_plan.teaching_plan
+    )
+  end
+
+  def do_copy
+    unless current_user.can_change?(:copy_discipline_teaching_plan)
+      flash[:error] = t('discipline_teaching_plans.do.permission')
+      return redirect_to :discipline_teaching_plans
+    end
+
+    form = params[:copy_discipline_teaching_plan_form]
+
+    @discipline_teaching_plan = DisciplineTeachingPlan.find(form[:id])
+    @copy_discipline_teaching_plan = CopyDisciplineTeachingPlanForm.new(
+      discipline_teaching_plan: @discipline_teaching_plan,
+      teaching_plan: @discipline_teaching_plan.teaching_plan,
+      unities_ids: form[:unities_ids],
+      grades_ids: form[:grades_ids],
+      year: form[:year]
+    )
+
+    unless @copy_discipline_teaching_plan.valid?
+      return render :copy
+    end
+
+    CopyDisciplineTeachingPlanWorker.perform_in(
+      1.second,
+      current_entity.id,
+      current_user.id,
+      form[:id],
+      form[:year],
+      form[:unities_ids].split(','),
+      form[:grades_ids].split(',')
+    )
+
+    flash[:success] = t('discipline_teaching_plans.do_copy.copying')
+
+    redirect_to :discipline_teaching_plans
+  end
+
   private
 
   def content_ids

@@ -94,4 +94,14 @@ class Unity < ActiveRecord::Base
   def any_duplicated_equipment?
     unity_equipments.reject(&:marked_for_destruction?).group_by { |equipment| equipment.code }.count != unity_equipments.reject(&:marked_for_destruction?).count
   end
+
+  def self.to_select
+    ordered.map do |unity|
+      OpenStruct.new(
+        id: unity.id,
+        name: unity.name,
+        text: unity.name
+      )
+    end
+  end
 end

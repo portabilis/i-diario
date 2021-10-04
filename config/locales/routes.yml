@@ -75,6 +75,7 @@ pt-BR:
     pedagogical_trackings: 'acompanhamento-pedagogico'
     pedagogical_trackings_teachers: 'acompanhamento-pedagogico-professores'
     # actions
+    copy: 'copiar'
     edit: 'editar'
     edit_multiples: 'editar-diversos'
     new: 'novo'
