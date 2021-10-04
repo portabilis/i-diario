@@ -1,6 +1,6 @@
 <tr>
-  <td style="text-align: center; width: 100px;"> <%= index + 1 %> </td>
-  <td> <%= student[:student][:name] %> </td>
+  <td style="text-align: center; vertical-align: middle; width: 100px;"> <%= index + 1 %> </td>
+  <td style="vertical-align: middle;"> <%= student[:student][:name] %> </td>
   <% if @general_configuration.type_of_teaching == true %>
     <td></td>
   <% end %>
@@ -63,7 +63,7 @@
       </div>
     </td>
   <% end %>
-  <td style="width: 150px; text-align: center">
+  <td style="width: 150px; text-align: center; vertical-align: middle;">
     <label class="student-absences-count">
       <%= absences_on_the_period %>
     </label>
