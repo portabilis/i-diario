@@ -13,13 +13,13 @@
             &nbsp
             <br>
           </span>
-          <label class="checkbox" style="left: 4px;">
+          <label class="checkbox" style="left: 4px; bottom: 7px;">
             <input type="checkbox" class="general-checkbox">
             <i></i>
           </label>
           <br>
         </div>
-        <div style="display: flex; max-width: 150px;" class="class-number-collapse">
+        <div style="display: flex; max-width: 150px; vertical-align: middle;" class="class-number-collapse">
           <% date[:daily_frequencies].each do |daily_frequency| %>
             <% date = daily_frequency.frequency_date %>
             <% class_number = daily_frequency.class_number || 0 %>
@@ -38,7 +38,7 @@
             <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student[:student][:id].to_s.rjust(10, '0')}" %>
             <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
                                   daily_frequency_student = daily_frequency.build_or_find_by_student(student[:student][:id]) do |f| %>
-              <div style="height: 30px" >
+              <div>
                 <span>
                   &nbsp <%= class_number %>
                   <br>
@@ -47,7 +47,7 @@
                 <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
                 <%= f.hidden_field :student_id, value: student[:student][:id] %>
 
-                <label class="checkbox">
+                <label class="checkbox" style="bottom: 7px;">
                   <%= f.check_box :present, class: 'class-number-checkbox',value: daily_frequency_student.persisted? ? daily_frequency_student.present : true %>
                   <i></i>
                 </label>
