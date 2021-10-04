@@ -1,48 +1,70 @@
 <tr>
-  <td style="width: 50px;text-align: center;"> <%= index + 1  %> </td>
+  <td style="text-align: center; width: 100px;"> <%= index + 1 %> </td>
   <td> <%= student[:student][:name] %> </td>
-  <td style="width: 250px;"></td>
+  <% if @general_configuration.type_of_teaching == true %>
+    <td></td>
+  <% end %>
   <% absences_on_the_period = 0 %>
   <% params[:dates].each do |date| %>
-    <td style="width: 100px;">
-      <% date[:daily_frequencies].each do |daily_frequency| %>
-        <% date = daily_frequency.frequency_date %>
-        <% class_number = daily_frequency.class_number || 0 %>
-        <% frequency_id = "#{date.to_s.tr('-', '').rjust(10, '0')}#{class_number.to_s.rjust(10, '0')}" %>
-        <% daily_frequency_path = "[daily_frequency][daily_frequencies][#{frequency_id}]" %>
-
-        <input type="hidden" name="<%= daily_frequency_path %>[date]"
-               value="<%= date %>">
-
-        <input type="hidden" name="<%= daily_frequency_path %>[class_number]"
-               value="<%= class_number %>">
-
-        <% daily_frequency_student_path = "#{daily_frequency_path}[students_attributes]" %>
-
-
-        <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student[:student][:id].to_s.rjust(10, '0')}" %>
-        <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
-                              daily_frequency_student = daily_frequency.build_or_find_by_student(student[:student][:id]) do |f| %>
-          <div style="width: 50px; float:left; text-align: center">
-            <%= class_number %>
+    <td style="max-width: 180px;">
+      <div style="display: flex; max-width: 180px;">
+        <div style="width: 30px;">
+          <span>
+            &nbsp
             <br>
-            <%= f.hidden_field :id, value: daily_frequency_student.id %>
-            <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
-            <%= f.hidden_field :student_id, value: student[:student][:id] %>
+          </span>
+          <label class="checkbox" style="left: 4px;">
+            <input type="checkbox" class="general-checkbox">
+            <i></i>
+          </label>
+          <br>
+        </div>
+        <div style="display: flex; max-width: 150px;" class="class-number-collapse">
+          <% date[:daily_frequencies].each do |daily_frequency| %>
+            <% date = daily_frequency.frequency_date %>
+            <% class_number = daily_frequency.class_number || 0 %>
+            <% frequency_id = "#{date.to_s.tr('-', '').rjust(10, '0')}#{class_number.to_s.rjust(10, '0')}" %>
+            <% daily_frequency_path = "[daily_frequency][daily_frequencies][#{frequency_id}]" %>
 
-            <%= f.check_box :present, data: { id: 'checkbox-id' }, value: daily_frequency_student.persisted? ? daily_frequency_student.present : true %>
+            <input type="hidden" name="<%= daily_frequency_path %>[date]"
+                   value="<%= date %>">
 
-            <% if daily_frequency_student.persisted? %>
-                <% absences_on_the_period += daily_frequency_student.present ? 0 : 1 %>
+            <input type="hidden" name="<%= daily_frequency_path %>[class_number]"
+                   value="<%= class_number %>">
+
+            <% daily_frequency_student_path = "#{daily_frequency_path}[students_attributes]" %>
+
+
+            <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student[:student][:id].to_s.rjust(10, '0')}" %>
+            <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
+                                  daily_frequency_student = daily_frequency.build_or_find_by_student(student[:student][:id]) do |f| %>
+              <div style="height: 30px" >
+                <span>
+                  &nbsp <%= class_number %>
+                  <br>
+                </span>
+                <%= f.hidden_field :id, value: daily_frequency_student.id %>
+                <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
+                <%= f.hidden_field :student_id, value: student[:student][:id] %>
+
+                <label class="checkbox">
+                  <%= f.check_box :present, class: 'class-number-checkbox',value: daily_frequency_student.persisted? ? daily_frequency_student.present : true %>
+                  <i></i>
+                </label>
+
+                <% if daily_frequency_student.persisted? %>
+                  <% absences_on_the_period += daily_frequency_student.present ? 0 : 1 %>
+                <% end %>
+                <% absences_on_the_period += 0 %>
+              </div>
             <% end %>
-            <% absences_on_the_period += 0 %>
-          </div>
-        <% end %>
-      <% end %>
+          <% end %>
+        </div>
+      </div>
     </td>
   <% end %>
   <td style="width: 150px; text-align: center">
-    <label id="absences_student_id_<%= student[:student][:id]%>">
+    <label class="student-absences-count">
       <%= absences_on_the_period %>
     </label>
   </td>

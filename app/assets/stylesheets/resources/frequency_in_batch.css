@@ -1,3 +1,7 @@
-.td-checkbox {
+.collapsed {
+  width: 25px;
+}
 
+.checkbox-collapsed {
+  left: 3px;
 }

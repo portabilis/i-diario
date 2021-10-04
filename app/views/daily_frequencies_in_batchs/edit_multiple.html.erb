@@ -1,3 +1,5 @@
+<%= stylesheet_link_tag "resources/frequency_in_batch" %>
+
 <% content_for :js do %>
   <%= javascript_include_tag 'views/daily_frequencies_in_batchs/edit_multiple' %>
 <% end %>
@@ -28,8 +30,8 @@
                       html: { class: 'smart-form daily_frequency' } do |f| %>
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
-      <th style="width: 65px;">Sequencial</th>
-      <th style="min-width: 200px;"><%= DailyFrequencyStudent.human_attribute_name :student %></th>
+      <th style="width: 100px; text-align: center">Sequencial</th>
+      <th><%= DailyFrequencyStudent.human_attribute_name :student %></th>
       <% @daily_frequencies = [] %>
       <% if @general_configuration.type_of_teaching == true %>
         <th>Modalidade de ensino</th>
@@ -38,8 +40,10 @@
         <% date[:daily_frequencies].each do |daily_frequency| %>
           <% @daily_frequencies <<  daily_frequency %>
         <% end %>
-        <th style="text-align: center">
-          <%= 'Dia ' + date[:date].to_date.strftime("%d") %>
+        <th style="max-width: 180px; text-align: center;" class="date-collapse">
+          <%= date[:date].to_date.strftime("%d") %>&nbsp
+          <i id="icon-remove" class="fa fa-minus-square" aria-hidden="true"></i>
+          <i id="icon-add" class="fa fa-plus-square hidden" aria-hidden="true"></i>
         </th>
       <% end %>
       <th><%= 'Qtd. de faltas no período' %></th>
