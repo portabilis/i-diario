@@ -4,17 +4,17 @@ on:
   push:
     branches: [ main ]
   pull_request:
-  
+
 jobs:
   default:
-  
+
     name: Unit and Integration
-    
+
     runs-on: ubuntu-latest
-    
+
     env:
       RAILS_ENV: test
-      
+
     services:
       postgres:
         image: postgres
@@ -25,7 +25,7 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
-        
+
       redis:
         image: redis
         options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 3
@@ -43,6 +43,14 @@ jobs:
 
       - name: Copy config files
         run: cp config/database.sample.yml config/database.yml
-        
+
+      - name: Copy config files
+        run: |
+          echo -e "
+            development:
+              secret_key_base: `bundle exec rake secret`
+              redis_url: redis://localhost:6379
+          " >> config/secrets.yml
+
       - name: Migrate
         run: RAILS_ENV=test bundle exec rake db:migrate
