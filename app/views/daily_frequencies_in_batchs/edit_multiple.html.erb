@@ -1,5 +1,5 @@
 <% content_for :js do %>
-  <%= javascript_include_tag 'views/daily_frequencies/edit_multiple' %>
+  <%= javascript_include_tag 'views/daily_frequencies_in_batchs/edit_multiple' %>
 <% end %>
 
 <div class="widget-body no-padding">
@@ -38,7 +38,7 @@
         <% date[:daily_frequencies].each do |daily_frequency| %>
           <% @daily_frequencies <<  daily_frequency %>
         <% end %>
-        <th>
+        <th style="text-align: center">
           <%= 'Dia ' + date[:date].to_date.strftime("%d") %>
         </th>
       <% end %>
