@@ -65,6 +65,8 @@ RSpec.describe StudentAverageCalculator, type: :service do
   end
 
   before do
+    skip
+
     stub_school_calendar_step
     stub_notes_query
     stub_test_setting
