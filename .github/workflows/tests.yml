@@ -41,14 +41,16 @@ jobs:
           bundler: '1.17.3'
           bundler-cache: true
 
-      - name: Copy config files
+      - name: Configure database
         run: cp config/database.sample.yml config/database.yml
 
-      - name: Copy config files
+      - name: Configure secrets
         run: |
-          echo -e "development:" >> config/secrets.yml
-          echo -e "  secret_key_base: `bundle exec rake secret`" >> config/secrets.yml
-          echo -e "  redis_url: redis://localhost:6379" >> config/secrets.yml
+          echo -e "
+            test:
+              secret_key_base: `bundle exec rake secret`
+              redis_url: redis://localhost:6379
+          " > config/secrets.yml
 
       - name: Migrate
         run: RAILS_ENV=test bundle exec rake db:migrate
