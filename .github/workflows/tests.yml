@@ -46,11 +46,9 @@ jobs:
 
       - name: Copy config files
         run: |
-          echo -e "
-            development:
-              secret_key_base: `bundle exec rake secret`
-              redis_url: redis://localhost:6379
-          " >> config/secrets.yml
+          echo -e "development:" >> config/secrets.yml
+          echo -e "  secret_key_base: `bundle exec rake secret`" >> config/secrets.yml
+          echo -e "  redis_url: redis://localhost:6379" >> config/secrets.yml
 
       - name: Migrate
         run: RAILS_ENV=test bundle exec rake db:migrate
