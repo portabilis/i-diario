@@ -14,7 +14,13 @@
       <td><%= @classroom.description %></td>
       <td><%= @classroom.unity.name %></td>
       <td><%= @discipline.description || 'Todas' %></td>
-      <td><%= params[:frequency_in_batch_form][:start_date] + ' até ' + params[:frequency_in_batch_form][:end_date] %></td>
+      <% start_date = params[:start_date] || params[:frequency_in_batch_form][:start_date] %>
+      <% end_date = params[:end_date] || params[:frequency_in_batch_form][:end_date] %>
+      <% if start_date == end_date %>
+        <td><%= start_date.to_s %></td>
+      <% else %>
+        <td><%= start_date.to_s + ' a ' + end_date.to_s %></td>
+      <% end %>
     </tbody>
   </table>
 
@@ -42,6 +48,11 @@
       <input type="hidden" name="discipline_id" value="<%= @discipline.id %>">
 
       <input type="hidden" name="period" value="<%= @period %>">
+
+      <input type="hidden" name="start_date" value="<%= start_date %>">
+
+      <input type="hidden" name="end_date" value="<%= end_date %>">
+
 
       <% @students.each_with_index do |student, index| %>
         <%=  render 'student_fields', student: student, index: index %>

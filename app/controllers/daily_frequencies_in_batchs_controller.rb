@@ -2,7 +2,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :require_current_clasroom
   before_action :require_teacher
   #before_action :require_allocation_on_lessons_board
-  before_action :set_number_of_classes, only: [:new, :create, :edit_multiple]
+  before_action :set_number_of_classes, only: [:new, :create, :create_or_update_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
 
@@ -16,9 +16,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def create
-    @dates = [*params[:frequency_in_batch_form][:start_date].to_date..params[:frequency_in_batch_form][:end_date].to_date]
+    start_date = params[:frequency_in_batch_form][:start_date].to_date || params[:start_date].to_date
+    end_date = params[:frequency_in_batch_form][:end_date].to_date || params[:end_date].to_date
+    @dates = [*start_date..end_date]
 
-    invalid_dates = invalid_dates?(params[:frequency_in_batch_form][:start_date].to_date, params[:frequency_in_batch_form][:end_date].to_date)
+    invalid_dates = invalid_dates?(start_date, end_date)
 
     if invalid_dates
       flash[:error] = 'Datas inválidas'
@@ -84,7 +86,36 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end
     flash[:success] = t('.daily_frequency_success')
 
-    redirect_to new_daily_frequencies_in_batch_path
+    @dates = [*params[:start_date].to_date..params[:end_date].to_date]
+
+    @classroom = Classroom.includes(:unity).find(current_user_classroom)
+    @discipline = current_user_discipline
+    teacher_period = current_teacher_period
+    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+
+    params['dates'] = allocation_dates(@dates)
+
+    @students = []
+
+    fetch_student_enrollments.each do |student_enrollment|
+      student = student_enrollment.student
+
+      next if student.blank?
+
+      #dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
+      #exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
+      #in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
+      #@any_exempted_from_discipline ||= exempted_from_discipline
+      #active = student_active_on_date?(student_enrollment)
+      #@any_in_active_search ||= in_active_search
+      #@any_inactive_student ||= !active
+
+      @students << {
+        student: student
+      }
+    end
+
+    render :edit_multiple
   end
 
   def destroy_multiple
@@ -123,11 +154,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
     allocation_dates = []
     lesson_numbers = []
     dates.each do |date|
-      allocations =  LessonsBoardLessonWeekday.by_classroom(params[:frequency_in_batch_form][:classroom_id])
+      allocations =  LessonsBoardLessonWeekday.by_classroom(@classroom.id)
                                               .by_teacher(current_teacher_id)
-                                              .by_discipline(params[:frequency_in_batch_form][:discipline_id])
+                                              .by_discipline(@discipline.id)
                                               .by_weekday(date.strftime("%A").downcase)
-                                              .by_period(params[:frequency_in_batch_form][:period])
+                                              .by_period(@period)
                                               .order('lessons_board_lessons.lesson_number')
 
       if allocations.present?
@@ -242,8 +273,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
     StudentEnrollmentsList.new(
       classroom: @classroom,
       discipline: @discipline,
-      start_at: params[:frequency_in_batch_form][:start_date],
-      end_at: params[:frequency_in_batch_form][:end_date],
+      start_at: params[:start_date] || params[:frequency_in_batch_form][:start_date],
+      end_at: params[:end_date] || params[:frequency_in_batch_form][:end_date],
       search_type: :by_date_range,
       period: @period
     ).student_enrollments
