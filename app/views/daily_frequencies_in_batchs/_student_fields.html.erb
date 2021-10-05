@@ -6,20 +6,20 @@
   <% end %>
   <% absences_on_the_period = 0 %>
   <% params[:dates].each do |date| %>
-    <td style="max-width: 180px;">
-      <div style="display: flex; max-width: 180px; max-height: 50px">
-        <div style="width: 30px;">
+    <td style="width: 1%;">
+      <div style="display: flex; max-height: 50px">
+        <div style="width: 30px; margin: 0 5px;">
           <span>
             &nbsp
             <br>
           </span>
           <label class="checkbox" style="left: 4px; bottom: 15px;">
             <input type="checkbox" class="general-checkbox">
-            <i></i>
+            <i class="general-checkbox-icon checkbox-frequency-in-batch"></i>
           </label>
           <br>
         </div>
-        <div style="display: flex; max-width: 150px; vertical-align: middle;" class="class-number-collapse">
+        <div style="display: flex; max-width: 150px; vertical-align: middle; padding: 0 5px;" class="class-number-collapse">
           <% date[:daily_frequencies].each do |daily_frequency| %>
             <% date = daily_frequency.frequency_date %>
             <% class_number = daily_frequency.class_number || 0 %>
@@ -48,8 +48,8 @@
                 <%= f.hidden_field :student_id, value: student[:student][:id] %>
 
                 <label class="checkbox" style="bottom: 15px;">
-                  <%= f.check_box :present, class: 'class-number-checkbox',value: daily_frequency_student.persisted? ? daily_frequency_student.present : true %>
-                  <i></i>
+                  <%= f.check_box :present, class: 'class-number-checkbox', value: daily_frequency_student.persisted? ? daily_frequency_student.present : true %>
+                  <i class="checkbox-frequency-in-batch"></i>
                 </label>
 
                 <% if daily_frequency_student.persisted? %>

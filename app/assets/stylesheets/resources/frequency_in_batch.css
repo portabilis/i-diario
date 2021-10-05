@@ -5,3 +5,19 @@
 .checkbox-collapsed {
   left: 3px;
 }
+
+.checkbox-frequency-in-batch {
+  border-color: #28a745 !important;
+}
+
+.checkbox-frequency-in-batch::after {
+  color: #28a745 !important;
+}
+
+.half-checked {
+  border-color: #387ab3 !important;
+}
+
+.half-checked::after {
+  color: #387ab3 !important;
+}
