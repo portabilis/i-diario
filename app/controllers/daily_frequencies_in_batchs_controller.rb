@@ -154,8 +154,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
   def allocation_dates(dates)
     allocation_dates = []
-    lesson_numbers = []
     dates.each do |date|
+      lesson_numbers = []
       allocations =  LessonsBoardLessonWeekday.by_classroom(@classroom.id)
                                               .by_teacher(current_teacher_id)
                                               .by_discipline(@discipline.id)
