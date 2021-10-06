@@ -169,7 +169,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       end
     end
 
-    allocation_dates
+    allocation_dates.first(10)
   end
 
   def find_or_initialize_daily_frequency_by(date, lesson_number, unity_id, classroom_id, discipline_id, period)
