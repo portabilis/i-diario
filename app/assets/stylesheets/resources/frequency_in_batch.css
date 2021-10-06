@@ -15,9 +15,19 @@
 }
 
 .half-checked {
-  border-color: #387ab3 !important;
+  border-color: #0779fb !important;
 }
 
 .half-checked::after {
-  color: #387ab3 !important;
+  color: #0779fb !important;
+}
+
+.unchecked {
+  border-color: #dc3545 !important;
+}
+
+.smart-form .checkbox input:not(:checked) + i.unchecked:after {
+  content: '\f00d' !important;
+  opacity: 1;
+  color: #dc3545 !important;
 }
