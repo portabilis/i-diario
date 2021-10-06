@@ -5,6 +5,14 @@ $(document).ready( function() {
   $('.class-number-checkbox').each( function () {
     markGeneralCheckbox($(this).closest('td'))
   });
+
+  $('.date-collapse').each( function () {
+    let index = $(this).index() + 1
+    $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').addClass('hidden')
+    $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').addClass('collapsed')
+    $(this).addClass('collapsed')
+    $(this).find('#icon-remove').addClass('hidden')
+  });
 })
 
 $(function () {
