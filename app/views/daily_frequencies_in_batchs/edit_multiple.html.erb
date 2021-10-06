@@ -30,7 +30,7 @@
                       html: { class: 'smart-form daily_frequency' } do |f| %>
     <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
       <thead>
-      <th style="width: 100px; text-align: center;">Sequencial</th>
+      <th style="width: 20px; text-align: center;">Seq.</th>
       <th><%= DailyFrequencyStudent.human_attribute_name :student %></th>
       <% @daily_frequencies = [] %>
       <% if @general_configuration.type_of_teaching == true %>
@@ -46,7 +46,7 @@
           <i id="icon-add" class="fa fa-plus-square" aria-hidden="true"></i>
         </th>
       <% end %>
-      <th><%= 'Qtd. de faltas no período' %></th>
+      <th style="text-align: center"><%= 'Faltas no período' %></th>
       </thead>
       <tbody>
       <input type="hidden" name="unity_id" value="<%= @classroom.unity.id %>">
