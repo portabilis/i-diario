@@ -8,12 +8,11 @@ $(document).ready( function() {
 })
 
 $(function () {
-  var showConfirmation = $('#new_record').val() == 'true';
+  let showConfirmation = $('#new_record').val() == 'true';
 
-  // fix to checkboxes work correctly
   $('[name$="[present]"][type=hidden]').remove();
 
-  var modalOptions = {
+  let modalOptions = {
     title: 'Deseja salvar este lançamento antes de sair?',
     message: 'É necessário apertar o botão "Salvar" ' +
       'ao fim do lançamento de frequência em lote para que seja lançado com sucesso.',
@@ -62,6 +61,7 @@ $(function () {
 $('.general-checkbox').on('change', function() {
   let checked = $(this).prop('checked')
   if (checked) {
+    $(this).closest('td').find('.checkbox-frequency-in-batch').removeClass('half-checked')
     $(this).closest('td').find('.checkbox-frequency-in-batch').removeClass('unchecked')
   } else {
     $(this).closest('td').find('.checkbox-frequency-in-batch').addClass('unchecked')
