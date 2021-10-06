@@ -328,10 +328,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def require_allocation_on_lessons_board
-    LessonsBoard.by_teacher(current_teacher)
-                .by_classroom(current_user_classroom)
-                .by_discipline(current_user_discipline)
-                .exists?
+    return if LessonsBoard.by_teacher(current_teacher)
+                          .by_classroom(current_user_classroom)
+                          .by_discipline(current_user_discipline)
+                          .exists?
     flash[:alert] = t('errors.daily_frequencies.require_lessons_board')
     redirect_to root_path
   end
