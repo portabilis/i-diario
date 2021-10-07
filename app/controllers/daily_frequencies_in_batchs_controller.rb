@@ -32,6 +32,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
     @general_configuration = GeneralConfiguration.current
+    @frequency_type = @classroom&.exam_rule&.frequency_type
 
     params['dates'] = allocation_dates(@dates)
 
@@ -67,6 +68,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
         daily_frequency_data[:frequency_date] = daily_frequency_students_params[:date]
         daily_frequency_data[:class_number] = daily_frequency_students_params[:class_number]
 
+        if daily_frequency_attributes[:frequency_type] == FrequencyTypes::GENERAL
+          daily_frequency_data[:class_number] = nil
+          daily_frequency_data[:discipline_id] = nil
+        end
+
         daily_frequency = find_or_initialize_daily_frequency_by(daily_frequency_data[:frequency_date],
                                                                 daily_frequency_data[:class_number],
                                                                 daily_frequency_data[:unity_id],
@@ -94,6 +100,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
     @general_configuration = GeneralConfiguration.current
+    @frequency_type = @classroom&.exam_rule&.frequency_type
 
     params['dates'] = allocation_dates(@dates)
 
@@ -163,9 +170,15 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                               .by_period(@period)
                                               .order('lessons_board_lessons.lesson_number')
 
-      if allocations.present?
+      valid_day = SchoolDayChecker.new(current_school_calendar, date, nil, nil, nil).school_day?
+
+      next if allocations.empty? || !valid_day
+
+      if @classroom.exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
         allocations.each { |allocattion| lesson_numbers << allocattion.lessons_board_lesson.lesson_number.to_i }
         allocation_dates << build_hash(date, lesson_numbers.sort.uniq)
+      else
+        allocation_dates << build_hash(date, nil)
       end
     end
 
@@ -192,11 +205,14 @@ class DailyFrequenciesInBatchsController < ApplicationController
     return if date.blank?
 
     daily_frequencies = []
-
-    lesson_numbers.each do |lesson_number|
-      daily_frequencies << find_or_initialize_daily_frequency_by(date, lesson_number,
-                                                                 @classroom.unity.id, @classroom.id,
-                                                                 @discipline.id, @period)
+    if lesson_numbers.nil?
+      daily_frequencies << find_or_initialize_daily_frequency_by(date, nil, @classroom.unity.id, @classroom.id, nil, @period)
+    else
+      lesson_numbers.each do |lesson_number|
+        daily_frequencies << find_or_initialize_daily_frequency_by(date, lesson_number,
+                                                                   @classroom.unity.id, @classroom.id,
+                                                                   @discipline.id, @period)
+      end
     end
 
     {
@@ -207,7 +223,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def daily_frequency_in_batchs_params
-    params.permit(:unity_id, :classroom_id, :discipline_id, :period)
+    params.permit(:unity_id, :classroom_id, :discipline_id, :frequency_type, :period)
   end
 
   def daily_frequencies_in_batch_params

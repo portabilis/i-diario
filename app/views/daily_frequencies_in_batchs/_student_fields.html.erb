@@ -22,7 +22,7 @@
         <div style="display: flex; max-width: 150px; vertical-align: middle; padding: 0 5px;" class="class-number-collapse">
           <% date[:daily_frequencies].each do |daily_frequency| %>
             <% date = daily_frequency.frequency_date %>
-            <% class_number = daily_frequency.class_number || 0 %>
+            <% class_number = daily_frequency.class_number || nil %>
             <% frequency_id = "#{date.to_s.tr('-', '').rjust(10, '0')}#{class_number.to_s.rjust(10, '0')}" %>
             <% daily_frequency_path = "[daily_frequency][daily_frequencies][#{frequency_id}]" %>
 
@@ -30,7 +30,7 @@
                    value="<%= date %>">
 
             <input type="hidden" name="<%= daily_frequency_path %>[class_number]"
-                   value="<%= class_number %>">
+                   value="<%= @frequency_type == FrequencyTypes::GENERAL ? nil : class_number %>">
 
             <% daily_frequency_student_path = "#{daily_frequency_path}[students_attributes]" %>
 
@@ -38,7 +38,7 @@
             <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student[:student][:id].to_s.rjust(10, '0')}" %>
             <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
                                   daily_frequency_student = daily_frequency.build_or_find_by_student(student[:student][:id]) do |f| %>
-              <div>
+              <div class="<%= class_number != nil ? '' : 'hidden' %>">
                 <span>
                   &nbsp <%= class_number %>
                   <br>

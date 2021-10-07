@@ -40,10 +40,10 @@
         <% date[:daily_frequencies].each do |daily_frequency| %>
           <% @daily_frequencies <<  daily_frequency %>
         <% end %>
-        <th style="max-width: 180px; text-align: center;" class="date-collapse">
+        <th style="max-width: 180px; text-align: center;" class="<%= @frequency_type == FrequencyTypes::GENERAL ? '' : 'date-collapse' %>">
           <%= date[:date].to_date.strftime("%d") %>&nbsp
-          <i id="icon-remove" class="fa fa-minus-square" aria-hidden="true"></i>
-          <i id="icon-add" class="fa fa-plus-square" aria-hidden="true"></i>
+          <i id="icon-remove" class="fa fa-minus-square hidden" aria-hidden="true"></i>
+          <i id="icon-add" class="fa fa-plus-square <%= @frequency_type == FrequencyTypes::GENERAL ? 'hidden' : '' %>" aria-hidden="true"></i>
         </th>
       <% end %>
       <th style="text-align: center"><%= 'Faltas no período' %></th>
@@ -53,7 +53,9 @@
 
       <input type="hidden" name="classroom_id" value="<%= @classroom.id %>">
 
-      <input type="hidden" name="discipline_id" value="<%= @discipline.id %>">
+      <input type="hidden" name="discipline_id" value="<%= @frequency_type == FrequencyTypes::GENERAL ? nil : @discipline.id %>">
+
+      <input type="hidden" name="frequency_type" value="<%= @frequency_type %>">
 
       <input type="hidden" name="period" value="<%= @period %>">
 
