@@ -146,14 +146,30 @@ $('#search_unity_id').on('change', function(e){
   clear_empty(e);
   $('form.filter_tracking_search_form').trigger("submit");
 });
-$('#search_start_date').on('change', function(e){
-  clear_empty(e);
-  $('form.filter_tracking_search_form').trigger("submit");
+// $('#search_start_date').on('change', function(e){
+//   clear_empty(e);
+//   $('form.filter_tracking_search_form').trigger("submit");
+// });
+// $('#search_end_date').on('change', function(e){
+//   clear_empty(e);
+//   $('form.filter_tracking_search_form').trigger("submit");
+// });
+
+$('#search_start_date').blur(function(e){
+  const value = $('#search_start_date').val()
+  if (value.length > 0){
+    clear_empty(e);
+    $('form.filter_tracking_search_form').trigger("submit");
+  }
 });
-$('#search_end_date').on('change', function(e){
-  clear_empty(e);
-  $('form.filter_tracking_search_form').trigger("submit");
+$('#search_end_date').blur(function(e){
+  const value = $('#search_end_date').val()
+  if (value.length > 0){
+    clear_empty(e);
+    $('form.filter_tracking_search_form').trigger("submit");
+  }
 });
+
 
 var unity_id = $('#unity_id').val();
 var start_date = $('#start_date').val();
