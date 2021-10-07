@@ -67,6 +67,9 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :by_course, ->(course_id) { where(course_id: course_id) }
   scope :all_events_for_classroom, ->(classroom) { all_events_for_classroom(classroom) }
 
+  before_create :before_create
+  before_destroy :before_destroy
+
   def to_s
     description
   end
@@ -96,6 +99,14 @@ class SchoolCalendarEvent < ActiveRecord::Base
   end
 
   protected
+
+  def before_create
+    SchoolDayChecker.new(self.school_calendar, self.start_date, nil , nil , nil).create(self)
+  end
+
+  def before_destroy
+    SchoolDayChecker.new(self.school_calendar, self.start_date, nil , nil , nil).destroy(self)
+  end
 
   def self.all_events_for_classroom(classroom)
     where('? = ANY (periods) OR classroom_id = ?', classroom.period, classroom.id).
