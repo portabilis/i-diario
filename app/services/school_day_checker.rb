@@ -13,6 +13,24 @@ class SchoolDayChecker
     date_is_school_day?(@date)
   end
 
+  def create(event)
+    return if event.nil?
+    return if event.coverage != "by_unity"
+
+    school_type = [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]
+
+    UnitySchoolDay.find_or_create_by!(unity_id: @school_calendar.unity_id, school_day: @date) unless school_type.include?(event.event_type) && ![0, 6].include?(@date.wday)
+  end
+
+  def destroy(event)
+    return if event.nil?
+    return if event.coverage != "by_unity"
+
+    no_school_event_type = [EventTypes::NO_SCHOOL_WITH_FREQUENCY, EventTypes::NO_SCHOOL]
+
+    UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).destroy_all unless no_school_event_type.include?(event.event_type)
+  end
+
   def next_school_day
     date = @date
 
@@ -60,6 +78,7 @@ class SchoolDayChecker
 
   def date_is_school_day?(date)
     events_by_date = @school_calendar.events.by_date(date)
+
     events_by_date_without_frequency = events_by_date.without_frequency
     events_by_date_with_frequency = events_by_date.with_frequency
 
