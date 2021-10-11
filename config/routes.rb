@@ -187,7 +187,7 @@ Rails.application.routes.draw do
     resources :pedagogical_trackings, only: [:index], concerns: :history do
       collection do
         get :teachers
-        post :recalculate
+        get :recalculate
       end
     end
 
