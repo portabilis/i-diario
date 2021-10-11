@@ -41,11 +41,11 @@ class PedagogicalTrackingsController < ApplicationController
   end
 
   def recalculate
-    school_calendar_ids = SchoolCalendar.ids.first
+    school_calendar_ids = SchoolCalendar.ids
 
     SchoolDaysCounterWorker.perform_async(@current_entity.id, school_calendar_ids)
 
-    redirect_to(index)
+    redirect_to recalculate_pedagogical_trackings_path
   end
 
   def teachers
