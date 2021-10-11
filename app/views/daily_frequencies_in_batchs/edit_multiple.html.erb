@@ -35,7 +35,7 @@
       <% @daily_frequencies = [] %>
       <% if @general_configuration.type_of_teaching == true %>
         <th>Modalidade de ensino</th>
-      <%end%>
+      <% end %>
       <% params[:dates].each do |date| %>
         <% date[:daily_frequencies].each do |daily_frequency| %>
           <% @daily_frequencies <<  daily_frequency %>
@@ -65,7 +65,7 @@
 
 
       <% @students.each_with_index do |student, index| %>
-        <%=  render 'student_fields', student: student, index: index %>
+        <%=  render 'student_fields', student: student, index: index, form: f %>
       <% end %>
       </tbody>
     </table>

@@ -41,6 +41,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
     fetch_student_enrollments.each do |student_enrollment|
       student = student_enrollment.student
 
+      type_of_teaching = student_enrollment.student_enrollment_classrooms
+                                           .where(classroom_id: current_user_classroom.id)
+                                           .last.type_of_teaching
+
       next if student.blank?
 
       #dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
@@ -52,7 +56,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
       #@any_inactive_student ||= !active
 
       @students << {
-        student: student
+        student: student,
+        type_of_teaching: type_of_teaching
       }
     end
 
@@ -84,7 +89,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
           away = 0
           daily_frequency_student = daily_frequency.build_or_find_by_student(student_attributes[:student_id])
           daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
-          daily_frequency_student.active = true
+          daily_frequency_student.type_of_teaching = student_attributes[:type_of_teaching]
 
           daily_frequency_student.save!
         end
@@ -109,6 +114,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
     fetch_student_enrollments.each do |student_enrollment|
       student = student_enrollment.student
 
+      type_of_teaching = student_enrollment.student_enrollment_classrooms
+                                           .where(classroom_id: current_user_classroom.id)
+                                           .last.type_of_teaching
+
       next if student.blank?
 
       #dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
@@ -120,7 +129,8 @@ class DailyFrequenciesInBatchsController < ApplicationController
       #@any_inactive_student ||= !active
 
       @students << {
-        student: student
+        student: student,
+        type_of_teaching: type_of_teaching
       }
     end
 
