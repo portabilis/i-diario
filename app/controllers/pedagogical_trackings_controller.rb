@@ -45,7 +45,7 @@ class PedagogicalTrackingsController < ApplicationController
 
     SchoolDaysCounterWorker.perform_async(@current_entity.id, school_calendar_ids)
 
-    redirect_to recalculate_pedagogical_trackings_path
+    redirect_to pedagogical_trackings_path
   end
 
   def teachers
