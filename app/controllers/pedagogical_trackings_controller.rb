@@ -41,7 +41,7 @@ class PedagogicalTrackingsController < ApplicationController
   end
 
   def recalculate
-    school_calendar_ids = SchoolCalendar.ids
+    school_calendar_ids = current_school_calendar.id
 
     SchoolDaysCounterWorker.perform_async(@current_entity.id, school_calendar_ids)
 
