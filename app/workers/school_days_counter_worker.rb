@@ -24,12 +24,13 @@ class SchoolDaysCounterWorker
         end_date.to_date
       )
 
-      school_days_to_remove = (current_school_days - school_days)
+      school_days_to_removes = (current_school_days - school_days)
+
       school_days_to_removes.each do |school_days_to_remove|
-        SchoolDayChecker.new(resourse.school_calendar, school_day, nil, nil, nil).destroy(@event)
+        SchoolDayChecker.new(school_calendar, school_days_to_remove, nil, nil, nil).destroy
         end
       school_days.each do |school_day|
-        SchoolDayChecker.new(resourse.school_calendar, school_day, nil ,nil, nil).create(@event)
+        SchoolDayChecker.new(school_calendar, school_day, nil ,nil, nil).create
       end
     end
   end
