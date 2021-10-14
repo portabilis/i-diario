@@ -16,10 +16,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def create
-    start_date = params[:frequency_in_batch_form][:start_date].to_date || params[:start_date].to_date
-    end_date = params[:frequency_in_batch_form][:end_date].to_date || params[:end_date].to_date
+    start_date = params[:frequency_in_batch_form][:start_date].to_date
+    end_date = params[:frequency_in_batch_form][:end_date].to_date
     @dates = [*start_date..end_date]
-
     invalid_dates = invalid_dates?(start_date, end_date)
 
     if invalid_dates
@@ -27,39 +26,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       return redirect_to new_daily_frequencies_in_batch_path
     end
 
-    @classroom = Classroom.includes(:unity).find(current_user_classroom)
-    @discipline = current_user_discipline
-    teacher_period = current_teacher_period
-    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
-    @general_configuration = GeneralConfiguration.current
-    @frequency_type = @classroom&.exam_rule&.frequency_type
-
-    params['dates'] = allocation_dates(@dates)
-
-    @students = []
-
-    fetch_student_enrollments.each do |student_enrollment|
-      student = student_enrollment.student
-
-      type_of_teaching = student_enrollment.student_enrollment_classrooms
-                                           .where(classroom_id: current_user_classroom.id)
-                                           .last.type_of_teaching
-
-      next if student.blank?
-
-      #dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
-      #exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
-      #in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
-      #@any_exempted_from_discipline ||= exempted_from_discipline
-      #active = student_active_on_date?(student_enrollment)
-      #@any_in_active_search ||= in_active_search
-      #@any_inactive_student ||= !active
-
-      @students << {
-        student: student,
-        type_of_teaching: type_of_teaching
-      }
-    end
+    view_data
 
     render :edit_multiple
   end
@@ -90,6 +57,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
           daily_frequency_student = daily_frequency.build_or_find_by_student(student_attributes[:student_id])
           daily_frequency_student.present = student_attributes[:present].blank? ? away : student_attributes[:present]
           daily_frequency_student.type_of_teaching = student_attributes[:type_of_teaching]
+          daily_frequency_student.active = student_attributes[:active]
 
           daily_frequency_student.save!
         end
@@ -100,39 +68,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     @dates = [*params[:start_date].to_date..params[:end_date].to_date]
 
-    @classroom = Classroom.includes(:unity).find(current_user_classroom)
-    @discipline = current_user_discipline
-    teacher_period = current_teacher_period
-    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
-    @general_configuration = GeneralConfiguration.current
-    @frequency_type = @classroom&.exam_rule&.frequency_type
-
-    params['dates'] = allocation_dates(@dates)
-
-    @students = []
-
-    fetch_student_enrollments.each do |student_enrollment|
-      student = student_enrollment.student
-
-      type_of_teaching = student_enrollment.student_enrollment_classrooms
-                                           .where(classroom_id: current_user_classroom.id)
-                                           .last.type_of_teaching
-
-      next if student.blank?
-
-      #dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
-      #exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
-      #in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
-      #@any_exempted_from_discipline ||= exempted_from_discipline
-      #active = student_active_on_date?(student_enrollment)
-      #@any_in_active_search ||= in_active_search
-      #@any_inactive_student ||= !active
-
-      @students << {
-        student: student,
-        type_of_teaching: type_of_teaching
-      }
-    end
+    view_data
 
     render :edit_multiple
   end
@@ -168,6 +104,105 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   private
+
+  def view_data
+    @classroom = Classroom.includes(:unity).find(current_user_classroom)
+    @discipline = current_user_discipline
+    teacher_period = current_teacher_period
+    @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+    @general_configuration = GeneralConfiguration.current
+    @frequency_type = @classroom&.exam_rule&.frequency_type
+
+    params['dates'] = allocation_dates(@dates)
+
+    @students = []
+
+    student_enrollments_ids = []
+    student_ids = []
+    dates = []
+    params['dates'].each { |date| dates << date['date'] }
+
+    fetch_student_enrollments.each do |student_enrollment|
+      student_enrollments_ids << student_enrollment.id
+      student = student_enrollment.student
+      student_ids << student.id
+      type_of_teaching = student_enrollment.student_enrollment_classrooms
+                                           .where(classroom_id: current_user_classroom.id)
+                                           .last.type_of_teaching
+
+      next if student.blank?
+
+      @students << {
+        student: student,
+        type_of_teaching: type_of_teaching
+      }
+    end
+
+    if @students.blank?
+      flash.now[:warning] = t('.edit_multiple.warning_no_students')
+
+      render :new
+
+      return
+    end
+
+    dependences = student_has_dependence(student_enrollments_ids)
+    inactives_on_date = students_inactive_on_range(student_enrollments_ids, dates)
+    exempteds_from_discipline = student_exempted_from_discipline_in_range(student_enrollments_ids, dates)
+    active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
+
+    @additional_data = additional_data(dates, student_ids, dependences,
+                                       inactives_on_date, exempteds_from_discipline, active_searchs)
+  end
+
+  def additional_data(dates, student_ids, dependences, inactives_on_date, exempteds_from_discipline, active_searchs)
+    additional_data = []
+    dates.each do |date|
+      student_ids.each do |student_id|
+        if dependences.any?
+          dependences.each do |dependence|
+            if dependence[:date] == date && dependence[:student_ids].include?(student_id)
+              additional_class = 'dependence'
+              tooltip = 'Dependencia'
+              additional_data << { date: dependence[:date], student_id: student_id,
+                                   additional_class: additional_class, tooltip:  tooltip}
+            end
+          end
+        end
+        if inactives_on_date.any?
+          inactives_on_date.each do |inactive_on_date|
+            if inactive_on_date[:date] == date && inactive_on_date[:student_ids].include?(student_id)
+              additional_class = 'inactive'
+              tooltip = 'Não enturmado'
+              additional_data << { date: inactive_on_date[:date], student_id: student_id,
+                                   additional_class: additional_class, tooltip:  tooltip}
+            end
+          end
+        end
+        if exempteds_from_discipline.any?
+          exempteds_from_discipline.each do |exempted_from_discipline|
+            if exempted_from_discipline[:date] == date && exempted_from_discipline[:student_ids].include?(student_id)
+              additional_class = 'exempted'
+              tooltip = 'Dispensado'
+              additional_data << { date: exempted_from_discipline[:date], student_id: student_id,
+                                   additional_class: additional_class, tooltip:  tooltip}
+            end
+          end
+        end
+        if active_searchs.any?
+          active_searchs.each do |active_search|
+            if active_search[:date] == date && active_search[:student_ids].include?(student_id)
+              additional_class = 'in-active-search'
+              tooltip = 'Em busca ativa'
+              additional_data << { date: active_search[:date], student_id: student_id,
+                                   additional_class: additional_class, tooltip:  tooltip}
+            end
+          end
+        end
+      end
+    end
+    additional_data
+  end
 
   def allocation_dates(dates)
     allocation_dates = []
@@ -242,7 +277,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
         :date,
         :class_number,
         students_attributes: [
-          :id, :daily_frequency_id, :student_id, :present, :dependence, :active, :type_of_teaching
+          :id, :daily_frequency_id, :student_id, :present, :active, :type_of_teaching
         ]
       ]
     )
@@ -308,11 +343,27 @@ class DailyFrequenciesInBatchsController < ApplicationController
     ).student_enrollments
   end
 
-  def student_active_on_date?(student_enrollment)
-    StudentEnrollment.where(id: student_enrollment)
-                     .by_classroom(@daily_frequency.classroom)
-                     .by_date(@daily_frequency.frequency_date)
-                     .any?
+  def students_inactive_on_range(student_enrollments_ids, dates)
+    actives = []
+
+    dates.each do |date|
+      active_student_enrollments_ids = StudentEnrollment.where(id: student_enrollments_ids)
+                                                        .by_classroom(@classroom)
+                                                        .by_date(date)
+                                                        .pluck(:id)
+
+      next if active_student_enrollments_ids.sort == student_enrollments_ids.sort
+
+      inactives_student_enrollments_ids = student_enrollments_ids.sort - active_student_enrollments_ids.sort
+
+      inactives_students_ids = StudentEnrollment.where(id: inactives_student_enrollments_ids)
+                                                .includes(:student)
+                                                .pluck('students.id')
+
+      actives << { date: date, student_ids: inactives_students_ids}
+    end
+
+    actives
   end
 
   def set_number_of_classes
@@ -326,23 +377,35 @@ class DailyFrequenciesInBatchsController < ApplicationController
     redirect_to root_path
   end
 
-  def student_has_dependence?(student_enrollment, discipline)
-    StudentEnrollmentDependence.by_student_enrollment(student_enrollment)
-                               .by_discipline(discipline)
-                               .any?
+  def student_has_dependence(student_enrollments)
+    StudentEnrollmentDependence.by_student_enrollment(student_enrollments)
+                               .by_discipline(@discipline.id)
+                               .includes(student_enrollment: [:student])
+                               .pluck('students.id')
   end
 
-  def student_exempted_from_discipline?(student_enrollment, daily_frequency)
-    return false if daily_frequency.discipline_id.blank?
+  def student_exempted_from_discipline_in_range(student_enrollments_ids, frequency_dates)
+    return if @discipline.blank?
 
-    discipline_id = daily_frequency.discipline.id
-    frequency_date = daily_frequency.frequency_date
-    step_number = daily_frequency.school_calendar.step(frequency_date).try(:to_number)
+    exempteds = []
+    steps = []
 
-    student_enrollment.exempted_disciplines
-                      .by_discipline(discipline_id)
-                      .by_step_number(step_number)
-                      .any?
+    frequency_dates.each do |date|
+      steps << current_school_calendar.step(date.to_date).try(:to_number)
+    end
+
+    steps.uniq.compact.each do |step_number|
+      students_exempteds = StudentEnrollmentExemptedDiscipline.where(student_enrollment_id: student_enrollments_ids)
+                                                              .by_discipline(@discipline.id)
+                                                              .by_step_number(step_number)
+                                                              .includes(student_enrollment: [:student])
+                                                              .pluck('students.id')
+      next if students_exempteds&.empty?
+
+      exempteds << { step_number: step_number, student_ids: students_exempteds }
+    end
+
+    exempteds.compact
   end
 
   def require_valid_daily_frequency_classroom

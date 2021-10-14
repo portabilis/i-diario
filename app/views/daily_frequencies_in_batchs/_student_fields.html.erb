@@ -1,9 +1,8 @@
 <tr>
   <td style="text-align: center; vertical-align: middle; width: 20px;"> <%= index + 1 %> </td>
-  <td style="vertical-align: middle;"> <%= student[:student][:name] %> </td>
-  <% if @general_configuration.type_of_teaching == true %>
-    <td></td>
-  <% end %>
+  <td>
+    <%= student[:student][:name] %>
+  </td>
   <% absences_on_the_period = 0 %>
   <% if @general_configuration.type_of_teaching == true %>
     <td style="width: 150px;">
@@ -13,15 +12,25 @@
     </td>
   <% end %>
   <% params[:dates].each do |date| %>
+    <% additional_class = nil %>
+    <% tooltip = nil %>
+    <% if @additional_data.any? %>
+      <% @additional_data.each do |additional_data| %>
+        <% if additional_data[:date] == date[:date] && additional_data[:student_id] == student[:student][:id]%>
+          <% additional_class = additional_data[:additional_class] %>
+          <% tooltip = additional_data[:tooltip] %>
+        <% end %>
+      <% end %>
+    <% end %>
     <td style="width: 1%;">
-      <div style="display: flex; max-height: 50px">
+      <div class="<%= additional_class %>" style="display: flex; max-height: 50px">
         <div style="width: 30px; margin: 0 5px;">
           <span>
             &nbsp
             <br>
           </span>
-          <label class="checkbox" style="left: 4px; bottom: 15px;">
-            <input type="checkbox" class="general-checkbox">
+          <label title="<%= tooltip %>" class="checkbox <%= additional_class ? 'state-disabled' : '' %>" style="left: 4px; bottom: 15px;">
+            <input type="checkbox" class="general-checkbox" <%= additional_class ? 'disabled="disabled"' : '' %>>
             <i class="general-checkbox-icon checkbox-frequency-in-batch"></i>
           </label>
           <br>
@@ -45,6 +54,7 @@
             <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student[:student][:id].to_s.rjust(10, '0')}" %>
             <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
                                   daily_frequency_student = daily_frequency.build_or_find_by_student(student[:student][:id]) do |f| %>
+
               <div class="<%= class_number != nil ? '' : 'hidden' %>">
                 <span>
                   &nbsp <%= class_number %>
@@ -53,9 +63,12 @@
                 <%= f.hidden_field :id, value: daily_frequency_student.id %>
                 <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
                 <%= f.hidden_field :student_id, value: student[:student][:id] %>
+                <%= f.hidden_field :dependence, value: additional_class == 'dependence' ? true : false %>
+                <%= f.hidden_field :active, value: additional_class != 'inactive' ? true : false %>
+                <%= f.hidden_field :type_of_teaching, value: student[:type_of_teaching] %>
 
-                <label class="checkbox" style="bottom: 15px;">
-                  <%= f.check_box :present, class: 'class-number-checkbox', value: daily_frequency_student.persisted? ? daily_frequency_student.present : true %>
+                <label class="checkbox <%= additional_class ? 'state-disabled' : '' %>" style="bottom: 15px;">
+                  <%= f.check_box :present, class: 'class-number-checkbox', value: daily_frequency_student.persisted? ? daily_frequency_student.present : true%>
                   <i class="checkbox-frequency-in-batch"></i>
                 </label>
 

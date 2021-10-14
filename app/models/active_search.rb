@@ -14,4 +14,31 @@ class ActiveSearch < ActiveRecord::Base
                          .where('start_date <= ?', date)
                          .exists?
   end
+
+  def in_active_search_in_range(student_enrollments_ids, dates)
+    in_active_searchs = []
+    dates.each do |date|
+      students_active_searchs = ActiveSearch.where(student_enrollment_id: student_enrollments_ids)
+
+      active_search_students_ids = []
+
+      active_search_students_ids = students_active_searchs.where(status: ActiveSearchStatus::IN_PROGRESS)
+                                                                     .where('start_date <= ?', date)
+                                                                     .includes(student_enrollment: [:student])
+                                                                     .pluck('students.id')
+      active_search_students_ids = nil if active_search_students_ids.empty?
+
+      in_active_searchs << build_hash(date, active_search_students_ids)
+    end
+    in_active_searchs.compact
+  end
+
+  def build_hash(date, student_ids)
+    return if student_ids.nil?
+
+    {
+      date: date,
+      student_ids: student_ids
+    }
+  end
 end
