@@ -1,4 +1,9 @@
 $(document).ready( function() {
+  setTimeout(function(){
+    let days_limit_message = 'É possível registrar frequência de no máximo 10 dias por lançamento, independente da quantidade de dias informados na seleção inicial.';
+    $('#flash-messages').html('<div class="alert alert-info fade in"><i class="fa-fw fa fa-info"></i> '  + days_limit_message + ' </div>');
+  },3000);
+
   $('[data-id="type_of_teaching"]').each( function (index, type_of_teaching) {
     $(type_of_teaching).on('change', function () {
       console.log($(this).closest('tr').find('[data-id="type_of_teaching_input"]').val())
@@ -35,9 +40,6 @@ $(document).ready( function() {
       checkbox.prop('disabled', true)
     }
   })
-
-  let days_limit_message = 'É possível registrar frequência de no máximo 10 dias por lançamento, independente da quantidade de dias informados na seleção inicial.';
-  $('#flash-messages').html('<div class="alert alert-info fade in"><i class="fa-fw fa fa-info"></i> '  + days_limit_message + ' </div>');
 
   $('.class-number-checkbox').each( function () {
     markGeneralCheckbox($(this).closest('td'))
