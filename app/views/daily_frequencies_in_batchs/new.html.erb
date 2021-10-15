@@ -1,13 +1,8 @@
-<% content_for :js do %>
-  <%= javascript_include_tag 'views/daily_frequencies/new' %>
-<% end %>
-
 <div class="widget-body no-padding">
 <%= simple_form_for FrequencyInBatchForm.new,
     url: daily_frequencies_in_batchs_path,
     method: :post,
     html: { class: "smart-form" } do |f| %>
-  <%= f.hidden_field :period, value: @period %>
   <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
     <i class="fa fa-exclamation-circle fa-fw"></i>
     <%= t('.exam_rule_not_found') %>

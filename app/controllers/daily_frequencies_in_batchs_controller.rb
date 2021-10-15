@@ -3,17 +3,12 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :require_teacher
   before_action :require_allocation_on_lessons_board
   before_action :set_number_of_classes, only: [:new, :create, :create_or_update_multiple]
+  before_action :authorize_daily_frequency, only: [:new, :create, :create_or_update_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
+  before_action :clear_flash, only: [:new]
 
-  def new
-    @daily_frequency = DailyFrequency.new.localized
-    @daily_frequency.unity = current_unity
-    @class_numbers = []
-    @period = current_teacher_period
-
-    authorize @daily_frequency
-  end
+  def new; end
 
   def create
     start_date = params[:frequency_in_batch_form][:start_date].to_date
@@ -104,6 +99,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   private
+
+  def authorize_daily_frequency
+    @daily_frequency = DailyFrequency.new.localized
+
+    authorize @daily_frequency
+  end
+
+  def clear_flash
+    flash.clear
+  end
 
   def view_data
     @classroom = Classroom.includes(:unity).find(current_user_classroom)
