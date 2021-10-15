@@ -23,7 +23,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     view_data
 
-    render :edit_multiple
+    render :create_or_update_multiple
   end
 
   def create_or_update_multiple
@@ -65,7 +65,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
     view_data
 
-    render :edit_multiple
+    render :create_or_update_multiple
   end
 
   def destroy_multiple
