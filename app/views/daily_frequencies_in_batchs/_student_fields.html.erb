@@ -30,7 +30,8 @@
             <br>
           </span>
           <label title="<%= tooltip %>" class="checkbox <%= additional_class ? 'state-disabled' : '' %>" style="left: 4px; bottom: 15px;">
-            <input type="checkbox" class="general-checkbox" <%= additional_class ? 'disabled="disabled"' : '' %>>
+            <% student_input_name =  '[' + student[:student][:id].to_s + ']' + '[present]' %>
+            <input type="checkbox" name="<%= student_input_name %>" class="general-checkbox" <%= additional_class ? 'disabled="disabled"' : '' %>>
             <i class="general-checkbox-icon checkbox-frequency-in-batch"></i>
           </label>
           <br>

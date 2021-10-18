@@ -39,6 +39,9 @@
       <% params[:dates].each do |date| %>
         <% date[:daily_frequencies].each do |daily_frequency| %>
           <% @daily_frequencies <<  daily_frequency %>
+          <% if daily_frequency.new_record? %>
+            <% @new_record = daily_frequency.new_record? %>
+          <% end %>
         <% end %>
         <th style="max-width: 180px; text-align: center;" class="<%= @frequency_type == FrequencyTypes::GENERAL ? '' : 'date-collapse' %>">
           <%= date[:date].to_date.strftime("%d") %>&nbsp
@@ -62,6 +65,8 @@
       <input type="hidden" name="start_date" value="<%= start_date %>">
 
       <input type="hidden" name="end_date" value="<%= end_date %>">
+
+      <input type="hidden" value="<%= @new_record %>" id="new_record">
 
 
       <% @students.each_with_index do |student, index| %>
@@ -103,7 +108,7 @@
         <% end %>
       </div>
       <div class="pull-right">
-        <%= f.submit t('daily_frequencies_in_batchs.edit_multiple.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
+        <%= f.submit t('daily_frequencies_in_batchs.create_or_update_multiple.save'), class: 'btn new-save-style', data: { disable_with: 'Salvando...' } %>
       </div>
     </footer>
   <% end %>
