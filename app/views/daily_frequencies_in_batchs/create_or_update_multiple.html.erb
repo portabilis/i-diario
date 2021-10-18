@@ -78,7 +78,7 @@
       <div class="pull-left">
         <%= link_to 'Voltar', new_daily_frequencies_in_batch_path, class: 'btn btn-default pull-left' %>
         <% daily_frequency_ids = @daily_frequencies.map(&:id).compact %>
-        <% if daily_frequency_ids.present? %>
+        <% if daily_frequency_ids.present? && daily_frequency_ids.length == @daily_frequencies.map(&:id).length%>
           <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_in_batchs_path(
             daily_frequencies_ids: daily_frequency_ids), method: :delete,
                       data: { confirm: t('.confirm') }, class: 'btn new-delete-style pull-left'
