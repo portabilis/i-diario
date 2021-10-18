@@ -6,18 +6,23 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :authorize_daily_frequency, only: [:new, :create, :create_or_update_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
-  before_action :clear_flash, only: [:new]
 
   def new; end
 
   def create
     start_date = params[:frequency_in_batch_form][:start_date].to_date
     end_date = params[:frequency_in_batch_form][:end_date].to_date
+
+    if start_date.nil? || end_date.nil?
+      flash[:error] = 'O período de datas deve ser preenchido.'
+      return redirect_to new_daily_frequencies_in_batch_path
+    end
+
     @dates = [*start_date..end_date]
     invalid_dates = invalid_dates?(start_date, end_date)
 
     if invalid_dates
-      flash[:error] = 'Datas inválidas'
+      flash[:error] = 'As datas devem ser menores ou igual a data de hoje'
       return redirect_to new_daily_frequencies_in_batch_path
     end
 
