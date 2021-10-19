@@ -163,9 +163,15 @@ class User < ActiveRecord::Base
       end
     end
 
-    return false if expiration_date.blank?
+    return false if expiration_date.nil? || expiration_date.blank?
 
-    Date.current >= expiration_date
+    if Date.current >= expiration_date
+      update_status(UserStatus::PENDING)
+      update_column :expiration_date, nil
+      true
+    else
+      false
+    end
   end
 
   def update_status(status)
@@ -179,6 +185,8 @@ class User < ActiveRecord::Base
     if status == UserStatus::ACTIVE
       update_last_activity_at
       unlock_access!
+    else
+      update_column :expiration_date, nil
     end
   end
 
