@@ -54,13 +54,14 @@ class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
       message.slice!('A validação falhou: ')
       message.slice!('Áreas de conhecimento ')
       set_errors(message)
+
       false
     end
   end
 
   def set_errors(message)
     messages = message.split(',')
-    if messages.length != 1
+    if messages.length > 1
       messages.each do |message|
         field = set_field(message)
 
