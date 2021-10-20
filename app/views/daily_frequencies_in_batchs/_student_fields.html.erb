@@ -79,12 +79,12 @@
                 <% absences_on_the_period += 0 %>
               </div>
 
-              <% if @general_configuration.type_of_teaching == true && index != 0 %>
-              <span class='hidden'>
-                <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
-                            label: false, required: false,
-                            input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
-              </span>
+              <% if @general_configuration.type_of_teaching == true %>
+                <span class='hidden'>
+                  <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
+                              label: false, required: false,
+                              input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
+                </span>
               <% end %>
             <% end %>
           <% end %>
