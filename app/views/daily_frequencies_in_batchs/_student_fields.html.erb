@@ -76,7 +76,6 @@
                 <% if daily_frequency_student.persisted? %>
                   <% absences_on_the_period += daily_frequency_student.present ? 0 : 1 %>
                 <% end %>
-                <% absences_on_the_period += 0 %>
               </div>
 
               <% if @general_configuration.type_of_teaching == true %>
