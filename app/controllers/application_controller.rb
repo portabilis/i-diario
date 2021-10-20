@@ -440,6 +440,6 @@ class ApplicationController < ActionController::Base
   def set_honeybadger_error(expection)
     flash[:success] = nil
     flash[:alert] = t('errors.general.error')
-    Honeybadger.notify(expection) if File.exist?("Gemfile.plugins")
+    Honeybadger.notify(expection)
   end
 end
