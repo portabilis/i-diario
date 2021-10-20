@@ -19,7 +19,6 @@ $(document).ready( function() {
         checkbox.closest('label').addClass('state-disabled');
         checkbox.closest('td').find('.class-number-checkbox').prop('checked', true)
         checkbox.closest('label').find('.general-checkbox-icon').removeClass('unchecked')
-        studentAbsencesCount($(this).closest('tr'))
       } else {
         checkbox.closest('label').removeClass('state-disabled');
         checkbox.prop('disabled', disabled)
