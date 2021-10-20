@@ -12,11 +12,6 @@
         <td><%= discipline_content_record.content_record.decorator.author(current_teacher) %></td>
         <td class="actions">
           <%= link_to(
-                t('helpers.links.show_html'),
-                discipline_content_record_path(discipline_content_record),
-                class: 'btn btn-info apply_tooltip',
-                data: { original_title: t('views.index.tooltips.show') }) %>
-          <%= link_to(
                 t('helpers.links.copy_html'),
                 '#',
                 class: 'btn btn-primary apply_tooltip open_copy_modal',
@@ -26,6 +21,11 @@
                         classroom_id: discipline_content_record.content_record.classroom.id,
                         grade_id: discipline_content_record.content_record.classroom.grade_id
                       }) %>
+          <%= link_to(
+                t('helpers.links.show_html'),
+                discipline_content_record_path(discipline_content_record),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('views.index.tooltips.show') }) %>
           <%= link_to(
                 t('helpers.links.edit_html'),
                 edit_discipline_content_record_path(discipline_content_record),
