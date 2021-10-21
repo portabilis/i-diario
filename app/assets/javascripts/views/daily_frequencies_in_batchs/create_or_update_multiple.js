@@ -13,15 +13,12 @@ $(document).ready( function() {
       })
       var checkbox = $(this).closest('tr').find('td .general-checkbox')
       var disabled = value != 1
-      if (disabled == true) {
+      if (disabled) {
         checkbox.prop('disabled', disabled)
         checkbox.prop('checked', true)
         checkbox.closest('label').addClass('state-disabled');
         checkbox.closest('td').find('.class-number-checkbox').prop('checked', true)
         checkbox.closest('label').find('.general-checkbox-icon').removeClass('unchecked')
-      } else {
-        checkbox.closest('label').removeClass('state-disabled');
-        checkbox.prop('disabled', disabled)
       }
     }).trigger('change');
   })

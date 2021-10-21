@@ -12,9 +12,6 @@ $(document).ready( function() {
         checkbox.closest('label').addClass('state-disabled');
         checkbox.prop('disabled', disabled)
         checkbox.prop('checked', true)
-      } else {
-        checkbox.closest('label').removeClass('state-disabled');
-        checkbox.prop('disabled', disabled)
       }
     }).trigger('change');
 

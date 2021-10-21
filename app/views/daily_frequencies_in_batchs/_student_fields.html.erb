@@ -69,7 +69,7 @@
                 <%= f.hidden_field :type_of_teaching, value: student[:type_of_teaching] %>
 
                 <label class="checkbox <%= additional_class ? 'state-disabled' : '' %>" style="bottom: 15px;">
-                  <%= f.check_box :present, class: 'class-number-checkbox', value: daily_frequency_student.persisted? ? daily_frequency_student.present : true%>
+                  <%= f.check_box :present, class: 'class-number-checkbox', value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: additional_class ? true : false %>
                   <i class="checkbox-frequency-in-batch"></i>
                 </label>
 
