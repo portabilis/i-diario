@@ -169,16 +169,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
     additional_data = []
     dates.each do |date|
       student_ids.each do |student_id|
-        if dependences.any?
-          dependences.each do |dependence|
-            if dependence[:date] == date && dependence[:student_ids].include?(student_id)
-              additional_class = 'dependence'
-              tooltip = 'Dependencia'
-              additional_data << { date: dependence[:date], student_id: student_id,
-                                   additional_class: additional_class, tooltip:  tooltip}
-            end
-          end
-        end
         if inactives_on_date.any?
           inactives_on_date.each do |inactive_on_date|
             if inactive_on_date[:date] == date && inactive_on_date[:student_ids].include?(student_id)
@@ -195,6 +185,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
               additional_class = 'exempted'
               tooltip = 'Dispensado'
               additional_data << { date: exempted_from_discipline[:date], student_id: student_id,
+                                   additional_class: additional_class, tooltip:  tooltip}
+            end
+          end
+        end
+        if dependences.any?
+          dependences.each do |dependence|
+            if dependence[:date] == date && dependence[:student_ids].include?(student_id)
+              additional_class = 'dependence'
+              tooltip = 'Dependencia'
+              additional_data << { date: dependence[:date], student_id: student_id,
                                    additional_class: additional_class, tooltip:  tooltip}
             end
           end
