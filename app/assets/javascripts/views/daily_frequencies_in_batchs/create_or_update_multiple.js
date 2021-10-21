@@ -39,8 +39,6 @@ $(document).ready( function() {
 $(function () {
   let showConfirmation = $('#new_record').val() == 'true';
 
-  $('[name$="[present]"][type=hidden]').remove();
-
   let modalOptions = {
     title: 'Deseja salvar este lançamento antes de sair?',
     message: 'É necessário apertar o botão "Salvar" ' +
