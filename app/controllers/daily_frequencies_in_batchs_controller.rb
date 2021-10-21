@@ -169,44 +169,44 @@ class DailyFrequenciesInBatchsController < ApplicationController
     additional_data = []
     dates.each do |date|
       student_ids.each do |student_id|
-        if inactives_on_date.any?
-          inactives_on_date.each do |inactive_on_date|
-            if inactive_on_date[:date] == date && inactive_on_date[:student_ids].include?(student_id)
-              additional_class = 'inactive'
-              tooltip = 'Não enturmado'
-              additional_data << { date: inactive_on_date[:date], student_id: student_id,
-                                   additional_class: additional_class, tooltip:  tooltip}
-            end
-          end
-        end
-        if exempteds_from_discipline.any?
-          exempteds_from_discipline.each do |exempted_from_discipline|
-            if exempted_from_discipline[:date] == date && exempted_from_discipline[:student_ids].include?(student_id)
-              additional_class = 'exempted'
-              tooltip = 'Dispensado'
-              additional_data << { date: exempted_from_discipline[:date], student_id: student_id,
-                                   additional_class: additional_class, tooltip:  tooltip}
-            end
+        if active_searchs.any?
+          active_searchs.each do |active_search|
+            next if active_search[:date] != date && !active_search[:student_ids].include?(student_id)
+
+            additional_class = 'in-active-search'
+            tooltip = 'Em busca ativa'
+            additional_data << { date: active_search[:date], student_id: student_id,
+                                 additional_class: additional_class, tooltip:  tooltip}
           end
         end
         if dependences.any?
           dependences.each do |dependence|
-            if dependence[:date] == date && dependence[:student_ids].include?(student_id)
-              additional_class = 'dependence'
-              tooltip = 'Dependencia'
-              additional_data << { date: dependence[:date], student_id: student_id,
-                                   additional_class: additional_class, tooltip:  tooltip}
-            end
+            next if dependence[:date] != date && !dependence[:student_ids].include?(student_id)
+
+            additional_class = 'dependence'
+            tooltip = 'Dependencia'
+            additional_data << { date: dependence[:date], student_id: student_id,
+                                 additional_class: additional_class, tooltip:  tooltip}
           end
         end
-        if active_searchs.any?
-          active_searchs.each do |active_search|
-            if active_search[:date] == date && active_search[:student_ids].include?(student_id)
-              additional_class = 'in-active-search'
-              tooltip = 'Em busca ativa'
-              additional_data << { date: active_search[:date], student_id: student_id,
-                                   additional_class: additional_class, tooltip:  tooltip}
-            end
+        if exempteds_from_discipline.any?
+          exempteds_from_discipline.each do |exempted_from_discipline|
+            next if exempted_from_discipline[:date] != date && !exempted_from_discipline[:student_ids].include?(student_id)
+
+            additional_class = 'exempted'
+            tooltip = 'Dispensado'
+            additional_data << { date: exempted_from_discipline[:date], student_id: student_id,
+                                 additional_class: additional_class, tooltip:  tooltip}
+          end
+        end
+        if inactives_on_date.any?
+          inactives_on_date.each do |inactive_on_date|
+            next if inactive_on_date[:date] != date && !inactive_on_date[:student_ids].include?(student_id)
+
+            additional_class = 'inactive'
+            tooltip = 'Não enturmado'
+            additional_data << { date: inactive_on_date[:date], student_id: student_id,
+                                 additional_class: additional_class, tooltip:  tooltip}
           end
         end
       end
