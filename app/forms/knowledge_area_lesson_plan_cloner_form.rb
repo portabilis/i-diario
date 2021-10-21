@@ -61,16 +61,12 @@ class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
 
   def set_errors(message)
     messages = message.split(',')
-    if messages.length > 1
-      messages.each do |message|
-        field = set_field(message)
 
-        knowledge_area_lesson_plan_item_cloner_form[@current_item_index].errors.add(field, message)
-      end
-    else
+    messages.each do |message|
       field = set_field(message)
       knowledge_area_lesson_plan_item_cloner_form[@current_item_index].errors.add(field, message)
     end
+
     errors.add(:classroom_id, "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}")
   end
 
