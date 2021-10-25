@@ -171,7 +171,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student_ids.each do |student_id|
         if active_searchs.any?
           active_searchs.each do |active_search|
-            next if active_search[:date] != date && !active_search[:student_ids].include?(student_id)
+            next if active_search[:date] != date || !active_search[:student_ids].include?(student_id)
 
             additional_class = 'in-active-search'
             tooltip = 'Em busca ativa'
