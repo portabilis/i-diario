@@ -181,7 +181,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
         end
         if dependences.any?
           dependences.each do |dependence|
-            next if dependence[:date] != date && !dependence[:student_ids].include?(student_id)
+            next if dependence[:date] != date || !dependence[:student_ids].include?(student_id)
 
             additional_class = 'dependence'
             tooltip = 'Dependencia'
@@ -191,7 +191,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
         end
         if exempteds_from_discipline.any?
           exempteds_from_discipline.each do |exempted_from_discipline|
-            next if exempted_from_discipline[:date] != date && !exempted_from_discipline[:student_ids].include?(student_id)
+            next if exempted_from_discipline[:date] != date || !exempted_from_discipline[:student_ids].include?(student_id)
 
             additional_class = 'exempted'
             tooltip = 'Dispensado'
@@ -201,7 +201,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
         end
         if inactives_on_date.any?
           inactives_on_date.each do |inactive_on_date|
-            next if inactive_on_date[:date] != date && !inactive_on_date[:student_ids].include?(student_id)
+            next if inactive_on_date[:date] != date || !inactive_on_date[:student_ids].include?(student_id)
 
             additional_class = 'inactive'
             tooltip = 'Não enturmado'
@@ -354,7 +354,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def students_inactive_on_range(student_enrollments_ids, dates)
-    actives = []
+    inactives = []
 
     dates.each do |date|
       active_student_enrollments_ids = StudentEnrollment.where(id: student_enrollments_ids)
@@ -370,10 +370,10 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                 .includes(:student)
                                                 .pluck('students.id')
 
-      actives << { date: date, student_ids: inactives_students_ids}
+      inactives << { date: date, student_ids: inactives_students_ids}
     end
 
-    actives
+    inactives
   end
 
   def set_number_of_classes
