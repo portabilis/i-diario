@@ -44,12 +44,12 @@
           <% end %>
         <% end %>
         <th style="max-width: 180px; text-align: center;" class="<%= @frequency_type == FrequencyTypes::GENERAL ? '' : 'date-collapse' %>">
-          <%= date[:date].to_date.strftime("%d") %>&nbsp
+          <%= date[:date].to_date.strftime("%d").to_s + '/' + date[:date].to_date.strftime("%m").to_s  %>&nbsp
           <i id="icon-remove" class="fa fa-minus-square hidden" aria-hidden="true"></i>
           <i id="icon-add" class="fa fa-plus-square <%= @frequency_type == FrequencyTypes::GENERAL ? 'hidden' : '' %>" aria-hidden="true"></i>
         </th>
       <% end %>
-      <th style="text-align: center"><%= 'Faltas no período' %></th>
+      <th style="text-align: center; vertical-align: middle;"  title="Total de faltas no período"><%= 'TF' %></th>
       </thead>
       <tbody>
       <input type="hidden" name="unity_id" value="<%= @classroom.unity.id %>">
