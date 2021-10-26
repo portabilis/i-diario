@@ -52,12 +52,11 @@ class StudentEnrollmentsList
                                               .joins(:student)
                                               .includes(:student)
                                               .includes(:dependences)
-                                              .joins(:student_enrollment_classrooms)
-                                              .includes(:student_enrollment_classrooms)
                                               .active
 
     if include_date_range
-      students_enrollments = students_enrollments.by_date_range(start_at, end_at)
+      students_enrollments = students_enrollments.includes(:student_enrollment_classrooms)
+                                                 .by_date_range(start_at, end_at)
                                                  .by_date_not_before(start_at)
     end
 
