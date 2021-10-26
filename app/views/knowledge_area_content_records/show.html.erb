@@ -47,7 +47,8 @@
         <ul class="list-group checked-list-box" id="contents-list">
 
           <% contents.each do |content| %>
-            <li class="list-group-item manual" style="display: flex;" id="content_record_<%= content.id %>">
+            <li class="list-group-item manual list-group-item-info active initialized"" style="display: flex;" id="content_record_<%= content.id %>">
+              <span class="state-icon fa fa-check"></span>
               <%= check_box_tag("knowledge_area_content_record[content_record_attributes][content_ids][]",
                                 content.id, content.id.in?(@knowledge_area_content_record.contents.collect(&:id)),
                                 hidden: true, 'data-content_description': content.to_s ) %>
