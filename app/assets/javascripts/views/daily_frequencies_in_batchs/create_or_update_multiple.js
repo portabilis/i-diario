@@ -19,6 +19,9 @@ $(document).ready( function() {
         checkbox.closest('label').addClass('state-disabled');
         checkbox.closest('td').find('.class-number-checkbox').prop('checked', true)
         checkbox.closest('label').find('.general-checkbox-icon').removeClass('unchecked')
+      } else {
+        checkbox.closest('label:not(.never-change)').find('.general-checkbox:not(.never-change)').prop('disabled', disabled)
+        checkbox.closest('label:not(.never-change)').removeClass('state-disabled');
       }
     }).trigger('change');
   })
@@ -114,18 +117,21 @@ function studentAbsencesCount(tr) {
 
 $('.date-collapse').on('click', function () {
   let index = $(this).index() + 1
-  if ($(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').hasClass('hidden')) {
-    $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').removeClass('hidden')
-    $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').removeClass('collapsed')
-    $(this).find('#icon-remove').removeClass('hidden')
-    $(this).find('#icon-add').addClass('hidden')
-    $(this).removeClass('collapsed')
-  } else {
-    $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').addClass('hidden')
-    $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').addClass('collapsed')
-    $(this).find('#icon-add').removeClass('hidden')
-    $(this).find('#icon-remove').addClass('hidden')
-    $(this).addClass('collapsed')
+  console.log($(this).data('count'))
+  if ($(this).data('count') > 1) {
+    if ($(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').hasClass('hidden')) {
+      $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').removeClass('hidden')
+      $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').removeClass('collapsed')
+      $(this).find('#icon-remove').removeClass('hidden')
+      $(this).find('#icon-add').addClass('hidden')
+      $(this).removeClass('collapsed')
+    } else {
+      $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').addClass('hidden')
+      $(this).closest('table').find('tbody tr td:nth-child(' + index + ') .class-number-collapse').addClass('collapsed')
+      $(this).find('#icon-add').removeClass('hidden')
+      $(this).find('#icon-remove').addClass('hidden')
+      $(this).addClass('collapsed')
+    }
   }
 });
 

@@ -29,9 +29,9 @@
             &nbsp
             <br>
           </span>
-          <label title="<%= tooltip %>" class="checkbox <%= additional_class ? 'state-disabled' : '' %>" style="left: 4px; bottom: 15px;">
+          <label title="<%= tooltip %>" class="checkbox <%= additional_class ? 'state-disabled never-change' : '' %>" style="left: 4px; bottom: 15px;">
             <% student_input_name =  '[' + student[:student][:id].to_s + ']' + '[present]' %>
-            <input type="checkbox" name="<%= student_input_name %>" class="general-checkbox" <%= additional_class ? 'disabled="disabled"' : '' %>>
+            <input type="checkbox" name="<%= student_input_name %>" class="general-checkbox <%= additional_class ? 'never-change' : '' %>" <%= additional_class ? 'disabled="disabled"' : '' %>>
             <i class="general-checkbox-icon checkbox-frequency-in-batch"></i>
           </label>
           <br>
@@ -68,8 +68,8 @@
                 <%= f.hidden_field :active, value: additional_class != 'inactive' ? true : false %>
                 <%= f.hidden_field :type_of_teaching, value: student[:type_of_teaching] %>
 
-                <label class="checkbox <%= additional_class ? 'state-disabled' : '' %>" style="bottom: 15px;">
-                  <%= f.check_box :present, class: 'class-number-checkbox', value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: additional_class ? true : false %>
+                <label class="checkbox <%= additional_class ? 'state-disabled never-change' : '' %>" style="bottom: 15px;" title="<%= tooltip %>">
+                  <%= f.check_box :present, class: 'class-number-checkbox' + (additional_class ? ' never-change' : ' '), value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: additional_class ? true : false %>
                   <i class="checkbox-frequency-in-batch"></i>
                 </label>
 

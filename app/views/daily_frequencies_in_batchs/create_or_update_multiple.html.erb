@@ -7,22 +7,22 @@
 <div class="widget-body no-padding">
   <table class="table table-bordered table-only-inner-bordered">
     <thead>
-      <th><%= DailyFrequency.human_attribute_name :unity %></th>
-      <th><%= DailyFrequency.human_attribute_name :classroom %></th>
-      <th><%= DailyFrequency.human_attribute_name :discipline %></th>
-      <th><%= DailyFrequency.human_attribute_name :frequency_date %></th>
+    <th><%= DailyFrequency.human_attribute_name :unity %></th>
+    <th><%= DailyFrequency.human_attribute_name :classroom %></th>
+    <th><%= DailyFrequency.human_attribute_name :discipline %></th>
+    <th><%= DailyFrequency.human_attribute_name :frequency_date %></th>
     </thead>
     <tbody style="border-bottom: 1px solid #ccc;">
-      <td><%= @classroom.description %></td>
-      <td><%= @classroom.unity.name %></td>
-      <td><%= @discipline.description || 'Todas' %></td>
-      <% start_date = params[:start_date] || params[:frequency_in_batch_form][:start_date] %>
-      <% end_date = params[:end_date] || params[:frequency_in_batch_form][:end_date] %>
-      <% if start_date == end_date %>
-        <td><%= start_date.to_s %></td>
-      <% else %>
-        <td><%= start_date.to_s + ' a ' + end_date.to_s %></td>
-      <% end %>
+    <td><%= @classroom.description %></td>
+    <td><%= @classroom.unity.name %></td>
+    <td><%= @discipline.description || 'Todas' %></td>
+    <% start_date = params[:start_date] || params[:frequency_in_batch_form][:start_date] %>
+    <% end_date = params[:end_date] || params[:frequency_in_batch_form][:end_date] %>
+    <% if start_date == end_date %>
+      <td><%= start_date.to_s %></td>
+    <% else %>
+      <td><%= start_date.to_s + ' a ' + end_date.to_s %></td>
+    <% end %>
     </tbody>
   </table>
 
@@ -38,18 +38,21 @@
       <% end %>
       <% params[:dates].each do |date| %>
         <% date[:daily_frequencies].each do |daily_frequency| %>
-          <% @daily_frequencies <<  daily_frequency %>
+          <% @daily_frequencies << daily_frequency %>
           <% if daily_frequency.new_record? %>
             <% @new_record = daily_frequency.new_record? %>
           <% end %>
         <% end %>
-        <th style="max-width: 180px; text-align: center;" class="<%= @frequency_type == FrequencyTypes::GENERAL ? '' : 'date-collapse' %>">
-          <%= date[:date].to_date.strftime("%d").to_s + '/' + date[:date].to_date.strftime("%m").to_s  %>&nbsp
+        <th style="max-width: 180px; text-align: center; vertical-align: top" class="<%= @frequency_type == FrequencyTypes::GENERAL ? '' : 'date-collapse' %>"
+            data-count="<%= date[:lesson_numbers].count %>" >
+          <%= date[:date].to_date.strftime("%d").to_s + '/' + date[:date].to_date.strftime("%m").to_s %>&nbsp
           <i id="icon-remove" class="fa fa-minus-square hidden" aria-hidden="true"></i>
-          <i id="icon-add" class="fa fa-plus-square <%= @frequency_type == FrequencyTypes::GENERAL ? 'hidden' : '' %>" aria-hidden="true"></i>
+          <i id="icon-add" class="fa fa-plus-square <%= @frequency_type == FrequencyTypes::GENERAL ||
+                                                        date[:lesson_numbers].count < 2 ? 'hidden' : '' %>"
+             aria-hidden="true"></i>
         </th>
       <% end %>
-      <th style="text-align: center; vertical-align: middle;"  title="Total de faltas no período"><%= 'TF' %></th>
+      <th style="text-align: center; vertical-align: middle;" title="Total de faltas no período"><%= 'TF' %></th>
       </thead>
       <tbody>
       <input type="hidden" name="unity_id" value="<%= @classroom.unity.id %>">
@@ -70,7 +73,7 @@
 
 
       <% @students.each_with_index do |student, index| %>
-        <%=  render 'student_fields', student: student, index: index, form: f %>
+        <%= render 'student_fields', student: student, index: index, form: f %>
       <% end %>
       </tbody>
     </table>
@@ -78,7 +81,7 @@
       <div class="pull-left">
         <%= link_to 'Voltar', new_daily_frequencies_in_batch_path, class: 'btn btn-default pull-left' %>
         <% daily_frequency_ids = @daily_frequencies.map(&:id).compact %>
-        <% if daily_frequency_ids.present? && daily_frequency_ids.length == @daily_frequencies.map(&:id).length%>
+        <% if daily_frequency_ids.present? && daily_frequency_ids.length == @daily_frequencies.map(&:id).length %>
           <%= link_to t('.destroy'), destroy_multiple_daily_frequencies_in_batchs_path(
             daily_frequencies_ids: daily_frequency_ids), method: :delete,
                       data: { confirm: t('.confirm') }, class: 'btn new-delete-style pull-left'
