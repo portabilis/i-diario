@@ -15,18 +15,21 @@ class SchoolDayChecker
 
   def create(event = nil)
     if event.present?
+      return if event.coverage != "by_unity"
+
       school_type = [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]
-      UnitySchoolDay.find_or_create_by!(unity_id: @school_calendar.unity_id, school_day: @date) if school_type.include?(event.event_type) && ![0, 6].include?(@date.wday)
+      UnitySchoolDay.find_or_create_by(unity_id: @school_calendar.unity_id, school_day: @date) if school_type.include?(event.event_type) && [0, 6].include?(@date.wday)
     else
-      UnitySchoolDay.find_or_create_by!(unity_id: @school_calendar.unity_id, school_day: @date)
+      UnitySchoolDay.find_or_create_by(unity_id: @school_calendar.unity_id, school_day: @date)
     end
   end
 
   def destroy(event = nil)
-
     if event.present?
+      return if event.coverage != "by_unity"
+
       no_school_event_type = [EventTypes::NO_SCHOOL_WITH_FREQUENCY, EventTypes::NO_SCHOOL]
-      UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).destroy_all if no_school_event_type.include?(event.event_type)
+      UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).destroy_all if no_school_event_type.include?(event.event_type) && !UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).exists?
     else
       UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).destroy_all
     end
@@ -78,40 +81,40 @@ class SchoolDayChecker
   end
 
   def date_is_school_day?(date)
-    events_by_date = @school_calendar.events.by_date(date)
+    no_school_event_type = [EventTypes::NO_SCHOOL_WITH_FREQUENCY, EventTypes::NO_SCHOOL]
+    school_type = [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]
 
-    events_by_date_without_frequency = events_by_date.without_frequency
-    events_by_date_with_frequency = events_by_date.with_frequency
+    events_by_date = @school_calendar.events.by_date(date).first
+
+    events_by_date_no_school = true if no_school_event_type.include?(events_by_date.event_type)
+    events_by_date_school_day = true if school_type.include?(events_by_date.event_type)
 
     if @classroom_id.present?
       if @discipline_id.present?
-        return false if any_discipline_event?(events_by_date_without_frequency, @grade_id, @classroom_id, @discipline_id)
-        return true if any_discipline_event?(events_by_date_with_frequency, @grade_id, @classroom_id, @discipline_id)
+        return false if any_discipline_event?(events_by_date_no_school, @grade_id, @classroom_id, @discipline_id)
+        return true if any_discipline_event?(events_by_date_school_day, @grade_id, @classroom_id, @discipline_id)
       end
 
-      return false if any_classroom_event?(events_by_date_without_frequency, @grade_id, @classroom_id)
-      return true if any_classroom_event?(events_by_date_with_frequency, @grade_id, @classroom_id)
+      return false if any_classroom_event?(events_by_date_no_school, @grade_id, @classroom_id)
+      return true if any_classroom_event?(events_by_date_school_day, @grade_id, @classroom_id)
 
-      return false if any_grade_event?(events_by_date_without_frequency.by_period(classroom.period), @grade_id)
-      return true if any_grade_event?(events_by_date_with_frequency.by_period(classroom.period), @grade_id)
-      return false if any_course_event?(events_by_date_without_frequency.by_period(classroom.period), grade.course_id)
-      return true if any_course_event?(events_by_date_with_frequency.by_period(classroom.period), grade.course_id)
+      return false if any_grade_event?(events_by_date_no_school.by_period(classroom.period), @grade_id)
+      return true if any_grade_event?(events_by_date_school_day.by_period(classroom.period), @grade_id)
+      return false if any_course_event?(events_by_date_no_school.by_period(classroom.period), grade.course_id)
+      return true if any_course_event?(events_by_date_school_day.by_period(classroom.period), grade.course_id)
 
-      return false if any_global_event?(events_by_date_without_frequency.by_period(classroom.period))
-      return true if any_global_event?(events_by_date_with_frequency.by_period(classroom.period))
+      return false if any_global_event?(events_by_date_no_school.by_period(classroom.period))
+      return true if any_global_event?(events_by_date_school_day.by_period(classroom.period))
       return false if steps_fetcher.step_by_date(date).nil?
     else
       if @grade_id.present?
-        return false if any_grade_event?(events_by_date_without_frequency, @grade_id)
-        return true if any_grade_event?(events_by_date_with_frequency, @grade_id)
+        return false if any_grade_event?(events_by_date_no_school, @grade_id)
+        return true if any_grade_event?(events_by_date_school_day, @grade_id)
       end
-
-      return false if any_global_event?(events_by_date_without_frequency)
-      return true if any_global_event?(events_by_date_with_frequency)
+      return false if events_by_date_no_school
+      return true if events_by_date_school_day
       return false if @school_calendar.step(date).nil?
     end
-
-    ![0, 6].include? date.wday
   end
 
   def any_discipline_event?(query, grade_id, classroom_id, discipline_id)
