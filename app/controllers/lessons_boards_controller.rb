@@ -196,6 +196,7 @@ class LessonsBoardsController < ApplicationController
 
   def linked_teacher(teacher_discipline_classroom_id, lesson_number, weekday, classroom)
     teacher_discipline_classroom = TeacherDisciplineClassroom.find(teacher_discipline_classroom_id)
+                                                             .includes(:teacher, :classroom)
 
     teacher_id = teacher_discipline_classroom.teacher.id
     year = teacher_discipline_classroom.classroom.year
