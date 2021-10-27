@@ -202,15 +202,14 @@ class LessonsBoardsController < ApplicationController
 
     teacher_lessons_board_weekdays = LessonsBoardLessonWeekday
                                        .where(weekday: weekday)
-                                       .joins(:lessons_board_lesson, teacher_discipline_classroom: [:classroom, :teacher])
+                                       .joins(lessons_board_lesson: [:lessons_board], teacher_discipline_classroom: [:classroom, :teacher])
                                        .where(teachers: { id: teacher_id })
                                        .where(classrooms: { year: year })
                                        .where(lessons_board_lessons: {lesson_number: lesson_number})
+                                       .where.not(lessons_board: { classroom_id: classroom.to_i })
                                        .first
 
-    return false if teacher_lessons_board_weekdays.nil? || teacher_lessons_board_weekdays.lessons_board_lesson
-                                                                                         .lessons_board
-                                                                                         .classroom.id == classroom.to_i
+    return false if teacher_lessons_board_weekdays.nil?
 
     linked_teacher_message_error(teacher_lessons_board_weekdays.teacher_discipline_classroom.teacher.name,
                                  teacher_lessons_board_weekdays.teacher_discipline_classroom.classroom.description,
