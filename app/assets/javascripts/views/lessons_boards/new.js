@@ -179,7 +179,6 @@ $(function () {
 
     if (data != PERIOD_FULL) {
       getNumberOfClasses();
-      getTeachersFromClassroom();
       period.val(data).trigger("change")
       period.attr('readonly', true)
     } else {
@@ -208,7 +207,7 @@ $(function () {
 
   function handleNotExistsLessonsBoardSuccess(data) {
     if (data) {
-      flashMessages.pop('');
+      getTeachersFromClassroom();
       $('#btn-submit').attr("disabled", false);
     } else {
       clearFields();
@@ -240,7 +239,6 @@ $(function () {
 
   function handleNotExistsLessonsBoardOnPeriodSuccess(data) {
     if (data) {
-      flashMessages.pop('');
       $('#btn-submit').attr("disabled", false);
       getNumberOfClasses();
       getTeachersFromClassroomAndPeriod();
@@ -288,13 +286,18 @@ $(function () {
   }
 
   function handleFetchTeachersFromTheClassroomSuccess(data) {
-    let teachers_to_select = _.map(data.lessons_boards, function(lessons_board) {
-      return { id: lessons_board.table.id, name: lessons_board.table.name, text: lessons_board.table.text };
-    });
+    if (data.lessons_boards.length < 2) {
+      clearFields();
+      flashMessages.error('A turma selecionada não possui vínculo com professores(as).');
+    } else {
+      let teachers_to_select = _.map(data.lessons_boards, function(lessons_board) {
+        return { id: lessons_board.table.id, name: lessons_board.table.name, text: lessons_board.table.text };
+      });
 
-    $("input[id*='_teacher_discipline_classroom_id']").each(function (index, teachers) {
-      $(teachers).select2({ data: teachers_to_select })
-    })
+      $("input[id*='_teacher_discipline_classroom_id']").each(function (index, teachers) {
+        $(teachers).select2({ data: teachers_to_select })
+      })
+    }
   }
 
   function handleFetchTeachersFromTheClassroomError() {
