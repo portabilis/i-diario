@@ -5,7 +5,6 @@ $(function () {
   const PERIOD_FULL = 4;
   let errors = {};
 
-
   $(document).ready( function() {
     clearFields();
     clearClassroomsAndGrades();
