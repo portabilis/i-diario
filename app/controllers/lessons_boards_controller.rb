@@ -208,6 +208,7 @@ class LessonsBoardsController < ApplicationController
                                        .where(classrooms: { year: year })
                                        .where(lessons_board_lessons: {lesson_number: lesson_number})
                                        .where.not(lessons_board: { classroom_id: classroom.to_i })
+                                       .includes(teacher_discipline_classroom: [:classroom, :teacher])
                                        .first
 
     return false if teacher_lessons_board_weekdays.nil?
