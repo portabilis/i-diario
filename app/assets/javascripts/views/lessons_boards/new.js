@@ -295,7 +295,7 @@ $(function () {
       });
 
       $("input[id*='_teacher_discipline_classroom_id']").each(function (index, teachers) {
-        $(teachers).select2({ data: teachers_to_select })
+        $(teachers).select2({ data: teachers_to_select, escapeMarkup: function(data) { return data; }})
       })
     }
   }
