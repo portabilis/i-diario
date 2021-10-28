@@ -35,9 +35,9 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validate :uniqueness_of_start_at_and_end_at
 
   scope :ordered, -> { order(arel_table[:start_date]) }
-  scope :with_frequency, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]) }
-  scope :without_frequency, lambda {
-    where.not(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY])
+  scope :school_event, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]) }
+  scope :no_school_event, lambda {
+    where(event_type: [EventTypes::NO_SCHOOL_WITH_FREQUENCY, EventTypes::NO_SCHOOL])
   }
   scope :extra_school_without_frequency, -> { where(event_type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY) }
   scope :without_grade, -> { where(arel_table[:grade_id].eq(nil)) }
