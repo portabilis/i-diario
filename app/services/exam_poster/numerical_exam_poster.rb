@@ -71,6 +71,7 @@ module ExamPoster
             next if exempted_discipline(classroom, discipline.id, student_score.id)
             next unless correct_score_type(student_score.uses_differentiated_exam_rule,
                                            exam_rule)
+            next unless not_posted?(ApiPostingTypes::NUMERICAL_EXAM,{ classroom: classroom, discipline: discipline, student: student_score })[:numerical_exam]
 
             exempted_discipline_ids =
               ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
@@ -155,5 +156,6 @@ module ExamPoster
 
       false
     end
+
   end
 end
