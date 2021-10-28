@@ -26,6 +26,12 @@ class DisciplineContentRecordsController < ApplicationController
     authorize @discipline_content_records
   end
 
+  def show
+    @discipline_content_record = DisciplineContentRecord.find(params[:id]).localized
+
+    authorize @discipline_content_record
+  end
+
   def new
     @discipline_content_record = DisciplineContentRecord.new.localized
     @discipline_content_record.build_content_record(
