@@ -68,6 +68,8 @@ module ExamPoster
         students = fetch_students(daily_frequencies)
 
         students.each do |student|
+          next unless not_posted?(ApiPostingTypes::ABSENCE,{ classroom: classroom, student: student })[:absence]
+
           value = AbsenceCountService.new(student, classroom, start_date, end_date).count
 
           absences[classroom.api_code][student.api_code]['valor'] = value
@@ -103,6 +105,8 @@ module ExamPoster
           students = fetch_students(daily_frequencies)
 
           students.each do |student|
+            next unless not_posted?(ApiPostingTypes::ABSENCE,{ classroom: classroom, discipline: discipline, student: student })[:absence]
+
             value = AbsenceCountService.new(student, classroom, start_date, end_date, discipline).count
 
             absences[classroom.api_code][student.api_code][discipline.api_code]['valor'] = value
@@ -167,7 +171,7 @@ module ExamPoster
     def fetch_students(daily_frequencies)
       students_ids = []
       daily_frequencies.each do |d|
-        students_ids << d.students.by_not_poster(@post_data_last.try(:created_at)).map(&:student_id)
+        students_ids << d.students.map(&:student_id)
       end
       students_ids.flatten!.uniq! if students_ids.any?
       Student.find(students_ids)

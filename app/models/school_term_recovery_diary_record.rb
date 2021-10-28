@@ -27,6 +27,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
     joins(:recovery_diary_record).where(recovery_diary_records: { discipline_id: discipline_id })
   }
   scope :by_recorded_at, lambda { |recorded_at| where(recorded_at: recorded_at) }
+  scope :by_not_poster, ->(poster_sent) { where("school_term_recovery_diary_records.updated_at > ?", poster_sent) }
   scope :ordered, -> { order(arel_table[:recorded_at].desc) }
 
   before_validation :set_recorded_at, on: [:create, :update]
