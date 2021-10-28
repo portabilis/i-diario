@@ -263,10 +263,8 @@ class LessonsBoardsController < ApplicationController
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
-          name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
-            teacher_discipline_classroom.discipline.description.try(:strip),
-          text: teacher_discipline_classroom.teacher.name.try(:strip).to_s + ' - ' +
-            teacher_discipline_classroom.discipline.description.try(:strip)
+          name: discipline_teacher_name(teacher_discipline_classroom.discipline.description.try(:strip), teacher_discipline_classroom.teacher.name.try(:strip)),
+          text: discipline_teacher_name(teacher_discipline_classroom.discipline.description.try(:strip), teacher_discipline_classroom.teacher.name.try(:strip))
         )
       end
     end
@@ -274,6 +272,10 @@ class LessonsBoardsController < ApplicationController
     teachers_to_select2.insert(0, OpenStruct.new(id: 'empty', name: '<option></option>', text: ''))
 
     teachers_to_select2
+  end
+
+  def discipline_teacher_name(discipline, teacher)
+    "#{teacher} - <b>#{discipline}</b>"
   end
 
   def classrooms_to_select2(grade_id, unity_id)
