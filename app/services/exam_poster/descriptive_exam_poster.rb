@@ -110,7 +110,7 @@ module ExamPoster
         exams.each do |exam|
           next if exam.nil?
           next unless valid_opinion_type?(
-            exam.student.uses_differentiated_exam_rule,
+            exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_STEP, classroom.exam_rule
           )
 
@@ -133,7 +133,7 @@ module ExamPoster
         exams.each do |exam|
           next if exam.nil?
           next unless valid_opinion_type?(
-            exam.student.uses_differentiated_exam_rule,
+            exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_YEAR, classroom.exam_rule
           )
 
@@ -162,7 +162,7 @@ module ExamPoster
         exams.each do |exam|
           next if exam.nil?
           next unless valid_opinion_type?(
-            exam.student.uses_differentiated_exam_rule,
+            exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_YEAR_AND_DISCIPLINE,
             classroom.exam_rule
           )
@@ -200,7 +200,7 @@ module ExamPoster
         exams.each do |exam|
           next if exam.nil?
           next unless valid_opinion_type?(
-            exam.student.uses_differentiated_exam_rule,
+            exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_STEP_AND_DISCIPLINE,
             classroom.exam_rule
           )
