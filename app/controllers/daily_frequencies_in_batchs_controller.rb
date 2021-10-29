@@ -13,18 +13,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
     start_date = params[:frequency_in_batch_form][:start_date].to_date
     end_date = params[:frequency_in_batch_form][:end_date].to_date
 
-    if start_date.nil? || end_date.nil?
-      flash[:error] = 'O período de datas deve ser preenchido.'
-      return redirect_to new_daily_frequencies_in_batch_path
-    end
+    return redirect_to new_daily_frequencies_in_batch_path if invalid_dates?(start_date, end_date)
 
     @dates = [*start_date..end_date]
-    invalid_dates = invalid_dates?(start_date, end_date)
-
-    if invalid_dates
-      flash[:error] = 'As datas devem ser menores ou igual a data de hoje'
-      return redirect_to new_daily_frequencies_in_batch_path
-    end
 
     view_data
 
@@ -149,7 +140,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     end
 
     if @students.blank?
-      flash.now[:warning] = t('.edit_multiple.warning_no_students')
+      flash.now[:warning] = t('daily_frequencies_in_batchs.create_or_update_multiple.warning_no_students')
 
       render :new
 
@@ -174,7 +165,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
             next if active_search[:date] != date || !active_search[:student_ids].include?(student_id)
 
             additional_class = 'in-active-search'
-            tooltip = 'Em busca ativa'
+            tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.in_active_search_tooltip')
             additional_data << { date: active_search[:date], student_id: student_id,
                                  additional_class: additional_class, tooltip:  tooltip}
           end
@@ -184,7 +175,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
             next if dependence[:date] != date || !dependence[:student_ids].include?(student_id)
 
             additional_class = 'dependence'
-            tooltip = 'Dependencia'
+            tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.dependence_students_tooltip')
             additional_data << { date: dependence[:date], student_id: student_id,
                                  additional_class: additional_class, tooltip:  tooltip}
           end
@@ -194,7 +185,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
             next if exempted_from_discipline[:date] != date || !exempted_from_discipline[:student_ids].include?(student_id)
 
             additional_class = 'exempted'
-            tooltip = 'Dispensado'
+            tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.exempted_students_from_discipline_tooltip')
             additional_data << { date: exempted_from_discipline[:date], student_id: student_id,
                                  additional_class: additional_class, tooltip:  tooltip}
           end
@@ -204,7 +195,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
             next if inactive_on_date[:date] != date || !inactive_on_date[:student_ids].include?(student_id)
 
             additional_class = 'inactive'
-            tooltip = 'Não enturmado'
+            tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.inactive_students_tooltip')
             additional_data << { date: inactive_on_date[:date], student_id: student_id,
                                  additional_class: additional_class, tooltip:  tooltip}
           end
@@ -436,9 +427,20 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def invalid_dates?(start_date, end_date)
-    return false unless start_date || end_date
+    if start_date.nil? || end_date.nil?
+      flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.blank_dates')
+      return true
+    end
 
-    true if start_date > Time.zone.today || end_date > Time.zone.today
+    if start_date > Time.zone.today || end_date > Time.zone.today
+      flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.future_date')
+      return true
+    end
+
+    if start_date > end_date
+      flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.start_date_greater_end_date')
+      true
+    end
   end
 end
 
