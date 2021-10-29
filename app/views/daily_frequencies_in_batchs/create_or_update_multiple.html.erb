@@ -24,6 +24,12 @@
       <td><%= start_date.to_s + ' a ' + end_date.to_s %></td>
     <% end %>
     </tbody>
+    <div id="flash-message">
+      <p class="alert alert-info" style="margin-bottom: 0px !important;" id="substitution-calculation-type-info">
+        <i class="fa-fw fa fa-info"></i>
+        <%= t('activemodel.attributes.frequency_in_batch_form.days_limit') %>
+      </p>
+    </div>
   </table>
 
   <%= simple_form_for :frequency_in_batch_form, url: create_or_update_multiple_daily_frequencies_in_batchs_path, method: :put,
