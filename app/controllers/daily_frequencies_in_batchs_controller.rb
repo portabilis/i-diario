@@ -209,18 +209,26 @@ class DailyFrequenciesInBatchsController < ApplicationController
     allocation_dates = []
     dates.each do |date|
       lesson_numbers = []
-      allocations =  LessonsBoardLessonWeekday.by_classroom(@classroom.id)
-                                              .by_teacher(current_teacher_id)
-                                              .by_discipline(@discipline.id)
-                                              .by_weekday(date.strftime("%A").downcase)
-                                              .by_period(@period)
-                                              .order('lessons_board_lessons.lesson_number')
+      if @frequency_type == FrequencyTypes::GENERAL
+        allocations =  LessonsBoardLessonWeekday.by_classroom(@classroom.id)
+                                                .by_teacher(current_teacher_id)
+                                                .by_discipline(@discipline.id)
+                                                .by_weekday(date.strftime("%A").downcase)
+                                                .by_period(@period)
+                                                .order('lessons_board_lessons.lesson_number')
+      else
+        allocations =  LessonsBoardLessonWeekday.by_classroom(@classroom.id)
+                                                .by_teacher(current_teacher_id)
+                                                .by_weekday(date.strftime("%A").downcase)
+                                                .by_period(@period)
+                                                .order('lessons_board_lessons.lesson_number')
+      end
 
       valid_day = SchoolDayChecker.new(current_school_calendar, date, nil, nil, nil).school_day?
 
       next if allocations.empty? || !valid_day
 
-      if @classroom.exam_rule.frequency_type == FrequencyTypes::BY_DISCIPLINE
+      if @frequency_type == FrequencyTypes::BY_DISCIPLINE
         allocations.each { |allocattion| lesson_numbers << allocattion.lessons_board_lesson.lesson_number.to_i }
         allocation_dates << build_hash(date, lesson_numbers.sort.uniq)
       else
