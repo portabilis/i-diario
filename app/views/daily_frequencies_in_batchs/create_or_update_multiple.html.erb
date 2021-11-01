@@ -77,10 +77,11 @@
 
       <input type="hidden" value="<%= @new_record %>" id="new_record">
 
-
       <% @students.each_with_index do |student, index| %>
         <%= render 'student_fields', student: student, index: index, form: f %>
       <% end %>
+
+      <%= image_tag "beta.png", class: 'hidden', id: 'image-beta' %>
       </tbody>
     </table>
     <footer>
