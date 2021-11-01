@@ -212,13 +212,13 @@ class DailyFrequenciesInBatchsController < ApplicationController
       if @frequency_type == FrequencyTypes::GENERAL
         allocations =  LessonsBoardLessonWeekday.by_classroom(@classroom.id)
                                                 .by_teacher(current_teacher_id)
-                                                .by_discipline(@discipline.id)
                                                 .by_weekday(date.strftime("%A").downcase)
                                                 .by_period(@period)
                                                 .order('lessons_board_lessons.lesson_number')
       else
         allocations =  LessonsBoardLessonWeekday.by_classroom(@classroom.id)
                                                 .by_teacher(current_teacher_id)
+                                                .by_discipline(@discipline.id)
                                                 .by_weekday(date.strftime("%A").downcase)
                                                 .by_period(@period)
                                                 .order('lessons_board_lessons.lesson_number')
