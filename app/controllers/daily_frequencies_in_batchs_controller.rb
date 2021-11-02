@@ -104,10 +104,6 @@ class DailyFrequenciesInBatchsController < ApplicationController
     authorize @daily_frequency
   end
 
-  def clear_flash
-    flash.clear
-  end
-
   def view_data
     @classroom = Classroom.includes(:unity).find(current_user_classroom)
     @discipline = current_user_discipline
