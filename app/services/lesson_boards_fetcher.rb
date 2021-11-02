@@ -5,7 +5,7 @@ class LessonBoardsFetcher
 
   def lesson_boards
     @lesson_boards = LessonsBoard.by_unity(unities)
-    @lesson_boards.joins(classroom: [:grade]).order('grades.description')
+    @lesson_boards.joins(:classroom).order('classroom.description')
   end
 
   def unities
