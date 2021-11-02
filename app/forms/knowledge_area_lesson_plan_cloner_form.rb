@@ -57,7 +57,7 @@ class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
 
       messages.each do |message|
         field = set_field(message.strip)
-        knowledge_area_lesson_plan_item_cloner_form[@current_item_index].errors.add(field, message)
+        knowledge_area_lesson_plan_item_cloner_form[@current_item_index].errors.add(field, message + '.')
       end
 
       errors.add(:classroom_id, "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}")
