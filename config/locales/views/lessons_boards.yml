@@ -28,7 +28,6 @@ pt-BR:
       grade: "Série"
       classroom: "Turma"
     form:
-      lessons_number: "A quantidade de aulas apresentadas para preenchimento é derivada do campo Número de aulas por turno do Calendário letivo da escola. Caso a turma selecionada para criação do Quadro de aula trabalhe com uma quantidade menor de aulas, não preencher os respectivos campos."
       period: "Período"
       no_item_found: "Nenhum período informado"
       add_period: "Adicionar período de aula"
