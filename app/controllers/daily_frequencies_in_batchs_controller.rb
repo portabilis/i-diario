@@ -7,7 +7,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
   before_action :require_valid_daily_frequency_classroom
 
-  def new; end
+  def new
+    @frequency_type = current_frequency_type(current_user_classroom)
+  end
 
   def create
     start_date = params[:frequency_in_batch_form][:start_date].to_date
@@ -437,6 +439,16 @@ class DailyFrequenciesInBatchsController < ApplicationController
   def invalid_dates?(start_date, end_date)
     if start_date.nil? || end_date.nil?
       flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.blank_dates')
+      return true
+    end
+
+    unless SchoolDayChecker.new(current_school_calendar, start_date, nil, nil, nil).school_day?
+      flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.initial_date_no_school_day')
+      return true
+    end
+
+    unless SchoolDayChecker.new(current_school_calendar, end_date, nil, nil, nil).school_day?
+      flash[:error] = t('daily_frequencies_in_batchs.create_or_update_multiple.final_date_no_school_day')
       return true
     end
 

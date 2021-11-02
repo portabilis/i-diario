@@ -30,9 +30,9 @@
         <%= f.input :classroom_id, as: :select2_classroom, user: current_user, label: t('activemodel.attributes.frequency_in_batch_form.classroom') %>
       </div>
 
-      <div class="col col-sm-4">
+      <div class="col col-sm-4 <%= @frequency_type == FrequencyTypes::BY_DISCIPLINE ? '' : 'hidden'  %>">
         <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
-                    required: true, label: t('activemodel.attributes.frequency_in_batch_form.discipline')%>
+                    required: true, label: t('activemodel.attributes.frequency_in_batch_form.discipline') %>
       </div>
 
     </div>

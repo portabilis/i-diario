@@ -18,3 +18,5 @@ pt-BR:
       blank_dates: "O período de datas deve ser informado."
       future_date: "As datas devem ser menores ou igual a data de hoje"
       start_date_greater_end_date: "A Data inicial deve ser menor ou igual a Data final"
+      initial_date_no_school_day: "Data inicial deve ser um dia letivo."
+      final_date_no_school_day: "Data final deve ser um dia letivo."
