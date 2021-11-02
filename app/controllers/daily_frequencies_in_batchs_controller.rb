@@ -112,7 +112,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
     @general_configuration = GeneralConfiguration.current
-    @frequency_type = @classroom&.exam_rule&.frequency_type
+    @frequency_type = current_frequency_type(@classroom)
 
     params['dates'] = allocation_dates(@dates)
 
@@ -292,11 +292,11 @@ class DailyFrequenciesInBatchsController < ApplicationController
     )
   end
 
-  def current_frequency_type(daily_frequency)
+  def current_frequency_type(classroom)
     absence_type_definer = FrequencyTypeDefiner.new(
-      daily_frequency.classroom,
+      classroom,
       current_teacher,
-      year: daily_frequency.classroom.year
+      classroom.year
     )
     absence_type_definer.define!
 

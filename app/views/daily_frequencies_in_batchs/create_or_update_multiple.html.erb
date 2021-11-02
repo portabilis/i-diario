@@ -15,7 +15,7 @@
     <tbody style="border-bottom: 1px solid #ccc;">
     <td><%= @classroom.description %></td>
     <td><%= @classroom.unity.name %></td>
-    <td><%= @frequency_type == FrequencyTypes::GENERAL ? 'Todas' : @discipline.description %></td>
+    <td><%= @frequency_type == FrequencyTypes::BY_DISCIPLINE ? @discipline.description : 'Todas' %></td>
     <% start_date = params[:start_date] || params[:frequency_in_batch_form][:start_date] %>
     <% end_date = params[:end_date] || params[:frequency_in_batch_form][:end_date] %>
     <% if start_date == end_date %>
