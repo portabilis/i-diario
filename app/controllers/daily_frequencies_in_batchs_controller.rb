@@ -296,7 +296,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
     absence_type_definer = FrequencyTypeDefiner.new(
       classroom,
       current_teacher,
-      classroom.year
+      year: classroom.year
     )
     absence_type_definer.define!
 
