@@ -145,7 +145,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
       return
     end
 
-    dependences = student_has_dependence(student_enrollments_ids)
+    dependences = student_has_dependence(student_enrollments_ids, dates)
     inactives_on_date = students_inactive_on_range(student_enrollments_ids, dates)
     exempteds_from_discipline = student_exempted_from_discipline_in_range(student_enrollments_ids, dates)
     active_searchs = ActiveSearch.new.in_active_search_in_range(student_enrollments_ids, dates)
