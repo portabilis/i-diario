@@ -68,7 +68,7 @@ module ExamPoster
         students = fetch_students(daily_frequencies)
 
         students.each do |student|
-          next unless not_posted?(ApiPostingTypes::ABSENCE,{ classroom: classroom, student: student })[:absence]
+          next unless not_posted?({ classroom: classroom, student: student })[:absence]
 
           value = AbsenceCountService.new(student, classroom, start_date, end_date).count
 
@@ -105,7 +105,7 @@ module ExamPoster
           students = fetch_students(daily_frequencies)
 
           students.each do |student|
-            next unless not_posted?(ApiPostingTypes::ABSENCE,{ classroom: classroom, discipline: discipline, student: student })[:absence]
+            next unless not_posted?({ classroom: classroom, discipline: discipline, student: student })[:absence]
 
             value = AbsenceCountService.new(student, classroom, start_date, end_date, discipline).count
 
