@@ -81,7 +81,7 @@ class SchoolDayChecker
   end
 
   def date_is_school_day?(date)
-    events_by_date = @school_calendar.events.by_date(@date)
+    events_by_date = @school_calendar.events.by_date(date)
     events_by_date_no_school = events_by_date.no_school_event
     events_by_date_school = events_by_date.school_event
 
@@ -111,6 +111,8 @@ class SchoolDayChecker
       return true if events_by_date_school.exists?
       return false if @school_calendar.step(date).nil?
     end
+
+    ![0, 6].include? date.wday
   end
 
   def any_discipline_event?(query, grade_id, classroom_id, discipline_id)
