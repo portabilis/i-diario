@@ -29,7 +29,7 @@ class SchoolDayChecker
       return if event.coverage != "by_unity"
 
       no_school_event_type = [EventTypes::NO_SCHOOL_WITH_FREQUENCY, EventTypes::NO_SCHOOL]
-      UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).destroy_all if no_school_event_type.include?(event.event_type) && !UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).exists?
+      UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).destroy_all if no_school_event_type.include?(event.event_type) && ![0, 6].include?(@date.wday)
     else
       UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).destroy_all
     end
