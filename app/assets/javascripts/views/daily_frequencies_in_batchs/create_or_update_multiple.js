@@ -110,7 +110,7 @@ $('.class-number-checkbox').on('change', function() {
 });
 
 function studentAbsencesCount(tr) {
-  let count = tr.find('.class-number-checkbox:not(:checked)').length
+  let count = tr.find('.class-number-checkbox:not(:checked)').not('.inactive').length
   tr.find('.student-absences-count').text(count)
 }
 
