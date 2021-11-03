@@ -73,14 +73,14 @@ RSpec.describe PostingDateChecker, type: :service do
         permission.save!
       end
 
-      context 'current date is on posting period of record_date step' do
-        before do
-          step.update_attribute(:start_date_for_posting, Date.current)
-          step.update_attribute(:end_date_for_posting, Date.current)
-        end
-
-        it { expect(subject.check).to be(true) }
-      end
+      # context 'current date is on posting period of record_date step' do
+      #   before do
+      #     step.update_attribute(:start_date_for_posting, Date.current)
+      #     step.update_attribute(:end_date_for_posting, Date.current)
+      #   end
+      #
+      #   it { expect(subject.check).to be(true) }
+      # end
 
       context 'current date isnt on posting period of record_date step' do
         before do

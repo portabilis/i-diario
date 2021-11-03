@@ -16,6 +16,8 @@ pt-BR:
         contents: "Conteúdos"
         experience_fields: "Campos de experiência"
         lesson_plan:
+          start_at: 'Data inicial'
+          end_at: 'Data final'
           objectives:
             description: 'Objetivos/habilidades'
     errors:

@@ -76,6 +76,7 @@ pt-BR:
     pedagogical_trackings_teachers: 'acompanhamento-pedagogico-professores'
     daily_frequencies_in_batchs: 'frequencia-em-lote'
     # actions
+    copy: 'copiar'
     edit: 'editar'
     edit_multiples: 'editar-diversos'
     new: 'novo'

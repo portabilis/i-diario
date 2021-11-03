@@ -177,6 +177,10 @@ Rails.application.routes.draw do
     resources :school_calendar_classroom_steps, only: [:show, :index]
 
     resources :discipline_teaching_plans, concerns: :history
+
+    get '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#copy'
+    post '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#do_copy'
+
     resources :knowledge_area_teaching_plans, concerns: :history
     resources :learning_objectives_and_skills, concerns: :history do
       collection do
