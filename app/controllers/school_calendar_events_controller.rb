@@ -153,7 +153,7 @@ class SchoolCalendarEventsController < ApplicationController
   end
 
   def update_school_days(old_start_date = nil, old_end_date = nil)
-    frequency_day = [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY].include?(resource.event_type)
+    frequency_day = [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY].include?(resource.event_type)
     school_days = (resource.start_date..resource.end_date).to_a
 
     case action_name
@@ -176,6 +176,8 @@ class SchoolCalendarEventsController < ApplicationController
 
   def create_school_days(school_days)
     school_days.each do |school_day|
+      next if !SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil).school_day?
+
       SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil,).create(@event)
     end
   end
