@@ -387,9 +387,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
   def student_has_dependence(student_enrollments, frequency_dates)
     students_dependences = StudentEnrollmentDependence.by_student_enrollment(student_enrollments)
-                                                    .by_discipline(@discipline.id)
-                                                    .includes(student_enrollment: [:student])
-                                                    .pluck('students.id')
+                                                      .by_discipline(@discipline.id)
+                                                      .includes(student_enrollment: [:student])
+                                                      .pluck('students.id')
 
     return students_dependences if students_dependences&.empty?
 
