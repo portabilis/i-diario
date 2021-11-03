@@ -1,0 +1,10 @@
+pt-BR:
+  activemodel:
+    attributes:
+      frequency_in_batch_form:
+        unity: "Escola"
+        classroom: "Turma"
+        discipline: "Disciplina"
+        start_date: "Data inicial"
+        end_date: "Data final"
+        days_limit: "É possível registrar frequência de no máximo 15 dias por lançamento, independente da quantidade de dias informados na seleção inicial."

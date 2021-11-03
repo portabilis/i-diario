@@ -280,6 +280,14 @@ Rails.application.routes.draw do
         delete :destroy_multiple
       end
     end
+
+    resources :daily_frequencies_in_batchs, only: [:new, :create], concerns: :history do
+      collection do
+        get :history_multiple
+        put :create_or_update_multiple
+        delete :destroy_multiple
+      end
+    end
     get 'daily_frequency/history_multiple', to: 'daily_frequencies#history_multiple', as: 'history_multiple_daily_frequency'
 
     resources :absence_justifications, concerns: :history

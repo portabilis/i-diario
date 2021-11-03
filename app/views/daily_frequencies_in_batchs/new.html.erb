@@ -1,0 +1,54 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/daily_frequencies_in_batchs/new' %>
+<% end %>
+
+<div class="widget-body no-padding">
+<%= simple_form_for FrequencyInBatchForm.new,
+    url: daily_frequencies_in_batchs_path,
+    method: :post,
+    html: { class: "smart-form" } do |f| %>
+  <div class="alert alert-danger hidden" id="exam-rule-not-found-alert">
+    <i class="fa fa-exclamation-circle fa-fw"></i>
+    <%= t('.exam_rule_not_found') %>
+  </div>
+  <%= f.error_notification %>
+
+  <fieldset>
+    <%= image_tag "beta.png", class: 'hidden', id: 'image-beta' %>
+    <div id="flash-message">
+      <p class="alert alert-info" id="substitution-calculation-type-info">
+        <i class="fa-fw fa fa-info"></i>
+        <%= t('activemodel.attributes.frequency_in_batch_form.days_limit') %>
+      </p>
+    </div>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :unity_id, as: :select2_unity, user: current_user, label: t('activemodel.attributes.frequency_in_batch_form.unity') %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :classroom_id, as: :select2_classroom, user: current_user, label: t('activemodel.attributes.frequency_in_batch_form.classroom') %>
+      </div>
+
+      <div class="col col-sm-4 <%= @frequency_type == FrequencyTypes::BY_DISCIPLINE ? '' : 'hidden'  %>">
+        <%= f.input :discipline_id, as: :select2_discipline, user: current_user,
+                    required: true, label: t('activemodel.attributes.frequency_in_batch_form.discipline') %>
+      </div>
+
+    </div>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :start_date, as: :date, required: true, label: t('activemodel.attributes.frequency_in_batch_form.start_date') %>
+      </div>
+      <div class="col col-sm-4">
+        <%= f.input :end_date, as: :date, required: true, label: t('activemodel.attributes.frequency_in_batch_form.end_date') %>
+      </div>
+    </div>
+
+  </fieldset>
+
+  <footer>
+    <%= f.submit 'Carregar', class: 'btn btn-primary' %>
+  </footer>
+<% end %>
+</div>
