@@ -10,6 +10,8 @@
           <span><%= student[:student][:name] %></span>
         <% end %>
       <% end %>
+    <% else %>
+      <span><%= student[:student][:name] %></span>
     <% end %>
   </td>
   <% absences_on_the_period = 0 %>
