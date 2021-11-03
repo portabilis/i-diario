@@ -2,14 +2,16 @@
   <td style="text-align: center; vertical-align: middle; width: 20px;"> <%= index + 1 %> </td>
   <td style="vertical-align: middle;">
     <% student_name = student[:student][:name] %>
+    <% color = false %>
     <% if @additional_data.any? %>
       <% @additional_data.each do |additional_data| %>
         <% if additional_data[:student_id] == student[:student][:id] && additional_data[:tooltip] == 'Dependência' %>
           <% student_name = '*' + student[:student][:name] %>
+          <% color = '#a9a9a9' %>
         <% end %>
       <% end %>
     <% end %>
-    <span><%= student_name %></span>
+    <span <% color ? "style='color: #{color}'" : '' %>><%= student_name %></span>
   </td>
   <% absences_on_the_period = 0 %>
   <% if @general_configuration.type_of_teaching == true %>
