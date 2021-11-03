@@ -1,18 +1,15 @@
 <tr>
   <td style="text-align: center; vertical-align: middle; width: 20px;"> <%= index + 1 %> </td>
   <td style="vertical-align: middle;">
+    <% student_name = student[:student][:name] %>
     <% if @additional_data.any? %>
       <% @additional_data.each do |additional_data| %>
         <% if additional_data[:student_id] == student[:student][:id] && additional_data[:tooltip] == 'Dependência' %>
-          <% student_name = '*' + student[:student][:name] + '' %>
-          <span style="color: #a90329 !important;"><%= student_name %></span>
-        <% else %>
-          <span><%= student[:student][:name] %></span>
+          <% student_name = '*' + student[:student][:name] %>
         <% end %>
       <% end %>
-    <% else %>
-      <span><%= student[:student][:name] %></span>
     <% end %>
+    <span><%= student_name %></span>
   </td>
   <% absences_on_the_period = 0 %>
   <% if @general_configuration.type_of_teaching == true %>
