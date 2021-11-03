@@ -102,40 +102,42 @@ module ExamPoster
         step_exists_for_classroom?(classroom)
     end
 
-    def not_posted?(api_posting_type, options = { classroom: nil, discipline: nil, student: nil })
+    def not_posted?(options = { classroom: nil, discipline: nil, student: nil })
+      return { absence: true, numerical_exam: true } if @post_data_last.nil?
+
       not_posted = { absence: false, numerical_exam: false }
-      exist_numerical_exam?(api_posting_type, not_posted, options)
-      exist_absence?(api_posting_type, not_posted, options)
+      exist_numerical_exam?(@post_data.post_type, not_posted, options)
+      exist_absence?(@post_data.post_type, not_posted, options)
       not_posted
     end
 
     def exist_absence?(api_posting_type, not_posted, options)
-      if api_posting_type.eql?(ApiPostingTypes::ABSENCE)
-        if options[:discipline].present?
-          daily_frequency_students = DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(options[:classroom], options[:discipline], options[:student], get_step(options[:classroom]).start_at, get_step(options[:classroom]).end_at)
-                                                          .by_not_poster(@post_data_last.created_at)
-        else
-          daily_frequency_students = DailyFrequencyStudent.general_by_classroom_student_date_between(options[:classroom], options[:student], get_step(options[:classroom]).start_at, get_step(options[:classroom]).end_at)
-                                                          .by_not_poster(@post_data_last.created_at)
-        end
+      return unless api_posting_type.eql?(ApiPostingTypes::ABSENCE)
 
-        not_posted[:absence] = daily_frequency_students.try(:any?)
+      if options[:discipline].present?
+        daily_frequency_students = DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(options[:classroom], options[:discipline], options[:student], get_step(options[:classroom]).start_at, get_step(options[:classroom]).end_at)
+                                                        .by_not_poster(@post_data_last.try(:created_at))
+      else
+        daily_frequency_students = DailyFrequencyStudent.general_by_classroom_student_date_between(options[:classroom], options[:student], get_step(options[:classroom]).start_at, get_step(options[:classroom]).end_at)
+                                                        .by_not_poster(@post_data_last.try(:created_at))
       end
+
+      not_posted[:absence] = daily_frequency_students.try(:any?)
     end
 
     def exist_numerical_exam?(api_posting_type, not_posted, options)
-      if api_posting_type.eql?(ApiPostingTypes::NUMERICAL_EXAM)
-        student_recovery = RecoveryDiaryRecordStudent.by_student_id(options[:student])
-                                                     .by_not_poster(@post_data_last.created_at)
+      return unless api_posting_type.eql?(ApiPostingTypes::NUMERICAL_EXAM)
 
-        daily_note_student = DailyNoteStudent.by_discipline_id(options[:discipline])
-                                             .by_classroom_id(options[:classroom])
-                                             .by_student_id(options[:student])
-                                             .by_test_date_between(get_step(options[:classroom]).start_at, get_step(options[:classroom]).end_at)
-                                             .by_not_poster(@post_data_last.created_at)
+      student_recovery = RecoveryDiaryRecordStudent.by_student_id(options[:student])
+                                                   .by_not_poster(@post_data_last.try(:created_at))
 
-        not_posted[:numerical_exam] = student_recovery.try(:any?) || daily_note_student.try(:any?)
-      end
+      daily_note_student = DailyNoteStudent.by_discipline_id(options[:discipline])
+                                           .by_classroom_id(options[:classroom])
+                                           .by_student_id(options[:student])
+                                           .by_test_date_between(get_step(options[:classroom]).start_at, get_step(options[:classroom]).end_at)
+                                           .by_not_poster(@post_data_last.try(:created_at))
+
+      not_posted[:numerical_exam] = student_recovery.try(:any?) || daily_note_student.try(:any?)
     end
   end
 end
