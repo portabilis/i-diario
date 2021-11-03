@@ -391,7 +391,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
                                                     .includes(student_enrollment: [:student])
                                                     .pluck('students.id')
 
-    return if students_dependences&.empty?
+    return students_dependences if students_dependences&.empty?
 
     students_with_dependences = []
 
