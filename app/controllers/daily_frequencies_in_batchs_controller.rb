@@ -172,10 +172,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
           dependences.each do |dependence|
             next if dependence[:date] != date || !dependence[:student_ids].include?(student_id)
 
-            additional_class = 'dependence'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.dependence_students_tooltip')
             additional_data << { date: dependence[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip}
+                                 additional_class: '', tooltip:  tooltip}
           end
         end
         if exempteds_from_discipline.any?
@@ -208,13 +207,15 @@ class DailyFrequenciesInBatchsController < ApplicationController
     dates.each do |date|
       lesson_numbers = []
       if @frequency_type == FrequencyTypes::GENERAL
-        allocations =  LessonsBoardLessonWeekday.by_classroom(@classroom.id)
+        allocations =  LessonsBoardLessonWeekday.includes(:lessons_board_lesson)
+                                                .by_classroom(@classroom.id)
                                                 .by_teacher(current_teacher_id)
                                                 .by_weekday(date.strftime("%A").downcase)
                                                 .by_period(@period)
                                                 .order('lessons_board_lessons.lesson_number')
       else
-        allocations =  LessonsBoardLessonWeekday.by_classroom(@classroom.id)
+        allocations =  LessonsBoardLessonWeekday.includes(:lessons_board_lesson)
+                                                .by_classroom(@classroom.id)
                                                 .by_teacher(current_teacher_id)
                                                 .by_discipline(@discipline.id)
                                                 .by_weekday(date.strftime("%A").downcase)
@@ -284,7 +285,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
         :date,
         :class_number,
         students_attributes: [
-          :id, :daily_frequency_id, :student_id, :present, :active, :type_of_teaching
+          :id, :daily_frequency_id, :student_id, :present, :active, :dependence, :type_of_teaching
         ]
       ]
     )
