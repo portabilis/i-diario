@@ -82,16 +82,18 @@
       <% end %>
 
       <% if @additional_data.any? %>
+        <% dependence = false %>
         <% @additional_data.each do |additional_data| %>
-          <% if additional_data[:tooltip] == 'Dependência' %>
-            <tr>
-              <td colspan="30">
-                <span class="daily-note-student-legend">
-                  <%= t('daily_frequencies.edit_multiple.dependence_students_legend') %>
-                </span>
-              </td>
-            </tr>
-          <% end %>
+          <% dependence = true if additional_data[:tooltip] == 'Dependência' %>
+        <% end %>
+        <% if dependence %>
+          <tr>
+            <td colspan="30">
+              <span class="daily-note-student-legend">
+                <%= t('daily_frequencies.edit_multiple.dependence_students_legend') %>
+              </span>
+            </td>
+          </tr>
         <% end %>
       <% end %>
 
