@@ -165,7 +165,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
             additional_class = 'in-active-search'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.in_active_search_tooltip')
             additional_data << { date: active_search[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip}
+                                 additional_class: additional_class, tooltip:  tooltip }
           end
         end
         if dependences.any?
@@ -174,7 +174,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
 
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.dependence_students_tooltip')
             additional_data << { date: dependence[:date], student_id: student_id,
-                                 additional_class: '', tooltip:  tooltip}
+                                 additional_class: '', tooltip:  tooltip }
           end
         end
         if exempteds_from_discipline.any?
@@ -184,7 +184,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
             additional_class = 'exempted'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.exempted_students_from_discipline_tooltip')
             additional_data << { date: exempted_from_discipline[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip}
+                                 additional_class: additional_class, tooltip:  tooltip }
           end
         end
         if inactives_on_date.any?
@@ -194,7 +194,7 @@ class DailyFrequenciesInBatchsController < ApplicationController
             additional_class = 'inactive'
             tooltip = t('daily_frequencies_in_batchs.create_or_update_multiple.inactive_students_tooltip')
             additional_data << { date: inactive_on_date[:date], student_id: student_id,
-                                 additional_class: additional_class, tooltip:  tooltip}
+                                 additional_class: additional_class, tooltip:  tooltip }
           end
         end
       end
@@ -385,11 +385,21 @@ class DailyFrequenciesInBatchsController < ApplicationController
     redirect_to root_path
   end
 
-  def student_has_dependence(student_enrollments)
-    StudentEnrollmentDependence.by_student_enrollment(student_enrollments)
-                               .by_discipline(@discipline.id)
-                               .includes(student_enrollment: [:student])
-                               .pluck('students.id')
+  def student_has_dependence(student_enrollments, frequency_dates)
+    students_dependences = StudentEnrollmentDependence.by_student_enrollment(student_enrollments)
+                                                    .by_discipline(@discipline.id)
+                                                    .includes(student_enrollment: [:student])
+                                                    .pluck('students.id')
+
+    return if students_dependences&.empty?
+
+    students_with_dependences = []
+
+    frequency_dates.each do |date|
+      students_with_dependences << { date: date, student_ids: students_dependences }
+    end
+
+    students_with_dependences
   end
 
   def student_exempted_from_discipline_in_range(student_enrollments_ids, frequency_dates)
