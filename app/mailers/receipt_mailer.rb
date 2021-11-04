@@ -1,7 +1,9 @@
 class ReceiptMailer < BaseMailer
-  def notify_daily_frequency_success(user, url, date)
+  def notify_daily_frequency_success(user, url, date, classroom, unity)
     @name = user.first_name
     @url = url
+    @classroom = classroom
+    @unity = unity
 
     return unless (email = user.email)
 

@@ -174,8 +174,7 @@ class PedagogicalTrackingsController < ApplicationController
     classroom_id = nil,
     teacher_id = nil
   )
-    @done_frequencies = MvwFrequencyBySchoolClassroomTeacher.by_year(current_user_school_year)
-                                                            .by_unity_id(unity_id)
+    @done_frequencies = MvwFrequencyBySchoolClassroomTeacher.by_unity_id(unity_id)
                                                             .by_date_between(start_date, end_date)
     @done_frequencies = @done_frequencies.by_classroom_id(classroom_id) if classroom_id
     @done_frequencies = @done_frequencies.by_teacher_id(teacher_id) if teacher_id
@@ -192,8 +191,7 @@ class PedagogicalTrackingsController < ApplicationController
     classroom_id = nil,
     teacher_id = nil
   )
-    @done_content_records = MvwContentRecordBySchoolClassroomTeacher.by_year(current_user_school_year)
-                                                                    .by_unity_id(unity_id)
+    @done_content_records = MvwContentRecordBySchoolClassroomTeacher.by_unity_id(unity_id)
                                                                     .by_date_between(start_date, end_date)
     @done_content_records = @done_content_records.by_classroom_id(classroom_id) if classroom_id
     @done_content_records = @done_content_records.by_teacher_id(teacher_id) if teacher_id

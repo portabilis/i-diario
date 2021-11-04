@@ -8,6 +8,12 @@ module EnumerateIt
       elements
     end
 
+    def self.to_select_specific_values(include_empty_element = true, keys_array)
+      elements = to_a.map { |arr| { id: arr[1], name: arr[0], text: arr[0] } if keys_array.include? arr[1] }
+      insert_empty_element(elements) if include_empty_element
+      elements.compact
+    end
+
     def self.to_hash
       Hash[to_a]
     end

@@ -168,6 +168,9 @@ $(function () {
     } else if (daily_note_student.dependence) {
         student_situation = student_situation + 'dependence-student';
         student_name = '*' + daily_note_student.name
+    } else if (daily_note_student.in_active_search) {
+          student_situation = student_situation + 'in-active-search';
+          student_name = '*****' + daily_note_student.name
     } else {
         student_name = daily_note_student.name
     }

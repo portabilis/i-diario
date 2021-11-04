@@ -33,7 +33,9 @@ class TeachingPlanContentsFetcher
   end
 
   def school_term_type_steps_ids
-    steps_number = steps_fetcher.current_step.school_calendar_parent.steps.size
+    return [] unless (step = steps_fetcher.step_by_date(@start_date.to_date))
+
+    steps_number = step.school_calendar_parent.steps.size
     steps_numbers = steps_fetcher.steps_by_date_range(@start_date.to_date, @end_date.to_date).map(&:step_number)
 
     school_term_type_steps_ids = SchoolTermTypeStep.joins(:school_term_type)

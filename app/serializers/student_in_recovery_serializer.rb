@@ -2,6 +2,8 @@ class StudentInRecoverySerializer < StudentSerializer
   attributes :average, :exempted_from_discipline
 
   def average
+    return if student_recovery_average.blank?
+
     "%.#{@serialization_options[:number_of_decimal_places]}f" % student_recovery_average
   end
 

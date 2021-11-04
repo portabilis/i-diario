@@ -40,7 +40,7 @@ gem 'pg_query', '1.2.0'
 gem 'postgres-copy', '1.0.0'
 gem 'prawn', '2.1.1', git: 'https://github.com/portabilis/prawn.git', branch: 'master', tag: 'v2.1.1'
 gem 'prawn-table', '0.2.2'
-gem 'puma', '4.3.5'
+gem 'puma', '5.2.2'
 gem 'pundit', '0.3.0'
 gem 'rack-cors', '>= 1.0.4 ', require: 'rack/cors'
 gem 'rack-protection', '1.5.5'
@@ -55,6 +55,7 @@ gem 'rubyzip', '>= 1.3.0', require: 'zip'
 gem 'sidekiq', '5.0.3'
 gem 'sidekiq-unique-jobs', '6.0.22'
 gem 'simple_form', '4.0.0'
+gem 'skylight', '4.3.2'
 gem 'therubyracer', '0.12.3'
 gem 'twitter-bootstrap-rails', '3.2.0'
 gem 'uglifier', '4.1.20'
@@ -65,6 +66,7 @@ gem 'webpacker', '~> 4.x'
 instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
 group :development do
+  gem 'rack-mini-profiler'
   gem 'meta_request', '0.7.2'
   gem 'pry-byebug', '3.4.2'
   gem 'pry-remote', '0.1.8'
@@ -72,6 +74,7 @@ group :development do
   gem 'rubocop', '0.59.2', require: false
   gem 'spring', '2.0.2'
   gem 'spring-commands-rspec', '1.0.4'
+  gem 'letter_opener_web', '~> 1.0'
 end
 
 group :test do
