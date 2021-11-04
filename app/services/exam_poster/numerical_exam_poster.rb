@@ -78,12 +78,14 @@ module ExamPoster
 
             next if exempted_discipline_ids.include?(discipline.id)
 
-            school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             if (value = StudentAverageCalculator.new(student_score)
                                                 .calculate(classroom, discipline, get_step(classroom)))
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
             end
 
+            next unless not_posted?({ classroom: classroom, discipline: discipline, student: student_score })[:school_term_recovery]
+
+            school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             next unless school_term_recovery
 
             if (recovery_value = score_rounder.round(school_term_recovery))

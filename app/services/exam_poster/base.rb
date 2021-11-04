@@ -108,6 +108,7 @@ module ExamPoster
       not_posted = { absence: false, numerical_exam: false }
       exist_numerical_exam?(@post_data.post_type, not_posted, options)
       exist_absence?(@post_data.post_type, not_posted, options)
+      exist_school_term_recovery?(@post_data.post_type, not_posted, options)
       not_posted
     end
 
@@ -138,6 +139,28 @@ module ExamPoster
                                            .by_not_poster(@post_data_last.try(:created_at))
 
       not_posted[:numerical_exam] = student_recovery.try(:any?) || daily_note_student.try(:any?)
+    end
+
+    def exist_school_term_recovery?(api_posting_type, not_posted, options)
+      return unless api_posting_type.eql?(ApiPostingTypes::SCHOOL_TERM_RECOVERY)
+
+      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.by_classroom_id(options[:classroom])
+                                                                       .by_discipline_id(options[:discipline])
+                                                                       .by_step_id(
+                                                                         options[:classroom],
+                                                                         get_step(options[:classroom]).id
+                                                                       )
+                                                                       .first
+
+      return unless school_term_recovery_diary_record
+
+      student_recovery = RecoveryDiaryRecordStudent.by_student_id(options[:student])
+                                                   .by_recovery_diary_record_id(
+                                                     school_term_recovery_diary_record.recovery_diary_record_id
+                                                   ).by_not_poster(@post_data_last.try(:created_at))
+
+
+      not_posted[:school_term_recovery] = student_recovery.try(:any?)
     end
   end
 end
