@@ -103,12 +103,13 @@ module ExamPoster
     end
 
     def not_posted?(options = { classroom: nil, discipline: nil, student: nil })
-      return { absence: true, numerical_exam: true } if @post_data_last.nil?
+      return { absence: true, numerical_exam: true, school_term_recovery: true, descriptive_exam: true } if @post_data_last.nil?
 
       not_posted = { absence: false, numerical_exam: false }
-      exist_numerical_exam?(@post_data.post_type, not_posted, options)
       exist_absence?(@post_data.post_type, not_posted, options)
+      exist_numerical_exam?(@post_data.post_type, not_posted, options)
       exist_school_term_recovery?(@post_data.post_type, not_posted, options)
+      exist_descriptive_exam?(@post_data.post_type, not_posted, options)
       not_posted
     end
 
@@ -161,6 +162,16 @@ module ExamPoster
 
 
       not_posted[:school_term_recovery] = student_recovery.try(:any?)
+    end
+
+    def exist_descriptive_exam?(api_posting_type, not_posted, options)
+      return unless api_posting_type.eql?(ApiPostingTypes::DESCRIPTIVE_EXAM)
+
+      descriptive_exam_students = DescriptiveExamStudent.by_classroom_and_discipline(options[:classroom], options[:discipline])
+                                                        .by_student_id(options[:student])
+                                                        .by_not_poster(@post_data_last.try(:created_at))
+
+      not_posted[:descriptive_exam] = descriptive_exam_students.try(:any?)
     end
   end
 end
