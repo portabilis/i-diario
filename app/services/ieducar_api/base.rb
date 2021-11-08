@@ -103,16 +103,30 @@ module IeducarApi
         raise ApiError, error.message
       end
 
+      message = result['msgs'].map { |r| r['msg'] }.join(', ')
+
+      stop_api_synchronization(message)
+
       response = IeducarResponseDecorator.new(result)
       raise_exception = response.any_error_message? && !response.known_error?
-
-      raise ApiError, result['msgs'].map { |r| r['msg'] }.join(', ') if raise_exception
+      raise ApiError, message if raise_exception
 
       result
     end
 
     def last_synchronization_date
-      @last_synchronization_date ||= IeducarApiConfiguration.current.synchronized_at
+      @last_synchronization_date ||= current_api_configuration.synchronized_at
+    end
+    def stop_api_synchronization(message)
+      return if message.blank?
+      return unless message.eql?('Chave de acesso inválida!')
+
+      synchronization = current_api_configuration.synchronizations.started.first
+      synchronization&.update(status: 'error', error_message: message, full_error_message: '')
+    end
+
+    def current_api_configuration
+      IeducarApiConfiguration.current
     end
   end
 end

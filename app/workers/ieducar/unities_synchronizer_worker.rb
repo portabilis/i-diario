@@ -4,17 +4,19 @@ class UnitiesSynchronizerWorker < BaseSynchronizerWorker
 
     Entity.find(params[:entity_id]).using_connection do
       synchronization = IeducarApiSynchronization.started.find_by(id: params[:synchronization_id])
-      @worker_batch = synchronization.worker_batch
-      @worker_batch.start!
+      if synchronization
+        @worker_batch = synchronization.worker_batch
+        @worker_batch.start!
 
-      params = build_params(
-        params[:entity_id],
-        worker_state_id,
-        synchronization.id,
-        @worker_batch.id,
-        params[:current_years]
-      )
-      UnitiesSynchronizer.synchronize!(params)
+        params = build_params(
+          params[:entity_id],
+          worker_state_id,
+          synchronization.id,
+          @worker_batch.id,
+          params[:current_years]
+        )
+        UnitiesSynchronizer.synchronize!(params)
+      end
     end
   end
 
