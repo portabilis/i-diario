@@ -46,7 +46,9 @@ class Features < EnumerateIt::Base
                    :transfer_notes,
                    :unities,
                    :users,
-                   :translations
+                   :translations,
+                   :lessons_boards,
+                   :daily_frequencies_in_batchs
 
 
   sort_by :translation

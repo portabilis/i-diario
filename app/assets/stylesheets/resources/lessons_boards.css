@@ -1,0 +1,55 @@
+.table_lessons {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.table_lessons_td {
+  width: 20%;
+  word-wrap: break-word;
+}
+
+.table_lessons_td_select {
+  min-width: 100%;
+  width: 100px;
+}
+
+.table_lessons_td_select > .select2-choice {
+  overflow: initial !important;
+  white-space: normal !important;
+  min-height: 32px !important;
+  height: auto !important;
+  overflow-y: hidden;
+}
+
+.table_lessons_td_select > .select2-choice > .select2-chosen {
+  line-height: 15px;
+  word-wrap: break-word !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow-y: hidden;
+  padding-right: 15px;
+}
+
+.select2-result-label {
+  min-height: 24px !important;
+}
+
+
+@media screen and (max-width: 768px) {
+.table_lessons {
+  overflow-x: auto;
+  width: 100%;
+  table-layout: auto;
+}
+
+.table_lessons_td {
+  width: 60%;
+  table-layout: fixed;
+}
+
+.table_lessons_td_select {
+  min-width: 160px
+}
+}
+
+

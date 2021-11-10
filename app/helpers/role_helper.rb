@@ -5,6 +5,7 @@ module RoleHelper
     'change_school_year',
     'infrequency_trackings',
     'pedagogical_trackings',
+    'lessons_boards',
     'copy_discipline_teaching_plan'
   ].freeze
 
