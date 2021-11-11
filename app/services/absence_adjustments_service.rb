@@ -125,6 +125,6 @@ class AbsenceAdjustmentsService
     Audited::Audit.find_by(
         auditable_type: 'DailyFrequency',
         auditable_id: daily_frequency.id
-      ).user
+      )&.user
   end
 end

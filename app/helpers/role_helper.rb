@@ -4,7 +4,9 @@ module RoleHelper
     'ieducar_api_exam_posting_without_restrictions',
     'change_school_year',
     'infrequency_trackings',
-    'pedagogical_trackings'
+    'pedagogical_trackings',
+    'lessons_boards',
+    'copy_discipline_teaching_plan'
   ].freeze
 
   def features_yes_or_no

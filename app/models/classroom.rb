@@ -102,6 +102,10 @@ class Classroom < ActiveRecord::Base
     grades.map(&:course)
   end
 
+  def number_of_classes
+    unity.school_calendars.by_year(year).first.number_of_classes
+  end
+
   private
 
   def set_label_color

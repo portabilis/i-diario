@@ -85,7 +85,7 @@ class AvaliationsController < ApplicationController
   end
 
   def create
-    resource.assign_attributes(resource_params)
+    resource.localized.assign_attributes(resource_params)
     resource.school_calendar = current_school_calendar
     resource.teacher_id = current_teacher_id
 
@@ -167,7 +167,7 @@ class AvaliationsController < ApplicationController
         render 'daily_notes/new'
       end
     else
-      respond_with resource, location: avaliations_path
+      redirect_to avaliations_path
     end
   end
 

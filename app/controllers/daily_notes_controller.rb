@@ -66,6 +66,7 @@ class DailyNotesController < ApplicationController
         note_student.dependence = student_has_dependence?(student_enrollment, @daily_note.discipline)
         note_student.exempted = student_exempted_from_avaliation?(student.id)
         note_student.exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_note)
+        note_student.in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_note.avaliation.test_date)
 
         @students << note_student
       end
@@ -76,6 +77,7 @@ class DailyNotesController < ApplicationController
     @any_exempted_student = any_exempted_student?
     @any_inactive_student = any_inactive_student?
     @any_student_exempted_from_discipline = any_student_exempted_from_discipline?
+    @any_in_active_search = any_in_active_search?
 
     @students.each do |student|
       @normal_students << student if !student.dependence
@@ -127,6 +129,43 @@ class DailyNotesController < ApplicationController
     end
 
     render json: @daily_notes
+  end
+
+  def exempt_students
+    @students_ids = params[:exemption_students_ids].split(',')
+
+    @students_ids.each do |student_id|
+      begin
+        avaliation_exemption = AvaliationExemption.find_or_initialize_by(
+          student_id: student_id,
+          avaliation_id: params[:exemption_avaliation_id]
+        )
+        avaliation_exemption.reason = params[:reason]
+        avaliation_exemption.teacher_id = current_teacher_id
+        avaliation_exemption.current_user = current_user
+
+        delete_note(params[:id], student_id)
+
+        avaliation_exemption.save!
+      rescue Exception
+        @students_ids.delete(student_id)
+      end
+    end
+
+    @students_ids = @students_ids.to_json.html_safe
+  end
+
+  def undo_exemption
+    @student_id = params[:student_id]
+    avaliation_id = params[:avaliation_id]
+    exemption = AvaliationExemption.find_by(student_id: @student_id, avaliation_id: avaliation_id)
+
+    @student_id = nil if exemption.blank?
+    begin
+      exemption&.destroy!
+    rescue ActiveRecord::RecordNotDestroyed
+      @student_id = nil
+    end
   end
 
   protected
@@ -273,5 +312,15 @@ class DailyNotesController < ApplicationController
 
   def any_student_exempted_from_discipline?
     (@students || []).any?(&:exempted_from_discipline)
+  end
+
+  def delete_note(daily_note_id, student_id)
+    return unless (student_note = DailyNoteStudent.find_by(daily_note_id: daily_note_id, student_id: student_id))
+
+    student_note.update!(note: nil)
+  end
+
+  def any_in_active_search?
+    (@students || []).any?(&:in_active_search)
   end
 end

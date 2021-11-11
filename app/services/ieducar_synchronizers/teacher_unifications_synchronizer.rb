@@ -33,7 +33,9 @@ class TeacherUnificationsSynchronizer < BaseSynchronizer
 
         teacher_unification.save!
 
-        secondary_teachers = unification.duplicates_id.map { |api_code|
+        duplicates_ids = convert_struct_to_array(unification)
+
+        secondary_teachers = duplicates_ids.map { |api_code|
           teacher(api_code)
         }.compact
 
@@ -49,6 +51,10 @@ class TeacherUnificationsSynchronizer < BaseSynchronizer
         unify_or_revert(unification.active, teacher, secondary_teachers)
       end
     end
+  end
+
+  def convert_struct_to_array(unification)
+    unification.duplicates_id.kind_of?(Array) ? unification.duplicates_id : unification.duplicates_id.to_h.values
   end
 
   def unify_or_revert(unify, main_teacher, secondary_teachers)

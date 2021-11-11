@@ -82,14 +82,25 @@ class DailyFrequency < ActiveRecord::Base
   scope :order_by_unity, -> { order(:unity_id) }
   scope :order_by_classroom, -> { order(:classroom_id) }
 
-  attr_accessor :receive_email_confirmation
+  attr_accessor :receive_email_confirmation, :start_date, :end_date
 
   def find_by_student(student_id)
     students.find_by_student_id(student_id)
   end
 
-  def build_or_find_by_student student
-    students.where(student_id: student.id).first || students.build(student_id: student.id, present: 1)
+  def build_or_find_by_student(student_id)
+    students.find_by(student_id: student_id) || students.build(student_id: student_id, present: 1,
+                                                               type_of_teaching: default_type_of_teaching(student_id))
+  end
+
+  def default_type_of_teaching(student_id)
+    student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
+                                                             .by_date(frequency_date)
+                                                             .by_student(student_id)
+                                                             .first
+    return TypesOfTeaching::PRESENTIAL if student_enrollment_classroom.nil?
+
+    student_enrollment_classroom.type_of_teaching
   end
 
   def origin=(value)

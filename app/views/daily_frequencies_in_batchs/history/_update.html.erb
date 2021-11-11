@@ -1,0 +1,22 @@
+<table class="table table-striped records">
+  <thead>
+    <tr>
+      <th>Aluno</th>
+      <th>Campo</th>
+      <th>Antigo valor</th>
+      <th>Novo valor</th>
+    </tr>
+  </thead>
+  <tbody>
+  <% record.audited_changes.each do |key, values| %>
+    <tr>
+      <td><%= record.auditable.student.name %></td>
+      <td>
+        <%= record.human_attribute_name key %>
+      </td>
+      <td><%= raw record.parse(key.to_sym, values, :first) %></td>
+      <td><%= raw record.parse(key.to_sym, values, :last) %></td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

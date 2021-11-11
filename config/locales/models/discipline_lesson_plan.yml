@@ -16,6 +16,8 @@ pt-BR:
         contents: "Conteúdos"
         thematic_unit: "Unidade temática"
         lesson_plan:
+          start_at: 'Data inicial'
+          end_at: 'Data final'
           objectives:
             description: 'Objetivos/habilidades'
     errors:

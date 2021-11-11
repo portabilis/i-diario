@@ -1,0 +1,74 @@
+div.control-group.daily_note_students_note{
+  margin-bottom: 0px;
+}
+
+#exempt_students_button {
+  font-weight: 600 !important;
+  width: 179px;
+  height: 31px;
+  float: right;
+  text-align: left;
+  padding-left: 5px;
+  background-position: 99% 50%;
+  background-repeat: no-repeat;
+}
+
+.btn-exempt-students-enabled:hover{
+  background-color: #3E90D4 !important;
+  border-color:#2F85CD !important;
+}
+
+.btn-exempt-students-disabled {
+  background-color: #F5F5F5 !important;
+  border-color:#CCCCCC !important;
+  color: #CCCCCC !important;
+  background-image: url(<%= asset_path 'exemption_disabled.svg' %>);
+}
+
+.btn-exempt-students-enabled {
+  background-color: #3B9FF3 !important;
+  border-color:#3698EB !important;
+  color: #FFFFFF !important;
+  background-image: url(<%= asset_path 'exemption.svg' %>);
+}
+
+.exempted-student {
+  font-style: italic !important;
+}
+
+.undo-exemption, .do-exemption {
+  width: 31px;
+  height: 31px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.undo-exemption {
+  background-color: #ECF4FF !important;
+  border-color: #3B9FF3 !important;
+  background-image: url(<%= asset_path 'undo_exemption.svg' %>);
+}
+
+.do-exemption {
+  background-color: #3B9FF3 !important;
+  border-color: #3698EB !important;
+  background-image: url(<%= asset_path 'exemption.svg' %>);
+}
+
+.do-exemption:hover {
+  background-color: #3E90D4 !important;
+  border-color: #2F85CD !important;
+}
+
+.undo-exemption:hover {
+  background-color: #C3D5F1 !important;
+  border-color: #3B9FF3 !important;
+}
+
+.selected-student-tr td {
+  background-color: #DAE9FF !important;
+}
+
+.student-tr:hover td {
+  background-color: #ECF3F8 !important;
+}

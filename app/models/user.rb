@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
   include Searchable
 
   devise :database_authenticatable, :recoverable, :rememberable,
-    :trackable, :validatable, :lockable
+         :trackable, :validatable, :lockable
 
   attr_accessor :credentials, :has_to_validate_receive_news_fields
 
@@ -65,11 +65,14 @@ class User < ActiveRecord::Base
 
   validates_associated :user_roles
 
+  validate :valid_password
+  validate :status_changed
   validate :email_reserved_for_student
   validate :presence_of_email_or_cpf
   validate :validate_receive_news_fields, if: :has_to_validate_receive_news_fields?
   validate :can_not_be_a_cpf
   validate :can_not_be_an_email
+  validate :status_changed
 
   scope :ordered, -> { order(arel_table[:fullname].asc) }
   scope :email_ordered, -> { order(email: :asc) }
@@ -137,21 +140,70 @@ class User < ActiveRecord::Base
 
   def self.find_for_authentication(conditions)
     credential = conditions.fetch(:credentials)
-
-    where(%Q(
-      users.login = :credential OR
-      users.email = :credential OR
-      (
-        users.cpf != '' AND
-        REGEXP_REPLACE(users.cpf, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
-      )
-    ), credential: credential).first
+    if CPF.valid?(credential)
+      where(%Q((
+        users.cpf != '' AND REGEXP_REPLACE(users.cpf, '[^\\d]+', '', 'g') = REGEXP_REPLACE(:credential, '[^\\d]+', '', 'g')
+      )), credential: credential).first
+    else
+      where(%Q(users.login = :credential OR users.email = :credential), credential: credential).first
+    end
   end
 
   def expired?
-    return false if expiration_date.blank?
+    return false if admin? || new_record?
 
-    Date.current >= expiration_date
+    days_to_expire = GeneralConfiguration.current.days_to_disable_access || 0
+    return false if expiration_date.blank? && days_to_expire.zero?
+
+    unless days_to_expire.zero?
+      days_without_access = (Date.current - last_activity_at.to_date).to_i
+      if days_without_access >= days_to_expire
+        update_status(UserStatus::PENDING)
+        return true
+      end
+    end
+
+    return false if expiration_date.nil? || expiration_date.blank?
+
+    if Date.current >= expiration_date
+      update_status(UserStatus::PENDING)
+      update_column :expiration_date, nil
+      true
+    else
+      false
+    end
+  end
+
+  def update_status(status)
+    update_column :status, status
+  end
+
+  def status_changed
+    return if new_record?
+    return if status_was == status
+
+    if status == UserStatus::ACTIVE
+      update_last_activity_at
+      unlock_access!
+    else
+      update_column :expiration_date, nil
+    end
+  end
+
+  def valid_password
+    return if new_record?
+    return if encrypted_password.blank?
+    return if encrypted_password_was == encrypted_password
+
+    update_last_password_change
+  end
+
+  def update_last_password_change
+    update_column :last_password_change, Date.current
+  end
+
+  def update_last_activity_at
+    update_column :last_activity_at, Date.current
   end
 
   def can_show?(feature)

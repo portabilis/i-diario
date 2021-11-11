@@ -1,0 +1,18 @@
+<table class="table table-striped records">
+  <thead>
+    <tr>
+      <th>Campo</th>
+      <th>Valor</th>
+    </tr>
+  </thead>
+  <% record.audited_changes.each do |key, values| %>
+    <tbody>
+      <tr>
+        <td>
+          <%= record.human_attribute_name key %>
+        </td>
+        <td><%= record.parse key.to_sym, values, :first %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

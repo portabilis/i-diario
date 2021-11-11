@@ -15,6 +15,8 @@ pt-BR:
         school_calendar_id: "Calendário"
         period: "Período"
         receive_email_confirmation: "Desejo receber confirmação dos lançamentos por e-mail."
+        start_date: "Data inicial"
+        end_date: "Data final"
     errors:
       models:
         daily_frequency:
@@ -33,6 +35,7 @@ pt-BR:
       require_teacher: "É necessário vincular um professor ao usuário atual para acessar esse cadastro"
       class_numbers_required_when_not_global_absence: 'É necessário informar ao menos uma aula quando não for falta global.'
       discipline_required_when_not_global_absence: 'É necessário informar uma disciplina quando não for falta global.'
+      require_lessons_board: 'Não encontramos alocação no quadro de aula da turma para o(a) professor(a) vinculado(a) ao perfil. Por favor, validar no registro do quadro de aula e tentar novamente.'
 
   daily_frequencies:
     new:

@@ -6,6 +6,7 @@ pt-BR:
       dependence_students_legend: "* Alunos cursando dependência"
       inactive_students_legend: "*** Alunos não enturmados"
       exempted_students_from_discipline_legend: "**** Alunos dispensados da disciplina"
+      in_active_search: "***** Alunos em busca ativa"
       warning_no_students: 'Não há alunos matriculados para a data selecionada. Verifique a data escolhida e se o problema persistir entre em contato com a Secretaria de sua escola.'
       print: "Imprimir"
       by_month: "Por mês"

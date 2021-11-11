@@ -1,0 +1,7 @@
+pt-BR:
+  activemodel:
+    attributes:
+      copy_discipline_teaching_plan_form:
+        year: "Ano"
+        unities_ids: "Escolas"
+        grades_ids: "Séries"

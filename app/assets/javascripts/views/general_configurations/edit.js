@@ -14,4 +14,16 @@ $(function() {
   });
 
   notify_absences.trigger('change');
+
+  var type_of_teaching = $('#general_configuration_type_of_teaching');
+
+  type_of_teaching.change(function() {
+    if ($(this).prop('checked')) {
+      $('#types_of_teaching_container').show();
+    } else {
+      $('#types_of_teaching_container').hide();
+    }
+  });
+
+  type_of_teaching.trigger('change');
 });

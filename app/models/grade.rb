@@ -46,4 +46,14 @@ class Grade < ActiveRecord::Base
   def to_s
     description
   end
+
+  def self.to_select
+    ordered.includes(:course).map do |grade|
+      OpenStruct.new(
+        id: grade.id,
+        name: "#{grade.description} - #{grade.course.description}",
+        text: "#{grade.description} - #{grade.course.description}"
+      )
+    end
+  end
 end

@@ -31,7 +31,7 @@ class GradeExamRulesSynchronizer < BaseSynchronizer
         classroom_grade_record.each do |classroom_grade|
           unity = unity(classroom_grade.classroom.unity_code)
 
-          current_exam_rule = differentiated_exam_rule if unity.uses_differentiated_exam_rule?
+          current_exam_rule = differentiated_exam_rule if unity.try(:uses_differentiated_exam_rule?)
           current_exam_rule ||= exam_rule
           classroom_grade.exam_rule = current_exam_rule
 

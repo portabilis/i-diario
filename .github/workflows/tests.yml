@@ -1,0 +1,61 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  default:
+
+    name: Unit and Integration
+
+    runs-on: ubuntu-latest
+
+    env:
+      RAILS_ENV: test
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: idiario_test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Ruby and install gems
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '2.4.10'
+          bundler: '1.17.3'
+          bundler-cache: true
+
+      - name: Configure database
+        run: cp config/database.sample.yml config/database.yml
+
+      - name: Configure secrets
+        run: |
+          echo -e "
+            test:
+              secret_key_base: `bundle exec rake secret`
+              redis_url: redis://localhost:6379
+          " > config/secrets.yml
+
+      - name: Migrate
+        run: RAILS_ENV=test bundle exec rake db:migrate
+
+      - name: Tests
+        run: bundle exec rspec --exclude-pattern 'spec/acceptance/*.feature'

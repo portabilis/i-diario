@@ -6,7 +6,7 @@ class RecoveryDiaryRecordStudent < ActiveRecord::Base
 
   acts_as_copy_target
 
-  attr_accessor :dependence, :active, :exempted_from_discipline
+  attr_accessor :dependence, :active, :exempted_from_discipline, :in_active_search
 
   belongs_to :recovery_diary_record
   belongs_to :student

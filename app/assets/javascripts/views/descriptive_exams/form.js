@@ -10,7 +10,7 @@ $(function () {
       should_clear_step = true,
       discipline_id = $discipline.val();
 
-  if ($opinionType.length === 1) {
+  if ($opinionType.data('elements').length === 2) {
    $opinionType.attr('readonly', true)
   }
 
