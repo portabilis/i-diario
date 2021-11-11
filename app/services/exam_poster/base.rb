@@ -103,7 +103,7 @@ module ExamPoster
     end
 
     def not_posted?(options = { classroom: nil, discipline: nil, student: nil })
-      return { absence: true, numerical_exam: true, school_term_recovery: true, descriptive_exam: true, conceptual_exam: true } if @post_data_last.nil?
+      return { absence: true, numerical_exam: true, school_term_recovery: true, descriptive_exam: true, conceptual_exam: true, final_recovery: true } if @post_data_last.nil?
 
       not_posted = { absence: false, numerical_exam: false }
       exist_absence?(@post_data.post_type, not_posted, options)
@@ -111,6 +111,7 @@ module ExamPoster
       exist_school_term_recovery?(@post_data.post_type, not_posted, options)
       exist_descriptive_exam?(@post_data.post_type, not_posted, options)
       exist_conceptual_exam?(@post_data.post_type, not_posted, options)
+      exist_final_recovery?(@post_data.post_type, not_posted, options)
       not_posted
     end
 
@@ -186,6 +187,23 @@ module ExamPoster
       conceptual_exam_values = conceptual_exam.conceptual_exam_values.by_not_poster(@post_data_last.try(:created_at))
 
       not_posted[:conceptual_exam] = conceptual_exam_values.try(:any?)
+    end
+
+    def exist_final_recovery?(api_posting_type, not_posted, options)
+      return unless api_posting_type.eql?(ApiPostingTypes::FINAL_RECOVERY)
+
+      final_recovery_diary_record = FinalRecoveryDiaryRecord.by_classroom_id(options[:classroom])
+                                                            .by_discipline_id(options[:discipline])
+                                                            .first
+
+      return unless final_recovery_diary_record
+
+      student_recoveries = RecoveryDiaryRecordStudent.by_student_id(options[:student])
+                                                     .by_recovery_diary_record_id(
+                                                       final_recovery_diary_record.recovery_diary_record_id
+                                                     ).by_not_poster(@post_data_last.try(:created_at))
+
+      not_posted[:final_recovery] = student_recoveries.try(:any?)
     end
   end
 end

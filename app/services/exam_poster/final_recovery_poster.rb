@@ -48,10 +48,14 @@ module ExamPoster
           RoundedAvaliations::FINAL_RECOVERY
         )
 
-        final_recovery_diary_record.recovery_diary_record.students.each do |student|
-          value = score_rounder.round(student.score)
+        final_recovery_diary_record.recovery_diary_record.students.each do |recovery_diary_record_student|
+          next unless not_posted?({ classroom: recovery_diary_record_student.recovery_diary_record.classroom,
+                                    discipline: recovery_diary_record_student.recovery_diary_record.discipline,
+                                    student: recovery_diary_record_student.student })[:final_recovery]
 
-          params[classroom_api_code][student.student.api_code][discipline_api_code]['nota'] = value
+          value = score_rounder.round(recovery_diary_record_student.score)
+
+          params[classroom_api_code][recovery_diary_record_student.student.api_code][discipline_api_code]['nota'] = value
         end
       end
 
