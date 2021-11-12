@@ -161,9 +161,14 @@ class ConceptualExamsController < ApplicationController
 
     exempted_disciplines = student_enrollments.find do |item|
       item[:student_id] == params[:student_id].to_i
-    end.exempted_disciplines
+    end.try(:exempted_disciplines)
 
-    render json:exempted_disciplines.by_step_number(step.to_number)
+    if exempted_disciplines
+      render json: exempted_disciplines.try(:by_step_number, step.to_number)
+    else
+      render json: nil, :status => 422
+    end
+
   end
 
   def find_conceptual_exam_by_student
