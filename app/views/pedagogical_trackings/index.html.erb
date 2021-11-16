@@ -17,13 +17,13 @@
     <input type='hidden' id='school_days' value= "<%= @school_days %>"/>
     <span><%= @updated_at ? "#{t('.last_update') }: #{ @updated_at } às #{ @updated_at_hour }h" : t('.empty') %></span>
   </div>
+  <% end %>
 </div>
     <div class="row" style="width:170px">
       <%= link_to(t('.recalculate_school_days'), recalculate_pedagogical_trackings_path,
                   id: 'recalculate',
                   class: 'btn bg-color-blue txt-color-white pull-right',
                   style: 'margin-top: 10px; margin-left: 10px;') %>
-      <% end %>
     </div>
 <div class="row" style=" margin-bottom: 20px;width:80%">
   <%= hidden_field_tag 'done_frequencies_percentage', @school_frequency_done_percentage %>
