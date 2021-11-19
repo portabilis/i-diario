@@ -178,13 +178,19 @@ module ExamPoster
     def exist_conceptual_exam?(api_posting_type, not_posted, options)
       return unless api_posting_type.eql?(ApiPostingTypes::CONCEPTUAL_EXAM)
 
-      conceptual_exam = ConceptualExam.by_classroom_id(options[:classroom])
+      conceptual_exams = ConceptualExam.by_classroom_id(options[:classroom])
                                       .by_student_id(options[:student])
-                                      .by_discipline(options[:discipline]).first
+                                      .by_discipline(options[:discipline])
 
-      return unless conceptual_exam
+      return unless conceptual_exams.any?
 
-      conceptual_exam_values = conceptual_exam.conceptual_exam_values.by_not_poster(@post_data_last.try(:created_at))
+      conceptual_exam_values = []
+
+      conceptual_exams.each do |conceptual_exam|
+        conceptual_exam_values.push conceptual_exam.conceptual_exam_values.by_not_poster(@post_data_last.try(:created_at))
+      end
+
+      conceptual_exam_values.reject! { |c| c.empty? }
 
       not_posted[:conceptual_exam] = conceptual_exam_values.try(:any?)
     end
