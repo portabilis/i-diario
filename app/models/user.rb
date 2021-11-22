@@ -84,8 +84,8 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :full_name, lambda { |fullname|
-    where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(fullname))
+  scope :by_name, lambda { |name|
+    where("concat(users.first_name, users.last_name) ILIKE ?", "%#{name}%")
   }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
