@@ -147,22 +147,27 @@ module ExamPoster
     def exist_school_term_recovery?(api_posting_type, not_posted, options)
       return unless api_posting_type.eql?(ApiPostingTypes::SCHOOL_TERM_RECOVERY)
 
-      school_term_recovery_diary_record = SchoolTermRecoveryDiaryRecord.by_classroom_id(options[:classroom])
+      school_term_recovery_diary_records = SchoolTermRecoveryDiaryRecord.by_classroom_id(options[:classroom])
                                                                        .by_discipline_id(options[:discipline])
                                                                        .by_step_id(
                                                                          options[:classroom],
                                                                          get_step(options[:classroom]).id
                                                                        )
-                                                                       .first
 
-      return unless school_term_recovery_diary_record
+      return unless school_term_recovery_diary_records.any?
 
-      student_recovery = RecoveryDiaryRecordStudent.by_student_id(options[:student])
-                                                   .by_recovery_diary_record_id(
-                                                     school_term_recovery_diary_record.recovery_diary_record_id
-                                                   ).by_not_poster(@post_data_last.try(:created_at))
+      student_recoveries = []
 
-      not_posted[:school_term_recovery] = student_recovery.try(:any?)
+      school_term_recovery_diary_records.each do |school_term_recovery_diary_record|
+        student_recoveries.push RecoveryDiaryRecordStudent.by_student_id(options[:student])
+                                                     .by_recovery_diary_record_id(
+                                                       school_term_recovery_diary_record.recovery_diary_record_id
+                                                     ).by_not_poster(@post_data_last.try(:created_at))
+      end
+
+      student_recoveries.reject! { |c| c.empty? }
+
+      not_posted[:school_term_recovery] = student_recoveries.try(:any?)
     end
 
     def exist_descriptive_exam?(api_posting_type, not_posted, options)
