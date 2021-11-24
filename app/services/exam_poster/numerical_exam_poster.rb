@@ -72,6 +72,7 @@ module ExamPoster
             next unless correct_score_type(student_score.uses_differentiated_exam_rule,
                                            exam_rule)
             next unless not_posted?({ classroom: classroom, discipline: discipline, student: student_score })[:numerical_exam]
+            next unless numerical_or_school_term_recovery?(classroom, discipline, student_score)
 
             exempted_discipline_ids =
               ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)
@@ -83,7 +84,6 @@ module ExamPoster
               scores[classroom.api_code][student_score.api_code][discipline.api_code]['nota'] = value
             end
 
-            next unless not_posted?({ classroom: classroom, discipline: discipline, student: student_score })[:school_term_recovery]
 
             school_term_recovery = fetch_school_term_recovery_score(classroom, discipline, student_score.id)
             next unless school_term_recovery
@@ -97,6 +97,12 @@ module ExamPoster
       end
 
       scores
+    end
+
+    def numerical_or_school_term_recovery?(classroom, discipline, student_score)
+      numerical_exam = not_posted?({ classroom: classroom, discipline: discipline, student: student_score })[:numerical_exam]
+      school_term_recovery = not_posted?({ classroom: classroom, discipline: discipline, student: student_score })[:school_term_recovery]
+      numerical_exam || school_term_recovery
     end
 
     def correct_score_type(differentiated, exam_rule)
