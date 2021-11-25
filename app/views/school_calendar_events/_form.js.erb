@@ -1,0 +1,37 @@
+$(document).ready(function () {
+  function setUpModalOptions() {
+    var modalOptions = {
+      title: 'Deseja prosseguir com a criação/edição do evento?',
+      message: "O tipo de evento 'não permite lançamentos' irá remover as frequências para o(s) dia(s) selecionados, " +
+        "caso existam laçamentos, não sendo possível restaurar esses dados. Deseja prosseguir?",
+      backdrop: true,
+      buttons: {
+        cancel: {
+          label: 'Continuar sem criar/editar evento',
+          className: 'new-school-calendar-event-cancel'
+        },
+        confirm: {
+          label: 'Prosseguir',
+          className: 'new-school-calendar-event-button',
+          callback: function () {
+            $('#submit-school-calendar-event-button').click();
+          }
+        }
+      }
+    };
+    return modalOptions
+  }
+
+  $('#new-school-calendar-event-button').on('click', function (e) {
+    e.preventDefault();
+
+    var event_type = $('#school_calendar_event_event_type').val()
+
+    if (['extra_school_without_frequency', 'no_school'].includes(event_type)) {
+      bootbox.dialog(setUpModalOptions())
+    } else {
+      $('#submit-school-calendar-event-button').click();
+    }
+
+  });
+});
