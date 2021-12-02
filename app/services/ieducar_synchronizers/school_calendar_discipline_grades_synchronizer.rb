@@ -28,7 +28,9 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
 
         next if grade.blank?
 
-        grade_discipline_year.disciplinas_anos_letivos.each do |discipline_api_code, years|
+        grade_discipline_year.disciplinas_anos_letivos.each do |discipline_and_years|
+          discipline_api_code = discipline_and_years.to_h.keys.first.to_s
+          years = discipline_and_years.to_h.values.flatten
           discipline = discipline(discipline_api_code)
 
           next if discipline.blank?
