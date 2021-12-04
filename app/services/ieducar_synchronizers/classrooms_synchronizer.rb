@@ -44,14 +44,14 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
           next if grade.blank? || exam_rule.blank?
 
-          classroom.classrooms_grades.build(grade_id: grade.id, exam_rule_id: exam_rule.id)
+          classroom.classrooms_grades.find_or_initialize_by(grade_id: grade.id, exam_rule_id: exam_rule.id)
         end
 
         if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
           update_period_dependents(classroom.id, classroom.period_was, classroom.period)
         end
 
-        classroom.save! if classroom.changed?
+        classroom.save!
 
         update_label(classroom.id, new_name) if old_name != new_name
 
