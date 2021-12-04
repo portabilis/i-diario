@@ -22,7 +22,9 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
       next if unity.blank?
 
-      grade = grade(classroom_record.serie_id)
+      grades = []
+      classroom_record.series_regras.select { |serie| grades << serie.serie_id }
+      grade = grade(grades.compact.first)
 
       next if grade.blank?
 
