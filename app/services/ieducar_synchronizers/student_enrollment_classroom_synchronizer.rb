@@ -33,7 +33,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
       ).tap do |student_enrollment_classroom|
         student_enrollment_classroom.student_enrollment = student_enrollment
         student_enrollment_classroom.classrooms_grade_id = ClassroomsGrade.find_by(classroom_id: classroom_id,
-                                                                                  grade_id: grade_id)
+                                                                                   grade_id: grade_id).try(:id)
         student_enrollment_classroom.classroom_code = student_enrollment_classroom_record.turma_id
         student_enrollment_classroom.joined_at = student_enrollment_classroom_record.data_entrada
         student_enrollment_classroom.left_at = student_enrollment_classroom_record.data_saida
