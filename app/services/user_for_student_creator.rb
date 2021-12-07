@@ -38,15 +38,10 @@ class UserForStudentCreator
       user.password = password
       user.password_confirmation = password
       user.status = UserStatus::ACTIVE
-      user.save!
-
-      user_role = UserRole.create!(
-        user_id: user.id,
-        role_id: role_id
-      )
-
-      user.current_user_role_id = user_role.id
-      user.save!(validate: false)
+      user.user_roles.build(role_id: role_id)
+      user.without_auditing do
+        user.save!(validate: false)
+      end
     end
   end
 end
