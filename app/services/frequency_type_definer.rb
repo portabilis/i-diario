@@ -4,7 +4,7 @@ class FrequencyTypeDefiner
   def initialize(classroom, teacher, exam_rule = nil, year: nil)
     @classroom = classroom
     @teacher = teacher
-    @exam_rule = exam_rule || classroom.try(:exam_rule)
+    @exam_rule = exam_rule || classroom.classrooms_grades.first.try(:exam_rule)
     @year = year
   end
 

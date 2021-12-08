@@ -25,9 +25,9 @@ class DailyFrequenciesController < ApplicationController
     @period = params[:daily_frequency][:period]
 
     if @daily_frequency.valid?
-      frequency_type = current_frequency_type(@daily_frequency)
+      @frequency_type = current_frequency_type(@daily_frequency)
 
-      return if frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
+      return if @frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
 
       redirect_to edit_multiple_daily_frequencies_path(
         daily_frequency: daily_frequency_params,
@@ -400,10 +400,17 @@ class DailyFrequenciesController < ApplicationController
     classroom_grade_ids = ClassroomsGrade.by_classroom_id(@daily_frequency.classroom.id).pluck(:grade_id)
     school_calendar = StepsFetcher.new(@daily_frequency.classroom).school_calendar
 
-    SchoolCalendarDisciplineGrade.where(
-      grade_id: classroom_grade_ids,
-      school_calendar_id: school_calendar.id,
-      discipline_id: @daily_frequency.discipline.id
-    ).pluck(:grade_id)
+    if @frequency_type == FrequencyTypes::BY_DISCIPLINE
+      SchoolCalendarDisciplineGrade.where(
+        grade_id: classroom_grade_ids,
+        school_calendar_id: school_calendar.id,
+        discipline_id: @daily_frequency.discipline.id
+      ).pluck(:grade_id)
+    else
+      SchoolCalendarDisciplineGrade.where(
+        grade_id: classroom_grade_ids,
+        school_calendar_id: school_calendar.id,
+      ).pluck(:grade_id)
+    end
   end
 end
