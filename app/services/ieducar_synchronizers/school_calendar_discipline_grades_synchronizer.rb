@@ -19,9 +19,9 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
     existing_school_calendar_discipline_grade = []
 
     unity_grade_discipline_years.each do |unity_grade_discipline_year_record|
-      unity = unity(unity_grade_discipline_year_record.escola_id)
+      @unity = unity(unity_grade_discipline_year_record.escola_id)
 
-      next if unity.blank?
+      next if @unity.blank?
 
       unity_grade_discipline_year_record.series_disciplinas_anos_letivos.each do |grade_discipline_year|
         grade = grade(grade_discipline_year.serie_id)
@@ -36,7 +36,7 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
           next if discipline.blank?
 
           years.each do |year|
-            school_calendar = SchoolCalendar.find_by(year: year, unity: unity)
+            school_calendar = SchoolCalendar.find_by(year: year, unity: @unity)
 
             next if school_calendar.blank?
 
@@ -46,7 +46,7 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
               grade_id: grade.id
             )
 
-            existing_school_calendar_discipline_grade << school_calendar_discipline_grade.id
+            existing_school_calendar_discipline_grade << school_calendar_discipline_grade.try(:id)
           end
         end
       end
@@ -56,6 +56,9 @@ class SchoolCalendarDisciplineGradesSynchronizer < BaseSynchronizer
   end
 
   def destroy_removed_disciplines(existing_school_calendar_discipline_grade)
-    SchoolCalendarDisciplineGrade.where.not(id: existing_school_calendar_discipline_grade).destroy_all
+    return if @unity.nil?
+
+    SchoolCalendarDisciplineGrade.where.not(id: existing_school_calendar_discipline_grade).joins(:school_calendar)
+                                 .where(school_calendars: { unity_id: @unity.try(:id) }).destroy_all
   end
 end
