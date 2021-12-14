@@ -51,6 +51,8 @@ pt-BR:
       send_instructions: "Você receberá um e-mail em poucos minutos com instruções sobre como desbloquear sua conta."
       send_paranoid_instructions: "Caso sua e-mail exista em nossa base, você receberá um e-mail em poucos minutos com instruções sobre como desbloqueá-la."
       unsent_instructions: "Não foi possível enviar o e-mail para desbloquear a sua conta."
+      not_bloqued: "Sua conta não está bloqueada."
+      user_not_found: "Usuário não encontrado a partir do e-mail informado."
       unlocked: "Sua conta foi desbloqueada com sucesso. Por favor, faça login para continuar."
   errors:
     messages:
