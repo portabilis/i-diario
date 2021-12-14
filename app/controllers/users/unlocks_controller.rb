@@ -6,7 +6,7 @@ class Users::UnlocksController < Devise::UnlocksController
     if successfully_sent?(resource)
       respond_with({}, location: after_sending_unlock_instructions_path_for(resource))
     else
-      flash[:error] = I18n.t('devise.unlocks.not_send_instructions')
+      flash[:error] = I18n.t('devise.unlocks.unsent_instructions')
       redirect_to new_user_unlock_path
     end
   end
