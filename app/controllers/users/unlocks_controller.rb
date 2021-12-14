@@ -12,7 +12,6 @@ class Users::UnlocksController < Devise::UnlocksController
 
       redirect_to new_user_unlock_path
     end
-    #super
   end
 
   def show
