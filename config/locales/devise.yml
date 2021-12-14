@@ -50,6 +50,7 @@ pt-BR:
     unlocks:
       send_instructions: "Você receberá um e-mail em poucos minutos com instruções sobre como desbloquear sua conta."
       send_paranoid_instructions: "Caso sua e-mail exista em nossa base, você receberá um e-mail em poucos minutos com instruções sobre como desbloqueá-la."
+      unsent_instructions: "Não foi possível enviar o e-mail para desbloquear a sua conta."
       unlocked: "Sua conta foi desbloqueada com sucesso. Por favor, faça login para continuar."
   errors:
     messages:
