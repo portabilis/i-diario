@@ -18,8 +18,11 @@ class SchoolDayChecker
       return if event.coverage != "by_unity"
 
       school_type = [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]
+      dates = [*event.start_date..event.end_date]
 
-        UnitySchoolDay.find_or_create_by(unity_id: @school_calendar.unity_id, school_day: @date) if school_type.include?(event.event_type) && [0, 6].include?(@date.wday)
+      dates.each do |date|
+        UnitySchoolDay.find_or_create_by(unity_id: @school_calendar.unity_id, school_day: date) if school_type.include?(event.event_type) && [0, 6].include?(@date.wday)
+      end
     else
       UnitySchoolDay.find_or_create_by(unity_id: @school_calendar.unity_id, school_day: @date)
     end
@@ -30,8 +33,11 @@ class SchoolDayChecker
       return if event.coverage != "by_unity"
 
       no_school_event_type = [EventTypes::NO_SCHOOL_WITH_FREQUENCY, EventTypes::NO_SCHOOL]
-        UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: date).destroy_all if no_school_event_type.include?(event.event_type) && ![0, 6].include?(@date.wday) || !no_school_event_type.include?(event.event_type) && [0,6].include?(@date.wday)
+      dates = [*event.start_date..event.end_date]
 
+      dates.each do |date|
+        UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: date).destroy_all if no_school_event_type.include?(event.event_type) && ![0, 6].include?(@date.wday) || !no_school_event_type.include?(event.event_type) && [0,6].include?(@date.wday)
+      end
     else
       UnitySchoolDay.where(unity_id: @school_calendar.unity_id, school_day: @date).destroy_all
     end
