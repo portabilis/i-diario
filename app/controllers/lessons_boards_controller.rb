@@ -201,6 +201,7 @@ class LessonsBoardsController < ApplicationController
 
     teacher_id = teacher_discipline_classroom.teacher.id
     year = teacher_discipline_classroom.classroom.year
+    period = teacher_discipline_classroom.classroom.period
 
     teacher_lessons_board_weekdays = LessonsBoardLessonWeekday.includes(teacher_discipline_classroom:
                                                                           [:teacher, classroom: [:unity]])
@@ -208,7 +209,7 @@ class LessonsBoardsController < ApplicationController
                                        .joins(lessons_board_lesson: [:lessons_board],
                                               teacher_discipline_classroom: [:classroom, :teacher])
                                        .where(teachers: { id: teacher_id })
-                                       .where(classrooms: { year: year })
+                                       .where(classrooms: { year: year, period: period })
                                        .where(lessons_board_lessons: {lesson_number: lesson_number})
                                        .where.not(lessons_boards: { classroom_id: classroom.to_i })
                                        .first

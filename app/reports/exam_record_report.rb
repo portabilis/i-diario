@@ -186,7 +186,6 @@ class ExamRecordReport < BaseReport
             @active_search = true
 
             student_note = ActiveSearchDailyNoteStudent.new
-            averages[student_enrollment.student_id] = "B"
           elsif avaliation_id.present?
             daily_note_student = DailyNoteStudent.find_by(student_id: student_id, daily_note_id: daily_note_id, active: true)
             student_note = daily_note_student || NullDailyNoteStudent.new

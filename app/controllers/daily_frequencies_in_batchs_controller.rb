@@ -435,12 +435,25 @@ class DailyFrequenciesInBatchsController < ApplicationController
   end
 
   def require_allocation_on_lessons_board
-    return if LessonsBoard.by_teacher(current_teacher)
-                          .by_classroom(current_user_classroom)
-                          .by_discipline(current_user_discipline)
-                          .exists?
+    return if teacher_allocated
+
     flash[:alert] = t('errors.daily_frequencies.require_lessons_board')
     redirect_to root_path
+  end
+
+  def teacher_allocated
+    frequency_type = current_frequency_type(current_user_classroom)
+
+    if frequency_type == FrequencyTypes::BY_DISCIPLINE
+      LessonsBoard.by_teacher(current_teacher)
+                  .by_classroom(current_user_classroom)
+                  .by_discipline(current_user_discipline)
+                  .exists?
+    else
+      LessonsBoard.by_teacher(current_teacher)
+                  .by_classroom(current_user_classroom)
+                  .exists?
+    end
   end
 
   def invalid_dates?(start_date, end_date)

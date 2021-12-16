@@ -13,7 +13,7 @@ class UserDecorator
   end
 
   def self.data_for_select2_remote(name)
-    users = User.full_name(name).ordered.map { |user|
+    users = User.by_name(name).ordered.map { |user|
       { id: user.id, description: user.to_s }
     }
 
