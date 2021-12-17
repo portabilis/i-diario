@@ -28,7 +28,7 @@ class GradeExamRulesSynchronizer < BaseSynchronizer
       grade.classrooms.with_discarded.by_year(year).each do |classroom_record|
         classroom_record.tap do |classroom|
           unity = unity(classroom.unity_code)
-          current_exam_rule = differentiated_exam_rule if unity.uses_differentiated_exam_rule?
+          current_exam_rule = differentiated_exam_rule if unity.try(:uses_differentiated_exam_rule?)
           current_exam_rule ||= exam_rule
           classroom.exam_rule = current_exam_rule
           classroom.save! if classroom.changed?

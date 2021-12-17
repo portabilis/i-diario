@@ -60,12 +60,12 @@ class StudentNotesQuery
     RecoveryDiaryRecord.by_student_id(student)
                        .by_discipline_id(discipline)
                        .by_classroom_id(classroom)
-                       .joins(:avaliation_recovery_diary_record, :students)
-                       .where.not(
-                         recovery_diary_record_students: {
-                           score: nil
-                         }
-                       )
+                       .joins(:students, avaliation_recovery_diary_record: [:avaliation])
+                       .merge(
+                         AvaliationRecoveryDiaryRecord.by_test_date_between(
+                           @step_start_at, @step_end_at
+                         )
+                       ).where.not(recovery_diary_record_students: { score: nil })
   end
 
   def transfer_notes
@@ -79,8 +79,8 @@ class StudentNotesQuery
                         end_at(student_enrollment_classroom)
                       )
                     ).where.not(
-                      transfer_note: nil
-                    )
+      transfer_note: nil
+    )
   end
 
   private

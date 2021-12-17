@@ -19,7 +19,7 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = DailyFrequency.new(daily_frequency_params)
     @daily_frequency.school_calendar = current_school_calendar
     @daily_frequency.teacher_id = current_teacher_id
-    @class_numbers = params[:class_numbers].split(',')
+    @class_numbers = params[:class_numbers].split(',').sort
     @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]
     @period = params[:daily_frequency][:period]
@@ -28,18 +28,6 @@ class DailyFrequenciesController < ApplicationController
       frequency_type = current_frequency_type(@daily_frequency)
 
       return if frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
-
-      Honeybadger.context(
-        'Method': 'create',
-        'Turma da frequencia': @daily_frequency&.classroom_id,
-        'Disciplina da frequencia': @daily_frequency&.discipline_id,
-        'Numero de classes da frequencia': @class_numbers,
-        'Turma do usuario atual': current_user&.current_classroom_id,
-        'Disciplina do usuario atual': current_user&.current_discipline_id,
-        'Professor do usuario atual': current_user&.teacher_id,
-        'Tipo de frequencia': @daily_frequency&.classroom&.exam_rule&.frequency_type,
-        'params': params
-      )
 
       redirect_to edit_multiple_daily_frequencies_path(
         daily_frequency: daily_frequency_params,
@@ -99,17 +87,6 @@ class DailyFrequenciesController < ApplicationController
 
     @normal_students = @students.reject { |student| student[:dependence] }
     @dependence_students = @students.select { |student| student[:dependence] }
-
-    Honeybadger.context(
-      'Method': 'edit_multiple',
-      'Turma da frequencia': @daily_frequency&.classroom_id,
-      'Disciplina da frequencia': @daily_frequency&.discipline_id,
-      'Turma do usuario atual': current_user&.current_classroom_id,
-      'Disciplina do usuario atual': current_user&.current_discipline_id,
-      'Professor do usuario atual': current_user&.teacher_id,
-      'Tipo de frequencia': @daily_frequency&.classroom&.exam_rule&.frequency_type,
-      'params': params
-    )
   end
 
   def create_or_update_multiple
@@ -172,22 +149,6 @@ class DailyFrequenciesController < ApplicationController
       )
     end
 
-    Honeybadger.context(
-      'Method': 'create_or_update_multiple',
-      'Turma da frequencia': daily_frequency_record&.classroom_id,
-      'Disciplina da frequencia': daily_frequency_record&.discipline_id,
-      'Numero de classes da frequencia': daily_frequency_record&.class_number,
-      'Turma do usuario atual': current_user&.current_classroom_id,
-      'Disciplina do usuario atual': current_user&.current_discipline_id,
-      'Professor do usuario atual': current_user&.teacher_id,
-      'Tipo de frequencia': daily_frequency_record&.classroom&.exam_rule&.frequency_type,
-      'params': params
-    )
-  rescue StandardError => error
-    Honeybadger.notify(error)
-
-    flash[:alert] = t('.daily_frequency_error')
-  ensure
     redirect_to edit_multiple_daily_frequencies_path
   end
 
@@ -422,7 +383,7 @@ class DailyFrequenciesController < ApplicationController
   def class_numbers?(class_numbers)
     return false if class_numbers.blank?
 
-    class_numbers = (class_numbers - [0, '0', '', nil])
+    class_numbers = (class_numbers - [0, '0', '', nil, '[]'])
     class_numbers.present?
   end
 

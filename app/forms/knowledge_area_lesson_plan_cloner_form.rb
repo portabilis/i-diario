@@ -53,10 +53,26 @@ class KnowledgeAreaLessonPlanClonerForm < ActiveRecord::Base
       message = e.to_s
       message.slice!('A validação falhou: ')
       message.slice!('Áreas de conhecimento ')
-      errors.add(:classroom_id, "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}")
-      knowledge_area_lesson_plan_item_cloner_form[@current_item_index].errors.add(:classroom_id, message)
+      messages = message.split(',')
 
-      return false
+      messages.each do |message|
+        field = set_field(message.strip)
+        knowledge_area_lesson_plan_item_cloner_form[@current_item_index].errors.add(field, message + '.')
+      end
+
+      errors.add(:classroom_id, "Turma #{e.record.lesson_plan.try(:classroom)}: #{message}")
+
+      false
+    end
+  end
+
+  def set_field(message)
+    if message.start_with? I18n.t('activerecord.attributes.knowledge_area_lesson_plan.lesson_plan.start_at')
+      :start_at
+    elsif message.start_with? I18n.t('activerecord.attributes.knowledge_area_lesson_plan.lesson_plan.end_at')
+      :end_at
+    else
+      :classroom_id
     end
   end
 

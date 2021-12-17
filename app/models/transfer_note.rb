@@ -22,11 +22,13 @@ class TransferNote < ActiveRecord::Base
   belongs_to :student
   belongs_to :teacher
 
-  has_many :daily_note_students, dependent: :destroy
+  has_many :daily_note_students
 
   accepts_nested_attributes_for :daily_note_students, reject_if: proc { |attributes| attributes[:note].blank? }
 
   before_validation :set_transfer_date, on: [:create, :update]
+
+  before_destroy :before_destroy
 
   validates :unity_id, :discipline_id, :student_id, :teacher, presence: true
   validate :at_least_one_daily_note_student
@@ -80,5 +82,9 @@ class TransferNote < ActiveRecord::Base
       valid?
       !errors[:transfer_date].include?(I18n.t('errors.messages.not_allowed_to_post_in_date'))
     end
+  end
+
+  def before_destroy
+    TransferNotes.new(self).destroy
   end
 end

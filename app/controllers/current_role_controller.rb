@@ -48,6 +48,7 @@ class CurrentRoleController < ApplicationController
 
   def available_teachers
     filters = params.dig(:filter).slice(:by_unity_id, :by_school_year, :by_classroom_id, :by_user_role_id)
+    return render json: { teachers: [] } if filters[:by_classroom_id].empty?
 
     profile = CurrentProfile.new(current_user, filters)
 

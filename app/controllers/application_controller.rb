@@ -2,6 +2,7 @@ require "application_responder"
 
 class ApplicationController < ActionController::Base
   MAX_STEPS_FOR_SCHOOL_CALENDAR = 4
+  rescue_from Exception, :with => :error_generic
 
   self.responder = ApplicationResponder
   respond_to :html
@@ -429,5 +430,16 @@ class ApplicationController < ActionController::Base
     else
       false
     end
+  end
+
+  def error_generic(expection)
+    set_honeybadger_error(expection)
+    redirect_to :root
+  end
+
+  def set_honeybadger_error(expection)
+    flash[:success] = nil
+    flash[:alert] = t('errors.general.error')
+    Honeybadger.notify(expection)
   end
 end
