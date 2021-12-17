@@ -10,6 +10,6 @@ pt-BR:
       to: 'Até'
       empty: 'Não existem lançamentos ainda nas escolas'
       last_update: 'Última atualização'
-      recalculate_school_days: "Recalcular dias letivos"
+      recalculate_school_days: 'Recalcular dias letivos'
     minimum_year:
       error: 'Funcionalidade apenas disponível para o ano 2020 ou superior.'
