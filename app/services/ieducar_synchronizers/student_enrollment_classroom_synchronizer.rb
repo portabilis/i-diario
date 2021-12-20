@@ -36,7 +36,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
         student_enrollment_classroom.joined_at = student_enrollment_classroom_record.data_entrada
         student_enrollment_classroom.left_at = student_enrollment_classroom_record.data_saida
         student_enrollment_classroom.changed_at = student_enrollment_classroom_record.updated_at
-        student_enrollment_classroom.sequence = student_enrollment_classroom_record.sequencial_fechamento
+        student_enrollment_classroom.sequence = business.generate_sequence(student_enrollment, student_enrollment_classroom_record)
         student_enrollment_classroom.index = student_enrollment_classroom_record.sequencial
         student_enrollment_classroom.show_as_inactive_when_not_in_date =
           student_enrollment_classroom_record.apresentar_fora_da_data
@@ -54,6 +54,10 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
     end
 
     delete_invalid_presence_records(changed_student_enrollment_classrooms)
+  end
+
+  def business
+    StudentEnrollmentClassroomBusinesses.new
   end
 
   def delete_invalid_presence_records(changed_student_enrollment_classrooms)
