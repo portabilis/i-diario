@@ -159,7 +159,7 @@ module ExamPoster
         exams = DescriptiveExamStudent.joins(:student).by_classroom_and_discipline(classroom, discipline).ordered
         exams.each do |exam|
           next unless valid_opinion_type?(
-            exam.student.uses_differentiated_exam_rule,
+            exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_YEAR_AND_DISCIPLINE,
             classroom.first_exam_rule
           )
@@ -196,7 +196,7 @@ module ExamPoster
 
         exams.each do |exam|
           next unless valid_opinion_type?(
-            exam.student.uses_differentiated_exam_rule,
+            exam.student.try(:uses_differentiated_exam_rule),
             OpinionTypes::BY_STEP_AND_DISCIPLINE,
             classroom.first_exam_rule
           )

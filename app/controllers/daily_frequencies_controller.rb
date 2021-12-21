@@ -384,7 +384,7 @@ class DailyFrequenciesController < ApplicationController
   def class_numbers?(class_numbers)
     return false if class_numbers.blank?
 
-    class_numbers = (class_numbers - [0, '0', '', nil])
+    class_numbers = (class_numbers - [0, '0', '', nil, '[]'])
     class_numbers.present?
   end
 

@@ -110,6 +110,7 @@ module ExamPoster
                                                                        .first
 
       return unless school_term_recovery_diary_record
+      return unless enrolled_on_date?(classroom, school_term_recovery_diary_record, student)
 
       student_recovery = RecoveryDiaryRecordStudent.by_student_id(student)
                                                    .by_recovery_diary_record_id(
@@ -130,6 +131,10 @@ module ExamPoster
       end
 
       score
+    end
+
+    def enrolled_on_date?(classroom, school_term_recovery_diary_record, student)
+      StudentEnrollmentClassroom.by_classroom(classroom).by_student(student).by_date(school_term_recovery_diary_record.recorded_at).any?
     end
 
     def exempted_discipline(classroom, discipline_id, student_id)
