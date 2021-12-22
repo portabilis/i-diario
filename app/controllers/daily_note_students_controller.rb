@@ -96,7 +96,7 @@ class DailyNoteStudentsController < ApplicationController
         }
       end
 
-      respond_with @students
+      respond_with @students and return
     end
   end
 
