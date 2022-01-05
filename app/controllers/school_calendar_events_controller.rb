@@ -176,7 +176,7 @@ class SchoolCalendarEventsController < ApplicationController
 
   def create_school_days(school_days)
     school_days.each do |school_day|
-      events_by_date = @school_calendar.events.by_date(date)
+      events_by_date = @school_calendar.events.by_date(school_day)
       next if events_by_date.where.not(coverage: "by_unity").exists?
       next if !SchoolDayChecker.new(resource.school_calendar, school_day, nil, nil, nil).school_day?
 
