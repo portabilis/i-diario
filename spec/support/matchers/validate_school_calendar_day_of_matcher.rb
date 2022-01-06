@@ -5,7 +5,7 @@ end
 class ValidateSchoolCalendarDayOfMatcher
   def initialize(attribute)
     @attribute = attribute
-    @expected_message = I18n.t('errors.messages.not_school_calendar_day')
+    @expected_message = I18n.t('errors.messages.is_not_between_steps')
   end
 
   def matches?(subject)
