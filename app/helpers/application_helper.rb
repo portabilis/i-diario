@@ -36,7 +36,7 @@ module ApplicationHelper
     key = [
       'Menus',
       controller_name,
-      current_user.current_user_role&.role&.cache_key || current_user.cache_key,
+      current_user.current_user_role&.role&.id || current_user.cache_key,
       Translation.cache_key
     ]
 
