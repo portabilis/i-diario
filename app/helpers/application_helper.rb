@@ -33,10 +33,12 @@ module ApplicationHelper
   end
 
   def menus
+    role = current_user.current_user_role&.role
+    user_role_cache = role&.cache_key.to_s + role&.id.to_s
     key = [
       'Menus',
       controller_name,
-      current_user.current_user_role&.role&.id || current_user.cache_key,
+      user_role_cache,
       Translation.cache_key
     ]
 
