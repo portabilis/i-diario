@@ -311,7 +311,6 @@ $(function() {
   };
 
   function exists_conceptual_exam(conceptual_exam_id) {
-    flashMessages.pop('');
     removeDisciplines();
     let text_step = $step.closest('div').find('#s2id_conceptual_exam_step_id').find('.select2-choice').text().trim();
     let student_name = $student.closest('div').find('#s2id_conceptual_exam_student_id').find('.select2-choice').text().trim();
@@ -334,10 +333,10 @@ $(function() {
         }
       )
     ).done(function(conceptual_exam_id) {
+      flashMessages.pop('');
       if (conceptual_exam_id) {
         exists_conceptual_exam(conceptual_exam_id);
       } else {
-        flashMessages.pop('');
         fetchExamRule();
         removeDisciplines();
         fetchDisciplines();
