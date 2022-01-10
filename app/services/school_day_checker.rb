@@ -93,8 +93,6 @@ class SchoolDayChecker
     events_by_date_no_school = events_by_date.no_school_event
     events_by_date_school = events_by_date.school_event
 
-    return if events_by_date.where.not(coverage: "by_unity").exists?
-
     if @classroom_id.present?
       if @discipline_id.present?
         return false if any_discipline_event?(events_by_date_no_school, @grade_id, @classroom_id, @discipline_id)
