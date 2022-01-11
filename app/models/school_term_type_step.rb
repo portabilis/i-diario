@@ -11,7 +11,7 @@ class SchoolTermTypeStep < ActiveRecord::Base
   def self.to_select2(year, unity_id = nil)
     school_term_type_ids = current_year_school_term_types(year, unity_id, false)&.map(&:id)
 
-    return if school_term_type_ids.blank?
+    return {} if school_term_type_ids.blank?
 
     elements = undiscarded.where(school_term_type_id: school_term_type_ids).map { |step|
       { id: step.id, name: step.to_s, text: step.to_s }
