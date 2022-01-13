@@ -188,10 +188,17 @@ Rails.application.routes.draw do
       end
     end
 
-    get '/pedagogical_trackings', as: :pedagogical_trackings, to: 'pedagogical_trackings#index'
+    resources :pedagogical_trackings, only: [:index], concerns: :history do
+      collection do
+        get :teachers
+        get :recalculate
+      end
+    end
+
     get '/pedagogical_trackings_teachers', as: :pedagogical_trackings_teachers, to: 'pedagogical_trackings#teachers'
     get '/translations', as: :translations, to: 'translations#form'
     post '/translations', as: :save_translations, to: 'translations#save'
+
     resources :discipline_lesson_plans, concerns: :history do
       collection do
         post :clone

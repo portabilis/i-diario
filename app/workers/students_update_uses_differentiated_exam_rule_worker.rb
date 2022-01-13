@@ -26,11 +26,15 @@ class StudentsUpdateUsesDifferentiatedExamRuleWorker
   end
 
   def perform_by_student(student, unity_id)
+    return if student.nil? || unity_id.nil?
+
     student.uses_differentiated_exam_rule = uses_differentiated_exam_rule(student, unity_id)
     student.save! if student.changed?
   end
 
   def uses_differentiated_exam_rule(student, unity_id)
+    return if student.nil? || unity_id.nil?
+
     student.deficiencies.where(
       deficiency_students: { unity_id: unity_id },
       deficiencies: { disconsider_differentiated_exam_rule: false }

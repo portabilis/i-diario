@@ -145,8 +145,8 @@ class DescriptiveExamsController < ApplicationController
       classroom: @descriptive_exam.classroom,
       discipline: @descriptive_exam.discipline,
       opinion_type: @descriptive_exam.opinion_type,
-      start_at: @descriptive_exam.step.start_at,
-      end_at: @descriptive_exam.step.end_at,
+      start_at: @descriptive_exam.step.try(:start_at),
+      end_at: @descriptive_exam.step.try(:end_at),
       show_inactive_outside_step: false,
       search_type: :by_date_range,
       period: @period

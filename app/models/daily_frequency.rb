@@ -142,6 +142,6 @@ class DailyFrequency < ActiveRecord::Base
     return if school_calendar.blank? || frequency_date.blank?
 
     step = StepsFetcher.new(classroom).step_by_date(frequency_date)
-    errors.add(:frequency_date, I18n.t('errors.messages.not_school_calendar_day')) if step.blank?
+    errors.add(:frequency_date, I18n.t('errors.messages.is_not_between_steps')) if step.blank?
   end
 end
