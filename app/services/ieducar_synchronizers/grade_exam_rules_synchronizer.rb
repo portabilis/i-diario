@@ -24,7 +24,7 @@ class GradeExamRulesSynchronizer < BaseSynchronizer
 
       exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_id)
       differentiated_exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_diferenciada_id)
-      classroom_ids = grade.classrooms_grades.pluck(:classroom_id)
+      classroom_ids = grade.classrooms_grades.where(exam_rule_id: exam_rule).pluck(:classroom_id)
       classrooms_grades = Classroom.with_discarded.by_year(year).where(id: classroom_ids).map(&:classrooms_grades)
 
       classrooms_grades.each do |classroom_grade_record|
