@@ -57,7 +57,7 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
   end
 
   def business
-    StudentEnrollmentClassroomBusinesses.new
+    @object ||= StudentEnrollmentClassroomBusinesses.new
   end
 
   def delete_invalid_presence_records(changed_student_enrollment_classrooms)
