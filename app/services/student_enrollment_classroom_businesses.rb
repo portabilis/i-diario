@@ -13,8 +13,8 @@ class StudentEnrollmentClassroomBusinesses
   def new_sequence(sequencial_fechamento, student_enrollment_classroom, student_enrollment_last)
     classroom_ids = student_enrollment_last.student_enrollment_classrooms.pluck(:classroom_id)
 
-    if same_enrollment_classroom?(classroom_ids)
-      student_enrollment_classroom.try(:sequence)
+    if same_enrollment_classroom?(classroom_ids) || student_enrollment_classroom
+      student_enrollment_classroom.sequence
     else
       sequencial_fechamento
     end
