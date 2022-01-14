@@ -1,6 +1,9 @@
 class StudentEnrollmentClassroomBusinesses
 
+  attr_accessor :year
+
   def generate_sequence(student_enrollment, student_enrollment_classroom, student_enrollment_classroom_record)
+    self.year = student_enrollment_classroom.classroom.year
     sequencial_fechamento = student_enrollment_classroom_record.sequencial_fechamento
     student_enrollment_last = student_enrollment_last(student_enrollment)
     return sequencial_fechamento if student_enrollment_last.nil?
@@ -25,6 +28,6 @@ class StudentEnrollmentClassroomBusinesses
   end
 
   def student_enrollment_last(student_enrollment)
-    StudentEnrollment.by_student(student_enrollment.student.try(:id)).last
+    StudentEnrollment.active.by_year(year).by_student(student_enrollment.student.try(:id)).last
   end
 end
