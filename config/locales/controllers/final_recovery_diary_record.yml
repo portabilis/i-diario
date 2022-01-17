@@ -1,0 +1,4 @@
+pt-BR:
+  final_recovery_diary_records:
+    new:
+      not_exists_test_setting: 'Não existe configuração de avaliação numérica para essa escola'
