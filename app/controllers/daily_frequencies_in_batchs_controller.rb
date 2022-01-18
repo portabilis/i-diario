@@ -126,8 +126,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student = student_enrollment.student
       student_ids << student.id
       type_of_teaching = student_enrollment.student_enrollment_classrooms
-                                           .where(classroom_id: current_user_classroom.id)
-                                           .last.type_of_teaching
+                                           .by_classroom(current_user_classroom.id)
+                                           .last
+                                           .type_of_teaching
 
       next if student.blank?
 
