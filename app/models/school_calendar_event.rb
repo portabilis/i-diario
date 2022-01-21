@@ -222,6 +222,17 @@ class SchoolCalendarEvent < ActiveRecord::Base
     end
   end
 
+  def start_at_and_end_at_in_step
+
+    if start_date < school_calendar.steps.last.start_at || start_date > school_calendar.steps.last.end_at
+      errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps'))
+    end
+
+    if end_date > school_calendar.steps.last.start_at || end_date < school_calendar.steps.last.end_at
+      errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps'))
+    end
+  end
+
   def uniqueness_of_start_at_and_end_at
     #TODO: Mover todas as Validations acima para o Fetcher
     start_at_and_end_at = SchoolCalenderEventService.new(self).uniqueness_start_at_and_end_at
