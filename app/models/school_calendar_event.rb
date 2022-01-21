@@ -224,7 +224,6 @@ class SchoolCalendarEvent < ActiveRecord::Base
   end
 
   def start_at_and_end_at_in_step
-
     if start_date < school_calendar.steps.first.start_at || start_date > school_calendar.steps.last.end_at
       errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps'))
     end
