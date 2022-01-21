@@ -33,6 +33,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validate :uniqueness_of_start_at_in_course
   validate :uniqueness_of_end_at_in_course
   validate :uniqueness_of_start_at_and_end_at
+  validate :start_at_and_end_at_in_step
 
   scope :ordered, -> { order(arel_table[:start_date]) }
   scope :school_event, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]) }
@@ -224,11 +225,11 @@ class SchoolCalendarEvent < ActiveRecord::Base
 
   def start_at_and_end_at_in_step
 
-    if start_date < school_calendar.steps.last.start_at || start_date > school_calendar.steps.last.end_at
+    if start_date < school_calendar.steps.first.start_at || start_date > school_calendar.steps.last.end_at
       errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps'))
     end
 
-    if end_date > school_calendar.steps.last.start_at || end_date < school_calendar.steps.last.end_at
+    if end_date < school_calendar.steps.first.start_at || end_date > school_calendar.steps.last.end_at
       errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps'))
     end
   end
