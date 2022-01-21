@@ -1,0 +1,22 @@
+pt-BR:
+  daily_frequencies_in_batchs:
+    create_or_update_multiple:
+      destroy: "Excluir"
+      confirm: "Essa operação irá excluir este registro de frequência em lote. Você tem certeza?"
+      dependence_students_tooltip: "Dependência"
+      inactive_students_tooltip: "Não enturmado"
+      exempted_students_from_discipline_tooltip: "Dispensado da disciplina"
+      in_active_search_tooltip: "Em busca ativa"
+      warning_no_students: 'Não há alunos matriculados para a data selecionada. Verifique a data escolhida e se o problema persistir entre em contato com a Secretaria de sua escola.'
+      print: "Imprimir"
+      by_month: "Por mês"
+      by_step: "Por etapa"
+      back: "Voltar"
+      save: "Salvar"
+      daily_frequency_error: "Ocorreu um erro com o lançamento de frequência em lote, tente novamente mais tarde."
+      daily_frequency_success: "Seu lançamento de frequência em lote foi salvo com sucesso!"
+      blank_dates: "O período de datas deve ser informado."
+      future_date: "As datas devem ser menores ou igual a data de hoje"
+      start_date_greater_end_date: "A Data inicial deve ser menor ou igual a Data final"
+      initial_date_no_school_day: "Data inicial deve ser um dia letivo."
+      final_date_no_school_day: "Data final deve ser um dia letivo."

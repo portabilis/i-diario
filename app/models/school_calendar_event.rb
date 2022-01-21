@@ -32,11 +32,12 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validate :uniqueness_of_end_at_in_classroom
   validate :uniqueness_of_start_at_in_course
   validate :uniqueness_of_end_at_in_course
+  validate :uniqueness_of_start_at_and_end_at
 
   scope :ordered, -> { order(arel_table[:start_date]) }
-  scope :with_frequency, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY]) }
-  scope :without_frequency, lambda {
-    where.not(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::NO_SCHOOL_WITH_FREQUENCY])
+  scope :school_event, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]) }
+  scope :no_school_event, lambda {
+    where(event_type: [EventTypes::NO_SCHOOL_WITH_FREQUENCY, EventTypes::NO_SCHOOL])
   }
   scope :extra_school_without_frequency, -> { where(event_type: EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY) }
   scope :without_grade, -> { where(arel_table[:grade_id].eq(nil)) }
@@ -65,6 +66,9 @@ class SchoolCalendarEvent < ActiveRecord::Base
   scope :by_discipline_id, ->(discipline_id) { where(discipline_id: discipline_id) }
   scope :by_course, ->(course_id) { where(course_id: course_id) }
   scope :all_events_for_classroom, ->(classroom) { all_events_for_classroom(classroom) }
+
+  before_create :before_create
+  before_destroy :before_destroy
 
   def to_s
     description
@@ -95,6 +99,14 @@ class SchoolCalendarEvent < ActiveRecord::Base
   end
 
   protected
+
+  def before_create
+    SchoolDayChecker.new(self.school_calendar, self.start_date, nil , nil , nil).create(self)
+  end
+
+  def before_destroy
+    SchoolDayChecker.new(self.school_calendar, self.start_date, nil , nil , nil).destroy(self)
+  end
 
   def self.all_events_for_classroom(classroom)
     where('? = ANY (periods) OR classroom_id = ?', classroom.period, classroom.id).
@@ -205,8 +217,21 @@ class SchoolCalendarEvent < ActiveRecord::Base
     return unless start_date && end_date
 
     if start_date > end_date
-      errors.add(:start_date, 'não pode ser maior que a Data final')
-      errors.add(:end_date, 'deve ser maior ou igual a Data inicial')
+      errors.add(:start_date, 'deve ser menor que a data final')
+      errors.add(:end_date, 'deve ser maior ou igual a data inicial')
+    end
+  end
+
+  def uniqueness_of_start_at_and_end_at
+    #TODO: Mover todas as Validations acima para o Fetcher
+    start_at_and_end_at = SchoolCalenderEventService.new(self).uniqueness_start_at_and_end_at
+
+    if start_at_and_end_at[:start_date_at]
+      errors.add(:start_date, I18n.t('errors.messages.uniqueness_of_start_at_and_end_at'))
+    end
+
+    if start_at_and_end_at[:end_date_at]
+      errors.add(:end_date, I18n.t('errors.messages.uniqueness_of_end_at_and_start_at'))
     end
   end
 end

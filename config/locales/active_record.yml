@@ -24,10 +24,13 @@ pt-BR:
       must_be_a_valid_date: "deve ser uma data válida"
       not_in_future: "deve ser menor ou igual a data de hoje"
       not_school_calendar_day: "deve ser um dia letivo"
+      is_not_between_steps: "deve ser um dia dentro do calendário letivo"
       not_allowed_to_post_in_date: "Não é possível alterar registros fora das datas de lançamento da etapa"
       not_school_term_day: "deve ser um dia letivo da etapa informada"
       not_belongs_to_teacher: "não pertence ao professor"
       not_selected_in_profile: "não está selecionado no perfil"
+      uniqueness_of_start_at_and_end_at: "já existe um evento cadastrado para a mesma data inicial"
+      uniqueness_of_end_at_and_start_at: "já existe um evento cadastrado para a mesma data final"
       odd: "deve ser ímpar"
       record_invalid: ! "A validação falhou: %{errors}"
       restrict_dependent_destroy:

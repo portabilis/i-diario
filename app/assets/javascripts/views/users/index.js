@@ -53,15 +53,15 @@ $(function() {
   });
 
   $('.destroy-button').each(function() {
-    var search_full_name = $('#search_full_name').val();
+    var search_by_name = $('#search_by_name').val();
     var search_by_cpf = $('#search_by_cpf').val();
     var search_email = $('#search_email').val();
     var search_login = $('#search_login').val();
     var search_status = $('#search_status').val();
     var params = '';
 
-    if (search_full_name) {
-      params += '&search[full_name]=' + search_full_name;
+    if (search_by_name) {
+      params += '&search[by_name]=' + search_by_name;
     }
 
     if (search_by_cpf) {
@@ -84,4 +84,5 @@ $(function() {
 
     $(this).attr("href", _href + params.replace('&', '?'));
   });
+  $('#search_by_cpf').inputmask("999.999.999-99");
 });

@@ -56,8 +56,11 @@ class UnitiesController < ApplicationController
     @unity = Unity.find(params[:id])
 
     authorize @unity
-
-    @unity.destroy
+    if @unity.active
+      @unity.destroy
+    else
+      @unity.discard
+    end
 
     respond_with @unity, location: unities_path
   end

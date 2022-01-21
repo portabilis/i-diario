@@ -72,7 +72,9 @@ class AdjustSchoolTermTypeToTeachingPlans < ActiveRecord::Migration
         teaching_plan.school_term_type_step_id = school_term_type_step.id
       end
 
-      teaching_plan.save!(validate: false)
+      teaching_plan.without_auditing do
+        teaching_plan.save!(validate: false)
+      end
     end
   end
 end

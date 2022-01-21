@@ -1,0 +1,26 @@
+<tr class="nested-fields">
+  <td style="width: 10px">
+    <%= f.input :lesson_number, input_html: { readonly: 'true', style: "width: 95%;", 'data-id': 'lesson_number'}, label: false %>
+  </td>
+  <% Workdays.list.each do |weekday| %>
+  <td class="table_lessons_td">
+    <%= f.association :lessons_board_lesson_weekdays,
+                      collection: [f.object.lessons_board_lesson_weekdays.select{|it| it.weekday == weekday}.first || f.object.lessons_board_lesson_weekdays.build(weekday: weekday)] do |item| %>
+      <%= item.hidden_field :id %>
+      <%= item.hidden_field :weekday, 'data-id': 'weekday' %>
+      <% if action_name != "show" %>
+        <%= item.association :teacher_discipline_classroom, as: :select2, elements: @teachers || [], label: false, hide_empty_element: true,
+                             data: { without_json_parser: true }, input_html: { class: 'table_lessons_td_select' }%>
+      <% else %>
+        <%= item.association :teacher_discipline_classroom, as: :select2, elements: @teachers, readonly: true, label: false,
+                             data: { without_json_parser: true }, input_html: { class: 'table_lessons_td_select' }%>
+      <% end %>
+    <% end %>
+  </td>
+  <% end %>
+
+  <td class="actions" style="display: none">
+    <%= f.hidden_field :id %>
+    <%= link_to_remove_association t('helpers.links.destroy_html'), f, class: 'btn btn-danger btn-sm', id: 'remove_row' %>
+  </td>
+</tr>

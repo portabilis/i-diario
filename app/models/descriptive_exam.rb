@@ -60,7 +60,7 @@ class DescriptiveExam < ActiveRecord::Base
     return if classroom.blank? || step.blank?
     return if [OpinionTypes::BY_YEAR_AND_DISCIPLINE, OpinionTypes::BY_YEAR].include?(opinion_type)
 
-    return true if PostingDateChecker.new(classroom, step.start_at).check
+    return true if PostingDateChecker.new(classroom, step.start_date_for_posting).check
 
     errors.add(:step_id, I18n.t('errors.messages.not_allowed_to_post_in_date'))
   end

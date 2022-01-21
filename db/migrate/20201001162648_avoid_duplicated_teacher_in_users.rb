@@ -42,7 +42,9 @@ class AvoidDuplicatedTeacherInUsers < ActiveRecord::Migration
         next if index.zero?
 
         user.teacher_id = nil
-        user.save!(validate: false)
+        user.without_auditing do
+          user.save!(validate: false)
+        end
       end
     end
   end

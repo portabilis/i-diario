@@ -109,6 +109,7 @@ class AbsenceJustification < ActiveRecord::Base
       absence_justifications = AbsenceJustification.by_classroom(classroom)
                                                    .by_student_id(student_id)
                                                    .by_date_range(absence_date, absence_date_end)
+                                                   .by_teacher(teacher_id)
 
       if frequence_type_by_discipline?
         absence_justifications = absence_justifications.by_disciplines(discipline_ids)

@@ -90,6 +90,8 @@ RSpec.describe DisciplineTeachingPlansController, type: :controller do
   }
 
   before do
+    skip
+
     user_role.unity = unity
     user_role.save!
 

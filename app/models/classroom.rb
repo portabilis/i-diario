@@ -23,8 +23,6 @@ class Classroom < ActiveRecord::Base
   has_many :conceptual_exams, dependent: :restrict_with_error
   has_many :infrequency_trackings, dependent: :restrict_with_error
   has_many :students, through: :student_enrollments
-  has_many :classroom_labels, dependent: :destroy
-  has_many :labels, through: :classroom_labels
 
   before_create :set_label_color
 
@@ -88,6 +86,10 @@ class Classroom < ActiveRecord::Base
     student_enrollment_classrooms.joins(student_enrollment: :student )
                                  .where(students: { uses_differentiated_exam_rule: true } )
                                  .exists?
+  end
+
+  def number_of_classes
+    unity.school_calendars.by_year(year).first.number_of_classes
   end
 
   private

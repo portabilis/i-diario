@@ -7,7 +7,7 @@ class CustomRoundingTable < ActiveRecord::Base
 
   has_many :custom_rounding_table_values, dependent: :destroy
 
-  has_and_belongs_to_many :unities
+  has_and_belongs_to_many :unities, validate: false
   has_and_belongs_to_many :courses, join_table: 'custom_rounding_tables_courses'
   has_and_belongs_to_many :grades
 

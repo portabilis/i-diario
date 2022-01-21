@@ -1,0 +1,39 @@
+<%= stylesheet_link_tag "resources/lessons_boards" %>
+
+<div class="widget-body no-padding">
+  <%= simple_form_for :search, { url: lessons_boards_path, method: :get, html: { class: 'filterable_search_form' } } do |f| %>
+    <div class="table-responsive">
+      <table class="table table-bordered table-only-inner-bordered table-striped table-condensed table-hover" id="resources">
+        <thead>
+          <tr>
+            <td><%= f.input :by_year, label: false, placeholder: t('.by_year') %></td>
+            <td><%= f.input :by_unity, as: :select2, elements: lesson_unities, label: false, placeholder: t('.by_unity') %></td>
+            <td><%= f.input :by_grade, as: :select2, elements: lesson_grades, label: false, placeholder: t('.by_grade') %></td>
+            <td><%= f.input :by_classroom, as: :select2, elements: lesson_classrooms, label: false, placeholder: t('.by_classroom') %></td>
+            <td></td>
+            <td><%= link_to t('.new_html'), new_lessons_board_path, class: "btn btn-primary pull-right" %></td>
+          </tr>
+          <tr>
+            <th style="width: 110px"><%= t('.year') %></th>
+            <th style="width: 340px"><%= t('.unity') %></th>
+            <th><%= t('.grade') %></th>
+            <th><%= t('.classroom') %></th>
+            <th style="width: 150px"><%= t('lessons_boards.form.period') %></th>
+            <td style="width: 120px"></td>
+          </tr>
+        </thead>
+        <%= render 'resources' %>
+          <tfoot id="paginator" class="remote">
+            <td colspan="6">
+              <div id="page_entries_info" class="pull-left hidden-xs">
+                <%= page_entries_info @lessons_boards %>
+              </div>
+              <div class="pull-right">
+                <%= paginate @lessons_boards %>
+              </div>
+            </td>
+          </tfoot>
+      </table>
+    </div>
+  <% end %>
+</div>

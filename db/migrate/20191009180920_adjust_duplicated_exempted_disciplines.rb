@@ -14,7 +14,11 @@ class AdjustDuplicatedExemptedDisciplines < ActiveRecord::Migration
         student_enrollment_exempted_discipline.student_enrollment_id
       ).where.not(
         updated_at: student_enrollment_exempted_discipline.updated_at
-      ).destroy_all
+      ).each do |enrollment|
+        enrollment.without_auditing do
+          enrollment.destroy
+        end
+      end
     end
   end
 end

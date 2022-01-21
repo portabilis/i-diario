@@ -1,3 +1,5 @@
+<%= stylesheet_link_tag "school_calendar_events" %>
+
 <%= simple_form_for @school_calendar_event_batch, html: { class: "smart-form" } do |f| %>
   <%= f.error_notification %>
 
@@ -7,6 +9,15 @@
 
   <footer>
     <%= link_to "Voltar", school_calendar_event_batches_path, class: "btn btn-default" %>
-    <%= f.submit 'Salvar', class: 'btn btn-primary' %>
+
+    <%= link_to "Salvar", nil, class: "btn btn-primary", id: "new-school-calendar-event-button" %>
+    <%= f.submit 'Salvar', class: 'btn btn-primary', id: "submit-school-calendar-event-button", :style => "display: none;" %>
+
   </footer>
+<% end %>
+
+<% content_for :js do %>
+  <script type="text/javascript">
+    <%= render 'form.js.erb' %>
+  </script>
 <% end %>

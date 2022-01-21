@@ -20,6 +20,8 @@ RSpec.describe IeducarApi::PostExams, type: :service do
 
   describe '#send_post' do
     it 'returns message' do
+      skip
+
       VCR.use_cassette('post_exams') do
         result = subject.send_post(
           etapa: etapa,

@@ -19,7 +19,7 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = DailyFrequency.new(daily_frequency_params)
     @daily_frequency.school_calendar = current_school_calendar
     @daily_frequency.teacher_id = current_teacher_id
-    @class_numbers = params[:class_numbers].split(',')
+    @class_numbers = params[:class_numbers].split(',').sort
     @daily_frequency.class_number = @class_numbers.first
     @discipline = params[:daily_frequency][:discipline_id]
     @period = params[:daily_frequency][:period]
@@ -43,12 +43,14 @@ class DailyFrequenciesController < ApplicationController
     @daily_frequency = @daily_frequencies.first
     teacher_period = current_teacher_period
     @period = teacher_period != Periods::FULL.to_i ? teacher_period : nil
+    @general_configuration = GeneralConfiguration.current
 
     authorize @daily_frequency
 
     @students = []
     @any_exempted_from_discipline = false
     @any_inactive_student = false
+    @any_in_active_search = false
 
     fetch_student_enrollments.each do |student_enrollment|
       student = Student.find_by(id: student_enrollment.student_id)
@@ -57,15 +59,18 @@ class DailyFrequenciesController < ApplicationController
 
       dependence = student_has_dependence?(student_enrollment, @daily_frequency.discipline)
       exempted_from_discipline = student_exempted_from_discipline?(student_enrollment, @daily_frequency)
+      in_active_search = ActiveSearch.new.in_active_search?(student_enrollment.id, @daily_frequency.frequency_date)
       @any_exempted_from_discipline ||= exempted_from_discipline
       active = student_active_on_date?(student_enrollment)
+      @any_in_active_search ||= in_active_search
       @any_inactive_student ||= !active
 
       @students << {
         student: student,
         dependence: dependence,
         active: active,
-        exempted_from_discipline: exempted_from_discipline
+        exempted_from_discipline: exempted_from_discipline,
+        in_active_search: in_active_search
       }
     end
 
@@ -138,14 +143,12 @@ class DailyFrequenciesController < ApplicationController
       ReceiptMailer.delay.notify_daily_frequency_success(
         current_user,
         "#{request.base_url}#{edit_multiple_daily_frequencies_path}",
-        daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y')
+        daily_frequency_attributes[:frequency_date].to_date.strftime('%d/%m/%Y'),
+        daily_frequency_record.classroom.description,
+        daily_frequency_record.unity.name
       )
     end
-  rescue StandardError => error
-    Honeybadger.notify(error)
 
-    flash[:alert] = t('.daily_frequency_error')
-  ensure
     redirect_to edit_multiple_daily_frequencies_path
   end
 
@@ -203,7 +206,7 @@ class DailyFrequenciesController < ApplicationController
       daily_frequencies: [
         :class_number,
         students_attributes: [
-          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active]
+          [:id, :daily_frequency_id, :student_id, :present, :dependence, :active, :type_of_teaching]
         ]
       ]
     ).require(:daily_frequencies)
@@ -380,7 +383,7 @@ class DailyFrequenciesController < ApplicationController
   def class_numbers?(class_numbers)
     return false if class_numbers.blank?
 
-    class_numbers = (class_numbers - [0, '0', '', nil])
+    class_numbers = (class_numbers - [0, '0', '', nil, '[]'])
     class_numbers.present?
   end
 

@@ -3,9 +3,5 @@ class AbsenceJustificationAttachment < ActiveRecord::Base
 
   mount_uploader :attachment, DocUploader
 
-  validates :attachment, presence: true
-
-  def filename
-    attachment&.path&.split('/')&.last
-  end
+  delegate :filename, to: :attachment
 end

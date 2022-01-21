@@ -116,6 +116,10 @@ pt-BR:
 
     avaliations:
       <<: *female
+      create:
+        notice: '%{resource_name} foi criada com sucesso para a(s) turma(s) %{classrooms}.'
+      create_multiple_classrooms:
+        notice: '%{resource_name} foi criada com sucesso para a(s) turma(s) %{classrooms}.'
       destroy:
         alert: '%{resource_name} não pode ser apagada pois %{reason}.'
 
@@ -182,3 +186,6 @@ pt-BR:
       destroy:
         notice: "Lançamento de recuperação de avaliação apagado com sucesso."
         alert: "Não é possível apagar registros fora das datas de lançamento da etapa"
+
+      lessons_boards:
+        <<: *male

@@ -3,12 +3,12 @@
     <%= sequence %>
   </td>
   <td>
-    <% name_class = frequency_student_name_class(dependence, active, exempted_from_discipline) %>
-    <% student_name = frequency_student_name(student, dependence, active, exempted_from_discipline) %>
+    <% name_class = frequency_student_name_class(dependence, active, exempted_from_discipline, in_active_search) %>
+    <% student_name = frequency_student_name(student, dependence, active, exempted_from_discipline, in_active_search) %>
     <span class="<%= name_class %>"><%= student_name %></span>
   </td>
 
-  <% @daily_frequencies.each do |daily_frequency| %>
+  <% @daily_frequencies.each_with_index do |daily_frequency, index| %>
     <% class_number = daily_frequency.class_number || 0 %>
     <% daily_frequency_path = "daily_frequency[daily_frequencies]" %>
     <% daily_frequency_student_path = "#{daily_frequency_path}[#{class_number}][students_attributes]" %>
@@ -18,7 +18,14 @@
 
     <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student.id.to_s.rjust(10, '0')}" %>
     <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
-      daily_frequency_student = daily_frequency.build_or_find_by_student(student) do |f| %>
+      daily_frequency_student = daily_frequency.build_or_find_by_student(student.id) do |f| %>
+      <% if @general_configuration.type_of_teaching == true && index == 0 %>
+          <td>
+            <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
+                label: false, required: false,
+                input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: :type_of_teaching } }  %>
+          </td>
+      <% end %>
       <td>
         <%= f.hidden_field :id, value: daily_frequency_student.id %>
         <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
@@ -26,10 +33,17 @@
         <%= f.hidden_field :dependence, value: dependence %>
         <%= f.hidden_field :active, value: active %>
 
-        <label class="checkbox <%= active && !exempted_from_discipline ? "" : "state-disabled" %>">
-          <%= f.check_box :present, disabled: !active || exempted_from_discipline %>
+        <label class="checkbox <%= active && !exempted_from_discipline && !in_active_search ? "" : "state-disabled" %>">
+          <%= f.check_box :present, disabled: !active || exempted_from_discipline || in_active_search, data: { id: 'checkbox-id' }%>
           <i></i>
         </label>
+        <% if @general_configuration.type_of_teaching == true && index != 0 %>
+          <span class='hidden'>
+            <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
+                label: false, required: false,
+                input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
+          </span>
+        <% end %>
       </td>
     <% end %>
   <% end %>

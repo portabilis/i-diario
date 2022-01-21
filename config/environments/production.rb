@@ -79,4 +79,10 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  # Set other trusted IPs, so they are not being considered as the client IP
+  # See the default in actionpack/lib/action_dispatch/middleware/remote_ip.rb
+  config.action_dispatch.trusted_proxies = (
+    Rails.application.secrets[:trusted_proxies]&.split || []
+  ).map { |proxy| IPAddr.new(proxy) }
 end

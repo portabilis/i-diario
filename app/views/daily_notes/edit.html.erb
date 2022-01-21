@@ -5,14 +5,24 @@
       <th><%= DailyNote.human_attribute_name :classroom %></th>
       <th><%= DailyNote.human_attribute_name :discipline %></th>
       <th><%= DailyNote.human_attribute_name :avaliation %></th>
+      <th></th>
     </thead>
     <tbody style="border-bottom: 1px solid #ccc;">
       <td><%= @daily_note.classroom.unity %></td>
       <td><%= @daily_note.classroom %></td>
       <td><%= @daily_note.discipline %></td>
       <td><%= @daily_note.avaliation.description_to_teacher %></td>
+      <td style='white-space: nowrap;width: 1%;'>
+        <%= link_to("#", class: 'btn btn-primary btn-exempt-students-disabled open-exemption-modal',
+                         id: 'exempt_students_button',
+                         disabled: true) do %>
+          Dispensar selecionados
+        <% end %>
+      </td>
     </tbody>
   </table>
+
+  <%= hidden_field_tag(:daily_note_id, @daily_note.id) %>
 
   <%= simple_form_for @daily_note, html: { class: "smart-form" } do |f| %>
     <%= f.error_notification %>
@@ -25,7 +35,13 @@
         <col style="width: 200px;" />
       </colgroup>
       <thead>
-        <th>Sequencial</th>
+        <th>
+          <div class="controls input">
+            <label class="checkbox">
+              <input class="boolean optional exempt_student_check_all" type="checkbox">Sequencial<i></i>
+            </label>
+          </div>
+        </th>
         <th><%= DailyNoteStudent.human_attribute_name :student %></th>
         <th><%= DailyNoteStudent.human_attribute_name :note %></th>
       </thead>
@@ -80,6 +96,16 @@
             </td>
           </tr>
         <% end %>
+
+        <% if @any_in_active_search %>
+          <tr>
+            <td colspan="3">
+              <span class="daily-note-student-legend">
+                <%= t('.in_active_search') %>
+              </span>
+            </td>
+          </tr>
+        <% end %>
       </tbody>
     </table>
 
@@ -92,3 +118,5 @@
     </footer>
   <% end %>
 </div>
+
+<%= render 'exemption_modal' %>

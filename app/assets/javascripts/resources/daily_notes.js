@@ -136,4 +136,108 @@ $(function () {
       }
     }
   });
+
+  var checkBoxes = $('.exempt_student_check'),
+      exemptButton = $('#exempt_students_button'),
+      studentsIds = $('#exemption_students_ids');
+
+  $(document).on('click', 'a.open-exemption-modal', function(){
+    var title = 'Tem certeza que deseja dispensar este aluno?'
+
+    if($(this).attr('id') == 'exempt_students_button'){
+      title = 'Tem certeza que deseja dispensar os alunos selecionados?';
+    } else {
+      studentsIds.val($(this).data('student-id'));
+    }
+
+    $('.modal-title').text(title);
+    $('#exemption-modal').modal('show');
+  });
+
+  $('#exemption-modal').on('hidden.bs.modal', function () {
+    studentsIds.val('');
+  });
+
+  $('#exemption-modal').on('show.bs.modal', function () {
+    $('#reason').val('');
+    $('#exemption-modal button:submit').attr('disabled', true);
+  });
+
+  $('#reason').keyup(function(){
+    if($(this).val().trim().length !=0) {
+      $('#exemption-modal button:submit').attr('disabled', false);
+    } else {
+      $('#exemption-modal button:submit').attr('disabled',true);
+    }
+  });
+
+  function updateStudentIds(checked, value) {
+    var studentsIdsCurrentValue = studentsIds.val();
+
+    if(checked) {
+      if (studentsIdsCurrentValue){
+        studentsIds.val(studentsIdsCurrentValue + ',' + value);
+      } else{
+        studentsIds.val(value);
+      }
+    } else {
+      var newList = removeStudentId(studentsIdsCurrentValue, value);
+      studentsIds.val(newList);
+    }
+  }
+
+  function removeStudentId(list, id) {
+    separator = ",";
+    var values = list.split(separator);
+    for(var i = 0 ; i < values.length ; i++) {
+      if(values[i] == id) {
+        values.splice(i, 1);
+        return values.join(separator);
+      }
+    }
+    return list;
+  }
+
+  function toggleExemptionButtonState(enabled){
+    exemptButton.attr('disabled', !enabled);
+
+    if (enabled) {
+      exemptButton.removeClass('btn-exempt-students-disabled');
+      exemptButton.addClass('btn-exempt-students-enabled');
+    } else {
+      exemptButton.addClass('btn-exempt-students-disabled');
+      exemptButton.removeClass('btn-exempt-students-enabled');
+    }
+  }
+
+  function updateBackgound(checked, student_id) {
+    if (checked) {
+      $('#tr_student_'+ student_id).addClass('selected-student-tr');
+    } else {
+      $('#tr_student_'+ student_id).removeClass('selected-student-tr');
+    }
+  }
+
+  checkBoxes.click(function() {
+    var checked = checkBoxes.is(":checked");
+
+    updateBackgound($(this).is(":checked"), this.value);
+    toggleExemptionButtonState(checked);
+    updateStudentIds($(this).is(":checked"), this.value)
+  });
+
+  $('.exempt_student_check_all:input').change(function() {
+    var enabledCheckoxes = $('.exempt_student_check');
+
+    if (enabledCheckoxes.length > 0) {
+      var check_all = this.checked;
+      studentsIds.val('');
+      enabledCheckoxes.prop('checked', check_all);
+      $.each(enabledCheckoxes, function(i, element){
+        updateBackgound(check_all, element.value);
+        updateStudentIds(check_all, element.value);
+      });
+      toggleExemptionButtonState(check_all);
+    }
+  });
 });

@@ -35,7 +35,9 @@ class PopulateSchoolTermTypeStepToTestSettings < ActiveRecord::Migration
         step_number: step_number
       )&.id
 
-      test_setting.update(school_term_type_step_id: school_term_type_step_id)
+      test_setting.without_auditing do
+        test_setting.update(school_term_type_step_id: school_term_type_step_id)
+      end
     end
   end
 end

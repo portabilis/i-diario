@@ -8,6 +8,7 @@ pt-BR:
       exempted_students_legend: "** Alunos dispensados da avaliação"
       inactive_students_legend: "*** Alunos não enturmados"
       exempted_students_from_discipline_legend: "**** Alunos dispensados da disciplina"
+      in_active_search: "***** Alunos em busca ativa"
 
     index:
       new_html: "<i class='fa fa-plus'></i> Novo lançamento"

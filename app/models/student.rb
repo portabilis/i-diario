@@ -26,7 +26,7 @@ class Student < ActiveRecord::Base
   has_many :student_unifications
   has_many :student_unification_students
 
-  attr_accessor :exempted_from_discipline
+  attr_accessor :exempted_from_discipline, :in_active_search
 
   validates :name, presence: true
   validates :api_code, presence: true, if: :api?

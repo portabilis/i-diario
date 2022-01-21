@@ -1,0 +1,27 @@
+<div class="modal fade" tabindex="-1" role="dialog" id="modal-delete-school_calendar_event-<%=school_calendar_event.id%>" aria-hidden="true">>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <strong>
+          <h4 class="modal-title" style='text-align:left'>Deseja excluir o evento?
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </h4>
+        </strong>
+      </div>
+      <div class="modal-body" style='text-align:left'>
+        <strong>
+          <h5>Na existência de lançamentos de frequências vinculadas ao evento, estas serão removidas ao excluir o mesmo,
+            não sendo possível restaurá-las. Deseja prosseguir?
+          </h5>
+        </strong>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn new-school-calendar-event-cancel" data-dismiss="modal">Continuar sem excluir</button>
+        <%= link_to 'Prosseguir', [school_calendar_event],
+                    class: "btn new-school-calendar-event-button", method: "delete", data: { confirm: "Tem certeza?" } %>
+      </div>
+    </div>
+  </div>
+</div>
