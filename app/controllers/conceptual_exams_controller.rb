@@ -136,11 +136,9 @@ class ConceptualExamsController < ApplicationController
     authorize @conceptual_exam
 
     if @conceptual_exam.valid?
-      current_teacher_disciplines = Discipline.by_teacher_and_classroom(current_teacher.id, current_user_classroom.id)
-      values_to_destroy = ConceptualExamValue.by_conceptual_exam_id(@conceptual_exam.id)
-                                             .by_discipline_id(current_teacher_disciplines)
+      ConceptualExamValue.by_conceptual_exam_id(@conceptual_exam.id)
+                         .destroy_all
 
-      values_to_destroy.each(&:destroy)
       @conceptual_exam.destroy unless ConceptualExamValue.by_conceptual_exam_id(@conceptual_exam.id).any?
     end
 
