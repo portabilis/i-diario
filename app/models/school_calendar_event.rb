@@ -224,13 +224,20 @@ class SchoolCalendarEvent < ActiveRecord::Base
   end
 
   def start_at_and_end_at_in_step
-    if start_date < school_calendar.steps.first.start_at || start_date > school_calendar.steps.last.end_at
-      errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps'))
+    start_date_in_any_step = false
+    end_date_in_any_step = false
+
+    school_calendar.steps.each do |step|
+        start_date_in_step = start_date.between?(step.start_at, step.end_at)
+        end_date_in_step = end_date.between?(step.start_at, step.end_at)
+        start_date_in_any_step = true if start_date_in_step
+        end_date_in_any_step = true if end_date_in_step
+
+        break if start_date_in_step && end_date_in_step
     end
 
-    if end_date < school_calendar.steps.first.start_at || end_date > school_calendar.steps.last.end_at
-      errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps'))
-    end
+    errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps')) unless start_date_in_any_step
+    errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps')) unless end_date_in_any_step
   end
 
   def uniqueness_of_start_at_and_end_at
