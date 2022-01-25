@@ -18,9 +18,9 @@
                       data: { toggle: "modal", target: "#modal-delete-school_calendar_event-#{school_calendar_event.id}" } do %>
             Excluir
           <% end %>
+          <%= render 'confirm_delete_event_model', :school_calendar_event => school_calendar_event %>
         </td>
       </tr>
-      <%= render 'confirm_delete_event_model', :school_calendar_event => school_calendar_event %>
     <% end %>
   <% end %>
 </tbody>
