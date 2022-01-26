@@ -8,7 +8,7 @@ class ComplementaryExamSettingsFetcher
 
   def settings
     @complementary_exam_settings ||= ComplementaryExamSetting
-      .by_grade_id(@classroom.grade_id)
+      .by_grade_id(@classroom.grade_ids)
       .by_year(@classroom.year)
       .where(" NOT EXISTS (#{not_exists_condition})")
       .ordered

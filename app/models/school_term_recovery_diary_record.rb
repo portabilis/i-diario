@@ -88,8 +88,7 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   def recovery_type_must_allow_recovery_for_classroom
     return if recovery_diary_record.blank? || classroom.blank?
-
-    if classroom.exam_rule.recovery_type == RecoveryTypes::DONT_USE
+    if classroom.first_exam_rule.recovery_type == RecoveryTypes::DONT_USE
       errors.add(:recovery_diary_record, :recovery_type_must_allow_recovery_for_classroom)
       recovery_diary_record.errors.add(:classroom, :recovery_type_must_allow_recovery_for_classroom)
     end
@@ -97,9 +96,9 @@ class SchoolTermRecoveryDiaryRecord < ActiveRecord::Base
 
   def recovery_type_must_allow_recovery_for_step
     return if recovery_diary_record.blank? || classroom.blank? || step.blank?
-    return if classroom.exam_rule.recovery_type != RecoveryTypes::SPECIFIC
+    return if classroom.first_exam_rule.recovery_type != RecoveryTypes::SPECIFIC
 
-    if classroom.exam_rule.recovery_exam_rules.none? { |r| r.steps.include?(step.to_number) }
+    if classroom.first_exam_rule.recovery_exam_rules.none? { |r| r.steps.include?(step.to_number) }
       errors.add(:step_id, :recovery_type_must_allow_recovery_for_step)
     end
   end

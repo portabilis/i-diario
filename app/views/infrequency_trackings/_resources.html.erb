@@ -7,7 +7,7 @@
     <% @infrequency_trackings.each do |infrequency_tracking| %>
       <tr>
         <td><%= infrequency_tracking.classroom.unity %></td>
-        <td><%= infrequency_tracking.classroom.grade %></td>
+        <td><%= infrequency_tracking.classroom.grades.map(&:description).join(', ') %></td>
         <td><%= infrequency_tracking.classroom %></td>
         <td><%= infrequency_tracking.student %></td>
         <td><%= l(infrequency_tracking.notification_date) %></td>

@@ -56,8 +56,10 @@ class ConceptualExamValue < ActiveRecord::Base
           and(TeacherDisciplineClassroom.arel_table[:discipline_id].eq(arel_table[:discipline_id]))).join_sources,
       arel_table.join(Classroom.arel_table).
         on(Classroom.arel_table[:id].eq(ConceptualExam.arel_table[:classroom_id])).join_sources,
+      arel_table.join(ClassroomsGrade.arel_table).
+        on(ClassroomsGrade.arel_table[:classroom_id].eq(ConceptualExam.arel_table[:classroom_id])).join_sources,
       arel_table.join(ExamRule.arel_table).
-        on(ExamRule.arel_table[:id].eq(Classroom.arel_table[:exam_rule_id])).join_sources,
+        on(ExamRule.arel_table[:id].eq(ClassroomsGrade.arel_table[:exam_rule_id])).join_sources,
       arel_table.join(differentiated_exam_rule_students, Arel::Nodes::OuterJoin).
         on(differentiated_exam_rule_students[:id].eq(ConceptualExam.arel_table[:student_id]).
           and(differentiated_exam_rule_students[:uses_differentiated_exam_rule].eq(true))).join_sources,

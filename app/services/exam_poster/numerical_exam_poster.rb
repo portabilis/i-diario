@@ -29,6 +29,15 @@ module ExamPoster
       end
     end
 
+    def exam_rule_definer(classroom, student)
+      student_enrrollment_classroom = StudentEnrollmentClassroom.by_student(student)
+                                                                .by_classroom(classroom)
+                                                                .by_date(Date.current)
+                                                                .first
+      grade_id = student_enrrollment_classroom.classrooms_grade.grade_id
+      classroom.classrooms_grades.find_by(grade_id: grade_id).exam_rule
+    end
+
     def post_by_classrooms
       scores = Hash.new { |hash, key| hash[key] = Hash.new(&hash.default_proc) }
       classroom_ids = teacher.teacher_discipline_classrooms.pluck(:classroom_id).uniq.compact
@@ -56,8 +65,10 @@ module ExamPoster
           student_scores = teacher_score_fetcher.scores
 
           student_scores.each do |student_score|
+            exam_rule = exam_rule_definer(classroom, student_score)
             next if exempted_discipline(classroom, discipline.id, student_score.id)
-            next unless correct_score_type(student_score.uses_differentiated_exam_rule, classroom.exam_rule)
+            next unless correct_score_type(student_score.uses_differentiated_exam_rule,
+                                           exam_rule)
 
             exempted_discipline_ids =
               ExemptedDisciplinesInStep.discipline_ids(classroom.id, get_step(classroom).to_number)

@@ -26,10 +26,10 @@ class SchoolTermAverageCalculator
   end
 
   def calculate_average?
-    classroom.exam_rule.try(:calculate_school_term_average?)
+    classroom.first_exam_rule.try(:calculate_school_term_average?)
   end
 
   def calculate_sum?
-    classroom.exam_rule.try(:calculate_school_term_sum?)
+    classroom.first_exam_rule.try(:calculate_school_term_sum?)
   end
 end

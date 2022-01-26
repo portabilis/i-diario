@@ -43,7 +43,7 @@ class KnowledgeAreaContentRecord < ActiveRecord::Base
   validate :ensure_is_school_day
 
   delegate :contents, :classroom, :record_date, to: :content_record
-  delegate :grade, to: :classroom
+  delegate :grades, to: :classroom
 
   def knowledge_area_ids
     knowledge_areas.collect(&:id).join(',')

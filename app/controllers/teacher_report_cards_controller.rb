@@ -19,7 +19,7 @@ class TeacherReportCardsController < ApplicationController
       unity = current_unity
       discipline = Discipline.find(@teacher_report_card_form.discipline_id)
       classroom = Classroom.find(@teacher_report_card_form.classroom_id)
-      grade = classroom.grade
+      grade = Grade.find(@teacher_report_card_form.grade_id)
       course = grade.course
       year = current_school_calendar.year
 
@@ -65,9 +65,14 @@ class TeacherReportCardsController < ApplicationController
   end
   helper_method :disciplines
 
+  def grades
+    @grades ||= current_user_classroom.classrooms_grades.map(&:grade)
+  end
+  helper_method :grades
+
   def resource_params
     params.require(:teacher_report_card_form).permit(
-      :unity_id, :classroom_id, :discipline_id, :status
+      :unity_id, :classroom_id, :grade_id, :discipline_id, :status
     )
   end
 end

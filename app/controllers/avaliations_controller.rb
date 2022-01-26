@@ -53,6 +53,7 @@ class AvaliationsController < ApplicationController
   end
 
   def multiple_classrooms
+    return if current_user_classroom.multi_grade?
     return if test_settings_redirect
     return if score_types_redirect
 
@@ -202,15 +203,22 @@ class AvaliationsController < ApplicationController
   end
 
   def resource_params
-    params.require(:avaliation).permit(:test_setting_id,
-                                       :classroom_id,
-                                       :discipline_id,
-                                       :test_date,
-                                       :classes,
-                                       :description,
-                                       :test_setting_test_id,
-                                       :weight,
-                                       :observations)
+    parameters = params.require(:avaliation).permit(
+      :test_setting_id,
+      :classroom_id,
+      :discipline_id,
+      :test_date,
+      :classes,
+      :description,
+      :test_setting_test_id,
+      :weight,
+      :observations,
+      :grade_ids
+    )
+
+    parameters[:grade_ids] = parameters[:grade_ids].split(',')
+
+    parameters
   end
 
   def interpolation_options
@@ -261,7 +269,10 @@ class AvaliationsController < ApplicationController
   def general_by_school_test_setting(year_test_setting)
     year_test_setting.where(exam_setting_type: ExamSettingTypes::GENERAL_BY_SCHOOL)
                      .by_unities(current_user_classroom.unity)
-                     .where("grades @> ARRAY[?]::integer[] OR grades = '{}'", current_user_classroom.grade)
+                     .where(
+                       "grades && ARRAY[?]::integer[] OR grades = '{}'",
+                       current_user_classroom.grade_ids
+                     )
                      .presence
   end
 
@@ -276,10 +287,15 @@ class AvaliationsController < ApplicationController
   end
 
   def score_types_redirect
-    available_score_types = [teacher_differentiated_discipline_score_type, teacher_discipline_score_type]
+    available_score_types = (teacher_differentiated_discipline_score_types + teacher_discipline_score_types).uniq
 
     return if available_score_types.any? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
 
     redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
   end
+
+  def grades
+    @grades ||= current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+  end
+  helper_method :grades
 end
