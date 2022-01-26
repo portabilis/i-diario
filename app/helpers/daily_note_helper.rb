@@ -13,6 +13,7 @@ module DailyNoteHelper
     classes = 'btn'
     classes << ' btn-default undo-exemption' if exempted
     classes << ' btn-primary do-exemption open-exemption-modal' unless exempted
+    classes << 'readonly' if student.in_active_search
 
     data = exempted ? { remote: true, method: 'post' } : { student_id: student_id }
 

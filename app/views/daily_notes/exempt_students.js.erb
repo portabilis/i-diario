@@ -17,8 +17,6 @@ $.each(students_ids, function(i, student_id){
   }
 
   var noteInput = $("#tr_student_" + student_id + " input[id ^='daily_note_students_attributes'][id $='note']")[0];
-  $(noteInput).attr('readonly', 'readonly');
-  $(noteInput).attr('placeholder', 'Dispensado');
   $(noteInput).val('');
   $(noteInput).addClass('exempted-student');
 
@@ -34,4 +32,9 @@ $.each(students_ids, function(i, student_id){
   undo_exemption_button.attr('data-remote', 'true');
   undo_exemption_button.attr('data-method', 'post');
   undo_exemption_button.attr('href', undo_url);
+
+  if (!studentName.hasClass('in-active-search')) {
+    $(noteInput).attr('readonly', 'readonly');
+    $(noteInput).attr('placeholder', 'Dispensado');
+  }
 });
