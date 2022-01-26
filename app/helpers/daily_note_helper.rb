@@ -19,6 +19,6 @@ module DailyNoteHelper
     data = exempted ? { remote: true, method: 'post' } : { student_id: student_id }
 
     link_to('', target, class: classes, title: title, data: data, style: 'float: right;',
-            id: "do_undo_exemption_#{student_id}")
+                        id: "do_undo_exemption_#{student_id}")
   end
 end
