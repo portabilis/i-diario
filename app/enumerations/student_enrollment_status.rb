@@ -1,4 +1,4 @@
-class ActiveSearchStatus < EnumerateIt::Base
+class StudentEnrollmentStatus < EnumerateIt::Base
   associate_values approved: 1,
                    disapproved: 2,
                    studying: 3,
