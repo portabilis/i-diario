@@ -224,6 +224,8 @@ class SchoolCalendarEvent < ActiveRecord::Base
   end
 
   def start_at_and_end_at_in_step
+    return if school_calendar.nil?
+
     start_date_in_any_step = false
     end_date_in_any_step = false
 
