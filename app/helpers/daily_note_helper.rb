@@ -14,9 +14,11 @@ module DailyNoteHelper
     classes << ' btn-default undo-exemption' if exempted
     classes << ' btn-primary do-exemption open-exemption-modal' unless exempted
     classes << 'readonly' if student.in_active_search
+    title = exempted ? 'Desfazer' : 'Dispensar'
 
     data = exempted ? { remote: true, method: 'post' } : { student_id: student_id }
 
-    link_to('', target, class: classes, data: data, style: 'float: right;', id: "do_undo_exemption_#{student_id}")
+    link_to('', target, class: classes, title: title, data: data, style: 'float: right;',
+            id: "do_undo_exemption_#{student_id}")
   end
 end

@@ -32,6 +32,7 @@ $.each(students_ids, function(i, student_id){
   undo_exemption_button.attr('data-remote', 'true');
   undo_exemption_button.attr('data-method', 'post');
   undo_exemption_button.attr('href', undo_url);
+  undo_exemption_button.attr('title', 'Desfazer');
 
   if (!studentName.hasClass('in-active-search')) {
     $(noteInput).attr('readonly', 'readonly');
