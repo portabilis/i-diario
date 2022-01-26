@@ -1,6 +1,7 @@
 class YearsFromStudentFetcher
   def fetch(student_id)
     student_enrollment_classrooms = StudentEnrollmentClassroom.by_student(student_id).includes(:classrooms_grade)
+
     return if student_enrollment_classrooms.nil?
 
     years = student_enrollment_classrooms.map { |student_enrollment_classroom|
