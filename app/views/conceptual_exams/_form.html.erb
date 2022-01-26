@@ -78,7 +78,7 @@
     <%= link_to t('views.form.back'), conceptual_exams_path, class: 'btn btn-default' %>
     <%= link_to t('views.form.history'), history_conceptual_exam_path(@conceptual_exam),
       class: 'btn btn-info' if @conceptual_exam.persisted? %>
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
-    <%= f.submit t('.save_and_go_to_the_next'), class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
+    <%= f.submit t('views.form.save'), id: 'btn-save', class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
+    <%= f.submit t('.save_and_go_to_the_next'), id: 'btn-save-and-next', class: 'btn btn-primary', data: { disable_with: 'Salvando...'} %>
   </footer>
 <% end %>
