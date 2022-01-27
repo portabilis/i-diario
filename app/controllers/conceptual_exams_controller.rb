@@ -6,6 +6,7 @@ class ConceptualExamsController < ApplicationController
   before_action :require_current_teacher
   before_action :adjusted_period
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :view_data, only: [:edit, :show]
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
@@ -91,14 +92,6 @@ class ConceptualExamsController < ApplicationController
     mark_not_existing_disciplines_as_invisible
 
     render :new
-  end
-
-  def edit
-    view_data
-  end
-
-  def show
-    view_data
   end
 
   def update
