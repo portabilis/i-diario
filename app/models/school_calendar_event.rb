@@ -33,6 +33,7 @@ class SchoolCalendarEvent < ActiveRecord::Base
   validate :uniqueness_of_start_at_in_course
   validate :uniqueness_of_end_at_in_course
   validate :uniqueness_of_start_at_and_end_at
+  validate :start_at_and_end_at_in_step
 
   scope :ordered, -> { order(arel_table[:start_date]) }
   scope :school_event, -> { where(event_type: [EventTypes::EXTRA_SCHOOL, EventTypes::EXTRA_SCHOOL_WITHOUT_FREQUENCY]) }
@@ -220,6 +221,25 @@ class SchoolCalendarEvent < ActiveRecord::Base
       errors.add(:start_date, 'deve ser menor que a data final')
       errors.add(:end_date, 'deve ser maior ou igual a data inicial')
     end
+  end
+
+  def start_at_and_end_at_in_step
+    return if school_calendar.nil?
+
+    start_date_in_any_step = false
+    end_date_in_any_step = false
+
+    school_calendar.steps.each do |step|
+        start_date_in_step = start_date.between?(step.start_at, step.end_at)
+        end_date_in_step = end_date.between?(step.start_at, step.end_at)
+        start_date_in_any_step = true if start_date_in_step
+        end_date_in_any_step = true if end_date_in_step
+
+        break if start_date_in_step && end_date_in_step
+    end
+
+    errors.add(:start_date, I18n.t('errors.messages.is_not_between_steps')) unless start_date_in_any_step
+    errors.add(:end_date, I18n.t('errors.messages.is_not_between_steps')) unless end_date_in_any_step
   end
 
   def uniqueness_of_start_at_and_end_at
