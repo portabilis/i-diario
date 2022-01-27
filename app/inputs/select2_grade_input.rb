@@ -19,11 +19,14 @@ class Select2GradeInput < Select2Input
     grades = []
 
     if user.current_classroom.present?
-      grades = user.current_classroom.grades
+      grades = Grade.joins(classrooms_grades: :classroom)
+                    .where(classrooms: { id: user.current_classroom })
     elsif user.current_teacher.present?
-      grades = user.current_teacher.classrooms.map(&:grades).uniq
+      grades = Grade.joins(classrooms_grades: :classroom)
+                    .where(classrooms: { id: user.current_teacher.classrooms })
     elsif user.current_unity.present?
-      grades = user.current_unity.classrooms.with_grade.map(&:grades).uniq
+      grades = Grade.joins(classrooms_grades: :classroom)
+                    .where(classrooms: { id: user.current_unity.classrooms })
     end
 
     options[:elements] = grades
