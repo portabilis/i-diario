@@ -34,7 +34,9 @@ module ExamPoster
                                                                 .by_classroom(classroom)
                                                                 .by_date(Date.current)
                                                                 .first
-      grade_id = student_enrrollment_classroom.classrooms_grade.grade_id
+      return if student_enrrollment_classroom.nil?
+
+      grade_id = student_enrrollment_classroom.classrooms_grade&.grade_id
       classroom.classrooms_grades.find_by(grade_id: grade_id).exam_rule
     end
 
@@ -97,7 +99,7 @@ module ExamPoster
     def correct_score_type(differentiated, exam_rule)
       exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
       score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
-      score_types.include? exam_rule.score_type
+      score_types.include? exam_rule&.score_type
     end
 
     def fetch_school_term_recovery_score(classroom, discipline, student)
