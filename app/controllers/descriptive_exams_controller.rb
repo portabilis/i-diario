@@ -64,22 +64,18 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def find
-    return if params[:discipline_id].blank? || params[:step_id].blank?
+    return if params[:step_id].blank? || params[:opinion_type].blank?
+
+    discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
+    step_id = opinion_type_by_year?(params[:opinion_type].to_i) ? nil : params[:step_id].to_i
 
     set_opinion_types
 
-    if @opinion_types&.first&.id == OpinionTypes::BY_STEP
-      descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
-                                           .by_step_id(current_user_classroom, params[:step_id].to_i)
-                                           .first
-                                           &.id
-    elsif @opinion_types&.first&.id == OpinionTypes::BY_STEP_AND_DISCIPLINE
-      descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
-                                           .by_discipline_id(params[:discipline_id].to_i)
-                                           .by_step_id(current_user_classroom, params[:step_id].to_i)
-                                           .first
-                                           &.id
-    end
+    descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
+                                         .by_discipline_id(discipline_id)
+                                         .by_step_id(current_user_classroom, step_id)
+                                         .first
+                                         .id
 
     render json: descriptive_exam_id
   end
@@ -138,8 +134,8 @@ class DescriptiveExamsController < ApplicationController
     descriptive_exam
   end
 
-  def opinion_type_by_year?
-    [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(@descriptive_exam.opinion_type)
+  def opinion_type_by_year?(opinion_type = nil)
+    [OpinionTypes::BY_YEAR, OpinionTypes::BY_YEAR_AND_DISCIPLINE].include?(opinion_type || @descriptive_exam.opinion_type)
   end
 
   def recorded_at_by_step

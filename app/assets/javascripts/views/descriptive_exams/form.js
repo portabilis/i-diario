@@ -56,18 +56,21 @@ $(function () {
   setFields();
 
   $step.on('change', function() {
-    let step_id = $step.val();
+    let step_id = $step.val(),
+        discipline_id = $discipline.val(),
+        opinion_type = $('#descriptive_exam_opinion_type').val();
 
     $.ajax({
       url: Routes.find_descriptive_exams_pt_br_path({
         discipline_id: discipline_id,
         step_id: step_id,
+        opinion_type: opinion_type,
         format: 'json'
       }),
       success: function(data) {
         let descriptive_exam_id = data;
 
-        if (descriptive_exam_id === null) {
+        if (descriptive_exam_id === null || !$.isNumeric(descriptive_exam_id)) {
           return;
         }
 
