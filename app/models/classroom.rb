@@ -98,6 +98,10 @@ class Classroom < ActiveRecord::Base
     classrooms_grades.first.exam_rule
   end
 
+  def first_grade
+    classrooms_grades.first.grade
+  end
+
   def courses
     grades.map(&:course)
   end
