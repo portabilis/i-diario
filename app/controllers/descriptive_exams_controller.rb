@@ -3,6 +3,7 @@ class DescriptiveExamsController < ApplicationController
   before_action :require_teacher
   before_action :adjusted_period, only: [:edit, :update]
   before_action :require_allow_to_modify_prev_years, only: :update
+  before_action :view_data, only: [:edit, :show]
 
   def new
     @descriptive_exam = DescriptiveExam.new
@@ -29,14 +30,6 @@ class DescriptiveExamsController < ApplicationController
 
       render :new
     end
-  end
-
-  def edit
-    @descriptive_exam = DescriptiveExam.find(params[:id]).localized
-
-    authorize @descriptive_exam
-
-    fetch_students
   end
 
   def update
@@ -68,6 +61,27 @@ class DescriptiveExamsController < ApplicationController
     set_opinion_types(Classroom.find(params[:classroom_id]))
 
     render json: @opinion_types.to_json
+  end
+
+  def find
+    return if params[:discipline_id].blank? || params[:step_id].blank?
+
+    set_opinion_types
+
+    if @opinion_types&.first&.id == OpinionTypes::BY_STEP
+      descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
+                                           .by_step_id(current_user_classroom, params[:step_id].to_i)
+                                           .first
+                                           &.id
+    elsif @opinion_types&.first&.id == OpinionTypes::BY_STEP_AND_DISCIPLINE
+      descriptive_exam_id = DescriptiveExam.by_classroom_id(current_user_classroom.id)
+                                           .by_discipline_id(params[:discipline_id].to_i)
+                                           .by_step_id(current_user_classroom, params[:step_id].to_i)
+                                           .first
+                                           &.id
+    end
+
+    render json: descriptive_exam_id
   end
 
   protected
@@ -264,5 +278,15 @@ class DescriptiveExamsController < ApplicationController
     flash[:alert] = message
 
     redirect_to root_path
+  end
+
+  private
+
+  def view_data
+    @descriptive_exam = DescriptiveExam.find(params[:id]).localized
+
+    authorize @descriptive_exam
+
+    fetch_students
   end
 end
