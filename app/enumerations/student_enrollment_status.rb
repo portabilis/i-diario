@@ -1,6 +1,6 @@
 class StudentEnrollmentStatus < EnumerateIt::Base
   associate_values approved: 1,
-                   reproved: 2,
+                   repproved: 2,
                    studying: 3,
                    transferred: 4,
                    reclassified: 5,
