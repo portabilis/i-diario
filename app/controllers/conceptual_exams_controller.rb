@@ -94,18 +94,11 @@ class ConceptualExamsController < ApplicationController
   end
 
   def edit
-    @conceptual_exam = ConceptualExam.find(params[:id]).localized
-    @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
-    @conceptual_exam.step_id = find_step_id
+    view_data
+  end
 
-    authorize @conceptual_exam
-
-    fetch_collections
-
-    add_missing_disciplines
-    mark_not_assigned_disciplines_for_destruction
-    mark_not_existing_disciplines_as_invisible
-    mark_exempted_disciplines
+  def show
+    view_data
   end
 
   def update
@@ -174,6 +167,20 @@ class ConceptualExamsController < ApplicationController
   end
 
   private
+
+  def view_data
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+    @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
+    @conceptual_exam.step_id = find_step_id
+
+    authorize @conceptual_exam
+
+    fetch_collections
+    add_missing_disciplines
+    mark_not_assigned_disciplines_for_destruction
+    mark_not_existing_disciplines_as_invisible
+    mark_exempted_disciplines
+  end
 
   def resource_params
     params.require(:conceptual_exam).permit(
