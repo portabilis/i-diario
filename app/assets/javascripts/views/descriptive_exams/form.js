@@ -67,9 +67,7 @@ $(function () {
         opinion_type: opinion_type,
         format: 'json'
       }),
-      success: function(data) {
-        let descriptive_exam_id = data;
-
+      success: function(descriptive_exam_id) {
         if (descriptive_exam_id === null || !$.isNumeric(descriptive_exam_id)) {
           return;
         }
