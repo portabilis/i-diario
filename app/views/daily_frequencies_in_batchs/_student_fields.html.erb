@@ -1,0 +1,111 @@
+<tr>
+  <td style="text-align: center; vertical-align: middle; width: 20px;"> <%= index + 1 %> </td>
+  <td style="vertical-align: middle;">
+    <% student_name = student[:student][:name] %>
+    <% color = false %>
+    <% if @additional_data.any? %>
+      <% @additional_data.each do |additional_data| %>
+        <% if additional_data[:student_id] == student[:student][:id] && additional_data[:tooltip] == 'Dependência' %>
+          <% student_name = '*' + student[:student][:name] %>
+          <% color = '#a90329' %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <span style="color: <%= color %>"><%= student_name %></span>
+  </td>
+  <% absences_on_the_period = 0 %>
+  <% if @general_configuration.type_of_teaching == true %>
+    <td style="width: 150px;">
+      <%= form.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
+                  label: false, required: false,
+                  input_html: { value: student[:type_of_teaching], data: { without_json_parser: true, id: :type_of_teaching } }  %>
+    </td>
+  <% end %>
+  <% params[:dates].each do |date| %>
+    <% additional_class = nil %>
+    <% tooltip = nil %>
+    <% if @additional_data.any? %>
+      <% @additional_data.each do |additional_data| %>
+        <% if additional_data[:date] == date[:date] && additional_data[:student_id] == student[:student][:id]%>
+          <% additional_class = additional_data[:additional_class] %>
+          <% tooltip = additional_data[:tooltip] %>
+        <% end %>
+      <% end %>
+    <% end %>
+    <td style="width: 1%;">
+      <div class="<%= additional_class %>" style="display: flex; max-height: 50px">
+        <div style="width: 30px; margin: 0 5px;">
+          <span>
+            &nbsp
+            <br>
+          </span>
+          <label title="<%= tooltip %>" class="checkbox <%= additional_class ? 'state-disabled never-change ' + additional_class : '' %>" style="left: 4px; bottom: 15px;">
+            <% student_input_name =  '[' + student[:student][:id].to_s + ']' + '[present]' %>
+            <input type="checkbox" name="<%= student_input_name %>" class="general-checkbox <%= additional_class ? 'never-change ' + additional_class : '' %>" <%= additional_class ? 'disabled="disabled"' : '' %>>
+            <i class="general-checkbox-icon checkbox-frequency-in-batch"></i>
+          </label>
+          <br>
+        </div>
+        <div style="display: flex; max-width: 150px; vertical-align: middle; padding: 0 5px;" class="class-number-collapse">
+          <% date[:daily_frequencies].each do |daily_frequency| %>
+            <% date = daily_frequency.frequency_date %>
+            <% class_number = daily_frequency.class_number || nil %>
+            <% frequency_id = "#{date.to_s.tr('-', '').rjust(10, '0')}#{class_number.to_s.rjust(10, '0')}" %>
+            <% daily_frequency_path = "[daily_frequency][daily_frequencies][#{frequency_id}]" %>
+
+            <input type="hidden" name="<%= daily_frequency_path %>[date]"
+                   value="<%= date %>">
+
+            <input type="hidden" name="<%= daily_frequency_path %>[class_number]"
+                   value="<%= @frequency_type == FrequencyTypes::GENERAL ? nil : class_number %>">
+
+            <% daily_frequency_student_path = "#{daily_frequency_path}[students_attributes]" %>
+
+
+            <% unique_id = "#{class_number.to_s.rjust(10, '0')}#{student[:student][:id].to_s.rjust(10, '0')}" %>
+            <%= simple_fields_for "#{daily_frequency_student_path}[#{unique_id}]",
+                                  daily_frequency_student = daily_frequency.build_or_find_by_student(student[:student][:id]) do |f| %>
+
+              <div class="<%= class_number != nil ? '' : 'hidden' %>">
+                <span>
+                  &nbsp <%= class_number %>
+                  <br>
+                </span>
+                <%= f.hidden_field :id, value: daily_frequency_student.id %>
+                <%= f.hidden_field :daily_frequency_id, value: daily_frequency.id %>
+                <%= f.hidden_field :student_id, value: student[:student][:id] %>
+                <%= f.hidden_field :dependence, value: tooltip == 'Dependência' ? true : false %>
+                <%= f.hidden_field :active, value: additional_class != 'inactive' ? true : false %>
+                <%= f.hidden_field :type_of_teaching, value: student[:type_of_teaching] %>
+
+                <label class="checkbox <%= additional_class ? 'state-disabled never-change ' + additional_class : '' %>" style="bottom: 15px;" title="<%= tooltip %>">
+                  <%= f.check_box :present, class: 'class-number-checkbox' + (additional_class ? ' never-change ' + additional_class : ' '), value: daily_frequency_student.persisted? ? daily_frequency_student.present : true, disabled: additional_class ? true : false %>
+                  <i class="checkbox-frequency-in-batch"></i>
+                </label>
+
+                <% if daily_frequency_student.persisted? %>
+                  <% if additional_class != 'inactive' %>
+                    <% absences_on_the_period += daily_frequency_student.present ? 0 : 1 %>
+                  <% end %>
+                <% end %>
+              </div>
+
+              <% if @general_configuration.type_of_teaching == true %>
+                <span class='hidden'>
+                  <%= f.input :type_of_teaching, as: :select2, elements: TypesOfTeaching.to_select_specific_values(false, @general_configuration.types_of_teaching).to_json,
+                              label: false, required: false,
+                              input_html: { value: f.object.type_of_teaching, data: { without_json_parser: true, id: 'type_of_teaching_input' } }  %>
+                </span>
+              <% end %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </td>
+  <% end %>
+  <td style="width: 25px; text-align: center; vertical-align: middle;">
+    <label class="student-absences-count">
+      <%= absences_on_the_period %>
+    </label>
+  </td>
+</tr>

@@ -1,0 +1,38 @@
+var students_ids = <%= @students_ids %>;
+var daily_note_id = $('#daily_note_id').val();
+var avaliation_id = $('#exemption_avaliation_id').val();
+
+$('#exemption-modal').modal('hide');
+$('.exempt_student_check_all').prop('checked', false).change();
+
+$.each(students_ids, function(i, student_id){
+  $('#exempt_student_check_' + student_id).attr('disabled', 'disabled');
+
+  var studentName = $('#student_name_' + student_id);
+  var studentNameLabel = studentName.text();
+
+  if(!studentNameLabel.startsWith('**')) {
+    studentName.text('**'+studentNameLabel);
+    studentName.addClass('exempted-student');
+  }
+
+  var noteInput = $("#tr_student_" + student_id + " input[id ^='daily_note_students_attributes'][id $='note']")[0];
+  $(noteInput).attr('readonly', 'readonly');
+  $(noteInput).attr('placeholder', 'Dispensado');
+  $(noteInput).val('');
+  $(noteInput).addClass('exempted-student');
+
+  var undo_exemption_button = $('#do_undo_exemption_' + student_id);
+  var undo_url = Routes.undo_exemption_daily_note_pt_br_path(
+    daily_note_id, { avaliation_id: avaliation_id, student_id: student_id }
+  )
+  undo_exemption_button.addClass('undo-exemption');
+  undo_exemption_button.addClass('btn-default');
+  undo_exemption_button.removeClass('do-exemption');
+  undo_exemption_button.removeClass('open-exemption-modal');
+  undo_exemption_button.removeClass('btn-primary');
+  undo_exemption_button.attr('data-remote', 'true');
+  undo_exemption_button.attr('data-method', 'post');
+  undo_exemption_button.attr('href', undo_url);
+  undo_exemption_button.attr('title', 'Desfazer');
+});

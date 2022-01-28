@@ -84,9 +84,7 @@ class User < ActiveRecord::Base
   scope :by_current_school_year, ->(year) { where(current_school_year: year) }
 
   #search scopes
-  scope :full_name, lambda { |fullname|
-    where("users.fullname_tokens @@ to_tsquery('portuguese', ?)", split_search(fullname))
-  }
+  scope :by_name, lambda { |name| where("fullname ILIKE ?", "%#{I18n.transliterate(name)}%") }
   scope :email, lambda { |email| where("email ILIKE unaccent(?)", "%#{email}%")}
   scope :login, lambda { |login| where("login ILIKE unaccent(?)", "%#{login}%")}
   scope :by_cpf, lambda { |cpf|
@@ -150,7 +148,7 @@ class User < ActiveRecord::Base
   end
 
   def expired?
-    return false if admin?
+    return false if admin? || new_record?
 
     days_to_expire = GeneralConfiguration.current.days_to_disable_access || 0
     return false if expiration_date.blank? && days_to_expire.zero?
@@ -163,9 +161,15 @@ class User < ActiveRecord::Base
       end
     end
 
-    return false if expiration_date.blank?
+    return false if expiration_date.nil? || expiration_date.blank?
 
-    Date.current >= expiration_date
+    if Date.current >= expiration_date
+      update_status(UserStatus::PENDING)
+      update_column :expiration_date, nil
+      true
+    else
+      false
+    end
   end
 
   def update_status(status)
@@ -179,6 +183,8 @@ class User < ActiveRecord::Base
     if status == UserStatus::ACTIVE
       update_last_activity_at
       unlock_access!
+    else
+      update_column :expiration_date, nil
     end
   end
 

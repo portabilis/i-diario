@@ -1,0 +1,30 @@
+/*
+ *= require_self
+*/
+
+.new-school-calendar-event-button {
+  border-color: #28a745;
+  color: #FFFFFF;
+  background-color: #28a745;
+  width: 180px;
+  opacity: 0.6;
+  transition: 0.3s;
+}
+
+.new-school-calendar-event-button:hover {
+  opacity: 1;
+  color: #FFFFFF;
+}
+
+.new-school-calendar-event-cancel {
+  border-color: #dc3545;
+  color: #FFFFFF;
+  background: #dc3545;
+  opacity: 0.6;
+  transition: 0.3s;
+}
+
+.new-school-calendar-event-cancel:hover {
+  opacity: 1;
+  color: #FFFFFF;
+}

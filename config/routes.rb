@@ -177,6 +177,10 @@ Rails.application.routes.draw do
     resources :school_calendar_classroom_steps, only: [:show, :index]
 
     resources :discipline_teaching_plans, concerns: :history
+
+    get '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#copy'
+    post '/discipline_teaching_plans/:id/copy', as: :copy_discipline_teaching_plans, to: 'discipline_teaching_plans#do_copy'
+
     resources :knowledge_area_teaching_plans, concerns: :history
     resources :learning_objectives_and_skills, concerns: :history do
       collection do
@@ -184,10 +188,17 @@ Rails.application.routes.draw do
       end
     end
 
-    get '/pedagogical_trackings', as: :pedagogical_trackings, to: 'pedagogical_trackings#index'
+    resources :pedagogical_trackings, only: [:index], concerns: :history do
+      collection do
+        get :teachers
+        get :recalculate
+      end
+    end
+
     get '/pedagogical_trackings_teachers', as: :pedagogical_trackings_teachers, to: 'pedagogical_trackings#teachers'
     get '/translations', as: :translations, to: 'translations#form'
     post '/translations', as: :save_translations, to: 'translations#save'
+
     resources :discipline_lesson_plans, concerns: :history do
       collection do
         post :clone
@@ -242,6 +253,10 @@ Rails.application.routes.draw do
       collection do
         get :search
       end
+      member do
+        post :exempt_students
+        post :undo_exemption
+      end
     end
     resources :daily_note_students, only: [:index] do
       collection do
@@ -276,6 +291,14 @@ Rails.application.routes.draw do
         delete :destroy_multiple
       end
     end
+
+    resources :daily_frequencies_in_batchs, only: [:new, :create], concerns: :history do
+      collection do
+        get :history_multiple
+        put :create_or_update_multiple
+        delete :destroy_multiple
+      end
+    end
     get 'daily_frequency/history_multiple', to: 'daily_frequencies#history_multiple', as: 'history_multiple_daily_frequency'
 
     resources :absence_justifications, concerns: :history
@@ -300,6 +323,20 @@ Rails.application.routes.draw do
       collection do
         get :by_date
         get :by_date_range
+      end
+    end
+
+    resources :lessons_boards do
+      collection do
+        get :period
+        get :number_of_lessons
+        get :classrooms_filter
+        get :grades_by_unity
+        get :teachers_classroom
+        get :teachers_classroom_period
+        get :not_exists_by_classroom
+        get :not_exists_by_classroom_and_period
+        get :teacher_in_other_classroom
       end
     end
 

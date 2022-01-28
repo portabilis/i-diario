@@ -82,21 +82,21 @@ class DailyFrequency < ActiveRecord::Base
   scope :order_by_unity, -> { order(:unity_id) }
   scope :order_by_classroom, -> { order(:classroom_id) }
 
-  attr_accessor :receive_email_confirmation
+  attr_accessor :receive_email_confirmation, :start_date, :end_date
 
   def find_by_student(student_id)
     students.find_by_student_id(student_id)
   end
 
-  def build_or_find_by_student student
-    students.find_by(student_id: student.id) || students.build(student_id: student.id, present: 1,
-                                                               type_of_teaching: default_type_of_teaching(student))
+  def build_or_find_by_student(student_id)
+    students.find_by(student_id: student_id) || students.build(student_id: student_id, present: 1,
+                                                               type_of_teaching: default_type_of_teaching(student_id))
   end
 
-  def default_type_of_teaching(student)
+  def default_type_of_teaching(student_id)
     student_enrollment_classroom = StudentEnrollmentClassroom.by_classroom(classroom_id)
                                                              .by_date(frequency_date)
-                                                             .by_student(student.id)
+                                                             .by_student(student_id)
                                                              .first
     return TypesOfTeaching::PRESENTIAL if student_enrollment_classroom.nil?
 
@@ -142,6 +142,6 @@ class DailyFrequency < ActiveRecord::Base
     return if school_calendar.blank? || frequency_date.blank?
 
     step = StepsFetcher.new(classroom).step_by_date(frequency_date)
-    errors.add(:frequency_date, I18n.t('errors.messages.not_school_calendar_day')) if step.blank?
+    errors.add(:frequency_date, I18n.t('errors.messages.is_not_between_steps')) if step.blank?
   end
 end

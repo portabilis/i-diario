@@ -16,7 +16,7 @@ class Unity < ActiveRecord::Base
   has_many :unity_equipments
   has_many :classrooms, dependent: :restrict_with_error
   has_many :teacher_discipline_classrooms, through: :classrooms, dependent: :restrict_with_error
-  has_many :user_roles
+  has_many :user_roles, dependent: :destroy
   has_many :school_calendars, dependent: :restrict_with_error
 
   has_and_belongs_to_many :maintenance_adjustments
@@ -93,5 +93,15 @@ class Unity < ActiveRecord::Base
 
   def any_duplicated_equipment?
     unity_equipments.reject(&:marked_for_destruction?).group_by { |equipment| equipment.code }.count != unity_equipments.reject(&:marked_for_destruction?).count
+  end
+
+  def self.to_select
+    ordered.map do |unity|
+      OpenStruct.new(
+        id: unity.id,
+        name: unity.name,
+        text: unity.name
+      )
+    end
   end
 end

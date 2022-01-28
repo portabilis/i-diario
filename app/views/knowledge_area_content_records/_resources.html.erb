@@ -27,6 +27,11 @@
                         grade_id: knowledge_area_content_record.classroom.grade_id
                       }) %>
           <%= link_to(
+                t('helpers.links.show_html'),
+                knowledge_area_content_record_path(knowledge_area_content_record),
+                class: 'btn btn-info apply_tooltip',
+                data: { original_title: t('views.index.tooltips.show') }) %>
+          <%= link_to(
                 t('helpers.links.edit_html'),
                 edit_knowledge_area_content_record_path(knowledge_area_content_record),
                 class: 'btn btn-success apply_tooltip',

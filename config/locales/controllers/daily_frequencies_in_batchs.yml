@@ -1,0 +1,6 @@
+pt-BR:
+  daily_frequencies_in_batchs:
+    destroy_multiple:
+      alert: "Registro do diário de frequência que você está tentando apagar não existe."
+      success: "Frequências apagadas com sucesso"
+

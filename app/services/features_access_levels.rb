@@ -42,7 +42,8 @@ class FeaturesAccessLevels
       :teacher_report_cards,
       :complementary_exams,
       :ieducar_api_exam_posting_without_restrictions,
-      :change_school_year
+      :change_school_year,
+      :daily_frequencies_in_batchs
     ]
   end
 

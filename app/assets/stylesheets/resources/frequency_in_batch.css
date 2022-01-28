@@ -1,0 +1,33 @@
+.collapsed {
+  width: 25px;
+}
+
+.checkbox-collapsed {
+  left: 3px;
+}
+
+.checkbox-frequency-in-batch {
+  border-color: #28a745 !important;
+}
+
+.checkbox-frequency-in-batch::after {
+  color: #28a745 !important;
+}
+
+.half-checked {
+  border-color: #0779fb !important;
+}
+
+.half-checked::after {
+  color: #0779fb !important;
+}
+
+.unchecked {
+  border-color: #dc3545 !important;
+}
+
+.smart-form .checkbox input:not(:checked) + i.unchecked:after {
+  content: '\f00d' !important;
+  opacity: 1;
+  color: #dc3545 !important;
+}

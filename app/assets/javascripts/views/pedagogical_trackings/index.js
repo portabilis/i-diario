@@ -139,6 +139,12 @@ function build_pie_chart(ctx, done_percentage, unknown_teachers = null){
   });
 }
 
+$(document).ready( function() {
+  let beta_title = 'Este recurso ainda está em processo de desenvolvimento e pode apresentar problemas'
+  let img_src = $('#image-beta').attr('src');
+  $('.fa-pie-chart').closest('h2').after(`<img src="${img_src}" class="beta-badge" style="margin-bottom: 9px; margin-left: 5px" title="${beta_title}">`);
+})
+
 build_pie_chart(frequency_chart_ctx, done_frequencies_percentage, unknown_teachers);
 build_pie_chart(content_record_chart_ctx, done_content_records_percentage);
 

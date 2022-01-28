@@ -59,6 +59,6 @@
             class: 'btn btn-info' %>
     <% end %>
 
-    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...' } %>
+    <%= f.submit t('views.form.save'), class: 'btn btn-primary', data: { disable_with: 'Salvando...' } unless action_name == 'show' && current_user.teacher? %>
   </footer>
 <% end %>

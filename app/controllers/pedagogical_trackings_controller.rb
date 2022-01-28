@@ -40,6 +40,18 @@ class PedagogicalTrackingsController < ApplicationController
                 end
   end
 
+  def recalculate
+
+    school_calendars = SchoolCalendar.ids
+
+    school_calendars.each do |school_calendar_id|
+
+    SchoolDaysCounterWorker.perform_async(@current_entity.id, school_calendar_id)
+    end
+
+    redirect_to pedagogical_trackings_path
+  end
+
   def teachers
     unity_id = params[:unity_id]
     classroom_id = params[:classroom_id]

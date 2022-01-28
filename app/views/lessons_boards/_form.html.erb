@@ -1,0 +1,87 @@
+<%= simple_form_for @lessons_board, html: { class: 'smart-form', id: 'form-submit' } do |f| %>
+  <%= f.error_notification %>
+  <fieldset>
+    <div class="row">
+
+      <div class="col col-sm-3">
+        <% if action_name == "new" %>
+          <%= f.input :unity, as: :select2, elements: unities, hide_empty_element: true, label: t('lessons_boards.index.unity'),
+                      placeholder: t('lessons_boards.index.unity'), readonly: !can_change_unity?, input_html: { value: !can_change_unity? ? unities.first.id : ''  }, required: true  %>
+        <% else %>
+          <%= f.input :unity, label: t('lessons_boards.index.unity'), placeholder: t('lessons_boards.index.unity'), readonly: true, input_html: { value: f.object.classroom.unity.name }, required: true  %>
+        <% end %>
+      </div>
+
+      <div class="col col-sm-3">
+        <% if action_name == "new" %>
+          <%= f.input :grade, as: :select2, elements: [], label: t('lessons_boards.index.grade'), placeholder: t('lessons_boards.index.grade'), readonly: false, required: true %>
+        <% else %>
+          <%= f.input :grade, label: t('lessons_boards.index.grade'), placeholder: t('lessons_boards.index.grade'), readonly: true, input_html: { value: f.object.classroom.grade.description }, required: true  %>
+        <% end %>
+      </div>
+
+      <div class="col col-sm-3">
+        <%= f.input :classroom_id, as: :select2, elements: (action_name == "new" ? [] : @classrooms), label: t('lessons_boards.index.classroom'), placeholder: t('lessons_boards.index.classroom'), readonly: action_name != "new" %>
+        <%= f.hidden_field :lessons_number, id: 'lessons_number_classroom_id' %>
+      </div>
+
+      <div class="col col-sm-3" style="display: <%= action_name == "edit" ? 'inline' : 'none' %>" id="period">
+        <%= f.input :period, as: :select2, elements: Periods.to_select_specific_values(false, %w[1 2 3]).to_json, label: t('.period'), placeholder: t('.period'), readonly: action_name != "new" %>
+      </div>
+
+    </div>
+  </fieldset>
+
+  <fieldset>
+
+    <div id="flash-message">
+      <p class="alert alert-info" id="substitution-calculation-type-info">
+        <i class="fa-fw fa fa-info"></i>
+        A quantidade de aulas apresentadas para preenchimento é derivada do campo <b>Número de aulas por turno</b> do Calendário letivo da escola. Caso a turma selecionada para criação do Quadro de aula trabalhe com uma quantidade menor de aulas, não preencher os respectivos campos.
+      </p>
+    </div>
+
+    <% if f.object.errors.added? :base %>
+      <div class="alert alert-danger fade in">
+        <i class="fa-fw fa fa-times"></i>
+        <%= f.object.errors[:lessons_boards].first %>
+      </div>
+    <% end %>
+
+    <table class="table table-striped table-bordered table-condensed records table_lessons">
+      <thead>
+        <tr>
+          <th style="width: 35px;"><%= ' Aula ' %></th>
+          <% Workdays.translations.each do |translation| %>
+            <th class="table_lessons_td"><%= translation %></th>
+          <% end %>
+        </tr>
+      </thead>
+
+      <tbody id="lessons-board-lessons">
+        <tr>
+          <td class="no_item_found" colspan="7" style="<%= f.object.lessons_board_lessons.reject(&:marked_for_destruction?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+        </tr>
+        <%= f.simple_fields_for :lessons_board_lessons, f.object.lessons_board_lessons do |lessons_board_lesson| %>
+          <%= render 'lessons_board_lesson_fields', f: lessons_board_lesson %>
+        <% end %>
+      </tbody>
+
+      <tfoot class="links">
+        <tr>
+          <td colspan="7">
+            <%= link_to_add_association t('.add_period'), f, :lessons_board_lessons, 'data-association-insertion-method': 'append',
+                                        'data-association-insertion-node':   '#lessons-board-lessons',
+                                        class: 'btn btn-success btn-sm', style: 'visibility: hidden', id: 'add_row' %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), lessons_boards_path, class: "btn btn-default" %>
+
+    <button type="submit" class="btn btn-primary" id="btn-submit"><%= t('views.form.save') %></button>
+  </footer>
+<% end %>
