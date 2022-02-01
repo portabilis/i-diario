@@ -75,7 +75,7 @@ class DescriptiveExamsController < ApplicationController
                                          .by_discipline_id(discipline_id)
                                          .by_step_id(current_user_classroom, step_id)
                                          .first
-                                         .id
+                                         &.id
 
     render json: descriptive_exam_id
   end
