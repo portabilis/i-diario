@@ -97,6 +97,8 @@ module ExamPoster
     end
 
     def correct_score_type(differentiated, exam_rule)
+      return if exam_rule.nil?
+
       exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if differentiated
       score_types = [ScoreTypes::NUMERIC, ScoreTypes::NUMERIC_AND_CONCEPT]
       score_types.include? exam_rule&.score_type
