@@ -18,6 +18,6 @@
     <%= f.input :value, as: :select2,
           elements: f.object.decorator.data_for_select2,
           label_html: { class: 'hidden' },
-          readonly: (f.object.exempted_discipline.to_s == 'true') %>
+          readonly: (f.object.exempted_discipline.to_s == 'true') || action_name == "show" %>
   </td>
 </tr>

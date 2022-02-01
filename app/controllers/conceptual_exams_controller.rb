@@ -6,6 +6,7 @@ class ConceptualExamsController < ApplicationController
   before_action :require_current_teacher
   before_action :adjusted_period
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
+  before_action :view_data, only: [:edit, :show]
 
   def index
     step_id = (params[:filter] || []).delete(:by_step)
@@ -93,21 +94,6 @@ class ConceptualExamsController < ApplicationController
     render :new
   end
 
-  def edit
-    @conceptual_exam = ConceptualExam.find(params[:id]).localized
-    @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
-    @conceptual_exam.step_id = find_step_id
-
-    authorize @conceptual_exam
-
-    fetch_collections
-
-    add_missing_disciplines
-    mark_not_assigned_disciplines_for_destruction
-    mark_not_existing_disciplines_as_invisible
-    mark_exempted_disciplines
-  end
-
   def update
     @conceptual_exam = ConceptualExam.find(params[:id])
     @conceptual_exam.assign_attributes(resource_params)
@@ -174,6 +160,20 @@ class ConceptualExamsController < ApplicationController
   end
 
   private
+
+  def view_data
+    @conceptual_exam = ConceptualExam.find(params[:id]).localized
+    @conceptual_exam.unity_id = @conceptual_exam.classroom.unity_id
+    @conceptual_exam.step_id = find_step_id
+
+    authorize @conceptual_exam
+
+    fetch_collections
+    add_missing_disciplines
+    mark_not_assigned_disciplines_for_destruction
+    mark_not_existing_disciplines_as_invisible
+    mark_exempted_disciplines
+  end
 
   def resource_params
     params.require(:conceptual_exam).permit(
