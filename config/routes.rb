@@ -279,8 +279,9 @@ Rails.application.routes.draw do
       end
     end
     resources :old_steps_conceptual_values, except: [:only]
-    resources :descriptive_exams, only: [:new, :create, :edit, :update], concerns: :history do
+    resources :descriptive_exams, only: [:new, :create, :edit, :show, :update], concerns: :history do
       collection do
+        get :find
         get :opinion_types
       end
     end

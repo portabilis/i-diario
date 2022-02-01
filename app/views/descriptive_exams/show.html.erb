@@ -1,0 +1,84 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/descriptive_exams/functions' %>
+  <%= javascript_include_tag 'views/descriptive_exams/show' %>
+<% end %>
+
+<div class="widget-body no-padding">
+  <%= simple_form_for @descriptive_exam, html: { class: "smart-form" } do |f| %>
+    <table class="table table-bordered table-only-inner-bordered">
+      <thead>
+      <th><%= DescriptiveExam.human_attribute_name :unity %></th>
+      <th><%= DescriptiveExam.human_attribute_name :classroom %></th>
+      <% if @descriptive_exam.discipline.present? %>
+        <th><%= DescriptiveExam.human_attribute_name :discipline %></th>
+      <% end %>
+      <% if @descriptive_exam.step_id.present? %>
+        <th><%= DescriptiveExam.human_attribute_name :step %></th>
+      <% end %>
+      </thead>
+
+      <tbody style="border-bottom: 1px solid #ccc;">
+      <td><%= @descriptive_exam.unity %></td>
+      <td><%= @descriptive_exam.classroom %></td>
+      <% if @descriptive_exam.discipline.present? %>
+        <td><%= @descriptive_exam.discipline %></td>
+      <% end %>
+      <% if @descriptive_exam.step_id.present? %>
+        <td><%= @descriptive_exam.step %></td>
+      <% end %>
+      </tbody>
+    </table>
+
+    <%= f.error_notification %>
+
+    <table class="table table-bordered table-only-inner-bordered table-striped table-hover">
+      <colgroup>
+        <col style="width: 65px;" />
+        <col />
+        <col style="width: 50%;" />
+      </colgroup>
+
+      <thead>
+      <th>Sequencial</th>
+      <th><%= DescriptiveExamStudent.human_attribute_name :student %></th>
+      <th><%= DescriptiveExamStudent.human_attribute_name :value %></th>
+      </thead>
+
+      <tbody id="students">
+      <% sequence = 0 %>
+      <%= f.fields_for :students, @normal_students do |student| %>
+        <% sequence += 1 %>
+        <%= render 'student_fields', f: student, sequence: sequence %>
+      <% end %>
+      <% sequence = 0 %>
+      <% if @dependence_students.any? %>
+        <%= f.fields_for :students, @dependence_students do |student| %>
+          <% sequence += 1 %>
+          <%= render 'student_fields', f: student, sequence: sequence %>
+        <% end %>
+        <tr>
+          <td colspan="3">
+              <span class="descriptive-exam-student-legend">
+                <%= t('.dependence_students') %>
+              </span>
+          </td>
+        </tr>
+      <% end %>
+      <% if @any_student_exempted_from_discipline %>
+        <tr>
+          <td colspan="3">
+              <span class="descriptive-exam-student-legend">
+                <%= t('.exempted_students_from_discipline_legend') %>
+              </span>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+
+    <footer>
+      <%= link_to t('views.form.history'),
+                  history_descriptive_exam_path(@descriptive_exam), class: 'btn btn-info' %>
+    </footer>
+  <% end %>
+</div>
