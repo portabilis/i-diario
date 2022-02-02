@@ -6,7 +6,7 @@ class ParentDashboardStudentsQuery
 
   def student_enrollment_classrooms
     StudentEnrollmentClassroom.joins(student_enrollment: { student: :users })
-                              .joins(:classroom)
+                              .joins(classrooms_grade: :classroom)
                               .by_date(date)
                               .where(User.arel_table[:id].eq(user.id))
                               .merge(StudentEnrollment.active)
