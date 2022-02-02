@@ -85,11 +85,11 @@ class Student < ActiveRecord::Base
   end
 
   def classrooms
-    Classroom.joins(:student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).uniq
+    Classroom.joins(classrooms_grades: :student_enrollment_classrooms).merge(StudentEnrollmentClassroom.by_student(self.id)).uniq
   end
 
   def current_classrooms
-    Classroom.joins(:student_enrollment_classrooms).merge(
+    Classroom.joins(classrooms_grades: :student_enrollment_classrooms).merge(
       StudentEnrollmentClassroom.by_student(id)
                                 .by_date(Date.current)
     ).uniq
