@@ -11,8 +11,6 @@ module Api
                         .by_teacher_with_school_calendar_year
                         .ordered
                         .uniq
-
-        @unities
       end
     end
   end
