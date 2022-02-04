@@ -212,7 +212,7 @@ class ApplicationController < ActionController::Base
     redirect_to root_path
   end
 
-  def require_current_clasroom
+  def require_current_classroom
     return if current_user_classroom
 
     flash[:alert] = t('errors.general.require_current_classroom')
