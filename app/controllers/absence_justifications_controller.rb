@@ -1,5 +1,6 @@
 class AbsenceJustificationsController < ApplicationController
   before_action :require_current_teacher
+  before_action :require_current_clasroom
 
   has_scope :page, default: 1
   has_scope :per, default: 10
@@ -167,8 +168,6 @@ class AbsenceJustificationsController < ApplicationController
   end
 
   def fetch_current_discipline
-    return current_user_discipline if current_user_classroom.nil? && current_user_discipline.present?
-
     frequency_type_definer = FrequencyTypeDefiner.new(current_user_classroom, current_teacher)
     frequency_type_definer.define!
 
