@@ -18,7 +18,7 @@ json.content_records @content_records do |content_record|
   end
   json.knowledge_areas knowledge_areas
   json.discipline_id discipline_id
-  json.grade_id content_record.grade_id
+  json.grade_id content_record.grade_ids
 
   json.record_date content_record.record_date
 end
