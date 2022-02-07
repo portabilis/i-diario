@@ -42,8 +42,9 @@ class AvaliationExemption < ActiveRecord::Base
            :classroom, :discipline,
            to: :avaliation, prefix: false, allow_nil: true
   delegate :test_date, to: :avaliation, prefix: true, allow_nil: true
-  delegate :grade_id, :grade, to: :classroom, prefix: false, allow_nil: true
-  delegate :course_id, to: :grade, prefix: false, allow_nil: true
+  delegate :grades, :first_grade, :first_classroom_grade, to: :classroom, prefix: false, allow_nil: true
+  delegate :grade_id, to: :first_classroom_grade, prefix: false, allow_nil: true
+  delegate :course_id, to: :first_grade, prefix: false, allow_nil: true
 
   default_scope -> { kept }
 
@@ -60,7 +61,7 @@ class AvaliationExemption < ActiveRecord::Base
   end)
 
   scope :by_grade_description, lambda { |grade_description|
-    joins(avaliation: [classroom: :grade])
+    joins(avaliation: [{ classroom: { classrooms_grades: :grade } }])
     .where('unaccent(grades.description) ILIKE unaccent(?)', "%#{grade_description}%" )
   }
 
