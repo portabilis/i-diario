@@ -224,6 +224,9 @@ Rails.application.routes.draw do
       end
     end
     resources :classrooms, only: [:index, :show] do
+      collection do
+        get :multi_grade
+      end
       resources :students, only: [:index]
     end
     resources :contents, only: :index
