@@ -21,7 +21,7 @@ class KnowledgeAreaTeachingPlansController < ApplicationController
 
     unless current_user_is_employee_or_administrator?
       @knowledge_area_teaching_plans =
-        @knowledge_area_teaching_plans.by_grade(current_user_classroom.try(:grade_id))
+        @knowledge_area_teaching_plans.by_grade(current_user_classroom.first_grade.try(:id))
     end
 
     if author_type.present?
