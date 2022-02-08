@@ -45,10 +45,10 @@ $(function() {
   };
 
   $grade.on('change', function() {
-    fetchData();
+    validateMulti();
   });
 
-  function fetchData() {
+  function validateMulti() {
     $.ajax({
       url: Routes.multi_grade_classrooms_pt_br_path({ format: 'json' }),
       success: function(classroom_multi) {
