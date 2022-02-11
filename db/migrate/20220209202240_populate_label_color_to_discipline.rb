@@ -13,6 +13,8 @@ class PopulateLabelColorToDiscipline < ActiveRecord::Migration
         $func$ LANGUAGE plpgsql VOLATILE;
 
         update disciplines set label_color = random_color_pick();
+
+        DROP FUNCTION random_color_pick();
       SQL
     )
   end
