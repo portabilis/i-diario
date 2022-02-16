@@ -1,3 +1,7 @@
+<% content_for :js do %>
+  <%= javascript_include_tag 'views/exam_record_report/form' %>
+<% end %>
+
 <div class="widget-body no-padding">
   <%= simple_form_for @exam_record_report_form, url: exam_record_report_path, method: :post, html: { class: 'smart-form', target: '_blank' } do |f| %>
     <%= f.error_notification unless @exam_record_report_form.errors[:daily_notes].any? %>

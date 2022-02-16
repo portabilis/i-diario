@@ -2,7 +2,7 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_clasroom
+  before_action :require_current_classroom
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
@@ -191,9 +191,12 @@ class FinalRecoveryDiaryRecordsController < ApplicationController
   end
 
   def number_of_decimal_places
-    @number_of_decimal_places = test_setting(
-      current_user_classroom,
-      @final_recovery_diary_record.school_calendar.steps.to_a.last
-    ).number_of_decimal_places
+    test_setting = test_setting(current_user_classroom, @final_recovery_diary_record.school_calendar.steps.to_a.last)
+
+    if test_setting.nil?
+      redirect_to final_recovery_diary_records_path, alert: t('final_recovery_diary_records.new.not_exists_test_setting')
+    else
+      @number_of_decimal_places = test_setting.number_of_decimal_places
+    end
   end
 end

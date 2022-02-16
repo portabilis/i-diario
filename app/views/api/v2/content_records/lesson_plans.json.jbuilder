@@ -15,7 +15,7 @@ json.lesson_plans @lesson_plans do |lesson_plan|
   end
   json.knowledge_areas knowledge_areas
   json.discipline_id discipline_id
-  json.grade_id lesson_plan.grade_id
+  json.grade_id lesson_plan.first_grade.id
   json.unity_id lesson_plan.classroom.unity.id
   json.classroom_id lesson_plan.classroom_id
   json.start_at lesson_plan.start_at

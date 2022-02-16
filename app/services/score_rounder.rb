@@ -51,7 +51,7 @@ class ScoreRounder
   def custom_rounding_table_id
     CustomRoundingTable.by_year(@classroom.year)
                        .by_unity(@classroom.unity_id)
-                       .by_grade(@classroom.grade_id)
+                       .by_grade(@classroom.grade_ids)
                        .by_avaliation(@rounded_avaliation)
                        .first.try(:id)
   end

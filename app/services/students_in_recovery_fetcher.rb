@@ -10,12 +10,12 @@ class StudentsInRecoveryFetcher
   def fetch
     @students = []
 
-    if (classroom.exam_rule.differentiated_exam_rule.blank? ||
-        classroom.exam_rule.differentiated_exam_rule.recovery_type == classroom.exam_rule.recovery_type)
-      @students += fetch_by_recovery_type(classroom.exam_rule.recovery_type)
+    if (classroom.first_exam_rule.differentiated_exam_rule.blank? ||
+        classroom.first_exam_rule.differentiated_exam_rule.recovery_type == classroom.first_exam_rule.recovery_type)
+      @students += fetch_by_recovery_type(classroom.first_exam_rule.recovery_type)
     else
-      @students += fetch_by_recovery_type(classroom.exam_rule.recovery_type, false)
-      @students += fetch_by_recovery_type(classroom.exam_rule.differentiated_exam_rule.recovery_type, true)
+      @students += fetch_by_recovery_type(classroom.first_exam_rule.recovery_type, false)
+      @students += fetch_by_recovery_type(classroom.first_exam_rule.differentiated_exam_rule.recovery_type, true)
     end
 
     @students.uniq!
@@ -71,10 +71,10 @@ class StudentsInRecoveryFetcher
   def fetch_students_in_parallel_recovery(differentiated = nil)
     students = enrollment_students
 
-    if classroom.exam_rule.parallel_recovery_average
+    if classroom.first_exam_rule.parallel_recovery_average
       students = students.select { |student|
         if (average = student.average(classroom, discipline, step))
-          average < classroom.exam_rule.parallel_recovery_average
+          average < classroom.first_exam_rule.parallel_recovery_average
         end
       }
     end
@@ -87,7 +87,7 @@ class StudentsInRecoveryFetcher
 
     recovery_steps = RecoveryStepsFetcher.new(step, classroom).fetch
 
-    recovery_exam_rule = classroom.exam_rule.recovery_exam_rules.find { |recovery_diary_record|
+    recovery_exam_rule = classroom.first_exam_rule.recovery_exam_rules.find { |recovery_diary_record|
       recovery_diary_record.steps.last.eql?(@step.to_number)
     }
 

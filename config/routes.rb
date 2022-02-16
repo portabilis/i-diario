@@ -188,10 +188,17 @@ Rails.application.routes.draw do
       end
     end
 
-    get '/pedagogical_trackings', as: :pedagogical_trackings, to: 'pedagogical_trackings#index'
+    resources :pedagogical_trackings, only: [:index], concerns: :history do
+      collection do
+        get :teachers
+        get :recalculate
+      end
+    end
+
     get '/pedagogical_trackings_teachers', as: :pedagogical_trackings_teachers, to: 'pedagogical_trackings#teachers'
     get '/translations', as: :translations, to: 'translations#form'
     post '/translations', as: :save_translations, to: 'translations#save'
+
     resources :discipline_lesson_plans, concerns: :history do
       collection do
         post :clone
@@ -272,8 +279,9 @@ Rails.application.routes.draw do
       end
     end
     resources :old_steps_conceptual_values, except: [:only]
-    resources :descriptive_exams, only: [:new, :create, :edit, :update], concerns: :history do
+    resources :descriptive_exams, only: [:new, :create, :edit, :show, :update], concerns: :history do
       collection do
+        get :find
         get :opinion_types
       end
     end
@@ -330,6 +338,7 @@ Rails.application.routes.draw do
         get :not_exists_by_classroom
         get :not_exists_by_classroom_and_period
         get :teacher_in_other_classroom
+        get :classroom_grade
       end
     end
 

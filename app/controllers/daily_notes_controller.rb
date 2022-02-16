@@ -2,7 +2,7 @@ class DailyNotesController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_clasroom
+  before_action :require_current_classroom
   before_action :require_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 
@@ -172,6 +172,7 @@ class DailyNotesController < ApplicationController
 
   def fetch_student_enrollments
     StudentEnrollmentsList.new(classroom: @daily_note.classroom,
+                               grade: @daily_note.avaliation.grade_ids,
                                discipline: @daily_note.discipline,
                                date: @daily_note.avaliation.test_date,
                                score_type: StudentEnrollmentScoreTypeFilters::NUMERIC,

@@ -39,7 +39,11 @@
     </fieldset>
 
     <footer>
-      <%= f.submit 'Carregar', class: 'btn btn-primary', data: { disable_with: 'Carregando...'} %>
+      <% if current_user.can_change?(:descriptive_exams) %>
+        <%= f.submit 'Novo/Editar', class: 'btn btn-success', data: { disable_with: 'Carregando...'} %>
+      <% end %>
+      <%= link_to 'Visualizar', new_descriptive_exam_path, id: 'view-btn', class: 'btn btn-primary disabled',
+                  data: { disable_with: 'Carregando...'} %>
     </footer>
   <% end %>
 </div>

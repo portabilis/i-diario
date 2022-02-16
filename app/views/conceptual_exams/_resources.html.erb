@@ -17,10 +17,15 @@
           </span>
         </td>
         <td class='actions'>
-          <%= link_to t('views.index.edit'),
-            edit_conceptual_exam_path(conceptual_exam), class: 'btn btn-success' %>
-          <%= link_to t('views.index.delete'), conceptual_exam_path(conceptual_exam),
-            class: 'btn btn-danger', method: 'delete', data: { confirm: t('views.index.confirm') } %>
+          <%= link_to t('helpers.links.show_html'), conceptual_exam_path(conceptual_exam), style: "width: 31%;",
+                      class: 'btn btn-info apply_tooltip', title: t('conceptual_exams.form.show') %>
+          <% if current_user.can_change?(:conceptual_exams) %>
+            <%= link_to t('helpers.links.edit_html'), edit_conceptual_exam_path(conceptual_exam), style: "width: 31%;",
+                        class: 'btn btn-success apply_tooltip', title: t('conceptual_exams.form.edit') %>
+            <%= link_to t('helpers.links.destroy_html'), conceptual_exam_path(conceptual_exam), style: "width: 31%;",
+                        class: 'btn btn-danger apply_tooltip', method: 'delete', title: t('conceptual_exams.form.destroy'),
+                        data: { confirm: t('views.index.confirm') } %>
+          <% end %>
         </td>
       </tr>
     <% end %>

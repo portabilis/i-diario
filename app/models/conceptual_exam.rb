@@ -148,7 +148,12 @@ class ConceptualExam < ActiveRecord::Base
     return if student.blank? || classroom.blank?
 
     permited_score_types = [ScoreTypes::CONCEPT, ScoreTypes::NUMERIC_AND_CONCEPT]
-    exam_rule = classroom.exam_rule
+    classroom_grade = ClassroomsGrade.by_student_id(student.id).by_classroom_id(classroom.id)&.first
+
+    return if classroom_grade.blank?
+
+    exam_rule = classroom_grade&.exam_rule
+    exam_rule = (exam_rule.differentiated_exam_rule || exam_rule) if student.uses_differentiated_exam_rule
 
     if student.uses_differentiated_exam_rule
       exam_rule = exam_rule.differentiated_exam_rule || exam_rule

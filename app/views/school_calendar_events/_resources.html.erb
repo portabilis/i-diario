@@ -14,8 +14,11 @@
         <td class="actions">
           <%= link_to 'Editar', edit_school_calendar_school_calendar_event_path(@school_calendar, school_calendar_event),
             class: "btn btn-success" %>
-          <%= link_to 'Excluir', [@school_calendar, school_calendar_event],
-            class: "btn btn-danger", method: "delete", data: { confirm: "Tem certeza?" } %>
+          <%= link_to '#', class: 'btn btn-danger',
+                      data: { toggle: "modal", target: "#modal-delete-school_calendar_event-#{school_calendar_event.id}" } do %>
+            Excluir
+          <% end %>
+          <%= render 'confirm_delete_event_model', :school_calendar_event => school_calendar_event %>
         </td>
       </tr>
     <% end %>

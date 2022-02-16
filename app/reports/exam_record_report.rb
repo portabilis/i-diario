@@ -194,6 +194,8 @@ class ExamRecordReport < BaseReport
           score = nil
 
           if exempted_from_discipline || avaliation_id.present?
+            averages[student_enrollment.student_id] = nil if exempted_from_discipline
+
             recovery_note = recovery_record(exam) ? exam.students.find_by_student_id(student_id).try(&:score) : nil
             student_note.recovery_note = recovery_note if recovery_note.present? && daily_note_student.blank?
             score = recovery_record(exam) ? student_note.recovery_note : student_note.note
