@@ -9,9 +9,9 @@ class ActiveSearchSynchronizer
       active_search.status = active_search_record.resultado_busca_ativa
       active_search.observations = active_search_record.observacoes
 
-      active_search.discard_or_undiscard(active_search_record.deleted_at.present?)
-
       active_search.save! if active_search.changed?
+
+      active_search.discard_or_undiscard(active_search_record.deleted_at.present?)
 
       ActiveSearchService.new(active_search).daily_note
     end
