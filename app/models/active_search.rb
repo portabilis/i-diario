@@ -5,6 +5,8 @@ class ActiveSearch < ActiveRecord::Base
 
   has_enumeration_for :status, with: ActiveSearchStatus, create_helpers: true
 
+  default_scope -> { kept }
+
   def in_active_search?(student_enrollment_id, date)
     student_active_search = ActiveSearch.where(student_enrollment_id: student_enrollment_id)
     not_in_progress = student_active_search.where.not(status: ActiveSearchStatus::IN_PROGRESS)
