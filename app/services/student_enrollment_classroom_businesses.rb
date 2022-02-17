@@ -3,7 +3,7 @@ class StudentEnrollmentClassroomBusinesses
   attr_accessor :year
 
   def generate_sequence(student_enrollment, student_enrollment_classroom, student_enrollment_classroom_record)
-    self.year = student_enrollment_classroom.classroom.year
+    self.year = student_enrollment_classroom.classrooms_grade.year
     sequencial_fechamento = student_enrollment_classroom_record.sequencial_fechamento
     student_enrollment_last = student_enrollment_last(student_enrollment)
     return sequencial_fechamento if student_enrollment_last.nil?
@@ -14,7 +14,7 @@ class StudentEnrollmentClassroomBusinesses
   private
 
   def new_sequence(sequencial_fechamento, student_enrollment_classroom, student_enrollment_last)
-    classroom_ids = student_enrollment_last.student_enrollment_classrooms.pluck(:classroom_id)
+    classroom_ids = student_enrollment_last.student_enrollment_classrooms.classrooms_grade.pluck(:classroom_id)
 
     if same_enrollment_classroom?(classroom_ids) || student_enrollment_classroom
       student_enrollment_classroom.sequence

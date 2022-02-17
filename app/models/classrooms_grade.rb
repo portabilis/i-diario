@@ -3,6 +3,8 @@ class ClassroomsGrade < ActiveRecord::Base
   belongs_to :grade
   belongs_to :exam_rule
 
+  delegate :year, to: :classroom
+
   has_many :student_enrollment_classrooms
   has_many :student_enrollments, through: :student_enrollment_classrooms
 
