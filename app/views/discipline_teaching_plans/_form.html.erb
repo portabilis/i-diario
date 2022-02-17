@@ -41,7 +41,8 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user %>
+          <%= teaching_plan_form.association :grade, as: :select2_grade, user: current_user,
+                                             readonly: action_name.eql?('show')  %>
         </div>
 
         <div class="col col-sm-4">
@@ -60,7 +61,7 @@
                 ).to_json,
                 input_html: { value: teaching_plan_form.object.school_term_type_id,
                               data: { without_json_parser: true } },
-                readonly: action_name == 'show' %>
+                readonly: action_name.eql?('show') %>
         </div>
 
         <div id="school-term-container" class="col col-sm-4">
@@ -69,7 +70,7 @@
         </div>
 
         <div class="col col-sm-4">
-          <%= f.input :thematic_unit, readonly: action_name == 'show' %>
+          <%= f.input :thematic_unit, readonly: action_name.eql?('show') %>
         </div>
       </div>
 
@@ -95,7 +96,7 @@
                         content.id, content.id.in?(@discipline_teaching_plan.contents.collect(&:id)),
                         hidden: true, 'data-content_description': content.to_s ) %>
                     <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
-                    <% if content.is_editable && action_name != 'show' %>
+                    <% if content.is_editable && !action_name.eql?('show') %>
                       <div style="width: 80px;">
                         <a class="btn new-btn-success" onclick="editContent('teaching_plan_<%= content.id %>')">
                           <i class="fa fa-pencil"></i>
@@ -112,7 +113,7 @@
 
         </div>
       </div>
-      <% if action_name != 'show' %>
+      <% if !action_name.eql?('show') %>
         <div class="row textarea">
           <div class="col col-sm-12 contents-select2-container">
             <% translation = Translator.t('activerecord.attributes.discipline_teaching_plan.contents') %>
@@ -139,7 +140,7 @@
               <%= f.object.errors[:'teaching_plan.objectives'].first %>
             </div>
           <% end %>
-          <% if action_name != 'show' %>
+          <% if !action_name.eql?('show') %>
             <a href="#" data-toggle="modal" data-target="#copy-objectives-modal">
               Copiar objetivos/habilidades por área
             </a>
@@ -173,7 +174,7 @@
 
         </div>
       </div>
-      <% if action_name != 'show' %>
+      <% if !action_name.eql?('show') %>
         <div class="row textarea">
           <div class="col col-sm-12 objectives-select2-container">
             <% translation = Translator.t('activerecord.attributes.discipline_teaching_plan.objectives') %>
@@ -196,21 +197,21 @@
       <div class="row textarea">
         <div class="col col-sm-12">
           <%= teaching_plan_form.input :methodology, input_html: { class: 'col col-sm-12' },
-                readonly: action_name == 'show' %>
+                readonly: action_name.eql?('show') %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
           <%= teaching_plan_form.input :evaluation, input_html: { class: 'col col-sm-12' },
-                readonly: action_name == 'show' %>
+                readonly: action_name.eql?('show') %>
         </div>
       </div>
 
       <div class="row textarea">
         <div class="col col-sm-12">
           <%= teaching_plan_form.input :references, input_html: { class: 'col col-sm-12' },
-                readonly: action_name == 'show' %>
+                readonly: action_name.eql?('show') %>
         </div>
       </div>
 
@@ -234,14 +235,14 @@
             <thead>
               <tr>
                 <th><%= t('.attachments') %></th>
-                <% if action_name != 'show' %>
+                <% if !action_name.eql?('show') %>
                   <td width="73px"></td>
                 <% end %>
               </tr>
             </thead>
 
             <tbody id="teaching-plan-attachments">
-              <% if action_name == 'show' && teaching_plan_form.object.teaching_plan_attachments.blank? %>
+              <% if action_name.eql?('show') && teaching_plan_form.object.teaching_plan_attachments.blank? %>
                 <tr class="nested-fields">
                   <td><span>Nenhum documento anexado</span></td>
                 </tr>
@@ -255,7 +256,7 @@
                 <% end %>
               <% end %>
             </tbody>
-            <% if action_name != 'show' %>
+            <% if !action_name.eql?('show') %>
               <tfoot class="links">
                 <tr>
                   <td colspan="2">
