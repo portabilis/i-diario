@@ -26,7 +26,7 @@ class Classroom < ActiveRecord::Base
 
   before_create :set_label_color
 
-  delegate :course_id, :course, to: :grade, prefix: false
+  delegate :course_id, :course, to: :first_grade, prefix: false
 
   validates :description, :api_code, :unity_code, :year, presence: true
   validates :api_code, uniqueness: true
@@ -100,6 +100,10 @@ class Classroom < ActiveRecord::Base
 
   def first_grade
     classrooms_grades.first.grade
+  end
+
+  def first_classroom_grade
+    classrooms_grades.first
   end
 
   def courses

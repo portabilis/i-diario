@@ -18,7 +18,7 @@
         </td>
         <td class='actions'>
           <%= link_to t('helpers.links.show_html'), conceptual_exam_path(conceptual_exam), style: "width: 31%;",
-                      class: 'btn btn-primary apply_tooltip apply_tooltip', title: t('conceptual_exams.form.show') %>
+                      class: 'btn btn-info apply_tooltip', title: t('conceptual_exams.form.show') %>
           <% if current_user.can_change?(:conceptual_exams) %>
             <%= link_to t('helpers.links.edit_html'), edit_conceptual_exam_path(conceptual_exam), style: "width: 31%;",
                         class: 'btn btn-success apply_tooltip', title: t('conceptual_exams.form.edit') %>
