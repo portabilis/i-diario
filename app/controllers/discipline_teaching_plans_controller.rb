@@ -20,7 +20,7 @@ class DisciplineTeachingPlansController < ApplicationController
     )
 
     unless current_user_is_employee_or_administrator?
-      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.first_grade.id)
+      @discipline_teaching_plans = @discipline_teaching_plans.by_grade(current_user_classroom.grades.pluck(:id))
                                                              .by_discipline(current_user_discipline)
     end
 
