@@ -36,7 +36,7 @@
           }
         },
         readonly: student.exempted || !student.active || student.exempted_from_discipline || student.in_active_search,
-        placeholder: ('Dispensado' if student.exempted)
+        placeholder: ('Dispensado' if student.exempted && !student.in_active_search)
       ) %>
       </div>
     </td>
