@@ -77,7 +77,7 @@ class ComplementaryExamSettingsController < ApplicationController
 
   def grades
     @grades ||= Grade.includes(:course)
-                     .joins(classrooms: :exam_rule)
+                     .joins(classrooms_grades: :exam_rule)
                      .merge(ExamRule.where(score_type: ScoreTypes::NUMERIC))
                      .ordered
                      .uniq

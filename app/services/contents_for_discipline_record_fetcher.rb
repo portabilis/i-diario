@@ -18,7 +18,7 @@ class ContentsForDisciplineRecordFetcher < ContentsRecordFetcher
   def teaching_plans
     @teaching_plans ||= DisciplineTeachingPlan.includes(teaching_plan: :contents)
                                               .by_unity(@classroom.unity_id)
-                                              .by_grade(@classroom.grade_id)
+                                              .by_grade(@classroom.grade_ids)
                                               .by_discipline(@discipline.id)
                                               .by_year(school_calendar_year)
   end

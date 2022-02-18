@@ -4,7 +4,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   audited
   has_associated_audits
 
-  belongs_to :classroom
+  belongs_to :classrooms_grade
   belongs_to :student_enrollment
 
   has_enumeration_for :period, with: Periods, skip_validation: true
@@ -16,16 +16,18 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
 
   default_scope -> { kept }
 
-  scope :by_classroom, ->(classroom_id) { where(classroom_id: classroom_id) }
-  scope :by_year, ->(year) {
-    joins(:classroom).merge(Classroom.by_year(year))
+  scope :by_classroom, lambda { |classroom_id|
+    joins(:classrooms_grade).where(classrooms_grades: { classroom_id: classroom_id })
+  }
+  scope :by_year, lambda { |year|
+    joins(classrooms_grade: :classroom).merge(Classroom.by_year(year))
   }
   scope :by_date, lambda { |date|
     where("? >= joined_at AND (? < left_at OR coalesce(left_at, '') = '')", date.to_date, date.to_date)
   }
   scope :by_date_not_before, ->(date) { where.not('joined_at < ?', date.to_date) }
   scope :show_as_inactive, -> { where(show_as_inactive_when_not_in_date: 't') }
-  scope :by_grade, ->(grade_id) { joins(:classroom).where(classrooms: { grade_id: grade_id }) }
+  scope :by_grade, ->(grade_id) { joins(:classrooms_grade).where(classrooms_grades: { grade_id: grade_id }) }
   scope :by_student, ->(student_id) { joins(student_enrollment: :student).where(students: { id: student_id }) }
   scope :by_student_enrollment, ->(student_enrollment_id) { where(student_enrollment_id: student_enrollment_id) }
   scope :active, lambda {
@@ -47,7 +49,7 @@ class StudentEnrollmentClassroom < ActiveRecord::Base
   end
 
   def self.by_period(period)
-    joins(:classroom).where(
+    joins(classrooms_grade: :classroom).where(
       "CASE
          WHEN :period = 4 THEN
            TRUE

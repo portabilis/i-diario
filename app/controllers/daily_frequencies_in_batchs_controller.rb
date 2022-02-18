@@ -1,5 +1,5 @@
 class DailyFrequenciesInBatchsController < ApplicationController
-  before_action :require_current_clasroom
+  before_action :require_current_classroom
   before_action :require_teacher
   before_action :require_allocation_on_lessons_board
   before_action :set_number_of_classes, only: [:new, :create, :create_or_update_multiple]
@@ -126,8 +126,9 @@ class DailyFrequenciesInBatchsController < ApplicationController
       student = student_enrollment.student
       student_ids << student.id
       type_of_teaching = student_enrollment.student_enrollment_classrooms
-                                           .where(classroom_id: current_user_classroom.id)
-                                           .last.type_of_teaching
+                                           .by_classroom(current_user_classroom.id)
+                                           .last
+                                           .type_of_teaching
 
       next if student.blank?
 

@@ -212,7 +212,7 @@ class ApplicationController < ActionController::Base
     redirect_to root_path
   end
 
-  def require_current_clasroom
+  def require_current_classroom
     return if current_user_classroom
 
     flash[:alert] = t('errors.general.require_current_classroom')
@@ -241,26 +241,38 @@ class ApplicationController < ActionController::Base
     ).valid?
   end
 
-  def teacher_discipline_score_type
-    teacher_discipline_score_type_by_exam_rule(current_user_classroom.exam_rule)
+  def teacher_discipline_score_types
+    score_types = []
+
+    current_user_classroom.classrooms_grades.each do |classroom_grade|
+      score_types << teacher_discipline_score_type_by_exam_rule(classroom_grade.exam_rule)
+    end
+
+    score_types
   end
 
   def current_user_is_employee_or_administrator?
     current_user.assumed_teacher_id.blank? && current_user.current_role_is_admin_or_employee?
   end
 
-  def teacher_differentiated_discipline_score_type
-    exam_rule = current_user_classroom.exam_rule
+  def teacher_differentiated_discipline_score_types
+    score_types = []
 
-    return if exam_rule.blank?
+    current_user_classroom.classrooms_grades.each do |classroom_grade|
+      exam_rule = classroom_grade.exam_rule
 
-    differentiated_exam_rule = exam_rule.differentiated_exam_rule
+      next if exam_rule.blank?
 
-    if differentiated_exam_rule.blank? || !current_user_classroom.has_differentiated_students?
-      return teacher_discipline_score_type_by_exam_rule(exam_rule)
+      differentiated_exam_rule = exam_rule.differentiated_exam_rule
+
+      if differentiated_exam_rule.blank? || !classroom_grade.classroom.has_differentiated_students?
+        score_types << teacher_discipline_score_type_by_exam_rule(exam_rule)
+      end
+
+      score_types << teacher_discipline_score_type_by_exam_rule(differentiated_exam_rule)
     end
 
-    teacher_discipline_score_type_by_exam_rule(differentiated_exam_rule)
+    score_types
   end
 
   def teacher_discipline_score_type_by_exam_rule(exam_rule)

@@ -67,7 +67,7 @@ class InfrequencyTrackingNotifier
     days = general_configuration.days_to_consider_alternate_absences
 
     SchoolDayChecker.new(
-      school_calendar(classroom), end_at, classroom.grade_id, classroom.id, nil
+      school_calendar(classroom), end_at, classroom.grade_ids, classroom.id, nil
     ).school_dates_since(
       end_at, days
     ).sort

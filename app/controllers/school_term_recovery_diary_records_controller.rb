@@ -2,7 +2,7 @@ class SchoolTermRecoveryDiaryRecordsController < ApplicationController
   has_scope :page, default: 1
   has_scope :per, default: 10
 
-  before_action :require_current_clasroom
+  before_action :require_current_classroom
   before_action :require_current_teacher
   before_action :require_allow_to_modify_prev_years, only: [:create, :update, :destroy]
 

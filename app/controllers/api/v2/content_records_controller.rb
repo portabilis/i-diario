@@ -7,13 +7,13 @@ module Api
         return unless params[:teacher_id]
 
         @unities = Unity.by_teacher(params[:teacher_id]).ordered.uniq
-        @number_of_days = params[:number_of_days] || 90
+        @number_of_days = params[:number_of_days].to_i || 90
 
         @content_records = ContentRecord.by_unity_id(@unities.map(&:id))
                                         .by_teacher_id(params[:teacher_id])
                                         .joins(:discipline_content_record)
                                         .fromLastDays(@number_of_days)
-                                        .includes(classroom: [:unity, :grade])
+                                        .includes(classroom: [:unity, classrooms_grades: :grade])
       end
 
       def lesson_plans
@@ -23,7 +23,7 @@ module Api
         @lesson_plans = LessonPlan.by_unity_id(@unities.map(&:id))
                                   .by_teacher_id(params[:teacher_id])
                                   .fromLastDays(@number_of_days)
-                                  .includes(classroom: [:unity, :grade])
+                                  .includes(classroom: [:unity, classrooms_grades: :grade])
                                   .ordered
       end
 

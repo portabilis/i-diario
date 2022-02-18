@@ -1,0 +1,78 @@
+<%= simple_form_for @conceptual_exam, html: { class: 'smart-form' } do |f| %>
+  <%= f.error_notification %>
+
+  <%= render 'base_errors', f: f %>
+
+  <fieldset>
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :unity_id, as: :select2_unity, user: current_user %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :classroom, as: :select2_classroom, user: current_user, record: f.object %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.input :step_id, as: :select2_step, classroom: current_user_classroom,
+                    readonly: @conceptual_exam.persisted?, required: true %>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col col-sm-4">
+        <%= f.input :recorded_at, readonly: true %>
+      </div>
+
+      <div class="col col-sm-4">
+        <%= f.association :student, as: :select2, elements: @students,
+                          readonly: @conceptual_exam.persisted? %>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <table class="table table-bordered table-condensed" id="conceptual_exam_values_table">
+      <thead>
+      <th><%= ConceptualExamValue.human_attribute_name :discipline %></th>
+      <% old_values.each do |step| %>
+        <th class="old_step_column"><%= step[:description] %></th>
+      <% end %>
+      <th width="20%"><%= ConceptualExamValue.human_attribute_name :value %></th>
+      </thead>
+
+      <tbody id="conceptual_exam_values">
+      <tr>
+        <td class="no_item_found" colspan="<%= old_values.count + 2 %>" style="<%= f.object.conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).empty? ? 'display: table-cell;' : 'display: none;' %>" ><%= t('.no_item_found') %></td>
+      </tr>
+      <% ordered_conceptual_exam_values.each do |knowledge_area, conceptual_exam_values| %>
+        <% if conceptual_exam_values.reject(&:marked_for_destruction?).reject(&:marked_as_invisible?).any? %>
+          <tr class="knowledge-area-table-row">
+            <td class="knowledge-area-table-data" colspan="<%= old_values.count + 2 %>"><strong><%= knowledge_area %></strong></td>
+          </tr>
+        <% end %>
+
+        <%= f.simple_fields_for :conceptual_exam_values, conceptual_exam_values do |conceptual_exam_value_form| %>
+          <%= render 'conceptual_exam_value_fields', f: conceptual_exam_value_form %>
+        <% end %>
+      <% end %>
+
+      <tfoot class='exempted_students_from_discipline_legend <%= 'hidden' unless any_student_exempted_from_discipline? %>'>
+      <tr>
+        <td colspan="<%= old_values.count + 2 %>">
+              <span class="conceptual-exam-student-legend">
+                <%= t('.exempted_students_from_discipline_legend') %>
+              </span>
+        </td>
+      </tr>
+      </tfoot>
+      </tbody>
+      </table>
+  </fieldset>
+
+  <footer>
+    <%= link_to t('views.form.back'), conceptual_exams_path, class: 'btn btn-default' %>
+    <%= link_to t('views.form.history'), history_conceptual_exam_path(@conceptual_exam),
+                class: 'btn btn-info' if @conceptual_exam.persisted? %>
+  </footer>
+<% end %>

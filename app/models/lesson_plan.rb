@@ -40,7 +40,7 @@ class LessonPlan < ActiveRecord::Base
   validate :at_least_one_assigned_content
 
   delegate :unity, :unity_id, to: :classroom
-  delegate :grade, :grade_id, to: :classroom
+  delegate :grades, :grade_ids, :first_grade, to: :classroom
 
   scope :by_unity_id, lambda { |unity_id| joins(:classroom).merge(Classroom.by_unity(unity_id)) }
   scope :by_teacher_id, lambda { |teacher_id| where(teacher_id: teacher_id) }

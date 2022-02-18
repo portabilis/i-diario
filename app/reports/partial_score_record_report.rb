@@ -216,7 +216,7 @@ class PartialScoreRecordReport < BaseReport
   end
 
   def absences_count(student_id, discipline_id)
-    if @classroom.exam_rule.frequency_type == "2"
+    if @classroom.first_exam_rule.frequency_type == "2"
       DailyFrequencyStudent.general_by_classroom_discipline_student_date_between(
         @classroom.id, discipline_id, student_id, @school_calendar_step.start_at, @school_calendar_step.end_at
       ).absences.count

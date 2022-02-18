@@ -1,5 +1,5 @@
 class DailyFrequenciesController < ApplicationController
-  before_action :require_current_clasroom
+  before_action :require_current_classroom
   before_action :require_teacher
   before_action :set_number_of_classes, only: [:new, :create, :edit_multiple]
   before_action :require_allow_to_modify_prev_years, only: [:create, :destroy_multiple]
@@ -25,9 +25,9 @@ class DailyFrequenciesController < ApplicationController
     @period = params[:daily_frequency][:period]
 
     if @daily_frequency.valid?
-      frequency_type = current_frequency_type(@daily_frequency)
+      @frequency_type = current_frequency_type(@daily_frequency)
 
-      return if frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
+      return if @frequency_type == FrequencyTypes::BY_DISCIPLINE && !(validate_class_numbers && validate_discipline)
 
       redirect_to edit_multiple_daily_frequencies_path(
         daily_frequency: daily_frequency_params,
@@ -330,6 +330,7 @@ class DailyFrequenciesController < ApplicationController
   def fetch_student_enrollments
     StudentEnrollmentsList.new(
       classroom: @daily_frequency.classroom,
+      grade: discipline_classroom_grade_ids,
       discipline: @daily_frequency.discipline,
       date: @daily_frequency.frequency_date,
       search_type: :by_date,
@@ -393,5 +394,23 @@ class DailyFrequenciesController < ApplicationController
     return if current_user.current_classroom_id == params[:daily_frequency][:classroom_id].to_i
 
     redirect_to new_daily_frequency_path
+  end
+
+  def discipline_classroom_grade_ids
+    classroom_grade_ids = ClassroomsGrade.by_classroom_id(@daily_frequency.classroom.id).pluck(:grade_id)
+    school_calendar = StepsFetcher.new(@daily_frequency.classroom).school_calendar
+
+    if @frequency_type == FrequencyTypes::BY_DISCIPLINE
+      SchoolCalendarDisciplineGrade.where(
+        grade_id: classroom_grade_ids,
+        school_calendar_id: school_calendar.id,
+        discipline_id: @daily_frequency.discipline.id
+      ).pluck(:grade_id)
+    else
+      SchoolCalendarDisciplineGrade.where(
+        grade_id: classroom_grade_ids,
+        school_calendar_id: school_calendar.id,
+      ).pluck(:grade_id)
+    end
   end
 end

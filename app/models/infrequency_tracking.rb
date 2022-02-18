@@ -14,7 +14,7 @@ class InfrequencyTracking < ActiveRecord::Base
   scope :by_classroom_id, ->(classroom_id) { where(classroom_id: classroom_id) }
   scope :by_student_id, ->(student_id) { where(student_id: student_id) }
   scope :by_unity_id, ->(unity_id) { joins(:classroom).where(classrooms: { unity_id: unity_id }) }
-  scope :by_grade_id, ->(grade_id) { joins(:classroom).where(classrooms: { grade_id: grade_id }) }
+  scope :by_grade_id, ->(grade_id) { joins(:classroom).merge(Classroom.by_grade(grade_id)) }
   scope :by_notification_date, ->(notification_date) { where(notification_date: notification_date.to_date) }
   scope :by_notification_type, ->(notification_type) { where(notification_type: notification_type) }
   scope :ordered, -> { order(notification_date: :desc) }

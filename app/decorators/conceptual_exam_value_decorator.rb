@@ -3,7 +3,13 @@ class ConceptualExamValueDecorator
   include Decore::Proxy
 
   def data_for_select2
-    exam_rule = conceptual_exam.classroom.exam_rule
+    classroom_grade = ClassroomsGrade.by_student_id(conceptual_exam.student.id)
+                                     .by_classroom_id(conceptual_exam.classroom.id)
+                                     &.first
+
+    return if classroom_grade.blank?
+
+    exam_rule = classroom_grade&.exam_rule
 
     if conceptual_exam.student.try(:uses_differentiated_exam_rule)
       exam_rule = exam_rule.differentiated_exam_rule || exam_rule

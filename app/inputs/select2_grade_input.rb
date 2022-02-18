@@ -4,8 +4,10 @@ class Select2GradeInput < Select2Input
     raise "User must be passed" unless options[:user].is_a? User
 
     if options[:user].current_classroom.present?
-      input_html_options[:readonly] = 'readonly'
-      input_html_options[:value] = options[:user].current_classroom.grade.id
+      classroom = options[:user].current_classroom
+
+      input_html_options[:readonly] = 'readonly' unless classroom.multi_grade?
+      input_html_options[:value] = classroom.grades.first.id unless classroom.multi_grade?
     end
 
     super(wrapper_options)
@@ -17,11 +19,14 @@ class Select2GradeInput < Select2Input
     grades = []
 
     if user.current_classroom.present?
-      grades = [ user.current_classroom.grade ]
+      grades = Grade.joins(classrooms_grades: :classroom)
+                    .where(classrooms: { id: user.current_classroom })
     elsif user.current_teacher.present?
-      grades = user.current_teacher.classrooms.map(&:grade).uniq
+      grades = Grade.joins(classrooms_grades: :classroom)
+                    .where(classrooms: { id: user.current_teacher.classrooms })
     elsif user.current_unity.present?
-      grades = user.current_unity.classrooms.with_grade.map(&:grade).uniq
+      grades = Grade.joins(classrooms_grades: :classroom)
+                    .where(classrooms: { id: user.current_unity.classrooms })
     end
 
     options[:elements] = grades

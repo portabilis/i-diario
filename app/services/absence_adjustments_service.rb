@@ -15,8 +15,8 @@ class AbsenceAdjustmentsService
   end
 
   def daily_frequencies_by_type(frequency_type)
-    daily_frequencies = DailyFrequency.joins(:classroom)
-                                      .merge(Classroom.joins(:exam_rule).where(exam_rules: { frequency_type: frequency_type }))
+    daily_frequencies = DailyFrequency.joins(classroom: [classrooms_grades: :exam_rule])
+                                      .where(exam_rules: { frequency_type: frequency_type })
                                       .where('extract(year from frequency_date) = ?', @year)
                                       .where(unity_id: @unity_ids)
 
@@ -28,9 +28,9 @@ class AbsenceAdjustmentsService
 
   def daily_frequencies_general_when_teacher_has_specific_area
     DailyFrequency
-      .joins(:classroom)
+      .joins(classroom: [classrooms_grades: :exam_rule])
       .joins('join teacher_discipline_classrooms on daily_frequencies.classroom_id = teacher_discipline_classrooms.classroom_id and daily_frequencies.owner_teacher_id = teacher_discipline_classrooms.teacher_id and teacher_discipline_classrooms.allow_absence_by_discipline = 1')
-      .merge(Classroom.joins(:exam_rule).where(exam_rules: { frequency_type: FrequencyTypes::GENERAL }))
+      .where(exam_rules: { frequency_type: FrequencyTypes::GENERAL })
       .where(discipline_id: nil)
       .where('extract(year from frequency_date) = ?', @year)
       .where(unity_id: @unity_ids)

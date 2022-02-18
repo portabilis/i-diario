@@ -18,7 +18,7 @@ class ContentsForKnowledgeAreaRecordFetcher < ContentsRecordFetcher
   def teaching_plans
     @teaching_plans ||= KnowledgeAreaTeachingPlan.includes(teaching_plan: :contents)
                                                  .by_unity(@classroom.unity_id)
-                                                 .by_grade(@classroom.grade_id)
+                                                 .by_grade(@classroom.grade_ids)
                                                  .by_knowledge_area(@knowledge_areas.map(&:id))
                                                  .by_year(school_calendar_year)
   end

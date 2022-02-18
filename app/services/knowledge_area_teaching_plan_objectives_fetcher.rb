@@ -12,7 +12,7 @@ class KnowledgeAreaTeachingPlanObjectivesFetcher < TeachingPlanObjectivesFetcher
   def base_query
     KnowledgeAreaTeachingPlan.includes(teaching_plan: :objectives)
                              .by_unity(@classroom.unity_id)
-                             .by_grade(@classroom.grade_id)
+                             .by_grade(@classroom.grade_ids)
                              .by_knowledge_area(@knowledge_area_ids)
                              .by_year(school_calendar_year)
                              .by_school_term_type_step_id(school_term_type_steps_ids)

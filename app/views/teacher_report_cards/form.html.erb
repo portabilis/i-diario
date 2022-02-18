@@ -21,6 +21,10 @@
         <div class="col col-sm-4">
           <%= f.input :classroom_id, as: :select2_classroom, user: current_user, input_html: { value: @teacher_report_card_form.classroom_id } %>
         </div>
+        <div class="col col-sm-4">
+           <%= f.input :grade_id, as: :select2_grade, required: true, user: current_user,
+               input_html: { value: f.object.grade_id, data: { without_json_parser: true } }%>
+      </div>
       </div>
       <div class="row">
         <div class="col col-sm-4">
