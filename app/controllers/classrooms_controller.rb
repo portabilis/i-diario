@@ -23,6 +23,10 @@ class ClassroomsController < ApplicationController
     @classrooms = @classrooms.ordered.uniq
   end
 
+  def multi_grade
+    render json: current_user_classroom.multi_grade?
+  end
+
   def show
     return unless teacher_id = current_teacher.try(:id)
     id = params[:id]
