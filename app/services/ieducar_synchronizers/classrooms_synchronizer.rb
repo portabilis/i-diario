@@ -49,7 +49,7 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
           grades_ids << grade.id
 
-          classroom.classrooms_grades.find_or_initialize_by(grade_id: grade.id, exam_rule_id: exam_rule.id)
+          classroom.classrooms_grades.find_or_initialize_by(grade_id: grade.id)
         end
 
         destroy_old_grades(grades_ids, classroom.classrooms_grades)
