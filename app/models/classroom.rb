@@ -70,10 +70,12 @@ class Classroom < ActiveRecord::Base
 
   after_discard do
     teacher_discipline_classrooms.discard_all
+    classrooms_grades.discard_all
   end
 
   after_undiscard do
     teacher_discipline_classrooms.undiscard_all
+    classrooms_grades.undiscard_all
   end
 
   def to_s
