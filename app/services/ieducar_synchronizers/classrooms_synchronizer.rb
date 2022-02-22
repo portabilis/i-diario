@@ -38,14 +38,21 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.unity_code = classroom_record.escola_id
         classroom.period = classroom_record.turno_id
         classroom.year = classroom_record.ano
+
+        grades_ids = []
+
         classroom_record.series_regras.each do |grade_exam_rule|
           grade = grade(grade_exam_rule.serie_id)
           exam_rule = exam_rule(grade_exam_rule.regra_avaliacao_id)
 
           next if grade.blank? || exam_rule.blank?
 
-          classroom.classrooms_grades.find_or_initialize_by(grade_id: grade.id, exam_rule_id: exam_rule.id)
+          grades_ids << grade.id
+
+          classroom.classrooms_grades.find_or_initialize_by(grade_id: grade.id)
         end
+
+        destroy_old_grades(grades_ids, classroom.classrooms_grades)
 
         if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
           update_period_dependents(classroom.id, classroom.period_was, classroom.period)
@@ -60,6 +67,10 @@ class ClassroomsSynchronizer < BaseSynchronizer
         remove_current_classroom_id_in_user_selectors(classroom.id) if classroom_record.deleted_at.present?
       end
     end
+  end
+
+  def destroy_old_grades(grades_ids, classroom_grades)
+    classroom_grades.where.not(grade_id: grades_ids).destroy_all
   end
 
   def remove_current_classroom_id_in_user_selectors(classroom_id)
