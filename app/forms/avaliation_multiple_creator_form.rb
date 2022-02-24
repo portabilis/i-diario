@@ -63,10 +63,11 @@ class AvaliationMultipleCreatorForm
 
     @avaliations = []
     value.each do |avaliation_attributes|
+      classroom_id = avaliation_attributes.last['classroom_id'].to_i
       avaliation = Avaliation.new.localized
       avaliation.assign_attributes(
         include: avaliation_attributes.last['include'] == "1",
-        classroom_id: avaliation_attributes.last['classroom_id'],
+        classroom_id: classroom_id,
         test_date: avaliation_attributes.last['test_date'],
         classes: avaliation_attributes.last['classes'],
         test_setting_id: self.test_setting_id,
@@ -76,7 +77,8 @@ class AvaliationMultipleCreatorForm
         weight: self.weight,
         observations: self.observations,
         school_calendar_id: self.school_calendar_id,
-        teacher_id: teacher_id
+        teacher_id: teacher_id,
+        grade_ids: Classroom.find(classroom_id).first_grade.id
       )
       @avaliations << avaliation
     end
