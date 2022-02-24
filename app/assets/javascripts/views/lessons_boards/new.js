@@ -315,9 +315,17 @@ $(function () {
       });
 
       $("input[id*='_teacher_discipline_classroom_id']").each(function (index, teachers) {
-        $(teachers).select2({ data: teachers_to_select, escapeMarkup: function(data) { return data; }})
+        $(teachers).select2({ data: teachers_to_select, escapeMarkup, formatResult })
       })
     }
+  }
+
+  function escapeMarkup(data) {
+    return data;
+  }
+
+  function formatResult(state) {
+    return state.name;
   }
 
   function handleFetchTeachersFromTheClassroomError() {
