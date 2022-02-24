@@ -261,9 +261,9 @@ class LessonsBoardsController < ApplicationController
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
           name: teacher_discipline_classroom.teacher.name.try(:strip) + ' - ' +
-            teacher_discipline_classroom.discipline.description.try(:strip),
+            teacher_discipline_classroom.discipline,
           text: teacher_discipline_classroom.teacher.name.try(:strip).to_s + ' - ' +
-            teacher_discipline_classroom.discipline.description.try(:strip)
+            teacher_discipline_classroom.discipline
         )
       end
     else
@@ -273,8 +273,8 @@ class LessonsBoardsController < ApplicationController
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
-          name: discipline_teacher_name(teacher_discipline_classroom.discipline.description.try(:strip), teacher_discipline_classroom.teacher.name.try(:strip)),
-          text: discipline_teacher_name(teacher_discipline_classroom.discipline.description.try(:strip), teacher_discipline_classroom.teacher.name.try(:strip))
+          name: discipline_teacher_name(teacher_discipline_classroom.discipline, teacher_discipline_classroom.teacher.name.try(:strip)),
+          text: discipline_teacher_name(teacher_discipline_classroom.discipline, teacher_discipline_classroom.teacher.name.try(:strip))
         )
       end
     end
@@ -285,7 +285,16 @@ class LessonsBoardsController < ApplicationController
   end
 
   def discipline_teacher_name(discipline, teacher)
-    "#{teacher} - <b>#{discipline}</b>"
+    "<div class='flex-between'>
+       <div class='flex-teacher'>
+          <div>
+            #{teacher.upcase}
+          </div>
+       </div>
+       <div class='flex-discipline'>
+         <span class='flex-discipline-span' style='background-color: #{discipline.label_color};'>#{discipline.description.try(:strip)}</span>
+       </div>
+     </div>"
   end
 
   def classrooms_to_select2(grade_id, unity_id)
