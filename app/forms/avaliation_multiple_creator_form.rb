@@ -62,13 +62,15 @@ class AvaliationMultipleCreatorForm
     SchoolCalendar.find_by(id: school_calendar_id)
   end
 
-  def avaliations_attributes=(value)
-    return unless value.present?
+  def avaliations_attributes=(avaliations)
+    return unless avaliations.present?
 
     @avaliations = []
-    value.each do |avaliation_attributes|
+
+    avaliations.each do |avaliation_attributes|
       classroom_id = avaliation_attributes.last['classroom_id'].to_i
       avaliation = Avaliation.new.localized
+
       avaliation.assign_attributes(
         include: avaliation_attributes.last['include'] == '1',
         classroom_id: classroom_id,
@@ -84,6 +86,7 @@ class AvaliationMultipleCreatorForm
         teacher_id: teacher_id,
         grade_ids: Classroom.find(classroom_id).first_grade.id
       )
+
       @avaliations << avaliation
     end
   end
