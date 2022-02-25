@@ -41,6 +41,7 @@ class Avaliation < ActiveRecord::Base
   validates :test_setting_test, presence: true, if: :sum_calculation_type?
   validates :description,       presence: true, if: -> { !sum_calculation_type? || allow_break_up? }
   validates :weight,            presence: true, if: :should_validate_weight?
+  validates :grade_ids,         presence: true
 
   validate :uniqueness_of_avaliation
   validate :unique_test_setting_test_per_step,    if: -> { sum_calculation_type? && !allow_break_up? }
