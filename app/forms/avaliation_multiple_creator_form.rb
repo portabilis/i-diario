@@ -140,7 +140,9 @@ class AvaliationMultipleCreatorForm
     avaliations.select(&:include).each do |avaliation|
       next if avaliation.valid?
 
-      errors.add(:base, error_message) if avaliation_error(avaliation)
+      error_message = avaliation_error(avaliation)
+
+      errors.add(:base, error_message) if error_message
 
       valid = false
     end
