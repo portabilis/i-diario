@@ -116,6 +116,15 @@ class AvaliationsController < ApplicationController
 
     authorize @avaliation
 
+    if resource.grade_ids.empty?
+      flash[:error] = 'Série não pode ficar em branco'
+      test_settings
+
+      return render :edit
+    else
+      flash.clear
+    end
+
     if resource.save
       respond_to_save
     else
