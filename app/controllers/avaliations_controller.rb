@@ -53,7 +53,6 @@ class AvaliationsController < ApplicationController
   end
 
   def multiple_classrooms
-    return if current_user_classroom.multi_grade?
     return if test_settings_redirect
     return if score_types_redirect
 
