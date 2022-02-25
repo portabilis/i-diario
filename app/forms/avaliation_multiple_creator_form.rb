@@ -84,7 +84,7 @@ class AvaliationMultipleCreatorForm
         observations: self.observations,
         school_calendar_id: self.school_calendar_id,
         teacher_id: teacher_id,
-        grade_ids: Classroom.find(classroom_id).first_grade.id
+        grade_ids: avaliation_attributes.last['grade_ids'].split(',')
       )
 
       @avaliations << avaliation
