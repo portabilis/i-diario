@@ -24,7 +24,8 @@ module AvaliationHelper
     if @classroom.multi_grade?
       grades_to_select_2(ClassroomsGrade.includes(:grade)
                                         .by_classroom_id(@classroom.id)
-                                        .by_score_type(ScoreTypes::NUMERIC))
+                                        .by_score_type(ScoreTypes::NUMERIC)
+                                        .order_by_grade_description)
     else
       grades_to_select_2(@classroom.first_classroom_grade)
     end
