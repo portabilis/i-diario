@@ -26,6 +26,7 @@ pt-BR:
         weight: "Peso"
         observations: "Observações"
         grades: "Séries"
+        grade: "Série"
 
     errors:
       models:
