@@ -14,7 +14,7 @@ module AvaliationHelper
     @input_value = if @classroom.multi_grade? && avaliation.grade_ids.empty?
                      ''
                    elsif avaliation.grade_ids.present?
-                     avaliation.grade_ids.join(', ')
+                     avaliation.grade_ids.join(',')
                    else
                      @grades.first[:id]
                    end
