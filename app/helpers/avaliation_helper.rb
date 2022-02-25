@@ -11,7 +11,13 @@ module AvaliationHelper
     @classroom = avaliation.classroom
     @is_multi = @classroom.multi_grade?
     @grades = grades_by_classroom
-    @input_value = @classroom.multi_grade? ? '' : @grades.first[:id]
+    @input_value = if @classroom.multi_grade? && avaliation.grade_ids.empty?
+                     ''
+                   elsif avaliation.grade_ids.present?
+                     avaliation.grade_ids.join(', ')
+                   else
+                     @grades.first[:id]
+                   end
   end
 
   def grades_by_classroom
