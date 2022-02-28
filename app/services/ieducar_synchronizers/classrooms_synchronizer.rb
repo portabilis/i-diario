@@ -49,7 +49,10 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
           grades_ids << grade.id
 
-          classroom.classrooms_grades.find_or_initialize_by(grade_id: grade.id)
+          classroom.classrooms_grades.find_or_initialize_by(grade_id: grade.id).tap do |classroom_grade|
+            classroom_grade.exam_rule_id = exam_rule.id
+            classroom_grade.save!
+          end
         end
 
         destroy_old_grades(grades_ids, classroom.classrooms_grades)
