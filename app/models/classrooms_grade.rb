@@ -22,6 +22,7 @@ class ClassroomsGrade < ActiveRecord::Base
   scope :by_student_id, lambda { |student_id|
     joins(:student_enrollments).where(student_enrollments: { student_id: student_id })
   }
+  scope :order_by_grade_description, -> { joins(:grade).merge(Grade.ordered) }
 
   after_discard do
     student_enrollment_classrooms.discard_all

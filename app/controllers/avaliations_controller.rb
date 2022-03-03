@@ -53,7 +53,6 @@ class AvaliationsController < ApplicationController
   end
 
   def multiple_classrooms
-    return if current_user_classroom.multi_grade?
     return if test_settings_redirect
     return if score_types_redirect
 
@@ -116,6 +115,15 @@ class AvaliationsController < ApplicationController
     @avaliation.current_user = current_user
 
     authorize @avaliation
+
+    if resource.grade_ids.empty?
+      flash[:error] = 'Série não pode ficar em branco'
+      test_settings
+
+      return render :edit
+    else
+      flash.clear
+    end
 
     if resource.save
       respond_to_save
