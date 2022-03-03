@@ -138,14 +138,18 @@ class AvaliationMultipleCreatorForm
     valid = true
 
     avaliations.select(&:include).each do |avaliation|
-      if avaliation.grade_ids.empty?
+      grade_present = avaliation.grade_ids.present?
+
+      next if grade_present && avaliation.valid?
+
+      error_message = avaliation_error(avaliation)
+
+      unless grade_present
         avaliation.errors.add(:grade_ids, I18n.t('errors.messages.blank'))
-      else
-        next if avaliation.valid?
+      end
 
-        error_message = avaliation_error(avaliation)
-
-        errors.add(:base, error_message) if error_message
+      if error_message
+        errors.add(:base, error_message)
         avaliation.errors.add(:classroom, error_message)
       end
 
