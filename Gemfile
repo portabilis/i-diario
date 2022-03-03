@@ -66,7 +66,7 @@ gem 'webpacker', '~> 4.x'
 instance_eval File.read('Gemfile.plugins') if File.exist?('Gemfile.plugins')
 
 group :development do
-  gem 'rack-mini-profiler'
+  gem 'rack-mini-profiler', '~> 2.3.4'
   gem 'meta_request', '0.7.2'
   gem 'pry-byebug', '3.4.2'
   gem 'pry-remote', '0.1.8'
