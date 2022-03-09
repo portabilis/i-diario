@@ -71,7 +71,6 @@ module ExamPoster
             next if exempted_discipline(classroom, discipline.id, student_score.id)
             next unless correct_score_type(student_score.uses_differentiated_exam_rule,
                                            exam_rule)
-            next unless not_posted?({ classroom: classroom, discipline: discipline, student: student_score })[:numerical_exam]
             next unless numerical_or_school_term_recovery?(classroom, discipline, student_score)
 
             exempted_discipline_ids =
