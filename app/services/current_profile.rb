@@ -116,8 +116,16 @@ class CurrentProfile
     disciplines.as_json
   end
 
+  def last_allocation
+    Rails.cache.fetch("last_teacher_discipline_classroom-#{classroom.id}-#{teacher.id}", expires_in: 1.day) do
+      TeacherDisciplineClassroom.where(classroom_id: classroom.id, teacher_id: teacher.id)
+                                .last
+                                .cache_key
+    end
+  end
+
   def disciplines
-    cache ['disciplines', classroom&.id, teacher&.id] do
+    cache ['disciplines', classroom&.id, teacher&.id, last_allocation] do
       return Discipline.none unless classroom && teacher
 
       Discipline.by_teacher_and_classroom(teacher.id, classroom.id)
