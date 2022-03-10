@@ -3,8 +3,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     update_teacher_discipline_classrooms(
       HashDecorator.new(
         api.fetch(
-          ano: 2021,
-          escola: 13170
+          ano: year,
+          escola: unity_api_code
         )['vinculos']
       )
     )
