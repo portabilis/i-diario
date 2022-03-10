@@ -3,8 +3,8 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     update_teacher_discipline_classrooms(
       HashDecorator.new(
         api.fetch(
-          ano: year,
-          escola: unity_api_code
+          ano: 2021,
+          escola: 13170
         )['vinculos']
       )
     )
@@ -95,6 +95,10 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     teacher_discipline_classroom.score_type = score_type
     teacher_discipline_classroom.active = true if teacher_discipline_classroom.active.nil?
     teacher_discipline_classroom.save! if teacher_discipline_classroom.changed?
+
+    cache_key = "last_teacher_discipline_classroom-#{classroom_id}-#{teacher_id}"
+
+    Rails.cache.delete(cache_key)
 
     teacher_discipline_classroom.discard_or_undiscard(false)
   end
