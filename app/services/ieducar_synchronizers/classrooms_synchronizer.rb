@@ -39,6 +39,12 @@ class ClassroomsSynchronizer < BaseSynchronizer
         classroom.period = classroom_record.turno_id
         classroom.year = classroom_record.ano
 
+        if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
+          update_period_dependents(classroom.id, classroom.period_was, classroom.period)
+        end
+
+        classroom.save!
+
         grades_ids = []
 
         classroom_record.series_regras.each do |grade_exam_rule|
@@ -49,19 +55,13 @@ class ClassroomsSynchronizer < BaseSynchronizer
 
           grades_ids << grade.id
 
-          classroom.classrooms_grades.find_or_initialize_by(grade_id: grade.id).tap do |classroom_grade|
+          ClassroomsGrade.with_discarded.find_or_initialize_by(classroom_id: classroom.id, grade_id: grade.id).tap do |classroom_grade|
             classroom_grade.exam_rule_id = exam_rule.id
             classroom_grade.save!
           end
         end
 
         destroy_old_grades(grades_ids, classroom.classrooms_grades)
-
-        if classroom.persisted? && classroom.period_changed? && classroom.period_was.present?
-          update_period_dependents(classroom.id, classroom.period_was, classroom.period)
-        end
-
-        classroom.save!
 
         update_label(classroom.id, new_name) if old_name != new_name
 
