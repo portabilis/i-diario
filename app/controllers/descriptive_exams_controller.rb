@@ -207,7 +207,7 @@ class DescriptiveExamsController < ApplicationController
 
     descriptive_exam_opinion_type = exam_rules.find(&:allow_descriptive_exam?)&.opinion_type
 
-     if descriptive_exam_opinion_type.present?
+    if descriptive_exam_opinion_type.present?
       @opinion_types << OpenStruct.new(id: descriptive_exam_opinion_type,
                                        text: 'Avaliação padrão (regular)',
                                        name: 'Avaliação padrão (regular)')
