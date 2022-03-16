@@ -27,9 +27,11 @@ class ClassroomsGrade < ActiveRecord::Base
 
   after_discard do
     student_enrollment_classrooms.discard_all
+    lessons_board.discard
   end
 
   after_undiscard do
     student_enrollment_classrooms.undiscard_all
+    lessons_board.undiscard
   end
 end
