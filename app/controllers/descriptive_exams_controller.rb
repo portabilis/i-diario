@@ -216,7 +216,7 @@ class DescriptiveExamsController < ApplicationController
     differentiated_opinion_type = exam_rules.find { |exam_rule|
       exam_rule.differentiated_exam_rule&.allow_descriptive_exam? &&
         exam_rule.differentiated_exam_rule.opinion_type != descriptive_exam_opinion_type
-    }&.differentiated_exam_rule.opinion_type
+    }&.differentiated_exam_rule&.opinion_type
 
     if differentiated_opinion_type.present?
       @opinion_types << OpenStruct.new(

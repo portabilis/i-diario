@@ -108,7 +108,7 @@ class StudentEnrollment < ActiveRecord::Base
 
     classrooms_grades.each do |classroom_grade|
       exam_rule = classroom_grade.exam_rule.opinion_type.eql?(opinion_type)
-      differentiated_exam_rule = classroom_grade.exam_rule&.differentiated_exam_rule.opinion_type.eql?(opinion_type) ||
+      differentiated_exam_rule = classroom_grade.exam_rule&.differentiated_exam_rule&.opinion_type.eql?(opinion_type) ||
                                    exam_rule
 
       classroom_grade.student_enrollment_classrooms.each do |student_enrollment_classroom|
