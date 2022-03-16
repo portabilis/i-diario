@@ -62,11 +62,7 @@ class TeacherDisciplineClassroomsSynchronizer < BaseSynchronizer
     return if discipline_id.blank?
 
     teacher_discipline_classrooms = TeacherDisciplineClassroom.unscoped.where(
-      api_code: teacher_discipline_classroom_record.id,
-      year: year,
-      teacher_id: teacher_id,
-      discipline_id: discipline_id,
-      classroom_id: classroom_id
+      api_code: teacher_discipline_classroom_record.id
     )
 
     teacher_discipline_classroom =
