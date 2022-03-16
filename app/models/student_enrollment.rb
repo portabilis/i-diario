@@ -108,16 +108,15 @@ class StudentEnrollment < ActiveRecord::Base
 
     classrooms_grades.each do |classroom_grade|
       exam_rule = classroom_grade.exam_rule.opinion_type.eql?(opinion_type)
-      differentiated_exam_rule = classroom_grade.exam_rule&.differentiated_exam_rule&.opinion_type.eql?(opinion_type) ||
-                                   exam_rule
+      differentiated_exam_rule = classroom_grade.exam_rule&.differentiated_exam_rule&.opinion_type.eql?(opinion_type)
 
       classroom_grade.student_enrollment_classrooms.each do |student_enrollment_classroom|
         differentiated = student_enrollment_classroom.student_enrollment
-                                                                       .student
-                                                                       .uses_differentiated_exam_rule
+                                                     .student
+                                                     .uses_differentiated_exam_rule
         if differentiated && differentiated_exam_rule
           students_by_opinion_type << student_enrollment_classroom.id
-        elsif exam_rule
+        elsif exam_rule && !differentiated
           students_by_opinion_type << student_enrollment_classroom.id
         end
       end
