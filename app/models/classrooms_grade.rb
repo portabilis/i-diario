@@ -9,6 +9,7 @@ class ClassroomsGrade < ActiveRecord::Base
 
   has_many :student_enrollment_classrooms
   has_many :student_enrollments, through: :student_enrollment_classrooms
+  has_one :lessons_board
 
   default_scope -> { kept }
 
