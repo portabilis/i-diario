@@ -57,7 +57,7 @@ class LessonsBoardsController < ApplicationController
   def destroy
     authorize resource
 
-    resource.destroy
+    resource.discard
 
     respond_with resource, location: lessons_boards_path
   end
