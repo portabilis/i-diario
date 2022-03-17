@@ -56,6 +56,7 @@ class AvaliationsController < ApplicationController
   def multiple_classrooms
     return if test_settings_redirect
     return if score_types_redirect
+    return if not_allow_numerical_exam
 
     @avaliation_multiple_creator_form = AvaliationMultipleCreatorForm.new.localized
     @avaliation_multiple_creator_form.school_calendar_id = current_school_calendar.id
