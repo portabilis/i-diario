@@ -44,6 +44,7 @@ class AvaliationsController < ApplicationController
   def new
     return if test_settings_redirect
     return if score_types_redirect
+    return if not_allow_numerical_exam
 
     @avaliation = resource
     @avaliation.school_calendar = current_school_calendar
@@ -300,6 +301,14 @@ class AvaliationsController < ApplicationController
     return if available_score_types.any? { |discipline_score_type| discipline_score_type == ScoreTypes::NUMERIC }
 
     redirect_to avaliations_path, alert: t('avaliation.numeric_exam_absence')
+  end
+
+  def not_allow_numerical_exam
+    grades_by_numerical_exam = current_user_classroom.classrooms_grades.by_score_type(ScoreTypes::NUMERIC).map(&:grade)
+
+    return if grades_by_numerical_exam.present?
+
+    redirect_to avaliations_path, alert: t('avaliation.grades_not_allow_numeric_exam')
   end
 
   def grades
