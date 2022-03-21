@@ -273,8 +273,10 @@ class LessonsBoardsController < ApplicationController
                                 .each do |teacher_discipline_classroom|
         teachers_to_select2 << OpenStruct.new(
           id: teacher_discipline_classroom.id,
-          name: discipline_teacher_name(teacher_discipline_classroom.discipline, teacher_discipline_classroom.teacher.name.try(:strip)),
-          text: discipline_teacher_name(teacher_discipline_classroom.discipline, teacher_discipline_classroom.teacher.name.try(:strip))
+          name: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip)),
+          text: discipline_teacher_name(teacher_discipline_classroom.discipline,
+                                        teacher_discipline_classroom.teacher.name.try(:strip))
         )
       end
     end
