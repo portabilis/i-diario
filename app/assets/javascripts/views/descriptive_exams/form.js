@@ -70,7 +70,8 @@ $(function () {
       success: function(descriptive_exam_id) {
         if (descriptive_exam_id === null || !$.isNumeric(descriptive_exam_id)) {
           view_btn.addClass('disabled');
-          view_btn.attr('href', '')
+          view_btn.attr('href', '');
+
           return;
         }
 
