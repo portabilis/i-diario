@@ -64,7 +64,7 @@ class DescriptiveExamsController < ApplicationController
   end
 
   def find
-    return if params[:step_id].blank? || params[:opinion_type].blank?
+    return render json: nil if params[:step_id].blank? || params[:opinion_type].blank?
 
     discipline_id = params[:discipline_id].blank? ? nil : params[:discipline_id].to_i
     step_id = opinion_type_by_year?(params[:opinion_type].to_i) ? nil : params[:step_id].to_i
