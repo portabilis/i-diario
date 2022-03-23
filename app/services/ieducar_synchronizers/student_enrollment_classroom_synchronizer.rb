@@ -25,8 +25,15 @@ class StudentEnrollmentClassroomSynchronizer < BaseSynchronizer
       classroom_id = classroom(student_enrollment_classroom_record.turma_id).try(:id)
       grade_id = grade(student_enrollment_classroom_record.serie_id).try(:id)
       student_enrollment = student_enrollment(student_enrollment_classroom_record.matricula_id)
+      student_enrollment_classroom = StudentEnrollmentClassroom.find_by(
+        api_code: student_enrollment_classroom_record.id
+      )
 
-      next if student_enrollment.blank?
+      if student_enrollment.blank?
+        student_enrollment_classroom.discard if student_enrollment_classroom
+
+        next
+      end
 
       StudentEnrollmentClassroom.with_discarded.find_or_initialize_by(
         api_code: student_enrollment_classroom_record.id
