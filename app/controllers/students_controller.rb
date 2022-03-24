@@ -16,7 +16,7 @@ class StudentsController < ApplicationController
 
       include_date_range = start_date.present? && end_date.present?
 
-      student_enrollments_list = StudentEnrollmentsList.new(
+      student_enrollments = StudentEnrollmentsList.new(
         classroom: params[:classroom_id],
         discipline: params[:discipline_id],
         date: date,
@@ -25,14 +25,11 @@ class StudentsController < ApplicationController
         start_at: start_date,
         end_at: end_date,
         score_type: params[:score_type]
-      )
+      ).student_enrollments
 
-      student_enrollments = student_enrollments_list.student_enrollments
-      student_ids = student_enrollments.collect(&:student_id)
-      @students = Student.where(id: student_ids)
-      @students = @students.order_by_sequence(@classroom, start_date, end_date) if include_date_range
+      students = student_enrollments.map(&:student)
 
-      render json: @students
+      render json: students
     else
       @students = apply_scopes(Student).ordered
 
