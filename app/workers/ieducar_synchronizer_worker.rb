@@ -54,6 +54,6 @@ class IeducarSynchronizerWorker
   end
 
   def all_entities
-    Entity.active_and_to_sync
+    Entity.enable_to_sync
   end
 end
