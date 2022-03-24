@@ -18,7 +18,6 @@ class FeaturesAccessLevels
       :avaliation_exemptions,
       :avaliation_recovery_diary_records,
       :avaliations,
-      :learning_objectives_and_skills,
       :conceptual_exams,
       :daily_frequencies,
       :daily_notes,
@@ -44,7 +43,8 @@ class FeaturesAccessLevels
       :complementary_exams,
       :ieducar_api_exam_posting_without_restrictions,
       :change_school_year,
-      :daily_frequencies_in_batchs
+      :daily_frequencies_in_batchs,
+      :learning_objectives_and_skills
     ]
   end
 
