@@ -2,7 +2,7 @@ class StudentsController < ApplicationController
   skip_before_action :authenticate_user!, only: :search_api
 
   def index
-    return if params[:classroom_id].present?
+    return render json: nil if params[:classroom_id].blank?
 
     date = params[:date] || Date.current
     start_date = params[:start_date]
