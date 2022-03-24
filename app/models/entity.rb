@@ -8,6 +8,7 @@ class Entity < ActiveRecord::Base
 
   scope :active, -> { where(disabled: false) }
   scope :to_sync, -> { active.where(disabled_sync: false) }
+  scope :enable_to_sync, -> { active.to_sync }
 
   def self.current_domain
     raise Exception.new("Entity not found") if self.current.blank?
