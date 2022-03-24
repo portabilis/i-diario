@@ -18,6 +18,7 @@ class FeaturesAccessLevels
       :avaliation_exemptions,
       :avaliation_recovery_diary_records,
       :avaliations,
+      :learning_objectives_and_skills,
       :conceptual_exams,
       :daily_frequencies,
       :daily_notes,
