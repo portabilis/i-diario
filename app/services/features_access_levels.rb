@@ -74,8 +74,7 @@ class FeaturesAccessLevels
       :roles,
       :unities,
       :terms_dictionaries,
-      :translations,
-      :learning_objectives_and_skills
+      :translations
     ]
   end
 end
