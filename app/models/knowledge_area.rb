@@ -31,8 +31,8 @@ class KnowledgeArea < ActiveRecord::Base
     ).uniq
   }
   scope :by_grade, lambda { |grade_id|
-    joins(disciplines: { teacher_discipline_classrooms: :classroom }).where(
-      classrooms: { grade_id: grade_id }
+    joins(disciplines: { teacher_discipline_classrooms: { classroom: :classrooms_grades } }).where(
+      classrooms_grades: { grade_id: grade_id }
     ).uniq
   }
   scope :by_discipline_id, ->(discipline_id) { joins(:disciplines).where(disciplines: { id: discipline_id }) }
