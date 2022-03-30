@@ -81,10 +81,10 @@ class FinalRecoveryDiaryRecord < ActiveRecord::Base
 
   def uniqueness_of_recorded_at
     return unless recovery_diary_record
+
     relation = RecoveryDiaryRecord.find_by(unity_id: recovery_diary_record.unity_id, classroom_id: recovery_diary_record.classroom_id, discipline_id: recovery_diary_record.discipline_id)
-    if relation
-      recovery_diary_record.errors.add(:recorded_at, :uniqueness)
-    end
+
+    recovery_diary_record.errors.add(:recorded_at, :uniqueness_of_recorded_at) if relation
   end
 
   def valid_for_destruction?
