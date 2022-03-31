@@ -12,9 +12,9 @@ class ExamRuleFetcher
     return if @classroom.classrooms_grades.none? { |classroom_grade| classroom_grade.exam_rule.present? }
 
     student_enrollment_classroom = StudentEnrollmentClassroom.by_student(@student)
-                                                              .by_classroom(@classroom)
-                                                              .by_date(Date.current)
-                                                              &.first
+                                                             .by_classroom(@classroom)
+                                                             .by_date(Date.current)
+                                                             &.first
     return if student_enrollment_classroom.blank?
 
     grade_id = student_enrollment_classroom.classrooms_grade.grade_id
