@@ -3,11 +3,15 @@ require 'rails_helper'
 RSpec.describe ExamRuleFetcher, type: :service do
   let(:differentiated_exam_rule) { create(:exam_rule) }
   let(:exam_rule) { create(:exam_rule) }
-  let(:classroom) { create(:classroom, exam_rule: exam_rule) }
+  let(:classroom_grade) { create(:classrooms_grade, exam_rule: exam_rule) }
   let(:student) { create(:student) }
+  let(:student_enrollment) { create(:student_enrollment, student: student) }
+  let!(:student_enrollment_classroom) {
+    create(:student_enrollment_classroom, student_enrollment: student_enrollment, classrooms_grade: classroom_grade)
+  }
 
   subject do
-    described_class.new(classroom, student)
+    described_class.new(classroom_grade.classroom, student)
   end
 
   context 'student uses differentiated exam rule' do
@@ -18,10 +22,11 @@ RSpec.describe ExamRuleFetcher, type: :service do
     context 'exam_rule has differentiated exam rule' do
       before do
         exam_rule.differentiated_exam_rule = differentiated_exam_rule
+        exam_rule.save!
       end
 
       it 'return differentiated exam rule' do
-        expect(subject.fetch).to be(differentiated_exam_rule)
+        expect(subject.fetch).to eq(differentiated_exam_rule)
       end
     end
 
@@ -31,7 +36,7 @@ RSpec.describe ExamRuleFetcher, type: :service do
       end
 
       it 'return classroom exam rule' do
-        expect(subject.fetch).to be(exam_rule)
+        expect(subject.fetch).to eq(exam_rule)
       end
     end
   end
@@ -47,7 +52,7 @@ RSpec.describe ExamRuleFetcher, type: :service do
       end
 
       it 'return classroom exam rule' do
-        expect(subject.fetch).to be(exam_rule)
+        expect(subject.fetch).to eq(exam_rule)
       end
     end
 
@@ -57,7 +62,7 @@ RSpec.describe ExamRuleFetcher, type: :service do
       end
 
       it 'return classroom exam rule' do
-        expect(subject.fetch).to be(exam_rule)
+        expect(subject.fetch).to eq(exam_rule)
       end
     end
   end
