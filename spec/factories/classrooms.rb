@@ -1,8 +1,6 @@
 FactoryGirl.define do
   factory :classroom do
     unity
-    exam_rule
-    grade
 
     description { Faker::Lorem.unique.sentence }
     year { Date.current.year }
@@ -19,19 +17,19 @@ FactoryGirl.define do
     end
 
     trait :score_type_numeric_and_concept do
-      association :exam_rule, factory: [:exam_rule, :score_type_numeric_and_concept]
+      association classrooms_grades: :exam_rule, factory: [:exam_rule, :score_type_numeric_and_concept]
     end
 
     trait :score_type_numeric do
-      association :exam_rule, factory: :exam_rule
+      association classrooms_grades: :exam_rule, factory: :exam_rule
     end
 
     trait :score_type_concept do
-      association :exam_rule, factory: [:exam_rule, :score_type_concept]
+      association classrooms_grades: :exam_rule, factory: [:exam_rule, :score_type_concept]
     end
 
     trait :by_discipline do
-      association :exam_rule, factory: [:exam_rule, :frequency_type_by_discipline]
+      association classrooms_grades: :exam_rule, factory: [:exam_rule, :frequency_type_by_discipline]
     end
 
     trait :with_teacher_discipline_classroom do

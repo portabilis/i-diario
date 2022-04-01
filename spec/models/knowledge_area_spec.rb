@@ -16,6 +16,9 @@ RSpec.describe KnowledgeArea, type: :model do
     let!(:teacher) { create(:teacher) }
     let!(:other_teacher) { create(:teacher) }
     let!(:classroom) { create(:classroom) }
+    let!(:classrooms_grade) {
+      create(:classrooms_grade, classroom: classroom)
+    }
     let!(:other_classroom) { create(:classroom) }
     let!(:teacher_discipline_classroom_1) {
       create(:teacher_discipline_classroom, teacher: teacher, classroom: classroom)
@@ -47,7 +50,7 @@ RSpec.describe KnowledgeArea, type: :model do
 
     describe '.by_grade' do
       it 'returns filtered Knowledge Areas by grade' do
-        expect(described_class.by_grade(classroom.grade_id).count).to be(2)
+        expect(described_class.by_grade(classroom.first_grade.id).count).to be(2)
       end
     end
   end

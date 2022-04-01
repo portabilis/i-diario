@@ -2,11 +2,11 @@ require 'rails_helper'
 
 RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
   let(:student) { create(:student) }
-  let(:classroom) { create(:classroom) }
+  let(:classroom_grade) { create(:classrooms_grade) }
 
   describe '#current_enrollment' do
     subject do
-      described_class.new(student, classroom, '2019-01-01', '2019-03-01')
+      described_class.new(student, classroom_grade, '2019-01-01', '2019-03-01')
     end
 
     context 'with only one enrollment' do
@@ -163,7 +163,7 @@ RSpec.describe StudentEnrollmentClassroomFetcher, type: :service do
     @student_enrollment_classroom = create(
       :student_enrollment_classroom,
       student_enrollment: student_enrollment,
-      classroom: classroom,
+      classrooms_grade: classroom_grade,
       api_code: api_code,
       joined_at: joined_at,
       left_at: left_at
