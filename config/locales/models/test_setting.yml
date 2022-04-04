@@ -12,6 +12,7 @@ pt-BR:
         school_term_type_step: "Período escolar"
         year: "Ano"
         maximum_score: "Nota máxima"
+        minimum_score: "Nota mínima"
         number_of_decimal_places: "Número de casas decimais"
         average_calculation_type: "Cálculo da média"
         responsible_id: "Responsável"
@@ -32,9 +33,11 @@ pt-BR:
               taken: 'já existe uma configuração para esses dados'
             base:
               has_avaliation_associated: "Não é possível modificar as configurações de Avaliações numéricas pois existem avaliações vinculadas"
+              check_minimum_score: "A nota mínima deve ser menor que a nota máxima"
 
   test_settings:
     form:
+      minimum_score_warn: "A nota mínima será considerada na tela de Diário de avaliações numéricas, não afetando notas complementares ou recuperações"
       add_test: "Adicionar avaliação"
     test_fields:
       remove: "Remover"
