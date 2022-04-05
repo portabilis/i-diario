@@ -54,4 +54,34 @@ class DisciplinesController < ApplicationController
 
     render json: disciplines.as_json
   end
+
+  def by_classroom
+    return nil if params[:classroom_id].blank?
+
+    render json: disciplines_to_select2(params[:classroom_id])
+  end
+
+  def disciplines_to_select2(classroom_id)
+    disciplines_to_select2 = []
+
+    if current_user.teacher?
+      Discipline.by_classroom_id(classroom_id).by_teacher_id(current_teacher.id).each do |discipline|
+        disciplines_to_select2 << OpenStruct.new(
+          id: discipline.id,
+          name: discipline.description.to_s,
+          text: discipline.description.to_s
+        )
+      end
+    else
+      Discipline.by_classroom_id(classroom_id).each do |discipline|
+        disciplines_to_select2 << OpenStruct.new(
+          id: discipline.id,
+          name: discipline.description.to_s,
+          text: discipline.description.to_s
+        )
+      end
+    end
+
+    disciplines_to_select2
+  end
 end
