@@ -28,12 +28,18 @@ class ObservationRecordReport < BaseReportOld
     discipline_header = make_row_header_cell(t(:discipline), width: 70)
     classroom_header = make_row_header_cell(t(:classroom))
 
-    discipline_cell = make_content_cell(
-      @form.discipline.present? ? @form.discipline.to_s : t(:empty_discipline),
-      width: 70
-    )
+    discipline_name = if @form.discipline_id.eql?('all')
+                        'Todas'
+                      elsif @form.discipline.present?
+                        @form.discipline.to_s
+                      else
+                        t(:empty_discipline)
+                      end
 
-    classroom_cell = make_content_cell(@form.classroom.to_s)
+    classroom_name = @form.classroom_id.eql?('all') ? 'Todas' : @form.classroom.to_s
+
+    discipline_cell = make_content_cell(discipline_name, width: 70)
+    classroom_cell = make_content_cell(classroom_name)
     teacher_header = make_row_header_cell(t(:teacher))
     period_header = make_row_header_cell(t(:period))
     teacher_cell = make_content_cell(@form.teacher.to_s)
