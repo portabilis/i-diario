@@ -27,6 +27,43 @@ class ClassroomsController < ApplicationController
     render json: current_user_classroom.multi_grade?
   end
 
+  def by_unity
+    return nil if params[:unity_id].blank?
+
+    render json: classrooms_to_select2(params[:unity_id])
+  end
+
+  def classrooms_to_select2(unity_id)
+    classrooms_to_select2 = []
+
+    if current_user.teacher?
+      Classroom.by_unity(unity_id)
+               .by_year(current_user_school_year || Date.current.year)
+               .by_teacher_id(current_teacher.id)
+               .ordered
+               .each do |classroom|
+        classrooms_to_select2 << OpenStruct.new(
+          id: classroom.id,
+          name: classroom.description.to_s,
+          text: classroom.description.to_s
+        )
+      end
+    else
+      Classroom.by_unity(unity_id)
+               .by_year(current_user_school_year || Date.current.year)
+               .ordered
+               .each do |classroom|
+        classrooms_to_select2 << OpenStruct.new(
+          id: classroom.id,
+          name: classroom.description.to_s,
+          text: classroom.description.to_s
+        )
+      end
+    end
+
+    classrooms_to_select2
+  end
+
   def show
     return unless teacher_id = current_teacher.try(:id)
     id = params[:id]
