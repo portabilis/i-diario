@@ -11,7 +11,8 @@ class ObservationRecordReportForm
     :classroom_id,
     :discipline_id,
     :start_at,
-    :end_at
+    :end_at,
+    :current_user_id
   )
 
   validates :teacher_id, presence: true
@@ -63,7 +64,8 @@ class ObservationRecordReportForm
       classroom_id,
       discipline_id,
       start_at,
-      end_at
+      end_at,
+      current_user_id
     )
   end
 
