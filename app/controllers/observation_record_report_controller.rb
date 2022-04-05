@@ -29,6 +29,15 @@ class ObservationRecordReportController < ApplicationController
     end
   end
 
+  def unities
+    if current_user.current_user_role.try(:role_administrator?)
+      Unity.ordered
+    else
+      [current_user_unity]
+    end
+  end
+  helper_method :unities
+
   private
 
   def resource_params
