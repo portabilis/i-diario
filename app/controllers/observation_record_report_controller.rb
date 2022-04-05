@@ -7,7 +7,7 @@ class ObservationRecordReportController < ApplicationController
       unity_id: current_unity.id,
       start_at: Time.zone.today,
       end_at: Time.zone.today,
-      current_user: current_user
+      current_user_id: current_user.id
     ).localized
   end
 
