@@ -34,34 +34,21 @@ class ClassroomsController < ApplicationController
   end
 
   def classrooms_to_select2(unity_id)
-    classrooms_to_select2 = []
+    classrooms = Classroom.by_unity(unity_id)
+                     .by_year(current_user_school_year || Date.current.year)
+                     .ordered
 
     if current_user.teacher?
-      Classroom.by_unity(unity_id)
-               .by_year(current_user_school_year || Date.current.year)
-               .by_teacher_id(current_teacher.id)
-               .ordered
-               .each do |classroom|
-        classrooms_to_select2 << OpenStruct.new(
-          id: classroom.id,
-          name: classroom.description.to_s,
-          text: classroom.description.to_s
-        )
-      end
-    else
-      Classroom.by_unity(unity_id)
-               .by_year(current_user_school_year || Date.current.year)
-               .ordered
-               .each do |classroom|
-        classrooms_to_select2 << OpenStruct.new(
-          id: classroom.id,
-          name: classroom.description.to_s,
-          text: classroom.description.to_s
-        )
-      end
+      classrooms = classrooms.by_teacher_id(current_teacher.id)
     end
 
-    classrooms_to_select2
+    classrooms.map do |classroom|
+      OpenStruct.new(
+        id: classroom.id,
+        name: classroom.description.to_s,
+        text: classroom.description.to_s
+      )
+    end
   end
 
   def show

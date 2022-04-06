@@ -62,26 +62,18 @@ class DisciplinesController < ApplicationController
   end
 
   def disciplines_to_select2(classroom_id)
-    disciplines_to_select2 = []
+    disciplines = Discipline.by_classroom_id(classroom_id)
 
     if current_user.teacher?
-      Discipline.by_classroom_id(classroom_id).by_teacher_id(current_teacher.id).each do |discipline|
-        disciplines_to_select2 << OpenStruct.new(
-          id: discipline.id,
-          name: discipline.description.to_s,
-          text: discipline.description.to_s
-        )
-      end
-    else
-      Discipline.by_classroom_id(classroom_id).each do |discipline|
-        disciplines_to_select2 << OpenStruct.new(
-          id: discipline.id,
-          name: discipline.description.to_s,
-          text: discipline.description.to_s
-        )
-      end
+      disciplines.by_teacher_id(current_teacher.id)
     end
 
-    disciplines_to_select2
+    disciplines.map do |discipline|
+      OpenStruct.new(
+        id: discipline.id,
+        name: discipline.description.to_s,
+        text: discipline.description.to_s
+      )
+    end
   end
 end
