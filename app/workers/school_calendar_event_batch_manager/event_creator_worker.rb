@@ -30,7 +30,7 @@ module SchoolCalendarEventBatchManager
                 notify(
                   school_calendar_event_batch,
                   "A criação do evento #{school_calendar_event_batch.description} não foi efetuada para a escola\
-                  #{unity_name} pois a #{school_calendar_event_batch.start_date} não está dentro do período letivo.",
+                  #{unity_name} pois a data #{school_calendar_event_batch.start_date} não está dentro do período letivo.",
                   user_id
                 )
               else
