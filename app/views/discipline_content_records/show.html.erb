@@ -45,12 +45,15 @@
       <% end %>
       <div class="well" style="max-height: 300px;overflow-y: auto;">
         <ul class="list-group checked-list-box" id="contents-list">
-
           <% contents.each do |content| %>
-            <li class="list-group-item manual list-group-item-info active initialized" style="display: flex;" id="content_record_<%= content.id %>">
-              <span class="state-icon fa fa-check"></span>
+            <% content_id_in_plan = content.id.in?(@discipline_content_record.contents.collect(&:id)) %>
+            <% classes = content_id_in_plan ? "list-group-item-info active initialized" : "" %>
+            <li class="list-group-item manual <%= classes %>" style="display: flex;" id="content_record_<%= content.id %>">
+              <% if content_id_in_plan %>
+                <span class="state-icon fa fa-check"></span>
+              <% end %>
               <%= check_box_tag("discipline_content_record[content_record_attributes][content_ids][]",
-                                content.id, content.id.in?(@discipline_content_record.contents.collect(&:id)),
+                                content.id, content_id_in_plan,
                                 hidden: true, 'data-content_description': content.to_s ) %>
               <span style="margin-left: 5px;display: block;width: calc(100% - 85px);"><%= content %></span>
             </li>
