@@ -70,6 +70,18 @@
         </div>
 
         <div class="col col-sm-3">
+          <%= f.input :minimum_score, input_html: {
+                                        rel: 'popover-hover',
+                                        data: {
+                                          placement: 'top',
+                                          content: t('test_settings.form.minimum_score_warn.'),
+                                          toggle: 'popover'
+                                        }
+                                      }
+          %>
+        </div>
+
+        <div class="col col-sm-3">
           <%= f.input :number_of_decimal_places %>
         </div>
 

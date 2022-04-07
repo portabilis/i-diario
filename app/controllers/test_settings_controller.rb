@@ -102,6 +102,7 @@ class TestSettingsController < ApplicationController
                                :year,
                                :school_term_type_step_id,
                                :maximum_score,
+                               :minimum_score,
                                :number_of_decimal_places,
                                :average_calculation_type,
                                :unities,
