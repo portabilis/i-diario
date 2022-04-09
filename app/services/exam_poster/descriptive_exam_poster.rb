@@ -109,6 +109,7 @@ module ExamPoster
 
         exams.each do |exam|
           next if exam.student.nil?
+          next unless not_posted?({ classroom: classroom, student: exam.student })[:descriptive_exam]
           next unless valid_opinion_type?(
             exam.student.uses_differentiated_exam_rule,
             OpinionTypes::BY_STEP, classroom.first_exam_rule
