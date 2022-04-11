@@ -65,12 +65,17 @@ class InfrequencyTrackingNotifier
 
   def school_dates(end_at, classroom)
     days = general_configuration.days_to_consider_alternate_absences
+    school_dates = []
 
-    SchoolDayChecker.new(
-      school_calendar(classroom), end_at, classroom.grade_ids, classroom.id, nil
-    ).school_dates_since(
-      end_at, days
-    ).sort
+    classroom.grade_ids.each do |grade|
+      school_dates << SchoolDayChecker.new(
+        school_calendar(classroom), end_at, grade, classroom.id, nil
+      ).school_dates_since(
+        end_at, days
+      ).sort
+    end
+
+    school_dates.flatten
   end
 
   def consecutive_school_dates(school_dates)
