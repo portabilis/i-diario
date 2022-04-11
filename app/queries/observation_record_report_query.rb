@@ -12,24 +12,23 @@ class ObservationRecordReportQuery
   def observation_diary_records
     if @classroom_id.eql?('all')
       user = User.find(current_user_id)
-      classrooms_id = if user.teacher?
+      @classroom_id = if user.teacher?
                         Classroom.by_unity_and_teacher(unity_id, user.id).pluck(:id)
                       else
                         Classroom.by_unity(unity_id).pluck(:id)
                       end
-      relation = ObservationDiaryRecord.includes(notes: :students)
-                                       .by_classroom(classrooms_id)
-                                       .where(date: start_at..end_at)
-                                       .order(:date)
-    else
-      relation = ObservationDiaryRecord.includes(notes: :students)
-                                       .by_teacher(teacher_id)
-                                       .by_classroom(classroom_id)
-                                       .where(date: start_at..end_at)
-                                       .order(:date)
-
-      relation = relation.by_discipline(discipline_id) if discipline_id.present?
     end
+
+    relation = ObservationDiaryRecord.includes(notes: :students)
+                                     .by_classroom(classroom_id)
+                                     .where(date: start_at..end_at)
+                                     .order(:date)
+
+    if @discipline_id.eql?('all')
+      @discipline_id = Discipline.by_classroom_id(classroom_id).pluck(:id)
+    end
+
+    relation = relation.by_discipline(discipline_id) if discipline_id.present?
 
     relation
   end
