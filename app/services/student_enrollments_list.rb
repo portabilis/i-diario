@@ -25,7 +25,10 @@ class StudentEnrollmentsList
       @year = classroom.year
     end
 
-    @show_inactive = true if show_inactive_enrollments
+    if show_inactive_enrollments
+      @show_inactive = true
+      @show_inactive_outside_step = true
+    end
 
     adjust_date_range_by_year if opinion_type_by_year?
   end
