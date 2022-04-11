@@ -13,7 +13,7 @@ class ObservationRecordReportQuery
     if @classroom_id.eql?('all')
       user = User.find(current_user_id)
       @classroom_id = if user.teacher?
-                        Classroom.by_unity_and_teacher(unity_id, user.id).pluck(:id)
+                        Classroom.by_unity_and_teacher(unity_id, user.teacher_id).pluck(:id)
                       else
                         Classroom.by_unity(unity_id).pluck(:id)
                       end
