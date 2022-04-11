@@ -58,7 +58,7 @@ class AttendanceRecordReportForm
   def school_calendar_events
     events_by_day = []
     events = school_calendar.events
-                            .no_school_event
+                            .events_to_report
                             .by_date_between(start_at, end_at)
                             .all_events_for_classroom(classroom)
                             .where(
