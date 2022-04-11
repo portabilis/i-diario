@@ -57,7 +57,7 @@ module DailyFrequencyHelper
 
   def frequency_student_name(student, dependence, active, exempted_from_discipline, in_active_search)
     if !active
-      "**#{student}"
+      "***#{student}"
     elsif dependence
       "*#{student}"
     elsif exempted_from_discipline
