@@ -183,6 +183,9 @@ navigation:
         - menu:
             type: "avaliation_recovery_diary_records"
             path: "avaliation_recovery_diary_records_path"
+        - menu:
+            type: "avaliation_recovery_lowest_notes"
+            path: "avaliation_recovery_lowest_notes_path"
   - menu:
       type: "observation_diary_records"
       icon: "fa-sticky-note-o"
