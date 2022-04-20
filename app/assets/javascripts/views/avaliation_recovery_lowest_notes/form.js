@@ -57,73 +57,26 @@ $(function () {
   };
 
   function handleFetchStudentsInRecoverySuccess(data) {
-    var students = data.students;
+    let students = data.students;
 
     if (!_.isEmpty(students)) {
-      var element_counter = 0;
-      var existing_ids = [];
-      var fetched_ids = [];
-
+      let element_counter = 0;
       hideNoItemMessage();
 
-      $('#recovery-diary-record-students').children('tr').each(function () {
-        if (!$(this).hasClass('destroy')){
-          existing_ids.push(parseInt(this.id));
-        }
+      $('#recovery-diary-record-students').empty();
+
+      _.each(students, function(student) {
+        let element_id = new Date().getTime() + element_counter++;
+        buildStudentField(element_id, student);
       });
-      existing_ids.shift();
 
-      if (_.isEmpty(existing_ids)){
-        _.each(students, function(student) {
-          var element_id = new Date().getTime() + element_counter++;
-
-          buildStudentField(element_id, student);
-        });
-        loadDecimalMasks();
-      } else {
-        $.each(students, function(index, student) {
-          var fetched_id = student.id;
-
-          fetched_ids.push(fetched_id);
-
-          if ($.inArray(fetched_id, existing_ids) == -1) {
-            if($('#' + fetched_id).length != 0 && $('#' + fetched_id).hasClass('destroy')) {
-              restoreStudent(fetched_id);
-            } else {
-              var element_id = new Date().getTime() + element_counter++;
-
-              buildStudentField(element_id, student, index);
-            }
-            existing_ids.push(fetched_id);
-          }
-        });
-
-        loadDecimalMasks();
-
-        _.each(existing_ids, function (existing_id) {
-          if ($.inArray(existing_id, fetched_ids) == -1) {
-            removeStudent(existing_id);
-          }
-        });
-      }
+      loadDecimalMasks();
     } else {
       $recorded_at.val($recorded_at.data('oldDate'));
 
       flashMessages.error('Nenhum aluno encontrado.');
     }
   };
-
-  function removeStudent(id){
-    $('#' + id).hide();
-    $('#' + id).addClass('destroy');
-    $('.nested-fields#' + id + ' [id$=_destroy]').val(true);
-  }
-
-  function restoreStudent(id) {
-    $('#' + id).show();
-    $('#' + id).removeClass('destroy');
-    $('.nested-fields#' + id + ' [id$=_destroy]').val(false);
-  }
 
   $recorded_at.on('focusin', function(){
     $(this).data('oldDate', $(this).val());
