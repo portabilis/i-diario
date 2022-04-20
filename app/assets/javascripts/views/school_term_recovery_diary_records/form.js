@@ -1,17 +1,17 @@
 $(function () {
   'use strict';
 
-  var flashMessages = new FlashMessages();
-  var examRule = null;
-  var $unity = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_unity_id');
-  var $classroom = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_classroom_id');
-  var $discipline = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
-  var $step = $('#school_term_recovery_diary_record_step_id');
-  var $recorded_at = $('#school_term_recovery_diary_record_recorded_at');
-  var $submitButton = $('input[type=submit]');
+  let flashMessages = new FlashMessages();
+  let examRule = null;
+  let $unity = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_unity_id');
+  let $classroom = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_classroom_id');
+  let $discipline = $('#school_term_recovery_diary_record_recovery_diary_record_attributes_discipline_id');
+  let $step = $('#school_term_recovery_diary_record_step_id');
+  let $recorded_at = $('#school_term_recovery_diary_record_recorded_at');
+  let $submitButton = $('input[type=submit]');
 
   function fetchExamRule() {
-    var classroom_id = $classroom.select2('val');
+    let classroom_id = $classroom.select2('val');
 
     if (!_.isEmpty(classroom_id)) {
       $.ajax({
@@ -20,7 +20,7 @@ $(function () {
         error: handleFetchExamRuleError
       });
     }
-  };
+  }
 
   function handleFetchExamRuleSuccess(data) {
     examRule = data.exam_rule;
@@ -30,20 +30,20 @@ $(function () {
     } else {
       flashMessages.pop('');
     }
-  };
+  }
 
   function handleFetchExamRuleError() {
     flashMessages.error('Ocorreu um erro ao buscar a regra de avaliação da turma selecionada.');
-  };
+  }
 
   $recorded_at.on('focusin', function(){
     $(this).data('oldDate', $(this).val());
   });
 
   function checkPersistedDailyNote() {
-    var step_id = $step.select2('val');
+    let step_id = $step.select2('val');
 
-    var filter = {
+    let filter = {
       by_classroom_id: $classroom.select2('val'),
       by_unity_id: $unity.select2('val'),
       by_discipline_id: $discipline.select2('val'),
@@ -58,7 +58,7 @@ $(function () {
         error: handleFetchCheckPersistedDailyNoteError
       });
     }
-  };
+  }
 
   function handleFetchCheckPersistedDailyNoteSuccess(data) {
     if(_.isEmpty(data.daily_notes)){
@@ -69,7 +69,7 @@ $(function () {
       let recorded_at = $recorded_at.val();
       fetchStudentsInRecovery($classroom.select2('val'), $discipline.select2('val'), examRule, step_id, recorded_at, studentInStepRecovery);
     }
-  };
+  }
 
   function studentInStepRecovery(data) {
     let students = data.students;
@@ -161,7 +161,7 @@ $(function () {
 
   function handleFetchCheckPersistedDailyNoteError() {
     flashMessages.error('Ocorreu um erro ao buscar as notas lançadas para esta turma nesta etapa.');
-  };
+  }
 
   function hideNoItemMessage() {
     $('.no_item_found').hide();
@@ -174,7 +174,7 @@ $(function () {
   }
 
   function loadDecimalMasks() {
-    var numberOfDecimalPlaces = $('#recovery-diary-record-students').data('scale');
+    let numberOfDecimalPlaces = $('#recovery-diary-record-students').data('scale');
     $('.nested-fields input.decimal').inputmask('customDecimal', { digits: numberOfDecimalPlaces });
   }
 
