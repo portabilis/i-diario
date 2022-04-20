@@ -1,12 +1,12 @@
 <tbody id='resources-tbody'>
-  <% if @avaliation_recovery_lowest_notes.empty? %>
+  <% if @lowest_note_recoverys.empty? %>
     <tr>
       <td class='no_record_found' colspan='6'>
         <%= t('views.index.no_record_found')%>
       </td>
     </tr>
   <% else %>
-    <% @avaliation_recovery_lowest_notes.each do |avaliation_recovery_lowest_note| %>
+    <% @lowest_note_recoverys.each do |avaliation_recovery_lowest_note| %>
       <tr>
         <td><%= avaliation_recovery_lowest_note.recovery_diary_record.unity %></td>
         <td><%= avaliation_recovery_lowest_note.recovery_diary_record.classroom %></td>

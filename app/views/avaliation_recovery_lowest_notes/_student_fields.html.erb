@@ -14,16 +14,15 @@
   <td>
     <span class="current-average" data-inputmask="'digits': <%= decimal_places %>">
       <%= StudentNotesInStepFetcher.new(f.object.student)
-                                   .lowest_note(@avaliation_recovery_lowest_note.recovery_diary_record.classroom,
-                                                @avaliation_recovery_lowest_note.recovery_diary_record.discipline,
-                                                @avaliation_recovery_lowest_note.step.id)
+                                   .lowest_note_in_step(@lowest_note_recovery.recovery_diary_record.classroom,
+                                                        @lowest_note_recovery.recovery_diary_record.discipline,
+                                                        @lowest_note_recovery.step.id)
                                    &.to_d&.truncate(decimal_places) %>
     </span>
   </td>
 
   <td>
-    <%= f.input :score, label: false,
-        input_html: decimal_input_mask(decimal_places),
+    <%= f.input :score, label: false, input_html: decimal_input_mask(decimal_places),
         readonly: !f.object.active || f.object.exempted_from_discipline %>
   </td>
 </tr>
